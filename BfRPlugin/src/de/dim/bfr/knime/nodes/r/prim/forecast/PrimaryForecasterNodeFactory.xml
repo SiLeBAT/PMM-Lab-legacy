@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2012 Data In Motion
+  
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./default.png" type="Manipulator">
+    <name>Primary Forecasting</name>
+    
+    <shortDescription>
+		Forecast bacterial concentration based on previously estimated primary models.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+	This node uses primary models from the database to predict the
+	bacterial concentration (log10 cfu per gram or per ml) at the given
+	test conditions. The specified model, together with the estimated
+	values, can take specified input variables and generate predictions,
+	i.e. estimates for the response variables.
+		</intro>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="In-Port name">
+	A table array from the properly configured "LoadRelatedData" node,
+	merged via the <i>Table Array Merger</i> with a table of input values created
+	by the <i>Table Creator</i> node (which is part of the basic KNIME
+	installation, not this BfR plugin). Place the Table Creator separately
+	from the existing workflow. In the config dialog enter the desired
+	points of time in one column of the empty table. Double click the
+	column's heading and set the column type to "Double" instead of
+	"String". Now connect the Table Creator's output and the
+	<i>Load Related Data</i>'s output with the <i>Table Array Merger</i>'s input.
+        </inPort>
+        <outPort index="0" name="Out-Port name">
+			A table array consisting of only one table, which contains the 
+			user-specified times (input variables) as well as the predicted 
+			values for each specified model. This table can be extracted with an 
+			appended <i>Table Array Splitter</i> node.
+        </outPort>
+    </ports>    
+</knimeNode>

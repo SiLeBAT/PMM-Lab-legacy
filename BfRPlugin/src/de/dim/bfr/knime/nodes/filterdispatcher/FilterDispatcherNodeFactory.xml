@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright (C) 2012 Data In Motion
+  
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+  
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+  
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./database_go.png" type="Source">
+    <name>Filter Dispatcher</name>
+    
+    <shortDescription>
+    	Route all filtering options regarding conditions to related data.
+    </shortDescription>
+    
+    <fullDescription>
+        <intro>
+	        The node ensures that filter operations on conditions
+	        are also routed to related data. Filtering conditions 
+	        requires this node to precede the <i>Load Related Data</i> node.
+	        No configuration is required. The data itself will not
+	        be manipulated.
+        </intro>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="selected conditions">A table containing selected test conditions.</inPort>
+        <outPort index="0" name="selected conditions">A table containing selected test conditions, prepared for the node <i>Load Related Data</i>.</outPort>
+    </ports>    
+</knimeNode>

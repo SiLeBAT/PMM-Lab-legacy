@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./ModelAndDataJoiner.png" type="Manipulator">
+    <name>ModelAndDataJoiner</name>
+    
+    <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (LogC) to parameter names of the model formulas in preparation for a primary estimation or a forecast.</shortDescription>
+    
+    <fullDescription>
+        <intro>Joins models and data in one table so that every time series is assigned to all models. Furthermore, the node assigns time and bacterial concentration (LogC) to parameter names of the model formulas. Data could be time series of bacterial concentrations from laboratory experiments, needed for a primary estimation. Data could also mean specific time intervals and conditions like temperature, pH and/or water activity in preparation for a forecast.</intro>
+        
+        
+        <option name="Assign at Execution">Tick the box and then OK. When the node is executed a window opens in which time and LogC (among others) can be assigned to model parameters. For example, if a formula contains the parameter "t" you can choose from the dropdown menu that this represents "time".</option>
+        <option name="Assignments">A simple textbox in which the assignments can be made. For example, type "t=Time" in order to assign time to the model parameter "t". This textbox is useful if the same workflow needs to be executed several times with the same settings because the node does not require user interaction after the first assignment. Note that the textbox is ignored if the box "Assign at Execution" is ticked.</option>
+    </fullDescription>
+    
+    <ports>
+        <inPort index="0" name="Models">The upper port requires models, either from the ModelCatalogReader or from the ManualModelConf.</inPort>
+        <inPort name="Data" index="1">For a primary estimation the lower port requires time series of bacterial concentrations, e.g. from the ComBaseReader or the TimeSeriesReader. For a forecast time and temperature need to be defined, e.g. with an EmptyTimeSeriesCreator or a Table Creator.</inPort>
+        <outPort index="0" name="Out-Port">A combined table with models and data</outPort>
+    </ports>    
+</knimeNode>

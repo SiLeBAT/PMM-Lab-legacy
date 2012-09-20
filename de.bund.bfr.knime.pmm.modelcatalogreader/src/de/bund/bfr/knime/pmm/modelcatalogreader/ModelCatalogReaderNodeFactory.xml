@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./ModelCatalogReader.png" type="Source">
+    <name>ModelCatalogReader</name>
+    
+    <shortDescription>Reads in growth/inactivation models.</shortDescription>
+    
+    <fullDescription>
+        <intro>
+          A model is represented by its formula and some additional information.
+          The ModelCatalogReader reads all available models from the PMM-Lab database
+          and locates them in a table.
+        </intro>
+        
+        
+        <option name="Level">Whether primary or secondary models should be read.</option>
+    </fullDescription>
+    
+    <ports>
+        <outPort index="0" name="M1 or M1 U M2">A table containing the model formula and additional information.</outPort>
+    </ports>        
+</knimeNode>

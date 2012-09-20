@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2012 Data In Motion This program is free software: you 
+	can redistribute it and/or modify it under the terms of the GNU General Public 
+	License as published by the Free Software Foundation, either version 3 of 
+	the License, or (at your option) any later version. This program is distributed 
+	in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even 
+	the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+	See the GNU General Public License for more details. You should have received 
+	a copy of the GNU General Public License along with this program. If not, 
+	see <http://www.gnu.org/licenses/>. -->
+<!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
+<knimeNode icon="./database_link.png" type="Source">
+	<name>Load Related Data</name>
+
+	<shortDescription>
+		Load data related to experimental conditions and necessary 
+		for using R functions.
+    </shortDescription>
+
+	<fullDescription>
+		<intro>
+			Based on a set of experimental conditions the node loads 
+			all related data that is necessary to perform a call to a
+			specified R function. Every R function requires different 
+			data, therefore the resulting array of tables at the 
+			output port will differ depending on the chosen operation 
+			and the selected experimental conditions. For further details 
+			on the tables processed during a certain function please 
+			refer to the documentation of the R package. Some functions 
+			require further configuration while others don't.
+        </intro>
+
+
+		<option name="load data for">
+			The dropdown box at the top lets you specify your intentions, i.e. what you want to do with the supplied experiment:  <p/>
+			<p>
+			Primary graphs: Select this option if you want to pass the resulting
+				table array to the node "CustomRView" to view models and / or data
+				related to that one experiment. Choose whether to view both models and
+				data, only models or only data. On the bottom you are shown a table
+				with all models that are available for that experiment in the database.
+				You will have to select which of these models you want to visualize
+				later on. Select one entry, several entries in a row (select an entry,
+				press shift and select the last entry), dispersed entries (use ctrl) or
+				all entries (ctrl+a). If you want to view data only, a selection of
+				models is ignored. 
+		</p>
+		<p>
+		Primary estimation: Select this option if you want to estimate a
+		primary model. In this case the node will not need any further
+		configuration. Upon execution, the node will fetch a lot of related
+		tables from the database:
+		<ul>
+			<li>Versuchsbedingungen (test conditions)</li>
+			<li>GeschaetzteParameter (estimated parameters)</li>
+			<li>Einheiten (units)</li>
+			<li>Messwerte (data about bacterial concentration over time in a
+				specified test condition)</li>
+			<li>Modellkatalog (model catalog)</li>
+			<li>GeschaetzteModelle (estimated models)</li>
+			<li>ModellkatalogParameter (estimated parameters)</li>
+			<li>DoubleKennzahlen (table connected to „Messwerte“, containing data
+				about time, pH, aw, concentration)</li>
+			<li>CovarianzCorrelation </li>
+		</ul>
+		</p>
+		<p>
+		Primary forecasting: Select this option if you want to choose an
+		estimated primary model and predict bacteria concentration based on
+		this estimated model's parameters. You will have to select a model or
+		multiple models from the table shown; this is done as explained above
+		at "Primary graphs". This option loads the following tables from the
+		database:
+		<ul>
+			<li>Modellkatalog (model catalog)</li>
+			<li>ModellkatalogParameter (parameters in the model catalog)</li>
+			<li>GeschaetzteModelle (estimated models)</li>
+			<li>GeschaetzteParameter (estimated parameters)</li>
+		</ul>
+		</p>
+		<p>
+		Secondary estimation: Select this option to estimate a secondary
+		model. In the first dropdown box you can specify the model name of the
+		primary model for which you would like to model the changes of
+		parameters. The second dropdown box named "parameter" lets you specify
+		the response, i.e. which of the primary model's input variables you
+		want to model. The third config option lets you choose which secondary
+		models to estimate, i.e. which covariables to use in the estimation
+		process. You can choose the temperature, pH and aw and combinations of
+		these.
+		This option will load the following tables into a table array:
+		<ul>
+			<li>Versuchsbedingungen (test conditions)</li>
+			<li>GeschaetzteParameter (estimated parameters)</li>
+			<li>Einheiten (units)</li>
+			<li>Messwerte data about bacterial concentration over time in a
+				specified test condition)</li>
+			<li>Modellkatalog (model catalog)</li>
+			<li>GeschaetzteModelle (estimated models)</li>
+			<li>ModellkatalogParameter (parameters in the model catalog)</li>
+			<li>DoubleKennzahlen (table connected to „Messwerte“, containing data
+				about time, pH, aw, concentration)</li>
+			<li>CovarianzCorrelation </li>
+		</ul>
+		</p>
+		<p>
+		Secondary forecasting: Select this option if you want to choose an
+		estimated secondary model and predict parameter changes based on this
+		estimated model's parameters. You will have to select a model or
+		multiple models from the table shown; this is done as explained above
+		at "Primary graphs". This option loads the following tables from the
+		database:
+		<ul>
+			<li>Modellkatalog (model catalog)</li>
+			<li>ModellkatalogParameter (parameters in the model catalog)</li>
+			<li>GeschaetzteModelle (estimated models)</li>
+			<li>GeschaetzteParameter (estimated parameters)</li>
+		</ul>
+		</p>	
+        </option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="In-Port">
+			a data table containing experimental conditions
+        </inPort>
+		<outPort index="0" name="Out-Port">
+			an array of data tables required by the specified R node
+        </outPort>
+	</ports>
+</knimeNode>

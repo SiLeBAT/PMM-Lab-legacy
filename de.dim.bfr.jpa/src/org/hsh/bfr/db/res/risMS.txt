@@ -1,0 +1,10 @@
+
+TY  - BILL
+ID  - 2
+T1  - Methodensammlung BVL, Amtl. Sammlung § 64 LFGB
+A1  - BVL
+Y1  - 2010/01/01/
+RP  - NOT IN FILE
+UR  - http://www.methodensammlung-bvl.de
+L1  - file://G:\Abteilung-4\SiLeBAT\Projektarbeit\Datenbanken\AmtlicheMethodensammlungBVL.pdf
+ER  - 

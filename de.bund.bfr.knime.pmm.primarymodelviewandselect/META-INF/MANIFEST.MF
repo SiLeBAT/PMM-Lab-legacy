@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: PrimaryModelViewAndSelect-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.primarymodelviewandselect; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: primarymodelviewandselect.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.primarymodelviewandselect.PrimaryModelViewAndSelectNodePlugin
+Bundle-Vendor: Christian Thoens
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmm.primarymodelviewandselect
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

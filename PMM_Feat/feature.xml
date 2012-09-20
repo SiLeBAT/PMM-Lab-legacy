@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="PMM_Feat"
+      label="PMM_Feat"
+      version="1.0.0.qualifier">
+
+   <description url="http://www.example.com/description">
+      [Enter Feature Description here.]
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+
+PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
+
+PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
+
+Developers and contributors to the PMM-Lab project are 
+Jörgen Brandt (BfR)
+Armin A. Weiser (BfR)
+Matthias Filter (BfR)
+Alexander Falenski (BfR)
+Christian Thöns (BfR)
+Annemarie Käsbohrer (BfR)
+Bernd Appel (BfR)
+
+PMM-Lab is a project under development. Contributions are welcome.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS
+&quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+   </license>
+
+   <includes
+         id="org.knime.features.xml"
+         version="0.0.0"/>
+
+   <includes
+         id="de.dim.bfr.feature"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.bfrdbiface.lib"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.combaseio.lib"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.common"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.estimatedmodelreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.estimatedmodelwriter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.forecaststaticconditions"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.manualmodelconf.ui"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelanddatajoiner"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelanddataview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelcatalogreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.primarymodelviewandselect"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.emptytimeseriescreator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.parameterrenamer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.secondarymodelanddataview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeseriescreator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelestimation"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.manualmodelconf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeseriesreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.modelcatalogwriter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.timeserieswriter"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.dataedit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.dataviewandselect"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.combaseio"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.combinedmodelanddataview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.xlstimeseriesreader"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+</feature>

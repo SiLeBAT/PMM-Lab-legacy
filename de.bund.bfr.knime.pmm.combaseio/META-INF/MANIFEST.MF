@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: CombaseReader-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.combaseio;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: combasereader.jar
+Bundle-Activator: de.bund.bfr.knime.pmm.combaseio.CombaseReaderNodePlugin
+Bundle-Vendor: Jorgen Brandt
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.common,
+ de.bund.bfr.knime.pmm.combaseio.lib;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.pmm.combaseio
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+

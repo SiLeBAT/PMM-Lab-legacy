@@ -1,0 +1,234 @@
+package de.bund.bfr.knime.pmm.combaseio.lib;
+
+import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Hashtable;
+
+import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+
+public class CombaseWriter {
+
+	private Hashtable<String,PmmTimeSeries> buffer;
+	private String filename;
+	private String encoding;
+	
+	public CombaseWriter( final String filename, final String encoding ) {
+		this.filename = filename;
+		this.encoding = encoding;
+		buffer = new Hashtable<String,PmmTimeSeries>();
+	}
+	
+	public void add( final PmmTimeSeries candidate ) {
+		buffer.put( candidate.getCombaseId(), candidate );
+	}
+	
+	private void register( final String recordId ) {
+		
+		if( !buffer.containsKey( recordId ) ) {
+			buffer.put( recordId, new PmmTimeSeries( recordId ) );
+		}
+	}
+	
+	public void present(
+			final String recordId,
+			final String organism,
+			final String environment,
+			final double temperature,
+			final double ph,
+			final double waterActivity,
+			final String conditions,
+			final double maximumRate,
+			final double doublingTime,
+			final double time,
+			final double logc ) throws PmmException {
+		
+		PmmTimeSeries tsb;
+		
+		register( recordId );
+		tsb = buffer.get( recordId );
+		
+		tsb.setAgentName( organism );
+		tsb.setMatrixName( environment );
+		tsb.setTemperature( temperature );
+		tsb.setPh( ph );
+		tsb.setWaterActivity( waterActivity );
+		tsb.setMisc( conditions );
+		tsb.setMaximumRate( maximumRate );
+		tsb.setDoublingTime( doublingTime );
+		tsb.add( time, logc );
+	}
+	
+	public void present(
+			final String recordId,
+			final String organism,
+			final String environment,
+			final double temperature,
+			final double ph,
+			final double waterActivity,
+			final String conditions,
+			final double maximumRate,
+			final double doublingTime ) throws PmmException {
+		
+		PmmTimeSeries tsb;
+		
+		register( recordId );
+		tsb = buffer.get( recordId );
+		
+		tsb.setAgentName( organism );
+		tsb.setMatrixName( environment );
+		tsb.setTemperature( temperature );
+		tsb.setPh( ph );
+		tsb.setWaterActivity( waterActivity );
+		tsb.setMisc( conditions );
+		tsb.setMaximumRate( maximumRate );
+		tsb.setDoublingTime( doublingTime );
+	}
+	
+	public void flush()
+	throws UnsupportedEncodingException, FileNotFoundException, IOException {
+
+		if (encoding.equals("UTF-16LE")) {
+			flush16le();
+			return;
+		}
+		OutputStreamWriter out;
+		
+		out = new OutputStreamWriter(
+			new BufferedOutputStream(
+			new FileOutputStream( filename ) ), encoding );
+		
+		for( PmmTimeSeries candidate : buffer.values() ) {
+			
+			if( candidate.hasCombaseId() ) {
+				out.write( "\"RecordID\"\t\""+candidate.getCombaseId()+"\"\n" );
+			}
+			
+			if( candidate.hasAgentDetail() ) {
+				out.write( "\"Organism\"\t\""+candidate.getAgentDetail()+"\"\n" );
+			}
+			
+			if( candidate.hasMatrixDetail() ) {
+				out.write( "\"Environment\"\t\""+candidate.getMatrixDetail()+"\"\n" );
+			}
+			
+			if( candidate.hasTemperature() ) {
+				out.write( "\"Temperature\"\t\""+candidate.getTemperature()+" °C\"\n" );
+			}
+			
+			if( candidate.hasPh() ) {
+				out.write( "\"pH\"\t\""+candidate.getPh()+"\"\n" );
+			}
+			
+			if( candidate.hasWaterActivity() ) {
+				out.write( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
+			}
+				
+			if( candidate.hasMisc() ) {
+				out.write( "\"Conditions\"\t\""+candidate.getMisc()+"\"\n" );
+			}
+			
+			if( candidate.hasMaximumRate() ) {
+				out.write( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
+			}
+			
+			if( candidate.hasDoublingTime() ) {
+				out.write( "\"Doubling Time (h)\"\t\""+candidate.getDoublingTime()+"\"\n" );
+			}
+			
+			out.write( "\"Time (h)\"\t\"logc\"\n" );
+			
+			if( !candidate.isEmpty() ) {
+				for( double[] tuple : candidate.getTimeSeries() ) {
+					out.write( "\""+tuple[ 0 ]+"\"\t\""+tuple[ 1 ]+"\"\n" );
+				}
+			}
+			
+			out.write( "\n\n\n" );
+		}
+		
+		out.close();
+	}
+	public void flush16le()
+	throws UnsupportedEncodingException, FileNotFoundException, IOException {
+		StringBuffer buf = new StringBuffer();
+		for( PmmTimeSeries candidate : buffer.values() ) {
+			
+			if( candidate.hasCombaseId() ) {
+				buf.append( "\"RecordID\"\t\""+candidate.getCombaseId()+"\"\n" );
+			}
+			
+			if( candidate.hasAgentDetail() ) {
+				buf.append( "\"Organism\"\t\""+candidate.getAgentDetail()+"\"\n" );
+			}
+			
+			if( candidate.hasMatrixDetail() ) {
+				buf.append( "\"Environment\"\t\""+candidate.getMatrixDetail()+"\"\n" );
+			}
+			
+			if( candidate.hasTemperature() ) {
+				buf.append( "\"Temperature\"\t\""+candidate.getTemperature()+" °C\"\n" );
+			}
+			
+			if( candidate.hasPh() ) {
+				buf.append( "\"pH\"\t\""+candidate.getPh()+"\"\n" );
+			}
+			
+			if( candidate.hasWaterActivity() ) {
+				buf.append( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
+			}
+				
+			if( candidate.hasMisc() ) {
+				buf.append( "\"Conditions\"\t\""+candidate.getMisc()+"\"\n" );
+			}
+			
+			if( candidate.hasMaximumRate() ) {
+				buf.append( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
+			}
+			
+			if( candidate.hasDoublingTime() ) {
+				buf.append( "\"Doubling Time (h)\"\t\""+candidate.getDoublingTime()+"\"\n" );
+			}
+			
+			buf.append( "\"Time (h)\"\t\"logc\"\n" );
+			
+			if( !candidate.isEmpty() ) {
+				for( double[] tuple : candidate.getTimeSeries() ) {
+					buf.append( "\""+tuple[ 0 ]+"\"\t\""+tuple[ 1 ]+"\"\n" );
+				}
+			}
+			
+			buf.append( "\n\n\n" );
+		}
+		OutputStream out = new FileOutputStream(filename);
+		out.write(encodeString(buf.toString()));
+		out.close();
+	}
+	public static byte[] encodeString(final String message) {
+
+	    byte[] tmp = null;
+	    try {
+	        tmp = message.getBytes("UTF-16LE");
+	    } catch(UnsupportedEncodingException e) {
+	        // should not possible
+	        AssertionError ae =
+	        new AssertionError("Could not encode UTF-16LE");
+	        ae.initCause(e);
+	        throw ae;
+	    }
+
+	    // use brute force method to add BOM
+	    byte[] utf16lemessage = new byte[2 + tmp.length];
+	    utf16lemessage[0] = (byte)0xFF;
+	    utf16lemessage[1] = (byte)0xFE;
+	    System.arraycopy(tmp, 0,
+	                     utf16lemessage, 2,
+	                     tmp.length);
+	    return utf16lemessage;
+	}	
+}

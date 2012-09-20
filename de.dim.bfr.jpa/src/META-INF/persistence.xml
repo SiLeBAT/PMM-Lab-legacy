@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="com.dim.bfr.model.jpa" transaction-type="RESOURCE_LOCAL">
+		<provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+		
+      	<class>de.dim.bfr.jpa.entities.JPAGeschaetzteParameter</class>
+	  	<class>de.dim.bfr.jpa.entities.JPAGeschaetzteModelle</class>
+      	<class>de.dim.bfr.jpa.entities.JPALiteratur</class>
+      	<class>de.dim.bfr.jpa.entities.JPAModell</class>
+      	<class>de.dim.bfr.jpa.entities.JPAModellParameter</class>
+      	<class>de.dim.bfr.jpa.entities.JPASonstigeParameter</class>
+	      <class>de.dim.bfr.jpa.entities.JPAVersuchsbedingungen</class>
+	      <class>de.dim.bfr.jpa.entities.JPAVersuchsbedingungenSonstiges</class>
+	      <class>de.dim.bfr.jpa.entities.JPAAgenzien</class>
+	      <class>de.dim.bfr.jpa.entities.JPAAufbereitungsNachweisverfahren</class>
+	      <class>de.dim.bfr.jpa.entities.JPAAufbereitungsverfahren</class>
+	      <class>de.dim.bfr.jpa.entities.JPACodesAgenzien</class>
+	      <class>de.dim.bfr.jpa.entities.JPACodesMatrices</class>
+	      <class>de.dim.bfr.jpa.entities.JPAComBaseImport</class>
+	      <class>de.dim.bfr.jpa.entities.JPADoubleKennzahlen</class>
+	      <class>de.dim.bfr.jpa.entities.JPAEinheiten</class>
+	      <class>de.dim.bfr.jpa.entities.JPAMatrices</class>
+	      <class>de.dim.bfr.jpa.entities.JPAMesswerte</class>
+	      <class>de.dim.bfr.jpa.entities.JPAMesswerteSonstiges</class>
+	      <class>de.dim.bfr.jpa.entities.JPAMethodiken</class>
+	      <class>de.dim.bfr.jpa.entities.JPANachweisverfahren</class>
+	      <class>de.dim.bfr.jpa.entities.JPAParameterCovCor</class>
+	      <class>de.dim.bfr.jpa.entities.JPAToxinUrsprung</class>
+		<properties>
+			<property name="eclipselink.target-database" value="HSQL"/>
+	        <!-- Logging -->
+			<property name="eclipselink.logging.level" value="FINE" />
+			<property name="eclipselink.logging.timestamp" value="false" />
+			<property name="eclipselink.logging.session" value="false" />
+	    </properties>
+	</persistence-unit>
+</persistence>

@@ -186,40 +186,27 @@ public class CellIO {
 	}
 
 	public static DataCell createDoubleCell(String d) {
-
-		double q;
-
-		if (d == null)
-			return DataType.getMissingCell();
-
-		try {
-			q = Double.valueOf(d);
-		} catch (Exception ex) {
-			return DataType.getMissingCell();
+		if (d == null) {
+			return createMissingCell();
 		}
 
-		if (Double.isNaN(q) || Double.isInfinite(q))
-			return DataType.getMissingCell();
-
-		return new DoubleCell(q);
-
+		try {
+			return createCell(Double.parseDouble(d));
+		} catch (NumberFormatException e) {
+			return createMissingCell();
+		}
 	}
 
 	public static DataCell createIntCell(String d) {
-
-		int q;
-
-		if (d == null)
-			return DataType.getMissingCell();
-
-		try {
-			q = Integer.valueOf(d);
-		} catch (Exception ex) {
-			return DataType.getMissingCell();
+		if (d == null) {
+			return createMissingCell();
 		}
 
-		return new IntCell(q);
-
+		try {
+			return createCell(Integer.parseInt(d));
+		} catch (NumberFormatException e) {
+			return createMissingCell();
+		}
 	}
 
 }

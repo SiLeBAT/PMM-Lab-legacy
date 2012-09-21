@@ -87,7 +87,7 @@ public class SecondaryModelAndDataViewNodeView extends
 	private DataAndModelChartCreator chartCreator;
 	private DataAndModelSelectionPanel selectionPanel;
 	private DataAndModelChartConfigPanel configPanel;
-	private DataAndModelChartInfoPanel infoPanel;	
+	private DataAndModelChartInfoPanel infoPanel;
 
 	/**
 	 * Creates a new view.
@@ -120,7 +120,7 @@ public class SecondaryModelAndDataViewNodeView extends
 	@Override
 	protected void onOpen() {
 		try {
-			readTable();			
+			readTable();
 
 			if (getNodeModel().isSeiSchema()) {
 				configPanel = new DataAndModelChartConfigPanel(
@@ -298,8 +298,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				infoParams.addAll(paramNamesSec);
 
-				for (Double d : paramValuesSec) {
-					infoValues.add(d.toString());
+				for (Double value : paramValuesSec) {
+					infoValues.add(value + "");
 				}
 
 				idSet.add(id);

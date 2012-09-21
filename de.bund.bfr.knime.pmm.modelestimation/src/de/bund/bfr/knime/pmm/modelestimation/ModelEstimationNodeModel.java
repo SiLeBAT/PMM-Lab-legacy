@@ -271,20 +271,33 @@ public class ModelEstimationNodeModel extends NodeModel {
 					Double error;
 					Double rSquared;
 					Integer estID;
-					ParameterOptimizer optimizer = new ParameterOptimizer(
-							formula, parameters, minParameterValues,
-							maxParameterValues, targetValues, arguments,
-							argumentValues);
+					List<Double> minValues;
+					List<Double> maxValues;
+					boolean successful = false;
+					ParameterOptimizer optimizer = null;
 
-					optimizer.optimize();
+					if (!targetValues.isEmpty()) {
+						optimizer = new ParameterOptimizer(formula, parameters,
+								minParameterValues, maxParameterValues,
+								targetValues, arguments, argumentValues);
+						optimizer.optimize();
+						successful = optimizer.isSuccessful();
+					}
 
-					if (optimizer.isSuccessful()) {
+					if (successful) {
 						parameterValues = optimizer.getParameterValues();
 						parameterErrors = optimizer
 								.getParameterStandardErrors();
 						error = optimizer.getStandardError();
 						rSquared = optimizer.getRSquare();
 						estID = MathUtilities.getRandomNegativeInt();
+						minValues = new ArrayList<Double>();
+						maxValues = new ArrayList<Double>();
+
+						for (List<Double> values : argumentValues) {
+							minValues.add(Collections.min(values));
+							maxValues.add(Collections.max(values));
+						}
 					} else {
 						parameterValues = Collections.nCopies(
 								parameters.size(), null);
@@ -293,14 +306,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 						error = null;
 						rSquared = null;
 						estID = null;
-					}
-
-					List<Double> minValues = new ArrayList<Double>();
-					List<Double> maxValues = new ArrayList<Double>();
-
-					for (List<Double> values : argumentValues) {
-						minValues.add(Collections.min(values));
-						maxValues.add(Collections.max(values));
+						minValues = null;
+						maxValues = null;
 					}
 
 					tuple.setValue(Model2Schema.ATT_VALUE, parameterValues);
@@ -430,6 +437,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Double error;
 				Double rSquare;
 				Integer estID;
+				List<Double> minIndep;
+				List<Double> maxIndep;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
@@ -438,11 +447,18 @@ public class ModelEstimationNodeModel extends NodeModel {
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);
 
+					minIndep = Arrays.asList(Collections.min(argumentValues
+							.get(0)));
+					maxIndep = Arrays.asList(Collections.max(argumentValues
+							.get(0)));
 					optimizer = new ParameterOptimizer(formula, parameters,
 							minParameterValues, maxParameterValues,
 							targetValues, arguments, argumentValues);
 					optimizer.optimize();
 					successful = optimizer.isSuccessful();
+				} else {
+					minIndep = null;
+					maxIndep = null;
 				}
 
 				if (successful) {
@@ -465,10 +481,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				tuple.setValue(Model1Schema.ATT_RMS, error);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
 				tuple.setValue(Model1Schema.ATT_PARAMERR, parameterErrors);
-				tuple.setValue(Model1Schema.ATT_MININDEP,
-						Arrays.asList(Collections.min(argumentValues.get(0))));
-				tuple.setValue(Model1Schema.ATT_MAXINDEP,
-						Arrays.asList(Collections.max(argumentValues.get(0))));
+				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);
+				tuple.setValue(Model1Schema.ATT_MAXINDEP, maxIndep);
 				tuple.setValue(Model1Schema.ATT_ESTMODELID, estID);
 				runningThreads.decrementAndGet();
 				finishedThreads.incrementAndGet();

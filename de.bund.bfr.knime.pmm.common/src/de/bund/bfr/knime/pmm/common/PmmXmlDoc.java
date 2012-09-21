@@ -54,6 +54,7 @@ public class PmmXmlDoc {
 		set = new LinkedList<PmmXmlElementConvertable>();
 	}
 	
+	
 	public PmmXmlDoc( String docString ) throws IOException, JDOMException {
 		
 		this();

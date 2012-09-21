@@ -266,8 +266,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				values.set(params.indexOf(initialParameter), concentration);
 				checkPrimaryModel(combinedTuples.get(newTuple).get(0),
-						initialParameter);
+						initialParameter, false);
 				checkSecondaryModels(combinedTuples.get(newTuple));
+				checkData(newTuple);
 
 				for (int i = 0; i < params.size(); i++) {
 					constants.put(params.get(i), values.get(i));
@@ -350,10 +351,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
 				List<String> params = tuple
 						.getStringList(Model1Schema.ATT_PARAMNAME);
-
 				Map<String, Double> constants = new HashMap<String, Double>();
+				String initialParameter = paramMap.get(id);
 
-				values.set(params.indexOf(paramMap.get(id)), concentration);
+				values.set(params.indexOf(initialParameter), concentration);
+				checkPrimaryModel(tuple, initialParameter, true);
+				checkData(tuple);
 
 				for (int i = 0; i < params.size(); i++) {
 					constants.put(params.get(i), values.get(i));
@@ -407,17 +410,23 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 	}
 
-	private void checkPrimaryModel(KnimeTuple tuple, String initialParameter)
-			throws PmmException {
+	private void checkPrimaryModel(KnimeTuple tuple, String initialParameter,
+			boolean outputEstID) throws PmmException {
 		String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
+		Integer estID = tuple.getInt(Model1Schema.ATT_ESTMODELID);
 		List<String> params = tuple.getStringList(Model1Schema.ATT_PARAMNAME);
 		List<Double> values = tuple.getDoubleList(Model1Schema.ATT_VALUE);
 
 		for (int i = 0; i < params.size(); i++) {
 			if (!params.get(i).equals(initialParameter)
 					&& values.get(i) == null) {
-				setWarningMessage(params.get(i) + " in " + modelName
-						+ " is not specified");
+				if (outputEstID) {
+					setWarningMessage(params.get(i) + " in " + modelName + " ("
+							+ estID + ") is not specified");
+				} else {
+					setWarningMessage(params.get(i) + " in " + modelName
+							+ " is not specified");
+				}
 			}
 		}
 	}
@@ -437,6 +446,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				}
 			}
 		}
+	}
+	
+	private void checkData(KnimeTuple tuple) {
+		// TODO
 	}
 
 }

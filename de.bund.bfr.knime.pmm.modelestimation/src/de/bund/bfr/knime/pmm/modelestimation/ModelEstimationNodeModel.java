@@ -270,7 +270,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					List<Double> parameterErrors;
 					Double error;
 					Double rSquared;
-					Integer estID;
+					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues;
 					List<Double> maxValues;
 					boolean successful = false;
@@ -290,7 +290,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 								.getParameterStandardErrors();
 						error = optimizer.getStandardError();
 						rSquared = optimizer.getRSquare();
-						estID = MathUtilities.getRandomNegativeInt();
 						minValues = new ArrayList<Double>();
 						maxValues = new ArrayList<Double>();
 
@@ -305,7 +304,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 								parameters.size(), null);
 						error = null;
 						rSquared = null;
-						estID = null;
 						minValues = null;
 						maxValues = null;
 					}
@@ -436,7 +434,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> parameterErrors;
 				Double error;
 				Double rSquare;
-				Integer estID;
 				List<Double> minIndep;
 				List<Double> maxIndep;
 				boolean successful = false;
@@ -466,7 +463,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 					parameterErrors = optimizer.getParameterStandardErrors();
 					error = optimizer.getStandardError();
 					rSquare = optimizer.getRSquare();
-					estID = MathUtilities.getRandomNegativeInt();
 				} else {
 					parameterValues = Collections.nCopies(parameters.size(),
 							null);
@@ -474,7 +470,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 							null);
 					error = null;
 					rSquare = null;
-					estID = null;
 				}
 
 				tuple.setValue(Model1Schema.ATT_VALUE, parameterValues);
@@ -483,7 +478,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				tuple.setValue(Model1Schema.ATT_PARAMERR, parameterErrors);
 				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);
 				tuple.setValue(Model1Schema.ATT_MAXINDEP, maxIndep);
-				tuple.setValue(Model1Schema.ATT_ESTMODELID, estID);
+				tuple.setValue(Model1Schema.ATT_ESTMODELID,
+						MathUtilities.getRandomNegativeInt());
 				runningThreads.decrementAndGet();
 				finishedThreads.incrementAndGet();
 			} catch (PmmException e) {

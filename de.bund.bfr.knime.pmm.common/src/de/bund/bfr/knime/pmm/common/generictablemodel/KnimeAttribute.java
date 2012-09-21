@@ -47,6 +47,7 @@ public class KnimeAttribute {
 	private String name;
 	private int type;
 	
+	
 	protected KnimeAttribute( final String name, final int type ) throws PmmException {
 		setName( name );
 		setType( type );

@@ -45,6 +45,7 @@ import org.knime.core.data.def.StringCell;
 
 public class CellIO {
 
+	
 	public static String getString(DataCell cell) {
 		if (cell.isMissing()) {
 			return null;

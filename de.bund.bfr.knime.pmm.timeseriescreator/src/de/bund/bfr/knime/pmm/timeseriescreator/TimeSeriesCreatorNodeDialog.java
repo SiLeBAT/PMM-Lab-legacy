@@ -40,17 +40,16 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -59,10 +58,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -72,6 +67,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.PmmConstants;
+import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
@@ -352,65 +349,38 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 			try {
-				InputStream inputStream = new FileInputStream(
-						fileChooser.getSelectedFile());
-				Workbook wb = WorkbookFactory.create(inputStream);
-				Sheet sheet = wb.getSheetAt(0);
+				Map<String, KnimeTuple> tuples = XLSReader
+						.getTuples(fileChooser.getSelectedFile());
+				Object[] values = tuples.keySet().toArray();
+				Object selection = JOptionPane.showInputDialog(panel,
+						"Select Time Series", "Input",
+						JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
+				KnimeTuple tuple = tuples.get(selection);
 
-				if (sheet.getRow(1).getCell(0) != null) {
-					agentField.setText(sheet.getRow(1).getCell(0).toString());
-				} else {
-					agentField.setValue(null);
-				}
+				agentField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_AGENTDETAIL));
+				matrixField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
+				commentField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_COMMENT));
+				temperatureField.setValue(tuple
+						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				phField.setValue(tuple.getDouble(TimeSeriesSchema.ATT_PH));
+				waterActivityField.setValue(tuple
+						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 
-				if (sheet.getRow(1).getCell(1) != null) {
-					matrixField.setText(sheet.getRow(1).getCell(1).toString());
-				} else {
-					matrixField.setValue(null);
-				}
-
-				if (sheet.getRow(1).getCell(2) != null) {
-					commentField.setText(sheet.getRow(1).getCell(2).toString());
-				} else {
-					commentField.setValue(null);
-				}
-
-				if (sheet.getRow(1).getCell(3) != null) {
-					temperatureField.setText(sheet.getRow(1).getCell(3)
-							.toString());
-				} else {
-					temperatureField.setValue(null);
-				}
-
-				if (sheet.getRow(1).getCell(4) != null) {
-					phField.setText(sheet.getRow(1).getCell(4).toString());
-				} else {
-					phField.setValue(null);
-				}
-
-				if (sheet.getRow(1).getCell(5) != null) {
-					waterActivityField.setText(sheet.getRow(1).getCell(5)
-							.toString());
-				} else {
-					waterActivityField.setValue(null);
-				}
+				List<Double> timeList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_TIME);
+				List<Double> logcList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 
 				for (int i = 0; i < ROW_COUNT; i++) {
-					Double time;
-					Double logc;
+					Double time = null;
+					Double logc = null;
 
-					try {
-						time = Double.parseDouble(sheet.getRow(i + 1)
-								.getCell(6).toString());
-					} catch (Exception e) {
-						time = null;
-					}
-
-					try {
-						logc = Double.parseDouble(sheet.getRow(i + 1)
-								.getCell(7).toString());
-					} catch (Exception e) {
-						logc = null;
+					if (i < timeList.size()) {
+						time = timeList.get(i);
+						logc = logcList.get(i);
 					}
 
 					table.setValueAt(time, i, 0);
@@ -418,9 +388,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				}
 
 				table.repaint();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (InvalidFormatException e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

@@ -262,18 +262,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				List<Double> values = newTuple
 						.getDoubleList(Model1Schema.ATT_VALUE);
 				Map<String, Double> constants = new HashMap<String, Double>();
+				String initialParameter = paramMap.get(oldID);
 
-				values.set(params.indexOf(paramMap.get(oldID)), concentration);
-
-				for (int i = 0; i < params.size(); i++) {
-					if (values.get(i) == null) {
-						setWarningMessage(params.get(i)
-								+ " in "
-								+ newTuple
-										.getString(Model1Schema.ATT_MODELNAME)
-								+ " is not defined");
-					}
-				}
+				values.set(params.indexOf(initialParameter), concentration);
+				checkPrimaryModel(combinedTuples.get(newTuple).get(0),
+						initialParameter);
+				checkSecondaryModels(combinedTuples.get(newTuple));
 
 				for (int i = 0; i < params.size(); i++) {
 					constants.put(params.get(i), values.get(i));
@@ -410,6 +404,38 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			return value;
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	private void checkPrimaryModel(KnimeTuple tuple, String initialParameter)
+			throws PmmException {
+		String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
+		List<String> params = tuple.getStringList(Model1Schema.ATT_PARAMNAME);
+		List<Double> values = tuple.getDoubleList(Model1Schema.ATT_VALUE);
+
+		for (int i = 0; i < params.size(); i++) {
+			if (!params.get(i).equals(initialParameter)
+					&& values.get(i) == null) {
+				setWarningMessage(params.get(i) + " in " + modelName
+						+ " is not specified");
+			}
+		}
+	}
+
+	private void checkSecondaryModels(List<KnimeTuple> tuples)
+			throws PmmException {
+		for (KnimeTuple tuple : tuples) {
+			String depVar = tuple.getString(Model2Schema.ATT_DEPVAR);
+			List<String> params = tuple
+					.getStringList(Model2Schema.ATT_PARAMNAME);
+			List<Double> values = tuple.getDoubleList(Model2Schema.ATT_VALUE);
+
+			for (int i = 0; i < params.size(); i++) {
+				if (values.get(i) == null) {
+					setWarningMessage(params.get(i) + " in " + depVar
+							+ "-model is not specified");
+				}
+			}
 		}
 	}
 

@@ -312,15 +312,9 @@ public class CombinedModelAndDataViewNodeView extends
 
 				plotable = new Plotable(Plotable.BOTH);
 
-				if (timeList != null && timeList.size() > 1) {
+				if (!timeList.isEmpty() && !logcList.isEmpty()) {
 					n = timeList.size();
-				}
-
-				if (timeList != null) {
 					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-				}
-
-				if (logcList != null) {
 					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
 				}
 

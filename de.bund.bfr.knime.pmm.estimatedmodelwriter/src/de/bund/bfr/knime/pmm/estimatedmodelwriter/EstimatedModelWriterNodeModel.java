@@ -219,7 +219,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		depVar = row.getString(Model2Schema.ATT_DEPVAR);
 		    		indepVar = row.getStringList(Model2Schema.ATT_INDEPVAR);
 		    		paramName = row.getStringList(Model2Schema.ATT_PARAMNAME);
-		    		if (paramName != null) {
+		    		if (!paramName.isEmpty()) {
 			    		minVal = row.getDoubleList(Model2Schema.ATT_MINVALUE);
 			    		maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
 			    		minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);

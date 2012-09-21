@@ -433,7 +433,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
-				if (targetValues != null && timeValues != null) {
+				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
 					argumentValues.add(timeValues);
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);

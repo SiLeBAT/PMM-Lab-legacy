@@ -397,10 +397,6 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		addButtons.add(addButton);
 		addButton.addActionListener(this);
 
-		if (removeButtons.size() == 1) {
-			removeButtons.get(0).setEnabled(false);
-		}
-
 		tablePanel.revalidate();
 		addDocumentListeners();
 	}

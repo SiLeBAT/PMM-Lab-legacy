@@ -77,29 +77,21 @@ public class CellIO {
 
 	public static List<String> getStringList(DataCell cell) {
 		if (cell.isMissing()) {
-			return null;
+			return new ArrayList<String>();
 		}
 
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
-
-		if (toks.length == 0) {
-			return null;
-		}
 
 		return new ArrayList<String>(Arrays.asList(toks));
 	}
 
 	public static List<Double> getDoubleList(DataCell cell) {
 		if (cell.isMissing()) {
-			return null;
+			return new ArrayList<Double>();
 		}
 
 		List<Double> list = new ArrayList<Double>();
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
-
-		if (toks.length == 0) {
-			return null;
-		}
 
 		for (String t : toks) {
 			if (t.equals("?")) {
@@ -108,7 +100,7 @@ public class CellIO {
 				try {
 					list.add(Double.parseDouble(t));
 				} catch (NumberFormatException e) {
-					return null;
+					return new ArrayList<Double>();
 				}
 			}
 		}
@@ -118,15 +110,11 @@ public class CellIO {
 
 	public static List<Integer> getIntList(DataCell cell) {
 		if (cell.isMissing()) {
-			return null;
+			return new ArrayList<Integer>();
 		}
 
 		List<Integer> list = new ArrayList<Integer>();
 		String[] toks = ((StringCell) cell).getStringValue().split(",");
-
-		if (toks.length == 0) {
-			return null;
-		}
 
 		for (String t : toks) {
 			if (t.equals("?")) {
@@ -135,7 +123,7 @@ public class CellIO {
 				try {
 					list.add(Integer.parseInt(t));
 				} catch (NumberFormatException e) {
-					return null;
+					return new ArrayList<Integer>();
 				}
 			}
 		}
@@ -179,7 +167,7 @@ public class CellIO {
 				s += "?,";
 			} else if (o instanceof Double) {
 				Double d = (Double) o;
-				
+
 				if (d.isNaN() || d.isInfinite()) {
 					s += "?,";
 				} else {
@@ -198,42 +186,27 @@ public class CellIO {
 	}
 
 	public static DataCell createDoubleCell(String d) {
-
-		double q;
-
-		if (d == null)
-			return DataType.getMissingCell();
-
-		try {
-			q = Double.valueOf(d);
-		} catch (Exception ex) {
-			return DataType.getMissingCell();
+		if (d == null) {
+			return createMissingCell();
 		}
 
-		if (Double.isNaN(q) || Double.isInfinite(q))
-			return DataType.getMissingCell();
-
-		return new DoubleCell(q);
-
+		try {
+			return createCell(Double.parseDouble(d));
+		} catch (NumberFormatException e) {
+			return createMissingCell();
+		}
 	}
 
 	public static DataCell createIntCell(String d) {
-
-		int q;
-
-		if (d == null)
-			return DataType.getMissingCell();
-
-		try {
-			q = Integer.valueOf(d);
-		} catch (Exception ex) {
-			return DataType.getMissingCell();
+		if (d == null) {
+			return createMissingCell();
 		}
 
-		return new IntCell(q);
-
+		try {
+			return createCell(Integer.parseInt(d));
+		} catch (NumberFormatException e) {
+			return createMissingCell();
+		}
 	}
-
-	
 
 }

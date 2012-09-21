@@ -18,20 +18,20 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TableReader {
-	
+
 	private List<String> allIds;
 	private List<KnimeTuple> allTuples;
 
 	private List<String> ids;
-	
+
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
-	
+
 	private List<List<String>> infoParameters;
 	private List<List<String>> infoParameterValues;
-	
+
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
@@ -62,7 +62,7 @@ public class TableReader {
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
 			String id = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
-			
+
 			allIds.add(id);
 			allTuples.add(tuple);
 
@@ -94,13 +94,15 @@ public class TableReader {
 
 			if (tuple.getString(TimeSeriesSchema.ATT_AGENTNAME) != null) {
 				agent = tuple.getString(TimeSeriesSchema.ATT_AGENTNAME) + " ("
-						+ tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL) + ")";
+						+ tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL)
+						+ ")";
 			} else {
 				agent = tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL);
 			}
 
 			if (tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME) != null) {
-				matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME) + " ("
+				matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME)
+						+ " ("
 						+ tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL)
 						+ ")";
 			} else {
@@ -122,11 +124,8 @@ public class TableReader {
 
 			Plotable plotable = new Plotable(Plotable.DATASET);
 
-			if (timeList != null) {
+			if (!timeList.isEmpty() && !logcList.isEmpty()) {
 				plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-			}
-
-			if (logcList != null) {
 				plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
 			}
 
@@ -144,7 +143,7 @@ public class TableReader {
 
 	public List<String> getIds() {
 		return ids;
-	}	
+	}
 
 	public List<String> getStringColumns() {
 		return stringColumns;
@@ -169,7 +168,7 @@ public class TableReader {
 	public List<List<String>> getInfoParameterValues() {
 		return infoParameterValues;
 	}
-	
+
 	public Map<String, Plotable> getPlotables() {
 		return plotables;
 	}

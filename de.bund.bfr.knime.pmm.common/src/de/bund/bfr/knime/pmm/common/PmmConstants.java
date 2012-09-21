@@ -39,5 +39,6 @@ public interface PmmConstants {
 	public static final double MAX_PH = 15.0;
 	public static final double MIN_WATERACTIVITY = 0.0;
 	public static final double MAX_WATERACTIVITY = 1.0;
+	
 
 }

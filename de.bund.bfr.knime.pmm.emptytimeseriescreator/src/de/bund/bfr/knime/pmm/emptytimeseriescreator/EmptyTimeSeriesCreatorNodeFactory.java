@@ -46,6 +46,7 @@ import org.knime.core.node.NodeView;
 public class EmptyTimeSeriesCreatorNodeFactory 
         extends NodeFactory<EmptyTimeSeriesCreatorNodeModel> {
 
+	
     /**
      * {@inheritDoc}
      */

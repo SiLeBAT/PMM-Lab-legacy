@@ -47,30 +47,30 @@ public class XLSReader {
 			}
 
 			if (sheet.getRow(i).getCell(0) != null
-					&& !sheet.getRow(i).getCell(0).toString().isEmpty()
-					&& !sheet.getRow(i).getCell(0).toString().equals(id)) {
+					&& !sheet.getRow(i).getCell(0).toString().trim().isEmpty()
+					&& !sheet.getRow(i).getCell(0).toString().trim().equals(id)) {
 				if (tuple != null) {
 					tuples.put(id, tuple);
 				}
 
-				id = sheet.getRow(i).getCell(0).toString();
+				id = sheet.getRow(i).getCell(0).toString().trim();
 				tuple = new KnimeTuple(new TimeSeriesSchema());
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 						MathUtilities.getRandomNegativeInt());
 
 				if (sheet.getRow(i).getCell(1) != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, sheet
-							.getRow(i).getCell(1).toString());
+							.getRow(i).getCell(1).toString().trim());
 				}
 
 				if (sheet.getRow(i).getCell(2) != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, sheet
-							.getRow(i).getCell(2).toString());
+							.getRow(i).getCell(2).toString().trim());
 				}
 
 				if (sheet.getRow(i).getCell(3) != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_COMMENT, sheet
-							.getRow(i).getCell(3).toString());
+							.getRow(i).getCell(3).toString().trim());
 				}
 
 				if (sheet.getRow(i).getCell(4) != null

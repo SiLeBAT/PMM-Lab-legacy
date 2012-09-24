@@ -48,6 +48,7 @@ import java.util.Map;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -107,14 +108,21 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private DoubleTextField temperatureField;
 	private DoubleTextField phField;
 	private DoubleTextField waterActivityField;
+	private JComboBox timeBox;
+	private JComboBox logcBox;
+	private JComboBox tempBox;
 
 	/**
 	 * New pane for configuring the TimeSeriesCreator node.
 	 */
 	protected TimeSeriesCreatorNodeDialog() {
 		JPanel upperPanel = new JPanel();
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
+		JPanel upperPanel1 = new JPanel();
+		JPanel leftPanel1 = new JPanel();
+		JPanel rightPanel1 = new JPanel();
+		JPanel upperPanel2 = new JPanel();
+		JPanel leftPanel2 = new JPanel();
+		JPanel rightPanel2 = new JPanel();
 		JPanel bottomPanel = new JPanel();
 
 		panel = new JPanel();
@@ -142,33 +150,65 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		waterActivityField = new DoubleTextField(
 				PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY,
 				true);
+		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_TIME).toArray());
+		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_LOGC).toArray());
+		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
 
-		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftPanel.setLayout(new GridLayout(6, 1, 5, 5));
-		leftPanel.add(new JLabel(AttributeUtilities
+		leftPanel1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPanel1.setLayout(new GridLayout(6, 1, 5, 5));
+		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_AGENTDETAIL) + ":"));
-		leftPanel.add(new JLabel(AttributeUtilities
+		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_MATRIXDETAIL) + ":"));
-		leftPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
-		leftPanel.add(new JLabel(AttributeUtilities
+		leftPanel1.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
+		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
-		leftPanel.add(new JLabel(AttributeUtilities
+		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_PH) + ":"));
-		leftPanel.add(new JLabel(AttributeUtilities
+		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":"));
 
-		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightPanel.setLayout(new GridLayout(6, 1, 5, 5));
-		rightPanel.add(agentField);
-		rightPanel.add(matrixField);
-		rightPanel.add(commentField);
-		rightPanel.add(temperatureField);
-		rightPanel.add(phField);
-		rightPanel.add(waterActivityField);
+		rightPanel1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightPanel1.setLayout(new GridLayout(6, 1, 5, 5));
+		rightPanel1.add(agentField);
+		rightPanel1.add(matrixField);
+		rightPanel1.add(commentField);
+		rightPanel1.add(temperatureField);
+		rightPanel1.add(phField);
+		rightPanel1.add(waterActivityField);
+
+		leftPanel2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPanel2.setLayout(new GridLayout(6, 1, 5, 5));
+		leftPanel2.add(new JLabel("Unit for "
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)
+				+ ":"));
+		leftPanel2.add(new JLabel("Unit for "
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)
+				+ ":"));
+		leftPanel2.add(new JLabel("Unit for "
+				+ AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
+
+		rightPanel2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightPanel2.setLayout(new GridLayout(6, 1, 5, 5));
+		rightPanel2.add(timeBox);
+		rightPanel2.add(logcBox);
+		rightPanel2.add(tempBox);
+
+		upperPanel1.setLayout(new BorderLayout());
+		upperPanel1.add(leftPanel1, BorderLayout.WEST);
+		upperPanel1.add(rightPanel1, BorderLayout.CENTER);
+
+		upperPanel2.setLayout(new BorderLayout());
+		upperPanel2.add(leftPanel2, BorderLayout.WEST);
+		upperPanel2.add(rightPanel2, BorderLayout.CENTER);
 
 		upperPanel.setLayout(new BorderLayout());
-		upperPanel.add(leftPanel, BorderLayout.WEST);
-		upperPanel.add(rightPanel, BorderLayout.CENTER);
+		upperPanel.add(upperPanel1, BorderLayout.CENTER);
+		upperPanel.add(upperPanel2, BorderLayout.EAST);
 
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		bottomPanel.add(xlsButton);
@@ -243,6 +283,30 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		} catch (InvalidSettingsException e) {
 		} catch (NullPointerException e) {
 		}
+
+		try {
+			timeBox.setSelectedItem(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT));
+		} catch (InvalidSettingsException e) {
+			timeBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TIME));
+		}
+
+		try {
+			logcBox.setSelectedItem(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT));
+		} catch (InvalidSettingsException e) {
+			logcBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_LOGC));
+		}
+
+		try {
+			tempBox.setSelectedItem(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT));
+		} catch (InvalidSettingsException e) {
+			tempBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
+		}
 	}
 
 	@Override
@@ -296,8 +360,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		for (int i = 0; i < ROW_COUNT; i++) {
 			Double time = (Double) table.getValueAt(i, 0);
 			Double logc = (Double) table.getValueAt(i, 1);
+			
+			if (logc == null) {
+				logc = 0.0;
+			}
 
-			if (time != null && logc != null) {
+			if (time != null) {
 				timeList.add(time);
 				logcList.add(logc);
 			}
@@ -315,6 +383,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				timeArray);
 		settings.addDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_LOGCARRAY,
 				logcArray);
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
+				(String) timeBox.getSelectedItem());
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
+				(String) logcBox.getSelectedItem());
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
+				(String) tempBox.getSelectedItem());
 	}
 
 	@Override

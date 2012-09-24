@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -64,8 +65,14 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 	static final String CFGKEY_FILENAME = "FileName";
+	static final String CFGKEY_TIMEUNIT = "TimeUnit";
+	static final String CFGKEY_LOGCUNIT = "LogcUnit";
+	static final String CFGKEY_TEMPUNIT = "TempUnit";
 
 	private String fileName;
+	private String timeUnit;
+	private String logcUnit;
+	private String tempUnit;
 
 	private KnimeSchema schema;
 
@@ -75,6 +82,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected XLSTimeSeriesReaderNodeModel() {
 		super(0, 1);
 		fileName = null;
+		timeUnit = AttributeUtilities
+				.getStandardUnit(TimeSeriesSchema.ATT_TIME);
+		logcUnit = AttributeUtilities
+				.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+		tempUnit = AttributeUtilities
+				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
 		schema = new TimeSeriesSchema();
 	}
 
@@ -89,6 +102,25 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
+			List<Double> timeList = tuple
+					.getDoubleList(TimeSeriesSchema.ATT_TIME);
+			List<Double> logcList = tuple
+					.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+			Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+
+			for (int i = 0; i < timeList.size(); i++) {
+				timeList.set(i, AttributeUtilities.convertToStandardUnit(
+						TimeSeriesSchema.ATT_TIME, timeList.get(i), timeUnit));
+				logcList.set(i, AttributeUtilities.convertToStandardUnit(
+						TimeSeriesSchema.ATT_LOGC, logcList.get(i), logcUnit));
+			}
+
+			temp = AttributeUtilities.convertToStandardUnit(
+					TimeSeriesSchema.ATT_TEMPERATURE, temp, tempUnit);
+
+			tuple.setValue(TimeSeriesSchema.ATT_TIME, timeList);
+			tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+			tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 			container.addRowToTable(tuple);
 		}
 
@@ -123,6 +155,9 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
+		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
+		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
+		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 	}
 
 	/**
@@ -135,6 +170,27 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			fileName = settings.getString(CFGKEY_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = null;
+		}
+
+		try {
+			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
+		} catch (InvalidSettingsException e) {
+			timeUnit = AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TIME);
+		}
+
+		try {
+			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
+		} catch (InvalidSettingsException e) {
+			logcUnit = AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+		}
+
+		try {
+			tempUnit = settings.getString(CFGKEY_TEMPUNIT);
+		} catch (InvalidSettingsException e) {
+			tempUnit = AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
 		}
 	}
 

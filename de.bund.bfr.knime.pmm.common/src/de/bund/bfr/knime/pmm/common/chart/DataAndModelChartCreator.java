@@ -56,6 +56,7 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.Range;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class DataAndModelChartCreator extends ChartPanel {
@@ -116,12 +117,13 @@ public class DataAndModelChartCreator extends ChartPanel {
 		String labelY;
 
 		if (transformY.equals(ChartConstants.NO_TRANSFORM)) {
-			labelY = paramY;
+			labelY = AttributeUtilities.getNameWithUnit(paramY);
 		} else {
-			labelY = transformY + "(" + paramY + ")";
+			labelY = AttributeUtilities.getNameWithUnit(paramY, transformY);
 		}
 
-		NumberAxis xAxis = new NumberAxis(paramX);
+		NumberAxis xAxis = new NumberAxis(
+				AttributeUtilities.getNameWithUnit(paramX));
 		NumberAxis yAxis = new NumberAxis(labelY);
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		boolean containsDataPoints = false;

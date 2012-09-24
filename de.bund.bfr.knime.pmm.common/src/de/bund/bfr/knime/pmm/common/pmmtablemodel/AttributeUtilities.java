@@ -33,9 +33,42 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.pmmtablemodel;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class AttributeUtilities {
 
 	private AttributeUtilities() {
+	}
+
+	public static String getName(String attr) {
+		return attr;
+	}
+
+	public static String getName(String attr, String transform) {
+		return transform + "(" + attr + ")";
+	}
+
+	public static String getNameWithUnit(String attr) {
+		String unit = getStandardUnit(attr);
+
+		if (unit != null) {
+			return getName(attr) + " [" + unit + "]";
+		} else {
+			return getName(attr);
+		}
+	}
+
+	public static String getNameWithUnit(String attr, String transform) {
+		String unit = getStandardUnit(attr);
+
+		if (unit != null) {
+			return getName(attr, transform) + " [" + transform + "(" + unit
+					+ ")]";
+		} else {
+			return getName(attr, transform);
+		}
 	}
 
 	public static String getFullName(String attr) {
@@ -53,4 +86,87 @@ public class AttributeUtilities {
 			return attr;
 		}
 	}
+
+	public static String getFullName(String attr, String transform) {
+		return transform + "(" + getFullName(attr) + ")";
+	}
+
+	public static String getFullNameWithUnit(String attr) {
+		String unit = getStandardUnit(attr);
+
+		if (unit != null) {
+			return getFullName(attr) + " [" + unit + "]";
+		} else {
+			return getFullName(attr);
+		}
+	}
+
+	public static String getFullNameWithUnit(String attr, String transform) {
+		String unit = getStandardUnit(attr);
+
+		if (unit != null) {
+			return getFullName(attr, transform) + " [" + transform + "(" + unit
+					+ ")]";
+		} else {
+			return getFullName(attr, transform);
+		}
+	}
+
+	public static List<String> getUnitsForAttribute(String attr) {
+		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+			return Arrays.asList("h", "min", "sec", "days", "weeks");
+		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+			return Arrays.asList("log KBE/g");
+		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+			return Arrays.asList("°C", "°F");
+		} else {
+			return new ArrayList<String>();
+		}
+	}
+
+	public static Double convertToStandardUnit(String attr, Double value,
+			String unit) {
+		if (value == null) {
+			return null;
+		}
+
+		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+			if (unit.equals("h")) {
+				return value;
+			} else if (unit.equals("min")) {
+				return value / 60.0;
+			} else if (unit.equals("sec")) {
+				return value / 3600.0;
+			} else if (unit.equals("days")) {
+				return value * 24.0;
+			} else if (unit.equals("weeks")) {
+				return value * 168.0;
+			}
+		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+			if (unit.equals("log KBE/g")) {
+				return value;
+			}
+		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+			if (unit.equals("°C")) {
+				return value;
+			} else if (unit.equals("°F")) {
+				return (value - 32.0) * 5.0 / 9.0;
+			}
+		}
+
+		return null;
+	}
+
+	public static String getStandardUnit(String attr) {
+		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+			return "h";
+		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+			return "log KBE/g";
+		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+			return "C°";
+		} else {
+			return null;
+		}
+	}
+
 }

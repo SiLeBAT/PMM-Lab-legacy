@@ -34,13 +34,16 @@
 package de.bund.bfr.knime.pmm.xlstimeseriesreader;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
@@ -52,6 +55,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 
 /**
@@ -70,25 +75,65 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private JButton fileButton;
 	private StringTextField fileField;
+	private JComboBox timeBox;
+	private JComboBox logcBox;
+	private JComboBox tempBox;
 
 	/**
 	 * New pane for configuring the XLSTimeSeriesReader node.
 	 */
 	protected XLSTimeSeriesReaderNodeDialog() {
 		JPanel panel = new JPanel();
+		JPanel optionsPanel = new JPanel();
 		JPanel filePanel = new JPanel();
+		JPanel unitsPanel = new JPanel();
+		JPanel leftPanel = new JPanel();
+		JPanel rightPanel = new JPanel();
 
 		fileButton = new JButton("Browse...");
 		fileButton.addActionListener(this);
 		fileField = new StringTextField();
+		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_TIME).toArray());
+		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_LOGC).toArray());
+		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
+				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
 
 		filePanel.setBorder(BorderFactory.createTitledBorder("XLS File"));
 		filePanel.setLayout(new BorderLayout(5, 5));
 		filePanel.add(fileField, BorderLayout.CENTER);
 		filePanel.add(fileButton, BorderLayout.EAST);
 
+		leftPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPanel.add(new JLabel("Unit for "
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)
+				+ ":"));
+		leftPanel.add(new JLabel("Unit for "
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)
+				+ ":"));
+		leftPanel.add(new JLabel("Unit for "
+				+ AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
+
+		rightPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightPanel.add(timeBox);
+		rightPanel.add(logcBox);
+		rightPanel.add(tempBox);
+
+		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
+		unitsPanel.setLayout(new BorderLayout());
+		unitsPanel.add(leftPanel, BorderLayout.WEST);
+		unitsPanel.add(rightPanel, BorderLayout.EAST);
+
+		optionsPanel.setLayout(new BorderLayout());
+		optionsPanel.add(filePanel, BorderLayout.NORTH);
+		optionsPanel.add(unitsPanel, BorderLayout.WEST);
+
 		panel.setLayout(new BorderLayout());
-		panel.add(filePanel, BorderLayout.NORTH);
+		panel.add(optionsPanel, BorderLayout.NORTH);
 
 		addTab("Options", panel);
 	}
@@ -102,6 +147,30 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		} catch (InvalidSettingsException e) {
 			fileField.setValue(null);
 		}
+
+		try {
+			timeBox.setSelectedItem(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT));
+		} catch (InvalidSettingsException e) {
+			timeBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TIME));
+		}
+
+		try {
+			logcBox.setSelectedItem(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT));
+		} catch (InvalidSettingsException e) {
+			logcBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_LOGC));
+		}
+
+		try {
+			tempBox.setSelectedItem(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT));
+		} catch (InvalidSettingsException e) {
+			tempBox.setSelectedItem(AttributeUtilities
+					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
+		}
 	}
 
 	@Override
@@ -113,6 +182,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
 				fileField.getText());
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
+				(String) timeBox.getSelectedItem());
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
+				(String) logcBox.getSelectedItem());
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT,
+				(String) tempBox.getSelectedItem());
 	}
 
 	@Override

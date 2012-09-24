@@ -17,7 +17,7 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/pmmlab/model"
+            category-path="/pmmlab/reader"
             factory-class="de.bund.bfr.knime.pmm.estimatedmodelreader.EstimatedModelReaderNodeFactory"
             id="de.bund.bfr.knime.pmm.estimatedmodelreader.EstimatedModelReaderNodeFactory"/>
    </extension>

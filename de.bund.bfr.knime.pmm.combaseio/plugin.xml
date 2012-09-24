@@ -16,8 +16,8 @@
    -->
    
    <extension point="org.knime.workbench.repository.nodes">
-      <node category-path="/pmmlab/data" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseReaderNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseReaderNodeFactory"/>
-   <node category-path="/pmmlab/data" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseWriterNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseWriterNodeFactory"/>
+      <node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseReaderNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseReaderNodeFactory"/>
+   <node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseWriterNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseWriterNodeFactory"/>
 </extension>
    <extension
          point="org.knime.workbench.repository.categories">
@@ -29,20 +29,32 @@
       </category>
       <category
             icon="icons/Data.png"
-            level-id="data"
-            name="Data"
+            level-id="editors"
+            name="Editors"
             path="/pmmlab">
       </category>
       <category
             icon="icons/Model.png"
-            level-id="model"
-            name="Model"
+            level-id="fitting"
+            name="Fitting &amp; Prediction"
             path="/pmmlab">
       </category>
       <category
             icon="icons/Forecast.png"
-            level-id="forecast"
-            name="Forecast"
+            level-id="reader"
+            name="Reader"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/missing.gif"
+            level-id="views"
+            name="Selection &amp; Views"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/missing.gif"
+            level-id="writer"
+            name="Writer"
             path="/pmmlab">
       </category>
    </extension>

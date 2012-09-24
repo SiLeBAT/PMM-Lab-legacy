@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./ModelEstimation.png" type="Manipulator">
-    <name>ModelEstimation</name>
+    <name>Model Fitting</name>
     
     <shortDescription>Uses primary models and estimates their parameters in order to fit a curve to a time series of bacterial concentrations.</shortDescription>
     

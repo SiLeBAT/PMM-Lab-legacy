@@ -303,7 +303,7 @@ public class ParameterOptimizer {
 					Object number = parser.evaluate(function);
 
 					if (number instanceof Complex) {
-						retValue[i] = ((Complex) number).re();
+						retValue[i] = Double.NaN;
 					} else {
 						retValue[i] = (Double) number;
 					}
@@ -344,7 +344,7 @@ public class ParameterOptimizer {
 						Object number = parser.evaluate(derivatives.get(j));
 
 						if (number instanceof Complex) {
-							retValue[i][j] = ((Complex) number).re();
+							retValue[i][j] = Double.NaN;
 						} else {
 							retValue[i][j] = (Double) number;
 						}

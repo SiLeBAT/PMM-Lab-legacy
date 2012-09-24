@@ -15,8 +15,8 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class XLSReader {
-	
-	private XLSReader() {		
+
+	private XLSReader() {
 	}
 
 	public static Map<String, KnimeTuple> getTuples(File file) throws Exception {
@@ -29,8 +29,16 @@ public class XLSReader {
 		String id = null;
 
 		for (int i = 1;; i++) {
-			if (sheet.getRow(i).getCell(7) == null
-					&& sheet.getRow(i).getCell(8) == null) {
+			boolean endOfFile = sheet.getRow(i) == null;
+
+			endOfFile = endOfFile || sheet.getRow(i).getCell(7) == null;
+			endOfFile = endOfFile || sheet.getRow(i).getCell(8) == null;
+			endOfFile = endOfFile
+					|| sheet.getRow(i).getCell(7).toString().trim().isEmpty();
+			endOfFile = endOfFile
+					|| sheet.getRow(i).getCell(8).toString().trim().isEmpty();
+
+			if (endOfFile) {
 				if (tuple != null) {
 					tuples.put(id, tuple);
 				}
@@ -44,7 +52,7 @@ public class XLSReader {
 				if (tuple != null) {
 					tuples.put(id, tuple);
 				}
-				
+
 				id = sheet.getRow(i).getCell(0).toString();
 				tuple = new KnimeTuple(new TimeSeriesSchema());
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
@@ -66,7 +74,8 @@ public class XLSReader {
 				}
 
 				if (sheet.getRow(i).getCell(4) != null
-						&& !sheet.getRow(i).getCell(4).toString().isEmpty()) {
+						&& !sheet.getRow(i).getCell(4).toString().trim()
+								.isEmpty()) {
 					try {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_TEMPERATURE,
@@ -79,7 +88,8 @@ public class XLSReader {
 				}
 
 				if (sheet.getRow(i).getCell(5) != null
-						&& !sheet.getRow(i).getCell(5).toString().isEmpty()) {
+						&& !sheet.getRow(i).getCell(5).toString().trim()
+								.isEmpty()) {
 					try {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_PH,
@@ -92,7 +102,8 @@ public class XLSReader {
 				}
 
 				if (sheet.getRow(i).getCell(6) != null
-						&& !sheet.getRow(i).getCell(6).toString().isEmpty()) {
+						&& !sheet.getRow(i).getCell(6).toString().trim()
+								.isEmpty()) {
 					try {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_WATERACTIVITY,
@@ -106,7 +117,7 @@ public class XLSReader {
 			}
 
 			if (sheet.getRow(i).getCell(7) != null
-					&& !sheet.getRow(i).getCell(7).toString().isEmpty()) {
+					&& !sheet.getRow(i).getCell(7).toString().trim().isEmpty()) {
 				try {
 					tuple.addValue(
 							TimeSeriesSchema.ATT_TIME,
@@ -119,7 +130,7 @@ public class XLSReader {
 			}
 
 			if (sheet.getRow(i).getCell(8) != null
-					&& !sheet.getRow(i).getCell(8).toString().isEmpty()) {
+					&& !sheet.getRow(i).getCell(8).toString().trim().isEmpty()) {
 				try {
 					tuple.addValue(
 							TimeSeriesSchema.ATT_LOGC,

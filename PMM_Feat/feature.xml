@@ -71,22 +71,49 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          id="de.bund.bfr.knime.pmm.bfrdbiface.lib"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.combaseio"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.combaseio.lib"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.combinedmodelanddataview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.common"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.dataedit"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.dataviewandselect"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.emptytimeseriescreator"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.estimatedmodelreader"
@@ -107,11 +134,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
+         id="de.bund.bfr.knime.pmm.manualmodelconf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="de.bund.bfr.knime.pmm.manualmodelconf.ui"
          download-size="0"
          install-size="0"
-         version="0.0.0"
-         unpack="false"/>
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.modelanddatajoiner"
@@ -132,19 +164,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.primarymodelviewandselect"
+         id="de.bund.bfr.knime.pmm.modelcatalogwriter"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.emptytimeseriescreator"
+         id="de.bund.bfr.knime.pmm.modelestimation"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.parameterrenamer"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.primarymodelviewandselect"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
@@ -162,55 +200,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.modelestimation"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.manualmodelconf"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="de.bund.bfr.knime.pmm.timeseriesreader"
          download-size="0"
          install-size="0"
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.modelcatalogwriter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="de.bund.bfr.knime.pmm.timeserieswriter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.dataedit"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.dataviewandselect"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.combaseio"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.combinedmodelanddataview"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

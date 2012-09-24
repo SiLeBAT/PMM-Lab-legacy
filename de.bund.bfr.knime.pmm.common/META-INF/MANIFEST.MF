@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.common
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.v20120924
 Bundle-Activator: de.bund.bfr.knime.pmm.common.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -329,3 +329,4 @@ Export-Package: com.keypoint,
  org.nfunk.jep.type,
  org.w3c.dom,
  org.w3c.dom.events
+Bundle-Vendor: BfR

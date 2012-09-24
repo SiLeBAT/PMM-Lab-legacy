@@ -39,9 +39,6 @@
         </page>
     </extension>
    
-    <extension point="org.knime.workbench.repository.categories">
-      <category description="BfR" level-id="bfr" name="BfR Nodes" path="/"/>
-  </extension>
    
    <!--extension point="org.knime.workbench.repository.metanode">
       <PersistedMetaNode category-path="/" expert-flag="false" id="BfRPlugin.PersistedMetaNode2" name="MetaTest" workflowDir="MetaTestNode/">

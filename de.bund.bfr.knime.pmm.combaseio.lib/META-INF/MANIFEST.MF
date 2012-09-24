@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lib
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.combaseio.lib
-Bundle-Version: 1.0.0.qualifier
+Bundle-Version: 1.0.0.v20120924
 Bundle-Activator: de.bund.bfr.knime.pmm.combaseio.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -10,3 +10,4 @@ Require-Bundle: org.eclipse.ui,
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.combaseio.lib
+Bundle-Vendor: BfR

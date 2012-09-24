@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.timeseriescreator;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -47,6 +48,7 @@ import java.util.Map;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -72,7 +74,9 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
+import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
+import de.bund.bfr.knime.pmm.common.ui.TextListener;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesCreator" Node.
@@ -89,9 +93,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		ActionListener {
 
 	private static final int ROW_COUNT = 100;
+	private static final int DEFAULT_TIMESTEPNUMBER = 10;
+	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
 
 	private JPanel panel;
 	private JButton clearButton;
+	private JButton stepsButton;
 	private JButton xlsButton;
 	private JTable table;
 	private StringTextField agentField;
@@ -113,6 +120,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		panel = new JPanel();
 		xlsButton = new JButton("Read from XLS file");
 		xlsButton.addActionListener(this);
+		stepsButton = new JButton("Set equidistant time steps");
+		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
 		table = new JTable(new TimeSeriesTableModel());
@@ -163,6 +172,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		bottomPanel.add(xlsButton);
+		bottomPanel.add(stepsButton);
 		bottomPanel.add(clearButton);
 
 		panel.setLayout(new BorderLayout());
@@ -325,6 +335,29 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 
 			table.repaint();
+		} else if (event.getSource() == stepsButton) {
+			TimeStepDialog dialog = new TimeStepDialog(panel);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				int stepNumber = dialog.getNumberOfSteps();
+				double stepSize = dialog.getStepSize();
+
+				for (int i = 0; i < ROW_COUNT; i++) {
+					Double time = null;
+					Double logc = null;
+
+					if (i < stepNumber) {
+						time = i * stepSize;
+					}
+
+					table.setValueAt(time, i, 0);
+					table.setValueAt(logc, i, 1);
+				}
+
+				table.repaint();
+			}
 		}
 	}
 
@@ -495,6 +528,109 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 
 			return field;
+		}
+	}
+
+	private class TimeStepDialog extends JDialog implements ActionListener,
+			TextListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private int numberOfSteps;
+		private double stepSize;
+
+		private IntTextField numberField;
+		private DoubleTextField sizeField;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public TimeStepDialog(Component owner) {
+			super(JOptionPane.getFrameForComponent(owner), "Time Steps", true);
+
+			approved = false;
+			numberOfSteps = 0;
+			stepSize = 0.0;
+
+			numberField = new IntTextField(1, ROW_COUNT);
+			numberField.setValue(DEFAULT_TIMESTEPNUMBER);
+			numberField.setPreferredSize(new Dimension(150, numberField
+					.getPreferredSize().height));
+			numberField.addTextListener(this);
+			sizeField = new DoubleTextField(0.0, Double.POSITIVE_INFINITY);
+			sizeField.setPreferredSize(new Dimension(150, sizeField
+					.getPreferredSize().height));
+			sizeField.setValue(DEFAULT_TIMESTEPSIZE);
+			sizeField.addTextListener(this);
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel leftPanel = new JPanel();
+			JPanel rightPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			leftPanel.setLayout(new GridLayout(2, 1, 5, 5));
+			leftPanel.add(new JLabel("Number of Time Steps:"));
+			leftPanel.add(new JLabel("Step Size:"));
+
+			rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			rightPanel.setLayout(new GridLayout(2, 1, 5, 5));
+			rightPanel.add(numberField);
+			rightPanel.add(sizeField);
+
+			centerPanel.setLayout(new BorderLayout());
+			centerPanel.add(leftPanel, BorderLayout.WEST);
+			centerPanel.add(rightPanel, BorderLayout.CENTER);
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(owner);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public int getNumberOfSteps() {
+			return numberOfSteps;
+		}
+
+		public double getStepSize() {
+			return stepSize;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				numberOfSteps = numberField.getValue();
+				stepSize = sizeField.getValue();
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
+
+		@Override
+		public void textChanged() {
+			if (numberField.isValueValid() && sizeField.isValueValid()) {
+				okButton.setEnabled(true);
+			} else {
+				okButton.setEnabled(false);
+			}
 		}
 	}
 

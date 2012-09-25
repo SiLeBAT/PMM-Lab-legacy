@@ -28,7 +28,7 @@
             path="/">
       </category>
       <category
-            icon="icons/Data.png"
+            icon="icons/Editors.png"
             level-id="editors"
             name="Editors"
             path="/pmmlab">
@@ -36,23 +36,23 @@
       <category
             icon="icons/Model.png"
             level-id="fitting"
-            name="Fitting &amp; Prediction"
+            name="Model Fitting &amp; Prediction"
             path="/pmmlab">
       </category>
       <category
-            icon="icons/Forecast.png"
+            icon="icons/Reader.png"
             level-id="reader"
             name="Reader"
             path="/pmmlab">
       </category>
       <category
-            icon="icons/missing.gif"
+            icon="icons/SelectionAndViews.png"
             level-id="views"
             name="Selection &amp; Views"
             path="/pmmlab">
       </category>
       <category
-            icon="icons/missing.gif"
+            icon="icons/Writer.png"
             level-id="writer"
             name="Writer"
             path="/pmmlab">

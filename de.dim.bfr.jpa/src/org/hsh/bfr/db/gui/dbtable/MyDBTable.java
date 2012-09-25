@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -852,6 +853,7 @@ if (myDBPanel1 != null) {
 			String[] fieldTypes = actualTable.getFieldTypes();
 			String[] fieldComments = actualTable.getFieldComments();
 			if (fieldTypes != null) {
+				ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.lang);
 				for (int i=0; i<fieldTypes.length; i++) {		
 					MyTableHeaderCellRenderer mthcr = null;
 					c = this.getColumn(i+1);
@@ -911,8 +913,8 @@ if (myDBPanel1 != null) {
 					} else {
 						c.setPreferredWidth(50);
 					}
-			      c.setUserCellEditor(new MyCheckBoxEditor("Häkchen vorhanden = JA", this));
-			      c.setUserCellRenderer(new MyCheckBoxEditor("Häkchen vorhanden = JA", this));
+			      c.setUserCellEditor(new MyCheckBoxEditor(bundle.getString("Häkchen vorhanden = JA"), this, false));
+			      c.setUserCellRenderer(new MyCheckBoxEditor(bundle.getString("Häkchen vorhanden = JA"), this, false));
 			      mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 				    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 				    if (sorter != null) {
@@ -1153,8 +1155,8 @@ if (myDBPanel1 != null) {
 				      c = this.getColumn(fieldTypes.length+extraFields); // Geprueft
 				      c.setReadOnly(false); 
 					    c.setPreferredWidth(70);
-				      c.setUserCellEditor(new MyCheckBoxEditor("Häkchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit überprüft", this));
-				      c.setUserCellRenderer(new MyCheckBoxEditor("Häkchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit überprüft", this));
+				      c.setUserCellEditor(new MyCheckBoxEditor(bundle.getString("Häkchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit überprüft"), this, true));
+				      c.setUserCellRenderer(new MyCheckBoxEditor(bundle.getString("Häkchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit überprüft"), this, true));
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Datensätze können von einem anderen Benutzer auf Richtigkeit hin geprüft werden.\nDies erhöht die Güte des Eintrages."));
 					    //if (actualTable.getHideTested()) c.setVisible(false);
 					    if (sorter != null) {

@@ -29,10 +29,10 @@ public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, Cell
 	private boolean isGeprueftCheckBox = false;
 	private boolean isNull = false;
 	
-	public MyCheckBoxEditor(String tooltip, MyDBTable myDB) {
+	public MyCheckBoxEditor(String tooltip, MyDBTable myDB, boolean isGeprueftCheckBox) {
 		this.myDB = myDB;
 		this.setToolTipText(tooltip);
-		isGeprueftCheckBox = tooltip.endsWith("Richtigkeit überprüft");
+		this.isGeprueftCheckBox = isGeprueftCheckBox;//tooltip.endsWith("Richtigkeit überprüft");
 		//this.addChangeListener(this);
 		this.addActionListener(this);
 		this.setHorizontalAlignment(SwingConstants.CENTER);

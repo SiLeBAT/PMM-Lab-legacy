@@ -247,7 +247,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 				 //) {
 			myTables.put(tn, myT);
 			if (child >= children.length) { //  || child < 0 wird nicht angezeigt!
-				InvisibleNode iNode = new InvisibleNode(myT == null ? null : GuiMessages.getString(myT.toString()));
+				InvisibleNode iNode = new InvisibleNode(myT);
 				iNode.setVisible(visible && DBKernel.prefs.getBoolean("VIS_NODE_" + myT.getTablename(), true));
 				root.add(iNode);
 			}

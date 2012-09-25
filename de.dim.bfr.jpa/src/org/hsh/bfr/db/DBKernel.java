@@ -117,7 +117,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 
 	public static String DBVersion = "1.4.4";
-	public static boolean debug = false;
+	public static boolean debug = true;
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;

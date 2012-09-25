@@ -63,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -447,9 +448,33 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			}
 		}
 	}
-	
-	private void checkData(KnimeTuple tuple) {
-		// TODO
+
+	private void checkData(KnimeTuple tuple) throws PmmException {
+		int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+		Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+		Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
+		Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+		List<String> indepVars = tuple.getStringList(Model1Schema.ATT_INDEPVAR);
+
+		if (indepVars.contains(TimeSeriesSchema.ATT_TEMPERATURE)
+				&& temp == null) {
+			setWarningMessage(AttributeUtilities
+					.getFullName(TimeSeriesSchema.ATT_TEMPERATURE)
+					+ " is not specified in " + condID);
+		}
+
+		if (indepVars.contains(TimeSeriesSchema.ATT_PH) && ph == null) {
+			setWarningMessage(AttributeUtilities
+					.getFullName(TimeSeriesSchema.ATT_PH)
+					+ " is not specified in " + condID);
+		}
+
+		if (indepVars.contains(TimeSeriesSchema.ATT_WATERACTIVITY)
+				&& aw == null) {
+			setWarningMessage(AttributeUtilities
+					.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY)
+					+ " is not specified in " + condID);
+		}
 	}
 
 }

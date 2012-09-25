@@ -243,7 +243,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		for (int i = 0; i < schema.size(); i++) {
 			int type = schema.getType(i);
 			String name = schema.getName(i);
-			String fullName = AttributeUtilities.getFullName(name);
+			String fullName = AttributeUtilities.getFullNameWithUnit(name);
 
 			if (type == KnimeAttribute.TYPE_STRING
 					&& !name.equals(TimeSeriesSchema.ATT_COMBASEID)) {
@@ -263,8 +263,12 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		JPanel bottomPanel = new JPanel();
-		JLabel timeLabel = new JLabel(TimeSeriesSchema.ATT_TIME);
-		JLabel logcLabel = new JLabel(TimeSeriesSchema.ATT_LOGC);
+		JLabel timeLabel = new JLabel(
+				AttributeUtilities
+						.getFullNameWithUnit(TimeSeriesSchema.ATT_TIME));
+		JLabel logcLabel = new JLabel(
+				AttributeUtilities
+						.getFullNameWithUnit(TimeSeriesSchema.ATT_LOGC));
 
 		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		logcLabel.setHorizontalAlignment(SwingConstants.CENTER);

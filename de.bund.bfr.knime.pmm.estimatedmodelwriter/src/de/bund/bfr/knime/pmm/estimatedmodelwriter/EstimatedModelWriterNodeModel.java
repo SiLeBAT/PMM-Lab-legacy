@@ -234,11 +234,14 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 				}
 				else {
-					warnings += "Estimated primary model is not storable due to joining with unassociated kinetic data\n";
+					String text = "Estimated primary model (ID: " + row.getInt(Model1Schema.ATT_ESTMODELID) +
+						") is not storable due to joining with unassociated kinetic data\n";
+					if (warnings.indexOf(text) < 0)	warnings += text;
 				}
 				if (model2Conform && newPrimID != null) {
 					dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
 					M2Writable = (dw != null && dw == 1);
+					estSecModelId = row.getInt(Model2Schema.ATT_ESTMODELID);
 					if (M2Writable) {
 						rowuuid = row.getString(Model2Schema.ATT_DBUUID);
 						if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -307,10 +310,12 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							primIDs.add(newPrimID);
 							lastSpm = spm;
 						}
-						else {
-							warnings += "Estimated secondary model is not storable due to joining with unassociated primary model\n";
-						}
 		    		}
+					else {
+						String text = "Estimated secondary model (ID: " + estSecModelId +
+							") is not storable due to joining with unassociated primary model\n";
+						if (warnings.indexOf(text) < 0)	warnings += text;
+					}
 					lastPpm = ppm;
 				}
 				else {
@@ -326,11 +331,13 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				}
 			}
 			else {
-				warnings += "Estimated secondary model is not storable due to joining with unassociated primary model\n";
+				String text = "Estimated secondary model (ID: " + estSecModelId +
+					") is not storable due to joining with unassociated primary model\n";
+			if (warnings.indexOf(text) < 0)	warnings += text;
 			}
 		}
 		if (!warnings.isEmpty()) {
-			this.setWarningMessage(warnings);
+			this.setWarningMessage(warnings.trim());
 		}			
     	db.close();
         return null;

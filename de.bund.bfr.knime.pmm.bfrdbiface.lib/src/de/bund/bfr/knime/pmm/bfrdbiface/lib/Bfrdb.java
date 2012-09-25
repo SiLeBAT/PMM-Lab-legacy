@@ -1339,19 +1339,10 @@ public class Bfrdb extends Hsqldbiface {
 			// delete old data
 			deleteTSData( condId );
 			
-			for(int i = 0; i < time.size(); i++ ) {
-				
-				int timeId = insertDouble( time.get(i) );
-				if( timeId < 0 ) {
-					return null;
-				}
-				
-				int lognId = insertDouble( logc.get(i) );
-				if( lognId < 0 ) {
-					return null;
-				}
-				
-				insertData( condId, timeId, lognId );
+			for (int i = 0; i < time.size(); i++) {				
+				int timeId = insertDouble( time.get(i) );				
+				int lognId = insertDouble( logc.get(i) );				
+				insertData(condId, timeId, lognId);
 			}	
 		}
 		return condId;
@@ -1616,8 +1607,18 @@ public class Bfrdb extends Hsqldbiface {
 			
 			ps = conn.prepareStatement( "INSERT INTO \""+REL_DATA+"\"( \""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \""+ATT_LOG10NUNIT+"\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
 			ps.setInt( 1, condId );
-			ps.setInt( 2, timeId );
-			ps.setInt( 3, lognId );
+			if (timeId >= 0) {
+				ps.setInt(2, timeId);
+			}
+			else {
+				ps.setNull(2, Types.INTEGER);
+			}
+			if (lognId >= 0) {
+				ps.setInt(3, lognId);
+			}
+			else {
+				ps.setNull(3, Types.INTEGER);
+			}
 			
 			ps.executeUpdate();
 			ps.close();

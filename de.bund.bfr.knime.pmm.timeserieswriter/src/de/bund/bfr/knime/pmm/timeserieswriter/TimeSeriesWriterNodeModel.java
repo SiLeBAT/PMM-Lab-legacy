@@ -131,7 +131,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 			}
 		}
 		if (!warnings.isEmpty()) {
-			this.setWarningMessage(warnings);
+			this.setWarningMessage(warnings.trim());
 		}			
     	db.close();
         return null;

@@ -24,7 +24,7 @@ public class GuiMessages {
 			String res = RESOURCE_BUNDLE.getString(key);
 			return res == null || res.isEmpty() ? key : res;
 		}
-		catch (final MissingResourceException e) {
+		catch (final Exception e) {
 			return key;//'!' + key + '!';
 		}
 	}

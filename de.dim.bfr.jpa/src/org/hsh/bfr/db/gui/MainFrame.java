@@ -6,6 +6,7 @@ package org.hsh.bfr.db.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -66,7 +67,16 @@ public class MainFrame extends JFrame {
 		//this.myDBTreePanel = new MyDBTreePanel(myDBTree);
 		initComponents();
 		addBindings();
+		//centerOnScreen(this);
 		//this.setExtendedState(this.getExtendedState()|JFrame.MAXIMIZED_BOTH);
+	}
+	private void centerOnScreen(JFrame frame) {
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		int w = frame.getSize().width;
+		int h = frame.getSize().height;
+		int x = (dim.width - w) / 2;
+		int y = (dim.height - h) / 2;
+		frame.setLocation(x, y);
 	}
 	
   protected void addBindings() {
@@ -160,7 +170,7 @@ public class MainFrame extends JFrame {
 		button7.getAction().setEnabled(!isRO);
 		button6.getAction().setEnabled(!isRO);
 		button11.setEnabled(isEnabable);
-		button4.getAction().setEnabled(isEnabable && !DBKernel.isServerConnection);
+		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isServerConnection);
 		if (isRO) {
 			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
 			this.setTitle("OriginalDB ist von anderem Benutzer geöffnet. ReadOnly Modus... " +

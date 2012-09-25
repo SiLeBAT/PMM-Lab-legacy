@@ -1116,7 +1116,7 @@ public class Login extends JFrame {
 				null,
 				null,
 				new String[]{null,null,null,"Methoden_Normen","INT"});
-		myList.addTable(methoden, 66);
+		myList.addTable(methoden, -1);
 		MyTable methoden_Normen = new MyTable("Methoden_Normen",
 				new String[]{"Methoden","Normen","Norm_Nummer"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
@@ -1151,7 +1151,7 @@ public class Login extends JFrame {
 				new String[]{"INTEGER","VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER"},
 				new String[]{null,null,null,null,null,null},
 				new MyTable[]{literatur,null,agenzien,null,null,matrix});
-		myList.addTable(ComBaseImport, 66); // 66
+		myList.addTable(ComBaseImport, -1); // 66
 		MyTable adressen = new MyTable("Kontakte",
 				new String[]{"Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
@@ -2485,7 +2485,7 @@ public class Login extends JFrame {
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
 				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null});
-		myList.addTable(ModellkatalogParameter, 66);	
+		myList.addTable(ModellkatalogParameter, -1);	
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
 				new String[]{null,null},

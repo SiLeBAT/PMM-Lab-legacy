@@ -18,7 +18,7 @@
     <ports>
         <inPort index="0" name="In-Port name">Description of first input port...</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
+        <outPort index="0" name="Models with renamed parameters">Description of first output port...</outPort>
         <!-- possibly more output ports here-->
     </ports>    
 </knimeNode>

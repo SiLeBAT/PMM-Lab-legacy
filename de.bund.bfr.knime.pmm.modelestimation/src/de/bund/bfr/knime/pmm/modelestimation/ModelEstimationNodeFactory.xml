@@ -11,6 +11,6 @@
     
     <ports>
         <inPort index="0" name="In-Port">Needs models and data from the ModelAndDataJoiner</inPort>
-        <outPort index="0" name="Out-Port">Estimated model (model + estimated parameters) and data</outPort>
+        <outPort index="0" name="Fitted models">Fitted models (models + estimated parameters) and data</outPort>
     </ports>    
 </knimeNode>

@@ -17,6 +17,6 @@
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="M1 or M1 U M2">A table containing the model formula and additional information.</outPort>
+        <outPort index="0" name="Models from DB">A table containing the model formula and additional information.</outPort>
     </ports>        
 </knimeNode>

@@ -25,6 +25,7 @@ import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyFilter;
+import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 import org.hsh.bfr.db.gui.dbtree.*;
 import org.hsh.bfr.db.imports.InfoBox;
 
@@ -466,7 +467,7 @@ public class MyDBPanel extends JPanel {
 	private void button8ActionPerformed(ActionEvent e) {
 		//myDBTable1.myPrint();
   	String tt = "";
-  	tt += "ID\tBenutzer\tLetzte Änderung\n"; 
+  	tt += "ID\t" + GuiMessages.getString("Benutzer") + "\t" + GuiMessages.getString("Letzte Änderung") + "\n"; 
   	tt += "-----------------------------\n\n"; 
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -525,8 +526,8 @@ public class MyDBPanel extends JPanel {
 				//System.out.println(firstSelectedID);
 				if (firstSelectedID >= 0 && firstSelectedID != getSelectedID()) {
 				    int retVal = JOptionPane.showConfirmDialog(parentDialog, // DBKernel.mainFrame
-				    		"Es wurde eine andere Auswahl getroffen!\nSicher, daß das so sein soll???",
-				    		"Es wurde eine andere Auswahl getroffen...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "!\n" + GuiMessages.getString("Sicher, daß das so sein soll???"),
+				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				    if (retVal == JOptionPane.NO_OPTION) {
 				    	return;
 				    }
@@ -544,8 +545,12 @@ public class MyDBPanel extends JPanel {
 					  if (toShow.trim().length() > 0) {
 						  InfoBox ib = new InfoBox(toShow, true, new Dimension(1000, 600), null, true);
 						  ib.setVisible(true);
-						  int retVal = JOptionPane.showConfirmDialog(this, "Die Plausibilitätsprüfung wurde nicht bestanden.\nIhr solltet die eingegebenen Daten erst noch einmal überprüfen.\nFalls ihr das zu einem späteren Zeitpunkt machen wollt, könnt ihr das Fenster aber auch schließen.\nFenster schließen?",
-						    		"Plausibilitätstest nicht bestanden... Trotzdem schliessen?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+						  int retVal = JOptionPane.showConfirmDialog(this,
+								  GuiMessages.getString("Die Plausibilitätsprüfung wurde nicht bestanden") + ".\n" +
+								  GuiMessages.getString("Ihr solltet die eingegebenen Daten erst noch einmal überprüfen") + ".\n" +
+								  GuiMessages.getString("Falls ihr das zu einem späteren Zeitpunkt machen wollt, könnt ihr das Fenster aber auch schließen") + ".\n" +
+								  GuiMessages.getString("Fenster schließen?"),
+								  GuiMessages.getString("Plausibilitätstest nicht bestanden... Trotzdem schliessen?"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 						  if (retVal == JOptionPane.NO_OPTION) {
 							  return;
 						  }

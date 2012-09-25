@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -71,23 +72,6 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class EstimatedModelWriterNodeModel extends NodeModel {
     
-	private static final int ID_KEY = 0;
-	private static final int ID_VALUE = 1;
-	private static final int ID_CONDITIONID = 2;
-	private static final int ID_MODELID = 3;
-	private static final int ID_RSS = 4;
-	private static final int ID_R2 = 5;
-	private static final int ID_FORMULA = 6;
-	private static final int ID_MODELNAME = 7;
-	private static final int ID_DEPVAR = 8;
-	private static final int ID_INDEPVAR = 9;
-	private static final int ID_LEVEL = 10;
-	private static final int NCOL = 11;
-	
-	private static final int MODE_NOACTION = 0;
-	private static final int MODE_FROMESTIMATE = 1;
-	private static final int MODE_FROMLITERATURE = 2;
-		
 	private String filename;
 	private String login;
 	private String passwd;
@@ -126,68 +110,45 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
 		Integer estSecModelId = null;
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+		HashMap<Integer, Integer> foreignDbTsIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMiscIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbAgentIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMatrixIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitTsIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMC1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbME1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitMC1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitME1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMC2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbME2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitMC2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitME2Ids = new HashMap<Integer, Integer>();
+    	String dbuuid = db.getDBUUID();
 		
 		List<Integer> primIDs = new ArrayList<Integer>();
 		HashMap<ParametricModel, List<Integer>> secModels = new HashMap<ParametricModel, List<Integer>>();
-		ParametricModel ppm, spm, lastPpm = null, lastSpm = null;
+		ParametricModel ppm = null, spm, lastPpm = null, lastSpm = null;
 		
 		int j = 0;
 		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
 		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<Integer, ParametricModel>();
 		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
+		boolean M1Writable = false, M2Writable = false;
+		String warnings = "";
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
 
 			KnimeTuple row = reader.nextElement();
-			Integer modelId = row.getInt(Model1Schema.ATT_MODELID);
-
-    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
-    		String formula = row.getString(Model1Schema.ATT_FORMULA);
-    		String depVar = row.getString(Model1Schema.ATT_DEPVAR);
-    		List<String> indepVar = row.getStringList(Model1Schema.ATT_INDEPVAR);
-    		List<String> paramName = row.getStringList(Model1Schema.ATT_PARAMNAME);
-    		List<Double> minVal = row.getDoubleList(Model1Schema.ATT_MINVALUE);
-    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
-    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
-    		List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
-    		List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
-    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
-    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
-    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
-    		
-    		// ab hier: different from ModelCatalogWriter
-			Integer estModelId = row.getInt(Model1Schema.ATT_ESTMODELID);
-    		List<Double> paramValues = row.getDoubleList(Model1Schema.ATT_VALUE);
-    		List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
-    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
-    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
-
-    		
-    		// Modellkatalog
-			if (alreadyInsertedModel.containsKey(modelId)) {
-				ppm = alreadyInsertedModel.get(modelId);
-	    		ppm.setEstModelId(estModelId == null ? -1 : estModelId);
-				doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-	    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
-	    		doLit(ppm, litStr, litID, false);
-	    		doLit(ppm, litEMStr, litEMID, true);
-			}
-			else {
-	    		ppm = new ParametricModel( modelName, formula, depVar, 1, modelId, estModelId == null ? -1 : estModelId);				
-	    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-	    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
-	    		doLit(ppm, litStr, litID, false);
-	    		doLit(ppm, litEMStr, litEMID, true);
-	    		
-	    		int newMID = db.insertM( ppm );
-	    		ppm.setModelId(newMID);
-				alreadyInsertedModel.put(modelId, ppm);
-			}
-    		// paramErr still missing...
-    		ppm.setRms(rms == null ? Double.NaN : rms);
-    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
-    		
+			
     		// TimeSeries
+			String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+			if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+				checkIDs(TimeSeriesSchema.ATT_CONDID, foreignDbTsIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_MISCID, foreignDbMiscIds, row, true);
+				checkIDs(TimeSeriesSchema.ATT_AGENTID, foreignDbAgentIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_MATRIXID, foreignDbMatrixIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_LITIDTS, foreignDbLitTsIds, row, true);
+			}
 			PmmTimeSeries ts = new PmmTimeSeries(row);	
 			int tsID = ts.getCondId();
 			Integer newTsID = null;
@@ -202,91 +163,198 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			}
 			
 			if (newTsID != null) {
-				ppm.setCondId(newTsID);
+
 				Integer newPrimID = null;
-				if (alreadyInsertedEModel.containsKey(estModelId)) {
-					newPrimID = alreadyInsertedEModel.get(estModelId).getEstModelId();
+				Integer dw = row.getInt(Model1Schema.ATT_DATABASEWRITABLE);
+				M1Writable = (dw != null && dw == 1);
+				if (M1Writable) {
+					rowuuid = row.getString(Model1Schema.ATT_DBUUID);
+					if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+						checkIDs(Model1Schema.ATT_MODELID, foreignDbMC1Ids, row, false);
+						checkIDs(Model1Schema.ATT_ESTMODELID, foreignDbME1Ids, row, false);
+						checkIDs(Model1Schema.ATT_LITIDM, foreignDbLitMC1Ids, row, true);
+						checkIDs(Model1Schema.ATT_LITIDEM, foreignDbLitME1Ids, row, true);
+					}
+					
+					Integer modelId = row.getInt(Model1Schema.ATT_MODELID);
+		    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
+		    		String formula = row.getString(Model1Schema.ATT_FORMULA);
+		    		String depVar = row.getString(Model1Schema.ATT_DEPVAR);
+		    		List<String> indepVar = row.getStringList(Model1Schema.ATT_INDEPVAR);
+		    		List<String> paramName = row.getStringList(Model1Schema.ATT_PARAMNAME);
+		    		List<Double> minVal = row.getDoubleList(Model1Schema.ATT_MINVALUE);
+		    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
+		    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
+		    		List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
+		    		List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
+		    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
+		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
+		    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
+		    		
+		    		// ab hier: different from ModelCatalogWriter
+					Integer estModelId = row.getInt(Model1Schema.ATT_ESTMODELID);
+		    		List<Double> paramValues = row.getDoubleList(Model1Schema.ATT_VALUE);
+		    		List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
+		    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
+		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
+		
+		    		
+		    		// Modellkatalog
+					if (alreadyInsertedModel.containsKey(modelId)) {
+						ppm = alreadyInsertedModel.get(modelId);
+			    		ppm.setEstModelId(estModelId == null ? -1 : estModelId);
+						doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
+			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
+			    		doLit(ppm, litStr, litID, false);
+			    		doLit(ppm, litEMStr, litEMID, true);
+					}
+					else {
+			    		ppm = new ParametricModel( modelName, formula, depVar, 1, modelId, estModelId == null ? -1 : estModelId);				
+			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
+			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
+			    		doLit(ppm, litStr, litID, false);
+			    		doLit(ppm, litEMStr, litEMID, true);
+			    		
+			    		int newMID = db.insertM( ppm );
+			    		ppm.setModelId(newMID);
+						alreadyInsertedModel.put(modelId, ppm);
+					}
+		    		// paramErr still missing...
+		    		ppm.setRms(rms == null ? Double.NaN : rms);
+		    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
+    		
+					ppm.setCondId(newTsID);
+					if (alreadyInsertedEModel.containsKey(estModelId)) {
+						newPrimID = alreadyInsertedEModel.get(estModelId).getEstModelId();
+					}
+					else {
+			    		newPrimID = db.insertEm( ppm, null );	
+			    		ppm.setEstModelId(newPrimID);
+			    		alreadyInsertedEModel.put(estModelId, ppm);
+					}
 				}
 				else {
-		    		newPrimID = db.insertEm( ppm, null );	
-		    		ppm.setEstModelId(newPrimID);
-		    		alreadyInsertedEModel.put(estModelId, ppm);
+					String text = "Estimated primary model (ID: " + row.getInt(Model1Schema.ATT_ESTMODELID) +
+						") is not storable due to joining with unassociated kinetic data\n";
+					if (warnings.indexOf(text) < 0)	warnings += text;
 				}
 				if (model2Conform && newPrimID != null) {
-		    		modelId = row.getInt(Model2Schema.ATT_MODELID);
-		    		modelName = row.getString(Model2Schema.ATT_MODELNAME);
-		    		formula = row.getString(Model2Schema.ATT_FORMULA);
-		    		depVar = row.getString(Model2Schema.ATT_DEPVAR);
-		    		indepVar = row.getStringList(Model2Schema.ATT_INDEPVAR);
-		    		paramName = row.getStringList(Model2Schema.ATT_PARAMNAME);
-		    		if (!paramName.isEmpty()) {
-			    		minVal = row.getDoubleList(Model2Schema.ATT_MINVALUE);
-			    		maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
-			    		minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
-			    		maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
-			    		litStr = row.getStringList(Model2Schema.ATT_LITM);
-			    		litID = row.getIntList(Model2Schema.ATT_LITIDM);
-			    		litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
-			    		litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
-		
-			    		// ab hier: different from ModelCatalogWriter
-			    		estSecModelId = row.getInt(Model2Schema.ATT_ESTMODELID);
-			    		paramValues = row.getDoubleList(Model2Schema.ATT_VALUE);
-			    		paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
-			    		rms = row.getDouble(Model2Schema.ATT_RMS);
-			    		r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
-
-						if (alreadyInsertedModel.containsKey(modelId)) {
-							spm = alreadyInsertedModel.get(modelId);
-				    		spm.setEstModelId(estSecModelId == null ? -1 : estSecModelId);
-				    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-				    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
-				    		doLit(spm, litStr, litID, false);
-				    		doLit(spm, litEMStr, litEMID, true);
+					dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
+					M2Writable = (dw != null && dw == 1);
+					estSecModelId = row.getInt(Model2Schema.ATT_ESTMODELID);
+					if (M2Writable) {
+						rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+						if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+							checkIDs(Model2Schema.ATT_MODELID, foreignDbMC2Ids, row, false);
+							checkIDs(Model2Schema.ATT_ESTMODELID, foreignDbME2Ids, row, false);
+							checkIDs(Model2Schema.ATT_LITIDM, foreignDbLitMC2Ids, row, true);
+							checkIDs(Model2Schema.ATT_LITIDEM, foreignDbLitME2Ids, row, true);
 						}
-						else {
-				    		spm = new ParametricModel( modelName, formula, depVar, 2, modelId, estSecModelId == null ? -1 : estSecModelId );				    		
-				    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-				    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
-				    		doLit(spm, litStr, litID, false);
-				    		doLit(spm, litEMStr, litEMID, true);
 
-				    		int newSMID = db.insertM( spm );
-				    		spm.setModelId(newSMID);
-							alreadyInsertedModel.put(modelId, spm);
-						}
-			    		// paramErr still missing...
-			    		spm.setRms(rms);
-			    		spm.setRsquared(r2);
-						
-			    		// Überarbeiten!!! Hier nur noch auf IDs gehen, vorher vielleicht sortieren nach IDs...
-						if (lastSpm != null && lastSpm.getRms() != rms && lastSpm.getRsquared() != r2) {
-							if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-								Integer newSecID = db.insertEm( lastSpm, lastPpm );
-								spm.setEstModelId(newSecID);
-					    		alreadyInsertedEModel.put(estSecModelId, spm);
-								db.insertEm2(newSecID, primIDs);
-								primIDs = new ArrayList<Integer>();		
+			    		Integer modelId = row.getInt(Model2Schema.ATT_MODELID);
+			    		String modelName = row.getString(Model2Schema.ATT_MODELNAME);
+			    		String formula = row.getString(Model2Schema.ATT_FORMULA);
+			    		String depVar = row.getString(Model2Schema.ATT_DEPVAR);
+			    		List<String> indepVar = row.getStringList(Model2Schema.ATT_INDEPVAR);
+			    		List<String> paramName = row.getStringList(Model2Schema.ATT_PARAMNAME);
+			    		if (!paramName.isEmpty()) {
+			    			List<Double> minVal = row.getDoubleList(Model2Schema.ATT_MINVALUE);
+			    			List<Double> maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
+			    			List<Double> minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
+			    			List<Double> maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
+			    			List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
+			    			List<Integer> litID = row.getIntList(Model2Schema.ATT_LITIDM);
+				    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
+				    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
+
+				    		// ab hier: different from ModelCatalogWriter
+				    		estSecModelId = row.getInt(Model2Schema.ATT_ESTMODELID);
+				    		List<Double> paramValues = row.getDoubleList(Model2Schema.ATT_VALUE);
+				    		List<Double> paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
+				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
+				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
+	
+							if (alreadyInsertedModel.containsKey(modelId)) {
+								spm = alreadyInsertedModel.get(modelId);
+					    		spm.setEstModelId(estSecModelId == null ? -1 : estSecModelId);
+					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
+					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
+					    		doLit(spm, litStr, litID, false);
+					    		doLit(spm, litEMStr, litEMID, true);
 							}
+							else {
+					    		spm = new ParametricModel( modelName, formula, depVar, 2, modelId, estSecModelId == null ? -1 : estSecModelId );				    		
+					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
+					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
+					    		doLit(spm, litStr, litID, false);
+					    		doLit(spm, litEMStr, litEMID, true);
+	
+					    		int newSMID = db.insertM( spm );
+					    		spm.setModelId(newSMID);
+								alreadyInsertedModel.put(modelId, spm);
+							}
+				    		// paramErr still missing...
+				    		spm.setRms(rms);
+				    		spm.setRsquared(r2);
+						
+				    		// Überarbeiten!!! Hier nur noch auf IDs gehen, vorher vielleicht sortieren nach IDs...
+							if (lastSpm != null && lastSpm.getRms() != rms && lastSpm.getRsquared() != r2) {
+								if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
+									Integer newSecID = db.insertEm( lastSpm, lastPpm );
+									spm.setEstModelId(newSecID);
+						    		alreadyInsertedEModel.put(estSecModelId, spm);
+									db.insertEm2(newSecID, primIDs);
+									primIDs = new ArrayList<Integer>();		
+								}
+							}
+							primIDs.add(newPrimID);
+							lastSpm = spm;
 						}
-						primIDs.add(newPrimID);
-						lastSpm = spm;
 		    		}
+					else {
+						String text = "Estimated secondary model (ID: " + estSecModelId +
+							") is not storable due to joining with unassociated primary model\n";
+						if (warnings.indexOf(text) < 0)	warnings += text;
+					}
+					lastPpm = ppm;
 				}
 				else {
 					System.err.println("newPrimID: " + newPrimID);
 				}
 			}
-			lastPpm = ppm;
 		}
 		if (model2Conform && lastSpm != null) {
-			if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-				Integer newSecID = db.insertEm( lastSpm, lastPpm );
-				db.insertEm2(newSecID, primIDs);
+			if (M2Writable) {
+				if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
+					Integer newSecID = db.insertEm( lastSpm, lastPpm );
+					db.insertEm2(newSecID, primIDs);
+				}
+			}
+			else {
+				String text = "Estimated secondary model (ID: " + estSecModelId +
+					") is not storable due to joining with unassociated primary model\n";
+			if (warnings.indexOf(text) < 0)	warnings += text;
 			}
 		}
+		if (!warnings.isEmpty()) {
+			this.setWarningMessage(warnings.trim());
+		}			
     	db.close();
         return null;
+    }
+    private void checkIDs(String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, boolean hasList) throws PmmException {
+    	if (hasList) {
+    		List<Integer> keys = row.getIntList(attr);
+        	for (Integer key : keys) {
+        		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+        		row.setValue(attr, foreignDbIds.get(key));
+        	}
+    	}
+    	else {
+        	Integer key = row.getInt(attr);
+    		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+    		row.setValue(attr, foreignDbIds.get(key));
+    	}
     }
 
     private void doLit(final ParametricModel pm, final List<String> litStr,

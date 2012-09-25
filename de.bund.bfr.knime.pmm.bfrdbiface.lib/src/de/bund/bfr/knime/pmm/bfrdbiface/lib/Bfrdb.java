@@ -1093,9 +1093,9 @@ public class Bfrdb extends Hsqldbiface {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
-			if (!doUpdate && cdai != null)
-			 {
+			if (!doUpdate && cdai != null) {
 				condId = cdai;//return null;
+				doUpdate = true;
 			}
 			Integer resultID = null;
 			PreparedStatement ps;
@@ -1137,20 +1137,20 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setInt(4, agentId );
 				}
-				if( agentDetail == null && organism == null) {
+				if( agentDetail == null) {
 					ps.setNull( 5, Types.VARCHAR );
 				} else {
-					ps.setString( 5, organism == null ? agentDetail : organism + "-" + agentDetail );
+					ps.setString( 5, agentDetail );
 				}
 				if (matrixId == null || matrixId <= 0) {
 					ps.setNull( 6, Types.INTEGER );
 				} else {
 					ps.setInt(6, matrixId );
 				}
-				if( matrixDetail == null && environment == null) {
+				if( matrixDetail == null) {
 					ps.setNull( 7, Types.VARCHAR );
 				} else {
-					ps.setString( 7, environment == null ? matrixDetail : environment + "-" + matrixDetail);
+					ps.setString( 7, matrixDetail);
 				}
 
 				if( misc == null ) {
@@ -1339,19 +1339,10 @@ public class Bfrdb extends Hsqldbiface {
 			// delete old data
 			deleteTSData( condId );
 			
-			for(int i = 0; i < time.size(); i++ ) {
-				
-				int timeId = insertDouble( time.get(i) );
-				if( timeId < 0 ) {
-					return null;
-				}
-				
-				int lognId = insertDouble( logc.get(i) );
-				if( lognId < 0 ) {
-					return null;
-				}
-				
-				insertData( condId, timeId, lognId );
+			for (int i = 0; i < time.size(); i++) {				
+				int timeId = insertDouble( time.get(i) );				
+				int lognId = insertDouble( logc.get(i) );				
+				insertData(condId, timeId, lognId);
 			}	
 		}
 		return condId;
@@ -1616,8 +1607,18 @@ public class Bfrdb extends Hsqldbiface {
 			
 			ps = conn.prepareStatement( "INSERT INTO \""+REL_DATA+"\"( \""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \""+ATT_LOG10NUNIT+"\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
 			ps.setInt( 1, condId );
-			ps.setInt( 2, timeId );
-			ps.setInt( 3, lognId );
+			if (timeId >= 0) {
+				ps.setInt(2, timeId);
+			}
+			else {
+				ps.setNull(2, Types.INTEGER);
+			}
+			if (lognId >= 0) {
+				ps.setInt(3, lognId);
+			}
+			else {
+				ps.setNull(3, Types.INTEGER);
+			}
 			
 			ps.executeUpdate();
 			ps.close();

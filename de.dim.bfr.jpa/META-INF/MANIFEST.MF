@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: JPA Peristence for BFR
 Bundle-SymbolicName: de.dim.bfr.jpa;singleton:=true
-Bundle-Version: 1.0.0.v20120924
+Bundle-Version: 1.0.0.v20120926
 Bundle-Activator: de.dim.bfr.jpa.internal.BFRJPAActivator
 Bundle-Vendor: Data in Motion / BfR
 Require-Bundle: de.dim.bfr.model;bundle-version="1.0.0",

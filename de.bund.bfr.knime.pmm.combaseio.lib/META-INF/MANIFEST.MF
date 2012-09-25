@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lib
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.combaseio.lib
-Bundle-Version: 1.0.0.v20120924
+Bundle-Version: 1.0.0.v20120926
 Bundle-Activator: de.bund.bfr.knime.pmm.combaseio.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

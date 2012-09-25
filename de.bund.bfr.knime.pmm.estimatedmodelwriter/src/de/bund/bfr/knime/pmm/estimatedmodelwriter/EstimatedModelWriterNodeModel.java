@@ -157,7 +157,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				newTsID = ts.getCondId();
 			}
 			else {
-				newTsID = db.insertTs( ts );
+				newTsID = db.insertTs(ts);
 				ts.setCondId(newTsID);
 				alreadyInsertedTs.put(tsID, ts);
 			}
@@ -202,14 +202,14 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		// Modellkatalog
 					if (alreadyInsertedModel.containsKey(modelId)) {
 						ppm = alreadyInsertedModel.get(modelId);
-			    		ppm.setEstModelId(estModelId == null ? -1 : estModelId);
+			    		ppm.setEstModelId(estModelId == null ? MathUtilities.getRandomNegativeInt() : estModelId);
 						doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
 			    		doLit(ppm, litStr, litID, false);
 			    		doLit(ppm, litEMStr, litEMID, true);
 					}
 					else {
-			    		ppm = new ParametricModel( modelName, formula, depVar, 1, modelId, estModelId == null ? -1 : estModelId);				
+			    		ppm = new ParametricModel( modelName, formula, depVar, 1, modelId, estModelId == null ? MathUtilities.getRandomNegativeInt() : estModelId);				
 			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
 			    		doLit(ppm, litStr, litID, false);
@@ -219,7 +219,6 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setModelId(newMID);
 						alreadyInsertedModel.put(modelId, ppm);
 					}
-		    		// paramErr still missing...
 		    		ppm.setRms(rms == null ? Double.NaN : rms);
 		    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
     		
@@ -276,14 +275,14 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	
 							if (alreadyInsertedModel.containsKey(modelId)) {
 								spm = alreadyInsertedModel.get(modelId);
-					    		spm.setEstModelId(estSecModelId == null ? -1 : estSecModelId);
+					    		spm.setEstModelId(estSecModelId == null ? MathUtilities.getRandomNegativeInt() : estSecModelId);
 					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
 					    		doLit(spm, litStr, litID, false);
 					    		doLit(spm, litEMStr, litEMID, true);
 							}
 							else {
-					    		spm = new ParametricModel( modelName, formula, depVar, 2, modelId, estSecModelId == null ? -1 : estSecModelId );				    		
+					    		spm = new ParametricModel( modelName, formula, depVar, 2, modelId, estSecModelId == null ? MathUtilities.getRandomNegativeInt() : estSecModelId );				    		
 					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
 					    		doLit(spm, litStr, litID, false);
@@ -293,12 +292,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setModelId(newSMID);
 								alreadyInsertedModel.put(modelId, spm);
 							}
-				    		// paramErr still missing...
 				    		spm.setRms(rms);
 				    		spm.setRsquared(r2);
 						
-				    		// Überarbeiten!!! Hier nur noch auf IDs gehen, vorher vielleicht sortieren nach IDs...
-							if (lastSpm != null && lastSpm.getRms() != rms && lastSpm.getRsquared() != r2) {
+				    		// ... vorher vielleicht sortieren nach IDs...
+							if (lastSpm != null && lastSpm.getEstModelId() != estSecModelId) {
 								if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
 									Integer newSecID = db.insertEm( lastSpm, lastPpm );
 									spm.setEstModelId(newSecID);

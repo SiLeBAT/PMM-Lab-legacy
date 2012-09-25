@@ -200,14 +200,16 @@ public class TableReader {
 						tuple.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(4).add(
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
-				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.ATT_FORMULA,
-						TimeSeriesSchema.ATT_AGENTNAME,
-						TimeSeriesSchema.ATT_MATRIXNAME,
-						TimeSeriesSchema.ATT_MISC));
+				infoParams = new ArrayList<String>(
+						Arrays.asList(Model1Schema.ATT_FORMULA,
+								TimeSeriesSchema.ATT_AGENTNAME,
+								TimeSeriesSchema.ATT_MATRIXNAME,
+								TimeSeriesSchema.ATT_MISC,
+								TimeSeriesSchema.ATT_COMMENT));
 				infoValues = new ArrayList<String>(Arrays.asList(
 						tuple.getString(Model1Schema.ATT_FORMULA), agent,
-						matrix, tuple.getString(TimeSeriesSchema.ATT_MISC)));
+						matrix, tuple.getString(TimeSeriesSchema.ATT_MISC),
+						tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);

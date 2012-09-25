@@ -380,14 +380,16 @@ public class ModelAndDataViewNodeView extends
 						row.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(4).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
-				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.ATT_FORMULA,
-						TimeSeriesSchema.ATT_AGENTNAME,
-						TimeSeriesSchema.ATT_MATRIXNAME,
-						TimeSeriesSchema.ATT_MISC));
+				infoParams = new ArrayList<String>(
+						Arrays.asList(Model1Schema.ATT_FORMULA,
+								TimeSeriesSchema.ATT_AGENTNAME,
+								TimeSeriesSchema.ATT_MATRIXNAME,
+								TimeSeriesSchema.ATT_MISC,
+								TimeSeriesSchema.ATT_COMMENT));
 				infoValues = new ArrayList<String>(Arrays.asList(
 						row.getString(Model1Schema.ATT_FORMULA), agent, matrix,
-						row.getString(TimeSeriesSchema.ATT_MISC)));
+						row.getString(TimeSeriesSchema.ATT_MISC),
+						row.getString(TimeSeriesSchema.ATT_COMMENT)));
 
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);

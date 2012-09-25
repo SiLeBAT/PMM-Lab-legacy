@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.modelcatalogwriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -56,8 +57,10 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -105,6 +108,15 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		boolean model1Conform = inSchema.conforms(new Model1Schema());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+		HashMap<Integer, Integer> foreignDbMC1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbME1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitMC1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitME1Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMC2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbME2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitMC2Ids = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitME2Ids = new HashMap<Integer, Integer>();
+    	String dbuuid = db.getDBUUID();
 
 		int j = 0;
 		List<Integer> alreadySaved = new ArrayList<Integer>();
@@ -113,6 +125,13 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     		
 			KnimeTuple row = reader.nextElement();
 			if (model1Conform) {
+				String rowuuid = row.getString(Model1Schema.ATT_DBUUID);
+				if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+					checkIDs(Model1Schema.ATT_MODELID, foreignDbMC1Ids, row, false);
+					checkIDs(Model1Schema.ATT_ESTMODELID, foreignDbME1Ids, row, false);
+					checkIDs(Model1Schema.ATT_LITIDM, foreignDbLitMC1Ids, row, true);
+					checkIDs(Model1Schema.ATT_LITIDEM, foreignDbLitME1Ids, row, true);
+				}
 				Integer modelId = row.getInt(Model1Schema.ATT_MODELID);
 				if (modelId != null && !alreadySaved.contains(modelId)) {
 					alreadySaved.add(modelId);
@@ -141,6 +160,13 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				}
 			}
 			if (model2Conform) {
+				String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
+				if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+					checkIDs(Model2Schema.ATT_MODELID, foreignDbMC2Ids, row, false);
+					checkIDs(Model2Schema.ATT_ESTMODELID, foreignDbME2Ids, row, false);
+					checkIDs(Model2Schema.ATT_LITIDM, foreignDbLitMC2Ids, row, true);
+					checkIDs(Model2Schema.ATT_LITIDEM, foreignDbLitME2Ids, row, true);
+				}
 	    		Integer modelId = row.getInt(Model2Schema.ATT_MODELID);
 				if (modelId != null && !alreadySaved.contains(modelId)) {
 					alreadySaved.add(modelId);
@@ -174,6 +200,20 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     	
     	db.close();
         return null;
+    }
+    private void checkIDs(String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, boolean hasList) throws PmmException {
+    	if (hasList) {
+    		List<Integer> keys = row.getIntList(attr);
+        	for (Integer key : keys) {
+        		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+        		row.setValue(attr, foreignDbIds.get(key));
+        	}
+    	}
+    	else {
+        	Integer key = row.getInt(attr);
+    		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+    		row.setValue(attr, foreignDbIds.get(key));
+    	}
     }
 
     private void doLit(final ParametricModel pm, final List<String> litStr,

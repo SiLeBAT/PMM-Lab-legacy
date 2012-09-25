@@ -1093,9 +1093,9 @@ public class Bfrdb extends Hsqldbiface {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
-			if (!doUpdate && cdai != null)
-			 {
+			if (!doUpdate && cdai != null) {
 				condId = cdai;//return null;
+				doUpdate = true;
 			}
 			Integer resultID = null;
 			PreparedStatement ps;
@@ -1137,20 +1137,20 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setInt(4, agentId );
 				}
-				if( agentDetail == null && organism == null) {
+				if( agentDetail == null) {
 					ps.setNull( 5, Types.VARCHAR );
 				} else {
-					ps.setString( 5, organism == null ? agentDetail : organism + "-" + agentDetail );
+					ps.setString( 5, agentDetail );
 				}
 				if (matrixId == null || matrixId <= 0) {
 					ps.setNull( 6, Types.INTEGER );
 				} else {
 					ps.setInt(6, matrixId );
 				}
-				if( matrixDetail == null && environment == null) {
+				if( matrixDetail == null) {
 					ps.setNull( 7, Types.VARCHAR );
 				} else {
-					ps.setString( 7, environment == null ? matrixDetail : environment + "-" + matrixDetail);
+					ps.setString( 7, matrixDetail);
 				}
 
 				if( misc == null ) {

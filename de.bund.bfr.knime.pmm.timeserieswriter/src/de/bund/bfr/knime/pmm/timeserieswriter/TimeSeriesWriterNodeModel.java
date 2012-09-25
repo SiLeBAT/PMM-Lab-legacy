@@ -35,6 +35,8 @@ package de.bund.bfr.knime.pmm.timeserieswriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -53,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
@@ -98,45 +101,54 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+		HashMap<Integer, Integer> foreignDbTsIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMiscIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbAgentIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbMatrixIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, Integer> foreignDbLitTsIds = new HashMap<Integer, Integer>();
+    	String dbuuid = db.getDBUUID();
 
 		int j = 0;
-		String errors = "";
+		String warnings = "";
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
     		
 			KnimeTuple row = reader.nextElement();
-			/*
-			Integer condId = row.getInt(TimeSeriesSchema.ATT_CONDID);
-			String combaseId = row.getString(TimeSeriesSchema.ATT_COMBASEID);
-			Integer miscId = row.getInt(TimeSeriesSchema.ATT_MISCID);
-			List<String> misc = row.getStringList(TimeSeriesSchema.ATT_MISC);
-			Double temp = row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-			Double ph = row.getDouble(TimeSeriesSchema.ATT_PH);
-			Double aw = row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-			Integer agentId = row.getInt(TimeSeriesSchema.ATT_AGENTID);
-			String agent = row.getString(TimeSeriesSchema.ATT_AGENTNAME);
-			String agentDetail = row.getString(TimeSeriesSchema.ATT_AGENTDETAIL);
-			Integer matrixId = row.getInt(TimeSeriesSchema.ATT_MATRIXID);
-			String matrix = row.getString(TimeSeriesSchema.ATT_MATRIXNAME);
-			String matrixDetail = row.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
-			List<Double> time = row.getDoubleList(TimeSeriesSchema.ATT_TIME);
-			List<Double> logc = row.getDoubleList(TimeSeriesSchema.ATT_LOGC);
-			String comment = row.getString(TimeSeriesSchema.ATT_COMMENT);
-			List<Integer> litIDs = row.getIntList(TimeSeriesSchema.ATT_LITIDTS);
-			List<String> lits = row.getStringList(TimeSeriesSchema.ATT_LITTS);
-*/
+			String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+			if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+				checkIDs(TimeSeriesSchema.ATT_CONDID, foreignDbTsIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_MISCID, foreignDbMiscIds, row, true);
+				checkIDs(TimeSeriesSchema.ATT_AGENTID, foreignDbAgentIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_MATRIXID, foreignDbMatrixIds, row, false);
+				checkIDs(TimeSeriesSchema.ATT_LITIDTS, foreignDbLitTsIds, row, true);
+			}
+
 			PmmTimeSeries ts = new PmmTimeSeries(row);
 			
 			db.insertTs( ts );
 			if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
-				errors += ts.getWarning() + "\n";
+				warnings += ts.getWarning() + "\n";
 			}
 		}
-		if (!errors.isEmpty()) {
-			setWarningMessage(errors);
+		if (!warnings.isEmpty()) {
+			this.setWarningMessage(warnings);
 		}			
     	db.close();
         return null;
+    }
+    private void checkIDs(String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, boolean hasList) throws PmmException {
+    	if (hasList) {
+    		List<Integer> keys = row.getIntList(attr);
+        	for (Integer key : keys) {
+        		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+        		row.setValue(attr, foreignDbIds.get(key));
+        	}
+    	}
+    	else {
+        	Integer key = row.getInt(attr);
+    		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
+    		row.setValue(attr, foreignDbIds.get(key));
+    	}
     }
     /**
      * {@inheritDoc}

@@ -93,7 +93,7 @@ import de.bund.bfr.knime.pmm.common.ui.TextListener;
 public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		ActionListener {
 
-	private static final int ROW_COUNT = 100;
+	private static final int ROW_COUNT = 1000;
 	private static final int DEFAULT_TIMESTEPNUMBER = 10;
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
 
@@ -489,6 +489,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> logcList = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+
+				if (timeList.size() > ROW_COUNT) {
+					JOptionPane.showMessageDialog(panel,
+							"Number of measured points XLS-file exceeds maximum number of rows ("
+									+ ROW_COUNT + ")", "Warning",
+							JOptionPane.WARNING_MESSAGE);
+				}
 
 				for (int i = 0; i < ROW_COUNT; i++) {
 					Double time = null;

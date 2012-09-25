@@ -199,12 +199,17 @@ public class ModelCombiner {
 			}
 
 			if (newTuple.getInt(Model1Schema.ATT_ESTMODELID) != null) {
-				int newEstID = newTuple.getInt(Model1Schema.ATT_ESTMODELID)
+				Integer newEstID = newTuple.getInt(Model1Schema.ATT_ESTMODELID)
 						/ modelCount;
 
 				for (KnimeTuple tuple : usedTuples) {
-					newEstID += tuple.getInt(Model2Schema.ATT_ESTMODELID)
-							/ modelCount;
+					if (tuple.getInt(Model2Schema.ATT_ESTMODELID) != null) {
+						newEstID += tuple.getInt(Model2Schema.ATT_ESTMODELID)
+								/ modelCount;
+					} else {
+						newEstID = null;
+						break;
+					}
 				}
 
 				newTuple.setValue(Model1Schema.ATT_ESTMODELID, newEstID);

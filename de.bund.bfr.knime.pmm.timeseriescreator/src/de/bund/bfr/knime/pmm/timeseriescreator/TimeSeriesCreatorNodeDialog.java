@@ -93,7 +93,7 @@ import de.bund.bfr.knime.pmm.common.ui.TextListener;
 public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		ActionListener {
 
-	private static final int ROW_COUNT = 100;
+	private static final int ROW_COUNT = 1000;
 	private static final int DEFAULT_TIMESTEPNUMBER = 10;
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
 
@@ -267,7 +267,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_TIMEARRAY);
 
 			for (int i = 0; i < timeArray.length; i++) {
-				table.setValueAt(timeArray[i], i, 0);
+				if (!Double.isNaN(timeArray[i])) {
+					table.setValueAt(timeArray[i], i, 0);
+				}
 			}
 		} catch (InvalidSettingsException e) {
 		} catch (NullPointerException e) {
@@ -278,7 +280,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_LOGCARRAY);
 
 			for (int i = 0; i < logcArray.length; i++) {
-				table.setValueAt(logcArray[i], i, 1);
+				if (!Double.isNaN(logcArray[i])) {
+					table.setValueAt(logcArray[i], i, 1);
+				}
 			}
 		} catch (InvalidSettingsException e) {
 		} catch (NullPointerException e) {
@@ -360,14 +364,19 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		for (int i = 0; i < ROW_COUNT; i++) {
 			Double time = (Double) table.getValueAt(i, 0);
 			Double logc = (Double) table.getValueAt(i, 1);
-			
-			if (logc == null) {
-				logc = 0.0;
-			}
 
-			if (time != null) {
-				timeList.add(time);
-				logcList.add(logc);
+			if (time != null || logc != null) {
+				if (time != null) {
+					timeList.add(time);
+				} else {
+					timeList.add(Double.NaN);
+				}
+
+				if (logc != null) {
+					logcList.add(logc);
+				} else {
+					logcList.add(Double.NaN);
+				}
 			}
 		}
 
@@ -480,6 +489,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> logcList = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+
+				if (timeList.size() > ROW_COUNT) {
+					JOptionPane.showMessageDialog(panel,
+							"Number of measured points XLS-file exceeds maximum number of rows ("
+									+ ROW_COUNT + ")", "Warning",
+							JOptionPane.WARNING_MESSAGE);
+				}
 
 				for (int i = 0; i < ROW_COUNT; i++) {
 					Double time = null;

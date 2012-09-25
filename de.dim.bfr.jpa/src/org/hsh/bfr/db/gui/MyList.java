@@ -106,15 +106,15 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    
 	
 		    root 		= new InvisibleNode(".");
-		    children[SystemTabellen_LIST] = new InvisibleNode("System-Tabellen");
-		    children[BasisTabellen_LIST] = new InvisibleNode("Basis-Tabellen");
-		    children[Tenazitaet_LIST] = new InvisibleNode("Tenazität");
-		    children[PMModelle_LIST] = new InvisibleNode("PMModelle");
-		    children[Krankheitsbilder_LIST] = new InvisibleNode("Krankheitsbilder");
-		    children[Prozessdaten_LIST] = new InvisibleNode("Prozessdaten");
-		    children[Nachweissysteme_LIST] = new InvisibleNode("Nachweissysteme");
-		    children[Modell_LIST] = new InvisibleNode("Modell");
-		    children[Lieferketten_LIST] = new InvisibleNode("Lieferketten");
+		    children[SystemTabellen_LIST] = new InvisibleNode(GuiMessages.getString("System-Tabellen"));
+		    children[BasisTabellen_LIST] = new InvisibleNode(GuiMessages.getString("Basis-Tabellen"));
+		    children[Tenazitaet_LIST] = new InvisibleNode(GuiMessages.getString("Tenazität"));
+		    children[PMModelle_LIST] = new InvisibleNode(GuiMessages.getString("PMModelle"));
+		    children[Krankheitsbilder_LIST] = new InvisibleNode(GuiMessages.getString("Krankheitsbilder"));
+		    children[Prozessdaten_LIST] = new InvisibleNode(GuiMessages.getString("Prozessdaten"));
+		    children[Nachweissysteme_LIST] = new InvisibleNode(GuiMessages.getString("Nachweissysteme"));
+		    children[Modell_LIST] = new InvisibleNode(GuiMessages.getString("Modell"));
+		    children[Lieferketten_LIST] = new InvisibleNode(GuiMessages.getString("Lieferketten"));
 	
 		    for (int i=0; i < children.length; i++) {
 		    	if (DBKernel.isKrise) {
@@ -135,9 +135,9 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    root.add(children[BasisTabellen_LIST]);
 		    root.add(children[Tenazitaet_LIST]); //
 		    root.add(children[PMModelle_LIST]); //
-		    root.add(children[Krankheitsbilder_LIST]);
-		    root.add(children[Prozessdaten_LIST]); //
-		    root.add(children[Nachweissysteme_LIST]);
+		    if (!DBKernel.isKNIME) root.add(children[Krankheitsbilder_LIST]);
+		    if (!DBKernel.isKNIME) root.add(children[Prozessdaten_LIST]); //
+		    if (!DBKernel.isKNIME) root.add(children[Nachweissysteme_LIST]);
 		    //root.add(children[Modell_LIST]);
 		    if (DBKernel.isKrise) {
 				root.add(children[Lieferketten_LIST]);
@@ -247,14 +247,13 @@ public void valueChanged(final TreeSelectionEvent event) {
 				 //) {
 			myTables.put(tn, myT);
 			if (child >= children.length) { //  || child < 0 wird nicht angezeigt!
-				InvisibleNode iNode = new InvisibleNode(myT);
+				InvisibleNode iNode = new InvisibleNode(myT == null ? null : GuiMessages.getString(myT.toString()));
 				iNode.setVisible(visible && DBKernel.prefs.getBoolean("VIS_NODE_" + myT.getTablename(), true));
 				root.add(iNode);
 			}
 			else if (child >= 0) {
 				InvisibleNode iNode = new InvisibleNode(myT);
-				if (DBKernel.isKrise)
-				 {
+				if (DBKernel.isKrise) {
 					iNode.setVisible(child == Lieferketten_LIST); // visible			
 				}
 				children[child].add(iNode);

@@ -172,8 +172,11 @@ public class StartApp {
 	    	  	}
 	    	  	else if (kernConn != null) {
 		    	  	System.err.println("W3");
-		    	  	DBKernel.mainFrame.setVisible(setVisible);
-		    	  	DBKernel.mainFrame.toFront();	    	  		
+		    	  	try {
+			    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
+			    	  	DBKernel.mainFrame.toFront();	    	  		
+		    	  	}
+		    	  	catch (Exception e) {e.printStackTrace();}
 	    	  	}
 	    	  	System.err.println("W4");
 	      }

@@ -116,7 +116,7 @@ public class AttributeUtilities {
 		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
 			return Arrays.asList("h", "min", "sec", "days", "weeks");
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			return Arrays.asList("log KBE/g");
+			return Arrays.asList("log cfu/g");
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
 			return Arrays.asList("°C", "°F");
 		} else {
@@ -143,7 +143,7 @@ public class AttributeUtilities {
 				return value * 168.0;
 			}
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			if (unit.equals("log KBE/g")) {
+			if (unit.equals("log cfu/g")) {
 				return value;
 			}
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
@@ -161,7 +161,7 @@ public class AttributeUtilities {
 		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
 			return "h";
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			return "log KBE/g";
+			return "log cfu/g";
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
 			return "C°";
 		} else {

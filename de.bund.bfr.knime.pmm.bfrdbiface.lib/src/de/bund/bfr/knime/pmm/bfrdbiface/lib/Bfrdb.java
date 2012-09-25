@@ -746,7 +746,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	public ResultSet selectTs() throws SQLException {	
-		System.err.println(queryTimeSeries5);
+		//System.err.println(queryTimeSeries5);
 		return pushQuery( queryTimeSeries5 );
 	}
 	
@@ -1164,7 +1164,7 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setString( 9, comment );
 				}
-				if( litIDs == null || litIDs.size() == 0 || litIDs.get(0) != null || litIDs.get(0) <= 0) {
+				if( litIDs == null || litIDs.size() == 0 || litIDs.get(0) == null || litIDs.get(0) <= 0) {
 					ps.setNull( 10, Types.INTEGER );
 				} else {
 					ps.setInt( 10, litIDs.get(0) );

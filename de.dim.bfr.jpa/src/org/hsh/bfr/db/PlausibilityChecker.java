@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.Vector;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 
 /**
  * @author Weiser
@@ -79,7 +80,7 @@ public class PlausibilityChecker {
 				int diesjahr = cal.get(Calendar.YEAR);
 				if (jahr < 1100 && jahr > diesjahr) {
 					result = new String[1];
-					result[0] = "Merkwürdige Jahresangabe...";
+					result[0] = GuiMessages.getString("Merkwürdige Jahresangabe...");
 				}
 			}
 		}
@@ -102,19 +103,19 @@ public class PlausibilityChecker {
     				if (fieldname.equalsIgnoreCase("ph")) {
     					result.add(new String[] {
     						getDKSQL(myT.getTablename(), fieldname, -1, 15, idConf),
-    						"Der pH-Wert muss zwischen -1 und 15 liegen!"
+    						GuiMessages.getString("Der pH-Wert muss zwischen -1 und 15 liegen!")
     					});
     				}
     				else if (fieldname.equalsIgnoreCase("aw")) {
     					result.add(new String[] {
     							getDKSQL(myT.getTablename(), fieldname, 0, 1, idConf),
-    							"Der aw-Wert muss zwischen 0 und 1 liegen!"
+    							GuiMessages.getString("Der aw-Wert muss zwischen 0 und 1 liegen!")
         					});
     				}
     				else if (fieldname.equalsIgnoreCase("Temperatur")) {
     					result.add(new String[] {
     							getDKSQL(myT.getTablename(), fieldname, -273, 1000, idConf),
-    							"Die Temperatur muss zwischen -273 und 1000 liegen!"
+    							GuiMessages.getString("Die Temperatur muss zwischen -273 und 1000 liegen!")
         					});
     				}
     				
@@ -123,7 +124,7 @@ public class PlausibilityChecker {
 									fieldname,
 									DBKernel.delimitL("Wiederholungen") + " <= 1",
 									idConf),
-	    							fieldname + ": Wenn die Anzahl der Wiederholungen = 1 ist, dann sollte ein Einzelwert eingetragen werden! Anzahl Wiederholungen < 1 machen keinen Sinn!"
+	    							fieldname + ": " + GuiMessages.getString("Wenn die Anzahl der Wiederholungen = 1 ist, dann sollte ein Einzelwert eingetragen werden! Anzahl Wiederholungen < 1 machen keinen Sinn!")
     					});
 					result.add(new String[] {
 							getDKSQL2(myT.getTablename(),
@@ -134,7 +135,7 @@ public class PlausibilityChecker {
 									DBKernel.delimitL("UCL95") + " IS NOT NULL OR " + DBKernel.delimitL("LCL95") + " IS NOT NULL OR " +
 									DBKernel.delimitL("Verteilung") + " IS NOT NULL)",
 									idConf), //  OR " + DBKernel.delimitL("Verteilung") + " = ''
-	    							fieldname + ": Wenn die Anzahl der Wiederholungen nicht definiert ist, dann kann MW/Median/UCL/LCL/SD/Verteilung nicht gegeben sein!"
+	    							fieldname + ": " + GuiMessages.getString("Wenn die Anzahl der Wiederholungen nicht definiert ist, dann kann MW/Median/UCL/LCL/SD/Verteilung nicht gegeben sein!")
     					});
 					result.add(new String[] {
 							getDKSQL2(myT.getTablename(),
@@ -142,7 +143,7 @@ public class PlausibilityChecker {
 									DBKernel.delimitL("Wiederholungen") + " > 1 AND " +
 									DBKernel.delimitL("Wert") + " IS NOT NULL AND (" + DBKernel.delimitL("Wert_typ") + " IS NULL OR " + DBKernel.delimitL("Wert_typ") + " = 1)",
 									idConf),
-	    							fieldname + ": Wenn die Anzahl der Wiederholungen > 1 ist, dann kann ein Einzelwert nicht gegeben sein!"
+	    							fieldname + ": " + GuiMessages.getString("Wenn die Anzahl der Wiederholungen > 1 ist, dann kann ein Einzelwert nicht gegeben sein!")
     					});
 					/*
 					result.add(new String[] {
@@ -193,7 +194,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Matrixname") + " IS NULL",
-						"Ein Matrixname sollte angegeben werden!"
+						GuiMessages.getString("Ein Matrixname sollte angegeben werden!")
 						});
 			}
 		}
@@ -202,7 +203,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Agensname") + " IS NULL",
-						"Ein Agensname sollte angegeben werden!"
+						GuiMessages.getString("Ein Agensname sollte angegeben werden!")
 						});
 			}
 		}
@@ -211,12 +212,12 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Name") + " IS NULL",
-						"Ein Name sollte angegeben werden!"
+						GuiMessages.getString("Ein Name sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Referenz") + " IS NULL",
-						"Eine Referenz sollte angegeben werden!"
+						GuiMessages.getString("Eine Referenz sollte angegeben werden!")
 						});
 			}
 		}
@@ -225,12 +226,12 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Name") + " IS NULL",
-						"Ein Name sollte angegeben werden!"
+						GuiMessages.getString("Ein Name sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("EMail") + " IS NULL OR " + DBKernel.delimitL("Telefon") + " IS NULL",
-						"Eine E-Mail Adresse oder eine Telefonnummer sollte angegeben werden!"
+						GuiMessages.getString("Eine E-Mail Adresse oder eine Telefonnummer sollte angegeben werden!")
 						});
 			}
 		}
@@ -239,7 +240,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Erstautor") + " IS NULL OR " + DBKernel.delimitL("Jahr") + " IS NULL OR " + DBKernel.delimitL("Titel") + " IS NULL",
-						"Erstautor, Jahr, Titel sollten angegeben werden!"
+						GuiMessages.getString("Erstautor, Jahr, Titel sollten angegeben werden!")
 						});
 				Calendar cal = Calendar.getInstance();
 				cal.setTime(new Date()); //heute
@@ -247,7 +248,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Jahr") + " < 1100 OR " + DBKernel.delimitL("Jahr") + " > " + jahr,
-						"Merkwürdige Jahresangabe...!"
+						GuiMessages.getString("Merkwürdige Jahresangabe...")
 						});
 			}
 		}
@@ -255,37 +256,37 @@ public class PlausibilityChecker {
 			if (table == null) {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("Referenz") + " IS NULL",
-						"Eine Referenz sollte angegeben werden!"
+						GuiMessages.getString("Eine Referenz sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("Agens") + " IS NULL",
-						"Ein Agens sollte angegeben werden!"
+						GuiMessages.getString("Ein Agens sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Krankheitsverlauf") + " IS NOT NULL AND " + DBKernel.delimitL("Zielpopulation") + " IS NULL",
-						"Bei Dateneingabe in \"Krankheitsverlauf\" muss Dateneingabe in \"Zielpopulation\" vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Krankheitsverlauf\" muss Dateneingabe in \"Zielpopulation\" vorhanden sein")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Inkubationszeit") + " IS NOT NULL AND " + DBKernel.delimitL("IZ_Einheit") + " IS NULL" +
 								" OR " + DBKernel.delimitL("Inkubationszeit") + " IS NULL AND " + DBKernel.delimitL("IZ_Einheit") + " IS NOT NULL",
-						"Bei Dateneingabe in \"Inkubationszeit\" muss Dateneingabe in \"IZ_Einheit\" erfolgen; " +
-						"falls in \"Inkubationszeit\" keine Eingabe vorhanden ist, darf auch in \"IZ_Einheit\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Inkubationszeit\" muss Dateneingabe in \"IZ_Einheit\" erfolgen; " +
+						"falls in \"Inkubationszeit\" keine Eingabe vorhanden ist, darf auch in \"IZ_Einheit\" kein Eintrag vorhanden sein")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Symptomdauer") + " IS NOT NULL AND " + DBKernel.delimitL("SD_Einheit") + " IS NULL" +
 								" OR " + DBKernel.delimitL("Symptomdauer") + " IS NULL AND " + DBKernel.delimitL("SD_Einheit") + " IS NOT NULL",
-						"Bei Dateneingabe in \"Symptomdauer\" muss Dateneingabe in \"SD_Einheit\" erfolgen; " +
-						"falls in \"Symptomdauer\" keine Eingabe vorhanden ist, darf auch in \"SD_Einheit\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Symptomdauer\" muss Dateneingabe in \"SD_Einheit\" erfolgen; " +
+						"falls in \"Symptomdauer\" keine Eingabe vorhanden ist, darf auch in \"SD_Einheit\" kein Eintrag vorhanden sein")
 						});				
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Infektionsdosis") + " IS NOT NULL AND " + DBKernel.delimitL("ID_Einheit") + " IS NULL" +
 								" OR " + DBKernel.delimitL("Infektionsdosis") + " IS NULL AND " + DBKernel.delimitL("ID_Einheit") + " IS NOT NULL",
-						"Bei Dateneingabe in \"Infektionsdosis\" muss Dateneingabe in \"ID_Einheit\" erfolgen; " +
-						"falls in \"Infektionsdosis\" keine Eingabe vorhanden ist, darf auch in \"ID_Einheit\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Infektionsdosis\" muss Dateneingabe in \"ID_Einheit\" erfolgen; " +
+						"falls in \"Infektionsdosis\" keine Eingabe vorhanden ist, darf auch in \"ID_Einheit\" kein Eintrag vorhanden sein")
 						});				
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -295,8 +296,8 @@ public class PlausibilityChecker {
 								" OR " + DBKernel.delimitL("Letalitaetsdosis50") + " IS NULL AND (" +
 									DBKernel.delimitL("LD50_Einheit") + " IS NOT NULL OR " + DBKernel.delimitL("LD50_Organismus") + " IS NOT NULL OR " +
 									DBKernel.delimitL("LD50_Aufnahmeroute") + " IS NOT NULL)",
-						"Bei Dateneingabe in \"Letalitaetsdosis50\" muss Dateneingabe in \"LD50_Einheit\",\"LD50_Organismus\" und \"LD50_Aufnahmeroute\" erfolgen; " +
-						"falls in \"Letalitaetsdosis50\" keine Eingabe vorhanden ist, darf auch in \"LD50_Einheit\",\"LD50_Organismus\" und \"LD50_Aufnahmeroute\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Letalitaetsdosis50\" muss Dateneingabe in \"LD50_Einheit\",\"LD50_Organismus\" und \"LD50_Aufnahmeroute\" erfolgen; " +
+						"falls in \"Letalitaetsdosis50\" keine Eingabe vorhanden ist, darf auch in \"LD50_Einheit\",\"LD50_Organismus\" und \"LD50_Aufnahmeroute\" kein Eintrag vorhanden sein")
 						});				
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -306,14 +307,14 @@ public class PlausibilityChecker {
 								" OR " + DBKernel.delimitL("Letalitaetsdosis100") + " IS NULL AND (" +
 									DBKernel.delimitL("LD100_Einheit") + " IS NOT NULL OR " + DBKernel.delimitL("LD100_Organismus") + " IS NOT NULL OR " +
 									DBKernel.delimitL("LD100_Aufnahmeroute") + " IS NOT NULL)",
-						"Bei Dateneingabe in \"Letalitaetsdosis100\" muss Dateneingabe in \"LD100_Einheit\",\"LD100_Organismus\" und \"LD100_Aufnahmeroute\" erfolgen; " +
-						"falls in \"Letalitaetsdosis100\" keine Eingabe vorhanden ist, darf auch in \"LD100_Einheit\",\"LD100_Organismus\" und \"LD100_Aufnahmeroute\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Bei Dateneingabe in \"Letalitaetsdosis100\" muss Dateneingabe in \"LD100_Einheit\",\"LD100_Organismus\" und \"LD100_Aufnahmeroute\" erfolgen; " +
+						"falls in \"Letalitaetsdosis100\" keine Eingabe vorhanden ist, darf auch in \"LD100_Einheit\",\"LD100_Organismus\" und \"LD100_Aufnahmeroute\" kein Eintrag vorhanden sein")
 						});				
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Letalitaet") + " IS NOT NULL AND " + DBKernel.delimitL("Therapie_Letal") + " IS NULL" +
 								" OR " + DBKernel.delimitL("Letalitaet") + " IS NULL AND " + DBKernel.delimitL("Therapie_Letal") + " IS NOT NULL",
-						"Falls Angabe in \"Letalitaet\" muss Dateneingabe in \"Therapie_Letal\" getroffen werden; falls in \"Letalitaet\" keine Eingabe vorhanden ist, darf auch in \"Therapie_Letal\" kein Eintrag vorhanden sein"
+						GuiMessages.getString("Falls Angabe in \"Letalitaet\" muss Dateneingabe in \"Therapie_Letal\" getroffen werden; falls in \"Letalitaet\" keine Eingabe vorhanden ist, darf auch in \"Therapie_Letal\" kein Eintrag vorhanden sein")
 						});				
 			}
 		}
@@ -322,7 +323,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Anbieter") + " IS NULL",
-						"Ein Anbieter sollte angegeben werden!"
+						GuiMessages.getString("Ein Anbieter sollte angegeben werden!")
 						});
 			}
 		}
@@ -331,7 +332,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kontakt") + " IS NULL",
-						"Ein Kontakt sollte angegeben werden!"
+						GuiMessages.getString("Ein Kontakt sollte angegeben werden!")
 						});
 			}
 		}
@@ -373,27 +374,27 @@ public class PlausibilityChecker {
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Delta") + " AND " + DBKernel.delimitL("Zeit") + " = 0",
-					"Für den Zeitpunkt 0 kann das Delta Feld nicht angehakt sein!"
+					GuiMessages.getString("Für den Zeitpunkt 0 kann das Delta Feld nicht angehakt sein!")
 					});
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Zeit") + " IS NULL",
-					"Zeit muss angegeben werden!"
+					GuiMessages.getString("Zeit muss angegeben werden!")
 					});
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("ZeitEinheit") + " IS NULL",
-					"Zeiteinheit muss angegeben werden!"
+					GuiMessages.getString("Zeiteinheit muss angegeben werden!")
 					});
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Konzentration") + " IS NULL",
-					"Konzentration muss angegeben werden!"
+					GuiMessages.getString("Konzentration muss angegeben werden!")
 					});
 			result.add(new String[]{
 					"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 					" WHERE " + DBKernel.delimitL("Konz_Einheit") + " IS NULL",
-					"Die Einheit für die Konzentration sollte eingetragen werden!"
+					GuiMessages.getString("Die Einheit für die Konzentration sollte eingetragen werden!")
 					});
 			if (table == null) {
 			}
@@ -428,22 +429,22 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Referenz") + " IS NULL",
-						"Eine Referenz in den Versuchsbedingungen sollte angegeben werden!"
+						GuiMessages.getString("Eine Referenz in den Versuchsbedingungen sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Agens") + " IS NULL",
-						"Ein Agens in den Versuchsbedingungen sollte angegeben werden!"
+						GuiMessages.getString("Ein Agens in den Versuchsbedingungen sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Matrix") + " IS NULL",
-						"Eine Matrix in den Versuchsbedingungen sollte angegeben werden!"
+						GuiMessages.getString("Eine Matrix in den Versuchsbedingungen sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Temperatur") + " IS NULL",
-						"Temperatur muss angegeben werden!"
+						GuiMessages.getString("Temperatur muss angegeben werden!")
 						});
 			}
 		}
@@ -452,17 +453,17 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kosten") + " IS NOT NULL AND " + DBKernel.delimitL("KostenEinheit") + " IS NULL",
-						"Die Einheit für die Kosten sollte eingetragen werden!"
+						GuiMessages.getString("Die Einheit für die Kosten sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("ZertifikatNr") + " IS NOT NULL AND (" + DBKernel.delimitL("Gueltigkeit") + " IS NULL OR " + DBKernel.delimitL("Zertifizierungssystem") + " IS NULL)",
-						"Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!"
+						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Testanbieter") + " IS NULL OR " + DBKernel.delimitL("AnbieterAngebot") + " IS NULL",
-						"Einen Testanbieter und ein AnbieterAngebot sollte es immer geben! Wenn es ein InHouse Kit ist, dann sollte als Kontakt die eigene Adresse angegeben werden und als Angebot interne Informationen"
+						GuiMessages.getString("Einen Testanbieter und ein AnbieterAngebot sollte es immer geben! Wenn es ein InHouse Kit ist, dann sollte als Kontakt die eigene Adresse angegeben werden und als Angebot interne Informationen")
 						});
 			}
 		}		
@@ -471,22 +472,22 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Dauer") + " IS NULL OR " + DBKernel.delimitL("DauerEinheit") + " IS NULL",
-						"Die Dauer und deren Einheit sollte eingetragen werden!"
+						GuiMessages.getString("Die Dauer und deren Einheit sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Personalressourcen") + " IS NOT NULL AND " + DBKernel.delimitL("ZeitEinheit") + " IS NULL",
-						"Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!"
+						GuiMessages.getString("Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kosten") + " IS NULL OR " + DBKernel.delimitL("KostenEinheit") + " IS NULL",
-						"Die Kosten und deren Einheit sollte eingetragen werden!"
+						GuiMessages.getString("Die Kosten und deren Einheit sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Matrix") + " IS NULL",
-						"Eine Matrix sollte angegeben werden!"
+						GuiMessages.getString("Eine Matrix sollte angegeben werden!")
 						});
 			}
 		}
@@ -495,22 +496,22 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kosten") + " IS NULL OR " + DBKernel.delimitL("KostenEinheit") + " IS NULL",
-						"Die Kosten und deren Einheit sollte eingetragen werden!"
+						GuiMessages.getString("Die Kosten und deren Einheit sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Agens") + " IS NULL",
-						"Eine Agens sollte angegeben werden!"
+						GuiMessages.getString("Eine Agens sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Dauer") + " IS NULL OR " + DBKernel.delimitL("DauerEinheit") + " IS NULL",
-						"Die Dauer und deren Einheit sollte eingetragen werden!"
+						GuiMessages.getString("Die Dauer und deren Einheit sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Personalressourcen") + " IS NOT NULL AND " + DBKernel.delimitL("ZeitEinheit") + " IS NULL",
-						"Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!"
+						GuiMessages.getString("Die Zeiteinheit für die Personalressourcen sollte eingetragen werden!")
 						});
 			}
 		}
@@ -519,22 +520,22 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Nachweisgrenze") + " IS NOT NULL AND " + DBKernel.delimitL("NG_Einheit") + " IS NULL",
-						"Die Einheit für die Nachweisgrenze sollte eingetragen werden!"
+						GuiMessages.getString("Die Einheit für die Nachweisgrenze sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Referenz") + " IS NULL",
-						"Eine Referenz sollte angegeben werden!"
+						GuiMessages.getString("Eine Referenz sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Nachweisverfahren") + " IS NULL",
-						"Eine Nachweisverfahren sollte angegeben werden!"
+						GuiMessages.getString("Eine Nachweisverfahren sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Aufbereitungsverfahren") + " IS NULL",
-						"Ein Aufbereitungsverfahren sollte angegeben werden!"
+						GuiMessages.getString("Ein Aufbereitungsverfahren sollte angegeben werden!")
 						});
 			}
 		}
@@ -543,32 +544,32 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Durchsatz") + " IS NOT NULL AND " + DBKernel.delimitL("DurchsatzEinheit") + " IS NULL",
-						"Die Einheit für den Durchsatz sollte eingetragen werden!"
+						GuiMessages.getString("Die Einheit für den Durchsatz sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Kosten") + " IS NULL OR " + DBKernel.delimitL("KostenEinheit") + " IS NULL",
-						"Die Kosten und deren Einheit sollte eingetragen werden!"
+						GuiMessages.getString("Die Kosten und deren Einheit sollte eingetragen werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("ZertifikatNr") + " IS NOT NULL AND (" + DBKernel.delimitL("Gueltigkeit") + " IS NULL OR " + DBKernel.delimitL("Zertifizierungssystem") + " IS NULL)",
-						"Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!"
+						GuiMessages.getString("Wenn die ZertifikatNummer angegeben ist, dann sollte auch deren Gültigkeit und das Zertifizierungssystem angegeben sein!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Labor") + " IS NULL",
-						"Eine Labor sollte angegeben werden!"
+						GuiMessages.getString("Eine Labor sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Aufbereitungs_Nachweisverfahren") + " IS NULL",
-						"Ein Aufbereitungs_Nachweisverfahren sollte angegeben werden!"
+						GuiMessages.getString("Ein Aufbereitungs_Nachweisverfahren sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("LaborAngebot") + " IS NULL",
-						"Ein LaborAngebot sollte angegeben werden!"
+						GuiMessages.getString("Ein LaborAngebot sollte angegeben werden!")
 						});
 			}
 		}
@@ -577,7 +578,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Guetescore") + " IS NOT NULL AND (" + DBKernel.delimitL("Kommentar") + " IS NULL OR LENGTH(LTRIM(" + DBKernel.delimitL("Kommentar") + "))=0)",
-						"Wenn die Ampel geschaltet ist, MUSS ein Kommentar dazu abgegeben werden!"
+						GuiMessages.getString("Wenn die Ampel geschaltet ist, MUSS ein Kommentar dazu abgegeben werden!")
 						});				
 			}
 		}
@@ -595,7 +596,7 @@ public class PlausibilityChecker {
 	private static String checkPlausibleDBL(Object kzID, String tname, String spaltenname, Integer tableID) {
 		String ergebnis = null;		
 		if (kzID != null) {
-			String msg = "Wenn die Anzahl der Wiederholungen = 1 ist, dann sollte ein Einzelwert eingetragen werden! Anzahl Wiederholungen < 1 machen keinen Sinn!";
+			String msg = GuiMessages.getString("Wenn die Anzahl der Wiederholungen = 1 ist, dann sollte ein Einzelwert eingetragen werden! Anzahl Wiederholungen < 1 machen keinen Sinn!");
 			String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("DoubleKennzahlen") +
 			" WHERE " + DBKernel.delimitL("Wiederholungen") + " <= 1 AND " + DBKernel.delimitL("ID") + "=" + kzID;
 			ResultSet rs = DBKernel.getResultSet(sql, false);
@@ -606,7 +607,7 @@ public class PlausibilityChecker {
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
 
-			msg = "Wenn die Anzahl der Wiederholungen nicht definiert ist, dann kann MW/Median/UCL/LCL/SD/Verteilung nicht gegeben sein!";
+			msg = GuiMessages.getString("Wenn die Anzahl der Wiederholungen nicht definiert ist, dann kann MW/Median/UCL/LCL/SD/Verteilung nicht gegeben sein!");
 			sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("DoubleKennzahlen") +
 			" WHERE " + DBKernel.delimitL("ID") + "=" + kzID + " AND " +
 			DBKernel.delimitL("Wiederholungen") + " IS NULL AND (" +
@@ -621,7 +622,7 @@ public class PlausibilityChecker {
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
 
-			msg = "Wenn die Anzahl der Wiederholungen > 1 ist, dann kann ein Einzelwert nicht gegeben sein!";
+			msg = GuiMessages.getString("Wenn die Anzahl der Wiederholungen > 1 ist, dann kann ein Einzelwert nicht gegeben sein!");
 			sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("DoubleKennzahlen") +
 			" WHERE " + DBKernel.delimitL("ID") + "=" + kzID + " AND " +
 			DBKernel.delimitL("Wiederholungen") + " > 1 AND " +
@@ -634,7 +635,7 @@ public class PlausibilityChecker {
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
 
-			msg = "Wenigstens einer der Werte Wert, Minimum, Maximum muss angegeben sein!";
+			msg = GuiMessages.getString("Wenigstens einer der Werte Wert, Minimum, Maximum muss angegeben sein!");
 			sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("DoubleKennzahlen") +
 			" WHERE " + DBKernel.delimitL("ID") + "=" + kzID + " AND " +
 			DBKernel.delimitL("Wert") + " IS NULL AND " +

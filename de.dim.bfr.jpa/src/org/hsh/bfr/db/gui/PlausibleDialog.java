@@ -7,6 +7,9 @@ package org.hsh.bfr.db.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
+import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
+
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
@@ -53,7 +56,7 @@ public class PlausibleDialog extends JDialog {
 		cancelButton = new JButton();
 
 		//======== this ========
-		setTitle("Welche Datens\u00e4tze sollen einer Plausibilit\u00e4tspr\u00fcfung unterzogen werden?");
+		setTitle(GuiMessages.getString("Welche Datensätze sollen einer Plausibilitätsprüfung unterzogen werden?"));
 		setModal(true);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -70,17 +73,17 @@ public class PlausibleDialog extends JDialog {
 					"4*(default, $lgap), default"));
 
 				//---- radioButton1 ----
-				radioButton1.setText("Alle");
+				radioButton1.setText(GuiMessages.getString("Alle"));
 				radioButton1.setSelected(true);
 				contentPanel.add(radioButton1, CC.xy(1, 1));
 				contentPanel.add(passwordField1, CC.xy(3, 1));
 
 				//---- radioButton2 ----
-				radioButton2.setText("nur sichtbare Tabelle");
+				radioButton2.setText(GuiMessages.getString("nur sichtbare Tabelle"));
 				contentPanel.add(radioButton2, CC.xy(1, 3));
 
 				//---- radioButton3 ----
-				radioButton3.setText("nur folgende IDs der sichtbaren Tabelle:");
+				radioButton3.setText(GuiMessages.getString("nur folgende IDs der sichtbaren Tabelle:"));
 				contentPanel.add(radioButton3, CC.xy(1, 5));
 
 				//---- textField1 ----
@@ -88,11 +91,11 @@ public class PlausibleDialog extends JDialog {
 				contentPanel.add(textField1, CC.xy(3, 5));
 
 				//---- radioButton4 ----
-				radioButton4.setText("nur selektierer Eintrag in der sichtbaren Tabelle");
+				radioButton4.setText(GuiMessages.getString("nur selektierer Eintrag in der sichtbaren Tabelle"));
 				contentPanel.add(radioButton4, CC.xy(1, 7));
 
 				//---- checkBox1 ----
-				checkBox1.setText("nur Datens\u00e4tze des angemeldeten Benutzers anzeigen");
+				checkBox1.setText(GuiMessages.getString("nur Datensätze des angemeldeten Benutzers anzeigen"));
 				checkBox1.setSelected(true);
 				contentPanel.add(checkBox1, CC.xywh(1, 9, 3, 1));
 			}

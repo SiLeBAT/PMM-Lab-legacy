@@ -44,6 +44,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 
 import de.dim.bfr.jpa.internal.BFRJPAActivator;
 
@@ -79,7 +80,7 @@ public class Backup extends FileFilter {
 	    	}
 	    	catch (Exception e) {MyLogger.handleException(e);}
 	  		if (selectedFile.exists()) {
-	  			returnVal = JOptionPane.showConfirmDialog(frame, "Soll die Datei ersetzt werden?", "Backup Datei bereits vorhanden", JOptionPane.YES_NO_CANCEL_OPTION);
+	  			returnVal = JOptionPane.showConfirmDialog(frame, GuiMessages.getString("Soll die Datei ersetzt werden?"), GuiMessages.getString("Backup Datei bereits vorhanden"), JOptionPane.YES_NO_CANCEL_OPTION);
 	  			if (returnVal == JOptionPane.NO_OPTION) {return dbBackup(frame);}
 	  			else if (returnVal == JOptionPane.YES_OPTION) {
 					;
@@ -126,13 +127,13 @@ public class Backup extends FileFilter {
 	    	String answerErr = DBKernel.sendRequestGetErr("BACKUP DATABASE TO '" + filename + "' BLOCKING");
 	    	if (!silent) {
 	  	      if (answerErr.length() == 0) {
-	  	      	JOptionPane.showMessageDialog(frame, "In '" + filename + "' wurde erfolgreich ein Backup der Datenbank erstellt!", //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+	  	      	JOptionPane.showMessageDialog(frame, "In '" + filename + "' " + GuiMessages.getString("wurde erfolgreich ein Backup der Datenbank erstellt!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
 	  	      			"Backup", JOptionPane.INFORMATION_MESSAGE);
 	  	      }
 	  	      else {
 	  	      	JOptionPane.showMessageDialog(frame,
-	  	      			"Das Backup der Datenbank ist fehlgeschlagen!\n" +
-	  	      			"Die Fehlermeldung lautet:\n" + answerErr,
+	  	      		GuiMessages.getString("Das Backup der Datenbank ist fehlgeschlagen!") + "\n" +
+	  	      			GuiMessages.getString("Die Fehlermeldung lautet") + ":\n" + answerErr,
 	  	      			"Backup", JOptionPane.ERROR_MESSAGE);	      	
 	  	      }
 	    	}
@@ -186,10 +187,10 @@ public class Backup extends FileFilter {
   	if (scriptFile != null && scriptFile.exists()) {
   		if (!silent) {
 			int returnVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame,
-					"Die Datenbank wird gelöscht!\n" +
-					"Vielleicht sollten Sie vorher nochmal ein Backup machen...\n" +
-					"Soll das Backup wirklich eingespielt werden?",
-					"Datenbank löschen", JOptionPane.YES_NO_OPTION);
+					GuiMessages.getString("Die Datenbank wird gelöscht!") + "\n" +
+					GuiMessages.getString("Vielleicht sollten Sie vorher nochmal ein Backup machen...") + "\n" +
+					GuiMessages.getString("Soll das Backup wirklich eingespielt werden?"),
+					GuiMessages.getString("Datenbank löschen"), JOptionPane.YES_NO_OPTION);
 			if (returnVal != JOptionPane.YES_OPTION) {
 				return result;
 			}  			
@@ -236,7 +237,7 @@ public class Backup extends FileFilter {
 					}
 				}
 				if (!silent && answerErr.length() == 0) {
-					JOptionPane.showMessageDialog(DBKernel.mainFrame, "Fertig!", //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
+					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
 							"Restore", JOptionPane.INFORMATION_MESSAGE);
 					if (!DBKernel.isKNIME) {
 						myDB.myRefresh();
@@ -252,8 +253,8 @@ public class Backup extends FileFilter {
 			}
 			if (!silent && answerErr.length() > 0) {
       	JOptionPane.showMessageDialog(DBKernel.mainFrame,
-      			"Das Wiederherstellen der Datenbank ist fehlgeschlagen!\n" +
-      			"Die Fehlermeldung lautet:\n" + answerErr,
+      			GuiMessages.getString("Das Wiederherstellen der Datenbank ist fehlgeschlagen!") + "\n" +
+      					GuiMessages.getString("Die Fehlermeldung lautet") + ":\n" + answerErr,
       			"Restore", JOptionPane.ERROR_MESSAGE);	      					
 			}
       System.gc();
@@ -293,7 +294,7 @@ public class Backup extends FileFilter {
 	  
 	@Override
 	public String getDescription() {
-	    return "Backup Datei (*.tar.gz)";
+	    return GuiMessages.getString("Backup Datei") + " (*.tar.gz)";
 	}
 	
 	private String getExtension(final File f) {

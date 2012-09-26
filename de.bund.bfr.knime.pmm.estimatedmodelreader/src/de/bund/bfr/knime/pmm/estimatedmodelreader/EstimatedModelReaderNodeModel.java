@@ -266,8 +266,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		}
     		
     		// add row to data buffer
+    		
+    		// TODO: update filter
+    		
     		if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) )
-    			if( EstModelReaderUi.passesFilter( level, qualityMode, qualityThresh, tuple ) )
+    			// if( EstModelReaderUi.passesFilter( level, qualityMode, qualityThresh, tuple ) )
     				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     	}
     	

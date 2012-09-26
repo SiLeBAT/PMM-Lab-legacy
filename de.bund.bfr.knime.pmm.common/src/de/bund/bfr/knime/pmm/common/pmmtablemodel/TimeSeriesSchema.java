@@ -42,9 +42,9 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_COMBASEID = "CombaseID";
 	public static final String ATT_MISCID = "MiscID";
 	public static final String ATT_MISC = "Misc";
-	public static final String ATT_TEMPERATURE = "T";
+	public static final String ATT_TEMPERATURE = "Temp";
 	public static final String ATT_PH = "pH";
-	public static final String ATT_WATERACTIVITY = "Aw";
+	public static final String ATT_WATERACTIVITY = "aw";
 	public static final String ATT_AGENTID = "OrganismID";
 	public static final String ATT_AGENTNAME = "OrganismName";
 	public static final String ATT_AGENTDETAIL = "OrganismDetail";
@@ -54,9 +54,9 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_TIME = "Time";
 	public static final String ATT_LOGC = "Log10C";
 	public static final String ATT_COMMENT = "Comment";
-	public static final String ATT_LITIDTS = "MD_Lit_ID";
-	public static final String ATT_LITTS = "MD_Lit_ID";
-	public static final String ATT_DBUUID = "MD_DB_UUID";
+	public static final String ATT_LITIDTS = "MDLitID";
+	public static final String ATT_LITTS = "MDLit";
+	public static final String ATT_DBUUID = "MD_DB_UID";
 
 	// public static final String ATT_MAXIMUMRATE = "MaximumRate";
 	// public static final String ATT_DOUBLINGTIME = "DoublingTime";

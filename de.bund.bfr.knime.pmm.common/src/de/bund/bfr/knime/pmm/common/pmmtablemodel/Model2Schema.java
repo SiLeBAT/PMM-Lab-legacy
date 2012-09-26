@@ -44,8 +44,8 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_INDEPVAR = "IndepVarSec";
 	public static final String ATT_VALUE = "ValueSec";
 	public static final String ATT_MODELNAME = "ModelNameSec";
-	public static final String ATT_MODELID = "ModelCatalogIdSec";
-	public static final String ATT_ESTMODELID = "EstModelIdSec";
+	public static final String ATT_MODELID = "ModelCatalogIDSec";
+	public static final String ATT_ESTMODELID = "EstModelIDSec";
 	public static final String ATT_RMS = "RMSSec";
 	public static final String ATT_RSQUARED = "RsquaredSec";
 	public static final String ATT_MINVALUE = "MinValueSec";
@@ -58,7 +58,7 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_LITEM = "EstMLitSec";
 	public static final String ATT_PARAMERR = "StandardErrorSec";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritableSec";
-	public static final String ATT_DBUUID = "M2_DB_UUID";
+	public static final String ATT_DBUUID = "M2_DB_UID";
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;

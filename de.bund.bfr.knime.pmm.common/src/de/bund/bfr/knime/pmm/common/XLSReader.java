@@ -1,8 +1,11 @@
 package de.bund.bfr.knime.pmm.common;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,7 +24,14 @@ public class XLSReader {
 
 	public static Map<String, KnimeTuple> getTuples(File file) throws Exception {
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
-		InputStream inputStream = new FileInputStream(file);
+		InputStream inputStream = null;
+		if (file.exists()) {
+			inputStream = new FileInputStream(file);
+		}
+		else {
+			URL url = new URL(file.getPath());
+			inputStream = url.openStream();
+		}
 		Workbook wb = WorkbookFactory.create(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
 

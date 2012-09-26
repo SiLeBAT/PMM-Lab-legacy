@@ -58,7 +58,7 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_LITEM = "LitEstM";
 	public static final String ATT_PARAMERR = "StandardError";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
-	public static final String ATT_DBUUID = "M1DbUuid";
+	public static final String ATT_DBUUID = "M1DBUUID";
 	
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;

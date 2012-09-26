@@ -339,8 +339,14 @@ public class ModelReaderUi extends JPanel implements ActionListener {
     	for( String candidate : token )
     		if( Integer.valueOf( candidate ) == id )
     			return true;
-    	
+    
     	return false;
+    }
+    
+    
+    
+    public void addLevelListener( ActionListener listener ) {    	
+    	levelBox.addActionListener( listener );
     }
 
 }

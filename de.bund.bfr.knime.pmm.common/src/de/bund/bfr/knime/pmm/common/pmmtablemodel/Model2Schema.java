@@ -58,7 +58,7 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_LITEM = "LitEstMSec";
 	public static final String ATT_PARAMERR = "StandardErrorSec";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritableSec";
-	public static final String ATT_DBUUID = "M2DbUuid";
+	public static final String ATT_DBUUID = "M2DBUUID";
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;

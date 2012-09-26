@@ -54,9 +54,9 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_TIME = "Time";
 	public static final String ATT_LOGC = "Log10C";
 	public static final String ATT_COMMENT = "Comment";
-	public static final String ATT_LITIDTS = "LitIDTs";
-	public static final String ATT_LITTS = "LitTs";
-	public static final String ATT_DBUUID = "TsDbUuid";
+	public static final String ATT_LITIDTS = "MD_Lit_ID";
+	public static final String ATT_LITTS = "MD_Lit_ID";
+	public static final String ATT_DBUUID = "MD_DB_UUID";
 
 	// public static final String ATT_MAXIMUMRATE = "MaximumRate";
 	// public static final String ATT_DOUBLINGTIME = "DoublingTime";

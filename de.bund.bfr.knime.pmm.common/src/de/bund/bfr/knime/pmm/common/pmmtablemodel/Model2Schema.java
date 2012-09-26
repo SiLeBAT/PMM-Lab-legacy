@@ -52,13 +52,13 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_MAXVALUE = "MaxValueSec";
 	public static final String ATT_MININDEP = "MinIndepSec";
 	public static final String ATT_MAXINDEP = "MaxIndepSec";
-	public static final String ATT_LITIDM = "LitIDMSec";
-	public static final String ATT_LITM = "LitMSec";
-	public static final String ATT_LITIDEM = "LitIDEstMSec";
-	public static final String ATT_LITEM = "LitEstMSec";
+	public static final String ATT_LITIDM = "MLitIDSec";
+	public static final String ATT_LITM = "MLitSec";
+	public static final String ATT_LITIDEM = "EstMLitIDSec";
+	public static final String ATT_LITEM = "EstMLitSec";
 	public static final String ATT_PARAMERR = "StandardErrorSec";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritableSec";
-	public static final String ATT_DBUUID = "M2DBUUID";
+	public static final String ATT_DBUUID = "M2_DB_UUID";
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;

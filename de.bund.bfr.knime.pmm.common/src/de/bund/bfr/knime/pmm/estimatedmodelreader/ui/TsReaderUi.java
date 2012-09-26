@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -62,17 +63,19 @@ public class TsReaderUi extends JPanel implements ActionListener {
 	public TsReaderUi() {
 		
 		JPanel panel;
+		
+		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
 
 		panel = new JPanel();
-		panel.setBorder( BorderFactory.createTitledBorder( "Agent" ) );
+		panel.setBorder( BorderFactory.createTitledBorder( "Organism" ) );
 		panel.setLayout( new BorderLayout() );
-		panel.setPreferredSize( new Dimension( 250, 75 ) );
+		panel.setPreferredSize( new Dimension( 300, 75 ) );
 		add( panel );
 		
-		agentSwitch = new JCheckBox( "Filter by agent" );
+		agentSwitch = new JCheckBox( "Filter by organism" );
 		agentSwitch.addActionListener( this );
 		panel.add( agentSwitch, BorderLayout.NORTH );
-		panel.add( new JLabel( "Agent name   " ), BorderLayout.WEST );
+		panel.add( new JLabel( "Organism name   " ), BorderLayout.WEST );
 		agentArea = new JTextArea();
 		agentArea.setEnabled( false );
 		panel.add( agentArea, BorderLayout.CENTER );
@@ -189,6 +192,29 @@ public class TsReaderUi extends JPanel implements ActionListener {
 				return false;
 		
 		return true;
+	}
+	
+	public void setActive() {
+		
+		matrixSwitch.setEnabled( true );
+		agentSwitch.setEnabled( true );
+		
+		if( matrixSwitch.isSelected() )
+			matrixArea.setEnabled( true );
+		else
+			matrixArea.setEnabled( false );
+		
+		if( agentSwitch.isSelected() )
+			agentArea.setEnabled( true );
+		else
+			agentArea.setEnabled( false );
+	}
+	
+	public void setInactive() {
+		matrixSwitch.setEnabled( false );
+		agentSwitch.setEnabled( false );
+		matrixArea.setEnabled( false );
+		agentArea.setEnabled( false );
 	}
 	
 

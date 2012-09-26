@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DataEdit-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.dataedit;singleton:=true
-Bundle-Version: 1.0.0.v20120926
+Bundle-Version: 1.0.0.v20120927
 Bundle-ClassPath: dataedit.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.dataedit.DataEditNodePlugin
 Bundle-Vendor: BfR

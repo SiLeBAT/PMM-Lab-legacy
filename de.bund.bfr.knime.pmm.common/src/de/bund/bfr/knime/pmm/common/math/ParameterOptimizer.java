@@ -204,8 +204,11 @@ public class ParameterOptimizer {
 				break;
 			} catch (TooManyEvaluationsException e) {
 				break;
-			} catch (ConvergenceException e) {
-			} catch (Exception e) {
+			}
+			catch (ConvergenceException e) {
+				e.printStackTrace();
+			}
+			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}

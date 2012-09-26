@@ -34,10 +34,12 @@
 package de.bund.bfr.knime.pmm.combaseio.lib;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.Enumeration;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -48,11 +50,18 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	private BufferedReader reader;
 	private PmmTimeSeries next;
 	
-	public CombaseReader( final String filename )
-	throws FileNotFoundException, IOException, Exception {
-		
-		reader = new BufferedReader( new InputStreamReader(
-			new FileInputStream( filename ), "UTF-16LE" ) );
+	public CombaseReader(final String filename) throws FileNotFoundException, IOException, Exception {
+		InputStreamReader isr = null;
+		File file = new File(filename);
+		if (file.exists()) {
+			FileInputStream fis = new FileInputStream(file);
+			isr = new InputStreamReader(fis, "UTF-16LE");
+		}
+		else {
+			URL url = new URL(filename);
+			isr = new InputStreamReader(url.openStream(), "UTF-16LE");
+		}
+		reader = new BufferedReader(isr);
 		step();
 	}
 	

@@ -80,7 +80,7 @@ public class XLSReader {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_TEMPERATURE,
 								Double.parseDouble(sheet.getRow(i).getCell(4)
-										.toString()));
+										.toString().replace(",", ".")));
 					} catch (NumberFormatException e) {
 						throw new Exception("Temperature value in row "
 								+ (i + 1) + " is not valid");
@@ -94,7 +94,7 @@ public class XLSReader {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_PH,
 								Double.parseDouble(sheet.getRow(i).getCell(5)
-										.toString()));
+										.toString().replace(",", ".")));
 					} catch (NumberFormatException e) {
 						throw new Exception("pH value in row " + (i + 1)
 								+ " is not valid");
@@ -108,7 +108,7 @@ public class XLSReader {
 						tuple.setValue(
 								TimeSeriesSchema.ATT_WATERACTIVITY,
 								Double.parseDouble(sheet.getRow(i).getCell(6)
-										.toString()));
+										.toString().replace(",", ".")));
 					} catch (NumberFormatException e) {
 						throw new Exception("Water Activity value in row "
 								+ (i + 1) + " is not valid");
@@ -122,7 +122,7 @@ public class XLSReader {
 					tuple.addValue(
 							TimeSeriesSchema.ATT_TIME,
 							Double.parseDouble(sheet.getRow(i).getCell(7)
-									.toString()));
+									.toString().replace(",", ".")));
 				} catch (NumberFormatException e) {
 					throw new Exception("Time value in row " + (i + 1)
 							+ " is not valid");
@@ -135,7 +135,7 @@ public class XLSReader {
 					tuple.addValue(
 							TimeSeriesSchema.ATT_LOGC,
 							Double.parseDouble(sheet.getRow(i).getCell(8)
-									.toString()));
+									.toString().replace(",", ".")));
 				} catch (NumberFormatException e) {
 					throw new Exception("LogC value in row " + (i + 1)
 							+ " is not valid");

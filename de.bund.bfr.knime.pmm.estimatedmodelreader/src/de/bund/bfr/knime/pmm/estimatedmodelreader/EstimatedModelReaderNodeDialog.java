@@ -49,6 +49,7 @@ import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.TsReaderUi;
 import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
 
 /**
@@ -68,6 +69,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
 	private DbConfigurationUi dbui;
 	private ModelReaderUi modelcatalogui;
 	private EstModelReaderUi estmodelui;
+	private TsReaderUi tsreaderui;
 
     /**
      * New pane for configuring the EstimatedModelReader node.
@@ -87,12 +89,9 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
     	panel0.setLayout( new BoxLayout( panel0, BoxLayout.Y_AXIS ) );
     	panel.add( panel0, BorderLayout.SOUTH );
     	
-    	modelcatalogui = new ModelReaderUi();
-    	panel0.add( modelcatalogui );
-    	
     	estmodelui = new EstModelReaderUi();
     	panel0.add( estmodelui );
-    	
+    	    	
     	addTab( "Database connection", panel );
     	
 

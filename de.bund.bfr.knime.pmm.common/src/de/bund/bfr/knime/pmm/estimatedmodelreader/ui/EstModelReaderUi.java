@@ -41,6 +41,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -63,6 +64,8 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	private JRadioButton qualityButtonRms;
 	private JRadioButton qualityButtonR2;
 	private DoubleTextField qualityField;
+	private TsReaderUi tsReaderUi;
+	private ModelReaderUi modelReaderUi;
 	
 	public static final int MODE_OFF = 0;
 	public static final int MODE_R2 = 1;
@@ -75,12 +78,17 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		JPanel panel, panel0;
 		ButtonGroup group;
 		
-		setPreferredSize( new Dimension( 300, 125 ) );
+		setPreferredSize( new Dimension( 300, 500 ) );
 
+		
+		modelReaderUi = new ModelReaderUi();
+		modelReaderUi.addLevelListener( this );
+		add( modelReaderUi );
+		
 		panel = new JPanel();
 		panel.setBorder( BorderFactory.createTitledBorder( "Estimation quality" ) );
 		panel.setLayout( new BorderLayout() );
-		panel.setPreferredSize( new Dimension( 250, 125 ) );
+		panel.setPreferredSize( new Dimension( 300, 125 ) );
 		add( panel );
 		
 		group = new ButtonGroup();
@@ -113,6 +121,10 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		qualityField.setEnabled( false );
 		panel.add( qualityField, BorderLayout.CENTER );
 		
+		tsReaderUi = new TsReaderUi();
+		add( tsReaderUi );
+		
+		updateTsReaderUi();
 	}
 	
 	@Override
@@ -124,6 +136,15 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 				qualityField.setEnabled( false );
 			else
 				qualityField.setEnabled( true );
+			
+			return;
+		}
+		
+		if( arg0.getSource() instanceof JComboBox ) {
+			
+			updateTsReaderUi();
+			
+			return;
 		}
 		
 	}
@@ -180,10 +201,23 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final int level,
     		final int qualityMode,
     		final double qualityThresh,
+    		final boolean matrixEnabled,
+    		final String matrixString,
+    		final boolean agentEnabled,
+    		final String agentString,
     		final KnimeTuple tuple )
     throws PmmException {
     	
     	double thresh;
+    	
+    	if( level == 0 )
+    		if( !TsReaderUi.passesFilter( matrixEnabled, matrixString,
+				agentEnabled, agentString, tuple ) )
+    			return false;
+    	
+    	
+    		
+    		
         	
     	switch( qualityMode ) {
     	
@@ -217,5 +251,13 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		default :
     			throw new PmmException( "Unrecognized Quality Filter mode." );
     	}
+    }
+    
+    private void updateTsReaderUi() {
+    	
+    	if( modelReaderUi.getLevel() == 0 )
+    		tsReaderUi.setActive();
+    	else
+    		tsReaderUi.setInactive();
     }
 }

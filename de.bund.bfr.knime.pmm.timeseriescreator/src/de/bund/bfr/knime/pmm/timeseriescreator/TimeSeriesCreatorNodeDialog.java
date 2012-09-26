@@ -38,10 +38,19 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +58,7 @@ import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -56,6 +66,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -141,6 +153,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new DefaultTableCellRenderer());
 		table.getColumn(TimeSeriesSchema.ATT_LOGC).setCellRenderer(
 				new DefaultTableCellRenderer());
+		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		table.setCellSelectionEnabled(true);
+		table.registerKeyboardAction(this, "Copy", KeyStroke.getKeyStroke(
+				KeyEvent.VK_C, ActionEvent.CTRL_MASK, false),
+				JComponent.WHEN_FOCUSED);
+		table.registerKeyboardAction(this, "Paste", KeyStroke.getKeyStroke(
+				KeyEvent.VK_V, ActionEvent.CTRL_MASK, false),
+				JComponent.WHEN_FOCUSED);
 		agentField = new StringTextField(true);
 		matrixField = new StringTextField(true);
 		commentField = new StringTextField(true);
@@ -441,7 +461,71 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				table.repaint();
 			}
+		} else if (event.getActionCommand().equals("Copy")) {
+			performCopy();
+		} else if (event.getActionCommand().equals("Paste")) {
+			performPaste();
 		}
+	}
+
+	private void performCopy() {
+		StringBuilder sbf = new StringBuilder();
+		int numcols = table.getSelectedColumnCount();
+		int numrows = table.getSelectedRowCount();
+		int[] rowsselected = table.getSelectedRows();
+		int[] colsselected = table.getSelectedColumns();
+
+		for (int i = 0; i < numrows; i++) {
+			for (int j = 0; j < numcols; j++) {
+				sbf.append(table.getValueAt(rowsselected[i], colsselected[j]));
+
+				if (j < numcols - 1) {
+					sbf.append("\t");
+				}
+			}
+			sbf.append("\n");
+		}
+
+		StringSelection stsel = new StringSelection(sbf.toString());
+
+		Toolkit.getDefaultToolkit().getSystemClipboard()
+				.setContents(stsel, stsel);
+	}
+
+	private void performPaste() {
+		int startRow = (table.getSelectedRows())[0];
+		int startCol = (table.getSelectedColumns())[0];
+		Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
+		String trstring = null;
+
+		try {
+			trstring = (String) system.getContents(this).getTransferData(
+					DataFlavor.stringFlavor);
+		} catch (UnsupportedFlavorException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		String[] rows = trstring.split("\n");
+
+		for (int i = 0; i < rows.length; i++) {
+			String[] cells = rows[i].split("\t");
+
+			for (int j = 0; j < cells.length; j++) {
+				if (startRow + i < table.getRowCount()
+						&& startCol + j < table.getColumnCount()) {
+					try {
+						table.setValueAt(
+								Double.parseDouble(cells[j].replace(",", ".")),
+								startRow + i, startCol + j);
+					} catch (NumberFormatException e) {
+					}
+				}
+			}
+		}
+
+		table.repaint();
 	}
 
 	private void loadFromXLS() {
@@ -618,6 +702,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 
 			return field;
+		}
+
+		@Override
+		public boolean isCellEditable(EventObject e) {
+			if (e instanceof MouseEvent) {
+				return ((MouseEvent) e).getClickCount() >= 2;
+			}
+
+			return true;
 		}
 	}
 

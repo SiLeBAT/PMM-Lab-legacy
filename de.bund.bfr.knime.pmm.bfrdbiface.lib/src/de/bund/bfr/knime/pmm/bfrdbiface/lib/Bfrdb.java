@@ -1058,10 +1058,10 @@ public class Bfrdb extends Hsqldbiface {
 
 		return estModelId;
 	}
-	private void insertMinMaxIndep(final int modelId, final int paramId, final Double min, final Double max) {
+	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
 			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
-			ps.setInt( 1, modelId);
+			ps.setInt( 1, estModelId);
 			ps.setInt( 2, paramId);
 			if (min == null) {
 				ps.setNull(3, java.sql.Types.DOUBLE);
@@ -1077,13 +1077,6 @@ public class Bfrdb extends Hsqldbiface {
 			ps.close();
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }		
-	}
-	
-	public void insertEm( final int estModelId, final int condId, final int modelId, final double rss,
-		final double rsquared, final LinkedList<String> paramNameSet, final double[] value ) {
-		
-			
-		
 	}
 	
 	private Integer insertCondition( Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,

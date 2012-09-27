@@ -1831,7 +1831,7 @@ public class Bfrdb extends Hsqldbiface {
 		ret = -1;
 		try {
 			
-			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTMODEL+"\" ( \""+ATT_CONDITIONID+"\", \""+ATT_MODELID+"\", \""+ATT_RSQUARED+"\", \"RMS\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTMODEL+"\" ( \""+ATT_CONDITIONID+"\", \""+ATT_MODELID+"\", \"RMS\", \""+ATT_RSQUARED+"\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 			if( condId > 0 ) {
 				ps.setInt( 1, condId );
 			} else {

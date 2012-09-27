@@ -219,7 +219,7 @@ public class ModelAndDataViewNodeView extends
 
 		if (getNodeModel().isPeiSchema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
-					TimeSeriesSchema.ATT_COMBASEID, ChartConstants.IS_FITTED);
+					"Data ID", ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());

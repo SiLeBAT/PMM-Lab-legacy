@@ -103,6 +103,10 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			joiner = new CombinedJoiner(inData[0], inData[1]);
 		}
 
+		if (assignments.isEmpty()) {
+			setWarningMessage("Node created an empty data table. Node has to be configured at least once");
+		}
+
 		return new BufferedDataTable[] { joiner.getOutputTable(assignments,
 				exec) };
 	}

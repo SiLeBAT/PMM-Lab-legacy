@@ -27,8 +27,7 @@ public class XLSReader {
 		InputStream inputStream = null;
 		if (file.exists()) {
 			inputStream = new FileInputStream(file);
-		}
-		else {
+		} else {
 			URL url = new URL(file.getPath());
 			inputStream = url.openStream();
 		}
@@ -126,29 +125,33 @@ public class XLSReader {
 				}
 			}
 
-			if (sheet.getRow(i).getCell(7) != null
-					&& !sheet.getRow(i).getCell(7).toString().trim().isEmpty()) {
-				try {
-					tuple.addValue(
-							TimeSeriesSchema.ATT_TIME,
-							Double.parseDouble(sheet.getRow(i).getCell(7)
-									.toString().replace(",", ".")));
-				} catch (NumberFormatException e) {
-					throw new Exception("Time value in row " + (i + 1)
-							+ " is not valid");
+			if (tuple != null) {
+				if (sheet.getRow(i).getCell(7) != null
+						&& !sheet.getRow(i).getCell(7).toString().trim()
+								.isEmpty()) {
+					try {
+						tuple.addValue(
+								TimeSeriesSchema.ATT_TIME,
+								Double.parseDouble(sheet.getRow(i).getCell(7)
+										.toString().replace(",", ".")));
+					} catch (NumberFormatException e) {
+						throw new Exception("Time value in row " + (i + 1)
+								+ " is not valid");
+					}
 				}
-			}
 
-			if (sheet.getRow(i).getCell(8) != null
-					&& !sheet.getRow(i).getCell(8).toString().trim().isEmpty()) {
-				try {
-					tuple.addValue(
-							TimeSeriesSchema.ATT_LOGC,
-							Double.parseDouble(sheet.getRow(i).getCell(8)
-									.toString().replace(",", ".")));
-				} catch (NumberFormatException e) {
-					throw new Exception("LogC value in row " + (i + 1)
-							+ " is not valid");
+				if (sheet.getRow(i).getCell(8) != null
+						&& !sheet.getRow(i).getCell(8).toString().trim()
+								.isEmpty()) {
+					try {
+						tuple.addValue(
+								TimeSeriesSchema.ATT_LOGC,
+								Double.parseDouble(sheet.getRow(i).getCell(8)
+										.toString().replace(",", ".")));
+					} catch (NumberFormatException e) {
+						throw new Exception("LogC value in row " + (i + 1)
+								+ " is not valid");
+					}
 				}
 			}
 		}

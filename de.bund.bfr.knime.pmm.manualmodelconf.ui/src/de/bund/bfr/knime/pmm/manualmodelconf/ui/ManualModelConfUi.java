@@ -601,9 +601,11 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 				
 		// this method gets called when the user types something in the formula text area
 		if (ke.getSource().equals(formulaArea)) {
+			isLoading = true;
 			modelNameBox.setSelectedIndex(0);
 			formulaUpdate();
 			paramUpdate();
+			isLoading = false;
 		}
 		
 	}
@@ -754,7 +756,8 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		    }
 		}
 		catch (ParseException e) {
-			if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"")) {
+			if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"") &&
+					!e.getErrorInfo().startsWith("Encountered \"-\" at")) {
 				e.printStackTrace();
 			}
 		}
@@ -839,6 +842,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			tIndepVar = indepBox.getSelectedItem().toString();
 		}
 
+//		table.setVisible(false);
 		int i = 0;
 		for (int j = 0; j < getNumParam(); j++ ) {
 			
@@ -868,6 +872,8 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			table.setValueAt( "", i, 2 );			
 			table.setValueAt( "", i, 3 );			
 		}
+//		table.validate();
+//		table.setVisible(true);
 			
 		secondaryUpdate();
 	}

@@ -371,5 +371,32 @@ public class ParameterOptimizer {
 			return retValue;
 		}
 	};
+	private void checkParameterValues() {
+		for (int i = 0; i < parameters.size(); i++) {
+			parser.setVarValue(parameters.get(i), 1.0);
+		}
+			for (int j = 0; j < argumentValues.get(0).size(); j++) {
+				parser.setVarValue(arguments.get(0), argumentValues.get(0).get(j));
+
+				try {
+					double value = (Double) parser.evaluate(function);
+					//System.err.println(value);
+					for (int k = 0; k < derivatives.size(); k++) {
+						Object number = parser.evaluate(derivatives.get(k));
+						System.out.print("2\tTime: " + argumentValues.get(0).get(0) +
+								"\t" + parameters.get(k) + "\t" + parser.getVarValue(parameters.get(k)) +
+								"\t" + number + "\t" + parser + "\t" + derivatives.get(k) + "\t");
+						parser.println(derivatives.get(k));
+	
+					}
+				}
+				catch (ParseException e) {
+					e.printStackTrace();
+				}
+				catch (ClassCastException e) {
+					e.printStackTrace();
+				}
+			}
+	}
 
 }

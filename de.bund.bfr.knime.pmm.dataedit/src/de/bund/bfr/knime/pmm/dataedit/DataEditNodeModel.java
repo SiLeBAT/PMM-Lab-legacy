@@ -84,6 +84,7 @@ public class DataEditNodeModel extends NodeModel {
 	protected DataEditNodeModel() {
 		super(1, 2);
 		schema = new TimeSeriesSchema();
+		dataChanges = new ArrayList<String>();
 	}
 
 	/**

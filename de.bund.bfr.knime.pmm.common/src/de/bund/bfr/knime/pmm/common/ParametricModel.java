@@ -46,7 +46,27 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class ParametricModel implements PmmXmlElementConvertable {
-	
+	// das Speicherverhalten von MMC sollte mal KNIME-like gemacht werden!!!! Wenn mal wieder Zeit ist!
+	// jetzt werden die attribute zum xml abspeichern (die eben auch die attribute zum knime configure abspeichern sind)
+	// hier fest verdrahtet und von den zentralen KnimSchema Variablen unabhängig gemacht.
+	// Hintergrund ist, dass sonst bei KnimeSchema-Änderungen der MMC seine gespeicherten Daten vergisst!
+	// Am Ende heisst das: XML erst mal wieder löschen!
+	private static final String ATT_FORMULA = "Formula";
+	private static final String ATT_PARAMNAME = "ParamName";
+	private static final String ATT_DEPVAR = "DepVar";
+	private static final String ATT_INDEPVAR = "IndepVar";
+	private static final String ATT_VALUE = "Value";
+	private static final String ATT_MODELNAME = "ModelName";
+	private static final String ATT_MODELID = "ModelCatalogId";
+	private static final String ATT_ESTMODELID = "EstModelId";
+	private static final String ATT_RMS = "RMS";
+	private static final String ATT_RSQUARED = "Rsquared";
+	private static final String ATT_MINVALUE = "MinValue";
+	private static final String ATT_MAXVALUE = "MaxValue";
+	private static final String ATT_MININDEP = "MinIndep";
+	private static final String ATT_MAXINDEP = "MaxIndep";
+	private static final String ATT_PARAMERR = "StandardError";
+
 	public static final String ELEMENT_PARAMETRICMODEL = "ParametricModel";
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
@@ -138,51 +158,51 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		LiteratureItem lit;
 		
-		modelName = modelElement.getAttributeValue( Model1Schema.ATT_MODELNAME );
+		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		param = new Hashtable<String, Double>();
 		paramError = new Hashtable<String, Double>();
 		indepVar = new LinkedList<String>();
 		estLit = new LinkedList<LiteratureItem>();
 		modelLit = new LinkedList<LiteratureItem>();
-		modelId = Integer.valueOf( modelElement.getAttributeValue( Model1Schema.ATT_MODELID ) );
-		estModelId = Integer.valueOf( modelElement.getAttributeValue( Model1Schema.ATT_ESTMODELID ) );
-		rss = Double.valueOf( modelElement.getAttributeValue( Model1Schema.ATT_RMS ) );
-		rsquared = Double.valueOf( modelElement.getAttributeValue( Model1Schema.ATT_RSQUARED ) );
+		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
+		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
+		rss = Double.valueOf( modelElement.getAttributeValue( ATT_RMS ) );
+		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
 		for( Element el : modelElement.getChildren() ) {
 			
 			//System.out.println( el.getName() );
 			
-			if( el.getName().equals( Model1Schema.ATT_FORMULA ) ) {
+			if( el.getName().equals( ATT_FORMULA ) ) {
 				formula = el.getText();
 				continue;
 			}
 			
 			if( el.getName().equals( ELEMENT_PARAM ) ) {
-				param.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( Model1Schema.ATT_VALUE ) ) );
-				paramError.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( Model1Schema.ATT_PARAMERR ) ) );
-				//System.out.println( el.getAttributeValue( Model1Schema.ATT_MINVALUE ) );
-				//System.out.println( el.getAttributeValue( Model1Schema.ATT_MAXVALUE ) );
-				boolean minNull = el.getAttributeValue(Model1Schema.ATT_MINVALUE) == null || el.getAttributeValue(Model1Schema.ATT_MINVALUE).equals("null");
-				boolean maxNull = el.getAttributeValue(Model1Schema.ATT_MAXVALUE) == null || el.getAttributeValue(Model1Schema.ATT_MAXVALUE).equals("null");
-				paramMin.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( Model1Schema.ATT_MINVALUE ) ) );
-				paramMax.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( Model1Schema.ATT_MAXVALUE ) ) );
+				param.put( el.getAttributeValue( ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( ATT_VALUE ) ) );
+				paramError.put( el.getAttributeValue( ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( ATT_PARAMERR ) ) );
+				//System.out.println( el.getAttributeValue( ATT_MINVALUE ) );
+				//System.out.println( el.getAttributeValue( ATT_MAXVALUE ) );
+				boolean minNull = el.getAttributeValue(ATT_MINVALUE) == null || el.getAttributeValue(ATT_MINVALUE).equals("null");
+				boolean maxNull = el.getAttributeValue(ATT_MAXVALUE) == null || el.getAttributeValue(ATT_MAXVALUE).equals("null");
+				paramMin.put( el.getAttributeValue( ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MINVALUE ) ) );
+				paramMax.put( el.getAttributeValue( ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MAXVALUE ) ) );
 				continue;
 			}
 			
-			if( el.getName().equals( Model1Schema.ATT_INDEPVAR ) ) {
-				indepVar.add( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ) );
-				boolean minNull = el.getAttributeValue(Model1Schema.ATT_MININDEP) == null || el.getAttributeValue(Model1Schema.ATT_MININDEP).equals("null");
-				boolean maxNull = el.getAttributeValue(Model1Schema.ATT_MAXINDEP) == null || el.getAttributeValue(Model1Schema.ATT_MAXINDEP).equals("null");
-				indepMin.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( Model1Schema.ATT_MININDEP ) ) );
-				indepMax.put( el.getAttributeValue( Model1Schema.ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( Model1Schema.ATT_MAXINDEP ) ) );
+			if( el.getName().equals( ATT_INDEPVAR ) ) {
+				indepVar.add( el.getAttributeValue( ATT_PARAMNAME ) );
+				boolean minNull = el.getAttributeValue(ATT_MININDEP) == null || el.getAttributeValue(ATT_MININDEP).equals("null");
+				boolean maxNull = el.getAttributeValue(ATT_MAXINDEP) == null || el.getAttributeValue(ATT_MAXINDEP).equals("null");
+				indepMin.put( el.getAttributeValue( ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MININDEP ) ) );
+				indepMax.put( el.getAttributeValue( ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MAXINDEP ) ) );
 				continue;
 			}
 			
-			if( el.getName().equals( Model1Schema.ATT_DEPVAR ) ) {
-				depVar = el.getAttributeValue( Model1Schema.ATT_PARAMNAME );
+			if( el.getName().equals( ATT_DEPVAR ) ) {
+				depVar = el.getAttributeValue( ATT_PARAMNAME );
 				continue;
 			}
 			
@@ -354,40 +374,40 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		Element modelElement, element;
 		
 		modelElement = new Element( ELEMENT_PARAMETRICMODEL );
-		modelElement.setAttribute( Model1Schema.ATT_MODELNAME, modelName );
+		modelElement.setAttribute( ATT_MODELNAME, modelName );
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
-		modelElement.setAttribute( Model1Schema.ATT_MODELID, String.valueOf( modelId ) );
-		modelElement.setAttribute( Model1Schema.ATT_ESTMODELID, String.valueOf( estModelId ) );
+		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
+		modelElement.setAttribute( ATT_ESTMODELID, String.valueOf( estModelId ) );
 		modelElement.setAttribute( ATT_CONDID, String.valueOf( condId ) );
-		modelElement.setAttribute( Model1Schema.ATT_RMS, String.valueOf( rss ) );
-		modelElement.setAttribute( Model1Schema.ATT_RSQUARED, String.valueOf( rsquared ) );
+		modelElement.setAttribute( ATT_RMS, String.valueOf( rss ) );
+		modelElement.setAttribute( ATT_RSQUARED, String.valueOf( rsquared ) );
 		
-		element = new Element( Model1Schema.ATT_FORMULA );
+		element = new Element( ATT_FORMULA );
 		element.addContent( formula );
 		modelElement.addContent( element );
 		
-		element = new Element( Model1Schema.ATT_DEPVAR );
-		element.setAttribute( Model1Schema.ATT_PARAMNAME, depVar );
+		element = new Element( ATT_DEPVAR );
+		element.setAttribute( ATT_PARAMNAME, depVar );
 		modelElement.addContent( element );
 		
 		for( String s : param.keySet() ) {
 			
 			element = new Element( ELEMENT_PARAM );
-			element.setAttribute( Model1Schema.ATT_PARAMNAME, s );
-			element.setAttribute( Model1Schema.ATT_VALUE, String.valueOf( param.get( s ) ) );
-			element.setAttribute( Model1Schema.ATT_PARAMERR, String.valueOf( paramError.get( s ) ) );
-			element.setAttribute( Model1Schema.ATT_MINVALUE, String.valueOf( paramMin.get( s ) ) );
-			element.setAttribute( Model1Schema.ATT_MAXVALUE, String.valueOf( paramMax.get( s ) ) );
+			element.setAttribute( ATT_PARAMNAME, s );
+			element.setAttribute( ATT_VALUE, String.valueOf( param.get( s ) ) );
+			element.setAttribute( ATT_PARAMERR, String.valueOf( paramError.get( s ) ) );
+			element.setAttribute( ATT_MINVALUE, String.valueOf( paramMin.get( s ) ) );
+			element.setAttribute( ATT_MAXVALUE, String.valueOf( paramMax.get( s ) ) );
 			
 			modelElement.addContent( element );
 		}
 		
 		for( String s : indepVar ) {
 			if (s != null) {
-				element = new Element( Model1Schema.ATT_INDEPVAR );
-				element.setAttribute( Model1Schema.ATT_PARAMNAME, s );
-				element.setAttribute( Model1Schema.ATT_MININDEP, String.valueOf( indepMin.get( s ) ) );
-				element.setAttribute( Model1Schema.ATT_MAXINDEP, String.valueOf( indepMax.get( s ) ) );
+				element = new Element( ATT_INDEPVAR );
+				element.setAttribute( ATT_PARAMNAME, s );
+				element.setAttribute( ATT_MININDEP, String.valueOf( indepMin.get( s ) ) );
+				element.setAttribute( ATT_MAXINDEP, String.valueOf( indepMax.get( s ) ) );
 				
 				modelElement.addContent( element );
 			}

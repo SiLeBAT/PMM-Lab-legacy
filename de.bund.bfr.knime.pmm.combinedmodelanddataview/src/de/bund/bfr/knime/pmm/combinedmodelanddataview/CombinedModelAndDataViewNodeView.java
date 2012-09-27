@@ -229,7 +229,7 @@ public class CombinedModelAndDataViewNodeView extends
 
 		if (getNodeModel().isSeiSchema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
-					TimeSeriesSchema.ATT_COMBASEID, ChartConstants.IS_FITTED);
+					"Data ID", ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());

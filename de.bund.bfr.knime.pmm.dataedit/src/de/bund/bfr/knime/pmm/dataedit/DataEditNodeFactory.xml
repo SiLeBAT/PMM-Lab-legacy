@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./DataEdit.png" type="Manipulator">
-    <name>DataEdit</name>
+    <name>Microbial Data Editor</name>
     
     <shortDescription>
         
@@ -16,8 +16,8 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Bacterial kinetics data</inPort>       
-        <outPort index="0" name="Edited bacterial kinetics data">Edited bacterial kinetics data</outPort>
+        <inPort index="0" name="In-Port name">Microbial data</inPort>       
+        <outPort index="0" name="Edited microbial data">Edited bacterial kinetics data</outPort>
         <outPort index="1" name="Change log">Changes compared to the input</outPort>       
     </ports>    
 </knimeNode>

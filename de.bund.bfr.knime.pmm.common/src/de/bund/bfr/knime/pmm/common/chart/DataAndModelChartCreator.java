@@ -137,9 +137,10 @@ public class DataAndModelChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable.getType() == Plotable.DATASET
-					|| plotable.getType() == Plotable.BOTH
-					|| plotable.getType() == Plotable.BOTH_STRICT) {
+			if (plotable != null
+					&& (plotable.getType() == Plotable.DATASET
+							|| plotable.getType() == Plotable.BOTH || plotable
+							.getType() == Plotable.BOTH_STRICT)) {
 				double[][] points = plotable.getPoints(paramX, paramY,
 						transformY);
 
@@ -188,7 +189,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable.getType() == Plotable.DATASET) {
+			if (plotable != null && plotable.getType() == Plotable.DATASET) {
 				DefaultXYDataset dataset = new DefaultXYDataset();
 				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
 						drawLines, true);
@@ -228,7 +229,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable.getType() == Plotable.FUNCTION) {
+			if (plotable != null && plotable.getType() == Plotable.FUNCTION) {
 				DefaultXYDataset dataset = new DefaultXYDataset();
 				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
 						true, false);
@@ -269,8 +270,9 @@ public class DataAndModelChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable.getType() == Plotable.BOTH
-					|| plotable.getType() == Plotable.BOTH_STRICT) {
+			if (plotable != null
+					&& (plotable.getType() == Plotable.BOTH || plotable
+							.getType() == Plotable.BOTH_STRICT)) {
 				double[][] modelPoints = plotable.getFunctionPoints(paramX,
 						paramY, transformY, usedMinX, usedMaxX,
 						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);

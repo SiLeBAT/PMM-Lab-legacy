@@ -79,6 +79,19 @@ public class ParameterOptimizer {
 		this.arguments = arguments;
 		this.argumentValues = argumentValues;
 
+		// for (int i = 0; i < parameters.size(); i++) {
+		// Double min = minParameterValues.get(i);
+		// Double max = maxParameterValues.get(i);
+		//
+		// if (min != null) {
+		// formula += "+1000000*(" + parameters.get(i) + "<" + min + ")";
+		// }
+		//
+		// if (max != null) {
+		// formula += "+1000000*(" + parameters.get(i) + ">" + max + ")";
+		// }
+		// }
+
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
@@ -205,6 +218,7 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
+				e.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

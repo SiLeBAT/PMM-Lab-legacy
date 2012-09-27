@@ -2,7 +2,7 @@
 <feature
       id="de.dim.bfr.feature"
       label="BFR Extensions"
-      version="1.0.4.v20120927"
+      version="1.0.4.v20120928"
       provider-name="Stat-Up / Data in Motion / BfR">
 
    <description url="http://www.example.com/description">

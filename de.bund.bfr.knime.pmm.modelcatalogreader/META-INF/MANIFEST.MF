@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelCatalogReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.modelcatalogreader; singleton:=true
-Bundle-Version: 1.0.0.v20120927
+Bundle-Version: 1.0.0.v20120928
 Bundle-ClassPath: modelcatalogreader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodePlugin
 Bundle-Vendor: BfR

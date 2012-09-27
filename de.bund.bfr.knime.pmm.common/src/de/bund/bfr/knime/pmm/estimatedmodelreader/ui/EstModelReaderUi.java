@@ -205,17 +205,21 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final String matrixString,
     		final boolean agentEnabled,
     		final String agentString,
+    		final boolean modelFilterEnabled,
+    		final String modelList,
     		final KnimeTuple tuple )
     throws PmmException {
     	
     	double thresh;
     	
-    	if( level == 0 )
+    	if( level == 1 )
     		if( !TsReaderUi.passesFilter( matrixEnabled, matrixString,
 				agentEnabled, agentString, tuple ) )
     			return false;
     	
-    	
+    	if( !ModelReaderUi.passesFilter( modelFilterEnabled,
+			modelList, tuple ) )
+    		return false;
     		
     		
         	

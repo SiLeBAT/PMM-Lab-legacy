@@ -110,6 +110,10 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
 		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, modelcatalogui.getModelList() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE, estmodelui.getQualityMode() );
 		settings.addDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH, estmodelui.getQualityThresh() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MATRIXENABLED, tsreaderui.isMatrixFilterEnabled() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_AGENTENABLED, tsreaderui.isAgentFilterEnabled() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING, tsreaderui.getMatrixString() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING, tsreaderui.getAgentString() );
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {

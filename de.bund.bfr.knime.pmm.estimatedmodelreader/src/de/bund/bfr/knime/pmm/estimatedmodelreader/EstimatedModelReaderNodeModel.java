@@ -77,13 +77,21 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private boolean modelFilterEnabled;
 	private String modelList;
 	private int qualityMode;
-	private double qualityThresh; 
+	private double qualityThresh;
+	private boolean matrixEnabled;
+	private boolean agentEnabled;
+	private String matrixString;
+	private String agentString;
 	
 	public static final String PARAM_LEVEL = "level";
 	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	public static final String PARAM_MODELLIST = "modelList";
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
+	public static final String PARAM_MATRIXENABLED = "matrixEnabled";
+	public static final String PARAM_MATRIXSTRING = "matrixString";
+	public static final String PARAM_AGENTENABLED = "agentEnabled";
+	public static final String PARAM_AGENTSTRING = "agentString";
 	
 	/* private SettingsModelString level = new SettingsModelString( PARAM_LEVEL,
 			LABEL_LEVEL_PRIMARY ); */
@@ -103,6 +111,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         modelList = "";
         qualityThresh = .8;
         qualityMode = EstModelReaderUi.MODE_OFF;
+        agentString = "";
+        agentEnabled = false;
+        matrixString = "";
+        matrixEnabled = false;
     }
 
     /**
@@ -269,9 +281,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// TODO: update filter
     		
-    		if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) )
-    			// if( EstModelReaderUi.passesFilter( level, qualityMode, qualityThresh, tuple ) )
-    				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+    		if( EstModelReaderUi.passesFilter(
+				level, qualityMode, qualityThresh,
+				matrixEnabled, matrixString, agentEnabled, agentString,
+				modelFilterEnabled, modelList, tuple ) )
+				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     	}
     	
     	// close data buffer
@@ -321,6 +335,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
+    	settings.addBoolean( PARAM_MATRIXENABLED, matrixEnabled );
+    	settings.addString( PARAM_MATRIXSTRING, matrixString );
+    	settings.addBoolean( PARAM_AGENTENABLED, agentEnabled );
+    	settings.addString( PARAM_AGENTSTRING, agentString );
     }
 
     /**
@@ -338,6 +356,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	modelList = settings.getString( PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
+    	matrixEnabled = settings.getBoolean( PARAM_MATRIXENABLED );
+    	matrixString = settings.getString( PARAM_MATRIXSTRING );
+    	agentEnabled = settings.getBoolean( PARAM_AGENTENABLED );
+    	agentString = settings.getString( PARAM_AGENTSTRING );
     }
 
     /**

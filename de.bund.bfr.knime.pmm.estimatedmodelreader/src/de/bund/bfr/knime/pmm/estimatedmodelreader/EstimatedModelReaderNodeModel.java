@@ -59,6 +59,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
+import de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodeModel;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -83,15 +85,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String matrixString;
 	private String agentString;
 	
-	public static final String PARAM_LEVEL = "level";
-	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
-	public static final String PARAM_MODELLIST = "modelList";
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
-	public static final String PARAM_MATRIXENABLED = "matrixEnabled";
-	public static final String PARAM_MATRIXSTRING = "matrixString";
-	public static final String PARAM_AGENTENABLED = "agentEnabled";
-	public static final String PARAM_AGENTSTRING = "agentString";
 	
 	/* private SettingsModelString level = new SettingsModelString( PARAM_LEVEL,
 			LABEL_LEVEL_PRIMARY ); */
@@ -330,15 +325,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( DbConfigurationUi.PARAM_LOGIN, login );
     	settings.addString( DbConfigurationUi.PARAM_PASSWD, passwd );
     	settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, override );
-    	settings.addInt( PARAM_LEVEL, level );
-    	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
-    	settings.addString( PARAM_MODELLIST, modelList );
+    	settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, level );
+    	settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, modelFilterEnabled );
+    	settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
-    	settings.addBoolean( PARAM_MATRIXENABLED, matrixEnabled );
-    	settings.addString( PARAM_MATRIXSTRING, matrixString );
-    	settings.addBoolean( PARAM_AGENTENABLED, agentEnabled );
-    	settings.addString( PARAM_AGENTSTRING, agentString );
+    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, matrixEnabled );
+    	settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, matrixString );
+    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, agentEnabled );
+    	settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, agentString );
     }
 
     /**
@@ -351,15 +346,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	login = settings.getString( DbConfigurationUi.PARAM_LOGIN );
     	passwd = settings.getString( DbConfigurationUi.PARAM_PASSWD );
     	override = settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE );
-    	level = settings.getInt( PARAM_LEVEL );
-    	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
-    	modelList = settings.getString( PARAM_MODELLIST );
+    	level = settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL );
+    	modelFilterEnabled = settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED );
+    	modelList = settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
-    	matrixEnabled = settings.getBoolean( PARAM_MATRIXENABLED );
-    	matrixString = settings.getString( PARAM_MATRIXSTRING );
-    	agentEnabled = settings.getBoolean( PARAM_AGENTENABLED );
-    	agentString = settings.getString( PARAM_AGENTSTRING );
+    	matrixEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED );
+    	matrixString = settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING );
+    	agentEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED );
+    	agentString = settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING );
     }
 
     /**

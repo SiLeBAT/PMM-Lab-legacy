@@ -34,6 +34,10 @@
 package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -45,12 +49,13 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.TsReaderUi;
 import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
+import de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodeModel;
+import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * <code>NodeDialog</code> for the "EstimatedModelReader" Node.
@@ -63,13 +68,11 @@ import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
  * 
  * @author Jorgen Brandt
  */
-public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
+public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	// private JComboBox levelBox;
 	private DbConfigurationUi dbui;
-	private ModelReaderUi modelcatalogui;
 	private EstModelReaderUi estmodelui;
-	private TsReaderUi tsreaderui;
 
     /**
      * New pane for configuring the EstimatedModelReader node.
@@ -82,7 +85,8 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
     	panel = new JPanel();
     	panel.setLayout( new BorderLayout() );
     	
-    	dbui = new DbConfigurationUi();
+    	dbui = new DbConfigurationUi( true );
+    	dbui.getApplyButton().addActionListener( this );
     	panel.add( dbui, BorderLayout.NORTH );
     	
     	panel0 = new JPanel();
@@ -105,15 +109,15 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
 		settings.addString( DbConfigurationUi.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( DbConfigurationUi.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, dbui.isOverride() );
-		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, modelcatalogui.getLevel() );
-		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, modelcatalogui.isModelFilterEnabled() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, modelcatalogui.getModelList() );
+		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, estmodelui.getLevel() );
+		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, estmodelui.isModelFilterEnabled() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, estmodelui.getModelList() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE, estmodelui.getQualityMode() );
 		settings.addDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH, estmodelui.getQualityThresh() );
-		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MATRIXENABLED, tsreaderui.isMatrixFilterEnabled() );
-		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_AGENTENABLED, tsreaderui.isAgentFilterEnabled() );
-		settings.addString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING, tsreaderui.getMatrixString() );
-		settings.addString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING, tsreaderui.getAgentString() );
+		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, estmodelui.isMatrixFilterEnabled() );
+		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, estmodelui.isAgentFilterEnabled() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, estmodelui.getMatrixString() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, estmodelui.getAgentString() );
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
@@ -124,9 +128,9 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
 			dbui.setLogin( settings.getString( DbConfigurationUi.PARAM_LOGIN ) );
 			dbui.setPasswd( settings.getString( DbConfigurationUi.PARAM_PASSWD ) );
 			dbui.setOverride( settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE ) );
-			modelcatalogui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
-			modelcatalogui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
-			modelcatalogui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );
+			estmodelui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
+			estmodelui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
+			estmodelui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );
 			estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
 			estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
 		}
@@ -138,6 +142,48 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane {
 		}
 		
 	}
+	
+	@Override
+	public void actionPerformed( ActionEvent arg0 ) {
 
+		try {
+			
+			updateModelName();
+		}
+		catch( Exception e ) {
+			
+			e.printStackTrace( System.err );
+		}
+		
+	}
+	private void updateModelName() throws ClassNotFoundException, SQLException, PmmException {
+        // fetch database connection
+    	Bfrdb db;
+    	ResultSet result;
+    	
+    	estmodelui.clearModelSet();
+
+        db = null;
+    	if( dbui.getOverride() ) {
+			db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
+		} else {
+			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+		}
+    	
+    	result = db.selectModel( 1 );
+    	    	
+    	while( result.next() )
+    		estmodelui.addModelPrim(
+				result.getInt( Bfrdb.ATT_MODELID ),
+				result.getString( Bfrdb.ATT_NAME ) );
+    		
+    	result = db.selectModel( 2 );
+    	
+    	while( result.next() )
+    		estmodelui.addModelSec(
+				result.getInt( Bfrdb.ATT_MODELID ),
+				result.getString( Bfrdb.ATT_NAME ) );
+    	
+	}
 }
 

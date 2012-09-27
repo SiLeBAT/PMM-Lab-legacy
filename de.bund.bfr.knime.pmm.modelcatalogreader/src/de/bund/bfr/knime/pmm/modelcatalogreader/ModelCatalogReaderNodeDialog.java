@@ -166,8 +166,6 @@ extends NodeDialogPane implements ActionListener {
 				result.getInt( Bfrdb.ATT_MODELID ),
 				result.getString( Bfrdb.ATT_NAME ) );
     	
-    	
-
 	}
 
 	@Override

@@ -149,6 +149,21 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		
 	}
 	
+	public void addModelPrim( final int id, final String name ) throws PmmException {
+		modelReaderUi.addModelPrim( id, name );
+	}
+	
+	public void addModelSec( final int id, final String name ) throws PmmException {
+		modelReaderUi.addModelSec( id, name );
+	}
+	
+	public void clearModelSet() { modelReaderUi.clearModelSet(); }
+	public void enableModelList( String idList ) { modelReaderUi.enableModelList( idList ); }
+	public String getAgentString() { return tsReaderUi.getAgentString(); }
+	public int getLevel() { return modelReaderUi.getLevel(); }
+	public String getMatrixString() { return tsReaderUi.getMatrixString(); }
+	public String getModelList() { return modelReaderUi.getModelList(); }
+	
 	public double getQualityThresh() throws InvalidSettingsException {
 		
 		if( !qualityField.isValueValid() )
@@ -167,6 +182,13 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		
 		return MODE_R2;
 	}
+	
+	public boolean isAgentFilterEnabled() { return tsReaderUi.isAgentFilterEnabled(); }
+	public boolean isMatrixFilterEnabled() { return tsReaderUi.isMatrixFilterEnabled(); }
+	public boolean isModelFilterEnabled() { return modelReaderUi.isModelFilterEnabled(); }
+	
+	public void setLevel( int level ) throws PmmException { modelReaderUi.setLevel( level ); }
+	public void setModelFilterEnabled( boolean en ) { modelReaderUi.setModelFilterEnabled( en ); }
 	
 	public void setQualityMode( final int mode ) throws PmmException {
 		
@@ -205,17 +227,21 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final String matrixString,
     		final boolean agentEnabled,
     		final String agentString,
+    		final boolean modelFilterEnabled,
+    		final String modelList,
     		final KnimeTuple tuple )
     throws PmmException {
     	
-    	double thresh;
+    	Double thresh;
     	
-    	if( level == 0 )
+    	if( level == 1 )
     		if( !TsReaderUi.passesFilter( matrixEnabled, matrixString,
 				agentEnabled, agentString, tuple ) )
     			return false;
     	
-    	
+    	if( !ModelReaderUi.passesFilter( modelFilterEnabled,
+			modelList, tuple ) )
+    		return false;
     		
     		
         	
@@ -231,6 +257,9 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 				else
 					thresh = tuple.getDouble( Model2Schema.ATT_RMS );
     			
+    			if( thresh == null )
+    				return false;
+    			
     			if( thresh <= qualityThresh )
     				return true;
     			
@@ -242,6 +271,9 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     				thresh = tuple.getDouble( Model1Schema.ATT_RSQUARED );
 				else
 					thresh = tuple.getDouble( Model2Schema.ATT_RSQUARED );
+    			
+    			if( thresh == null )
+    				return false;
     			
     			if( thresh >= qualityThresh )
     				return true;
@@ -255,7 +287,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     
     private void updateTsReaderUi() {
     	
-    	if( modelReaderUi.getLevel() == 0 )
+    	if( modelReaderUi.getLevel() == 1 )
     		tsReaderUi.setActive();
     	else
     		tsReaderUi.setInactive();

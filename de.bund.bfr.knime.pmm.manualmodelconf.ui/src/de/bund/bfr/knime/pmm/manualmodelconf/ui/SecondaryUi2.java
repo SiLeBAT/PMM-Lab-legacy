@@ -375,6 +375,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	public void keyReleased( final KeyEvent ke ) {
 		
 		if( ke.getSource() == formulaArea ) {
+			//ignoreTableChanged = true;
 			secBox.setSelectedIndex(0);
 			// find out the current index
 			//int i = depBox.getSelectedIndex();
@@ -382,6 +383,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 			depCorrect();
 			formulaSet.put(depBox.getSelectedItem().toString(), formulaArea.getText());
 			formulaChanged();
+			//ignoreTableChanged = false;
 		}
 				
 	}
@@ -583,7 +585,8 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 			    }
 			}
 			catch (ParseException e) {
-				if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"")) {
+				if (!e.getErrorInfo().startsWith("Unexpected \"<EOF>\"") &&
+						!e.getErrorInfo().startsWith("Encountered \"-\" at")) {
 					e.printStackTrace();
 				}
 			}

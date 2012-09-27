@@ -59,6 +59,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
+import de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodeModel;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -77,11 +79,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private boolean modelFilterEnabled;
 	private String modelList;
 	private int qualityMode;
-	private double qualityThresh; 
+	private double qualityThresh;
+	private boolean matrixEnabled;
+	private boolean agentEnabled;
+	private String matrixString;
+	private String agentString;
 	
-	public static final String PARAM_LEVEL = "level";
-	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
-	public static final String PARAM_MODELLIST = "modelList";
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	
@@ -103,6 +106,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         modelList = "";
         qualityThresh = .8;
         qualityMode = EstModelReaderUi.MODE_OFF;
+        agentString = "";
+        agentEnabled = false;
+        matrixString = "";
+        matrixEnabled = false;
     }
 
     /**
@@ -269,9 +276,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// TODO: update filter
     		
-    		if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) )
-    			// if( EstModelReaderUi.passesFilter( level, qualityMode, qualityThresh, tuple ) )
-    				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+    		if( EstModelReaderUi.passesFilter(
+				level, qualityMode, qualityThresh,
+				matrixEnabled, matrixString, agentEnabled, agentString,
+				modelFilterEnabled, modelList, tuple ) )
+				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     	}
     	
     	// close data buffer
@@ -316,11 +325,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( DbConfigurationUi.PARAM_LOGIN, login );
     	settings.addString( DbConfigurationUi.PARAM_PASSWD, passwd );
     	settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, override );
-    	settings.addInt( PARAM_LEVEL, level );
-    	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
-    	settings.addString( PARAM_MODELLIST, modelList );
+    	settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, level );
+    	settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, modelFilterEnabled );
+    	settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
+    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, matrixEnabled );
+    	settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, matrixString );
+    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, agentEnabled );
+    	settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, agentString );
     }
 
     /**
@@ -333,11 +346,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	login = settings.getString( DbConfigurationUi.PARAM_LOGIN );
     	passwd = settings.getString( DbConfigurationUi.PARAM_PASSWD );
     	override = settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE );
-    	level = settings.getInt( PARAM_LEVEL );
-    	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
-    	modelList = settings.getString( PARAM_MODELLIST );
+    	level = settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL );
+    	modelFilterEnabled = settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED );
+    	modelList = settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
+    	matrixEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED );
+    	matrixString = settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING );
+    	agentEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED );
+    	agentString = settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING );
     }
 
     /**

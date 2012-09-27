@@ -13,7 +13,8 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.bfrdbiface.lib;bundle-version="1.0.0",
  de.bund.bfr.knime.pmm.common;bundle-version="1.0.0",
  de.bund.bfr.knime.pmm.modelcatalogreader;bundle-version="1.0.0",
- de.dim.bfr.knime
+ de.dim.bfr.knime,
+ de.bund.bfr.knime.pmm.timeseriesreader;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

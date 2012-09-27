@@ -255,7 +255,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     
     private void updateTsReaderUi() {
     	
-    	if( modelReaderUi.getLevel() == 0 )
+    	if( modelReaderUi.getLevel() == 1 )
     		tsReaderUi.setActive();
     	else
     		tsReaderUi.setInactive();

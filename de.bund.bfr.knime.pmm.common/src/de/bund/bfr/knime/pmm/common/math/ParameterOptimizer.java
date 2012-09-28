@@ -64,7 +64,7 @@ public class ParameterOptimizer {
 
 	private boolean successful;
 	private List<Double> parameterValues;
-	private double standardError;
+	private double rms;
 	private double rSquare;
 	private List<Double> parameterStandardErrors;
 
@@ -78,20 +78,18 @@ public class ParameterOptimizer {
 		this.targetValues = targetValues;
 		this.arguments = arguments;
 		this.argumentValues = argumentValues;
-
-		// for (int i = 0; i < parameters.size(); i++) {
-		// Double min = minParameterValues.get(i);
-		// Double max = maxParameterValues.get(i);
-		//
-		// if (min != null) {
-		// formula += "+1000000*(" + parameters.get(i) + "<" + min + ")";
-		// }
-		//
-		// if (max != null) {
-		// formula += "+1000000*(" + parameters.get(i) + ">" + max + ")";
-		// }
-		// }
-
+/*
+		for (int i = 0; i < parameters.size(); i++) {
+			Double min = minParameterValues.get(i);
+			Double max = maxParameterValues.get(i);
+			if (min != null) {
+				formula += "+1000000*(" + parameters.get(i) + "<" + min + ")";
+			}			
+			if (max != null) {
+				formula += "+1000000*(" + parameters.get(i) + ">" + max + ")";
+			}
+		}
+*/
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
@@ -104,6 +102,7 @@ public class ParameterOptimizer {
 			parser.addVariable(param, 0.0);
 			derivatives.add(parser.differentiate(function, param));
 		}
+		checkIndepVars4Singularities();
 	}
 
 	public void optimize() {
@@ -233,8 +232,8 @@ public class ParameterOptimizer {
 		return parameterValues;
 	}
 
-	public double getStandardError() {
-		return standardError;
+	public double getRMS() {
+		return rms;
 	}
 
 	public double getRSquare() {
@@ -292,9 +291,12 @@ public class ParameterOptimizer {
 					- targetMean, 2.0);
 		}
 
-		standardError = optimizer.getRMS();
-		rSquare = 1 - standardError * standardError * targetValues.size()
+		rms = optimizer.getRMS();
+		rSquare = 1 - rms * rms * targetValues.size()
 				/ targetTotalSumOfSquares;
+		// nochmal checken, ob das hier gut ist...
+		if (rSquare < -0.01) System.err.println("hmm.. rSquare sehr klein..." + rSquare);
+		if (rSquare < 0) rSquare = 0;
 	}
 
 	private DifferentiableMultivariateVectorFunction optimizerFunction = new DifferentiableMultivariateVectorFunction() {
@@ -371,32 +373,56 @@ public class ParameterOptimizer {
 			return retValue;
 		}
 	};
-	private void checkParameterValues() {
-		for (int i = 0; i < parameters.size(); i++) {
-			parser.setVarValue(parameters.get(i), 1.0);
-		}
-			for (int j = 0; j < argumentValues.get(0).size(); j++) {
-				parser.setVarValue(arguments.get(0), argumentValues.get(0).get(j));
 
-				try {
-					double value = (Double) parser.evaluate(function);
-					//System.err.println(value);
-					for (int k = 0; k < derivatives.size(); k++) {
-						Object number = parser.evaluate(derivatives.get(k));
-						System.out.print("2\tTime: " + argumentValues.get(0).get(0) +
-								"\t" + parameters.get(k) + "\t" + parser.getVarValue(parameters.get(k)) +
-								"\t" + number + "\t" + parser + "\t" + derivatives.get(k) + "\t");
-						parser.println(derivatives.get(k));
-	
+	// maybe a good idea to do similar thing for parameter singularities???
+	private void checkIndepVars4Singularities() {
+		for (int ii=0;ii<100;ii++) {
+			for (int i = 0; i < parameters.size(); i++) { // Parameters
+				parser.setVarValue(parameters.get(i), Math.random());
+			}
+			int index = getNaNIndex();
+			if (index >= 0) {
+				for (int j = 0; j < arguments.size(); j++) { // indepVars
+					List<Double> l = argumentValues.get(j);
+					double val = l.get(index);
+					if (index < l.size() - 1) {
+						double diff = l.get(index + 1) - val;
+						val = val + diff / (1000.0 + Math.random());
 					}
-				}
-				catch (ParseException e) {
-					e.printStackTrace();
-				}
-				catch (ClassCastException e) {
-					e.printStackTrace();
+					else {
+						double diff = val - l.get(index - 1);
+						val = val - diff / (1000.0 + Math.random());			
+					}
+					l.remove(index);
+					l.add(index, val);
 				}
 			}
+			else {
+				break;
+			}
+		}
 	}
+	private int getNaNIndex() {
+		int i = 0;
+		try {
+			for (; i < argumentValues.size(); i++) { // TimeSeries, usually Time
+				for (int j = 0; j < arguments.size(); j++) { // indepVars
+					parser.setVarValue(arguments.get(j), argumentValues.get(j).get(i));
+				}
 
+				for (int j = 0; j < derivatives.size(); j++) {
+					Object number = parser.evaluate(derivatives.get(j));
+
+					if (number instanceof Complex || Double.isNaN((Double) number)) {
+						return i;
+					}
+				}
+			}
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+			return i;
+		}		
+		return -1;
+	}
 }

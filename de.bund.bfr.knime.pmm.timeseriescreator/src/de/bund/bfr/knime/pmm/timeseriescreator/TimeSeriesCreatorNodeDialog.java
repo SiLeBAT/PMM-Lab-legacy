@@ -145,13 +145,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
 		table = new JTable(new TimeSeriesTableModel());
-		table.getColumn(TimeSeriesSchema.ATT_TIME).setCellEditor(
+		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)).setCellEditor(
 				new DoubleCellEditor());
-		table.getColumn(TimeSeriesSchema.ATT_LOGC).setCellEditor(
+		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)).setCellEditor(
 				new DoubleCellEditor());
-		table.getColumn(TimeSeriesSchema.ATT_TIME).setCellRenderer(
+		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)).setCellRenderer(
 				new DefaultTableCellRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_LOGC).setCellRenderer(
+		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)).setCellRenderer(
 				new DefaultTableCellRenderer());
 		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		table.setCellSelectionEnabled(true);
@@ -632,9 +632,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return TimeSeriesSchema.ATT_TIME;
+				return AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME);
 			case 1:
-				return TimeSeriesSchema.ATT_LOGC;
+				return AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC);
 			default:
 				return null;
 			}

@@ -425,7 +425,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" ON " + DBKernel.delimitL("GeschaetzteParameter") + "." + DBKernel.delimitL("Parameter") + "=" +
 					DBKernel.delimitL("ModellkatalogParameter") + "." + DBKernel.delimitL("ID") +
 					" LEFT JOIN " + DBKernel.delimitL(tn) + 
-					" ON " + DBKernel.delimitL(tn) + "." + DBKernel.delimitL("Modell") + "=" +
+					" ON " + DBKernel.delimitL(tn) + "." + DBKernel.delimitL("ID") + "=" +
 					DBKernel.delimitL("GeschaetzteParameter") + "." + DBKernel.delimitL("GeschaetztesModell") +
 					" WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + value;									
 				}
@@ -436,7 +436,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" ON " + DBKernel.delimitL("GueltigkeitsBereiche") + "." + DBKernel.delimitL("Parameter") + "=" +
 					DBKernel.delimitL("ModellkatalogParameter") + "." + DBKernel.delimitL("ID") +
 					" LEFT JOIN " + DBKernel.delimitL(tn) + 
-					" ON " + DBKernel.delimitL(tn) + "." + DBKernel.delimitL("Modell") + "=" +
+					" ON " + DBKernel.delimitL(tn) + "." + DBKernel.delimitL("ID") + "=" +
 					DBKernel.delimitL("GueltigkeitsBereiche") + "." + DBKernel.delimitL("GeschaetztesModell") +
 					" WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + value;									
 				}

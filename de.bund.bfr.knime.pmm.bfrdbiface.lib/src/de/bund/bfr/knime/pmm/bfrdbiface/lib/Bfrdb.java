@@ -421,9 +421,9 @@ public class Bfrdb extends Hsqldbiface {
 		+"                WHEN IS NULL THEN ''\n"
 		+"                ELSE CONCAT( '(', \""+REL_UNIT+"\".\""+ATT_UNIT+"\", ')' )\n"
 		+"            END,\n"
-		+"            CASE \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"\n"
+		+"            CASE \""+REL_DOUBLE+"\".\""+ATT_VALUE+"\"\n"
 		+"                WHEN IS NULL THEN ''\n"
-		+"                ELSE CONCAT( ':', \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\" )\n"
+		+"                ELSE CONCAT( ':', \""+REL_DOUBLE+"\".\""+ATT_VALUE+"\" )\n"
 		+"            END\n"
 		+"        )\n"
 		+"    )AS \""+ATT_MISC+"\"\n"
@@ -435,6 +435,9 @@ public class Bfrdb extends Hsqldbiface {
 		+"\n"
 		+"    JOIN \""+REL_MISCPARAM+"\"\n"
 		+"    ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
+		+"\n"
+		+"		LEFT JOIN \""+REL_DOUBLE+"\"\n"
+		+"		ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"\".\"ID\"\n"
 		+"\n"
 		+"    GROUP BY \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"\n"
 		+"\n"
@@ -1059,10 +1062,10 @@ public class Bfrdb extends Hsqldbiface {
 
 		return estModelId;
 	}
-	private void insertMinMaxIndep(final int modelId, final int paramId, final Double min, final Double max) {
+	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
 			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
-			ps.setInt( 1, modelId);
+			ps.setInt( 1, estModelId);
 			ps.setInt( 2, paramId);
 			if (min == null) {
 				ps.setNull(3, java.sql.Types.DOUBLE);
@@ -1078,13 +1081,6 @@ public class Bfrdb extends Hsqldbiface {
 			ps.close();
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }		
-	}
-	
-	public void insertEm( final int estModelId, final int condId, final int modelId, final double rss,
-		final double rsquared, final LinkedList<String> paramNameSet, final double[] value ) {
-		
-			
-		
 	}
 	
 	private Integer insertCondition( Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
@@ -1199,6 +1195,14 @@ public class Bfrdb extends Hsqldbiface {
 		}
 	private String handleConditions(final Integer condId, final String misc, final String miscId) {
 		String result = "";
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement( "DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
+			ps.executeUpdate();
+		}
+		catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 		if (condId != null && condId >= 0 && misc != null) {
 			List<String> conds = condSplit(misc);
 			List<String> condIDs = condSplit(miscId);
@@ -1227,8 +1231,6 @@ public class Bfrdb extends Hsqldbiface {
 				if (paramID != null) {
 					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
 					try {
-						PreparedStatement ps = conn.prepareStatement( "DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
-						ps.executeUpdate();
 						ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\")VALUES(?,?,?,?,?)");
 						ps.setInt(1, condId);
 						ps.setInt(2, paramID);
@@ -1832,7 +1834,7 @@ public class Bfrdb extends Hsqldbiface {
 		ret = -1;
 		try {
 			
-			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTMODEL+"\" ( \""+ATT_CONDITIONID+"\", \""+ATT_MODELID+"\", \""+ATT_RSQUARED+"\", \"RMS\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTMODEL+"\" ( \""+ATT_CONDITIONID+"\", \""+ATT_MODELID+"\", \"RMS\", \""+ATT_RSQUARED+"\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 			if( condId > 0 ) {
 				ps.setInt( 1, condId );
 			} else {

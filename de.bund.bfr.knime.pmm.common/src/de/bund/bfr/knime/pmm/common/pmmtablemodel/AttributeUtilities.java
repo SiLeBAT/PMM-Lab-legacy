@@ -82,6 +82,8 @@ public class AttributeUtilities {
 			return "Agent";
 		} else if (attr.equals(TimeSeriesSchema.ATT_MATRIXNAME)) {
 			return "Matrix";
+		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+			return "Concentration";
 		} else {
 			return attr;
 		}

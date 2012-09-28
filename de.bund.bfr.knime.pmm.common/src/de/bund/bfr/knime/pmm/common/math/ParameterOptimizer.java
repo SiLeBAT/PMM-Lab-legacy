@@ -217,7 +217,13 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
-				e.printStackTrace();
+				if (e.getMessage().startsWith("illegal state: unable to perform Q.R decomposition")) {
+					System.out.print("Function or its derivatives seem to have singularities: ");
+					parser.println(function);
+				}
+				else {
+					e.printStackTrace();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

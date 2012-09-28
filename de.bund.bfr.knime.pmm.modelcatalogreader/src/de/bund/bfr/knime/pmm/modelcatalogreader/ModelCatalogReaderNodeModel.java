@@ -123,8 +123,6 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
 		}
     		
-    	System.err.println(db.getDBUUID());
-    	
     	dbuuid = db.getDBUUID();
     	
     	if( level == 1 ) {

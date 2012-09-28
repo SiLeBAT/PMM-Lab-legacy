@@ -1432,6 +1432,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		// delete dangling parameters
 		// deleteParamNotIn kann man eigentlich nicht machen!!! Sonst sind irgendwann die Response-Verknüpfungen weg....
+		// andererseits hat man das Problem, dass sich die Parameter sammeln...
 		deleteParamNotIn( modelId, paramIdSet );
 		
 		return modelId;

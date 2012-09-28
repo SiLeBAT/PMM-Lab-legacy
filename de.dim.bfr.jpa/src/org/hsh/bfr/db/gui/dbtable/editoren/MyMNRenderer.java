@@ -493,16 +493,19 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 				if (rs != null && rs.first()) {
 					do {
 						if (selectedColumn==13 && myT.getTablename().equals("Modell")) {
+							// Exposition?
 							result += rs.getString(1);
 							if (rs.getString(2) != null)  result += ": " +  rs.getString(2) + "\n";								
 						}
-						else if (selectedColumn==9 && myT.getTablename().equals("GeschaetzteModelle")) {
+						else if (selectedColumn==10 && myT.getTablename().equals("GeschaetzteModelle")) {
+							// estimated parameters
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
 							if (dbl != null) refinedNumber = " = " + DBKernel.getDoubleStr(dbl);		
 							result += rs.getString(2) + refinedNumber + "\n";							
 						}
-						else if (selectedColumn==11 && myT.getTablename().equals("GeschaetzteModelle")) {
+						else if (selectedColumn==12 && myT.getTablename().equals("GeschaetzteModelle")) {
+							// range of validity
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
 							if (dbl != null) refinedNumber = " [" + DBKernel.getDoubleStr(dbl);		

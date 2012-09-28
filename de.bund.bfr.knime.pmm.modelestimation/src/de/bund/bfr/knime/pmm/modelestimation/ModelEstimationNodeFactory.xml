@@ -6,11 +6,11 @@
     <shortDescription>Uses primary models and estimates their parameters in order to fit a curve to a time series of bacterial concentrations.</shortDescription>
     
     <fullDescription>
-        <intro>The PrimaryModelEstimation node uses a mathematical formula (a primary model) and estimates its parameters in order to fit a curve to a time series of bacterial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
+        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to recorded bacterial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port">Needs models and data from the ModelAndDataJoiner</inPort>
+        <inPort index="0" name="In-Port">Needs models and data from the PMM Joiner</inPort>
         <outPort index="0" name="Fitted models">Fitted models (models + estimated parameters) and data</outPort>
     </ports>    
 </knimeNode>

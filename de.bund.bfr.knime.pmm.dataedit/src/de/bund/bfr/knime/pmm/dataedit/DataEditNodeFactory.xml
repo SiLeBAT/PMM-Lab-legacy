@@ -17,7 +17,7 @@
     
     <ports>
         <inPort index="0" name="In-Port name">Microbial data</inPort>       
-        <outPort index="0" name="Edited microbial data">Edited bacterial kinetics data</outPort>
+        <outPort index="0" name="Microbial data table">Edited bacterial kinetics data</outPort>
         <outPort index="1" name="Change log">Changes compared to the input</outPort>       
     </ports>    
 </knimeNode>

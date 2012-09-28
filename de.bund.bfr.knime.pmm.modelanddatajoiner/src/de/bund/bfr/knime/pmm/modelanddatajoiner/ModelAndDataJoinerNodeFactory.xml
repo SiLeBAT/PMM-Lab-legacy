@@ -16,6 +16,6 @@
     <ports>
         <inPort index="0" name="Models">The upper port requires models, either from the ModelCatalogReader or from the ManualModelConf.</inPort>
         <inPort name="Data" index="1">For a primary estimation the lower port requires time series of bacterial concentrations, e.g. from the ComBaseReader or the TimeSeriesReader. For a forecast time and temperature need to be defined, e.g. with an EmptyTimeSeriesCreator or a Table Creator.</inPort>
-        <outPort index="0" name="Joined data and/or models">A combined table with models and data</outPort>
+        <outPort index="0" name="Data and models">A combined table with models and data</outPort>
     </ports>    
 </knimeNode>

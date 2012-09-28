@@ -18,7 +18,7 @@
     <ports>
         <inPort index="0" name="In-Port name">Description of first input port...</inPort>
         <!-- possibly more input ports here-->
-        <outPort index="0" name="Selected primary models [Table]">Table containing selected primary models and corresponding data</outPort>
-        <outPort index="1" name="Selected primary models [Graph]">PNG showing selected primary models and corresponding data</outPort>
+        <outPort index="0" name="Selected models table">Table containing selected primary models and corresponding data</outPort>
+        <outPort index="1" name="Selected models graph">PNG showing selected primary models and corresponding data</outPort>
     </ports>    
 </knimeNode>

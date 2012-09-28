@@ -420,9 +420,9 @@ public class Bfrdb extends Hsqldbiface {
 		+"                WHEN IS NULL THEN ''\n"
 		+"                ELSE CONCAT( '(', \""+REL_UNIT+"\".\""+ATT_UNIT+"\", ')' )\n"
 		+"            END,\n"
-		+"            CASE \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"\n"
+		+"            CASE \""+REL_DOUBLE+"\".\""+ATT_VALUE+"\"\n"
 		+"                WHEN IS NULL THEN ''\n"
-		+"                ELSE CONCAT( ':', \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\" )\n"
+		+"                ELSE CONCAT( ':', \""+REL_DOUBLE+"\".\""+ATT_VALUE+"\" )\n"
 		+"            END\n"
 		+"        )\n"
 		+"    )AS \""+ATT_MISC+"\"\n"
@@ -434,6 +434,9 @@ public class Bfrdb extends Hsqldbiface {
 		+"\n"
 		+"    JOIN \""+REL_MISCPARAM+"\"\n"
 		+"    ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
+		+"\n"
+		+"		LEFT JOIN \""+REL_DOUBLE+"\"\n"
+		+"		ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"\".\"ID\"\n"
 		+"\n"
 		+"    GROUP BY \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"\n"
 		+"\n"
@@ -1191,6 +1194,14 @@ public class Bfrdb extends Hsqldbiface {
 		}
 	private String handleConditions(final Integer condId, final String misc, final String miscId) {
 		String result = "";
+		PreparedStatement ps;
+		try {
+			ps = conn.prepareStatement( "DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
+			ps.executeUpdate();
+		}
+		catch (SQLException e1) {
+			e1.printStackTrace();
+		}
 		if (condId != null && condId >= 0 && misc != null) {
 			List<String> conds = condSplit(misc);
 			List<String> condIDs = condSplit(miscId);
@@ -1219,8 +1230,6 @@ public class Bfrdb extends Hsqldbiface {
 				if (paramID != null) {
 					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
 					try {
-						PreparedStatement ps = conn.prepareStatement( "DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
-						ps.executeUpdate();
 						ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\")VALUES(?,?,?,?,?)");
 						ps.setInt(1, condId);
 						ps.setInt(2, paramID);

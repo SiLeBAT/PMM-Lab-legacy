@@ -212,7 +212,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 			Map<String, List<Double>> paramValueMap = new HashMap<String, List<Double>>();
 			Map<String, List<Double>> paramErrorMap = new HashMap<String, List<Double>>();
-			Map<String, Double> errorMap = new HashMap<String, Double>();
+			Map<String, Double> rmsMap = new HashMap<String, Double>();
 			Map<String, Double> rSquaredMap = new HashMap<String, Double>();
 			Map<String, List<Double>> minIndepMap = new HashMap<String, List<Double>>();
 			Map<String, List<Double>> maxIndepMap = new HashMap<String, List<Double>>();
@@ -228,7 +228,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				if (paramValueMap.containsKey(id)) {
 					tuple.setValue(Model2Schema.ATT_VALUE,
 							paramValueMap.get(id));
-					tuple.setValue(Model2Schema.ATT_RMS, errorMap.get(id));
+					tuple.setValue(Model2Schema.ATT_RMS, rmsMap.get(id));
 					tuple.setValue(Model2Schema.ATT_RSQUARED,
 							rSquaredMap.get(id));
 					tuple.setValue(Model2Schema.ATT_PARAMERR,
@@ -268,7 +268,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 					List<Double> parameterValues;
 					List<Double> parameterErrors;
-					Double error;
+					Double rms;
 					Double rSquared;
 					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues;
@@ -288,7 +288,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						parameterValues = optimizer.getParameterValues();
 						parameterErrors = optimizer
 								.getParameterStandardErrors();
-						error = optimizer.getStandardError();
+						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
 						minValues = new ArrayList<Double>();
 						maxValues = new ArrayList<Double>();
@@ -302,21 +302,21 @@ public class ModelEstimationNodeModel extends NodeModel {
 								parameters.size(), null);
 						parameterErrors = Collections.nCopies(
 								parameters.size(), null);
-						error = null;
+						rms = null;
 						rSquared = null;
 						minValues = null;
 						maxValues = null;
 					}
 
 					tuple.setValue(Model2Schema.ATT_VALUE, parameterValues);
-					tuple.setValue(Model2Schema.ATT_RMS, error);
+					tuple.setValue(Model2Schema.ATT_RMS, rms);
 					tuple.setValue(Model2Schema.ATT_RSQUARED, rSquared);
 					tuple.setValue(Model2Schema.ATT_PARAMERR, parameterErrors);
 					tuple.setValue(Model2Schema.ATT_MININDEP, minValues);
 					tuple.setValue(Model2Schema.ATT_MAXINDEP, maxValues);
 					tuple.setValue(Model2Schema.ATT_ESTMODELID, estID);
 					paramValueMap.put(id, parameterValues);
-					errorMap.put(id, error);
+					rmsMap.put(id, rms);
 					rSquaredMap.put(id, rSquared);
 					paramErrorMap.put(id, parameterErrors);
 					minIndepMap.put(id, minValues);
@@ -432,7 +432,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
 				List<Double> parameterValues;
 				List<Double> parameterErrors;
-				Double error;
+				Double rms;
 				Double rSquare;
 				List<Double> minIndep;
 				List<Double> maxIndep;
@@ -461,19 +461,19 @@ public class ModelEstimationNodeModel extends NodeModel {
 				if (successful) {
 					parameterValues = optimizer.getParameterValues();
 					parameterErrors = optimizer.getParameterStandardErrors();
-					error = optimizer.getStandardError();
+					rms = optimizer.getRMS();
 					rSquare = optimizer.getRSquare();
 				} else {
 					parameterValues = Collections.nCopies(parameters.size(),
 							null);
 					parameterErrors = Collections.nCopies(parameters.size(),
 							null);
-					error = null;
+					rms = null;
 					rSquare = null;
 				}
 
 				tuple.setValue(Model1Schema.ATT_VALUE, parameterValues);
-				tuple.setValue(Model1Schema.ATT_RMS, error);
+				tuple.setValue(Model1Schema.ATT_RMS, rms);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
 				tuple.setValue(Model1Schema.ATT_PARAMERR, parameterErrors);
 				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);

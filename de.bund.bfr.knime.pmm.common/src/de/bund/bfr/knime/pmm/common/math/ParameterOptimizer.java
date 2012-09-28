@@ -64,7 +64,7 @@ public class ParameterOptimizer {
 
 	private boolean successful;
 	private List<Double> parameterValues;
-	private double standardError;
+	private double rms;
 	private double rSquare;
 	private List<Double> parameterStandardErrors;
 
@@ -78,7 +78,7 @@ public class ParameterOptimizer {
 		this.targetValues = targetValues;
 		this.arguments = arguments;
 		this.argumentValues = argumentValues;
-
+/*
 		for (int i = 0; i < parameters.size(); i++) {
 			Double min = minParameterValues.get(i);
 			Double max = maxParameterValues.get(i);
@@ -89,7 +89,7 @@ public class ParameterOptimizer {
 				formula += "+1000000*(" + parameters.get(i) + ">" + max + ")";
 			}
 		}
-
+*/
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
@@ -232,8 +232,8 @@ public class ParameterOptimizer {
 		return parameterValues;
 	}
 
-	public double getStandardError() {
-		return standardError;
+	public double getRMS() {
+		return rms;
 	}
 
 	public double getRSquare() {
@@ -291,9 +291,12 @@ public class ParameterOptimizer {
 					- targetMean, 2.0);
 		}
 
-		standardError = optimizer.getRMS();
-		rSquare = 1 - standardError * standardError * targetValues.size()
+		rms = optimizer.getRMS();
+		rSquare = 1 - rms * rms * targetValues.size()
 				/ targetTotalSumOfSquares;
+		// nochmal checken, ob das hier gut ist...
+		if (rSquare < -0.01) System.err.println("hmm.. rSquare sehr klein..." + rSquare);
+		if (rSquare < 0) rSquare = 0;
 	}
 
 	private DifferentiableMultivariateVectorFunction optimizerFunction = new DifferentiableMultivariateVectorFunction() {

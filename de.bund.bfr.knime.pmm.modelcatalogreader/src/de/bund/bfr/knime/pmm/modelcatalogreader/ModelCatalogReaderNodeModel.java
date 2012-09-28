@@ -35,9 +35,7 @@ package de.bund.bfr.knime.pmm.modelcatalogreader;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Array;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
@@ -53,6 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -149,13 +148,13 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 				}
 	    		
 	    		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
-	    		tuple.setValue( Model1Schema.ATT_PARAMNAME, convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
+	    		tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
 	    		tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-	    		tuple.setValue( Model1Schema.ATT_INDEPVAR, convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
+	    		tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 	    		tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
 	    		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
-	    		tuple.setValue( Model1Schema.ATT_MINVALUE, convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
-	    		tuple.setValue( Model1Schema.ATT_MAXVALUE, convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
+	    		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 	    		//tuple.setValue( Model1Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model1Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
 	    		tuple.setValue( Model1Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );
@@ -221,13 +220,13 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 				}
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
-	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
+	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
 	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
+	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 	    		tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
-	    		tuple.setValue( Model2Schema.ATT_MINVALUE, convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
-	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
+	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 	    		//tuple.setValue( Model2Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model2Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
 	    		tuple.setValue( Model2Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );
@@ -276,31 +275,6 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	db.close();
 
         return new BufferedDataTable[]{ buf.getTable() };
-    }
-    private String convertArray2String(Array array) {
-    	String result = null;
-	    if (array != null) {
-		    try {
-				Object[] o = (Object[])array.getArray();
-				if (o != null && o.length > 0) {
-					result = convertO(o[0]);
-					for (int i=1;i<o.length;i++) {
-						result += "," + convertO(o[i]);
-					}					
-				}
-			}
-		    catch (SQLException e) {
-				e.printStackTrace();
-			}
-	    }
-    	return result;
-    }
-    private String convertO(Object o) {
-		if (o == null) {
-			return "?";
-		} else {
-			return o.toString();
-		}
     }
 
     /**

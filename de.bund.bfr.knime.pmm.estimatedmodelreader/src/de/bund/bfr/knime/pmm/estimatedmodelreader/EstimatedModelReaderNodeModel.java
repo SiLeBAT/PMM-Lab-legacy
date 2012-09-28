@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -181,23 +182,23 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// fill m1
     		tuple.setValue( Model1Schema.ATT_FORMULA, result.getString( Bfrdb.ATT_FORMULA ) );
     		tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-    		tuple.setValue( Model1Schema.ATT_INDEPVAR, result.getString( Bfrdb.ATT_INDEP ) );
-    		tuple.setValue( Model1Schema.ATT_PARAMNAME, result.getString( Bfrdb.ATT_PARAMNAME ) );
-    		tuple.setValue( Model1Schema.ATT_VALUE, result.getString( Bfrdb.ATT_VALUE ) );
+    		tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP ) ) );
+    		tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME ) ) );
+    		tuple.setValue( Model1Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE ) ) );
     		tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
     		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
     		tuple.setValue( Model1Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID ) );
     		tuple.setValue( Model1Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS ) );
     		tuple.setValue( Model1Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED ) );
-    		tuple.setValue( Model1Schema.ATT_MINVALUE, result.getString( Bfrdb.ATT_MIN ) );
-    		tuple.setValue( Model1Schema.ATT_MAXVALUE, result.getString( Bfrdb.ATT_MAX ) );
-    		tuple.setValue( Model1Schema.ATT_MININDEP, result.getString( Bfrdb.ATT_MININDEP ) );
-    		tuple.setValue( Model1Schema.ATT_MAXINDEP, result.getString( Bfrdb.ATT_MAXINDEP ) );
+    		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN ) ) );
+    		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX ) ) );
+    		tuple.setValue( Model1Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP ) ) );
+    		tuple.setValue( Model1Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP ) ) );
     		tuple.setValue( Model1Schema.ATT_LITIDM, result.getString( "LitMID" ) );
     		tuple.setValue( Model1Schema.ATT_LITM, result.getString( "LitM" ) );
     		tuple.setValue( Model1Schema.ATT_LITIDEM, result.getString( "LitEmID" ) );
     		tuple.setValue( Model1Schema.ATT_LITEM, result.getString( "LitEm" ) );
-    		tuple.setValue( Model1Schema.ATT_PARAMERR, result.getString( "StandardError" ) );
+    		tuple.setValue( Model1Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
     		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
     		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
     		
@@ -229,23 +230,23 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		if( level == 2 ) {
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, result.getString( Bfrdb.ATT_FORMULA+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, result.getString( Bfrdb.ATT_INDEP+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, result.getString( Bfrdb.ATT_PARAMNAME+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_VALUE, result.getString( Bfrdb.ATT_VALUE+"2" ) );
+	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP+"2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME+"2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_MINVALUE, result.getString( Bfrdb.ATT_MIN+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, result.getString( Bfrdb.ATT_MAX+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_MININDEP, result.getString( Bfrdb.ATT_MININDEP+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_MAXINDEP, result.getString( Bfrdb.ATT_MAXINDEP+"2" ) );
+	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN+"2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX+"2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP+"2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_LITIDM, result.getString( "LitMID2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( "LitM2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITIDEM, result.getString( "LitEmID2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITEM, result.getString( "LitEm2" ) );
-	    		tuple.setValue( Model2Schema.ATT_PARAMERR, result.getString( "StandardError" ) );
+	    		tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
 	    		

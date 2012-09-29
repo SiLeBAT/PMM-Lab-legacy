@@ -8,9 +8,6 @@
 	<classpathentry kind="lib" path="libs/jcm1.0-config.jar"/>
 	<classpathentry kind="lib" path="libs/jsoup-1.6.1.jar"/>
 	<classpathentry kind="lib" path="libs/MyJabRef-2.6.jar"/>
-	<classpathentry kind="lib" path="libs/jgoodies-common-1.3.1.jar"/>
-	<classpathentry kind="lib" path="libs/jgoodies-forms-1.5.1.jar"/>
-	<classpathentry kind="lib" path="libs/jgoodies-looks-2.5.1.jar"/>
 	<classpathentry kind="lib" path="libs/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

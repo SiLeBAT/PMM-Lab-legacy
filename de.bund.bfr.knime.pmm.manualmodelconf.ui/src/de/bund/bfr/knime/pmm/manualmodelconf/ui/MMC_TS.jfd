@@ -1,0 +1,131 @@
+JFDML JFormDesigner: "5.1.0.0.51" Java: "1.6.0_22" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+			"$columnSpecs": "default, labelcompgap, default:grow"
+			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
+		} ) {
+			name: "this"
+			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.TitledBorder( "Time Series Properties" ), sfield com.jgoodies.forms.factories.Borders DLU2_BORDER )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "agentLabel"
+				"text": "Agent:"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 1
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
+				name: "agentField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 1
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "matrixLabel"
+				"text": "Matrix:"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 3
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
+				name: "matrixField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 3
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "commentLabel"
+				"text": ":"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_COMMENT) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 5
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
+				name: "commentField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 5
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "tempLabel"
+				"text": "Temperature:"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 7
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+				name: "temperatureField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 7
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "phLabel"
+				"text": "pH:"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_PH) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 9
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+				name: "phField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 9
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "awLabel"
+				"text": "aw:"
+				auxiliary() {
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + \":\");"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 11
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+				name: "doubleTextField3"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 11
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 400, 300 )
+		} )
+	}
+}

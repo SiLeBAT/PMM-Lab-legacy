@@ -202,7 +202,7 @@ public class ParameterOptimizer {
 				0.6, 1.4, 0.5, 1.5 };
 
 		successful = false;
-
+		boolean concergenceProblem = false;
 		for (double factor : factors) {
 			List<Double> startValues = new ArrayList<Double>(parameters.size());
 
@@ -217,16 +217,23 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
-				if (e.getMessage().startsWith("illegal state: unable to perform Q.R decomposition")) {
-					System.out.print("Function or its derivatives seem to have singularities: ");
-					parser.println(function);
-				}
-				else {
-					e.printStackTrace();
-				}
+				concergenceProblem = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+		}
+		if (!successful && concergenceProblem) {
+			System.out.println("Function or its derivatives seem to have singularities:");
+			System.out.println("Formula:");
+			parser.println(function);
+			System.out.println("Arguments:");
+			for (List<Double> dbllist : argumentValues) {
+				for (double dbl : dbllist) System.out.print(dbl + "\t");
+				System.out.println();
+			}
+			System.out.println("Targets:");
+			for (double dbl : targetValues) System.out.print(dbl + "\t");
+			System.out.println();
 		}
 	}
 
@@ -243,6 +250,11 @@ public class ParameterOptimizer {
 	}
 
 	public double getRSquare() {
+		/*
+		int p = parameters.size();
+		int n = targetValues.size();
+		double rSquareCorrected = rSquare - (1 - rSquare) * p / (n-p-1);
+		*/
 		return rSquare;
 	}
 
@@ -300,8 +312,7 @@ public class ParameterOptimizer {
 		rms = optimizer.getRMS();
 		rSquare = 1 - rms * rms * targetValues.size()
 				/ targetTotalSumOfSquares;
-		// nochmal checken, ob das hier gut ist...
-		if (rSquare < -0.01) System.err.println("hmm.. rSquare sehr klein..." + rSquare);
+		// rSquare < 0 möglich, siehe hier: http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
 		if (rSquare < 0) rSquare = 0;
 	}
 

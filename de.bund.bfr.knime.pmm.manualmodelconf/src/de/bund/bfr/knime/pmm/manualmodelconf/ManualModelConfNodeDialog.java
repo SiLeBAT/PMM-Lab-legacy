@@ -44,6 +44,8 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_M;
+import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.ManualModelConfUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
@@ -76,6 +78,8 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     		confui.setDb( BfRNodePluginActivator.getBfRService() );
         	
     		this.addTab( "Model definition", confui );    		
+    		//this.addTab( "Time Series definition", new MMC_TS() );    		
+    		//this.addTab( "New Model definition", new MMC_M() );    		
     	}
     	catch( Exception e ) {
     		e.printStackTrace( System.err );

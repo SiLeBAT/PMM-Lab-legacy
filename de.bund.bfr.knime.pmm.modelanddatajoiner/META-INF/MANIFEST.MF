@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelAndDataJoiner-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.modelanddatajoiner; singleton:=true
-Bundle-Version: 1.0.0.v20120928
+Bundle-Version: 1.0.0.v20120929
 Bundle-ClassPath: modelanddatajoiner.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.modelanddatajoiner.ModelAndDataJoinerNodePlugin
 Bundle-Vendor: BfR

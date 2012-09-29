@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DataViewAndSelect-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.dataviewandselect;singleton:=true
-Bundle-Version: 1.0.0.v20120927
+Bundle-Version: 1.0.0.v20120929
 Bundle-ClassPath: dataviewandselect.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.dataviewandselect.DataViewAndSelectNodePlugin
 Bundle-Vendor: BfR

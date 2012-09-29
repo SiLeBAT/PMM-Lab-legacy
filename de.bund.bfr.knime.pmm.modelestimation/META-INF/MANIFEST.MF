@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ModelEstimation-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.modelestimation; singleton:=true
-Bundle-Version: 1.0.0.v20120926
+Bundle-Version: 1.0.0.v20120929
 Bundle-ClassPath: modelestimation.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.modelestimation.ModelEstimationNodePlugin
 Bundle-Vendor: BfR

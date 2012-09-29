@@ -70,18 +70,18 @@ public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		settings.addString( DbConfigurationUi.PARAM_FILENAME, ui.getFilename() );
-		settings.addString( DbConfigurationUi.PARAM_LOGIN, ui.getLogin() );
-		settings.addString( DbConfigurationUi.PARAM_PASSWD, ui.getPasswd() );
-		settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, ui.isOverride() );		
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_FILENAME, ui.getFilename() );
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_LOGIN, ui.getLogin() );
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_PASSWD, ui.getPasswd() );
+		settings.addBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE, ui.isOverride() );		
 	}
 	
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		try {
-			ui.setFilename( settings.getString( DbConfigurationUi.PARAM_FILENAME ) );
-			ui.setLogin( settings.getString( DbConfigurationUi.PARAM_LOGIN ) );
-			ui.setPasswd( settings.getString( DbConfigurationUi.PARAM_PASSWD ) );
-			ui.setOverride( settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE ) );
+			ui.setFilename( settings.getString( TimeSeriesWriterNodeModel.PARAM_FILENAME ) );
+			ui.setLogin( settings.getString( TimeSeriesWriterNodeModel.PARAM_LOGIN ) );
+			ui.setPasswd( settings.getString( TimeSeriesWriterNodeModel.PARAM_PASSWD ) );
+			ui.setOverride( settings.getBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE ) );
 		}
 		catch( InvalidSettingsException ex ) {	
 			ex.printStackTrace( System.err );

@@ -109,7 +109,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, Double.NaN);
 			}
 			if (ts.getWaterActivity() != null) {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_WATERACTIVITY, ts.getWaterActivity());
+				settings.addDouble(ManualModelConfNodeModel.CFGKEY_AW, ts.getWaterActivity());
 			}
 			else {
 				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, Double.NaN);
@@ -142,7 +142,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 					settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
 					settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
 					settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_WATERACTIVITY));
+					settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
 		}
 		catch (Exception e) {}
 	}

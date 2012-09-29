@@ -65,8 +65,7 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  * 
  * @author Jorgen Brandt
  */
-public class ModelCatalogReaderNodeDialog
-extends NodeDialogPane implements ActionListener {
+public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	// private JComboBox levelBox;
 	private DbConfigurationUi ui;
@@ -108,10 +107,10 @@ extends NodeDialogPane implements ActionListener {
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( DbConfigurationUi.PARAM_FILENAME, ui.getFilename() );
-		settings.addString( DbConfigurationUi.PARAM_LOGIN, ui.getLogin() );
-		settings.addString( DbConfigurationUi.PARAM_PASSWD, ui.getPasswd() );
-		settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, ui.isOverride() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_FILENAME, ui.getFilename() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_LOGIN, ui.getLogin() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_PASSWD, ui.getPasswd() );
+		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE, ui.isOverride() );
 		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel() );
 		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled() );
 		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.toString() );
@@ -121,10 +120,10 @@ extends NodeDialogPane implements ActionListener {
 		
 		try {
 			
-			ui.setFilename( settings.getString( DbConfigurationUi.PARAM_FILENAME ) );
-			ui.setLogin( settings.getString( DbConfigurationUi.PARAM_LOGIN ) );
-			ui.setPasswd( settings.getString( DbConfigurationUi.PARAM_PASSWD ) );
-			ui.setOverride( settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE ) );
+			ui.setFilename( settings.getString( ModelCatalogReaderNodeModel.PARAM_FILENAME ) );
+			ui.setLogin( settings.getString( ModelCatalogReaderNodeModel.PARAM_LOGIN ) );
+			ui.setPasswd( settings.getString( ModelCatalogReaderNodeModel.PARAM_PASSWD ) );
+			ui.setOverride( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE ) );
 			filterui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
 			filterui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
 			filterui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );

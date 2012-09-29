@@ -72,6 +72,11 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class EstimatedModelWriterNodeModel extends NodeModel {
     
+	static final String PARAM_FILENAME = "filename";
+	static final String PARAM_LOGIN = "login";
+	static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_OVERRIDE = "override";
+
 	private String filename;
 	private String login;
 	private String passwd;
@@ -457,10 +462,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
     	
-    	settings.addString( DbConfigurationUi.PARAM_FILENAME, filename );
-    	settings.addString( DbConfigurationUi.PARAM_LOGIN, login );
-    	settings.addString( DbConfigurationUi.PARAM_PASSWD, passwd );
-    	settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, override );
+    	settings.addString( PARAM_FILENAME, filename );
+    	settings.addString( PARAM_LOGIN, login );
+    	settings.addString( PARAM_PASSWD, passwd );
+    	settings.addBoolean( PARAM_OVERRIDE, override );
     }
 
     /**
@@ -470,10 +475,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
     	
-    	filename = settings.getString( DbConfigurationUi.PARAM_FILENAME );
-    	login = settings.getString( DbConfigurationUi.PARAM_LOGIN );
-    	passwd = settings.getString( DbConfigurationUi.PARAM_PASSWD );
-    	override = settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE );
+    	filename = settings.getString( PARAM_FILENAME );
+    	login = settings.getString( PARAM_LOGIN );
+    	passwd = settings.getString( PARAM_PASSWD );
+    	override = settings.getBoolean( PARAM_OVERRIDE );
     }
 
     /**

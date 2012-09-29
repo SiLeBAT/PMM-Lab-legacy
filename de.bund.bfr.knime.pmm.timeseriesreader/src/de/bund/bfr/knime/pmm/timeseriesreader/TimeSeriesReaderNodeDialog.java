@@ -89,10 +89,10 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( DbConfigurationUi.PARAM_FILENAME, dbui.getFilename() );
-		settings.addString( DbConfigurationUi.PARAM_LOGIN, dbui.getLogin() );
-		settings.addString( DbConfigurationUi.PARAM_PASSWD, dbui.getPasswd() );
-		settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, dbui.isOverride() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
+		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
 		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, tsui.isMatrixFilterEnabled() );
 		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, tsui.isAgentFilterEnabled() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, tsui.getMatrixString() );
@@ -104,10 +104,10 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 		
 		try {
 			
-			dbui.setFilename( settings.getString( DbConfigurationUi.PARAM_FILENAME ) );
-			dbui.setLogin( settings.getString( DbConfigurationUi.PARAM_LOGIN ) );
-			dbui.setPasswd( settings.getString( DbConfigurationUi.PARAM_PASSWD ) );
-			dbui.setOverride( settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE ) );
+			dbui.setFilename( settings.getString( TimeSeriesReaderNodeModel.PARAM_FILENAME ) );
+			dbui.setLogin( settings.getString( TimeSeriesReaderNodeModel.PARAM_LOGIN ) );
+			dbui.setPasswd( settings.getString( TimeSeriesReaderNodeModel.PARAM_PASSWD ) );
+			dbui.setOverride( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE ) );
 			tsui.setMatrixEnabled( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED ) );
 			tsui.setAgentEnabled( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED ) );
 			tsui.setMatrixString( settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING ) );

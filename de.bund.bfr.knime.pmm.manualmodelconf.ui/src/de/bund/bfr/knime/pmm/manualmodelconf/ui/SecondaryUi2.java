@@ -96,7 +96,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	private HashMap<String, HashMap<String, Double>> paramMaxMap;
 	private Hashtable<String,ParametricModel> modelCatalog;
 	private JPanel indepPanel;
-	private TableWithOverwrite table;
+	private ModelTableModel table;
 	private JButton okButton;
 	private boolean ignoreTableChanged = false;
 	
@@ -156,16 +156,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 		modelCatalog = new Hashtable<String,ParametricModel>();
 		
 		// initialize table
-		paramReal = new Object[ MAX_PARAM ][ 4 ];
-		colnames = new String[] { "Parameter", "Value", "Min", "Max" };
-		table = new TableWithOverwrite( paramReal, colnames ) {
-			private static final long serialVersionUID = -2690118183110287184L;
-
-			@Override
-			   public boolean isCellEditable(final int row, final int column) {
-			       return column != 0;
-			   }
-		};
+		table = new ModelTableModel();
 		table.addKeyListener( this );
 		table.getModel().addTableModelListener( this );
 		table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -194,6 +185,8 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 		}
 
 		formulaChanged();
+		table.getColumn("Indep").setMinWidth(0);
+		table.getColumn("Indep").setMaxWidth(0);
 	}
 	private void fillPanel(JPanel parent, JPanel panel, JLabel label, JComponent comp, List<JLabel> labelList) {
 		panel.setLayout(new BorderLayout());
@@ -271,22 +264,24 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 				int changedCol = te.getColumn();
 				String changedKey = table.getValueAt(changedRow, 0).toString();
 				if (!changedKey.isEmpty()) {
-					Double dbl = Double.NaN;
-					try {
-						dbl = Double.valueOf( ( String )table.getValueAt( changedRow, changedCol) );
-					}
-					catch( Exception e ) {}
-					if (changedCol == 1) {
-						HashMap<String, Double> valMap = paramNameMap.get(selItem);
-						handleValMap(paramNameMap, selItem, valMap, changedKey, dbl);						
-					}
-					else if (changedCol == 2) {
-						HashMap<String, Double> valMap = paramMinMap.get(selItem);
-						handleValMap(paramMinMap, selItem, valMap, changedKey, dbl);						
-					}
-					else if (changedCol == 3) {
-						HashMap<String, Double> valMap = paramMaxMap.get(selItem);
-						handleValMap(paramMaxMap, selItem, valMap, changedKey, dbl);						
+					if (changedCol > 1) {
+						Double dbl = Double.NaN;
+						try {
+							dbl = Double.valueOf( ( String )table.getValueAt( changedRow, changedCol) );
+						}
+						catch( Exception e ) {}
+						if (changedCol == 2) {
+							HashMap<String, Double> valMap = paramNameMap.get(selItem);
+							handleValMap(paramNameMap, selItem, valMap, changedKey, dbl);						
+						}
+						else if (changedCol == 3) {
+							HashMap<String, Double> valMap = paramMinMap.get(selItem);
+							handleValMap(paramMinMap, selItem, valMap, changedKey, dbl);						
+						}
+						else if (changedCol == 4) {
+							HashMap<String, Double> valMap = paramMaxMap.get(selItem);
+							handleValMap(paramMaxMap, selItem, valMap, changedKey, dbl);						
+						}
 					}
 				}
 			}
@@ -309,7 +304,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 						HashMap<String, Double> valMap = paramNameMap.get(selItem);
 						Double dbl = null;
 						try {
-							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 1 ) );
+							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 2 ) );
 						}
 						catch( Exception e ) {}
 						handleValMap(paramNameMap, selItem, valMap, kl.get(j), dbl);						
@@ -317,7 +312,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 						valMap = paramMinMap.get(selItem);
 						dbl = null;
 						try {
-							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 2) );
+							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 3) );
 						}
 						catch( Exception e ) {}
 						handleValMap(paramMinMap, selItem, valMap, kl.get(j), dbl);						
@@ -325,7 +320,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 						valMap = paramMaxMap.get(selItem);
 						dbl = null;
 						try {
-							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 3) );
+							dbl = Double.valueOf( ( String )table.getModel().getValueAt( k, 4) );
 						}
 						catch( Exception e ) {}
 						handleValMap(paramMaxMap, selItem, valMap, kl.get(j), dbl);						
@@ -362,7 +357,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	public void keyPressed( final KeyEvent ke ) {}
 	@Override
 	public void keyTyped( final KeyEvent ke ) {
-		if (ke.getSource() instanceof TableWithOverwrite) {
+		if (ke.getSource() instanceof ModelTableModel) {
 		  	char ch = ke.getKeyChar();
 			  			if (ch == ',') {
 			  				ch = '.';
@@ -725,7 +720,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 			if (valMap != null && valMap.get(kl.get(j)) != null) {
 				val = valMap.get(kl.get(j));
 			}
-			table.setValueAt( val == null || Double.isNaN(val) ? "" : val, k, 1 );
+			table.setValueAt( val == null || Double.isNaN(val) ? "" : val, k, 2 );
 			
 			Double min = null;
 			valMap = paramMinMap.get(selItem);
@@ -736,7 +731,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 				min = modelCatalog.get(getModelName()).getParamMin(kl.get(j));
 				handleValMap(paramMinMap, selItem, valMap, kl.get(j), min);
 			}
-			table.setValueAt( min == null || Double.isNaN(min) ? "" : min, k, 2 );
+			table.setValueAt( min == null || Double.isNaN(min) ? "" : min, k, 3 );
 
 			Double max = null;
 			valMap = paramMaxMap.get(selItem);
@@ -747,17 +742,19 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 				max = modelCatalog.get(getModelName()).getParamMax(kl.get(j));
 				handleValMap(paramMaxMap, selItem, valMap, kl.get(j), max);
 			}
-			table.setValueAt( max == null || Double.isNaN(max) ? "" : max, k, 3 );
+			table.setValueAt( max == null || Double.isNaN(max) ? "" : max, k, 4 );
 
 			k++;
 		}
 		
 		for( ; k < MAX_PARAM; k++ ) {
 			table.setValueAt( "", k, 0 );
-			table.setValueAt( "", k, 1 );
+			table.setValueAt( Boolean.FALSE, k, 1 );			
 			table.setValueAt( "", k, 2 );
 			table.setValueAt( "", k, 3 );
+			table.setValueAt( "", k, 4 );
 		}
+		table.revalidate();
 				
 		ignoreTableChanged = false;
 	}

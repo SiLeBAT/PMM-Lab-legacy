@@ -58,11 +58,6 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 	private JPasswordField passwdField;
 	private JButton chooseButton;
 	private JButton applyButton;
-
-	public static final String PARAM_FILENAME = "filename";
-	public static final String PARAM_LOGIN = "login";
-	public static final String PARAM_PASSWD = "passwd";
-	public static final String PARAM_OVERRIDE = "override";
 	
 	public DbConfigurationUi() { this( false ); }
 

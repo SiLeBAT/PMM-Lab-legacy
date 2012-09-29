@@ -73,12 +73,12 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ManualModelConfNodeModel extends NodeModel {
 	
-	static final String CFGKEY_AGENT = TimeSeriesSchema.ATT_AGENTNAME;
-	static final String CFGKEY_MATRIX = TimeSeriesSchema.ATT_MATRIXNAME;
-	static final String CFGKEY_COMMENT = TimeSeriesSchema.ATT_COMMENT;
-	static final String CFGKEY_TEMPERATURE = TimeSeriesSchema.ATT_TEMPERATURE;
-	static final String CFGKEY_PH = TimeSeriesSchema.ATT_PH;
-	static final String CFGKEY_WATERACTIVITY = TimeSeriesSchema.ATT_WATERACTIVITY;
+	static final String CFGKEY_AGENT = "Agent";
+	static final String CFGKEY_MATRIX = "Matrix";
+	static final String CFGKEY_COMMENT = "Comment";
+	static final String CFGKEY_TEMPERATURE = "Temperature";
+	static final String CFGKEY_PH = "pH";
+	static final String CFGKEY_AW = "aw";
 
 	protected static final String PARAM_XMLSTRING = "xmlString";
 		
@@ -255,7 +255,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 		}
 
 		if (waterActivity != null) {
-			settings.addDouble(CFGKEY_WATERACTIVITY, waterActivity);
+			settings.addDouble(CFGKEY_AW, waterActivity);
 		}
     }
 
@@ -269,6 +269,9 @@ public class ManualModelConfNodeModel extends NodeModel {
     	try {
 			if (settings.containsKey(PARAM_XMLSTRING)) {
 				doc = new PmmXmlDoc(settings.getString(PARAM_XMLSTRING));
+			}
+			else {
+				
 			}
 		}
     	catch (Exception e1) {
@@ -313,7 +316,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 		}
 
 		try {
-			waterActivity = settings.getDouble(CFGKEY_WATERACTIVITY);
+			waterActivity = settings.getDouble(CFGKEY_AW);
 		}
 		catch (InvalidSettingsException e) {
 			waterActivity = null;

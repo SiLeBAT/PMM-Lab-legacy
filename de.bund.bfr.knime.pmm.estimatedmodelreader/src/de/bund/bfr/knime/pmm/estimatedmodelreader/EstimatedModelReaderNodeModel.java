@@ -72,6 +72,18 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class EstimatedModelReaderNodeModel extends NodeModel {
 	
+	static final String PARAM_FILENAME = "filename";
+	static final String PARAM_LOGIN = "login";
+	static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_OVERRIDE = "override";
+	static final String PARAM_MATRIXENABLED = "matrixEnabled";
+	static final String PARAM_AGENTENABLED = "agentEnabled";
+	static final String PARAM_MATRIXSTRING = "matrixString";
+	static final String PARAM_AGENTSTRING = "agentString";
+	static final String PARAM_LEVEL = "level";
+	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
+	static final String PARAM_MODELLIST = "modelList";
+
 	private String filename;
 	private String login;
 	private String passwd;
@@ -86,8 +98,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String matrixString;
 	private String agentString;
 	
-	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
-	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
+	static final String PARAM_QUALITYMODE = "qualityFilterMode";
+	static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	
 	/* private SettingsModelString level = new SettingsModelString( PARAM_LEVEL,
 			LABEL_LEVEL_PRIMARY ); */
@@ -322,19 +334,19 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
-    	settings.addString( DbConfigurationUi.PARAM_FILENAME, filename );
-    	settings.addString( DbConfigurationUi.PARAM_LOGIN, login );
-    	settings.addString( DbConfigurationUi.PARAM_PASSWD, passwd );
-    	settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, override );
-    	settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, level );
-    	settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, modelFilterEnabled );
-    	settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, modelList );
+    	settings.addString( PARAM_FILENAME, filename );
+    	settings.addString( PARAM_LOGIN, login );
+    	settings.addString( PARAM_PASSWD, passwd );
+    	settings.addBoolean( PARAM_OVERRIDE, override );
+    	settings.addInt( PARAM_LEVEL, level );
+    	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
+    	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
-    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, matrixEnabled );
-    	settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, matrixString );
-    	settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, agentEnabled );
-    	settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, agentString );
+    	settings.addBoolean( PARAM_MATRIXENABLED, matrixEnabled );
+    	settings.addString( PARAM_MATRIXSTRING, matrixString );
+    	settings.addBoolean( PARAM_AGENTENABLED, agentEnabled );
+    	settings.addString( PARAM_AGENTSTRING, agentString );
     }
 
     /**
@@ -343,19 +355,19 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
-    	filename = settings.getString( DbConfigurationUi.PARAM_FILENAME );
-    	login = settings.getString( DbConfigurationUi.PARAM_LOGIN );
-    	passwd = settings.getString( DbConfigurationUi.PARAM_PASSWD );
-    	override = settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE );
-    	level = settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL );
-    	modelFilterEnabled = settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED );
-    	modelList = settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST );
+    	filename = settings.getString( PARAM_FILENAME );
+    	login = settings.getString( PARAM_LOGIN );
+    	passwd = settings.getString( PARAM_PASSWD );
+    	override = settings.getBoolean( PARAM_OVERRIDE );
+    	level = settings.getInt( PARAM_LEVEL );
+    	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
+    	modelList = settings.getString( PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
-    	matrixEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED );
-    	matrixString = settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING );
-    	agentEnabled = settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED );
-    	agentString = settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING );
+    	matrixEnabled = settings.getBoolean( PARAM_MATRIXENABLED );
+    	matrixString = settings.getString( PARAM_MATRIXSTRING );
+    	agentEnabled = settings.getBoolean( PARAM_AGENTENABLED );
+    	agentString = settings.getString( PARAM_AGENTSTRING );
     }
 
     /**

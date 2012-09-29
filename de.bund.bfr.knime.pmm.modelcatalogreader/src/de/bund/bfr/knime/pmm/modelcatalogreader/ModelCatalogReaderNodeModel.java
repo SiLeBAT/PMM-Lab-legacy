@@ -67,9 +67,13 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class ModelCatalogReaderNodeModel extends NodeModel {
     	
-	public static final String PARAM_LEVEL = "level";
-	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
-	public static final String PARAM_MODELLIST = "modelList";
+	static final String PARAM_LEVEL = "level";
+	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
+	static final String PARAM_MODELLIST = "modelList";
+	static final String PARAM_FILENAME = "filename";
+	static final String PARAM_LOGIN = "login";
+	static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_OVERRIDE = "override";
 
 
 	private String filename;
@@ -300,11 +304,11 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-    	settings.addString( DbConfigurationUi.PARAM_FILENAME, filename );
-    	settings.addString( DbConfigurationUi.PARAM_LOGIN, login );
-    	settings.addString( DbConfigurationUi.PARAM_PASSWD, passwd );
+    	settings.addString( PARAM_FILENAME, filename );
+    	settings.addString( PARAM_LOGIN, login );
+    	settings.addString( PARAM_PASSWD, passwd );
     	settings.addInt( PARAM_LEVEL, level );
-    	settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, override );
+    	settings.addBoolean( PARAM_OVERRIDE, override );
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
     }
@@ -315,11 +319,11 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-    	filename = settings.getString( DbConfigurationUi.PARAM_FILENAME );
-    	login = settings.getString( DbConfigurationUi.PARAM_LOGIN );
-    	passwd = settings.getString( DbConfigurationUi.PARAM_PASSWD );
+    	filename = settings.getString( PARAM_FILENAME );
+    	login = settings.getString( PARAM_LOGIN );
+    	passwd = settings.getString( PARAM_PASSWD );
     	level = settings.getInt( PARAM_LEVEL );
-    	override = settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE );
+    	override = settings.getBoolean( PARAM_OVERRIDE );
     	modelList = settings.getString( PARAM_MODELLIST );
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
     }

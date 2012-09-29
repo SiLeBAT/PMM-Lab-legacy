@@ -35,34 +35,29 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 
 import java.awt.Component;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableModel;
 
-public class TableWithOverwrite extends JTable {
+public class ModelTableModel extends JTable {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6782674430592418376L;
 
 	public final static String EXCLUDE = "F2";
 	
 	private boolean isBlankEditor = false;
 	
-	public TableWithOverwrite() {
+	private String[] columns = new String[]{"Parameter", "Indep", "Value", "Min", "Max"};
+	private List<Object[]> data = new ArrayList<Object[]>();;
+	
+	public ModelTableModel() {
 		super();
-	}
-	
-	public TableWithOverwrite(final TableModel tm) {
-		super(tm);
-	}
-	
-	public TableWithOverwrite(final Object[][] o, final String[] s) {
-		super(o, s);
+		this.setModel(new BooleanTableModel());
 	}
 	
 	@Override
@@ -87,4 +82,47 @@ public class TableWithOverwrite extends JTable {
 		isBlankEditor = false;
 		return retValue;
 	}
+
+	private class BooleanTableModel extends AbstractTableModel {
+ 
+        public int getRowCount() {
+        	if (data == null) return 0;
+        	else return data.size();
+        }
+ 
+        public int getColumnCount() {
+            return columns.length;
+        }
+ 
+        public Object getValueAt(int rowIndex, int columnIndex) {
+        	if (data == null || data.get(rowIndex) == null) return null;
+        	else return data.get(rowIndex)[columnIndex];
+        }
+ 
+        public void setValueAt(Object o, int rowIndex, int columnIndex) {
+        	while (rowIndex >= data.size()) data.add(new Object[columns.length]);
+        	Object[] row = data.get(rowIndex);
+        	row[columnIndex] = o;
+        }
+ 
+        @Override
+        public String getColumnName(int column) {
+            return columns[column];
+        }
+ 
+		@Override
+		public boolean isCellEditable(final int row, final int column) {
+			return column != 0;
+		}
+
+		@Override
+        public Class<?> getColumnClass(int columnIndex) {
+        	if (columnIndex == 0) return String.class;
+        	else if (columnIndex == 1) return Boolean.class;
+        	else if (columnIndex == 2) return String.class;
+        	else if (columnIndex == 3) return String.class;
+        	else if (columnIndex == 4) return String.class;
+        	else return String.class;
+        }
+    }
 }

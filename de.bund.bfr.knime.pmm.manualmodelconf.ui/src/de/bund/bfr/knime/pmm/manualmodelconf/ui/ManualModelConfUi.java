@@ -98,7 +98,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 	private static final long serialVersionUID = 20120503;
 	private boolean isLoading = false;
 	
-	private TableWithOverwrite table;
+	private ModelTableModel table;
 	private JComboBox modelNameBox;
 	private JComboBox modelTypeBox;
 	//private JComboBox modelLangBox;
@@ -149,15 +149,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		minSet = new HashMap<String, Double>();
 		maxSet = new HashMap<String, Double>();
 		
-		Object[][] paramReal = new Object[ MAX_PARAM ][ 4 ];
-		String[] colnames = new String[] { "Parameter", "Value", "Min", "Max" };
-				
-		table = new TableWithOverwrite( paramReal, colnames ) {
-			   @Override
-			   public boolean isCellEditable(final int row, final int column) {
-			       return column != 0;
-			   }
-		};
+		table = new ModelTableModel();
 		table.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 
 		this.setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
@@ -396,6 +388,8 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			label.setMinimumSize(new Dimension(width, label.getMinimumSize().height));
 			label.setPreferredSize(new Dimension(width, label.getMinimumSize().height));
 		}
+		table.getColumn("Indep").setMinWidth(0);
+		table.getColumn("Indep").setMaxWidth(0);
 	}
 	
 	@Override
@@ -411,19 +405,21 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		if (!changedKey.isEmpty()) {
 			//System.out.println( "table changed:" + changedKey + "\t" + changedRow + "\t" + changedCol + "\t" +
 				//	table.getValueAt( changedRow, changedCol) + "\t" + valSet.get(changedKey));
-			Double dbl = Double.NaN;
-			try {
-				dbl = Double.valueOf( ( String )table.getValueAt( changedRow, changedCol) );
-			}
-			catch( Exception e ) {}
-			if (changedCol == 1) {
-				valSet.put(changedKey, dbl);				
-			}
-			else if (changedCol == 2) {
-				minSet.put(changedKey, dbl);
-			}
-			else if (changedCol == 3) {
-				maxSet.put(changedKey, dbl);
+			if (changedCol > 1) {
+				Double dbl = Double.NaN;
+				try {
+					dbl = Double.valueOf( ( String )table.getValueAt( changedRow, changedCol) );
+				}
+				catch( Exception e ) {}
+				if (changedCol == 2) {
+					valSet.put(changedKey, dbl);				
+				}
+				else if (changedCol == 3) {
+					minSet.put(changedKey, dbl);
+				}
+				else if (changedCol == 4) {
+					maxSet.put(changedKey, dbl);
+				}
 			}
 		}
 	}
@@ -585,7 +581,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 	
 	@Override
 	public void keyTyped( final KeyEvent ke ) {
-		if (ke.getSource() instanceof TableWithOverwrite) {
+		if (ke.getSource() instanceof ModelTableModel) {
 		  	char ch = ke.getKeyChar();
 			  			if (ch == ',') {
 			  				ch = '.';
@@ -811,10 +807,12 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		// clear unused key and value pairs
 		for(int i=0 ; i < MAX_PARAM; i++ ) {
 			table.setValueAt( "", i, 0 );
-			table.setValueAt( "", i, 1 );			
+			table.setValueAt( Boolean.FALSE, i, 1 );			
 			table.setValueAt( "", i, 2 );			
 			table.setValueAt( "", i, 3 );			
+			table.setValueAt( "", i, 4 );			
 		}
+		table.revalidate();
 	}
 	private void paramUpdate() {	
 		paramUpdate(null); 
@@ -842,24 +840,23 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			tIndepVar = indepBox.getSelectedItem().toString();
 		}
 
-//		table.setVisible(false);
 		int i = 0;
 		for (int j = 0; j < getNumParam(); j++ ) {
 			
 			if (!keySet.get(j).equals(tIndepVar)) {
 				table.setValueAt(keySet.get(j), i, 0 );
 	//			table.setValueAt( valSet.get(keySet[ j ]), i, 1 );
-				table.setValueAt( valSet.get(keySet.get(j)) == null || Double.isNaN(valSet.get(keySet.get(j))) ? "" : valSet.get(keySet.get(j)), i, 1 );
+				table.setValueAt( valSet.get(keySet.get(j)) == null || Double.isNaN(valSet.get(keySet.get(j))) ? "" : valSet.get(keySet.get(j)), i, 2 );
 				Double min = minSet.get(keySet.get(j));
 				if (min == null || Double.isNaN(min)) {
 					min = modelCatalog.get(getModelName()).getParamMin(keySet.get(j));
 				}
-				table.setValueAt( min == null || Double.isNaN(min) ? "" : min, i, 2 );
+				table.setValueAt( min == null || Double.isNaN(min) ? "" : min, i, 3 );
 				Double max = maxSet.get(keySet.get(j));
 				if (max == null || Double.isNaN(max)) {
 					max = modelCatalog.get(getModelName()).getParamMax(keySet.get(j));
 				}
-				table.setValueAt( max == null || Double.isNaN(max) ? "" : max, i, 3 );
+				table.setValueAt( max == null || Double.isNaN(max) ? "" : max, i, 4 );
 
 				i++;
 			}
@@ -868,12 +865,12 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		// clear unused key and value pairs
 		for( ; i < MAX_PARAM; i++ ) {
 			table.setValueAt( "", i, 0 );
-			table.setValueAt( "", i, 1 );			
+			table.setValueAt( Boolean.FALSE, i, 1 );			
 			table.setValueAt( "", i, 2 );			
 			table.setValueAt( "", i, 3 );			
+			table.setValueAt( "", i, 4 );			
 		}
-//		table.validate();
-//		table.setVisible(true);
+		table.revalidate();
 			
 		secondaryUpdate();
 	}

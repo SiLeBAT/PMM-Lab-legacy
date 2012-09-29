@@ -105,32 +105,32 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( DbConfigurationUi.PARAM_FILENAME, dbui.getFilename() );
-		settings.addString( DbConfigurationUi.PARAM_LOGIN, dbui.getLogin() );
-		settings.addString( DbConfigurationUi.PARAM_PASSWD, dbui.getPasswd() );
-		settings.addBoolean( DbConfigurationUi.PARAM_OVERRIDE, dbui.isOverride() );
-		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, estmodelui.getLevel() );
-		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, estmodelui.isModelFilterEnabled() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, estmodelui.getModelList() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
+		settings.addInt( EstimatedModelReaderNodeModel.PARAM_LEVEL, estmodelui.getLevel() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED, estmodelui.isModelFilterEnabled() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_MODELLIST, estmodelui.getModelList() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE, estmodelui.getQualityMode() );
 		settings.addDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH, estmodelui.getQualityThresh() );
-		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, estmodelui.isMatrixFilterEnabled() );
-		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, estmodelui.isAgentFilterEnabled() );
-		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, estmodelui.getMatrixString() );
-		settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, estmodelui.getAgentString() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MATRIXENABLED, estmodelui.isMatrixFilterEnabled() );
+		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_AGENTENABLED, estmodelui.isAgentFilterEnabled() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING, estmodelui.getMatrixString() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING, estmodelui.getAgentString() );
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		
 		try {
 			
-			dbui.setFilename( settings.getString( DbConfigurationUi.PARAM_FILENAME ) );
-			dbui.setLogin( settings.getString( DbConfigurationUi.PARAM_LOGIN ) );
-			dbui.setPasswd( settings.getString( DbConfigurationUi.PARAM_PASSWD ) );
-			dbui.setOverride( settings.getBoolean( DbConfigurationUi.PARAM_OVERRIDE ) );
-			estmodelui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
-			estmodelui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
-			estmodelui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );
+			dbui.setFilename( settings.getString( EstimatedModelReaderNodeModel.PARAM_FILENAME ) );
+			dbui.setLogin( settings.getString( EstimatedModelReaderNodeModel.PARAM_LOGIN ) );
+			dbui.setPasswd( settings.getString( EstimatedModelReaderNodeModel.PARAM_PASSWD ) );
+			dbui.setOverride( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE ) );
+			estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );
+			estmodelui.setModelFilterEnabled( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED ) );
+			estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
 			estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
 			estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
 		}

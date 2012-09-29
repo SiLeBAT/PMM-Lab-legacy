@@ -63,14 +63,14 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class TimeSeriesReaderNodeModel extends NodeModel {
 	    
-	public static final String PARAM_FILENAME = "filename";
-	public static final String PARAM_LOGIN = "login";
-	public static final String PARAM_PASSWD = "passwd";
-	public static final String PARAM_OVERRIDE = "override";
-	public static final String PARAM_MATRIXENABLED = "matrixEnabled";
-	public static final String PARAM_AGENTENABLED = "agentEnabled";
-	public static final String PARAM_MATRIXSTRING = "matrixString";
-	public static final String PARAM_AGENTSTRING = "agentString";
+	static final String PARAM_FILENAME = "filename";
+	static final String PARAM_LOGIN = "login";
+	static final String PARAM_PASSWD = "passwd";
+	static final String PARAM_OVERRIDE = "override";
+	static final String PARAM_MATRIXENABLED = "matrixEnabled";
+	static final String PARAM_AGENTENABLED = "agentEnabled";
+	static final String PARAM_MATRIXSTRING = "matrixString";
+	static final String PARAM_AGENTSTRING = "agentString";
 	
 	private String filename;
 	private String login;

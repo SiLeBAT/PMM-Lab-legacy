@@ -98,7 +98,7 @@ new FormModel {
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
 				name: "phField"
 				auxiliary() {
-					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(PmmConstants.MIN_PH, PmmConstants.MAX_PH, true);"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
@@ -117,7 +117,7 @@ new FormModel {
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
 				name: "doubleTextField3"
 				auxiliary() {
-					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY, true);"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3

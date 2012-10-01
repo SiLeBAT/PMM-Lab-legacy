@@ -96,7 +96,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	private HashMap<String, HashMap<String, Double>> paramMaxMap;
 	private Hashtable<String,ParametricModel> modelCatalog;
 	private JPanel indepPanel;
-	private ModelTableModel table;
+	private TableWithOverwrite table;
 	private JButton okButton;
 	private boolean ignoreTableChanged = false;
 	
@@ -156,7 +156,16 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 		modelCatalog = new Hashtable<String,ParametricModel>();
 		
 		// initialize table
-		table = new ModelTableModel();
+		paramReal = new Object[ MAX_PARAM ][ 5 ];
+		colnames = new String[] { "Parameter", "Indep", "Value", "Min", "Max" };
+		table = new TableWithOverwrite( paramReal, colnames ) {
+			private static final long serialVersionUID = -2690118183110287184L;
+			
+			@Override
+			public boolean isCellEditable(final int row, final int column) {
+				return column != 0;
+			}
+		};		
 		table.addKeyListener( this );
 		table.getModel().addTableModelListener( this );
 		table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -357,7 +366,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	public void keyPressed( final KeyEvent ke ) {}
 	@Override
 	public void keyTyped( final KeyEvent ke ) {
-		if (ke.getSource() instanceof ModelTableModel) {
+		if (ke.getSource() instanceof TableWithOverwrite) {
 		  	char ch = ke.getKeyChar();
 			  			if (ch == ',') {
 			  				ch = '.';

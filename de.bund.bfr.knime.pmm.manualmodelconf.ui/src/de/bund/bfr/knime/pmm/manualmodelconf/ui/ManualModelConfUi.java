@@ -98,7 +98,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 	private static final long serialVersionUID = 20120503;
 	private boolean isLoading = false;
 	
-	private ModelTableModel table;
+	private TableWithOverwrite table;
 	private JComboBox modelNameBox;
 	private JComboBox modelTypeBox;
 	//private JComboBox modelLangBox;
@@ -149,7 +149,14 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		minSet = new HashMap<String, Double>();
 		maxSet = new HashMap<String, Double>();
 		
-		table = new ModelTableModel();
+		Object[][] paramReal = new Object[ MAX_PARAM ][ 5 ];
+		String[] colnames = new String[] { "Parameter", "Indep", "Value", "Min", "Max" };
+		table = new TableWithOverwrite( paramReal, colnames ) {
+			@Override
+			public boolean isCellEditable(final int row, final int column) {
+				return column != 0;
+			}
+		};
 		table.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 
 		this.setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
@@ -581,7 +588,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 	
 	@Override
 	public void keyTyped( final KeyEvent ke ) {
-		if (ke.getSource() instanceof ModelTableModel) {
+		if (ke.getSource() instanceof TableWithOverwrite) {
 		  	char ch = ke.getKeyChar();
 			  			if (ch == ',') {
 			  				ch = '.';

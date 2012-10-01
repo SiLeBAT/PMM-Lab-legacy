@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.manualmodelconf;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.knime.core.data.DataColumnSpec;
@@ -80,6 +79,18 @@ public class ManualModelConfNodeModel extends NodeModel {
 	static final String CFGKEY_PH = "pH";
 	static final String CFGKEY_AW = "aw";
 
+	static final String CFGKEY_LEVEL = "Level";
+	static final String CFGKEY_MODELNAME = "Modelname";
+	static final String CFGKEY_FORMULA = "Formula";
+	static final String CFGKEY_DEPVAR = "DepVar";
+	static final String CFGKEY_INDEPVAR = "IndepVarSet";
+	static final String CFGKEY_INDEPMIN = "IndepMin";
+	static final String CFGKEY_INDEPMAX = "IndepMax";
+	static final String CFGKEY_PARAM = "ParamNameSet";
+	static final String CFGKEY_PARAMMIN = "ParamMin";
+	static final String CFGKEY_PARAMMAX = "ParamMax";
+	static final String CFGKEY_LITERATUR = "literatur";	
+
 	protected static final String PARAM_XMLSTRING = "xmlString";
 		
 	private String agent;
@@ -88,7 +99,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	private Double temperature;
 	private Double ph;
 	private Double waterActivity;
-
+	
 	private PmmXmlDoc doc = null;
 
 	/**
@@ -107,10 +118,6 @@ public class ManualModelConfNodeModel extends NodeModel {
     protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
             final ExecutionContext exec ) throws Exception {
     	if (doc != null) {
-        	String indepString;
-        	LinkedList<String> indepVarSet;
-        	
-        	//System.out.println( doc.toXmlString() );
         	
         	KnimeSchema ts = new TimeSeriesSchema();
         	KnimeSchema m1 = new Model1Schema();
@@ -269,9 +276,6 @@ public class ManualModelConfNodeModel extends NodeModel {
     	try {
 			if (settings.containsKey(PARAM_XMLSTRING)) {
 				doc = new PmmXmlDoc(settings.getString(PARAM_XMLSTRING));
-			}
-			else {
-				
 			}
 		}
     	catch (Exception e1) {

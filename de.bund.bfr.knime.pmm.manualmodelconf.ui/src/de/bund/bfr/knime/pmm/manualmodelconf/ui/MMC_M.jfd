@@ -18,6 +18,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "modelNameBox"
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "modelNameBoxActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridWidth": 5
@@ -31,6 +32,8 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
 				name: "formulaArea"
+				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "formulaAreaFocusLost", true ) )
+				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formulaAreaKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 3
@@ -62,7 +65,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 460, 335 )
+			"size": new java.awt.Dimension( 705, 440 )
 		} )
 	}
 }

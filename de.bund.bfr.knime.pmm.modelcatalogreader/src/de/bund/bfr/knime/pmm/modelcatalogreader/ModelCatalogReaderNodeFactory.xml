@@ -3,17 +3,18 @@
 <knimeNode icon="./ModelCatalogReader.png" type="Source">
     <name>Model Formula Reader</name>
     
-    <shortDescription>Reads in growth/inactivation models.</shortDescription>
+    <shortDescription>Loads growth/survival/inactivation models from a database</shortDescription>
     
     <fullDescription>
         <intro>
-          A model is represented by its formula and some additional information.
-          The ModelCatalogReader reads all available models from the PMM-Lab database
-          and locates them in a table.
+          The Model Formula Reader loads primary or secondary models. This can either be the internal database or any HSQL database with the appropriate data structure.
         </intro>
         
         
-        <option name="Level">Whether primary or secondary models should be read.</option>
+<option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
+        <option name="Level">Load either estimated primary or secondary models.</option>
+        <option name="Model">Check the box and choose one or more models by klicking the listed names.</option>
+        
     </fullDescription>
     
     <ports>

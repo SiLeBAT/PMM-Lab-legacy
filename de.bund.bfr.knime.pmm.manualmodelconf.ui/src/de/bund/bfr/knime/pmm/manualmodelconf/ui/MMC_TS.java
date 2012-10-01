@@ -9,6 +9,7 @@ import javax.swing.border.*;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.*;
@@ -32,9 +33,9 @@ public class MMC_TS extends JPanel {
 		tempLabel = new JLabel();
 		temperatureField = new DoubleTextField(true);
 		phLabel = new JLabel();
-		phField = new DoubleTextField(true);
+		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH, true);
 		awLabel = new JLabel();
-		doubleTextField3 = new DoubleTextField(true);
+		doubleTextField3 = new DoubleTextField(PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY, true);
 
 		//======== this ========
 		setBorder(new CompoundBorder(

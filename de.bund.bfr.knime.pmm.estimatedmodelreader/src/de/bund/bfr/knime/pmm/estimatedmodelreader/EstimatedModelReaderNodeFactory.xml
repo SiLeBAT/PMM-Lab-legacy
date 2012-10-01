@@ -4,21 +4,22 @@
     <name>Fitted Model Reader</name>
     
     <shortDescription>
-        
+        Loads previously estimated primary or secondary models from a database
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>The fitted model reader loads primary or secondary models as well as previously estimated parameter values from a database. This can either be the internal database or any HSQL database with the appropriate data structure.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
+        <option name="Level">Load either estimated primary or secondary models.</option>
+        <option name="Model">Check the box and choose one or more models by klicking the listed names.</option>
+        <option name="Estimation quality">Filter the fitted models either by RMS or by R squared by entering a value into the textbox.</option>
+        <option name="Organism">Check the box and enter the name of an organism.</option>
+        <option name="Matrix">Check the box and enter the name of a matrix.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Microbial model table">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <outPort index="0" name="Microbial model table">Microbial model table</outPort>
     </ports>    
 </knimeNode>

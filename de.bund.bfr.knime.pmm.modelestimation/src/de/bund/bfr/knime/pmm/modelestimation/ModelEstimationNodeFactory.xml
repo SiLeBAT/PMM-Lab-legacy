@@ -3,10 +3,10 @@
 <knimeNode icon="./ModelEstimation.png" type="Manipulator">
     <name>Model Fitting</name>
     
-    <shortDescription>Uses primary models and estimates their parameters in order to fit a curve to a time series of bacterial concentrations.</shortDescription>
+    <shortDescription>Uses primary models and estimates their parameters in order to fit a curve to a time series of microbial concentrations.</shortDescription>
     
     <fullDescription>
-        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to recorded bacterial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
+        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to recorded microbial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
     </fullDescription>
     
     <ports>

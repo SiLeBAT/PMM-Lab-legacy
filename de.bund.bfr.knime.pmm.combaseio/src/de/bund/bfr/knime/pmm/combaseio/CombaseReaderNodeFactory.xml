@@ -3,24 +3,19 @@
 <knimeNode icon="./ComBaseReader.png" type="Source">
     <name>ComBase Reader</name>
     
-    <shortDescription>Reads in empirical data.</shortDescription>
+    <shortDescription>Reads ComBase CSV files</shortDescription>
     
     <fullDescription>
         <intro>
-        	Combase data is usually stored in a semistructured spreadsheet file.
-        	The CombaseReader reads in that file and stores its content in a
-        	structured table. Each entry in a Combase file describes a single
-        	growth/inactivation experiment. An experiment is characterized by time
-        	series data, information about the environmental conditions and physical
-        	parameters such as temperature, pH value or water activity.
+        	The ComBase database (see www.combase.cc) provides thousands of sets of data about growth / survival / inactivation of different organisms (mostly bacteria) in various food matrices. Microbial data (concentration in log10 counts over time [hours]) can be exported to CSV files.
+			The ComBase Reader is a CSV reader parsing the semistructured spreadsheet file and providing microbial data in a structured way so that they can used for predictive microbial modelling in PMM-Lab.
        	</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Load ComBase CSV file">Browse your folders and select a ComBase CSV file you previously downloaded from www.combase.cc</option>
     </fullDescription>
     
     <ports>
-        <outPort index="0" name="Microbial data table">A table that contains the time series and additional information.</outPort>
+        <outPort index="0" name="Microbial data table"> Microbial data table.</outPort>
     </ports>        
 </knimeNode>

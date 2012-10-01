@@ -4,21 +4,18 @@
     <name>Predictor</name>
     
     <shortDescription>
-        
+    Predict bacterial concentrations based on fitted primary or primary and secondary models     
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Having fitted primary models to laboratory data and secondary models to the change of parameter values (e.g. the change of µmax due to different temperatures) enables you to predict bacterial growth / survival / inactivation. In order to obtain a realistic prediction on microbial kinetics this node should ony be used for the same test conditions measured in the original tests.</intro>
         
         
         <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Predicted bacterial kinetics">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="In-Port name">Needs models and data from the PMM Joiner</inPort>
+        <outPort index="0" name="Predicted bacterial kinetics">Predicted bacterial kinetics</outPort>
     </ports>    
 </knimeNode>

@@ -79,7 +79,7 @@ public class AttributeUtilities {
 		} else if (attr.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
 			return "Water Activity";
 		} else if (attr.equals(TimeSeriesSchema.ATT_AGENTNAME)) {
-			return "Agent";
+			return "Organism";
 		} else if (attr.equals(TimeSeriesSchema.ATT_MATRIXNAME)) {
 			return "Matrix";
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {

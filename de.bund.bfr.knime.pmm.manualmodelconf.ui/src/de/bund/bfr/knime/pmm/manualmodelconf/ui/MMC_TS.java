@@ -39,7 +39,7 @@ public class MMC_TS extends JPanel {
 
 		//======== this ========
 		setBorder(new CompoundBorder(
-			new TitledBorder("Time Series Properties"),
+			new TitledBorder("Microbial Data Properties"),
 			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"default, $lcgap, default:grow",

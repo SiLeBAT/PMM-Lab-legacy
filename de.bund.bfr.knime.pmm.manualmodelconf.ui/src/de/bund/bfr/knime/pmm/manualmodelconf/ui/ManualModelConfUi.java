@@ -166,7 +166,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		
 		JPanel tsPanel = new JPanel();
 		tsPanel.setLayout( new BoxLayout( tsPanel, BoxLayout.Y_AXIS ) );
-		tsPanel.setBorder(new TitledBorder("Time Series Properties"));
+		tsPanel.setBorder(new TitledBorder("Microbial Data Properties"));
 		// TimeSeries Definition
 		timeseriesPanel[0] = new JPanel();
 		timeseriesPanel[0].setLayout(new BorderLayout());
@@ -364,7 +364,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		possLiterature = new HashMap<Integer, String>();
 		
 		JPanel literaturePanelPanel = new JPanel();
-		JLabel literatureLabel = new JLabel("Literatur :");
+		JLabel literatureLabel = new JLabel("Reference :");
 						
 		literaturePanelPanel.setLayout(new BorderLayout());
 		literaturePanelPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));		

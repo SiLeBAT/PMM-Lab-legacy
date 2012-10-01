@@ -9,7 +9,6 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -34,12 +33,10 @@ public class MMC_M extends JPanel {
 	private static final String LABEL_OWNMODEL = "Manually defined model";
 
 	private HashMap<String,ParametricModel> modelCatalog;
-	private HashMap<String,ParametricModel> estModelMap;
 
 	public MMC_M() {
 		initComponents();
 		modelCatalog = new HashMap<String,ParametricModel>();	
-		estModelMap = new HashMap<String,ParametricModel>();
 	}
 	
 	public void setDb(final BFRNodeService service) {		
@@ -149,30 +146,24 @@ public class MMC_M extends JPanel {
 
 	private void modelNameBoxActionPerformed(ActionEvent e) {
 		table.clearTable();
-		table.revalidate();
 		formulaArea.setText("");
 		
-		if (modelNameBox.getSelectedIndex() == 0) { // Manually defined model
-			return;
-		}
+		//if (modelNameBox.getSelectedIndex() == 0) { // Manually defined model
+		//	return;
+		//}
 
 		ParametricModel pm = modelCatalog.get(modelNameBox.getSelectedItem());
 		if (pm != null) {
+			modelnameField.setText(pm.getModelName());
 			formulaArea.setText(pm.getFormula());
-			formulaUpdate();
-			table.setValueAt(Boolean.TRUE, pm.getIndepVarSet().getFirst(), "Indep");
-			for (String param : pm.getParamNameSet()) {
-				table.setValueAt(pm.getParamMin(param), param, "Min");				
-				table.setValueAt(pm.getParamMax(param), param, "Max");				
-			}
-			table.revalidate();
+			table.setPM(pm);
 			//paramUpdate(pm.getIndepVarSet().size() > 0 ? pm.getIndepVarSet().getFirst() : null);				
 		}
 		else {
-			System.err.println("pm = null???");
+			System.err.println("pm = null???\t" + modelNameBox.getSelectedItem());
 		}
 	}
-	private void formulaUpdate() {
+	private void parseFormula() {
 		String formula = formulaArea.getText();
 		formula = formula.replaceAll( "\n", "" );
 		formula = formula.replaceAll( "\\s", "" );
@@ -186,7 +177,7 @@ public class MMC_M extends JPanel {
 		formulaArea.setText(formula);
 		String depVar = formula.substring(0, index).trim();
 
-		table.clearTable();
+		//table.clearTable();
 		DJep parser = MathUtilities.createParser();
 		try {
 			parser.parse(formula);
@@ -194,7 +185,7 @@ public class MMC_M extends JPanel {
 		    for (Object o : st.keySet()) {
 		    	String os = o.toString();
 		        if (!os.equals(depVar)) {
-					table.addValue(os, 0);
+					//table.addValue(os, 0);
 		        }		        
 		    }
 		}
@@ -204,16 +195,27 @@ public class MMC_M extends JPanel {
 				e.printStackTrace();
 			}
 		}
-		table.revalidate();
+		//table.revalidate();
 	}
 
 	private void formulaAreaFocusLost(FocusEvent e) {
-		modelNameBox.setSelectedIndex(0);
-		formulaUpdate();
+		ParametricModel pm = modelCatalog.get(modelNameBox.getSelectedItem());
+		if (!pm.getFormula().equals(formulaArea.getText())) {
+			/*
+			ParametricModel newPM = pm.clone();
+			newPM.setModelName(LABEL_OWNMODEL);
+			newPM.setFormula(formulaArea.getText());
+			modelCatalog.put(LABEL_OWNMODEL, newPM);
+			modelNameBox.setSelectedIndex(0);
+			parseFormula();
+			*/
+		}
 	}
 
 	private void formulaAreaKeyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) formulaUpdate();
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			formulaAreaFocusLost(null);
+		}
 	}
 
 	/*
@@ -364,6 +366,8 @@ public class MMC_M extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		modelNameLabel = new JLabel();
 		modelNameBox = new JComboBox();
+		label1 = new JLabel();
+		modelnameField = new JTextField();
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		tableLabel = new JLabel();
@@ -377,7 +381,7 @@ public class MMC_M extends JPanel {
 			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"default, 3*($lcgap, default:grow)",
-			"3*(default, $lgap), default"));
+			"4*(default, $lgap), default"));
 
 		//---- modelNameLabel ----
 		modelNameLabel.setText("Model from DB:");
@@ -392,9 +396,14 @@ public class MMC_M extends JPanel {
 		});
 		add(modelNameBox, CC.xywh(3, 1, 5, 1));
 
+		//---- label1 ----
+		label1.setText("Modellname:");
+		add(label1, CC.xy(1, 3));
+		add(modelnameField, CC.xywh(3, 3, 5, 1));
+
 		//---- label2 ----
 		label2.setText("Model formula:");
-		add(label2, CC.xy(1, 3));
+		add(label2, CC.xy(1, 5));
 
 		//---- formulaArea ----
 		formulaArea.addFocusListener(new FocusAdapter() {
@@ -409,27 +418,29 @@ public class MMC_M extends JPanel {
 				formulaAreaKeyReleased(e);
 			}
 		});
-		add(formulaArea, CC.xywh(3, 3, 5, 1));
+		add(formulaArea, CC.xywh(3, 5, 5, 1));
 
 		//---- tableLabel ----
 		tableLabel.setText("Parameter definition:");
-		add(tableLabel, CC.xy(1, 5));
+		add(tableLabel, CC.xy(1, 7));
 
 		//======== scrollPane1 ========
 		{
 			scrollPane1.setViewportView(table);
 		}
-		add(scrollPane1, CC.xywh(3, 5, 5, 1));
+		add(scrollPane1, CC.xywh(3, 7, 5, 1));
 
 		//---- literatureLabel ----
-		literatureLabel.setText("Literatur:");
-		add(literatureLabel, CC.xy(1, 7));
+		literatureLabel.setText("Reference:");
+		add(literatureLabel, CC.xy(1, 9));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JLabel modelNameLabel;
 	private JComboBox modelNameBox;
+	private JLabel label1;
+	private JTextField modelnameField;
 	private JLabel label2;
 	private JTextField formulaArea;
 	private JLabel tableLabel;
@@ -437,4 +448,5 @@ public class MMC_M extends JPanel {
 	private ModelTableModel table;
 	private JLabel literatureLabel;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
+
 }

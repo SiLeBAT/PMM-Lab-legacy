@@ -77,12 +77,13 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
         	confui = new ManualModelConfUi(JOptionPane.getRootFrame());        	
     		confui.setDb( BfRNodePluginActivator.getBfRService() );        	
     		this.addTab( "Model definition", confui );    	
-    		
+    		/*
     		MMC_M mmcm = new MMC_M();
     		mmcm.setDb(BfRNodePluginActivator.getBfRService());
     		this.addTab( "New Model definition", mmcm );    	
     		
-    		this.addTab( "Time Series definition", new MMC_TS() );    		
+    		this.addTab( "Time Series definition", new MMC_TS() );    
+    		*/		
     	}
     	catch( Exception e ) {
     		e.printStackTrace( System.err );

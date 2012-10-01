@@ -36,7 +36,10 @@ package de.bund.bfr.knime.pmm.common;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.jdom2.Element;
 
@@ -71,6 +74,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
 
+	
 	private HashMap<String, Double> paramMin;
 	private HashMap<String, Double> paramMax;
 	private HashMap<String, Double> indepMin;
@@ -86,14 +90,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private LinkedList<LiteratureItem> modelLit;
 	private int modelId;
 	private int estModelId;
-	private double rsquared;
-	private double rss;
-	private double rms;
-	private double aic;
+	private Double rsquared;
+	private Double rss;
+	private Double rms;
+	private Double aic;
 	private int condId;
-	
-	
-	
+		
 	private static final String ATT_LEVEL = "Level";
 	
 	protected ParametricModel() {
@@ -118,7 +120,6 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		indepMin = new HashMap<String, Double>();
 		indepMax = new HashMap<String, Double>();
 	}
-	
 	
 	public ParametricModel(
 		final String modelName, final String formula,
@@ -222,8 +223,47 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			assert false;
 		}
 	}
+	public ParametricModel clone() {
+		ParametricModel clonedPM = new ParametricModel(modelName, formula, depVar, level, modelId, estModelId); 
+
+		try {
+			clonedPM.setRms(rms);
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
+		try {
+			clonedPM.setRss(rss);
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
+		try {
+			clonedPM.setRsquared(rsquared);
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
+		clonedPM.setAic(aic);
+		clonedPM.setCondId(condId);
+
+		for (Map.Entry<String, Double> entry : param.entrySet()) {
+		    String key = entry.getKey();
+		    Double value = entry.getValue();
+		    clonedPM.addParam(key, value, paramError.get(key), paramMin.get(key), paramMax.get(key));
+		}
+		for (String key : indepVar) {
+		    clonedPM.addIndepVar(key, indepMin.get(key), indepMax.get(key));
+		}
+
+		for (LiteratureItem item : modelLit) {
+			clonedPM.addModelLit(item);			
+		}
+		for (LiteratureItem item : estLit) {
+			clonedPM.addEstModelLit(item);	
+		}
+
+		return clonedPM;
+	}
 	
-	public void setRsquared( final double r2 ) throws PmmException {
+	public void setRsquared( final Double r2 ) throws PmmException {
 				
 		if( r2 > 1 ) {
 			throw new PmmException( "Rsquared must not exceed 1." );
@@ -231,7 +271,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		rsquared = r2;
 	}
-	public void setRss( final double rss ) throws PmmException {
+	public void setRss( final Double rss ) throws PmmException {
 		
 		if( Double.isInfinite( rms ) ) {
 			throw new PmmException( "RMS must be a real positive number." );
@@ -244,8 +284,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		this.rss = rss;
 	}
 	
-	public void setCondId( final int i ) { condId = i; }
+	public void setCondId( final int condId ) { this.condId = condId; }
 	
+	public void addParam(final String paramName) {
+		addParam(paramName, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
+	}
 	public void addParam( final String paramName, final Double value, final Double error ) {
 		addParam(paramName, value, error, Double.NaN, Double.NaN);
 	}
@@ -256,16 +299,24 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		paramMin.put( paramName, min );
 		paramMax.put( paramName, max );
 	}
-	
+		
+	public void setIndepMax( final String name, final Double max ) {
+		indepMax.put( name, max );
+	}
+	public void setIndepMin( final String name, final Double min ) {
+		indepMin.put( name, min );
+	}
+	public void setParamValue( final String name, final Double value ) {
+		param.put( name, value );
+	}	
 	public void setParamMin( final String name, final Double min ) {
 		paramMin.put( name, min );
-	}
-	
+	}	
 	public void setParamMax( final String name, final Double max ) {
 		paramMax.put( name, max );
 	}
 	
-	public void setRms( final double rms ) throws PmmException {
+	public void setRms( final Double rms ) throws PmmException {
 		
 		if( Double.isInfinite( rms ) ) {
 			throw new PmmException( "RMS must be a real positive number." );
@@ -277,8 +328,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		this.rms = rms;
 	}
-	public void setAic( final double aic ) { this.aic = aic; }
+	public void setAic( final Double aic ) { this.aic = aic; }
 	
+	public void removeIndepVar( final String varName ) {
+		indepVar.remove(varName);
+	}
+	public void removeParam( final String varName ) {
+		param.remove(varName);
+	}
 	public void addIndepVar( final String varName ) {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
@@ -332,11 +389,20 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Set<String> getParamNameSet() {
 		return param.keySet();
 	}
-	
-	public double getParamValue( final String paramName ) {
+	public SortedMap<String, Boolean> getAllParVars(){
+		SortedMap<String, Boolean> result = new TreeMap<String, Boolean>();
+		for (String key : getParamNameSet()) {
+			result.put(key, false);
+		}
+		for (String key : getIndepVarSet()) {
+			result.put(key, true);
+		}
+		return result;
+	}
+	public Double getParamValue( final String paramName ) {
 		return param.get( paramName );
 	}
-	public double getParamError( final String paramName ) {
+	public Double getParamError( final String paramName ) {
 		return paramError.get( paramName );
 	}
 	
@@ -353,13 +419,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public int getLevel() { return level; }
 	public int getModelId() { return modelId; }
 	public void setModelId(final int modelId) {this.modelId = modelId;}
+	public void setModelName(final String modelName) {this.modelName = modelName;}
 	public int getEstModelId() { return estModelId; }
 	public void setEstModelId(final int estModelId) {this.estModelId = estModelId;}
 	public int getCondId() { return condId; }
-	public double getRss() { return rss; }
-	public double getRsquared() { return rsquared; }
-	public double getRms() { return rms; }
-	public double getAic() { return aic; }
+	public Double getRss() { return rss; }
+	public Double getRsquared() { return rsquared; }
+	public Double getRms() { return rms; }
+	public Double getAic() { return aic; }
 	public String getModelName() { return modelName; }
 	public LinkedList<String> getIndepVarSet() { return indepVar; }
 	

@@ -36,116 +36,83 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
+import java.util.SortedMap;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
-public class ModelTableModel extends JTable implements KeyListener {
+public class ModelTableModel extends JTable {
 
 	private static final long serialVersionUID = -6782674430592418376L;
-
-	public final static String EXCLUDE = "F2";
+		
+	private String[] columns = new String[]{"Parameter", "Indep", "Value", "Min", "Max"};
+	//private SortedMap<String, HashMap<String, Object>> data = new TreeMap<String, HashMap<String, Object>>();
+	private ParametricModel thePM;
 	
 	private boolean isBlankEditor = false;
-	
-	private String[] columns = new String[]{"Parameter", "Indep", "Value", "Min", "Max"};
-	private LinkedHashMap<String, HashMap<String, Object>> data = new LinkedHashMap<String, HashMap<String, Object>>();
-	
+
 	public ModelTableModel() {
 		super();
-		this.setModel(new BooleanTableModel(this));
-		//this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
-		//this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
+		BooleanTableModel btm = new BooleanTableModel(this);
+		this.setModel(btm);	
+		this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
+		this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
+		this.setDefaultRenderer(Double.class, new MyTableCellRenderer());
+		this.getTableHeader().setReorderingAllowed(false);
+		this.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+		
 	}
 	
+	public void setPM(ParametricModel pm) {
+		thePM = pm;
+		this.revalidate();
+	}
 	public void clearTable() {
-		data = new LinkedHashMap<String, HashMap<String, Object>>();
-	}
-	public void addValue(Object o, int columnIndex) {
-		if (columnIndex == 0) {
-			HashMap<String, Object> row = new HashMap<String, Object>();
-			row.put("Parameter", o);
-			data.put(o.toString(), row);			
-		}
-	}
-	public void setValueAt(Object o, String rowID, String columnName) {
-		int columnIndex = getColIndex(columnName);
-		setValueAt(o, rowID, columnIndex);
-	}
-	public Object getValueAt(String rowID, String columnName) {
-		if (data.containsKey(rowID) && data.get(rowID).containsKey(columnName)) {
-			return data.get(rowID).get(columnName);			
-		}
-		return null;
-	}
-	
-	private int getColIndex(String columnName) {
-		for (int i=0;i<columns.length; i++) {
-			if (columns[i].equalsIgnoreCase(columnName)) return i;
-		}
-		return -1;
-	}
-	private void setValueAt(Object o, String rowID, int columnIndex) {
-		if (columnIndex >= 0 && data.containsKey(rowID) && (columnIndex != 0 || o != null && !data.containsKey(o.toString()))) {
-			HashMap<String, Object> row = data.get(rowID);
-			data.remove(rowID);
-			if (columnIndex == 0) rowID = o.toString();
-			if (o instanceof Double && Double.isNaN((Double) o)) o = "";
-        	row.put(columns[columnIndex], o);
-			data.put(rowID, row);
-		}
+		//data = new TreeMap<String, HashMap<String, Object>>();
+		thePM = new ParametricModel("", "", "", 1);
+		this.revalidate();
 	}
 
+	// Here: functionality: always overwrite cell except for pressed F2, which means: activate cell
 	@Override
 	public Component prepareEditor(final TableCellEditor editor, final int row, final int column) {
-		Component c = super.prepareEditor(editor, row, column);
-		
+		Component c = super.prepareEditor(editor, row, column);		
 		if (isBlankEditor) {
 			((JTextField) c).setText("");
-		}
-		
+		}		
 		return c;
 	}
-
 	@Override
 	protected boolean processKeyBinding(final KeyStroke ks, final KeyEvent e, final int condition, final boolean pressed) {
-		if (! EXCLUDE.equals(KeyEvent.getKeyText(e.getKeyCode()))) {
-			isBlankEditor = true;
+		char ch = e.getKeyChar();
+		if (ch == ',') {
+  			e.setKeyChar('.');
 		}
-		
-		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);
-		
+		if (!KeyEvent.getKeyText(e.getKeyCode()).equals("F2")) {
+			isBlankEditor = true;
+		}		
+		boolean retValue = super.processKeyBinding(ks, e, condition, pressed);		
 		isBlankEditor = false;
 		return retValue;
 	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {}
-
-	@Override
-	public void keyReleased( final KeyEvent ke ) {}
-
-	@Override
-	public void keyTyped( final KeyEvent ke ) {
-		if (ke.getSource() instanceof ModelTableModel) {
-		  	char ch = ke.getKeyChar();
-			  			if (ch == ',') {
-			  				ch = '.';
-			  				ke.setKeyChar('.');
-			  			}
+	
+	public void stopCellEditing() {
+		if (this.isEditing()) {
+			this.getCellEditor().stopCellEditing();
 		}
 	}
-	
 
 	private class BooleanTableModel extends AbstractTableModel {
  
@@ -154,8 +121,8 @@ public class ModelTableModel extends JTable implements KeyListener {
 			this.mtm = mtm;
 		}
         public int getRowCount() {
-        	if (data == null) return 0;
-        	else return data.size();
+        	if (thePM == null) return 0;
+        	else return thePM.getAllParVars().size();
         }
  
         public int getColumnCount() {
@@ -163,35 +130,65 @@ public class ModelTableModel extends JTable implements KeyListener {
         }
  
         public Object getValueAt(int rowIndex, int columnIndex) {
-        	Object[] oa = data.keySet().toArray();
+        	if (thePM == null) return null;
+        	SortedMap<String, Boolean> sm = thePM.getAllParVars();
+        	Object[] oa = sm.keySet().toArray();
         	if (rowIndex < oa.length) {
             	String rowID = oa[rowIndex].toString();
-            	if (data != null && data.get(rowID) != null) {
-            		return data.get(rowID).get(columns[columnIndex]);
-            	}
+            	boolean isIndep = sm.get(rowID);
+            	if (columnIndex == 0) return rowID;
+            	if (columnIndex == 1) return isIndep;
+            	if (columnIndex == 2) return isIndep ? null : thePM.getParamValue(rowID);
+            	if (columnIndex == 3) return isIndep ? thePM.getIndepMin(rowID) : thePM.getParamMin(rowID);
+            	if (columnIndex == 4) return isIndep ? thePM.getIndepMax(rowID) : thePM.getParamMax(rowID);
         	}
         	return null;
         }
  
         public void setValueAt(Object o, int rowIndex, int columnIndex) {
-        	Object[] oa = data.keySet().toArray();
+        	if (thePM == null) return;
+        	SortedMap<String, Boolean> sm = thePM.getAllParVars();
+        	Object[] oa = sm.keySet().toArray();
         	if (rowIndex < oa.length) {
             	String rowID = oa[rowIndex].toString();
-            	mtm.setValueAt(o, rowID, columnIndex);
+            	if (columnIndex == 1 && o instanceof Boolean) {
+            		boolean isIndep = (Boolean) o;
+            		if (isIndep) {
+            			thePM.addIndepVar(rowID, thePM.getParamMin(rowID), thePM.getParamMax(rowID));
+            			thePM.removeParam(rowID);
+            		}
+            		else {
+            			thePM.addParam(rowID, Double.NaN, Double.NaN, thePM.getIndepMin(rowID), thePM.getIndepMax(rowID));
+            			thePM.removeIndepVar(rowID);
+            		}
+            	}
+            	else {
+                	boolean isIndep = sm.get(rowID);
+                	if (isIndep) {
+                    	if (columnIndex == 3 && o instanceof Double) thePM.setIndepMin(rowID, (Double) o);
+                    	if (columnIndex == 4 && o instanceof Double) thePM.setIndepMax(rowID, (Double) o);
+                	}
+                	else {
+                    	if (columnIndex == 2 && o instanceof Double) thePM.setParamValue(rowID, (Double) o);
+                    	if (columnIndex == 3 && o instanceof Double) thePM.setParamMin(rowID, (Double) o);
+                    	if (columnIndex == 4 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
+                	}
+            	}
+            	//mtm.revalidate();
         	}
+        	//super.fireTableCellUpdated(rowIndex, columnIndex);
         }
  
-        @Override
         public String getColumnName(int columnIndex) {
             return columns[columnIndex];
         }
  
-		@Override
 		public boolean isCellEditable(final int row, final int columnIndex) {
-			return columnIndex != 0;
+		    Boolean indep = (Boolean) mtm.getValueAt(row, 1);
+		    if (indep == null) indep = false;
+			return columnIndex == 1 || columnIndex > 2 || (!indep && columnIndex == 2);
 		}
 
-		@Override
         public Class<?> getColumnClass(int columnIndex) {
         	if (columnIndex == 0) return Object.class;
         	else if (columnIndex == 1) return Boolean.class;
@@ -200,31 +197,48 @@ public class ModelTableModel extends JTable implements KeyListener {
         	else if (columnIndex == 4) return Double.class;
         	else return Object.class;
         }
-        
     }
 
-	class MyTableCellRenderer implements TableCellRenderer {
-		  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			  if (column == 1) {
+	private class MyTableCellRenderer implements TableCellRenderer {
+		  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
+			  JComponent c;
+			  if (columnIndex == 1) {
 				  JCheckBox checkbox = new JCheckBox();
+				  checkbox.setHorizontalAlignment(SwingConstants.CENTER);
+				  checkbox.setEnabled(true);
 				  checkbox.setSelected(value == null ? false : (Boolean) value);
-				  checkbox.setBackground((row % 2 == 0) ? Color.white : Color.cyan);
-				  return checkbox;
+				  checkbox.setBackground(Color.WHITE);
+				  c = checkbox;
 			  }
-			  else if (column == 0) {
+			  else if (columnIndex == 0) {
 				    JTextField editor = new JTextField();
 				    if (value != null) editor.setText(value.toString());
 				    editor.setEnabled(false);
-				    editor.setEditable(false);
-				    editor.setBackground((row % 2 == 0) ? Color.white : Color.cyan);
-				    return editor;
+				    c = editor;
 			  }
 			  else {
 				    DoubleTextField editor = new DoubleTextField(true);
-				    if (value != null) editor.setText(value.toString());
-				    editor.setBackground((row % 2 == 0) ? Color.white : Color.cyan);
-				    return editor;
+				    if (value != null && value instanceof Double && !Double.isNaN((Double) value)) editor.setText(value.toString());
+				    else editor.setText(null);
+				    if (columnIndex == 2) { // Value
+					    Boolean indep = (Boolean) table.getValueAt(rowIndex, 1);
+					    if (indep == null) indep = false;
+					    editor.setEnabled(!indep);				    	
+				    }
+				    c = editor;
 			  }
+			  
+			  try {
+				  UIDefaults uiDefaults = UIManager.getDefaults();
+				  Color selBGColor = (Color) uiDefaults.get("Table.selectionBackground");
+				  if (isSelected) c.setBackground(selBGColor);				  
+			  }
+			  catch (Exception e) {}
+			  
+			  c.setBorder(null);
+			  table.repaint();
+			  table.revalidate();
+			  return c;
 		  }
 		}
 }

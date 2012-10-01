@@ -8,7 +8,7 @@ new FormModel {
 			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
 		} ) {
 			name: "this"
-			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.TitledBorder( "Time Series Properties" ), sfield com.jgoodies.forms.factories.Borders DLU2_BORDER )
+			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.TitledBorder( "Microbial Data Properties" ), sfield com.jgoodies.forms.factories.Borders DLU2_BORDER )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "agentLabel"
 				"text": "Agent:"

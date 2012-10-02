@@ -63,12 +63,15 @@ public class ModelTableModel extends JTable {
 	private String[] columns = new String[]{"Parameter", "Independent", "Value", "Min", "Max"};
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private ParametricModel thePM;
+	private boolean hasChanged = false;
+	private HashMap<String, Boolean> rowHasChanged;
 	
 	private boolean isBlankEditor = false;
 
 	public ModelTableModel() {
 		super();
 		BooleanTableModel btm = new BooleanTableModel();
+		rowHasChanged = new HashMap<String, Boolean>();
 		this.setModel(btm);	
 		this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
 		this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
@@ -81,10 +84,20 @@ public class ModelTableModel extends JTable {
 		thePM = pm;
 		m_secondaryModels = secondaryModels;
 		this.revalidate();
+		hasChanged = false;
+		rowHasChanged = new HashMap<String, Boolean>();
+	}
+	public ParametricModel getPM() {
+		return thePM;
+	}
+	public boolean hasChanged() {
+		return hasChanged;
 	}
 	public void clearTable() {
 		thePM = new ParametricModel("", "", "", 1);
 		this.revalidate();
+		hasChanged = false;
+		rowHasChanged = new HashMap<String, Boolean>();
 	}
 
 	// Here: functionality: always overwrite cell except for pressed F2, which means: activate cell
@@ -125,7 +138,7 @@ public class ModelTableModel extends JTable {
         	if (thePM == null) return null;
         	SortedMap<String, Boolean> sm = thePM.getAllParVars();
         	Object[] oa = sm.keySet().toArray();
-        	if (rowIndex < oa.length) {
+        	if (rowIndex >= 0 && rowIndex < oa.length) {
             	String rowID = oa[rowIndex].toString();
             	boolean isIndep = sm.get(rowID);
             	if (columnIndex == 0) return rowID;
@@ -176,12 +189,14 @@ public class ModelTableModel extends JTable {
                     	if (columnIndex == 4 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
                 	}
             	}
-            	super.fireTableCellUpdated(rowIndex, columnIndex);
+            	//super.fireTableCellUpdated(rowIndex, columnIndex);
+            	hasChanged = true;
+            	rowHasChanged.put(rowID, true);
         	}
         }
  
         public String getColumnName(int columnIndex) {
-            return columns[columnIndex];
+        	return columns[columnIndex];
         }
  
 		public boolean isCellEditable(final int row, final int columnIndex) {
@@ -213,12 +228,11 @@ public class ModelTableModel extends JTable {
 			  }
 			  else if (columnIndex == 0) {
 				    JTextField editor = new JTextField();
-				    if (value != null) editor.setText(value.toString());
+				    if (value != null) editor.setText(value.toString() + (rowHasChanged.get(value) != null && rowHasChanged.get(value) ? "*" : ""));
 				    editor.setEnabled(false);
 				    boolean hasSecondary = m_secondaryModels != null && m_secondaryModels.containsKey(value);
 				    editor.setFont(editor.getFont().deriveFont(hasSecondary ? Font.BOLD : Font.PLAIN));
 				    editor.setToolTipText(hasSecondary ? m_secondaryModels.get(value).getModelName() : "");
-				    editor.setOpaque(true);
 				    c = editor;
 			  }
 			  else {

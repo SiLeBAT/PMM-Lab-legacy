@@ -39,9 +39,7 @@ public class MMC_M extends JPanel {
 
 	private static final String LABEL_OWNMODEL = "Manually defined model";
 
-	private int m_level = 1;
 	private Frame m_parentFrame = null;
-	private HashMap<String,ParametricModel> m_modelCatalog = null;
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private BFRNodeService m_service = null;
 	private boolean dontTouch = false;
@@ -50,17 +48,8 @@ public class MMC_M extends JPanel {
 		this(null, 1, "");
 	}
 	public MMC_M(final Frame parentFrame, final int level, final String paramName) {
-		this.m_level = level;
 		this.m_parentFrame = parentFrame;
 		initComponents();
-		table.getModel().addTableModelListener(new TableModelListener() {
-			@Override
-			public void tableChanged(TableModelEvent e) {
-				modelnameField.setText(getOwnModelname(getPM()));
-				modelnameFieldFocusLost(null);
-			}
-		});
-		m_modelCatalog = new HashMap<String,ParametricModel>();	
 		if (level == 1) m_secondaryModels = new HashMap<String, ParametricModel>();
 		depVarLabel.setText(paramName);
 		if (level == 1) {
@@ -77,20 +66,33 @@ public class MMC_M extends JPanel {
 	}
 	
 	public ParametricModel getPM() {
-		return m_modelCatalog.get(modelNameBox.getSelectedItem());
+		return table.getPM();
 	}
 	public void setPM(ParametricModel pm) {
 		if (pm != null) {
-			if (m_secondaryModels != null && m_secondaryModels.size() > 0) radioButton3.setSelected(true);
+			if (pm.getLevel() == 2) {
+				if (!radioButton2.isSelected()) {
+					radioButton2.setSelected(true);
+					setDB(m_service);
+				}
+			}
+			else if (m_secondaryModels != null && m_secondaryModels.size() > 0) {
+				radioButton3.setSelected(true);
+			}
 			modelnameField.setText(pm.getModelName());
+			String depVar = depVarLabel.getText();
+			if (!depVar.isEmpty()) {
+				String formula = pm.getFormula();
+				int index = formula.lastIndexOf("=");
+				if (index >= 0) {
+					formula = depVar + formula.substring(index);
+					pm.setDepVar(depVar);
+					pm.setFormula(formula);
+				}
+			}			
 			formulaArea.setText(pm.getFormula());
 			table.setPM(pm, m_secondaryModels);
-			if (pm.getModelId() != m_modelCatalog.get(modelNameBox.getSelectedItem()).getModelId()) {
-				dontTouch = true;
-				modelNameBox.setSelectedItem(pm.getModelName());
-				dontTouch = false;
-			}
-			m_modelCatalog.put(modelNameBox.getSelectedItem().toString(), pm);
+			insertNselectPMintoBox(pm);
 		}
 	}
 	public void setDB(final BFRNodeService service) {	
@@ -106,24 +108,24 @@ public class MMC_M extends JPanel {
 	}
 	private void getFromDB(final Bfrdb db) {		
 		modelNameBox.removeAllItems();
-		m_modelCatalog.clear();
 		if (m_secondaryModels != null) m_secondaryModels.clear();
-		ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", m_level);
-		modelNameBox.addItem(LABEL_OWNMODEL);
-		m_modelCatalog.put(LABEL_OWNMODEL, pm);
+		int level = radioButton2.isSelected() ? 2 : 1;
+		ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", level);
+		modelNameBox.addItem(pm);
+		//System.err.println("added:" + pm + "\t" + pm.hashCode());
 		try {			
-			ResultSet result = db.selectModel(m_level);			
+			ResultSet result = db.selectModel(level);			
 			while(result.next()) {				
 				String modelName = result.getString(Bfrdb.ATT_NAME);
 				String formula = result.getString(Bfrdb.ATT_FORMULA);
 				int modelID = result.getInt(Bfrdb.ATT_MODELID);
 
-				pm = new ParametricModel(modelName, formula, result.getString(Bfrdb.ATT_DEP), m_level, modelID);
+				pm = new ParametricModel(modelName, formula, result.getString(Bfrdb.ATT_DEP), level, modelID);
 				manageDBMinMax(result, pm);
 				manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
 				
-				modelNameBox.addItem(modelName);
-				m_modelCatalog.put(modelName, pm);
+				modelNameBox.addItem(pm);
+				//System.err.println("added:" + pm + "\t" + pm.hashCode());
 			}			
 			result.getStatement().close();
 			result.close();
@@ -133,7 +135,6 @@ public class MMC_M extends JPanel {
 		catch( Exception e ) {
 			e.printStackTrace();
 		}
-		modelNameBox.setSelectedItem(LABEL_OWNMODEL);
 	}
 	private void manageDBMinMax(ResultSet result, ParametricModel pm) throws SQLException {
 		Array array = result.getArray(Bfrdb.ATT_PARAMNAME);
@@ -234,29 +235,44 @@ public class MMC_M extends JPanel {
 		formulaArea.setText("");
 		modelnameField.setText("");
 		
-		ParametricModel pm = m_modelCatalog.get(modelNameBox.getSelectedItem());
+		ParametricModel pm = (ParametricModel) modelNameBox.getSelectedItem();
 		if (pm != null) {
 			setPM(pm);
 		}
 		else if (modelNameBox.getItemCount() > 1) {
 			System.err.println("pm = null???\t" + modelNameBox.getSelectedItem() + "\t" + modelNameBox.getItemCount());
 		}
+		else {
+			System.err.println("pm = null???\t" + modelNameBox.getItemCount());
+		}
+	}
+	
+	private void insertNselectPMintoBox(ParametricModel pm) {
+		int i=0;
+		for (i=0;i<modelNameBox.getItemCount();i++) {
+			//if (pm.getModelId() == ((ParametricModel) modelNameBox.getItemAt(i)).getModelId()) {
+			if (pm.hashCode() == ((ParametricModel) modelNameBox.getItemAt(i)).hashCode()) {
+				break;
+			}
+		}
+		dontTouch = true;
+		if (i == modelNameBox.getItemCount()) {
+			modelNameBox.addItem(pm);
+			//System.err.println("added:" + pm + "\t" + pm.hashCode());
+		}
+		modelNameBox.setSelectedItem(pm);
+		dontTouch = false;		
 	}
 
 	private void formulaAreaFocusLost(FocusEvent e) {
-		ParametricModel pm = m_modelCatalog.get(modelNameBox.getSelectedItem());
+		ParametricModel pm = table.getPM();
 		if (pm != null && !pm.getFormula().equals(formulaArea.getText())) {
-			String newMN = getOwnModelname(pm);
-			ParametricModel newPM = new ParametricModel(newMN, formulaArea.getText(), pm.getDepVar(), 1, MathUtilities.getRandomNegativeInt());
-			m_modelCatalog.put(LABEL_OWNMODEL, newPM);
+			String newMN = getNewModelname(pm);
+			ParametricModel newPM = new ParametricModel(newMN, formulaArea.getText(), pm.getDepVar(), pm.getLevel(), MathUtilities.getRandomNegativeInt());
+			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
-			modelNameBox.setSelectedIndex(0);
+			modelNameBox.setSelectedItem(newPM);
 		}
-	}
-
-	private String getOwnModelname(ParametricModel pm) {
-		if (pm == null) return null;
-		return pm.getModelName().endsWith("_" + LABEL_OWNMODEL) ? pm.getModelName() : pm.getModelName() + "_" + LABEL_OWNMODEL;
 	}
 
 	private void formulaAreaKeyReleased(KeyEvent e) {
@@ -265,14 +281,35 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private String getNewModelname(ParametricModel pm) {
+		if (pm == null) return null;
+		String mn = pm.getModelName();
+		int lio = mn.lastIndexOf(" (v");
+		String result = mn;
+		try {
+			if (lio >= 0) {
+				String number = mn.substring(lio + 3, mn.length() - 1);
+				Long.parseLong(number);
+				result = mn.substring(0, lio);
+			}
+		}
+		catch (Exception e) {}
+		result += " (v" + System.currentTimeMillis() + ")";
+		return result;
+	}
+
 	private void modelnameFieldFocusLost(FocusEvent e) {
-		ParametricModel pm = m_modelCatalog.get(modelNameBox.getSelectedItem());
+		ParametricModel pm = table.getPM();
 		if (pm != null && !pm.getModelName().equals(modelnameField.getText())) {
 			ParametricModel newPM = pm.clone();
 			newPM.setModelName(modelnameField.getText());
 			newPM.setModelId(MathUtilities.getRandomNegativeInt());
-			m_modelCatalog.put(LABEL_OWNMODEL, newPM);
-			modelNameBox.setSelectedIndex(0);
+			/*
+			System.err.println(pm.getParamValue("a0") + "\t" + pm + "\t" + pm.hashCode() + "\n" +
+					newPM.getParamValue("a0") + "\t" + newPM + "\t" + newPM.hashCode() + "\n" +
+					table.getValueAt(0, 2) + "\t" + table.getPM() + "\t" + table.getPM().hashCode() + "\t" + table.getPM().getParamValue("a0"));
+					*/
+			insertNselectPMintoBox(newPM);
 		}
 	}
 
@@ -306,19 +343,24 @@ public class MMC_M extends JPanel {
 
 	private void radioButtonActionPerformed(ActionEvent e) {
 		if (m_service != null) {
-			int oldLevel = m_level;
-			m_level = radioButton2.isSelected() ? 2 : 1;
-			if (m_level != oldLevel) setDB(m_service);
-			if (!radioButton3.isSelected()) {
-				m_secondaryModels.clear();
-			}
+			int level = radioButton2.isSelected() ? 2 : 1;
+			if (!radioButton3.isSelected()) m_secondaryModels.clear();
+			ParametricModel pm = table.getPM();
+			if (level != pm.getLevel()) setDB(m_service);
 		}
 	}
 
 	public String toXmlString() {		
 		PmmXmlDoc doc = new PmmXmlDoc();
 
-		ParametricModel pm = m_modelCatalog.get(modelNameBox.getSelectedItem());
+		ParametricModel pm = table.getPM();
+		if (table.hasChanged()) {
+			if (pm != null && pm.getModelName().equals(modelnameField.getText())) {
+				modelnameField.setText(getNewModelname(pm));
+				modelnameFieldFocusLost(null);	
+				pm = (ParametricModel) modelNameBox.getSelectedItem();
+			}
+		}
 		/*
 		// add literature items
 			for (Map.Entry<Integer, String> entry : possLiterature.entrySet()) {
@@ -339,7 +381,7 @@ public class MMC_M extends JPanel {
 		*/
 		doc.add(pm);
 		
-		if (m_level == 1) {
+		if (!radioButton2.isSelected()) {
 			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.entrySet()) {
 				String key = entry.getKey();
 				if (pm.getParamNameSet().contains(key)) {
@@ -372,6 +414,7 @@ public class MMC_M extends JPanel {
 			}
 
 			if (theModel != null) {
+				if (theModel.getLevel() == 2) m_secondaryModels.clear();
 				setPM(theModel);
 			}
 			/*
@@ -471,7 +514,7 @@ public class MMC_M extends JPanel {
 		add(modelNameBox, CC.xywh(3, 5, 5, 1));
 
 		//---- label1 ----
-		label1.setText("Modellname:");
+		label1.setText("Modell Name:");
 		add(label1, CC.xy(1, 7));
 
 		//---- modelnameField ----
@@ -490,7 +533,7 @@ public class MMC_M extends JPanel {
 		add(modelnameField, CC.xywh(3, 7, 5, 1));
 
 		//---- label2 ----
-		label2.setText("Model formula:");
+		label2.setText("Model Formula:");
 		add(label2, CC.xy(1, 9));
 
 		//---- formulaArea ----
@@ -509,7 +552,7 @@ public class MMC_M extends JPanel {
 		add(formulaArea, CC.xywh(3, 9, 5, 1));
 
 		//---- tableLabel ----
-		tableLabel.setText("Parameter definition:");
+		tableLabel.setText("Parameter Definition:");
 		add(tableLabel, CC.xy(1, 11));
 
 		//======== scrollPane1 ========
@@ -528,7 +571,7 @@ public class MMC_M extends JPanel {
 		add(scrollPane1, CC.xywh(3, 11, 5, 1));
 
 		//---- literatureLabel ----
-		literatureLabel.setText("Reference:");
+		literatureLabel.setText("Model References:");
 		add(literatureLabel, CC.xy(1, 13));
 
 		//---- buttonGroup1 ----

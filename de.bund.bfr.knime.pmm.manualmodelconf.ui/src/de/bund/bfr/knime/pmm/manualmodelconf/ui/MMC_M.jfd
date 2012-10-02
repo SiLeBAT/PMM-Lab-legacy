@@ -63,7 +63,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label1"
-				"text": "Modellname:"
+				"text": "Modell Name:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 7
@@ -79,7 +79,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label2"
-				"text": "Model formula:"
+				"text": "Model Formula:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 9
@@ -95,7 +95,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "tableLabel"
-				"text": "Parameter definition:"
+				"text": "Parameter Definition:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 11
@@ -114,7 +114,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "literatureLabel"
-				"text": "Reference:"
+				"text": "Model References:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 13

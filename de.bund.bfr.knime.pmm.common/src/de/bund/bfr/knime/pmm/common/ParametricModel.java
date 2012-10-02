@@ -575,4 +575,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		return tuple;
 	}
+	
+	public String toString() {
+		return modelName;
+	}
 }

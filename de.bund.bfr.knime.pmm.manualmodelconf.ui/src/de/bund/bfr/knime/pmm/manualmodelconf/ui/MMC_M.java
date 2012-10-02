@@ -14,8 +14,6 @@ import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
@@ -112,7 +110,7 @@ public class MMC_M extends JPanel {
 		int level = radioButton2.isSelected() ? 2 : 1;
 		ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", level);
 		modelNameBox.addItem(pm);
-		//System.err.println("added:" + pm + "\t" + pm.hashCode());
+		//System.err.println("added1:" + pm + "\t" + pm.hashCode());
 		try {			
 			ResultSet result = db.selectModel(level);			
 			while(result.next()) {				
@@ -125,7 +123,7 @@ public class MMC_M extends JPanel {
 				manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
 				
 				modelNameBox.addItem(pm);
-				//System.err.println("added:" + pm + "\t" + pm.hashCode());
+				//System.err.println("added2:" + pm + "\t" + pm.hashCode());
 			}			
 			result.getStatement().close();
 			result.close();
@@ -250,15 +248,15 @@ public class MMC_M extends JPanel {
 	private void insertNselectPMintoBox(ParametricModel pm) {
 		int i=0;
 		for (i=0;i<modelNameBox.getItemCount();i++) {
-			//if (pm.getModelId() == ((ParametricModel) modelNameBox.getItemAt(i)).getModelId()) {
-			if (pm.hashCode() == ((ParametricModel) modelNameBox.getItemAt(i)).hashCode()) {
+			if (pm.getModelId() == ((ParametricModel) modelNameBox.getItemAt(i)).getModelId()) {
+			//if (pm.hashCode() == ((ParametricModel) modelNameBox.getItemAt(i)).hashCode()) {
 				break;
 			}
 		}
 		dontTouch = true;
 		if (i == modelNameBox.getItemCount()) {
 			modelNameBox.addItem(pm);
-			//System.err.println("added:" + pm + "\t" + pm.hashCode());
+			//System.err.println("added3:" + pm + "\t" + pm.hashCode());
 		}
 		modelNameBox.setSelectedItem(pm);
 		dontTouch = false;		

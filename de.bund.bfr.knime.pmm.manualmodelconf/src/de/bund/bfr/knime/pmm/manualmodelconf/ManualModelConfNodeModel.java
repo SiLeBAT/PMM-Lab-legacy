@@ -119,24 +119,22 @@ public class ManualModelConfNodeModel extends NodeModel {
             final ExecutionContext exec ) throws Exception {
     	if (doc != null) {
         	
-        	KnimeSchema ts = new TimeSeriesSchema();
-        	KnimeSchema m1 = new Model1Schema();
-        	KnimeSchema tsm1 = KnimeSchema.merge(ts, m1);
         	KnimeTuple tupleM1 = null;
+			PmmTimeSeries tstuple = new PmmTimeSeries();
+			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
+			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrix);
+			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
+			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
+			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
+			tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
-        	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
+        	for (PmmXmlElementConvertable el : doc.getModelSet()) {      		
         		if (el instanceof ParametricModel) {        		
 	        		ParametricModel model = (ParametricModel) el;	        		
 	    			if (model.getLevel() == 1) { // can occur only once
-	    				tupleM1 = model.getKnimeTuple();
-	    				PmmTimeSeries tstuple = new PmmTimeSeries();
-	    				tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
-	    				tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrix);
-	    				tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
-	    				tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
-	    				tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
-	    				tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
-	    				tupleM1 = KnimeTuple.merge(tsm1, tstuple, tupleM1);
+	    				if (model.getIndepVarSet().size() > 0) {
+	    					tupleM1 = model.getKnimeTuple();
+	    				}
 	    			}
 	    			else {
 	    	    		// SecondaryModel
@@ -146,9 +144,13 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			}
         		}
         	}
+        	KnimeSchema ks = getSchema();
+        	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
         	if (tupleM1 != null) {
-            	KnimeSchema ks = getSchema();
-            	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
+            	KnimeSchema ts = new TimeSeriesSchema();
+            	KnimeSchema m1 = new Model1Schema();
+            	KnimeSchema tsm1 = KnimeSchema.merge(ts, m1);
+    			tupleM1 = KnimeTuple.merge(tsm1, tstuple, tupleM1);
             	if (rowSec.size() > 0) {
             		for (int i=0;i<rowSec.size();i++) {
                 		buf.addRowToTable(new DefaultRow(String.valueOf(i), KnimeTuple.merge(ks, tupleM1, rowSec.get(i))));    		
@@ -157,27 +159,22 @@ public class ManualModelConfNodeModel extends NodeModel {
             	else { // nur TSM1 generieren
             		buf.addRowToTable(new DefaultRow(String.valueOf( 0 ), tupleM1));
             	}
-
-        		// close table buffer
-            	buf.close();
             	/*
             	BufferedDataContainer buf2 = exec.createDataContainer( createXmlSpec() );
             	buf2.addRowToTable( new DefaultRow( "0", new DataCell[] { new StringCell( xmlString ) } ) );
             	buf2.close();
             	*/
-                return new BufferedDataTable[]{ buf.getTable()}; // , buf2.getTable() 
         	}
         	else if (rowSec.size() == 1) {
-            	KnimeSchema ks = getSchema();
-            	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
-            	KnimeTuple emptyTupleM1 = new KnimeTuple(new Model1Schema());
-            	buf.addRowToTable(new DefaultRow(String.valueOf(0), KnimeTuple.merge(ks, emptyTupleM1, rowSec.get(0))));    		
-            	buf.close();
-                return new BufferedDataTable[]{buf.getTable()};
+            	//KnimeTuple emptyTupleM1 = new KnimeTuple(new Model1Schema());
+            	//buf.addRowToTable(new DefaultRow(String.valueOf(0), KnimeTuple.merge(ks, emptyTupleM1, rowSec.get(0))));    		
+            	buf.addRowToTable(new DefaultRow(String.valueOf(0), KnimeTuple.merge(ks, tstuple, rowSec.get(0))));    		
         	}
         	else {
-                return null;    		
+            	buf.addRowToTable(new DefaultRow(String.valueOf(0), tstuple));    		
         	}
+        	buf.close();
+            return new BufferedDataTable[]{ buf.getTable()};
     	}
     	else {
     		return null;
@@ -188,8 +185,21 @@ public class ManualModelConfNodeModel extends NodeModel {
     	if (doc != null) {
         	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
         		if (el instanceof ParametricModel) {
-	        		ParametricModel model = (ParametricModel ) el;
-	        		if (model.getLevel() == 2) {
+	        		ParametricModel model = (ParametricModel) el;
+	        		if (model.getLevel() == 2 && model.getIndepVarSet().size() > 0) {
+						return true;
+					}
+        		}
+        	}
+    	}
+    	return false;
+    }
+    private boolean hasPrimary() {
+    	if (doc != null) {
+        	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
+        		if (el instanceof ParametricModel) {
+	        		ParametricModel model = (ParametricModel) el;
+	        		if (model.getLevel() == 1 && model.getIndepVarSet().size() > 0) {
 						return true;
 					}
         		}
@@ -218,11 +228,19 @@ public class ManualModelConfNodeModel extends NodeModel {
     private KnimeSchema getSchema() {
     	KnimeSchema ks = null;
 		try {
-	    	if (hasSecondary()) {
+			boolean hp = hasPrimary();
+			boolean hs = hasSecondary();
+			if (hp && hs) {
 	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), KnimeSchema.merge(new Model1Schema(), new Model2Schema()));
-	    	}
-	    	else {
+			}
+	    	else if (hp) {
 	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+	    	}	
+	    	else if (hs) {
+	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model2Schema());
+	    	}	
+	    	else {
+	    		ks = new TimeSeriesSchema();
 	    	}	
 		}
 		catch (PmmException e) {

@@ -130,8 +130,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
 	public static final int PARAMTYPE_DEP = 3;
-	public static final int LEVEL_PRIMARY = 1;
-	public static final int LEVEL_SECONDARY = 2;
 	
 	private static final String queryEstModelPrim2 = "SELECT\n"
 		+"    \""+ATT_FORMULA+"\",\n"

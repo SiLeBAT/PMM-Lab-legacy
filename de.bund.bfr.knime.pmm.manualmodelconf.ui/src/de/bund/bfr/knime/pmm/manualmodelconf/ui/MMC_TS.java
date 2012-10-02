@@ -10,6 +10,8 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.common.PmmConstants;
+import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.*;
@@ -20,6 +22,39 @@ import de.bund.bfr.knime.pmm.common.ui.*;
 public class MMC_TS extends JPanel {
 	public MMC_TS() {
 		initComponents();
+	}
+
+	public PmmTimeSeries getTS() throws PmmException {
+		if (!temperatureField.isValueValid()) {
+			throw new PmmException("Invalid Value");
+		}
+
+		if (!phField.isValueValid()) {
+			throw new PmmException("Invalid Value");
+		}
+
+		if (!waterActivityField.isValueValid()) {
+			throw new PmmException("Invalid Value");
+		}
+
+		PmmTimeSeries tuple = new PmmTimeSeries();
+
+		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentField.getText());
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixField.getText());
+		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
+		tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
+		tuple.setValue(TimeSeriesSchema.ATT_PH, phField.getValue());
+		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivityField.getValue());
+		
+		return tuple;
+	}
+	public void setTS(String agent, String matrix, String comment, double temp, double ph, double aw) throws PmmException {
+		agentField.setText(agent);
+		matrixField.setText(matrix);
+		commentField.setText(comment);
+		temperatureField.setValue(temp);
+		phField.setValue(ph);
+		waterActivityField.setValue(aw);
 	}
 
 	private void initComponents() {
@@ -35,7 +70,7 @@ public class MMC_TS extends JPanel {
 		phLabel = new JLabel();
 		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH, true);
 		awLabel = new JLabel();
-		doubleTextField3 = new DoubleTextField(PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY, true);
+		waterActivityField = new DoubleTextField(PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY, true);
 
 		//======== this ========
 		setBorder(new CompoundBorder(
@@ -79,7 +114,7 @@ public class MMC_TS extends JPanel {
 		awLabel.setText("aw:");
 		awLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":");
 		add(awLabel, CC.xy(1, 11));
-		add(doubleTextField3, CC.xy(3, 11));
+		add(waterActivityField, CC.xy(3, 11));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
@@ -95,6 +130,6 @@ public class MMC_TS extends JPanel {
 	private JLabel phLabel;
 	private DoubleTextField phField;
 	private JLabel awLabel;
-	private DoubleTextField doubleTextField3;
+	private DoubleTextField waterActivityField;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

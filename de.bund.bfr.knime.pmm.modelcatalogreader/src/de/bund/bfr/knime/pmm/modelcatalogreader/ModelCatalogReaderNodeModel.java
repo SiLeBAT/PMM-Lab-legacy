@@ -131,7 +131,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	
     	if( level == 1 ) {
     		
-    		result = db.selectModel( Bfrdb.LEVEL_PRIMARY );
+    		result = db.selectModel(1);
     		
     		schema = new Model1Schema();
         	
@@ -203,7 +203,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	}
     	else {
     		
-    		result = db.selectModel( Bfrdb.LEVEL_SECONDARY );
+    		result = db.selectModel(2);
     		
     		schema = new Model2Schema();
         	

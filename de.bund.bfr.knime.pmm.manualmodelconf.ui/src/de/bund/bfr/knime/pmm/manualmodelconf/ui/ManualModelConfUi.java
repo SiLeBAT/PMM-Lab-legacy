@@ -92,8 +92,6 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 
 	private static final String LABEL_OWNMODEL = "Manually defined model";
 	protected static final int MAX_PARAM = 10;
-	// private static final int LEVEL_PRIMARY = 1;
-	private static final int LEVEL_SECONDARY = 2;
 	
 	private static final long serialVersionUID = 20120503;
 	private boolean isLoading = false;
@@ -462,7 +460,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 
 		try {
 			
-			result = db.selectModel( Bfrdb.LEVEL_PRIMARY );
+			result = db.selectModel(1);
 			
 			while( result.next() ) {
 				
@@ -488,7 +486,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			modLitMat = db.getModLitMatrix();
 			createPossibleLiterature();
 			
-			result = db.selectModel( Bfrdb.LEVEL_SECONDARY );
+			result = db.selectModel(2);
 			
 			secondaryModel.resetModelItems();
 			pm = new ParametricModel(LABEL_OWNMODEL, "", "", 1);
@@ -703,7 +701,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		
 		// this method gets called when the user clicks into the parameter table
 		
-		if( getLevel() != LEVEL_SECONDARY ) {
+		if( getLevel() != 2 ) {
 			return;
 		}
 		

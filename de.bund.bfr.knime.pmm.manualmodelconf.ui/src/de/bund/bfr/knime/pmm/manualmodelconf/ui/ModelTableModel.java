@@ -35,7 +35,9 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.SortedMap;
 
 import javax.swing.JCheckBox;
@@ -43,6 +45,7 @@ import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -57,30 +60,29 @@ public class ModelTableModel extends JTable {
 
 	private static final long serialVersionUID = -6782674430592418376L;
 		
-	private String[] columns = new String[]{"Parameter", "Indep", "Value", "Min", "Max"};
-	//private SortedMap<String, HashMap<String, Object>> data = new TreeMap<String, HashMap<String, Object>>();
+	private String[] columns = new String[]{"Parameter", "Independent", "Value", "Min", "Max"};
+	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private ParametricModel thePM;
 	
 	private boolean isBlankEditor = false;
 
 	public ModelTableModel() {
 		super();
-		BooleanTableModel btm = new BooleanTableModel(this);
+		BooleanTableModel btm = new BooleanTableModel();
 		this.setModel(btm);	
 		this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
 		this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
 		this.setDefaultRenderer(Double.class, new MyTableCellRenderer());
 		this.getTableHeader().setReorderingAllowed(false);
+		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-		
 	}
-	
-	public void setPM(ParametricModel pm) {
+	public void setPM(ParametricModel pm, HashMap<String, ParametricModel> secondaryModels) {
 		thePM = pm;
+		m_secondaryModels = secondaryModels;
 		this.revalidate();
 	}
 	public void clearTable() {
-		//data = new TreeMap<String, HashMap<String, Object>>();
 		thePM = new ParametricModel("", "", "", 1);
 		this.revalidate();
 	}
@@ -108,18 +110,8 @@ public class ModelTableModel extends JTable {
 		return retValue;
 	}
 	
-	public void stopCellEditing() {
-		if (this.isEditing()) {
-			this.getCellEditor().stopCellEditing();
-		}
-	}
-
 	private class BooleanTableModel extends AbstractTableModel {
  
-		private ModelTableModel mtm;
-		public BooleanTableModel(ModelTableModel mtm) {
-			this.mtm = mtm;
-		}
         public int getRowCount() {
         	if (thePM == null) return 0;
         	else return thePM.getAllParVars().size();
@@ -138,9 +130,12 @@ public class ModelTableModel extends JTable {
             	boolean isIndep = sm.get(rowID);
             	if (columnIndex == 0) return rowID;
             	if (columnIndex == 1) return isIndep;
-            	if (columnIndex == 2) return isIndep ? null : thePM.getParamValue(rowID);
-            	if (columnIndex == 3) return isIndep ? thePM.getIndepMin(rowID) : thePM.getParamMin(rowID);
-            	if (columnIndex == 4) return isIndep ? thePM.getIndepMax(rowID) : thePM.getParamMax(rowID);
+            	if (columnIndex == 2) return isIndep ? null : 
+            		Double.isNaN(thePM.getParamValue(rowID)) ? null : thePM.getParamValue(rowID);
+            	if (columnIndex == 3) return isIndep ? (Double.isNaN(thePM.getIndepMin(rowID)) ? null : thePM.getIndepMin(rowID)) :
+            		(thePM.getParamMin(rowID) == null || Double.isNaN(thePM.getParamMin(rowID)) ? null : thePM.getParamMin(rowID));
+            	if (columnIndex == 4) return isIndep ? (Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
+            		(thePM.getParamMax(rowID) == null || Double.isNaN(thePM.getParamMax(rowID)) ? null : thePM.getParamMax(rowID));
         	}
         	return null;
         }
@@ -156,6 +151,13 @@ public class ModelTableModel extends JTable {
             		if (isIndep) {
             			thePM.addIndepVar(rowID, thePM.getParamMin(rowID), thePM.getParamMax(rowID));
             			thePM.removeParam(rowID);
+                		if (thePM.getLevel() == 1) { // only one indepVar allowed
+                			for (int i=0;i<this.getRowCount();i++) {
+                				if (i != rowIndex && this.getValueAt(i, 1) != null && (Boolean) this.getValueAt(i, 1)) {
+                					this.setValueAt(false, i, 1);
+                				}
+                			}
+                		}
             		}
             		else {
             			thePM.addParam(rowID, Double.NaN, Double.NaN, thePM.getIndepMin(rowID), thePM.getIndepMax(rowID));
@@ -174,9 +176,8 @@ public class ModelTableModel extends JTable {
                     	if (columnIndex == 4 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
                 	}
             	}
-            	//mtm.revalidate();
+            	super.fireTableCellUpdated(rowIndex, columnIndex);
         	}
-        	//super.fireTableCellUpdated(rowIndex, columnIndex);
         }
  
         public String getColumnName(int columnIndex) {
@@ -184,7 +185,7 @@ public class ModelTableModel extends JTable {
         }
  
 		public boolean isCellEditable(final int row, final int columnIndex) {
-		    Boolean indep = (Boolean) mtm.getValueAt(row, 1);
+		    Boolean indep = (Boolean) this.getValueAt(row, 1);
 		    if (indep == null) indep = false;
 			return columnIndex == 1 || columnIndex > 2 || (!indep && columnIndex == 2);
 		}
@@ -214,6 +215,10 @@ public class ModelTableModel extends JTable {
 				    JTextField editor = new JTextField();
 				    if (value != null) editor.setText(value.toString());
 				    editor.setEnabled(false);
+				    boolean hasSecondary = m_secondaryModels != null && m_secondaryModels.containsKey(value);
+				    editor.setFont(editor.getFont().deriveFont(hasSecondary ? Font.BOLD : Font.PLAIN));
+				    editor.setToolTipText(hasSecondary ? m_secondaryModels.get(value).getModelName() : "");
+				    editor.setOpaque(true);
 				    c = editor;
 			  }
 			  else {

@@ -316,6 +316,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		paramMax.put( name, max );
 	}
 	
+	public void setDepVar(final String depVar) {
+		this.depVar = depVar;
+	}
 	public void setRms( final Double rms ) throws PmmException {
 		
 		if( Double.isInfinite( rms ) ) {

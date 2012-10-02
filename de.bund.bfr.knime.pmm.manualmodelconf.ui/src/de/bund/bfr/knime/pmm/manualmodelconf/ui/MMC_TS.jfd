@@ -115,7 +115,7 @@ new FormModel {
 				"gridY": 11
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-				name: "doubleTextField3"
+				name: "waterActivityField"
 				auxiliary() {
 					"JavaCodeGenerator.customCreateCode": "new ${field_type}(PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY, true);"
 				}

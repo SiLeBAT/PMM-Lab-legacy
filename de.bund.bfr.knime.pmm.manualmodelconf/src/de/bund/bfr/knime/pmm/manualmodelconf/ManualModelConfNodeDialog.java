@@ -62,28 +62,27 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class ManualModelConfNodeDialog extends NodeDialogPane {
 	
-	private ManualModelConfUi confui;
+	private ManualModelConfUi m_confui;
+	private MMC_M m_mmcm;
+	private MMC_TS m_mmcts;
 
     /**
      * New pane for configuring the ManualModelConf node.
      */
     protected ManualModelConfNodeDialog() {
-
-
-
-
-        
-    	try {    		
-        	confui = new ManualModelConfUi(JOptionPane.getRootFrame());        	
-    		confui.setDb( BfRNodePluginActivator.getBfRService() );        	
-    		this.addTab( "Model definition", confui );    	
+    	try {    
     		/*
-    		MMC_M mmcm = new MMC_M();
-    		mmcm.setDb(BfRNodePluginActivator.getBfRService());
-    		this.addTab( "New Model definition", mmcm );    	
+    		m_confui = new ManualModelConfUi(JOptionPane.getRootFrame());        	
+    		m_confui.setDb( BfRNodePluginActivator.getBfRService() );        	
+    		this.addTab("Model definition", m_confui);    	
+    		*/
+    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
+    		m_mmcm.setDB(BfRNodePluginActivator.getBfRService());
+    		this.addTab("Model Definition", m_mmcm);    	
     		
-    		this.addTab( "Time Series definition", new MMC_TS() );    
-    		*/		
+    		m_mmcts = new MMC_TS();
+    		this.addTab("Microbial Data", m_mmcts);    
+    		
     	}
     	catch( Exception e ) {
     		e.printStackTrace( System.err );
@@ -93,10 +92,13 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {	
-		confui.stopCellEditing();
-		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, confui.toXmlString() );
+		//m_confui.stopCellEditing();
+		m_mmcm.stopCellEditing();
+		//settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_confui.toXmlString() );
+		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_mmcm.toXmlString() );
 		try {
-			PmmTimeSeries ts = confui.getTS();
+			//PmmTimeSeries ts = confui.getTS();
+			PmmTimeSeries ts = m_mmcts.getTS();
 			settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentDetail());
 			settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixDetail());
 			settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, ts.getComment());
@@ -133,7 +135,8 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 
 		try {
 			if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
-				confui.setFromXmlString( settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING) );
+				//m_confui.setFromXmlString( settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING) );
+				m_mmcm.setFromXmlString(settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING));
 			}
 		}
 		catch( InvalidSettingsException e ) {
@@ -141,7 +144,15 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 		}
 		
 		try {
-			confui.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
+			/*
+			m_confui.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
+					settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
+					settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
+					settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
+					settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
+					settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
+					*/
+			m_mmcts.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
 					settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
 					settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
 					settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),

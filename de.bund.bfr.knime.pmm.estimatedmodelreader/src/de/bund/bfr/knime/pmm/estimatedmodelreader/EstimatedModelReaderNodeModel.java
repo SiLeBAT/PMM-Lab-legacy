@@ -101,9 +101,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	
-	/* private SettingsModelString level = new SettingsModelString( PARAM_LEVEL,
-			LABEL_LEVEL_PRIMARY ); */
-
 	/**
      * Constructor for the node model.
      */

@@ -90,6 +90,7 @@ public class MMC_M extends JPanel {
 				modelNameBox.setSelectedItem(pm.getModelName());
 				dontTouch = false;
 			}
+			m_modelCatalog.put(modelNameBox.getSelectedItem().toString(), pm);
 		}
 	}
 	public void setDB(final BFRNodeService service) {	

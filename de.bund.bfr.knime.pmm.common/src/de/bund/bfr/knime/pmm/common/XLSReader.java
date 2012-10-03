@@ -3,6 +3,7 @@ package de.bund.bfr.knime.pmm.common;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -28,8 +29,11 @@ public class XLSReader {
 		if (file.exists()) {
 			inputStream = new FileInputStream(file);
 		} else {
-			URL url = new URL(file.getPath());
-			inputStream = url.openStream();
+			try {
+				URL url = new URL(file.getPath());
+				inputStream = url.openStream();
+			}
+			catch (Exception e) {throw new FileNotFoundException("File not found");}
 		}
 		Workbook wb = WorkbookFactory.create(inputStream);
 		Sheet sheet = wb.getSheetAt(0);

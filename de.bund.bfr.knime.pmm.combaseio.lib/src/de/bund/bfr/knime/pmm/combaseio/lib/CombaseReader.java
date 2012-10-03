@@ -58,11 +58,16 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			isr = new InputStreamReader(fis, "UTF-16LE");
 		}
 		else {
-			URL url = new URL(filename);
-			isr = new InputStreamReader(url.openStream(), "UTF-16LE");
+			try {
+				URL url = new URL(filename);
+				isr = new InputStreamReader(url.openStream(), "UTF-16LE");
+			}
+			catch (Exception e) {throw new FileNotFoundException("File not found");}
 		}
-		reader = new BufferedReader(isr);
-		step();
+		if (isr != null) {
+			reader = new BufferedReader(isr);
+			step();
+		}
 	}
 	
 	public void close() throws IOException {

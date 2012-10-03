@@ -1054,8 +1054,13 @@ public class Bfrdb extends Hsqldbiface {
 		insertModLit(estModelId, pm.getEstModelLit(), true);
 		
 		for (String name : pm.getIndepVarSet()) {
-			int indepId = queryParamId( modelId, name, PARAMTYPE_INDEP );
-			insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));	
+			int indepId = queryParamId(modelId, name, PARAMTYPE_INDEP);
+			if (indepId >= 0) {
+				insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+			}
+			else {
+				System.err.println(name);
+			}
 		}
 
 		return estModelId;
@@ -1078,7 +1083,9 @@ public class Bfrdb extends Hsqldbiface {
 			ps.executeUpdate();			
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace(); }		
+		catch( SQLException ex ) {
+			ex.printStackTrace();
+		}		
 	}
 	
 	private Integer insertCondition( Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,

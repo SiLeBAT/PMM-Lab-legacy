@@ -188,7 +188,9 @@ public class StartApp {
 	  		//if (args != null && args.length > 0) login.setUN(args[0]);
 	  		//loadDB(false);
 	  		
-	  		//testFocus();		
+	  		//testFocus();	
+	      
+	      //DBKernel.myList.setSelection("Versuchsbedingungen");
 	}
 	private static void setUIFont (final javax.swing.plaf.FontUIResource f){
 	    //

@@ -7,6 +7,7 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -431,9 +432,25 @@ public class MMC_M extends JPanel {
 			updateLiterature();
 			*/
 		}
-		catch( Exception e ) {
+		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void button1ActionPerformed(ActionEvent e) {
+		/*
+		BFRNodeService service = BfRNodePluginActivator.getBfRService();
+		//final Connection connection = service.getJDBCConnection();
+		//org.hsh.bfr.db.StartApp.go(connection, true, true);
+		Object newVal = DBKernel.myList.openNewWindow(
+				DBKernel.myList.getTable("Literatur"),
+				null,
+				(Object) "Literatur",
+				(MyDBTable) null,
+				1,
+				1);
+		//org.hsh.bfr.db.StartApp.go(connection, true, true, "Literatur");
+		 * */
 	}
 
 	private void initComponents() {
@@ -452,6 +469,7 @@ public class MMC_M extends JPanel {
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
 		literatureLabel = new JLabel();
+		button1 = new JButton();
 
 		//======== this ========
 		setBorder(new CompoundBorder(
@@ -573,6 +591,16 @@ public class MMC_M extends JPanel {
 		literatureLabel.setText("Model References:");
 		add(literatureLabel, CC.xy(1, 13));
 
+		//---- button1 ----
+		button1.setText("Choose");
+		button1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				button1ActionPerformed(e);
+			}
+		});
+		add(button1, CC.xy(7, 13));
+
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
 		buttonGroup1.add(radioButton1);
@@ -596,6 +624,7 @@ public class MMC_M extends JPanel {
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;
 	private JLabel literatureLabel;
+	private JButton button1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 }

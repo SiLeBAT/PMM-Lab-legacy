@@ -45,7 +45,9 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_VALUE = "Value";
 	public static final String ATT_MODELNAME = "ModelName";
 	public static final String ATT_MODELID = "ModelCatalogID";
+	
 	public static final String ATT_ESTMODELID = "EstModelID";
+	public static final String ATT_VARPARMAP = "VarParMap";
 	public static final String ATT_RMS = "RMS";
 	public static final String ATT_RSQUARED = "Rsquared";
 	public static final String ATT_MINVALUE = "MinValue";
@@ -68,27 +70,29 @@ public class Model1Schema extends KnimeSchema {
 	
 	public Model1Schema() {
 		
-		try {
-			
+		try {			
+			addIntAttribute( ATT_MODELID );
+			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 			addStringAttribute( ATT_DEPVAR );
 			addStringListAttribute( ATT_INDEPVAR );
 			addStringListAttribute( ATT_PARAMNAME );
-			addDoubleListAttribute( ATT_VALUE );
-			addDoubleListAttribute( ATT_PARAMERR );
-			addStringAttribute( ATT_MODELNAME );
-			addIntAttribute( ATT_MODELID );
-			addIntAttribute( ATT_ESTMODELID );
-			addDoubleAttribute( ATT_RMS );
-			addDoubleAttribute( ATT_RSQUARED );
 			addDoubleListAttribute( ATT_MINVALUE );
 			addDoubleListAttribute( ATT_MAXVALUE );
-			addDoubleListAttribute( ATT_MININDEP );
-			addDoubleListAttribute( ATT_MAXINDEP );
 			addIntListAttribute( ATT_LITIDM );
 			addStringListAttribute( ATT_LITM );
+			
+			addIntAttribute( ATT_ESTMODELID );
+			addStringListAttribute( ATT_VARPARMAP );
+			addDoubleAttribute( ATT_RMS );
+			addDoubleAttribute( ATT_RSQUARED );
+			addDoubleListAttribute( ATT_VALUE );
+			addDoubleListAttribute( ATT_PARAMERR );
+			addDoubleListAttribute( ATT_MININDEP );
+			addDoubleListAttribute( ATT_MAXINDEP );
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
+			
 			addIntAttribute( ATT_DATABASEWRITABLE );
 			addStringAttribute( ATT_DBUUID );
 		}

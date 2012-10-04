@@ -66,22 +66,23 @@ public class TimeSeriesSchema extends KnimeSchema {
 		try {
 			addIntAttribute( ATT_CONDID );
 			addStringAttribute( ATT_COMBASEID );
-			addIntListAttribute( ATT_MISCID );
-			addStringAttribute( ATT_MISC );
-			addDoubleAttribute( ATT_TEMPERATURE );
-			addDoubleAttribute( ATT_WATERACTIVITY );
-			addDoubleAttribute( ATT_PH );
 			addIntAttribute( ATT_AGENTID );
 			addStringAttribute( ATT_AGENTNAME );
 			addStringAttribute( ATT_AGENTDETAIL );
 			addIntAttribute( ATT_MATRIXID );
 			addStringAttribute( ATT_MATRIXNAME );
 			addStringAttribute( ATT_MATRIXDETAIL );
+			addDoubleAttribute( ATT_TEMPERATURE );
+			addDoubleAttribute( ATT_WATERACTIVITY );
+			addDoubleAttribute( ATT_PH );
 			addDoubleListAttribute( ATT_TIME );
 			addDoubleListAttribute( ATT_LOGC );
+			addIntListAttribute( ATT_MISCID );
+			addStringAttribute( ATT_MISC );
 			addStringAttribute( ATT_COMMENT );
 			addIntListAttribute( ATT_LITIDTS );
 			addStringListAttribute( ATT_LITTS );
+			
 			addStringAttribute( ATT_DBUUID );
 		}
 		catch( PmmException ex ) {

@@ -1067,7 +1067,10 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
+			PreparedStatement ps = conn.prepareStatement( "DELETE FROM \"GueltigkeitsBereiche\" WHERE \"GeschaetztesModell\" = " + estModelId);
+			ps.executeUpdate();
+			ps.close();
+			ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
 			ps.setInt( 1, estModelId);
 			ps.setInt( 2, paramId);
 			if (min == null) {

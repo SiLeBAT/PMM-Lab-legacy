@@ -46,6 +46,7 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_MODELNAME = "ModelNameSec";
 	public static final String ATT_MODELID = "ModelCatalogIDSec";
 	public static final String ATT_ESTMODELID = "EstModelIDSec";
+	public static final String ATT_VARPARMAP = "VarParMapSec";
 	public static final String ATT_RMS = "RMSSec";
 	public static final String ATT_RSQUARED = "RsquaredSec";
 	public static final String ATT_MINVALUE = "MinValueSec";
@@ -69,28 +70,30 @@ public class Model2Schema extends KnimeSchema {
 	public Model2Schema() {
 		
 		try {
-			
+			addIntAttribute( ATT_MODELID );
+			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 			addStringAttribute( ATT_DEPVAR );
 			addStringListAttribute( ATT_INDEPVAR );
 			addStringListAttribute( ATT_PARAMNAME );
-			addDoubleListAttribute( ATT_VALUE );
-			addDoubleListAttribute( ATT_PARAMERR );
-			addStringAttribute( ATT_MODELNAME );
-			addIntAttribute( ATT_MODELID );
-			addIntAttribute( ATT_ESTMODELID );
-			addDoubleAttribute( ATT_RMS );
-			addDoubleAttribute( ATT_RSQUARED );
 			addDoubleListAttribute( ATT_MINVALUE );
 			addDoubleListAttribute( ATT_MAXVALUE );
-			addDoubleListAttribute( ATT_MININDEP );
-			addDoubleListAttribute( ATT_MAXINDEP );
 			addIntListAttribute( ATT_LITIDM );
 			addStringListAttribute( ATT_LITM );
+			
+			addIntAttribute( ATT_ESTMODELID );
+			addStringListAttribute( ATT_VARPARMAP );
+			addDoubleAttribute( ATT_RMS );
+			addDoubleAttribute( ATT_RSQUARED );
+			addDoubleListAttribute( ATT_VALUE );
+			addDoubleListAttribute( ATT_PARAMERR );
+			addDoubleListAttribute( ATT_MININDEP );
+			addDoubleListAttribute( ATT_MAXINDEP );
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
+			
 			addIntAttribute( ATT_DATABASEWRITABLE );
-			addStringAttribute( ATT_DBUUID );
+			addStringAttribute( ATT_DBUUID );			
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace( System.err );

@@ -33,7 +33,8 @@ Bundle-ClassPath: libs/hsqldb.jar,
  libs/mysql-connector-java-5.1.20-bin.jar,
  .
 JPA-PersistenceUnits: com.dim.bfr.model.jpa
-Export-Package: org.hsqldb.auth,
+Export-Package: org.hsqldb,
+ org.hsqldb.auth,
  org.hsqldb.dbinfo,
  org.hsqldb.error,
  org.hsqldb.index,

@@ -82,7 +82,6 @@ public class Model2Schema extends KnimeSchema {
 			addStringListAttribute( ATT_LITM );
 			
 			addIntAttribute( ATT_ESTMODELID );
-			addStringListAttribute( ATT_VARPARMAP );
 			addDoubleAttribute( ATT_RMS );
 			addDoubleAttribute( ATT_RSQUARED );
 			addDoubleListAttribute( ATT_VALUE );
@@ -92,6 +91,7 @@ public class Model2Schema extends KnimeSchema {
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
 			
+			addStringListAttribute( ATT_VARPARMAP );
 			addIntAttribute( ATT_DATABASEWRITABLE );
 			addStringAttribute( ATT_DBUUID );			
 		}

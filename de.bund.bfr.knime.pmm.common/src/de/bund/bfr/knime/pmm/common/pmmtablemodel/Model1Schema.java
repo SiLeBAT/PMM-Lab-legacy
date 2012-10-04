@@ -47,7 +47,6 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_MODELID = "ModelCatalogID";
 	
 	public static final String ATT_ESTMODELID = "EstModelID";
-	public static final String ATT_VARPARMAP = "VarParMap";
 	public static final String ATT_RMS = "RMS";
 	public static final String ATT_RSQUARED = "Rsquared";
 	public static final String ATT_MINVALUE = "MinValue";
@@ -59,6 +58,7 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_LITIDEM = "EstMLitID";
 	public static final String ATT_LITEM = "EstMLit";
 	public static final String ATT_PARAMERR = "StandardError";
+	public static final String ATT_VARPARMAP = "VarParMap";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
 	public static final String ATT_DBUUID = "M1_DB_UID";
 	
@@ -83,7 +83,6 @@ public class Model1Schema extends KnimeSchema {
 			addStringListAttribute( ATT_LITM );
 			
 			addIntAttribute( ATT_ESTMODELID );
-			addStringListAttribute( ATT_VARPARMAP );
 			addDoubleAttribute( ATT_RMS );
 			addDoubleAttribute( ATT_RSQUARED );
 			addDoubleListAttribute( ATT_VALUE );
@@ -93,6 +92,7 @@ public class Model1Schema extends KnimeSchema {
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
 			
+			addStringListAttribute( ATT_VARPARMAP );
 			addIntAttribute( ATT_DATABASEWRITABLE );
 			addStringAttribute( ATT_DBUUID );
 		}

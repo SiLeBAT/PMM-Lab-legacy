@@ -133,6 +133,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		List<Integer> primIDs = new ArrayList<Integer>();
 		HashMap<ParametricModel, List<Integer>> secModels = new HashMap<ParametricModel, List<Integer>>();
 		ParametricModel ppm = null, spm, lastPpm = null, lastSpm = null;
+		List<String> lastVarParMap = null;
 		
 		int j = 0;
 		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
@@ -187,6 +188,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		String depVar = row.getString(Model1Schema.ATT_DEPVAR);
 		    		List<String> indepVar = row.getStringList(Model1Schema.ATT_INDEPVAR);
 		    		List<String> paramName = row.getStringList(Model1Schema.ATT_PARAMNAME);
+
 		    		List<Double> minVal = row.getDoubleList(Model1Schema.ATT_MINVALUE);
 		    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
 		    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
@@ -202,7 +204,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
 		    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
-		
+		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 		    		
 		    		// Modellkatalog
 					if (alreadyInsertedModel.containsKey(modelId)) {
@@ -220,7 +222,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		doLit(ppm, litStr, litID, false);
 			    		doLit(ppm, litEMStr, litEMID, true);
 			    		
-			    		int newMID = db.insertM( ppm );
+			    		int newMID = db.insertM(ppm, varParMap);
 			    		ppm.setModelId(newMID);
 						alreadyInsertedModel.put(modelId, ppm);
 					}
@@ -232,7 +234,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						newPrimID = alreadyInsertedEModel.get(estModelId).getEstModelId();
 					}
 					else {
-			    		newPrimID = db.insertEm( ppm, null );	
+			    		newPrimID = db.insertEm(ppm, null, varParMap);	
 			    		ppm.setEstModelId(newPrimID);
 			    		alreadyInsertedEModel.put(estModelId, ppm);
 					}
@@ -277,6 +279,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		List<Double> paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
 				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
 				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
+				    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
 	
 							if (alreadyInsertedModel.containsKey(modelId)) {
 								spm = alreadyInsertedModel.get(modelId);
@@ -293,7 +296,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		doLit(spm, litStr, litID, false);
 					    		doLit(spm, litEMStr, litEMID, true);
 	
-					    		int newSMID = db.insertM( spm );
+					    		int newSMID = db.insertM(spm, varParMap);
 					    		spm.setModelId(newSMID);
 								alreadyInsertedModel.put(modelId, spm);
 							}
@@ -303,7 +306,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		// ... vorher vielleicht sortieren nach IDs...
 							if (lastSpm != null && lastSpm.getEstModelId() != estSecModelId) {
 								if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-									Integer newSecID = db.insertEm( lastSpm, lastPpm );
+									Integer newSecID = db.insertEm(lastSpm, lastPpm, varParMap);
 									spm.setEstModelId(newSecID);
 						    		alreadyInsertedEModel.put(estSecModelId, spm);
 									db.insertEm2(newSecID, primIDs);
@@ -312,6 +315,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							}
 							primIDs.add(newPrimID);
 							lastSpm = spm;
+							lastVarParMap = varParMap;
 						}
 		    		}
 					else {
@@ -329,7 +333,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		if (model2Conform && lastSpm != null) {
 			if (M2Writable) {
 				if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-					Integer newSecID = db.insertEm( lastSpm, lastPpm );
+					Integer newSecID = db.insertEm(lastSpm, lastPpm, lastVarParMap);
 					db.insertEm2(newSecID, primIDs);
 				}
 			}

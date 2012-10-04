@@ -133,6 +133,7 @@ public class MyTable {
 		 // StatUp 
 		  || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
 		  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
+		  || tableName.equals("VarParMaps")
 		  // Jans Tabellen
 		 || tableName.equals("Modell_Agenzien_Verbund") 
 		 || tableName.equals("Modell_Software_Verbund") || tableName.equals("Modell_Resistenz_Verbund") || tableName.equals("Modell_Preharvest_Verbund") 

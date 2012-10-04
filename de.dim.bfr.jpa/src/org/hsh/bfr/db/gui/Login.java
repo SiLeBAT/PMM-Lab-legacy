@@ -143,8 +143,8 @@ public class Login extends JFrame {
 		  }
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			loadDB();
-			//UpdateChecker.temporarily();
+			MyList myList = loadDB();
+			//UpdateChecker.temporarily(myList);
 		}
 		finally {
 			this.setCursor(Cursor.getDefaultCursor());
@@ -185,7 +185,7 @@ public class Login extends JFrame {
 			myDB.initConn(textField1.getText(), newPassword); // MD5.encode(newPassword, "UTF-8")
     	}		
 	}
-	private void loadDB() {
+	private MyList loadDB() {
 	    MyDBTable myDB = null;
 	    MyDBTree myDBTree = null;
 		MyList myList = null;
@@ -208,7 +208,7 @@ public class Login extends JFrame {
 							passwordField3.setBackground(Color.WHITE);
 							passwordField1.requestFocus();												
 						}
-						return;
+						return myList;
 					}
 					else {
 						changePasswort(myDB, password);
@@ -247,7 +247,7 @@ public class Login extends JFrame {
 				}
 				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
-					return;
+					return myList;
 				}
 			}
 			
@@ -260,7 +260,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
 						passwordField2.requestFocus();
-						return;
+						return myList;
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						changePasswort(myDB, newPassword);
@@ -270,7 +270,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
-						return;
+						return myList;
 					}
 				}
 				else {
@@ -278,7 +278,7 @@ public class Login extends JFrame {
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
 					passwordField2.requestFocus();
-					return;
+					return myList;
 				}
 			}
 			
@@ -318,7 +318,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.WHITE);
 						passwordField1.requestFocus();					
-						return;
+						return myList;
 					}
 
 					loadMyTables(myList, null);
@@ -502,15 +502,15 @@ public class Login extends JFrame {
 							InfoBox ib = new InfoBox(this, "Deine DB ist zu alt...\nBitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
 							ib.setVisible(true); 
 							mf.dispose();
-							return;
+							return myList;
 					  	}
 					  	
 						DBKernel.closeDBConnections(false);
 					}
-					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return;}
+					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return myList;}
 					DBKernel.dontLog = dl;
 					loadDB();		
-					return;
+					return myList;
 				}
 				else if (DBKernel.isKrise) {
 					boolean doAnonymize = false;
@@ -612,7 +612,8 @@ public class Login extends JFrame {
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);
-		}    		
+		}    
+		return myList;
 	}
 	private void importKataloge() {
 		try {
@@ -2578,7 +2579,16 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,null},
 				null,
 				new String[] {"not null","not null",null,null});
-		myList.addTable(GueltigkeitsBereiche, -1);	
+		myList.addTable(GueltigkeitsBereiche, -1);
+		MyTable VarParMaps = new MyTable("VarParMaps", new String[]{"GeschaetztesModell","VarPar","VarParMap"},
+				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
+				new String[]{null,null,null},
+				new MyTable[]{GeschaetzteModelle,ModellkatalogParameter,null},
+				null,
+				new LinkedHashMap[]{null,null,null},
+				null,
+				new String[] {null,null,null});
+		myList.addTable(VarParMaps, -1);	
 		MyTable GeschaetzteParameterCovCor = new MyTable("GeschaetzteParameterCovCor", new String[]{"param1","param2",
 				"GeschaetztesModell","cor","Wert"},
 				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE"},

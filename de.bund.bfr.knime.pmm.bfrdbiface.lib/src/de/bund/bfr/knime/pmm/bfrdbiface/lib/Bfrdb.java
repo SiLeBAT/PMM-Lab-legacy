@@ -1014,15 +1014,15 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm( final ParametricModel pm , final ParametricModel ppm) {
+	public Integer insertEm( final ParametricModel pm , final ParametricModel ppm, List<String> varParMap) {
 		LinkedList<String> paramNameSet = new LinkedList<String>();
-		paramNameSet.addAll( pm.getParamNameSet() );
-		int n = paramNameSet.size();
-		double[] valueSet = new double[ n ];
-		double[] paramErrSet = new double[ n ];
-		for(int i = 0; i < n; i++ ) {
-			valueSet[ i ] = pm.getParamValue( paramNameSet.get( i ) );
-			paramErrSet[ i ] = pm.getParamError(paramNameSet.get( i ));
+		paramNameSet.addAll(pm.getParamNameSet());
+		int numParams = paramNameSet.size();
+		double[] valueSet = new double[numParams];
+		double[] paramErrSet = new double[numParams];
+		for (int i = 0; i < numParams; i++) {
+			valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
+			paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
 		}		
 		
 		int estModelId = pm.getEstModelId();
@@ -1031,39 +1031,68 @@ public class Bfrdb extends Hsqldbiface {
 		double rms = pm.getRms();
 		double r2 = pm.getRsquared();
 		
-		int responseId;
+		HashMap<String, String> hm = getVarParHashmap(varParMap);
+		HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
+		
+		int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
+		/*
 		if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
-			responseId = queryParamId( ppm.getModelId(), pm.getDepVar(), PARAMTYPE_PARAM );
+			responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
 		}
 		else {
-			responseId = queryParamId( modelId, pm.getDepVar(), PARAMTYPE_DEP );			
+			responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
 		}
+		*/
 		if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-			updateEstModel( estModelId, condId, modelId, rms, r2, responseId );
-			deleteEstParam( estModelId );
+			updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
+			deleteEstParam(estModelId);
 		} else {
-			estModelId = insertEstModel( condId, modelId, rms, r2, responseId );
+			estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
 		}
 		
-		n = paramNameSet.size();
-		for (int i = 0; i < n; i++ ) {			
-			int paramId = queryParamId( modelId, paramNameSet.get( i ), PARAMTYPE_PARAM );
-			insertEstParam( estModelId, paramId, valueSet[ i ], paramErrSet[i] );
+		for (int i = 0; i < numParams; i++ ) {			
+			int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
+			insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
 		}
 		
 		insertModLit(estModelId, pm.getEstModelLit(), true);
 		
 		for (String name : pm.getIndepVarSet()) {
-			int indepId = queryParamId(modelId, name, PARAMTYPE_INDEP);
+			int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
 			if (indepId >= 0) {
 				insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
 			}
 			else {
-				System.err.println(name);
+				System.err.println("insertEm:\t" + name);
 			}
+		}
+		
+		// insert mapping of parameters and variables of this estimation
+		for (String newName : hmi.keySet()) {
+			insertVarParMaps(estModelId, hmi.get(newName), newName);
 		}
 
 		return estModelId;
+	}
+	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
+		try {
+			PreparedStatement ps = conn.prepareStatement("DELETE FROM \"VarParMaps\" WHERE \"GeschaetztesModell\" = " + estModelId);
+			ps.executeUpdate();
+			ps.close();
+			ps = conn.prepareStatement("INSERT INTO \"VarParMaps\"(\"GeschaetztesModell\", \"VarPar\", \"VarParMap\") VALUES (?,?,?)");
+			ps.setInt(1, estModelId);
+			ps.setInt(2, paramId);
+			if (newVarPar == null) {
+				ps.setNull(3, java.sql.Types.VARCHAR);
+			} else {
+				ps.setString(3, newVarPar);
+			}
+			ps.executeUpdate();			
+			ps.close();
+		}
+		catch( SQLException ex ) {
+			ex.printStackTrace();
+		}		
 	}
 	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
@@ -1359,8 +1388,32 @@ public class Bfrdb extends Hsqldbiface {
 		return condId;
 	}
 	
-	public Integer insertM( final ParametricModel m ) {
-		
+	private HashMap<String, String> getVarParHashmap(List<String> varParMap) {
+		HashMap<String, String> result = null;
+		if (varParMap != null && varParMap.size() > 0) {
+			result = new HashMap<String, String>();
+			for (String map : varParMap) {
+				int index = map.indexOf("=");
+				if (index > 0) {
+					result.put(map.substring(0, index), map.substring(index + 1));
+				}
+			}
+		}
+		return result;
+	}
+	private String getVarPar(HashMap<String, String> hm, String varPar) {
+		return getVarPar(hm, varPar, null, -1);
+	}
+	private String getVarPar(HashMap<String, String> hm, String varPar, HashMap<String, Integer> hmi, int id) {
+		String result;
+		if (hm == null || hm.get(varPar) == null) result = varPar;
+		else {
+			result = hm.get(varPar);
+			if (hmi != null) hmi.put(result, id);
+		}
+		return result;
+	}
+	public Integer insertM(final ParametricModel m, List<String> varParMap) {		
 		int modelId = m.getModelId();
 		String modelName = m.getModelName();
 		int level = m.getLevel();
@@ -1369,16 +1422,16 @@ public class Bfrdb extends Hsqldbiface {
 		Collection<String> indepVar = m.getIndepVarSet();
 		Collection<String> paramNameSet = m.getParamNameSet();
 		
-		if( isObjectPresent( REL_MODEL, modelId ) ) {
+		if (isObjectPresent(REL_MODEL, modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
 			try {
-				PreparedStatement ps = conn.prepareStatement( "UPDATE \""+REL_MODEL+"\" SET \""+ATT_NAME+"\"=?, \""+ATT_LEVEL+"\"=?, \""+ATT_FORMULA+"\"=? WHERE \"ID\"=?" );
-				ps.setString( 1, modelName );
-				ps.setInt( 2, level );
+				PreparedStatement ps = conn.prepareStatement( "UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?" );
+				ps.setString(1, modelName);
+				ps.setInt(2, level);
 				//ps.setDate( 3, date );
-				ps.setString( 3, formula );
-				ps.setInt( 4, modelId );
+				ps.setString(3, formula);
+				ps.setInt(4, modelId);
 
 				ps.executeUpdate();
 				ps.close();
@@ -1389,7 +1442,7 @@ public class Bfrdb extends Hsqldbiface {
 			Date date = new Date( System.currentTimeMillis() );		
 			
 			try {				
-				PreparedStatement ps = conn.prepareStatement( "INSERT INTO \""+REL_MODEL+"\" ( \""+ATT_NAME+"\", \""+ATT_LEVEL+"\", \""+ATT_INPUTDATE+"\", \""+ATT_FORMULA+"\", \"Notation\", \"Klasse\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+				PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Modellkatalog\" ( \"Name\", \"Level\", \"Eingabedatum\", \"Formel\", \"Notation\", \"Klasse\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 				ps.setString( 1, modelName + "_" + (-modelId) );
 				ps.setInt( 2, level );
 				ps.setDate( 3, date );
@@ -1406,7 +1459,7 @@ public class Bfrdb extends Hsqldbiface {
 				}				
 				ps.close();
 			}
-			catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+			catch(SQLException ex) {ex.printStackTrace();}
 
 			if( modelId < 0 ) {
 				return null;
@@ -1416,24 +1469,23 @@ public class Bfrdb extends Hsqldbiface {
 		// insert parameter set
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
+		HashMap<String, String> hm = getVarParHashmap(varParMap);
+
 		// insert dependent variable
-		int paramId = queryParamId( modelId, depVar, PARAMTYPE_DEP );
-		paramId = insertParam( paramId, modelId, depVar, PARAMTYPE_DEP, null, null );
-		paramIdSet.add( paramId );
+		int paramId = insertParam(modelId, getVarPar(hm, depVar), PARAMTYPE_DEP, null, null);
+		paramIdSet.add(paramId);
 		
 		// insert independent variable set
-		for( String name : indepVar ) {
-			
-			paramId = queryParamId( modelId, name, PARAMTYPE_INDEP );
-			paramId = insertParam( paramId, modelId, name, PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name) );
-			paramIdSet.add( paramId );
+		for (String name : indepVar) {
+			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name));
+			paramIdSet.add(paramId);
 		}
 		
-		for( String name : paramNameSet ) {
-			
-			paramId = queryParamId( modelId, name, PARAMTYPE_PARAM );
-			paramId = insertParam( paramId, modelId, name, PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name) );
-			paramIdSet.add( paramId );
+		// insert parameters
+		for (String name : paramNameSet) {			
+			String nName = (hm == null || hm.get(name) == null) ? name : hm.get(name);
+			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
+			paramIdSet.add(paramId);
 		}
 		
 		insertModLit(modelId, m.getModelLit(), false);
@@ -1638,24 +1690,22 @@ public class Bfrdb extends Hsqldbiface {
 		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
 	}
 	
-	private int insertParam( final int paramId, final int modelId, final String name, final int paramType, final Double min, final Double max ) {
+	private int insertParam(final int modelId, final String paramName, final int paramType, final Double min, final Double max) {
 		
 		PreparedStatement ps;
-		int id;
-		ResultSet result;
 				
-		id = -1;
+		int id = -1;
 		try {
-			
+			int paramId = queryParamId(modelId, paramName, paramType);
 			if( paramId <= 0 ) {
-				ps = conn.prepareStatement( "INSERT INTO \""+REL_PARAM+"\" ( \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\", \""+ATT_PARAMTYPE+"\", \"min\",\"max\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
+				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
 			}
 			else {
-				ps = conn.prepareStatement( "UPDATE \""+REL_PARAM+"\" SET \""+ATT_MODELID+"\" = ?, \""+ATT_PARAMNAME+"\" = ?, \""+ATT_PARAMTYPE+"\" = ?, \"min\"= ?, \"max\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
+				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
 			}
 				
 			ps.setInt( 1, modelId );
-			ps.setString( 2, name );
+			ps.setString( 2, paramName );
 			ps.setInt( 3, paramType );
 			if (min == null) {
 				ps.setNull(4, java.sql.Types.DOUBLE);
@@ -1675,19 +1725,19 @@ public class Bfrdb extends Hsqldbiface {
 				return paramId;
 			}
 			
-			result = ps.getGeneratedKeys();
+			ResultSet result = ps.getGeneratedKeys();
 			
 			if( !result.next() ) {
 				return id;
 			}
 
-			id = result.getInt( 1 );
+			id = result.getInt(1);
 			
 			result.close();
 			ps.close();
 
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		
 		return id;
 	}
@@ -1723,51 +1773,42 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private void insertEstParam( final int estModelId, final int paramId, final double value, final double paramErr ) {
-		
-		PreparedStatement ps;
-		
-		ps = null;
+		PreparedStatement ps = null;
 		try {
 			
-			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTPARAM+"\" ( \""+ATT_ESTMODELID+"\", \""+ATT_PARAMID+"\", \""+ATT_VALUE+"\", \"StandardError\" ) VALUES( ?, ?, ?, ? )" );
-			ps.setInt( 1, estModelId );
-			ps.setInt( 2, paramId );
-			if( Double.isNaN( value ) ) {
-				ps.setNull( 3, Types.DOUBLE );
+			ps = conn.prepareStatement( "INSERT INTO \"GeschaetzteParameter\" ( \"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\" ) VALUES( ?, ?, ?, ? )" );
+			ps.setInt(1, estModelId);
+			ps.setInt(2, paramId);
+			if(Double.isNaN(value)) {
+				ps.setNull(3, Types.DOUBLE);
 			} else {
-				ps.setDouble( 3, value );
+				ps.setDouble(3, value);
 			}
-			if( Double.isNaN( paramErr ) ) {
-				ps.setNull( 4, Types.DOUBLE );
+			if(Double.isNaN(paramErr)) {
+				ps.setNull(4, Types.DOUBLE);
 			} else {
-				ps.setDouble( 4, paramErr );
+				ps.setDouble(4, paramErr);
 			}
 			ps.executeUpdate();
 			ps.close();
 		}
-		catch( SQLException ex ) {
-			System.out.println( ps );
-			ex.printStackTrace( System.err );
+		catch (SQLException ex) {
+			System.out.println(ps);
+			ex.printStackTrace();
 		}
 	}
 	
 	private int queryParamId( final int modelId, final String paramName, final int paramType ) {
-		
-		int ret;
-		PreparedStatement ps;
-		ResultSet result;
-		
-		ret = -1;
-		try {
-			
-			ps = conn.prepareStatement( "SELECT \"ID\" FROM \""+REL_PARAM+"\"  WHERE \""+ATT_MODELID+"\"=? AND \""+ATT_PARAMNAME+"\" LIKE ? AND \""+ATT_PARAMTYPE+"\"=?" );
+		int ret = -1;
+		try {			
+			PreparedStatement ps = conn.prepareStatement( "SELECT \"ID\" FROM \""+REL_PARAM+"\"  WHERE \""+ATT_MODELID+"\"=? AND \""+ATT_PARAMNAME+"\" LIKE ? AND \""+ATT_PARAMTYPE+"\"=?" );
 			ps.setInt( 1, modelId );
 			ps.setString( 2, paramName );
 			ps.setInt( 3, paramType );
 			
 			//System.out.println( ps );
 			
-			result = ps.executeQuery();
+			ResultSet result = ps.executeQuery();
 			if( !result.next() ) {
 				return ret;
 			}
@@ -1776,7 +1817,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) {ex.printStackTrace();}
 		
 		return ret;
 	}
@@ -1798,52 +1839,44 @@ public class Bfrdb extends Hsqldbiface {
 	
 	private void updateEstModel( final int estModelId, final int condId, final int modelId,
 		final double rms, final double rsquared, final int responseId ) {
-		
-		PreparedStatement ps;
-		
 		try {
 			
-			ps = conn.prepareStatement( "UPDATE \""+REL_ESTMODEL+"\" SET \""+ATT_CONDITIONID+"\"=?, \""+ATT_MODELID+"\"=?, \"RMS\"=?, \""+ATT_RSQUARED+"\"=?, \"Response\"=? WHERE \"ID\"=?" );
-			if( condId > 0 ) {
-				ps.setInt( 1, condId );
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"Response\"=? WHERE \"ID\"=?");
+			if (condId > 0) {
+				ps.setInt(1, condId);
 			} else {
-				ps.setNull( 1, Types.INTEGER );
+				ps.setNull(1, Types.INTEGER);
 			}
-			ps.setInt( 2, modelId );
-			if( Double.isNaN( rms ) ) {
-				ps.setNull( 3, Types.DOUBLE );
+			ps.setInt(2, modelId);
+			if(Double.isNaN(rms)) {
+				ps.setNull(3, Types.DOUBLE);
 			} else {
-				ps.setDouble( 3, rms );
+				ps.setDouble(3, rms);
 			}
 			if( Double.isNaN( rsquared ) ) {
-				ps.setNull( 4, Types.DOUBLE );
+				ps.setNull(4, Types.DOUBLE);
 			} else {
-				ps.setDouble( 4, rsquared );
+				ps.setDouble(4, rsquared);
 			}
 			if( responseId > 0 ) {
-				ps.setInt( 5, responseId );
+				ps.setInt(5, responseId);
 			} else {
-				ps.setNull( 5, Types.INTEGER );
+				ps.setNull(5, Types.INTEGER);
 			}
-			ps.setInt( 6, estModelId );
+			ps.setInt(6, estModelId);
 			
 			ps.executeUpdate();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch(SQLException ex) {ex.printStackTrace();}
 	}
 	
 	private int insertEstModel( final int condId, final int modelId, final double rms,
-		final double rsquared, final int responseId ) {
-		
-		PreparedStatement ps;
-		int ret;
-		ResultSet result;
-		
-		ret = -1;
+		final double rsquared, final int responseId ) {		
+		int ret = -1;
 		try {
 			
-			ps = conn.prepareStatement( "INSERT INTO \""+REL_ESTMODEL+"\" ( \""+ATT_CONDITIONID+"\", \""+ATT_MODELID+"\", \"RMS\", \""+ATT_RSQUARED+"\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" ( \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
 			if( condId > 0 ) {
 				ps.setInt( 1, condId );
 			} else {
@@ -1867,7 +1900,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 
 			ps.executeUpdate();
-			result = ps.getGeneratedKeys();
+			ResultSet result = ps.getGeneratedKeys();
 			result.next();			
 			ret = result.getInt( 1 );
 			

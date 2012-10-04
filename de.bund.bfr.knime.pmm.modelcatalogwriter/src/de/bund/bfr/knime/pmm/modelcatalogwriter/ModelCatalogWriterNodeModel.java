@@ -154,6 +154,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
 		    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
 
+		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
+
 		    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 1, modelId );
 		    		
 		    		doMinMax(pm, paramName, minVal, maxVal, false);
@@ -161,7 +163,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		    		doLit(pm, litStr, litID, false);
 		    		doLit(pm, litEMStr, litEMID, true);
 
-		    		db.insertM( pm );
+		    		db.insertM(pm, varParMap);
 				}
 			}
 			if (model2Conform) {
@@ -190,6 +192,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
 			    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
 		
+			    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);		
+
 			    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 2, modelId );
 			    		
 			    		doMinMax(pm, paramName, minVal, maxVal, false);
@@ -197,7 +201,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			    		doLit(pm, litStr, litID, false);
 			    		doLit(pm, litEMStr, litEMID, true);
 			    		
-			    		db.insertM( pm );
+			    		db.insertM(pm, varParMap);
 		    		}
 	    		}
 			}

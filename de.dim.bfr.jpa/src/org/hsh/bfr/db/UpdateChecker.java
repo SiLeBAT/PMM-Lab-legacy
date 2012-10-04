@@ -51,13 +51,17 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void temporarily() {
+	public static void temporarily(final MyList myList) {
+		/*
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") +
 				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), false);
 		updateChangeLog("GeschaetzteParameter", 9, false);
 		refreshFKs("GeschaetzteParameter");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
 				" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
+				*/
+		myList.getTable("VarParMaps").createTable();
+		DBKernel.grantDefaults("VarParMaps");
 	}
 	public static void check4Updates_143_144(final MyList myList) {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
@@ -73,6 +77,9 @@ public class UpdateChecker {
 		refreshFKs("GeschaetzteParameter");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
 				" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
+		
+		myList.getTable("VarParMaps").createTable();
+		DBKernel.grantDefaults("VarParMaps");
 	}
 	public static void check4Updates_142_143(final MyList myList) {
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_Codes-Matrices_U"), false);

@@ -308,6 +308,7 @@ public class MMC_M extends JPanel {
 					table.getValueAt(0, 2) + "\t" + table.getPM() + "\t" + table.getPM().hashCode() + "\t" + table.getPM().getParamValue("a0"));
 					*/
 			insertNselectPMintoBox(newPM);
+			modelNameBox.setSelectedItem(newPM);
 		}
 	}
 

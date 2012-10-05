@@ -42,8 +42,8 @@ public interface ChartConstants {
 
 	public static final String NO_TRANSFORM = "";
 	public static final String SQRT_TRANSFORM = "sqrt";
-	public static final String LOG_TRANSFORM = "log";
-	public static final String LOG10_TRANSFORM = "log10";
+	public static final String LOG_TRANSFORM = "ln";
+	public static final String LOG10_TRANSFORM = "log";
 	public static final String EXP_TRANSFORM = "exp";
 	public static final String EXP10_TRANSFORM = "10^";
 

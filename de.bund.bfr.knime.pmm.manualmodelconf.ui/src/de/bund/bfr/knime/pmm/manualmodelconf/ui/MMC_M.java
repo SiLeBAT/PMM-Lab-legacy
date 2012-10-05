@@ -36,7 +36,7 @@ import de.dim.bfr.external.service.BFRNodeService;
  */
 public class MMC_M extends JPanel {
 
-	private static final String LABEL_OWNMODEL = "Manually defined model";
+	private static final String LABEL_OWNMODEL = "Manually defined formula";
 
 	private Frame m_parentFrame = null;
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
@@ -518,7 +518,7 @@ public class MMC_M extends JPanel {
 		add(radioButton3, CC.xy(7, 3));
 
 		//---- modelNameLabel ----
-		modelNameLabel.setText("Model from DB:");
+		modelNameLabel.setText("Formula from DB:");
 		add(modelNameLabel, CC.xy(1, 5));
 
 		//---- modelNameBox ----
@@ -531,7 +531,7 @@ public class MMC_M extends JPanel {
 		add(modelNameBox, CC.xywh(3, 5, 5, 1));
 
 		//---- label1 ----
-		label1.setText("Modell Name:");
+		label1.setText("Formula Name:");
 		add(label1, CC.xy(1, 7));
 
 		//---- modelnameField ----
@@ -550,7 +550,7 @@ public class MMC_M extends JPanel {
 		add(modelnameField, CC.xywh(3, 7, 5, 1));
 
 		//---- label2 ----
-		label2.setText("Model Formula:");
+		label2.setText("Formula:");
 		add(label2, CC.xy(1, 9));
 
 		//---- formulaArea ----
@@ -588,7 +588,7 @@ public class MMC_M extends JPanel {
 		add(scrollPane1, CC.xywh(3, 11, 5, 1));
 
 		//---- literatureLabel ----
-		literatureLabel.setText("Model References:");
+		literatureLabel.setText("References:");
 		add(literatureLabel, CC.xy(1, 13));
 
 		//---- button1 ----

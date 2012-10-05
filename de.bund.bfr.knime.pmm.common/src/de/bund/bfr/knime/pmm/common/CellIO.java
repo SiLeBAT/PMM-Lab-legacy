@@ -265,13 +265,17 @@ public class CellIO {
 
 		String[] t1, t2;
 		HashMap<String,String> ret;
+		
+		ret = new HashMap<String,String>();
+		
+		if( dataCell.isMissing() )
+			return ret;
 
 		if( !( dataCell instanceof StringCell ) )
 			throw new PmmException( "Only String cell can return map." );
 		
 		t1 = ( ( StringCell)dataCell ).getStringValue().split( "," );
 		
-		ret = new HashMap<String,String>();
 		
 		for( String map : t1 ) {
 			

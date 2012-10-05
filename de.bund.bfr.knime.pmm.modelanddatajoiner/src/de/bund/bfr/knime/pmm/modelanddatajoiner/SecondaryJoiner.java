@@ -265,29 +265,64 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				String depVarSec = modelRow.getString(Model2Schema.ATT_DEPVAR);
 				List<String> indepVarsSec = modelRow
 						.getStringList(Model2Schema.ATT_INDEPVAR);
-
+				Map<String, String> varMapSec = modelRow
+						.getMap(Model2Schema.ATT_VARPARMAP);
+				List<String> newIndepVarsSec = new ArrayList<String>();
 				KnimeRelationReader peiReader = new KnimeRelationReader(
 						dataSchema, dataTable);
+				Map<String, String> replace = replacements.get(i);
+				boolean allVarsReplaced = true;
+
+				if (replace.containsKey(depVarSec)) {
+					if (varMapSec.containsKey(depVarSec)) {
+						String origVar = varMapSec.get(depVarSec);
+
+						varMapSec.remove(depVarSec);
+						varMapSec.put(replace.get(depVarSec), origVar);
+					} else {
+						varMapSec.put(replace.get(depVarSec), depVarSec);
+					}
+
+					depVarSec = replace.get(depVarSec);
+				} else {
+					allVarsReplaced = false;
+				}
+
+				for (String var : replace.keySet()) {
+					String newVar = replace.get(var);
+
+					formulaSec = MathUtilities.replaceVariable(formulaSec, var,
+							newVar);
+				}
+
+				for (String iv : indepVarsSec) {
+					if (replace.containsKey(iv)) {
+						if (varMapSec.containsKey(iv)) {
+							String origVar = varMapSec.get(iv);
+
+							varMapSec.remove(iv);
+							varMapSec.put(replace.get(iv), origVar);
+						} else {
+							varMapSec.put(replace.get(iv), iv);
+						}
+
+						newIndepVarsSec.add(replace.get(iv));
+					} else {
+						allVarsReplaced = false;
+						break;
+					}
+				}
+
+				if (!allVarsReplaced) {
+					continue;
+				}
+
+				indepVarsSec = newIndepVarsSec;
 
 				while (peiReader.hasMoreElements()) {
 					KnimeTuple peiRow = peiReader.nextElement();
-
 					List<String> paramNames = peiRow
 							.getStringList(Model1Schema.ATT_PARAMNAME);
-
-					for (String symbol : replacements.get(i).keySet()) {
-						String colname = replacements.get(i).get(symbol);
-
-						formulaSec = MathUtilities.replaceVariable(formulaSec,
-								symbol, colname);
-						depVarSec = MathUtilities.replaceVariable(depVarSec,
-								symbol, colname);
-
-						if (indepVarsSec.contains(symbol)) {
-							indepVarsSec.set(indepVarsSec.indexOf(symbol),
-									colname);
-						}
-					}
 
 					if (!usedModels.get(i).equals(modelIDSec)
 							|| !paramNames.contains(depVarSec)) {
@@ -300,6 +335,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					seiRow.setValue(Model2Schema.ATT_FORMULA, formulaSec);
 					seiRow.setValue(Model2Schema.ATT_DEPVAR, depVarSec);
 					seiRow.setValue(Model2Schema.ATT_INDEPVAR, indepVarsSec);
+					seiRow.setValue(Model2Schema.ATT_VARPARMAP, varMapSec);
 					seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 							Model2Schema.NOTWRITABLE);
 

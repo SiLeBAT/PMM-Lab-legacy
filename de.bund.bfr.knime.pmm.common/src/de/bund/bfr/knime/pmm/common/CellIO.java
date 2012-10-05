@@ -35,7 +35,9 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -181,6 +183,54 @@ public class CellIO {
 
 		return new StringCell(s.substring(0, s.length() - 1));
 	}
+	
+	public static DataCell createCell( Map<?,?> map ) throws PmmException {
+		
+		String ret, key, value;
+		Object prevalue;
+		
+		ret = "";
+		for( Object prekey : map.keySet() ) {
+			
+			if( prekey == null )
+				continue;
+			
+			prevalue = map.get( prekey );
+			if( prevalue == null )
+				continue;
+			
+			key = prekey.toString();
+			if( key == null )
+				continue;
+			
+			value = prevalue.toString();
+			if( value == null )
+				continue;
+			
+			if( key.contains( "=" ) )
+				throw new PmmException( "No '=' symbol allowed for in key '"
+					+key+"'" );
+			
+			if( key.contains( "," ) )
+				throw new PmmException( "No ',' symbol allowed for in key '"
+					+key+"'" );
+			
+			if( key.contains( "=" ) )
+				throw new PmmException( "No '=' symbol allowed for in value '"
+					+value+"'" );
+			
+			if( key.contains( "," ) )
+				throw new PmmException( "No ',' symbol allowed for in value '"
+					+value+"'" );
+			
+			if( !ret.isEmpty() )
+				ret += ",";
+			
+			ret += key+"="+value;	
+		}
+		
+		return new StringCell( ret );
+	}
 
 	public static DataCell createMissingCell() {
 		return DataType.getMissingCell();
@@ -208,6 +258,31 @@ public class CellIO {
 		} catch (NumberFormatException e) {
 			return createMissingCell();
 		}
+	}
+
+	public static Map<String, String> getMap( DataCell dataCell )
+	throws PmmException {
+
+		String[] t1, t2;
+		HashMap<String,String> ret;
+
+		if( !( dataCell instanceof StringCell ) )
+			throw new PmmException( "Only String cell can return map." );
+		
+		t1 = ( ( StringCell)dataCell ).getStringValue().split( "," );
+		
+		ret = new HashMap<String,String>();
+		
+		for( String map : t1 ) {
+			
+			t2 = map.split( "=" );
+			if( t2.length != 2 )
+				throw new PmmException( "Map string contains malformed item." );
+			
+			ret.put( t2[ 0 ], t2[ 1 ] );
+		}
+		
+		return ret;
 	}
 
 }

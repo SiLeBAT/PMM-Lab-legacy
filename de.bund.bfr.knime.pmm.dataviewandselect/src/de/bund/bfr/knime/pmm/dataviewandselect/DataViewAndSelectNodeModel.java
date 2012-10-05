@@ -88,6 +88,11 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final String CFG_MAXX = "MaxX";
 	static final String CFG_MINY = "MinY";
 	static final String CFG_MAXY = "MaxY";
+	static final String CFG_DRAWLINES = "DrawLines";
+	static final String CFG_SHOWLEGEND = "ShowLegend";
+	static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
+	static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	static final String CFG_TRANSFORMY = "TransformY";
 
 	static final int DEFAULT_SELECTALLIDS = 0;
 	static final int DEFAULT_MANUALRANGE = 0;
@@ -95,6 +100,11 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final double DEFAULT_MAXX = 100.0;
 	static final double DEFAULT_MINY = 0.0;
 	static final double DEFAULT_MAXY = 10.0;
+	static final int DEFAULT_DRAWLINES = 0;
+	static final int DEFAULT_SHOWLEGEND = 1;
+	static final int DEFAULT_ADDLEGENDINFO = 0;
+	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
+	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
@@ -105,6 +115,11 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	private double maxX;
 	private double minY;
 	private double maxY;
+	private int drawLines;
+	private int showLegend;
+	private int addLegendInfo;
+	private int displayHighlighted;
+	private String transformY;
 
 	private KnimeSchema schema;
 
@@ -124,6 +139,11 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		maxX = DEFAULT_MAXX;
 		minY = DEFAULT_MINY;
 		maxY = DEFAULT_MAXY;
+		drawLines = DEFAULT_DRAWLINES;
+		showLegend = DEFAULT_SHOWLEGEND;
+		addLegendInfo = DEFAULT_ADDLEGENDINFO;
+		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		transformY = DEFAULT_TRANSFORMY;
 	}
 
 	@Override
@@ -173,9 +193,10 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		creator.setMaxX(maxX);
 		creator.setMinY(minY);
 		creator.setMaxY(maxY);
-		creator.setDrawLines(false);
-		creator.setShowLegend(true);
-		creator.setAddInfoInLegend(false);
+		creator.setDrawLines(drawLines == 1);
+		creator.setShowLegend(showLegend == 1);
+		creator.setAddInfoInLegend(addLegendInfo == 1);
+		creator.setTransformY(transformY);
 
 		return new PortObject[] {
 				container.getTable(),
@@ -230,6 +251,11 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		settings.addDouble(CFG_MAXX, maxX);
 		settings.addDouble(CFG_MINY, minY);
 		settings.addDouble(CFG_MAXY, maxY);
+		settings.addInt(CFG_DRAWLINES, drawLines);
+		settings.addInt(CFG_SHOWLEGEND, showLegend);
+		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
+		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addString(CFG_TRANSFORMY, transformY);
 	}
 
 	/**
@@ -290,6 +316,36 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 			maxY = settings.getDouble(CFG_MAXY);
 		} catch (InvalidSettingsException e) {
 			maxY = DEFAULT_MAXY;
+		}
+
+		try {
+			drawLines = settings.getInt(CFG_DRAWLINES);
+		} catch (InvalidSettingsException e) {
+			drawLines = DEFAULT_DRAWLINES;
+		}
+
+		try {
+			showLegend = settings.getInt(CFG_SHOWLEGEND);
+		} catch (InvalidSettingsException e) {
+			showLegend = DEFAULT_SHOWLEGEND;
+		}
+
+		try {
+			addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
+		} catch (InvalidSettingsException e) {
+			addLegendInfo = DEFAULT_ADDLEGENDINFO;
+		}
+
+		try {
+			displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
+		} catch (InvalidSettingsException e) {
+			displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+		
+		try {
+			transformY = settings.getString(CFG_TRANSFORMY);
+		} catch (InvalidSettingsException e) {
+			transformY = DEFAULT_TRANSFORMY;
 		}
 	}
 

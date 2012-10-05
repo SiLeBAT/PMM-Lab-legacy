@@ -125,6 +125,11 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		double maxX;
 		double minY;
 		double maxY;
+		int drawLines;
+		int showLegend;
+		int addLegendInfo;
+		int displayHighlighted;
+		String transformY;
 
 		try {
 			selectedIDs = PrimaryModelViewAndSelectNodeModel
@@ -188,6 +193,41 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
+			drawLines = settings
+					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_DRAWLINES);
+		} catch (InvalidSettingsException e) {
+			drawLines = PrimaryModelViewAndSelectNodeModel.DEFAULT_DRAWLINES;
+		}
+
+		try {
+			showLegend = settings
+					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_SHOWLEGEND);
+		} catch (InvalidSettingsException e) {
+			showLegend = PrimaryModelViewAndSelectNodeModel.DEFAULT_SHOWLEGEND;
+		}
+
+		try {
+			addLegendInfo = settings
+					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_ADDLEGENDINFO);
+		} catch (InvalidSettingsException e) {
+			addLegendInfo = PrimaryModelViewAndSelectNodeModel.DEFAULT_ADDLEGENDINFO;
+		}
+
+		try {
+			displayHighlighted = settings
+					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_DISPLAYHIGHLIGHTED);
+		} catch (InvalidSettingsException e) {
+			displayHighlighted = PrimaryModelViewAndSelectNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			transformY = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY);
+		} catch (InvalidSettingsException e) {
+			transformY = PrimaryModelViewAndSelectNodeModel.DEFAULT_TRANSFORMY;
+		}
+
+		try {
 			reader = new TableReader(input[0], schema, schema == peiSchema);
 		} catch (PmmException e) {
 			reader = null;
@@ -200,7 +240,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
-				colors, shapes, manualRange == 1, minX, maxX, minY, maxY));
+				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
+				drawLines == 1, showLegend == 1, addLegendInfo == 1,
+				displayHighlighted == 1, transformY));
 	}
 
 	@Override
@@ -231,12 +273,48 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				configPanel.getMinY());
 		settings.addDouble(PrimaryModelViewAndSelectNodeModel.CFG_MAXY,
 				configPanel.getMaxY());
+
+		if (configPanel.isDrawLines()) {
+			settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_DRAWLINES, 1);
+		} else {
+			settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_DRAWLINES, 0);
+		}
+
+		if (configPanel.isShowLegend()) {
+			settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SHOWLEGEND,
+					1);
+		} else {
+			settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SHOWLEGEND,
+					0);
+		}
+
+		if (configPanel.isAddInfoInLegend()) {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_ADDLEGENDINFO, 1);
+		} else {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_ADDLEGENDINFO, 0);
+		}
+
+		if (configPanel.isDisplayFocusedRow()) {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_DISPLAYHIGHLIGHTED,
+					1);
+		} else {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_DISPLAYHIGHLIGHTED,
+					0);
+		}
+
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY,
+				configPanel.getTransformY());
 	}
 
 	private JComponent createMainComponent(List<String> selectedIDs,
 			Map<String, Color> colors, Map<String, Shape> shapes,
 			boolean manualRange, double minX, double maxX, double minY,
-			double maxY) {		
+			double maxY, boolean drawLines, boolean showLegend,
+			boolean addLegendInfo, boolean displayHighlighted, String transformY) {
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
@@ -246,6 +324,11 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		configPanel.setMaxX(maxX);
 		configPanel.setMinY(minY);
 		configPanel.setMaxY(maxY);
+		configPanel.setDrawLines(drawLines);
+		configPanel.setShowLegend(showLegend);
+		configPanel.setAddInfoInLegend(addLegendInfo);
+		configPanel.setDisplayFocusedRow(displayHighlighted);
+		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),

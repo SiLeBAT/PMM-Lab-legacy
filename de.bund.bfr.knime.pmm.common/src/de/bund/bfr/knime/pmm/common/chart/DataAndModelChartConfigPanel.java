@@ -275,16 +275,38 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 		return drawLinesBox.isSelected();
 	}
 
+	public void setDrawLines(boolean drawLines) {
+		drawLinesBox.setSelected(drawLines);
+	}
+
 	public boolean isShowLegend() {
 		return showLegendBox.isSelected();
+	}
+
+	public void setShowLegend(boolean showLegend) {
+		showLegendBox.setSelected(showLegend);
+		
+		if (showLegendBox.isSelected()) {
+			addInfoInLegendBox.setEnabled(true);
+		} else {
+			addInfoInLegendBox.setEnabled(false);
+		}
 	}
 
 	public boolean isAddInfoInLegend() {
 		return addInfoInLegendBox.isSelected();
 	}
 
+	public void setAddInfoInLegend(boolean addInfoInLegend) {
+		addInfoInLegendBox.setSelected(addInfoInLegend);
+	}
+
 	public boolean isDisplayFocusedRow() {
 		return displayFocusedRowBox.isSelected();
+	}
+
+	public void setDisplayFocusedRow(boolean displayFocusedRow) {
+		displayFocusedRowBox.setSelected(displayFocusedRow);
 	}
 
 	public String getParamX() {
@@ -297,6 +319,10 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 
 	public String getTransformY() {
 		return (String) yTransBox.getSelectedItem();
+	}
+	
+	public void setTransformY(String transformY) {
+		yTransBox.setSelectedItem(transformY);
 	}
 
 	public Map<String, Double> getParamsXValues() {

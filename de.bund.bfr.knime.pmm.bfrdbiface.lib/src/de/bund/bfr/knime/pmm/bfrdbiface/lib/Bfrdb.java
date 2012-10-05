@@ -53,6 +53,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.dim.bfr.external.service.BFRNodeService;
 
@@ -1014,64 +1015,66 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm( final ParametricModel pm , final ParametricModel ppm, List<String> varParMap) {
-		LinkedList<String> paramNameSet = new LinkedList<String>();
-		paramNameSet.addAll(pm.getParamNameSet());
-		int numParams = paramNameSet.size();
-		double[] valueSet = new double[numParams];
-		double[] paramErrSet = new double[numParams];
-		for (int i = 0; i < numParams; i++) {
-			valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
-			paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
-		}		
-		
-		int estModelId = pm.getEstModelId();
-		int condId = pm.getCondId();
-		int modelId = pm.getModelId();
-		double rms = pm.getRms();
-		double r2 = pm.getRsquared();
-		
-		HashMap<String, String> hm = getVarParHashmap(varParMap);
-		HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
-		
-		int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
-		/*
-		if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
-			responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
-		}
-		else {
-			responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
-		}
-		*/
-		if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-			updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
-			deleteEstParam(estModelId);
-		} else {
-			estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
-		}
-		
-		for (int i = 0; i < numParams; i++ ) {			
-			int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
-			insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
-		}
-		
-		insertModLit(estModelId, pm.getEstModelLit(), true);
-		
-		for (String name : pm.getIndepVarSet()) {
-			int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
-			if (indepId >= 0) {
-				insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+	public Integer insertEm(final ParametricModel pm, List<String> varParMap) {
+		Integer estModelId = null;
+		Double rms = pm.getRms();
+		Double r2 = pm.getRsquared();
+		if (!Double.isNaN(rms)) {
+			LinkedList<String> paramNameSet = new LinkedList<String>();
+			paramNameSet.addAll(pm.getParamNameSet());
+			int numParams = paramNameSet.size();
+			double[] valueSet = new double[numParams];
+			double[] paramErrSet = new double[numParams];
+			for (int i = 0; i < numParams; i++) {
+				valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
+				paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
+			}		
+			
+			estModelId = pm.getEstModelId();
+			int condId = pm.getCondId();
+			int modelId = pm.getModelId();
+			
+			HashMap<String, String> hm = getVarParHashmap(varParMap);
+			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
+			
+			int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
+			/*
+			if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
+				responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
 			}
 			else {
-				System.err.println("insertEm:\t" + name);
+				responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
 			}
+			*/
+			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
+				updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
+				deleteEstParam(estModelId);
+			} else {
+				estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
+			}
+			
+			for (int i = 0; i < numParams; i++ ) {			
+				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
+				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
+			}
+			
+			insertModLit(estModelId, pm.getEstModelLit(), true);
+			
+			for (String name : pm.getIndepVarSet()) {
+				int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
+				if (indepId >= 0) {
+					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+				}
+				else {
+					System.err.println("insertEm:\t" + name);
+				}
+			}
+			
+			// insert mapping of parameters and variables of this estimation
+			for (String newName : hmi.keySet()) {
+				insertVarParMaps(estModelId, hmi.get(newName), newName);
+			}			
 		}
-		
-		// insert mapping of parameters and variables of this estimation
-		for (String newName : hmi.keySet()) {
-			insertVarParMaps(estModelId, hmi.get(newName), newName);
-		}
-
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
@@ -1422,6 +1425,11 @@ public class Bfrdb extends Hsqldbiface {
 		Collection<String> indepVar = m.getIndepVarSet();
 		Collection<String> paramNameSet = m.getParamNameSet();
 		
+		HashMap<String, String> hm = getVarParHashmap(varParMap);
+		for (String oldVar : hm.keySet()) {
+			formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+		}
+
 		if (isObjectPresent(REL_MODEL, modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
@@ -1469,8 +1477,6 @@ public class Bfrdb extends Hsqldbiface {
 		// insert parameter set
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
-		HashMap<String, String> hm = getVarParHashmap(varParMap);
-
 		// insert dependent variable
 		int paramId = insertParam(modelId, getVarPar(hm, depVar), PARAMTYPE_DEP, null, null);
 		paramIdSet.add(paramId);
@@ -1483,7 +1489,6 @@ public class Bfrdb extends Hsqldbiface {
 		
 		// insert parameters
 		for (String name : paramNameSet) {			
-			String nName = (hm == null || hm.get(name) == null) ? name : hm.get(name);
 			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}

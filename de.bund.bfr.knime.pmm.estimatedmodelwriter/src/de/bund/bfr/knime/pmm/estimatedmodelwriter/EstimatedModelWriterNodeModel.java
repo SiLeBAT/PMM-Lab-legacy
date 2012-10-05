@@ -51,7 +51,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -131,8 +130,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     	String dbuuid = db.getDBUUID();
 		
 		List<Integer> primIDs = new ArrayList<Integer>();
-		HashMap<ParametricModel, List<Integer>> secModels = new HashMap<ParametricModel, List<Integer>>();
-		ParametricModel ppm = null, spm, lastPpm = null, lastSpm = null;
+		ParametricModel ppm = null, spm, lastSpm = null;
 		List<String> lastVarParMap = null;
 		
 		int j = 0;
@@ -234,9 +232,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						newPrimID = alreadyInsertedEModel.get(estModelId).getEstModelId();
 					}
 					else {
-			    		newPrimID = db.insertEm(ppm, null, varParMap);	
-			    		ppm.setEstModelId(newPrimID);
-			    		alreadyInsertedEModel.put(estModelId, ppm);
+			    		newPrimID = db.insertEm(ppm, varParMap);
+			    		if (newPrimID != null) {
+				    		ppm.setEstModelId(newPrimID);
+				    		alreadyInsertedEModel.put(estModelId, ppm);			    			
+			    		}
 					}
 				}
 				else {
@@ -306,11 +306,13 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		// ... vorher vielleicht sortieren nach IDs...
 							if (lastSpm != null && lastSpm.getEstModelId() != estSecModelId) {
 								if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-									Integer newSecID = db.insertEm(lastSpm, lastPpm, varParMap);
-									spm.setEstModelId(newSecID);
-						    		alreadyInsertedEModel.put(estSecModelId, spm);
-									db.insertEm2(newSecID, primIDs);
-									primIDs = new ArrayList<Integer>();		
+									Integer newSecID = db.insertEm(lastSpm, varParMap);
+									if (newSecID != null) {
+										spm.setEstModelId(newSecID);
+							    		alreadyInsertedEModel.put(estSecModelId, spm);
+										db.insertEm2(newSecID, primIDs);
+										primIDs = new ArrayList<Integer>();												
+									}
 								}
 							}
 							primIDs.add(newPrimID);
@@ -323,18 +325,19 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							") is not storable due to joining with unassociated primary model\n";
 						if (warnings.indexOf(text) < 0)	warnings += text;
 					}
-					lastPpm = ppm;
 				}
 				else {
-					System.err.println("newPrimID: " + newPrimID);
+					//System.err.println("newPrimID: " + newPrimID);
 				}
 			}
 		}
 		if (model2Conform && lastSpm != null) {
 			if (M2Writable) {
 				if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-					Integer newSecID = db.insertEm(lastSpm, lastPpm, lastVarParMap);
-					db.insertEm2(newSecID, primIDs);
+					Integer newSecID = db.insertEm(lastSpm, lastVarParMap);
+					if (newSecID != null) {
+						db.insertEm2(newSecID, primIDs);						
+					}
 				}
 			}
 			else {

@@ -268,19 +268,17 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				Map<String, String> varMapSec = modelRow
 						.getMap(Model2Schema.ATT_VARPARMAP);
 				List<String> newIndepVarsSec = new ArrayList<String>();
+				Map<String, String> newVarMap = new HashMap<String, String>();
 				KnimeRelationReader peiReader = new KnimeRelationReader(
 						dataSchema, dataTable);
 				Map<String, String> replace = replacements.get(i);
 				boolean allVarsReplaced = true;
 
 				if (replace.containsKey(depVarSec)) {
-					if (varMapSec.containsKey(depVarSec)) {
-						String origVar = varMapSec.get(depVarSec);
-
-						varMapSec.remove(depVarSec);
-						varMapSec.put(replace.get(depVarSec), origVar);
+					if (varMapSec.containsKey(depVarSec)) {						
+						newVarMap.put(replace.get(depVarSec), varMapSec.get(depVarSec));
 					} else {
-						varMapSec.put(replace.get(depVarSec), depVarSec);
+						newVarMap.put(replace.get(depVarSec), depVarSec);
 					}
 
 					depVarSec = replace.get(depVarSec);
@@ -297,13 +295,10 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				for (String iv : indepVarsSec) {
 					if (replace.containsKey(iv)) {
-						if (varMapSec.containsKey(iv)) {
-							String origVar = varMapSec.get(iv);
-
-							varMapSec.remove(iv);
-							varMapSec.put(replace.get(iv), origVar);
+						if (varMapSec.containsKey(iv)) {							
+							newVarMap.put(replace.get(iv), varMapSec.get(iv));
 						} else {
-							varMapSec.put(replace.get(iv), iv);
+							newVarMap.put(replace.get(iv), iv);
 						}
 
 						newIndepVarsSec.add(replace.get(iv));
@@ -316,8 +311,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				if (!allVarsReplaced) {
 					continue;
 				}
-
-				indepVarsSec = newIndepVarsSec;
 
 				while (peiReader.hasMoreElements()) {
 					KnimeTuple peiRow = peiReader.nextElement();
@@ -334,8 +327,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 					seiRow.setValue(Model2Schema.ATT_FORMULA, formulaSec);
 					seiRow.setValue(Model2Schema.ATT_DEPVAR, depVarSec);
-					seiRow.setValue(Model2Schema.ATT_INDEPVAR, indepVarsSec);
-					seiRow.setValue(Model2Schema.ATT_VARPARMAP, varMapSec);
+					seiRow.setValue(Model2Schema.ATT_INDEPVAR, newIndepVarsSec);
+					seiRow.setValue(Model2Schema.ATT_VARPARMAP, newVarMap);
 					seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 							Model2Schema.NOTWRITABLE);
 

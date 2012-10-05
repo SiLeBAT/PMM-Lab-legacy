@@ -306,7 +306,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		// ... vorher vielleicht sortieren nach IDs...
 							if (lastSpm != null && lastSpm.getEstModelId() != estSecModelId) {
 								if (!alreadyInsertedEModel.containsKey(estSecModelId)) {
-									Integer newSecID = db.insertEm(lastSpm, varParMap);
+									Integer newSecID = db.insertEm(lastSpm, lastVarParMap);
 									if (newSecID != null) {
 										spm.setEstModelId(newSecID);
 							    		alreadyInsertedEModel.put(estSecModelId, spm);

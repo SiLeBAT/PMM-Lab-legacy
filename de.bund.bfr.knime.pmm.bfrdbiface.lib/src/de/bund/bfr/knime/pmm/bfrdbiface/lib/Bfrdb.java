@@ -1066,7 +1066,7 @@ public class Bfrdb extends Hsqldbiface {
 					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
 				}
 				else {
-					System.err.println("insertEm:\t" + name);
+					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + getVarPar(hm, name, hmi, modelId));
 				}
 			}
 			
@@ -1426,11 +1426,13 @@ public class Bfrdb extends Hsqldbiface {
 		Collection<String> paramNameSet = m.getParamNameSet();
 		
 		HashMap<String, String> hm = getVarParHashmap(varParMap);
-		for (String oldVar : hm.keySet()) {
-			formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+		if (hm != null) {
+			for (String oldVar : hm.keySet()) {
+				formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+			}			
 		}
 
-		if (isObjectPresent(REL_MODEL, modelId)) {
+		if (isObjectPresent("Modellkatalog", modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
 			try {

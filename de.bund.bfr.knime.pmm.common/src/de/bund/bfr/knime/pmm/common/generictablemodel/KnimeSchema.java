@@ -108,6 +108,10 @@ public class KnimeSchema {
 		addAttribute( name, KnimeAttribute.TYPE_COMMASEP_STRING );
 	}
 	
+	public void addMapAttribute( final String name ) throws PmmException {
+		addAttribute( name, KnimeAttribute.TYPE_MAP );
+	}
+	
 	public boolean conforms( DataColumnSpec[] spec ) throws PmmException {
 		
 		if( spec == null )

@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.common.generictablemodel;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.knime.core.data.DataCell;
@@ -142,6 +143,11 @@ public class KnimeTuple implements DataRow {
 			throws PmmException {
 		addValue(getIndex(attName), obj);
 	}
+	
+	public void addMap( final String attName, final Object a, final Object b )
+	throws PmmException {
+		addMap( getIndex( attName ), a, b );
+	}
 
 	public Double getDouble(final String attName) throws PmmException {
 		return getDouble(getIndex(attName));
@@ -175,6 +181,10 @@ public class KnimeTuple implements DataRow {
 		return getStringList(getIndex(attName));
 	}
 
+	public Map<String,String> getMap( final String attName ) throws PmmException {
+		return getMap( getIndex( attName ) );
+	}
+	
 	public KnimeSchema getSchema() {
 		return schema;
 	}
@@ -333,7 +343,8 @@ public class KnimeTuple implements DataRow {
 				n = (String) obj;
 
 				break;
-
+				
+			case KnimeAttribute.TYPE_MAP:
 			case KnimeAttribute.TYPE_INT:
 			case KnimeAttribute.TYPE_DOUBLE:
 			case KnimeAttribute.TYPE_STRING:
@@ -349,6 +360,32 @@ public class KnimeTuple implements DataRow {
 			o = ((StringCell) cell[i]).getStringValue();
 			cell[i] = CellIO.createCell(o + "," + n);
 		}
+	}
+	
+	private void addMap( final int i, final Object a, final Object b )
+	throws PmmException {
+		
+		String o, n;
+		
+		if( a == null )
+			throw new PmmException( "Object A must not be null." );
+		
+		if( b == null )
+			throw new PmmException( "Object B must not be null." );
+		
+		if( schema.getType( i ) != KnimeAttribute.TYPE_MAP )
+			throw new PmmException( "Cell type is not a map." );
+		
+		n = a.toString()+"="+b.toString();
+		
+		if( cell[ i ].isMissing() )
+			cell[ i ] = CellIO.createCell( n );
+		else {
+			
+			o = ( ( StringCell )cell[ i ] ).getStringValue();
+			cell[ i ] = CellIO.createCell( o+","+n );
+		}
+		
 	}
 
 	private Double getDouble(final int i) throws PmmException {
@@ -431,6 +468,14 @@ public class KnimeTuple implements DataRow {
 
 		return CellIO.getStringList(cell[i]);
 	}
+	
+	public Map<String,String> getMap( final int i ) throws PmmException {
+		
+		if( schema.getType( i ) == KnimeAttribute.TYPE_MAP )
+			throw new PmmException( "No map attribute in schema." );
+		
+		return CellIO.getMap( cell[ i ] );
+	}
 
 	private boolean isNull(final int i) {
 		return cell[i].isMissing();
@@ -493,6 +538,9 @@ public class KnimeTuple implements DataRow {
 					cell[i] = CellIO.createCell((String) obj);
 				else if (obj instanceof List<?>)
 					cell[i] = CellIO.createCell((List<?>) obj);
+				else
+					if( obj instanceof Map<?,?> )
+						cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
 
 				break;
 

@@ -43,6 +43,7 @@ public class KnimeAttribute {
 	public static final int TYPE_COMMASEP_INT = 3;
 	public static final int TYPE_COMMASEP_DOUBLE = 4;
 	public static final int TYPE_COMMASEP_STRING = 5;
+	public static final int TYPE_MAP = 6;
 
 	private String name;
 	private int type;
@@ -72,7 +73,7 @@ public class KnimeAttribute {
 	
 	public void setType( final int type ) throws PmmException {
 		
-		if( type < 0 || type > 5 )
+		if( type < 0 || type > 6 )
 			throw new PmmException( "Unknown column type" );
 		
 		this.type = type;

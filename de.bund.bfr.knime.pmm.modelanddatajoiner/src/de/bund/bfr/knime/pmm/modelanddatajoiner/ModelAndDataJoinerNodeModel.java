@@ -149,10 +149,10 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 					&& dataSchema.conforms(inSpecs[1])) {
 				outSchema = peiSchema;
 				joinType = PRIMARY_JOIN;
-			} else if (model1Schema.conforms(inSpecs[1])
-					&& dataSchema.conforms(inSpecs[0])) {
+			} else if (model2Schema.conforms(inSpecs[1])
+					&& peiSchema.conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
-			} else if (model1Schema.conforms(inSpecs[1])
+			} else if (model12Schema.conforms(inSpecs[1])
 					&& dataSchema.conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else if (model1Schema.conforms(inSpecs[1])

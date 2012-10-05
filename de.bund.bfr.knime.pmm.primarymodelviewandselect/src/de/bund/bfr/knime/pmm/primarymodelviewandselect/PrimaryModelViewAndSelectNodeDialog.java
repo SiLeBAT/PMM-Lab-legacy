@@ -55,6 +55,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartInfoPanel;
@@ -130,6 +131,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		int addLegendInfo;
 		int displayHighlighted;
 		String transformY;
+		String modelFilter;
+		String dataFilter;
+		String fittedFilter;
 
 		try {
 			selectedIDs = PrimaryModelViewAndSelectNodeModel
@@ -228,6 +232,27 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
+			modelFilter = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_MODELFILTER);
+		} catch (InvalidSettingsException e) {
+			modelFilter = PrimaryModelViewAndSelectNodeModel.DEFAULT_MODELFILTER;
+		}
+
+		try {
+			dataFilter = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_DATAFILTER);
+		} catch (InvalidSettingsException e) {
+			dataFilter = PrimaryModelViewAndSelectNodeModel.DEFAULT_DATAFILTER;
+		}
+
+		try {
+			fittedFilter = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_FITTEDFILTER);
+		} catch (InvalidSettingsException e) {
+			fittedFilter = PrimaryModelViewAndSelectNodeModel.DEFAULT_FITTEDFILTER;
+		}
+
+		try {
 			reader = new TableReader(input[0], schema, schema == peiSchema);
 		} catch (PmmException e) {
 			reader = null;
@@ -242,7 +267,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
 				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, transformY));
+				displayHighlighted == 1, transformY, modelFilter, dataFilter,
+				fittedFilter));
 	}
 
 	@Override
@@ -308,13 +334,21 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY,
 				configPanel.getTransformY());
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_MODELFILTER,
+				selectionPanel.getFilter(Model1Schema.ATT_MODELNAME));
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_DATAFILTER,
+				selectionPanel.getFilter(TimeSeriesSchema.DATAID));
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_FITTEDFILTER,
+				selectionPanel.getFilter(ChartConstants.IS_FITTED));
 	}
 
 	private JComponent createMainComponent(List<String> selectedIDs,
 			Map<String, Color> colors, Map<String, Shape> shapes,
 			boolean manualRange, double minX, double maxX, double minY,
 			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted, String transformY) {
+			boolean addLegendInfo, boolean displayHighlighted,
+			String transformY, String modelFilter, String dataFilter,
+			String fittedFilter) {
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
@@ -337,6 +371,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 						true));
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
+		selectionPanel.setFilter(Model1Schema.ATT_MODELNAME, modelFilter);
+		selectionPanel.setFilter(TimeSeriesSchema.DATAID, dataFilter);
+		selectionPanel.setFilter(ChartConstants.IS_FITTED, fittedFilter);
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new DataAndModelChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());

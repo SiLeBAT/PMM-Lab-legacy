@@ -230,6 +230,21 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		fireSelectionChanged();
 	}
 
+	public String getFilter(String column) {
+		if (comboBoxes.containsKey(column)) {
+			return (String) comboBoxes.get(column).getSelectedItem();
+		} else {
+			return null;
+		}
+	}
+
+	public void setFilter(String column, String filter) {
+		if (comboBoxes.containsKey(column)) {
+			comboBoxes.get(column).setSelectedItem(filter);
+			applyFilters();
+		}
+	}
+
 	public Map<String, Color> getColors() {
 		Map<String, Color> paints = new HashMap<String, Color>(
 				selectTable.getRowCount());
@@ -313,18 +328,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 						i, 1);
 			}
 		} else {
-			Map<String, String> filters = new HashMap<String, String>();
-
-			for (String column : comboBoxes.keySet()) {
-				JComboBox box = comboBoxes.get(column);
-
-				if (!box.getSelectedItem().equals("")) {
-					filters.put(column, (String) box.getSelectedItem());
-				}
-			}
-
-			selectTable.setRowSorter(new SelectTableRowSorter(
-					(SelectTableModel) selectTable.getModel(), filters));
+			applyFilters();
 		}
 
 		fireSelectionChanged();
@@ -342,6 +346,21 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	@Override
 	public void valueChanged(ListSelectionEvent e) {
 		fireInfoSelectionChanged();
+	}
+
+	private void applyFilters() {
+		Map<String, String> filters = new HashMap<String, String>();
+
+		for (String column : comboBoxes.keySet()) {
+			JComboBox box = comboBoxes.get(column);
+
+			if (!box.getSelectedItem().equals("")) {
+				filters.put(column, (String) box.getSelectedItem());
+			}
+		}
+
+		selectTable.setRowSorter(new SelectTableRowSorter(
+				(SelectTableModel) selectTable.getModel(), filters));
 	}
 
 	public static interface SelectionListener {

@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -52,6 +53,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -112,15 +114,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model1Conform = inSchema.conforms(new Model1Schema());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());
+		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		HashMap<Integer, Integer> foreignDbMC1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbME1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitMC1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitME1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMC2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbME2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitMC2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitME2Ids = new HashMap<Integer, Integer>();
     	String dbuuid = db.getDBUUID();
 
 		int j = 0;
@@ -130,16 +125,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     		
 			KnimeTuple row = reader.nextElement();
 			if (model1Conform) {
-				String rowuuid = row.getString(Model1Schema.ATT_DBUUID);
-				if (rowuuid != null && !rowuuid.equals(dbuuid)) {
-					checkIDs(Model1Schema.ATT_MODELID, foreignDbMC1Ids, row, false);
-					checkIDs(Model1Schema.ATT_ESTMODELID, foreignDbME1Ids, row, false);
-					checkIDs(Model1Schema.ATT_LITIDM, foreignDbLitMC1Ids, row, true);
-					checkIDs(Model1Schema.ATT_LITIDEM, foreignDbLitME1Ids, row, true);
-				}
-				Integer modelId = row.getInt(Model1Schema.ATT_MODELID);
-				if (modelId != null && !alreadySaved.contains(modelId)) {
-					alreadySaved.add(modelId);
+				Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
+				if (rowMcID != null && !alreadySaved.contains(rowMcID)) {
+					alreadySaved.add(rowMcID);
 		    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
 		    		String formula = row.getString(Model1Schema.ATT_FORMULA);
 		    		String depVar = row.getString(Model1Schema.ATT_DEPVAR);
@@ -156,27 +144,25 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 
-		    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 1, modelId );
+		    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 1, rowMcID );
 		    		
 		    		doMinMax(pm, paramName, minVal, maxVal, false);
 		    		doMinMax(pm, indepVar, minIndep, maxIndep, true);
 		    		doLit(pm, litStr, litID, false);
 		    		doLit(pm, litEMStr, litEMID, true);
 
-		    		db.insertM(pm, varParMap);
+					String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
+					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
+					
+					checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					db.insertM(pm, varParMap);
+					checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 				}
 			}
 			if (model2Conform) {
-				String rowuuid = row.getString(Model2Schema.ATT_DBUUID);
-				if (rowuuid != null && !rowuuid.equals(dbuuid)) {
-					checkIDs(Model2Schema.ATT_MODELID, foreignDbMC2Ids, row, false);
-					checkIDs(Model2Schema.ATT_ESTMODELID, foreignDbME2Ids, row, false);
-					checkIDs(Model2Schema.ATT_LITIDM, foreignDbLitMC2Ids, row, true);
-					checkIDs(Model2Schema.ATT_LITIDEM, foreignDbLitME2Ids, row, true);
-				}
-	    		Integer modelId = row.getInt(Model2Schema.ATT_MODELID);
-				if (modelId != null && !alreadySaved.contains(modelId)) {
-					alreadySaved.add(modelId);
+	    		Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
+				if (rowMcID != null && !alreadySaved.contains(rowMcID)) {
+					alreadySaved.add(rowMcID);
 		    		String modelName = row.getString(Model2Schema.ATT_MODELNAME);
 		    		String formula = row.getString(Model2Schema.ATT_FORMULA);
 		    		String depVar = row.getString(Model2Schema.ATT_DEPVAR);
@@ -194,14 +180,19 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		
 			    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);		
 
-			    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 2, modelId );
+			    		ParametricModel pm = new ParametricModel(modelName, formula, depVar, 2, rowMcID);
 			    		
 			    		doMinMax(pm, paramName, minVal, maxVal, false);
 			    		doMinMax(pm, indepVar, minIndep, maxIndep, true);
 			    		doLit(pm, litStr, litID, false);
 			    		doLit(pm, litEMStr, litEMID, true);
 			    		
+						String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
+						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
+						
+						checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 			    		db.insertM(pm, varParMap);
+						checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 		    		}
 	    		}
 			}
@@ -210,23 +201,74 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
-    private void checkIDs(String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, boolean hasList) throws PmmException {
-    	if (hasList) {
-    		List<Integer> keys = row.getIntList(attr);
-        	for (Integer key : keys) {
-        		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
-        		row.setValue(attr, foreignDbIds.get(key));
-        	}
-    	}
-    	else {
-        	Integer key = row.getInt(attr);
-    		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
-    		row.setValue(attr, foreignDbIds.get(key));
-    	}
+    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
+    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
+		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
+			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
+			
+			for (int i=0;i<schemaAttr.length;i++) {
+				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
+				HashMap<Integer, Integer> foreignDbIdsTable = d.get(dbTablename[i]);
+		    	if (dbTablename[i].equals("Literatur")) { // hasList
+		        	boolean est = schemaAttr[i].equals(Model1Schema.ATT_LITIDEM) || schemaAttr[i].equals(Model2Schema.ATT_LITIDEM);
+		        	LinkedList<LiteratureItem> lili;
+		        	if (est) lili = pm.getModelLit();
+		        	else lili = pm.getEstModelLit();
+		    		List<Integer> keys = row.getIntList(schemaAttr[i]);
+		    		if (keys != null) {
+			    		int ii=0;
+			        	for (LiteratureItem li : lili) {
+			        		Integer key = keys.get(ii);
+			        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+			        			if (before) li.setID(foreignDbIdsTable.get(key));
+			        			else if (foreignDbIdsTable.get(key) != li.getId()) {
+			        				System.err.println("checkIDs ... shouldn't happen");
+			        			}
+			        		}
+			        		else {
+			        			if (before) {
+			        				li.setID(MathUtilities.getRandomNegativeInt());
+			        			}
+			        			else foreignDbIdsTable.put(key, li.getId());
+			        		}
+			        		ii++;
+			        		//row.setValue(attr, foreignDbIdsTable.get(key));
+			        	}
+		    		}
+		    	}
+		    	else {
+		        	boolean est = schemaAttr[i].equals(Model1Schema.ATT_ESTMODELID) || schemaAttr[i].equals(Model2Schema.ATT_ESTMODELID);
+		        	Integer key = row.getInt(schemaAttr[i]);
+		        	if (key != null) {
+			        	int id = pm.getModelId();
+			        	if (est) id = pm.getEstModelId();
+			    		if (foreignDbIdsTable.containsKey(key)) {
+			    			if (before) {
+			    				if (est) pm.setEstModelId(foreignDbIdsTable.get(key));
+			    				else pm.setModelId(foreignDbIdsTable.get(key));
+			    			}
+			    			else if (foreignDbIdsTable.get(key) != id) {
+			    				System.err.println("checkIDs ... shouldn't happen");
+			    			}
+			    		}
+			    		else {
+			    			if (before) {
+			    				if (est) pm.setEstModelId(MathUtilities.getRandomNegativeInt());
+			    				else pm.setModelId(MathUtilities.getRandomNegativeInt());
+			    			}
+			    			else foreignDbIdsTable.put(key, id);
+			    		}
+		        	}
+		    	}
+			}
+		}    	
     }
 
     private void doLit(final ParametricModel pm, final List<String> litStr,
     		final List<Integer> litID, final boolean isEstimated) {
+    	if (isEstimated) pm.removeEstModelLits();
+    	else pm.removeModelLits();
     	if (litID != null) {
     		for (int i=0;i<litID.size();i++) {
     			String author = "";
@@ -263,8 +305,10 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     			maxInD = maxVal.get(i);
     		}
     		if (isIndep) {
+    			pm.removeIndepVar(paramName.get(i));
 				pm.addIndepVar(paramName.get(i), minInD, maxInD);
 			} else {
+    			pm.removeParam(paramName.get(i));
 				pm.addParam(paramName.get(i), Double.NaN, Double.NaN, minInD, maxInD);
 			}
 		}

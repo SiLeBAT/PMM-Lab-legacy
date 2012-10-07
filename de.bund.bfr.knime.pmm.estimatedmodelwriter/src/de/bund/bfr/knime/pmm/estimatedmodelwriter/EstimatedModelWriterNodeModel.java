@@ -223,9 +223,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames);
+						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						int newMID = db.insertM(ppm, varParMap);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames);
+						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						//ppm.setModelId(newMID);
 						alreadyInsertedModel.put(rowMcID, ppm);
@@ -246,10 +246,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames);
+						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						newPrimEstID = db.insertEm(ppm, varParMap);
 						//System.err.println("Prim\t" + rowEstM1ID + "\t" + newPrimEstID);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames);
+						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
 				    		//ppm.setEstModelId(newPrimEstID);
@@ -310,9 +310,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
-								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames);
+								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 					    		int newSMID = db.insertM(spm, varParMap);
-								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames);
+								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								//spm.setModelId(newSMID);
 								alreadyInsertedModel.put(rowMcID, spm);
@@ -328,10 +328,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
 									String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-									checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames);
+									checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
 									Integer newSecEstID = db.insertEm(lastSpm, lastVarParMap);
 									//System.err.println("Sec1\t" + lastEstM2ID + "\t" + newSecEstID);
-									checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames);
+									checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
 									if (newSecEstID != null) {
 										//spm.setEstModelId(newSecID);
 							    		alreadyInsertedEModel.put(lastEstM2ID, spm);
@@ -363,10 +363,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
 					String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-					checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames);
+					checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
 					Integer newSecEstID = db.insertEm(lastSpm, lastVarParMap);
 					//System.err.println("Sec2\t" + rowEstM2ID + "\t" + newSecEstID);
-					checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames);
+					checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
 
 					if (newSecEstID != null) {
 						db.insertEm2(newSecEstID, primEstIDs);						
@@ -386,8 +386,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
         return null;
     }
     private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
-    		String[] schemaAttr, String[] dbTablename) throws PmmException {
-		String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+    		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);

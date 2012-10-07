@@ -244,13 +244,15 @@ public class ModelTableModel extends JTable {
 					    if (indep == null) indep = false;
 					    editor.setEnabled(!indep);				    	
 				    }
+				    //if (isSelected)
 				    c = editor;
 			  }
 			  
 			  try {
 				  UIDefaults uiDefaults = UIManager.getDefaults();
 				  Color selBGColor = (Color) uiDefaults.get("Table.selectionBackground");
-				  if (isSelected) c.setBackground(selBGColor);				  
+				  if (isSelected && hasFocus) c.setBackground(Color.CYAN);
+				  else if (isSelected) c.setBackground(selBGColor);				  
 			  }
 			  catch (Exception e) {}
 			  

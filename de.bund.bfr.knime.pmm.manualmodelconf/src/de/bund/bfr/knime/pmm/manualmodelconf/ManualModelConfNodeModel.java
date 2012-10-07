@@ -134,12 +134,15 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			if (model.getLevel() == 1) { // can occur only once
 	    				if (model.getIndepVarSet().size() > 0) {
 	    					tupleM1 = model.getKnimeTuple();
+	    					tupleM1.setValue(Model1Schema.ATT_DATABASEWRITABLE, 1);
 	    				}
 	    			}
 	    			else {
 	    	    		// SecondaryModel
 	    				if (model.getIndepVarSet().size() > 0) {
-	    		    		rowSec.add(model.getKnimeTuple());					
+	    					KnimeTuple tupleM2 = model.getKnimeTuple();
+	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
+	    		    		rowSec.add(tupleM2);					
 	    				}	    		
 	    			}
         		}

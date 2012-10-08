@@ -1320,9 +1320,13 @@ public class Bfrdb extends Hsqldbiface {
 			
 			// insert mapping of parameters and variables of this estimation
 			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);
-			for (String newName : hmi.keySet()) {
-				insertVarParMaps(estModelId, hmi.get(newName), newName);
-			}			
+			if (hm != null) {
+				for (String key : hm.keySet()) {
+					if (hmi.containsKey(hm.get(key))) {
+						insertVarParMaps(estModelId, hmi.get(hm.get(key)), key+"="+hm.get(key));						
+					}
+				}			
+			}
 		}
 		return estModelId;
 	}

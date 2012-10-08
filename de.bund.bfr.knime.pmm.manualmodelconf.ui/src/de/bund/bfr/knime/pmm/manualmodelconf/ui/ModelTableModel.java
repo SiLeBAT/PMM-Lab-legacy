@@ -60,7 +60,8 @@ public class ModelTableModel extends JTable {
 
 	private static final long serialVersionUID = -6782674430592418376L;
 		
-	private String[] columns = new String[]{"Parameter", "Independent", "Value", "Min", "Max"};
+	// If changing here: please look at: getValueAt(), setValueAt(), isCellEditable(), getColumnClass(), MyTableCellRenderer
+	private String[] columns = new String[]{"Parameter", "Independent", "Value", "StandardErr", "Min", "Max"};
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private ParametricModel thePM;
 	private boolean hasChanged = false;
@@ -145,9 +146,11 @@ public class ModelTableModel extends JTable {
             	if (columnIndex == 1) return isIndep;
             	if (columnIndex == 2) return isIndep ? null : 
             		Double.isNaN(thePM.getParamValue(rowID)) ? null : thePM.getParamValue(rowID);
-            	if (columnIndex == 3) return isIndep ? (Double.isNaN(thePM.getIndepMin(rowID)) ? null : thePM.getIndepMin(rowID)) :
+            	if (columnIndex == 3) return isIndep ? null : 
+            		Double.isNaN(thePM.getParamError(rowID)) ? null : thePM.getParamError(rowID);
+            	if (columnIndex == 4) return isIndep ? (Double.isNaN(thePM.getIndepMin(rowID)) ? null : thePM.getIndepMin(rowID)) :
             		(thePM.getParamMin(rowID) == null || Double.isNaN(thePM.getParamMin(rowID)) ? null : thePM.getParamMin(rowID));
-            	if (columnIndex == 4) return isIndep ? (Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
+            	if (columnIndex == 5) return isIndep ? (Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
             		(thePM.getParamMax(rowID) == null || Double.isNaN(thePM.getParamMax(rowID)) ? null : thePM.getParamMax(rowID));
         	}
         	return null;
@@ -180,13 +183,14 @@ public class ModelTableModel extends JTable {
             	else {
                 	boolean isIndep = sm.get(rowID);
                 	if (isIndep) {
-                    	if (columnIndex == 3 && o instanceof Double) thePM.setIndepMin(rowID, (Double) o);
-                    	if (columnIndex == 4 && o instanceof Double) thePM.setIndepMax(rowID, (Double) o);
+                    	if (columnIndex == 4 && o instanceof Double) thePM.setIndepMin(rowID, (Double) o);
+                    	if (columnIndex == 5 && o instanceof Double) thePM.setIndepMax(rowID, (Double) o);
                 	}
                 	else {
                     	if (columnIndex == 2 && o instanceof Double) thePM.setParamValue(rowID, (Double) o);
-                    	if (columnIndex == 3 && o instanceof Double) thePM.setParamMin(rowID, (Double) o);
-                    	if (columnIndex == 4 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
+                    	if (columnIndex == 3 && o instanceof Double) thePM.setParamError(rowID, (Double) o);
+                    	if (columnIndex == 4 && o instanceof Double) thePM.setParamMin(rowID, (Double) o);
+                    	if (columnIndex == 5 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
                 	}
             	}
             	//super.fireTableCellUpdated(rowIndex, columnIndex);
@@ -202,7 +206,7 @@ public class ModelTableModel extends JTable {
 		public boolean isCellEditable(final int row, final int columnIndex) {
 		    Boolean indep = (Boolean) this.getValueAt(row, 1);
 		    if (indep == null) indep = false;
-			return columnIndex == 1 || columnIndex > 2 || (!indep && columnIndex == 2);
+			return columnIndex == 1 || columnIndex > 3 || (!indep && columnIndex <= 3);
 		}
 
         public Class<?> getColumnClass(int columnIndex) {
@@ -211,6 +215,7 @@ public class ModelTableModel extends JTable {
         	else if (columnIndex == 2) return Double.class;
         	else if (columnIndex == 3) return Double.class;
         	else if (columnIndex == 4) return Double.class;
+        	else if (columnIndex == 5) return Double.class;
         	else return Object.class;
         }
     }
@@ -218,7 +223,21 @@ public class ModelTableModel extends JTable {
 	private class MyTableCellRenderer implements TableCellRenderer {
 		  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
 			  JComponent c;
-			  if (columnIndex == 1) {
+			  if (columnIndex == 0) {
+				    JTextField editor = new JTextField();
+				    if (value != null) {
+				    	String text = value.toString();
+				    	text += " []";
+				    	if (rowHasChanged.get(value) != null && rowHasChanged.get(value)) text += "*";
+				    	editor.setText(text);
+				    }
+				    editor.setEnabled(false);
+				    boolean hasSecondary = m_secondaryModels != null && m_secondaryModels.containsKey(value);
+				    editor.setFont(editor.getFont().deriveFont(hasSecondary ? Font.BOLD : Font.PLAIN));
+				    editor.setToolTipText(hasSecondary ? m_secondaryModels.get(value).getModelName() : "");
+				    c = editor;
+			  }
+			  else if (columnIndex == 1) {
 				  JCheckBox checkbox = new JCheckBox();
 				  checkbox.setHorizontalAlignment(SwingConstants.CENTER);
 				  checkbox.setEnabled(true);
@@ -226,20 +245,11 @@ public class ModelTableModel extends JTable {
 				  checkbox.setBackground(Color.WHITE);
 				  c = checkbox;
 			  }
-			  else if (columnIndex == 0) {
-				    JTextField editor = new JTextField();
-				    if (value != null) editor.setText(value.toString() + (rowHasChanged.get(value) != null && rowHasChanged.get(value) ? "*" : ""));
-				    editor.setEnabled(false);
-				    boolean hasSecondary = m_secondaryModels != null && m_secondaryModels.containsKey(value);
-				    editor.setFont(editor.getFont().deriveFont(hasSecondary ? Font.BOLD : Font.PLAIN));
-				    editor.setToolTipText(hasSecondary ? m_secondaryModels.get(value).getModelName() : "");
-				    c = editor;
-			  }
 			  else {
 				    DoubleTextField editor = new DoubleTextField(true);
 				    if (value != null && value instanceof Double && !Double.isNaN((Double) value)) editor.setText(value.toString());
 				    else editor.setText(null);
-				    if (columnIndex == 2) { // Value
+				    if (columnIndex == 2 || columnIndex == 3) { // Value, Error
 					    Boolean indep = (Boolean) table.getValueAt(rowIndex, 1);
 					    if (indep == null) indep = false;
 					    editor.setEnabled(!indep);				    	

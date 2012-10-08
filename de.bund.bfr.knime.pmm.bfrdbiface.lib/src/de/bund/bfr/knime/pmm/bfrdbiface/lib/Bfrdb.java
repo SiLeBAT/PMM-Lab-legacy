@@ -1299,6 +1299,7 @@ public class Bfrdb extends Hsqldbiface {
 				pm.setEstModelId(estModelId);
 			}
 			
+			deleteFrom("GeschaetzteParameter", "GeschaetztesModell", estModelId);
 			for (int i = 0; i < numParams; i++ ) {			
 				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
 				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
@@ -1306,6 +1307,7 @@ public class Bfrdb extends Hsqldbiface {
 			
 			insertModLit(estModelId, pm.getEstModelLit(), true, pm);
 			
+			deleteFrom("GueltigkeitsBereiche", "GeschaetztesModell", estModelId);
 			for (String name : pm.getIndepVarSet()) {
 				int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
 				if (indepId >= 0) {
@@ -1317,18 +1319,20 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			
 			// insert mapping of parameters and variables of this estimation
-			for (String newName : hmi.keySet()) {
-				insertVarParMaps(estModelId, hmi.get(newName), newName);
-			}			
+			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);
+			if (hm != null) {
+				for (String key : hm.keySet()) {
+					if (hmi.containsKey(hm.get(key))) {
+						insertVarParMaps(estModelId, hmi.get(hm.get(key)), key+"="+hm.get(key));						
+					}
+				}			
+			}
 		}
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
 		try {
-			PreparedStatement ps = conn.prepareStatement("DELETE FROM \"VarParMaps\" WHERE \"GeschaetztesModell\" = " + estModelId);
-			ps.executeUpdate();
-			ps.close();
-			ps = conn.prepareStatement("INSERT INTO \"VarParMaps\"(\"GeschaetztesModell\", \"VarPar\", \"VarParMap\") VALUES (?,?,?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"VarParMaps\"(\"GeschaetztesModell\", \"VarPar\", \"VarParMap\") VALUES (?,?,?)");
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
 			if (newVarPar == null) {
@@ -1345,10 +1349,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "DELETE FROM \"GueltigkeitsBereiche\" WHERE \"GeschaetztesModell\" = " + estModelId);
-			ps.executeUpdate();
-			ps.close();
-			ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
 			ps.setInt( 1, estModelId);
 			ps.setInt( 2, paramId);
 			if (min == null) {
@@ -1578,6 +1579,14 @@ public class Bfrdb extends Hsqldbiface {
 		return result;
 	}
 		
+	private void deleteFrom(String tablename, String fieldname, int id) {
+		try {			
+			PreparedStatement ps = conn.prepareStatement( "DELETE FROM \""+tablename+"\" WHERE \""+fieldname+"\"="+id );			
+			ps.executeUpdate();
+			ps.close();
+		}
+		catch( SQLException ex ) { ex.printStackTrace(); }
+	}
 		private void deleteTSData( final int condId ) {
 			
 			PreparedStatement ps;

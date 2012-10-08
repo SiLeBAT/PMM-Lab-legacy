@@ -127,6 +127,9 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_MAXVALUE = "maxValue";
 	public static final String ATT_RMS = "RMS";
 	private static final String ATT_STANDDARDERROR = "StandardError";
+	private static final String REL_VARMAP = "VarParMaps";
+	private static final String ATT_VARMAPFROM = "VarPar";
+	private static final String ATT_VARMAPTO = "VarParMap";
 	
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
@@ -152,7 +155,8 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \"LitEmID\",\n"
 		+"    \"LitEm\",\n"
 		+"    \""+ATT_CONDITIONID+"\",\n"
-		+"    \""+ATT_STANDDARDERROR+"\"\n"
+		+"    \""+ATT_STANDDARDERROR+"\",\n"
+		+"    \""+ATT_VARMAPTO+"\"\n"
 		+"\n"
 		+"\n"
 		+"FROM \""+REL_ESTMODEL+"\"\n"
@@ -252,6 +256,27 @@ public class Bfrdb extends Hsqldbiface {
 		+"    GROUP BY \""+ATT_ESTMODELID+"\"\n"
 		+")\"LitEmView\"\n"
 		+"ON \""+REL_ESTMODEL+"\".\"ID\"=\"LitEmView\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+"LEFT JOIN(\n"
+		+"\n"
+		+"    SELECT\n"
+		+"\n"
+		+"        \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\",\n"
+		+"        GROUP_CONCAT(\n"
+		+"            CONCAT(\n"
+		+"                \""+REL_PARAM+"\".\""+ATT_PARAMNAME+"\",\n"
+		+"                '=',\n"
+		+"                \""+REL_VARMAP+"\".\""+ATT_VARMAPTO+"\" ) )AS \""+ATT_VARMAPTO+"\"\n"
+		+"\n"
+		+"    FROM \""+REL_VARMAP+"\"\n"
+		+"\n"
+		+"    JOIN \""+REL_PARAM+"\"\n"
+		+"    ON \""+REL_PARAM+"\".\"ID\"=\""+REL_VARMAP+"\".\""+ATT_VARMAPFROM+"\"\n"
+		+"\n"
+		+"    GROUP BY \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+")\""+ATT_VARMAPTO+"View\"\n"
+		+"ON \""+ATT_VARMAPTO+"View\".\""+ATT_ESTMODELID+"\"=\""+REL_ESTMODEL+"\".\"ID\"\n"
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=1\n";
 	
@@ -276,7 +301,7 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \"LitEm\" AS \"LitEm2\",\n"
 		+"    \""+ATT_CONDITIONID+"\" AS \""+ATT_CONDITIONID+"2\",\n"
 		+"    \""+ATT_STANDDARDERROR+"\" AS \""+ATT_STANDDARDERROR+"2\"\n"
-		+"\n"
+		+"    \""+ATT_VARMAPTO+"\" AS \""+ATT_VARMAPTO+"2\"\n"
 		+"\n"
 		+"FROM \""+REL_ESTMODEL+"\"\n"
 		+"\n"
@@ -374,6 +399,27 @@ public class Bfrdb extends Hsqldbiface {
 		+"    GROUP BY \""+ATT_ESTMODELID+"\"\n"
 		+")\"LitEmView\"\n"
 		+"ON \""+REL_ESTMODEL+"\".\"ID\"=\"LitEmView\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+"LEFT JOIN(\n"
+		+"\n"
+		+"    SELECT\n"
+		+"\n"
+		+"        \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\",\n"
+		+"        GROUP_CONCAT(\n"
+		+"            CONCAT(\n"
+		+"                \""+REL_PARAM+"\".\""+ATT_PARAMNAME+"\",\n"
+		+"                '=',\n"
+		+"                \""+REL_VARMAP+"\".\""+ATT_VARMAPTO+"\" ) )AS \""+ATT_VARMAPTO+"\"\n"
+		+"\n"
+		+"    FROM \""+REL_VARMAP+"\"\n"
+		+"\n"
+		+"    JOIN \""+REL_PARAM+"\"\n"
+		+"    ON \""+REL_PARAM+"\".\"ID\"=\""+REL_VARMAP+"\".\""+ATT_VARMAPFROM+"\"\n"
+		+"\n"
+		+"    GROUP BY \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+")\""+ATT_VARMAPTO+"View\"\n"
+		+"ON \""+ATT_VARMAPTO+"View\".\""+ATT_ESTMODELID+"\"=\""+REL_ESTMODEL+"\".\"ID\"\n"
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=2\n";
 	

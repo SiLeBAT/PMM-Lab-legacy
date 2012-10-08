@@ -309,6 +309,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void setParamValue( final String name, final Double value ) {
 		param.put( name, value );
 	}	
+	public void setParamError( final String name, final Double value ) {
+		paramError.put( name, value );
+	}	
 	public void setParamMin( final String name, final Double min ) {
 		paramMin.put( name, min );
 	}	

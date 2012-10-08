@@ -263,13 +263,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		return clonedPM;
 	}
 	
-	public void setRsquared( final Double r2 ) throws PmmException {
-				
-		if( r2 > 1 ) {
-			throw new PmmException( "Rsquared must not exceed 1." );
+	public void setRsquared( final Double r2 ) throws PmmException {				
+		if (r2 == null) this.rsquared = Double.NaN;
+		else {
+			if( r2 > 1 ) {
+				throw new PmmException( "Rsquared must not exceed 1." );
+			}		
+			rsquared = r2;
 		}
-		
-		rsquared = r2;
 	}
 	public void setRss( final Double rss ) throws PmmException {
 		
@@ -322,17 +323,19 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void setDepVar(final String depVar) {
 		this.depVar = depVar;
 	}
-	public void setRms( final Double rms ) throws PmmException {
-		
-		if( Double.isInfinite( rms ) ) {
-			throw new PmmException( "RMS must be a real positive number." );
+	public void setRms( final Double rms ) throws PmmException {		
+		if (rms == null) this.rms = Double.NaN;
+		else {
+			if( Double.isInfinite( rms ) ) {
+				throw new PmmException( "RMS must be a real positive number." );
+			}
+			
+			if( rms < 0 ) {
+				throw new PmmException( "RMS must be a real positive number." );
+			}
+			
+			this.rms = rms;
 		}
-		
-		if( rms < 0 ) {
-			throw new PmmException( "RMS must be a real positive number." );
-		}
-		
-		this.rms = rms;
 	}
 	public void setAic( final Double aic ) { this.aic = aic; }
 	

@@ -1331,7 +1331,7 @@ public class Bfrdb extends Hsqldbiface {
 		Integer estModelId = null;
 		Double rms = pm.getRms();
 		Double r2 = pm.getRsquared();
-		if (!Double.isNaN(rms)) {
+		//if (!Double.isNaN(rms)) {
 			LinkedList<String> paramNameSet = new LinkedList<String>();
 			paramNameSet.addAll(pm.getParamNameSet());
 			int numParams = paramNameSet.size();
@@ -1414,7 +1414,7 @@ public class Bfrdb extends Hsqldbiface {
 				}			
 			}
 			*/
-		}
+		//}
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {

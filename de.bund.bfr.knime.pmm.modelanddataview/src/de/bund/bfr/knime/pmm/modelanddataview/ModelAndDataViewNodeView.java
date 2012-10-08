@@ -278,11 +278,11 @@ public class ModelAndDataViewNodeView extends
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
 
 			Plotable plotable = null;
-			Map<String, Double> variables = new HashMap<String, Double>();
+			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
 			Map<String, Double> parameters = new HashMap<String, Double>();
 
 			for (String iv : indepVars) {
-				variables.put(iv, 0.0);
+				variables.put(iv, new ArrayList<Double>(Arrays.asList(0.0)));
 			}
 
 			for (int i = 0; i < params.size(); i++) {

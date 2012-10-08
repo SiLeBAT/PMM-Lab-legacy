@@ -119,7 +119,7 @@ public class TableReader {
 
 			Plotable plotable = null;
 			Map<String, Double> parameters = new HashMap<String, Double>();
-			Map<String, Double> variables = new HashMap<String, Double>();
+			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
 
 			for (int i = 0; i < params.size(); i++) {
 				parameters.put(params.get(i), paramValues.get(i));
@@ -135,7 +135,8 @@ public class TableReader {
 				}
 			}
 
-			variables.put(TimeSeriesSchema.ATT_TIME, 0.0);
+			variables.put(TimeSeriesSchema.ATT_TIME, new ArrayList<Double>(
+					Arrays.asList(0.0)));
 
 			if (schemaContainsData) {
 				plotable = new Plotable(Plotable.BOTH);

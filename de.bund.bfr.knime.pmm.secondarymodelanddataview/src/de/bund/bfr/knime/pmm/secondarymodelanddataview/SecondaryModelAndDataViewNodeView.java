@@ -191,10 +191,10 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			configPanel.setParamsX(variables, possibleValues);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
-			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
+			plotable.setFunctionArguments(configPanel.getParamsXValues());			
 		} else {
 			configPanel.setParamsX(null);
 			configPanel.setParamsY(null);
@@ -344,7 +344,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		for (String id : ids) {
 			Plotable plotable = null;
-			Map<String, Double> arguments = new HashMap<String, Double>();
+			Map<String, List<Double>> arguments = new HashMap<String, List<Double>>();
 			Map<String, Double> constants = new HashMap<String, Double>();
 
 			if (getNodeModel().isSeiSchema()) {
@@ -354,7 +354,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			}
 
 			for (String iv : indepVarMap.get(id)) {
-				arguments.put(iv, 0.0);
+				arguments.put(iv, new ArrayList<Double>(Arrays.asList(0.0)));
 			}
 
 			for (int i = 0; i < keyMap.get(id).size(); i++) {

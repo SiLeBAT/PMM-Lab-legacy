@@ -33,21 +33,26 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.chart;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -85,11 +90,14 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 	private JComboBox xBox;
 	private JComboBox yBox;
 	private JComboBox yTransBox;
+	private List<String> parameters;
 	private List<List<Double>> possibleValues;
+	private List<List<Boolean>> selectedValues;
 
 	private JPanel parameterValuesPanel;
 	private List<JLabel> parameterLabels;
-	private List<JComponent> parameterInputs;
+	private List<DoubleTextField> parameterFields;
+	private List<JButton> parameterButtons;
 
 	private int type;
 
@@ -177,8 +185,9 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 		yTransBox.addActionListener(this);
 
 		parameterValuesPanel = new JPanel();
-		parameterInputs = new ArrayList<JComponent>();
 		parameterLabels = new ArrayList<JLabel>();
+		parameterFields = new ArrayList<DoubleTextField>();
+		parameterButtons = new ArrayList<JButton>();
 
 		parametersPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		parametersPanel.setBorder(BorderFactory
@@ -285,7 +294,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 
 	public void setShowLegend(boolean showLegend) {
 		showLegendBox.setSelected(showLegend);
-		
+
 		if (showLegendBox.isSelected()) {
 			addInfoInLegendBox.setEnabled(true);
 		} else {
@@ -320,36 +329,53 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 	public String getTransformY() {
 		return (String) yTransBox.getSelectedItem();
 	}
-	
+
 	public void setTransformY(String transformY) {
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public Map<String, Double> getParamsXValues() {
-		Map<String, Double> values = new HashMap<String, Double>();
+	public Map<String, List<Double>> getParamsXValues() {
+		Map<String, List<Double>> valueLists = new LinkedHashMap<String, List<Double>>();
 
-		values.put((String) xBox.getSelectedItem(), 0.0);
+		if (type == PARAMETER_FIELDS) {
+			for (int i = 0; i < parameterFields.size(); i++) {
+				if (parameterFields.get(i) instanceof DoubleTextField) {
+					DoubleTextField field = (DoubleTextField) parameterFields
+							.get(i);
+					String paramName = parameterLabels.get(i).getText()
+							.replace(":", "");
 
-		for (int i = 0; i < parameterInputs.size(); i++) {
-			if (parameterInputs.get(i) instanceof DoubleTextField) {
-				DoubleTextField field = (DoubleTextField) parameterInputs
-						.get(i);
-
-				if (field.getValue() != null) {
-					values.put(parameterLabels.get(i).getText(),
-							field.getValue());
-				} else {
-					values.put(parameterLabels.get(i).getText(), 0.0);
+					if (field.getValue() != null) {
+						valueLists.put(
+								paramName,
+								new ArrayList<Double>(Arrays.asList(field
+										.getValue())));
+					} else {
+						valueLists.put(paramName,
+								new ArrayList<Double>(Arrays.asList(0.0)));
+					}
 				}
-			} else if (parameterInputs.get(i) instanceof JComboBox) {
-				JComboBox box = (JComboBox) parameterInputs.get(i);
+			}
+		} else if (type == PARAMETER_BOXES) {
+			for (int i = 0; i < parameters.size(); i++) {
+				List<Double> values = possibleValues.get(i);
+				List<Boolean> selected = selectedValues.get(i);
+				List<Double> newValues = new ArrayList<Double>();
 
-				values.put(parameterLabels.get(i).getText(),
-						(Double) box.getSelectedItem());
+				for (int j = 0; j < values.size(); j++) {
+					if (selected.get(j)) {
+						newValues.add(values.get(j));
+					}
+				}
+
+				valueLists.put(parameters.get(i), newValues);
 			}
 		}
 
-		return values;
+		valueLists.put((String) xBox.getSelectedItem(), new ArrayList<Double>(
+				Arrays.asList(0.0)));
+
+		return valueLists;
 	}
 
 	public void setParamsX(List<String> parameters) {
@@ -364,15 +390,8 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			parameters = new ArrayList<String>();
 		}
 
-		if (parameters.size() != xBox.getItemCount()) {
+		if (!parameters.equals(this.parameters)) {
 			parametersChanged = true;
-		}
-
-		for (int i = 0; i < xBox.getItemCount(); i++) {
-			if (!parameters.contains(xBox.getItemAt(i))) {
-				parametersChanged = true;
-				break;
-			}
 		}
 
 		if (possibleValues != null
@@ -380,6 +399,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			parametersChanged = true;
 		}
 
+		this.parameters = parameters;
 		this.possibleValues = possibleValues;
 
 		if (parametersChanged) {
@@ -403,6 +423,19 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			}
 
 			xBox.addActionListener(this);
+
+			if (possibleValues != null) {
+				selectedValues = new ArrayList<List<Boolean>>();
+
+				for (List<Double> values : possibleValues) {
+					List<Boolean> selected = new ArrayList<Boolean>(
+							Collections.nCopies(values.size(), false));
+
+					selected.set(0, true);
+					selectedValues.add(selected);
+				}
+			}
+
 			updateParametersPanel();
 		}
 	}
@@ -440,44 +473,49 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			parameterValuesPanel.remove(label);
 		}
 
-		for (JComponent input : parameterInputs) {
+		for (DoubleTextField input : parameterFields) {
 			parameterValuesPanel.remove(input);
 		}
 
-		parameterLabels.clear();
-		parameterInputs.clear();
+		for (JButton button : parameterButtons) {
+			parameterValuesPanel.remove(button);
+		}
 
-		for (int i = 0; i < xBox.getItemCount(); i++) {
+		parameterLabels.clear();
+		parameterFields.clear();
+		parameterButtons.clear();
+
+		for (int i = 0; i < parameters.size(); i++) {
 			if (i == xBox.getSelectedIndex()) {
 				continue;
 			}
 
-			JLabel label = new JLabel((String) xBox.getItemAt(i));
-			JComponent input = null;
-
 			if (type == PARAMETER_FIELDS) {
+				JLabel label = new JLabel(parameters.get(i) + ":");
+				DoubleTextField input = new DoubleTextField();
 				double value = 0.0;
 
 				if (possibleValues != null && possibleValues.get(i) != null) {
 					value = possibleValues.get(i).get(0);
 				}
 
-				input = new DoubleTextField();
 				input.setPreferredSize(new Dimension(50, input
 						.getPreferredSize().height));
-				((DoubleTextField) input).setValue(value);
-				((DoubleTextField) input).addTextListener(this);
+				input.setValue(value);
+				input.addTextListener(this);
+				parameterLabels.add(label);
+				parameterValuesPanel.add(label);
+				parameterFields.add(input);
+				parameterValuesPanel.add(input);
 			} else if (type == PARAMETER_BOXES) {
-				input = new JComboBox(possibleValues.get(i).toArray(
-						new Double[0]));
-				((JComboBox) input).setSelectedIndex(0);
-				((JComboBox) input).addActionListener(this);
+				JButton selectButton = new JButton(parameters.get(i)
+						+ " Values");
+
+				selectButton.addActionListener(this);
+				parameterButtons.add(selectButton);
+				parameterValuesPanel.add(selectButton);
 			}
 
-			parameterLabels.add(label);
-			parameterInputs.add(input);
-			parameterValuesPanel.add(label);
-			parameterValuesPanel.add(input);
 			parameterValuesPanel.updateUI();
 		}
 	}
@@ -511,6 +549,18 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 		} else if (e.getSource() == xBox) {
 			lastParamX = (String) xBox.getSelectedItem();
 			updateParametersPanel();
+		} else if (parameterButtons.contains(e.getSource())) {
+			JButton button = (JButton) e.getSource();
+			String param = button.getText().replace(" Values", "");
+			int i = parameters.indexOf(param);
+			SelectDialog dialog = new SelectDialog(param,
+					possibleValues.get(i), selectedValues.get(i));
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				selectedValues.set(i, dialog.getSelected());
+			}
 		}
 
 		fireConfigChanged();
@@ -524,6 +574,102 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 	public static interface ConfigListener {
 
 		public void configChanged();
+	}
+
+	private class SelectDialog extends JDialog implements ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private List<Boolean> selected;
+
+		private List<JCheckBox> selectBoxes;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public SelectDialog(String title, List<Double> values,
+				List<Boolean> initialSelected) {
+			super(JOptionPane
+					.getFrameForComponent(DataAndModelChartConfigPanel.this),
+					title, true);
+
+			approved = false;
+			selected = null;
+
+			selectBoxes = new ArrayList<JCheckBox>();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel.setLayout(new GridLayout(values.size(), 1, 5, 5));
+
+			for (int i = 0; i < values.size(); i++) {
+				JCheckBox box = new JCheckBox(values.get(i) + "");
+
+				box.setSelected(initialSelected.get(i));
+				box.addActionListener(this);
+				selectBoxes.add(box);
+				centerPanel.add(box);
+			}
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(DataAndModelChartConfigPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<Boolean> getSelected() {
+			return selected;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				selected = new ArrayList<Boolean>();
+
+				for (JCheckBox box : selectBoxes) {
+					selected.add(box.isSelected());
+				}
+
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			} else {
+				boolean noSelection = true;
+
+				for (JCheckBox box : selectBoxes) {
+					if (box.isSelected()) {
+						noSelection = false;
+						break;
+					}
+				}
+
+				if (noSelection) {
+					okButton.setEnabled(false);
+				} else {
+					okButton.setEnabled(true);
+				}
+			}
+		}
+
 	}
 
 }

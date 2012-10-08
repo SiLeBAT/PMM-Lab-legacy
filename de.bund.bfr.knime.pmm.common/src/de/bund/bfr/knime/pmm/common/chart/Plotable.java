@@ -39,6 +39,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +62,7 @@ public class Plotable {
 	private Map<String, List<Double>> valueLists;
 	private String function;
 	private String functionValue;
-	private Map<String, Double> functionArguments;
+	private Map<String, List<Double>> functionArguments;
 	private Map<String, Double> functionConstants;
 
 	public Plotable(int type) {
@@ -97,11 +98,11 @@ public class Plotable {
 		this.functionValue = functionValue;
 	}
 
-	public Map<String, Double> getFunctionArguments() {
+	public Map<String, List<Double>> getFunctionArguments() {
 		return functionArguments;
 	}
 
-	public void setFunctionArguments(Map<String, Double> functionArguments) {
+	public void setFunctionArguments(Map<String, List<Double>> functionArguments) {
 		this.functionArguments = functionArguments;
 	}
 
@@ -114,6 +115,11 @@ public class Plotable {
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String transformY) {
+		return getPoints(paramX, paramY, transformY, getStandardChoice());
+	}
+
+	public double[][] getPoints(String paramX, String paramY,
+			String transformY, Map<String, Integer> choice) {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
 
@@ -127,7 +133,8 @@ public class Plotable {
 		if (type == BOTH_STRICT) {
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(paramX) && valueLists.containsKey(arg)) {
-					Double fixedValue = functionArguments.get(arg);
+					Double fixedValue = functionArguments.get(arg).get(
+							choice.get(arg));
 					List<Double> values = valueLists.get(arg);
 
 					for (int i = 0; i < values.size(); i++) {
@@ -177,6 +184,13 @@ public class Plotable {
 	public double[][] getFunctionPoints(String paramX, String paramY,
 			String transformY, double minX, double maxX, double minY,
 			double maxY) {
+		return getFunctionPoints(paramX, paramY, transformY, minX, maxX, minY,
+				maxY, getStandardChoice());
+	}
+
+	public double[][] getFunctionPoints(String paramX, String paramY,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, Map<String, Integer> choice) {
 		if (function == null) {
 			return null;
 		}
@@ -199,7 +213,8 @@ public class Plotable {
 
 		for (String param : functionArguments.keySet()) {
 			if (!param.equals(paramX)) {
-				parser.addConstant(param, functionArguments.get(param));
+				parser.addConstant(param,
+						functionArguments.get(param).get(choice.get(param)));
 			}
 		}
 
@@ -255,11 +270,11 @@ public class Plotable {
 			return true;
 		} else {
 			List<String> paramsX = new ArrayList<String>(valueLists.keySet());
-			List<String> paramsY= new ArrayList<String>();
+			List<String> paramsY = new ArrayList<String>();
 
 			if (type == DATASET) {
 				paramsY = paramsX;
-			} else if (type == BOTH || type == BOTH_STRICT) {				
+			} else if (type == BOTH || type == BOTH_STRICT) {
 				if (functionValue != null) {
 					paramsY = Arrays.asList(functionValue);
 				}
@@ -275,6 +290,56 @@ public class Plotable {
 
 			return false;
 		}
+	}
+
+	public List<Map<String, Integer>> getAllChoices() {
+		List<Map<String, Integer>> choices = new ArrayList<Map<String, Integer>>();
+		List<String> argList = new ArrayList<String>(functionArguments.keySet());
+		List<Integer> choice = new ArrayList<Integer>(Collections.nCopies(
+				argList.size(), 0));
+		boolean done = false;
+
+		while (!done) {
+			Map<String, Integer> map = new LinkedHashMap<String, Integer>();
+
+			for (int i = 0; i < argList.size(); i++) {
+				map.put(argList.get(i), choice.get(i));
+			}
+
+			choices.add(map);
+
+			for (int i = 0;; i++) {
+				if (i >= argList.size()) {
+					done = true;
+					break;
+				}
+
+				choice.set(i, choice.get(i) + 1);
+
+				if (choice.get(i) >= functionArguments.get(argList.get(i))
+						.size()) {
+					choice.set(i, 0);
+				} else {
+					break;
+				}
+			}
+		}
+
+		return choices;
+	}
+
+	private Map<String, Integer> getStandardChoice() {
+		if (functionArguments == null) {
+			return null;
+		}
+
+		Map<String, Integer> choice = new HashMap<String, Integer>();
+
+		for (String arg : functionArguments.keySet()) {
+			choice.put(arg, 0);
+		}
+
+		return choice;
 	}
 
 	private boolean isPlotable(String paramX, String paramY) {
@@ -294,16 +359,16 @@ public class Plotable {
 
 		if (function != null && functionValue.equals(paramY)
 				&& functionArguments.containsKey(paramX)) {
-			boolean isValid = false;
+			boolean notValid = false;
 
 			for (Double value : functionConstants.values()) {
 				if (!isValidValue(value)) {
-					isValid = true;
+					notValid = true;
 					break;
 				}
 			}
 
-			if (!isValid) {
+			if (!notValid) {
 				functionPlotable = true;
 			}
 		}

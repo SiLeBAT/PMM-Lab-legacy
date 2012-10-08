@@ -130,25 +130,23 @@ public class DataAndModelChartCreator extends ChartPanel {
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
 		int index = 0;
-		int colorShapeIndex = 0;
 		ColorAndShapeCreator colorAndShapeCreator = new ColorAndShapeCreator(
 				idsToPaint.size());
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null
-					&& (plotable.getType() == Plotable.DATASET
-							|| plotable.getType() == Plotable.BOTH || plotable
-							.getType() == Plotable.BOTH_STRICT)) {
-				double[][] points = plotable.getPoints(paramX, paramY,
-						transformY);
+			if (plotable != null && plotable.getType() != Plotable.FUNCTION) {
+				for (Map<String, Integer> choice : plotable.getAllChoices()) {
+					double[][] points = plotable.getPoints(paramX, paramY,
+							transformY, choice);
 
-				if (points != null) {
-					for (int i = 0; i < points[0].length; i++) {
-						containsDataPoints = true;
-						usedMinX = Math.min(usedMinX, points[0][i]);
-						usedMaxX = Math.max(usedMaxX, points[0][i]);
+					if (points != null) {
+						for (int i = 0; i < points[0].length; i++) {
+							containsDataPoints = true;
+							usedMinX = Math.min(usedMinX, points[0][i]);
+							usedMaxX = Math.max(usedMaxX, points[0][i]);
+						}
 					}
 				}
 			}
@@ -190,39 +188,10 @@ public class DataAndModelChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.DATASET) {
-				DefaultXYDataset dataset = new DefaultXYDataset();
-				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
-						drawLines, true);
-				double[][] points = plotable.getPoints(paramX, paramY,
-						transformY);
-
-				if (points != null) {
-					if (addInfoInLegend) {
-						dataset.addSeries(longLegend.get(id), points);
-					} else {
-						dataset.addSeries(shortLegend.get(id), points);
-					}
-
-					if (colors.containsKey(id)) {
-						renderer.setSeriesPaint(0, colors.get(id));
-					} else {
-						renderer.setSeriesPaint(0, colorAndShapeCreator
-								.getColorList().get(colorShapeIndex));
-					}
-
-					if (shapes.containsKey(id)) {
-						renderer.setSeriesShape(0, shapes.get(id));
-					} else {
-						renderer.setSeriesShape(0, colorAndShapeCreator
-								.getShapeList().get(colorShapeIndex));
-					}
-
-					plot.setDataset(index, dataset);
-					plot.setRenderer(index, renderer);
-					index++;
-				}
-
-				colorShapeIndex++;
+				plotDataSet(plot, plotable, id, colorAndShapeCreator
+						.getColorList().get(index), colorAndShapeCreator
+						.getShapeList().get(index));
+				index++;
 			}
 		}
 
@@ -230,120 +199,32 @@ public class DataAndModelChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.FUNCTION) {
-				DefaultXYDataset dataset = new DefaultXYDataset();
-				XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(
-						true, false);
-				double[][] points = plotable.getFunctionPoints(paramX, paramY,
-						transformY, usedMinX, usedMaxX,
-						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-
-				if (points != null) {
-					if (addInfoInLegend) {
-						dataset.addSeries(longLegend.get(id), points);
-					} else {
-						dataset.addSeries(shortLegend.get(id), points);
-					}
-
-					if (colors.containsKey(id)) {
-						renderer.setSeriesPaint(0, colors.get(id));
-					} else {
-						renderer.setSeriesPaint(0, colorAndShapeCreator
-								.getColorList().get(colorShapeIndex));
-					}
-
-					if (shapes.containsKey(id)) {
-						renderer.setSeriesShape(0, shapes.get(id));
-					} else {
-						renderer.setSeriesShape(0, colorAndShapeCreator
-								.getShapeList().get(colorShapeIndex));
-					}
-
-					plot.setDataset(index, dataset);
-					plot.setRenderer(index, renderer);
-					index++;
-				}
-
-				colorShapeIndex++;
+				plotFunction(plot, plotable, id, colorAndShapeCreator
+						.getColorList().get(index), colorAndShapeCreator
+						.getShapeList().get(index), usedMinX, usedMaxX);
+				index++;
 			}
 		}
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null
-					&& (plotable.getType() == Plotable.BOTH || plotable
-							.getType() == Plotable.BOTH_STRICT)) {
-				double[][] modelPoints = plotable.getFunctionPoints(paramX,
-						paramY, transformY, usedMinX, usedMaxX,
-						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-				double[][] dataPoints = plotable.getPoints(paramX, paramY,
-						transformY);
+			if (plotable != null && plotable.getType() == Plotable.BOTH) {
+				plotBoth(plot, plotable, id, colorAndShapeCreator
+						.getColorList().get(index), colorAndShapeCreator
+						.getShapeList().get(index), usedMinX, usedMaxX);
+				index++;
+			}
+		}
 
-				if (modelPoints != null) {
-					DefaultXYDataset modelSet = new DefaultXYDataset();
-					XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
-							true, false);
+		for (String id : idsToPaint) {
+			Plotable plotable = plotables.get(id);
 
-					if (addInfoInLegend) {
-						modelSet.addSeries(longLegend.get(id) + " (Model)",
-								modelPoints);
-					} else {
-						modelSet.addSeries(shortLegend.get(id) + " (Model)",
-								modelPoints);
-					}
-
-					if (colors.containsKey(id)) {
-						modelRenderer.setSeriesPaint(0, colors.get(id));
-					} else {
-						modelRenderer.setSeriesPaint(0, colorAndShapeCreator
-								.getColorList().get(colorShapeIndex));
-					}
-
-					if (shapes.containsKey(id)) {
-						modelRenderer.setSeriesShape(0, shapes.get(id));
-					} else {
-						modelRenderer.setSeriesShape(0, colorAndShapeCreator
-								.getShapeList().get(colorShapeIndex));
-					}
-
-					plot.setDataset(index, modelSet);
-					plot.setRenderer(index, modelRenderer);
-					index++;
-				}
-
-				if (dataPoints != null) {
-					DefaultXYDataset dataSet = new DefaultXYDataset();
-					XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
-							drawLines, true);
-
-					if (addInfoInLegend) {
-						dataSet.addSeries(longLegend.get(id) + " (Data)",
-								dataPoints);
-					} else {
-						dataSet.addSeries(shortLegend.get(id) + " (Data)",
-								dataPoints);
-					}
-
-					if (colors.containsKey(id)) {
-						dataRenderer.setSeriesPaint(0, colors.get(id));
-					} else {
-						dataRenderer.setSeriesPaint(0, colorAndShapeCreator
-								.getColorList().get(colorShapeIndex));
-					}
-
-					if (shapes.containsKey(id)) {
-						dataRenderer.setSeriesShape(0, shapes.get(id));
-					} else {
-						dataRenderer.setSeriesShape(0, colorAndShapeCreator
-								.getShapeList().get(colorShapeIndex));
-					}
-
-					plot.setDataset(index, dataSet);
-					plot.setRenderer(index, dataRenderer);
-					index++;
-				}
-
-				colorShapeIndex++;
+			if (plotable != null && plotable.getType() == Plotable.BOTH_STRICT) {
+				plotBothStrict(plot, plotable, id, colorAndShapeCreator
+						.getColorList().get(index), colorAndShapeCreator
+						.getShapeList().get(index), usedMinX, usedMaxX);
+				index++;
 			}
 		}
 
@@ -457,6 +338,262 @@ public class DataAndModelChartCreator extends ChartPanel {
 
 	public void setShapes(Map<String, Shape> shapes) {
 		this.shapes = shapes;
+	}
+
+	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape) {
+		DefaultXYDataset dataset = new DefaultXYDataset();
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(drawLines,
+				true);
+		double[][] points = plotable.getPoints(paramX, paramY, transformY);
+
+		if (points != null) {
+			if (addInfoInLegend) {
+				dataset.addSeries(longLegend.get(id), points);
+			} else {
+				dataset.addSeries(shortLegend.get(id), points);
+			}
+
+			if (colors.containsKey(id)) {
+				renderer.setSeriesPaint(0, colors.get(id));
+			} else {
+				renderer.setSeriesPaint(0, defaultColor);
+			}
+
+			if (shapes.containsKey(id)) {
+				renderer.setSeriesShape(0, shapes.get(id));
+			} else {
+				renderer.setSeriesShape(0, defaultShape);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, dataset);
+			plot.setRenderer(i, renderer);
+		}
+	}
+
+	private void plotFunction(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+		DefaultXYDataset dataset = new DefaultXYDataset();
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true,
+				false);
+		double[][] points = plotable.getFunctionPoints(paramX, paramY,
+				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY);
+
+		if (points != null) {
+			if (addInfoInLegend) {
+				dataset.addSeries(longLegend.get(id), points);
+			} else {
+				dataset.addSeries(shortLegend.get(id), points);
+			}
+
+			if (colors.containsKey(id)) {
+				renderer.setSeriesPaint(0, colors.get(id));
+			} else {
+				renderer.setSeriesPaint(0, defaultColor);
+			}
+
+			if (shapes.containsKey(id)) {
+				renderer.setSeriesShape(0, shapes.get(id));
+			} else {
+				renderer.setSeriesShape(0, defaultShape);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, dataset);
+			plot.setRenderer(i, renderer);
+		}
+	}
+
+	private void plotBoth(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+		double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
+				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY);
+		double[][] dataPoints = plotable.getPoints(paramX, paramY, transformY);
+
+		if (modelPoints != null) {
+			DefaultXYDataset modelSet = new DefaultXYDataset();
+			XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
+					true, false);
+
+			if (addInfoInLegend) {
+				modelSet.addSeries(longLegend.get(id) + " (Model)", modelPoints);
+			} else {
+				modelSet.addSeries(shortLegend.get(id) + " (Model)",
+						modelPoints);
+			}
+
+			if (colors.containsKey(id)) {
+				modelRenderer.setSeriesPaint(0, colors.get(id));
+			} else {
+				modelRenderer.setSeriesPaint(0, defaultColor);
+			}
+
+			if (shapes.containsKey(id)) {
+				modelRenderer.setSeriesShape(0, shapes.get(id));
+			} else {
+				modelRenderer.setSeriesShape(0, defaultShape);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, modelSet);
+			plot.setRenderer(i, modelRenderer);
+		}
+
+		if (dataPoints != null) {
+			DefaultXYDataset dataSet = new DefaultXYDataset();
+			XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
+					drawLines, true);
+
+			if (addInfoInLegend) {
+				dataSet.addSeries(longLegend.get(id) + " (Data)", dataPoints);
+			} else {
+				dataSet.addSeries(shortLegend.get(id) + " (Data)", dataPoints);
+			}
+
+			if (colors.containsKey(id)) {
+				dataRenderer.setSeriesPaint(0, colors.get(id));
+			} else {
+				dataRenderer.setSeriesPaint(0, defaultColor);
+			}
+
+			if (shapes.containsKey(id)) {
+				dataRenderer.setSeriesShape(0, shapes.get(id));
+			} else {
+				dataRenderer.setSeriesShape(0, defaultShape);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, dataSet);
+			plot.setRenderer(i, dataRenderer);
+		}
+	}
+
+	private void plotBothStrict(XYPlot plot, Plotable plotable, String id,
+			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
+			String addLegend = "";
+
+			for (String arg : choiceMap.keySet()) {
+				if (!arg.equals(paramX)) {
+					addLegend += " ("
+							+ arg
+							+ "="
+							+ plotable.getFunctionArguments().get(arg)
+									.get(choiceMap.get(arg)) + ")";
+				}
+			}
+
+			double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
+					transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY, choiceMap);
+			double[][] dataPoints = plotable.getPoints(paramX, paramY,
+					transformY, choiceMap);
+
+			if (modelPoints != null) {
+				DefaultXYDataset modelSet = new DefaultXYDataset();
+				XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
+						true, false);
+
+				if (addInfoInLegend) {
+					modelSet.addSeries(longLegend.get(id) + addLegend
+							+ " (Model)", modelPoints);
+				} else {
+					modelSet.addSeries(shortLegend.get(id) + addLegend
+							+ " (Model)", modelPoints);
+				}
+
+				if (colors.containsKey(id)) {
+					modelRenderer.setSeriesPaint(0, colors.get(id));
+				} else {
+					modelRenderer.setSeriesPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					modelRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					modelRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				int i;
+
+				if (plot.getDataset(0) == null) {
+					i = 0;
+				} else {
+					i = plot.getDatasetCount();
+				}
+
+				plot.setDataset(i, modelSet);
+				plot.setRenderer(i, modelRenderer);
+			}
+
+			if (dataPoints != null) {
+				DefaultXYDataset dataSet = new DefaultXYDataset();
+				XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
+						drawLines, true);
+
+				if (addInfoInLegend) {
+					dataSet.addSeries(longLegend.get(id) + addLegend
+							+ " (Data)", dataPoints);
+				} else {
+					dataSet.addSeries(shortLegend.get(id) + addLegend
+							+ " (Data)", dataPoints);
+				}
+
+				if (colors.containsKey(id)) {
+					dataRenderer.setSeriesPaint(0, colors.get(id));
+				} else {
+					dataRenderer.setSeriesPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					dataRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					dataRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				int i;
+
+				if (plot.getDataset(0) == null) {
+					i = 0;
+				} else {
+					i = plot.getDatasetCount();
+				}
+
+				plot.setDataset(i, dataSet);
+				plot.setRenderer(i, dataRenderer);
+			}
+		}
 	}
 
 	private class DataAndModelChartSaveAsItem extends JMenuItem implements

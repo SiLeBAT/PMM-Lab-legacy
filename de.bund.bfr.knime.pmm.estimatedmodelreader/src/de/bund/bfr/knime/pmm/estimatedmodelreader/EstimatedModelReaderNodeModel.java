@@ -36,6 +36,8 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
@@ -55,6 +57,7 @@ import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -136,6 +139,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	int i, j, n;
     	KnimeSchema schema;
     	String dbuuid;
+    	String formula;
+    	Map<String,String> varMap;
     	
         // fetch database connection
         db = null;
@@ -154,8 +159,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		} else {
 			result = db.selectEstModel( 2 );
 		}
-    	
-
     	
     	// initialize data buffer
     	buf = exec.createDataContainer( schema.createSpec() );
@@ -189,7 +192,14 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
     		// fill m1
-    		tuple.setValue( Model1Schema.ATT_FORMULA, result.getString( Bfrdb.ATT_FORMULA ) );
+    		formula = result.getString( Bfrdb.ATT_FORMULA );
+    		tuple.setValue( Model1Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO ) );
+    		varMap = tuple.getMap( Model1Schema.ATT_VARPARMAP );
+    		for( String from : varMap.keySet() )	
+    			MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
+    		
+    		
+    		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
     		tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
     		tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP ) ) );
     		tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME ) ) );
@@ -237,7 +247,14 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m2
     		if( level == 2 ) {
-	    		tuple.setValue( Model2Schema.ATT_FORMULA, result.getString( Bfrdb.ATT_FORMULA+"2" ) );
+    			
+        		formula = result.getString( Bfrdb.ATT_FORMULA+"2" );
+        		tuple.setValue( Model2Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO+"2" ) );
+        		varMap = tuple.getMap( Model2Schema.ATT_VARPARMAP );
+        		for( String from : varMap.keySet() )	
+        			MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
+
+	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
 	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME+"2" ) ) );

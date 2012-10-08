@@ -39,9 +39,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
@@ -326,6 +328,26 @@ public class Plotable {
 		}
 
 		return choices;
+	}
+
+	public int getNumberOfCombinations() {
+		int nMax = 1;
+
+		for (String arg0 : functionArguments.keySet()) {
+			int n = 1;
+
+			for (String arg : functionArguments.keySet()) {
+				if (!arg.equals(arg0) && valueLists.containsKey(arg)) {
+					Set<Double> set = new HashSet<Double>(valueLists.get(arg));
+
+					n *= set.size();
+				}
+			}
+
+			nMax = Math.max(nMax, n);
+		}
+
+		return nMax;
 	}
 
 	private Map<String, Integer> getStandardChoice() {

@@ -84,7 +84,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	private ColorAndShapeCreator colorAndShapes;
 
 	private JTable selectTable;
-	private CheckBoxRenderer checkBoxRenderer;
+	private ShapeRenderer checkBoxRenderer;
 	private JButton selectAllButton;
 	private JButton unselectAllButton;
 	private JButton invertSelectionButton;
@@ -96,6 +96,17 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			List<List<Double>> doubleColumnValues,
 			List<Boolean> isStringColumnVisible,
 			List<Boolean> isStringColumnFilterable) {
+		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
+				doubleColumns, doubleColumnValues, isStringColumnVisible,
+				isStringColumnFilterable, null);
+	}
+
+	public DataAndModelSelectionPanel(List<String> ids,
+			boolean selectionsExclusive, List<String> stringColumns,
+			List<List<String>> stringColumnValues, List<String> doubleColumns,
+			List<List<Double>> doubleColumnValues,
+			List<Boolean> isStringColumnVisible,
+			List<Boolean> isStringColumnFilterable, List<Integer> colorCounts) {
 		listeners = new ArrayList<SelectionListener>();
 
 		JPanel upperPanel = new JPanel();
@@ -147,35 +158,77 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			upperPanel.add(filterPanel);
 		}
 
-		colorAndShapes = new ColorAndShapeCreator(ids.size());
+		SelectTableModel model;
 
-		SelectTableModel model = new SelectTableModel(ids,
-				colorAndShapes.getColorList(),
-				colorAndShapes.getShapeNameList(), stringColumns,
-				stringColumnValues, doubleColumns, doubleColumnValues,
-				selectionsExclusive);
+		if (colorCounts == null) {
+			colorAndShapes = new ColorAndShapeCreator(ids.size());
+			model = new SelectTableModel(ids, colorAndShapes.getColorList(),
+					colorAndShapes.getShapeNameList(), stringColumns,
+					stringColumnValues, doubleColumns, doubleColumnValues,
+					false, selectionsExclusive);
+		} else {
+			List<List<Color>> colorLists = new ArrayList<List<Color>>();
+			List<List<String>> shapeLists = new ArrayList<List<String>>();
+
+			colorAndShapes = new ColorAndShapeCreator(
+					Collections.max(colorCounts));
+
+			for (int n : colorCounts) {
+				ArrayList<Color> colors = new ArrayList<Color>();
+				ArrayList<String> shapes = new ArrayList<String>();
+
+				for (int i = 0; i < n; i++) {
+					colors.add(colorAndShapes.getColorList().get(i));
+					shapes.add(colorAndShapes.getShapeNameList().get(i));
+				}
+
+				colorLists.add(colors);
+				shapeLists.add(shapes);
+			}
+
+			model = new SelectTableModel(ids, colorLists, shapeLists,
+					stringColumns, stringColumnValues, doubleColumns,
+					doubleColumnValues, true, selectionsExclusive);
+		}
 
 		selectTable = new JTable(model);
 		selectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectTable.getSelectionModel().addListSelectionListener(this);
 		selectTable.setRowHeight((new JComboBox()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(model, null));
-		checkBoxRenderer = new CheckBoxRenderer();
-		selectTable.getColumn("ID").setMinWidth(0);
-		selectTable.getColumn("ID").setMaxWidth(0);
-		selectTable.getColumn("ID").setPreferredWidth(0);
-		selectTable.getColumn("Selected").setCellEditor(new CheckBoxEditor());
-		selectTable.getColumn("Selected").setCellRenderer(checkBoxRenderer);
-		selectTable.getColumn("Selected").getCellEditor()
+		checkBoxRenderer = new ShapeRenderer();
+		selectTable.getColumn(SelectTableModel.ID).setMinWidth(0);
+		selectTable.getColumn(SelectTableModel.ID).setMaxWidth(0);
+		selectTable.getColumn(SelectTableModel.ID).setPreferredWidth(0);
+		selectTable.getColumn(SelectTableModel.SELECTED).setCellEditor(
+				new CheckBoxEditor());
+		selectTable.getColumn(SelectTableModel.SELECTED).setCellRenderer(
+				checkBoxRenderer);
+		selectTable.getColumn(SelectTableModel.SELECTED).getCellEditor()
 				.addCellEditorListener(this);
-		selectTable.getColumn("Color").setCellEditor(new ColorEditor());
-		selectTable.getColumn("Color").setCellRenderer(new ColorRenderer());
-		selectTable.getColumn("Color").getCellEditor()
+
+		if (colorCounts == null) {
+			selectTable.getColumn(SelectTableModel.COLOR).setCellEditor(
+					new ColorEditor());
+			selectTable.getColumn(SelectTableModel.COLOR).setCellRenderer(
+					new ColorRenderer());
+			selectTable.getColumn(SelectTableModel.SHAPE).setCellEditor(
+					new DefaultCellEditor(new JComboBox(
+							ColorAndShapeCreator.SHAPE_NAMES)));
+		} else {
+			selectTable.getColumn(SelectTableModel.COLOR).setCellEditor(
+					new ColorListEditor());
+			selectTable.getColumn(SelectTableModel.COLOR).setCellRenderer(
+					new ColorListRenderer());
+			selectTable.getColumn(SelectTableModel.SHAPE).setCellEditor(
+					new ShapeListEditor());
+			selectTable.getColumn(SelectTableModel.SHAPE).setCellRenderer(
+					new ShapeListRenderer());
+		}
+
+		selectTable.getColumn(SelectTableModel.COLOR).getCellEditor()
 				.addCellEditorListener(this);
-		selectTable.getColumn("Shape").setCellEditor(
-				new DefaultCellEditor(new JComboBox(
-						ColorAndShapeCreator.SHAPE_NAMES)));
-		selectTable.getColumn("Shape").getCellEditor()
+		selectTable.getColumn(SelectTableModel.SHAPE).getCellEditor()
 				.addCellEditorListener(this);
 
 		for (int i = 0; i < stringColumns.size(); i++) {
@@ -292,6 +345,38 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public Map<String, List<Color>> getColorLists() {
+		Map<String, List<Color>> paints = new HashMap<String, List<Color>>(
+				selectTable.getRowCount());
+
+		for (int i = 0; i < selectTable.getRowCount(); i++) {
+			paints.put((String) selectTable.getValueAt(i, 0),
+					(List<Color>) selectTable.getValueAt(i, 2));
+		}
+
+		return paints;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Map<String, List<Shape>> getShapeLists() {
+		Map<String, List<Shape>> shapes = new HashMap<String, List<Shape>>(
+				selectTable.getRowCount());
+		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
+
+		for (int i = 0; i < selectTable.getRowCount(); i++) {
+			List<Shape> list = new ArrayList<Shape>();
+
+			for (String name : (List<String>) selectTable.getValueAt(i, 3)) {
+				list.add(shapeMap.get(name));
+			}
+
+			shapes.put((String) selectTable.getValueAt(i, 0), list);
+		}
+
+		return shapes;
+	}
+
 	public void addSelectionListener(SelectionListener listener) {
 		listeners.add(listener);
 	}
@@ -372,25 +457,43 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 	private abstract class AbstractSelectTableModel extends AbstractTableModel {
 
+		public static final String ID = "ID";
+		public static final String SELECTED = "Selected";
+		public static final String COLOR = "Color";
+		public static final String SHAPE = "Shape";
+
 		private static final long serialVersionUID = 1L;
+
+		private boolean listBased;
 
 		private List<String> ids;
 		private List<Boolean> selections;
 		private List<Color> colors;
+		private List<List<Color>> colorLists;
 		private List<String> shapes;
+		private List<List<String>> shapeLists;
 		private List<String> stringColumns;
 		private List<List<String>> stringColumnValues;
 		private List<String> doubleColumns;
 		private List<List<Double>> doubleColumnValues;
 
-		public AbstractSelectTableModel(List<String> ids, List<Color> colors,
-				List<String> shapes, List<String> stringColumns,
+		@SuppressWarnings("unchecked")
+		public AbstractSelectTableModel(List<String> ids, List<?> colors,
+				List<?> shapes, List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
-				List<List<Double>> doubleColumnValues) {
+				List<List<Double>> doubleColumnValues, boolean listBased) {
+			this.listBased = listBased;
+
+			if (!listBased) {
+				this.colors = (List<Color>) colors;
+				this.shapes = (List<String>) shapes;
+			} else {
+				this.colorLists = (List<List<Color>>) colors;
+				this.shapeLists = (List<List<String>>) shapes;
+			}
+
 			this.ids = ids;
-			this.colors = colors;
-			this.shapes = shapes;
 			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
 					false));
 			this.stringColumns = stringColumns;
@@ -412,13 +515,13 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return "ID";
+				return ID;
 			case 1:
-				return "Selected";
+				return SELECTED;
 			case 2:
-				return "Color";
+				return COLOR;
 			case 3:
-				return "Shape";
+				return SHAPE;
 			default:
 				if (column - 4 < stringColumns.size()) {
 					return stringColumns.get(column - 4);
@@ -441,9 +544,17 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			case 1:
 				return selections.get(row);
 			case 2:
-				return colors.get(row);
+				if (!listBased) {
+					return colors.get(row);
+				} else {
+					return colorLists.get(row);
+				}
 			case 3:
-				return shapes.get(row);
+				if (!listBased) {
+					return shapes.get(row);
+				} else {
+					return shapeLists.get(row);
+				}
 			default:
 				if (column - 4 < stringColumns.size()) {
 					return stringColumnValues.get(column - 4).get(row);
@@ -462,9 +573,17 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			case 1:
 				return Boolean.class;
 			case 2:
-				return Color.class;
+				if (!listBased) {
+					return Color.class;
+				} else {
+					return List.class;
+				}
 			case 3:
-				return String.class;
+				if (!listBased) {
+					return String.class;
+				} else {
+					return List.class;
+				}
 			default:
 				if (column - 4 < stringColumns.size()) {
 					return String.class;
@@ -474,6 +593,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			switch (column) {
@@ -484,10 +604,18 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				selections.set(row, (Boolean) value);
 				break;
 			case 2:
-				colors.set(row, (Color) value);
+				if (!listBased) {
+					colors.set(row, (Color) value);
+				} else {
+					colorLists.set(row, (List<Color>) value);
+				}
 				break;
 			case 3:
-				shapes.set(row, (String) value);
+				if (!listBased) {
+					shapes.set(row, (String) value);
+				} else {
+					shapeLists.set(row, (List<String>) value);
+				}
 				break;
 			default:
 				if (column - 4 < stringColumns.size()) {
@@ -511,13 +639,14 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 		private boolean exclusive;
 
-		public SelectTableModel(List<String> ids, List<Color> colors,
-				List<String> shapes, List<String> stringColumns,
+		public SelectTableModel(List<String> ids, List<?> colors,
+				List<?> shapes, List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
-				List<List<Double>> doubleColumnValues, boolean exclusive) {
+				List<List<Double>> doubleColumnValues, boolean listBased,
+				boolean exclusive) {
 			super(ids, colors, shapes, stringColumns, stringColumnValues,
-					doubleColumns, doubleColumnValues);
+					doubleColumns, doubleColumnValues, listBased);
 			this.exclusive = exclusive;
 		}
 
@@ -548,6 +677,8 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		public ColorEditor() {
 			colorButton = new JButton();
 			colorButton.addActionListener(new ActionListener() {
+
+				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					Color newColor = JColorChooser.showDialog(colorButton,
 							"Choose Color", colorButton.getBackground());
@@ -575,6 +706,76 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 	}
 
+	private class ColorListEditor extends AbstractCellEditor implements
+			TableCellEditor {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private List<Color> colorList;
+
+		public ColorListEditor() {
+			button = new JButton("Change");
+			colorList = new ArrayList<Color>();
+			button.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					// TODO
+				}
+			});
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			colorList = (List<Color>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return colorList;
+		}
+	}
+
+	private class ShapeListEditor extends AbstractCellEditor implements
+			TableCellEditor {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private List<String> shapeList;
+
+		public ShapeListEditor() {
+			button = new JButton("Change");
+			shapeList = new ArrayList<String>();
+			button.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					// TODO
+				}
+			});
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			shapeList = (List<String>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return shapeList;
+		}
+	}
+
 	private class ColorRenderer extends JLabel implements TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
@@ -593,12 +794,11 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		}
 	}
 
-	private class CheckBoxRenderer extends JCheckBox implements
-			TableCellRenderer {
+	private class ShapeRenderer extends JCheckBox implements TableCellRenderer {
 
 		private static final long serialVersionUID = -8337460338388283099L;
 
-		public CheckBoxRenderer() {
+		public ShapeRenderer() {
 			super();
 			setHorizontalAlignment(JLabel.CENTER);
 			setBorderPainted(true);
@@ -643,6 +843,38 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				setBorder(new EmptyBorder(1, 1, 1, 1));
 			}
 
+			return this;
+		}
+	}
+
+	private class ColorListRenderer extends JLabel implements TableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		public ColorListRenderer() {
+			super("Change");
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object color, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			return this;
+		}
+	}
+
+	private class ShapeListRenderer extends JLabel implements TableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		public ShapeListRenderer() {
+			super("Change");
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object color, boolean isSelected, boolean hasFocus, int row,
+				int column) {
 			return this;
 		}
 	}

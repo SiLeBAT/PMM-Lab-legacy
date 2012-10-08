@@ -68,6 +68,8 @@ public class DataAndModelChartCreator extends ChartPanel {
 	private Map<String, String> longLegend;
 	private Map<String, Color> colors;
 	private Map<String, Shape> shapes;
+	private Map<String, List<Color>> colorLists;
+	private Map<String, List<Shape>> shapeLists;
 
 	private String paramX;
 	private String paramY;
@@ -90,6 +92,8 @@ public class DataAndModelChartCreator extends ChartPanel {
 		this.longLegend = longLegend;
 		colors = new HashMap<String, Color>();
 		shapes = new HashMap<String, Shape>();
+		colorLists = new HashMap<String, List<Color>>();
+		shapeLists = new HashMap<String, List<Shape>>();
 	}
 
 	public void createChart(String idToPaint) {
@@ -221,9 +225,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.BOTH_STRICT) {
-				plotBothStrict(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
+				plotBothStrict(plot, plotable, id, usedMinX, usedMaxX);
 				index++;
 			}
 		}
@@ -338,6 +340,22 @@ public class DataAndModelChartCreator extends ChartPanel {
 
 	public void setShapes(Map<String, Shape> shapes) {
 		this.shapes = shapes;
+	}
+
+	public Map<String, List<Color>> getColorLists() {
+		return colorLists;
+	}
+
+	public void setColorLists(Map<String, List<Color>> colorLists) {
+		this.colorLists = colorLists;
+	}
+
+	public Map<String, List<Shape>> getShapeLists() {
+		return shapeLists;
+	}
+
+	public void setShapeLists(Map<String, List<Shape>> shapeLists) {
+		this.shapeLists = shapeLists;
 	}
 
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
@@ -500,7 +518,11 @@ public class DataAndModelChartCreator extends ChartPanel {
 	}
 
 	private void plotBothStrict(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			double minX, double maxX) {
+		List<Color> colorList = colorLists.get(id);
+		List<Shape> shapeList = shapeLists.get(id);
+		int index = 0;
+
 		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			String addLegend = "";
 
@@ -533,17 +555,8 @@ public class DataAndModelChartCreator extends ChartPanel {
 							+ " (Model)", modelPoints);
 				}
 
-				if (colors.containsKey(id)) {
-					modelRenderer.setSeriesPaint(0, colors.get(id));
-				} else {
-					modelRenderer.setSeriesPaint(0, defaultColor);
-				}
-
-				if (shapes.containsKey(id)) {
-					modelRenderer.setSeriesShape(0, shapes.get(id));
-				} else {
-					modelRenderer.setSeriesShape(0, defaultShape);
-				}
+				modelRenderer.setSeriesPaint(0, colorList.get(index));
+				modelRenderer.setSeriesShape(0, shapeList.get(index));
 
 				int i;
 
@@ -570,17 +583,8 @@ public class DataAndModelChartCreator extends ChartPanel {
 							+ " (Data)", dataPoints);
 				}
 
-				if (colors.containsKey(id)) {
-					dataRenderer.setSeriesPaint(0, colors.get(id));
-				} else {
-					dataRenderer.setSeriesPaint(0, defaultColor);
-				}
-
-				if (shapes.containsKey(id)) {
-					dataRenderer.setSeriesShape(0, shapes.get(id));
-				} else {
-					dataRenderer.setSeriesShape(0, defaultShape);
-				}
+				dataRenderer.setSeriesPaint(0, colorList.get(index));
+				dataRenderer.setSeriesShape(0, shapeList.get(index));
 
 				int i;
 
@@ -593,6 +597,8 @@ public class DataAndModelChartCreator extends ChartPanel {
 				plot.setDataset(i, dataSet);
 				plot.setRenderer(i, dataRenderer);
 			}
+
+			index++;
 		}
 	}
 

@@ -129,7 +129,7 @@ public class Bfrdb extends Hsqldbiface {
 	private static final String ATT_STANDDARDERROR = "StandardError";
 	private static final String REL_VARMAP = "VarParMaps";
 	private static final String ATT_VARMAPFROM = "VarPar";
-	private static final String ATT_VARMAPTO = "VarParMap";
+	public static final String ATT_VARMAPTO = "VarParMap";
 	
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;

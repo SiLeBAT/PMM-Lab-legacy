@@ -213,8 +213,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		    	if (dbTablename[i].equals("Literatur")) { // hasList
 		        	boolean est = schemaAttr[i].equals(Model1Schema.ATT_LITIDEM) || schemaAttr[i].equals(Model2Schema.ATT_LITIDEM);
 		        	LinkedList<LiteratureItem> lili;
-		        	if (est) lili = pm.getModelLit();
-		        	else lili = pm.getEstModelLit();
+		        	if (est) lili = pm.getEstModelLit();
+		        	else lili = pm.getModelLit();
 		    		List<Integer> keys = row.getIntList(schemaAttr[i]);
 		    		if (keys != null) {
 			    		int ii=0;

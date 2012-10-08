@@ -127,6 +127,9 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_MAXVALUE = "maxValue";
 	public static final String ATT_RMS = "RMS";
 	private static final String ATT_STANDDARDERROR = "StandardError";
+	private static final String REL_VARMAP = "VarParMaps";
+	private static final String ATT_VARMAPFROM = "VarPar";
+	public static final String ATT_VARMAPTO = "VarParMap";
 	
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
@@ -152,7 +155,8 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \"LitEmID\",\n"
 		+"    \"LitEm\",\n"
 		+"    \""+ATT_CONDITIONID+"\",\n"
-		+"    \""+ATT_STANDDARDERROR+"\"\n"
+		+"    \""+ATT_STANDDARDERROR+"\",\n"
+		+"    \""+ATT_VARMAPTO+"\"\n"
 		+"\n"
 		+"\n"
 		+"FROM \""+REL_ESTMODEL+"\"\n"
@@ -252,6 +256,27 @@ public class Bfrdb extends Hsqldbiface {
 		+"    GROUP BY \""+ATT_ESTMODELID+"\"\n"
 		+")\"LitEmView\"\n"
 		+"ON \""+REL_ESTMODEL+"\".\"ID\"=\"LitEmView\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+"LEFT JOIN(\n"
+		+"\n"
+		+"    SELECT\n"
+		+"\n"
+		+"        \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\",\n"
+		+"        GROUP_CONCAT(\n"
+		+"            CONCAT(\n"
+		+"                \""+REL_PARAM+"\".\""+ATT_PARAMNAME+"\",\n"
+		+"                '=',\n"
+		+"                \""+REL_VARMAP+"\".\""+ATT_VARMAPTO+"\" ) )AS \""+ATT_VARMAPTO+"\"\n"
+		+"\n"
+		+"    FROM \""+REL_VARMAP+"\"\n"
+		+"\n"
+		+"    JOIN \""+REL_PARAM+"\"\n"
+		+"    ON \""+REL_PARAM+"\".\"ID\"=\""+REL_VARMAP+"\".\""+ATT_VARMAPFROM+"\"\n"
+		+"\n"
+		+"    GROUP BY \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+")\""+ATT_VARMAPTO+"View\"\n"
+		+"ON \""+ATT_VARMAPTO+"View\".\""+ATT_ESTMODELID+"\"=\""+REL_ESTMODEL+"\".\"ID\"\n"
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=1\n";
 	
@@ -276,7 +301,7 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \"LitEm\" AS \"LitEm2\",\n"
 		+"    \""+ATT_CONDITIONID+"\" AS \""+ATT_CONDITIONID+"2\",\n"
 		+"    \""+ATT_STANDDARDERROR+"\" AS \""+ATT_STANDDARDERROR+"2\"\n"
-		+"\n"
+		+"    \""+ATT_VARMAPTO+"\" AS \""+ATT_VARMAPTO+"2\"\n"
 		+"\n"
 		+"FROM \""+REL_ESTMODEL+"\"\n"
 		+"\n"
@@ -374,6 +399,27 @@ public class Bfrdb extends Hsqldbiface {
 		+"    GROUP BY \""+ATT_ESTMODELID+"\"\n"
 		+")\"LitEmView\"\n"
 		+"ON \""+REL_ESTMODEL+"\".\"ID\"=\"LitEmView\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+"LEFT JOIN(\n"
+		+"\n"
+		+"    SELECT\n"
+		+"\n"
+		+"        \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\",\n"
+		+"        GROUP_CONCAT(\n"
+		+"            CONCAT(\n"
+		+"                \""+REL_PARAM+"\".\""+ATT_PARAMNAME+"\",\n"
+		+"                '=',\n"
+		+"                \""+REL_VARMAP+"\".\""+ATT_VARMAPTO+"\" ) )AS \""+ATT_VARMAPTO+"\"\n"
+		+"\n"
+		+"    FROM \""+REL_VARMAP+"\"\n"
+		+"\n"
+		+"    JOIN \""+REL_PARAM+"\"\n"
+		+"    ON \""+REL_PARAM+"\".\"ID\"=\""+REL_VARMAP+"\".\""+ATT_VARMAPFROM+"\"\n"
+		+"\n"
+		+"    GROUP BY \""+REL_VARMAP+"\".\""+ATT_ESTMODELID+"\"\n"
+		+"\n"
+		+")\""+ATT_VARMAPTO+"View\"\n"
+		+"ON \""+ATT_VARMAPTO+"View\".\""+ATT_ESTMODELID+"\"=\""+REL_ESTMODEL+"\".\"ID\"\n"
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=2\n";
 	
@@ -1282,7 +1328,14 @@ public class Bfrdb extends Hsqldbiface {
 			HashMap<String, String> hm = getVarParHashmap(varParMap);
 			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
 			
-			int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
+			int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);
+			if (hm != null && hm.get(pm.getDepVar()) != null) {
+				hmi.put(pm.getDepVar(), responseId);
+			}
+			if (responseId < 0) {
+				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + getVarPar(hm, pm.getDepVar()));
+			}
+
 			/*
 			if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
 				responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
@@ -1293,7 +1346,6 @@ public class Bfrdb extends Hsqldbiface {
 			*/
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
 				updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
-				deleteEstParam(estModelId);
 			} else {
 				estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
 				pm.setEstModelId(estModelId);
@@ -1301,7 +1353,13 @@ public class Bfrdb extends Hsqldbiface {
 			
 			deleteFrom("GeschaetzteParameter", "GeschaetztesModell", estModelId);
 			for (int i = 0; i < numParams; i++ ) {			
-				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
+				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i)), PARAMTYPE_PARAM);
+				if (paramId < 0) {
+					System.err.println("paramId < 0... " + paramNameSet.get(i) + "\t" + getVarPar(hm, paramNameSet.get(i)));
+				}
+				if (hm != null && hm.get(paramNameSet.get(i)) != null) {
+					hmi.put(paramNameSet.get(i), paramId);
+				}
 				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
 			}
 			
@@ -1309,24 +1367,32 @@ public class Bfrdb extends Hsqldbiface {
 			
 			deleteFrom("GueltigkeitsBereiche", "GeschaetztesModell", estModelId);
 			for (String name : pm.getIndepVarSet()) {
-				int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
+				int indepId = queryParamId(modelId, getVarPar(hm, name), PARAMTYPE_INDEP);
 				if (indepId >= 0) {
 					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+					if (hm != null && hm.get(name) != null) {
+						hmi.put(name, indepId);
+					}
 				}
 				else {
-					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + getVarPar(hm, name, hmi, modelId));
+					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + getVarPar(hm, name));
 				}
 			}
 			
 			// insert mapping of parameters and variables of this estimation
-			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);
+			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);			
+			for (String newName : hmi.keySet()) {
+				insertVarParMaps(estModelId, hmi.get(newName), newName);					
+			}			
+			/*
 			if (hm != null) {
 				for (String key : hm.keySet()) {
 					if (hmi.containsKey(hm.get(key))) {
-						insertVarParMaps(estModelId, hmi.get(hm.get(key)), key+"="+hm.get(key));						
+						insertVarParMaps(estModelId, hmi.get(hm.get(key)), key+"="+hm.get(key)); // {b=P, aw=x3, Temp=x1, pH=x2}
 					}
 				}			
 			}
+			*/
 		}
 		return estModelId;
 	}
@@ -1587,20 +1653,6 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-		private void deleteTSData( final int condId ) {
-			
-			PreparedStatement ps;
-			
-			try {
-				
-				ps = conn.prepareStatement( "DELETE FROM \""+REL_DATA+"\" WHERE \""+REL_CONDITION+"\"=?" );
-				ps.setInt( 1, condId );
-				
-				ps.executeUpdate();
-				ps.close();
-			}
-			catch( SQLException ex ) { ex.printStackTrace(); }
-		}
 		
 	public Integer insertTs(final PmmTimeSeries ts) throws PmmException {		
 		Integer condId = ts.getCondId();
@@ -1640,7 +1692,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		if (time != null && logc != null) {
 			// delete old data
-			deleteTSData( condId );
+			deleteFrom("Messwerte", "Versuchsbedingungen", condId);
 			
 			for (int i = 0; i < time.size(); i++) {				
 				int timeId = insertDouble( time.get(i) );				
@@ -1665,14 +1717,10 @@ public class Bfrdb extends Hsqldbiface {
 		return result;
 	}
 	private String getVarPar(HashMap<String, String> hm, String varPar) {
-		return getVarPar(hm, varPar, null, -1);
-	}
-	private String getVarPar(HashMap<String, String> hm, String varPar, HashMap<String, Integer> hmi, int id) {
 		String result;
 		if (hm == null || hm.get(varPar) == null) result = varPar;
 		else {
 			result = hm.get(varPar);
-			if (hmi != null) hmi.put(result, id);
 		}
 		return result;
 	}
@@ -2091,21 +2139,6 @@ public class Bfrdb extends Hsqldbiface {
 		catch( SQLException ex ) {ex.printStackTrace();}
 		
 		return ret;
-	}
-	
-	private void deleteEstParam( final int estModelId ) {
-		
-		PreparedStatement ps;
-		
-		try {
-			
-			ps = conn.prepareStatement( "DELETE FROM \""+REL_ESTPARAM+"\" WHERE \""+ATT_ESTMODELID+"\"=?" );
-			ps.setInt( 1, estModelId );
-			
-			ps.executeUpdate();
-			ps.close();
-		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
 	}
 	
 	private void updateEstModel( final int estModelId, final int condId, final int modelId,

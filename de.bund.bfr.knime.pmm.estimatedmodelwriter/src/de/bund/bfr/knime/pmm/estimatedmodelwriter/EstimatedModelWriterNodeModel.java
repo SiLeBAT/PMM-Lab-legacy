@@ -322,6 +322,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						
 				    		// ... vorher vielleicht sortieren nach IDs...
 							if (lastSpm != null && lastRow.getInt(Model2Schema.ATT_ESTMODELID) - rowEstM2ID != 0) {
+								// depVar and formula may have changed within workflow
+								spm.setDepVar(depVar);
+								spm.setFormula(formula);
 								int lastEstM2ID = lastRow.getInt(Model2Schema.ATT_ESTMODELID);
 								if (!alreadyInsertedEModel.containsKey(lastEstM2ID)) {
 
@@ -334,7 +337,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 									checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
 									if (newSecEstID != null) {
 										//spm.setEstModelId(newSecID);
-							    		alreadyInsertedEModel.put(lastEstM2ID, spm);
+							    		alreadyInsertedEModel.put(lastEstM2ID, lastSpm);
 										db.insertEm2(newSecEstID, primEstIDs);
 										primEstIDs = new ArrayList<Integer>();												
 									}

@@ -49,8 +49,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -105,11 +107,8 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		HashMap<Integer, Integer> foreignDbTsIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMiscIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbAgentIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMatrixIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitTsIds = new HashMap<Integer, Integer>();
+		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
+		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
     	String dbuuid = db.getDBUUID();
 
 		int j = 0;
@@ -118,18 +117,24 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     		exec.setProgress( ( double )j++/n );
     		
 			KnimeTuple row = reader.nextElement();
-			String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
-			if (rowuuid != null && !rowuuid.equals(dbuuid)) {
-				checkIDs(TimeSeriesSchema.ATT_CONDID, foreignDbTsIds, row, false);
-				checkIDs(TimeSeriesSchema.ATT_MISCID, foreignDbMiscIds, row, true);
-				checkIDs(TimeSeriesSchema.ATT_AGENTID, foreignDbAgentIds, row, false);
-				checkIDs(TimeSeriesSchema.ATT_MATRIXID, foreignDbMatrixIds, row, false);
-				checkIDs(TimeSeriesSchema.ATT_LITIDTS, foreignDbLitTsIds, row, true);
+			
+			PmmTimeSeries ts = new PmmTimeSeries(row);	
+			int rowTsID = ts.getCondId();
+			if (alreadyInsertedTs.containsKey(rowTsID)) {
+				ts = alreadyInsertedTs.get(rowTsID);
+			}
+			else {
+				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISCID, TimeSeriesSchema.ATT_AGENTID,
+						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
+				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
+				
+				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
+				db.insertTs(ts);				
+				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);
+				
+				alreadyInsertedTs.put(rowTsID, ts);
 			}
 
-			PmmTimeSeries ts = new PmmTimeSeries(row);
-			
-			db.insertTs( ts );
 			if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
 				warnings += ts.getWarning() + "\n";
 			}
@@ -140,18 +145,57 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
-    private void checkIDs(String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, boolean hasList) throws PmmException {
-    	if (hasList) {
+    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
+    		String[] schemaAttr, String[] dbTablename) throws PmmException {
+		String rowuuid = row.getString(TimeSeriesSchema.ATT_DBUUID);
+		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
+			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
+			
+			for (int i=0;i<schemaAttr.length;i++) {
+				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
+				setIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
+			}
+		}    	
+    }
+    private void setIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, KnimeTuple schemaTuple) throws PmmException {
+    	int type = schemaTuple.getSchema().getType(row.getIndex(attr));
+    	if (type == KnimeAttribute.TYPE_COMMASEP_INT || type == KnimeAttribute.TYPE_COMMASEP_DOUBLE
+    			|| type == KnimeAttribute.TYPE_COMMASEP_STRING || type == KnimeAttribute.TYPE_MAP) { // hasList
     		List<Integer> keys = row.getIntList(attr);
-        	for (Integer key : keys) {
-        		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
-        		row.setValue(attr, foreignDbIds.get(key));
-        	}
+    		if (keys != null) {
+        		int i=0;
+        		if (before) schemaTuple.setCell(attr, CellIO.createMissingCell());
+            	for (Integer key : keys) {
+            		if (key != null && foreignDbIds.containsKey(key)) {
+            			if (before) schemaTuple.addValue(attr, foreignDbIds.get(key));
+            			else if (foreignDbIds.get(key) != schemaTuple.getIntList(attr).get(i)) {
+            				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+            			}
+            		}
+            		else {
+            			if (before) schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+            			else foreignDbIds.put(key, schemaTuple.getIntList(attr).get(i));
+            		}
+            		i++;
+            		//row.setValue(attr, foreignDbIds.get(key));
+            	}
+    		}
     	}
     	else {
         	Integer key = row.getInt(attr);
-    		if (!foreignDbIds.containsKey(key)) foreignDbIds.put(key, MathUtilities.getRandomNegativeInt());
-    		row.setValue(attr, foreignDbIds.get(key));
+        	if (key != null) {
+        		if (foreignDbIds.containsKey(key)) {
+        			if (before) schemaTuple.setValue(attr, foreignDbIds.get(key));
+        			else if (foreignDbIds.get(key) != schemaTuple.getInt(attr)) {
+        				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+        			}
+        		}
+        		else {
+        			if (before) schemaTuple.setValue(attr, MathUtilities.getRandomNegativeInt());
+        			else foreignDbIds.put(key, schemaTuple.getInt(attr));
+        		}
+        	}
     	}
     }
     /**

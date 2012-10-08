@@ -53,6 +53,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.dim.bfr.external.service.BFRNodeService;
 
@@ -1259,64 +1260,67 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm( final ParametricModel pm , final ParametricModel ppm, List<String> varParMap) {
-		LinkedList<String> paramNameSet = new LinkedList<String>();
-		paramNameSet.addAll(pm.getParamNameSet());
-		int numParams = paramNameSet.size();
-		double[] valueSet = new double[numParams];
-		double[] paramErrSet = new double[numParams];
-		for (int i = 0; i < numParams; i++) {
-			valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
-			paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
-		}		
-		
-		int estModelId = pm.getEstModelId();
-		int condId = pm.getCondId();
-		int modelId = pm.getModelId();
-		double rms = pm.getRms();
-		double r2 = pm.getRsquared();
-		
-		HashMap<String, String> hm = getVarParHashmap(varParMap);
-		HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
-		
-		int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
-		/*
-		if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
-			responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
-		}
-		else {
-			responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
-		}
-		*/
-		if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-			updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
-			deleteEstParam(estModelId);
-		} else {
-			estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
-		}
-		
-		for (int i = 0; i < numParams; i++ ) {			
-			int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
-			insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
-		}
-		
-		insertModLit(estModelId, pm.getEstModelLit(), true);
-		
-		for (String name : pm.getIndepVarSet()) {
-			int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
-			if (indepId >= 0) {
-				insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+	public Integer insertEm(final ParametricModel pm, List<String> varParMap) {
+		Integer estModelId = null;
+		Double rms = pm.getRms();
+		Double r2 = pm.getRsquared();
+		if (!Double.isNaN(rms)) {
+			LinkedList<String> paramNameSet = new LinkedList<String>();
+			paramNameSet.addAll(pm.getParamNameSet());
+			int numParams = paramNameSet.size();
+			double[] valueSet = new double[numParams];
+			double[] paramErrSet = new double[numParams];
+			for (int i = 0; i < numParams; i++) {
+				valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
+				paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
+			}		
+			
+			estModelId = pm.getEstModelId();
+			int condId = pm.getCondId();
+			int modelId = pm.getModelId();
+			
+			HashMap<String, String> hm = getVarParHashmap(varParMap);
+			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
+			
+			int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar(), hmi, modelId), PARAMTYPE_DEP);
+			/*
+			if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
+				responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
 			}
 			else {
-				System.err.println("insertEm:\t" + name);
+				responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
 			}
+			*/
+			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
+				updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
+				deleteEstParam(estModelId);
+			} else {
+				estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
+				pm.setEstModelId(estModelId);
+			}
+			
+			for (int i = 0; i < numParams; i++ ) {			
+				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i), hmi, modelId), PARAMTYPE_PARAM);
+				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
+			}
+			
+			insertModLit(estModelId, pm.getEstModelLit(), true, pm);
+			
+			for (String name : pm.getIndepVarSet()) {
+				int indepId = queryParamId(modelId, getVarPar(hm, name, hmi, modelId), PARAMTYPE_INDEP);
+				if (indepId >= 0) {
+					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
+				}
+				else {
+					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + getVarPar(hm, name, hmi, modelId));
+				}
+			}
+			
+			// insert mapping of parameters and variables of this estimation
+			for (String newName : hmi.keySet()) {
+				insertVarParMaps(estModelId, hmi.get(newName), newName);
+			}			
 		}
-		
-		// insert mapping of parameters and variables of this estimation
-		for (String newName : hmi.keySet()) {
-			insertVarParMaps(estModelId, hmi.get(newName), newName);
-		}
-
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
@@ -1365,7 +1369,7 @@ public class Bfrdb extends Hsqldbiface {
 		}		
 	}
 	
-	private Integer insertCondition( Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
+	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
 			final String environment, final String misc, final String combaseId,
 			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, final String comment,
 			final String miscId, final List<Integer> litIDs, final List<String> lits, PmmTimeSeries ts) {
@@ -1415,6 +1419,7 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setNull( 4, Types.INTEGER );
 				} else {
 					ps.setInt(4, agentId );
+					try {ts.setAgentId(agentId);} catch (PmmException e) {e.printStackTrace();}
 				}
 				if( agentDetail == null) {
 					ps.setNull( 5, Types.VARCHAR );
@@ -1425,6 +1430,7 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setNull( 6, Types.INTEGER );
 				} else {
 					ps.setInt(6, matrixId );
+					try {ts.setMatrixId(matrixId);} catch (PmmException e) {e.printStackTrace();}
 				}
 				if( matrixDetail == null) {
 					ps.setNull( 7, Types.VARCHAR );
@@ -1444,9 +1450,10 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setString( 9, comment );
 				}
 				if( litIDs == null || litIDs.size() == 0 || litIDs.get(0) == null || litIDs.get(0) <= 0) {
-					ps.setNull( 10, Types.INTEGER );
+					ps.setNull(10, Types.INTEGER);
 				} else {
-					ps.setInt( 10, litIDs.get(0) );
+					ps.setInt(10, litIDs.get(0));
+					try {ts.addLiterature(litIDs.get(0), lits.get(0));} catch (PmmException e) {e.printStackTrace();}
 				}
 				if (doUpdate) {
 					ps.setInt( 11, condId );
@@ -1471,11 +1478,11 @@ public class Bfrdb extends Hsqldbiface {
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
-			ts.setWarning(handleConditions(resultID, misc, miscId));
+			ts.setWarning(handleConditions(resultID, misc, miscId, ts));
 
 			return resultID;
 		}
-	private String handleConditions(final Integer condId, final String misc, final String miscId) {
+	private String handleConditions(final Integer condId, final String misc, final String miscId, PmmTimeSeries ts) {
 		String result = "";
 		PreparedStatement ps;
 		try {
@@ -1533,6 +1540,7 @@ public class Bfrdb extends Hsqldbiface {
 							ps.setBoolean(5, false);
 						}
 						ps.executeUpdate();
+						try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
 					}
 					catch (Exception e) {e.printStackTrace();}
 				}
@@ -1585,7 +1593,7 @@ public class Bfrdb extends Hsqldbiface {
 			catch( SQLException ex ) { ex.printStackTrace(); }
 		}
 		
-	public Integer insertTs( final PmmTimeSeries ts ) throws PmmException {		
+	public Integer insertTs(final PmmTimeSeries ts) throws PmmException {		
 		Integer condId = ts.getCondId();
 		Double ph = ts.getPh();
 		Double temp = ts.getTemperature();
@@ -1612,10 +1620,11 @@ public class Bfrdb extends Hsqldbiface {
 		int phId = insertDouble( ph );
 		int awId = insertDouble( aw );
 
-		condId = insertCondition( condId, tempId, phId, awId, organism, environment, misc, combaseId,
+		condId = insertCondition(condId, tempId, phId, awId, organism, environment, misc, combaseId,
 				matrixId, agentId, agentDetail, matrixDetail, comment,
 				miscId, litIDs, lits, ts);
-				
+			
+		ts.setCondId(condId);
 		if( condId == null || condId < 0 ) {
 			return null;
 		}
@@ -1667,7 +1676,14 @@ public class Bfrdb extends Hsqldbiface {
 		Collection<String> indepVar = m.getIndepVarSet();
 		Collection<String> paramNameSet = m.getParamNameSet();
 		
-		if (isObjectPresent(REL_MODEL, modelId)) {
+		HashMap<String, String> hm = getVarParHashmap(varParMap);
+		if (hm != null) {
+			for (String oldVar : hm.keySet()) {
+				formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+			}			
+		}
+
+		if (isObjectPresent("Modellkatalog", modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
 			try {
@@ -1700,6 +1716,7 @@ public class Bfrdb extends Hsqldbiface {
 					ResultSet result = ps.getGeneratedKeys();
 					result.next();
 					modelId = result.getInt( 1 );					
+					m.setModelId(modelId);
 					result.close();
 				}				
 				ps.close();
@@ -1714,8 +1731,6 @@ public class Bfrdb extends Hsqldbiface {
 		// insert parameter set
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
-		HashMap<String, String> hm = getVarParHashmap(varParMap);
-
 		// insert dependent variable
 		int paramId = insertParam(modelId, getVarPar(hm, depVar), PARAMTYPE_DEP, null, null);
 		paramIdSet.add(paramId);
@@ -1728,12 +1743,11 @@ public class Bfrdb extends Hsqldbiface {
 		
 		// insert parameters
 		for (String name : paramNameSet) {			
-			String nName = (hm == null || hm.get(name) == null) ? name : hm.get(name);
 			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}
 		
-		insertModLit(modelId, m.getModelLit(), false);
+		insertModLit(modelId, m.getModelLit(), false, m);
 		
 		// delete dangling parameters
 		// deleteParamNotIn kann man eigentlich nicht machen!!! Sonst sind irgendwann die Response-Verknüpfungen weg....
@@ -1742,7 +1756,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		return modelId;
 	}
-	private void insertModLit(final int modelId, final LinkedList<LiteratureItem> modelLit, final boolean estimatedModels) {
+	private void insertModLit(final int modelId, final LinkedList<LiteratureItem> modelLit, final boolean estimatedModels, final ParametricModel m) {
 		try {
 			PreparedStatement ps = conn.prepareStatement( "DELETE FROM " + (estimatedModels ? "\"GeschaetztesModell_Referenz\" WHERE \"GeschaetztesModell\"" : "\"Modell_Referenz\"WHERE \"Modell\"") + " = " + modelId);
 			ps.executeUpdate();
@@ -1752,15 +1766,18 @@ public class Bfrdb extends Hsqldbiface {
 			for (LiteratureItem lid : modelLit) {
 				if (lid.getTag() != null) {
 					if (lid.getId() >= 0) { // neue Literatur evtl. später hinzufügen, aber Achtung: DB Gleichheit checken!!!
+						// Ausserdem: hier die neu insertierten IDs updaten im ParametricModel!!!!!
 						if (lid.getTag().equals(LiteratureItem.TAG_M)) {
 							psm.setInt( 1, modelId );
 							psm.setInt( 2, lid.getId() );
-							psm.executeUpdate();			
+							psm.executeUpdate();
+							//m.addModelLit(lid); nach einem realiseirten INSERT: überpürfen, ob korrekt
 						}
 						else {
 							psgm.setInt( 1, modelId );
 							psgm.setInt( 2, lid.getId() );
 							psgm.executeUpdate();
+							//m.addEstModelLit(lid); nach einem realiseirten INSERT: überpürfen, ob korrekt
 						}
 					}
 				}

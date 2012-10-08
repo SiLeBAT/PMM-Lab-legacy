@@ -407,11 +407,11 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue( ATT_MATRIXDETAIL, matrixDetail );
 	}
 	
-	public void setAgentId( final int agentId ) throws PmmException {
+	public void setAgentId( final Integer agentId ) throws PmmException {
 		setValue( TimeSeriesSchema.ATT_AGENTID, agentId );
 	}
 	
-	public void setMatrixId( final int matrixId ) throws PmmException {
+	public void setMatrixId( final Integer matrixId ) throws PmmException {
 		setValue( TimeSeriesSchema.ATT_MATRIXID, matrixId );
 	}
 	

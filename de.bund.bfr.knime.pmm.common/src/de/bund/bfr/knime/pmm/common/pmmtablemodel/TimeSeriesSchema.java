@@ -58,8 +58,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_LITTS = "MDLit";
 	public static final String ATT_DBUUID = "MD_DB_UID";
 
-	// public static final String ATT_MAXIMUMRATE = "MaximumRate";
-	// public static final String ATT_DOUBLINGTIME = "DoublingTime";
+	public static final String DATAID = "DataID";
 	
 	public TimeSeriesSchema() {
 

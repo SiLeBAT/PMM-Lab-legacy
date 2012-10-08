@@ -180,6 +180,7 @@ public class StartApp {
 	    	  	}
 	    	  	System.err.println("W4");
 	      }
+	      //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
 	      //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);

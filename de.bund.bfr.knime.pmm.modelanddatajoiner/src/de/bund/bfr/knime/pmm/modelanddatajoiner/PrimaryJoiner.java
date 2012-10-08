@@ -187,10 +187,19 @@ public class PrimaryJoiner implements Joiner {
 			String depVar = modelTuple.getString(Model1Schema.ATT_DEPVAR);
 			List<String> indepVar = modelTuple
 					.getStringList(Model1Schema.ATT_INDEPVAR);
+			Map<String, String> varMap = modelTuple
+					.getMap(Model1Schema.ATT_VARPARMAP);
 			List<String> newIndepVar = new ArrayList<String>();
+			Map<String, String> newVarMap = new HashMap<String, String>();
 			boolean allVarsReplaced = true;
 
 			if (replacements.containsKey(depVar)) {
+				if (varMap.containsKey(depVar)) {
+					newVarMap.put(replacements.get(depVar), varMap.get(depVar));
+				} else {
+					newVarMap.put(replacements.get(depVar), depVar);
+				}
+
 				depVar = replacements.get(depVar);
 			} else {
 				allVarsReplaced = false;
@@ -204,10 +213,16 @@ public class PrimaryJoiner implements Joiner {
 
 			for (String iv : indepVar) {
 				if (replacements.containsKey(iv)) {
+					if (varMap.containsKey(iv)) {
+						newVarMap.put(replacements.get(iv), varMap.get(iv));
+					} else {
+						newVarMap.put(replacements.get(iv), iv);
+					}
+
 					newIndepVar.add(replacements.get(iv));
 				} else {
-					newIndepVar.add(iv);
 					allVarsReplaced = false;
+					break;
 				}
 			}
 
@@ -218,6 +233,7 @@ public class PrimaryJoiner implements Joiner {
 			modelTuple.setValue(Model1Schema.ATT_FORMULA, formula);
 			modelTuple.setValue(Model1Schema.ATT_DEPVAR, depVar);
 			modelTuple.setValue(Model1Schema.ATT_INDEPVAR, newIndepVar);
+			modelTuple.setValue(Model1Schema.ATT_VARPARMAP, newVarMap);
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 

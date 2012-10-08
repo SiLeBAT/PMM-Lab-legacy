@@ -95,5 +95,6 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	@Override
 	public String toString() { return author+"_"+year; }
 	
+	public void setID(Integer id) {this.id = id;}
 	
 }

@@ -334,10 +334,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void setAic( final Double aic ) { this.aic = aic; }
 	
 	public void removeIndepVar( final String varName ) {
-		indepVar.remove(varName);
+		if (indepVar.contains(varName)) indepVar.remove(varName);
 	}
 	public void removeParam( final String varName ) {
-		param.remove(varName);
+		if (param.contains(varName)) param.remove(varName);
 	}
 	public void addIndepVar( final String varName ) {
 		addIndepVar(varName, Double.NaN, Double.NaN);
@@ -349,6 +349,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		indepMax.put( varName, max );
 	}
 	
+	public void removeEstModelLits() {
+		estLit.clear();
+	}
 	public void addEstModelLit( final String author, final int year ) {
 		estLit.add( new LiteratureItem( author, year, LiteratureItem.TAG_EM ) );
 	}
@@ -361,6 +364,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		estLit.add( item );
 	}
 	
+	public void removeModelLits() {
+		modelLit.clear();
+	}
 	public void addModelLit( final String author, final int year ) {
 		modelLit.add( new LiteratureItem( author, year, LiteratureItem.TAG_M ) );
 	}

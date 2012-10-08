@@ -74,6 +74,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		DataAndModelChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
+	private List<Integer> colorCounts;
 	private Map<String, Plotable> plotables;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
@@ -125,16 +126,20 @@ public class SecondaryModelAndDataViewNodeView extends
 			if (getNodeModel().isSeiSchema()) {
 				configPanel = new DataAndModelChartConfigPanel(
 						DataAndModelChartConfigPanel.PARAMETER_BOXES);
+				selectionPanel = new DataAndModelSelectionPanel(ids, true,
+						stringColumns, stringColumnValues, doubleColumns,
+						doubleColumnValues, Arrays.asList(true, true, false),
+						Arrays.asList(false, false, true), colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
 				configPanel = new DataAndModelChartConfigPanel(
 						DataAndModelChartConfigPanel.PARAMETER_FIELDS);
+				selectionPanel = new DataAndModelSelectionPanel(ids, true,
+						stringColumns, stringColumnValues, doubleColumns,
+						doubleColumnValues, Arrays.asList(true, true, false),
+						Arrays.asList(false, false, true));
 			}
 
 			configPanel.addConfigListener(this);
-			selectionPanel = new DataAndModelSelectionPanel(ids, true,
-					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, Arrays.asList(true, true, false),
-					Arrays.asList(false, false, true));
 			selectionPanel.addSelectionListener(this);
 			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
 					longLegend);
@@ -194,13 +199,21 @@ public class SecondaryModelAndDataViewNodeView extends
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
-			plotable.setFunctionArguments(configPanel.getParamsXValues());			
+			plotable.setFunctionArguments(configPanel.getParamsXValues());
 		} else {
 			configPanel.setParamsX(null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setTransformY(null);
+		}
+
+		if (getNodeModel().isSeiSchema()) {
+			chartCreator.setColorLists(selectionPanel.getColorLists());
+			chartCreator.setShapeLists(selectionPanel.getShapeLists());
+		} else if (getNodeModel().isModel2Schema()) {
+			chartCreator.setColors(selectionPanel.getColors());
+			chartCreator.setShapes(selectionPanel.getShapes());
 		}
 
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
@@ -211,8 +224,6 @@ public class SecondaryModelAndDataViewNodeView extends
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		chartCreator.setColors(selectionPanel.getColors());
-		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);
 	}
 
@@ -265,6 +276,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			colorCounts = new ArrayList<Integer>();
 		} else if (getNodeModel().isModel2Schema()) {
 			doubleColumns = Arrays.asList(Model2Schema.ATT_RMS,
 					Model2Schema.ATT_RSQUARED);
@@ -425,6 +437,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				doubleColumnValues.get(6).add(rmsMap.get(id));
 				doubleColumnValues.get(7).add(rSquaredMap.get(id));
+				colorCounts.add(plotable.getNumberOfCombinations());
 			} else if (getNodeModel().isModel2Schema()) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);

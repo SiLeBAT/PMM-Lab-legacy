@@ -300,7 +300,7 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \"LitEmID\" AS \"LitEmID2\",\n"
 		+"    \"LitEm\" AS \"LitEm2\",\n"
 		+"    \""+ATT_CONDITIONID+"\" AS \""+ATT_CONDITIONID+"2\",\n"
-		+"    \""+ATT_STANDDARDERROR+"\" AS \""+ATT_STANDDARDERROR+"2\"\n"
+		+"    \""+ATT_STANDDARDERROR+"\" AS \""+ATT_STANDDARDERROR+"2\",\n"
 		+"    \""+ATT_VARMAPTO+"\" AS \""+ATT_VARMAPTO+"2\"\n"
 		+"\n"
 		+"FROM \""+REL_ESTMODEL+"\"\n"

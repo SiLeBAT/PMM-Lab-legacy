@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/de.dim.bfr.feature_1.0.4.v20121006.jar" id="de.dim.bfr.feature" version="1.0.4.v20121006">
+   <feature url="features/de.dim.bfr.feature_1.0.4.v20121009.jar" id="de.dim.bfr.feature" version="1.0.4.v20121009">
       <category name="de.dim.bfr.category"/>
    </feature>
    <category-def name="de.dim.bfr.category" label="BFR Erweiterung">

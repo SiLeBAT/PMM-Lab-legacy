@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: BfR Plug-In Bundle 
 Bundle-SymbolicName: de.dim.bfr.knime;singleton:=true
-Bundle-Version: 1.0.1.v20121006
+Bundle-Version: 1.0.1.v20121009
 Bundle-ClassPath: bfrdbreader.jar
 Bundle-Activator: de.dim.knime.bfr.internal.BfRNodePluginActivator
 Bundle-Vendor: Data In Motion UG / BfR

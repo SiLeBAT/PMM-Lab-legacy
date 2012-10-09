@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EstimatedModelReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.estimatedmodelreader; singleton:=true
-Bundle-Version: 1.0.0.v20121006
+Bundle-Version: 1.0.0.v20121009
 Bundle-ClassPath: estimatedmodelreader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.estimatedmodelreader.EstimatedModelReaderNodePlugin
 Bundle-Vendor: BfR

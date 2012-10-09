@@ -39,6 +39,19 @@ import java.util.List;
 
 public class AttributeUtilities {
 
+	private static final String HOURS = "h";
+	private static final String MINUTES = "min";
+	private static final String SECONDS = "sec";
+	private static final String DAYS = "days";
+	private static final String WEEKS = "weeks";
+
+	private static final String LOGCFU = "log cfu/g";
+	private static final String LNCFU = "ln cfu/g";
+	private static final String CFU = "cfu/g";
+
+	private static final String CELSIUS = "°C";
+	private static final String FAHRENHEIT = "°F";
+
 	private AttributeUtilities() {
 	}
 
@@ -116,11 +129,11 @@ public class AttributeUtilities {
 
 	public static List<String> getUnitsForAttribute(String attr) {
 		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
-			return Arrays.asList("h", "min", "sec", "days", "weeks");
+			return Arrays.asList(HOURS, MINUTES, SECONDS, DAYS, WEEKS);
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			return Arrays.asList("log cfu/g","ln cfu/g","cfu/g");
+			return Arrays.asList(LOGCFU, LNCFU, CFU);
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
-			return Arrays.asList("°C", "°F");
+			return Arrays.asList(CELSIUS, FAHRENHEIT);
 		} else {
 			return new ArrayList<String>();
 		}
@@ -133,31 +146,29 @@ public class AttributeUtilities {
 		}
 
 		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
-			if (unit.equals("h")) {
+			if (unit.equals(HOURS)) {
 				return value;
-			} else if (unit.equals("min")) {
+			} else if (unit.equals(MINUTES)) {
 				return value / 60.0;
-			} else if (unit.equals("sec")) {
+			} else if (unit.equals(SECONDS)) {
 				return value / 3600.0;
-			} else if (unit.equals("days")) {
+			} else if (unit.equals(DAYS)) {
 				return value * 24.0;
-			} else if (unit.equals("weeks")) {
+			} else if (unit.equals(WEEKS)) {
 				return value * 168.0;
 			}
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			if (unit.equals("log cfu/g")) {
+			if (unit.equals(LOGCFU)) {
 				return value;
-			}
-			else if (unit.equals("ln cfu/g")) {
+			} else if (unit.equals(LNCFU)) {
 				return Math.log10(Math.exp(value));
-			}
-			else if (unit.equals("cfu/g")) {
+			} else if (unit.equals(CFU)) {
 				return Math.log10(value);
 			}
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
-			if (unit.equals("°C")) {
+			if (unit.equals(CELSIUS)) {
 				return value;
-			} else if (unit.equals("°F")) {
+			} else if (unit.equals(FAHRENHEIT)) {
 				return (value - 32.0) * 5.0 / 9.0;
 			}
 		}
@@ -167,11 +178,11 @@ public class AttributeUtilities {
 
 	public static String getStandardUnit(String attr) {
 		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
-			return "h";
+			return HOURS;
 		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
-			return "log cfu/g";
+			return LOGCFU;
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
-			return "C°";
+			return CELSIUS;
 		} else {
 			return null;
 		}

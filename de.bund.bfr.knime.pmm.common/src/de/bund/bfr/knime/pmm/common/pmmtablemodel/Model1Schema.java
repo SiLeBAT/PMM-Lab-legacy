@@ -60,7 +60,7 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_PARAMERR = "StandardError";
 	public static final String ATT_VARPARMAP = "VarParMap";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
-	public static final String ATT_DBUUID = "M1_DB_UID";
+	public static final String ATT_DBUUID = "M_DB_UID";
 	
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;

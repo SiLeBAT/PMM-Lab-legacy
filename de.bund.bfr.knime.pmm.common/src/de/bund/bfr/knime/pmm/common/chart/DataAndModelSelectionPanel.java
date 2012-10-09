@@ -36,7 +36,10 @@ package de.bund.bfr.knime.pmm.common.chart;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -55,7 +58,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -685,7 +691,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 					if (newColor != null) {
 						colorButton.setBackground(newColor);
-						ColorEditor.this.stopCellEditing();
+						stopCellEditing();
 					}
 				}
 			});
@@ -715,13 +721,20 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private List<Color> colorList;
 
 		public ColorListEditor() {
-			button = new JButton("Change");
+			button = new JButton();
 			colorList = new ArrayList<Color>();
 			button.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					// TODO
+					ColorListDialog dialog = new ColorListDialog(colorList);
+
+					dialog.setVisible(true);
+
+					if (dialog.isApproved()) {
+						colorList = dialog.getColorList();
+						stopCellEditing();
+					}
 				}
 			});
 		}
@@ -750,13 +763,20 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private List<String> shapeList;
 
 		public ShapeListEditor() {
-			button = new JButton("Change");
+			button = new JButton();
 			shapeList = new ArrayList<String>();
 			button.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					// TODO
+					ShapeListDialog dialog = new ShapeListDialog(shapeList);
+
+					dialog.setVisible(true);
+
+					if (dialog.isApproved()) {
+						shapeList = dialog.getShapeList();
+						stopCellEditing();
+					}
 				}
 			});
 		}
@@ -847,19 +867,39 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		}
 	}
 
-	private class ColorListRenderer extends JLabel implements TableCellRenderer {
+	private class ColorListRenderer extends JComponent implements
+			TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
 
+		private List<Color> colorList;
+
 		public ColorListRenderer() {
-			super("Change");
+			colorList = new ArrayList<Color>();
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
+			colorList = (List<Color>) color;
+
 			return this;
+		}
+
+		@Override
+		protected void paintComponent(Graphics g) {
+			if (colorList.isEmpty()) {
+				super.paintComponents(g);
+			} else {
+				double w = (double) getWidth() / (double) colorList.size();
+
+				for (int i = 0; i < colorList.size(); i++) {
+					g.setColor(colorList.get(i));
+					g.fillRect((int) (i * w), 0, (int) w, getHeight());
+				}
+			}
 		}
 	}
 
@@ -868,7 +908,6 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private static final long serialVersionUID = 1L;
 
 		public ShapeListRenderer() {
-			super("Change");
 		}
 
 		@Override
@@ -928,6 +967,175 @@ public class DataAndModelSelectionPanel extends JPanel implements
 					return true;
 				}
 			});
+		}
+	}
+
+	private class ColorListDialog extends JDialog implements ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private List<Color> colorList;
+
+		private List<JButton> colorButtons;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public ColorListDialog(List<Color> initialColors) {
+			super(JOptionPane
+					.getFrameForComponent(DataAndModelSelectionPanel.this),
+					"Color Palette", true);
+
+			approved = false;
+			colorList = null;
+
+			colorButtons = new ArrayList<JButton>();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel
+					.setLayout(new GridLayout(initialColors.size(), 1, 5, 5));
+
+			for (Color color : initialColors) {
+				JButton button = new JButton();
+
+				button.setBackground(color);
+				button.setPreferredSize(new Dimension(
+						button.getPreferredSize().width, 20));
+				button.addActionListener(this);
+				colorButtons.add(button);
+				centerPanel.add(button);
+			}
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<Color> getColorList() {
+			return colorList;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				colorList = new ArrayList<Color>();
+
+				for (JButton button : colorButtons) {
+					colorList.add(button.getBackground());
+				}
+
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			} else {
+				JButton button = (JButton) e.getSource();
+				Color newColor = JColorChooser.showDialog(button,
+						"Choose Color", button.getBackground());
+
+				if (newColor != null) {
+					button.setBackground(newColor);
+				}
+			}
+		}
+	}
+
+	private class ShapeListDialog extends JDialog implements ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private List<String> shapeList;
+
+		private List<JComboBox> shapeBoxes;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public ShapeListDialog(List<String> initialShapes) {
+			super(JOptionPane
+					.getFrameForComponent(DataAndModelSelectionPanel.this),
+					"Shape Palette", true);
+
+			approved = false;
+			shapeList = null;
+
+			shapeBoxes = new ArrayList<JComboBox>();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel
+					.setLayout(new GridLayout(initialShapes.size(), 1, 5, 5));
+
+			for (String shape : initialShapes) {
+				JComboBox box = new JComboBox(ColorAndShapeCreator.SHAPE_NAMES);
+
+				box.setSelectedItem(shape);
+				shapeBoxes.add(box);
+				centerPanel.add(box);
+			}
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<String> getShapeList() {
+			return shapeList;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				shapeList = new ArrayList<String>();
+
+				for (JComboBox box : shapeBoxes) {
+					shapeList.add((String) box.getSelectedItem());
+				}
+
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
 		}
 	}
 

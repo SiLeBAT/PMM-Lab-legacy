@@ -140,10 +140,24 @@ public class DataAndModelChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null && plotable.getType() != Plotable.FUNCTION) {
-				for (Map<String, Integer> choice : plotable.getAllChoices()) {
+			if (plotable != null) {
+				if (plotable.getType() == Plotable.BOTH
+						|| plotable.getType() == Plotable.BOTH_STRICT) {
+					for (Map<String, Integer> choice : plotable.getAllChoices()) {
+						double[][] points = plotable.getPoints(paramX, paramY,
+								transformY, choice);
+
+						if (points != null) {
+							for (int i = 0; i < points[0].length; i++) {
+								containsDataPoints = true;
+								usedMinX = Math.min(usedMinX, points[0][i]);
+								usedMaxX = Math.max(usedMaxX, points[0][i]);
+							}
+						}
+					}
+				} else if (plotable.getType() == Plotable.DATASET) {
 					double[][] points = plotable.getPoints(paramX, paramY,
-							transformY, choice);
+							transformY);
 
 					if (points != null) {
 						for (int i = 0; i < points[0].length; i++) {

@@ -186,8 +186,10 @@ public class StartApp {
 	    	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
 	    	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
 	      }
-	      //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	      /*
+	      DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+		    DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+		    */
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
 	      //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
 	      //DBKernel.sendRequest("GRANT ALL ON * TO " + DBKernel.delimitL("WRITE_ACCESS"), false);

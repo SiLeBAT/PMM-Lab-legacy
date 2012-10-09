@@ -130,7 +130,6 @@ public class DataAndModelChartCreator extends ChartPanel {
 				AttributeUtilities.getFullNameWithUnit(paramX));
 		NumberAxis yAxis = new NumberAxis(labelY);
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
-		boolean containsDataPoints = false;
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
 		int index = 0;
@@ -143,13 +142,23 @@ public class DataAndModelChartCreator extends ChartPanel {
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.BOTH
 						|| plotable.getType() == Plotable.BOTH_STRICT) {
+					Double minArg = plotable.getMinArguments().get(paramX);
+					Double maxArg = plotable.getMaxArguments().get(paramX);
+
+					if (minArg != null) {
+						usedMinX = Math.min(usedMinX, minArg);
+					}
+
+					if (maxArg != null) {
+						usedMaxX = Math.max(usedMaxX, maxArg);
+					}
+
 					for (Map<String, Integer> choice : plotable.getAllChoices()) {
 						double[][] points = plotable.getPoints(paramX, paramY,
 								transformY, choice);
 
 						if (points != null) {
 							for (int i = 0; i < points[0].length; i++) {
-								containsDataPoints = true;
 								usedMinX = Math.min(usedMinX, points[0][i]);
 								usedMaxX = Math.max(usedMaxX, points[0][i]);
 							}
@@ -161,17 +170,30 @@ public class DataAndModelChartCreator extends ChartPanel {
 
 					if (points != null) {
 						for (int i = 0; i < points[0].length; i++) {
-							containsDataPoints = true;
 							usedMinX = Math.min(usedMinX, points[0][i]);
 							usedMaxX = Math.max(usedMaxX, points[0][i]);
 						}
+					}
+				} else if (plotable.getType() == Plotable.FUNCTION) {
+					Double minArg = plotable.getMinArguments().get(paramX);
+					Double maxArg = plotable.getMaxArguments().get(paramX);
+
+					if (minArg != null) {
+						usedMinX = Math.min(usedMinX, minArg);
+					}
+
+					if (maxArg != null) {
+						usedMaxX = Math.max(usedMaxX, maxArg);
 					}
 				}
 			}
 		}
 
-		if (!containsDataPoints) {
+		if (Double.isInfinite(usedMinX)) {
 			usedMinX = 0.0;
+		}
+
+		if (Double.isInfinite(usedMaxX)) {
 			usedMaxX = 100.0;
 		}
 

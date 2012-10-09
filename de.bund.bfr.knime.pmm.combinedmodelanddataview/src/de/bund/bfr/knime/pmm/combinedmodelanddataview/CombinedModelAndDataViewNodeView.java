@@ -135,8 +135,8 @@ public class CombinedModelAndDataViewNodeView extends
 			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
-			JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					chartCreator, selectionPanel);
+			JSplitPane upperSplitPane = new JSplitPane(
+					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
 			JPanel bottomPanel = new JPanel();
 
 			upperSplitPane.setResizeWeight(1.0);
@@ -146,8 +146,8 @@ public class CombinedModelAndDataViewNodeView extends
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
-			
-			splitPane.setResizeWeight(1.0);			
+
+			splitPane.setResizeWeight(1.0);
 
 			setComponent(splitPane);
 		} catch (PmmException e) {
@@ -344,6 +344,8 @@ public class CombinedModelAndDataViewNodeView extends
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
+			plotable.setMinArguments(new HashMap<String, Double>());
+			plotable.setMaxArguments(new HashMap<String, Double>());
 			plotable.setFunctionConstants(parameters);
 			plotables.put(id, plotable);
 

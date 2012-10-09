@@ -343,9 +343,9 @@ public class ModelAndDataViewNodeView extends
 
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
-			plotable.setFunctionArguments(variables);
+			plotable.setFunctionArguments(variables);			
 			plotable.setMinArguments(varMin);
-			plotable.setMinArguments(varMax);
+			plotable.setMaxArguments(varMax);
 			plotable.setFunctionConstants(parameters);
 			plotables.put(id, plotable);
 

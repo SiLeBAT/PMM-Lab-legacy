@@ -196,7 +196,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( Model1Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO ) );
     		varMap = tuple.getMap( Model1Schema.ATT_VARPARMAP );
     		for( String from : varMap.keySet() )	
-    			MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
+    			formula = MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
     		
     		
     		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
@@ -252,7 +252,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		tuple.setValue( Model2Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO+"2" ) );
         		varMap = tuple.getMap( Model2Schema.ATT_VARPARMAP );
         		for( String from : varMap.keySet() )	
-        			MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
+        			formula = MathUtilities.replaceVariable( formula, from, varMap.get( from ) );
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
 	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );

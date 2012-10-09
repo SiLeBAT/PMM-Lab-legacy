@@ -75,6 +75,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelEstimationNodeModel extends NodeModel {
 
+	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
+	static final int DEFAULT_ENFORCELIMITS = 0;
+
 	private static final int MAX_THREADS = 8;
 
 	private KnimeSchema peiSchema;
@@ -85,11 +88,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private AtomicInteger runningThreads;
 	private AtomicInteger finishedThreads;
 
+	private int enforceLimits;
+
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ModelEstimationNodeModel() {
 		super(1, 1);
+		enforceLimits = DEFAULT_ENFORCELIMITS;
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -279,7 +285,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					if (!targetValues.isEmpty()) {
 						optimizer = new ParameterOptimizer(formula, parameters,
 								minParameterValues, maxParameterValues,
-								targetValues, arguments, argumentValues);
+								targetValues, arguments, argumentValues,
+								enforceLimits == 1);
 						optimizer.optimize();
 						successful = optimizer.isSuccessful();
 					}
@@ -369,6 +376,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
 	}
 
 	/**
@@ -377,6 +385,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		try {
+			enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
+		} catch (InvalidSettingsException e) {
+			enforceLimits = DEFAULT_ENFORCELIMITS;
+		}
 	}
 
 	/**
@@ -426,9 +439,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> targetValues = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 				List<Double> timeValues = tuple
-				.getDoubleList(TimeSeriesSchema.ATT_TIME);
+						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> timeValuesCopy = tuple
-				.getDoubleList(TimeSeriesSchema.ATT_TIME);
+						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<String> arguments = Arrays
 						.asList(TimeSeriesSchema.ATT_TIME);
 				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
@@ -442,7 +455,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 				ParameterOptimizer optimizer = null;
 
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
-					// here timeValuesCopy important, otherwise timeValues (in dataflow table) may have slightly changed values due to checkIndepVars4Singularities in class ParameterOptimizer
+					// here timeValuesCopy important, otherwise timeValues (in
+					// dataflow table) may have slightly changed values due to
+					// checkIndepVars4Singularities in class ParameterOptimizer
 					argumentValues.add(timeValuesCopy);
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);
@@ -453,7 +468,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							.get(0)));
 					optimizer = new ParameterOptimizer(formula, parameters,
 							minParameterValues, maxParameterValues,
-							targetValues, arguments, argumentValues);
+							targetValues, arguments, argumentValues,
+							enforceLimits == 1);
 					optimizer.optimize();
 					successful = optimizer.isSuccessful();
 				} else {

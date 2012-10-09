@@ -76,7 +76,7 @@ public class ModelEstimationNodeFactory
      */
     @Override
     public boolean hasDialog() {
-        return false;
+        return true;
     }
 
     /**

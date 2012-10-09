@@ -33,26 +33,74 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.modelestimation;
 
+import java.awt.BorderLayout;
+
+import javax.swing.BorderFactory;
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 /**
  * <code>NodeDialog</code> for the "ModelEstimation" Node.
  * 
- *
+ * 
  * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Christian Thoens
  */
-public class ModelEstimationNodeDialog extends DefaultNodeSettingsPane {
+public class ModelEstimationNodeDialog extends NodeDialogPane {
 
-    /**
-     * New pane for configuring the ModelEstimation node.
-     */
-    protected ModelEstimationNodeDialog() {
+	private JCheckBox limitsBox;
 
-    }
+	/**
+	 * New pane for configuring the ModelEstimation node.
+	 */
+	protected ModelEstimationNodeDialog() {
+		JPanel panel = new JPanel();
+		JPanel limitsPanel = new JPanel();
+
+		limitsBox = new JCheckBox("Enforce Limits",
+				ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS == 1);
+
+		limitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		limitsPanel.setLayout(new BorderLayout());
+		limitsPanel.add(limitsBox, BorderLayout.WEST);
+
+		panel.setLayout(new BorderLayout());
+		panel.add(limitsPanel, BorderLayout.NORTH);
+		addTab("Options", panel);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			DataTableSpec[] specs) throws NotConfigurableException {
+		try {
+			limitsBox
+					.setSelected(settings
+							.getInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS) == 1);
+		} catch (InvalidSettingsException e) {
+			limitsBox
+					.setSelected(ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS == 1);
+		}
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (limitsBox.isSelected()) {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
+		} else {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 0);
+		}
+	}
 }
-

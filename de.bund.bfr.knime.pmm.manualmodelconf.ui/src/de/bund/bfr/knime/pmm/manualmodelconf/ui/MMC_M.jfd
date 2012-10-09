@@ -155,6 +155,26 @@ new FormModel {
 				"gridX": 11
 				"gridY": 13
 			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label5"
+				"text": "AIC:"
+				"visible": false
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 15
+				"gridY": 13
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+				name: "aicField"
+				"visible": false
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "aicFieldFocusLost", true ) )
+				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "aicFieldKeyReleased", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 17
+				"gridY": 13
+			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
 				"text": "Choose References"

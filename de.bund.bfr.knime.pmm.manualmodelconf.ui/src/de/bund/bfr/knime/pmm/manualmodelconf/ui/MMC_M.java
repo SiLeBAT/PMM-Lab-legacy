@@ -469,6 +469,12 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void r2FieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			r2FieldFocusLost(null);
+		}
+	}
+
 	private void rmsFieldFocusLost(FocusEvent e) {
 		ParametricModel pm = table.getPM();
 		if (pm != null) {
@@ -480,15 +486,22 @@ public class MMC_M extends JPanel {
 		}
 	}
 
-	private void r2FieldKeyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			r2FieldFocusLost(null);
-		}
-	}
-
 	private void rmsFieldKeyReleased(KeyEvent e) {
 		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 			rmsFieldFocusLost(null);
+		}
+	}
+
+	private void aicFieldFocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			pm.setAic(aicField.getValue());
+		}
+	}
+
+	private void aicFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			aicFieldFocusLost(null);
 		}
 	}
 
@@ -511,6 +524,8 @@ public class MMC_M extends JPanel {
 		r2Field = new DoubleTextField(true);
 		label4 = new JLabel();
 		rmsField = new DoubleTextField(true);
+		label5 = new JLabel();
+		aicField = new DoubleTextField(true);
 		button1 = new JButton();
 
 		//======== this ========
@@ -671,6 +686,27 @@ public class MMC_M extends JPanel {
 		});
 		add(rmsField, CC.xy(11, 13));
 
+		//---- label5 ----
+		label5.setText("AIC:");
+		label5.setVisible(false);
+		add(label5, CC.xy(15, 13));
+
+		//---- aicField ----
+		aicField.setVisible(false);
+		aicField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				aicFieldFocusLost(e);
+			}
+		});
+		aicField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				aicFieldKeyReleased(e);
+			}
+		});
+		add(aicField, CC.xy(17, 13));
+
 		//---- button1 ----
 		button1.setText("Choose References");
 		button1.addActionListener(new ActionListener() {
@@ -707,6 +743,8 @@ public class MMC_M extends JPanel {
 	private DoubleTextField r2Field;
 	private JLabel label4;
 	private DoubleTextField rmsField;
+	private JLabel label5;
+	private DoubleTextField aicField;
 	private JButton button1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 

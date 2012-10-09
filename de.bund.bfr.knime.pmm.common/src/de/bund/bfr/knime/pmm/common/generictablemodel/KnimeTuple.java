@@ -472,7 +472,7 @@ public class KnimeTuple implements DataRow {
 	
 	private Map<String,String> getMap( final int i ) throws PmmException {
 		
-		if( schema.getType( i ) == KnimeAttribute.TYPE_MAP )
+		if( !( schema.getType( i ) == KnimeAttribute.TYPE_MAP ) )
 			throw new PmmException( "No map attribute in schema." );
 		
 		return CellIO.getMap( cell[ i ] );

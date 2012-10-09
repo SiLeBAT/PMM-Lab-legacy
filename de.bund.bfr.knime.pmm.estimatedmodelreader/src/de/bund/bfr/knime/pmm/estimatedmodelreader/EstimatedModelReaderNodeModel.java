@@ -188,7 +188,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_LOGC, result.getString( Bfrdb.ATT_LOG10N ) );
     		tuple.setValue( TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_LITIDTS, result.getInt( Bfrdb.ATT_LITERATUREID ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_LITTS, result.getInt( Bfrdb.ATT_LITERATURETEXT ) );
+    		tuple.setValue( TimeSeriesSchema.ATT_LITTS, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
     		// fill m1

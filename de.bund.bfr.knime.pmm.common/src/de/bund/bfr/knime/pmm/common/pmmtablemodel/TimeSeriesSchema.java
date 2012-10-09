@@ -79,8 +79,8 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addIntListAttribute( ATT_MISCID );
 			addStringAttribute( ATT_MISC );
 			addStringAttribute( ATT_COMMENT );
-			addIntListAttribute( ATT_LITIDTS );
-			addStringListAttribute( ATT_LITTS );
+			addIntAttribute( ATT_LITIDTS );
+			addStringAttribute( ATT_LITTS );
 			
 			addStringAttribute( ATT_DBUUID );
 		}

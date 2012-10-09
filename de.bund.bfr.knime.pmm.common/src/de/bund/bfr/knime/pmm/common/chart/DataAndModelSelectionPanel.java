@@ -1075,7 +1075,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		public ShapeListDialog(List<String> initialShapes) {
 			super(JOptionPane
 					.getFrameForComponent(DataAndModelSelectionPanel.this),
-					"Color Palette", true);
+					"Shape Palette", true);
 
 			approved = false;
 			shapeList = null;

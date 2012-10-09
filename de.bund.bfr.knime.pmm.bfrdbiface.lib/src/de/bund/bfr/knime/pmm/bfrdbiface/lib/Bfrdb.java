@@ -1520,7 +1520,7 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setNull(10, Types.INTEGER);
 				} else {
 					ps.setInt(10, litIDs.get(0));
-					try {ts.addLiterature(litIDs.get(0), lits.get(0));} catch (PmmException e) {e.printStackTrace();}
+					try {ts.setLiterature(litIDs.get(0), lits.get(0));} catch (PmmException e) {e.printStackTrace();}
 				}
 				if (doUpdate) {
 					ps.setInt( 11, condId );

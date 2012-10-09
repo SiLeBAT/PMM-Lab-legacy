@@ -215,9 +215,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
-	public void addLiterature( int litId, String litRef ) throws PmmException {
-		addValue( TimeSeriesSchema.ATT_LITIDTS, litId );
-		addValue( TimeSeriesSchema.ATT_LITTS, litRef );
+	public void setLiterature( int litId, String litRef ) throws PmmException {
+		setValue( TimeSeriesSchema.ATT_LITIDTS, litId );
+		setValue( TimeSeriesSchema.ATT_LITTS, litRef );
 	}
 	
 	public boolean isEmpty() throws PmmException {

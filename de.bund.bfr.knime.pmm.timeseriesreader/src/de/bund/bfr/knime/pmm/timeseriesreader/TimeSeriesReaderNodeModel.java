@@ -159,7 +159,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		s = result.getString( Bfrdb.ATT_LITERATUREID );
     		if( s != null )
 			 {
-				tuple.addLiterature( Integer.valueOf( s ), result.getString( Bfrdb.ATT_LITERATURETEXT ) );
+				tuple.setLiterature( Integer.valueOf( s ), result.getString( Bfrdb.ATT_LITERATURETEXT ) );
     		// tuple.setCommasepLitIDTs( result.getString( Bfrdb.ATT_LITIDTS ) );
     		// tuple.setCommasepLitTs( result.getString( Bfrdb.ATT_LITTS ) );
 			}

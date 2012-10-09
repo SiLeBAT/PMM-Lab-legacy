@@ -164,11 +164,13 @@ public class StartApp {
 		    	  	System.err.println("W24");
 		    	  	DBKernel.mainFrame.toFront();
 		    	  	System.err.println("W25");
+		    	  	/*
 		    	  	try {
 		    	  		myDB.requestFocus(); //.grabFocus();//myDB.selectCell(0, 0);
 		    	  	}
 		    	  	catch (Exception e) {}
 		    	  	System.err.println("W26");
+		    	  	*/
 	    	  	}
 	    	  	else if (kernConn != null) {
 		    	  	System.err.println("W3");

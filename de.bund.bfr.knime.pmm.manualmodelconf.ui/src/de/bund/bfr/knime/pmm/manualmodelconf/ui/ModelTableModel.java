@@ -179,6 +179,7 @@ public class ModelTableModel extends JTable {
             			thePM.addParam(rowID, Double.NaN, Double.NaN, thePM.getIndepMin(rowID), thePM.getIndepMax(rowID));
             			thePM.removeIndepVar(rowID);
             		}
+                	hasChanged = true;
             	}
             	else {
                 	boolean isIndep = sm.get(rowID);
@@ -189,12 +190,17 @@ public class ModelTableModel extends JTable {
                 	else {
                     	if (columnIndex == 2 && o instanceof Double) thePM.setParamValue(rowID, (Double) o);
                     	if (columnIndex == 3 && o instanceof Double) thePM.setParamError(rowID, (Double) o);
-                    	if (columnIndex == 4 && o instanceof Double) thePM.setParamMin(rowID, (Double) o);
-                    	if (columnIndex == 5 && o instanceof Double) thePM.setParamMax(rowID, (Double) o);            		
+                    	if (columnIndex == 4 && o instanceof Double) {
+                    		thePM.setParamMin(rowID, (Double) o);
+                        	hasChanged = true;
+                    	}
+                    	if (columnIndex == 5 && o instanceof Double) {
+                    		thePM.setParamMax(rowID, (Double) o);
+                    		hasChanged = true;
+                    	}
                 	}
             	}
             	//super.fireTableCellUpdated(rowIndex, columnIndex);
-            	hasChanged = true;
             	rowHasChanged.put(rowID, true);
         	}
         }

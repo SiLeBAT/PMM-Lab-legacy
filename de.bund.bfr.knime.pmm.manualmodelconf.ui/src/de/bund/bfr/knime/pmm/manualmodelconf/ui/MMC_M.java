@@ -245,7 +245,7 @@ public class MMC_M extends JPanel {
 			System.err.println("pm = null???\t" + modelNameBox.getSelectedItem() + "\t" + modelNameBox.getItemCount());
 		}
 		else {
-			System.err.println("pm = null???\t" + modelNameBox.getItemCount());
+			//System.err.println("pm = null???\t" + modelNameBox.getItemCount());
 		}
 	}
 	

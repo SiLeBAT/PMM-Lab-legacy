@@ -1439,7 +1439,7 @@ public class Bfrdb extends Hsqldbiface {
 	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
 			final String environment, final String misc, final String combaseId,
 			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, final String comment,
-			final String miscId, final List<Integer> litIDs, final List<String> lits, PmmTimeSeries ts) {
+			final String miscId, final Integer litID, final String lit, PmmTimeSeries ts) {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
@@ -1516,11 +1516,11 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setString( 9, comment );
 				}
-				if( litIDs == null || litIDs.size() == 0 || litIDs.get(0) == null || litIDs.get(0) <= 0) {
+				if( litID == null || litID <= 0) {
 					ps.setNull(10, Types.INTEGER);
 				} else {
-					ps.setInt(10, litIDs.get(0));
-					try {ts.setLiterature(litIDs.get(0), lits.get(0));} catch (PmmException e) {e.printStackTrace();}
+					ps.setInt(10, litID);
+					try {ts.setLiterature(litID, lit);} catch (PmmException e) {e.printStackTrace();}
 				}
 				if (doUpdate) {
 					ps.setInt( 11, condId );
@@ -1670,8 +1670,8 @@ public class Bfrdb extends Hsqldbiface {
 
 		String miscId = ts.getCommasepMiscId();
 		String misc = ts.getCommasepMisc();
-		List<Integer> litIDs = ts.getIntList(TimeSeriesSchema.ATT_LITIDTS);
-		List<String> lits = ts.getStringList(TimeSeriesSchema.ATT_LITTS);
+		Integer litID = ts.getInt(TimeSeriesSchema.ATT_LITIDTS);
+		String lit = ts.getString(TimeSeriesSchema.ATT_LITTS);
 
 		List<Double> time = ts.getDoubleList(TimeSeriesSchema.ATT_TIME);
 		List<Double> logc = ts.getDoubleList(TimeSeriesSchema.ATT_LOGC);
@@ -1683,7 +1683,7 @@ public class Bfrdb extends Hsqldbiface {
 
 		condId = insertCondition(condId, tempId, phId, awId, organism, environment, misc, combaseId,
 				matrixId, agentId, agentDetail, matrixDetail, comment,
-				miscId, litIDs, lits, ts);
+				miscId, litID, lit, ts);
 			
 		ts.setCondId(condId);
 		if( condId == null || condId < 0 ) {

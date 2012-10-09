@@ -91,7 +91,8 @@ public class Model2Schema extends KnimeSchema {
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
 			
-			addStringListAttribute( ATT_VARPARMAP );
+			//addStringListAttribute( ATT_VARPARMAP );
+			addMapAttribute(ATT_VARPARMAP);
 			addIntAttribute( ATT_DATABASEWRITABLE );
 			addStringAttribute( ATT_DBUUID );			
 		}

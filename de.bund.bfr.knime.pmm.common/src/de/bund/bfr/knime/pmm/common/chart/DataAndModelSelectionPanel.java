@@ -763,13 +763,20 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private List<String> shapeList;
 
 		public ShapeListEditor() {
-			button = new JButton("Change");
+			button = new JButton();
 			shapeList = new ArrayList<String>();
 			button.addActionListener(new ActionListener() {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					// TODO
+					ShapeListDialog dialog = new ShapeListDialog(shapeList);
+
+					dialog.setVisible(true);
+
+					if (dialog.isApproved()) {
+						shapeList = dialog.getShapeList();
+						stopCellEditing();
+					}
 				}
 			});
 		}
@@ -901,7 +908,6 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private static final long serialVersionUID = 1L;
 
 		public ShapeListRenderer() {
-			super("Change");
 		}
 
 		@Override
@@ -1050,6 +1056,85 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				if (newColor != null) {
 					button.setBackground(newColor);
 				}
+			}
+		}
+	}
+
+	private class ShapeListDialog extends JDialog implements ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private List<String> shapeList;
+
+		private List<JComboBox> shapeBoxes;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public ShapeListDialog(List<String> initialShapes) {
+			super(JOptionPane
+					.getFrameForComponent(DataAndModelSelectionPanel.this),
+					"Color Palette", true);
+
+			approved = false;
+			shapeList = null;
+
+			shapeBoxes = new ArrayList<JComboBox>();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel
+					.setLayout(new GridLayout(initialShapes.size(), 1, 5, 5));
+
+			for (String shape : initialShapes) {
+				JComboBox box = new JComboBox(ColorAndShapeCreator.SHAPE_NAMES);
+
+				box.setSelectedItem(shape);
+				shapeBoxes.add(box);
+				centerPanel.add(box);
+			}
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<String> getShapeList() {
+			return shapeList;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				shapeList = new ArrayList<String>();
+
+				for (JComboBox box : shapeBoxes) {
+					shapeList.add((String) box.getSelectedItem());
+				}
+
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
 			}
 		}
 	}

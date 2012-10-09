@@ -69,12 +69,13 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_MININDEP = "MinIndep";
 	private static final String ATT_MAXINDEP = "MaxIndep";
 	private static final String ATT_PARAMERR = "StandardError";
+	private static final String ATT_VARPARMAP = "VarParMap";
 
 	public static final String ELEMENT_PARAMETRICMODEL = "ParametricModel";
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
 
-	
+	private HashMap<String, String> varParMap;
 	private HashMap<String, Double> paramMin;
 	private HashMap<String, Double> paramMax;
 	private HashMap<String, Double> indepMin;
@@ -119,6 +120,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		paramMax = new HashMap<String, Double>();
 		indepMin = new HashMap<String, Double>();
 		indepMax = new HashMap<String, Double>();
+		
+		varParMap = new HashMap<String, String>();
 	}
 	
 	public ParametricModel(
@@ -154,10 +157,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public ParametricModel( final Element modelElement ) {
-		
 		this();
-		
-		LiteratureItem lit;
 		
 		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
@@ -172,16 +172,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
-		for( Element el : modelElement.getChildren() ) {
-			
-			//System.out.println( el.getName() );
-			
+		for (Element el : modelElement.getChildren()) {
 			if( el.getName().equals( ATT_FORMULA ) ) {
 				formula = el.getText();
-				continue;
 			}
-			
-			if( el.getName().equals( ELEMENT_PARAM ) ) {
+			else if( el.getName().equals( ELEMENT_PARAM ) ) {
 				param.put( el.getAttributeValue( ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( ATT_VALUE ) ) );
 				paramError.put( el.getAttributeValue( ATT_PARAMNAME ), Double.valueOf( el.getAttributeValue( ATT_PARAMERR ) ) );
 				//System.out.println( el.getAttributeValue( ATT_MINVALUE ) );
@@ -190,37 +185,32 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				boolean maxNull = el.getAttributeValue(ATT_MAXVALUE) == null || el.getAttributeValue(ATT_MAXVALUE).equals("null");
 				paramMin.put( el.getAttributeValue( ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MINVALUE ) ) );
 				paramMax.put( el.getAttributeValue( ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MAXVALUE ) ) );
-				continue;
 			}
-			
-			if( el.getName().equals( ATT_INDEPVAR ) ) {
+			else if( el.getName().equals( ATT_INDEPVAR ) ) {
 				indepVar.add( el.getAttributeValue( ATT_PARAMNAME ) );
 				boolean minNull = el.getAttributeValue(ATT_MININDEP) == null || el.getAttributeValue(ATT_MININDEP).equals("null");
 				boolean maxNull = el.getAttributeValue(ATT_MAXINDEP) == null || el.getAttributeValue(ATT_MAXINDEP).equals("null");
 				indepMin.put( el.getAttributeValue( ATT_PARAMNAME ), minNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MININDEP ) ) );
 				indepMax.put( el.getAttributeValue( ATT_PARAMNAME ), maxNull ? Double.NaN : Double.valueOf( el.getAttributeValue( ATT_MAXINDEP ) ) );
-				continue;
 			}
-			
-			if( el.getName().equals( ATT_DEPVAR ) ) {
+			else if (el.getName().equals(ATT_VARPARMAP)) {
+				varParMap.put(el.getAttributeValue("NEW"), el.getAttributeValue("OLD"));
+			}
+			else if( el.getName().equals( ATT_DEPVAR ) ) {
 				depVar = el.getAttributeValue( ATT_PARAMNAME );
-				continue;
 			}
-			
-			if( el.getName().equals( LiteratureItem.ELEMENT_LITERATURE ) ) {
-				
-				lit = new LiteratureItem( el );
+			else if( el.getName().equals( LiteratureItem.ELEMENT_LITERATURE ) ) {				
+				LiteratureItem lit = new LiteratureItem( el );
 				
 				if( lit.getTag() == null || lit.getTag().equals( LiteratureItem.TAG_EM ) ) {
 					estLit.add(new LiteratureItem(el) );
 				} else {
 					modelLit.add(new LiteratureItem(el) );
 				}
-				
-				continue;
 			}
-			
-			assert false;
+			else {
+				assert false;
+			}
 		}
 	}
 	public ParametricModel clone() {
@@ -252,6 +242,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		for (String key : indepVar) {
 		    clonedPM.addIndepVar(key, indepMin.get(key), indepMax.get(key));
 		}
+		for (String newDepVar : varParMap.keySet()) {
+			if (newDepVar != null) {
+				clonedPM.addVarParMap(newDepVar, varParMap.get(newDepVar));
+			}
+		}
+
 
 		for (LiteratureItem item : modelLit) {
 			clonedPM.addModelLit(item);			
@@ -349,6 +345,13 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
 	
+	public void addVarParMap(String newDepVar, String oldDepVar) {
+		if (!newDepVar.equals(oldDepVar)) varParMap.put(newDepVar, oldDepVar);
+		else if (varParMap.containsKey(newDepVar)) varParMap.remove(newDepVar);
+	}
+	public String getVarPar(String newDepVar) {
+		return varParMap.get(newDepVar);
+	}
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
 		indepVar.add( varName );
 		indepMin.put( varName, min );
@@ -452,10 +455,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	
 	@Override
 	public Element toXmlElement() {
-		
-		Element modelElement, element;
-		
-		modelElement = new Element( ELEMENT_PARAMETRICMODEL );
+		Element modelElement = new Element( ELEMENT_PARAMETRICMODEL );
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
@@ -464,7 +464,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_RMS, String.valueOf( rss ) );
 		modelElement.setAttribute( ATT_RSQUARED, String.valueOf( rsquared ) );
 		
-		element = new Element( ATT_FORMULA );
+		Element element = new Element( ATT_FORMULA );
 		element.addContent( formula );
 		modelElement.addContent( element );
 		
@@ -494,6 +494,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				modelElement.addContent( element );
 			}
 		}
+		for (String newDepVar : varParMap.keySet()) {
+			if (newDepVar != null) {
+				element = new Element(ATT_VARPARMAP);
+				element.setAttribute("NEW", newDepVar);
+				element.setAttribute("OLD", varParMap.get(newDepVar));
+				modelElement.addContent(element);
+			}
+		}
 		
 		for( LiteratureItem item : modelLit ) {
 			modelElement.addContent( item.toXmlElement() );
@@ -508,8 +516,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public boolean hasAic() { return !Double.isNaN( aic ); }
 	public boolean hasRms() { return !Double.isNaN( rms ); }
 	
-	public KnimeTuple getKnimeTuple() throws PmmException {
-		
+	public KnimeTuple getKnimeTuple() throws PmmException {		
 		KnimeTuple tuple;
 		
 		if( level == 1 ) {
@@ -535,6 +542,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				tuple.addValue( Model1Schema.ATT_INDEPVAR, indep );
 				tuple.addValue( Model1Schema.ATT_MININDEP, getIndepMin( indep ) );
 				tuple.addValue( Model1Schema.ATT_MAXINDEP, getIndepMax( indep ) );
+			}
+			for (String newDepVar : varParMap.keySet()) {
+				if (newDepVar != null) {
+					//tuple.addMap(Model1Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));
+					tuple.addValue(Model1Schema.ATT_VARPARMAP, newDepVar + "=" + varParMap.get(newDepVar));
+				}
 			}
 			for( LiteratureItem litItem : getEstModelLit() ) {
 				tuple.addValue( Model1Schema.ATT_LITEM, litItem.toString() );
@@ -572,6 +585,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				tuple.addValue( Model2Schema.ATT_INDEPVAR, indep );
 				tuple.addValue( Model2Schema.ATT_MININDEP, getIndepMin( indep ) );
 				tuple.addValue( Model2Schema.ATT_MAXINDEP, getIndepMax( indep ) );
+			}
+			for (String newDepVar : varParMap.keySet()) {
+				if (newDepVar != null) {
+					//tuple.addMap(Model2Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));
+					tuple.addValue(Model2Schema.ATT_VARPARMAP, newDepVar + "=" + varParMap.get(newDepVar));
+				}
 			}
 			for( LiteratureItem litItem : getEstModelLit() ) {
 				tuple.addValue( Model2Schema.ATT_LITEM, litItem.toString() );

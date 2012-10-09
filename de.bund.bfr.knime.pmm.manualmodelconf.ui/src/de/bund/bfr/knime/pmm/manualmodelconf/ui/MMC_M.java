@@ -84,6 +84,9 @@ public class MMC_M extends JPanel {
 				String formula = pm.getFormula();
 				int index = formula.lastIndexOf("=");
 				if (index >= 0) {
+					String oldDepVar = formula.substring(0, index);
+					//System.err.println(oldDepVar + "=" + depVar);
+					pm.addVarParMap(depVar, oldDepVar);
 					formula = depVar + formula.substring(index);
 					pm.setDepVar(depVar);
 					pm.setFormula(formula);

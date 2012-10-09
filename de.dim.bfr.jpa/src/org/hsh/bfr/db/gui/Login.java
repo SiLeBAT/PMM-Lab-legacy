@@ -1192,7 +1192,7 @@ public class Login extends JFrame {
 				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zunahme",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new LinkedHashMap[]{null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null});
-		myList.addTable(adressen, MyList.BasisTabellen_LIST);
+		myList.addTable(adressen, DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST);
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
 				new String[]{"VARCHAR(50)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)"},
@@ -1363,7 +1363,7 @@ public class Login extends JFrame {
 				new String[]{"VARCHAR(255)","VARCHAR(20)","INTEGER"},
 				new String[]{"Vollständiger Name zum Zertifizierungssystem","Abkürzung für Zertifizierungssystem","Anbieter des Zertifizierungssystems - Verweis auf die Kontakttabelle"},
 				new MyTable[]{null,null,adressen});
-		myList.addTable(zertifikate, MyList.BasisTabellen_LIST);
+		myList.addTable(zertifikate, DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST);
 		
 		MyTable methodiken = new MyTable("Methodiken", new String[]{"Name","Beschreibung","Kurzbezeichnung","WissenschaftlicheBezeichnung","Katalogcodes"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(30)","VARCHAR(255)","INTEGER"},
@@ -1392,7 +1392,7 @@ public class Login extends JFrame {
 				new String[][]{{"HIT_Nummer"},{"ADV_Nummer"}},
 				new LinkedHashMap[]{null,null,null,h1,null,null,null},
 				new String[]{null,null,null,null,"Labore_Matrices","Labore_Methodiken","Labore_Agenzien"});
-		myList.addTable(labore, MyList.BasisTabellen_LIST);
+		myList.addTable(labore, DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST);
 		MyTable labore_Methodiken = new MyTable("Labore_Methodiken",
 				new String[]{"Labore","Methodiken"},
 				new String[]{"INTEGER","INTEGER"},
@@ -2519,7 +2519,7 @@ public class Login extends JFrame {
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
 				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null});
-		myList.addTable(ModellkatalogParameter, -1);	
+		myList.addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
 				new String[]{null,null},
@@ -2528,7 +2528,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null},
 				null,
 				new String[] {"not null","not null"});
-		myList.addTable(Modell_Referenz, -1);		
+		myList.addTable(Modell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		
 		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Versuchsbedingung","Modell",
 				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","Score",
@@ -2557,7 +2557,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null},
 				null,
 				new String[] {"not null","not null"});
-		myList.addTable(GeschaetztesModell_Referenz, -1);	
+		myList.addTable(GeschaetztesModell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable GeschaetzteParameter = new MyTable("GeschaetzteParameter", new String[]{"GeschaetztesModell","Parameter",
 				"Wert","ZeitEinheit","Konz_Einheit","KI.unten","KI.oben","SD","StandardError","t","p"},
 				new String[]{"INTEGER","INTEGER",
@@ -2568,7 +2568,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,hashZeit,null,null,null,null,null,null,null},
 				null,
 				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null});
-		myList.addTable(GeschaetzteParameter, -1);	
+		myList.addTable(GeschaetzteParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable GueltigkeitsBereiche = new MyTable("GueltigkeitsBereiche", new String[]{"GeschaetztesModell","Parameter",
 				"Gueltig_von","Gueltig_bis"},
 				new String[]{"INTEGER","INTEGER",
@@ -2579,7 +2579,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,null},
 				null,
 				new String[] {"not null","not null",null,null});
-		myList.addTable(GueltigkeitsBereiche, -1);
+		myList.addTable(GueltigkeitsBereiche, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable VarParMaps = new MyTable("VarParMaps", new String[]{"GeschaetztesModell","VarPar","VarParMap"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
 				new String[]{null,null,null},
@@ -2598,7 +2598,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,null,null},
 				null,
 				null);//new String[] {"not null","not null","not null","not null",null});
-		myList.addTable(GeschaetzteParameterCovCor, -1);		
+		myList.addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 11);
 		MyTable Sekundaermodelle_Primaermodelle = new MyTable("Sekundaermodelle_Primaermodelle",
 				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell"},
@@ -2609,7 +2609,7 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null},
 				null,
 				new String[] {"not null","not null"});
-		myList.addTable(Sekundaermodelle_Primaermodelle, -1);		
+		myList.addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 	}
   private void fillWithDataAndGrants(final MyList myList, final MyDBTable myDB) {
 	

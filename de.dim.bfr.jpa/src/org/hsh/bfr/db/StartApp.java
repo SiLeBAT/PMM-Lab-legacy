@@ -179,6 +179,10 @@ public class StartApp {
 		    	  	catch (Exception e) {e.printStackTrace();}
 	    	  	}
 	    	  	System.err.println("W4");
+	    	  	
+	    	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
+	    	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
+	    	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
 	      }
 	      //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);

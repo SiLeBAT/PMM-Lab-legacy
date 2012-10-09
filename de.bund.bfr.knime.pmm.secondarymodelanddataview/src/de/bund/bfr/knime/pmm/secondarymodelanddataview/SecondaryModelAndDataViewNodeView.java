@@ -146,16 +146,21 @@ public class SecondaryModelAndDataViewNodeView extends
 			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
-			JSplitPane upperSplitPane = new JSplitPane(
-					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
+			JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					chartCreator, selectionPanel);
 			JPanel bottomPanel = new JPanel();
 
+			upperSplitPane.setResizeWeight(1.0);
 			bottomPanel.setLayout(new BorderLayout());
 			bottomPanel.add(configPanel, BorderLayout.WEST);
 			bottomPanel.add(infoPanel, BorderLayout.CENTER);
 
-			setComponent(new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-					upperSplitPane, bottomPanel));
+			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+					upperSplitPane, bottomPanel);
+			
+			splitPane.setResizeWeight(1.0);			
+
+			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}

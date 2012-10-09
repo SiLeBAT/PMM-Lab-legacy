@@ -388,12 +388,17 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				chartCreator, selectionPanel);
 		JPanel bottomPanel = new JPanel();
 
+		upperSplitPane.setResizeWeight(1.0);
 		bottomPanel.setLayout(new BorderLayout());
 		bottomPanel.add(configPanel, BorderLayout.WEST);
 		bottomPanel.add(infoPanel, BorderLayout.CENTER);
 
-		return new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplitPane,
-				bottomPanel);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperSplitPane, bottomPanel);
+		
+		splitPane.setResizeWeight(1.0);
+
+		return splitPane;
 	}
 
 	private void createChart() {

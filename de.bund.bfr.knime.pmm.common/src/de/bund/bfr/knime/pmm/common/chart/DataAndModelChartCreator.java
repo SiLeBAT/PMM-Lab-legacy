@@ -121,13 +121,13 @@ public class DataAndModelChartCreator extends ChartPanel {
 		String labelY;
 
 		if (transformY.equals(ChartConstants.NO_TRANSFORM)) {
-			labelY = AttributeUtilities.getNameWithUnit(paramY);
+			labelY = AttributeUtilities.getFullNameWithUnit(paramY);
 		} else {
-			labelY = AttributeUtilities.getNameWithUnit(paramY, transformY);
+			labelY = AttributeUtilities.getFullNameWithUnit(paramY, transformY);
 		}
 
 		NumberAxis xAxis = new NumberAxis(
-				AttributeUtilities.getNameWithUnit(paramX));
+				AttributeUtilities.getFullNameWithUnit(paramX));
 		NumberAxis yAxis = new NumberAxis(labelY);
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		boolean containsDataPoints = false;

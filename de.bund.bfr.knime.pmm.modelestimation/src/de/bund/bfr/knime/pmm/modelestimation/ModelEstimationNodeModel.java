@@ -426,7 +426,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> targetValues = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 				List<Double> timeValues = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
+				.getDoubleList(TimeSeriesSchema.ATT_TIME);
+				List<Double> timeValuesCopy = tuple
+				.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<String> arguments = Arrays
 						.asList(TimeSeriesSchema.ATT_TIME);
 				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
@@ -440,7 +442,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				ParameterOptimizer optimizer = null;
 
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
-					argumentValues.add(timeValues);
+					// here timeValuesCopy important, otherwise timeValues (in dataflow table) may have slightly changed values due to checkIndepVars4Singularities in class ParameterOptimizer
+					argumentValues.add(timeValuesCopy);
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);
 

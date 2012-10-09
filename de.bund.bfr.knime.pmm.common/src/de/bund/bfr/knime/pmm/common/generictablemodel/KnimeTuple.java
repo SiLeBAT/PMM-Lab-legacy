@@ -336,6 +336,7 @@ public class KnimeTuple implements DataRow {
 				break;
 
 			case KnimeAttribute.TYPE_COMMASEP_STRING:
+			case KnimeAttribute.TYPE_MAP:
 
 				if (!(obj instanceof String))
 					throw new PmmException("Value must be String.");
@@ -343,8 +344,7 @@ public class KnimeTuple implements DataRow {
 				n = (String) obj;
 
 				break;
-				
-			case KnimeAttribute.TYPE_MAP:
+			
 			case KnimeAttribute.TYPE_INT:
 			case KnimeAttribute.TYPE_DOUBLE:
 			case KnimeAttribute.TYPE_STRING:
@@ -461,15 +461,16 @@ public class KnimeTuple implements DataRow {
 
 	private List<String> getStringList(final int i) throws PmmException {
 
-		if (!(schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_STRING
-				|| schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_DOUBLE || schema
-				.getType(i) == KnimeAttribute.TYPE_COMMASEP_INT))
-			throw new PmmException("No comma separated list in schema.");
+		if ( !( schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_STRING
+				|| schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_DOUBLE
+				|| schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_INT
+				|| schema.getType( i ) == KnimeAttribute.TYPE_MAP ) )
+			throw new PmmException( "No comma separated list in schema." );
 
-		return CellIO.getStringList(cell[i]);
+		return CellIO.getStringList( cell[i] );
 	}
 	
-	public Map<String,String> getMap( final int i ) throws PmmException {
+	private Map<String,String> getMap( final int i ) throws PmmException {
 		
 		if( schema.getType( i ) == KnimeAttribute.TYPE_MAP )
 			throw new PmmException( "No map attribute in schema." );

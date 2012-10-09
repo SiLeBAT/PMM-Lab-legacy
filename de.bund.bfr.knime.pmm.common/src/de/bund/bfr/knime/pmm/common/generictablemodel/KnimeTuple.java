@@ -535,15 +535,40 @@ public class KnimeTuple implements DataRow {
 			case KnimeAttribute.TYPE_COMMASEP_INT:
 			case KnimeAttribute.TYPE_COMMASEP_STRING:
 
-				if (obj instanceof String)
-					cell[i] = CellIO.createCell((String) obj);
-				else if (obj instanceof List<?>)
-					cell[i] = CellIO.createCell((List<?>) obj);
-				else
-					if( obj instanceof Map<?,?> )
-						cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
-
-				break;
+				if( obj instanceof String ) {
+					cell[ i ] = CellIO.createCell( ( String )obj );
+					break;
+				}
+				
+				if( obj instanceof List<?> ) {
+					cell[ i ] = CellIO.createCell( ( List<?> ) obj );
+					break;
+				}
+				
+				if( obj instanceof Map<?,?> ) {
+					cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
+					break;
+				}
+				throw new PmmException( "Bad value type." );
+				
+			case KnimeAttribute.TYPE_MAP :
+				
+				if( obj instanceof String ) {
+					cell[ i ] = CellIO.createCell( ( String )obj );
+					break;
+				}
+				
+				if( obj instanceof List<?> ) {
+					cell[ i ] = CellIO.createCell( ( List<?> )obj );
+					break;
+				}
+				
+				if( obj instanceof Map<?,?> ) {
+					cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
+					break;
+				}
+				
+				throw new PmmException( "Bad value type" );
 
 			default:
 				throw new PmmException("Unknown datatype.");

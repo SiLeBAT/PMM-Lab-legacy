@@ -63,6 +63,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_MODELID = "ModelCatalogId";
 	private static final String ATT_ESTMODELID = "EstModelId";
 	private static final String ATT_RMS = "RMS";
+	private static final String ATT_RSS = "RSS";
 	private static final String ATT_RSQUARED = "Rsquared";
 	private static final String ATT_MINVALUE = "MinValue";
 	private static final String ATT_MAXVALUE = "MaxValue";
@@ -168,7 +169,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelLit = new LinkedList<LiteratureItem>();
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
-		rss = Double.valueOf( modelElement.getAttributeValue( ATT_RMS ) );
+		if (modelElement.getAttributeValue( ATT_RSS ) != null) rss = Double.valueOf( modelElement.getAttributeValue( ATT_RSS ) );
+		rms = Double.valueOf( modelElement.getAttributeValue( ATT_RMS ) );
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
@@ -268,17 +270,19 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			rsquared = r2;
 		}
 	}
-	public void setRss( final Double rss ) throws PmmException {
-		
-		if( Double.isInfinite( rms ) ) {
-			throw new PmmException( "RMS must be a real positive number." );
+	public void setRss( final Double rss ) throws PmmException {		
+		if (rss == null) this.rms = Double.NaN;
+		else {
+			if( Double.isInfinite( rss ) ) {
+				throw new PmmException( "RSS must be a real positive number." );
+			}
+			
+			if( rss < 0 ) {
+				throw new PmmException( "RSS must be a real positive number." );
+			}
+			
+			this.rss = rss;
 		}
-		
-		if( rms < 0 ) {
-			throw new PmmException( "RMS must be a real positive number." );
-		}
-		
-		this.rss = rss;
 	}
 	
 	public void setCondId( final int condId ) { this.condId = condId; }
@@ -461,7 +465,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
 		modelElement.setAttribute( ATT_ESTMODELID, String.valueOf( estModelId ) );
 		modelElement.setAttribute( ATT_CONDID, String.valueOf( condId ) );
-		modelElement.setAttribute( ATT_RMS, String.valueOf( rss ) );
+		modelElement.setAttribute( ATT_RSS, String.valueOf( rss ) );
+		modelElement.setAttribute( ATT_RMS, String.valueOf( rms ) );
 		modelElement.setAttribute( ATT_RSQUARED, String.valueOf( rsquared ) );
 		
 		Element element = new Element( ATT_FORMULA );

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import de.bund.bfr.knime.pmm.common.ui.*;
 
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
@@ -25,6 +26,7 @@ import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
+import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -456,6 +458,40 @@ public class MMC_M extends JPanel {
 		 * */
 	}
 
+	private void r2FieldFocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setRsquared(r2Field.getValue());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private void rmsFieldFocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setRms(rmsField.getValue());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private void r2FieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			r2FieldFocusLost(null);
+		}
+	}
+
+	private void rmsFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			rmsFieldFocusLost(null);
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
@@ -471,7 +507,10 @@ public class MMC_M extends JPanel {
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
-		literatureLabel = new JLabel();
+		label3 = new JLabel();
+		r2Field = new DoubleTextField(true);
+		label4 = new JLabel();
+		rmsField = new DoubleTextField(true);
 		button1 = new JButton();
 
 		//======== this ========
@@ -479,15 +518,15 @@ public class MMC_M extends JPanel {
 			new TitledBorder("Model Properties"),
 			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
-			"default, 3*($lcgap, default:grow)",
-			"6*(default, $lgap), default:grow"));
-		((FormLayout)getLayout()).setColumnGroups(new int[][] {{3, 5, 7}});
+			"3*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
+			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default:grow"));
+		((FormLayout)getLayout()).setColumnGroups(new int[][] {{3, 9, 15}, {5, 11, 17}, {7, 13, 19}});
 
 		//---- depVarLabel ----
 		depVarLabel.setText("Parameter");
 		depVarLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		depVarLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
-		add(depVarLabel, CC.xywh(1, 1, 7, 1));
+		add(depVarLabel, CC.xywh(1, 1, 19, 1));
 
 		//---- radioButton1 ----
 		radioButton1.setText("primary");
@@ -498,7 +537,7 @@ public class MMC_M extends JPanel {
 				radioButtonActionPerformed(e);
 			}
 		});
-		add(radioButton1, CC.xy(3, 3));
+		add(radioButton1, CC.xywh(3, 3, 5, 1));
 
 		//---- radioButton2 ----
 		radioButton2.setText("secondary");
@@ -508,7 +547,7 @@ public class MMC_M extends JPanel {
 				radioButtonActionPerformed(e);
 			}
 		});
-		add(radioButton2, CC.xy(5, 3));
+		add(radioButton2, CC.xywh(9, 3, 5, 1));
 
 		//---- radioButton3 ----
 		radioButton3.setText("primary (secondary)");
@@ -518,7 +557,7 @@ public class MMC_M extends JPanel {
 				radioButtonActionPerformed(e);
 			}
 		});
-		add(radioButton3, CC.xy(7, 3));
+		add(radioButton3, CC.xywh(15, 3, 5, 1));
 
 		//---- modelNameLabel ----
 		modelNameLabel.setText("Formula from DB:");
@@ -531,7 +570,7 @@ public class MMC_M extends JPanel {
 				modelNameBoxActionPerformed(e);
 			}
 		});
-		add(modelNameBox, CC.xywh(3, 5, 5, 1));
+		add(modelNameBox, CC.xywh(3, 5, 17, 1));
 
 		//---- label1 ----
 		label1.setText("Formula Name:");
@@ -550,7 +589,7 @@ public class MMC_M extends JPanel {
 				modelnameFieldKeyReleased(e);
 			}
 		});
-		add(modelnameField, CC.xywh(3, 7, 5, 1));
+		add(modelnameField, CC.xywh(3, 7, 17, 1));
 
 		//---- label2 ----
 		label2.setText("Formula:");
@@ -569,7 +608,7 @@ public class MMC_M extends JPanel {
 				formulaAreaKeyReleased(e);
 			}
 		});
-		add(formulaArea, CC.xywh(3, 9, 5, 1));
+		add(formulaArea, CC.xywh(3, 9, 17, 1));
 
 		//---- tableLabel ----
 		tableLabel.setText("Parameter Definition:");
@@ -588,21 +627,59 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane1.setViewportView(table);
 		}
-		add(scrollPane1, CC.xywh(3, 11, 5, 1));
+		add(scrollPane1, CC.xywh(3, 11, 17, 1));
 
-		//---- literatureLabel ----
-		literatureLabel.setText("References:");
-		add(literatureLabel, CC.xy(1, 13));
+		//---- label3 ----
+		label3.setText("R\u00b2:");
+		label3.setHorizontalAlignment(SwingConstants.CENTER);
+		add(label3, CC.xy(3, 13));
+
+		//---- r2Field ----
+		r2Field.setColumns(7);
+		r2Field.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				r2FieldFocusLost(e);
+			}
+		});
+		r2Field.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				r2FieldKeyReleased(e);
+			}
+		});
+		add(r2Field, CC.xy(5, 13));
+
+		//---- label4 ----
+		label4.setText("RMS:");
+		label4.setHorizontalAlignment(SwingConstants.CENTER);
+		add(label4, CC.xy(9, 13));
+
+		//---- rmsField ----
+		rmsField.setColumns(7);
+		rmsField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				rmsFieldFocusLost(e);
+			}
+		});
+		rmsField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				rmsFieldKeyReleased(e);
+			}
+		});
+		add(rmsField, CC.xy(11, 13));
 
 		//---- button1 ----
-		button1.setText("Choose");
+		button1.setText("Choose References");
 		button1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xy(7, 13));
+		add(button1, CC.xywh(15, 15, 5, 1));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -626,7 +703,10 @@ public class MMC_M extends JPanel {
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;
-	private JLabel literatureLabel;
+	private JLabel label3;
+	private DoubleTextField r2Field;
+	private JLabel label4;
+	private DoubleTextField rmsField;
 	private JButton button1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 

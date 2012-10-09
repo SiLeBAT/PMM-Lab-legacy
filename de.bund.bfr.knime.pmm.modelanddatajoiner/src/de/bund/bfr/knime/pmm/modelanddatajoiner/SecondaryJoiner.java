@@ -275,8 +275,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				boolean allVarsReplaced = true;
 
 				if (replace.containsKey(depVarSec)) {
-					if (varMapSec.containsKey(depVarSec)) {						
-						newVarMap.put(replace.get(depVarSec), varMapSec.get(depVarSec));
+					if (varMapSec.containsKey(depVarSec)) {
+						newVarMap.put(replace.get(depVarSec),
+								varMapSec.get(depVarSec));
 					} else {
 						newVarMap.put(replace.get(depVarSec), depVarSec);
 					}
@@ -295,7 +296,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				for (String iv : indepVarsSec) {
 					if (replace.containsKey(iv)) {
-						if (varMapSec.containsKey(iv)) {							
+						if (varMapSec.containsKey(iv)) {
 							newVarMap.put(replace.get(iv), varMapSec.get(iv));
 						} else {
 							newVarMap.put(replace.get(iv), iv);
@@ -529,6 +530,26 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				} else {
 					box.setForeground(Color.BLACK);
 					depVarBoxes.put((String) box.getSelectedItem(), box);
+				}
+			}
+		}
+
+		for (String model : comboBoxes.keySet()) {
+			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
+				Map<String, JComboBox> indepVarBoxes = new HashMap<String, JComboBox>();
+
+				for (JComboBox box : boxes.values()) {
+					JComboBox sameValueBox = indepVarBoxes.get(box
+							.getSelectedItem());
+
+					if (sameValueBox != null) {
+						box.setForeground(Color.RED);
+						sameValueBox.setForeground(Color.RED);
+						isValid = false;
+					} else {
+						box.setForeground(Color.BLACK);
+						indepVarBoxes.put((String) box.getSelectedItem(), box);
+					}
 				}
 			}
 		}

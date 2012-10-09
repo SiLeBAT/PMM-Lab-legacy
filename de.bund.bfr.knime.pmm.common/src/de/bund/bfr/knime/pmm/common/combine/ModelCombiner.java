@@ -192,6 +192,8 @@ public class ModelCombiner {
 			int modelCount = usedTuples.size() + 1;
 			int paramCount = newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
 					.size();
+			int indepCount = newTuple.getStringList(Model1Schema.ATT_INDEPVAR)
+					.size();
 			int newID = newTuple.getInt(Model1Schema.ATT_MODELID) / modelCount;
 
 			for (KnimeTuple tuple : usedTuples) {
@@ -231,6 +233,10 @@ public class ModelCombiner {
 					Collections.nCopies(paramCount, null));
 			newTuple.setValue(Model1Schema.ATT_MAXVALUE,
 					Collections.nCopies(paramCount, null));
+			newTuple.setValue(Model1Schema.ATT_MININDEP,
+					Collections.nCopies(indepCount, null));
+			newTuple.setValue(Model1Schema.ATT_MAXINDEP,
+					Collections.nCopies(indepCount, null));
 
 			newTuples.put(newTuple, usedTuples);
 		}

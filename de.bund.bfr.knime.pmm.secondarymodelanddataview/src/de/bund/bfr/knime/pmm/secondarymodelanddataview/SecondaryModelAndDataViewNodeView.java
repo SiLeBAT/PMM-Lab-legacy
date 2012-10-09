@@ -146,8 +146,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
-			JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					chartCreator, selectionPanel);
+			JSplitPane upperSplitPane = new JSplitPane(
+					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
 			JPanel bottomPanel = new JPanel();
 
 			upperSplitPane.setResizeWeight(1.0);
@@ -157,8 +157,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
-			
-			splitPane.setResizeWeight(1.0);			
+
+			splitPane.setResizeWeight(1.0);
 
 			setComponent(splitPane);
 		} catch (PmmException e) {
@@ -239,6 +239,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, String> formulaMap = new HashMap<String, String>();
 		Map<String, String> depVarMap = new HashMap<String, String>();
 		Map<String, List<String>> indepVarMap = new HashMap<String, List<String>>();
+		Map<String, List<Double>> minIndepVarMap = new HashMap<String, List<Double>>();
+		Map<String, List<Double>> maxIndepVarMap = new HashMap<String, List<Double>>();
 		Map<String, List<String>> keyMap = new HashMap<String, List<String>>();
 		Map<String, List<Double>> valueMap = new HashMap<String, List<Double>>();
 		Map<String, List<Double>> minValueMap = new HashMap<String, List<Double>>();
@@ -300,6 +302,10 @@ public class SecondaryModelAndDataViewNodeView extends
 				String depVarSec = row.getString(Model2Schema.ATT_DEPVAR);
 				List<String> indepVarSec = row
 						.getStringList(Model2Schema.ATT_INDEPVAR);
+				List<Double> minIndepVarSec = row
+						.getDoubleList(Model2Schema.ATT_MININDEP);
+				List<Double> maxIndepVarSec = row
+						.getDoubleList(Model2Schema.ATT_MAXINDEP);
 				List<String> paramNamesSec = row
 						.getStringList(Model2Schema.ATT_PARAMNAME);
 				List<Double> paramValuesSec = row
@@ -331,6 +337,8 @@ public class SecondaryModelAndDataViewNodeView extends
 				formulaMap.put(id, formulaSec);
 				depVarMap.put(id, depVarSec);
 				indepVarMap.put(id, indepVarSec);
+				minIndepVarMap.put(id, minIndepVarSec);
+				maxIndepVarMap.put(id, maxIndepVarSec);
 				keyMap.put(id, paramNamesSec);
 				valueMap.put(id, paramValuesSec);
 				minValueMap.put(id, paramMinValuesSec);
@@ -362,6 +370,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		for (String id : ids) {
 			Plotable plotable = null;
 			Map<String, List<Double>> arguments = new HashMap<String, List<Double>>();
+			Map<String, Double> minArg = new HashMap<String, Double>();
+			Map<String, Double> maxArg = new HashMap<String, Double>();
 			Map<String, Double> constants = new HashMap<String, Double>();
 
 			if (getNodeModel().isSeiSchema()) {
@@ -370,8 +380,13 @@ public class SecondaryModelAndDataViewNodeView extends
 				plotable = new Plotable(Plotable.FUNCTION);
 			}
 
-			for (String iv : indepVarMap.get(id)) {
-				arguments.put(iv, new ArrayList<Double>(Arrays.asList(0.0)));
+			for (int i = 0; i < indepVarMap.get(id).size(); i++) {
+				arguments.put(indepVarMap.get(id).get(i),
+						new ArrayList<Double>(Arrays.asList(0.0)));
+				minArg.put(indepVarMap.get(id).get(i), minIndepVarMap.get(id)
+						.get(i));
+				maxArg.put(indepVarMap.get(id).get(i), maxIndepVarMap.get(id)
+						.get(i));
 			}
 
 			for (int i = 0; i < keyMap.get(id).size(); i++) {
@@ -381,6 +396,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setFunction(formulaMap.get(id));
 			plotable.setFunctionValue(depVarMap.get(id));
 			plotable.setFunctionArguments(arguments);
+			plotable.setMinArguments(minArg);
+			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionConstants(constants);
 
 			if (getNodeModel().isSeiSchema()) {

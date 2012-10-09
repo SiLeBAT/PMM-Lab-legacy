@@ -66,6 +66,8 @@ public class Plotable {
 	private String functionValue;
 	private Map<String, List<Double>> functionArguments;
 	private Map<String, Double> functionConstants;
+	private Map<String, Double> minArguments;
+	private Map<String, Double> maxArguments;
 
 	public Plotable(int type) {
 		this.type = type;
@@ -114,6 +116,22 @@ public class Plotable {
 
 	public void setFunctionConstants(Map<String, Double> functionConstants) {
 		this.functionConstants = functionConstants;
+	}
+
+	public Map<String, Double> getMinArguments() {
+		return minArguments;
+	}
+
+	public void setMinArguments(Map<String, Double> minArguments) {
+		this.minArguments = minArguments;
+	}
+
+	public Map<String, Double> getMaxArguments() {
+		return maxArguments;
+	}
+
+	public void setMaxArguments(Map<String, Double> maxArguments) {
+		this.maxArguments = maxArguments;
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String transformY) {

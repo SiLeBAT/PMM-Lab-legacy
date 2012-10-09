@@ -133,8 +133,8 @@ public class ModelAndDataViewNodeView extends
 			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
-			JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-					chartCreator, selectionPanel);
+			JSplitPane upperSplitPane = new JSplitPane(
+					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
 			JPanel bottomPanel = new JPanel();
 
 			upperSplitPane.setResizeWeight(1.0);
@@ -144,8 +144,8 @@ public class ModelAndDataViewNodeView extends
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
-			
-			splitPane.setResizeWeight(1.0);			
+
+			splitPane.setResizeWeight(1.0);
 
 			setComponent(splitPane);
 		} catch (PmmException e) {
@@ -274,6 +274,10 @@ public class ModelAndDataViewNodeView extends
 			String depVar = row.getString(Model1Schema.ATT_DEPVAR);
 			List<String> indepVars = row
 					.getStringList(Model1Schema.ATT_INDEPVAR);
+			List<Double> indepMinValues = row
+					.getDoubleList(Model1Schema.ATT_MININDEP);
+			List<Double> indepMaxValues = row
+					.getDoubleList(Model1Schema.ATT_MAXINDEP);
 			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
 			List<Double> paramValues = row
 					.getDoubleList(Model1Schema.ATT_VALUE);
@@ -284,10 +288,15 @@ public class ModelAndDataViewNodeView extends
 
 			Plotable plotable = null;
 			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
+			Map<String, Double> varMin = new HashMap<String, Double>();
+			Map<String, Double> varMax = new HashMap<String, Double>();
 			Map<String, Double> parameters = new HashMap<String, Double>();
 
-			for (String iv : indepVars) {
-				variables.put(iv, new ArrayList<Double>(Arrays.asList(0.0)));
+			for (int i = 0; i < indepVars.size(); i++) {
+				variables.put(indepVars.get(i),
+						new ArrayList<Double>(Arrays.asList(0.0)));
+				varMin.put(indepVars.get(i), indepMinValues.get(i));
+				varMax.put(indepVars.get(i), indepMaxValues.get(i));
 			}
 
 			for (int i = 0; i < params.size(); i++) {
@@ -335,6 +344,8 @@ public class ModelAndDataViewNodeView extends
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
+			plotable.setMinArguments(varMin);
+			plotable.setMinArguments(varMax);
 			plotable.setFunctionConstants(parameters);
 			plotables.put(id, plotable);
 

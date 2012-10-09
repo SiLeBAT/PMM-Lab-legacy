@@ -108,6 +108,10 @@ public class TableReader {
 			String depVar = tuple.getString(Model1Schema.ATT_DEPVAR);
 			List<String> indepVars = tuple
 					.getStringList(Model1Schema.ATT_INDEPVAR);
+			List<Double> indepMinValues = tuple
+					.getDoubleList(Model1Schema.ATT_MININDEP);
+			List<Double> indepMaxValues = tuple
+					.getDoubleList(Model1Schema.ATT_MAXINDEP);
 			List<String> params = tuple
 					.getStringList(Model1Schema.ATT_PARAMNAME);
 			List<Double> paramValues = tuple
@@ -120,17 +124,23 @@ public class TableReader {
 			Plotable plotable = null;
 			Map<String, Double> parameters = new HashMap<String, Double>();
 			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
+			Map<String, Double> varMin = new HashMap<String, Double>();
+			Map<String, Double> varMax = new HashMap<String, Double>();
 
 			for (int i = 0; i < params.size(); i++) {
 				parameters.put(params.get(i), paramValues.get(i));
 			}
 
-			for (String indepVar : indepVars) {
-				if (!indepVar.equals(TimeSeriesSchema.ATT_TIME)) {
+			for (int i = 0; i < indepVars.size(); i++) {
+				if (indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+					varMin.put(TimeSeriesSchema.ATT_TIME, indepMinValues.get(i));
+					varMax.put(TimeSeriesSchema.ATT_TIME, indepMaxValues.get(i));
+				} else {
 					if (schemaContainsData) {
-						parameters.put(indepVar, tuple.getDouble(indepVar));
+						parameters.put(indepVars.get(i),
+								tuple.getDouble(indepVars.get(i)));
 					} else {
-						parameters.put(indepVar, 0.0);
+						parameters.put(indepVars.get(i), 0.0);
 					}
 				}
 			}
@@ -151,6 +161,8 @@ public class TableReader {
 			plotable.setFunction(formula);
 			plotable.setFunctionConstants(parameters);
 			plotable.setFunctionArguments(variables);
+			plotable.setMinArguments(varMin);
+			plotable.setMaxArguments(varMax);
 			plotable.setFunctionValue(depVar);
 			plotables.put(id, plotable);
 

@@ -428,11 +428,15 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 				selectedValues = new ArrayList<List<Boolean>>();
 
 				for (List<Double> values : possibleValues) {
-					List<Boolean> selected = new ArrayList<Boolean>(
-							Collections.nCopies(values.size(), false));
+					if (values != null) {
+						List<Boolean> selected = new ArrayList<Boolean>(
+								Collections.nCopies(values.size(), false));
 
-					selected.set(0, true);
-					selectedValues.add(selected);
+						selected.set(0, true);
+						selectedValues.add(selected);
+					} else {
+						selectedValues.add(null);
+					}
 				}
 			}
 

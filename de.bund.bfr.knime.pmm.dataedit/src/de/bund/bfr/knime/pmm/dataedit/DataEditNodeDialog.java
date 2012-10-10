@@ -89,6 +89,8 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		ActionListener, TextListener {
 
 	private KnimeSchema schema;
+	private BufferedDataTable table;
+
 	private boolean dataValid;
 	private Map<Integer, List<String>> dataChanges;
 
@@ -111,6 +113,8 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	private List<JButton> addButtons;
 	private List<JLabel> emptyLabels;
 
+	private JButton clearButton;
+
 	/**
 	 * New pane for configuring DataEdit node dialog. This is just a suggestion
 	 * to demonstrate possible default dialog components.
@@ -128,6 +132,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
+		table = input[0];
 		dataChanges.clear();
 
 		try {
@@ -149,7 +154,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		try {
-			readTable(input[0]);
+			readTable(table);
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}
@@ -213,6 +218,8 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
 		JPanel idPanel = new JPanel();
+		JPanel centerPanel = new JPanel();
+		JPanel bottomPanel = new JPanel();
 
 		idBox = new JComboBox(nameList.toArray());
 		idBox.setSelectedIndex(0);
@@ -262,7 +269,6 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		JPanel bottomPanel = new JPanel();
 		JLabel timeLabel = new JLabel(
 				AttributeUtilities
 						.getFullNameWithUnit(TimeSeriesSchema.ATT_TIME));
@@ -279,14 +285,20 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		tablePanel.add(logcLabel);
 		tablePanel.add(new JLabel());
 		tablePanel.add(new JLabel());
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(tablePanel, BorderLayout.NORTH);
+		centerPanel.setLayout(new BorderLayout());
+		centerPanel.add(tablePanel, BorderLayout.NORTH);
+
+		clearButton = new JButton("Clear Changes");
+		clearButton.addActionListener(this);
+		bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		bottomPanel.add(clearButton);
 
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(upperPanel, BorderLayout.NORTH);
-		mainPanel.add(new JScrollPane(bottomPanel,
+		mainPanel.add(new JScrollPane(centerPanel,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
 		timeFields = new ArrayList<DoubleTextField>();
 		logcFields = new ArrayList<DoubleTextField>();
@@ -665,6 +677,11 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 				oldTuples.remove(i);
 				idBox.removeItemAt(i);
 				updateTextFields();
+			} else if (e.getSource() == clearButton) {
+				dataChanges.clear();
+				readTable(table);
+				((JPanel) getTab("Options")).removeAll();
+				((JPanel) getTab("Options")).add(createMainPanel());
 			} else if (removeButtons.contains(e.getSource())) {
 				int i = idBox.getSelectedIndex();
 				int j = removeButtons.indexOf(e.getSource());

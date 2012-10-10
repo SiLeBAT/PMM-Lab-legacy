@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.common.math;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.DifferentiableMultivariateVectorFunction;
@@ -68,6 +69,8 @@ public class ParameterOptimizer {
 	private double rSquare;
 	private List<Double> parameterStandardErrors;
 
+	private List<List<Integer>> changeLists;
+
 	public ParameterOptimizer(String formula, List<String> parameters,
 			List<Double> minParameterValues, List<Double> maxParameterValues,
 			List<Double> targetValues, List<String> arguments,
@@ -98,6 +101,7 @@ public class ParameterOptimizer {
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
+		changeLists = createChangeLists();
 
 		for (String arg : arguments) {
 			parser.addVariable(arg, 0.0);
@@ -107,7 +111,7 @@ public class ParameterOptimizer {
 			parser.addVariable(param, 0.0);
 			derivatives.add(parser.differentiate(function, param));
 		}
-		checkIndepVars4Singularities();
+		// checkIndepVars4Singularities();
 	}
 
 	public void optimize() {
@@ -324,8 +328,83 @@ public class ParameterOptimizer {
 		rSquare = 1 - rms * rms * targetValues.size() / targetTotalSumOfSquares;
 		// rSquare < 0 möglich, siehe hier:
 		// http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
-		if (rSquare < 0)
-			rSquare = 0;
+		rSquare = Math.max(rSquare, 0.0);
+	}
+
+	private double evalWithSingularityCheck(Node f, List<Double> argValues)
+			throws ParseException {
+		for (List<Integer> list : changeLists) {
+			for (int i = 0; i < arguments.size(); i++) {
+				double d = list.get(i) * MathUtilities.EPSILON;
+
+				parser.setVarValue(arguments.get(i), argValues.get(i) + d);
+			}
+
+			Object number = parser.evaluate(f);
+
+			if (number instanceof Double && !Double.isNaN((Double) number)) {
+				return (Double) number;
+			}
+		}
+
+		return Double.NaN;
+	}
+
+	private List<List<Integer>> createChangeLists() {
+		int n = arguments.size();
+		boolean done = false;
+		List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
+		List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n, -1));
+
+		while (!done) {
+			changeLists.add(new ArrayList<Integer>(list));
+
+			for (int i = 0;; i++) {
+				if (i >= n) {
+					done = true;
+					break;
+				}
+
+				list.set(i, list.get(i) + 1);
+
+				if (list.get(i) > 1) {
+					list.set(i, -1);
+				} else {
+					break;
+				}
+			}
+		}
+
+		Collections.sort(changeLists, new Comparator<List<Integer>>() {
+
+			@Override
+			public int compare(List<Integer> l1, List<Integer> l2) {
+				int n1 = 0;
+				int n2 = 0;
+
+				for (int i : l1) {
+					if (i == 0) {
+						n1++;
+					}
+				}
+
+				for (int i : l2) {
+					if (i == 0) {
+						n2++;
+					}
+				}
+
+				if (n1 < n2) {
+					return 1;
+				} else if (n1 > n2) {
+					return -1;
+				} else {
+					return 0;
+				}
+			}
+		});
+
+		return changeLists;
 	}
 
 	private DifferentiableMultivariateVectorFunction optimizerFunction = new DifferentiableMultivariateVectorFunction() {
@@ -380,20 +459,31 @@ public class ParameterOptimizer {
 
 			try {
 				for (int i = 0; i < targetValues.size(); i++) {
+					List<Double> argValues = new ArrayList<Double>();
+
 					for (int j = 0; j < arguments.size(); j++) {
-						parser.setVarValue(arguments.get(j), argumentValues
-								.get(j).get(i));
+						argValues.add(argumentValues.get(j).get(i));
 					}
 
 					for (int j = 0; j < derivatives.size(); j++) {
-						Object number = parser.evaluate(derivatives.get(j));
-
-						if (number instanceof Complex) {
-							retValue[i][j] = Double.NaN;
-						} else {
-							retValue[i][j] = (Double) number;
-						}
+						retValue[i][j] = evalWithSingularityCheck(
+								derivatives.get(j), argValues);						
 					}
+
+					// for (int j = 0; j < arguments.size(); j++) {
+					// parser.setVarValue(arguments.get(j), argumentValues
+					// .get(j).get(i));
+					// }
+					//
+					// for (int j = 0; j < derivatives.size(); j++) {
+					// Object number = parser.evaluate(derivatives.get(j));
+					//
+					// if (number instanceof Complex) {
+					// retValue[i][j] = Double.NaN;
+					// } else {
+					// retValue[i][j] = (Double) number;
+					// }
+					// }
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -403,55 +493,55 @@ public class ParameterOptimizer {
 		}
 	};
 
-	// maybe a good idea to do similar thing for parameter singularities???
-	private void checkIndepVars4Singularities() {
-		for (int ii = 0; ii < 100; ii++) {
-			for (int i = 0; i < parameters.size(); i++) { // Parameters
-				parser.setVarValue(parameters.get(i), Math.random());
-			}
-			int index = getNaNIndex();
-			if (index >= 0) {
-				for (int j = 0; j < arguments.size(); j++) { // indepVars
-					List<Double> l = argumentValues.get(j);
-					double val = l.get(index);
-					if (index < l.size() - 1) {
-						double diff = l.get(index + 1) - val;
-						val = val + diff / (1000.0 + Math.random());
-					} else {
-						double diff = val - l.get(index - 1);
-						val = val - diff / (1000.0 + Math.random());
-					}
-					l.remove(index);
-					l.add(index, val);
-				}
-			} else {
-				break;
-			}
-		}
-	}
-
-	private int getNaNIndex() {
-		int i = 0;
-		try {
-			for (; i < argumentValues.size(); i++) { // TimeSeries, usually Time
-				for (int j = 0; j < arguments.size(); j++) { // indepVars
-					parser.setVarValue(arguments.get(j), argumentValues.get(j)
-							.get(i));
-				}
-
-				for (int j = 0; j < derivatives.size(); j++) {
-					Object number = parser.evaluate(derivatives.get(j));
-
-					if (number instanceof Complex
-							|| Double.isNaN((Double) number)) {
-						return i;
-					}
-				}
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-			return i;
-		}
-		return -1;
-	}
+	// // maybe a good idea to do similar thing for parameter singularities???
+	// private void checkIndepVars4Singularities() {
+	// for (int ii = 0; ii < 100; ii++) {
+	// for (int i = 0; i < parameters.size(); i++) { // Parameters
+	// parser.setVarValue(parameters.get(i), Math.random());
+	// }
+	// int index = getNaNIndex();
+	// if (index >= 0) {
+	// for (int j = 0; j < arguments.size(); j++) { // indepVars
+	// List<Double> l = argumentValues.get(j);
+	// double val = l.get(index);
+	// if (index < l.size() - 1) {
+	// double diff = l.get(index + 1) - val;
+	// val = val + diff / (1000.0 + Math.random());
+	// } else {
+	// double diff = val - l.get(index - 1);
+	// val = val - diff / (1000.0 + Math.random());
+	// }
+	// l.remove(index);
+	// l.add(index, val);
+	// }
+	// } else {
+	// break;
+	// }
+	// }
+	// }
+	//
+	// private int getNaNIndex() {
+	// int i = 0;
+	// try {
+	// for (; i < argumentValues.size(); i++) { // TimeSeries, usually Time
+	// for (int j = 0; j < arguments.size(); j++) { // indepVars
+	// parser.setVarValue(arguments.get(j), argumentValues.get(j)
+	// .get(i));
+	// }
+	//
+	// for (int j = 0; j < derivatives.size(); j++) {
+	// Object number = parser.evaluate(derivatives.get(j));
+	//
+	// if (number instanceof Complex
+	// || Double.isNaN((Double) number)) {
+	// return i;
+	// }
+	// }
+	// }
+	// } catch (ParseException e) {
+	// e.printStackTrace();
+	// return i;
+	// }
+	// return -1;
+	// }
 }

@@ -47,6 +47,8 @@ import org.nfunk.jep.ParseException;
 
 public class MathUtilities {
 
+	public static double EPSILON = 0.00001;
+
 	private static Random random = null;
 
 	private MathUtilities() {

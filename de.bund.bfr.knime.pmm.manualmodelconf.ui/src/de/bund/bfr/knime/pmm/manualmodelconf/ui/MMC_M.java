@@ -521,6 +521,7 @@ public class MMC_M extends JPanel {
 		modelnameField = new JTextField();
 		label2 = new JLabel();
 		formulaArea = new JTextField();
+		formulaApply = new JButton();
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
@@ -627,7 +628,11 @@ public class MMC_M extends JPanel {
 				formulaAreaKeyReleased(e);
 			}
 		});
-		add(formulaArea, CC.xywh(3, 9, 17, 1));
+		add(formulaArea, CC.xywh(3, 9, 15, 1));
+
+		//---- formulaApply ----
+		formulaApply.setText("Apply");
+		add(formulaApply, CC.xy(19, 9));
 
 		//---- tableLabel ----
 		tableLabel.setText("Parameter Definition:");
@@ -740,6 +745,7 @@ public class MMC_M extends JPanel {
 	private JTextField modelnameField;
 	private JLabel label2;
 	private JTextField formulaArea;
+	private JButton formulaApply;
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;

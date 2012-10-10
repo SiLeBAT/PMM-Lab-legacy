@@ -346,7 +346,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		if (indepVar.contains(varName)) indepVar.remove(varName);
 	}
 	public void removeParam( final String varName ) {
-		if (param.contains(varName)) param.remove(varName);
+		if (param.containsKey(varName)) param.remove(varName);
 	}
 	public void addIndepVar( final String varName ) {
 		addIndepVar(varName, Double.NaN, Double.NaN);

@@ -98,9 +98,24 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 		try {
 			//PmmTimeSeries ts = confui.getTS();
 			PmmTimeSeries ts = m_mmcts.getTS();
-			settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentDetail());
-			settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixDetail());
-			settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, ts.getComment());
+			if (ts.getAgentDetail() != null) {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentDetail());
+			}
+			else {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, "");
+			}
+			if (ts.getMatrixDetail() != null) {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixDetail());
+			}
+			else {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, "");
+			}
+			if (ts.getComment() != null) {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, ts.getComment());
+			}
+			else {
+				settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, "");
+			}
 			if (ts.getTemperature() != null) {
 				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, ts.getTemperature());
 			}

@@ -50,6 +50,10 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
  */
 public class RestoreAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -759785558573347371L;
 	private MyDBTable myDB;
 
 	public RestoreAction(String name, Icon icon, String toolTip, MyDBTable myDB) {

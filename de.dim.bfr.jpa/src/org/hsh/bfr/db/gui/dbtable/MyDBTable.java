@@ -128,6 +128,10 @@ import quick.dbtable.DBTable;
  */
 public class MyDBTable extends DBTable implements RowSorterListener, KeyListener, ListSelectionListener, MouseListener  {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -129822283276967826L;
 	private MyTable actualTable = null;
 	public LinkedHashMap<Object, String>[] hashBox = null;
 	private MyCellPropertiesModel cpm = new MyCellPropertiesModel(this);
@@ -245,6 +249,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	public boolean setTable(final MyTable myT) {
 		return setTable(myT, null);
 	}
+	  @SuppressWarnings("unchecked")
 	public boolean setTable(final MyTable myT, final Object[][] conditions) {
 		boolean result = true;
 		if (DBKernel.mainFrame != null) {

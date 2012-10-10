@@ -55,15 +55,19 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
 public class MyTableHeaderCellRenderer extends DefaultTableCellRenderer {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Color myBgColor;
 	private String tooltip;
-	private MyDBTable dbTable;
+	//private MyDBTable dbTable;
   private Icon ascIcon = UIManager.getIcon("Table.ascendingSortIcon");
   private Icon descIcon = UIManager.getIcon("Table.descendingSortIcon");
 	
   public MyTableHeaderCellRenderer(MyDBTable dbTable, Color bgColor, String tooltip) {
     super();
-    this.dbTable = dbTable;
+    //this.dbTable = dbTable;
     this.myBgColor = bgColor;
     this.tooltip = (tooltip == null ? null : GuiMessages.getString(tooltip).replaceAll("\n", "<BR>"));
   }

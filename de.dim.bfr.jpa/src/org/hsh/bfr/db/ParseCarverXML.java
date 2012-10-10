@@ -146,10 +146,11 @@ public class ParseCarverXML {
 		}
 		return result;
 	}
-	
+	/*
 	private void replaceStrInFile(String filename, String search, String replace) throws IOException {
 		replaceStrInFile(filename, search, replace, new File(filename));
 	}
+	*/
 	private void replaceStrInFile(String filename, String search, String replace, File newFile) throws IOException {
 		BufferedReader reader = null;
 	    BufferedWriter writer = null;

@@ -1972,6 +1972,7 @@ public class Login extends JFrame {
 			}
 		}		
 	}
+	@SuppressWarnings("unchecked")
 	private void doLieferkettenTabellen(final MyList myList, final MyTable betriebe, final LinkedHashMap<Object, String> h4) {
 		MyTable Produzent_Artikel = new MyTable("Produzent_Artikel",
 				new String[]{"Produzent","Artikelnummer","Bezeichnung","Lieferungen"},
@@ -2007,6 +2008,7 @@ public class Login extends JFrame {
 
 		//DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Bundesland") + " = 'NI' WHERE " + DBKernel.delimitL("ID") + " = 167", false);
 	}
+	  @SuppressWarnings("unchecked")
 	private void doJansTabellen(final MyList myList, final MyTable prozessFlow, final MyTable literatur, final MyTable agenzien) {
 		MyTable laender = new MyTable("Laender",
   			new String[]{"Bezeichnung"},
@@ -2237,7 +2239,7 @@ public class Login extends JFrame {
 							}
 	  
 	  );
-	  
+
 	  MyTable modell_verwendung_verbund = new MyTable("Modell_Verwendung_Verbund",
 			new String[]{"Modell","Verwendung"},
 			new String[]{"INTEGER","INTEGER"},
@@ -2456,6 +2458,7 @@ public class Login extends JFrame {
 		myList.addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}
+	@SuppressWarnings("unchecked")
 	private void generateStatUpModellTables(final MyList myList, final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten) {
 		LinkedHashMap<Object, String> hashLevel = new LinkedHashMap<Object, String>();
 		hashLevel.put(1, "primary");					

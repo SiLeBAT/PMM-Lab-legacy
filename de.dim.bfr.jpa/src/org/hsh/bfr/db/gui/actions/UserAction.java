@@ -47,7 +47,12 @@ import org.hsh.bfr.db.DBKernel;
  */
 public class UserAction extends AbstractAction {
 
-  public UserAction(String name, Icon icon, String toolTip) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = -7616081408836026856L;
+
+public UserAction(String name, Icon icon, String toolTip) {
     putValue(Action.NAME, name);
     putValue(Action.SHORT_DESCRIPTION, toolTip);
     putValue(Action.SMALL_ICON, icon);

@@ -53,7 +53,11 @@ import javax.swing.plaf.BorderUIResource;
 
 public class TableRowHeaderRenderer extends DefaultTableCellRenderer { //  implements ListCellRenderer
 	
-    protected Border noFocusBorder, focusBorder;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected Border noFocusBorder, focusBorder;
 
     public TableRowHeaderRenderer() {
         setOpaque(true);

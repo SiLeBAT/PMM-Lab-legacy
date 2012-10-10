@@ -58,6 +58,10 @@ import com.jgoodies.forms.layout.*;
  */
 public class MyDoubleEditor extends JDialog {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDBTable;
 	private boolean inited = false;
 	private String spaltenName = "";

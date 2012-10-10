@@ -51,8 +51,8 @@ public class MyOtherSorter implements Comparator<Object> {
   	else if (o1 == null) return 1;
   	else if (o2 == null) return -1;
 		if (o1 instanceof Object[] && o2 instanceof Object[]) {
-			Object[] oo1 = (Object[]) o1;
-			Object[] oo2 = (Object[]) o2;
+			//Object[] oo1 = (Object[]) o1;
+			//Object[] oo2 = (Object[]) o2;
 			// Tja, was tun?
 			return 0;
 		}

@@ -47,6 +47,10 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
  */
 public class MyTableModel4Sorter extends AbstractTableModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDB;
 	private JTable table;
 	Object[][] o;

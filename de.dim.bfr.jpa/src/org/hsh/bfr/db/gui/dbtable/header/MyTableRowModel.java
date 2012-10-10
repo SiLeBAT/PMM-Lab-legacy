@@ -44,6 +44,10 @@ import javax.swing.table.DefaultTableModel;
  */
 public class MyTableRowModel extends DefaultTableModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int numRows;
 	
 	public MyTableRowModel(int numRows) {

@@ -551,7 +551,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 	   * BibtexEntryType.INPROCEEDINGS;
 	   */
 	}
-	
+	/*
 	private File urlToFile(URL url) { 
         File file = null; 
         try { 
@@ -563,7 +563,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
         MyLogger.handleMessage(file.toString()); 
         return file; 
     } 
-	
+	*/
 	private URL getMyURL(String strURL) {
 		URL myUrl = null;
     	try {

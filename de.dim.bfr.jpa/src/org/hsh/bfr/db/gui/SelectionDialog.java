@@ -42,7 +42,6 @@ import java.util.ResourceBundle;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -54,6 +53,10 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 public class SelectionDialog extends JDialog {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7519197156831734827L;
 	MyList myList;
 	public SelectionDialog(MyList myList) {
 		this.myList = myList;
@@ -69,7 +72,6 @@ public class SelectionDialog extends JDialog {
 		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps");
 		dialogPane = new JPanel();
 		contentPanel = new JPanel();
-		label1 = new JLabel();
 		buttonBar = new JPanel();
 		okButton = new JButton();
 		CellConstraints cc = new CellConstraints();
@@ -146,7 +148,6 @@ public class SelectionDialog extends JDialog {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JPanel dialogPane;
 	private JPanel contentPanel;
-	private JLabel label1;
 	private JCheckBox[] checkboxes; //JFW
 	private JPanel buttonBar;
 	private JButton okButton;

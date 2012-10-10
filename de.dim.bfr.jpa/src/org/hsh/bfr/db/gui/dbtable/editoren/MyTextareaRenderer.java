@@ -49,6 +49,11 @@ import quick.dbtable.CellComponent;
  */
 public class MyTextareaRenderer extends JTextArea implements CellComponent {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6899182168468689816L;
+
 	public MyTextareaRenderer() {
 		this.setLineWrap(true);
 		this.setWrapStyleWord(true);

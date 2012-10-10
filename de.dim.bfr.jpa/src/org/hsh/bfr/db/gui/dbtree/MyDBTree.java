@@ -57,7 +57,11 @@ import org.hsh.bfr.db.gui.dbtable.MyDBPanel;
  */
 public class MyDBTree extends JTree implements TreeSelectionListener, KeyListener {
 
-  private MyTable myT = null;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+private MyTable myT = null;
 	private boolean catchEvent = true;
 	private MyDBPanel myDBPanel1 = null;
 	private MyDBTreeModel myModel = null; 

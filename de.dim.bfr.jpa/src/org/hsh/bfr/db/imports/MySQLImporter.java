@@ -270,7 +270,8 @@ public class MySQLImporter implements MyImporter {
 					      						}
 										        if (rs.getObject("conditions") != null) {
 										        	  String cond = rs.getString("conditions");
-										        	  String condRes = CB_ConditionsEditor.getMyString(cond, lastID, "Versuchsbedingungen");
+										        	  CB_ConditionsEditor.getMyString(cond, lastID, "Versuchsbedingungen");
+										        	  //String condRes = CB_ConditionsEditor.getMyString(cond, lastID, "Versuchsbedingungen");
 										        	  //ps.setString(10, condRes);
 										          }
 					      						hash.put(id_str, lastID);

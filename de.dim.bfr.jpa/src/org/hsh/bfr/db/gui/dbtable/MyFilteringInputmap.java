@@ -46,7 +46,11 @@ import javax.swing.KeyStroke;
 
 public class MyFilteringInputmap extends InputMap {
 
-	 private KeyStroke[] keys;
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 6823114440494251428L;
+	private KeyStroke[] keys;
 
 	 public MyFilteringInputmap(InputMap parent, KeyStroke[] keys) {
 		 super();

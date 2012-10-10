@@ -166,6 +166,7 @@ public class MyDBTreeModel implements TreeModel {
 	public void valueForPathChanged(final TreePath path, final Object newvalue) {}
 
 	
+	  @SuppressWarnings("unchecked")
 	private void setTable(final MyTable myT) {
 		if (myT != null) {
 			root = new DefaultMutableTreeNode(new MyDBTreeNode(0, "", "Codes", false, -1));			

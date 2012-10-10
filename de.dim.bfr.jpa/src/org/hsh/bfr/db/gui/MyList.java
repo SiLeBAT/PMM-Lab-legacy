@@ -118,7 +118,12 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    this.setCellRenderer(renderer);
 	
 		    this.setCellRenderer(new DefaultTreeCellRenderer() {
-		        @Override
+		        /**
+				 * 
+				 */
+				private static final long serialVersionUID = 6600365951951898780L;
+
+				@Override
 				public Component getTreeCellRendererComponent(final JTree tree,
 		            final Object value, final boolean sel, final boolean expanded, final boolean leaf,
 		            final int row, final boolean hasFocus) {

@@ -20,6 +20,10 @@ import de.bund.bfr.knime.pmm.common.ParametricModel;
  */
 public class SecDialog extends JDialog {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private HashMap<String, ParametricModel> m_secondaryModels;
 	private String m_depVar;
 	private MMC_M m_m2;

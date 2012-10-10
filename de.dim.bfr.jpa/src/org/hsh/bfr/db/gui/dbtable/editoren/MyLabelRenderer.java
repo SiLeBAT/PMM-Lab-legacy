@@ -49,6 +49,11 @@ import quick.dbtable.CellComponent;
  */
 public class MyLabelRenderer extends JLabel implements CellComponent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public MyLabelRenderer() {
 		this.setHorizontalAlignment(JLabel.CENTER);
 		this.setVerticalAlignment(JLabel.TOP);

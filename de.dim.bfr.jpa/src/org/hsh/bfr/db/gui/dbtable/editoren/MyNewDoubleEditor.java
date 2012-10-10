@@ -74,6 +74,10 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class MyNewDoubleEditor extends JDialog {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private boolean inited = false;
 	private Object oldValue;
 	private String spaltenName;
@@ -785,7 +789,7 @@ public class MyNewDoubleEditor extends JDialog {
 						String str = rs.getString(label11.getText());
 						if (str != null) {
 							button11.setToolTipText(str);
-							boolean ass = rs.getBoolean(label11.getText() + "_g");
+							//boolean ass = rs.getBoolean(label11.getText() + "_g");
 							String comboVal = rs.getString("x") == null ? "" : rs.getString("x");
 							for (int i=0;i<comboBox11.getItemCount();i++) {
 								if (comboBox11.getItemAt(i).equals(comboVal)) {

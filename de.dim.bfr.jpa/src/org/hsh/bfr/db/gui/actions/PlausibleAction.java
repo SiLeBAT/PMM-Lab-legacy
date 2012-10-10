@@ -75,6 +75,10 @@ import org.jsoup.nodes.Element;
  */
 public class PlausibleAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5441488921384865553L;
 	private JProgressBar progress;
 	private MyDBTable myDB;
 

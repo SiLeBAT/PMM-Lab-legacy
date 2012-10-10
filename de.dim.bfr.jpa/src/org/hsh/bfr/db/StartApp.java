@@ -36,15 +36,10 @@
  */
 package org.hsh.bfr.db;
 
-import java.awt.Component;
 import java.awt.Font;
-import java.awt.KeyboardFocusManager;
-import java.awt.Window;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -216,6 +211,7 @@ public class StartApp {
 		}
 	      }
 	    }   
+	/*
 	private static void testFocus() {
 
 		final Timer timer = new Timer();
@@ -239,4 +235,5 @@ public class StartApp {
 		timer.scheduleAtFixedRate(task, 0, 1000);
 		// wiederholt sich unendlich immer nach einer Sekunde (1000 Millisekunden)
 	}
+	*/
 }

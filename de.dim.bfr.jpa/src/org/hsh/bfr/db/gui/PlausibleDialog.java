@@ -50,6 +50,10 @@ import com.jgoodies.forms.layout.*;
  * @author Armin Weiser
  */
 public class PlausibleDialog extends JDialog {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2854403990155736490L;
 	public boolean okPressed = false;
 	public PlausibleDialog(Frame owner) {
 		super(owner);

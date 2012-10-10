@@ -45,6 +45,10 @@ import org.hsh.bfr.db.gui.MyList;
 
 public class VisibilityAction  extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5463247920683512461L;
 	private MyList myList;
 	private String tableName;
 	

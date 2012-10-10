@@ -82,9 +82,9 @@ public class ModelCombiner {
 			doNotReplace = new HashMap<String, String>();
 		}
 
-		Map<String, KnimeTuple> newTuplesByOldID = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, List<KnimeTuple>> usedTuplesByOldID = new HashMap<String, List<KnimeTuple>>();
-		Map<String, Set<String>> replacementsByOldID = new HashMap<String, Set<String>>();
+		Map<String, KnimeTuple> newTuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<String, List<KnimeTuple>>();
+		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
 
 		for (KnimeTuple tuple : tuples) {
 			String id = null;
@@ -96,7 +96,7 @@ public class ModelCombiner {
 				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
 			}
 
-			if (!newTuplesByOldID.containsKey(id)) {
+			if (!newTuples.containsKey(id)) {
 				KnimeTuple newTuple = new KnimeTuple(outSchema);
 
 				for (int i = 0; i < outSchema.size(); i++) {
@@ -106,89 +106,88 @@ public class ModelCombiner {
 				}
 
 				if (discardPrimaryParams) {
-					newTuple.setValue(Model1Schema.ATT_VALUE, Collections
-							.nCopies(
-									newTuple.getDoubleList(
-											Model1Schema.ATT_VALUE).size(),
-									null));
+					int n = newTuple.getDoubleList(Model1Schema.ATT_VALUE)
+							.size();
+
+					newTuple.setValue(Model1Schema.ATT_VALUE,
+							Collections.nCopies(n, null));
 				}
 
-				newTuplesByOldID.put(id, newTuple);
-				usedTuplesByOldID.put(id, new ArrayList<KnimeTuple>());
-				replacementsByOldID.put(id, new HashSet<String>());
+				newTuples.put(id, newTuple);
+				usedTupleLists.put(id, new ArrayList<KnimeTuple>());
+				replacements.put(id, new HashSet<String>());
 			}
 
 			String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
 
-			if (depVarSec.equals(doNotReplace.get(tuple
-					.getInt(Model1Schema.ATT_MODELID) + ""))) {
-				continue;
+			if (!depVarSec.equals(doNotReplace.get(tuple
+					.getInt(Model1Schema.ATT_MODELID) + ""))
+					&& replacements.get(id).add(depVarSec)) {
+				usedTupleLists.get(id).add(tuple);
 			}
-
-			if (!replacementsByOldID.get(id).add(depVarSec)) {
-				continue;
-			}
-
-			usedTuplesByOldID.get(id).add(tuple);
-
-			KnimeTuple newTuple = newTuplesByOldID.get(id);
-			String formulaSec = tuple.getString(Model2Schema.ATT_FORMULA);
-			List<String> indepVarsSec = tuple
-					.getStringList(Model2Schema.ATT_INDEPVAR);
-			List<String> keysSec = tuple
-					.getStringList(Model2Schema.ATT_PARAMNAME);
-			List<Double> valuesSec = tuple
-					.getDoubleList(Model2Schema.ATT_VALUE);
-
-			for (int i = 0; i < keysSec.size(); i++) {
-				int index = 1;
-				String newKey = keysSec.get(i);
-
-				while (newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
-						.contains(newKey)) {
-					index++;
-					newKey = keysSec.get(i) + index;
-				}
-
-				if (index > 1) {
-					formulaSec = MathUtilities.replaceVariable(formulaSec,
-							keysSec.get(i), newKey);
-					keysSec.set(i, newKey);
-				}
-			}
-
-			String replacement = "(" + formulaSec.replace(depVarSec + "=", "")
-					+ ")";
-			String newFormula = MathUtilities.replaceVariable(
-					newTuple.getString(Model1Schema.ATT_FORMULA), depVarSec,
-					replacement);
-			Set<String> newIndepVars = new LinkedHashSet<String>();
-			List<String> newKeys = new ArrayList<String>();
-			List<Double> newValues = new ArrayList<Double>();
-
-			newIndepVars.addAll(newTuple
-					.getStringList(Model1Schema.ATT_INDEPVAR));
-			newIndepVars.addAll(indepVarsSec);
-			newValues.addAll(newTuple.getDoubleList(Model1Schema.ATT_VALUE));
-			newKeys.addAll(newTuple.getStringList(Model1Schema.ATT_PARAMNAME));
-			newValues.remove(newKeys.indexOf(depVarSec));
-			newKeys.remove(depVarSec);
-			newValues.addAll(valuesSec);
-			newKeys.addAll(keysSec);
-
-			newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
-			newTuple.setValue(Model1Schema.ATT_INDEPVAR, new ArrayList<String>(
-					newIndepVars));
-			newTuple.setValue(Model1Schema.ATT_PARAMNAME, newKeys);
-			newTuple.setValue(Model1Schema.ATT_VALUE, newValues);
-			newTuplesByOldID.put(id, newTuple);
 		}
 
-		Map<KnimeTuple, List<KnimeTuple>> newTuples = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
 
-		for (String id : newTuplesByOldID.keySet()) {
-			KnimeTuple newTuple = newTuplesByOldID.get(id);
-			List<KnimeTuple> usedTuples = usedTuplesByOldID.get(id);
+		for (String id : newTuples.keySet()) {
+			KnimeTuple newTuple = newTuples.get(id);
+			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
+
+			for (KnimeTuple tuple : usedTuples) {
+				String formulaSec = tuple.getString(Model2Schema.ATT_FORMULA);
+				String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
+				List<String> indepVarsSec = tuple
+						.getStringList(Model2Schema.ATT_INDEPVAR);
+				List<String> keysSec = tuple
+						.getStringList(Model2Schema.ATT_PARAMNAME);
+				List<Double> valuesSec = tuple
+						.getDoubleList(Model2Schema.ATT_VALUE);
+
+				for (int i = 0; i < keysSec.size(); i++) {
+					int index = 1;
+					String newKey = keysSec.get(i);
+
+					while (newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
+							.contains(newKey)) {
+						index++;
+						newKey = keysSec.get(i) + index;
+					}
+
+					if (index > 1) {
+						formulaSec = MathUtilities.replaceVariable(formulaSec,
+								keysSec.get(i), newKey);
+						keysSec.set(i, newKey);
+					}
+				}
+
+				String replacement = "("
+						+ formulaSec.replace(depVarSec + "=", "") + ")";
+				String newFormula = MathUtilities.replaceVariable(
+						newTuple.getString(Model1Schema.ATT_FORMULA),
+						depVarSec, replacement);
+				Set<String> newIndepVars = new LinkedHashSet<String>();
+				List<String> newKeys = new ArrayList<String>();
+				List<Double> newValues = new ArrayList<Double>();
+
+				newIndepVars.addAll(newTuple
+						.getStringList(Model1Schema.ATT_INDEPVAR));
+				newIndepVars.addAll(indepVarsSec);
+				newValues
+						.addAll(newTuple.getDoubleList(Model1Schema.ATT_VALUE));
+				newKeys.addAll(newTuple
+						.getStringList(Model1Schema.ATT_PARAMNAME));
+				newValues.remove(newKeys.indexOf(depVarSec));
+				newKeys.remove(depVarSec);
+				newValues.addAll(valuesSec);
+				newKeys.addAll(keysSec);
+
+				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
+				newTuple.setValue(Model1Schema.ATT_INDEPVAR,
+						new ArrayList<String>(newIndepVars));
+				newTuple.setValue(Model1Schema.ATT_PARAMNAME, newKeys);
+				newTuple.setValue(Model1Schema.ATT_VALUE, newValues);
+			}
+
 			int modelCount = usedTuples.size() + 1;
 			int paramCount = newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
 					.size();
@@ -238,9 +237,9 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_MAXINDEP,
 					Collections.nCopies(indepCount, null));
 
-			newTuples.put(newTuple, usedTuples);
+			tupleCombinations.put(newTuple, usedTuples);
 		}
 
-		return newTuples;
+		return tupleCombinations;
 	}
 }

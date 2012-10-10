@@ -38,9 +38,9 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,8 +109,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		double concentration;
-		List<String> concentrationParameters;
-		Map<String, String> paramMap = new HashMap<String, String>();
+		Map<String, String> concentrationParameters;
 
 		try {
 			concentration = settings
@@ -120,19 +119,20 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		}
 
 		try {
-			concentrationParameters = new ArrayList<String>(
-					Arrays.asList(settings
-							.getStringArray(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
+			String paramsString = settings
+					.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS);
+
+			concentrationParameters = new LinkedHashMap<String, String>();
+
+			if (!paramsString.isEmpty()) {
+				for (String assign : paramsString.split(",")) {
+					String[] elems = assign.split(":");
+
+					concentrationParameters.put(elems[0], elems[1]);
+				}
+			}
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new ArrayList<String>();
-		}
-
-		for (String assign : concentrationParameters) {
-			int i = assign.indexOf(":");
-			String id = assign.substring(0, i);
-			String param = assign.substring(i + 1);
-
-			paramMap.put(id, param);
+			concentrationParameters = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -142,7 +142,8 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		}
 
 		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createPanel(concentration, paramMap));
+		((JPanel) getTab("Options")).add(createPanel(concentration,
+				concentrationParameters));
 	}
 
 	@Override
@@ -156,17 +157,24 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATION,
 				valueField.getValue());
 
-		List<String> parameters = new ArrayList<String>();
+		StringBuilder paramsString = new StringBuilder();
 
 		for (String id : ids) {
 			if (!paramBoxes.get(id).getSelectedItem().equals("")) {
-				parameters.add(id + ":" + paramBoxes.get(id).getSelectedItem());
+				paramsString.append(id);
+				paramsString.append(":");
+				paramsString.append(paramBoxes.get(id).getSelectedItem());
+				paramsString.append(",");
 			}
 		}
 
-		settings.addStringArray(
+		if (paramsString.length() > 0) {
+			paramsString.deleteCharAt(paramsString.length() - 1);
+		}
+
+		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				parameters.toArray(new String[0]));
+				paramsString.toString());
 	}
 
 	private void readTable(BufferedDataTable table) throws PmmException {
@@ -176,7 +184,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
 		}
-		
+
 		Set<String> idSet = new HashSet<String>();
 
 		ids = new ArrayList<String>();

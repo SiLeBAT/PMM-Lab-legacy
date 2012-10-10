@@ -36,10 +36,10 @@ package de.bund.bfr.knime.pmm.forecaststaticconditions;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +82,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	static final double DEFAULT_CONCENTRATION = 3.0;
 
 	private double concentration;
-	private List<String> concentrationParameters;
+	private Map<String, String> concentrationParameters;
 
 	private KnimeSchema peiSchema;
 	private KnimeSchema seiSchema;
@@ -94,7 +94,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected ForecastStaticConditionsNodeModel() {
 		super(1, 1);
 		concentration = DEFAULT_CONCENTRATION;
-		concentrationParameters = new ArrayList<String>();
+		concentrationParameters = new LinkedHashMap<String, String>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -145,6 +145,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 
+			if (concentrationParameters.isEmpty()) {
+				throw new InvalidSettingsException("Node has to be configured");
+			}
+
 			return new DataTableSpec[] { schema.createSpec() };
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -159,10 +163,23 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
 
-		if (concentrationParameters != null) {
-			settings.addStringArray(CFGKEY_CONCENTRATIONPARAMETERS,
-					concentrationParameters.toArray(new String[0]));
+		StringBuilder paramsString = new StringBuilder();
+
+		for (String id : concentrationParameters.keySet()) {
+			String param = concentrationParameters.get(id);
+
+			paramsString.append(id);
+			paramsString.append(":");
+			paramsString.append(param);
+			paramsString.append(",");
 		}
+
+		if (paramsString.length() > 0) {
+			paramsString.deleteCharAt(paramsString.length() - 1);
+		}
+
+		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
+				paramsString.toString());
 	}
 
 	/**
@@ -178,11 +195,20 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		try {
-			concentrationParameters = new ArrayList<String>(
-					Arrays.asList(settings
-							.getStringArray(CFGKEY_CONCENTRATIONPARAMETERS)));
+			String paramsString = settings
+					.getString(CFGKEY_CONCENTRATIONPARAMETERS);
+
+			concentrationParameters = new LinkedHashMap<String, String>();
+
+			if (!paramsString.isEmpty()) {
+				for (String assign : paramsString.split(",")) {
+					String[] elems = assign.split(":");
+
+					concentrationParameters.put(elems[0], elems[1]);
+				}
+			}
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new ArrayList<String>();
+			concentrationParameters = new LinkedHashMap<String, String>();
 		}
 	}
 
@@ -216,22 +242,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			ExecutionContext exec) throws Exception {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
-		Map<String, String> paramMap = new HashMap<String, String>();
-
-		for (String assign : concentrationParameters) {
-			int i = assign.indexOf(":");
-			String id = assign.substring(0, i);
-			String param = assign.substring(i + 1);
-
-			paramMap.put(id, param);
-		}
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, schema, true, paramMap);
+				.combine(tuples, schema, true, concentrationParameters);
 		Set<String> idSet = new HashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
@@ -251,7 +268,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					.getDoubleList(TimeSeriesSchema.ATT_TIME);
 			List<Double> logcs;
 
-			if (paramMap.containsKey(oldID)) {
+			if (concentrationParameters.containsKey(oldID)) {
 				Double temp = newTuple
 						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				Double ph = newTuple.getDouble(TimeSeriesSchema.ATT_PH);
@@ -263,7 +280,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				List<Double> values = newTuple
 						.getDoubleList(Model1Schema.ATT_VALUE);
 				Map<String, Double> constants = new HashMap<String, Double>();
-				String initialParameter = paramMap.get(oldID);
+				String initialParameter = concentrationParameters.get(oldID);
 
 				values.set(params.indexOf(initialParameter), concentration);
 				checkPrimaryModel(combinedTuples.get(newTuple).get(0),
@@ -285,6 +302,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					logcs.add(computeLogc(formula, constants));
 				}
 			} else {
+				setWarningMessage("Initial Concentration Parameter for "
+						+ combinedTuples
+								.get(newTuple)
+								.get(0)
+								.getString(
+										Model1Schema.ATT_MODELNAME
+												+ "is not specified"));
 				logcs = Collections.nCopies(times.size(), null);
 			}
 
@@ -294,8 +318,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				List<Double> values = tuple
 						.getDoubleList(Model1Schema.ATT_VALUE);
 
-				if (paramMap.containsKey(oldID)) {
-					values.set(params.indexOf(paramMap.get(oldID)),
+				if (concentrationParameters.containsKey(oldID)) {
+					values.set(
+							params.indexOf(concentrationParameters.get(oldID)),
 							concentration);
 				} else {
 					values = Collections.nCopies(values.size(), null);
@@ -321,15 +346,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			ExecutionContext exec) throws Exception {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
-		Map<String, String> paramMap = new HashMap<String, String>();
-
-		for (String assign : concentrationParameters) {
-			int i = assign.indexOf(":");
-			String id = assign.substring(0, i);
-			String param = assign.substring(i + 1);
-
-			paramMap.put(id, param);
-		}
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -345,7 +361,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			List<Double> times = tuple.getDoubleList(TimeSeriesSchema.ATT_TIME);
 			List<Double> logcs;
 
-			if (paramMap.containsKey(id)) {
+			if (concentrationParameters.containsKey(id)) {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 				Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
@@ -353,7 +369,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				List<String> params = tuple
 						.getStringList(Model1Schema.ATT_PARAMNAME);
 				Map<String, Double> constants = new HashMap<String, Double>();
-				String initialParameter = paramMap.get(id);
+				String initialParameter = concentrationParameters.get(id);
 
 				values.set(params.indexOf(initialParameter), concentration);
 				checkPrimaryModel(tuple, initialParameter, true);
@@ -373,6 +389,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					logcs.add(computeLogc(formula, constants));
 				}
 			} else {
+				setWarningMessage("Initial Concentration Parameter for "
+						+ tuple.getString(Model1Schema.ATT_MODELNAME
+								+ "is not specified"));
 				logcs = Collections.nCopies(times.size(), null);
 			}
 

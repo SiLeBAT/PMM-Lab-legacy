@@ -94,7 +94,7 @@ public class ParameterOptimizer {
 				}
 			}
 		}
-		
+
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
@@ -212,7 +212,11 @@ public class ParameterOptimizer {
 			List<Double> startValues = new ArrayList<Double>(parameters.size());
 
 			for (double value : bestValues) {
-				startValues.add(value * factor);
+				if (value != 0.0) {
+					startValues.add(value * factor);
+				} else {
+					startValues.add(factor - 1);
+				}
 			}
 
 			try {

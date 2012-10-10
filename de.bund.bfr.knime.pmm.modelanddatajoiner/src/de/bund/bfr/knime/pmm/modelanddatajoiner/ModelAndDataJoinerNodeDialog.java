@@ -152,7 +152,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 			assignString.deleteCharAt(assignString.length() - 1);
 		}
 
-		System.out.println(assignString.toString());
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
 				assignString.toString());
 
@@ -166,6 +165,10 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 						ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
 						0);
 			}
+		} else {
+			settings.addInt(
+					ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
+					ModelAndDataJoinerNodeModel.DEFAULT_JOINSAMECONDITIONS);
 		}
 	}
 }

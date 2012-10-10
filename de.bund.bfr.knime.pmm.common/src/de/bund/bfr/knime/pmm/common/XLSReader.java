@@ -1,11 +1,9 @@
 package de.bund.bfr.knime.pmm.common;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;

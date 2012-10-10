@@ -126,7 +126,12 @@ public class ModelTableModel extends JTable {
 	
 	private class BooleanTableModel extends AbstractTableModel {
  
-        public int getRowCount() {
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public int getRowCount() {
         	if (thePM == null) return 0;
         	else return thePM.getAllParVars().size();
         }

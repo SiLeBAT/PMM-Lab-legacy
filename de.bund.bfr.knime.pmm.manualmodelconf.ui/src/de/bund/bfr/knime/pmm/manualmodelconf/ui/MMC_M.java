@@ -7,7 +7,6 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Array;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -37,6 +36,11 @@ import de.dim.bfr.external.service.BFRNodeService;
  * @author Armin Weiser
  */
 public class MMC_M extends JPanel {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	private static final String LABEL_OWNMODEL = "Manually defined formula";
 

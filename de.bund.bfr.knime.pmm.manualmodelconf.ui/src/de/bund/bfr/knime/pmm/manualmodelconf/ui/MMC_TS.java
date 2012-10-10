@@ -20,6 +20,10 @@ import de.bund.bfr.knime.pmm.common.ui.*;
  * @author Armin Weiser
  */
 public class MMC_TS extends JPanel {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public MMC_TS() {
 		initComponents();
 	}

@@ -45,7 +45,11 @@ import javax.swing.KeyStroke;
  */
 public class FilteringInputMap extends InputMap {
 
-	 private KeyStroke[] disableKeys;
+	 /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private KeyStroke[] disableKeys;
 
 	 public FilteringInputMap(InputMap parent, KeyStroke[] disableKeys) {
 		 super();

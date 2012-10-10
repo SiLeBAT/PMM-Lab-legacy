@@ -51,12 +51,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.gui.dbtable.editoren.MyComboBoxEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyNewDoubleEditor;
-
-import quick.dbtable.Column;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -66,6 +62,10 @@ import com.jgoodies.forms.layout.*;
  */
 public class MyDBForm extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyTable myT;
 	private HashMap<String, JComponent> componentMap;
 	private int initVal;

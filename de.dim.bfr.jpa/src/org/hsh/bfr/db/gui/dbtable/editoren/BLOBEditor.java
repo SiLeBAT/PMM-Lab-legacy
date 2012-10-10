@@ -63,7 +63,11 @@ import java.io.*;
 
 public class BLOBEditor extends JFileChooser implements TableCellEditor {
 
-  //static final long serialVersionUID = 8847671986526504938L;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+//static final long serialVersionUID = 8847671986526504938L;
   
   protected Vector listeners = new Vector();
   Point screenLoc;
@@ -142,7 +146,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
       }
     };
   }
-
+/*
   private byte[] getBytes() {
     byte[] b = null;
     try {
@@ -158,7 +162,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
     catch (Exception e) {MyLogger.handleException(e);}
     return b;
   }
-
+*/
   public Component getTableCellEditorComponent(JTable table,
                                                Object value,
                                                boolean isSelected,

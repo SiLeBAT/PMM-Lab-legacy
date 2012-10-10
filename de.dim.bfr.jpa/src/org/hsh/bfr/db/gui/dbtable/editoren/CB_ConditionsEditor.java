@@ -40,18 +40,12 @@ package org.hsh.bfr.db.gui.dbtable.editoren;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Enumeration;
-import java.util.EventObject;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.Vector;
 
 import javax.swing.*;
-import javax.swing.event.CellEditorListener;
-import javax.swing.event.ChangeEvent;
-import javax.swing.table.TableCellEditor;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
@@ -64,6 +58,10 @@ import com.jgoodies.forms.layout.*;
  */
 public class CB_ConditionsEditor extends JDialog {
 		
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDBTable;
 	private int selectedColumn;
 	private static Hashtable<String, String> cbDefs = null;
@@ -105,10 +103,6 @@ public class CB_ConditionsEditor extends JDialog {
 
 	private void button2ActionPerformed(ActionEvent e) {
 		dispose();	
-	}
-
-	private void textField6KeyTyped(KeyEvent e) {
-		// TODO add your code here
 	}
 
 	private void initComponents() {

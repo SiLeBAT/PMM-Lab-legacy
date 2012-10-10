@@ -42,8 +42,6 @@ import java.util.GregorianCalendar;
 import javax.swing.undo.UndoManager;
 import javax.swing.undo.UndoableEdit;
 
-import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-
 /**
  * Extension of the Swing UndoManager that manages the PCS Edit Menu items
  * 

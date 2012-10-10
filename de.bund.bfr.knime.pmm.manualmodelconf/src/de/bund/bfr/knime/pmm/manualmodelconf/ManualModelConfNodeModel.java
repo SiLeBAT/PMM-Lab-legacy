@@ -38,11 +38,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.knime.core.data.DataColumnSpec;
-import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -372,7 +369,7 @@ public class ManualModelConfNodeModel extends NodeModel {
             final ExecutionMonitor exec) throws IOException,
             CanceledExecutionException {}
     
-    
+    /*
     private DataTableSpec createXmlSpec() {
     	
     	DataColumnSpec[] spec;
@@ -382,6 +379,6 @@ public class ManualModelConfNodeModel extends NodeModel {
     	
     	return new DataTableSpec( spec );
     }
-
+*/
 }
 

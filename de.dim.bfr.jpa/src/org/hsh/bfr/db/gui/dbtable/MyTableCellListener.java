@@ -39,7 +39,6 @@ package org.hsh.bfr.db.gui.dbtable;
 import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;

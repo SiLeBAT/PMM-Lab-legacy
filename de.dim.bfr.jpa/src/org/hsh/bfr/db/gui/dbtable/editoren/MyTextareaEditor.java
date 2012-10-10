@@ -57,12 +57,16 @@ import quick.dbtable.CellComponent;
  */
 public class MyTextareaEditor extends JTextArea implements CellComponent, KeyListener {
 
-	private MyDBTable myDB = null;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	//private MyDBTable myDB = null;
 	private JScrollPane myScroller = null;
 	private ActionListener listener = null;
   
 	public MyTextareaEditor(MyDBTable myDB) {
-		this.myDB = myDB;
+		//this.myDB = myDB;
 		this.setLineWrap(true);
 		this.setWrapStyleWord(true);
 		myScroller = new JScrollPane(this);

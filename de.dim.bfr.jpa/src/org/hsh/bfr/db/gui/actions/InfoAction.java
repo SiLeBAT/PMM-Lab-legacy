@@ -47,7 +47,12 @@ import org.hsh.bfr.db.gui.About;
  */
 public class InfoAction extends AbstractAction {
 
-  public InfoAction(String name, Icon icon, String toolTip) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public InfoAction(String name, Icon icon, String toolTip) {
     putValue(Action.NAME, name);
     putValue(Action.SHORT_DESCRIPTION, toolTip);
     putValue(Action.SMALL_ICON, icon);

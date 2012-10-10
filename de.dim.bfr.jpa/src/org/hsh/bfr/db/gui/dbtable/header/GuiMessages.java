@@ -33,7 +33,6 @@
  ******************************************************************************/
 package org.hsh.bfr.db.gui.dbtable.header;
 
-import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.hsh.bfr.db.DBKernel;

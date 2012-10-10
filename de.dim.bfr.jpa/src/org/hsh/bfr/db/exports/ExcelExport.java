@@ -39,9 +39,7 @@ package org.hsh.bfr.db.exports;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.sql.ResultSet;
-import java.text.NumberFormat;
 import java.util.Hashtable;
-import java.util.Locale;
 
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
@@ -121,7 +119,7 @@ public class ExcelExport extends FileFilter {
 			    		cell.setCellValue(myDB.getColumn(j).getColumnName()); cell.setCellStyle(cs);	    			
 		    		}
 		    	}
-		    	String[] mnTable = myDB.getActualTable().getMNTable();
+		    	//String[] mnTable = myDB.getActualTable().getMNTable();
 		    	MyTable[] myFs = myDB.getActualTable().getForeignFields();
 		    	for (int i = 1; i <= myDB.getRowCount(); i++) {
 		    		if (progress != null) progress.setValue(i);

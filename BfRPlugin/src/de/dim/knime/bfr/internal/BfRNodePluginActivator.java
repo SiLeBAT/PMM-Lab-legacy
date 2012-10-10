@@ -60,7 +60,7 @@ public class BfRNodePluginActivator extends AbstractUIPlugin
 	private static ServiceTracker tracker;
 	
     private static File rExecutable;
-    private static File rPackageFile;
+    //private static File rPackageFile;
 
     /**
      * @return R executable

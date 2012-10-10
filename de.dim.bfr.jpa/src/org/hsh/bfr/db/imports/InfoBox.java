@@ -35,7 +35,11 @@ import com.jgoodies.forms.layout.RowSpec;
  */
 public class InfoBox extends JDialog {
 
-  String inhalt = "";
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+String inhalt = "";
 
   public InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font) {
 	  this(inhalt, keyDispose, dim, font, false);

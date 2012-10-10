@@ -48,7 +48,6 @@ import javax.swing.table.TableRowSorter;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBForm;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-import org.hsh.bfr.db.gui.dbtable.TableColumnAdjuster;
 
 /**
  * @author Armin

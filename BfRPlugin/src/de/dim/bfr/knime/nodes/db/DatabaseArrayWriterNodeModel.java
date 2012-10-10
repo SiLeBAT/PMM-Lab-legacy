@@ -18,7 +18,6 @@ package de.dim.bfr.knime.nodes.db;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -58,6 +57,7 @@ public class DatabaseArrayWriterNodeModel extends NodeModel {
 
 	private static NodeLogger logger = NodeLogger
 			.getLogger(DatabaseArrayWriterNodeModel.class);
+	/*
 	private static final String PRE_COLNAME = "SELECT C.TABLE_NAME FROM "
 			+ "(SELECT TABLE_NAME, COUNT(TABLE_NAME) AS COUNTER "
 			+ "FROM INFORMATION_SCHEMA.COLUMNS WHERE COLUMN_NAME IN (";
@@ -66,7 +66,7 @@ public class DatabaseArrayWriterNodeModel extends NodeModel {
 			+ "INFORMATION_SCHEMA.COLUMNS GROUP BY TABLE_NAME)as D "
 			+ "WHERE C.TABLE_NAME = D.TABLE_NAME AND C.COUNTER = D.COUNTER";
 	private static final String CONSTRAINTS = "SELECT DISTINCT COLUMN_NAME FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE WHERE TABLE_NAME = '";// GeschaetzteParameter'";
-
+	*/
 	private static final String FOREIGN_KEY = "select PKTABLE_NAME, PKCOLUMN_NAME, FKCOLUMN_NAME from INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE WHERE FKTABLE_NAME = ?";
 	private static final String PRIMARY_KEY = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_PRIMARYKEYS WHERE TABLE_NAME= ?";
 
@@ -106,14 +106,14 @@ public class DatabaseArrayWriterNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 //		loadSettings(settings, true);
 	}
-
+/*
 	private void loadSettings(final NodeSettingsRO settings, final boolean write)
 			throws InvalidSettingsException {
 //		if (settings.containsKey("test"))
 //			update = DatabaseArrayWriterNodePane.UPDATE.equals(settings
 //					.getString("test"));
 	}
-
+*/
 	/**
 	 * {@inheritDoc}
 	 */

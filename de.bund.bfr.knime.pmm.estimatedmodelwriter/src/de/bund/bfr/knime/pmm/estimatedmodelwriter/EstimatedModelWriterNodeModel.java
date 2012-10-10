@@ -217,10 +217,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-						int newMID = db.insertM(ppm, varParMap);
+						db.insertM(ppm, varParMap);
 						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
-						//ppm.setModelId(newMID);
 						alreadyInsertedModel.put(rowMcID, ppm);
 					}
 		    		ppm.setRms(rms == null ? Double.NaN : rms);
@@ -305,10 +304,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
 								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-					    		int newSMID = db.insertM(spm, varParMap);
+					    		db.insertM(spm, varParMap);
 								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
-								//spm.setModelId(newSMID);
 								alreadyInsertedModel.put(rowMcID, spm);
 							}
 				    		spm.setRms(rms);

@@ -131,7 +131,6 @@ public class JPAVersuchsbedingungenSonstiges implements Serializable{
     @Override
     public int hashCode() {
         Integer result;
-        long temp;
         result = id;
         result = 31 * result + einheit;
         result = 31 * result + (jaNein ? 1 : 0);

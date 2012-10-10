@@ -71,7 +71,6 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.undoredo.BfRUndoManager;
 import org.hsh.bfr.db.gui.dbtable.undoredo.TableCellEdit;
 import org.hsh.bfr.db.imports.InfoBox;
-import org.hsqldb.server.Server;
 
 /**
  * @author Armin
@@ -153,6 +152,7 @@ public class DBKernel {
 		}
 		return false;
 	}
+	/*
 	private static Integer getNextChangeLogID(final Connection conn) {
 		Integer result = null;
 	    try {
@@ -168,6 +168,7 @@ public class DBKernel {
 	    }
 		return result;
 	}
+	*/
 	private static Integer callIdentity(final Connection conn) {
 		Integer result = null;
 	    try {
@@ -561,10 +562,12 @@ public class DBKernel {
     	              	}
     	              	Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
     	      	    	MyLogger.handleMessage("vor CHECKPOINT DEFRAG");
+    	      	    	/*
     	              	if (false && kompakt)
     	  				 {
     	  					stmt.execute("CHECKPOINT DEFRAG"); // wir machen hier lieber 'CHECKPOINT DEFRAG', weil 'CHECKPOINT DEFRAG' im Gegensatz zu SHUTDOWN COMPACT bisher noch keine outofmemory Exception geworfen hat
     	  				}
+    	  				*/
     	      	    	MyLogger.handleMessage("vor SHUTDOWN");
     	      	        //stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
     	      	        if (DBKernel.isKrise || DBKernel.isStatUp) {
@@ -631,11 +634,11 @@ public class DBKernel {
 										}
 						        		pathname = tmpFolder + filename;
 						        		out = new FileOutputStream(pathname);
-							        	int c;
+							        	//int c;
 							        	//while ((c = is.read()) != -1) out.write(c);
 				                          int availableLength = is.available();
 				                          byte[] totalBytes = new byte[availableLength];
-				                          int bytedata = is.read(totalBytes);
+				                          //int bytedata = is.read(totalBytes);
 				                          out.write(totalBytes);
 							        	//byte[] ba = out.toByteArray();
 							        	//System.out.println("InputStreamLen = " + ba.length + "\tfeldname = " + feldname + "\ttableID = " + tableID + "\tfilename = " + filename);
@@ -850,7 +853,7 @@ public class DBKernel {
    * 
    * 
    */
-
+/*
   private static void startHsqldbServer(final String filename, final String DBname) {
       boolean isNetwork = true;
       if (isNetwork) {
@@ -874,7 +877,7 @@ public class DBKernel {
       }
 */
       //shutdownDataBase();
-  }
+//  }
   /*
   public static void main(String[] args) { 
 	  if (args.length > 1) {
@@ -882,6 +885,7 @@ public class DBKernel {
 	  }
   }
 */
+  /*
   private static Object getCryptKey() {
   	Object result = null;
 		ResultSet rs = getResultSet("SELECT CRYPT_KEY('Blowfish', null) FROM " + delimitL("Users"), true);
@@ -893,6 +897,7 @@ public class DBKernel {
 		catch (Exception e) {MyLogger.handleException(e);}
 		return result;
   }
+  */
   public static Integer getID(final String tablename, final String feldname, final String feldVal) {
 	  Integer result = null;
 	  String sql = "SELECT " + delimitL("ID") + " FROM " + delimitL(tablename) + " WHERE " + delimitL(feldname);

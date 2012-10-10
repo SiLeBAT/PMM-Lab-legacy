@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.util.List;
 import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
@@ -52,7 +51,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -62,9 +60,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
-import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
-import de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodeModel;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**

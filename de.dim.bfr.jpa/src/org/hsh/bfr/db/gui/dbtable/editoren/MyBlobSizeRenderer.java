@@ -50,6 +50,10 @@ import quick.dbtable.CellComponent;
  */
 public class MyBlobSizeRenderer extends JLabel implements CellComponent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private DecimalFormat df = new DecimalFormat("0.00");
 
 	public MyBlobSizeRenderer() {

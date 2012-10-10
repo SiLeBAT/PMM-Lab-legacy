@@ -120,7 +120,6 @@ public class JPAMesswerteSonstiges implements Serializable{
     @Override
     public int hashCode() {
         Integer result;
-        long temp;
         result = id;
         result = 31 * result + (jaNein ? 1 : 0);
         result = 31 * result + (kommentar != null ? kommentar.hashCode() : 0);

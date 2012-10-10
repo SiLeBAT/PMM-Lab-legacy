@@ -17,8 +17,6 @@
 package de.dim.bfr.jpa.service;
 
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -488,7 +486,7 @@ public class PersistenceManager {
 		HashMap<ParameterCovCor, JPAParameterCovCor> pccMap = saveParamCovCor(
 				jpaGeschModel, geschModel, geschParamMap);
 		tx.commit();
-		Integer newID;
+		//Integer newID;
 		for (Map.Entry<GeschModellParameter, JPAGeschaetzteParameter> e : geschParamMap.entrySet()) {
 			/*
 			newID = (e.getKey().getId() == 0) ? getIDAfterInsert(e.getValue().getId(), "GeschaetzteParameter") : e.getValue().getId();

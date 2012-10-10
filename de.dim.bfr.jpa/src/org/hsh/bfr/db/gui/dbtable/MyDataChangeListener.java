@@ -36,19 +36,13 @@
  */
 package org.hsh.bfr.db.gui.dbtable;
 
-import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
-import org.hsh.bfr.db.PlausibilityChecker;
-import org.hsh.bfr.db.Users;
-import org.hsh.bfr.db.imports.InfoBox;
-import org.hsqldb.Trigger;
 
 import quick.dbtable.DatabaseChangeListener;
 

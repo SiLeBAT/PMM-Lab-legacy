@@ -392,9 +392,11 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
     	MyLogger.handleException(e);
 		}
   }
+	/*
 	private String[] getTypes(String[] fieldNames, MyTable myT) {
 		return getTypes(fieldNames, myT, null);
 	}
+	
 	private String[] getTypes(String[] fieldNames, MyTable myT, String[] knownTypes) {
 		String[] result;
 		if (knownTypes == null || knownTypes.length != fieldNames.length) result = new String[fieldNames.length];
@@ -404,6 +406,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
+	*/
 	private String getType(String fieldName, MyTable myT) {
 		String result = null;
 		String[] tFieldNames = myT.getFieldNames();

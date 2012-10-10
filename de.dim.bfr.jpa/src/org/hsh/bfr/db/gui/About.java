@@ -51,6 +51,10 @@ import com.jgoodies.forms.layout.*;
  * @author Armin Weiser
  */
 public class About extends JDialog {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public About() {
 		initComponents();
 		label4.setText("Copyright \u00a9 2010 Armin Weiser.");

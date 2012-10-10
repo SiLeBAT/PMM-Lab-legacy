@@ -45,10 +45,10 @@ import quick.dbtable.DBTable;
  */
 public class MyDBComparator implements Comparator {
 
-	private DBTable myDB;
+	//private DBTable myDB;
 	
 	public MyDBComparator(DBTable myDB) {
-		this.myDB = myDB;
+		//this.myDB = myDB;
 		System.out.println("MyDBComparator");
 	}
 	

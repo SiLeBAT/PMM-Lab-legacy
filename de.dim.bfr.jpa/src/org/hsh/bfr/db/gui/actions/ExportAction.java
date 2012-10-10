@@ -53,6 +53,10 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
  */
 public class ExportAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar1;
 	private MyDBTable myDB;
 

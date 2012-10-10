@@ -60,9 +60,7 @@ import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.prefs.Preferences;
 
@@ -106,6 +104,10 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class Login extends JFrame {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private boolean firstRun;
 	
 	public Login() {
@@ -2697,7 +2699,7 @@ public class Login extends JFrame {
     }
     catch (Exception e) {MyLogger.handleException(e);}
   }
-  
+  /*
   private void getAllMetaData(MyList myList) {
 	  List<String> allTerms = new ArrayList<String>();
 	    LinkedHashMap<String, MyTable> myTables = myList.getAllTables();
@@ -2746,6 +2748,7 @@ public class Login extends JFrame {
   private String escapeStuff(String term) {
 	  return term.replace("#", "\\#").replace(" ", "\\ ").replace("=", "\\=").replace(":", "\\:").replace("\n", "\\n");
   }
+  */
 
   private void thisWindowClosing(final WindowEvent e) {
 	    if (e.getID() == WindowEvent.WINDOW_CLOSING) {

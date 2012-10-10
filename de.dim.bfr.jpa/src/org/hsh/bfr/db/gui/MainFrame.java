@@ -39,7 +39,6 @@ package org.hsh.bfr.db.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -90,6 +89,10 @@ import com.jgoodies.forms.layout.FormLayout;
  */
 public class MainFrame extends JFrame {
 		
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDB;
 	
 	public MainFrame(final MyList myList) {
@@ -103,6 +106,7 @@ public class MainFrame extends JFrame {
 		//centerOnScreen(this);
 		//this.setExtendedState(this.getExtendedState()|JFrame.MAXIMIZED_BOTH);
 	}
+	/*
 	private void centerOnScreen(JFrame frame) {
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		int w = frame.getSize().width;
@@ -111,7 +115,7 @@ public class MainFrame extends JFrame {
 		int y = (dim.height - h) / 2;
 		frame.setLocation(x, y);
 	}
-	
+	*/
   protected void addBindings() {
     InputMap inputMap = toolBar1.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
     ActionMap actionMap = toolBar1.getActionMap();

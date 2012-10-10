@@ -35,7 +35,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
-import org.knime.core.node.workflow.CredentialsProvider;
 
 import de.dim.bfr.external.service.BFRNodeService;
 import de.dim.bfr.knime.util.PluginUtils;
@@ -43,12 +42,12 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 class SimpleDatabaseReaderNodeModel extends NodeModel implements DBVariableSupportNodeModel {
     public static final String CFG_STATEMENT = "statement";
-	private static final String DEFAULT_CFG_STATEMENT = "SELECT * FROM \"PUBLIC\".\"Versuchsbedingungen\";";
+	//private static final String DEFAULT_CFG_STATEMENT = "SELECT * FROM \"PUBLIC\".\"Versuchsbedingungen\";";
 	private static final String EXPERIMENT = "Versuchsbedingungen";
 	
 	private DataTableSpec 	m_lastSpec 	= null;
 	private String m_query;
-    private DataTableSpec	m_spec 		= null;
+    //private DataTableSpec	m_spec 		= null;
 	
 	
 	private final SettingsModelString m_testQuery =
@@ -144,8 +143,8 @@ class SimpleDatabaseReaderNodeModel extends NodeModel implements DBVariableSuppo
         		throw new InvalidSettingsException("Invalide oder fehlende BfR Plugin Prefrences gesetzt");
         	if(m_testQuery.getStringValue() == null || m_testQuery.getStringValue().isEmpty())
         		throw new InvalidSettingsException("Bitte eine Tabelle auswählen");
-        	CredentialsProvider cp = getCredentialsProvider();
-         	SimpleDatabaseConnectionSettings query_connection = new SimpleDatabaseConnectionSettings();
+        	//CredentialsProvider cp = getCredentialsProvider();
+         	//SimpleDatabaseConnectionSettings query_connection = new SimpleDatabaseConnectionSettings();
          	Connection conn = service.getJDBCConnection();
          	if (conn == null) 
                 throw new InvalidSettingsException("No database connection available.");

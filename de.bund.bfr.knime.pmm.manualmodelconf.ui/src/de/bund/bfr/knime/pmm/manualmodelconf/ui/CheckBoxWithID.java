@@ -36,6 +36,10 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 import javax.swing.JCheckBox;
 
 public class CheckBoxWithID extends JCheckBox {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private Integer id;
 	
 	public CheckBoxWithID() {

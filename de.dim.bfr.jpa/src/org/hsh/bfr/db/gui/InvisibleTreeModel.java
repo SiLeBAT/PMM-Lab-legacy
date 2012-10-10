@@ -38,7 +38,11 @@ import javax.swing.tree.TreeNode;
 
 public class InvisibleTreeModel extends DefaultTreeModel {
 
-	  protected boolean filterIsActive;
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected boolean filterIsActive;
 
 	  public InvisibleTreeModel(TreeNode root) {
 	    this(root, false);

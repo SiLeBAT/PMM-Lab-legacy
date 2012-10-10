@@ -175,7 +175,6 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			this.setDBTableLocale(Locale.GERMAN);
 			this.getTable().setRowHeight(50);
 			
-			//this.setSkin(new BfRSkin());
 			this.getTable().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		    boolean hasMouseListener = false;
@@ -988,7 +987,7 @@ if (myDBPanel1 != null) {
 						} else {
 							c.setPreferredWidth(150);
 						}
-						String tname = actualTable.getTablename(); 
+						//String tname = actualTable.getTablename(); 
 						/*
 						if (fname.equals("Sonstiges") &&
 								(tname.equals("Versuchsbedingungen") || tname.equals("Messwerte") || tname.equals("Prozessdaten") || tname.equals("Zutatendaten"))) {

@@ -94,7 +94,14 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 9
-				"gridWidth": 17
+				"gridWidth": 15
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "formulaApply"
+				"text": "Apply"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 19
+				"gridY": 9
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "tableLabel"

@@ -99,7 +99,7 @@ public class MMC_M extends JPanel {
 				}
 			}			
 			formulaArea.setText(pm.getFormula());
-			table.setPM(pm, m_secondaryModels);
+			table.setPM(pm, m_secondaryModels, radioButton3);
 			insertNselectPMintoBox(pm);
 		}
 	}
@@ -331,8 +331,9 @@ public class MMC_M extends JPanel {
 	private void tableMouseClicked(MouseEvent e) {
 		if (radioButton3.isSelected()) {
 			int row = table.getSelectedRow();
+			int col = table.getSelectedColumn();
 			Object isIndep = table.getValueAt(row, 1);
-			if (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep)) {
+			if (col == 0 && (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep))) {
 				SecDialog secondaryDialog = new SecDialog(m_parentFrame);
 				secondaryDialog.setModal(true);
 				secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());

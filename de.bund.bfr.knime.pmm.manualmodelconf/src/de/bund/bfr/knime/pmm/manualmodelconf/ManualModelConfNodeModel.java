@@ -256,7 +256,9 @@ public class ManualModelConfNodeModel extends NodeModel {
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
     	// Modelle
     	if (doc != null) {
-			settings.addString( PARAM_XMLSTRING, doc.toXmlString() );
+    		String xmlStr = doc.toXmlString();
+    		//System.err.println(xmlStr);
+			settings.addString(PARAM_XMLSTRING, xmlStr);
 		}
     	
     	// TimeSeries
@@ -294,7 +296,9 @@ public class ManualModelConfNodeModel extends NodeModel {
     	// Modelle
     	try {
 			if (settings.containsKey(PARAM_XMLSTRING)) {
-				doc = new PmmXmlDoc(settings.getString(PARAM_XMLSTRING));
+				String xmlStr = settings.getString(PARAM_XMLSTRING);
+	    		//System.err.println(xmlStr);
+				doc = new PmmXmlDoc(xmlStr);
 			}
 		}
     	catch (Exception e1) {

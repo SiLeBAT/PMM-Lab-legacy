@@ -40,8 +40,10 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.SortedMap;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
@@ -63,6 +65,7 @@ public class ModelTableModel extends JTable {
 	// If changing here: please look at: getValueAt(), setValueAt(), isCellEditable(), getColumnClass(), MyTableCellRenderer
 	private String[] columns = new String[]{"Parameter", "Independent", "Value", "StandardErr", "Min", "Max"};
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
+	private JRadioButton radioButton3 = null;
 	private ParametricModel thePM;
 	private boolean hasChanged = false;
 	private HashMap<String, Boolean> rowHasChanged;
@@ -81,9 +84,10 @@ public class ModelTableModel extends JTable {
 		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		this.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 	}
-	public void setPM(ParametricModel pm, HashMap<String, ParametricModel> secondaryModels) {
+	public void setPM(ParametricModel pm, HashMap<String, ParametricModel> secondaryModels, JRadioButton radioButton3) {
 		thePM = pm;
 		m_secondaryModels = secondaryModels;
+		this.radioButton3 = radioButton3;
 		this.revalidate();
 		hasChanged = false;
 		rowHasChanged = new HashMap<String, Boolean>();
@@ -189,17 +193,17 @@ public class ModelTableModel extends JTable {
             	else {
                 	boolean isIndep = sm.get(rowID);
                 	if (isIndep) {
-                    	if (columnIndex == 4 && o instanceof Double) thePM.setIndepMin(rowID, (Double) o);
-                    	if (columnIndex == 5 && o instanceof Double) thePM.setIndepMax(rowID, (Double) o);
+                    	if (columnIndex == 4 && (o == null || o instanceof Double)) thePM.setIndepMin(rowID, (Double) o);
+                    	if (columnIndex == 5 && (o == null || o instanceof Double)) thePM.setIndepMax(rowID, (Double) o);
                 	}
                 	else {
-                    	if (columnIndex == 2 && o instanceof Double) thePM.setParamValue(rowID, (Double) o);
-                    	if (columnIndex == 3 && o instanceof Double) thePM.setParamError(rowID, (Double) o);
-                    	if (columnIndex == 4 && o instanceof Double) {
+                    	if (columnIndex == 2 && (o == null || o instanceof Double)) thePM.setParamValue(rowID, (Double) o);
+                    	if (columnIndex == 3 && (o == null || o instanceof Double)) thePM.setParamError(rowID, (Double) o);
+                    	if (columnIndex == 4 && (o == null || o instanceof Double)) {
                     		thePM.setParamMin(rowID, (Double) o);
                         	hasChanged = true;
                     	}
-                    	if (columnIndex == 5 && o instanceof Double) {
+                    	if (columnIndex == 5 && (o == null || o instanceof Double)) {
                     		thePM.setParamMax(rowID, (Double) o);
                     		hasChanged = true;
                     	}
@@ -235,12 +239,20 @@ public class ModelTableModel extends JTable {
 		  public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int rowIndex, int columnIndex) {
 			  JComponent c;
 			  if (columnIndex == 0) {
-				    JTextField editor = new JTextField();
+				    Boolean indep = (Boolean) table.getValueAt(rowIndex, 1);
+				    if (indep == null) indep = false;
+				    String text = "";
 				    if (value != null) {
-				    	String text = value.toString();
+				    	text = value.toString();
 				    	text += " []";
 				    	if (rowHasChanged.get(value) != null && rowHasChanged.get(value)) text += "*";
-				    	editor.setText(text);
+				    }
+				    JComponent editor;
+				    if (thePM.getLevel() == 1 && !indep && radioButton3.isSelected()) {
+				    	editor = new JButton(text);					  
+				    }
+				    else {
+					    editor = new JTextField(text);					  
 				    }
 				    editor.setEnabled(false);
 				    boolean hasSecondary = m_secondaryModels != null && m_secondaryModels.containsKey(value);

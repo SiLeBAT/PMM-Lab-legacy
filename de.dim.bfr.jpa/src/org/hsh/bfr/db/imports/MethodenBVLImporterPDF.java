@@ -3,23 +3,11 @@
  */
 package org.hsh.bfr.db.imports;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.PreparedStatement;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
 /**
  * @author Armin

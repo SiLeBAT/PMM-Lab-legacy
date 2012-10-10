@@ -113,7 +113,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 	
 	private JComboBox indepBox;
 	private Hashtable<String,ParametricModel> modelCatalog;
-	private JTextField literatureField;
+	//private JTextField literatureField;
 	private SecondaryUi2 secondaryModel;
 	
 	private LinkedList<String> literature;
@@ -150,6 +150,11 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		Object[][] paramReal = new Object[ MAX_PARAM ][ 5 ];
 		String[] colnames = new String[] { "Parameter", "Indep", "Value", "Min", "Max" };
 		table = new TableWithOverwrite( paramReal, colnames ) {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public boolean isCellEditable(final int row, final int column) {
 				return column != 0;
@@ -1064,7 +1069,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		isLoading = true;
 		
 		PmmXmlDoc doc;
-		int i, j, n;
+		int i, n;
 			
 		ParametricModel primModel, pm;
 		PmmXmlElementConvertable el;
@@ -1250,7 +1255,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		ParametricModel pmc = modelCatalog.get( modelNameBox.getSelectedItem() );
 			for (Map.Entry<Integer, String> entry : possLiterature.entrySet()) {
 			    Integer key = entry.getKey();
-			    String value = entry.getValue();
+			    //String value = entry.getValue();
 				List<Integer> li = modLitMat.get(pmc.getModelId());
 			    if (li != null) {
 					litBox.get(key).setSelected(li.contains(key));

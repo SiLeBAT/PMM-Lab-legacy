@@ -38,11 +38,7 @@ package org.hsh.bfr.db.gui.dbtable.editoren;
 
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
-import java.text.NumberFormat;
 import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JComponent;
 import javax.swing.JTextArea;
@@ -60,6 +56,10 @@ import quick.dbtable.CellComponent;
  */
 public class MyMNRenderer extends JTextArea implements CellComponent {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyTable myT = null;
 	private int selectedColumn;
 	private boolean isINTmn = false;

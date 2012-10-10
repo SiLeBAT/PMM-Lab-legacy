@@ -42,13 +42,17 @@ import javax.swing.Icon;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
 /**
  * @author Armin
  *
  */
 public class BackupAction extends AbstractAction {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	public BackupAction(String name, Icon icon, String toolTip) {
     putValue(Action.NAME, name);

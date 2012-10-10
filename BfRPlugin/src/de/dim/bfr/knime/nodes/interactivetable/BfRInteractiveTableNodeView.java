@@ -19,15 +19,11 @@ package de.dim.bfr.knime.nodes.interactivetable;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -35,8 +31,6 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -63,9 +57,6 @@ import org.knime.core.node.tableview.TableContentModel;
 import org.knime.core.node.tableview.TableContentModel.TableContentFilter;
 import org.knime.core.node.tableview.TableContentView;
 import org.knime.core.node.tableview.TableView;
-
-import de.dim.bfr.knime.util.CustomDataTable;
-import de.dim.bfr.knime.util.CustomRowComparator;
 
 /**
  * @author Patrick Seeber, Data In Motion UG (haftungsbeschraenkt)
@@ -220,7 +211,7 @@ public class BfRInteractiveTableNodeView extends NodeView {
         TableContentModel model = view.getContentModel();
         StringBuffer title = new StringBuffer();
         if (model.hasData()) {
-            String tableName = model.getTableName();
+            //String tableName = model.getTableName();
         } else {
             title.append(" <no data>");
         }
@@ -258,7 +249,7 @@ public class BfRInteractiveTableNodeView extends NodeView {
     	countRowsInBackground();
         updateTitle();
     }
-    
+    /*
     private class MouseHandler extends MouseAdapter 
     {
     	private TableView tableView;
@@ -294,7 +285,7 @@ public class BfRInteractiveTableNodeView extends NodeView {
             }
         }
     }
- 
+ */
 
     /**
      * Delegates to the table view that it should start a row counter thread.

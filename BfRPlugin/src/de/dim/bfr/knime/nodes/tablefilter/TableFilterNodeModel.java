@@ -69,15 +69,9 @@ package de.dim.bfr.knime.nodes.tablefilter;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.TimeZone;
 import java.util.TreeMap;
 
 import org.knime.base.node.io.filereader.ColProperty;
@@ -88,15 +82,12 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.date.DateAndTimeCell;
-import org.knime.core.data.date.DateAndTimeValueRenderer;
 import org.knime.core.data.def.DefaultRow;
-import org.knime.core.data.def.StringCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.ExecutionMonitor;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeLogger;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
@@ -114,8 +105,7 @@ public class TableFilterNodeModel extends NodeModel {
 
 	private TableFilterNodeSettings m_settings;
 	private DataTableSpec[] inSpecs;
-	private static final NodeLogger logger = NodeLogger
-			.getLogger(TableFilterNodeModel.class);
+	//private static final NodeLogger logger = NodeLogger.getLogger(TableFilterNodeModel.class);
 
     public TableFilterNodeModel(int inPorts, int outPorts) {
 		super(inPorts, outPorts);
@@ -212,7 +202,7 @@ public class TableFilterNodeModel extends NodeModel {
 				cellFactory.setMissingValuePattern(missValPattern);
 				DataCell result = null;
 				if(DateAndTimeCell.TYPE.equals(colProps[k].getColumnSpec().getType())){
-					result = DateAndTimeCell.TYPE.getMissingCell();
+					result = DataType.getMissingCell(); // DateAndTimeCell.TYPE.getMissingCell();
 				} else {
 					result = cellFactory.createDataCellOfType(colProps[k]
 						.getColumnSpec().getType(), value);
@@ -242,7 +232,7 @@ public class TableFilterNodeModel extends NodeModel {
 	protected BufferedDataTable[] createExportTable(
 			final BufferedDataTable[] inData, final ExecutionContext exec)
 			throws Exception {
-		final boolean exclude = m_settings.getExcludeFilter();
+		//final boolean exclude = m_settings.getExcludeFilter();
 
 		BufferedDataContainer buf = filterTables(inData, exec);
 		return new BufferedDataTable[] { buf.getTable() };

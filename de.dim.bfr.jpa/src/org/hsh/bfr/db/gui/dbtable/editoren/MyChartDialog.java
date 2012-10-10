@@ -68,7 +68,11 @@ import edu.hws.jcm.awt.*;
  */
 public class MyChartDialog extends JDialog {
 	
-    private XYDataset dataset;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private XYDataset dataset;
     private XYSeries series2;
     private String Datenpunkte = "";
     private String origDatenpunkte;
@@ -185,6 +189,10 @@ public class MyChartDialog extends JDialog {
 						"Zeit (h)", "Temperatur"
 					}
 				) {
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
 					Class<?>[] columnTypes = new Class<?>[] {
 						String.class, String.class
 					};

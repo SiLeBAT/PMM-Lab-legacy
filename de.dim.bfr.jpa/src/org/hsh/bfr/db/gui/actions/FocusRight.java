@@ -47,6 +47,10 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
  */
 public class FocusRight extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDB = null;
 	
   public FocusRight(MyDBTable myDB) {

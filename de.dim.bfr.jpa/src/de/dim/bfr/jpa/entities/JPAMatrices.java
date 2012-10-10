@@ -163,7 +163,6 @@ public class JPAMatrices implements Serializable {
     @Override
     public int hashCode() {
         Integer result;
-        long temp;
         result = id;
         result = 31 * result + (matrixname != null ? matrixname.hashCode() : 0);
         result = 31 * result

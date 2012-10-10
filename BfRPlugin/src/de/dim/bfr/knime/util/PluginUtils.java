@@ -123,7 +123,7 @@ public class PluginUtils
 	private static final String KNIME_BFR_PACKAGE = "knimeBfR";
 	public static final String ACTIVE_COMPONENT_LRDND = "ACTIVE_COMPONENT_LRDND";
 
-	private static String plotType;
+	//private static String plotType;
 
     public static String getRPath(){
         return BfRNodePluginActivator.getDefault().getPreferenceStore().getString(BfRNodePluginActivator.R_PATH);        

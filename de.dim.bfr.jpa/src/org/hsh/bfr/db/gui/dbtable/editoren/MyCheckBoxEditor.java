@@ -58,6 +58,10 @@ import quick.dbtable.CellComponent;
  */
 public class MyCheckBoxEditor extends JCheckBox  implements ActionListener, CellComponent {
   
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBTable myDB = null;
 	private boolean isGeprueftCheckBox = false;
 	private boolean isNull = false;

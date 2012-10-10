@@ -40,12 +40,10 @@ import java.awt.Color;
 import java.awt.Font;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.Vector;
 
 import org.hsh.bfr.db.MyLogger;
 
 import quick.dbtable.CellPropertiesModel;
-import quick.dbtable.DBTableCellListener;
 
 /**
  * @author Armin
@@ -53,6 +51,10 @@ import quick.dbtable.DBTableCellListener;
  */
 public class MyCellPropertiesModel extends CellPropertiesModel {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<String, int[]>();	
 	private LinkedHashMap<Integer, HashSet<Integer>> modifiedCells = new LinkedHashMap<Integer, HashSet<Integer>>();
 	private MyDBTable myDBTable;

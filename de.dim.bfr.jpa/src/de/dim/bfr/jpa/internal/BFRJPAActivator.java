@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.spi.PersistenceProvider;
 
-import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
@@ -144,10 +143,11 @@ public class BFRJPAActivator implements BundleActivator {
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);
 		}
-		
+		/*
 		if (dbFile == null) {
 			return null;
 		}
+		*/
 		HashMap<String,Object> props = new HashMap<String,Object>();
 		props.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbcDriver");
 		props.put("javax.persistence.jdbc.url", "jdbc:hsqldb:file:" + dbFile + ";shutdown=true");

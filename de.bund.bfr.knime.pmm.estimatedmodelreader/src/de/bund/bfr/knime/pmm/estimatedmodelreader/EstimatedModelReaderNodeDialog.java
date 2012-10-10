@@ -53,8 +53,6 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
-import de.bund.bfr.knime.pmm.modelcatalogreader.ModelCatalogReaderNodeModel;
-import de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodeModel;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**

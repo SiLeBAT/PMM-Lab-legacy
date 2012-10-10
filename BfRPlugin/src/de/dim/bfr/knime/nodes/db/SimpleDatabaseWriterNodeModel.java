@@ -22,10 +22,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
@@ -67,7 +65,7 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
 	public static final String DEFAULT_CONFIG_STATEMENT = "INSERT INTO \"PUBLIC\".\"Versuchsbedingungen\" VALUES (;";
 	public static final String FINISH_STATEMENT = ");";
 	
-	private boolean update = true;
+	//private boolean update = true;
 	
 	
     /**
@@ -114,12 +112,12 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
             final ExecutionContext exec) throws CanceledExecutionException,
             Exception {
     	
-    	Map<String, BufferedDataTable> tableDatas = new HashMap<String, BufferedDataTable>();
-    	InsertMetaData metaData = buildInsertMetaData(tableDatas);
+    	//Map<String, BufferedDataTable> tableDatas = new HashMap<String, BufferedDataTable>();
+    	//InsertMetaData metaData = buildInsertMetaData(tableDatas);
     	
         return new BufferedDataTable[0];
     }	
-
+/*
     private InsertMetaData buildInsertMetaData(
 			Map<String, BufferedDataTable> tableDatas) {
 		InsertMetaData metaData = new InsertMetaData(tableDatas.keySet());
@@ -135,7 +133,6 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
 		
 		return metaData;
 	}
-
 	private PreparedStatementInput prepareStatement(DataTable table) {
     	String tableName = getTableNameByColumnNames(table);
     	PreparedStatementInput input = null;
@@ -145,6 +142,7 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
     	}
 		return input;
 	}
+*/
     
 	protected List<String> buildStatement(DataTable table) {
 		String names = "";
@@ -232,7 +230,7 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
 		}
 		return constraints;
 	}
-	
+	/*
 	private List<String> getTableDetailedConstraints(String tableName) {
 		List<String> constraints = new ArrayList<String>();
 		BFRNodeService service = BfRNodePluginActivator.getBfRService();
@@ -261,7 +259,7 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
 		}
 		return constraints;
 	}
-
+*/
 	private String getTableNameByColumnNames(DataTable table) {
 		StringBuilder tableStatement = new StringBuilder();
     	StringBuilder buildColNames = new StringBuilder();
@@ -332,7 +330,7 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
         }
         return new DataTableSpec[0];
     }
-    
+    /*
     private static class PreparedStatementInput{
     	
     	String tableName = "";
@@ -353,4 +351,5 @@ class SimpleDatabaseWriterNodeModel extends NodeModel {
 			return mappedIds;
 		}
     }
+    */
 }

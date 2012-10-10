@@ -18,13 +18,16 @@ package de.dim.bfr.r;
 
 public class RFunction 
 {
+	/*
 	private String functionName;
 	private String[] paramNames;
 	private String[] paramValues;
-	
+	*/
 	public RFunction(String name, String... params) 
 	{
+		/*
 		functionName = name;
 		paramNames = params;
+		*/
 	}
 }

@@ -174,6 +174,7 @@ public class MainKernel {
 		}
 		return false;
 	}
+	/*
 	private static Integer getNextChangeLogID(final Connection conn) {
 		Integer result = null;
 	    try {
@@ -189,6 +190,8 @@ public class MainKernel {
 	    }
 		return result;
 	}
+	*/
+	/*
 	private static Integer callIdentity(final Connection conn) {
 		Integer result = null;
 	    try {
@@ -204,6 +207,7 @@ public class MainKernel {
 	    }
 		return result;
 	}
+	*/
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
 			boolean diff = different(rowBefore, rowAfter); 
 		    if (!diff) {

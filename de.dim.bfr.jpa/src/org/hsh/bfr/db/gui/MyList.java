@@ -40,7 +40,6 @@ package org.hsh.bfr.db.gui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -51,7 +50,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
 
-import javax.swing.AbstractButton;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -185,8 +183,8 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    //dfm.setRoot(root);
 		    //((InvisibleTreeModel) this.getModel()).setRoot(root);
 		    this.addTreeSelectionListener(this);
-		    final JTree tree = this;
 		    /*
+		    final JTree tree = this;
 		    this.addMouseListener( new MouseAdapter() {
 		      public void mousePressed(MouseEvent e) {
 		      	if (e.getButton() != MouseEvent.BUTTON1) {
@@ -386,6 +384,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 			return null;
 		}
 	}
+	/*
   private void removeMinMaxClose(final Component comp) {  
     if (comp instanceof AbstractButton) {  
       comp.getParent().remove(comp);  
@@ -397,6 +396,7 @@ public void valueChanged(final TreeSelectionEvent event) {
       }  
     }  
   }  
+  */
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm) {
 	  return openNewWindow(theNewTable, value, headerValue, mnTable, mnID, dbForm, null);
   }

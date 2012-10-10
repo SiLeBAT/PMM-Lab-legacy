@@ -48,7 +48,12 @@ import org.hsh.bfr.db.DBKernel;
  */
 public class FocusLeft extends AbstractAction {
 
-  public void actionPerformed(ActionEvent e) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public void actionPerformed(ActionEvent e) {
   	DBKernel.myList.requestFocus();
   }
 }

@@ -337,6 +337,7 @@ public class UpdateChecker {
 		updateChangeLog("GeschaetzteParameter", 5, false);
 		refreshFKs("GeschaetzteParameter");
 	}
+	/*
 	private static boolean checkChangeLog() {
 		boolean result = true;
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("ChangeLog") +
@@ -353,6 +354,7 @@ public class UpdateChecker {
 	    catch(Exception e) {MyLogger.handleException(e);}	
 	    return result;
 	}
+	*/
 	public static void check4Updates_136_137(final MyList myList) {
 		//checkChangeLog();
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Prozess_Workflow") +
@@ -1753,6 +1755,7 @@ public class UpdateChecker {
 	      }		    	
 	    }
 	}
+	/*
 	private static void dropTriggers(final String tableName) {
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
@@ -1762,6 +1765,7 @@ public class UpdateChecker {
 			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_Prozess_Workflow_U"), false);
 		}
 	}
+	*/
 	public static void doStatUpGrants() {
 		DBKernel.grantDefaults("Modellkatalog");
 		DBKernel.grantDefaults("ModellkatalogParameter");

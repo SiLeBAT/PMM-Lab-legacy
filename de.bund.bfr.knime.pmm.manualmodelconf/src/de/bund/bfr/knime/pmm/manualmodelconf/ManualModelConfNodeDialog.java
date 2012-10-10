@@ -46,7 +46,6 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_M;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
-import de.bund.bfr.knime.pmm.manualmodelconf.ui.ManualModelConfUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -62,7 +61,7 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
  */
 public class ManualModelConfNodeDialog extends NodeDialogPane {
 	
-	private ManualModelConfUi m_confui;
+	//private ManualModelConfUi m_confui;
 	private MMC_M m_mmcm;
 	private MMC_TS m_mmcts;
 

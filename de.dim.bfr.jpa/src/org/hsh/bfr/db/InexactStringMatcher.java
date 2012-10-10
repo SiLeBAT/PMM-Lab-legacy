@@ -66,7 +66,7 @@ public class InexactStringMatcher {
    * the lower the return value, the closer the match
    */
   public static int getMatchScore(String str1, String str2) {
-    int tmp, result;
+    int result;
     String strA, strB;
     //System.out.println(str1 + "\t"+str2);
 

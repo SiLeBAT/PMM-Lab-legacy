@@ -45,6 +45,10 @@ import org.hsh.bfr.db.gui.dbtable.MyDBPanel;
  */
 public class FindAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private MyDBPanel myDBPanel = null;
 	
   public FindAction(MyDBPanel myDBPanel) {

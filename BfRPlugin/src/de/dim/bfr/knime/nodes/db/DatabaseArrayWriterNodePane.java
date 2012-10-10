@@ -16,12 +16,6 @@
  ******************************************************************************/
 package de.dim.bfr.knime.nodes.db;
 
-import java.awt.BorderLayout;
-
-import javax.swing.BorderFactory;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -31,8 +25,8 @@ import org.knime.core.node.port.PortObjectSpec;
 
 public class DatabaseArrayWriterNodePane extends NodeDialogPane {
 
-    private final JComboBox chosePanel = new JComboBox();
-    private JPanel configPanel;
+    //private final JComboBox chosePanel = new JComboBox();
+    //private JPanel configPanel;
     
     public static String UPDATE = "Update if primary key is equal";
     public static String INSERT_AS_NEW = "Handle every row as new row";

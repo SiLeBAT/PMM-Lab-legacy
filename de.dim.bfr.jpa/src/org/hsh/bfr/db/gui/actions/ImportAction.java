@@ -45,7 +45,6 @@ import javax.swing.JProgressBar;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
-import org.hsh.bfr.db.imports.LieferkettenImporter;
 import org.hsh.bfr.db.imports.LieferkettenImporterNew;
 import org.hsh.bfr.db.imports.MyImporter;
 import org.hsh.bfr.db.imports.MyProzessXMLImporter;
@@ -57,6 +56,10 @@ import org.hsh.bfr.db.imports.MyRisImporter;
  */
 public class ImportAction extends AbstractAction {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JProgressBar progressBar1;
 	
   public ImportAction(String name, Icon icon, String toolTip, JProgressBar progressBar1) {

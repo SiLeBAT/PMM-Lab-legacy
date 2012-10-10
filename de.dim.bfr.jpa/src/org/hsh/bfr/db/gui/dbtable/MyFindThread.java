@@ -41,7 +41,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.gui.dbtable.editoren.MyFilter;
 
 
 /**

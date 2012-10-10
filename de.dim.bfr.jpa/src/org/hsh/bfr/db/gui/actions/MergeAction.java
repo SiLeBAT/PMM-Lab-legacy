@@ -40,7 +40,6 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import org.hsh.bfr.db.MergeDBs;
-import org.hsh.bfr.db.gui.About;
 
 /**
  * @author Armin
@@ -48,7 +47,12 @@ import org.hsh.bfr.db.gui.About;
  */
 public class MergeAction extends AbstractAction {
 
-  public MergeAction(String name, Icon icon, String toolTip) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public MergeAction(String name, Icon icon, String toolTip) {
     putValue(Action.NAME, name);
     putValue(Action.SHORT_DESCRIPTION, toolTip);
     putValue(Action.SMALL_ICON, icon);

@@ -61,8 +61,8 @@ public class TableArrayMergerNodeModel extends NodeModel {
     private String tableName;
     private String[] tableNames;
 
-	private String identifiedName;
-	private String[] identifiedTable;
+	//private String identifiedName;
+	//private String[] identifiedTable;
     
 
     /**

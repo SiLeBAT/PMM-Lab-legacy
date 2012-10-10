@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.EList;
-import org.knime.base.node.io.filereader.DataCellFactory;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.StringCell;
@@ -41,7 +40,7 @@ import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 public class EMFUtils 
 {
-	private static DataCellFactory dataCellFactory = new DataCellFactory();
+	//private static DataCellFactory dataCellFactory = new DataCellFactory();
 	
 	public static DataTableSpec getDataTableSpecVersuchsbedingung(){
 		return new DataTableSpec(new String[]{"ID","ID_CB"}, new DataType[]{StringCell.TYPE,StringCell.TYPE});		

@@ -40,7 +40,11 @@ import javax.swing.tree.TreeNode;
 
 public class InvisibleNode extends DefaultMutableTreeNode {
 
-	  protected boolean isVisible;
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	protected boolean isVisible;
 
 	  public InvisibleNode() {
 	    this(null);
@@ -66,7 +70,7 @@ public class InvisibleNode extends DefaultMutableTreeNode {
 
 	    int realIndex = -1;
 	    int visibleIndex = -1;
-	    Enumeration e = children.elements();
+	    Enumeration<?> e = children.elements();
 	    while (e.hasMoreElements()) {
 	      InvisibleNode node = (InvisibleNode) e.nextElement();
 	      if (node.isVisible()) {
@@ -91,7 +95,7 @@ public class InvisibleNode extends DefaultMutableTreeNode {
 	    }
 
 	    int count = 0;
-	    Enumeration e = children.elements();
+	    Enumeration<?> e = children.elements();
 	    while (e.hasMoreElements()) {
 	      InvisibleNode node = (InvisibleNode) e.nextElement();
 	      if (node.isVisible()) {

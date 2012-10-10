@@ -47,7 +47,12 @@ import org.hsh.bfr.db.DBKernel;
  */
 public class BlobAction extends AbstractAction {
 
-  public BlobAction(String name, Icon icon, String toolTip) {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+public BlobAction(String name, Icon icon, String toolTip) {
     putValue(Action.NAME, name);
     putValue(Action.SHORT_DESCRIPTION, toolTip);
     putValue(Action.SMALL_ICON, icon);

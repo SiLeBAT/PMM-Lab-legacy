@@ -67,10 +67,14 @@ import org.hsh.bfr.db.imports.InfoBox;
  */
 public class MyDBPanel extends JPanel {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<String, int[]>();	
 	private int actualFindPos = 0;
-	private MyFindThread mft;
-	private MyFilterThread mfit;
+	//private MyFindThread mft;
+	//private MyFilterThread mfit;
 	private JDialog parentDialog = null;
 	private boolean savePressed = false;
 	private boolean disableButtons = false;

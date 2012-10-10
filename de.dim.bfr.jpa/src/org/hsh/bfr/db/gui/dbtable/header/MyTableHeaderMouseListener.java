@@ -37,22 +37,11 @@
 package org.hsh.bfr.db.gui.dbtable.header;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JTable;
-import javax.swing.RowSorter;
-import javax.swing.SortOrder;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableRowSorter;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
-import quick.dbtable.DBTable;
 
 /**
  * @author Armin

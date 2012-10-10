@@ -37,7 +37,6 @@
 package org.hsh.bfr.db.gui.dbtable.editoren;
 
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Vector;
 

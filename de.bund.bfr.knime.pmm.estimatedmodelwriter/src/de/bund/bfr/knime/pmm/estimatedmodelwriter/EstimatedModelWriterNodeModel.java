@@ -205,16 +205,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		// Modellkatalog
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
 						ppm = alreadyInsertedModel.get(rowMcID);
-						/*
-			    		ppm.setEstModelId(estModelId == null ? MathUtilities.getRandomNegativeInt() : estModelId);
-						doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
-			    		doLit(ppm, litStr, litID, false);
-			    		doLit(ppm, litEMStr, litEMID, true);
-			    		*/
 					}
 					else {
-			    		ppm = new ParametricModel(modelName, formula, depVar, 1, rowMcID, rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);				
+			    		ppm = new ParametricModel(modelName, formula, depVar, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
 			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
 			    		doLit(ppm, litStr, litID, false);
@@ -238,6 +231,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						newPrimEstID = alreadyInsertedEModel.get(rowEstM1ID).getEstModelId();
 					}
 					else {
+			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
 			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
 			    		doLit(ppm, litStr, litID, false);

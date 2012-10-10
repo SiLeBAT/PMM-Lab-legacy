@@ -535,10 +535,17 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		}
 
 		for (String model : comboBoxes.keySet()) {
+			String depVar = dependentVariables.get(model);
+
 			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
 				Map<String, JComboBox> indepVarBoxes = new HashMap<String, JComboBox>();
 
-				for (JComboBox box : boxes.values()) {
+				for (String var : boxes.keySet()) {
+					if (var.equals(depVar)) {
+						continue;
+					}
+
+					JComboBox box = boxes.get(var);
 					JComboBox sameValueBox = indepVarBoxes.get(box
 							.getSelectedItem());
 

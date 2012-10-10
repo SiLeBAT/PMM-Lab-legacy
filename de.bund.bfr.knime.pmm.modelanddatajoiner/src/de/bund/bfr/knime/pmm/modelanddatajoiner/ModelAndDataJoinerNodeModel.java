@@ -103,10 +103,6 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			joiner = new CombinedJoiner(inData[0], inData[1]);
 		}
 
-		if (assignments.isEmpty()) {
-			setWarningMessage("Node created an empty data table. Node has to be configured at least once");
-		}
-
 		return new BufferedDataTable[] { joiner.getOutputTable(assignments,
 				exec) };
 	}
@@ -162,6 +158,10 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 
+			if (assignments.isEmpty()) {
+				throw new InvalidSettingsException("Node has to be configured");
+			}
+
 			return new DataTableSpec[] { outSchema.createSpec() };
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -174,11 +174,18 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		if (assignments != null) {
-			settings.addStringArray(CFGKEY_ASSIGNMENTS,
-					assignments.toArray(new String[0]));
+		StringBuilder assignString = new StringBuilder();
+
+		for (String assign : assignments) {
+			assignString.append(assign);
+			assignString.append(";");
 		}
 
+		if (assignString.length() > 0) {
+			assignString.deleteCharAt(assignString.length() - 1);
+		}
+
+		settings.addString(CFGKEY_ASSIGNMENTS, assignString.toString());
 		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
 	}
 
@@ -189,8 +196,13 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			assignments = new ArrayList<String>(Arrays.asList(settings
-					.getStringArray(CFGKEY_ASSIGNMENTS)));
+			String assignString = settings.getString(CFGKEY_ASSIGNMENTS);
+
+			assignments = new ArrayList<String>();
+
+			if (!assignString.isEmpty()) {
+				assignments.addAll(Arrays.asList(assignString.split(";")));
+			}
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();
 		}

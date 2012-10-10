@@ -86,9 +86,14 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 		int joinSameConditions;
 
 		try {
-			assignments = new ArrayList<String>(
-					Arrays.asList(settings
-							.getStringArray(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS)));
+			String assignString = settings
+					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS);
+
+			assignments = new ArrayList<String>();
+
+			if (!assignString.isEmpty()) {
+				assignments.addAll(Arrays.asList(assignString.split(";")));
+			}
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();
 		}
@@ -136,9 +141,20 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 		}
 
 		List<String> assignments = joiner.getAssignments();
+		StringBuilder assignString = new StringBuilder();
 
-		settings.addStringArray(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
-				assignments.toArray(new String[0]));
+		for (String assign : assignments) {
+			assignString.append(assign);
+			assignString.append(";");
+		}
+
+		if (assignString.length() > 0) {
+			assignString.deleteCharAt(assignString.length() - 1);
+		}
+
+		System.out.println(assignString.toString());
+		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
+				assignString.toString());
 
 		if (joiner instanceof PrimaryJoiner) {
 			if (((PrimaryJoiner) joiner).isJoinSameConditions()) {

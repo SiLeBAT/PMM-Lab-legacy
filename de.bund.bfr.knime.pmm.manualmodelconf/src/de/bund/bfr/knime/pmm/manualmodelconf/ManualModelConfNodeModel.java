@@ -136,11 +136,11 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			}
 	    			else {
 	    	    		// SecondaryModel
-	    				if (model.getIndepVarSet().size() > 0) {
+	    				//if (model.getIndepVarSet().size() > 0) {
 	    					KnimeTuple tupleM2 = model.getKnimeTuple();
 	    					tupleM2.setValue(Model2Schema.ATT_DATABASEWRITABLE, 1);
 	    		    		rowSec.add(tupleM2);					
-	    				}	    		
+	    				//}	    		
 	    			}
         		}
         	}
@@ -186,7 +186,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;
-	        		if (model.getLevel() == 2 && model.getIndepVarSet().size() > 0) {
+	        		if (model.getLevel() == 2) { //  && model.getIndepVarSet().size() > 0
 						return true;
 					}
         		}

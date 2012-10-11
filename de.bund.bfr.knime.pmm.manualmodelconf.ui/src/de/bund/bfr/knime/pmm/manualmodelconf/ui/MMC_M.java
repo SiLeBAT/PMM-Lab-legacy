@@ -48,6 +48,7 @@ public class MMC_M extends JPanel {
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private BFRNodeService m_service = null;
 	private boolean dontTouch = false;
+	private boolean dontRemoveSec = false;
 
 	public MMC_M() {
 		this(null, 1, "");
@@ -239,7 +240,7 @@ public class MMC_M extends JPanel {
 	private void modelNameBoxActionPerformed(ActionEvent e) {
 		if (dontTouch) return;
 		table.clearTable();
-		if (m_secondaryModels != null) m_secondaryModels.clear();
+		if (!dontRemoveSec && m_secondaryModels != null) m_secondaryModels.clear();
 		formulaArea.setText("");
 		modelnameField.setText("");
 		
@@ -367,7 +368,9 @@ public class MMC_M extends JPanel {
 		if (table.hasChanged()) {
 			if (pm != null && pm.getModelName().equals(modelnameField.getText())) {
 				modelnameField.setText(getNewModelname(pm));
-				modelnameFieldFocusLost(null);	
+				dontRemoveSec = true;
+				modelnameFieldFocusLost(null);
+				dontRemoveSec = false;
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
 			}
 		}

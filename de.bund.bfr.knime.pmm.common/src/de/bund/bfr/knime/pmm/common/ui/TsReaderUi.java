@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.estimatedmodelreader.ui;
+package de.bund.bfr.knime.pmm.common.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

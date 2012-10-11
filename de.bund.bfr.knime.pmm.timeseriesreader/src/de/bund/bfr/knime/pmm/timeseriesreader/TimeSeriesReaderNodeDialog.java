@@ -43,8 +43,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.TsReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesReader" Node.

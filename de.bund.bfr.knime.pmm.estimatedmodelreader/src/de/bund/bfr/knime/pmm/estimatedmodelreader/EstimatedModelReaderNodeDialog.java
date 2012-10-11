@@ -50,9 +50,9 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -76,29 +76,19 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
      * New pane for configuring the EstimatedModelReader node.
      */
     protected EstimatedModelReaderNodeDialog() {
-    	
-    	JPanel panel, panel0;
-    	
-    	
-    	panel = new JPanel();
-    	panel.setLayout( new BorderLayout() );
+    	JPanel panel = new JPanel();    	
     	
     	dbui = new DbConfigurationUi( true );
     	dbui.getApplyButton().addActionListener( this );
-    	panel.add( dbui, BorderLayout.NORTH );
-    	
-    	panel0 = new JPanel();
-    	panel0.setLayout( new BoxLayout( panel0, BoxLayout.Y_AXIS ) );
-    	panel.add( panel0, BorderLayout.SOUTH );
-    	
     	estmodelui = new EstModelReaderUi();
-    	panel0.add( estmodelui );
+    	
+    	panel.setLayout( new BorderLayout() );
+    	panel.add( dbui, BorderLayout.NORTH );    	
+    	panel.add( estmodelui, BorderLayout.CENTER );    	
     	    	
     	addTab( "Database connection", panel );
-    	
-
-
     }
+    
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {

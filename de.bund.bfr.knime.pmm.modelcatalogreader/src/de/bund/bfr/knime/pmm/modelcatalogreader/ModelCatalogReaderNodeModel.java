@@ -55,7 +55,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**

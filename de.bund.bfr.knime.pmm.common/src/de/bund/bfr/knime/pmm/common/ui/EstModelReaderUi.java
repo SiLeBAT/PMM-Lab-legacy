@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.estimatedmodelreader.ui;
+package de.bund.bfr.knime.pmm.common.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -40,6 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -52,7 +53,6 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 public class EstModelReaderUi extends JPanel implements ActionListener {
 	
@@ -73,56 +73,51 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	
 
 	
-	public EstModelReaderUi() {
-		
-		JPanel panel, panel0;
-		ButtonGroup group;
-		
-		setPreferredSize( new Dimension( 300, 500 ) );
-
-		
+	public EstModelReaderUi() {								
 		modelReaderUi = new ModelReaderUi();
 		modelReaderUi.addLevelListener( this );
-		add( modelReaderUi );
-		
-		panel = new JPanel();
-		panel.setBorder( BorderFactory.createTitledBorder( "Estimation quality" ) );
-		panel.setLayout( new BorderLayout() );
-		panel.setPreferredSize( new Dimension( 300, 125 ) );
-		add( panel );
-		
-		group = new ButtonGroup();
-		
-		panel0 = new JPanel();
-		panel0.setLayout( new GridLayout( 0, 1 ) );
-		panel.add( panel0, BorderLayout.NORTH );
-		
-		
 		qualityButtonNone = new JRadioButton( "Do not filter" );
 		qualityButtonNone.setSelected( true );
 		qualityButtonNone.addActionListener( this );
-		group.add( qualityButtonNone );
-		panel0.add( qualityButtonNone );
-		
 		qualityButtonRms = new JRadioButton( "Filter by RMS" );
 		qualityButtonRms.addActionListener( this );
-		group.add( qualityButtonRms );
-		panel0.add( qualityButtonRms );
-		
 		qualityButtonR2 = new JRadioButton( "Filter by R squared" );
 		qualityButtonR2.addActionListener( this );
-		group.add( qualityButtonR2 );
-		panel0.add( qualityButtonR2 );
-		
-		panel.add( new JLabel( "Quality threshold   " ), BorderLayout.WEST );
-		
 		qualityField = new DoubleTextField( false );
 		qualityField.setText( "0.8" );
 		qualityField.setEnabled( false );
+		tsReaderUi = new TsReaderUi();
+						
+		JPanel buttonPanel = new JPanel();
+		ButtonGroup group = new ButtonGroup();	
+		
+		buttonPanel.setLayout( new GridLayout( 0, 1 ) );
+		buttonPanel.add( qualityButtonNone );
+		buttonPanel.add( qualityButtonRms );		
+		buttonPanel.add( qualityButtonR2 );
+		group.add( qualityButtonNone );		
+		group.add( qualityButtonRms );
+		group.add( qualityButtonR2 );		
+		
+		JPanel panel = new JPanel();
+		
+		panel.setBorder( BorderFactory.createTitledBorder( "Estimation quality" ) );
+		panel.setLayout( new BorderLayout() );
+		panel.setPreferredSize( new Dimension( 300, 125 ) );
+		panel.add( buttonPanel, BorderLayout.NORTH );
+		panel.add( new JLabel( "Quality threshold   " ), BorderLayout.WEST );
 		panel.add( qualityField, BorderLayout.CENTER );
 		
-		tsReaderUi = new TsReaderUi();
-		add( tsReaderUi );
+		JPanel southPanel = new JPanel();
+		
+		southPanel.setLayout(new BorderLayout());
+		southPanel.add(panel, BorderLayout.CENTER);
+		southPanel.add(tsReaderUi, BorderLayout.SOUTH);
+		
+		setPreferredSize( new Dimension( 300, 500 ) );
+		setLayout(new BorderLayout());
+		add( modelReaderUi, BorderLayout.CENTER );
+		add( southPanel, BorderLayout.SOUTH );		
 		
 		updateTsReaderUi();
 	}

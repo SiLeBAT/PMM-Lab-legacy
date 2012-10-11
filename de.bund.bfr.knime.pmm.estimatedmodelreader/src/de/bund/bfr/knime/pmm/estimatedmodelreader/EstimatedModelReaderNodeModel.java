@@ -59,7 +59,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.EstModelReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**

@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.common;
+package de.bund.bfr.knime.pmm.common.ui;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -63,15 +63,16 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 
 	public DbConfigurationUi( boolean hasApplyButton ) {
 		
-		JPanel panel, panel2, panel0;
+		JPanel mainPanel, panel, panel2, panel0;
 		
-		setLayout( new BorderLayout() );
+		mainPanel = new JPanel();
+		mainPanel.setLayout( new BorderLayout() );
 		// setPreferredSize( new Dimension( 330, 130 ) );
 		
 		panel0 = new JPanel();
 		panel0.setLayout( new BorderLayout() );
 		
-		add( panel0, BorderLayout.SOUTH );
+		mainPanel.add( panel0, BorderLayout.SOUTH );
 				
 		panel = new JPanel();
 		panel.setLayout( new GridLayout( 0, 1 ) );
@@ -89,7 +90,7 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 		
 		overrideBox = new JCheckBox( "Use external database" );
 		overrideBox.addActionListener( this );
-		add( overrideBox, BorderLayout.CENTER );
+		mainPanel.add( overrideBox, BorderLayout.CENTER );
 		
 		panel2 = new JPanel();
 		panel2.setLayout( new BorderLayout() );
@@ -125,6 +126,8 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 		else
 			panel.add( new JLabel() );
 		
+		setLayout(new BorderLayout());
+		add(mainPanel, BorderLayout.NORTH);
 	}
 	
 	@Override

@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.estimatedmodelreader.ui;
+package de.bund.bfr.knime.pmm.common.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -81,14 +81,14 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		
 		clearModelSet();
 		
-		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
+		setLayout( new BorderLayout() );
 		setPreferredSize( new Dimension( 300, 180 ) );
 		
 		panel = new JPanel();
 		panel.setBorder( BorderFactory.createTitledBorder( "Level" ) );
 		panel.setLayout( new BorderLayout() );
 		panel.setPreferredSize( new Dimension( 250, 50 ) );
-		add( panel );
+		add( panel, BorderLayout.NORTH );
 		
 		panel0 = new JPanel();
 		panel0.setLayout( new BoxLayout( panel0, BoxLayout.X_AXIS ) );
@@ -105,12 +105,11 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		panel.setBorder( BorderFactory.createTitledBorder( "Model" ) );
 		panel.setLayout( new BorderLayout() );
 		panel.setPreferredSize( new Dimension( 250, 150 ) );
-		add( panel );
+		add( panel, BorderLayout.CENTER );
 				
 		modelNameSwitch = new JCheckBox( "Filter by model name" );
 		modelNameSwitch.addActionListener( this );
-		panel.add( modelNameSwitch, BorderLayout.NORTH );
-		panel.add( new JLabel( "Model name   " ), BorderLayout.WEST );
+		panel.add( modelNameSwitch, BorderLayout.NORTH );		
 		
 		/* modelNameBox = new JComboBox();
 		modelNameBox.setEnabled( false );

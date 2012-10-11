@@ -52,7 +52,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.TsReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**

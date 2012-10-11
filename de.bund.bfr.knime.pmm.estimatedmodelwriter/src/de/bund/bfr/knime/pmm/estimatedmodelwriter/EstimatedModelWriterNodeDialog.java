@@ -39,7 +39,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
+
+import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 
 /**
  * <code>NodeDialog</code> for the "EstimatedModelWriter" Node.

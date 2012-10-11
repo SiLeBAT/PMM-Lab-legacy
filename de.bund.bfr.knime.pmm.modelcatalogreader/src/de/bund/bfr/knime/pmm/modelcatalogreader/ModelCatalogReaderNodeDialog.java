@@ -49,9 +49,9 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.estimatedmodelreader.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
@@ -77,21 +77,16 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
      * @throws ClassNotFoundException 
      * @throws PmmException 
      */
-    protected ModelCatalogReaderNodeDialog() {
-    	
-    	JPanel panel;
-    	
-    	panel = new JPanel();
-    	panel.setLayout( new BorderLayout() );
-    	
-    	ui = new DbConfigurationUi( true );
-    	panel.add( ui, BorderLayout.NORTH );
-    	
-    	ui.getApplyButton().addActionListener( this );
-    	
+    protected ModelCatalogReaderNodeDialog() {    	
+    	JPanel panel = new JPanel();
+    	    	
+    	ui = new DbConfigurationUi( true );    	    	
+    	ui.getApplyButton().addActionListener( this );    	
     	filterui = new ModelReaderUi();
-    	panel.add( filterui, BorderLayout.CENTER );
     	
+    	panel.setLayout( new BorderLayout() );
+    	panel.add( ui, BorderLayout.NORTH );
+    	panel.add( filterui, BorderLayout.CENTER );
     	
     	addTab( "Database connection", panel );
     	

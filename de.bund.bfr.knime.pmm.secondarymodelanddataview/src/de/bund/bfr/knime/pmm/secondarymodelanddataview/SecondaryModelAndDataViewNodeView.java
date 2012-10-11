@@ -81,7 +81,7 @@ public class SecondaryModelAndDataViewNodeView extends
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
 	private List<List<String>> infoParameters;
-	private List<List<String>> infoParameterValues;
+	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
@@ -255,7 +255,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		ids = new ArrayList<String>();
 		plotables = new HashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<String>>();
+		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new HashMap<String, String>();
 		longLegend = new HashMap<String, String>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,

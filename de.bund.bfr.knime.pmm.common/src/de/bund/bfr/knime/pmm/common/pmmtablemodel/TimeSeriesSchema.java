@@ -61,6 +61,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_DBUUID = "MD_DB_UID";
 
 	public static final String DATAID = "DataID";
+	public static final String DATAPOINTS = "Data Points";
 	
 	public TimeSeriesSchema() {
 

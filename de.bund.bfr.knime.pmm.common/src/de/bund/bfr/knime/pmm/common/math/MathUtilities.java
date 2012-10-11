@@ -283,4 +283,41 @@ public class MathUtilities {
 		}
 
 	}
+	
+	public static Double akaikeCriterion(
+		final int numParam, final int numSample, final double rms ) {
+		
+		if( Double.isNaN( rms ) || Double.isInfinite( rms ) )
+			return null;
+		
+		if( rms < 0 )
+			return null;
+		
+		if( numParam < 0 )
+			return null;
+		
+		if( numSample < 0 )
+			return null;
+		
+		return numSample*Math.log( rms*rms )+2*numParam;
+	}
+	
+	public static Double BayesCriterion(
+		final int numParam, final int numSample, final double rms ) {
+		
+		if( Double.isNaN( rms ) || Double.isInfinite( rms ) )
+			return null;
+		
+		if( rms < 0 )
+			return null;
+		
+		if( numParam < 0 )
+			return null;
+		
+		if( numSample < 0 )
+			return null;
+		
+		return numSample*Math.log( rms*rms )+numParam*Math.log( numSample );
+	}
+	
 }

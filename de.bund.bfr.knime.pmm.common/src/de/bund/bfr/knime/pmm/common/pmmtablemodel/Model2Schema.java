@@ -65,6 +65,7 @@ public class Model2Schema extends KnimeSchema {
 	public static final int NOTWRITABLE = 0;
 	
 	public static final String ATT_AIC = "AICSec";
+	public static final String ATT_BIC = "BICSec";
 
 
 	public Model2Schema() {
@@ -94,7 +95,10 @@ public class Model2Schema extends KnimeSchema {
 			//addStringListAttribute( ATT_VARPARMAP );
 			addMapAttribute(ATT_VARPARMAP);
 			addIntAttribute( ATT_DATABASEWRITABLE );
-			addStringAttribute( ATT_DBUUID );			
+			addStringAttribute( ATT_DBUUID );		
+			
+			addDoubleAttribute( ATT_AIC );
+			addDoubleAttribute( ATT_BIC );
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace( System.err );

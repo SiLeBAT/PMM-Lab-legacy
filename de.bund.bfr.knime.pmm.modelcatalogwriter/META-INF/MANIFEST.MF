@@ -10,11 +10,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base,
- de.bund.bfr.knime.pmm.common
+ de.bund.bfr.knime.pmm.common,
+ de.dim.bfr.knime,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.modelcatalogwriter
-Import-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
- de.bund.bfr.knime.pmm.common,
- de.dim.knime.bfr.internal
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 

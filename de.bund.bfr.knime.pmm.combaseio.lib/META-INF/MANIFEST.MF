@@ -6,7 +6,7 @@ Bundle-Version: 1.0.0.v20121006
 Bundle-Activator: de.bund.bfr.knime.pmm.combaseio.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- de.bund.bfr.knime.pmm.common;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.common
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.combaseio.lib

@@ -11,7 +11,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.repository,
  org.knime.base,
  de.bund.bfr.knime.pmm.common,
- de.bund.bfr.knime.pmm.combaseio.lib;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.combaseio.lib
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.combaseio
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

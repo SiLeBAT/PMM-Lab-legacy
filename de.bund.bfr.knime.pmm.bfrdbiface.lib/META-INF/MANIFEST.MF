@@ -6,11 +6,11 @@ Bundle-Version: 1.0.0.v20121010
 Bundle-Activator: de.bund.bfr.knime.pmm.bfrdbiface.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- de.bund.bfr.knime.pmm.common;bundle-version="1.0.0",
- de.dim.bfr.jpa;bundle-version="1.0.0"
+ de.bund.bfr.knime.pmm.common,
+ de.dim.bfr.jpa,
+ de.dim.bfr.knime
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib
 Bundle-ClassPath: .
-Import-Package: de.dim.bfr.external.service
 Bundle-Vendor: BfR

@@ -10,11 +10,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,
  org.knime.base,
- de.dim.bfr.model;bundle-version="1.0.0"
+ de.dim.bfr.model,
+ org.apache.log4j
 Export-Package: de.dim.bfr.external.service,
  de.dim.bfr.knime.nodes.db,
  de.dim.knime.bfr,
  de.dim.knime.bfr.internal
 Bundle-ActivationPolicy: lazy
-Import-Package: org.apache.log4j
 

@@ -20,13 +20,10 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.databinding,
  org.eclipse.emf.databinding.edit,
  org.eclipse.jface.databinding,
+ de.dim.bfr.knime,
  de.dim.bfr.model,
  org.eclipse.ui.forms,
- org.knime.core;bundle-version="2.5.4",
- org.knime.workbench.ui;bundle-version="2.5.4",
- de.dim.bfr.knime;bundle-version="1.0.1",
- org.eclipse.core.resources;bundle-version="3.6.0"
-Import-Package: org.eclipse.ui.dialogs,
- org.eclipse.ui.ide,
- org.knime.workbench.ui.layout.commands
+ org.knime.core,
+ org.knime.workbench.ui,
+ org.eclipse.core.resources
 

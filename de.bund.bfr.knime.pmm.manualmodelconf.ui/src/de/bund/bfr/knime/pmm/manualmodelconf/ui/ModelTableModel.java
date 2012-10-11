@@ -221,7 +221,7 @@ public class ModelTableModel extends JTable {
 		public boolean isCellEditable(final int row, final int columnIndex) {
 		    Boolean indep = (Boolean) this.getValueAt(row, 1);
 		    if (indep == null) indep = false;
-			return columnIndex == 1 || columnIndex > 3 || (!indep && columnIndex <= 3);
+			return columnIndex == 1 || columnIndex > 3 || (!indep && (columnIndex == 3 || columnIndex == 2));
 		}
 
         public Class<?> getColumnClass(int columnIndex) {

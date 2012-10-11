@@ -81,8 +81,8 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addDoubleListAttribute( ATT_LOGC );
 			addIntListAttribute( ATT_MISCID );
 			addStringAttribute( ATT_MISC );
-			//addStringListAttribute( ATT_MISCVALUE );
-			//addStringListAttribute( ATT_MISCUNIT );
+			addStringListAttribute( ATT_MISCVALUE );
+			addStringListAttribute( ATT_MISCUNIT );
 			addStringAttribute( ATT_COMMENT );
 			addIntAttribute( ATT_LITIDTS );
 			addStringAttribute( ATT_LITTS );

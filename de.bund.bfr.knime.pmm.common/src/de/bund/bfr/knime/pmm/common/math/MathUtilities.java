@@ -302,7 +302,7 @@ public class MathUtilities {
 		return numSample*Math.log( rms*rms )+2*numParam;
 	}
 	
-	public static Double BayesCriterion(
+	public static Double bayesCriterion(
 		final int numParam, final int numSample, final double rms ) {
 		
 		if( Double.isNaN( rms ) || Double.isInfinite( rms ) )

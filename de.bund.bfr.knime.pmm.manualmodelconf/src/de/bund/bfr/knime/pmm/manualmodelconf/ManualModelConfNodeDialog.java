@@ -76,7 +76,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     		this.addTab("Model definition", m_confui);    	
     		*/
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
-    		m_mmcm.setDB(BfRNodePluginActivator.getBfRService());
+    		m_mmcm.setService(BfRNodePluginActivator.getBfRService());
     		this.addTab("Model Definition", m_mmcm);    	
     		
     		m_mmcts = new MMC_TS();

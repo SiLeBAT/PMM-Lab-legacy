@@ -45,10 +45,10 @@ public class MMC_M extends JPanel {
 	private static final String LABEL_OWNMODEL = "Manually defined formula";
 
 	private Frame m_parentFrame = null;
-	private HashMap<String, ParametricModel> m_secondaryModels = null;
+	private JComboBox[] threeBoxes = new JComboBox[3];
+	private HashMap<String, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private BFRNodeService m_service = null;
 	private boolean dontTouch = false;
-	private boolean dontRemoveSec = false;
 
 	public MMC_M() {
 		this(null, 1, "");
@@ -56,7 +56,7 @@ public class MMC_M extends JPanel {
 	public MMC_M(final Frame parentFrame, final int level, final String paramName) {
 		this.m_parentFrame = parentFrame;
 		initComponents();
-		if (level == 1) m_secondaryModels = new HashMap<String, ParametricModel>();
+		m_secondaryModels = new HashMap<String, HashMap<String, ParametricModel>>();
 		depVarLabel.setText(paramName);
 		if (level == 1) {
 			radioButton1.setSelected(true);
@@ -79,11 +79,8 @@ public class MMC_M extends JPanel {
 			if (pm.getLevel() == 2) {
 				if (!radioButton2.isSelected()) {
 					radioButton2.setSelected(true);
-					setDB(m_service);
+					setComboBox();
 				}
-			}
-			else if (m_secondaryModels != null && m_secondaryModels.size() > 0) {
-				radioButton3.setSelected(true);
 			}
 			modelnameField.setText(pm.getModelName());
 			String depVar = depVarLabel.getText();
@@ -100,49 +97,60 @@ public class MMC_M extends JPanel {
 				}
 			}			
 			formulaArea.setText(pm.getFormula());
-			table.setPM(pm, m_secondaryModels, radioButton3);
+			table.setPM(pm, m_secondaryModels.get(pm.getModelName()), radioButton3);
 			insertNselectPMintoBox(pm);
 		}
 	}
-	public void setDB(final BFRNodeService service) {	
-		this.m_service = service;
-		Bfrdb db;
-		try {			
-			db = new Bfrdb(service);
-			getFromDB(db);
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-		}
+	public void setService(final BFRNodeService service) {	
+		setService(service, false);
 	}
-	private void getFromDB(final Bfrdb db) {		
-		modelNameBox.removeAllItems();
-		if (m_secondaryModels != null) m_secondaryModels.clear();
-		int level = radioButton2.isSelected() ? 2 : 1;
-		ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", level);
-		modelNameBox.addItem(pm);
-		//System.err.println("added1:" + pm + "\t" + pm.hashCode());
-		try {			
-			ResultSet result = db.selectModel(level);			
-			while(result.next()) {				
-				String modelName = result.getString(Bfrdb.ATT_NAME);
-				String formula = result.getString(Bfrdb.ATT_FORMULA);
-				int modelID = result.getInt(Bfrdb.ATT_MODELID);
-
-				pm = new ParametricModel(modelName, formula, result.getString(Bfrdb.ATT_DEP), level, modelID);
-				manageDBMinMax(result, pm);
-				manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
-				
-				modelNameBox.addItem(pm);
-				//System.err.println("added2:" + pm + "\t" + pm.hashCode());
-			}			
-			result.getStatement().close();
-			result.close();
-			
-			db.close();
+	public void setService(final BFRNodeService service, boolean setCombo) {	
+		this.m_service = service;
+		setComboBox();
+	}
+	private void setComboBox() {		
+		remove(modelNameBox);
+		modelNameBox = threeBoxes[getSelRadio() - 1];
+		if (modelNameBox == null) {
+			modelNameBox = new JComboBox();
+			modelNameBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					modelNameBoxActionPerformed(e);
+				}
+			});
+			threeBoxes[getSelRadio() - 1] = modelNameBox;
 		}
-		catch( Exception e ) {
-			e.printStackTrace();
+		add(modelNameBox, CC.xywh(3, 5, 17, 1));
+		if (modelNameBox.getItemCount() == 0) {
+			modelNameBox.removeAllItems();
+			//if (m_secondaryModels != null) m_secondaryModels.clear();
+			int level = radioButton2.isSelected() ? 2 : 1;
+			ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", level);
+			modelNameBox.addItem(pm);
+			//System.err.println("added1:" + pm + "\t" + pm.hashCode());
+			try {			
+				Bfrdb db = new Bfrdb(m_service);
+				ResultSet result = db.selectModel(level);			
+				while(result.next()) {				
+					String modelName = result.getString(Bfrdb.ATT_NAME);
+					String formula = result.getString(Bfrdb.ATT_FORMULA);
+					int modelID = result.getInt(Bfrdb.ATT_MODELID);
+
+					pm = new ParametricModel(modelName, formula, result.getString(Bfrdb.ATT_DEP), level, modelID);
+					manageDBMinMax(result, pm);
+					manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
+					
+					modelNameBox.addItem(pm);
+					//System.err.println("added2:" + pm + "\t" + pm.hashCode());
+				}			
+				result.getStatement().close();
+				result.close();				
+				db.close();
+			}
+			catch( Exception e ) {
+				e.printStackTrace();
+			}
 		}
 	}
 	private void manageDBMinMax(ResultSet result, ParametricModel pm) throws SQLException {
@@ -240,7 +248,7 @@ public class MMC_M extends JPanel {
 	private void modelNameBoxActionPerformed(ActionEvent e) {
 		if (dontTouch) return;
 		table.clearTable();
-		if (!dontRemoveSec && m_secondaryModels != null) m_secondaryModels.clear();
+		//if (!dontRemoveSec && m_secondaryModels != null) m_secondaryModels.clear();
 		formulaArea.setText("");
 		modelnameField.setText("");
 		
@@ -253,6 +261,9 @@ public class MMC_M extends JPanel {
 		}
 		else {
 			//System.err.println("pm = null???\t" + modelNameBox.getItemCount());
+		}
+		if (pm != null && !m_secondaryModels.containsKey(pm.getModelName())) {
+			m_secondaryModels.put(pm.getModelName(), new HashMap<String, ParametricModel>());
 		}
 	}
 	
@@ -268,6 +279,10 @@ public class MMC_M extends JPanel {
 		if (i == modelNameBox.getItemCount()) {
 			modelNameBox.addItem(pm);
 			//System.err.println("added3:" + pm + "\t" + pm.hashCode());
+		}
+		else if (!pm.equals((ParametricModel) modelNameBox.getItemAt(i))) {
+			modelNameBox.removeItemAt(i);
+			modelNameBox.insertItemAt(pm, i);
 		}
 		modelNameBox.setSelectedItem(pm);
 		dontTouch = false;		
@@ -313,6 +328,16 @@ public class MMC_M extends JPanel {
 			ParametricModel newPM = pm.clone();
 			newPM.setModelName(modelnameField.getText());
 			newPM.setModelId(MathUtilities.getRandomNegativeInt());
+			//if (m_secondaryModels != null) {
+				HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm.getModelName());
+				if (smOld != null && !m_secondaryModels.containsKey(newPM.getModelName())) {
+					HashMap<String, ParametricModel> smNew = new HashMap<String, ParametricModel>();
+					for (String key : smOld.keySet()) {
+						if (smOld.get(key) != null) smNew.put(key, smOld.get(key).clone());
+					}
+					m_secondaryModels.put(newPM.getModelName(), smNew);
+				}
+			//}
 			/*
 			System.err.println(pm.getParamValue("a0") + "\t" + pm + "\t" + pm.hashCode() + "\n" +
 					newPM.getParamValue("a0") + "\t" + newPM + "\t" + newPM.hashCode() + "\n" +
@@ -340,9 +365,10 @@ public class MMC_M extends JPanel {
 				secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 				String param = table.getValueAt(row, 0).toString();
 				MMC_M m2 = new MMC_M(null, 2, param);
-				m2.setDB(m_service);
-				m2.setPM(m_secondaryModels.get(param));
-				secondaryDialog.setPanel(m2, param, m_secondaryModels);
+				m2.setService(m_service, true);
+				HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM().getModelName());
+				m2.setPM(sm.get(param));
+				secondaryDialog.setPanel(m2, param, sm);
 				secondaryDialog.pack();
 				
 				secondaryDialog.setLocationRelativeTo(this);
@@ -354,11 +380,21 @@ public class MMC_M extends JPanel {
 
 	private void radioButtonActionPerformed(ActionEvent e) {
 		if (m_service != null) {
+			/*
 			int level = radioButton2.isSelected() ? 2 : 1;
-			if (!radioButton3.isSelected()) m_secondaryModels.clear();
 			ParametricModel pm = table.getPM();
-			if (level != pm.getLevel()) setDB(m_service);
+
+			//if (!radioButton3.isSelected()) m_secondaryModels.clear();
+			if (level != pm.getLevel())
+			*/
+			setComboBox();
+			modelNameBox.repaint();
+			this.revalidate();
+			modelNameBoxActionPerformed(null);
 		}
+	}
+	private int getSelRadio() {
+		return radioButton1.isSelected() ? 1 : radioButton2.isSelected() ? 2 : 3;
 	}
 
 	public String toXmlString() {		
@@ -368,9 +404,7 @@ public class MMC_M extends JPanel {
 		if (table.hasChanged()) {
 			if (pm != null && pm.getModelName().equals(modelnameField.getText())) {
 				modelnameField.setText(getNewModelname(pm));
-				dontRemoveSec = true;
 				modelnameFieldFocusLost(null);
-				dontRemoveSec = false;
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
 			}
 		}
@@ -394,8 +428,8 @@ public class MMC_M extends JPanel {
 		*/
 		doc.add(pm);
 		
-		if (!radioButton2.isSelected()) {
-			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.entrySet()) {
+		if (radioButton3.isSelected()) {
+			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm.getModelName()).entrySet()) {
 				String key = entry.getKey();
 				if (pm.getParamNameSet().contains(key)) {
 					ParametricModel value = entry.getValue();
@@ -411,6 +445,7 @@ public class MMC_M extends JPanel {
 			PmmXmlDoc doc = new PmmXmlDoc(xmlString);			
 			// fetch model set
 			ParametricModel theModel = null;
+			HashMap<String, ParametricModel> sm = new HashMap<String, ParametricModel>();
 			for (int i = 0; i < doc.size(); i++) {				
 				PmmXmlElementConvertable el = doc.get(i);
 				if (el instanceof ParametricModel) {
@@ -421,13 +456,19 @@ public class MMC_M extends JPanel {
 					}
 					else {
 						if (theModel == null) theModel = pm;
-						m_secondaryModels.put(pm.getDepVar(), pm);
+						sm.put(pm.getDepVar(), pm);
 					}
 				}				
 			}
 
 			if (theModel != null) {
-				if (theModel.getLevel() == 2) m_secondaryModels.clear();
+				if (theModel.getLevel() == 1) {
+					m_secondaryModels.put(theModel.getModelName(), sm);
+				}
+				if (sm.size() > 0) {
+					radioButton3.setSelected(true);
+				}
+				setComboBox();
 				setPM(theModel);
 			}
 			/*

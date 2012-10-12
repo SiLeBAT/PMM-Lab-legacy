@@ -401,20 +401,30 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setFunctionConstants(constants);
 
 			if (getNodeModel().isSeiSchema()) {
-				plotable.addValueList(depVarMap.get(id), depVarDataMap.get(id));
+				List<Double> depVarData = depVarDataMap.get(id);
+				List<Double> temperatures = temperatureDataMap.get(id);
+				List<Double> phs = phDataMap.get(id);
+				List<Double> aws = awDataMap.get(id);
+
+				for (int i = 0; i < depVarData.size(); i++) {
+					if (depVarData.get(i) == null) {
+						depVarData.remove(i);
+						temperatures.remove(i);
+						phs.remove(i);
+						aws.remove(i);
+					}
+				}
+
+				plotable.addValueList(depVarMap.get(id), depVarData);
 				plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,
-						temperatureDataMap.get(id));
-				plotable.addValueList(TimeSeriesSchema.ATT_PH,
-						phDataMap.get(id));
-				plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY,
-						awDataMap.get(id));
+						temperatures);
+				plotable.addValueList(TimeSeriesSchema.ATT_PH, phs);
+				plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY, aws);
 
 				List<Double> nonNullTemperatures = new ArrayList<Double>(
-						temperatureDataMap.get(id));
-				List<Double> nonNullPHs = new ArrayList<Double>(
-						phDataMap.get(id));
-				List<Double> nonNullWaterActivites = new ArrayList<Double>(
-						awDataMap.get(id));
+						temperatures);
+				List<Double> nonNullPHs = new ArrayList<Double>(phs);
+				List<Double> nonNullWaterActivites = new ArrayList<Double>(aws);
 
 				nonNullTemperatures.removeAll(Arrays.asList((Double) null));
 				nonNullPHs.removeAll(Arrays.asList((Double) null));

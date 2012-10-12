@@ -71,6 +71,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	private static final int PRIMARY_JOIN = 1;
 	private static final int SECONDARY_JOIN = 2;
 	private static final int COMBINED_JOIN = 3;
+	private static final int MODEL_JOIN = 4;
 
 	private List<String> assignments;
 	private int joinSameConditions;
@@ -101,6 +102,8 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 					joinSameConditions == 1);
 		} else if (joinType == COMBINED_JOIN) {
 			joiner = new CombinedJoiner(inData[0], inData[1]);
+		} else if (joinType == MODEL_JOIN) {
+			joiner = new ModelJoiner(inData[0], inData[1]);
 		}
 
 		return new BufferedDataTable[] { joiner.getOutputTable(assignments,
@@ -145,6 +148,10 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 					&& dataSchema.conforms(inSpecs[1])) {
 				outSchema = peiSchema;
 				joinType = PRIMARY_JOIN;
+			} else if (model2Schema.conforms(inSpecs[0])
+					&& model1Schema.conforms(inSpecs[1])) {
+				outSchema = model12Schema;
+				joinType = MODEL_JOIN;
 			} else if (model2Schema.conforms(inSpecs[1])
 					&& peiSchema.conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
@@ -153,6 +160,9 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else if (model1Schema.conforms(inSpecs[1])
 					&& dataSchema.conforms(inSpecs[0])) {
+				throw new InvalidSettingsException("Please switch the ports!");
+			} else if (model2Schema.conforms(inSpecs[1])
+					&& model1Schema.conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");

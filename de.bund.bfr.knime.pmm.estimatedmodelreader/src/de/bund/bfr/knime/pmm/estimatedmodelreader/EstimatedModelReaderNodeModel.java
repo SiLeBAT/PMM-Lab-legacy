@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.util.List;
 import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
@@ -136,6 +137,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	String dbuuid;
     	String formula;
     	Map<String,String> varMap;
+    	int numParam, numSample;
+    	List<Double> tList;
+    	List<String> paramList;
+    	Double rms;
     	
         // fetch database connection
         db = null;
@@ -238,7 +243,30 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			for( j = 0; j < n; j++ )
     				tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
 
-    				
+    		tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
+    		paramList = tuple.getStringList( Model1Schema.ATT_PARAMNAME );
+    		rms = tuple.getDouble( Model1Schema.ATT_RMS );
+    		
+    		if( tList != null )
+    			numSample = tList.size();
+    		else
+    			numSample = -1;
+    		
+    		if( paramList != null )
+    			numParam = paramList.size();
+    		else
+    			numParam = -1;
+    		
+    		if( rms == null )
+    			rms = -1.;
+    		
+    		
+    		
+    		tuple.setValue( Model1Schema.ATT_AIC,
+				MathUtilities.akaikeCriterion( numParam, numSample, rms ) );
+    		
+    		tuple.setValue( Model1Schema.ATT_BIC,
+				MathUtilities.bayesCriterion( numParam, numSample, rms ) );
     		
     		// fill m2
     		if( level == 2 ) {

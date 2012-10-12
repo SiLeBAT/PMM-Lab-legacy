@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.dataviewandselect;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,7 +31,7 @@ public class TableReader {
 	private List<List<Double>> doubleColumnValues;
 
 	private List<List<String>> infoParameters;
-	private List<List<String>> infoParameterValues;
+	private List<List<?>> infoParameterValues;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -55,7 +56,7 @@ public class TableReader {
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<String>>();
+		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new HashMap<String, String>();
 		longLegend = new HashMap<String, String>();
 
@@ -82,9 +83,15 @@ public class TableReader {
 					.getDoubleList(TimeSeriesSchema.ATT_TIME);
 			List<Double> logcList = tuple
 					.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+			List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 			String dataName;
 			String agent;
 			String matrix;
+
+			for (int i = 0; i < timeList.size(); i++) {
+				dataPoints.add(new Point2D.Double(timeList.get(i), logcList
+						.get(i)));
+			}
 
 			if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
 				dataName = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
@@ -113,11 +120,11 @@ public class TableReader {
 			doubleColumnValues.get(0).add(temperature);
 			doubleColumnValues.get(1).add(ph);
 			doubleColumnValues.get(2).add(waterActivity);
-			infoParameters.add(Arrays.asList(TimeSeriesSchema.ATT_AGENTNAME,
-					TimeSeriesSchema.ATT_MATRIXNAME, TimeSeriesSchema.ATT_MISC,
+			infoParameters.add(Arrays.asList(TimeSeriesSchema.DATAPOINTS,
+					TimeSeriesSchema.ATT_AGENTNAME,
+					TimeSeriesSchema.ATT_MATRIXNAME,
 					TimeSeriesSchema.ATT_COMMENT));
-			infoParameterValues.add(Arrays.asList(agent, matrix,
-					tuple.getString(TimeSeriesSchema.ATT_MISC),
+			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
 					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
@@ -165,7 +172,7 @@ public class TableReader {
 		return infoParameters;
 	}
 
-	public List<List<String>> getInfoParameterValues() {
+	public List<List<?>> getInfoParameterValues() {
 		return infoParameterValues;
 	}
 

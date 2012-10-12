@@ -64,7 +64,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_ESTMODELID = "EstModelId";
 	private static final String ATT_RMS = "RMS";
 	private static final String ATT_RSS = "RSS";
-	//private static final String ATT_AIC = "AIC";
+	private static final String ATT_AIC = "AIC";
+	private static final String ATT_BIC = "BIC";
 	private static final String ATT_RSQUARED = "Rsquared";
 	private static final String ATT_MINVALUE = "MinValue";
 	private static final String ATT_MAXVALUE = "MaxValue";
@@ -97,6 +98,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private Double rss;
 	private Double rms;
 	private Double aic;
+	private Double bic;
 	private int condId;
 		
 	private static final String ATT_LEVEL = "Level";
@@ -108,6 +110,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		rsquared = Double.NaN;
 		rms = Double.NaN;
 		aic = Double.NaN;
+		bic = Double.NaN;
 		condId = MathUtilities.getRandomNegativeInt();
 		modelId = MathUtilities.getRandomNegativeInt();
 		estModelId = MathUtilities.getRandomNegativeInt();
@@ -172,7 +175,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
 		if (modelElement.getAttributeValue(ATT_RSS) != null) rss = Double.valueOf( modelElement.getAttributeValue( ATT_RSS ) );
 		rms = Double.valueOf( modelElement.getAttributeValue( ATT_RMS ) );
-		//if (modelElement.getAttributeValue(ATT_AIC) != null) aic = Double.valueOf( modelElement.getAttributeValue(ATT_AIC) );
+		if (modelElement.getAttributeValue(ATT_AIC) != null) aic = Double.valueOf( modelElement.getAttributeValue(ATT_AIC) );
+		if (modelElement.getAttributeValue(ATT_BIC) != null) bic = Double.valueOf( modelElement.getAttributeValue(ATT_BIC) );
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
@@ -226,6 +230,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			e.printStackTrace();
 		}
 		clonedPM.setAic(aic);
+		clonedPM.setBic(bic);
 		try {
 			clonedPM.setRss(rss);
 		} catch (PmmException e) {
@@ -236,7 +241,6 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}
-		clonedPM.setAic(aic);
 		clonedPM.setCondId(condId);
 
 		for (Map.Entry<String, Double> entry : param.entrySet()) {
@@ -341,6 +345,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		}
 	}
 	public void setAic( final Double aic ) { this.aic = aic; }
+	public void setBic( final Double bic ) { this.bic = bic; }
 	
 	public void removeIndepVar( final String varName ) {
 		if (indepVar.contains(varName)) indepVar.remove(varName);
@@ -452,6 +457,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Double getRsquared() { return rsquared; }
 	public Double getRms() { return rms; }
 	public Double getAic() { return aic; }
+	public Double getBic() { return bic; }
 	public String getModelName() { return modelName; }
 	public LinkedList<String> getIndepVarSet() { return indepVar; }
 	
@@ -470,7 +476,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_CONDID, String.valueOf( condId ) );
 		modelElement.setAttribute( ATT_RSS, String.valueOf( rss ) );
 		modelElement.setAttribute( ATT_RMS, String.valueOf( rms ) );
-		//modelElement.setAttribute( ATT_AIC, String.valueOf( aic ) );
+		modelElement.setAttribute( ATT_AIC, String.valueOf( aic ) );
+		modelElement.setAttribute( ATT_BIC, String.valueOf( bic ) );
 		
 		modelElement.setAttribute( ATT_RSQUARED, String.valueOf( rsquared ) );
 		
@@ -524,6 +531,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public boolean hasAic() { return !Double.isNaN( aic ); }
+	public boolean hasBic() { return !Double.isNaN( bic ); }
 	public boolean hasRms() { return !Double.isNaN( rms ); }
 	
 	public KnimeTuple getKnimeTuple() throws PmmException {		
@@ -539,7 +547,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
 			tuple.setValue( Model1Schema.ATT_ESTMODELID, getEstModelId() );
 			tuple.setValue( Model1Schema.ATT_RMS, getRms() );
-			//tuple.setValue( Model1Schema.ATT_AIC, getAic() );
+			tuple.setValue( Model1Schema.ATT_AIC, getAic() );
+			tuple.setValue( Model1Schema.ATT_BIC, getBic() );
 			tuple.setValue( Model1Schema.ATT_RSQUARED, getRsquared() );
 			
 			for( String paramName : getParamNameSet() ) {
@@ -580,7 +589,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple.setValue( Model2Schema.ATT_MODELID, getModelId() );
 			tuple.setValue( Model2Schema.ATT_ESTMODELID, getEstModelId() );
 			tuple.setValue( Model2Schema.ATT_RMS, getRms() );
-			//tuple.setValue( Model2Schema.ATT_AIC, getAic() );
+			tuple.setValue( Model2Schema.ATT_AIC, getAic() );
+			tuple.setValue( Model2Schema.ATT_BIC, getBic() );
 			tuple.setValue( Model2Schema.ATT_RSQUARED, getRsquared() );
 			
 			for( String paramName : getParamNameSet() ) {

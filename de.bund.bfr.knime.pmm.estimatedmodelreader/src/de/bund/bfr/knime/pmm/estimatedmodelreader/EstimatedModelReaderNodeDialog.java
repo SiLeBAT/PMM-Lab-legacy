@@ -87,6 +87,13 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	panel.add( estmodelui, BorderLayout.CENTER );    	
     	    	
     	addTab( "Database connection", panel );
+    	
+    	try {
+    		updateModelName();
+    	}
+    	catch( Exception e ) {
+    		e.printStackTrace( System.err );
+    	}
     }
     
 	@Override

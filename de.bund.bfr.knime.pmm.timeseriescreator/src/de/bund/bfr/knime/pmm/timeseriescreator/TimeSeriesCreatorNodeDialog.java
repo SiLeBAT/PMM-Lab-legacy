@@ -38,40 +38,23 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
-import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.KeyStroke;
-import javax.swing.ListSelectionModel;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellEditor;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -90,6 +73,7 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
+import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesCreator" Node.
@@ -113,7 +97,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JButton clearButton;
 	private JButton stepsButton;
 	private JButton xlsButton;
-	private JTable table;
+	private TimeSeriesTable table;
 	private StringTextField agentField;
 	private StringTextField matrixField;
 	private StringTextField commentField;
@@ -144,23 +128,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
-		table = new JTable(new TimeSeriesTableModel());
-		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)).setCellEditor(
-				new DoubleCellEditor());
-		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)).setCellEditor(
-				new DoubleCellEditor());
-		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)).setCellRenderer(
-				new DefaultTableCellRenderer());
-		table.getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)).setCellRenderer(
-				new DefaultTableCellRenderer());
-		table.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		table.setCellSelectionEnabled(true);
-		table.registerKeyboardAction(this, "Copy", KeyStroke.getKeyStroke(
-				KeyEvent.VK_C, ActionEvent.CTRL_MASK, false),
-				JComponent.WHEN_FOCUSED);
-		table.registerKeyboardAction(this, "Paste", KeyStroke.getKeyStroke(
-				KeyEvent.VK_V, ActionEvent.CTRL_MASK, false),
-				JComponent.WHEN_FOCUSED);
+		table = new TimeSeriesTable(ROW_COUNT, true);
 		agentField = new StringTextField(true);
 		matrixField = new StringTextField(true);
 		commentField = new StringTextField(true);
@@ -288,7 +256,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			for (int i = 0; i < timeArray.length; i++) {
 				if (!Double.isNaN(timeArray[i])) {
-					table.setValueAt(timeArray[i], i, 0);
+					table.setTime(i, timeArray[i]);
 				}
 			}
 		} catch (InvalidSettingsException e) {
@@ -301,7 +269,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			for (int i = 0; i < logcArray.length; i++) {
 				if (!Double.isNaN(logcArray[i])) {
-					table.setValueAt(logcArray[i], i, 1);
+					table.setLogc(i, logcArray[i]);
 				}
 			}
 		} catch (InvalidSettingsException e) {
@@ -382,8 +350,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		List<Double> logcList = new ArrayList<Double>();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
-			Double time = (Double) table.getValueAt(i, 0);
-			Double logc = (Double) table.getValueAt(i, 1);
+			Double time = table.getTime(i);
+			Double logc = table.getLogc(i);
 
 			if (time != null || logc != null) {
 				if (time != null) {
@@ -433,8 +401,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			waterActivityField.setValue(null);
 
 			for (int i = 0; i < ROW_COUNT; i++) {
-				table.setValueAt(null, i, 0);
-				table.setValueAt(null, i, 1);
+				table.setTime(i, null);
+				table.setLogc(i, null);
 			}
 
 			table.repaint();
@@ -448,84 +416,19 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				double stepSize = dialog.getStepSize();
 
 				for (int i = 0; i < ROW_COUNT; i++) {
-					Double time = null;
-					Double logc = null;
+					Double time = null;					
 
 					if (i < stepNumber) {
 						time = i * stepSize;
 					}
 
-					table.setValueAt(time, i, 0);
-					table.setValueAt(logc, i, 1);
+					table.setTime(i, time);
+					table.setLogc(i, null);
 				}
 
 				table.repaint();
 			}
-		} else if (event.getActionCommand().equals("Copy")) {
-			performCopy();
-		} else if (event.getActionCommand().equals("Paste")) {
-			performPaste();
 		}
-	}
-
-	private void performCopy() {
-		StringBuilder sbf = new StringBuilder();
-		int numcols = table.getSelectedColumnCount();
-		int numrows = table.getSelectedRowCount();
-		int[] rowsselected = table.getSelectedRows();
-		int[] colsselected = table.getSelectedColumns();
-
-		for (int i = 0; i < numrows; i++) {
-			for (int j = 0; j < numcols; j++) {
-				sbf.append(table.getValueAt(rowsselected[i], colsselected[j]));
-
-				if (j < numcols - 1) {
-					sbf.append("\t");
-				}
-			}
-			sbf.append("\n");
-		}
-
-		StringSelection stsel = new StringSelection(sbf.toString());
-
-		Toolkit.getDefaultToolkit().getSystemClipboard()
-				.setContents(stsel, stsel);
-	}
-
-	private void performPaste() {
-		int startRow = (table.getSelectedRows())[0];
-		int startCol = (table.getSelectedColumns())[0];
-		Clipboard system = Toolkit.getDefaultToolkit().getSystemClipboard();
-		String trstring = null;
-
-		try {
-			trstring = (String) system.getContents(this).getTransferData(
-					DataFlavor.stringFlavor);
-		} catch (UnsupportedFlavorException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		String[] rows = trstring.split("\n");
-
-		for (int i = 0; i < rows.length; i++) {
-			String[] cells = rows[i].split("\t");
-
-			for (int j = 0; j < cells.length; j++) {
-				if (startRow + i < table.getRowCount()
-						&& startCol + j < table.getColumnCount()) {
-					try {
-						table.setValueAt(
-								Double.parseDouble(cells[j].replace(",", ".")),
-								startRow + i, startCol + j);
-					} catch (NumberFormatException e) {
-					}
-				}
-			}
-		}
-
-		table.repaint();
 	}
 
 	private void loadFromXLS() {
@@ -590,127 +493,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						logc = logcList.get(i);
 					}
 
-					table.setValueAt(time, i, 0);
-					table.setValueAt(logc, i, 1);
+					table.setTime(i, time);
+					table.setLogc(i, logc);					
 				}
 
 				table.repaint();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}
-	}
-
-	private class TimeSeriesTableModel extends AbstractTableModel {
-
-		private static final long serialVersionUID = 1L;
-
-		private List<Double> timeList;
-		private List<Double> logcList;
-
-		public TimeSeriesTableModel() {
-			timeList = new ArrayList<Double>(ROW_COUNT);
-			logcList = new ArrayList<Double>(ROW_COUNT);
-
-			for (int i = 0; i < ROW_COUNT; i++) {
-				timeList.add(null);
-				logcList.add(null);
-			}
-		}
-
-		@Override
-		public int getRowCount() {
-			return ROW_COUNT;
-		}
-
-		@Override
-		public int getColumnCount() {
-			return 2;
-		}
-
-		@Override
-		public String getColumnName(int column) {
-			switch (column) {
-			case 0:
-				return AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME);
-			case 1:
-				return AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC);
-			default:
-				return null;
-			}
-		}
-
-		@Override
-		public Class<?> getColumnClass(int columnIndex) {
-			return Double.class;
-		}
-
-		@Override
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			return true;
-		}
-
-		@Override
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				return timeList.get(rowIndex);
-			case 1:
-				return logcList.get(rowIndex);
-			default:
-				return null;
-			}
-		}
-
-		@Override
-		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			switch (columnIndex) {
-			case 0:
-				timeList.set(rowIndex, (Double) aValue);
-				break;
-			case 1:
-				logcList.set(rowIndex, (Double) aValue);
-				break;
-			}
-		}
-
-	}
-
-	private class DoubleCellEditor extends AbstractCellEditor implements
-			TableCellEditor {
-
-		private static final long serialVersionUID = 1L;
-
-		private DoubleTextField field;
-
-		public DoubleCellEditor() {
-			field = new DoubleTextField(true);
-		}
-
-		@Override
-		public Object getCellEditorValue() {
-			return field.getValue();
-		}
-
-		@Override
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
-			if (value != null) {
-				field.setText(value.toString());
-			} else {
-				field.setText("");
-			}
-
-			return field;
-		}
-
-		@Override
-		public boolean isCellEditable(EventObject e) {
-			if (e instanceof MouseEvent) {
-				return ((MouseEvent) e).getClickCount() >= 2;
-			}
-
-			return true;
 		}
 	}
 

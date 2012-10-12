@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
-			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default:grow"
+			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, linegap, default:grow"
 			"$columnGroupIds": "0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1"
 		} ) {
 			name: "this"
@@ -165,22 +165,38 @@ new FormModel {
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label5"
 				"text": "AIC:"
-				"visible": false
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 15
-				"gridY": 13
+				"gridX": 3
+				"gridY": 15
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
 				name: "aicField"
-				"visible": false
 				auxiliary() {
 					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
 				}
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "aicFieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "aicFieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 17
-				"gridY": 13
+				"gridX": 5
+				"gridY": 15
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label6"
+				"text": "BIC:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 9
+				"gridY": 15
+			} )
+			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+				name: "bicField"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
+				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "bicFieldFocusLost", true ) )
+				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "bicFieldKeyReleased", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 11
+				"gridY": 15
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
@@ -188,7 +204,7 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 15
-				"gridY": 15
+				"gridY": 17
 				"gridWidth": 5
 			} )
 		}, new FormLayoutConstraints( null ) {

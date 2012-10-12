@@ -142,7 +142,7 @@ public class ParameterOptimizer {
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			} else {
-				paramMin.add(1.0);
+				paramMin.add(0.0);
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			}
@@ -207,8 +207,8 @@ public class ParameterOptimizer {
 			}
 		}
 
-		double[] factors = new double[] { 1.0, 0.9, 1.1, 0.8, 1.2, 0.7, 1.3,
-				0.6, 1.4, 0.5, 1.5 };
+		double[] factors = new double[] { 1.0, 1.1, 1.0 / 1.1, 1.2, 1.0 / 1.2,
+				1.3, 1.0 / 1.3, 1.4, 1 / 1.4, 1.5, 1.0 / 1.5 };
 
 		successful = false;
 		boolean concergenceProblem = false;
@@ -219,7 +219,11 @@ public class ParameterOptimizer {
 				if (value != 0.0) {
 					startValues.add(value * factor);
 				} else {
-					startValues.add(factor - 1);
+					if (factor >= 0) {
+						startValues.add(MathUtilities.EPSILON * factor);
+					} else {
+						startValues.add(-MathUtilities.EPSILON / factor);
+					}
 				}
 			}
 
@@ -271,6 +275,16 @@ public class ParameterOptimizer {
 		 * rSquareCorrected = rSquare - (1 - rSquare) * p / (n-p-1);
 		 */
 		return rSquare;
+	}
+
+	public double getAIC() {
+		return MathUtilities.akaikeCriterion(parameters.size(),
+				targetValues.size(), rms);
+	}
+
+	public double getBIC() {
+		return MathUtilities.bayesCriterion(parameters.size(),
+				targetValues.size(), rms);
 	}
 
 	public List<Double> getParameterStandardErrors() {
@@ -467,7 +481,7 @@ public class ParameterOptimizer {
 
 					for (int j = 0; j < derivatives.size(); j++) {
 						retValue[i][j] = evalWithSingularityCheck(
-								derivatives.get(j), argValues);						
+								derivatives.get(j), argValues);
 					}
 
 					// for (int j = 0; j < arguments.size(); j++) {

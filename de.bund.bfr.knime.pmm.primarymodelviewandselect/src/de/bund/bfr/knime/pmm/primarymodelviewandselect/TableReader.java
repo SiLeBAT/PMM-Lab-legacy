@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.primarymodelviewandselect;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,7 +34,7 @@ public class TableReader {
 	private List<List<Double>> doubleColumnValues;
 
 	private List<List<String>> infoParameters;
-	private List<List<String>> infoParameterValues;
+	private List<List<?>> infoParameterValues;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -49,7 +50,7 @@ public class TableReader {
 		ids = new ArrayList<String>();
 		plotables = new HashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<String>>();
+		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new HashMap<String, String>();
 		longLegend = new HashMap<String, String>();
 
@@ -120,12 +121,13 @@ public class TableReader {
 					.getDoubleList(Model1Schema.ATT_MINVALUE);
 			List<Double> paramMaxValues = tuple
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
-
 			Plotable plotable = null;
 			Map<String, Double> parameters = new HashMap<String, Double>();
 			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
 			Map<String, Double> varMin = new HashMap<String, Double>();
 			Map<String, Double> varMax = new HashMap<String, Double>();
+			List<String> infoParams = null;
+			List<Object> infoValues = null;
 
 			for (int i = 0; i < params.size(); i++) {
 				parameters.put(params.get(i), paramValues.get(i));
@@ -149,27 +151,21 @@ public class TableReader {
 					Arrays.asList(0.0)));
 
 			if (schemaContainsData) {
+				List<Double> timeList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_TIME);
+				List<Double> logcList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
+
+				for (int i = 0; i < timeList.size(); i++) {
+					dataPoints.add(new Point2D.Double(timeList.get(i), logcList
+							.get(i)));
+				}
+
 				plotable = new Plotable(Plotable.BOTH);
-				plotable.addValueList(TimeSeriesSchema.ATT_TIME,
-						tuple.getDoubleList(TimeSeriesSchema.ATT_TIME));
-				plotable.addValueList(TimeSeriesSchema.ATT_LOGC,
-						tuple.getDoubleList(TimeSeriesSchema.ATT_LOGC));
-			} else {
-				plotable = new Plotable(Plotable.FUNCTION);
-			}
+				plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
+				plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
 
-			plotable.setFunction(formula);
-			plotable.setFunctionConstants(parameters);
-			plotable.setFunctionArguments(variables);
-			plotable.setMinArguments(varMin);
-			plotable.setMaxArguments(varMax);
-			plotable.setFunctionValue(depVar);
-			plotables.put(id, plotable);
-
-			List<String> infoParams = null;
-			List<String> infoValues = null;
-
-			if (schemaContainsData) {
 				String dataName;
 				String agent;
 				String matrix;
@@ -213,26 +209,17 @@ public class TableReader {
 						tuple.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(4).add(
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
-				infoParams = new ArrayList<String>(
-						Arrays.asList(Model1Schema.ATT_FORMULA,
-								TimeSeriesSchema.ATT_AGENTNAME,
-								TimeSeriesSchema.ATT_MATRIXNAME,
-								TimeSeriesSchema.ATT_MISC,
-								TimeSeriesSchema.ATT_COMMENT));
-				infoValues = new ArrayList<String>(Arrays.asList(
-						tuple.getString(Model1Schema.ATT_FORMULA), agent,
-						matrix, tuple.getString(TimeSeriesSchema.ATT_MISC),
+				infoParams = new ArrayList<String>(Arrays.asList(
+						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
+						TimeSeriesSchema.ATT_AGENTNAME,
+						TimeSeriesSchema.ATT_MATRIXNAME,
+						TimeSeriesSchema.ATT_COMMENT));
+				infoValues = new ArrayList<Object>(Arrays.asList(
+						tuple.getString(Model1Schema.ATT_FORMULA), dataPoints,
+						agent, matrix,
 						tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
-
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						paramMinValues, paramMaxValues)) {
-					stringColumnValues.get(2).add(ChartConstants.WARNING);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.YES);
-				}
 			} else {
+				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
 				stringColumnValues.get(0).add(modelName);
@@ -242,9 +229,27 @@ public class TableReader {
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
 				infoParams = new ArrayList<String>(
 						Arrays.asList(Model1Schema.ATT_FORMULA));
-				infoValues = new ArrayList<String>(Arrays.asList(tuple
+				infoValues = new ArrayList<Object>(Arrays.asList(tuple
 						.getString(Model1Schema.ATT_FORMULA)));
+			}
 
+			plotable.setFunction(formula);
+			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionArguments(variables);
+			plotable.setMinArguments(varMin);
+			plotable.setMaxArguments(varMax);
+			plotable.setFunctionValue(depVar);
+
+			if (schemaContainsData) {
+				if (!plotable.isPlotable()) {
+					stringColumnValues.get(2).add(ChartConstants.NO);
+				} else if (!MathUtilities.areValuesInRange(paramValues,
+						paramMinValues, paramMaxValues)) {
+					stringColumnValues.get(2).add(ChartConstants.WARNING);
+				} else {
+					stringColumnValues.get(2).add(ChartConstants.YES);
+				}
+			} else {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(1).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,
@@ -261,6 +266,7 @@ public class TableReader {
 				infoValues.add("" + value);
 			}
 
+			plotables.put(id, plotable);
 			infoParameters.add(infoParams);
 			infoParameterValues.add(infoValues);
 		}
@@ -298,7 +304,7 @@ public class TableReader {
 		return infoParameters;
 	}
 
-	public List<List<String>> getInfoParameterValues() {
+	public List<List<?>> getInfoParameterValues() {
 		return infoParameterValues;
 	}
 

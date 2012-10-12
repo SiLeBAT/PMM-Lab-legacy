@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.modelanddataview;
 
 import java.awt.BorderLayout;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -79,7 +80,7 @@ public class ModelAndDataViewNodeView extends
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
 	private List<List<String>> infoParameters;
-	private List<List<String>> infoParameterValues;
+	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
@@ -218,7 +219,7 @@ public class ModelAndDataViewNodeView extends
 		ids = new ArrayList<String>();
 		plotables = new HashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<String>>();
+		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new HashMap<String, String>();
 		longLegend = new HashMap<String, String>();
 
@@ -285,12 +286,13 @@ public class ModelAndDataViewNodeView extends
 					.getDoubleList(Model1Schema.ATT_MINVALUE);
 			List<Double> paramMaxValues = row
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
-
 			Plotable plotable = null;
 			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
 			Map<String, Double> varMin = new HashMap<String, Double>();
 			Map<String, Double> varMax = new HashMap<String, Double>();
 			Map<String, Double> parameters = new HashMap<String, Double>();
+			List<String> infoParams = null;
+			List<Object> infoValues = null;
 
 			for (int i = 0; i < indepVars.size(); i++) {
 				variables.put(indepVars.get(i),
@@ -313,6 +315,7 @@ public class ModelAndDataViewNodeView extends
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> logcList = row
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 				int n = 1;
 
 				plotable = new Plotable(Plotable.BOTH);
@@ -321,6 +324,11 @@ public class ModelAndDataViewNodeView extends
 					n = timeList.size();
 					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
 					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+				}
+
+				for (int i = 0; i < n; i++) {
+					dataPoints.add(new Point2D.Double(timeList.get(i), logcList
+							.get(i)));
 				}
 
 				if (temperature != null) {
@@ -337,22 +345,7 @@ public class ModelAndDataViewNodeView extends
 					plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY,
 							Collections.nCopies(n, waterActivity));
 				}
-			} else if (getNodeModel().isModel1Schema()) {
-				plotable = new Plotable(Plotable.FUNCTION);
-			}
 
-			plotable.setFunction(formula);
-			plotable.setFunctionValue(depVar);
-			plotable.setFunctionArguments(variables);			
-			plotable.setMinArguments(varMin);
-			plotable.setMaxArguments(varMax);
-			plotable.setFunctionConstants(parameters);
-			plotables.put(id, plotable);
-
-			List<String> infoParams = null;
-			List<String> infoValues = null;
-
-			if (getNodeModel().isPeiSchema()) {
 				String dataName;
 				String agent;
 				String matrix;
@@ -396,26 +389,17 @@ public class ModelAndDataViewNodeView extends
 						row.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(4).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
-				infoParams = new ArrayList<String>(
-						Arrays.asList(Model1Schema.ATT_FORMULA,
-								TimeSeriesSchema.ATT_AGENTNAME,
-								TimeSeriesSchema.ATT_MATRIXNAME,
-								TimeSeriesSchema.ATT_MISC,
-								TimeSeriesSchema.ATT_COMMENT));
-				infoValues = new ArrayList<String>(Arrays.asList(
-						row.getString(Model1Schema.ATT_FORMULA), agent, matrix,
-						row.getString(TimeSeriesSchema.ATT_MISC),
+				infoParams = new ArrayList<String>(Arrays.asList(
+						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
+						TimeSeriesSchema.ATT_AGENTNAME,
+						TimeSeriesSchema.ATT_MATRIXNAME,
+						TimeSeriesSchema.ATT_COMMENT));
+				infoValues = new ArrayList<Object>(Arrays.asList(
+						row.getString(Model1Schema.ATT_FORMULA), dataPoints,
+						agent, matrix,
 						row.getString(TimeSeriesSchema.ATT_COMMENT)));
-
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						paramMinValues, paramMaxValues)) {
-					stringColumnValues.get(2).add(ChartConstants.WARNING);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.YES);
-				}
 			} else if (getNodeModel().isModel1Schema()) {
+				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
 				stringColumnValues.get(0).add(modelName);
@@ -425,9 +409,27 @@ public class ModelAndDataViewNodeView extends
 						row.getDouble(Model1Schema.ATT_RSQUARED));
 				infoParams = new ArrayList<String>(
 						Arrays.asList(Model1Schema.ATT_FORMULA));
-				infoValues = new ArrayList<String>(Arrays.asList(row
+				infoValues = new ArrayList<Object>(Arrays.asList(row
 						.getString(Model1Schema.ATT_FORMULA)));
+			}
 
+			plotable.setFunction(formula);
+			plotable.setFunctionValue(depVar);
+			plotable.setFunctionArguments(variables);
+			plotable.setMinArguments(varMin);
+			plotable.setMaxArguments(varMax);
+			plotable.setFunctionConstants(parameters);
+
+			if (getNodeModel().isPeiSchema()) {
+				if (!plotable.isPlotable()) {
+					stringColumnValues.get(2).add(ChartConstants.NO);
+				} else if (!MathUtilities.areValuesInRange(paramValues,
+						paramMinValues, paramMaxValues)) {
+					stringColumnValues.get(2).add(ChartConstants.WARNING);
+				} else {
+					stringColumnValues.get(2).add(ChartConstants.YES);
+				}
+			} else if (getNodeModel().isModel1Schema()) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(1).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,
@@ -444,6 +446,7 @@ public class ModelAndDataViewNodeView extends
 				infoValues.add("" + value);
 			}
 
+			plotables.put(id, plotable);
 			infoParameters.add(infoParams);
 			infoParameterValues.add(infoValues);
 		}

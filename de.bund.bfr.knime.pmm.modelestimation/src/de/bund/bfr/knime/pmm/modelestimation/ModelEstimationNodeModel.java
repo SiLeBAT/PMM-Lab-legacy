@@ -220,6 +220,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 			Map<String, List<Double>> paramErrorMap = new HashMap<String, List<Double>>();
 			Map<String, Double> rmsMap = new HashMap<String, Double>();
 			Map<String, Double> rSquaredMap = new HashMap<String, Double>();
+			Map<String, Double> aicMap = new HashMap<String, Double>();
+			Map<String, Double> bicMap = new HashMap<String, Double>();
 			Map<String, List<Double>> minIndepMap = new HashMap<String, List<Double>>();
 			Map<String, List<Double>> maxIndepMap = new HashMap<String, List<Double>>();
 			Map<String, Integer> estIDMap = new HashMap<String, Integer>();
@@ -237,6 +239,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					tuple.setValue(Model2Schema.ATT_RMS, rmsMap.get(id));
 					tuple.setValue(Model2Schema.ATT_RSQUARED,
 							rSquaredMap.get(id));
+					tuple.setValue(Model2Schema.ATT_AIC, aicMap.get(id));
+					tuple.setValue(Model2Schema.ATT_BIC, bicMap.get(id));
 					tuple.setValue(Model2Schema.ATT_PARAMERR,
 							paramErrorMap.get(id));
 					tuple.setValue(Model2Schema.ATT_MININDEP,
@@ -276,6 +280,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					List<Double> parameterErrors;
 					Double rms;
 					Double rSquared;
+					Double aic;
+					Double bic;
 					Integer estID = MathUtilities.getRandomNegativeInt();
 					List<Double> minValues;
 					List<Double> maxValues;
@@ -297,6 +303,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 								.getParameterStandardErrors();
 						rms = optimizer.getRMS();
 						rSquared = optimizer.getRSquare();
+						aic = optimizer.getAIC();
+						bic = optimizer.getBIC();
 						minValues = new ArrayList<Double>();
 						maxValues = new ArrayList<Double>();
 
@@ -311,12 +319,16 @@ public class ModelEstimationNodeModel extends NodeModel {
 								parameters.size(), null);
 						rms = null;
 						rSquared = null;
+						aic = null;
+						bic = null;
 						minValues = null;
 						maxValues = null;
 					}
 
 					tuple.setValue(Model2Schema.ATT_VALUE, parameterValues);
 					tuple.setValue(Model2Schema.ATT_RMS, rms);
+					tuple.setValue(Model2Schema.ATT_AIC, aic);
+					tuple.setValue(Model2Schema.ATT_BIC, bic);
 					tuple.setValue(Model2Schema.ATT_RSQUARED, rSquared);
 					tuple.setValue(Model2Schema.ATT_PARAMERR, parameterErrors);
 					tuple.setValue(Model2Schema.ATT_MININDEP, minValues);
@@ -325,6 +337,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					paramValueMap.put(id, parameterValues);
 					rmsMap.put(id, rms);
 					rSquaredMap.put(id, rSquared);
+					aicMap.put(id, aic);
+					bicMap.put(id, bic);
 					paramErrorMap.put(id, parameterErrors);
 					minIndepMap.put(id, minValues);
 					maxIndepMap.put(id, maxValues);
@@ -440,8 +454,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 				List<Double> timeValues = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<Double> timeValuesCopy = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<String> arguments = Arrays
 						.asList(TimeSeriesSchema.ATT_TIME);
 				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
@@ -449,16 +461,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> parameterErrors;
 				Double rms;
 				Double rSquare;
+				Double aic;
+				Double bic;
 				List<Double> minIndep;
 				List<Double> maxIndep;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
-					// here timeValuesCopy important, otherwise timeValues (in
-					// dataflow table) may have slightly changed values due to
-					// checkIndepVars4Singularities in class ParameterOptimizer
-					argumentValues.add(timeValuesCopy);
+					argumentValues.add(timeValues);
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);
 
@@ -482,6 +493,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					parameterErrors = optimizer.getParameterStandardErrors();
 					rms = optimizer.getRMS();
 					rSquare = optimizer.getRSquare();
+					aic = optimizer.getAIC();
+					bic = optimizer.getBIC();
 				} else {
 					parameterValues = Collections.nCopies(parameters.size(),
 							null);
@@ -489,10 +502,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 							null);
 					rms = null;
 					rSquare = null;
+					aic = null;
+					bic = null;
 				}
 
 				tuple.setValue(Model1Schema.ATT_VALUE, parameterValues);
 				tuple.setValue(Model1Schema.ATT_RMS, rms);
+				tuple.setValue(Model1Schema.ATT_AIC, aic);
+				tuple.setValue(Model1Schema.ATT_BIC, bic);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
 				tuple.setValue(Model1Schema.ATT_PARAMERR, parameterErrors);
 				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);

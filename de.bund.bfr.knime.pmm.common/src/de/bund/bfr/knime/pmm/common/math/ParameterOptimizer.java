@@ -277,6 +277,16 @@ public class ParameterOptimizer {
 		return rSquare;
 	}
 
+	public double getAIC() {
+		return MathUtilities.akaikeCriterion(parameters.size(),
+				targetValues.size(), rms);
+	}
+
+	public double getBIC() {
+		return MathUtilities.bayesCriterion(parameters.size(),
+				targetValues.size(), rms);
+	}
+
 	public List<Double> getParameterStandardErrors() {
 		return parameterStandardErrors;
 	}

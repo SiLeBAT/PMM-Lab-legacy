@@ -40,10 +40,10 @@ public class TimeSeriesSchema extends KnimeSchema {
 	
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
-	public static final String ATT_MISCID = "MiscID";
-	public static final String ATT_MISC = "MiscParam";
-	public static final String ATT_MISCVALUE = "MiscValue";
-	public static final String ATT_MISCUNIT = "MiscUnit";
+	//public static final String ATT_MISCID = "MiscID";
+	public static final String ATT_MISC = "Misc";
+	//public static final String ATT_MISCVALUE = "MiscValue";
+	//public static final String ATT_MISCUNIT = "MiscUnit";
 	public static final String ATT_TEMPERATURE = "Temp";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_WATERACTIVITY = "aw";
@@ -79,10 +79,10 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addDoubleAttribute( ATT_PH );
 			addDoubleListAttribute( ATT_TIME );
 			addDoubleListAttribute( ATT_LOGC );
-			addIntListAttribute( ATT_MISCID );
-			addStringAttribute( ATT_MISC );
-			addStringListAttribute( ATT_MISCVALUE );
-			addStringListAttribute( ATT_MISCUNIT );
+			//addIntListAttribute( ATT_MISCID );
+			addXmlAttribute( ATT_MISC );
+			//addStringListAttribute( ATT_MISCVALUE );
+			//addStringListAttribute( ATT_MISCUNIT );
 			addStringAttribute( ATT_COMMENT );
 			addIntAttribute( ATT_LITIDTS );
 			addStringAttribute( ATT_LITTS );

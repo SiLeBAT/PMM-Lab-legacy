@@ -38,7 +38,6 @@ import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_CO
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_LOGC;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_MATRIXDETAIL;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_MISC;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_MISCID;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_PH;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TEMPERATURE;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TIME;
@@ -112,7 +111,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			ret += "Temperature    : "+getTemperature()+"\n";
 			ret += "pH             : "+getPh()+"\n";
 			ret += "Water activity : "+getWaterActivity()+"\n";
-			ret += "Conditions     : "+getCommasepMisc()+"\n";
+			//ret += "Conditions     : "+getCommasepMisc()+"\n";
 			try {
 				ret += "Time           : "+getString( TimeSeriesSchema.ATT_TIME );
 				ret += "LocC           : "+getString( TimeSeriesSchema.ATT_LOGC );
@@ -168,11 +167,11 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			if( hasWaterActivity() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_WATERACTIVITY, String.valueOf( getWaterActivity() ) );
 			}
-			
+			/*
 			if( hasMisc() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_MISC, getCommasepMisc() );
 			}
-			
+			*/
 			/* if( !isNaN( maximumRate ) )
 				ret.setAttribute( ATT_MAXIMUMRATE, String.valueOf( maximumRate ) );
 			
@@ -251,7 +250,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public Double getWaterActivity() throws PmmException {
 		return getDouble( TimeSeriesSchema.ATT_WATERACTIVITY );
 	}
-	
+	/*
 	public String getCommasepMisc() throws PmmException {
 		return getString( TimeSeriesSchema.ATT_MISC );
 	}
@@ -259,7 +258,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public String getCommasepMiscId() throws PmmException {
 		return getString( ATT_MISCID );
 	}
-	
+	*/
 	public LinkedList<double[]> getTimeSeries() throws PmmException {
 		
 		LinkedList<double[]> ts;
@@ -395,11 +394,11 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public void setCommasepMisc( final String misc ) throws PmmException {
 		setValue( ATT_MISC, misc );
 	}
-	
+	/*
 	public void setCommasepMiscId( final String miscId ) throws PmmException  {
 		setValue( ATT_MISCID, miscId );
 	}
-	
+	*/
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
 		setValue( ATT_AGENTDETAIL, agentDetail );
 	}

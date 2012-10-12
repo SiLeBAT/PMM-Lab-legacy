@@ -124,9 +124,11 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				ts = alreadyInsertedTs.get(rowTsID);
 			}
 			else {
-				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISCID, TimeSeriesSchema.ATT_AGENTID,
+				// TimeSeriesSchema.ATT_MISCID, 
+				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_AGENTID,
 						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
-				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
+				// "Sonstiges", 
+				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Agenzien", "Matrices", "Literatur"};
 				
 				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
 				db.insertTs(ts);				

@@ -173,7 +173,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// fill ts
     		tuple.setValue( TimeSeriesSchema.ATT_CONDID, result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_COMBASEID, result.getString( Bfrdb.ATT_COMBASEID ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_MISCID, result.getString( Bfrdb.ATT_MISCID ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_MISCID, result.getString( Bfrdb.ATT_MISCID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_MISC, result.getString( Bfrdb.ATT_MISC ) );
     		tuple.setValue( TimeSeriesSchema.ATT_TEMPERATURE, result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		tuple.setValue( TimeSeriesSchema.ATT_PH, result.getString( Bfrdb.ATT_PH ) );

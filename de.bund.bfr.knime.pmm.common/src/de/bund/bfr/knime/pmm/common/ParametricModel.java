@@ -49,11 +49,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class ParametricModel implements PmmXmlElementConvertable {
-	// das Speicherverhalten von MMC sollte mal KNIME-like gemacht werden!!!! Wenn mal wieder Zeit ist!
-	// jetzt werden die attribute zum xml abspeichern (die eben auch die attribute zum knime configure abspeichern sind)
 	// hier fest verdrahtet und von den zentralen KnimSchema Variablen unabhängig gemacht.
 	// Hintergrund ist, dass sonst bei KnimeSchema-Änderungen der MMC seine gespeicherten Daten vergisst!
-	// Am Ende heisst das: XML erst mal wieder löschen!
 	private static final String ATT_FORMULA = "Formula";
 	private static final String ATT_PARAMNAME = "ParamName";
 	private static final String ATT_DEPVAR = "DepVar";

@@ -45,9 +45,12 @@ import org.knime.core.data.RowKey;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCell;
+import org.knime.core.data.xml.XMLCellFactory;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 
 public class KnimeTuple implements DataRow {
 
@@ -290,6 +293,18 @@ public class KnimeTuple implements DataRow {
 		}
 	}
 
+	protected void setCell(final int i, final XMLCell c) throws PmmException {
+		switch (schema.getType(i)) {
+			case KnimeAttribute.TYPE_XML:
+				cell[i] = c;
+				break;
+	
+			default:
+				throw new PmmException(
+						"Some cells are not allowed for XML Types");
+		}
+	}
+
 	protected void setCell(final int i, final DataCell c) throws PmmException {
 
 		if (c instanceof IntCell)
@@ -298,10 +313,12 @@ public class KnimeTuple implements DataRow {
 			setCell(i, (DoubleCell) c);
 		else if (c instanceof StringCell)
 			setCell(i, (StringCell) c);
+		else if (c instanceof XMLCell)
+			setCell(i, (XMLCell) c);
 		else if (c.isMissing())
 			cell[i] = CellIO.createMissingCell();
 		else
-			throw new PmmException("Only Int/Double/String/Missing cells are allowed.");
+			throw new PmmException("Only Int/Double/String/XML/Missing cells are allowed.");
 	}
 
 	private void addValue(final int i, final Object obj) throws PmmException {
@@ -348,6 +365,7 @@ public class KnimeTuple implements DataRow {
 			case KnimeAttribute.TYPE_INT:
 			case KnimeAttribute.TYPE_DOUBLE:
 			case KnimeAttribute.TYPE_STRING:
+			case KnimeAttribute.TYPE_XML:
 				throw new PmmException("Attribute '"+getName( i )+"' is not addable.");
 
 			default:
@@ -568,6 +586,15 @@ public class KnimeTuple implements DataRow {
 					break;
 				}
 				
+				throw new PmmException( "Bad value type" );
+
+			case KnimeAttribute.TYPE_XML :
+				
+				if( obj instanceof String ) {
+					cell[ i ] = CellIO.createXmlCell( ( String )obj );
+					break;
+				}
+
 				throw new PmmException( "Bad value type" );
 
 			default:

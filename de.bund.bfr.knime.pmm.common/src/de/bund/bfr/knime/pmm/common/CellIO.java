@@ -33,17 +33,23 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLStreamException;
+
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCellFactory;
+import org.xml.sax.SAXException;
 
 public class CellIO {
 
@@ -184,6 +190,25 @@ public class CellIO {
 		return new StringCell(s.substring(0, s.length() - 1));
 	}
 	
+	public static DataCell createXmlCell( String xml ) {
+    	DataCell xmlCell = null;;
+		try {
+			xmlCell = XMLCellFactory.create(xml);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParserConfigurationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SAXException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return xmlCell;
+	}
 	public static DataCell createCell( Map<?,?> map ) throws PmmException {
 		
 		String ret, key, value;
@@ -288,5 +313,5 @@ public class CellIO {
 		
 		return ret;
 	}
-
+	
 }

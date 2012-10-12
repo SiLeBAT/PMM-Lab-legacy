@@ -39,6 +39,7 @@ import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCell;
 
 @Deprecated
 public class PmmTimeSeriesSchema {
@@ -100,7 +101,7 @@ public class PmmTimeSeriesSchema {
     	spec[ ID_AW ] = new DataColumnSpecCreator( ATT_WATERACTIVITY, DoubleCell.TYPE ).createSpec();
     	spec[ ID_AGENTNAME ] = new DataColumnSpecCreator( ATT_AGENTNAME, StringCell.TYPE ).createSpec();
     	spec[ ID_MATRIXNAME ] = new DataColumnSpecCreator( ATT_MATRIXNAME, StringCell.TYPE ).createSpec();
-    	spec[ ID_MISC ] = new DataColumnSpecCreator( ATT_MISC, StringCell.TYPE ).createSpec();
+    	spec[ ID_MISC ] = new DataColumnSpecCreator( ATT_MISC, XMLCell.TYPE ).createSpec();
     	spec[ ID_MAXIMUMRATE ] = new DataColumnSpecCreator( ATT_MAXIMUMRATE, DoubleCell.TYPE ).createSpec();
     	spec[ ID_DOUBLINGTIME ] = new DataColumnSpecCreator( ATT_DOUBLINGTIME, DoubleCell.TYPE ).createSpec();
     	spec[ ID_COMBASEID ] = new DataColumnSpecCreator( ATT_COMBASEID, StringCell.TYPE ).createSpec();

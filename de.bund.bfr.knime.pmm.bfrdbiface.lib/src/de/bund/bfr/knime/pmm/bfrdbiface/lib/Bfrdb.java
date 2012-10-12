@@ -1270,9 +1270,9 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
-			final String environment, final String misc, final String combaseId,
+			final String environment, final String combaseId,
 			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, final String comment,
-			final String miscId, final Integer litID, final String lit, PmmTimeSeries ts) {
+			final Integer litID, final String lit, PmmTimeSeries ts) {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
@@ -1337,13 +1337,14 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setString( 7, matrixDetail);
 				}
-
+				/*
 				if( misc == null ) {
 					ps.setNull( 8, Types.VARCHAR );
 				} else {
 					ps.setString( 8, misc );
 				}
-				
+				*/
+				ps.setNull( 8, Types.VARCHAR );
 				if( comment == null ) {
 					ps.setNull( 9, Types.VARCHAR );
 				} else {
@@ -1378,7 +1379,7 @@ public class Bfrdb extends Hsqldbiface {
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
-			ts.setWarning(handleConditions(resultID, misc, miscId, ts));
+			//ts.setWarning(handleConditions(resultID, misc, miscId, ts));
 
 			return resultID;
 		}
@@ -1440,7 +1441,7 @@ public class Bfrdb extends Hsqldbiface {
 							ps.setBoolean(5, false);
 						}
 						ps.executeUpdate();
-						try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
+						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
 					}
 					catch (Exception e) {e.printStackTrace();}
 				}
@@ -1500,9 +1501,10 @@ public class Bfrdb extends Hsqldbiface {
 		String agentDetail = ts.getAgentDetail();
 		String matrixDetail = ts.getMatrixDetail();
 		String comment = ts.getComment();
-
+/*
 		String miscId = ts.getCommasepMiscId();
 		String misc = ts.getCommasepMisc();
+		*/
 		Integer litID = ts.getInt(TimeSeriesSchema.ATT_LITIDTS);
 		String lit = ts.getString(TimeSeriesSchema.ATT_LITTS);
 
@@ -1514,9 +1516,9 @@ public class Bfrdb extends Hsqldbiface {
 		int phId = insertDouble( ph );
 		int awId = insertDouble( aw );
 
-		condId = insertCondition(condId, tempId, phId, awId, organism, environment, misc, combaseId,
+		condId = insertCondition(condId, tempId, phId, awId, organism, environment, combaseId,
 				matrixId, agentId, agentDetail, matrixDetail, comment,
-				miscId, litID, lit, ts);
+				litID, lit, ts);
 			
 		ts.setCondId(condId);
 		if( condId == null || condId < 0 ) {

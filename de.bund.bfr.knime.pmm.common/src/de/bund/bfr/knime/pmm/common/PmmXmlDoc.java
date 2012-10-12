@@ -48,36 +48,28 @@ public class PmmXmlDoc {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 	
-	private LinkedList<PmmXmlElementConvertable> set;
+	private LinkedList<PmmXmlElementConvertable> modelSet;
 	
 	public PmmXmlDoc() {
-		set = new LinkedList<PmmXmlElementConvertable>();
+		modelSet = new LinkedList<PmmXmlElementConvertable>();
 	}
 	
-	
-	public PmmXmlDoc( String docString ) throws IOException, JDOMException {
-		
+	public PmmXmlDoc(String docString) throws IOException, JDOMException {		
 		this();
+		SAXBuilder builder = new SAXBuilder();
+		Document doc = builder.build( new StringReader( docString ) );
 		
-		Document doc;
-		SAXBuilder builder;
-		Element rootElement;
+		Element rootElement = doc.getRootElement();
 		
-		builder = new SAXBuilder();
-		doc = builder.build( new StringReader( docString ) );
-		
-		rootElement = doc.getRootElement();
-		
-		for( Element el : rootElement.getChildren() )
-			
-			if( el.getName().equals( ParametricModel.ELEMENT_PARAMETRICMODEL ) )
-				set.add( new ParametricModel( el ) );
-		
-		
+		for( Element el : rootElement.getChildren() ) {
+			if (el.getName().equals(ParametricModel.ELEMENT_PARAMETRICMODEL)) {
+				modelSet.add( new ParametricModel( el ) );
+			}			
+		}			
 	}
 	
 	public void add( PmmXmlElementConvertable el ) {
-		set.add( el );
+		modelSet.add( el );
 	}
 	
 	public Document toXmlDocument() {
@@ -90,7 +82,7 @@ public class PmmXmlDoc {
 		rootElement = new Element( ELEMENT_PMMDOC );
 		doc.setRootElement( rootElement );
 		
-		for( PmmXmlElementConvertable model : set )
+		for( PmmXmlElementConvertable model : modelSet )
 			rootElement.addContent( model.toXmlElement() );
 		
 		return doc;
@@ -107,9 +99,9 @@ public class PmmXmlDoc {
 		return xmlo.outputString( doc );
 	}
 	
-	public int size() { return set.size(); }
-	public PmmXmlElementConvertable get( int i ) { return set.get( i ); }
+	public int size() { return modelSet.size(); }
+	public PmmXmlElementConvertable get( int i ) { return modelSet.get( i ); }
 	
-	public Collection<PmmXmlElementConvertable> getModelSet() { return set; }
+	public Collection<PmmXmlElementConvertable> getModelSet() { return modelSet; }
 	
 }

@@ -43,6 +43,7 @@ import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCell;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
 
@@ -110,6 +111,10 @@ public class KnimeSchema {
 	
 	public void addMapAttribute( final String name ) throws PmmException {
 		addAttribute( name, KnimeAttribute.TYPE_MAP );
+	}
+	
+	public void addXmlAttribute( final String name ) throws PmmException {
+		addAttribute( name, KnimeAttribute.TYPE_XML );
 	}
 	
 	public boolean conforms( DataColumnSpec[] spec ) throws PmmException {
@@ -199,26 +204,22 @@ public class KnimeSchema {
 		return false;
 	}
 	
-	public DataTableSpec createSpec() {
-		
+	public DataTableSpec createSpec() {		
 		DataColumnSpec[] spec;
 		KnimeAttribute col;
 		int i;
 		DataType t;
 		
 		spec = new DataColumnSpec[ size() ];
-		for( i = 0; i < size(); i++  ) {
-			
-			col = attributeSet.get( i );
-			
-			switch( col.getType() ) {
-			
+		for( i = 0; i < size(); i++  ) {			
+			col = attributeSet.get( i );			
+			switch(col.getType()) {			
 				case KnimeAttribute.TYPE_INT :
-					t = IntCell.TYPE; break;
-					
+					t = IntCell.TYPE; break;					
 				case KnimeAttribute.TYPE_DOUBLE :
 					t = DoubleCell.TYPE; break;
-
+				case KnimeAttribute.TYPE_XML :
+					t = XMLCell.TYPE; break;
 				default :
 					t = StringCell.TYPE;
 			}

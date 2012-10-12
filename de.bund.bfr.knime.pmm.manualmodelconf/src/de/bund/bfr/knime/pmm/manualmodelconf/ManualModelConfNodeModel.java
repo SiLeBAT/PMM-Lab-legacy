@@ -50,6 +50,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -124,6 +125,8 @@ public class ManualModelConfNodeModel extends NodeModel {
 			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
 			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
 			tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
+			//MiscXml mx = new MiscXml(12,"cin","cinnnagrap",34.0,"%");
+			//tstuple.setValue(TimeSeriesSchema.ATT_MISC, mx.toXmlString());
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
         	for (PmmXmlElementConvertable el : doc.getModelSet()) {      		
         		if (el instanceof ParametricModel) {        		

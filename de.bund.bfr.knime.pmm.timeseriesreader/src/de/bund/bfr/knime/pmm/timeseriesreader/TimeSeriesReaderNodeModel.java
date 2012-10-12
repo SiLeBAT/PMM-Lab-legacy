@@ -140,7 +140,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		// fill row
     		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
-    		tuple.setCommasepMiscId( result.getString( Bfrdb.ATT_MISCID ) );
+    		//tuple.setCommasepMiscId( result.getString( Bfrdb.ATT_MISCID ) );
     		tuple.setCommasepMisc( result.getString( Bfrdb.ATT_MISC ) );
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		tuple.setPh( result.getString( Bfrdb.ATT_PH ) );

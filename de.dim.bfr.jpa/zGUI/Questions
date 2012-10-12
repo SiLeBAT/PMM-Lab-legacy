@@ -531,3 +531,7 @@ Done, aber bitte checken: 5, 6, 7, 13, 170
 
 - StatupInserts.sql anpassen/ersetzen an Lars' Kram
 - firstDB_sinLars und firstDB wieder austauschen - das eine ist Silebatfrei, das andere für Silebat
+
+
+- BIC in DB einbauen neben AIC
+- Agens- und Matrix-Detail in AGENZEIN_MATRICES 

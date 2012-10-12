@@ -103,11 +103,11 @@ public class CombaseWriter {
 			if( candidate.hasWaterActivity() ) {
 				out.write( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
 			}
-				
+			/*
 			if( candidate.hasMisc() ) {
 				out.write( "\"Conditions\"\t\""+candidate.getCommasepMisc()+"\"\n" );
 			}
-			
+			*/
 			/* if( candidate.hasMaximumRate() ) {
 				out.write( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
 			}
@@ -157,11 +157,11 @@ public class CombaseWriter {
 			if( candidate.hasWaterActivity() ) {
 				buf.append( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
 			}
-				
+			/*
 			if( candidate.hasMisc() ) {
 				buf.append( "\"Conditions\"\t\""+candidate.getCommasepMisc()+"\"\n" );
 			}
-			
+			*/
 			/* if( candidate.hasMaximumRate() ) {
 				buf.append( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
 			}

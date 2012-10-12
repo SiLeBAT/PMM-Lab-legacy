@@ -46,7 +46,7 @@ public class MMC_M extends JPanel {
 
 	private Frame m_parentFrame = null;
 	private JComboBox[] threeBoxes = new JComboBox[3];
-	private HashMap<String, HashMap<String, ParametricModel>> m_secondaryModels = null;
+	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private BFRNodeService m_service = null;
 	private boolean dontTouch = false;
 
@@ -56,7 +56,7 @@ public class MMC_M extends JPanel {
 	public MMC_M(final Frame parentFrame, final int level, final String paramName) {
 		this.m_parentFrame = parentFrame;
 		initComponents();
-		m_secondaryModels = new HashMap<String, HashMap<String, ParametricModel>>();
+		m_secondaryModels = new HashMap<ParametricModel, HashMap<String, ParametricModel>>();
 		depVarLabel.setText(paramName);
 		if (level == 1) {
 			radioButton1.setSelected(true);
@@ -97,14 +97,19 @@ public class MMC_M extends JPanel {
 				}
 			}			
 			formulaArea.setText(pm.getFormula());
-			table.setPM(pm, m_secondaryModels.get(pm.getModelName()), radioButton3);
+			table.setPM(pm, m_secondaryModels.get(pm), radioButton3);
+			setDblTextVal(rmsField, pm.getRms());
+			setDblTextVal(r2Field, pm.getRsquared());
+			setDblTextVal(aicField, pm.getAic());
+			setDblTextVal(bicField, pm.getBic());
 			insertNselectPMintoBox(pm);
 		}
 	}
-	public void setService(final BFRNodeService service) {	
-		setService(service, false);
+	private void setDblTextVal(DoubleTextField tf, Double value) {
+		if (value == null || Double.isNaN(value)) tf.setText("");
+		else tf.setValue(value);
 	}
-	public void setService(final BFRNodeService service, boolean setCombo) {	
+	public void setService(final BFRNodeService service) {	
 		this.m_service = service;
 		setComboBox();
 	}
@@ -262,8 +267,8 @@ public class MMC_M extends JPanel {
 		else {
 			//System.err.println("pm = null???\t" + modelNameBox.getItemCount());
 		}
-		if (pm != null && !m_secondaryModels.containsKey(pm.getModelName())) {
-			m_secondaryModels.put(pm.getModelName(), new HashMap<String, ParametricModel>());
+		if (pm != null && !m_secondaryModels.containsKey(pm)) {
+			m_secondaryModels.put(pm, new HashMap<String, ParametricModel>());
 		}
 	}
 	
@@ -329,13 +334,13 @@ public class MMC_M extends JPanel {
 			newPM.setModelName(modelnameField.getText());
 			newPM.setModelId(MathUtilities.getRandomNegativeInt());
 			//if (m_secondaryModels != null) {
-				HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm.getModelName());
-				if (smOld != null && !m_secondaryModels.containsKey(newPM.getModelName())) {
+				HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm);
+				if (smOld != null && !m_secondaryModels.containsKey(newPM)) {
 					HashMap<String, ParametricModel> smNew = new HashMap<String, ParametricModel>();
 					for (String key : smOld.keySet()) {
 						if (smOld.get(key) != null) smNew.put(key, smOld.get(key).clone());
 					}
-					m_secondaryModels.put(newPM.getModelName(), smNew);
+					m_secondaryModels.put(newPM, smNew);
 				}
 			//}
 			/*
@@ -365,8 +370,8 @@ public class MMC_M extends JPanel {
 				secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 				String param = table.getValueAt(row, 0).toString();
 				MMC_M m2 = new MMC_M(null, 2, param);
-				m2.setService(m_service, true);
-				HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM().getModelName());
+				m2.setService(m_service);
+				HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM());
 				m2.setPM(sm.get(param));
 				secondaryDialog.setPanel(m2, param, sm);
 				secondaryDialog.pack();
@@ -429,7 +434,7 @@ public class MMC_M extends JPanel {
 		doc.add(pm);
 		
 		if (radioButton3.isSelected()) {
-			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm.getModelName()).entrySet()) {
+			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm).entrySet()) {
 				String key = entry.getKey();
 				if (pm.getParamNameSet().contains(key)) {
 					ParametricModel value = entry.getValue();
@@ -463,7 +468,7 @@ public class MMC_M extends JPanel {
 
 			if (theModel != null) {
 				if (theModel.getLevel() == 1) {
-					m_secondaryModels.put(theModel.getModelName(), sm);
+					m_secondaryModels.put(theModel, sm);
 				}
 				if (sm.size() > 0) {
 					radioButton3.setSelected(true);
@@ -554,6 +559,19 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void bicFieldFocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			pm.setBic(bicField.getValue());
+		}
+	}
+
+	private void bicFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			bicFieldFocusLost(null);
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
@@ -576,6 +594,8 @@ public class MMC_M extends JPanel {
 		rmsField = new DoubleTextField(true);
 		label5 = new JLabel();
 		aicField = new DoubleTextField(true);
+		label6 = new JLabel();
+		bicField = new DoubleTextField(true);
 		button1 = new JButton();
 
 		//======== this ========
@@ -584,7 +604,7 @@ public class MMC_M extends JPanel {
 			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"3*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default:grow"));
+			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $lgap, default:grow"));
 		((FormLayout)getLayout()).setColumnGroups(new int[][] {{3, 9, 15}, {5, 11, 17}, {7, 13, 19}});
 
 		//---- depVarLabel ----
@@ -742,11 +762,9 @@ public class MMC_M extends JPanel {
 
 		//---- label5 ----
 		label5.setText("AIC:");
-		label5.setVisible(false);
-		add(label5, CC.xy(15, 13));
+		add(label5, CC.xy(3, 15));
 
 		//---- aicField ----
-		aicField.setVisible(false);
 		aicField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -759,7 +777,26 @@ public class MMC_M extends JPanel {
 				aicFieldKeyReleased(e);
 			}
 		});
-		add(aicField, CC.xy(17, 13));
+		add(aicField, CC.xy(5, 15));
+
+		//---- label6 ----
+		label6.setText("BIC:");
+		add(label6, CC.xy(9, 15));
+
+		//---- bicField ----
+		bicField.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				bicFieldFocusLost(e);
+			}
+		});
+		bicField.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				bicFieldKeyReleased(e);
+			}
+		});
+		add(bicField, CC.xy(11, 15));
 
 		//---- button1 ----
 		button1.setText("Choose References");
@@ -769,7 +806,7 @@ public class MMC_M extends JPanel {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xywh(15, 15, 5, 1));
+		add(button1, CC.xywh(15, 17, 5, 1));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -800,6 +837,8 @@ public class MMC_M extends JPanel {
 	private DoubleTextField rmsField;
 	private JLabel label5;
 	private DoubleTextField aicField;
+	private JLabel label6;
+	private DoubleTextField bicField;
 	private JButton button1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 

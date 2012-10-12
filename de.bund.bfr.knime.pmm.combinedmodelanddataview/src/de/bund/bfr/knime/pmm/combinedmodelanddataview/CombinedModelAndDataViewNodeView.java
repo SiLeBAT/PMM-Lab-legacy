@@ -389,17 +389,14 @@ public class CombinedModelAndDataViewNodeView extends
 						row.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(4).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
-				infoParams = new ArrayList<String>(
-						Arrays.asList(Model1Schema.ATT_FORMULA,
-								TimeSeriesSchema.DATAPOINTS,
-								TimeSeriesSchema.ATT_AGENTNAME,
-								TimeSeriesSchema.ATT_MATRIXNAME,
-								TimeSeriesSchema.ATT_MISC,
-								TimeSeriesSchema.ATT_COMMENT));
+				infoParams = new ArrayList<String>(Arrays.asList(
+						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
+						TimeSeriesSchema.ATT_AGENTNAME,
+						TimeSeriesSchema.ATT_MATRIXNAME,
+						TimeSeriesSchema.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(
 						row.getString(Model1Schema.ATT_FORMULA), dataPoints,
 						agent, matrix,
-						row.getString(TimeSeriesSchema.ATT_MISC),
 						row.getString(TimeSeriesSchema.ATT_COMMENT)));
 			} else if (getNodeModel().isModel12Schema()) {
 				plotable = new Plotable(Plotable.FUNCTION);

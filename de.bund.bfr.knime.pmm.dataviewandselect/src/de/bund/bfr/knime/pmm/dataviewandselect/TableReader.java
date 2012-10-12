@@ -122,10 +122,9 @@ public class TableReader {
 			doubleColumnValues.get(2).add(waterActivity);
 			infoParameters.add(Arrays.asList(TimeSeriesSchema.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENTNAME,
-					TimeSeriesSchema.ATT_MATRIXNAME, TimeSeriesSchema.ATT_MISC,
+					TimeSeriesSchema.ATT_MATRIXNAME,
 					TimeSeriesSchema.ATT_COMMENT));
 			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
-					tuple.getString(TimeSeriesSchema.ATT_MISC),
 					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);

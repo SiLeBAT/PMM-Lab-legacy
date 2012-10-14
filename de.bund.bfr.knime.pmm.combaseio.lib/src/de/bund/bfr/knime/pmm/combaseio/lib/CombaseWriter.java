@@ -33,27 +33,26 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.combaseio.lib;
 
-import java.io.BufferedOutputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 
 public class CombaseWriter {
 
 	private LinkedList<PmmTimeSeries> buffer;
 	private String filename;
-	private String encoding;
 	
-	public CombaseWriter( final String filename, final String encoding ) {
+	public CombaseWriter( final String filename) {
 		this.filename = filename;
-		this.encoding = encoding;
 		buffer = new LinkedList<PmmTimeSeries>();
 	}
 	
@@ -65,70 +64,10 @@ public class CombaseWriter {
 		buffer.add( candidate );
 	}
 		
-	public void flush()
-	throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
-
-		if (encoding.equals("UTF-16LE")) {
-			flush16le();
-			return;
-		}
-		OutputStreamWriter out;
-		
-		out = new OutputStreamWriter(
-			new BufferedOutputStream(
-			new FileOutputStream( filename ) ), encoding );
-		
-		for( PmmTimeSeries candidate : buffer ) {
-			
-			if( candidate.hasCombaseId() ) {
-				out.write( "\"RecordID\"\t\""+candidate.getCombaseId()+"\"\n" );
-			}
-			
-			if( candidate.hasAgentDetail() ) {
-				out.write( "\"Organism\"\t\""+candidate.getAgentDetail()+"\"\n" );
-			}
-			
-			if( candidate.hasMatrixDetail() ) {
-				out.write( "\"Environment\"\t\""+candidate.getMatrixDetail()+"\"\n" );
-			}
-			
-			if( candidate.hasTemperature() ) {
-				out.write( "\"Temperature\"\t\""+candidate.getTemperature()+" °C\"\n" );
-			}
-			
-			if( candidate.hasPh() ) {
-				out.write( "\"pH\"\t\""+candidate.getPh()+"\"\n" );
-			}
-			
-			if( candidate.hasWaterActivity() ) {
-				out.write( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
-			}
-			/*
-			if( candidate.hasMisc() ) {
-				out.write( "\"Conditions\"\t\""+candidate.getCommasepMisc()+"\"\n" );
-			}
-			*/
-			/* if( candidate.hasMaximumRate() ) {
-				out.write( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
-			}
-			
-			if( candidate.hasDoublingTime() ) {
-				out.write( "\"Doubling Time (h)\"\t\""+candidate.getDoublingTime()+"\"\n" );
-			} */
-			
-			out.write( "\"Time (h)\"\t\"logc\"\n" );
-			
-			if( !candidate.isEmpty() ) {
-				for( double[] tuple : candidate.getTimeSeries() ) {
-					out.write( "\""+tuple[ 0 ]+"\"\t\""+tuple[ 1 ]+"\"\n" );
-				}
-			}
-			
-			out.write( "\n\n\n" );
-		}
-		
-		out.close();
+	public void flush() throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
+		flush16le(); // "UTF-16LE"
 	}
+
 	public void flush16le()
 	throws UnsupportedEncodingException, FileNotFoundException, IOException, PmmException {
 		StringBuffer buf = new StringBuffer();
@@ -157,11 +96,16 @@ public class CombaseWriter {
 			if( candidate.hasWaterActivity() ) {
 				buf.append( "\"Water Activity\"\t\""+candidate.getWaterActivity()+"\"\n" );
 			}
-			/*
+			
 			if( candidate.hasMisc() ) {
-				buf.append( "\"Conditions\"\t\""+candidate.getCommasepMisc()+"\"\n" );
+				PmmXmlDoc doc = candidate.getMisc();
+				if (doc != null) {
+					//String xmlStr = doc.toXmlString();
+					String cb = xml2Combase(doc);
+					if (cb != null) buf.append("\"Conditions\"\t\""+cb+"\"\n");
+				}
 			}
-			*/
+			
 			/* if( candidate.hasMaximumRate() ) {
 				buf.append( "\"Maximum Rate\"\t\""+candidate.getMaximumRate()+"\"\n" );
 			}
@@ -206,4 +150,20 @@ public class CombaseWriter {
 	                     tmp.length);
 	    return utf16lemessage;
 	}	
+	private String xml2Combase(PmmXmlDoc misc) {
+		String result = null;
+		if (misc != null) {
+			result = "";
+        	for (PmmXmlElementConvertable el : misc.getElementSet()) {      		
+        		if (el instanceof MiscXml) {        		
+        			MiscXml mx = (MiscXml) el;
+        			if (!result.isEmpty()) result += ", ";
+        			result += mx.getDescription();
+        			if (mx.getUnit() != null && !mx.getUnit().isEmpty()) result += " (" + mx.getUnit() + ")";
+        			if (mx.getValue() != null && !Double.isNaN(mx.getValue())) result += ":" + mx.getValue();
+        		}
+        	}
+		}
+		return result;
+	}
 }

@@ -115,8 +115,7 @@ public class ManualModelConfNodeModel extends NodeModel {
     @Override
     protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
             final ExecutionContext exec ) throws Exception {
-    	if (doc != null) {
-        	
+    	if (doc != null) {        	
         	KnimeTuple tupleM1 = null;
 			PmmTimeSeries tstuple = new PmmTimeSeries();
 			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
@@ -125,10 +124,12 @@ public class ManualModelConfNodeModel extends NodeModel {
 			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
 			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
 			tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
+			//PmmXmlDoc miscDoc = new PmmXmlDoc();
 			//MiscXml mx = new MiscXml(12,"cin","cinnnagrap",34.0,"%");
-			//tstuple.setValue(TimeSeriesSchema.ATT_MISC, mx.toXmlString());
+			//miscDoc.add(mx);
+			//tstuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc.toXmlString());
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
-        	for (PmmXmlElementConvertable el : doc.getModelSet()) {      		
+        	for (PmmXmlElementConvertable el : doc.getElementSet()) {      		
         		if (el instanceof ParametricModel) {        		
 	        		ParametricModel model = (ParametricModel) el;	        		
 	    			if (model.getLevel() == 1) { // can occur only once
@@ -186,7 +187,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 
     private boolean hasSecondary() {
     	if (doc != null) {
-        	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
+        	for (PmmXmlElementConvertable el : doc.getElementSet()) {        		
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;
 	        		if (model.getLevel() == 2) { //  && model.getIndepVarSet().size() > 0
@@ -199,7 +200,7 @@ public class ManualModelConfNodeModel extends NodeModel {
     }
     private boolean hasPrimary() {
     	if (doc != null) {
-        	for (PmmXmlElementConvertable el : doc.getModelSet()) {        		
+        	for (PmmXmlElementConvertable el : doc.getElementSet()) {        		
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;
 	        		if (model.getLevel() == 1 && model.getIndepVarSet().size() > 0) {

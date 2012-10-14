@@ -40,15 +40,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.StringTokenizer;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	
 	private BufferedReader reader;
 	private PmmTimeSeries next;
+	private HashMap<String, Integer> newIDs = new HashMap<String, Integer>();
 	
 	public CombaseReader(final String filename) throws FileNotFoundException, IOException, Exception {
 		InputStreamReader isr = null;
@@ -61,6 +69,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			try {
 				URL url = new URL(filename);
 				isr = new InputStreamReader(url.openStream(), "UTF-16LE");
+				isr.read(); 
 			}
 			catch (Exception e) {throw new FileNotFoundException("File not found");}
 		}
@@ -84,7 +93,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			step();
 		}
 		catch( Exception e ) {
-			e.printStackTrace( System.err );
+			e.printStackTrace();
 		}
 		
 		return ret;
@@ -94,19 +103,12 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		return next != null;
 	}
 	
-	private void step() throws IOException, Exception {
-		
-		String line;
-		String[] token;
-		int i, pos;
-		double t, logc;
-				
+	private void step() throws IOException, Exception {		
 		// initialize next time series
 		next = new PmmTimeSeries();
 		
-		while( true ) {
-			
-			line = reader.readLine();
+		while (true) {
+			String line = reader.readLine();
 
 			if( line == null ) {
 				next = null;
@@ -114,40 +116,43 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			}
 			
 			// split up token
-			token = line.split( "\t" );
+			String[] token = line.split( "\t" );
 						
-			if( token.length < 2 )
+			if (token.length < 2)
 				continue;
 			
-			if( token[ 0 ].isEmpty() )
+			if (token[0].isEmpty())
 				continue;
-			
-			for( i = 0; i < token.length; i++ )
-				token[ i ] = token[ i ].replaceAll( "[^a-zA-Z0-9° \\.\\(\\)_/\\+\\-\\*,:]", "" );
-			token[ 0 ] = token[ 0 ].toLowerCase();
+
+			for (int i = 0; i < token.length; i++) {
+				//token[i] = token[i].replaceAll("[^a-zA-Z0-9° \\.\\(\\)_/\\+\\-\\*,:]", "");
+				token[i] = token[i].replaceAll("\"", "");
+			}
+			String key = token[0].toLowerCase().trim();
+//	 	    utf16lemessage[0] = (byte)0xFF;   utf16lemessage[1] = (byte)0xFE;
+			if (key.length() > 1 && key.charAt(0) == 65279) key = key.substring(1);
 			
 			// fetch record id
-			if( token[ 0 ].equals( "recordid" ) ) {
-				next.setCombaseId( token[ 1 ] );
+			if (key.equals("recordid")) {
+				next.setCombaseId(token[1]);
 				continue;
 			}
 			
 			// fetch organism
-			if( token[ 0 ].equals( "organism" ) ) {
+			if( key.equals( "organism" ) ) {
 				next.setAgentDetail( token[ 1 ] );
 				continue;
 			}
 			
 			// fetch environment
-			if( token[ 0 ].equals( "environment" ) ) {
+			if( key.equals( "environment" ) ) {
 				next.setMatrixDetail( token[ 1 ] );
 				continue;
 			}
 			
 			// fetch temperature
-			if( token[ 0 ].equals( "temperature" ) ) {
-				
-				pos = token[ 1 ].indexOf( " " );
+			if( key.equals( "temperature" ) ) {				
+				int pos = token[ 1 ].indexOf( " " );
 				if( !token[ 1 ].endsWith( " °C" ) )
 					throw new PmmException( "Temperature unit must be [°C]" );
 				next.setTemperature( parse( token[ 1 ].substring( 0, pos ) ) );
@@ -155,39 +160,27 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			}
 			
 			// fetch pH
-			if( token[ 0 ].equals( "ph" ) ) {
+			if( key.equals( "ph" ) ) {
 				next.setPh( parse( token[ 1 ] ) );
 				continue;
 			}
 			
 			// fetch water activity
-			if( token[ 0 ].equals( "water activity" ) ) {
+			if( key.equals( "water activity" ) ) {
 				next.setWaterActivity( parse( token[ 1 ] ) );
 				continue;
 			}
 			
 			// fetch conditions
-			if( token[ 0 ].equals( "conditions" ) ) {
-				next.setCommasepMisc( token[ 1 ] );
+			if (key.equals("conditions")) {
+				PmmXmlDoc xml = combase2XML(token[1]);
+				next.setMisc(xml);
 				continue;
 			}
 			
-			// fetch maximum rate
-			/* if( token[ 0 ].equals( "maximum rate" ) ) {
-
-				next.setMaximumRate( parse( token[ 1 ] ) );
-				continue;
-			}
-			
-			if( token[ 0 ].startsWith( "doubling time" ) ) {
+			if( key.startsWith( "time" ) && token[ 1 ].equals( "logc" ) ) {
 				
-				next.setDoublingTime( parse( token[ 1 ] ) );
-				continue;
-			} */
-			
-			if( token[ 0 ].startsWith( "time" ) && token[ 1 ].equals( "logc" ) ) {
-				
-				if( !token[ 0 ].endsWith( " (h)" ) )
+				if( !key.endsWith( " (h)" ) )
 					throw new Exception( "Time unit must be [h]." );
 				
 				while( true ) {
@@ -202,21 +195,19 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					
 					token = line.split( "\t" );
 					
-					for( i = 0; i < token.length; i++ )
+					for(int i = 0; i < token.length; i++ )
 						token[ i ] = token[ i ].replaceAll( "[^a-zA-Z0-9° \\.\\(\\)/,]", "" );
 					
 					if( token.length < 2 )
 						break;
 
-					t = parse( token[ 0 ] );
-					logc = parse( token[ 1 ] );
+					double t = parse(token[0]);
+					double logc = parse( token[ 1 ] );
 					
 					if( Double.isNaN( t ) || Double.isNaN( logc ) )
 						continue;
 					
 					next.add( t, logc );
-
-					
 				}
 				break;
 			}
@@ -224,27 +215,79 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	}
 	
 	private static double parse( String num ) {
-		
-		double n;
-		
-		n = Double.NaN;
+		double n = Double.NaN;
 		
 		num = num.toLowerCase();
 		num = num.trim();
 		if( num.equals( "no growth" ) )
-			return 0;
+			return 0;		
 		
-		
-		try {
-			
+		try {			
 			num = num.replaceAll( "[a-zA-Z\\(\\)\\s]", "" );
 			num = num.replaceAll( ",", "." );
-			n = Double.valueOf( num );
-			
+			n = Double.valueOf( num );			
 		}
 		catch( Exception e ) {}
 		
 		return n;
 	}
-
+	
+	private PmmXmlDoc combase2XML(String misc) {
+		PmmXmlDoc result = null;
+		if (misc != null) {
+			result = new PmmXmlDoc(); 
+			List<String> conds = condSplit(misc);
+			for (int i=0;i<conds.size();i++) {
+				String val = conds.get(i).trim();
+				int index = val.indexOf(':');
+				int index2 = 0;
+				String unit = null;
+				Double dbl = null;
+				if (index >= 0) {
+					try {
+						dbl = Double.parseDouble(val.substring(index + 1));
+						if (val.charAt(index - 1) == ')') {
+							for (index2 = index - 1;index2 >= 0 && val.charAt(index2) != '(';index2--) {
+								;
+							}
+							unit = val.substring(index2 + 1, index - 1);
+							val = val.substring(0, index2);
+						}
+					}
+					catch (Exception e) {e.printStackTrace();}
+				}
+				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
+				String description = val.trim().replaceAll(" +", " ");
+				if (!newIDs.containsKey(description)) newIDs.put(description, MathUtilities.getRandomNegativeInt());
+				MiscXml mx = new MiscXml(newIDs.get(description), null, description, dbl, unit);
+				result.add(mx);
+			}
+		}
+		return result;
+	}
+	private List<String> condSplit(final String misc) {
+		if (misc == null) {
+			return null;
+		}
+		List<String> result = new ArrayList<String>();
+		StringTokenizer tok = new StringTokenizer(misc, ",");
+		int openParenthesis = 0;
+		while (tok.hasMoreTokens()) {
+			String nextToken = tok.nextToken();
+			if (openParenthesis > 0) {
+				nextToken = result.get(result.size() - 1) + "," + nextToken;
+				result.remove(result.size() - 1);
+			}
+			result.add(nextToken);
+			openParenthesis = 0;
+			int index = -1;
+			while ((index = nextToken.indexOf("(", index+1)) >= 0) {
+				openParenthesis++;
+			}
+			while ((index = nextToken.indexOf(")", index+1)) >= 0) {
+				openParenthesis--;
+			}
+		}
+		return result;
+	}
 }

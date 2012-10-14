@@ -54,25 +54,18 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 public class CombaseWriterNodeDialog extends DefaultNodeSettingsPane {
 	
 	private static final String HISTORYID = "CombaseWriterNodeDialogHistory";
-	private static final String[] ENCODING_TABLE = { "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16" };
 
     /**
      * New pane for configuring the CombaseWriter node.
      */
     protected CombaseWriterNodeDialog() {
     	
-    	SettingsModelString sms, smsEncoding;
+    	SettingsModelString sms;
     	DialogComponentFileChooser dcfc;
-    	DialogComponentStringSelection dcss;
     	
     	sms = new SettingsModelString( CombaseWriterNodeModel.PARAM_FILENAME, "" );
     	dcfc = new DialogComponentFileChooser( sms, HISTORYID, JFileChooser.SAVE_DIALOG, false, ".csv" );
     	addDialogComponent( dcfc );
-    	
-    	smsEncoding = new SettingsModelString( CombaseWriterNodeModel.PARAM_ENCODING, ENCODING_TABLE[ 2 ] );
-    	dcss = new DialogComponentStringSelection( smsEncoding, "Encoding :", ENCODING_TABLE );
-    	addDialogComponent( dcss );
-    	
     }
 }
 

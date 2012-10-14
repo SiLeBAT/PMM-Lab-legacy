@@ -64,10 +64,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class CombaseWriterNodeModel extends NodeModel {
 	
 	protected static final String PARAM_FILENAME = "filename";
-	protected static final String PARAM_ENCODING = "encoding";
 	
 	private SettingsModelString filename;
-	private SettingsModelString encoding;
 
     /**
      * Constructor for the node model.
@@ -77,7 +75,6 @@ public class CombaseWriterNodeModel extends NodeModel {
         super( 1, 0 );
         
         filename = new SettingsModelString( PARAM_FILENAME, "" );
-        encoding = new SettingsModelString( PARAM_ENCODING, "UTF-16LE" );
     }
 
     /**
@@ -93,7 +90,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 
 		int j = 0;
-		CombaseWriter cbw = new CombaseWriter( filename.getStringValue(), encoding.getStringValue() );
+		CombaseWriter cbw = new CombaseWriter(filename.getStringValue());
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
     		
@@ -146,7 +143,6 @@ public class CombaseWriterNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	filename.saveSettingsTo( settings );
-    	encoding.saveSettingsTo( settings );
     }
 
     /**
@@ -156,7 +152,6 @@ public class CombaseWriterNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	filename.loadSettingsFrom( settings );
-    	encoding.loadSettingsFrom( settings );
     }
 
     /**
@@ -166,7 +161,6 @@ public class CombaseWriterNodeModel extends NodeModel {
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	filename.validateSettings( settings );
-    	encoding.validateSettings( settings );
     }
     
     /**

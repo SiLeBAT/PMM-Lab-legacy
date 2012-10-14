@@ -97,9 +97,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     	PmmTimeSeries candidate;
     	DataCell[] row;
     	int j;
-    	PmmXmlDoc doc;
-    	
-    	doc = new PmmXmlDoc();
+    	PmmXmlDoc doc = new PmmXmlDoc();
 
     	// initialize combase reader
     	reader = new CombaseReader( filename );

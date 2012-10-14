@@ -43,11 +43,13 @@ import java.util.Map;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.xml.sax.SAXException;
 
@@ -74,6 +76,20 @@ public class CellIO {
 		}
 
 		return ((IntCell) cell).getIntValue();
+	}
+
+	public static PmmXmlDoc getPmmXml(DataCell cell) {
+		if (cell.isMissing() || !(cell instanceof XMLCell)) {
+			return null;
+		}
+		XMLCell xml = (XMLCell) cell;
+
+		try {
+			return new PmmXmlDoc(xml.getStringValue());
+		}
+		catch (Exception e) {
+			return null;
+		}
 	}
 
 	public static Double getDouble(DataCell cell) {
@@ -190,10 +206,11 @@ public class CellIO {
 		return new StringCell(s.substring(0, s.length() - 1));
 	}
 	
-	public static DataCell createXmlCell( String xml ) {
-    	DataCell xmlCell = null;;
+	public static DataCell createXmlCell(PmmXmlDoc xml) {
+    	if (xml == null) return null;
+    	DataCell xmlCell = null;
 		try {
-			xmlCell = XMLCellFactory.create(xml);
+			xmlCell = XMLCellFactory.create(xml.toXmlString());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -48,60 +48,58 @@ public class PmmXmlDoc {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 	
-	private LinkedList<PmmXmlElementConvertable> modelSet;
+	private LinkedList<PmmXmlElementConvertable> elementSet;
 	
 	public PmmXmlDoc() {
-		modelSet = new LinkedList<PmmXmlElementConvertable>();
+		elementSet = new LinkedList<PmmXmlElementConvertable>();
 	}
 	
-	public PmmXmlDoc(String docString) throws IOException, JDOMException {		
+	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		
 		this();
 		SAXBuilder builder = new SAXBuilder();
-		Document doc = builder.build( new StringReader( docString ) );
+		Document doc = builder.build(new StringReader(xmlString));
 		
 		Element rootElement = doc.getRootElement();
 		
-		for( Element el : rootElement.getChildren() ) {
+		for (Element el : rootElement.getChildren()) {
+			/*
+			if (el instanceof PmmXmlElementConvertable) {
+				elementSet.add(new ParametricModel(el));
+			}
+			*/
 			if (el.getName().equals(ParametricModel.ELEMENT_PARAMETRICMODEL)) {
-				modelSet.add( new ParametricModel( el ) );
-			}			
+				elementSet.add(new ParametricModel(el));
+			}	
+			else if (el.getName().equals(MiscXml.ELEMENT_MISC)) {
+				elementSet.add(new MiscXml(el));
+			}	
 		}			
 	}
 	
-	public void add( PmmXmlElementConvertable el ) {
-		modelSet.add( el );
+	public void add(PmmXmlElementConvertable el) {
+		elementSet.add(el);
 	}
 	
-	public Document toXmlDocument() {
+	public Document toXmlDocument() {		
+		Document doc = new Document();		
+		Element rootElement = new Element(ELEMENT_PMMDOC);
+		doc.setRootElement(rootElement);
 		
-		Document doc;
-		Element rootElement;
-		
-		doc = new Document();
-		
-		rootElement = new Element( ELEMENT_PMMDOC );
-		doc.setRootElement( rootElement );
-		
-		for( PmmXmlElementConvertable model : modelSet )
-			rootElement.addContent( model.toXmlElement() );
-		
+		for (PmmXmlElementConvertable element : elementSet) {
+			rootElement.addContent(element.toXmlElement());			
+		}		
 		return doc;
 	}
 	
-	public String toXmlString() {
-		
-		Document doc;
-		XMLOutputter xmlo;
-		
-		doc = toXmlDocument();
-		
-		xmlo = new XMLOutputter();
-		return xmlo.outputString( doc );
+	public String toXmlString() {		
+		Document doc = toXmlDocument();		
+		XMLOutputter xmlo = new XMLOutputter();
+		return xmlo.outputString(doc);
 	}
 	
-	public int size() { return modelSet.size(); }
-	public PmmXmlElementConvertable get( int i ) { return modelSet.get( i ); }
+	public int size() {return elementSet.size();}
+	public PmmXmlElementConvertable get(int i) {return elementSet.get(i);}
 	
-	public Collection<PmmXmlElementConvertable> getModelSet() { return modelSet; }
+	public Collection<PmmXmlElementConvertable> getElementSet() {return elementSet;}
 	
 }

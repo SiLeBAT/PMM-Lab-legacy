@@ -68,6 +68,7 @@ public class KnimeRelationReader implements Enumeration<KnimeTuple> {
 		try {
 			return new KnimeTuple( schema, spec, rowIterator.next() );
 		} catch ( PmmException ex ) {
+			ex.printStackTrace();
 			return null;
 		}
 	}

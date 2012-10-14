@@ -46,11 +46,10 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.data.xml.XMLCell;
-import org.knime.core.data.xml.XMLCellFactory;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 
 public class KnimeTuple implements DataRow {
 
@@ -99,6 +98,12 @@ public class KnimeTuple implements DataRow {
 								+schema.getName( i )+"' to be DoubleCell." );
 					break;
 					
+				case KnimeAttribute.TYPE_XML :
+					if( !( cell[ i ] instanceof XMLCell ) )
+						throw new PmmException( "Expected attribute '"
+								+schema.getName( i )+"' to be XMLCell." );
+					break;
+
 				default :
 					if( !( cell[ i ] instanceof StringCell ) )
 						throw new PmmException( "Expected attribute '"
@@ -174,6 +179,10 @@ public class KnimeTuple implements DataRow {
 
 	public String getName(final int i) {
 		return schema.getName(i);
+	}
+
+	public PmmXmlDoc getPmmXml(final String attName) throws PmmException {
+		return getPmmXml(getIndex(attName));
 	}
 
 	public String getString(final String attName) throws PmmException {
@@ -461,7 +470,16 @@ public class KnimeTuple implements DataRow {
 
 		return CellIO.getIntList(cell[i]);
 	}
-
+	
+	private PmmXmlDoc getPmmXml(final int i) throws PmmException {
+		switch (schema.getType(i)) {
+			case KnimeAttribute.TYPE_XML:
+				return CellIO.getPmmXml(cell[i]);
+			default:
+				throw new PmmException(
+				"Type cannot be cast to XML.");
+		}
+	}
 	private String getString(final int i) {
 
 		switch (schema.getType(i)) {
@@ -590,8 +608,8 @@ public class KnimeTuple implements DataRow {
 
 			case KnimeAttribute.TYPE_XML :
 				
-				if( obj instanceof String ) {
-					cell[ i ] = CellIO.createXmlCell( ( String )obj );
+				if( obj instanceof PmmXmlDoc ) {
+					cell[ i ] = CellIO.createXmlCell((PmmXmlDoc) obj);
 					break;
 				}
 

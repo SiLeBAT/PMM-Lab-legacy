@@ -167,11 +167,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			if( hasWaterActivity() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_WATERACTIVITY, String.valueOf( getWaterActivity() ) );
 			}
-			/*
 			if( hasMisc() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_MISC, getCommasepMisc() );
+				ret.setAttribute(TimeSeriesSchema.ATT_MISC, getMisc().toXmlString());
 			}
-			*/
 			/* if( !isNaN( maximumRate ) )
 				ret.setAttribute( ATT_MAXIMUMRATE, String.valueOf( maximumRate ) );
 			
@@ -250,15 +248,10 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public Double getWaterActivity() throws PmmException {
 		return getDouble( TimeSeriesSchema.ATT_WATERACTIVITY );
 	}
-	/*
-	public String getCommasepMisc() throws PmmException {
-		return getString( TimeSeriesSchema.ATT_MISC );
+	public PmmXmlDoc getMisc() throws PmmException {
+		return getPmmXml(TimeSeriesSchema.ATT_MISC);
 	}
 	
-	public String getCommasepMiscId() throws PmmException {
-		return getString( ATT_MISCID );
-	}
-	*/
 	public LinkedList<double[]> getTimeSeries() throws PmmException {
 		
 		LinkedList<double[]> ts;
@@ -391,14 +384,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
 	}
 	
-	public void setCommasepMisc( final String misc ) throws PmmException {
-		setValue( ATT_MISC, misc );
+	public void setMisc(final PmmXmlDoc misc) throws PmmException {
+		setValue(ATT_MISC, misc);
 	}
-	/*
-	public void setCommasepMiscId( final String miscId ) throws PmmException  {
-		setValue( ATT_MISCID, miscId );
-	}
-	*/
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
 		setValue( ATT_AGENTDETAIL, agentDetail );
 	}

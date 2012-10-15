@@ -208,10 +208,10 @@ public class ParameterOptimizer {
 		}
 
 		double[] factors = new double[] { 1.0, 1.1, 1.0 / 1.1, 1.2, 1.0 / 1.2,
-				1.3, 1.0 / 1.3, 1.4, 1 / 1.4, 1.5, 1.0 / 1.5 };
+				1.3, 1.0 / 1.3, 1.4, 1 / 1.4, 1.5, 1.0 / 1.5, };
 
 		successful = false;
-		boolean concergenceProblem = false;
+		// boolean concergenceProblem = false;
 		for (double factor : factors) {
 			List<Double> startValues = new ArrayList<Double>(parameters.size());
 
@@ -234,27 +234,27 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
-				concergenceProblem = true;
+				// concergenceProblem = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		if (!successful && concergenceProblem) {
-			System.out
-					.println("Function or its derivatives seem to have singularities:");
-			System.out.println("Formula:");
-			parser.println(function);
-			System.out.println("Arguments:");
-			for (List<Double> dbllist : argumentValues) {
-				for (double dbl : dbllist)
-					System.out.print(dbl + "\t");
-				System.out.println();
-			}
-			System.out.println("Targets:");
-			for (double dbl : targetValues)
-				System.out.print(dbl + "\t");
-			System.out.println();
-		}
+		// if (!successful && concergenceProblem) {
+		// System.out
+		// .println("Function or its derivatives seem to have singularities:");
+		// System.out.println("Formula:");
+		// parser.println(function);
+		// System.out.println("Arguments:");
+		// for (List<Double> dbllist : argumentValues) {
+		// for (double dbl : dbllist)
+		// System.out.print(dbl + "\t");
+		// System.out.println();
+		// }
+		// System.out.println("Targets:");
+		// for (double dbl : targetValues)
+		// System.out.print(dbl + "\t");
+		// System.out.println();
+		// }
 	}
 
 	public boolean isSuccessful() {
@@ -345,8 +345,12 @@ public class ParameterOptimizer {
 		rSquare = Math.max(rSquare, 0.0);
 	}
 
-	private double evalWithSingularityCheck(Node f, List<Double> argValues)
-			throws ParseException {
+	private double evalWithSingularityCheck(Node f, List<Double> argValues,
+			List<Double> paramValues) throws ParseException {
+		for (int i = 0; i < parameters.size(); i++) {
+			parser.setVarValue(parameters.get(i), paramValues.get(i));
+		}
+
 		for (List<Integer> list : changeLists) {
 			for (int i = 0; i < arguments.size(); i++) {
 				double d = list.get(i) * MathUtilities.EPSILON;
@@ -358,6 +362,36 @@ public class ParameterOptimizer {
 
 			if (number instanceof Double && !Double.isNaN((Double) number)) {
 				return (Double) number;
+			}
+		}
+
+		if (derivatives.contains(f)) {
+			for (List<Integer> list : changeLists) {
+				for (int i = 0; i < arguments.size(); i++) {
+					double d = list.get(i) * MathUtilities.EPSILON;
+
+					parser.setVarValue(arguments.get(i), argValues.get(i) + d);
+				}
+
+				int index = derivatives.indexOf(f);
+
+				parser.setVarValue(parameters.get(index),
+						paramValues.get(index) - MathUtilities.EPSILON);
+
+				Object number1 = parser.evaluate(function);
+
+				parser.setVarValue(parameters.get(index),
+						paramValues.get(index) + MathUtilities.EPSILON);
+
+				Object number2 = parser.evaluate(function);
+
+				if (number1 instanceof Double
+						&& !Double.isNaN((Double) number1)
+						&& number2 instanceof Double
+						&& !Double.isNaN((Double) number2)) {
+					return ((Double) number2 - (Double) number1)
+							/ (2 * MathUtilities.EPSILON);
+				}
 			}
 		}
 
@@ -466,9 +500,10 @@ public class ParameterOptimizer {
 		public double[][] value(double[] point) throws IllegalArgumentException {
 			double[][] retValue = new double[targetValues.size()][parameters
 					.size()];
+			List<Double> paramValues = new ArrayList<Double>();
 
 			for (int i = 0; i < parameters.size(); i++) {
-				parser.setVarValue(parameters.get(i), point[i]);
+				paramValues.add(point[i]);
 			}
 
 			try {
@@ -481,7 +516,7 @@ public class ParameterOptimizer {
 
 					for (int j = 0; j < derivatives.size(); j++) {
 						retValue[i][j] = evalWithSingularityCheck(
-								derivatives.get(j), argValues);
+								derivatives.get(j), argValues, paramValues);						
 					}
 
 					// for (int j = 0; j < arguments.size(); j++) {

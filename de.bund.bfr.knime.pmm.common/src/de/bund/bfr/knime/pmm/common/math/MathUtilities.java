@@ -41,7 +41,9 @@ import org.lsmp.djep.djep.DJep;
 import org.lsmp.djep.djep.DiffRulesI;
 import org.lsmp.djep.djep.diffRules.MacroDiffRules;
 import org.lsmp.djep.xjep.MacroFunction;
+import org.nfunk.jep.ASTConstant;
 import org.nfunk.jep.ASTFunNode;
+import org.nfunk.jep.ASTVarNode;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
@@ -52,6 +54,28 @@ public class MathUtilities {
 	private static Random random = null;
 
 	private MathUtilities() {
+	}
+
+	public static String nodeToString(Node n) throws Exception {
+		if (n instanceof ASTFunNode) {
+			String s = n.toString() + "(";
+
+			for (int i = 0; i < n.jjtGetNumChildren(); i++) {
+				if (i != 0) {
+					s += ",";
+				}
+
+				s += nodeToString(n.jjtGetChild(i));
+			}
+
+			return s + ")";
+		} else if (n instanceof ASTConstant) {
+			return n.toString();
+		} else if (n instanceof ASTVarNode) {
+			return n.toString();
+		} else {
+			throw new Exception("Unknown Node");
+		}
 	}
 
 	public static void removeNullValues(List<Double> targetValues,
@@ -120,10 +144,10 @@ public class MathUtilities {
 		parser.removeVariable("x");
 
 		try {
-			//parser.removeFunction("log");
-			//parser.addFunction("log", new MacroFunction("log", 1, "ln(x)",
-			//		parser));
-			//parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
+			// parser.removeFunction("log");
+			// parser.addFunction("log", new MacroFunction("log", 1, "ln(x)",
+			// parser));
+			// parser.addDiffRule(new MacroDiffRules(parser, "log", "1/x"));
 			parser.addFunction("log10", new MacroFunction("log10", 1,
 					"ln(x)/ln(10)", parser));
 			parser.addDiffRule(new MacroDiffRules(parser, "log10",
@@ -283,41 +307,41 @@ public class MathUtilities {
 		}
 
 	}
-	
-	public static Double akaikeCriterion(
-		final int numParam, final int numSample, final double rms ) {
-		
-		if( Double.isNaN( rms ) || Double.isInfinite( rms ) )
+
+	public static Double akaikeCriterion(final int numParam,
+			final int numSample, final double rms) {
+
+		if (Double.isNaN(rms) || Double.isInfinite(rms))
 			return null;
-		
-		if( rms < 0 )
+
+		if (rms < 0)
 			return null;
-		
-		if( numParam < 0 )
+
+		if (numParam < 0)
 			return null;
-		
-		if( numSample < 0 )
+
+		if (numSample < 0)
 			return null;
-		
-		return numSample*Math.log( rms*rms )+2*numParam;
+
+		return numSample * Math.log(rms * rms) + 2 * numParam;
 	}
-	
-	public static Double bayesCriterion(
-		final int numParam, final int numSample, final double rms ) {
-		
-		if( Double.isNaN( rms ) || Double.isInfinite( rms ) )
+
+	public static Double bayesCriterion(final int numParam,
+			final int numSample, final double rms) {
+
+		if (Double.isNaN(rms) || Double.isInfinite(rms))
 			return null;
-		
-		if( rms < 0 )
+
+		if (rms < 0)
 			return null;
-		
-		if( numParam < 0 )
+
+		if (numParam < 0)
 			return null;
-		
-		if( numSample < 0 )
+
+		if (numSample < 0)
 			return null;
-		
-		return numSample*Math.log( rms*rms )+numParam*Math.log( numSample );
+
+		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
 	}
-	
+
 }

@@ -645,7 +645,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			if (pm != null) {
 				formulaArea.setText(pm.getFormula());
 				formulaUpdate();
-				paramUpdate(pm.getIndepVarSet().size() > 0 ? pm.getIndepVarSet().getFirst() : null);				
+				paramUpdate(pm.getIndepVarSet().size() > 0 ? pm.getIndepVarSet().first() : null);				
 			}
 			else {
 				formulaArea.setText("");
@@ -1114,7 +1114,7 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 			setLevel( primModel.getLevel() );
 			setFormula( primModel.getFormula() );
 			if (primModel.getIndepVarSet().size() > 0) {
-				String indepVar = primModel.getIndepVarSet().getFirst();
+				String indepVar = primModel.getIndepVarSet().first();
 				setIndepVar(indepVar, primModel.getIndepMin(indepVar), primModel.getIndepMax(indepVar));
 			} else {
 				setIndepVar(null);

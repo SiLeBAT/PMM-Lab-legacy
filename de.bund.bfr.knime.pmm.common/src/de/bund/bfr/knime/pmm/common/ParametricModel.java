@@ -33,13 +33,16 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.jdom2.Element;
 
@@ -49,6 +52,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class ParametricModel implements PmmXmlElementConvertable {
+
+	public static final String ELEMENT_PARAMETRICMODEL = "ParametricModel";
+	
 	// hier fest verdrahtet und von den zentralen KnimSchema Variablen unabhängig gemacht.
 	// Hintergrund ist, dass sonst bei KnimeSchema-Änderungen der MMC seine gespeicherten Daten vergisst!
 	private static final String ATT_FORMULA = "Formula";
@@ -71,7 +77,6 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_PARAMERR = "StandardError";
 	private static final String ATT_VARPARMAP = "VarParMap";
 
-	public static final String ELEMENT_PARAMETRICMODEL = "ParametricModel";
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
 
@@ -82,10 +87,16 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private HashMap<String, Double> indepMax;
 	private String modelName;
 	private String formula;
-	private Hashtable<String, Double> param;
+	private SortedMap<String, Double> param;
+	private Comparator<String> stringComparator = new Comparator<String>() {
+        public int compare(String o1, String o2) {
+            return o1.toLowerCase().compareTo(o2.toLowerCase());
+        }
+    };
+	//private Hashtable<String, Double> param;
 	private Hashtable<String, Double> paramError;
 	private int level;
-	private LinkedList<String> indepVar;
+	private SortedSet<String> indepVar;
 	private String depVar;
 	private LinkedList<LiteratureItem> estLit;
 	private LinkedList<LiteratureItem> modelLit;
@@ -112,9 +123,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelId = MathUtilities.getRandomNegativeInt();
 		estModelId = MathUtilities.getRandomNegativeInt();
 		
-		param = new Hashtable<String, Double>();
+		param = new TreeMap<String, Double>(stringComparator); // new Hashtable<String, Double>();
 		paramError = new Hashtable<String, Double>();
-		indepVar = new LinkedList<String>();
+		indepVar = new TreeSet<String>(stringComparator);
 		estLit = new LinkedList<LiteratureItem>();
 		modelLit = new LinkedList<LiteratureItem>();
 		
@@ -163,9 +174,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
-		param = new Hashtable<String, Double>();
+		param = new TreeMap<String, Double>(stringComparator); // new Hashtable<String, Double>();
 		paramError = new Hashtable<String, Double>();
-		indepVar = new LinkedList<String>();
+		indepVar = new TreeSet<String>(stringComparator);
 		estLit = new LinkedList<LiteratureItem>();
 		modelLit = new LinkedList<LiteratureItem>();
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
@@ -456,7 +467,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Double getAic() { return aic; }
 	public Double getBic() { return bic; }
 	public String getModelName() { return modelName; }
-	public LinkedList<String> getIndepVarSet() { return indepVar; }
+	public SortedSet<String> getIndepVarSet() { return indepVar; }
 	
 	public LinkedList<LiteratureItem> getEstModelLit() { return estLit; }
 	public LinkedList<LiteratureItem> getModelLit() { return modelLit; }
@@ -486,7 +497,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		element.setAttribute( ATT_PARAMNAME, depVar );
 		modelElement.addContent( element );
 		
-		for( String s : param.keySet() ) {
+		for (String s : getParamNameSet()) {
 			
 			element = new Element( ELEMENT_PARAM );
 			element.setAttribute( ATT_PARAMNAME, s );

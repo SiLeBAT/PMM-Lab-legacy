@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -174,7 +175,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_CONDID, result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_COMBASEID, result.getString( Bfrdb.ATT_COMBASEID ) );
     		//tuple.setValue( TimeSeriesSchema.ATT_MISCID, result.getString( Bfrdb.ATT_MISCID ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_MISC, result.getString( Bfrdb.ATT_MISC ) );
+    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+    		tuple.setValue( TimeSeriesSchema.ATT_MISC, miscDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_TEMPERATURE, result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		tuple.setValue( TimeSeriesSchema.ATT_PH, result.getString( Bfrdb.ATT_PH ) );
     		tuple.setValue( TimeSeriesSchema.ATT_WATERACTIVITY, result.getString( Bfrdb.ATT_AW ) );
@@ -295,8 +297,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( "LitM2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITIDEM, result.getString( "LitEmID2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITEM, result.getString( "LitEm2" ) );
-	    		tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
+	    		tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError2" ) ) );
+	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
 	    		
 	    		n = tuple.getStringList( Model2Schema.ATT_PARAMNAME ).size();

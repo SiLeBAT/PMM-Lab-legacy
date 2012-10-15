@@ -635,105 +635,6 @@ public class Bfrdb extends Hsqldbiface {
 		+")\"DataView\"\n"
 		+"ON \""+REL_CONDITION+"\".\"ID\"=\"DataView\".\""+REL_CONDITION+"\"\n";
 	
-	/* private static final String queryTimeSeries4 = "SELECT\n"
-		+"\n"
-		+"\""+REL_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
-		+"\""+REL_COMBASE+"\".\""+ATT_COMBASEID+"\",\n"
-		+"\"MiscView\".\""+ATT_MISCID+"\",\n"
-		+"\"MiscView\".\""+ATT_MISC+"\",\n"
-		+"\"D3\".\""+ATT_VALUE+"\" AS \""+ATT_TEMPERATURE+"\",\n"
-		+"\"D4\".\""+ATT_VALUE+"\" AS \"pH\",\n"
-		+"\"D5\".\""+ATT_VALUE+"\" AS \""+ATT_AW+"\",\n"
-		+"\""+REL_CONDITION+"\".\""+ATT_AGENTID+"\" AS \""+ATT_AGENTID+"\",\n"
-		+"\""+ATT_AGENTNAME+"\",\n"
-		+"\""+REL_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
-		+"\""+REL_CONDITION+"\".\""+ATT_MATRIXID+"\" AS \""+ATT_MATRIXID+"\",\n"
-		+"\""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
-		+"\""+REL_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
-		+"\"DataView\".\""+ATT_TIME+"\",\n"
-		+"\"DataView\".\""+ATT_LOG10N+"\",\n"
-		+"\""+REL_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
-		+"\""+REL_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
-		+"CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\"Jahr\" )AS "+ATT_LITERATURETEXT+"\n"
-		+"\n"
-		+"FROM \""+REL_CONDITION+"\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_COMBASE+"\"\n"
-		+"ON \""+REL_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_DOUBLE+"\" AS \"D3\"\n"
-		+"ON \""+REL_CONDITION+"\".\""+ATT_TEMPERATURE+"\"=\"D3\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_DOUBLE+"\" AS \"D4\"\n"
-		+"ON \""+REL_CONDITION+"\".\"pH\"=\"D4\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_DOUBLE+"\" AS \"D5\"\n"
-		+"ON \""+REL_CONDITION+"\".\""+ATT_AW+"\"=\"D5\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_AGENT+"\"\n"
-		+"ON \""+REL_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN \""+REL_MATRIX+"\"\n"
-		+"ON \""+REL_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
-		+"ON \""+REL_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
-		+"\n"
-		+"LEFT JOIN(\n"
-		+"\n"
-		+"    SELECT\n"
-		+"\n"
-		+"    \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\",\n"
-		+"    GROUP_CONCAT( \""+REL_MISCPARAM+"\".\"ID\" )AS \""+ATT_MISCID+"\",\n"
-		+"\n"
-		+"    GROUP_CONCAT(\n"
-		+"        CONCAT(\n"
-		+"            \""+REL_MISCPARAM+"\".\""+ATT_DESCRIPTION+"\",\n"
-		+"            CASE \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_UNIT+"\"\n"
-		+"                WHEN IS NULL THEN ''\n"
-		+"                ELSE CONCAT( '(', \""+REL_UNIT+"\".\""+ATT_UNIT+"\", ')' )\n"
-		+"            END,\n"
-		+"            CASE \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"\n"
-		+"                WHEN IS NULL THEN ''\n"
-		+"                ELSE CONCAT( ':', \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\" )\n"
-		+"            END\n"
-		+"        )\n"
-		+"    )AS \""+ATT_MISC+"\"\n"
-		+"\n"
-		+"    FROM \""+ATT_CONDITION_MISCPARAM+"\"\n"
-		+"\n"
-		+"    LEFT JOIN \""+REL_UNIT+"\"\n"
-		+"    ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_UNIT+"\"=\""+REL_UNIT+"\".\"ID\"\n"
-		+"\n"
-		+"    JOIN \""+REL_MISCPARAM+"\"\n"
-		+"    ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
-		+"\n"
-		+"    GROUP BY \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"\n"
-		+"\n"
-		+")\"MiscView\"\n"
-		+"ON \""+REL_CONDITION+"\".\"ID\"=\"MiscView\".\""+REL_CONDITION+"\"\n"
-		+"\n"
-		+"LEFT JOIN(\n"
-		+"\n"
-		+"    SELECT\n"
-		+"\n"
-		+"    \""+REL_CONDITION+"\",\n"
-		+"    GROUP_CONCAT( \"T\".\""+ATT_VALUE+"\" )AS \""+ATT_TIME+"\",\n"
-		+"    GROUP_CONCAT( \"K\".\""+ATT_VALUE+"\" )AS \""+ATT_LOG10N+"\"\n"
-		+"\n"
-		+"    FROM \""+REL_DATA+"\"\n"
-		+"\n"
-		+"    JOIN \""+REL_DOUBLE+"\" AS \"T\"\n"
-		+"    ON \""+REL_DATA+"\".\""+ATT_TIME+"\"=\"T\".\"ID\"\n"
-		+"\n"
-		+"    JOIN \""+REL_DOUBLE+"\" AS \"K\"\n"
-		+"    ON \""+REL_DATA+"\".\""+ATT_LOG10N+"\"=\"K\".\"ID\"\n"
-		+"\n"
-		+"    GROUP BY \""+REL_CONDITION+"\"\n"
-		+"\n"
-		+")\"DataView\"\n"
-		+"ON \""+REL_CONDITION+"\".\"ID\"=\"DataView\".\""+REL_CONDITION+"\"\n";	*/
-		
 	private BFRNodeService service;
 
 	
@@ -859,19 +760,34 @@ public class Bfrdb extends Hsqldbiface {
 		return ps.executeQuery();
 	}
 	
+	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {
+		PmmXmlDoc miscDoc = new PmmXmlDoc();
+		String sql = "SELECT " + "\"SonstigeParameter\".\"ID\" AS \"ID\"," +
+			"\"SonstigeParameter\".\"Parameter\" AS \"Parameter\"," +
+			"\"SonstigeParameter\".\"Beschreibung\" AS \"Beschreibung\"," +
+			"\"DoubleKennzahlen\".\"Wert\" AS \"Wert\"," +
+			"\"Einheiten\".\"Einheit\" AS \"Einheit\" FROM \"Versuchsbedingungen_Sonstiges\"" +		 
+			" left join \"SonstigeParameter\" on \"Versuchsbedingungen_Sonstiges\".\"SonstigeParameter\" = \"SonstigeParameter\".\"ID\"" +
+			" left join \"DoubleKennzahlen\" on \"Versuchsbedingungen_Sonstiges\".\"Wert\" = \"DoubleKennzahlen\".\"ID\"" +
+			" left join \"Einheiten\" on \"Versuchsbedingungen_Sonstiges\".\"Einheit\" = \"Einheiten\".\"ID\"" +
+			" where \"Versuchsbedingungen_Sonstiges\".\"Versuchsbedingungen\" = " + tsID;
+		PreparedStatement ps = conn.prepareStatement(sql);
+		ResultSet rs = ps.executeQuery();
+		while(rs.next()) {
+			MiscXml mx = new MiscXml(rs.getInt("ID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),rs.getString("Einheit"));
+			miscDoc.add(mx);
+		}
+		return miscDoc;
+	}
 	public ResultSet selectEstModel( final int level ) throws SQLException {
-		
 		String q;
-		PreparedStatement ps;				
-
 		if( level == 1 ) {
 			q = queryEstPei();
 		} else {
 			q = queryEstSei();
-		}
-		
+		}		
 		//System.out.println( q );
-		ps = conn.prepareStatement( q );
+		PreparedStatement ps = conn.prepareStatement( q );
 		return ps.executeQuery();
 	}
 	
@@ -1393,7 +1309,7 @@ public class Bfrdb extends Hsqldbiface {
         	for (PmmXmlElementConvertable el : misc.getElementSet()) {
         		if (el instanceof MiscXml) {		
         			MiscXml mx = (MiscXml) el;
-    				Integer paramID = getID("SonstigeParameter", "Beschreibung", mx.getDescription()); // Parameter Beschreibung
+    				Integer paramID = getID("SonstigeParameter", "Beschreibung", mx.getDescription().toLowerCase()); // Parameter Beschreibung
     				if (paramID != null) {
     					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
     					try {

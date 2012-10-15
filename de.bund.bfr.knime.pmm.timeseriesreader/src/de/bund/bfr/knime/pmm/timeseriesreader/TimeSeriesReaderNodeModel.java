@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
 import de.dim.knime.bfr.internal.BfRNodePluginActivator;
@@ -140,8 +141,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		// fill row
     		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
-    		//tuple.setCommasepMiscId( result.getString( Bfrdb.ATT_MISCID ) );
-    		//tuple.setCommasepMisc( result.getString( Bfrdb.ATT_MISC ) );
+    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+    		tuple.setMisc(miscDoc);
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		tuple.setPh( result.getString( Bfrdb.ATT_PH ) );
     		tuple.setWaterActivity( result.getString( Bfrdb.ATT_AW ) );

@@ -500,8 +500,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
             	for (Integer key : keys) {
             		if (key != null && foreignDbIds.containsKey(key)) {
             			if (before) schemaTuple.addValue(attr, foreignDbIds.get(key));
-            			else if (foreignDbIds.get(key) != schemaTuple.getIntList(attr).get(i)) {
-            				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+            			else if (foreignDbIds.get(key) - schemaTuple.getIntList(attr).get(i) != 0) {
+            				System.err.println("fillNewIDsIntoForeign1 ... shouldn't happen\t" + key + "\t" + attr + "\t" + foreignDbIds.get(key) + "\t" + schemaTuple.getIntList(attr).get(i));
             			}
             		}
             		else {
@@ -518,8 +518,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
         	if (key != null) {
         		if (foreignDbIds.containsKey(key)) {
         			if (before) schemaTuple.setValue(attr, foreignDbIds.get(key));
-        			else if (foreignDbIds.get(key) != schemaTuple.getInt(attr)) {
-        				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+        			else if (foreignDbIds.get(key) - schemaTuple.getInt(attr) != 0) {
+        				System.err.println("fillNewIDsIntoForeign2 ... shouldn't happen\t" + key + "\t" + attr + "\t" + foreignDbIds.get(key) + "\t" + schemaTuple.getInt(attr));
         			}
         		}
         		else {

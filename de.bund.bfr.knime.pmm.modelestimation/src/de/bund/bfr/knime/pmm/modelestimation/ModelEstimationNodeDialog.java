@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.modelestimation;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
@@ -61,23 +62,31 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 public class ModelEstimationNodeDialog extends NodeDialogPane {
 
 	private JCheckBox limitsBox;
+	private JCheckBox oneStepBox;
 
 	/**
 	 * New pane for configuring the ModelEstimation node.
 	 */
 	protected ModelEstimationNodeDialog() {
 		JPanel panel = new JPanel();
-		JPanel limitsPanel = new JPanel();
+		JPanel northPanel = new JPanel();
+		JPanel westPanel = new JPanel();
 
 		limitsBox = new JCheckBox("Enforce Limits",
 				ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS == 1);
+		oneStepBox = new JCheckBox("Use One Step Method",
+				ModelEstimationNodeModel.DEFAULT_ONESTEPMETHOD == 1);
 
-		limitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		limitsPanel.setLayout(new BorderLayout());
-		limitsPanel.add(limitsBox, BorderLayout.WEST);
+		westPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		westPanel.setLayout(new GridLayout(2, 1, 5, 5));
+		westPanel.add(limitsBox);
+		westPanel.add(oneStepBox);
+
+		northPanel.setLayout(new BorderLayout());
+		northPanel.add(westPanel, BorderLayout.WEST);
 
 		panel.setLayout(new BorderLayout());
-		panel.add(limitsPanel, BorderLayout.NORTH);
+		panel.add(northPanel, BorderLayout.NORTH);
 		addTab("Options", panel);
 	}
 
@@ -92,6 +101,15 @@ public class ModelEstimationNodeDialog extends NodeDialogPane {
 			limitsBox
 					.setSelected(ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS == 1);
 		}
+
+		try {
+			oneStepBox
+					.setSelected(settings
+							.getInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD) == 1);
+		} catch (InvalidSettingsException e) {
+			oneStepBox
+					.setSelected(ModelEstimationNodeModel.DEFAULT_ONESTEPMETHOD == 1);
+		}
 	}
 
 	@Override
@@ -101,6 +119,12 @@ public class ModelEstimationNodeDialog extends NodeDialogPane {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
 		} else {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 0);
+		}
+
+		if (oneStepBox.isSelected()) {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 1);
+		} else {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 0);
 		}
 	}
 }

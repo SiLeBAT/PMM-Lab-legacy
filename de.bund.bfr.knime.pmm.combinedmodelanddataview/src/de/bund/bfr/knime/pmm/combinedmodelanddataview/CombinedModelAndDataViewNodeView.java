@@ -284,6 +284,10 @@ public class CombinedModelAndDataViewNodeView extends
 			String depVar = row.getString(Model1Schema.ATT_DEPVAR);
 			List<String> indepVars = row
 					.getStringList(Model1Schema.ATT_INDEPVAR);
+			List<Double> indepMinValues = row
+					.getDoubleList(Model1Schema.ATT_MININDEP);
+			List<Double> indepMaxValues = row
+					.getDoubleList(Model1Schema.ATT_MAXINDEP);
 			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
 			List<Double> paramValues = row
 					.getDoubleList(Model1Schema.ATT_VALUE);
@@ -293,12 +297,17 @@ public class CombinedModelAndDataViewNodeView extends
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
 			Plotable plotable = new Plotable(Plotable.BOTH);
 			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
+			Map<String, Double> varMin = new HashMap<String, Double>();
+			Map<String, Double> varMax = new HashMap<String, Double>();
 			Map<String, Double> parameters = new HashMap<String, Double>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
-			for (String iv : indepVars) {
-				variables.put(iv, new ArrayList<Double>(Arrays.asList(0.0)));
+			for (int i = 0; i < indepVars.size(); i++) {
+				variables.put(indepVars.get(i),
+						new ArrayList<Double>(Arrays.asList(0.0)));
+				varMin.put(indepVars.get(i), indepMinValues.get(i));
+				varMax.put(indepVars.get(i), indepMaxValues.get(i));
 			}
 
 			for (int i = 0; i < params.size(); i++) {
@@ -415,9 +424,9 @@ public class CombinedModelAndDataViewNodeView extends
 
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
-			plotable.setFunctionArguments(variables);
-			plotable.setMinArguments(new HashMap<String, Double>());
-			plotable.setMaxArguments(new HashMap<String, Double>());
+			plotable.setFunctionArguments(variables);			
+			plotable.setMinArguments(varMin);
+			plotable.setMaxArguments(varMax);
 			plotable.setFunctionConstants(parameters);
 
 			if (getNodeModel().isSeiSchema()) {

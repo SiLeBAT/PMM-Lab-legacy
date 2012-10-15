@@ -50,9 +50,12 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.dim.bfr.external.service.BFRNodeService;
@@ -1139,7 +1142,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm(final ParametricModel pm, List<String> varParMap) {
+	public Integer insertEm(final ParametricModel pm, HashMap<String, String> hm) {
 		Integer estModelId = null;
 		Double rms = pm.getRms();
 		Double r2 = pm.getRsquared();
@@ -1158,25 +1161,15 @@ public class Bfrdb extends Hsqldbiface {
 			int condId = pm.getCondId();
 			int modelId = pm.getModelId();
 			
-			HashMap<String, String> hm = getVarParHashmap(varParMap);
 			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
-			
-			int responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);
+			int responseId = queryParamId(modelId, pm.getDepVar(), PARAMTYPE_DEP);
 			if (hm != null && hm.get(pm.getDepVar()) != null) {
-				hmi.put(pm.getDepVar(), responseId);
+				hmi.put(hm.get(pm.getDepVar()), responseId);
 			}
 			if (responseId < 0) {
-				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + getVarPar(hm, pm.getDepVar()));
+				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + pm.getDepVar());
 			}
 
-			/*
-			if (ppm != null) { // z.B. bei geschätzten sekundärmodellen, wo die DepVar im Workflow geändert wurde, die ModelId aber nicht. Hier könnte man ja mal bei den Primärmodellen reinschauen... 
-				responseId = queryParamId(ppm.getModelId(), getVarPar(hm, pm.getDepVar()), PARAMTYPE_PARAM);
-			}
-			else {
-				responseId = queryParamId(modelId, getVarPar(hm, pm.getDepVar()), PARAMTYPE_DEP);			
-			}
-			*/
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
 				updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
 			} else {
@@ -1186,12 +1179,12 @@ public class Bfrdb extends Hsqldbiface {
 			
 			deleteFrom("GeschaetzteParameter", "GeschaetztesModell", estModelId);
 			for (int i = 0; i < numParams; i++ ) {			
-				int paramId = queryParamId(modelId, getVarPar(hm, paramNameSet.get(i)), PARAMTYPE_PARAM);
+				int paramId = queryParamId(modelId, paramNameSet.get(i), PARAMTYPE_PARAM);
 				if (paramId < 0) {
-					System.err.println("paramId < 0... " + paramNameSet.get(i) + "\t" + getVarPar(hm, paramNameSet.get(i)));
+					System.err.println("paramId < 0... " + paramNameSet.get(i) + "\t" + paramNameSet.get(i));
 				}
 				if (hm != null && hm.get(paramNameSet.get(i)) != null) {
-					hmi.put(paramNameSet.get(i), paramId);
+					hmi.put(hm.get(paramNameSet.get(i)), paramId);
 				}
 				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
 			}
@@ -1200,18 +1193,18 @@ public class Bfrdb extends Hsqldbiface {
 			
 			deleteFrom("GueltigkeitsBereiche", "GeschaetztesModell", estModelId);
 			for (String name : pm.getIndepVarSet()) {
-				int indepId = queryParamId(modelId, getVarPar(hm, name), PARAMTYPE_INDEP);
+				int indepId = queryParamId(modelId, name, PARAMTYPE_INDEP);
 				if (indepId >= 0) {
 					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
 					if (hm != null && hm.get(name) != null) {
-						hmi.put(name, indepId);
+						hmi.put(hm.get(name), indepId);
 					}
 				}
 				else {
-					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + getVarPar(hm, name));
+					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + name);
 				}
 			}
-			
+						
 			// insert mapping of parameters and variables of this estimation
 			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);			
 			for (String newName : hmi.keySet()) {
@@ -1227,6 +1220,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			*/
 		//}
+
+			
+			//}
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
@@ -1271,7 +1267,7 @@ public class Bfrdb extends Hsqldbiface {
 	
 	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
 			final String environment, final String combaseId,
-			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, final String comment,
+			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment,
 			final Integer litID, final String lit, PmmTimeSeries ts) {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
@@ -1292,9 +1288,9 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				
 				if (doUpdate) {
-					ps = conn.prepareStatement( "UPDATE \""+REL_CONDITION+"\" SET \""+ATT_TEMPERATURE+"\"=?, \""+ATT_PH+"\"=?, \""+ATT_AW+"\"=?, \""+ATT_AGENTID+"\"=?, \"AgensDetail\"=?, \""+ATT_MATRIXID+"\"=?, \"MatrixDetail\"=?, \""+ATT_CONDITIONS+"\"=?, \"Kommentar\"=?, \"Referenz\"=? WHERE \"ID\"=?" );
+					ps = conn.prepareStatement( "UPDATE \"Versuchsbedingungen\" SET \""+ATT_TEMPERATURE+"\"=?, \""+ATT_PH+"\"=?, \""+ATT_AW+"\"=?, \""+ATT_AGENTID+"\"=?, \"AgensDetail\"=?, \""+ATT_MATRIXID+"\"=?, \"MatrixDetail\"=?, \"b_f_details_CB\"=?, \"Kommentar\"=?, \"Referenz\"=? WHERE \"ID\"=?" );
 				} else {
-					ps = conn.prepareStatement( "INSERT INTO \""+REL_CONDITION+"\" ( \""+ATT_TEMPERATURE+"\", \""+ATT_PH+"\", \""+ATT_AW+"\", \""+ATT_AGENTID+"\", \"AgensDetail\", \""+ATT_MATRIXID+"\", \"MatrixDetail\", \""+ATT_CONDITIONS+"\", \"Kommentar\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+					ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen\" ( \""+ATT_TEMPERATURE+"\", \""+ATT_PH+"\", \""+ATT_AW+"\", \""+ATT_AGENTID+"\", \"AgensDetail\", \""+ATT_MATRIXID+"\", \"MatrixDetail\", \"b_f_details_CB\", \"Kommentar\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 				}
 				
 				if( tempId >= 0 ) {
@@ -1344,7 +1340,7 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setString( 8, misc );
 				}
 				*/
-				ps.setNull( 8, Types.VARCHAR );
+				ps.setNull(8, Types.VARCHAR);
 				if( comment == null ) {
 					ps.setNull( 9, Types.VARCHAR );
 				} else {
@@ -1379,102 +1375,58 @@ public class Bfrdb extends Hsqldbiface {
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
-			//ts.setWarning(handleConditions(resultID, misc, miscId, ts));
+			ts.setWarning(handleConditions(resultID, misc, ts));
 
 			return resultID;
 		}
-	private String handleConditions(final Integer condId, final String misc, final String miscId, PmmTimeSeries ts) {
+	private String handleConditions(final Integer condId, final PmmXmlDoc misc, PmmTimeSeries ts) {
 		String result = "";
 		PreparedStatement ps;
 		try {
-			ps = conn.prepareStatement( "DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
+			ps = conn.prepareStatement("DELETE FROM \"Versuchsbedingungen_Sonstiges\" WHERE \"Versuchsbedingungen\" = " + condId);
 			ps.executeUpdate();
 		}
 		catch (SQLException e1) {
 			e1.printStackTrace();
 		}
 		if (condId != null && condId >= 0 && misc != null) {
-			List<String> conds = condSplit(misc);
-			//List<String> condIDs = condSplit(miscId);
-			for (int i=0;i<conds.size();i++) {
-				String val = conds.get(i).toLowerCase().trim();
-				int index = val.indexOf(':');
-				int index2 = 0;
-				String unit = "n.n";
-				Double dbl = null;
-				if (index >= 0) {
-					try {
-						dbl = Double.parseDouble(val.substring(index + 1));
-						if (val.charAt(index - 1) == ')') {
-							for (index2 = index - 1;index2 >= 0 && val.charAt(index2) != '(';index2--) {
-								;
-							}
-							unit = val.substring(index2 + 1, index - 1);
-							val = val.substring(0, index2);
-						}
-					}
-					catch (Exception e) {e.printStackTrace();}
-				}
-				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
-				String after = val.trim().replaceAll(" +", " ");
-				Integer paramID = getID("SonstigeParameter", "Beschreibung", after); // Parameter Beschreibung
-				if (paramID != null) {
-					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
-					try {
-						ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\")VALUES(?,?,?,?,?)");
-						ps.setInt(1, condId);
-						ps.setInt(2, paramID);
-						if (dbl == null) {
-							ps.setNull(3, java.sql.Types.DOUBLE);
-							ps.setNull(4, java.sql.Types.INTEGER);
-							ps.setBoolean(5, true);
-						}
-						else {
-							int did = insertDouble(dbl);
-							ps.setDouble(3, did);							
-							Integer eid = getID("Einheiten", "Einheit", unit);
-							if (eid == null) {
-								ps.setNull(4, java.sql.Types.INTEGER);
-							} else {
-								ps.setInt(4, eid);
-							}
-							ps.setBoolean(5, false);
-						}
-						ps.executeUpdate();
-						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
-					}
-					catch (Exception e) {e.printStackTrace();}
-				}
-				else {
-					//System.err.println("handleConditions, paramID not known:\t" + val + "\t" + after);
-					result += "Insert of Misc failed:\t" + after + "\n";
-				}
-			}
-		}
-		return result;
-	}
-	private List<String> condSplit(final String misc) {
-		if (misc == null) {
-			return null;
-		}
-		List<String> result = new ArrayList<String>();
-		StringTokenizer tok = new StringTokenizer(misc, ",");
-		int openParenthesis = 0;
-		while (tok.hasMoreTokens()) {
-			String nextToken = tok.nextToken();
-			if (openParenthesis > 0) {
-				nextToken = result.get(result.size() - 1) + "," + nextToken;
-				result.remove(result.size() - 1);
-			}
-			result.add(nextToken);
-			openParenthesis = 0;
-			int index = -1;
-			while ((index = nextToken.indexOf("(", index+1)) >= 0) {
-				openParenthesis++;
-			}
-			while ((index = nextToken.indexOf(")", index+1)) >= 0) {
-				openParenthesis--;
-			}
+        	for (PmmXmlElementConvertable el : misc.getElementSet()) {
+        		if (el instanceof MiscXml) {		
+        			MiscXml mx = (MiscXml) el;
+    				Integer paramID = getID("SonstigeParameter", "Beschreibung", mx.getDescription()); // Parameter Beschreibung
+    				if (paramID != null) {
+    					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
+    					try {
+    						ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
+    						ps.setInt(1, condId);
+    						ps.setInt(2, paramID);
+    						if (mx.getValue() == null || Double.isNaN(mx.getValue())) {
+    							ps.setNull(3, java.sql.Types.DOUBLE);
+    							ps.setNull(4, java.sql.Types.INTEGER);
+    							ps.setBoolean(5, true);
+    						}
+    						else {
+    							int did = insertDouble(mx.getValue());
+    							ps.setDouble(3, did);							
+    							Integer eid = getID("Einheiten", "Einheit", mx.getUnit());
+    							if (eid == null) {
+    								ps.setNull(4, java.sql.Types.INTEGER);
+    							} else {
+    								ps.setInt(4, eid);
+    							}
+    							ps.setBoolean(5, false);
+    						}
+    						ps.executeUpdate();
+    						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
+    					}
+    					catch (Exception e) {e.printStackTrace();}
+    				}
+    				else {
+    					//System.err.println("handleConditions, paramID not known:\t" + val + "\t" + after);
+    					result += "Insert of Misc failed:\t" + mx.getDescription() + "\n";
+    				}
+        		}
+        	}
 		}
 		return result;
 	}
@@ -1501,10 +1453,7 @@ public class Bfrdb extends Hsqldbiface {
 		String agentDetail = ts.getAgentDetail();
 		String matrixDetail = ts.getMatrixDetail();
 		String comment = ts.getComment();
-/*
-		String miscId = ts.getCommasepMiscId();
-		String misc = ts.getCommasepMisc();
-		*/
+		PmmXmlDoc misc = ts.getMisc();
 		Integer litID = ts.getInt(TimeSeriesSchema.ATT_LITIDTS);
 		String lit = ts.getString(TimeSeriesSchema.ATT_LITTS);
 
@@ -1517,7 +1466,7 @@ public class Bfrdb extends Hsqldbiface {
 		int awId = insertDouble( aw );
 
 		condId = insertCondition(condId, tempId, phId, awId, organism, environment, combaseId,
-				matrixId, agentId, agentDetail, matrixDetail, comment,
+				matrixId, agentId, agentDetail, matrixDetail, misc, comment,
 				litID, lit, ts);
 			
 		ts.setCondId(condId);
@@ -1538,28 +1487,7 @@ public class Bfrdb extends Hsqldbiface {
 		return condId;
 	}
 	
-	private HashMap<String, String> getVarParHashmap(List<String> varParMap) {
-		HashMap<String, String> result = null;
-		if (varParMap != null && varParMap.size() > 0) {
-			result = new HashMap<String, String>();
-			for (String map : varParMap) {
-				int index = map.indexOf("=");
-				if (index > 0) {
-					result.put(map.substring(0, index), map.substring(index + 1));
-				}
-			}
-		}
-		return result;
-	}
-	private String getVarPar(HashMap<String, String> hm, String varPar) {
-		String result;
-		if (hm == null || hm.get(varPar) == null) result = varPar;
-		else {
-			result = hm.get(varPar);
-		}
-		return result;
-	}
-	public Integer insertM(final ParametricModel m, List<String> varParMap) {		
+	public Integer insertM(final ParametricModel m) {		
 		int modelId = m.getModelId();
 		String modelName = m.getModelName();
 		int level = m.getLevel();
@@ -1568,13 +1496,6 @@ public class Bfrdb extends Hsqldbiface {
 		Collection<String> indepVar = m.getIndepVarSet();
 		Collection<String> paramNameSet = m.getParamNameSet();
 		
-		HashMap<String, String> hm = getVarParHashmap(varParMap);
-		if (hm != null) {
-			for (String oldVar : hm.keySet()) {
-				formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
-			}			
-		}
-
 		if (isObjectPresent("Modellkatalog", modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
@@ -1624,18 +1545,18 @@ public class Bfrdb extends Hsqldbiface {
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
 		// insert dependent variable
-		int paramId = insertParam(modelId, getVarPar(hm, depVar), PARAMTYPE_DEP, null, null);
+		int paramId = insertParam(modelId, depVar, PARAMTYPE_DEP, null, null);
 		paramIdSet.add(paramId);
 		
 		// insert independent variable set
 		for (String name : indepVar) {
-			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name));
+			paramId = insertParam(modelId, name, PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}
 		
 		// insert parameters
 		for (String name : paramNameSet) {			
-			paramId = insertParam(modelId, getVarPar(hm, name), PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
+			paramId = insertParam(modelId, name, PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}
 		

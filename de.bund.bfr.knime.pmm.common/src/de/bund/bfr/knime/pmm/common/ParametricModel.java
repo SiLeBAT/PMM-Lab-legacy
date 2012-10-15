@@ -372,12 +372,21 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public String getVarPar(String newDepVar) {
 		return varParMap.get(newDepVar);
 	}
+	public void setVarParMap(HashMap<String, String> newVarParMap) {
+		varParMap = newVarParMap;
+	}
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
 		indepVar.add( varName );
 		indepMin.put( varName, min );
 		indepMax.put( varName, max );
 	}
 	
+	public void removeParams() {
+		param.clear();
+	}
+	public void removeIndepVars() {
+		indepVar.clear();
+	}
 	public void removeEstModelLits() {
 		estLit.clear();
 	}

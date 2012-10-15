@@ -119,27 +119,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		Integer rowEstM2ID = null;
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
-		/*
-		HashMap<Integer, Integer> foreignDbTsIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMiscIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbAgentIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMatrixIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitTsIds = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMC1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbME1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitMC1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitME1Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbMC2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbME2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitMC2Ids = new HashMap<Integer, Integer>();
-		HashMap<Integer, Integer> foreignDbLitME2Ids = new HashMap<Integer, Integer>();
-		*/
     	String dbuuid = db.getDBUUID();
 		
-		List<Integer> primEstIDs = new ArrayList<Integer>();
-		ParametricModel ppm = null, spm, lastSpm = null;
-		List<String> lastVarParMap = null;
-		KnimeTuple lastRow = null;
+		HashMap<Integer, List<Integer>> primEstIDs = new HashMap<Integer, List<Integer>>();
+		ParametricModel ppm = null, spm;
 		
 		int j = 0;
 		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
@@ -161,11 +144,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				newTsID = ts.getCondId();
 			}
 			else {
-				// TimeSeriesSchema.ATT_MISCID, 
-				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_AGENTID,
+				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENTID,
 						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
-				// "Sonstiges", 
-				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Agenzien", "Matrices", "Literatur"};
+				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
 				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
 				newTsID = db.insertTs(ts);				
@@ -204,7 +185,11 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
 		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 		    		
-		    		// Modellkatalog
+		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
+		    		formula = res[0];
+		    		depVar = res[1];
+
+		    		// Modellkatalog primary
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
 						ppm = alreadyInsertedModel.get(rowMcID);
 					}
@@ -213,13 +198,12 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
 			    		doLit(ppm, litStr, litID, false);
-			    		doLit(ppm, litEMStr, litEMID, true);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-						db.insertM(ppm, varParMap);
+						db.insertM(ppm);
 						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						alreadyInsertedModel.put(rowMcID, ppm);
@@ -235,20 +219,19 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
 			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
-			    		doLit(ppm, litStr, litID, false);
 			    		doLit(ppm, litEMStr, litEMID, true);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-						newPrimEstID = db.insertEm(ppm, varParMap);
+						newPrimEstID = db.insertEm(ppm, getVarParHashmap(varParMap, true));
 						//System.err.println("Prim\t" + rowEstM1ID + "\t" + newPrimEstID);
 						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
 				    		//ppm.setEstModelId(newPrimEstID);
-				    		alreadyInsertedEModel.put(rowEstM1ID, ppm);
+				    		alreadyInsertedEModel.put(rowEstM1ID, ppm.clone());
 			    		}
 					}
 				}
@@ -286,61 +269,53 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
 				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
 				    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
-	
+				    		
+				    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
+				    		formula = res[0];
+				    		depVar = res[1];
+				    		
+				    		// Modellkatalog secondary
 							if (alreadyInsertedModel.containsKey(rowMcID)) {
 								spm = alreadyInsertedModel.get(rowMcID);
-					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
-					    		doLit(spm, litStr, litID, false);
-					    		doLit(spm, litEMStr, litEMID, true);
 							}
 							else {
 					    		spm = new ParametricModel( modelName, formula, depVar, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );				    		
 					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
 					    		doLit(spm, litStr, litID, false);
-					    		doLit(spm, litEMStr, litEMID, true);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
 								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-					    		db.insertM(spm, varParMap);
+					    		db.insertM(spm);
 								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								alreadyInsertedModel.put(rowMcID, spm);
 							}
-				    		spm.setRms(rms);
-				    		spm.setRsquared(r2);
 						
-				    		// ... vorher vielleicht sortieren nach IDs...
-							if (lastSpm != null && lastRow.getInt(Model2Schema.ATT_ESTMODELID) - rowEstM2ID != 0) {
-								// depVar and formula may have changed within workflow
-								spm.setDepVar(depVar);
-								spm.setFormula(formula);
-								int lastEstM2ID = lastRow.getInt(Model2Schema.ATT_ESTMODELID);
-								if (!alreadyInsertedEModel.containsKey(lastEstM2ID)) {
-
-						    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
-									String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
-
-									checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
-									Integer newSecEstID = db.insertEm(lastSpm, lastVarParMap);
-									//System.err.println("Sec1\t" + lastEstM2ID + "\t" + newSecEstID);
-									checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
-									if (newSecEstID != null) {
-										//spm.setEstModelId(newSecID);
-							    		alreadyInsertedEModel.put(lastEstM2ID, lastSpm);
-										db.insertEm2(newSecEstID, primEstIDs);
-										primEstIDs = new ArrayList<Integer>();												
-									}
-								}
+							if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
+								spm = alreadyInsertedEModel.get(rowEstM2ID);
 							}
-							primEstIDs.add(newPrimEstID);
-							lastSpm = spm.clone();
-							lastVarParMap = varParMap;
-							lastRow = row;
+							else {
+					    		spm.setRms(rms);
+					    		spm.setRsquared(r2);
+					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
+					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
+					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
+					    		doLit(spm, litEMStr, litEMID, true);
+
+					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
+								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
+
+								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								db.insertEm(spm, getVarParHashmap(varParMap, true));
+								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
+							}
+
+							if (!primEstIDs.containsKey(spm.getEstModelId())) primEstIDs.put(spm.getEstModelId(), new ArrayList<Integer>());
+							primEstIDs.get(spm.getEstModelId()).add(newPrimEstID);
 						}
 		    		}
 					else {
@@ -354,20 +329,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				}
 			}
 		}
-		if (model2Conform && lastSpm != null) {
+		if (model2Conform) {
 			if (M2Writable) {
-				if (!alreadyInsertedEModel.containsKey(lastSpm.getEstModelId())) { // lastSpm.getEstModelId() rowEstM2ID
-					String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
-					String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
-
-					checkIDs(true, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
-					Integer newSecEstID = db.insertEm(lastSpm, lastVarParMap);
-					//System.err.println("Sec2\t" + rowEstM2ID + "\t" + newSecEstID);
-					checkIDs(false, dbuuid, lastRow, lastSpm, foreignDbIds, attrs, dbTablenames, lastRow.getString(Model2Schema.ATT_DBUUID));
-
-					if (newSecEstID != null) {
-						db.insertEm2(newSecEstID, primEstIDs);						
-					}
+				for (Integer estModelId : primEstIDs.keySet()) {
+					db.insertEm2(estModelId, primEstIDs.get(estModelId));
 				}
 			}
 			else {
@@ -382,6 +347,47 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
+    private String[] setVPM(String formula, String depVar, List<String> indepVar, List<String> paramName, List<String> varParMap) {
+    	String[] result = new String[2];
+		// VarParMap setzen
+		HashMap<String, String> hm = getVarParHashmap(varParMap, false);
+		if (hm != null) {
+			for (String oldVar : hm.keySet()) {
+				formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+			}			
+		}
+    	result[0] = formula;
+    	result[1] = getVarPar(hm, depVar);
+		for (int i=0;i<indepVar.size();i++) {
+			indepVar.set(i, getVarPar(hm, indepVar.get(i)));
+		}
+		for (int i=0;i<paramName.size();i++) {
+			paramName.set(i, getVarPar(hm, paramName.get(i)));
+		}  
+		return result;
+    }
+	private HashMap<String, String> getVarParHashmap(List<String> varParMap, boolean invers) {
+		HashMap<String, String> result = null;
+		if (varParMap != null && varParMap.size() > 0) {
+			result = new HashMap<String, String>();
+			for (String map : varParMap) {
+				int index = map.indexOf("=");
+				if (index > 0) {
+					if (invers) result.put(map.substring(index + 1), map.substring(0, index));
+					else result.put(map.substring(0, index), map.substring(index + 1));
+				}
+			}
+		}
+		return result;
+	}
+	private String getVarPar(HashMap<String, String> hm, String varPar) {
+		String result;
+		if (hm == null || hm.get(varPar) == null) result = varPar;
+		else {
+			result = hm.get(varPar);
+		}
+		return result;
+	}
     private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -460,8 +466,33 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     }
     private void setIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, KnimeTuple schemaTuple) throws PmmException {
     	int type = schemaTuple.getSchema().getType(row.getIndex(attr));
-    	if (type == KnimeAttribute.TYPE_COMMASEP_INT || type == KnimeAttribute.TYPE_COMMASEP_DOUBLE
-    			|| type == KnimeAttribute.TYPE_COMMASEP_STRING || type == KnimeAttribute.TYPE_MAP) { // hasList
+    	if (type == KnimeAttribute.TYPE_XML) {
+    		// still todo
+    		/*
+    		PmmXmlDoc rowDoc = row.getPmmXml(attr);
+    		PmmXmlDoc schemaDoc = schemaTuple.getPmmXml(attr);
+    		PmmXmlDoc newDoc = new PmmXmlDoc();
+        	for (PmmXmlElementConvertable el : rowDoc.getElementSet()) {
+        		if (el instanceof MiscXml) {		
+        			MiscXml rowMX = (MiscXml) el;
+            		if (foreignDbIds.containsKey(rowMX.getID())) {
+            			if (before) schemaTuple.addValue(attr, foreignDbIds.get(key));
+            			else if (foreignDbIds.get(key) != schemaTuple.getIntList(attr).get(i)) {
+            				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+            			}
+            		}
+            		else {
+            			if (before) foreignDbIds.put(rowMX.getID(), MathUtilities.getRandomNegativeInt());
+            			else foreignDbIds.put(rowMX.getID(), schemaDoc);
+            		}
+        			newDoc.add(mx);
+        		}
+        	}
+        	row.setValue(attr, newDoc);
+        	*/
+    	}
+    	else if (type == KnimeAttribute.TYPE_COMMASEP_INT || type == KnimeAttribute.TYPE_COMMASEP_DOUBLE ||
+    			type == KnimeAttribute.TYPE_COMMASEP_STRING || type == KnimeAttribute.TYPE_MAP) { // hasList
     		List<Integer> keys = row.getIntList(attr);
     		if (keys != null) {
         		int i=0;

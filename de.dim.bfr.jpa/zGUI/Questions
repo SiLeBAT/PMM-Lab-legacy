@@ -537,8 +537,8 @@ Done, aber bitte checken: 5, 6, 7, 13, 170
 - Agens- und Matrix-Detail in AGENZEIN_MATRICES 
 
 Misc-Open (12.10.2012 -> MiscXml created):
-- TimeSeriesReaderNodeModel: tuple.setCommasepMisc( result.getString( Bfrdb.ATT_MISC ) );
-- TimeSeriesWriterNodeModel.java
-- EstimatedModelWriterNodeModel.java
+- TimeSeriesReaderNodeModel: tuple.setCommasepMisc(result.getString(Bfrdb.ATT_MISC));
 - EstimatedModelReaderNodeModel.java
-- Bfrdb.java
+
+- IDs und "Name" von Misc muss noch korrekt in die DB geschrieben werden inkl. checkIDs
+- Welcher "Name" soll für misc vergeben werden?

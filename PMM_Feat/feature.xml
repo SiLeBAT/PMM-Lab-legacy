@@ -204,4 +204,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          install-size="0"
          version="0.0.0"/>
 
+   <plugin
+         id="de.bund.bfr.knime.pmm.xml2table"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
 </feature>

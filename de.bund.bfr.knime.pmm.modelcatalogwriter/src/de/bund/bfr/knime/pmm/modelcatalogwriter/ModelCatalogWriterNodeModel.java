@@ -142,6 +142,10 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 
+		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
+		    		formula = res[0];
+		    		depVar = res[1];
+
 		    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 1, rowMcID );
 		    		
 		    		doMinMax(pm, paramName, minVal, maxVal, false);
@@ -153,7 +157,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 					
 					checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-					db.insertM(pm, varParMap);
+					db.insertM(pm);
 					checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 				}
 			}
@@ -178,6 +182,10 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		
 			    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);		
 
+			    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
+			    		formula = res[0];
+			    		depVar = res[1];
+
 			    		ParametricModel pm = new ParametricModel(modelName, formula, depVar, 2, rowMcID);
 			    		
 			    		doMinMax(pm, paramName, minVal, maxVal, false);
@@ -189,7 +197,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
 						checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-			    		db.insertM(pm, varParMap);
+			    		db.insertM(pm);
 						checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 		    		}
 	    		}
@@ -199,6 +207,46 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
+    private String[] setVPM(String formula, String depVar, List<String> indepVar, List<String> paramName, List<String> varParMap) {
+    	String[] result = new String[2];
+		// VarParMap setzen
+		HashMap<String, String> hm = getVarParHashmap(varParMap);
+		if (hm != null) {
+			for (String oldVar : hm.keySet()) {
+				formula = MathUtilities.replaceVariable(formula, oldVar, hm.get(oldVar));
+			}			
+		}
+    	result[0] = formula;
+    	result[1] = getVarPar(hm, depVar);
+		for (int i=0;i<indepVar.size();i++) {
+			indepVar.set(i, getVarPar(hm, indepVar.get(i)));
+		}
+		for (int i=0;i<paramName.size();i++) {
+			paramName.set(i, getVarPar(hm, paramName.get(i)));
+		}  
+		return result;
+    }
+	private HashMap<String, String> getVarParHashmap(List<String> varParMap) {
+		HashMap<String, String> result = null;
+		if (varParMap != null && varParMap.size() > 0) {
+			result = new HashMap<String, String>();
+			for (String map : varParMap) {
+				int index = map.indexOf("=");
+				if (index > 0) {
+					result.put(map.substring(0, index), map.substring(index + 1));
+				}
+			}
+		}
+		return result;
+	}
+	private String getVarPar(HashMap<String, String> hm, String varPar) {
+		String result;
+		if (hm == null || hm.get(varPar) == null) result = varPar;
+		else {
+			result = hm.get(varPar);
+		}
+		return result;
+	}
     private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {

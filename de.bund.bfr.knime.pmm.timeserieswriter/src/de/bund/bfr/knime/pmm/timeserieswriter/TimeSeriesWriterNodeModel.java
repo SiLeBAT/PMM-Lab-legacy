@@ -124,11 +124,9 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				ts = alreadyInsertedTs.get(rowTsID);
 			}
 			else {
-				// TimeSeriesSchema.ATT_MISCID, 
-				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_AGENTID,
+				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENTID,
 						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
-				// "Sonstiges", 
-				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Agenzien", "Matrices", "Literatur"};
+				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
 				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
 				db.insertTs(ts);				
@@ -162,7 +160,10 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     }
     private void setIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds, KnimeTuple row, KnimeTuple schemaTuple) throws PmmException {
     	int type = schemaTuple.getSchema().getType(row.getIndex(attr));
-    	if (type == KnimeAttribute.TYPE_COMMASEP_INT || type == KnimeAttribute.TYPE_COMMASEP_DOUBLE
+    	if (type == KnimeAttribute.TYPE_XML) {
+    		// still todo
+    	}
+    	else if (type == KnimeAttribute.TYPE_COMMASEP_INT || type == KnimeAttribute.TYPE_COMMASEP_DOUBLE
     			|| type == KnimeAttribute.TYPE_COMMASEP_STRING || type == KnimeAttribute.TYPE_MAP) { // hasList
     		List<Integer> keys = row.getIntList(attr);
     		if (keys != null) {

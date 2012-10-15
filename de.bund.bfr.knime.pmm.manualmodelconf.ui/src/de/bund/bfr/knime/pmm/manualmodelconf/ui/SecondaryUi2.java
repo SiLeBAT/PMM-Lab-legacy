@@ -48,6 +48,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -845,7 +846,7 @@ public class SecondaryUi2 extends JDialog implements KeyListener, ActionListener
 	public void setModel( final ParametricModel model ) {
 		
 		int depIndex;
-		LinkedList<String> indepVarSet;
+		SortedSet<String> indepVarSet;
 		
 		String depVar = model.getDepVar();
 				

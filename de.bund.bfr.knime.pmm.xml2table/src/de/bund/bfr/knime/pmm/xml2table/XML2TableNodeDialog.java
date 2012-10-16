@@ -8,6 +8,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelColumnName;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilter;
 
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+
 /**
  * <code>NodeDialog</code> for the "XML2Table" Node.
  * 
@@ -30,7 +32,7 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane {
         super();
         
         addDialogComponent(new DialogComponentColumnNameSelection(
-        	    new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "xml"),
+        	    new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, TimeSeriesSchema.ATT_MISC),
         	    "Select a column",
         	    0,
         	    true,

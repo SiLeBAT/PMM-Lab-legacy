@@ -229,8 +229,11 @@ public class ParameterOptimizer {
 
 			try {
 				optimize(startValues, 10000);
-				successful = true;
-				break;
+
+				if (rSquare != 0.0) {
+					successful = true;
+					break;
+				}
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
@@ -516,7 +519,7 @@ public class ParameterOptimizer {
 
 					for (int j = 0; j < derivatives.size(); j++) {
 						retValue[i][j] = evalWithSingularityCheck(
-								derivatives.get(j), argValues, paramValues);						
+								derivatives.get(j), argValues, paramValues);
 					}
 
 					// for (int j = 0; j < arguments.size(); j++) {

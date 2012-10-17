@@ -211,6 +211,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( Model1Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID ) );
     		tuple.setValue( Model1Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS ) );
     		tuple.setValue( Model1Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED ) );
+    		tuple.setValue(Model1Schema.ATT_AIC, result.getString("AIC"));
+    		tuple.setValue(Model1Schema.ATT_BIC, result.getString("BIC"));
     		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN ) ) );
     		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX ) ) );
     		tuple.setValue( Model1Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP ) ) );
@@ -289,6 +291,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED+"2" ) );
+	    		tuple.setValue(Model2Schema.ATT_AIC, result.getString("AIC2"));
+	    		tuple.setValue(Model2Schema.ATT_BIC, result.getString("BIC2"));
 	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP+"2" ) ) );

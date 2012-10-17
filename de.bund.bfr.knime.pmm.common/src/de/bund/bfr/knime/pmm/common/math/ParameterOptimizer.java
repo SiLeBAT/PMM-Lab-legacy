@@ -134,11 +134,21 @@ public class ParameterOptimizer {
 					paramStepSize.add(1.0);
 				}
 			} else if (min != null) {
-				paramMin.add(min);
+				if (min != 0.0) {
+					paramMin.add(min);
+				} else {
+					paramMin.add(MathUtilities.EPSILON);
+				}
+
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			} else if (max != null) {
-				paramMin.add(max);
+				if (max != 0.0) {
+					paramMin.add(max);
+				} else {
+					paramMin.add(-MathUtilities.EPSILON);
+				}
+
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			} else {

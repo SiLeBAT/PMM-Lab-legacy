@@ -8,11 +8,11 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>The XLS Microbial Data Reader loads laboratory test data from a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).</intro>
+        <intro>The XLS Microbial Data Reader loads laboratory test data from a Microsoft Excel file, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).</intro>
         
         
-        <option name="Load XLS File">Load data from an XLS file. Column headers should be "ID", "AgentName", "MatrixName", "Comment", "Temperature", "pH", "aw", "Time" and "LogC"</option>
-        <option name="Units">Choose units for time (seconds to weeks), concentration (log10 cell count, ln cell count or cell count) and temperature (°C or °F). The values will automatically be converted to the units used internally by PMM-Lab (time [h]; conc [log10 cfu/g]; Temperature [°C]).</option>
+        <option name="Load XLS File">Load data from an XLS file. The <b>column order</b> in the file should be "ID", "AgentName", "MatrixName", "Comment", "Temperature", "pH", "aw", "Time" and "LogC"</option>
+        <option name="Units">Choose units for time (seconds to weeks), concentration (log10 cell count, ln cell count or cell count) and temperature (°C or °F). The <b>values will automatically be converted</b> to the units used internally by PMM-Lab: Time [h], conc [log10 cfu/g], temperature [°C].</option>
     </fullDescription>
     
     <ports>

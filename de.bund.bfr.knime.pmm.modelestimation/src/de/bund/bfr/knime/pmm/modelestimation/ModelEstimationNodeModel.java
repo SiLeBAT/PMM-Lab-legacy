@@ -424,8 +424,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 					rSquared = null;
 					aic = null;
 					bic = null;
-					minValues = null;
-					maxValues = null;
+					minValues = Collections.nCopies(arguments.size(), null);
+					maxValues = Collections.nCopies(arguments.size(), null);
 				}
 
 				paramValueMap.put(id, parameterValues);

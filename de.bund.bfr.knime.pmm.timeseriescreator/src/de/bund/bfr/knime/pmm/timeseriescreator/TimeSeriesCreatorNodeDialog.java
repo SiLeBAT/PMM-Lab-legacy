@@ -148,9 +148,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		leftPanel1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		leftPanel1.setLayout(new GridLayout(6, 1, 5, 5));
 		leftPanel1.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_AGENTDETAIL) + ":"));
+				.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"));
 		leftPanel1.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_MATRIXDETAIL) + ":"));
+				.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"));
 		leftPanel1.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
 		leftPanel1.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));

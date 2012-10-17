@@ -8,7 +8,7 @@
     <fullDescription>
         <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to recorded microbial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
         <option name="Enforce Limits">Force model fitting within the given parameter limits (min/max). If not checked the fitting may also use parameter values lower than min or higher than max.</option>
-        <option name="Use One Step Method">Fits data to an omnibus model / to a combined formula of one primary and one or more secondary formulas</option>
+        <option name="Use One Step Method">Fits data to an omnibus model / to a combined formula of one primary and one or more secondary formulas.</option>
     </fullDescription>
     
     <ports>

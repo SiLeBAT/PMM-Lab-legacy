@@ -4,11 +4,11 @@
     <name>Microbial Data Creator</name>
     
     <shortDescription>
-        
+        Define a new set of microbial data with assay condition (for primary estimation) or simply create time steps (for predictions)
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Define a new set of microbial data with assay conditions (for primary estimation) or simply create time steps (for predictions).</intro>
         
         
         <option name="short name of first option (like in the dialog)">description of first option</option>

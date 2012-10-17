@@ -124,9 +124,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 					&& dataSchema.conforms(input[1].getSpec())) {
 				joiner = new PrimaryJoiner(input[0], input[1],
 						joinSameConditions == 1);
-			} else if (model2Schema.conforms(input[0].getSpec())
-					&& model1Schema.conforms(input[1].getSpec())) {
-				joiner = new ModelJoiner(input[0], input[1]);
 			}
 		} catch (PmmException e) {
 			e.printStackTrace();

@@ -142,6 +142,10 @@ public class ModelCombiner {
 						.getStringList(Model2Schema.ATT_PARAMNAME);
 				List<Double> valuesSec = tuple
 						.getDoubleList(Model2Schema.ATT_VALUE);
+				List<Double> minValuesSec = tuple
+						.getDoubleList(Model2Schema.ATT_MINVALUE);
+				List<Double> maxValuesSec = tuple
+						.getDoubleList(Model2Schema.ATT_MAXVALUE);
 
 				for (int i = 0; i < keysSec.size(); i++) {
 					int index = 1;
@@ -168,17 +172,27 @@ public class ModelCombiner {
 				Set<String> newIndepVars = new LinkedHashSet<String>();
 				List<String> newKeys = new ArrayList<String>();
 				List<Double> newValues = new ArrayList<Double>();
+				List<Double> newMinValues = new ArrayList<Double>();
+				List<Double> newMaxValues = new ArrayList<Double>();
 
 				newIndepVars.addAll(newTuple
 						.getStringList(Model1Schema.ATT_INDEPVAR));
 				newIndepVars.addAll(indepVarsSec);
 				newValues
 						.addAll(newTuple.getDoubleList(Model1Schema.ATT_VALUE));
+				newMinValues.addAll(newTuple
+						.getDoubleList(Model1Schema.ATT_MINVALUE));
+				newMaxValues.addAll(newTuple
+						.getDoubleList(Model1Schema.ATT_MAXVALUE));
 				newKeys.addAll(newTuple
 						.getStringList(Model1Schema.ATT_PARAMNAME));
 				newValues.remove(newKeys.indexOf(depVarSec));
+				newMinValues.remove(newKeys.indexOf(depVarSec));
+				newMaxValues.remove(newKeys.indexOf(depVarSec));
 				newKeys.remove(depVarSec);
 				newValues.addAll(valuesSec);
+				newMinValues.addAll(maxValuesSec);
+				newMaxValues.addAll(minValuesSec);
 				newKeys.addAll(keysSec);
 
 				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
@@ -186,6 +200,8 @@ public class ModelCombiner {
 						new ArrayList<String>(newIndepVars));
 				newTuple.setValue(Model1Schema.ATT_PARAMNAME, newKeys);
 				newTuple.setValue(Model1Schema.ATT_VALUE, newValues);
+				newTuple.setValue(Model1Schema.ATT_MINVALUE, newMinValues);
+				newTuple.setValue(Model1Schema.ATT_MAXVALUE, newMaxValues);
 			}
 
 			int modelCount = usedTuples.size() + 1;
@@ -227,10 +243,6 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_RMS, null);
 			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
 			newTuple.setValue(Model1Schema.ATT_PARAMERR,
-					Collections.nCopies(paramCount, null));
-			newTuple.setValue(Model1Schema.ATT_MINVALUE,
-					Collections.nCopies(paramCount, null));
-			newTuple.setValue(Model1Schema.ATT_MAXVALUE,
 					Collections.nCopies(paramCount, null));
 			newTuple.setValue(Model1Schema.ATT_MININDEP,
 					Collections.nCopies(indepCount, null));

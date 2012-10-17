@@ -35,7 +35,7 @@ package de.bund.bfr.knime.pmm.modelanddatajoiner;
 
 import java.util.List;
 
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -46,7 +46,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 
 public interface Joiner {
 
-	public JPanel createPanel(List<String> assignments);
+	public JComponent createPanel(List<String> assignments);
 
 	public List<String> getAssignments();
 

@@ -49,6 +49,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -109,7 +110,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		readDataTable();
 	}
 
-	public JPanel createPanel(List<String> assignments) {
+	@Override
+	public JComponent createPanel(List<String> assignments) {
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
 
@@ -212,12 +214,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		panel.add(topPanel, BorderLayout.NORTH);
 		checkIfInputIsValid();
 
-		JPanel scrollPanel = new JPanel();
-
-		scrollPanel.setLayout(new BorderLayout());
-		scrollPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
-
-		return scrollPanel;
+		return new JScrollPane(panel);
 	}
 
 	public List<String> getAssignments() {

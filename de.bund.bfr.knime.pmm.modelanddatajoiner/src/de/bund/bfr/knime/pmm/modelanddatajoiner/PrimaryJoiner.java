@@ -47,6 +47,7 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -103,7 +104,8 @@ public class PrimaryJoiner implements Joiner {
 		getVariables();
 	}
 
-	public JPanel createPanel(List<String> assignments) {
+	@Override
+	public JComponent createPanel(List<String> assignments) {
 		JPanel panel = new JPanel();
 		JPanel parameterPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
@@ -147,6 +149,7 @@ public class PrimaryJoiner implements Joiner {
 		return panel;
 	}
 
+	@Override
 	public List<String> getAssignments() {
 		Map<String, String> replacements = getReplacementsFromFrame();
 		List<String> assignments = new ArrayList<String>();
@@ -158,6 +161,7 @@ public class PrimaryJoiner implements Joiner {
 		return assignments;
 	}
 
+	@Override
 	public BufferedDataTable getOutputTable(List<String> assignments,
 			ExecutionContext exec) throws InvalidSettingsException,
 			CanceledExecutionException, PmmException, InterruptedException {
@@ -282,6 +286,7 @@ public class PrimaryJoiner implements Joiner {
 		return container.getTable();
 	}
 
+	@Override
 	public boolean isValid() {
 		return true;
 	}

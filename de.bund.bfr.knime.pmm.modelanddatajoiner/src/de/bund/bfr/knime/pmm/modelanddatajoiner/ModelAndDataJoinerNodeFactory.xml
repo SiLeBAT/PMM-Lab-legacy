@@ -3,10 +3,10 @@
 <knimeNode icon="./ModelAndDataJoiner.png" type="Manipulator">
     <name>PMM Joiner</name>
     
-    <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (LogC) to parameter names of the model formulas in preparation for a model estimation or a forecast.</shortDescription>
+    <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (Log10C) to parameter names of the model formulas in preparation for a model estimation or a forecast.</shortDescription>
     
     <fullDescription>
-        <intro>Joins models and data in one table so that every microbial data set is assigned to all models. Furthermore, the node assigns time and bacterial concentration (LogC) to parameter names of the model formulas. Data could be time series of bacterial concentrations from laboratory experiments, needed for a primary estimation. Data could also mean specific time intervals and conditions like temperature, pH and/or water activity in preparation for a forecast.</intro>
+        <intro>Joins models and data in one table so that every microbial data set is assigned to all models. Furthermore, the node assigns time and bacterial concentration (Log10C) to parameter names of the model formulas. Data could be time series of bacterial concentrations from laboratory experiments, needed for a primary estimation. Data could also mean specific time intervals and conditions like temperature, pH and/or water activity in preparation for a forecast.</intro>
         
         
         <option name="Assign model parameters">Configure this node to assign log10 cell counts, time, pH, temperature and/or aw to every model parameter (number of parameters to assign depend on the type and number of models loaded before). For example, if a formula contains the parameter "t" you can choose from the dropdown menu that this represents "time".</option>     

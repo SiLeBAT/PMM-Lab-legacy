@@ -172,7 +172,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	else if (rowSec.size() == 1) {
             	//KnimeTuple emptyTupleM1 = new KnimeTuple(new Model1Schema());
             	//buf.addRowToTable(new DefaultRow(String.valueOf(0), KnimeTuple.merge(ks, emptyTupleM1, rowSec.get(0))));    		
-            	buf.addRowToTable(new DefaultRow(String.valueOf(0), KnimeTuple.merge(ks, tstuple, rowSec.get(0))));    		
+            	buf.addRowToTable(new DefaultRow(String.valueOf(0), rowSec.get(0)));    		
         	}
         	else {
             	buf.addRowToTable(new DefaultRow(String.valueOf(0), tstuple));    		
@@ -241,7 +241,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
 	    	}	
 	    	else if (hs) {
-	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model2Schema());
+	    		ks = new Model2Schema();
 	    	}	
 	    	else {
 	    		ks = new TimeSeriesSchema();

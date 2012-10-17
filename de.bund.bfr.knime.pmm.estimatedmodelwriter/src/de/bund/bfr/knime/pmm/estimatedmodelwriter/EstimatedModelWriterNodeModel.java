@@ -183,6 +183,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
 		    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
+		    		Double aic = row.getDouble(Model1Schema.ATT_AIC);
+		    		Double bic = row.getDouble(Model1Schema.ATT_BIC);
 		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 		    		
 		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
@@ -210,6 +212,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 		    		ppm.setRms(rms == null ? Double.NaN : rms);
 		    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
+		    		ppm.setAic(aic == null ? Double.NaN : aic);
+		    		ppm.setBic(bic == null ? Double.NaN : bic);
     		
 					ppm.setCondId(newTsID);
 					if (alreadyInsertedEModel.containsKey(rowEstM1ID)) {
@@ -268,6 +272,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		List<Double> paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
 				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
 				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
+				    		Double aic = row.getDouble(Model2Schema.ATT_AIC);
+				    		Double bic = row.getDouble(Model2Schema.ATT_BIC);
 				    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
 				    		
 				    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
@@ -300,6 +306,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							else {
 					    		spm.setRms(rms);
 					    		spm.setRsquared(r2);
+					    		spm.setAic(aic);
+					    		spm.setBic(bic);
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
 					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
 					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);

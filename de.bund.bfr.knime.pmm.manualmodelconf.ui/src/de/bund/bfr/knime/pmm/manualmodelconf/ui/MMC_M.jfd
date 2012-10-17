@@ -18,6 +18,13 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridWidth": 19
 			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label7"
+				"text": "Model type:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 3
+			} )
 			add( new FormComponent( "javax.swing.JRadioButton" ) {
 				name: "radioButton1"
 				"text": "primary"
@@ -121,6 +128,13 @@ new FormModel {
 				"gridX": 3
 				"gridY": 11
 				"gridWidth": 17
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label8"
+				"text": "Goodness of fit:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 13
+				"gridHeight": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label3"

@@ -575,6 +575,7 @@ public class MMC_M extends JPanel {
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
+		label7 = new JLabel();
 		radioButton1 = new JRadioButton();
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
@@ -588,6 +589,7 @@ public class MMC_M extends JPanel {
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
+		label8 = new JLabel();
 		label3 = new JLabel();
 		r2Field = new DoubleTextField(true);
 		label4 = new JLabel();
@@ -612,6 +614,10 @@ public class MMC_M extends JPanel {
 		depVarLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		depVarLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		add(depVarLabel, CC.xywh(1, 1, 19, 1));
+
+		//---- label7 ----
+		label7.setText("Model type:");
+		add(label7, CC.xy(1, 3));
 
 		//---- radioButton1 ----
 		radioButton1.setText("primary");
@@ -718,6 +724,10 @@ public class MMC_M extends JPanel {
 		}
 		add(scrollPane1, CC.xywh(3, 11, 17, 1));
 
+		//---- label8 ----
+		label8.setText("Goodness of fit:");
+		add(label8, CC.xywh(1, 13, 1, 3));
+
 		//---- label3 ----
 		label3.setText("R\u00b2:");
 		label3.setHorizontalAlignment(SwingConstants.CENTER);
@@ -818,6 +828,7 @@ public class MMC_M extends JPanel {
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JLabel depVarLabel;
+	private JLabel label7;
 	private JRadioButton radioButton1;
 	private JRadioButton radioButton2;
 	private JRadioButton radioButton3;
@@ -831,6 +842,7 @@ public class MMC_M extends JPanel {
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;
+	private JLabel label8;
 	private JLabel label3;
 	private DoubleTextField r2Field;
 	private JLabel label4;

@@ -2536,20 +2536,20 @@ public class Login extends JFrame {
 		myList.addTable(Modell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		
 		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Versuchsbedingung","Modell",
-				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","Score",
+				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","BIC","Score",
 				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML"},
-				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
+				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
 				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)"},
-				new String[]{null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,"subjektiver Score zur Bewertung der Schätzung",
+				new String[]{null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schätzung",
 				"Referenzen, aus denen diese Modellschätzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschätzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschätzten Parameter","Gültigkeitsbereiche für Sekundärmodelle",null},
-				new MyTable[]{tenazity_raw_data,Modellkatalog,ModellkatalogParameter,null,null,null,null,null,null,
+				new MyTable[]{tenazity_raw_data,Modellkatalog,ModellkatalogParameter,null,null,null,null,null,null,null,
 				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,
 				null,null,null,null,null},
-				new String[] {null,null,null,null,null,null,null,null,null,
+				new String[] {null,null,null,null,null,null,null,null,null,null,
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null},
-				new String[] {null,null,null,"default FALSE",null,null,null,null,null,
+				new String[] {null,null,null,"default FALSE",null,null,null,null,null,null,
 				null,null,null,null,null});
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});

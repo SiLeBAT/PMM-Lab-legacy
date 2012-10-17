@@ -149,6 +149,8 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \""+REL_ESTMODEL+"\".\"ID\" AS \""+ATT_ESTMODELID+"\",\n"
 		+"    \"RMS\",\n"
 		+"    \""+ATT_RSQUARED+"\",\n"
+		+"    \"AIC\",\n"
+		+"    \"BIC\",\n"
 		+"    \""+ATT_MIN+"\",\n"
 		+"    \""+ATT_MAX+"\",\n"
 		+"    \""+ATT_MININDEP+"\",\n"
@@ -325,6 +327,8 @@ public class Bfrdb extends Hsqldbiface {
 		+"    \""+REL_ESTMODEL+"\".\"ID\" AS \""+ATT_ESTMODELID+"2\",\n"
 		+"    \"RMS\" AS \"RMS2\",\n"
 		+"    \""+ATT_RSQUARED+"\" AS \""+ATT_RSQUARED+"2\",\n"
+		+"    \"AIC\" AS \"AIC2\",\n"
+		+"    \"BIC\" AS \"BIC2\",\n"
 		+"    \""+ATT_MIN+"\" AS \""+ATT_MIN+"2\",\n"
 		+"    \""+ATT_MAX+"\" AS \""+ATT_MAX+"2\",\n"
 		+"    \""+ATT_MININDEP+"\" AS \""+ATT_MININDEP+"2\",\n"
@@ -1087,9 +1091,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-				updateEstModel(estModelId, condId, modelId, rms, r2, responseId);
+				updateEstModel(estModelId, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
 			} else {
-				estModelId = insertEstModel(condId, modelId, rms, r2, responseId);
+				estModelId = insertEstModel(condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
 				pm.setEstModelId(estModelId);
 			}
 			
@@ -1814,10 +1818,10 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private void updateEstModel( final int estModelId, final int condId, final int modelId,
-		final double rms, final double rsquared, final int responseId ) {
+		final double rms, final double rsquared, final double aic, final double bic, final int responseId ) {
 		try {
 			
-			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"Response\"=? WHERE \"ID\"=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=? WHERE \"ID\"=?");
 			if (condId > 0) {
 				ps.setInt(1, condId);
 			} else {
@@ -1834,12 +1838,22 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble(4, rsquared);
 			}
-			if( responseId > 0 ) {
-				ps.setInt(5, responseId);
+			if (Double.isNaN(aic)) {
+				ps.setNull(5, Types.DOUBLE);
 			} else {
-				ps.setNull(5, Types.INTEGER);
+				ps.setDouble(5, aic);
 			}
-			ps.setInt(6, estModelId);
+			if (Double.isNaN(bic)) {
+				ps.setNull(6, Types.DOUBLE);
+			} else {
+				ps.setDouble(6, bic);
+			}
+			if( responseId > 0 ) {
+				ps.setInt(7, responseId);
+			} else {
+				ps.setNull(7, Types.INTEGER);
+			}
+			ps.setInt(8, estModelId);
 			
 			ps.executeUpdate();
 			ps.close();
@@ -1848,11 +1862,11 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private int insertEstModel( final int condId, final int modelId, final double rms,
-		final double rsquared, final int responseId ) {		
+		final double rsquared, final double aic, final double bic, final int responseId ) {		
 		int ret = -1;
 		try {
 			
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" ( \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"Response\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" ( \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
 			if( condId > 0 ) {
 				ps.setInt( 1, condId );
 			} else {
@@ -1869,10 +1883,20 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble( 4, rsquared );
 			}
-			if( responseId > 0 ) {
-				ps.setInt( 5, responseId );
+			if (Double.isNaN(aic)) {
+				ps.setNull(5, Types.DOUBLE);
 			} else {
-				ps.setNull( 5, Types.INTEGER );
+				ps.setDouble(5, aic);
+			}
+			if (Double.isNaN(bic)) {
+				ps.setNull(6, Types.DOUBLE);
+			} else {
+				ps.setDouble(6, bic);
+			}
+			if( responseId > 0 ) {
+				ps.setInt( 7, responseId );
+			} else {
+				ps.setNull( 7, Types.INTEGER );
 			}
 
 			ps.executeUpdate();

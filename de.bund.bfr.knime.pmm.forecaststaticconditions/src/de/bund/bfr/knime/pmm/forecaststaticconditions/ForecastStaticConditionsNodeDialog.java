@@ -63,7 +63,6 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
@@ -98,8 +97,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		addTab("Options", panel);
 
 		try {
-			schema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
+			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}

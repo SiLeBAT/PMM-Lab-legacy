@@ -7,7 +7,7 @@
     
     <fullDescription>
         <intro>
-          The Model Formula Reader loads primary or secondary models. This can either be the internal database or any HSQL database with the appropriate data structure.
+          Loads primary or secondary models. This can either be the internal database or any HSQL database with the appropriate data structure.
         </intro>
         
         

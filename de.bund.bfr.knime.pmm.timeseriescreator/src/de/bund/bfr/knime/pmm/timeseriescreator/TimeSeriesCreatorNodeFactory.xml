@@ -8,17 +8,19 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Define a new set of microbial data with assay conditions (for primary estimation) or simply create time steps (for predictions).</intro>
+        <intro>Define a new set of microbial data with assay conditions (for primary estimations) or simply create time steps (for predictions). There are three ways to enter your own laboratory data: Time series and concentrations can be copied and pasted, they can be imported via an XLS file or entered manually. In the latter case and for predictions the setting of equidistant time steps accelerates entering a time series.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Experimental conditions">Enter details about the experimental conditions leading to the data. Define units for time (seconds to weeks), microbial concentrations (log10 cell count, ln cell count or cell count) and temperature (°C or °F). The <b>values will automatically be converted</b> to the units used internally by PMM-Lab: Time [h], conc [log10 cfu/g], temperature [°C].</option>
+        <option name="Time and Concentration">There are <b>four ways</b> to enter microbial data:<br></br><br></br>
+        	1) <b>Type</b> time and concentration <b>manually</b>. To navigate use Tab and Enter or the arrow keys.<br></br><br></br>
+        	2) If the time steps always have the same step size the button <b>'Set equidistant time steps'</b> can help. Define the 'number of time steps' and the 'step size'. This is also useful if a time series without concentrations are needed, e.g. for a <u>prediction</u>. Example: If the unit for time is minutes, the number of time steps is 4 and the step size is 15 you will create the time series '15, 30, 45, 60'. <u>Please note</u> that the internally used time unit is one hour so that after the execution of the node the table in the outport will say '0.25, 0.5, 0.75, 1.0'.<br></br><br></br>  
+        	3) <b>Copy and paste:</b> Open a spreadsheet, copy the appropriate columns and paste them in the Microbial Data Creator by clicking one cell in the time column and pressing Ctrl+V. This is especially useful if an experiment was done in replicates and the time series starts several times anew from 0.<br></br><br></br>
+        	4) <b>Read from XLS file:</b> Import microbial data from a Microsoft Excel Spreadsheet.The <u>column order</u> in the file should be "ID", "AgentName", "MatrixName", "Comment", "Temperature", "pH", "aw", "Time" and "LogC".<br></br><br></br>
+        	To delete the whole table click <b>'Clear'</b>.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Microbial data table">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <outPort index="0" name="Microbial data table">Microbial data table</outPort>
     </ports>    
 </knimeNode>

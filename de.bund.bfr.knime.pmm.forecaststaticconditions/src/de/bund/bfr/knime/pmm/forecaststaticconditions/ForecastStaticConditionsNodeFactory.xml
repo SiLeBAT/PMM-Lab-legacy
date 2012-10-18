@@ -11,11 +11,12 @@
         <intro>Having fitted primary models to laboratory data and secondary models to the change of parameter values (e.g. the change of µmax due to different temperatures) enables you to predict bacterial growth / survival / inactivation. In order to obtain a realistic prediction on microbial kinetics this node should ony be used for the same test conditions measured in the original tests.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
+        <option name="Initial Concentration">Define the starting value of the 'Initial Concentration Parameter'.<br></br>Example: If 'log10N0' is the 'Initial Concentration Parameter' and if the 'Initial Concentration' equals 3.5, the microbial concentration will be predicted according to the estimated model and will start with a concentration of log 3.5 cfu/g.</option>
+        <option name="Initial Concentration Parameter">Choose a parameter of the formula to be predicted</option>
     </fullDescription>
     
     <ports>
         <inPort index="0" name="In-Port name">Needs models and data from the PMM Joiner</inPort>
-        <outPort index="0" name="Predicted bacterial kinetics">Predicted bacterial kinetics</outPort>
+        <outPort index="0" name="Predicted model parameter">Predicted model parameter</outPort>
     </ports>    
 </knimeNode>

@@ -4,21 +4,18 @@
     <name>Microbial Data Writer</name>
     
     <shortDescription>
-        
+        Writes microbial data to a database
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Saves laboratory test data to a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...".<br></br>
+        In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Microbial data table">Microbial data table</inPort>
     </ports>    
 </knimeNode>

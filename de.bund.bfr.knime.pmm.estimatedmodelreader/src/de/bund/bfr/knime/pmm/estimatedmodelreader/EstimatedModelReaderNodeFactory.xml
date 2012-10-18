@@ -8,10 +8,10 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>The fitted model reader loads primary or secondary models as well as previously estimated parameter values from a database. This can either be the internal database or any HSQL database with the appropriate data structure.</intro>
+        <intro>Loads primary or secondary models together with previously estimated parameter values from a database. This can either be the internal database or any HSQL database with the appropriate data structure.</intro>
         
         
-        <option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
+        <option name="Use external database">By default the internal database is accessed. This internal database can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...".<br></br>In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>
         <option name="Level">Load either estimated primary or secondary models.</option>
         <option name="Model">Check the box and choose one or more models by klicking the listed names.</option>
         <option name="Estimation quality">Filter the fitted models either by RMS or by R squared by entering a value into the textbox.</option>

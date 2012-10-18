@@ -57,7 +57,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -291,7 +294,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 		Map<String, List<Double>> temperatureMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> phMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> waterActivityMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 		Set<String> ids = new LinkedHashSet<String>();
+		List<String> miscParams = getAllMiscParams(table);
+
+		for (String param : miscParams) {
+			miscMaps.put(param, new LinkedHashMap<String, List<Double>>());
+		}
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
@@ -304,6 +313,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 				temperatureMap.put(id, new ArrayList<Double>());
 				phMap.put(id, new ArrayList<Double>());
 				waterActivityMap.put(id, new ArrayList<Double>());
+				miscMaps.put(id, new LinkedHashMap<String, List<Double>>());
+
+				for (String param : miscParams) {
+					miscMaps.get(param).put(id, new ArrayList<Double>());
+				}
 			}
 
 			List<String> keys = tuple.getStringList(Model1Schema.ATT_PARAMNAME);
@@ -335,6 +349,23 @@ public class ModelEstimationNodeModel extends NodeModel {
 			phMap.get(id).add(tuple.getDouble(TimeSeriesSchema.ATT_PH));
 			waterActivityMap.get(id).add(
 					tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
+
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (String param : miscParams) {
+				Double paramValue = null;
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					if (param.equals(element.getName())) {
+						paramValue = element.getValue();
+						break;
+					}
+				}
+
+				miscMaps.get(param).get(id).add(paramValue);
+			}
 		}
 
 		Map<String, List<Double>> paramValueMap = new LinkedHashMap<String, List<Double>>();
@@ -374,6 +405,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 						argumentValues.add(phMap.get(id));
 					} else if (arg.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
 						argumentValues.add(waterActivityMap.get(id));
+					} else if (miscParams.contains(arg)) {
+						argumentValues.add(miscMaps.get(arg).get(id));
 					}
 				}
 
@@ -624,6 +657,26 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		container.close();
 		return container.getTable();
+	}
+
+	private List<String> getAllMiscParams(BufferedDataTable table)
+			throws PmmException {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new TimeSeriesSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
 	}
 
 	private class PrimaryEstimationThread implements Runnable {

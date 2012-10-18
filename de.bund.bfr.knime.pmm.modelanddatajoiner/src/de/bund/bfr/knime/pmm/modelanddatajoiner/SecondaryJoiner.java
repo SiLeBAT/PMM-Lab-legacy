@@ -40,10 +40,11 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -60,7 +61,10 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -351,8 +355,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		dependentVariables = new LinkedHashMap<String, String>();
 		independentVariables = new LinkedHashMap<String, List<String>>();
 
-		KnimeRelationReader reader = new KnimeRelationReader(
-				new Model2Schema(), modelTable);
+		KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
+				modelTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
@@ -373,24 +377,36 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readDataTable() throws PmmException {
-		independentParameters = new ArrayList<String>(Arrays.asList(
-				TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
-				TimeSeriesSchema.ATT_WATERACTIVITY));
-		dependentParameters = new ArrayList<String>();
+		Set<String> indepParamSet = new LinkedHashSet<String>();
+		Set<String> depParamSet = new LinkedHashSet<String>();
 
-		KnimeRelationReader reader = new KnimeRelationReader(new KnimeSchema(
-				new Model1Schema(), new TimeSeriesSchema()), dataTable);
+		indepParamSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
+		indepParamSet.add(TimeSeriesSchema.ATT_PH);
+		indepParamSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
+
+		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
+				dataTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
 			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
 
 			for (String param : params) {
-				if (!dependentParameters.contains(param)) {
-					dependentParameters.add(param);
-				}
+				depParamSet.add(param);
 			}
+
+			PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				indepParamSet.add(element.getName());
+			}
+
 		}
+
+		independentParameters = new ArrayList<String>(indepParamSet);
+		dependentParameters = new ArrayList<String>(depParamSet);
 	}
 
 	private void getReplacementsFromFrame() {

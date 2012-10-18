@@ -41,7 +41,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,11 +115,11 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
 
-		boxPanels = new HashMap<String, JPanel>();
-		buttonPanels = new HashMap<String, JPanel>();
-		comboBoxes = new HashMap<String, List<Map<String, JComboBox>>>();
-		addButtons = new HashMap<String, List<JButton>>();
-		removeButtons = new HashMap<String, List<JButton>>();
+		boxPanels = new LinkedHashMap<String, JPanel>();
+		buttonPanels = new LinkedHashMap<String, JPanel>();
+		comboBoxes = new LinkedHashMap<String, List<Map<String, JComboBox>>>();
+		addButtons = new LinkedHashMap<String, List<JButton>>();
+		removeButtons = new LinkedHashMap<String, List<JButton>>();
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 		getReplacementsFromNodeAssignments(assignments);
@@ -144,7 +144,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			rightPanel.setLayout(new GridLayout(0, 1));
 
 			for (Map<String, String> assignment : modelAssignments) {
-				Map<String, JComboBox> boxes = new HashMap<String, JComboBox>();
+				Map<String, JComboBox> boxes = new LinkedHashMap<String, JComboBox>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -246,7 +246,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		getReplacementsFromNodeAssignments(assignments);
 
 		if (replacements.isEmpty()) {
-			replacements.add(new HashMap<String, String>());
+			replacements.add(new LinkedHashMap<String, String>());
 		}
 
 		for (int i = 0; i < usedModels.size(); i++) {
@@ -265,7 +265,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				Map<String, String> varMapSec = modelRow
 						.getMap(Model2Schema.ATT_VARPARMAP);
 				List<String> newIndepVarsSec = new ArrayList<String>();
-				Map<String, String> newVarMap = new HashMap<String, String>();
+				Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 				KnimeRelationReader peiReader = new KnimeRelationReader(
 						dataSchema, dataTable);
 				Map<String, String> replace = replacements.get(i);
@@ -346,10 +346,10 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	private void readModelTable() throws PmmException {
 		models = new ArrayList<String>();
-		modelNames = new HashMap<String, String>();
-		modelFormulas = new HashMap<String, String>();
-		dependentVariables = new HashMap<String, String>();
-		independentVariables = new HashMap<String, List<String>>();
+		modelNames = new LinkedHashMap<String, String>();
+		modelFormulas = new LinkedHashMap<String, String>();
+		dependentVariables = new LinkedHashMap<String, String>();
+		independentVariables = new LinkedHashMap<String, List<String>>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new Model2Schema(), modelTable);
@@ -399,7 +399,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		for (String model : comboBoxes.keySet()) {
 			for (Map<String, JComboBox> modelBoxes : comboBoxes.get(model)) {
-				Map<String, String> modelAssignments = new HashMap<String, String>();
+				Map<String, String> modelAssignments = new LinkedHashMap<String, String>();
 
 				for (String var : modelBoxes.keySet()) {
 					JComboBox box = modelBoxes.get(var);
@@ -422,7 +422,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 			if (toks.length == 2) {
 				String model = toks[0].trim();
-				Map<String, String> modelReplacements = new HashMap<String, String>();
+				Map<String, String> modelReplacements = new LinkedHashMap<String, String>();
 
 				for (String assignment : toks[1].split(",")) {
 					String[] elements = assignment.split("=");
@@ -451,7 +451,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 			if (modelAddButtons.contains(button)) {
 				int index = modelAddButtons.indexOf(button);
-				Map<String, JComboBox> boxes = new HashMap<String, JComboBox>();
+				Map<String, JComboBox> boxes = new LinkedHashMap<String, JComboBox>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -510,7 +510,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void checkIfInputIsValid() {
-		Map<String, JComboBox> depVarBoxes = new HashMap<String, JComboBox>();
+		Map<String, JComboBox> depVarBoxes = new LinkedHashMap<String, JComboBox>();
 		isValid = true;
 
 		for (String model : comboBoxes.keySet()) {
@@ -535,7 +535,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			String depVar = dependentVariables.get(model);
 
 			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
-				Map<String, JComboBox> indepVarBoxes = new HashMap<String, JComboBox>();
+				Map<String, JComboBox> indepVarBoxes = new LinkedHashMap<String, JComboBox>();
 
 				for (String var : boxes.keySet()) {
 					if (var.equals(depVar)) {

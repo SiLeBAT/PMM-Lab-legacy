@@ -3,8 +3,8 @@ package de.bund.bfr.knime.pmm.primarymodelviewandselect;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -48,11 +48,11 @@ public class TableReader {
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
 		ids = new ArrayList<String>();
-		plotables = new HashMap<String, Plotable>();
+		plotables = new LinkedHashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
 		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new HashMap<String, String>();
-		longLegend = new HashMap<String, String>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
 
 		if (schemaContainsData) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
@@ -122,10 +122,10 @@ public class TableReader {
 			List<Double> paramMaxValues = tuple
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
 			Plotable plotable = null;
-			Map<String, Double> parameters = new HashMap<String, Double>();
-			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
-			Map<String, Double> varMin = new HashMap<String, Double>();
-			Map<String, Double> varMax = new HashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
+			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
+			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 

@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -279,7 +278,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						.getStringList(Model1Schema.ATT_PARAMNAME);
 				List<Double> values = newTuple
 						.getDoubleList(Model1Schema.ATT_VALUE);
-				Map<String, Double> constants = new HashMap<String, Double>();
+				Map<String, Double> constants = new LinkedHashMap<String, Double>();
 				String initialParameter = concentrationParameters.get(oldID);
 
 				values.set(params.indexOf(initialParameter), concentration);
@@ -368,7 +367,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
 				List<String> params = tuple
 						.getStringList(Model1Schema.ATT_PARAMNAME);
-				Map<String, Double> constants = new HashMap<String, Double>();
+				Map<String, Double> constants = new LinkedHashMap<String, Double>();
 				String initialParameter = concentrationParameters.get(id);
 
 				values.set(params.indexOf(initialParameter), concentration);

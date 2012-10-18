@@ -37,7 +37,6 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -234,7 +233,7 @@ public class CombinedJoiner implements Joiner {
 			Map<String, String> varMap = modelTuple
 					.getMap(Model1Schema.ATT_VARPARMAP);
 			List<String> newIndepVar = new ArrayList<String>();
-			Map<String, String> newVarMap = new HashMap<String, String>();
+			Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 			String formulaSec = modelTuple.getString(Model2Schema.ATT_FORMULA);
 			String depVarSec = modelTuple.getString(Model2Schema.ATT_DEPVAR);
 			List<String> indepVarSec = modelTuple
@@ -242,7 +241,7 @@ public class CombinedJoiner implements Joiner {
 			Map<String, String> varMapSec = modelTuple
 					.getMap(Model2Schema.ATT_VARPARMAP);
 			List<String> newIndepVarSec = new ArrayList<String>();
-			Map<String, String> newVarMapSec = new HashMap<String, String>();
+			Map<String, String> newVarMapSec = new LinkedHashMap<String, String>();
 			boolean allVarsReplaced = true;
 
 			if (replacements.get(PRIMARY).containsKey(depVar)) {

@@ -40,7 +40,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -124,7 +124,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 
 		schema = new TimeSeriesSchema();
 		dataValid = true;
-		dataChanges = new HashMap<Integer, List<String>>();
+		dataChanges = new LinkedHashMap<Integer, List<String>>();
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
 	}
@@ -233,9 +233,9 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		condIDField.setEditable(false);
 		rightPanel.add(condIDField);
 		leftPanel.add(new JLabel(TimeSeriesSchema.ATT_CONDID + ":"));
-		stringColumnFields = new HashMap<String, StringTextField>();
-		intColumnFields = new HashMap<String, IntTextField>();
-		doubleColumnFields = new HashMap<String, DoubleTextField>();
+		stringColumnFields = new LinkedHashMap<String, StringTextField>();
+		intColumnFields = new LinkedHashMap<String, IntTextField>();
+		doubleColumnFields = new LinkedHashMap<String, DoubleTextField>();
 
 		leftPanel.setLayout(new GridLayout(0, 1, 5, 5));
 		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

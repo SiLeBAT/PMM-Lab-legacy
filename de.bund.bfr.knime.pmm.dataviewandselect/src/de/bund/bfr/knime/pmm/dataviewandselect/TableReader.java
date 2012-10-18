@@ -3,8 +3,8 @@ package de.bund.bfr.knime.pmm.dataviewandselect;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +45,7 @@ public class TableReader {
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
 		ids = new ArrayList<String>();
-		plotables = new HashMap<String, Plotable>();
+		plotables = new LinkedHashMap<String, Plotable>();
 		stringColumns = Arrays.asList("ID");
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
@@ -57,8 +57,8 @@ public class TableReader {
 		doubleColumnValues.add(new ArrayList<Double>());
 		infoParameters = new ArrayList<List<String>>();
 		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new HashMap<String, String>();
-		longLegend = new HashMap<String, String>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();

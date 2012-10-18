@@ -39,8 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,8 +142,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
 				BufferedDataTable.TYPE, ImagePortObject.TYPE });
 		selectedIDs = new ArrayList<String>();
-		colors = new HashMap<String, Color>();
-		shapes = new HashMap<String, Shape>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
 		selectAllIDs = DEFAULT_SELECTALLIDS;
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
@@ -308,13 +308,13 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		try {
 			colors = readColors(settings);
 		} catch (InvalidSettingsException e) {
-			colors = new HashMap<String, Color>();
+			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
 			shapes = readShapes(settings);
 		} catch (InvalidSettingsException e) {
-			shapes = new HashMap<String, Shape>();
+			shapes = new LinkedHashMap<String, Shape>();
 		}
 
 		try {
@@ -462,7 +462,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected static Map<String, Color> readColors(NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		String colorString = settings.getString(CFG_COLORS);
-		Map<String, Color> colors = new HashMap<String, Color>();
+		Map<String, Color> colors = new LinkedHashMap<String, Color>();
 
 		if (!colorString.isEmpty()) {
 
@@ -503,7 +503,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected static Map<String, Shape> readShapes(NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		String shapeString = settings.getString(CFG_SHAPES);
-		Map<String, Shape> shapes = new HashMap<String, Shape>();
+		Map<String, Shape> shapes = new LinkedHashMap<String, Shape>();
 		Map<String, Shape> shapeMap = (new ColorAndShapeCreator(0))
 				.getShapeByNameMap();
 

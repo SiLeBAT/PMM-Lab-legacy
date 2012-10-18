@@ -6,7 +6,7 @@ import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,8 +67,8 @@ public class ColorAndShapeCreator {
 		colorList = new ArrayList<Color>();
 		shapeList = new ArrayList<Shape>();
 		shapeNameList = new ArrayList<String>();
-		shapeByNameMap = new HashMap<String, Shape>();
-		nameByShapeMap = new HashMap<Shape, String>();
+		shapeByNameMap = new LinkedHashMap<String, Shape>();
+		nameByShapeMap = new LinkedHashMap<Shape, String>();
 
 		for (int i = 0; i < n; i++) {
 			colorList.add(COLORS[i % COLORS.length]);

@@ -37,8 +37,8 @@ import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -236,28 +236,28 @@ public class SecondaryModelAndDataViewNodeView extends
 		Set<String> idSet = new HashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
-		Map<String, String> formulaMap = new HashMap<String, String>();
-		Map<String, String> depVarMap = new HashMap<String, String>();
-		Map<String, List<String>> indepVarMap = new HashMap<String, List<String>>();
-		Map<String, List<Double>> minIndepVarMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> maxIndepVarMap = new HashMap<String, List<Double>>();
-		Map<String, List<String>> keyMap = new HashMap<String, List<String>>();
-		Map<String, List<Double>> valueMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> minValueMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> maxValueMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> depVarDataMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> temperatureDataMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> phDataMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> awDataMap = new HashMap<String, List<Double>>();
-		Map<String, Double> rmsMap = new HashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new HashMap<String, Double>();
+		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
+		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
+		Map<String, List<String>> indepVarMap = new LinkedHashMap<String, List<String>>();
+		Map<String, List<Double>> minIndepVarMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> maxIndepVarMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<String>> keyMap = new LinkedHashMap<String, List<String>>();
+		Map<String, List<Double>> valueMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> minValueMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> maxValueMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> temperatureDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> phDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> awDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
 
 		ids = new ArrayList<String>();
-		plotables = new HashMap<String, Plotable>();
+		plotables = new LinkedHashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
 		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new HashMap<String, String>();
-		longLegend = new HashMap<String, String>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,
 				Model1Schema.ATT_MODELNAME, ChartConstants.IS_FITTED);
 		stringColumnValues = new ArrayList<List<String>>();
@@ -369,10 +369,10 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		for (String id : ids) {
 			Plotable plotable = null;
-			Map<String, List<Double>> arguments = new HashMap<String, List<Double>>();
-			Map<String, Double> minArg = new HashMap<String, Double>();
-			Map<String, Double> maxArg = new HashMap<String, Double>();
-			Map<String, Double> constants = new HashMap<String, Double>();
+			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
+			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
+			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
+			Map<String, Double> constants = new LinkedHashMap<String, Double>();
 
 			if (getNodeModel().isSeiSchema()) {
 				plotable = new Plotable(Plotable.BOTH_STRICT);

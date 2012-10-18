@@ -38,8 +38,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -194,7 +194,7 @@ public class PrimaryJoiner implements Joiner {
 			Map<String, String> varMap = modelTuple
 					.getMap(Model1Schema.ATT_VARPARMAP);
 			List<String> newIndepVar = new ArrayList<String>();
-			Map<String, String> newVarMap = new HashMap<String, String>();
+			Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 			boolean allVarsReplaced = true;
 
 			if (replacements.containsKey(depVar)) {
@@ -376,7 +376,7 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private Map<String, String> getReplacementsFromFrame() {
-		Map<String, String> replacements = new HashMap<String, String>();
+		Map<String, String> replacements = new LinkedHashMap<String, String>();
 
 		for (int i = 0; i < variables.size(); i++) {
 			String replacement = (String) variableBoxes.get(i)
@@ -391,8 +391,8 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private Map<String, String> getAssignmentsMap(List<String> assignments) {
-		Map<String, String> replacements = new HashMap<String, String>();
-		Map<String, String> assignmentsMap = new HashMap<String, String>();
+		Map<String, String> replacements = new LinkedHashMap<String, String>();
+		Map<String, String> assignmentsMap = new LinkedHashMap<String, String>();
 
 		for (String s : assignments) {
 			String[] elements = s.split("=");

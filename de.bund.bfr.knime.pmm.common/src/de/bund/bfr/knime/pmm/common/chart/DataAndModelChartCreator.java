@@ -40,7 +40,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,10 +90,10 @@ public class DataAndModelChartCreator extends ChartPanel {
 		this.plotables = plotables;
 		this.shortLegend = shortLegend;
 		this.longLegend = longLegend;
-		colors = new HashMap<String, Color>();
-		shapes = new HashMap<String, Shape>();
-		colorLists = new HashMap<String, List<Color>>();
-		shapeLists = new HashMap<String, List<Shape>>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
+		colorLists = new LinkedHashMap<String, List<Color>>();
+		shapeLists = new LinkedHashMap<String, List<Shape>>();
 	}
 
 	public void createChart(String idToPaint) {

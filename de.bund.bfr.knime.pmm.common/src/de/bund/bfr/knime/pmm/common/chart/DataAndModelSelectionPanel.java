@@ -45,8 +45,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -142,7 +142,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 			filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			comboBoxes = new HashMap<String, JComboBox>();
+			comboBoxes = new LinkedHashMap<String, JComboBox>();
 
 			for (int i = 0; i < stringColumns.size(); i++) {
 				if (isStringColumnFilterable.get(i)) {
@@ -305,7 +305,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	}
 
 	public Map<String, Color> getColors() {
-		Map<String, Color> paints = new HashMap<String, Color>(
+		Map<String, Color> paints = new LinkedHashMap<String, Color>(
 				selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -327,7 +327,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	}
 
 	public Map<String, Shape> getShapes() {
-		Map<String, Shape> shapes = new HashMap<String, Shape>(
+		Map<String, Shape> shapes = new LinkedHashMap<String, Shape>(
 				selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
@@ -353,7 +353,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List<Color>> getColorLists() {
-		Map<String, List<Color>> paints = new HashMap<String, List<Color>>(
+		Map<String, List<Color>> paints = new LinkedHashMap<String, List<Color>>(
 				selectTable.getRowCount());
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
@@ -366,7 +366,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 	@SuppressWarnings("unchecked")
 	public Map<String, List<Shape>> getShapeLists() {
-		Map<String, List<Shape>> shapes = new HashMap<String, List<Shape>>(
+		Map<String, List<Shape>> shapes = new LinkedHashMap<String, List<Shape>>(
 				selectTable.getRowCount());
 		Map<String, Shape> shapeMap = colorAndShapes.getShapeByNameMap();
 
@@ -440,7 +440,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	}
 
 	private void applyFilters() {
-		Map<String, String> filters = new HashMap<String, String>();
+		Map<String, String> filters = new LinkedHashMap<String, String>();
 
 		for (String column : comboBoxes.keySet()) {
 			JComboBox box = comboBoxes.get(column);
@@ -936,7 +936,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		public SelectTableRowSorter(SelectTableModel model,
 				Map<String, String> filters) {
 			super(model);
-			this.filters = new HashMap<Integer, String>();
+			this.filters = new LinkedHashMap<Integer, String>();
 
 			if (filters != null) {
 				for (String column : filters.keySet()) {

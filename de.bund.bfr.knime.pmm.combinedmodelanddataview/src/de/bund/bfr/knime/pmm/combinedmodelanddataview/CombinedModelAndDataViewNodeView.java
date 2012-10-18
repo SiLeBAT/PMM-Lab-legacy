@@ -40,6 +40,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -227,11 +228,11 @@ public class CombinedModelAndDataViewNodeView extends
 				getNodeModel().getSchema(), false, null).keySet();
 
 		ids = new ArrayList<String>();
-		plotables = new HashMap<String, Plotable>();
+		plotables = new LinkedHashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
 		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new HashMap<String, String>();
-		longLegend = new HashMap<String, String>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
 
 		if (getNodeModel().isSeiSchema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
@@ -296,10 +297,10 @@ public class CombinedModelAndDataViewNodeView extends
 			List<Double> paramMaxValues = row
 					.getDoubleList(Model1Schema.ATT_MAXVALUE);
 			Plotable plotable = new Plotable(Plotable.BOTH);
-			Map<String, List<Double>> variables = new HashMap<String, List<Double>>();
-			Map<String, Double> varMin = new HashMap<String, Double>();
-			Map<String, Double> varMax = new HashMap<String, Double>();
-			Map<String, Double> parameters = new HashMap<String, Double>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
+			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
+			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -424,7 +425,7 @@ public class CombinedModelAndDataViewNodeView extends
 
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
-			plotable.setFunctionArguments(variables);			
+			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionConstants(parameters);

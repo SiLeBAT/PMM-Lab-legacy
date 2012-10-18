@@ -79,7 +79,7 @@ public class ModelCombiner {
 		}
 
 		if (doNotReplace == null) {
-			doNotReplace = new HashMap<String, String>();
+			doNotReplace = new LinkedHashMap<String, String>();
 		}
 
 		Map<String, KnimeTuple> newTuples = new LinkedHashMap<String, KnimeTuple>();

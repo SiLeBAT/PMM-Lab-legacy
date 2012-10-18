@@ -38,7 +38,7 @@ import java.awt.Color;
 import java.awt.Shape;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -145,13 +145,13 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		try {
 			colors = PrimaryModelViewAndSelectNodeModel.readColors(settings);
 		} catch (InvalidSettingsException e) {
-			colors = new HashMap<String, Color>();
+			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
 			shapes = PrimaryModelViewAndSelectNodeModel.readShapes(settings);
 		} catch (InvalidSettingsException e) {
-			shapes = new HashMap<String, Shape>();
+			shapes = new LinkedHashMap<String, Shape>();
 		}
 
 		try {

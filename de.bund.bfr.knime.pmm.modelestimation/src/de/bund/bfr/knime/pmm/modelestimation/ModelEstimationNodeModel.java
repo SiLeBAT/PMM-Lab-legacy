@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -288,10 +287,10 @@ public class ModelEstimationNodeModel extends NodeModel {
 		int n = table.getRowCount();
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
 
-		Map<String, List<Double>> depVarMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> temperatureMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> phMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> waterActivityMap = new HashMap<String, List<Double>>();
+		Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> temperatureMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> phMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> waterActivityMap = new LinkedHashMap<String, List<Double>>();
 		Set<String> ids = new HashSet<String>();
 
 		while (reader.hasMoreElements()) {
@@ -338,15 +337,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 					tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 		}
 
-		Map<String, List<Double>> paramValueMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> paramErrorMap = new HashMap<String, List<Double>>();
-		Map<String, Double> rmsMap = new HashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new HashMap<String, Double>();
-		Map<String, Double> aicMap = new HashMap<String, Double>();
-		Map<String, Double> bicMap = new HashMap<String, Double>();
-		Map<String, List<Double>> minIndepMap = new HashMap<String, List<Double>>();
-		Map<String, List<Double>> maxIndepMap = new HashMap<String, List<Double>>();
-		Map<String, Integer> estIDMap = new HashMap<String, Integer>();
+		Map<String, List<Double>> paramValueMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> paramErrorMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
+		Map<String, List<Double>> minIndepMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, List<Double>> maxIndepMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Integer> estIDMap = new LinkedHashMap<String, Integer>();
 
 		for (int i = 0; i < n; i++) {
 			KnimeTuple tuple = tuples.get(i);

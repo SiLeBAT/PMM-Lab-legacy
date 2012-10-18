@@ -37,7 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -94,7 +94,7 @@ public class DataEditNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, inData[0]);
-		Map<Integer, List<String>> changeMap = new HashMap<Integer, List<String>>();
+		Map<Integer, List<String>> changeMap = new LinkedHashMap<Integer, List<String>>();
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 
 		for (String c : dataChanges) {

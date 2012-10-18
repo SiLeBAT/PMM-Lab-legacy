@@ -36,14 +36,13 @@ package de.bund.bfr.knime.pmm.common;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 
-import org.jdom2.JDOMException;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
@@ -306,9 +305,9 @@ public class CellIO {
 	throws PmmException {
 
 		String[] t1, t2;
-		HashMap<String,String> ret;
+		Map<String,String> ret;
 		
-		ret = new HashMap<String,String>();
+		ret = new LinkedHashMap<String,String>();
 		
 		if( dataCell.isMissing() )
 			return ret;

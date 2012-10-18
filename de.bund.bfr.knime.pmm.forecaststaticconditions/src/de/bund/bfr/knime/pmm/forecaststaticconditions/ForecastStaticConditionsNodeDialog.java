@@ -38,7 +38,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -186,9 +185,9 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		Set<String> idSet = new HashSet<String>();
 
 		ids = new ArrayList<String>();
-		modelNames = new HashMap<String, String>();
-		formulas = new HashMap<String, String>();
-		availableParams = new HashMap<String, List<String>>();
+		modelNames = new LinkedHashMap<String, String>();
+		formulas = new LinkedHashMap<String, String>();
+		availableParams = new LinkedHashMap<String, List<String>>();
 
 		for (KnimeTuple tuple : tuples) {
 			String id = tuple.getInt(Model1Schema.ATT_MODELID) + "";
@@ -236,7 +235,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightPanel.setLayout(new GridLayout(ids.size(), 1, 5, 5));
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		paramBoxes = new HashMap<String, JComboBox>();
+		paramBoxes = new LinkedHashMap<String, JComboBox>();
 
 		for (String id : ids) {
 			JComboBox box = new JComboBox(availableParams.get(id).toArray());

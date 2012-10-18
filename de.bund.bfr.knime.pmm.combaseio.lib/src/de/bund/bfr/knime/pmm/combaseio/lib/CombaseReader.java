@@ -259,10 +259,62 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
 				String description = val.trim().replaceAll(" +", " ");
 				if (!newIDs.containsKey(description)) newIDs.put(description, MathUtilities.getRandomNegativeInt());
-				MiscXml mx = new MiscXml(newIDs.get(description), null, description, dbl, unit);
+				MiscXml mx = new MiscXml(newIDs.get(description), getCombaseName(description), description, dbl, unit);
 				result.add(mx);
 			}
 		}
+		return result;
+	}
+	private String getCombaseName(String description) {
+		String result = "";
+		String des = description.toLowerCase();
+    	if (des.equals("alta fermentation product in the environment")) result = "ALTA";
+    	else if (des.equals("acetic acid (possibly as salt) in the environment")) result = "acetic_acid";
+    	else if (des.equals("anaerobic environment")) result = "anaerobic";
+    	else if (des.equals("ascorbic acid (possibly as salt) in the environment")) result = "ascorbic_acid";
+    	else if (des.equals("benzoic acid (possibly as salt) in the environment")) result = "benzoic_acid";
+    	else if (des.equals("citric acid (possibly as salt) in the environment")) result = "citric_acid";
+    	else if (des.equals("carbon-dioxide in the environment")) result = "CO_2";
+    	else if (des.equals("other species in the environment")) result = "competition";
+    	else if (des.equals("cut (minced, chopped, ground, etc)")) result = "cut";
+    	else if (des.equals("dried food")) result = "dried";
+    	else if (des.equals("ethylenenediaminetetraacetic acid in the environment")) result = "EDTA";
+    	else if (des.equals("ethanol in the environment")) result = "ethanol";
+    	else if (des.equals("fat in the environment")) result = "fat";
+    	else if (des.equals("frozen food")) result = "frozen";
+    	else if (des.equals("fructose in the environment")) result = "fructose";
+    	else if (des.equals("glucose in the environment")) result = "glucose";
+    	else if (des.equals("glycerol in the environment")) result = "glycerol";
+    	else if (des.equals("hydrochloric acid in the environment")) result = "HCl";
+    	else if (des.equals("inoculation in/on previously heated (cooked, baked, pasteurized, etc) but not sterilised food/medium")) result = "heated";
+    	else if (des.equals("in an environment that has been irradiated")) result = "irradiated";
+    	else if (des.equals("irradiation at constant rate during the observation time")) result = "irradiation";
+    	else if (des.equals("lactic acid (possibly as salt) in the environment")) result = "lactic_acid";
+    	else if (des.equals("food fermented by lactic acid bacteria")) result = "lactic_bacteria_fermented";
+    	else if (des.equals("modified atmosphere environment")) result = "Modified_Atmosphere";
+    	else if (des.equals("malic acid in the environment")) result = "malic_acid";
+    	else if (des.equals("moisture in the environment")) result = "moisture";
+    	else if (des.equals("glycerol monolaurate (emulsifier) in the environment")) result = "monolaurin";
+    	else if (des.equals("nitrogen in the environment")) result = "N_2";
+    	else if (des.equals("sodium chloride in the environment")) result = "NaCl";
+    	else if (des.equals("nisin in the environment")) result = "nisin";
+    	else if (des.equals("sodium or potassium nitrite in the environment")) result = "nitrite";
+    	else if (des.equals("oxygen (aerobic conditions) in the environment")) result = "O_2";
+    	else if (des.equals("propionic acid (possibly as salt) in the environment")) result = "propionic_acid";
+    	else if (des.equals("raw")) result = "raw";
+    	else if (des.equals("shaken (agitated, stirred)")) result = "shaken";
+    	else if (des.equals("smoked food")) result = "smoked";
+    	else if (des.equals("sorbic acid (possibly as salt) in the environment")) result = "sorbic_acid";
+    	else if (des.equals("sterilised before inoculation")) result = "sterile";
+    	else if (des.equals("sucrose in the environment")) result = "sucrose";
+    	else if (des.equals("sugar in the environment")) result = "sugar";
+    	else if (des.equals("vacuum-packed")) result = "vacuum";
+    	else if (des.equals("oregano essential oil in the environment")) result = "oregano";
+    	else if (des.equals("with the indigenous flora in the environment (but not counted)")) result = "indigenous_flora";
+    	else if (des.equals("pressure controlled")) result = "pressure";
+    	else if (des.equals("in presence of diacetic acid (possibly as salt)")) result = "diacetic_acid";
+    	else if (des.equals("in presence of betaine")) result = "betaine";
+    	else System.err.println(description);
 		return result;
 	}
 	private List<String> condSplit(final String misc) {

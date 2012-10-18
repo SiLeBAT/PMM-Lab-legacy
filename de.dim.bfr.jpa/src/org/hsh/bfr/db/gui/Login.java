@@ -2542,12 +2542,14 @@ public class Login extends JFrame {
 				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)"},
 				new String[]{null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schätzung",
 				"Referenzen, aus denen diese Modellschätzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschätzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschätzten Parameter","Gültigkeitsbereiche für Sekundärmodelle",null},
-				new MyTable[]{tenazity_raw_data,Modellkatalog,ModellkatalogParameter,null,null,null,null,null,null,null,
+				new MyTable[]{tenazity_raw_data,Modellkatalog,
+				ModellkatalogParameter,null,null,null,null,null,null,null,
 				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,
 				null,null,null,null,null},
-				new String[] {null,null,null,null,null,null,null,null,null,null,
+				new String[] {null,null,
+				null,null,null,null,null,null,null,null,
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null},
 				new String[] {null,null,null,"default FALSE",null,null,null,null,null,null,
 				null,null,null,null,null});
@@ -2604,7 +2606,7 @@ public class Login extends JFrame {
 				null,
 				null);//new String[] {"not null","not null","not null","not null",null});
 		myList.addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
-		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 11);
+		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 12);
 		MyTable Sekundaermodelle_Primaermodelle = new MyTable("Sekundaermodelle_Primaermodelle",
 				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell"},
 				new String[]{"INTEGER","INTEGER"},

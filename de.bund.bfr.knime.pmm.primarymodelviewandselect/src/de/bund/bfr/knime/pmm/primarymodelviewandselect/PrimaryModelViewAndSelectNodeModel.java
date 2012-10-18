@@ -39,8 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -186,7 +186,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
-		Set<String> idSet = new HashSet<String>(ids);
+		Set<String> idSet = new LinkedHashSet<String>(ids);
 		int index = 0;
 
 		for (int i = 0; i < reader.getAllTuples().size(); i++) {

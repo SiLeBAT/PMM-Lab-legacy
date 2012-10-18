@@ -37,8 +37,8 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -350,7 +350,7 @@ public class CombinedJoiner implements Joiner {
 	private void readTable() throws PmmException {
 		KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
 				modelTable);
-		Set<String> ids = new HashSet<String>();
+		Set<String> ids = new LinkedHashSet<String>();
 
 		tuples = new ArrayList<KnimeTuple>();
 

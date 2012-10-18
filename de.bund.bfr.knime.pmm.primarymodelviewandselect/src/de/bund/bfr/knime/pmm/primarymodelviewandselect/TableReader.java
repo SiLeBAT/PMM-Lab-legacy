@@ -3,8 +3,8 @@ package de.bund.bfr.knime.pmm.primarymodelviewandselect;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +42,7 @@ public class TableReader {
 
 	public TableReader(BufferedDataTable table, KnimeSchema schema,
 			boolean schemaContainsData) throws PmmException {
-		Set<String> idSet = new HashSet<String>();
+		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 
 		allIds = new ArrayList<String>();

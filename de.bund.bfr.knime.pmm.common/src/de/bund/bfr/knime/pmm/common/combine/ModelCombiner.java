@@ -35,8 +35,6 @@ package de.bund.bfr.knime.pmm.common.combine;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -115,7 +113,7 @@ public class ModelCombiner {
 
 				newTuples.put(id, newTuple);
 				usedTupleLists.put(id, new ArrayList<KnimeTuple>());
-				replacements.put(id, new HashSet<String>());
+				replacements.put(id, new LinkedHashSet<String>());
 			}
 
 			String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);

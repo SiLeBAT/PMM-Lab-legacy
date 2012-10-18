@@ -38,8 +38,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -291,7 +291,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		Map<String, List<Double>> temperatureMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> phMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> waterActivityMap = new LinkedHashMap<String, List<Double>>();
-		Set<String> ids = new HashSet<String>();
+		Set<String> ids = new LinkedHashSet<String>();
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();

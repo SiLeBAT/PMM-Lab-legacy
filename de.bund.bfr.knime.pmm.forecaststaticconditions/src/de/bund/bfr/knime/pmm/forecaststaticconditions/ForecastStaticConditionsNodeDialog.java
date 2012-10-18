@@ -38,8 +38,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -182,7 +182,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 			tuples.add(reader.nextElement());
 		}
 
-		Set<String> idSet = new HashSet<String>();
+		Set<String> idSet = new LinkedHashSet<String>();
 
 		ids = new ArrayList<String>();
 		modelNames = new LinkedHashMap<String, String>();

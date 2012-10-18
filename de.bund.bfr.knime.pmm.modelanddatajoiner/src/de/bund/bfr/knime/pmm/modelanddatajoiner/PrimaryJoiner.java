@@ -38,8 +38,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -300,8 +300,8 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	private void readTable() throws PmmException {
-		Set<Integer> ids = new HashSet<Integer>();
-		Set<Integer> estIDs = new HashSet<Integer>();
+		Set<Integer> ids = new LinkedHashSet<Integer>();
+		Set<Integer> estIDs = new LinkedHashSet<Integer>();
 
 		tuples = new ArrayList<KnimeTuple>();
 		conditionTuples = new ArrayList<KnimeTuple>();

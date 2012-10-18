@@ -38,9 +38,8 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -176,7 +175,7 @@ public class CombinedModelAndDataViewNodeView extends
 
 			for (String var : variables) {
 				if (plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new HashSet<Double>(
+					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
@@ -215,7 +214,7 @@ public class CombinedModelAndDataViewNodeView extends
 	}
 
 	private void readTable() throws PmmException {
-		Set<String> idSet = new HashSet<String>();
+		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();

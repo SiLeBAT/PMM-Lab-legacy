@@ -39,8 +39,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -356,7 +356,8 @@ public class Plotable {
 
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(arg0) && valueLists.containsKey(arg)) {
-					Set<Double> set = new HashSet<Double>(valueLists.get(arg));
+					Set<Double> set = new LinkedHashSet<Double>(
+							valueLists.get(arg));
 
 					n *= set.size();
 				}

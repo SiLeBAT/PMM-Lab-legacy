@@ -45,8 +45,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -149,7 +149,8 @@ public class DataAndModelSelectionPanel extends JPanel implements
 					List<String> values = new ArrayList<String>();
 
 					values.add("");
-					values.addAll(new HashSet<String>(stringColumnValues.get(i)));
+					values.addAll(new LinkedHashSet<String>(stringColumnValues
+							.get(i)));
 					Collections.sort(values);
 
 					JComboBox box = new JComboBox(values.toArray(new String[0]));
@@ -276,7 +277,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	}
 
 	public void setSelectedIDs(List<String> selectedIDs) {
-		Set<String> idSet = new HashSet<String>(selectedIDs);
+		Set<String> idSet = new LinkedHashSet<String>(selectedIDs);
 
 		for (int i = 0; i < selectTable.getRowCount(); i++) {
 			if (idSet.contains(selectTable.getValueAt(i, 0))) {

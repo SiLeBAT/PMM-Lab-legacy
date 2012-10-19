@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
@@ -136,8 +137,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		String fittedFilter;
 
 		try {
-			selectedIDs = PrimaryModelViewAndSelectNodeModel
-					.readSelectedIDs(settings);
+			selectedIDs = ListUtilities
+					.getStringListFromString(settings
+							.getString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -274,8 +276,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		PrimaryModelViewAndSelectNodeModel.writeSelectedIDs(
-				selectionPanel.getSelectedIDs(), settings);
+		settings.addString(
+				PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS,
+				ListUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
 		PrimaryModelViewAndSelectNodeModel.writeColors(
 				selectionPanel.getColors(), settings);
 		PrimaryModelViewAndSelectNodeModel.writeShapes(

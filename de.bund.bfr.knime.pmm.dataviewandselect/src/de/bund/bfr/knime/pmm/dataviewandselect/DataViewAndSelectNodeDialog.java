@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
@@ -110,9 +111,11 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		int addLegendInfo;
 		int displayHighlighted;
 		String transformY;
+		List<String> visibleColumns;
 
 		try {
-			selectedIDs = DataViewAndSelectNodeModel.readSelectedIDs(settings);
+			selectedIDs = ListUtilities.getStringListFromString(settings
+					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -203,6 +206,14 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
+			visibleColumns = ListUtilities.getStringListFromString(settings
+					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+		} catch (InvalidSettingsException e) {
+			visibleColumns = ListUtilities
+					.getStringListFromString(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
+		}
+
+		try {
 			reader = new TableReader(input[0], new TimeSeriesSchema());
 		} catch (PmmException e) {
 			reader = null;
@@ -217,14 +228,15 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
 				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, transformY));
+				displayHighlighted == 1, transformY, visibleColumns));
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		DataViewAndSelectNodeModel.writeSelectedIDs(
-				selectionPanel.getSelectedIDs(), settings);
+		settings.addString(
+				DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
+				ListUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
 		DataViewAndSelectNodeModel.writeColors(selectionPanel.getColors(),
 				settings);
 		DataViewAndSelectNodeModel.writeShapes(selectionPanel.getShapes(),
@@ -281,7 +293,27 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			Map<String, Color> colors, Map<String, Shape> shapes,
 			boolean manualRange, double minX, double maxX, double minY,
 			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted, String transformY) {
+			boolean addLegendInfo, boolean displayHighlighted,
+			String transformY, List<String> visibleColumns) {
+		List<Boolean> visibleStringColumns = new ArrayList<Boolean>();
+		List<Boolean> visibleDoubleColumns = new ArrayList<Boolean>();
+
+		for (String column : reader.getStringColumns()) {
+			if (visibleColumns.contains(column)) {
+				visibleStringColumns.add(true);
+			} else {
+				visibleStringColumns.add(false);
+			}
+		}
+
+		for (String column : reader.getDoubleColumns()) {
+			if (visibleColumns.contains(column)) {
+				visibleDoubleColumns.add(true);
+			} else {
+				visibleDoubleColumns.add(false);
+			}
+		}
+
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
@@ -300,8 +332,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				Arrays.asList(true), Arrays.asList(false), Arrays.asList(false,
-						false, false));
+				visibleStringColumns, Arrays.asList(false),
+				visibleDoubleColumns);
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);

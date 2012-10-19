@@ -38,7 +38,6 @@ import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -62,6 +61,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -265,18 +265,10 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		if (selectedIDs != null) {
-			writeSelectedIDs(selectedIDs, settings);
-		}
-
-		if (colors != null) {
-			writeColors(colors, settings);
-		}
-
-		if (shapes != null) {
-			writeShapes(shapes, settings);
-		}
-
+		settings.addString(CFG_SELECTEDIDS,
+				ListUtilities.getStringFromList(selectedIDs));
+		writeColors(colors, settings);
+		writeShapes(shapes, settings);
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
 		settings.addInt(CFG_MANUALRANGE, manualRange);
 		settings.addDouble(CFG_MINX, minX);
@@ -300,7 +292,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			selectedIDs = readSelectedIDs(settings);
+			selectedIDs = ListUtilities.getStringListFromString(settings
+					.getString(CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -426,37 +419,6 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static List<String> readSelectedIDs(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		String idString = settings.getString(CFG_SELECTEDIDS);
-		List<String> selectedIDs = new ArrayList<String>();
-
-		if (!idString.isEmpty()) {
-			selectedIDs = new ArrayList<String>(Arrays.asList(idString
-					.split(",")));
-		} else {
-			selectedIDs = new ArrayList<String>();
-		}
-
-		return selectedIDs;
-	}
-
-	protected static void writeSelectedIDs(List<String> selectedIDs,
-			NodeSettingsWO settings) {
-		StringBuilder idString = new StringBuilder();
-
-		for (String id : selectedIDs) {
-			idString.append(id);
-			idString.append(",");
-		}
-
-		if (idString.length() > 0) {
-			idString.deleteCharAt(idString.length() - 1);
-		}
-
-		settings.addString(CFG_SELECTEDIDS, idString.toString());
 	}
 
 	protected static Map<String, Color> readColors(NodeSettingsRO settings)

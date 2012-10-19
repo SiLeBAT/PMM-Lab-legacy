@@ -35,8 +35,8 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -100,6 +100,6 @@ public class PmmXmlDoc {
 	public int size() {return elementSet.size();}
 	public PmmXmlElementConvertable get(int i) {return elementSet.get(i);}
 	
-	public Collection<PmmXmlElementConvertable> getElementSet() {return elementSet;}
+	public List<PmmXmlElementConvertable> getElementSet() {return elementSet;}
 	
 }

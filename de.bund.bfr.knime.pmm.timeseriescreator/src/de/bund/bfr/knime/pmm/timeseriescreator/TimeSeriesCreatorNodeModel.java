@@ -49,6 +49,9 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -69,6 +72,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	static final String CFGKEY_TEMPERATURE = "Temperature";
 	static final String CFGKEY_PH = "ph";
 	static final String CFGKEY_WATERACTIVITY = "WaterActivity";
+	static final String CFGKEY_MISCNAMES = "MiscNames";
+	static final String CFGKEY_MISCVALUES = "MiscValues";
 	static final String CFGKEY_TIMEARRAY = "TimeList";
 	static final String CFGKEY_LOGCARRAY = "LogcList";
 	static final String CFGKEY_TIMEUNIT = "TimeUnit";
@@ -88,6 +93,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
+	private List<String> miscNames;
+	private List<Double> miscValues;
 
 	/**
 	 * Constructor for the node model.
@@ -103,6 +110,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 				.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+		miscNames = new ArrayList<String>();
+		miscValues = new ArrayList<Double>();
 	}
 
 	/**
@@ -116,6 +125,12 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		int id = MathUtilities.getRandomNegativeInt();
 		List<Double> times = new ArrayList<Double>();
 		List<Double> logcs = new ArrayList<Double>();
+		PmmXmlDoc miscXML = new PmmXmlDoc();
+
+		for (int i = 0; i < miscNames.size(); i++) {
+			miscXML.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
+					miscNames.get(i), "", miscValues.get(i), ""));
+		}
 
 		for (int i = 0; i < timeArray.length; i++) {
 			times.add(AttributeUtilities.convertToStandardUnit(
@@ -137,6 +152,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
 		tuple.setValue(TimeSeriesSchema.ATT_TIME, times);
 		tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
+		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
 
 		container.addRowToTable(tuple);
 		exec.setProgress(1, "Adding row 0");
@@ -190,17 +206,15 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			settings.addDouble(CFGKEY_WATERACTIVITY, waterActivity);
 		}
 
-		if (timeArray != null) {
-			settings.addDoubleArray(CFGKEY_TIMEARRAY, timeArray);
-		}
-
-		if (logcArray != null) {
-			settings.addDoubleArray(CFGKEY_LOGCARRAY, logcArray);
-		}
-		
+		settings.addDoubleArray(CFGKEY_TIMEARRAY, timeArray);
+		settings.addDoubleArray(CFGKEY_LOGCARRAY, logcArray);
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
+		settings.addString(CFGKEY_MISCNAMES,
+				ListUtilities.getStringFromList(miscNames));
+		settings.addString(CFGKEY_MISCVALUES,
+				ListUtilities.getStringFromList(miscValues));
 	}
 
 	/**
@@ -256,7 +270,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		} catch (InvalidSettingsException e) {
 			logcArray = new double[0];
 		}
-		
+
 		try {
 			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
@@ -276,6 +290,20 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		} catch (InvalidSettingsException e) {
 			tempUnit = AttributeUtilities
 					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+		}
+
+		try {
+			miscNames = ListUtilities.getStringListFromString(settings
+					.getString(CFGKEY_MISCNAMES));
+		} catch (InvalidSettingsException e) {
+			miscNames = new ArrayList<String>();
+		}
+
+		try {
+			miscValues = ListUtilities.getDoubleListFromString(settings
+					.getString(CFGKEY_MISCVALUES));
+		} catch (InvalidSettingsException e) {
+			miscValues = new ArrayList<Double>();
 		}
 	}
 

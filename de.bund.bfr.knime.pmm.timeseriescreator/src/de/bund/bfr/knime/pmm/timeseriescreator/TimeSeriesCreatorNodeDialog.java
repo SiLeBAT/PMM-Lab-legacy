@@ -64,7 +64,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -108,27 +111,38 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JComboBox logcBox;
 	private JComboBox tempBox;
 
+	private List<StringTextField> condNameFields;
+	private List<DoubleTextField> condValueFields;
+	private List<JButton> addButtons;
+	private List<JButton> removeButtons;
+
+	private JPanel settingsNamePanel;
+	private JPanel settingsValuePanel;
+	private JPanel settingsUnitPanel;
+	private JPanel addPanel;
+	private JPanel removePanel;
+
 	/**
 	 * New pane for configuring the TimeSeriesCreator node.
 	 */
 	protected TimeSeriesCreatorNodeDialog() {
-		JPanel upperPanel = new JPanel();
-		JPanel upperPanel1 = new JPanel();
-		JPanel leftPanel1 = new JPanel();
-		JPanel rightPanel1 = new JPanel();
-		JPanel upperPanel2 = new JPanel();
-		JPanel leftPanel2 = new JPanel();
-		JPanel rightPanel2 = new JPanel();
-		JPanel bottomPanel = new JPanel();
+		condNameFields = new ArrayList<StringTextField>();
+		condValueFields = new ArrayList<DoubleTextField>();
+		addButtons = new ArrayList<JButton>();
+		removeButtons = new ArrayList<JButton>();
 
 		panel = new JPanel();
+		settingsNamePanel = new JPanel();
+		settingsValuePanel = new JPanel();
+		settingsUnitPanel = new JPanel();
+		addPanel = new JPanel();
+		removePanel = new JPanel();
 		xlsButton = new JButton("Read from XLS file");
 		xlsButton.addActionListener(this);
 		stepsButton = new JButton("Set equidistant time steps");
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
-		table = new TimeSeriesTable(ROW_COUNT, true);
 		agentField = new StringTextField(true);
 		matrixField = new StringTextField(true);
 		commentField = new StringTextField(true);
@@ -145,68 +159,91 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
 				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
 
-		leftPanel1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftPanel1.setLayout(new GridLayout(6, 1, 5, 5));
-		leftPanel1.add(new JLabel(AttributeUtilities
+		settingsNamePanel
+				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		settingsNamePanel.setLayout(new GridLayout(-1, 1, 5, 5));
+		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"));
-		leftPanel1.add(new JLabel(AttributeUtilities
+		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"));
-		leftPanel1.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
-		leftPanel1.add(new JLabel(AttributeUtilities
+		settingsNamePanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
+		settingsNamePanel.add(new JLabel(AttributeUtilities
+				.getFullName(TimeSeriesSchema.ATT_TIME) + ":"));
+		settingsNamePanel.add(new JLabel(AttributeUtilities
+				.getFullName(TimeSeriesSchema.ATT_LOGC) + ":"));
+		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
-		leftPanel1.add(new JLabel(AttributeUtilities
+		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_PH) + ":"));
-		leftPanel1.add(new JLabel(AttributeUtilities
+		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":"));
 
-		rightPanel1.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightPanel1.setLayout(new GridLayout(6, 1, 5, 5));
-		rightPanel1.add(agentField);
-		rightPanel1.add(matrixField);
-		rightPanel1.add(commentField);
-		rightPanel1.add(temperatureField);
-		rightPanel1.add(phField);
-		rightPanel1.add(waterActivityField);
+		settingsValuePanel.setBorder(BorderFactory
+				.createEmptyBorder(5, 5, 5, 5));
+		settingsValuePanel.setLayout(new GridLayout(-1, 1, 5, 5));
+		settingsValuePanel.add(agentField);
+		settingsValuePanel.add(matrixField);
+		settingsValuePanel.add(commentField);
+		addEmptyLabel(settingsValuePanel, 2);
+		settingsValuePanel.add(temperatureField);
+		settingsValuePanel.add(phField);
+		settingsValuePanel.add(waterActivityField);
 
-		leftPanel2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftPanel2.setLayout(new GridLayout(6, 1, 5, 5));
-		leftPanel2.add(new JLabel("Unit for "
-				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)
-				+ ":"));
-		leftPanel2.add(new JLabel("Unit for "
-				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)
-				+ ":"));
-		leftPanel2.add(new JLabel("Unit for "
-				+ AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
+		settingsUnitPanel
+				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		settingsUnitPanel.setLayout(new GridLayout(-1, 1, 5, 5));
+		addEmptyLabel(settingsUnitPanel, 3);
+		settingsUnitPanel.add(timeBox);
+		settingsUnitPanel.add(logcBox);
+		settingsUnitPanel.add(tempBox);
+		addEmptyLabel(settingsUnitPanel, 2);
 
-		rightPanel2.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightPanel2.setLayout(new GridLayout(6, 1, 5, 5));
-		rightPanel2.add(timeBox);
-		rightPanel2.add(logcBox);
-		rightPanel2.add(tempBox);
+		addPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		addPanel.setLayout(new GridLayout(-1, 1, 5, 5));
+		addEmptyLabel(addPanel, 8);
 
-		upperPanel1.setLayout(new BorderLayout());
-		upperPanel1.add(leftPanel1, BorderLayout.WEST);
-		upperPanel1.add(rightPanel1, BorderLayout.CENTER);
+		removePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		removePanel.setLayout(new GridLayout(-1, 1, 5, 5));
+		addEmptyLabel(removePanel, 8);
 
-		upperPanel2.setLayout(new BorderLayout());
-		upperPanel2.add(leftPanel2, BorderLayout.WEST);
-		upperPanel2.add(rightPanel2, BorderLayout.CENTER);
+		addButtons(0);
 
-		upperPanel.setLayout(new BorderLayout());
-		upperPanel.add(upperPanel1, BorderLayout.CENTER);
-		upperPanel.add(upperPanel2, BorderLayout.EAST);
+		JPanel panel4 = new JPanel();
 
-		bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		bottomPanel.add(xlsButton);
-		bottomPanel.add(stepsButton);
-		bottomPanel.add(clearButton);
+		panel4.setLayout(new GridLayout(1, 2));
+		panel4.add(addPanel);
+		panel4.add(removePanel);
 
+		JPanel panel3 = new JPanel();
+
+		panel3.setLayout(new BorderLayout());
+		panel3.add(settingsUnitPanel, BorderLayout.CENTER);
+		panel3.add(panel4, BorderLayout.EAST);
+
+		JPanel panel2 = new JPanel();
+
+		panel2.setLayout(new BorderLayout());
+		panel2.add(settingsValuePanel, BorderLayout.CENTER);
+		panel2.add(panel3, BorderLayout.EAST);
+
+		JPanel panel1 = new JPanel();
+
+		panel1.setLayout(new BorderLayout());
+		panel1.add(settingsNamePanel, BorderLayout.WEST);
+		panel1.add(panel2, BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel();
+
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.add(xlsButton);
+		buttonPanel.add(stepsButton);
+		buttonPanel.add(clearButton);
+
+		table = new TimeSeriesTable(ROW_COUNT, true);
 		panel.setLayout(new BorderLayout());
-		panel.add(upperPanel, BorderLayout.NORTH);
+		panel.add(panel1, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table), BorderLayout.CENTER);
-		panel.add(bottomPanel, BorderLayout.SOUTH);
+		panel.add(buttonPanel, BorderLayout.SOUTH);
 		addTab("Options", panel);
 	}
 
@@ -299,6 +336,41 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			tempBox.setSelectedItem(AttributeUtilities
 					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
 		}
+
+		List<String> miscNames;
+		List<Double> miscValues;
+		int n = removeButtons.size();
+
+		try {
+			miscNames = ListUtilities.getStringListFromString(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCNAMES));
+		} catch (InvalidSettingsException e) {
+			miscNames = new ArrayList<String>();
+		}
+
+		try {
+			miscValues = ListUtilities.getDoubleListFromString(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES));
+		} catch (InvalidSettingsException e) {
+			miscValues = new ArrayList<Double>();
+		}
+
+		for (int i = 0; i < n; i++) {
+			removeButtons(0);
+		}
+
+		for (int i = 0; i < miscNames.size(); i++) {
+			String name = miscNames.get(i);
+			Double value = miscValues.get(i);
+
+			if (value != null && value.isNaN()) {
+				value = null;
+			}
+
+			addButtons(0);
+			condNameFields.get(0).setText(name);
+			condValueFields.get(0).setValue(value);
+		}
 	}
 
 	@Override
@@ -314,6 +386,18 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (!waterActivityField.isValueValid()) {
 			throw new InvalidSettingsException("Invalid Value");
+		}
+
+		for (int i = 0; i < condNameFields.size(); i++) {
+			if (!condNameFields.get(i).isValueValid()) {
+				throw new InvalidSettingsException("Invalid Value");
+			}
+		}
+
+		for (int i = 0; i < condValueFields.size(); i++) {
+			if (!condValueFields.get(i).isValueValid()) {
+				throw new InvalidSettingsException("Invalid Value");
+			}
 		}
 
 		if (agentField.getValue() != null) {
@@ -386,6 +470,19 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				(String) logcBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
+
+		List<String> miscNames = new ArrayList<String>();
+		List<Double> miscValues = new ArrayList<Double>();
+
+		for (int i = 0; i < condNameFields.size(); i++) {
+			miscNames.add(condNameFields.get(i).getValue());
+			miscValues.add(condValueFields.get(i).getValue());
+		}
+
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCNAMES,
+				ListUtilities.getStringFromList(miscNames));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
+				ListUtilities.getStringFromList(miscValues));
 	}
 
 	@Override
@@ -416,7 +513,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				double stepSize = dialog.getStepSize();
 
 				for (int i = 0; i < ROW_COUNT; i++) {
-					Double time = null;					
+					Double time = null;
 
 					if (i < stepNumber) {
 						time = i * stepSize;
@@ -428,7 +525,68 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				table.repaint();
 			}
+		} else if (addButtons.contains(event.getSource())) {
+			addButtons(addButtons.indexOf(event.getSource()));
+			panel.revalidate();
+		} else if (removeButtons.contains(event.getSource())) {
+			removeButtons(removeButtons.indexOf(event.getSource()));
+			panel.revalidate();
 		}
+
+	}
+
+	private void addEmptyLabel(JPanel panel, int n) {
+		for (int i = 0; i < n; i++) {
+			panel.add(new JLabel());
+		}
+	}
+
+	private void addButtons(int i) {
+		if (addButtons.isEmpty()) {
+			JButton addButton = new JButton("+");
+
+			addButton.addActionListener(this);
+
+			addButtons.add(0, addButton);
+			addEmptyLabel(settingsNamePanel, 1);
+			addEmptyLabel(settingsValuePanel, 1);
+			addEmptyLabel(settingsUnitPanel, 1);
+			addPanel.add(addButton);
+			addEmptyLabel(removePanel, 1);
+		} else {
+			int panelIndex = i + 8;
+			JButton addButton = new JButton("+");
+			JButton removeButton = new JButton("-");
+			StringTextField nameField = new StringTextField();
+			DoubleTextField valueField = new DoubleTextField(true);
+
+			addButton.addActionListener(this);
+			removeButton.addActionListener(this);
+
+			addButtons.add(i, addButton);
+			removeButtons.add(i, removeButton);
+			condNameFields.add(i, nameField);
+			condValueFields.add(i, valueField);
+			addPanel.add(addButton, panelIndex);
+			removePanel.add(removeButton, panelIndex);
+			settingsNamePanel.add(nameField, panelIndex);
+			settingsValuePanel.add(valueField, panelIndex);
+			settingsUnitPanel.add(new JLabel(), panelIndex);
+		}
+	}
+
+	private void removeButtons(int i) {
+		int panelIndex = i + 8;
+
+		addButtons.remove(i);
+		removeButtons.remove(i);
+		condNameFields.remove(i);
+		condValueFields.remove(i);
+		addPanel.remove(panelIndex);
+		removePanel.remove(panelIndex);
+		settingsNamePanel.remove(panelIndex);
+		settingsValuePanel.remove(panelIndex);
+		settingsUnitPanel.remove(panelIndex);
 	}
 
 	private void loadFromXLS() {
@@ -472,6 +630,27 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				waterActivityField.setValue(tuple
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 
+				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				int n = removeButtons.size();
+
+				for (int i = 0; i < n; i++) {
+					removeButtons(0);
+				}
+
+				for (int i = 0; i < miscXML.getElementSet().size(); i++) {
+					MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
+					String name = misc.getName();
+					Double value = misc.getValue();
+
+					if (value != null && value.isNaN()) {
+						value = null;
+					}
+
+					addButtons(0);
+					condNameFields.get(0).setText(name);
+					condValueFields.get(0).setValue(value);
+				}
+
 				List<Double> timeList = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> logcList = tuple
@@ -494,9 +673,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					}
 
 					table.setTime(i, time);
-					table.setLogc(i, logc);					
+					table.setLogc(i, logc);
 				}
 
+				panel.revalidate();
 				table.repaint();
 			} catch (Exception e) {
 				e.printStackTrace();

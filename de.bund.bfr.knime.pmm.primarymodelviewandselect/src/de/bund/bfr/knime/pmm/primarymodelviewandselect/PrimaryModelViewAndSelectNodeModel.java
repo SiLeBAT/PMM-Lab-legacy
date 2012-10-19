@@ -94,6 +94,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
 	static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
 	static final String CFG_TRANSFORMY = "TransformY";
+	static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	static final String CFG_MODELFILTER = "ModelFilter";
 	static final String CFG_DATAFILTER = "DataFilter";
 	static final String CFG_FITTEDFILTER = "FittedFilter";
@@ -109,6 +110,9 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final int DEFAULT_ADDLEGENDINFO = 0;
 	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
+	static final String DEFAULT_VISIBLECOLUMNS = Model1Schema.ATT_MODELNAME
+			+ "," + TimeSeriesSchema.DATAID + "," + Model1Schema.ATT_RMS + ","
+			+ Model1Schema.ATT_RSQUARED;
 	static final String DEFAULT_MODELFILTER = "";
 	static final String DEFAULT_DATAFILTER = "";
 	static final String DEFAULT_FITTEDFILTER = "";
@@ -127,6 +131,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	private int addLegendInfo;
 	private int displayHighlighted;
 	private String transformY;
+	private List<String> visibleColumns;
 	private String modelFilter;
 	private String dataFilter;
 	private String fittedFilter;
@@ -154,6 +159,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		showLegend = DEFAULT_SHOWLEGEND;
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		visibleColumns = ListUtilities
+				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 		transformY = DEFAULT_TRANSFORMY;
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
@@ -280,6 +287,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
 		settings.addString(CFG_TRANSFORMY, transformY);
+		settings.addString(CFG_VISIBLECOLUMNS,
+				ListUtilities.getStringFromList(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
@@ -374,6 +383,14 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 			transformY = settings.getString(CFG_TRANSFORMY);
 		} catch (InvalidSettingsException e) {
 			transformY = DEFAULT_TRANSFORMY;
+		}
+
+		try {
+			visibleColumns = ListUtilities.getStringListFromString(settings
+					.getString(CFG_VISIBLECOLUMNS));
+		} catch (InvalidSettingsException e) {
+			visibleColumns = ListUtilities
+					.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 		}
 
 		try {

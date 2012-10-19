@@ -241,6 +241,9 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 				settings);
 		DataViewAndSelectNodeModel.writeShapes(selectionPanel.getShapes(),
 				settings);
+		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
+				ListUtilities.getStringFromList(selectionPanel
+						.getVisibleColumns()));
 
 		settings.addInt(DataViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 
@@ -295,25 +298,6 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			double maxY, boolean drawLines, boolean showLegend,
 			boolean addLegendInfo, boolean displayHighlighted,
 			String transformY, List<String> visibleColumns) {
-		List<Boolean> visibleStringColumns = new ArrayList<Boolean>();
-		List<Boolean> visibleDoubleColumns = new ArrayList<Boolean>();
-
-		for (String column : reader.getStringColumns()) {
-			if (visibleColumns.contains(column)) {
-				visibleStringColumns.add(true);
-			} else {
-				visibleStringColumns.add(false);
-			}
-		}
-
-		for (String column : reader.getDoubleColumns()) {
-			if (visibleColumns.contains(column)) {
-				visibleDoubleColumns.add(true);
-			} else {
-				visibleDoubleColumns.add(false);
-			}
-		}
-
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
@@ -332,8 +316,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleStringColumns, Arrays.asList(false),
-				visibleDoubleColumns);
+				visibleColumns, new ArrayList<String>());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);

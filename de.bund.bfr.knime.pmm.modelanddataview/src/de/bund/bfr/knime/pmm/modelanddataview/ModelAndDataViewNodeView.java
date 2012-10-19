@@ -79,7 +79,7 @@ public class ModelAndDataViewNodeView extends
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
-	private List<Boolean> isDoubleColumnVisible;
+	private List<String> visibleColumns;
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
@@ -127,8 +127,7 @@ public class ModelAndDataViewNodeView extends
 			configPanel.addConfigListener(this);
 			selectionPanel = new DataAndModelSelectionPanel(ids, true,
 					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, Arrays.asList(true, true, false),
-					Arrays.asList(true, true, true), isDoubleColumnVisible);
+					doubleColumnValues, visibleColumns, stringColumns);
 			selectionPanel.addSelectionListener(this);
 			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
 					longLegend);
@@ -223,6 +222,8 @@ public class ModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+		visibleColumns = Arrays.asList(Model1Schema.ATT_RMS,
+				Model1Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isPeiSchema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
@@ -235,8 +236,6 @@ public class ModelAndDataViewNodeView extends
 					TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
-			isDoubleColumnVisible = Arrays.asList(false, false, false, true,
-					true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -251,7 +250,6 @@ public class ModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
-			isDoubleColumnVisible = Arrays.asList(true, true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());

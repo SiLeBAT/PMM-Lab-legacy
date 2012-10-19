@@ -106,59 +106,56 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	public DataAndModelSelectionPanel(List<String> ids,
 			boolean selectionsExclusive, List<String> stringColumns,
 			List<List<String>> stringColumnValues, List<String> doubleColumns,
-			List<List<Double>> doubleColumnValues,
-			List<Boolean> isStringColumnVisible,
-			List<Boolean> isStringColumnFilterable,
-			List<Boolean> isDoubleColumnVisible) {
+			List<List<Double>> doubleColumnValues, List<String> visibleColumns,
+			List<String> filterableColumns) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
-				doubleColumns, doubleColumnValues, isStringColumnVisible,
-				isStringColumnFilterable, isDoubleColumnVisible, null);
+				doubleColumns, doubleColumnValues, visibleColumns,
+				filterableColumns, null);
 	}
 
 	public DataAndModelSelectionPanel(List<String> ids,
 			boolean selectionsExclusive, List<String> stringColumns,
 			List<List<String>> stringColumnValues, List<String> doubleColumns,
-			List<List<Double>> doubleColumnValues,
-			List<Boolean> isStringColumnVisible,
-			List<Boolean> isStringColumnFilterable,
-			List<Boolean> isDoubleColumnVisible, List<Integer> colorCounts) {
+			List<List<Double>> doubleColumnValues, List<String> visibleColumns,
+			List<String> filterableStringColumns, List<Integer> colorCounts) {
 		listeners = new ArrayList<SelectionListener>();
 
 		JPanel upperPanel = new JPanel();
 
 		upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.Y_AXIS));
 
-		if (isStringColumnFilterable.contains(true)) {
+		if (!filterableStringColumns.isEmpty()) {
+			JPanel upperPanel1 = new JPanel();
 			JPanel filterPanel = new JPanel();
 
+			upperPanel1.setLayout(new FlowLayout(FlowLayout.LEFT));
 			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 			filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			comboBoxes = new LinkedHashMap<String, JComboBox>();
 
-			for (int i = 0; i < stringColumns.size(); i++) {
-				if (isStringColumnFilterable.get(i)) {
-					List<String> values = new ArrayList<String>();
+			for (String column : filterableStringColumns) {
+				List<String> values = new ArrayList<String>();
 
-					values.add("");
-					values.addAll(new LinkedHashSet<String>(stringColumnValues
-							.get(i)));
-					Collections.sort(values);
+				values.add("");
+				values.addAll(new LinkedHashSet<String>(stringColumnValues
+						.get(stringColumns.indexOf(column))));
+				Collections.sort(values);
 
-					JComboBox box = new JComboBox(values.toArray(new String[0]));
+				JComboBox box = new JComboBox(values.toArray(new String[0]));
 
-					box.addActionListener(this);
-					filterPanel.add(new JLabel(stringColumns.get(i) + ":"));
-					filterPanel.add(box);
-					comboBoxes.put(stringColumns.get(i), box);
-				}
+				box.addActionListener(this);
+				filterPanel.add(new JLabel(column + ":"));
+				filterPanel.add(box);
+				comboBoxes.put(column, box);
 			}
 
-			upperPanel.add(new SpacePanel(filterPanel));
+			upperPanel1.add(filterPanel);
+			upperPanel.add(new SpacePanel(upperPanel1));
 		}
 
-		JPanel optionsPanel = new JPanel();
+		JPanel upperPanel2 = new JPanel();
 
-		optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		upperPanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
 
 		if (!selectionsExclusive) {
 			JPanel selectPanel = new JPanel();
@@ -175,7 +172,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			selectPanel.add(selectAllButton);
 			selectPanel.add(unselectAllButton);
 			selectPanel.add(invertSelectionButton);
-			optionsPanel.add(selectPanel);
+			upperPanel2.add(selectPanel);
 		}
 
 		JPanel columnPanel = new JPanel();
@@ -185,8 +182,8 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		columnPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		columnPanel.add(customizeColumnsButton);
 
-		optionsPanel.add(columnPanel);
-		upperPanel.add(optionsPanel);
+		upperPanel2.add(columnPanel);
+		upperPanel.add(new SpacePanel(upperPanel2));
 
 		SelectTableModel model;
 
@@ -261,34 +258,28 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		selectTable.getColumn(SelectTableModel.SHAPE).getCellEditor()
 				.addCellEditorListener(this);
 
-		for (int i = 0; i < stringColumns.size(); i++) {
-			if (!isStringColumnVisible.get(i)) {
-				selectTable.getColumn(stringColumns.get(i)).setMinWidth(0);
-				selectTable.getColumn(stringColumns.get(i)).setMaxWidth(0);
-				selectTable.getColumn(stringColumns.get(i))
-						.setPreferredWidth(0);
+		for (String column : doubleColumns) {
+			if (!visibleColumns.contains(column)) {
+				selectTable.getColumn(column).setMinWidth(0);
+				selectTable.getColumn(column).setMaxWidth(0);
+				selectTable.getColumn(column).setPreferredWidth(0);
 			} else {
-				selectTable.getColumn(stringColumns.get(i)).setMinWidth(
-						MIN_COLUMN_WIDTH);
-				selectTable.getColumn(stringColumns.get(i)).setMaxWidth(
-						MAX_COLUMN_WIDTH);
-				selectTable.getColumn(stringColumns.get(i)).setPreferredWidth(
+				selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
+				selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
+				selectTable.getColumn(column).setPreferredWidth(
 						PREFERRED_COLUMN_WIDTH);
 			}
 		}
 
-		for (int i = 0; i < doubleColumns.size(); i++) {
-			if (!isDoubleColumnVisible.get(i)) {
-				selectTable.getColumn(doubleColumns.get(i)).setMinWidth(0);
-				selectTable.getColumn(doubleColumns.get(i)).setMaxWidth(0);
-				selectTable.getColumn(doubleColumns.get(i))
-						.setPreferredWidth(0);
+		for (String column : stringColumns) {
+			if (!visibleColumns.contains(column)) {
+				selectTable.getColumn(column).setMinWidth(0);
+				selectTable.getColumn(column).setMaxWidth(0);
+				selectTable.getColumn(column).setPreferredWidth(0);
 			} else {
-				selectTable.getColumn(doubleColumns.get(i)).setMinWidth(
-						MIN_COLUMN_WIDTH);
-				selectTable.getColumn(doubleColumns.get(i)).setMaxWidth(
-						MAX_COLUMN_WIDTH);
-				selectTable.getColumn(doubleColumns.get(i)).setPreferredWidth(
+				selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
+				selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
+				selectTable.getColumn(column).setPreferredWidth(
 						PREFERRED_COLUMN_WIDTH);
 			}
 		}
@@ -428,6 +419,20 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		}
 
 		return shapes;
+	}
+
+	public List<String> getVisibleColumns() {
+		List<String> visibleColumns = new ArrayList<String>();
+
+		for (int i = 4; i < selectTable.getColumnCount(); i++) {
+			String columnName = selectTable.getColumnName(i);
+
+			if (selectTable.getColumn(columnName).getMaxWidth() != 0) {
+				visibleColumns.add(columnName);
+			}
+		}
+
+		return visibleColumns;
 	}
 
 	public void addSelectionListener(SelectionListener listener) {

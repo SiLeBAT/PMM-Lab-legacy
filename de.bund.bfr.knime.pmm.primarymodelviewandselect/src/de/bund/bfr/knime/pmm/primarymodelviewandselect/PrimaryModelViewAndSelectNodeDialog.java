@@ -132,6 +132,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		int addLegendInfo;
 		int displayHighlighted;
 		String transformY;
+		List<String> visibleColumns;
 		String modelFilter;
 		String dataFilter;
 		String fittedFilter;
@@ -234,6 +235,15 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
+			visibleColumns = ListUtilities
+					.getStringListFromString(settings
+							.getString(PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+		} catch (InvalidSettingsException e) {
+			visibleColumns = ListUtilities
+					.getStringListFromString(PrimaryModelViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
+		}
+
+		try {
 			modelFilter = settings
 					.getString(PrimaryModelViewAndSelectNodeModel.CFG_MODELFILTER);
 		} catch (InvalidSettingsException e) {
@@ -269,8 +279,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
 				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, transformY, modelFilter, dataFilter,
-				fittedFilter));
+				displayHighlighted == 1, transformY, visibleColumns,
+				modelFilter, dataFilter, fittedFilter));
 	}
 
 	@Override
@@ -283,6 +293,10 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				selectionPanel.getColors(), settings);
 		PrimaryModelViewAndSelectNodeModel.writeShapes(
 				selectionPanel.getShapes(), settings);
+		settings.addString(
+				PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
+				ListUtilities.getStringFromList(selectionPanel
+						.getVisibleColumns()));
 
 		settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 
@@ -350,8 +364,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			boolean manualRange, double minX, double maxX, double minY,
 			double maxY, boolean drawLines, boolean showLegend,
 			boolean addLegendInfo, boolean displayHighlighted,
-			String transformY, String modelFilter, String dataFilter,
-			String fittedFilter) {
+			String transformY, List<String> visibleColumns, String modelFilter,
+			String dataFilter, String fittedFilter) {
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
@@ -370,8 +384,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				Arrays.asList(true, true, false), Arrays.asList(true, true,
-						true), reader.getDoubleColumnsVisible());
+				visibleColumns, reader.getStringColumns());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.ATT_MODELNAME, modelFilter);

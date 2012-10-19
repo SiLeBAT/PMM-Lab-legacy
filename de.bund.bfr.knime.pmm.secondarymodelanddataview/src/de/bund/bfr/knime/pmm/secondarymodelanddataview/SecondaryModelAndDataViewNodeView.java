@@ -84,6 +84,8 @@ public class SecondaryModelAndDataViewNodeView extends
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<String> visibleColumns;
+	private List<String> filterableStringColumns;
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
@@ -132,18 +134,15 @@ public class SecondaryModelAndDataViewNodeView extends
 						DataAndModelChartConfigPanel.PARAMETER_BOXES);
 				selectionPanel = new DataAndModelSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
-						doubleColumnValues, Arrays.asList(true, true, false),
-						Arrays.asList(false, false, true), Arrays.asList(false,
-								false, false, false, false, false, true, true),
-						colorCounts);
+						doubleColumnValues, visibleColumns,
+						filterableStringColumns, colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
 				configPanel = new DataAndModelChartConfigPanel(
 						DataAndModelChartConfigPanel.PARAMETER_FIELDS);
 				selectionPanel = new DataAndModelSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
-						doubleColumnValues, Arrays.asList(true, true, false),
-						Arrays.asList(false, false, true), Arrays.asList(true,
-								true));
+						doubleColumnValues, visibleColumns,
+						filterableStringColumns);
 			}
 
 			configPanel.addConfigListener(this);
@@ -269,10 +268,13 @@ public class SecondaryModelAndDataViewNodeView extends
 		longLegend = new LinkedHashMap<String, String>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,
 				Model1Schema.ATT_MODELNAME, ChartConstants.IS_FITTED);
+		filterableStringColumns = Arrays.asList(ChartConstants.IS_FITTED);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
+		visibleColumns = Arrays.asList(Model2Schema.ATT_RMS,
+				Model2Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isSeiSchema()) {
 			doubleColumns = Arrays.asList("Min "

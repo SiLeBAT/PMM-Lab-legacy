@@ -83,6 +83,7 @@ public class CombinedModelAndDataViewNodeView extends
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<String> visibleColumns;
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
@@ -131,9 +132,7 @@ public class CombinedModelAndDataViewNodeView extends
 			configPanel.addConfigListener(this);
 			selectionPanel = new DataAndModelSelectionPanel(ids, true,
 					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, Arrays.asList(true, true, false),
-					Arrays.asList(true, true, true), Arrays.asList(false,
-							false, false, true, true));
+					doubleColumnValues, visibleColumns, stringColumns);
 			selectionPanel.addSelectionListener(this);
 			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
 					longLegend);
@@ -236,6 +235,8 @@ public class CombinedModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+		visibleColumns = Arrays.asList(Model1Schema.ATT_RMS,
+				Model1Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isSeiSchema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,

@@ -46,7 +46,7 @@ public class TableReader {
 		allTuples = new ArrayList<KnimeTuple>();
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
-		stringColumns = Arrays.asList("ID");
+		stringColumns = Arrays.asList(TimeSeriesSchema.DATAID);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		doubleColumns = Arrays.asList(TimeSeriesSchema.ATT_TEMPERATURE,

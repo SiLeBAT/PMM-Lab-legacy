@@ -87,6 +87,10 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 	private static final long serialVersionUID = 1L;
 
+	private static final int MIN_COLUMN_WIDTH = 15;
+	private static final int MAX_COLUMN_WIDTH = 2147483647;
+	private static final int PREFERRED_COLUMN_WIDTH = 75;
+
 	private List<SelectionListener> listeners;
 
 	private ColorAndShapeCreator colorAndShapes;
@@ -263,6 +267,13 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				selectTable.getColumn(stringColumns.get(i)).setMaxWidth(0);
 				selectTable.getColumn(stringColumns.get(i))
 						.setPreferredWidth(0);
+			} else {
+				selectTable.getColumn(stringColumns.get(i)).setMinWidth(
+						MIN_COLUMN_WIDTH);
+				selectTable.getColumn(stringColumns.get(i)).setMaxWidth(
+						MAX_COLUMN_WIDTH);
+				selectTable.getColumn(stringColumns.get(i)).setPreferredWidth(
+						PREFERRED_COLUMN_WIDTH);
 			}
 		}
 
@@ -272,6 +283,13 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				selectTable.getColumn(doubleColumns.get(i)).setMaxWidth(0);
 				selectTable.getColumn(doubleColumns.get(i))
 						.setPreferredWidth(0);
+			} else {
+				selectTable.getColumn(doubleColumns.get(i)).setMinWidth(
+						MIN_COLUMN_WIDTH);
+				selectTable.getColumn(doubleColumns.get(i)).setMaxWidth(
+						MAX_COLUMN_WIDTH);
+				selectTable.getColumn(doubleColumns.get(i)).setPreferredWidth(
+						PREFERRED_COLUMN_WIDTH);
 			}
 		}
 
@@ -450,18 +468,12 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		} else if (e.getSource() == customizeColumnsButton) {
 			List<String> columnNames = new ArrayList<String>();
 			List<Boolean> isVisible = new ArrayList<Boolean>();
-			int defaultMin = 0;
-			int defaultMax = 0;
-			int defaultPreferred = 0;
 
 			for (int i = 4; i < selectTable.getColumnCount(); i++) {
 				String columnName = selectTable.getColumnName(i);
 				TableColumn column = selectTable.getColumn(columnName);
 				boolean selected = column.getMaxWidth() != 0;
 
-				defaultMin = column.getMinWidth();
-				defaultMax = column.getMaxWidth();
-				defaultPreferred = column.getPreferredWidth();
 				columnNames.add(columnName);
 				isVisible.add(selected);
 			}
@@ -477,11 +489,11 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				for (int i = 0; i < columnNames.size(); i++) {
 					if (selected.get(i)) {
 						selectTable.getColumn(columnNames.get(i)).setMinWidth(
-								defaultMin);
+								MIN_COLUMN_WIDTH);
 						selectTable.getColumn(columnNames.get(i)).setMaxWidth(
-								defaultMax);
+								MAX_COLUMN_WIDTH);
 						selectTable.getColumn(columnNames.get(i))
-								.setPreferredWidth(defaultPreferred);
+								.setPreferredWidth(PREFERRED_COLUMN_WIDTH);
 					} else {
 						selectTable.getColumn(columnNames.get(i))
 								.setMinWidth(0);

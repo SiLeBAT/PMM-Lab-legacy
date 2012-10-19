@@ -288,12 +288,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			double[] timeArray = settings
-					.getDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_TIMEARRAY);
+			List<Double> timeValues = ListUtilities
+					.getDoubleListFromString(settings
+							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEVALUES));
 
-			for (int i = 0; i < timeArray.length; i++) {
-				if (!Double.isNaN(timeArray[i])) {
-					table.setTime(i, timeArray[i]);
+			for (int i = 0; i < timeValues.size(); i++) {
+				if (!Double.isNaN(timeValues.get(i))) {
+					table.setTime(i, timeValues.get(i));
 				}
 			}
 		} catch (InvalidSettingsException e) {
@@ -301,12 +302,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			double[] logcArray = settings
-					.getDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_LOGCARRAY);
+			List<Double> logcValues = ListUtilities
+					.getDoubleListFromString(settings
+							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCVALUES));
 
-			for (int i = 0; i < logcArray.length; i++) {
-				if (!Double.isNaN(logcArray[i])) {
-					table.setLogc(i, logcArray[i]);
+			for (int i = 0; i < logcValues.size(); i++) {
+				if (!Double.isNaN(logcValues.get(i))) {
+					table.setLogc(i, logcValues.get(i));
 				}
 			}
 		} catch (InvalidSettingsException e) {
@@ -438,32 +440,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Double logc = table.getLogc(i);
 
 			if (time != null || logc != null) {
-				if (time != null) {
-					timeList.add(time);
-				} else {
-					timeList.add(Double.NaN);
-				}
-
-				if (logc != null) {
-					logcList.add(logc);
-				} else {
-					logcList.add(Double.NaN);
-				}
+				timeList.add(time);
+				logcList.add(logc);
 			}
 		}
 
-		double[] timeArray = new double[timeList.size()];
-		double[] logcArray = new double[timeList.size()];
-
-		for (int i = 0; i < timeList.size(); i++) {
-			timeArray[i] = timeList.get(i);
-			logcArray[i] = logcList.get(i);
-		}
-
-		settings.addDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_TIMEARRAY,
-				timeArray);
-		settings.addDoubleArray(TimeSeriesCreatorNodeModel.CFGKEY_LOGCARRAY,
-				logcArray);
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEVALUES,
+				ListUtilities.getStringFromList(timeList));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCVALUES,
+				ListUtilities.getStringFromList(logcList));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
@@ -490,6 +475,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (event.getSource() == xlsButton) {
 			loadFromXLS();
 		} else if (event.getSource() == clearButton) {
+			int n = removeButtons.size();
+
 			agentField.setValue(null);
 			matrixField.setValue(null);
 			commentField.setValue(null);
@@ -497,11 +484,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			phField.setValue(null);
 			waterActivityField.setValue(null);
 
+			for (int i = 0; i < n; i++) {
+				removeButtons(0);
+			}
+
 			for (int i = 0; i < ROW_COUNT; i++) {
 				table.setTime(i, null);
 				table.setLogc(i, null);
 			}
 
+			panel.revalidate();
 			table.repaint();
 		} else if (event.getSource() == stepsButton) {
 			TimeStepDialog dialog = new TimeStepDialog(panel);

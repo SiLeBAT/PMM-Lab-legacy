@@ -74,8 +74,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	static final String CFGKEY_WATERACTIVITY = "WaterActivity";
 	static final String CFGKEY_MISCNAMES = "MiscNames";
 	static final String CFGKEY_MISCVALUES = "MiscValues";
-	static final String CFGKEY_TIMEARRAY = "TimeList";
-	static final String CFGKEY_LOGCARRAY = "LogcList";
+	static final String CFGKEY_TIMEVALUES = "TimeValues";
+	static final String CFGKEY_LOGCVALUES = "LogcValue";
 	static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	static final String CFGKEY_TEMPUNIT = "TempUnit";
@@ -88,8 +88,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	private Double temperature;
 	private Double ph;
 	private Double waterActivity;
-	private double[] timeArray;
-	private double[] logcArray;
+	private List<Double> timeValues;
+	private List<Double> logcValues;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
@@ -102,8 +102,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
 		schema = new TimeSeriesSchema();
-		timeArray = new double[0];
-		logcArray = new double[0];
+		timeValues = new ArrayList<Double>();
+		logcValues = new ArrayList<Double>();
 		timeUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TIME);
 		logcUnit = AttributeUtilities
@@ -132,11 +132,11 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 					miscNames.get(i), "", miscValues.get(i), ""));
 		}
 
-		for (int i = 0; i < timeArray.length; i++) {
+		for (int i = 0; i < timeValues.size(); i++) {
 			times.add(AttributeUtilities.convertToStandardUnit(
-					TimeSeriesSchema.ATT_TIME, timeArray[i], timeUnit));
+					TimeSeriesSchema.ATT_TIME, timeValues.get(i), timeUnit));
 			logcs.add(AttributeUtilities.convertToStandardUnit(
-					TimeSeriesSchema.ATT_LOGC, logcArray[i], logcUnit));
+					TimeSeriesSchema.ATT_LOGC, logcValues.get(i), logcUnit));
 		}
 
 		KnimeTuple tuple = new KnimeTuple(schema);
@@ -206,8 +206,10 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			settings.addDouble(CFGKEY_WATERACTIVITY, waterActivity);
 		}
 
-		settings.addDoubleArray(CFGKEY_TIMEARRAY, timeArray);
-		settings.addDoubleArray(CFGKEY_LOGCARRAY, logcArray);
+		settings.addString(CFGKEY_TIMEVALUES,
+				ListUtilities.getStringFromList(timeValues));
+		settings.addString(CFGKEY_LOGCVALUES,
+				ListUtilities.getStringFromList(logcValues));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
@@ -260,15 +262,17 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			timeArray = settings.getDoubleArray(CFGKEY_TIMEARRAY);
+			timeValues = ListUtilities.getDoubleListFromString(settings
+					.getString(CFGKEY_TIMEVALUES));
 		} catch (InvalidSettingsException e) {
-			timeArray = new double[0];
+			timeValues = new ArrayList<Double>();
 		}
 
 		try {
-			logcArray = settings.getDoubleArray(CFGKEY_LOGCARRAY);
+			logcValues = ListUtilities.getDoubleListFromString(settings
+					.getString(CFGKEY_LOGCVALUES));
 		} catch (InvalidSettingsException e) {
-			logcArray = new double[0];
+			logcValues = new ArrayList<Double>();
 		}
 
 		try {

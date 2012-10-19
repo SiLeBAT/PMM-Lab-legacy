@@ -368,7 +368,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
 				Arrays.asList(true, true, false), Arrays.asList(true, true,
-						true));
+						true), reader.getDoubleColumnsVisible());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.ATT_MODELNAME, modelFilter);
@@ -395,7 +395,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				upperSplitPane, bottomPanel);
-		
+
 		splitPane.setResizeWeight(1.0);
 
 		return splitPane;

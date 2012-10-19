@@ -300,7 +300,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				Arrays.asList(true), Arrays.asList(false));
+				Arrays.asList(true), Arrays.asList(false), Arrays.asList(false,
+						false, false));
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);
@@ -324,7 +325,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				upperSplitPane, bottomPanel);
-		
+
 		splitPane.setResizeWeight(1.0);
 
 		return splitPane;

@@ -133,14 +133,17 @@ public class SecondaryModelAndDataViewNodeView extends
 				selectionPanel = new DataAndModelSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, Arrays.asList(true, true, false),
-						Arrays.asList(false, false, true), colorCounts);
+						Arrays.asList(false, false, true), Arrays.asList(false,
+								false, false, false, false, false, true, true),
+						colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
 				configPanel = new DataAndModelChartConfigPanel(
 						DataAndModelChartConfigPanel.PARAMETER_FIELDS);
 				selectionPanel = new DataAndModelSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, Arrays.asList(true, true, false),
-						Arrays.asList(false, false, true));
+						Arrays.asList(false, false, true), Arrays.asList(true,
+								true));
 			}
 
 			configPanel.addConfigListener(this);

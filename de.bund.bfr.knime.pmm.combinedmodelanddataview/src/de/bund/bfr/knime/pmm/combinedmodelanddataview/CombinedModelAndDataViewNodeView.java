@@ -132,7 +132,8 @@ public class CombinedModelAndDataViewNodeView extends
 			selectionPanel = new DataAndModelSelectionPanel(ids, true,
 					stringColumns, stringColumnValues, doubleColumns,
 					doubleColumnValues, Arrays.asList(true, true, false),
-					Arrays.asList(true, true, true));
+					Arrays.asList(true, true, true), Arrays.asList(false,
+							false, false, true, true));
 			selectionPanel.addSelectionListener(this);
 			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
 					longLegend);

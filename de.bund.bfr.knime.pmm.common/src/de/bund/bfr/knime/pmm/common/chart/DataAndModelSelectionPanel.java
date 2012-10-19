@@ -53,6 +53,7 @@ import java.util.Set;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -76,6 +77,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
@@ -94,6 +96,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	private JButton selectAllButton;
 	private JButton unselectAllButton;
 	private JButton invertSelectionButton;
+	private JButton customizeColumnsButton;
 	private Map<String, JComboBox> comboBoxes;
 
 	public DataAndModelSelectionPanel(List<String> ids,
@@ -101,10 +104,11 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			List<List<String>> stringColumnValues, List<String> doubleColumns,
 			List<List<Double>> doubleColumnValues,
 			List<Boolean> isStringColumnVisible,
-			List<Boolean> isStringColumnFilterable) {
+			List<Boolean> isStringColumnFilterable,
+			List<Boolean> isDoubleColumnVisible) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
 				doubleColumns, doubleColumnValues, isStringColumnVisible,
-				isStringColumnFilterable, null);
+				isStringColumnFilterable, isDoubleColumnVisible, null);
 	}
 
 	public DataAndModelSelectionPanel(List<String> ids,
@@ -112,30 +116,13 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			List<List<String>> stringColumnValues, List<String> doubleColumns,
 			List<List<Double>> doubleColumnValues,
 			List<Boolean> isStringColumnVisible,
-			List<Boolean> isStringColumnFilterable, List<Integer> colorCounts) {
+			List<Boolean> isStringColumnFilterable,
+			List<Boolean> isDoubleColumnVisible, List<Integer> colorCounts) {
 		listeners = new ArrayList<SelectionListener>();
 
 		JPanel upperPanel = new JPanel();
 
-		upperPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-
-		if (!selectionsExclusive) {
-			JPanel selectPanel = new JPanel();
-
-			selectAllButton = new JButton("All");
-			selectAllButton.addActionListener(this);
-			unselectAllButton = new JButton("None");
-			unselectAllButton.addActionListener(this);
-			invertSelectionButton = new JButton("Invert");
-			invertSelectionButton.addActionListener(this);
-
-			selectPanel.setBorder(BorderFactory.createTitledBorder("Select"));
-			selectPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			selectPanel.add(selectAllButton);
-			selectPanel.add(unselectAllButton);
-			selectPanel.add(invertSelectionButton);
-			upperPanel.add(selectPanel);
-		}
+		upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.Y_AXIS));
 
 		if (isStringColumnFilterable.contains(true)) {
 			JPanel filterPanel = new JPanel();
@@ -162,8 +149,40 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				}
 			}
 
-			upperPanel.add(filterPanel);
+			upperPanel.add(new SpacePanel(filterPanel));
 		}
+
+		JPanel optionsPanel = new JPanel();
+
+		optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		if (!selectionsExclusive) {
+			JPanel selectPanel = new JPanel();
+
+			selectAllButton = new JButton("All");
+			selectAllButton.addActionListener(this);
+			unselectAllButton = new JButton("None");
+			unselectAllButton.addActionListener(this);
+			invertSelectionButton = new JButton("Invert");
+			invertSelectionButton.addActionListener(this);
+
+			selectPanel.setBorder(BorderFactory.createTitledBorder("Select"));
+			selectPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			selectPanel.add(selectAllButton);
+			selectPanel.add(unselectAllButton);
+			selectPanel.add(invertSelectionButton);
+			optionsPanel.add(selectPanel);
+		}
+
+		JPanel columnPanel = new JPanel();
+
+		customizeColumnsButton = new JButton("Customize");
+		customizeColumnsButton.addActionListener(this);
+		columnPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
+		columnPanel.add(customizeColumnsButton);
+
+		optionsPanel.add(columnPanel);
+		upperPanel.add(optionsPanel);
 
 		SelectTableModel model;
 
@@ -243,6 +262,15 @@ public class DataAndModelSelectionPanel extends JPanel implements
 				selectTable.getColumn(stringColumns.get(i)).setMinWidth(0);
 				selectTable.getColumn(stringColumns.get(i)).setMaxWidth(0);
 				selectTable.getColumn(stringColumns.get(i))
+						.setPreferredWidth(0);
+			}
+		}
+
+		for (int i = 0; i < doubleColumns.size(); i++) {
+			if (!isDoubleColumnVisible.get(i)) {
+				selectTable.getColumn(doubleColumns.get(i)).setMinWidth(0);
+				selectTable.getColumn(doubleColumns.get(i)).setMaxWidth(0);
+				selectTable.getColumn(doubleColumns.get(i))
 						.setPreferredWidth(0);
 			}
 		}
@@ -418,6 +446,51 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			for (int i = 0; i < selectTable.getRowCount(); i++) {
 				selectTable.setValueAt(!(Boolean) selectTable.getValueAt(i, 1),
 						i, 1);
+			}
+		} else if (e.getSource() == customizeColumnsButton) {
+			List<String> columnNames = new ArrayList<String>();
+			List<Boolean> isVisible = new ArrayList<Boolean>();
+			int defaultMin = 0;
+			int defaultMax = 0;
+			int defaultPreferred = 0;
+
+			for (int i = 4; i < selectTable.getColumnCount(); i++) {
+				String columnName = selectTable.getColumnName(i);
+				TableColumn column = selectTable.getColumn(columnName);
+				boolean selected = column.getMaxWidth() != 0;
+
+				defaultMin = column.getMinWidth();
+				defaultMax = column.getMaxWidth();
+				defaultPreferred = column.getPreferredWidth();
+				columnNames.add(columnName);
+				isVisible.add(selected);
+			}
+
+			ColumnSelectionDialog dialog = new ColumnSelectionDialog(
+					columnNames, isVisible);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				List<Boolean> selected = dialog.getSelection();
+
+				for (int i = 0; i < columnNames.size(); i++) {
+					if (selected.get(i)) {
+						selectTable.getColumn(columnNames.get(i)).setMinWidth(
+								defaultMin);
+						selectTable.getColumn(columnNames.get(i)).setMaxWidth(
+								defaultMax);
+						selectTable.getColumn(columnNames.get(i))
+								.setPreferredWidth(defaultPreferred);
+					} else {
+						selectTable.getColumn(columnNames.get(i))
+								.setMinWidth(0);
+						selectTable.getColumn(columnNames.get(i))
+								.setMaxWidth(0);
+						selectTable.getColumn(columnNames.get(i))
+								.setPreferredWidth(0);
+					}
+				}
 			}
 		} else {
 			applyFilters();
@@ -1131,6 +1204,86 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 				for (JComboBox box : shapeBoxes) {
 					shapeList.add((String) box.getSelectedItem());
+				}
+
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
+	}
+
+	private class ColumnSelectionDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+		private List<Boolean> selection;
+
+		private List<JCheckBox> selectionBoxes;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public ColumnSelectionDialog(List<String> columnNames,
+				List<Boolean> initialSelection) {
+			super(JOptionPane
+					.getFrameForComponent(DataAndModelSelectionPanel.this),
+					"Column Selection", true);
+
+			approved = false;
+			selection = null;
+
+			selectionBoxes = new ArrayList<JCheckBox>();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel.setLayout(new GridLayout(columnNames.size(), 1, 5, 5));
+
+			for (int i = 0; i < columnNames.size(); i++) {
+				JCheckBox box = new JCheckBox(columnNames.get(i));
+
+				box.setSelected(initialSelection.get(i));
+				selectionBoxes.add(box);
+				centerPanel.add(box);
+			}
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<Boolean> getSelection() {
+			return selection;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				selection = new ArrayList<Boolean>();
+
+				for (JCheckBox box : selectionBoxes) {
+					selection.add(box.isSelected());
 				}
 
 				dispose();

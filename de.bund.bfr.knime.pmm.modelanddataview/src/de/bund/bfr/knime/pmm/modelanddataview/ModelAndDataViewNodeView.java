@@ -79,6 +79,7 @@ public class ModelAndDataViewNodeView extends
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<Boolean> isDoubleColumnVisible;
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
 	private Map<String, String> shortLegend;
@@ -127,7 +128,7 @@ public class ModelAndDataViewNodeView extends
 			selectionPanel = new DataAndModelSelectionPanel(ids, true,
 					stringColumns, stringColumnValues, doubleColumns,
 					doubleColumnValues, Arrays.asList(true, true, false),
-					Arrays.asList(true, true, true));
+					Arrays.asList(true, true, true), isDoubleColumnVisible);
 			selectionPanel.addSelectionListener(this);
 			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
 					longLegend);
@@ -234,6 +235,8 @@ public class ModelAndDataViewNodeView extends
 					TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
+			isDoubleColumnVisible = Arrays.asList(false, false, false, true,
+					true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -248,6 +251,7 @@ public class ModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
+			isDoubleColumnVisible = Arrays.asList(true, true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());

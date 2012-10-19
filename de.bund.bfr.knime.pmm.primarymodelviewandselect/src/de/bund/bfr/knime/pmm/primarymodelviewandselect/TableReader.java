@@ -31,6 +31,7 @@ public class TableReader {
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
+	private List<Boolean> doubleColumnsVisible;
 	private List<List<Double>> doubleColumnValues;
 
 	private List<List<String>> infoParameters;
@@ -65,6 +66,8 @@ public class TableReader {
 					TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
+			doubleColumnsVisible = Arrays.asList(false, false, false, true,
+					true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -79,6 +82,7 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
 					Model1Schema.ATT_RSQUARED);
+			doubleColumnsVisible = Arrays.asList(true, true);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -294,6 +298,10 @@ public class TableReader {
 
 	public List<String> getDoubleColumns() {
 		return doubleColumns;
+	}
+
+	public List<Boolean> getDoubleColumnsVisible() {
+		return doubleColumnsVisible;
 	}
 
 	public List<List<Double>> getDoubleColumnValues() {

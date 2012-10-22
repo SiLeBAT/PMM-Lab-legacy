@@ -511,7 +511,7 @@ public class CombinedModelAndDataViewNodeView extends
 			infoParams.addAll(params);
 
 			for (Double value : paramValues) {
-				infoValues.add("" + value);
+				infoValues.add(value);
 			}
 
 			plotables.put(id, plotable);

@@ -12,6 +12,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
@@ -48,9 +50,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC))
 				.setCellEditor(new DoubleCellEditor(editable));
 		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME))
-				.setCellRenderer(new DefaultTableCellRenderer());
+				.setCellRenderer(new DoubleCellRenderer());
 		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC))
-				.setCellRenderer(new DefaultTableCellRenderer());
+				.setCellRenderer(new DoubleCellRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		setCellSelectionEnabled(true);
 		registerKeyboardAction(this, "Copy", KeyStroke.getKeyStroke(
@@ -221,6 +223,23 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			case 1:
 				logcList.set(rowIndex, (Double) aValue);
 				break;
+			}
+		}
+
+	}
+
+	private class DoubleCellRenderer extends DefaultTableCellRenderer {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		protected void setValue(Object value) {
+			if (value != null) {
+				NumberFormat format = new DecimalFormat("0.####");
+
+				setText(format.format((Double) value));
+			} else {
+				super.setValue(value);
 			}
 		}
 

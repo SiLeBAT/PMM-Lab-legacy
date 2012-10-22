@@ -336,13 +336,13 @@ public class SecondaryModelAndDataViewNodeView extends
 						.getDoubleList(Model2Schema.ATT_MAXVALUE);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(
 						Model2Schema.ATT_MODELNAME, Model2Schema.ATT_FORMULA));
-				List<String> infoValues = new ArrayList<String>(Arrays.asList(
+				List<Object> infoValues = new ArrayList<Object>(Arrays.asList(
 						modelNameSec, formulaSec));
 
 				infoParams.addAll(paramNamesSec);
 
 				for (Double value : paramValuesSec) {
-					infoValues.add(value + "");
+					infoValues.add(value);
 				}
 
 				idSet.add(id);

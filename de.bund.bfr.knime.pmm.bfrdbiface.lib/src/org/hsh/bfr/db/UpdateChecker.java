@@ -67,22 +67,32 @@ public class UpdateChecker {
 		updateChangeLog("GeschaetzteModelle", 9, false);
 	}
 	public static void check4Updates_143_144(final MyList myList) {
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("RMS") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false);
-		updateChangeLog("GeschaetzteModelle", 7, false);
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("AIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false);
-		updateChangeLog("GeschaetzteModelle", 8, false);
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false);
-		updateChangeLog("GeschaetzteModelle", 9, false);
-		refreshFKs("GeschaetzteModelle");
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") +
-				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), false);
-		updateChangeLog("GeschaetzteParameter", 9, false);
-		refreshFKs("GeschaetzteParameter");
-		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
-				" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
+		boolean refreshFK = false;
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("RMS") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+			updateChangeLog("GeschaetzteModelle", 7, false);		
+			refreshFK = true;
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("AIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+			updateChangeLog("GeschaetzteModelle", 8, false);			
+			refreshFK = true;
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+			updateChangeLog("GeschaetzteModelle", 9, false);
+			refreshFK = true;
+		}
+		if (refreshFK) refreshFKs("GeschaetzteModelle");
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), false)) {
+			updateChangeLog("GeschaetzteParameter", 9, false);
+			refreshFKs("GeschaetzteParameter");			
+		}
+		if (DBKernel.getID("Parametertyp", "Parametertyp", 4+"") == null) {
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
+					" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
+		}
 		
 		myList.getTable("VarParMaps").createTable();
 		DBKernel.grantDefaults("VarParMaps");

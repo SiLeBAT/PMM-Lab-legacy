@@ -1561,7 +1561,7 @@ public class DBKernel {
 			// folder is empty? Create database!
 			if (incFileInternalDBFolder.list().length == 0) {
 				// Get the bundle this class belongs to.
-				Bundle bundle = FrameworkUtil.getBundle(null);
+				Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
 				URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
 				if (incURLfirstDB == null) { // incURLInternalDBFolder == null || 
 					return null;

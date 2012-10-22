@@ -81,120 +81,64 @@ public class StartApp {
 	      go(null, true, false);
 	}
 	public static void go(final Connection conn, final boolean setVisible, final boolean fromKNIME) {
-	  	if (!DBKernel.debug) {
+		if (!DBKernel.debug) {
 	  		MyLogger.setup(DBKernel.HSH_PATH + "LOGs" + System.getProperty("file.separator") + "log_" + System.currentTimeMillis() + ".txt");
 	  	}
-	      MyLogger.handleMessage(System.getProperty("java.version") + "\t" + (Runtime.getRuntime().maxMemory()/1024/1024)+ "MB"); // -Xms256m -Xmx1g
+		MyLogger.handleMessage(System.getProperty("java.version") + "\t" + (Runtime.getRuntime().maxMemory()/1024/1024)+ "MB"); // -Xms256m -Xmx1g
 	      
 	  	ToolTipManager ttm = null;
-	      ttm = ToolTipManager.sharedInstance();
-	      ttm.setInitialDelay(0);
-	      ttm.setDismissDelay(60000);
-
-	      if (!fromKNIME || conn == null) {
-		  		Login login = new Login(true);
-		  		login.setVisible(setVisible);	    	  
-	      }
-	      else {
-	    	  	DBKernel.isKNIME = true;
-	    	  	Connection kernConn = DBKernel.getLocalConn(false); 
-	    	  	boolean integrateConn = false;
-	    	  	if (kernConn != null) {
-	    	  		try {
-						DatabaseMetaData meta1 = kernConn.getMetaData();
-		    	  		DatabaseMetaData meta2 = conn.getMetaData();
-		    	  		if (meta1.getURL().equals(meta2.getURL()) &&
-		    	  				meta1.getUserName().equals(meta2.getUserName())) {
-		    	  					// identical
-		    	  				}
-		    	  		else {
-		    	  			integrateConn = true;
-		    	  		}
-					}
-	    	  		catch (SQLException e) {
-	    	  			integrateConn = true;
-						//e.printStackTrace();
-					}
+	  	ttm = ToolTipManager.sharedInstance();
+	  	ttm.setInitialDelay(0);
+	  	ttm.setDismissDelay(60000);
+	  	
+	  	if (!fromKNIME || conn == null) {
+	  		Login login = new Login(true);
+	  		login.setVisible(setVisible);	    	  
+	  	}
+	  	else { // KNIME!!!
+	  		if (DBKernel.myList == null) {
+	    	  	Login login = new Login();
+	  	    	MyDBTable myDB = new MyDBTable();
+	  	    	myDB.initConn(conn);
+	  	    	MyDBTree myDBTree = new MyDBTree();
+				MyList myList = new MyList(myDB, myDBTree);
+				DBKernel.myList = myList;
+		    	login.loadMyTables(myList, null);
+		    	
+				MainFrame mf = new MainFrame(myList);
+				DBKernel.mainFrame = mf;
+				myList.setSelection("Versuchsbedingungen"); // DBKernel.prefs.get("LAST_SELECTED_TABLE", 
+	    	  	DBKernel.mainFrame.pack();
+	    	  	//mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+	    	  	DBKernel.mainFrame.setVisible(setVisible);
+	    	  	DBKernel.mainFrame.toFront();
+    	  	}
+    	  	else {
+	    	  	try {
+		    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
+		    	  	DBKernel.mainFrame.toFront();	    	  		
 	    	  	}
-	    	  	System.err.println("W1");
-	    	  	if (kernConn == null || integrateConn) {
-		    	  	System.err.println("W2");
-					DBKernel.setLocalConn(conn);
-		    	  	Login login = new Login();
-		  	    	MyDBTable myDB = new MyDBTable();
-		  	    	myDB.initConn(conn);
-		  	    	MyDBTree myDBTree = new MyDBTree();
-					MyList myList = new MyList(myDB, myDBTree);
-					DBKernel.myList = myList;
-			    	login.loadMyTables(myList, null);
-		    	  	System.err.println("W21");
-			    	
-					MainFrame mf = new MainFrame(myList);
-					DBKernel.mainFrame = mf;
-					myList.setSelection("Versuchsbedingungen"); // DBKernel.prefs.get("LAST_SELECTED_TABLE", 
-		    	  	System.err.println("W22");
-		    	  	DBKernel.mainFrame.pack();
-		    	  	//mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-		    	  	/*
-			  		try {
-					  	if (!DBKernel.sendRequest("SELECT * FROM  " + DBKernel.delimitL("ProzessWorkflow"), false)) {
-						  	boolean isAdmin = DBKernel.isAdmin();
-						  	if (!isAdmin) {
-						  		DBKernel.closeDBConnections(false);
-								DBKernel.getDefaultAdminConn();
-						  	}
-					  		UpdateChecker.check4Updates_141_142(myList); 
-					  		DBKernel.setDBVersion("1.4.2");
-							DBKernel.closeDBConnections(false);
-							go(conn, setVisible);
-							return;
-					  	}
-					}
-			  		catch (Exception e) {
-						e.printStackTrace();
-					}
-		    	  	*/
-		    	  	System.err.println("W23");
-		    	  	DBKernel.mainFrame.setVisible(setVisible);
-		    	  	System.err.println("W24");
-		    	  	DBKernel.mainFrame.toFront();
-		    	  	System.err.println("W25");
-		    	  	/*
-		    	  	try {
-		    	  		myDB.requestFocus(); //.grabFocus();//myDB.selectCell(0, 0);
-		    	  	}
-		    	  	catch (Exception e) {}
-		    	  	System.err.println("W26");
-		    	  	*/
-	    	  	}
-	    	  	else if (kernConn != null) {
-		    	  	System.err.println("W3");
-		    	  	try {
-			    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
-			    	  	DBKernel.mainFrame.toFront();	    	  		
-		    	  	}
-		    	  	catch (Exception e) {e.printStackTrace();}
-	    	  	}
-	    	  	System.err.println("W4");
-	    	  	
-	    	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
-	    	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
-	    	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
-	      }
-	      /*
-	      DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		    DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
-		    */
-		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
-	      //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
-	      //DBKernel.sendRequest("GRANT ALL ON * TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
-	      
-	  		//if (args != null && args.length > 0) login.setUN(args[0]);
-	  		//loadDB(false);
-	  		
-	  		//testFocus();	
-	      
-	      //DBKernel.myList.setSelection("Versuchsbedingungen");
+	    	  	catch (Exception e) {e.printStackTrace();}
+    	  	}
+    	  	
+    	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
+    	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
+    	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
+      }
+      /*
+      DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+	    DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	    */
+	    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
+      //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
+      //DBKernel.sendRequest("GRANT ALL ON * TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
+      
+  		//if (args != null && args.length > 0) login.setUN(args[0]);
+  		//loadDB(false);
+  		
+  		//testFocus();	
+      
+      //DBKernel.myList.setSelection("Versuchsbedingungen");
 	}
 	private static void setUIFont (final javax.swing.plaf.FontUIResource f){
 	    //

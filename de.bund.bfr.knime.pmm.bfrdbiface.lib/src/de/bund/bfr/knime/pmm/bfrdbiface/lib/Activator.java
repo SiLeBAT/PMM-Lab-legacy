@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.bfrdbiface.lib;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.hsh.bfr.db.DBKernel;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -58,6 +59,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
+		DBKernel.isKNIME = true;
 		super.start(context);
 		plugin = this;
 	}

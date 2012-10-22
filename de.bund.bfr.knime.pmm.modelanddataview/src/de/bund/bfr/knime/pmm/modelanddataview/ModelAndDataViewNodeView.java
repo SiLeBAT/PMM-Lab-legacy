@@ -49,7 +49,10 @@ import javax.swing.JSplitPane;
 
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
@@ -346,6 +349,19 @@ public class ModelAndDataViewNodeView extends
 				if (waterActivity != null) {
 					plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY,
 							Collections.nCopies(n, waterActivity));
+				}
+
+				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					if (element.getValue() != null) {
+						plotable.addValueList(
+								element.getName(),
+								new ArrayList<Double>(Collections.nCopies(n,
+										element.getValue())));
+					}
 				}
 
 				String dataName;

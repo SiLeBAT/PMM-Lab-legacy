@@ -86,6 +86,14 @@ public class UpdateChecker {
 		
 		myList.getTable("VarParMaps").createTable();
 		DBKernel.grantDefaults("VarParMaps");
+		
+		if (DBKernel.isKNIME) {
+		    try {
+			      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
+			      //DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
+		    }
+		    catch (Exception e) {MyLogger.handleException(e);}			
+		}
 	}
 	public static void check4Updates_142_143(final MyList myList) {
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_Codes-Matrices_U"), false);

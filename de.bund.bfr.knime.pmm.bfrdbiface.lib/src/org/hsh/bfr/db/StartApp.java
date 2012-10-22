@@ -124,10 +124,16 @@ public class StartApp {
     	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
-      }
-      /*
-      DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-	    DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	  	}
+      
+	  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+	  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	  	/*
+	    try {
+		      //DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
+		      //DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
+	    }
+	    catch (Exception e) {MyLogger.handleException(e);}
 	    */
 	    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
       //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);

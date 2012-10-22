@@ -37,8 +37,6 @@ import java.io.File;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -58,7 +56,7 @@ public class Backup extends FileFilter {
 		  return dbBackup(DBKernel.mainFrame);
 	  }
 	public static boolean dbBackup(final JFrame frame) {
-  	String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
 	  JFileChooser fc = new JFileChooser(lastOutDir);
 	  Backup bkp = new Backup();
 	  fc.setFileFilter(bkp);

@@ -91,8 +91,8 @@ public class DBKernel {
 	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
 
 	private static Connection localConn = null;
-	private static String username = "";
-	private static String password = "";
+	private static String theUsername = "";
+	private static String thePassword = "";
 	
 	public static BfRUndoManager undoManager = new BfRUndoManager();
 	private static UndoableEditSupport undoSupport = new UndoableEditSupport();
@@ -369,14 +369,14 @@ public class DBKernel {
   }
   
   public static String getPassword() {
-	  return password;
+	  return thePassword;
   }
   public static String getUsername() {
-  	String username = DBKernel.username;
+  	String username = DBKernel.theUsername;
 	try { // im Servermodus muss ich schon abchecken, welcher User eingeloggt ist!
 		Connection lconn = getDefaultConnection();
 		if (lconn == null) {
-			username = DBKernel.username; // lokale Variante
+			username = DBKernel.theUsername; // lokale Variante
 		} else {
 			//System.out.println(lconn.getMetaData());
 			username = lconn.getMetaData().getUserName(); // Server (hoffe ich klappt immer ...?!?)
@@ -700,11 +700,11 @@ public class DBKernel {
 	    return result;
   }
   public static Connection getDBConnection() throws Exception {
-  	return getDBConnection(HSHDB_PATH, DBKernel.username, DBKernel.password, false);
+  	return getDBConnection(HSHDB_PATH, DBKernel.theUsername, DBKernel.thePassword, false);
   }
   public static Connection getDBConnection(final String username, final String password) throws Exception {
-  	DBKernel.username = username; 
-  	DBKernel.password = password; 
+  	DBKernel.theUsername = username; 
+  	DBKernel.thePassword = password; 
   	return getDBConnection(HSHDB_PATH, username, password, false);
   }
   public static void setLocalConn(final Connection conn) { // localConn wird hier von KNIME (Statup) geliefert!
@@ -714,7 +714,7 @@ public class DBKernel {
 			meta = conn.getMetaData();
 			String url = meta.getURL();
 			DBKernel.HSHDB_PATH = url.substring(url.indexOf("jdbc:hsqldb:file:") + "jdbc:hsqldb:file:".length(), url.lastIndexOf(System.getProperty("file.separator")) + 1);
-			DBKernel.username = meta.getUserName(); 
+			DBKernel.theUsername = meta.getUserName(); 
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
@@ -1584,7 +1584,9 @@ public class DBKernel {
 				// TODO: hier muss noch ein Upgrade bei neuen DB Versionen realisiert werden!!!!				
 			}
 			try {
-				result = getNewConnection(getTempSA(), getTempSAPass(), internalPath);
+			  	DBKernel.theUsername = getTempSA(); 
+			  	DBKernel.thePassword = getTempSAPass(); 
+				result = getNewConnection(DBKernel.theUsername, DBKernel.thePassword, internalPath);
 			}
 			catch (Exception e) {
 				e.printStackTrace();

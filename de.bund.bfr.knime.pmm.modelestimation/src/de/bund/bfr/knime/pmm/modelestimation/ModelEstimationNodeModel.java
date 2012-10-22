@@ -524,6 +524,16 @@ public class ModelEstimationNodeModel extends NodeModel {
 			List<Double> awList = new ArrayList<Double>(Collections.nCopies(
 					timeList.size(),
 					tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY)));
+			Map<String, List<Double>> miscLists = new LinkedHashMap<String, List<Double>>();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+				List<Double> list = new ArrayList<Double>(Collections.nCopies(
+						timeList.size(), element.getValue()));
+
+				miscLists.put(element.getName(), list);
+			}
 
 			if (!targetValuesMap.containsKey(id)) {
 				targetValuesMap.put(id, new ArrayList<Double>());
@@ -547,6 +557,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 				} else if (arguments.get(i).equals(
 						TimeSeriesSchema.ATT_WATERACTIVITY)) {
 					argumentValuesMap.get(id).get(i).addAll(awList);
+				} else {
+					argumentValuesMap.get(id).get(i)
+							.addAll(miscLists.get(arguments.get(i)));
 				}
 			}
 		}

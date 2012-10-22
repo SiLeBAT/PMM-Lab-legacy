@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: EstimatedModelWriter-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.estimatedmodelwriter; singleton:=true
-Bundle-Version: 1.0.0.v20121010
+Bundle-Version: 1.0.0.v20121022
 Bundle-ClassPath: estimatedmodelwriter.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.estimatedmodelwriter.EstimatedModelWriterNodePlugin
 Bundle-Vendor: BfR

@@ -1,12 +1,13 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Lib
+Bundle-Name: DB-Library
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.bfrdbiface.lib;singleton:=true
-Bundle-Version: 1.0.0.v20121010
+Bundle-Version: 1.0.0.v20121022
 Bundle-Activator: de.bund.bfr.knime.pmm.bfrdbiface.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- de.bund.bfr.knime.pmm.common
+ de.bund.bfr.knime.pmm.common,
+ org.eclipse.core.resources;bundle-version="3.6.0"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
@@ -19,4 +20,3 @@ Bundle-ClassPath: .,
  libs/mysql-connector-java-5.1.20-bin.jar,
  libs/quicktable2swing11.jar
 Bundle-Vendor: BfR
-Import-Package: org.eclipse.core.resources

@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmm.base"
       label="PMM Nodes"
-      version="1.0.1.v20121010"
+      version="1.0.1.v20121022"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
@@ -57,6 +57,18 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
+
+   <includes
+         id="org.knime.features.ext.jep"
+         version="0.0.0"/>
+
+   <includes
+         id="org.knime.features.ext.poi"
+         version="0.0.0"/>
+
+   <includes
+         id="com.knime.features.reporting.runtime"
+         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.bfrdbiface.lib"

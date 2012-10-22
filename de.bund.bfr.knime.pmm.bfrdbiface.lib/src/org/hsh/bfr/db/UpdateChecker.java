@@ -69,32 +69,32 @@ public class UpdateChecker {
 	public static void check4Updates_143_144(final MyList myList) {
 		boolean refreshFK = false;
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("RMS") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+				" ADD COLUMN " + DBKernel.delimitL("RMS") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), DBKernel.isKNIME)) {
 			updateChangeLog("GeschaetzteModelle", 7, false);		
 			refreshFK = true;
 		}
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("AIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+				" ADD COLUMN " + DBKernel.delimitL("AIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), DBKernel.isKNIME)) {
 			updateChangeLog("GeschaetzteModelle", 8, false);			
 			refreshFK = true;
 		}
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false)) {
+				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), DBKernel.isKNIME)) {
 			updateChangeLog("GeschaetzteModelle", 9, false);
 			refreshFK = true;
 		}
 		if (refreshFK) refreshFKs("GeschaetzteModelle");
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") +
-				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), false)) {
+				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), DBKernel.isKNIME)) {
 			updateChangeLog("GeschaetzteParameter", 9, false);
 			refreshFKs("GeschaetzteParameter");			
 		}
 		if (DBKernel.getID("Parametertyp", "Parametertyp", 4+"") == null) {
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
-					" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
+					" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", DBKernel.isKNIME);
 		}
 		
-		myList.getTable("VarParMaps").createTable();
+		myList.getTable("VarParMaps").createTable(true);
 		DBKernel.grantDefaults("VarParMaps");
 		
 		if (DBKernel.isKNIME) {
@@ -102,7 +102,7 @@ public class UpdateChecker {
 			      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
 			      //DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
 		    }
-		    catch (Exception e) {MyLogger.handleException(e);}			
+		    catch (Exception e) {if (!DBKernel.isKNIME) MyLogger.handleException(e);}			
 		}
 	}
 	public static void check4Updates_142_143(final MyList myList) {
@@ -182,7 +182,7 @@ public class UpdateChecker {
 		refreshFKs("DoubleKennzahlen");		
 		
 		MyTable pdl = myList.getTable("Prozessdaten_Literatur");
-		pdl.createTable();
+		pdl.createTable(false);
 		DBKernel.grantDefaults("Prozessdaten_Literatur");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Prozessdaten_Literatur") +
 				"(" + DBKernel.delimitL("Prozessdaten") + "," + DBKernel.delimitL("Literatur") +
@@ -192,7 +192,7 @@ public class UpdateChecker {
 		DBKernel.doMNs(myList.getTable("Prozessdaten"));
 		
 		pdl = myList.getTable("ProzessWorkflow_Literatur");
-		pdl.createTable();
+		pdl.createTable(false);
 		DBKernel.grantDefaults("ProzessWorkflow_Literatur");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ProzessWorkflow_Literatur") +
 				"(" + DBKernel.delimitL("ProzessWorkflow") + "," + DBKernel.delimitL("Literatur") +
@@ -235,7 +235,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " ALTER COLUMN " + DBKernel.delimitL("cor") + " SET NULL", false);
 		refreshFKs("GeschaetzteParameterCovCor");
 
-		myList.getTable("Parametertyp").createTable();
+		myList.getTable("Parametertyp").createTable(false);
 		DBKernel.grantDefaults("Parametertyp");
 		PreparedStatement ps;
 		try {
@@ -249,7 +249,7 @@ public class UpdateChecker {
 			e.printStackTrace();
 		}
 		
-		myList.getTable("GueltigkeitsBereiche").createTable();
+		myList.getTable("GueltigkeitsBereiche").createTable(false);
 		DBKernel.grantDefaults("GueltigkeitsBereiche");
 		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
@@ -329,9 +329,9 @@ public class UpdateChecker {
 		}
 
 		// ACHTUNG!!! Ab hier auch bei Wese machen!
-		myList.getTable("ImportedCombaseData").createTable();
+		myList.getTable("ImportedCombaseData").createTable(false);
 		DBKernel.grantDefaults("ImportedCombaseData");		
-		myList.getTable("Verpackungsmaterial").createTable();
+		myList.getTable("Verpackungsmaterial").createTable(false);
 		DBKernel.grantDefaults("Verpackungsmaterial");		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Zutatendaten") +
 				" ADD COLUMN " + DBKernel.delimitL("Verpackung") + " INTEGER BEFORE " + DBKernel.delimitL("Temperatur"), false);

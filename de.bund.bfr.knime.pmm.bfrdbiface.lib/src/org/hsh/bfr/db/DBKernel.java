@@ -322,10 +322,10 @@ public class DBKernel {
 	}
 	
   protected static void createTable(final String tableName, final String fieldDefs, final List<String> indexSQL) {
-  	createTable(tableName, fieldDefs, indexSQL, true);
+  	createTable(tableName, fieldDefs, indexSQL, true, false);
   }
   
-  protected static void createTable(final String tableName, final String fieldDefs, final List<String> indexSQL, final boolean cached) {
+  protected static void createTable(final String tableName, final String fieldDefs, final List<String> indexSQL, final boolean cached, final boolean suppressWarnings) {
     try {
     	getDBConnection();
         if (tableName.equals("ChangeLog")) { //  || tableName.equals("DateiSpeicher") || tableName.equals("Infotabelle")
@@ -374,7 +374,7 @@ public class DBKernel {
       stmt.close();
     }
     catch (Exception e) {
-      MyLogger.handleException(e);
+      if (!suppressWarnings) MyLogger.handleException(e);
     }
   }
   

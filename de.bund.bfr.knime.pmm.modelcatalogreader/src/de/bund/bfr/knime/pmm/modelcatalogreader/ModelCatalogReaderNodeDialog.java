@@ -41,6 +41,7 @@ import java.sql.SQLException;
 
 import javax.swing.JPanel;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -52,7 +53,6 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * <code>NodeDialog</code> for the "ModelCatalogReader" Node.
@@ -143,7 +143,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	if( ui.getOverride() ) {
 			db = new Bfrdb( ui.getFilename(), ui.getLogin(), ui.getPasswd() );
 		} else {
-			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+			db = new Bfrdb(DBKernel.getLocalConn());
 		}
     	
     	result = db.selectModel( 1 );

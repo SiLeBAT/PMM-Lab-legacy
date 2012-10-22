@@ -37,6 +37,8 @@ import java.io.File;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -45,8 +47,6 @@ import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
-
-import de.dim.bfr.jpa.internal.BFRJPAActivator;
 
 /**
  * @author Armin
@@ -160,8 +160,7 @@ public class Backup extends FileFilter {
   	}
   	if (DBKernel.isKNIME) {
   		DBKernel.mainFrame.dispose();
-		BFRJPAActivator def = BFRJPAActivator.getDefault();
-  		def.getUIService().openDBGUI(true);
+		DBKernel.openDBGUI(true);
   	}
   }
   
@@ -261,8 +260,7 @@ public class Backup extends FileFilter {
   	}
   	if (DBKernel.isKNIME) {
   		DBKernel.mainFrame.dispose();
-		BFRJPAActivator def = BFRJPAActivator.getDefault();
-  		def.getUIService().openDBGUI(true);
+		DBKernel.openDBGUI(true);
   	}
   	return result;
   }

@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -58,7 +59,6 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * This is the model implementation of TimeSeriesWriter.
@@ -100,7 +100,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
-			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+			db = new Bfrdb(DBKernel.getLocalConn());
 		}
     	
     	int n = inData[ 0 ].getRowCount();

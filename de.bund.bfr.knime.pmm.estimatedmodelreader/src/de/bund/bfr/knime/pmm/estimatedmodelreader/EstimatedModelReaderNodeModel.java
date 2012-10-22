@@ -39,6 +39,7 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.Map;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -62,7 +63,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * This is the model implementation of EstimatedModelReader.
@@ -148,7 +148,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
-			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+			db = new Bfrdb(DBKernel.getLocalConn());
 		}
     	
     	dbuuid = db.getDBUUID();

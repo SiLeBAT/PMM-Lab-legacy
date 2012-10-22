@@ -85,7 +85,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
-import de.dim.bfr.external.service.BFRNodeService;
 
 
 public class ManualModelConfUi extends JPanel implements KeyListener, ActionListener, MouseListener, TableModelListener {
@@ -569,19 +568,6 @@ public class ManualModelConfUi extends JPanel implements KeyListener, ActionList
 		try {
 			
 			db = new Bfrdb( conn );
-			setDbAux( db );
-		}
-		catch( Exception e ) {
-			e.printStackTrace( System.err );
-		}
-	}
-	
-	public void setDb( final BFRNodeService service ) {
-		
-		Bfrdb db;
-		try {
-			
-			db = new Bfrdb( service );
 			setDbAux( db );
 		}
 		catch( Exception e ) {

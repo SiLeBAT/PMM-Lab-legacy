@@ -58,14 +58,6 @@ OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
 
-   <includes
-         id="org.knime.features.xml"
-         version="0.0.0"/>
-
-   <includes
-         id="de.dim.bfr.feature"
-         version="0.0.0"/>
-
    <plugin
          id="de.bund.bfr.knime.pmm.bfrdbiface.lib"
          download-size="0"

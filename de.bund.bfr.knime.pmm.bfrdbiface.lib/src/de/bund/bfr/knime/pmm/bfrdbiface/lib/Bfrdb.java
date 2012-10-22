@@ -47,7 +47,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -56,9 +55,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.dim.bfr.external.service.BFRNodeService;
 
 public class Bfrdb extends Hsqldbiface {
 
@@ -639,14 +636,6 @@ public class Bfrdb extends Hsqldbiface {
 		+")\"DataView\"\n"
 		+"ON \""+REL_CONDITION+"\".\"ID\"=\"DataView\".\""+REL_CONDITION+"\"\n";
 	
-	private BFRNodeService service;
-
-	
-	
-	public Bfrdb( final BFRNodeService service ) {
-		super( service.getJDBCConnection() );
-		this.service = service;
-	}
 	
 	public Bfrdb( final Connection conn ) { super( conn ); }
 	
@@ -656,13 +645,9 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	@Override
-	public void close() throws SQLException {
-		
-		if( service == null ) {
-			super.close();
-		} else {
-			service.closeJDBCConnection( conn );
-		}
+	public void close() throws SQLException {		
+		// Todo: checken!
+		super.close();
 	}
 	
 	public static String queryEstPei() throws SQLException {

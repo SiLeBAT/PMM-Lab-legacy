@@ -7,6 +7,7 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import de.bund.bfr.knime.pmm.common.ui.*;
 
+import org.hsh.bfr.db.DBKernel;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
@@ -30,7 +32,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.resources.Resources;
-import de.dim.bfr.external.service.BFRNodeService;
 
 /**
  * @author Armin Weiser
@@ -47,7 +48,7 @@ public class MMC_M extends JPanel {
 	private Frame m_parentFrame = null;
 	private JComboBox[] threeBoxes = new JComboBox[3];
 	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
-	private BFRNodeService m_service = null;
+	private Connection m_conn = null;
 	private boolean dontTouch = false;
 
 	public MMC_M() {
@@ -109,8 +110,8 @@ public class MMC_M extends JPanel {
 		if (value == null || Double.isNaN(value)) tf.setText("");
 		else tf.setValue(value);
 	}
-	public void setService(final BFRNodeService service) {	
-		this.m_service = service;
+	public void setConnection(final Connection conn) {	
+		this.m_conn = conn;
 		setComboBox();
 	}
 	private void setComboBox() {		
@@ -135,7 +136,7 @@ public class MMC_M extends JPanel {
 			modelNameBox.addItem(pm);
 			//System.err.println("added1:" + pm + "\t" + pm.hashCode());
 			try {			
-				Bfrdb db = new Bfrdb(m_service);
+				Bfrdb db = new Bfrdb(m_conn);
 				ResultSet result = db.selectModel(level);			
 				while(result.next()) {				
 					String modelName = result.getString(Bfrdb.ATT_NAME);
@@ -370,7 +371,7 @@ public class MMC_M extends JPanel {
 				secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 				String param = table.getValueAt(row, 0).toString();
 				MMC_M m2 = new MMC_M(null, 2, param);
-				m2.setService(m_service);
+				m2.setConnection(m_conn);
 				HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM());
 				m2.setPM(sm.get(param));
 				secondaryDialog.setPanel(m2, param, sm);
@@ -384,7 +385,7 @@ public class MMC_M extends JPanel {
 	}
 
 	private void radioButtonActionPerformed(ActionEvent e) {
-		if (m_service != null) {
+		if (m_conn != null) {
 			/*
 			int level = radioButton2.isSelected() ? 2 : 1;
 			ParametricModel pm = table.getPM();

@@ -1522,4 +1522,24 @@ public class DBKernel {
 		}
 		DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);						
 	}
+
+	public static void openDBGUI(final boolean setVisible) {
+		final Connection connection = localConn;
+		org.hsh.bfr.db.StartApp.go(connection, setVisible, true);
+        /*
+		final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            public void run() {
+                //System.err.println(DBKernel.mainFrame.isVisible() + "\t" + connection + " Old: " + System.currentTimeMillis());
+                if (connection == null || DBKernel.mainFrame != null && !DBKernel.mainFrame.isVisible()) {
+                	if (connection != null) closeDBConnections(false);
+                	timer.cancel();
+                }
+                else {
+                	closeDBConnections(false);
+                }
+            }
+        }, 0, 1000);	
+        */
+	}
 }

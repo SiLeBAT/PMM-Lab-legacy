@@ -41,6 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -65,7 +66,6 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * This is the model implementation of EstimatedModelWriter.
@@ -109,7 +109,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
-			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+			db = new Bfrdb(DBKernel.getLocalConn());
 		}
     	
     	int n = inData[ 0 ].getRowCount();

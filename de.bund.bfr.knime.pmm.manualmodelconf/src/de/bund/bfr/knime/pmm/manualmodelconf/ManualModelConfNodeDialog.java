@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.manualmodelconf;
 
 import javax.swing.JOptionPane;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -46,7 +47,6 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_M;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * <code>NodeDialog</code> for the "ManualModelConf" Node.
@@ -76,7 +76,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     		this.addTab("Model definition", m_confui);    	
     		*/
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
-    		m_mmcm.setService(BfRNodePluginActivator.getBfRService());
+    		m_mmcm.setConnection(DBKernel.getLocalConn());
     		this.addTab("Model Definition", m_mmcm);    	
     		
     		m_mmcts = new MMC_TS();

@@ -7,8 +7,7 @@ Bundle-Activator: de.bund.bfr.knime.pmm.manualmodelconf.ui.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.bfrdbiface.lib,
- de.bund.bfr.knime.pmm.common,
- de.dim.bfr.knime
+ de.bund.bfr.knime.pmm.common
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.manualmodelconf.ui

@@ -42,6 +42,7 @@ import java.sql.SQLException;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -53,7 +54,6 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
-import de.dim.knime.bfr.internal.BfRNodePluginActivator;
 
 /**
  * <code>NodeDialog</code> for the "EstimatedModelReader" Node.
@@ -162,7 +162,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	if( dbui.getOverride() ) {
 			db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
 		} else {
-			db = new Bfrdb( BfRNodePluginActivator.getBfRService() );
+			db = new Bfrdb(DBKernel.getLocalConn());
 		}
     	
     	result = db.selectModel( 1 );

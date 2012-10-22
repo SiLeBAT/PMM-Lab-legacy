@@ -47,6 +47,7 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -218,6 +219,7 @@ public class ModelAndDataViewNodeView extends
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
+		List<String> miscParams = getAllMiscParams(getNodeModel().getTable());
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -235,16 +237,21 @@ public class ModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(TimeSeriesSchema.ATT_TEMPERATURE,
-					TimeSeriesSchema.ATT_PH,
-					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);
+			doubleColumns = new ArrayList<String>(Arrays.asList(
+					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
+					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
+					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+
+			for (String param : miscParams) {
+				doubleColumns.add(param);
+				doubleColumnValues.add(new ArrayList<Double>());
+			}
 		} else if (getNodeModel().isModel1Schema()) {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
 					ChartConstants.IS_FITTED);
@@ -398,15 +405,15 @@ public class ModelAndDataViewNodeView extends
 				stringColumnValues.get(0).add(modelName);
 				stringColumnValues.get(1).add(dataName);
 				doubleColumnValues.get(0).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				doubleColumnValues.get(1).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
-				doubleColumnValues.get(2).add(
-						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
-				doubleColumnValues.get(3).add(
 						row.getDouble(Model1Schema.ATT_RMS));
-				doubleColumnValues.get(4).add(
+				doubleColumnValues.get(1).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
+				doubleColumnValues.get(2).add(
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(3).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(4).add(
+						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENTNAME,
@@ -416,6 +423,25 @@ public class ModelAndDataViewNodeView extends
 						row.getString(Model1Schema.ATT_FORMULA), dataPoints,
 						agent, matrix,
 						row.getString(TimeSeriesSchema.ATT_COMMENT)));
+
+				for (int i = 0; i < miscParams.size(); i++) {
+					boolean paramFound = false;
+
+					for (PmmXmlElementConvertable el : misc.getElementSet()) {
+						MiscXml element = (MiscXml) el;
+
+						if (miscParams.get(i).equals(element.getName())) {
+							doubleColumnValues.get(i + 5).add(
+									element.getValue());
+							paramFound = true;
+							break;
+						}
+					}
+
+					if (!paramFound) {
+						doubleColumnValues.get(i + 5).add(null);
+					}
+				}
 			} else if (getNodeModel().isModel1Schema()) {
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
@@ -468,6 +494,25 @@ public class ModelAndDataViewNodeView extends
 			infoParameters.add(infoParams);
 			infoParameterValues.add(infoValues);
 		}
+	}
+
+	private List<String> getAllMiscParams(DataTable table) throws PmmException {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new TimeSeriesSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
 	}
 
 	@Override

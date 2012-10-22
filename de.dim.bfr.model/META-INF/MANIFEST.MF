@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-SymbolicName: de.dim.bfr.model;singleton:=true
+Bundle-SymbolicName: de.dim.bfr.model.weg;singleton:=true
 Bundle-Version: 1.0.0.v20120924
 Bundle-ClassPath: .
 Bundle-Activator: de.dim.bfr.provider.BfrEditPlugin$Implementation

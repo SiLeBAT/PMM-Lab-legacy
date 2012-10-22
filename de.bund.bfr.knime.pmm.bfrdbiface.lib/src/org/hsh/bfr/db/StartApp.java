@@ -126,8 +126,9 @@ public class StartApp {
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
 	  	}
       
-	  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-	  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+	  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+	  	
 	  	/*
 	    try {
 		      //DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");

@@ -330,6 +330,8 @@ public class SecondaryModelAndDataViewNodeView extends
 						.getStringList(Model2Schema.ATT_PARAMNAME);
 				List<Double> paramValuesSec = row
 						.getDoubleList(Model2Schema.ATT_VALUE);
+				List<Double> paramErrorsSec = row
+						.getDoubleList(Model2Schema.ATT_PARAMERR);
 				List<Double> paramMinValuesSec = row
 						.getDoubleList(Model2Schema.ATT_MINVALUE);
 				List<Double> paramMaxValuesSec = row
@@ -339,10 +341,11 @@ public class SecondaryModelAndDataViewNodeView extends
 				List<Object> infoValues = new ArrayList<Object>(Arrays.asList(
 						modelNameSec, formulaSec));
 
-				infoParams.addAll(paramNamesSec);
-
-				for (Double value : paramValuesSec) {
-					infoValues.add(value);
+				for (int i = 0; i < paramNamesSec.size(); i++) {
+					infoParams.add(paramNamesSec.get(i));
+					infoValues.add(paramValuesSec.get(i));
+					infoParams.add(paramNamesSec.get(i) + " SE");
+					infoValues.add(paramErrorsSec.get(i));
 				}
 
 				idSet.add(id);

@@ -298,6 +298,8 @@ public class ModelAndDataViewNodeView extends
 			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
 			List<Double> paramValues = row
 					.getDoubleList(Model1Schema.ATT_VALUE);
+			List<Double> paramErrors = row
+					.getDoubleList(Model1Schema.ATT_PARAMERR);
 			List<Double> paramMinValues = row
 					.getDoubleList(Model1Schema.ATT_MINVALUE);
 			List<Double> paramMaxValues = row
@@ -488,10 +490,11 @@ public class ModelAndDataViewNodeView extends
 				}
 			}
 
-			infoParams.addAll(params);
-
-			for (Double value : paramValues) {
-				infoValues.add(value);
+			for (int i = 0; i < params.size(); i++) {
+				infoParams.add(params.get(i));
+				infoValues.add(paramValues.get(i));
+				infoParams.add(params.get(i) + " SE");
+				infoValues.add(paramErrors.get(i));
 			}
 
 			plotables.put(id, plotable);

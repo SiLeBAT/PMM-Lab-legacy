@@ -127,6 +127,8 @@ public class TableReader {
 					.getStringList(Model1Schema.ATT_PARAMNAME);
 			List<Double> paramValues = tuple
 					.getDoubleList(Model1Schema.ATT_VALUE);
+			List<Double> paramErrors = tuple
+					.getDoubleList(Model1Schema.ATT_PARAMERR);
 			List<Double> paramMinValues = tuple
 					.getDoubleList(Model1Schema.ATT_MINVALUE);
 			List<Double> paramMaxValues = tuple
@@ -309,10 +311,11 @@ public class TableReader {
 				}
 			}
 
-			infoParams.addAll(params);
-
-			for (Double value : paramValues) {
-				infoValues.add(value);
+			for (int i = 0; i < params.size(); i++) {
+				infoParams.add(params.get(i));
+				infoValues.add(paramValues.get(i));
+				infoParams.add(params.get(i) + " SE");
+				infoValues.add(paramErrors.get(i));
 			}
 
 			plotables.put(id, plotable);

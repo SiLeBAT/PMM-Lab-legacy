@@ -122,9 +122,9 @@ public class Login extends JFrame {
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);
 		textField2.setText(lastDBPath);
-		if (DBKernel.debug && lastUser.equals(DBKernel.tempSA))
+		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA()))
 		 {
-			passwordField1.setText(DBKernel.tempSAPass);
+			passwordField1.setText(DBKernel.getTempSAPass());
 			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
 		}
 	}
@@ -2700,7 +2700,7 @@ public class Login extends JFrame {
     		, false);
 */
     try {
-	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.tempSA) + " PASSWORD '" + DBKernel.tempSAPass + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
+	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA()) + " PASSWORD '" + DBKernel.getTempSAPass() + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
     }
     catch (Exception e) {MyLogger.handleException(e);}
   }

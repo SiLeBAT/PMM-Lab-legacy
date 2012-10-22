@@ -102,7 +102,7 @@ public class MergeDBs {
 		}
 	    int retVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame, "Sicher?",
 	    		"DBs zusammenführen?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (retVal == JOptionPane.YES_OPTION && DBKernel.tempSA.equals("defad")) {
+		if (retVal == JOptionPane.YES_OPTION && DBKernel.getTempSA().equals("defad")) {
 			try {
 				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 

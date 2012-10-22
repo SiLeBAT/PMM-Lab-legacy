@@ -126,9 +126,12 @@ public class DBKernel {
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
-	public static String tempSA = isKNIME ? "SA" : "defad"; // defad SA
-	public static String tempSAPass = isKNIME ? "" : "de6!§5ddy"; // de6!§5ddy
-	
+	public static String getTempSA() {
+		return isKNIME ? "SA" : "defad";
+	}
+	public static String getTempSAPass() {
+		return isKNIME ? "" : "de6!§5ddy";
+	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
 	}
@@ -733,7 +736,7 @@ public class DBKernel {
   }
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
-	  return getDBConnection(dbPath, tempSA, tempSAPass, newConn); // MD5.encode("de6!§5ddy", "UTF-8")
+	  return getDBConnection(dbPath, getTempSA(), getTempSAPass(), newConn); // MD5.encode("de6!§5ddy", "UTF-8")
   }
   public static Connection getDefaultAdminConn() throws Exception {
 	  return getDefaultAdminConn(DBKernel.HSHDB_PATH, false);
@@ -1372,7 +1375,7 @@ public class DBKernel {
 	}
 	public static boolean isAdmin() { // nur der Admin kann überhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen für Adminrechte, das kann auch defad sein
 		String un = getUsername();
-		if (un.equals(tempSA)) {
+		if (un.equals(getTempSA())) {
 			return true;
 		}
 		boolean result = false;
@@ -1581,7 +1584,7 @@ public class DBKernel {
 				// TODO: hier muss noch ein Upgrade bei neuen DB Versionen realisiert werden!!!!				
 			}
 			try {
-				result = getNewConnection(tempSA, tempSAPass, internalPath);
+				result = getNewConnection(getTempSA(), getTempSAPass(), internalPath);
 			}
 			catch (Exception e) {
 				e.printStackTrace();

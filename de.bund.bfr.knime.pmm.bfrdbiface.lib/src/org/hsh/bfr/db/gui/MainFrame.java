@@ -39,7 +39,6 @@ package org.hsh.bfr.db.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -242,7 +241,7 @@ public class MainFrame extends JFrame {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.lang);
+		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps");
 		toolBar1 = new JToolBar();
 		button7 = new JButton();
 		button6 = new JButton();
@@ -268,7 +267,7 @@ public class MainFrame extends JFrame {
 		setIconImage(new ImageIcon(getClass().getResource("/org/hsh/bfr/db/gui/res/Database.gif")).getImage());
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(final WindowEvent e) {
+			public void windowClosing(WindowEvent e) {
 				thisWindowClosing(e);
 			}
 		});
@@ -352,7 +351,7 @@ public class MainFrame extends JFrame {
 			button11.setVisible(false);
 			button11.addActionListener(new ActionListener() {
 				@Override
-				public void actionPerformed(final ActionEvent e) {
+				public void actionPerformed(ActionEvent e) {
 					button11ActionPerformed(e);
 				}
 			});
@@ -366,7 +365,7 @@ public class MainFrame extends JFrame {
 
 		//======== splitPane1 ========
 		{
-			splitPane1.setDividerLocation(300);
+			splitPane1.setDividerLocation(250);
 
 			//======== panel2 ========
 			{
@@ -384,7 +383,7 @@ public class MainFrame extends JFrame {
 			splitPane1.setRightComponent(myDBPanel1);
 		}
 		contentPane.add(splitPane1, CC.xy(1, 2, CC.DEFAULT, CC.FILL));
-		setSize(1020, 700);
+		setSize(1025, 700);
 		setLocationRelativeTo(null);
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}

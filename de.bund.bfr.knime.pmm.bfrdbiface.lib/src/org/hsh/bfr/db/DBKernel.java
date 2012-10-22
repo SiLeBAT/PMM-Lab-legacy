@@ -128,11 +128,19 @@ public class DBKernel {
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
+	public static String getTempSA(boolean other) {
+		if (other) return isKNIME ? "defad": "SA";		
+		else return isKNIME ? "SA" : "defad";		
+	}
+	public static String getTempSAPass(boolean other) {
+		if (other) return isKNIME ? "de6!§5ddy" : "";
+		else return isKNIME ? "" : "de6!§5ddy";		
+	}
 	public static String getTempSA() {
-		return isKNIME ? "SA" : "defad";
+		return getTempSA(false);
 	}
 	public static String getTempSAPass() {
-		return isKNIME ? "" : "de6!§5ddy";
+		return getTempSAPass(false);
 	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
@@ -1536,24 +1544,9 @@ public class DBKernel {
 		DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);						
 	}
 
-	public static void openDBGUI(final boolean setVisible) {
+	public static void openDBGUI() {
 		final Connection connection = getLocalConn(true);
-		StartApp.go(connection, setVisible, true);
-        /*
-		final Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            public void run() {
-                //System.err.println(DBKernel.mainFrame.isVisible() + "\t" + connection + " Old: " + System.currentTimeMillis());
-                if (connection == null || DBKernel.mainFrame != null && !DBKernel.mainFrame.isVisible()) {
-                	if (connection != null) closeDBConnections(false);
-                	timer.cancel();
-                }
-                else {
-                	closeDBConnections(false);
-                }
-            }
-        }, 0, 1000);	
-        */
+		StartApp.go(connection);
 	}
 	public static Connection getInternalKNIMEDB_LoadGui() {
 		Connection result = null;
@@ -1587,6 +1580,7 @@ public class DBKernel {
 			try {
 			  	HSHDB_PATH = internalPath;
 				result = getDBConnection(getTempSA(), getTempSAPass());
+				if (result == null) result = getDBConnection(getTempSA(true), getTempSAPass(true));
 				// UpdateChecker
 		  		if (DBKernel.myList == null) {
 		    	  	Login login = new Login();
@@ -1610,13 +1604,11 @@ public class DBKernel {
 						DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
 						DBKernel.mainFrame.setBounds(x, y, w, h);
 						*/
-						DBKernel.mainFrame.setPreferredSize(new Dimension(1020, 700));
 						DBKernel.mainFrame.pack();
 						DBKernel.mainFrame.setLocationRelativeTo(null);
 						if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 					}
 					catch (Exception e) {}
-		    	  	DBKernel.mainFrame.pack();
 
 				  	String dbVersion = DBKernel.getDBVersion();
 				  	if (dbVersion == null || dbVersion.equals("1.4.4")) {

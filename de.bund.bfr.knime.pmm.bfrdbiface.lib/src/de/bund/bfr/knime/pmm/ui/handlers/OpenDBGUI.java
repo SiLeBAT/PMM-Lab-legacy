@@ -11,7 +11,7 @@ public class OpenDBGUI extends AbstractHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		DBKernel.openDBGUI(true);
+		DBKernel.openDBGUI();
 		return null;
 	}
 }

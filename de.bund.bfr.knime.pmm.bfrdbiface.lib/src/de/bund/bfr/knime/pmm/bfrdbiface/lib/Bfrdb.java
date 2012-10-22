@@ -644,10 +644,8 @@ public class Bfrdb extends Hsqldbiface {
 		super( filename, login, pw );
 	}
 	
-	@Override
 	public void close() throws SQLException {		
-		// Todo: checken!
-		super.close();
+		//super.close();
 	}
 	
 	public static String queryEstPei() throws SQLException {

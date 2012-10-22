@@ -38,17 +38,11 @@ package org.hsh.bfr.db;
 
 import java.awt.Font;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.SQLException;
 
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 
 import org.hsh.bfr.db.gui.Login;
-import org.hsh.bfr.db.gui.MainFrame;
-import org.hsh.bfr.db.gui.MyList;
-import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 
 import com.jgoodies.looks.windows.WindowsLookAndFeel;
 
@@ -78,9 +72,9 @@ public class StartApp {
 	      catch (Exception e) {MyLogger.handleException(e);}
 	      System.setProperty("line.separator", "\n"); // Damit RDiff auch funktioniert, sonst haben wir einmal (unter Windows) "\r\n" und bei Linux nur "\n"
 
-	      go(null, true, false);
+	      go(null);
 	}
-	public static void go(final Connection conn, final boolean setVisible, final boolean fromKNIME) {
+	public static void go(final Connection conn) {
 		if (!DBKernel.debug) {
 	  		MyLogger.setup(DBKernel.HSH_PATH + "LOGs" + System.getProperty("file.separator") + "log_" + System.currentTimeMillis() + ".txt");
 	  	}
@@ -91,17 +85,17 @@ public class StartApp {
 	  	ttm.setInitialDelay(0);
 	  	ttm.setDismissDelay(60000);
 	  	
-	  	if (!fromKNIME || conn == null) {
+	  	if (conn == null) {
 	  		Login login = new Login(true);
-	  		login.setVisible(setVisible);	    	  
+	  		login.setVisible(true);	    	  
 	  	}
 	  	else {
-    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
-    	  	DBKernel.mainFrame.toFront();	    	  		
-
     	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
+
+    	  	DBKernel.mainFrame.toFront();	    
+    	  	DBKernel.mainFrame.setVisible(true);	
 	  	}
       
 	  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);

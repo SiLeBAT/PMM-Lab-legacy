@@ -95,16 +95,7 @@ public class Hsqldbiface {
 		
 		return result;
 	}
-	
-	public void close()	throws SQLException {
-		
-		// Statement statement;
-		
-		// statement = conn.createStatement();
-		// statement.execute( "SHUTDOWN" );
-		
-		conn.close();
-	}
+
 	public String getDBUUID() throws SQLException {
 		if (uuid != null) return uuid;
 		String result = null;

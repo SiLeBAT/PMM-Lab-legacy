@@ -158,7 +158,7 @@ public class Backup extends FileFilter {
   	}
   	if (DBKernel.isKNIME) {
   		DBKernel.mainFrame.dispose();
-		DBKernel.openDBGUI(true);
+		DBKernel.openDBGUI();
   	}
   }
   
@@ -258,7 +258,7 @@ public class Backup extends FileFilter {
   	}
   	if (DBKernel.isKNIME) {
   		DBKernel.mainFrame.dispose();
-		DBKernel.openDBGUI(true);
+		DBKernel.openDBGUI();
   	}
   	return result;
   }

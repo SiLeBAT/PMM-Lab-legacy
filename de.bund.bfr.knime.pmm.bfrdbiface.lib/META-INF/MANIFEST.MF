@@ -11,5 +11,11 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
  org.hsh.bfr.db
-Bundle-ClassPath: .
+Bundle-ClassPath: .,
+ libs/hsqldb.jar,
+ libs/jcm1.0-config.jar,
+ libs/jsoup-1.6.1.jar,
+ libs/MyJabRef-2.6.jar,
+ libs/mysql-connector-java-5.1.20-bin.jar,
+ libs/quicktable2swing11.jar
 Bundle-Vendor: BfR

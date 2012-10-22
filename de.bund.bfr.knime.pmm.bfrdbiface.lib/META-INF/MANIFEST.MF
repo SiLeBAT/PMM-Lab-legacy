@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Lib
-Bundle-SymbolicName: de.bund.bfr.knime.pmm.bfrdbiface.lib
+Bundle-SymbolicName: de.bund.bfr.knime.pmm.bfrdbiface.lib;singleton:=true
 Bundle-Version: 1.0.0.v20121010
 Bundle-Activator: de.bund.bfr.knime.pmm.bfrdbiface.lib.Activator
 Require-Bundle: org.eclipse.ui,

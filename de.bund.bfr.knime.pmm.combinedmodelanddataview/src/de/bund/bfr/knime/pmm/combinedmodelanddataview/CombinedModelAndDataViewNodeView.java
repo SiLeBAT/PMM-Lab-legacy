@@ -353,22 +353,22 @@ public class CombinedModelAndDataViewNodeView extends
 					n = timeList.size();
 					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
 					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
-				}
+					
+					for (int i = 0; i < n; i++) {
+						double time = Double.NaN;
+						double logc = Double.NaN;
 
-				for (int i = 0; i < n; i++) {
-					double time = Double.NaN;
-					double logc = Double.NaN;
+						if (timeList.get(i) != null) {
+							time = timeList.get(i);
+						}
 
-					if (timeList.get(i) != null) {
-						time = timeList.get(i);
+						if (logcList.get(i) != null) {
+							logc = logcList.get(i);
+						}
+
+						dataPoints.add(new Point2D.Double(time, logc));
 					}
-
-					if (logcList.get(i) != null) {
-						logc = logcList.get(i);
-					}
-
-					dataPoints.add(new Point2D.Double(time, logc));
-				}
+				}				
 
 				if (temperature != null) {
 					plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,

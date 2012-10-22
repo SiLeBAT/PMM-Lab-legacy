@@ -11,7 +11,10 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -41,6 +44,7 @@ public class TableReader {
 			throws PmmException {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		List<String> miscParams = getAllMiscParams(table);
 
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
@@ -49,8 +53,9 @@ public class TableReader {
 		stringColumns = Arrays.asList(TimeSeriesSchema.DATAID);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = Arrays.asList(TimeSeriesSchema.ATT_TEMPERATURE,
-				TimeSeriesSchema.ATT_PH, TimeSeriesSchema.ATT_WATERACTIVITY);
+		doubleColumns = new ArrayList<String>(Arrays.asList(
+				TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
+				TimeSeriesSchema.ATT_WATERACTIVITY));
 		doubleColumnValues = new ArrayList<List<Double>>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
@@ -59,6 +64,11 @@ public class TableReader {
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+
+		for (String param : miscParams) {
+			doubleColumns.add(param);
+			doubleColumnValues.add(new ArrayList<Double>());
+		}
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
@@ -129,6 +139,25 @@ public class TableReader {
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
 
+			for (int i = 0; i < miscParams.size(); i++) {
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				boolean paramFound = false;
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					if (miscParams.get(i).equals(element.getName())) {
+						doubleColumnValues.get(i + 3).add(element.getValue());
+						paramFound = true;
+						break;
+					}
+				}
+
+				if (!paramFound) {
+					doubleColumnValues.get(i + 3).add(null);
+				}
+			}
+
 			Plotable plotable = new Plotable(Plotable.DATASET);
 
 			if (!timeList.isEmpty() && !logcList.isEmpty()) {
@@ -186,6 +215,26 @@ public class TableReader {
 
 	public Map<String, String> getLongLegend() {
 		return longLegend;
+	}
+
+	private List<String> getAllMiscParams(BufferedDataTable table)
+			throws PmmException {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new TimeSeriesSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
 	}
 
 }

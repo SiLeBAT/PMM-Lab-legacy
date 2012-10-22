@@ -79,7 +79,7 @@ public class CellIO {
 
 	public static PmmXmlDoc getPmmXml(DataCell cell) {
 		if (cell.isMissing() || !(cell instanceof XMLCell)) {
-			return null;
+			return new PmmXmlDoc();
 		}
 		XMLCell xml = (XMLCell) cell;
 
@@ -87,7 +87,7 @@ public class CellIO {
 			return new PmmXmlDoc(xml.getStringValue());
 		}
 		catch (Exception e) {
-			return null;
+			return new PmmXmlDoc();
 		}
 	}
 

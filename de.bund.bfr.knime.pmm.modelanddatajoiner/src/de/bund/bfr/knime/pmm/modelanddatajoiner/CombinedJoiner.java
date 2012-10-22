@@ -57,7 +57,10 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -85,8 +88,6 @@ public class CombinedJoiner implements Joiner {
 	private List<String> primaryParameters;
 	private List<String> secondaryParameters;
 
-	private List<KnimeTuple> tuples;
-
 	public CombinedJoiner(BufferedDataTable modelTable,
 			BufferedDataTable dataTable) throws PmmException {
 		this.modelTable = modelTable;
@@ -96,13 +97,8 @@ public class CombinedJoiner implements Joiner {
 		dataSchema = new TimeSeriesSchema();
 		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
 				new Model2Schema()), new TimeSeriesSchema());
-		primaryParameters = Arrays.asList("", TimeSeriesSchema.ATT_LOGC,
-				TimeSeriesSchema.ATT_TIME);
-		secondaryParameters = Arrays.asList("", TimeSeriesSchema.ATT_PH,
-				TimeSeriesSchema.ATT_TEMPERATURE,
-				TimeSeriesSchema.ATT_WATERACTIVITY);
-		readTable();
-		getVariables();
+		readDataTable();
+		readModelTable();
 	}
 
 	@Override
@@ -215,7 +211,7 @@ public class CombinedJoiner implements Joiner {
 		BufferedDataContainer container = exec.createDataContainer(seiSchema
 				.createSpec());
 		Map<String, Map<String, String>> replacements = getAssignmentsMap(assignments);
-		int rowCount = tuples.size() * dataTable.getRowCount();
+		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 
 		if (!replacements.containsKey(PRIMARY)) {
@@ -224,8 +220,19 @@ public class CombinedJoiner implements Joiner {
 			return container.getTable();
 		}
 
-		for (int i = 0; i < tuples.size(); i++) {
-			KnimeTuple modelTuple = tuples.get(i);
+		KnimeRelationReader modelReader = new KnimeRelationReader(modelSchema,
+				modelTable);
+		Set<String> ids = new LinkedHashSet<String>();
+
+		while (modelReader.hasMoreElements()) {
+			KnimeTuple modelTuple = modelReader.nextElement();
+
+			if (!ids.add(modelTuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
+					+ modelTuple.getString(Model2Schema.ATT_DEPVAR) + ")")) {
+				index += dataTable.getRowCount();
+				continue;
+			}
+
 			String formula = modelTuple.getString(Model1Schema.ATT_FORMULA);
 			String depVar = modelTuple.getString(Model1Schema.ATT_DEPVAR);
 			List<String> indepVar = modelTuple
@@ -306,6 +313,7 @@ public class CombinedJoiner implements Joiner {
 			}
 
 			if (!allVarsReplaced) {
+				index += dataTable.getRowCount();
 				continue;
 			}
 
@@ -321,18 +329,17 @@ public class CombinedJoiner implements Joiner {
 			modelTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 
-			KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
-					dataTable);
+			KnimeRelationReader dataReader = new KnimeRelationReader(
+					dataSchema, dataTable);
 
-			while (reader.hasMoreElements()) {
-				KnimeTuple dataTuple = reader.nextElement();
+			while (dataReader.hasMoreElements()) {
+				KnimeTuple dataTuple = dataReader.nextElement();
 				KnimeTuple tuple = new KnimeTuple(seiSchema, modelTuple,
 						dataTuple);
 
 				container.addRowToTable(tuple);
 				exec.checkCanceled();
-				exec.setProgress((double) index / (double) rowCount,
-						"Adding row " + index);
+				exec.setProgress((double) index / (double) rowCount, "");
 				index++;
 			}
 		}
@@ -347,37 +354,52 @@ public class CombinedJoiner implements Joiner {
 		return true;
 	}
 
-	private void readTable() throws PmmException {
+	private void readDataTable() throws PmmException {
+		Set<String> secParamSet = new LinkedHashSet<String>();
+
+		secParamSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
+		secParamSet.add(TimeSeriesSchema.ATT_PH);
+		secParamSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
+
+		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
+				dataTable);
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				secParamSet.add(element.getName());
+			}
+		}
+
+		primaryParameters = Arrays.asList("", TimeSeriesSchema.ATT_LOGC,
+				TimeSeriesSchema.ATT_TIME);
+		secondaryParameters = new ArrayList<String>(secParamSet);
+	}
+
+	private void readModelTable() throws PmmException {
 		KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
 				modelTable);
 		Set<String> ids = new LinkedHashSet<String>();
+		Set<String> primaryVarSet = new LinkedHashSet<String>();
 
-		tuples = new ArrayList<KnimeTuple>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple modelRow = reader.nextElement();
-
-			if (ids.add(modelRow.getInt(Model1Schema.ATT_ESTMODELID) + "("
-					+ modelRow.getString(Model2Schema.ATT_DEPVAR) + ")")) {
-				tuples.add(modelRow);
-			}
-		}
-	}
-
-	private void getVariables() throws PmmException {
-		primaryVariables = new ArrayList<String>();
 		secondaryVariables = new LinkedHashMap<String, List<String>>();
 
-		for (KnimeTuple tuple : tuples) {
-			if (!primaryVariables.contains(tuple
-					.getString(Model1Schema.ATT_DEPVAR))) {
-				primaryVariables.add(tuple.getString(Model1Schema.ATT_DEPVAR));
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+
+			if (!ids.add(tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
+					+ tuple.getString(Model2Schema.ATT_DEPVAR) + ")")) {
+				continue;
 			}
 
+			primaryVarSet.add(tuple.getString(Model1Schema.ATT_DEPVAR));
+
 			for (String indep : tuple.getStringList(Model1Schema.ATT_INDEPVAR)) {
-				if (!primaryVariables.contains(indep)) {
-					primaryVariables.add(indep);
-				}
+				primaryVarSet.add(indep);
 			}
 
 			if (!secondaryVariables.containsKey(tuple
@@ -393,6 +415,8 @@ public class CombinedJoiner implements Joiner {
 						tuple.getString(Model2Schema.ATT_DEPVAR), secVars);
 			}
 		}
+
+		primaryVariables = new ArrayList<String>(primaryVarSet);
 	}
 
 	private Map<String, Map<String, String>> getAssignmentsMap(

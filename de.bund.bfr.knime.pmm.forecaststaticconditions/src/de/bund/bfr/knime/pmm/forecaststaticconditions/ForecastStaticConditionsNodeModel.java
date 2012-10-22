@@ -56,7 +56,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -254,7 +257,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		int index = 0;
 
 		for (KnimeTuple newTuple : combinedTuples.keySet()) {
-			String id = newTuple.getInt(Model1Schema.ATT_MODELID) + "";
+			String id = newTuple.getInt(Model1Schema.ATT_MODELID) + "("
+					+ newTuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			String oldID = combinedTuples.get(newTuple).get(0)
 					.getInt(Model1Schema.ATT_MODELID)
 					+ "";
@@ -273,6 +277,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				Double ph = newTuple.getDouble(TimeSeriesSchema.ATT_PH);
 				Double aw = newTuple
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = newTuple.getString(Model1Schema.ATT_FORMULA);
 				List<String> params = newTuple
 						.getStringList(Model1Schema.ATT_PARAMNAME);
@@ -295,6 +300,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
 				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 				logcs = new ArrayList<Double>();
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					constants.put(element.getName(), element.getValue());
+				}
 
 				for (double t : times) {
 					constants.put(TimeSeriesSchema.ATT_TIME, t);
@@ -364,6 +375,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 				Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
 				List<String> params = tuple
 						.getStringList(Model1Schema.ATT_PARAMNAME);
@@ -382,6 +394,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
 				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 				logcs = new ArrayList<Double>();
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					constants.put(element.getName(), element.getValue());
+				}
 
 				for (double t : times) {
 					constants.put(TimeSeriesSchema.ATT_TIME, t);
@@ -472,6 +490,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 		Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 		Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+		PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 		List<String> indepVars = tuple.getStringList(Model1Schema.ATT_INDEPVAR);
 
 		if (indepVars.contains(TimeSeriesSchema.ATT_TEMPERATURE)
@@ -492,6 +511,30 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			setWarningMessage(AttributeUtilities
 					.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY)
 					+ " is not specified in " + condID);
+		}
+
+		for (String indep : indepVars) {
+			if (indep.equals(TimeSeriesSchema.ATT_TIME)
+					|| indep.equals(TimeSeriesSchema.ATT_TEMPERATURE)
+					|| indep.equals(TimeSeriesSchema.ATT_PH)
+					|| indep.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
+				continue;
+			}
+
+			boolean found = false;
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				if (indep.equals(element.getName())) {
+					found = true;
+					break;
+				}
+			}
+
+			if (!found) {
+				setWarningMessage(indep + " is not specified in " + condID);
+			}
 		}
 	}
 

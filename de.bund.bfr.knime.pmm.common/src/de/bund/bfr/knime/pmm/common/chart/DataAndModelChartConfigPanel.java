@@ -519,9 +519,10 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 				parameterButtons.add(selectButton);
 				parameterValuesPanel.add(selectButton);
 			}
-
-			parameterValuesPanel.updateUI();
 		}
+
+		parameterValuesPanel.updateUI();
+		revalidate();
 	}
 
 	private void fireConfigChanged() {

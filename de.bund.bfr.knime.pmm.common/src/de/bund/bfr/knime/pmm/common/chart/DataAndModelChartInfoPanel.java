@@ -54,6 +54,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
 
@@ -118,6 +119,13 @@ public class DataAndModelChartInfoPanel extends JPanel implements
 					StringTextField field = new StringTextField(true);
 
 					field.setValue((String) values.get(i));
+					field.setEditable(false);
+					fieldPanel.add(field);
+				} else if (values.get(i) instanceof Double) {
+					FormattedDoubleTextField field = new FormattedDoubleTextField(
+							true);
+
+					field.setValue((Double) values.get(i));
 					field.setEditable(false);
 					fieldPanel.add(field);
 				} else if (values.get(i) instanceof List) {

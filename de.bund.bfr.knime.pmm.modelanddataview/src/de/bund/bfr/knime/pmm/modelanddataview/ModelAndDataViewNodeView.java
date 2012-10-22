@@ -227,8 +227,6 @@ public class ModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		visibleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-				Model1Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isPeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
@@ -248,6 +246,9 @@ public class ModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+					TimeSeriesSchema.DATAID, Model1Schema.ATT_RMS,
+					Model1Schema.ATT_RSQUARED);
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
@@ -264,6 +265,8 @@ public class ModelAndDataViewNodeView extends
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
 		}
 
 		while (reader.hasMoreElements()) {

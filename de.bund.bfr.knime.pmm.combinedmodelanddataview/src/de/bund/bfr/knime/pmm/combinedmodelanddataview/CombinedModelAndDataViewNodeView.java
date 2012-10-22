@@ -258,6 +258,9 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+					TimeSeriesSchema.DATAID, Model1Schema.ATT_RMS,
+					Model1Schema.ATT_RSQUARED);
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
@@ -274,6 +277,8 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
 		}
 
 		for (KnimeTuple row : combinedTuples) {

@@ -240,7 +240,6 @@ public class SecondaryModelAndDataViewNodeView extends
 
 	private void readTable() throws PmmException {
 		Set<String> idSet = new LinkedHashSet<String>();
-		List<String> miscParams = getAllMiscParams(getNodeModel().getTable());
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
 		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
@@ -259,6 +258,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -273,18 +273,20 @@ public class SecondaryModelAndDataViewNodeView extends
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = Arrays.asList(Model2Schema.ATT_RMS,
+		visibleColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,
+				Model1Schema.ATT_MODELNAME, Model2Schema.ATT_RMS,
 				Model2Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isSeiSchema()) {
-			doubleColumns = Arrays.asList("Min "
-					+ TimeSeriesSchema.ATT_TEMPERATURE, "Max "
-					+ TimeSeriesSchema.ATT_TEMPERATURE, "Min "
-					+ TimeSeriesSchema.ATT_PH,
-					"Max " + TimeSeriesSchema.ATT_PH, "Min "
+			miscParams = getAllMiscParams(getNodeModel().getTable());
+			doubleColumns = new ArrayList<String>(Arrays.asList(
+					Model2Schema.ATT_RMS, Model2Schema.ATT_RSQUARED, "Min "
+							+ TimeSeriesSchema.ATT_TEMPERATURE, "Max "
+							+ TimeSeriesSchema.ATT_TEMPERATURE, "Min "
+							+ TimeSeriesSchema.ATT_PH, "Max "
+							+ TimeSeriesSchema.ATT_PH, "Min "
 							+ TimeSeriesSchema.ATT_WATERACTIVITY, "Max "
-							+ TimeSeriesSchema.ATT_WATERACTIVITY,
-					Model2Schema.ATT_RMS, Model2Schema.ATT_RSQUARED);
+							+ TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -295,6 +297,13 @@ public class SecondaryModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			colorCounts = new ArrayList<Integer>();
+
+			for (String param : miscParams) {
+				doubleColumns.add("Min " + param);
+				doubleColumns.add("Max " + param);
+				doubleColumnValues.add(new ArrayList<Double>());
+				doubleColumnValues.add(new ArrayList<Double>());
+			}
 		} else if (getNodeModel().isModel2Schema()) {
 			doubleColumns = Arrays.asList(Model2Schema.ATT_RMS,
 					Model2Schema.ATT_RSQUARED);
@@ -481,36 +490,52 @@ public class SecondaryModelAndDataViewNodeView extends
 					stringColumnValues.get(2).add(ChartConstants.YES);
 				}
 
-				if (!nonNullTemperatures.isEmpty()) {
-					doubleColumnValues.get(0).add(
-							Collections.min(nonNullTemperatures));
-					doubleColumnValues.get(1).add(
-							Collections.max(nonNullTemperatures));
-				} else {
-					doubleColumnValues.get(0).add(null);
-					doubleColumnValues.get(1).add(null);
-				}
+				doubleColumnValues.get(0).add(rmsMap.get(id));
+				doubleColumnValues.get(1).add(rSquaredMap.get(id));
 
-				if (!nonNullPHs.isEmpty()) {
-					doubleColumnValues.get(2).add(Collections.min(nonNullPHs));
-					doubleColumnValues.get(3).add(Collections.max(nonNullPHs));
+				if (!nonNullTemperatures.isEmpty()) {
+					doubleColumnValues.get(2).add(
+							Collections.min(nonNullTemperatures));
+					doubleColumnValues.get(3).add(
+							Collections.max(nonNullTemperatures));
 				} else {
 					doubleColumnValues.get(2).add(null);
 					doubleColumnValues.get(3).add(null);
 				}
 
-				if (!nonNullWaterActivites.isEmpty()) {
-					doubleColumnValues.get(4).add(
-							Collections.min(nonNullWaterActivites));
-					doubleColumnValues.get(5).add(
-							Collections.max(nonNullWaterActivites));
+				if (!nonNullPHs.isEmpty()) {
+					doubleColumnValues.get(4).add(Collections.min(nonNullPHs));
+					doubleColumnValues.get(5).add(Collections.max(nonNullPHs));
 				} else {
 					doubleColumnValues.get(4).add(null);
 					doubleColumnValues.get(5).add(null);
 				}
 
-				doubleColumnValues.get(6).add(rmsMap.get(id));
-				doubleColumnValues.get(7).add(rSquaredMap.get(id));
+				if (!nonNullWaterActivites.isEmpty()) {
+					doubleColumnValues.get(6).add(
+							Collections.min(nonNullWaterActivites));
+					doubleColumnValues.get(7).add(
+							Collections.max(nonNullWaterActivites));
+				} else {
+					doubleColumnValues.get(6).add(null);
+					doubleColumnValues.get(7).add(null);
+				}
+
+				for (int i = 0; i < miscParams.size(); i++) {
+					List<Double> nonNullValues = new ArrayList<Double>(
+							miscs.get(miscParams.get(i)));
+
+					if (!nonNullValues.isEmpty()) {
+						doubleColumnValues.get(2 * i + 8).add(
+								Collections.min(nonNullValues));
+						doubleColumnValues.get(2 * i + 9).add(
+								Collections.max(nonNullValues));
+					} else {
+						doubleColumnValues.get(2 * i + 8).add(null);
+						doubleColumnValues.get(2 * i + 9).add(null);
+					}
+				}
+
 				colorCounts.add(plotable.getNumberOfCombinations());
 			} else if (getNodeModel().isModel2Schema()) {
 				if (!plotable.isPlotable()) {

@@ -219,7 +219,7 @@ public class ModelAndDataViewNodeView extends
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
-		List<String> miscParams = getAllMiscParams(getNodeModel().getTable());
+		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -231,6 +231,7 @@ public class ModelAndDataViewNodeView extends
 				Model1Schema.ATT_RSQUARED);
 
 		if (getNodeModel().isPeiSchema()) {
+			miscParams = getAllMiscParams(getNodeModel().getTable());
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
 					TimeSeriesSchema.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();

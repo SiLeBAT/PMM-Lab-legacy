@@ -138,9 +138,10 @@ public class TableReader {
 					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
+			
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			for (int i = 0; i < miscParams.size(); i++) {
-				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			for (int i = 0; i < miscParams.size(); i++) {				
 				boolean paramFound = false;
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {

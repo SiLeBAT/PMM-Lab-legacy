@@ -47,6 +47,7 @@ public class TableReader {
 			boolean schemaContainsData) throws PmmException {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		List<String> miscParams = null;
 
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
@@ -58,22 +59,28 @@ public class TableReader {
 		longLegend = new LinkedHashMap<String, String>();
 
 		if (schemaContainsData) {
+			miscParams = getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
 					TimeSeriesSchema.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(TimeSeriesSchema.ATT_TEMPERATURE,
-					TimeSeriesSchema.ATT_PH,
-					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);
+			doubleColumns = new ArrayList<String>(Arrays.asList(
+					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
+					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
+					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+
+			for (String param : miscParams) {
+				doubleColumns.add(param);
+				doubleColumnValues.add(new ArrayList<Double>());
+			}
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
 					ChartConstants.IS_FITTED);
@@ -143,6 +150,9 @@ public class TableReader {
 				varMax.put(TimeSeriesSchema.ATT_TIME, indepMaxValues.get(i));
 			}
 
+			variables.put(TimeSeriesSchema.ATT_TIME, new ArrayList<Double>(
+					Arrays.asList(0.0)));
+
 			if (schemaContainsData) {
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				Map<String, Double> miscValues = new LinkedHashMap<String, Double>();
@@ -164,18 +174,7 @@ public class TableReader {
 						}
 					}
 				}
-			} else {
-				for (int i = 0; i < indepVars.size(); i++) {
-					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
-						parameters.put(indepVars.get(i), 0.0);
-					}
-				}
-			}
 
-			variables.put(TimeSeriesSchema.ATT_TIME, new ArrayList<Double>(
-					Arrays.asList(0.0)));
-
-			if (schemaContainsData) {
 				List<Double> timeList = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_TIME);
 				List<Double> logcList = tuple
@@ -225,15 +224,15 @@ public class TableReader {
 				stringColumnValues.get(0).add(modelName);
 				stringColumnValues.get(1).add(dataName);
 				doubleColumnValues.get(0).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				doubleColumnValues.get(1).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_PH));
-				doubleColumnValues.get(2).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
-				doubleColumnValues.get(3).add(
 						tuple.getDouble(Model1Schema.ATT_RMS));
-				doubleColumnValues.get(4).add(
+				doubleColumnValues.get(1).add(
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
+				doubleColumnValues.get(2).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(3).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(4).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENTNAME,
@@ -243,7 +242,32 @@ public class TableReader {
 						tuple.getString(Model1Schema.ATT_FORMULA), dataPoints,
 						agent, matrix,
 						tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
+
+				for (int i = 0; i < miscParams.size(); i++) {
+					boolean paramFound = false;
+
+					for (PmmXmlElementConvertable el : misc.getElementSet()) {
+						MiscXml element = (MiscXml) el;
+
+						if (miscParams.get(i).equals(element.getName())) {
+							doubleColumnValues.get(i + 5).add(
+									element.getValue());
+							paramFound = true;
+							break;
+						}
+					}
+
+					if (!paramFound) {
+						doubleColumnValues.get(i + 5).add(null);
+					}
+				}
 			} else {
+				for (int i = 0; i < indepVars.size(); i++) {
+					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+						parameters.put(indepVars.get(i), 0.0);
+					}
+				}
+
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
@@ -344,4 +368,25 @@ public class TableReader {
 	public Map<String, String> getLongLegend() {
 		return longLegend;
 	}
+
+	private List<String> getAllMiscParams(BufferedDataTable table)
+			throws PmmException {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new TimeSeriesSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
+	}
+
 }

@@ -1530,8 +1530,8 @@ public class DBKernel {
 	}
 
 	public static void openDBGUI(final boolean setVisible) {
-		final Connection connection = localConn;
-		org.hsh.bfr.db.StartApp.go(connection, setVisible, true);
+		final Connection connection = getLocalConn(true);
+		StartApp.go(connection, setVisible, true);
         /*
 		final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {

@@ -2,25 +2,6 @@
 <?eclipse version="3.0"?>
 
 <plugin>
-   <extension
-         point="org.eclipse.ui.commands">
-      <category
-            id="de.bund.bfr.knime.pmm.combaseio.category"
-            name="PMM-Lab">
-      </category>
-      <command
-            categoryId="de.bund.bfr.knime.pmm.combaseio.category"
-            id="de.bund.bfr.knime.pmm.combaseio.openDBGUI"
-            name="Open DB Gui...">
-      </command>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="de.bund.bfr.knime.pmm.handlers.OpenDBGUI"
-            commandId="de.bund.bfr.knime.pmm.combaseio.openDBGUI">
-      </handler>
-   </extension>
 
    <!-- This is an example for providing an own category 
       <extension
@@ -38,44 +19,5 @@
       <node category-path="/pmmlab/reader" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseReaderNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseReaderNodeFactory"/>
    <node category-path="/pmmlab/writer" factory-class="de.bund.bfr.knime.pmm.combaseio.CombaseWriterNodeFactory" id="de.bund.bfr.knime.combaseio.CombaseWriterNodeFactory"/>
 </extension>
-   <extension
-         point="org.knime.workbench.repository.categories">
-      <category
-            icon="icons/BfRPMM.png"
-            level-id="pmmlab"
-            name="PMM-Lab"
-            path="/">
-      </category>
-      <category
-            icon="icons/Editors.png"
-            level-id="editors"
-            name="Editors"
-            path="/pmmlab">
-      </category>
-      <category
-            icon="icons/Model.png"
-            level-id="fitting"
-            name="Model Fitting &amp; Prediction"
-            path="/pmmlab">
-      </category>
-      <category
-            icon="icons/Reader.png"
-            level-id="reader"
-            name="Reader"
-            path="/pmmlab">
-      </category>
-      <category
-            icon="icons/SelectionAndViews.png"
-            level-id="views"
-            name="Selection &amp; Views"
-            path="/pmmlab">
-      </category>
-      <category
-            icon="icons/Writer.png"
-            level-id="writer"
-            name="Writer"
-            path="/pmmlab">
-      </category>
-   </extension>
    
 </plugin>

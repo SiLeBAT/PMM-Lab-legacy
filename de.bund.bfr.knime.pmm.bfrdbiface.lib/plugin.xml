@@ -37,5 +37,44 @@
          </menu>
       </menuContribution>
    </extension>
+   <extension
+         point="org.knime.workbench.repository.categories">
+      <category
+            icon="icons/BfRPMM.png"
+            level-id="pmmlab"
+            name="PMM-Lab"
+            path="/">
+      </category>
+      <category
+            icon="icons/Editors.png"
+            level-id="editors"
+            name="Editors"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/Model.png"
+            level-id="fitting"
+            name="Model Fitting &amp; Prediction"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/Reader.png"
+            level-id="reader"
+            name="Reader"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/SelectionAndViews.png"
+            level-id="views"
+            name="Selection &amp; Views"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/Writer.png"
+            level-id="writer"
+            name="Writer"
+            path="/pmmlab">
+      </category>
+   </extension>
 
 </plugin>

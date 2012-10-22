@@ -80,6 +80,7 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		addFocusListener(this);
 		listeners = new ArrayList<TextListener>();
 		textChanged();
+		formatText();
 	}
 
 	public void addTextListener(TextListener listener) {
@@ -97,13 +98,15 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 	public Double getValue() {
 		return value;
 	}
-	
+
 	public void setValue(Double value) {
 		if (value != null) {
 			setText(value.toString());
 		} else {
 			setText("");
 		}
+		
+		formatText();
 	}
 
 	@Override
@@ -128,9 +131,7 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 
 	@Override
 	public void focusLost(FocusEvent e) {
-		if (value != null) {
-			setText(getText().replace(",", "."));
-		}
+		formatText();
 	}
 
 	@Override
@@ -149,6 +150,12 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 			return Color.RED;
 		} else {
 			return super.getBackground();
+		}
+	}
+
+	protected void formatText() {
+		if (value != null) {
+			setText(getText().replace(",", "."));
 		}
 	}
 

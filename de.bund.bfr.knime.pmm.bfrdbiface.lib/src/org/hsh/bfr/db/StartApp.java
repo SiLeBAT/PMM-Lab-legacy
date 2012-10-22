@@ -97,7 +97,7 @@ public class StartApp {
 	      }
 	      else {
 	    	  	DBKernel.isKNIME = true;
-	    	  	Connection kernConn = DBKernel.getLocalConn(); 
+	    	  	Connection kernConn = DBKernel.getLocalConn(false); 
 	    	  	boolean integrateConn = false;
 	    	  	if (kernConn != null) {
 	    	  		try {

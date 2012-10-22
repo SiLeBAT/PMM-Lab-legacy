@@ -76,7 +76,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     		this.addTab("Model definition", m_confui);    	
     		*/
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
-    		m_mmcm.setConnection(DBKernel.getLocalConn());
+    		m_mmcm.setConnection(DBKernel.getLocalConn(true));
     		this.addTab("Model Definition", m_mmcm);    	
     		
     		m_mmcts = new MMC_TS();

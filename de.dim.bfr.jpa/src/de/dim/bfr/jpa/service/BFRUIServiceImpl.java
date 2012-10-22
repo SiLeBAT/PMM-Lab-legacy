@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.hsh.bfr.db.DBKernel;
+//import org.hsh.bfr.db.DBKernel;
 
 import de.dim.bfr.BfrFactory;
 import de.dim.bfr.GeschModelList;
@@ -72,20 +72,21 @@ public class BFRUIServiceImpl implements BFRUIService {
 	public Object getDBDetail(final String tablename, final int tableID,
 			final String desiredColumn) {
 		//openDBGUI(false);
-		return DBKernel.getValue(tablename, "ID", tableID+"", desiredColumn);
+		return null;//DBKernel.getValue(tablename, "ID", tableID+"", desiredColumn);
 	}
 
 	@Override
 	public ResultSet getDBData(final String tablename, final String columnID, final Integer id) {
 		//openDBGUI(false);
-		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(tablename) +
-				(columnID == null ? "" : " WHERE " + DBKernel.delimitL(columnID) + "=" + id), false);
-		return rs;
+		//ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(tablename) +
+		//		(columnID == null ? "" : " WHERE " + DBKernel.delimitL(columnID) + "=" + id), false);
+		return null;//rs;
 	}
 
 	@Override
 	public void openDBGUI(final boolean setVisible) {
 		final Connection connection = pm.getJDBCConnection();
+		/*
 		org.hsh.bfr.db.StartApp.go(connection, setVisible, true);
         
 		final Timer timer = new Timer();
@@ -101,6 +102,7 @@ public class BFRUIServiceImpl implements BFRUIService {
                 }
             }
         }, 0, 1000);	
+        */
 	}
 	
 	@Override

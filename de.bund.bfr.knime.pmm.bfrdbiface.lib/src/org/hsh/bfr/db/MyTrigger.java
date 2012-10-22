@@ -118,7 +118,7 @@ public void fire(final int triggerType, final String triggerName, final String t
 	          		}
 	          	}
 	
-	          	if (MainKernel.isServer() || DBKernel.isKNIME || DBKernel.getLocalConn() == null) {
+	          	if (MainKernel.isServer() || DBKernel.isKNIME || DBKernel.getLocalConn(false) == null) {
 	          		//DBKernel.importing = true; // nur, damit nicht unnötig sone kacke wie undo gemacht wird in insertIntoChangeLog...
 	          		MainKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter);
 	          		//System.out.println("isserver");

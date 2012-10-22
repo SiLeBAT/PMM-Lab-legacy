@@ -30,7 +30,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.hsh.bfr.db.DBKernel;
+//import org.hsh.bfr.db.DBKernel;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -151,8 +151,8 @@ public class BFRJPAActivator implements BundleActivator {
 		HashMap<String,Object> props = new HashMap<String,Object>();
 		props.put("javax.persistence.jdbc.driver", "org.hsqldb.jdbcDriver");
 		props.put("javax.persistence.jdbc.url", "jdbc:hsqldb:file:" + dbFile + ";shutdown=true");
-		props.put("javax.persistence.jdbc.password", DBKernel.tempSAPass);
-		props.put("javax.persistence.jdbc.user", DBKernel.tempSA);
+		//props.put("javax.persistence.jdbc.password", DBKernel.tempSAPass);
+		//props.put("javax.persistence.jdbc.user", DBKernel.tempSA);
 		
 		return props;
 	}

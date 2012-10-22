@@ -123,7 +123,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     		
     	dbuuid = db.getDBUUID();

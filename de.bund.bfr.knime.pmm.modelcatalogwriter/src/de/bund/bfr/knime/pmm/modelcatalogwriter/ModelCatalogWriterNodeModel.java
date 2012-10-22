@@ -104,7 +104,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     	
     	int n = inData[ 0 ].getRowCount();

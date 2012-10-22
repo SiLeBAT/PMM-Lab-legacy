@@ -43,6 +43,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -64,6 +65,7 @@ import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
 import javax.swing.undo.UndoableEditSupport;
 
+import org.eclipse.core.runtime.FileLocator;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
@@ -71,6 +73,9 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.undoredo.BfRUndoManager;
 import org.hsh.bfr.db.gui.dbtable.undoredo.TableCellEdit;
 import org.hsh.bfr.db.imports.InfoBox;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+import org.eclipse.core.resources.ResourcesPlugin;
 
 /**
  * @author Armin
@@ -121,8 +126,8 @@ public class DBKernel {
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
-	public static String tempSA = "defad"; // defad SA
-	public static String tempSAPass = "de6!§5ddy"; // de6!§5ddy
+	public static String tempSA = isKNIME ? "SA" : "defad"; // defad SA
+	public static String tempSAPass = isKNIME ? "" : "de6!§5ddy"; // de6!§5ddy
 	
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
@@ -712,7 +717,8 @@ public class DBKernel {
 			e.printStackTrace();
 		}
   }
-  public static Connection getLocalConn() {
+  public static Connection getLocalConn(boolean try2Boot) {
+	  if (localConn == null && try2Boot && isKNIME) localConn = getInternalKNIMEDB();
 	  return localConn;
   }
   // newConn wird nur von MergeDBs benötigt
@@ -1541,5 +1547,49 @@ public class DBKernel {
             }
         }, 0, 1000);	
         */
+	}
+	public static Connection getInternalKNIMEDB() {
+		Connection result = null;
+		try {
+			// Create a file object from the URL
+			String internalPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
+				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
+			File incFileInternalDBFolder = new File(internalPath);
+			if (!incFileInternalDBFolder.exists()) {
+				incFileInternalDBFolder.mkdirs();
+			}
+			// folder is empty? Create database!
+			if (incFileInternalDBFolder.list().length == 0) {
+				// Get the bundle this class belongs to.
+				Bundle bundle = FrameworkUtil.getBundle(null);
+				URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
+				if (incURLfirstDB == null) { // incURLInternalDBFolder == null || 
+					return null;
+				}
+				File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
+				try {
+					org.hsqldb.lib.tar.DbBackup.main(new String[]{
+							"--extract",
+							incFilefirstDB.getAbsolutePath(),
+							incFileInternalDBFolder.getAbsolutePath()});
+				}
+				catch (Exception e) {
+					throw new IllegalStateException("Creation of internal database not succeeded.", e);
+				}
+			}
+			else {
+				// TODO: hier muss noch ein Upgrade bei neuen DB Versionen realisiert werden!!!!				
+			}
+			try {
+				result = getNewConnection(tempSA, tempSAPass, internalPath);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		catch (IOException e) {
+			throw new IllegalStateException("Cannot locate necessary internal database path.", e);
+		}
+		return result;
 	}
 }

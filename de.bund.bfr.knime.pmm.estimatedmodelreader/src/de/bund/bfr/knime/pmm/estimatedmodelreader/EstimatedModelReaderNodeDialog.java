@@ -162,7 +162,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	if( dbui.getOverride() ) {
 			db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
 		} else {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     	
     	result = db.selectModel( 1 );

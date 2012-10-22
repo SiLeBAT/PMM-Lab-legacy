@@ -3,5 +3,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry excluding="**/res/*.sql|**/res/*.txt|**/res/*.xls|org/hsh/bfr/db/res/x1gma2011/" kind="src" path="src"/>
+	<classpathentry exported="true" kind="lib" path="libs/hsqldb.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

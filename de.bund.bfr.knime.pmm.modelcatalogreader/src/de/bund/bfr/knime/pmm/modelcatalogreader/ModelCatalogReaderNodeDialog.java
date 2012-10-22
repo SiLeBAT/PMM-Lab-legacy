@@ -143,7 +143,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	if( ui.getOverride() ) {
 			db = new Bfrdb( ui.getFilename(), ui.getLogin(), ui.getPasswd() );
 		} else {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     	
     	result = db.selectModel( 1 );

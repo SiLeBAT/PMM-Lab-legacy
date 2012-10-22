@@ -19,3 +19,4 @@ Bundle-ClassPath: .,
  libs/mysql-connector-java-5.1.20-bin.jar,
  libs/quicktable2swing11.jar
 Bundle-Vendor: BfR
+Import-Package: org.eclipse.core.resources

@@ -241,7 +241,7 @@ public class MainFrame extends JFrame {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps");
+		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.lang);
 		toolBar1 = new JToolBar();
 		button7 = new JButton();
 		button6 = new JButton();
@@ -383,7 +383,7 @@ public class MainFrame extends JFrame {
 			splitPane1.setRightComponent(myDBPanel1);
 		}
 		contentPane.add(splitPane1, CC.xy(1, 2, CC.DEFAULT, CC.FILL));
-		setSize(1025, 700);
+		setSize(1020, 700);
 		setLocationRelativeTo(null);
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}

@@ -62,6 +62,7 @@ import java.util.Locale;
 import java.util.Vector;
 import java.util.prefs.Preferences;
 
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.undo.UndoableEditSupport;
 
@@ -72,6 +73,7 @@ import org.hsh.bfr.db.gui.MyList;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.undoredo.BfRUndoManager;
 import org.hsh.bfr.db.gui.dbtable.undoredo.TableCellEdit;
+import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
@@ -91,8 +93,8 @@ public class DBKernel {
 	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
 
 	private static Connection localConn = null;
-	private static String theUsername = "";
-	private static String thePassword = "";
+	private static String m_Username = "";
+	private static String m_Password = "";
 	
 	public static BfRUndoManager undoManager = new BfRUndoManager();
 	private static UndoableEditSupport undoSupport = new UndoableEditSupport();
@@ -369,14 +371,14 @@ public class DBKernel {
   }
   
   public static String getPassword() {
-	  return thePassword;
+	  return m_Password;
   }
   public static String getUsername() {
-  	String username = DBKernel.theUsername;
+  	String username = DBKernel.m_Username;
 	try { // im Servermodus muss ich schon abchecken, welcher User eingeloggt ist!
 		Connection lconn = getDefaultConnection();
 		if (lconn == null) {
-			username = DBKernel.theUsername; // lokale Variante
+			username = DBKernel.m_Username; // lokale Variante
 		} else {
 			//System.out.println(lconn.getMetaData());
 			username = lconn.getMetaData().getUserName(); // Server (hoffe ich klappt immer ...?!?)
@@ -557,50 +559,52 @@ public class DBKernel {
   
   public static boolean closeDBConnections(final boolean kompakt) {
 	boolean result = true;
-    try {
-    	      if (localConn != null && !localConn.isClosed()) {
-    	        	if (!DBKernel.isServerConnection) {      		
-    	              try {
-    	              	if (kompakt && !isAdmin() && !DBKernel.isKrise && !DBKernel.isStatUp) { // kompakt ist nur beim Programm schliessen true
-    	              		closeDBConnections(false);
-    	              		try {
-    	              			localConn = getDefaultAdminConn();
-    	              		}
-    	              		catch (Exception e) {e.printStackTrace();}
-    	              	}
-    	              	Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
-    	      	    	MyLogger.handleMessage("vor CHECKPOINT DEFRAG");
-    	      	    	/*
-    	              	if (false && kompakt)
-    	  				 {
-    	  					stmt.execute("CHECKPOINT DEFRAG"); // wir machen hier lieber 'CHECKPOINT DEFRAG', weil 'CHECKPOINT DEFRAG' im Gegensatz zu SHUTDOWN COMPACT bisher noch keine outofmemory Exception geworfen hat
-    	  				}
-    	  				*/
-    	      	    	MyLogger.handleMessage("vor SHUTDOWN");
+	try {
+		if (localConn != null && !localConn.isClosed()) {
+			if (!DBKernel.isServerConnection) {      		
+				try {
+					if (kompakt && !isAdmin() && !DBKernel.isKrise && !DBKernel.isStatUp) { // kompakt ist nur beim Programm schliessen true
+						closeDBConnections(false);
+						try {
+							localConn = getDefaultAdminConn();
+						}
+						catch (Exception e) {e.printStackTrace();}
+					}
+					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
+					MyLogger.handleMessage("vor SHUTDOWN");
     	      	        //stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-    	      	        if (DBKernel.isKrise || DBKernel.isStatUp) {
-    	  					stmt.execute("SHUTDOWN SCRIPT");
-    	  				}
-    	  				else {
-    	  					stmt.execute("SHUTDOWN");
-    	  					//stmt.execute("SHUTDOWN " + (kompakt ? " COMPACT" : "")); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-    	  				}
-    	              }
-    	              catch (SQLException e) {result = false;}
-    	        	}
-    	      	MyLogger.handleMessage("vor close");
-    	          localConn.close();
-    	      	MyLogger.handleMessage("vor gc");
-    	          System.gc();
-    	          System.runFinalization();
-    	          try {
-    	              if (myList != null && myList.getMyDBTable() != null && myList.getMyDBTable().getActualTable() != null) {
-    	  				DBKernel.prefs.put("LAST_SELECTED_TABLE", myList.getMyDBTable().getActualTable().getTablename());
-    	  			}        	
-    	          }
-    	          catch (Exception e) {e.printStackTrace();}
-    	        }
-    }
+					if (DBKernel.isKrise || DBKernel.isStatUp) {
+						stmt.execute("SHUTDOWN SCRIPT");
+					}
+					else {
+						stmt.execute("SHUTDOWN");
+						//stmt.execute("SHUTDOWN " + (kompakt ? " COMPACT" : "")); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
+					}
+				}
+				catch (SQLException e) {result = false;}
+			}
+			MyLogger.handleMessage("vor close");
+			localConn.close();
+			MyLogger.handleMessage("vor gc");
+			System.gc();
+			System.runFinalization();
+			try {
+				if (myList != null && myList.getMyDBTable() != null && myList.getMyDBTable().getActualTable() != null) {
+					DBKernel.prefs.put("LAST_SELECTED_TABLE", myList.getMyDBTable().getActualTable().getTablename());
+					
+					DBKernel.prefs.put("LAST_MainFrame_FULL", DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE" : "FALSE");
+					//DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
+					/*
+					DBKernel.prefs.put("LAST_MainFrame_WIDTH", DBKernel.mainFrame.getWidth()+"");
+					DBKernel.prefs.put("LAST_MainFrame_HEIGHT", DBKernel.mainFrame.getHeight()+"");
+					DBKernel.prefs.put("LAST_MainFrame_X", DBKernel.mainFrame.getX()+"");
+					DBKernel.prefs.put("LAST_MainFrame_Y", DBKernel.mainFrame.getY()+"");
+					*/
+				}
+			}
+			catch (Exception e) {e.printStackTrace();}
+		}
+	}
     catch (SQLException e) {
     	result = false;
     	MyLogger.handleException(e);
@@ -700,11 +704,11 @@ public class DBKernel {
 	    return result;
   }
   public static Connection getDBConnection() throws Exception {
-  	return getDBConnection(HSHDB_PATH, DBKernel.theUsername, DBKernel.thePassword, false);
+  	return getDBConnection(HSHDB_PATH, DBKernel.m_Username, DBKernel.m_Password, false);
   }
   public static Connection getDBConnection(final String username, final String password) throws Exception {
-  	DBKernel.theUsername = username; 
-  	DBKernel.thePassword = password; 
+  	DBKernel.m_Username = username; 
+  	DBKernel.m_Password = password; 
   	return getDBConnection(HSHDB_PATH, username, password, false);
   }
   public static void setLocalConn(final Connection conn) { // localConn wird hier von KNIME (Statup) geliefert!
@@ -714,14 +718,14 @@ public class DBKernel {
 			meta = conn.getMetaData();
 			String url = meta.getURL();
 			DBKernel.HSHDB_PATH = url.substring(url.indexOf("jdbc:hsqldb:file:") + "jdbc:hsqldb:file:".length(), url.lastIndexOf(System.getProperty("file.separator")) + 1);
-			DBKernel.theUsername = meta.getUserName(); 
+			DBKernel.m_Username = meta.getUserName(); 
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
   }
   public static Connection getLocalConn(boolean try2Boot) {
-	  if (localConn == null && try2Boot && isKNIME) localConn = getInternalKNIMEDB();
+	  if (localConn == null && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui();
 	  return localConn;
   }
   // newConn wird nur von MergeDBs benötigt
@@ -1551,7 +1555,7 @@ public class DBKernel {
         }, 0, 1000);	
         */
 	}
-	public static Connection getInternalKNIMEDB() {
+	public static Connection getInternalKNIMEDB_LoadGui() {
 		Connection result = null;
 		try {
 			// Create a file object from the URL
@@ -1580,13 +1584,46 @@ public class DBKernel {
 					throw new IllegalStateException("Creation of internal database not succeeded.", e);
 				}
 			}
-			else {
-				// TODO: hier muss noch ein Upgrade bei neuen DB Versionen realisiert werden!!!!				
-			}
 			try {
-			  	DBKernel.theUsername = getTempSA(); 
-			  	DBKernel.thePassword = getTempSAPass(); 
-				result = getNewConnection(DBKernel.theUsername, DBKernel.thePassword, internalPath);
+			  	HSHDB_PATH = internalPath;
+				result = getDBConnection(getTempSA(), getTempSAPass());
+				// UpdateChecker
+		  		if (DBKernel.myList == null) {
+		    	  	Login login = new Login();
+		  	    	MyDBTable myDB = new MyDBTable();
+		  	    	myDB.initConn(result);
+		  	    	MyDBTree myDBTree = new MyDBTree();
+					MyList myList = new MyList(myDB, myDBTree);
+					DBKernel.myList = myList;
+			    	login.loadMyTables(myList, null);
+			    	
+					MainFrame mf = new MainFrame(myList);
+					DBKernel.mainFrame = mf;
+					myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+					try {
+						boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+						/*
+						int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
+						int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
+						int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+						int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+						DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
+						DBKernel.mainFrame.setBounds(x, y, w, h);
+						*/
+						DBKernel.mainFrame.setPreferredSize(new Dimension(1020, 700));
+						DBKernel.mainFrame.pack();
+						DBKernel.mainFrame.setLocationRelativeTo(null);
+						if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+					}
+					catch (Exception e) {}
+		    	  	DBKernel.mainFrame.pack();
+
+				  	String dbVersion = DBKernel.getDBVersion();
+				  	if (dbVersion == null || dbVersion.equals("1.4.4")) {
+				  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
+				  		DBKernel.setDBVersion("1.4.4");
+				  	}
+		  		}				
 			}
 			catch (Exception e) {
 				e.printStackTrace();

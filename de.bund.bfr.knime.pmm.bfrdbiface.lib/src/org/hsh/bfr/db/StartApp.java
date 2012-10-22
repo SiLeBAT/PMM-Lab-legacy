@@ -95,32 +95,10 @@ public class StartApp {
 	  		Login login = new Login(true);
 	  		login.setVisible(setVisible);	    	  
 	  	}
-	  	else { // KNIME!!!
-	  		if (DBKernel.myList == null) {
-	    	  	Login login = new Login();
-	  	    	MyDBTable myDB = new MyDBTable();
-	  	    	myDB.initConn(conn);
-	  	    	MyDBTree myDBTree = new MyDBTree();
-				MyList myList = new MyList(myDB, myDBTree);
-				DBKernel.myList = myList;
-		    	login.loadMyTables(myList, null);
-		    	
-				MainFrame mf = new MainFrame(myList);
-				DBKernel.mainFrame = mf;
-				myList.setSelection("Versuchsbedingungen"); // DBKernel.prefs.get("LAST_SELECTED_TABLE", 
-	    	  	DBKernel.mainFrame.pack();
-	    	  	//mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-	    	  	DBKernel.mainFrame.setVisible(setVisible);
-	    	  	DBKernel.mainFrame.toFront();
-    	  	}
-    	  	else {
-	    	  	try {
-		    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
-		    	  	DBKernel.mainFrame.toFront();	    	  		
-	    	  	}
-	    	  	catch (Exception e) {e.printStackTrace();}
-    	  	}
-    	  	
+	  	else {
+    	  	DBKernel.mainFrame.setVisible(setVisible);		    	  		
+    	  	DBKernel.mainFrame.toFront();	    	  		
+
     	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);

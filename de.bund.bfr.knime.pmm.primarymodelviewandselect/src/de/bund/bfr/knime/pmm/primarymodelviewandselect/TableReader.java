@@ -11,7 +11,10 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -30,7 +33,7 @@ public class TableReader {
 
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;	
+	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
 
 	private List<List<String>> infoParameters;
@@ -64,7 +67,7 @@ public class TableReader {
 			doubleColumns = Arrays.asList(TimeSeriesSchema.ATT_TEMPERATURE,
 					TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY, Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);			
+					Model1Schema.ATT_RSQUARED);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -78,7 +81,7 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);			
+					Model1Schema.ATT_RSQUARED);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -133,15 +136,37 @@ public class TableReader {
 				parameters.put(params.get(i), paramValues.get(i));
 			}
 
-			for (int i = 0; i < indepVars.size(); i++) {
-				if (indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
-					varMin.put(TimeSeriesSchema.ATT_TIME, indepMinValues.get(i));
-					varMax.put(TimeSeriesSchema.ATT_TIME, indepMaxValues.get(i));
-				} else {
-					if (schemaContainsData) {
-						parameters.put(indepVars.get(i),
-								tuple.getDouble(indepVars.get(i)));
-					} else {
+			if (indepVars.contains(TimeSeriesSchema.ATT_TIME)) {
+				int i = indepVars.indexOf(TimeSeriesSchema.ATT_TIME);
+
+				varMin.put(TimeSeriesSchema.ATT_TIME, indepMinValues.get(i));
+				varMax.put(TimeSeriesSchema.ATT_TIME, indepMaxValues.get(i));
+			}
+
+			if (schemaContainsData) {
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				Map<String, Double> miscValues = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					miscValues.put(element.getName(), element.getValue());
+				}
+
+				for (int i = 0; i < indepVars.size(); i++) {
+					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+						if (miscValues.containsKey(indepVars.get(i))) {
+							parameters.put(indepVars.get(i),
+									miscValues.get(indepVars.get(i)));
+						} else {
+							parameters.put(indepVars.get(i),
+									tuple.getDouble(indepVars.get(i)));
+						}
+					}
+				}
+			} else {
+				for (int i = 0; i < indepVars.size(); i++) {
+					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
 						parameters.put(indepVars.get(i), 0.0);
 					}
 				}
@@ -294,7 +319,7 @@ public class TableReader {
 
 	public List<String> getDoubleColumns() {
 		return doubleColumns;
-	}	
+	}
 
 	public List<List<Double>> getDoubleColumnValues() {
 		return doubleColumnValues;

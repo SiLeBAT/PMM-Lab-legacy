@@ -118,7 +118,24 @@ public class ParameterOptimizer {
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
 		List<Double> paramStepSize = new ArrayList<Double>();
-		int maxStepCount = 11;
+		int maxStepCount = 10;
+		int paramsWithRange = 0;
+
+		for (int i = 0; i < parameters.size(); i++) {
+			Double min = minParameterValues.get(i);
+			Double max = maxParameterValues.get(i);
+
+			if (min != null && max != null) {
+				paramsWithRange++;
+			}
+		}
+
+		if (paramsWithRange != 0) {
+			maxStepCount = (int) Math.pow(10000.0,
+					1.0 / (double) paramsWithRange);
+			maxStepCount = Math.max(maxStepCount, 2);
+			maxStepCount = Math.min(maxStepCount, 10);
+		}
 
 		for (int i = 0; i < parameters.size(); i++) {
 			Double min = minParameterValues.get(i);

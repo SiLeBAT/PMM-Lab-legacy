@@ -33,8 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.bfrdbiface.lib;
 
-import static java.lang.System.err;
-
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -773,7 +771,7 @@ public class Bfrdb extends Hsqldbiface {
 		} else {
 			q = queryEstSei();
 		}		
-		//System.out.println( q );
+		System.out.println( q );
 		PreparedStatement ps = conn.prepareStatement( q );
 		return ps.executeQuery();
 	}
@@ -859,7 +857,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		return ret;
@@ -892,7 +890,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		return ret;
@@ -917,7 +915,7 @@ public class Bfrdb extends Hsqldbiface {
 			
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		
@@ -943,7 +941,7 @@ public class Bfrdb extends Hsqldbiface {
 			
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		
@@ -976,7 +974,7 @@ public class Bfrdb extends Hsqldbiface {
 			
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		return ret;                                    
@@ -1025,7 +1023,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( err );
+			ex.printStackTrace();
 		}
 		
 		return resultt;
@@ -1273,7 +1271,7 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				ps.close();
 			}
-			catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+			catch( SQLException ex ) { ex.printStackTrace(); }
 			
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
@@ -1413,7 +1411,7 @@ public class Bfrdb extends Hsqldbiface {
 				ps.executeUpdate();
 				ps.close();
 			}
-			catch( SQLException ex ) { ex.printStackTrace( System.err ); }		
+			catch( SQLException ex ) { ex.printStackTrace(); }		
 		}
 		else {
 			Date date = new Date( System.currentTimeMillis() );		
@@ -1523,7 +1521,7 @@ public class Bfrdb extends Hsqldbiface {
 				result.close();
 			}
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		return res;
 	}
 	
@@ -1554,7 +1552,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 			psInsertDouble.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		
 		return doubleId;
 	}
@@ -1581,7 +1579,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 			psQueryAgentId.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		
 		return agentId;
 	}
@@ -1606,7 +1604,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		
 		return matrixId;
 	}
@@ -1665,7 +1663,7 @@ public class Bfrdb extends Hsqldbiface {
 			ps.executeUpdate();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
 	
 	private int insertParam(final int modelId, final String paramName, final int paramType, final Double min, final Double max) {
@@ -1741,7 +1739,7 @@ public class Bfrdb extends Hsqldbiface {
 			result.close();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace( System.err ); }
+		catch( SQLException ex ) { ex.printStackTrace(); }
 		
 		if( cnt > 0 ) {
 			return true;
@@ -1892,7 +1890,7 @@ public class Bfrdb extends Hsqldbiface {
 			
 		}
 		catch( SQLException ex ) {
-			ex.printStackTrace( System.err );
+			ex.printStackTrace();
 		}
 		
 		return ret;
@@ -1924,7 +1922,7 @@ public class Bfrdb extends Hsqldbiface {
 			ps.close();
 		}
 		catch( SQLException ex ) {
-			// ex.printStackTrace( System.err );
+			// ex.printStackTrace();
 		}
 	}
 }

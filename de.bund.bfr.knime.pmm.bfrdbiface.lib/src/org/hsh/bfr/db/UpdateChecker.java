@@ -99,8 +99,8 @@ public class UpdateChecker {
 		
 		if (DBKernel.isKNIME) {
 		    try {
-			      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
-			      //DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
+		    	if (!DBKernel.getUsername().equals("SA")) DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
+		    	else DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
 		    }
 		    catch (Exception e) {if (!DBKernel.isKNIME) MyLogger.handleException(e);}			
 		}

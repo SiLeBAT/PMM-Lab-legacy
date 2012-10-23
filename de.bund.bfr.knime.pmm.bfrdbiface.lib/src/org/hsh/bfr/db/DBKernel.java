@@ -733,7 +733,12 @@ public class DBKernel {
 		}
   }
   public static Connection getLocalConn(boolean try2Boot) {
-	  if (localConn == null && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui();
+	  try {
+		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui();
+	}
+	  catch (SQLException e) {
+		e.printStackTrace();
+	}
 	  return localConn;
   }
   // newConn wird nur von MergeDBs benötigt

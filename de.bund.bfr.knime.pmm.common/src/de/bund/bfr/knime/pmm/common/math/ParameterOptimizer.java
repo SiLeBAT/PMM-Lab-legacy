@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.math3.analysis.DifferentiableMultivariateVectorFunction;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
@@ -114,10 +115,11 @@ public class ParameterOptimizer {
 		// checkIndepVars4Singularities();
 	}
 
-	public void optimize() {
+	public void optimize(AtomicInteger progress) {
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
 		List<Double> paramStepSize = new ArrayList<Double>();
+		int maxCounter = 1;
 		int maxStepCount = 10;
 		int paramsWithRange = 0;
 
@@ -144,6 +146,7 @@ public class ParameterOptimizer {
 			if (min != null && max != null) {
 				paramMin.add(min);
 				paramStepCount.add(maxStepCount);
+				maxCounter *= maxStepCount;
 
 				if (max > min) {
 					paramStepSize.add((max - min) / (maxStepCount - 1));
@@ -181,8 +184,13 @@ public class ParameterOptimizer {
 		List<Integer> paramStepIndex = new ArrayList<Integer>(
 				Collections.nCopies(parameters.size(), 0));
 		boolean done = false;
+		int counter = 0;
 
 		while (!done) {
+			progress.set(Float.floatToIntBits((float) counter
+					/ (float) maxCounter));
+			counter++;
+
 			List<Double> values = new ArrayList<Double>();
 			double error = 0.0;
 

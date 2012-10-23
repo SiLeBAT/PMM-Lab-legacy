@@ -90,9 +90,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private KnimeSchema seiSchema;
 	private KnimeSchema schema;
 
-	private AtomicInteger runningThreads;
-	private AtomicInteger finishedThreads;
-
 	private int enforceLimits;
 	private int oneStepMethod;
 
@@ -234,9 +231,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		int n = table.getRowCount();
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
-
-		runningThreads = new AtomicInteger(0);
-		finishedThreads = new AtomicInteger(0);
+		AtomicInteger runningThreads = new AtomicInteger(0);
+		AtomicInteger finishedThreads = new AtomicInteger(0);
 
 		for (int i = 0; i < n; i++) {
 			tuples.add(reader.nextElement());
@@ -255,7 +251,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Thread.sleep(100);
 			}
 
-			Thread thread = new Thread(new PrimaryEstimationThread(tuple));
+			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
+					runningThreads, finishedThreads));
 
 			runningThreads.incrementAndGet();
 			thread.start();
@@ -287,20 +284,17 @@ public class ModelEstimationNodeModel extends NodeModel {
 			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
+		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new SecondaryEstimationThread(table,
-				container));
-
-		runningThreads = new AtomicInteger(0);
-		finishedThreads = new AtomicInteger(0);
-		runningThreads.incrementAndGet();
+				container, progress));
 
 		thread.start();
 
 		while (true) {
 			exec.checkCanceled();
-			exec.setProgress((double) finishedThreads.get(), "");
+			exec.setProgress(Float.intBitsToFloat(progress.get()), "");
 
-			if (runningThreads.get() == 0) {
+			if (!thread.isAlive()) {
 				break;
 			}
 
@@ -315,21 +309,17 @@ public class ModelEstimationNodeModel extends NodeModel {
 			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
-
-		Thread thread = new Thread(
-				new OneStepEstimationThread(table, container));
-
-		runningThreads = new AtomicInteger(0);
-		finishedThreads = new AtomicInteger(0);
-		runningThreads.incrementAndGet();
+		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
+		Thread thread = new Thread(new OneStepEstimationThread(table,
+				container, progress));
 
 		thread.start();
 
 		while (true) {
 			exec.checkCanceled();
-			exec.setProgress((double) finishedThreads.get(), "");
+			exec.setProgress(Float.intBitsToFloat(progress.get()), "");
 
-			if (runningThreads.get() == 0) {
+			if (!thread.isAlive()) {
 				break;
 			}
 
@@ -363,8 +353,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		private KnimeTuple tuple;
 
-		public PrimaryEstimationThread(KnimeTuple tuple) {
+		private AtomicInteger runningThreads;
+		private AtomicInteger finishedThreads;
+
+		public PrimaryEstimationThread(KnimeTuple tuple,
+				AtomicInteger runningThreads, AtomicInteger finishedThreads) {
 			this.tuple = tuple;
+			this.runningThreads = runningThreads;
+			this.finishedThreads = finishedThreads;
 		}
 
 		@Override
@@ -408,7 +404,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							minParameterValues, maxParameterValues,
 							targetValues, arguments, argumentValues,
 							enforceLimits == 1);
-					optimizer.optimize();
+					optimizer.optimize(new AtomicInteger());
 					successful = optimizer.isSuccessful();
 				} else {
 					minIndep = null;
@@ -457,11 +453,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		private BufferedDataTable inTable;
 		private BufferedDataContainer container;
+		private AtomicInteger progress;
 
 		public SecondaryEstimationThread(BufferedDataTable inTable,
-				BufferedDataContainer container) {
+				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
 			this.container = container;
+			this.progress = progress;
 		}
 
 		@Override
@@ -622,7 +620,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, targetValues,
 									arguments, argumentValues,
 									enforceLimits == 1);
-							optimizer.optimize();
+							optimizer.optimize(progress);
 							successful = optimizer.isSuccessful();
 						}
 
@@ -687,8 +685,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				}
 
 				container.close();
-				runningThreads.decrementAndGet();
-				finishedThreads.incrementAndGet();
 			} catch (PmmException e) {
 				e.printStackTrace();
 			} catch (ParseException e) {
@@ -702,11 +698,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		private BufferedDataTable inTable;
 		private BufferedDataContainer container;
+		private AtomicInteger progress;
 
 		public OneStepEstimationThread(BufferedDataTable inTable,
-				BufferedDataContainer container) {
+				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
 			this.container = container;
+			this.progress = progress;
 		}
 
 		@Override
@@ -840,7 +838,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, targetValues,
 									arguments, argumentValues,
 									enforceLimits == 1);
-							optimizer.optimize();
+							optimizer.optimize(progress);
 							successful = optimizer.isSuccessful();
 						}
 
@@ -903,8 +901,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				}
 
 				container.close();
-				runningThreads.decrementAndGet();
-				finishedThreads.incrementAndGet();
 			} catch (PmmException e) {
 				e.printStackTrace();
 			} catch (ParseException e) {

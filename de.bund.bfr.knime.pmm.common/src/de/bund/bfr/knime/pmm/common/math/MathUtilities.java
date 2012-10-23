@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.commons.math3.distribution.TDistribution;
 import org.lsmp.djep.djep.DJep;
 import org.lsmp.djep.djep.DiffRulesI;
 import org.lsmp.djep.djep.diffRules.MacroDiffRules;
@@ -344,4 +345,11 @@ public class MathUtilities {
 		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
 	}
 
+	public static double getStudentProbability(double tValue,
+			int degreesOfFreedom) {
+		TDistribution dist = new TDistribution(degreesOfFreedom);
+
+		return 1.0 - dist.cumulativeProbability(-Math.abs(tValue),
+				Math.abs(tValue));
+	}
 }

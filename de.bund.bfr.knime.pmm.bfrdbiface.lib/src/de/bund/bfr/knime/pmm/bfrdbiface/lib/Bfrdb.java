@@ -771,7 +771,7 @@ public class Bfrdb extends Hsqldbiface {
 		} else {
 			q = queryEstSei();
 		}		
-		System.out.println( q );
+		//System.out.println( q );
 		PreparedStatement ps = conn.prepareStatement( q );
 		return ps.executeQuery();
 	}

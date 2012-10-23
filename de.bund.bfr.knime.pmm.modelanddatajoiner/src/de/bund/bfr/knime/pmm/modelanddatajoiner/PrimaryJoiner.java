@@ -37,7 +37,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,7 +56,10 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -83,7 +85,7 @@ public class PrimaryJoiner implements Joiner {
 	private List<String> variables;
 	private List<String> parameters;
 
-	private List<KnimeTuple> tuples;
+	private List<KnimeTuple> modelTuples;
 	private List<KnimeTuple> conditionTuples;
 
 	public PrimaryJoiner(BufferedDataTable modelTable,
@@ -96,12 +98,8 @@ public class PrimaryJoiner implements Joiner {
 		modelSchema = new Model1Schema();
 		dataSchema = new TimeSeriesSchema();
 		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		parameters = Arrays.asList("", TimeSeriesSchema.ATT_LOGC,
-				TimeSeriesSchema.ATT_TIME, TimeSeriesSchema.ATT_PH,
-				TimeSeriesSchema.ATT_TEMPERATURE,
-				TimeSeriesSchema.ATT_WATERACTIVITY);
-		readTable();
-		getVariables();
+		readModelTable();
+		readDataTable();
 	}
 
 	@Override
@@ -168,11 +166,11 @@ public class PrimaryJoiner implements Joiner {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
 		Map<String, String> replacements = getAssignmentsMap(assignments);
-		int rowCount = tuples.size() * dataTable.getRowCount();
+		int rowCount = modelTuples.size() * dataTable.getRowCount();
 		int index = 0;
 
-		for (int i = 0; i < tuples.size(); i++) {
-			KnimeTuple modelTuple = tuples.get(i);
+		for (int i = 0; i < modelTuples.size(); i++) {
+			KnimeTuple modelTuple = modelTuples.get(i);
 			Double condTemp = null;
 			Double condPH = null;
 			Double condAW = null;
@@ -299,11 +297,11 @@ public class PrimaryJoiner implements Joiner {
 		}
 	}
 
-	private void readTable() throws PmmException {
+	private void readModelTable() throws PmmException {
 		Set<Integer> ids = new LinkedHashSet<Integer>();
 		Set<Integer> estIDs = new LinkedHashSet<Integer>();
 
-		tuples = new ArrayList<KnimeTuple>();
+		modelTuples = new ArrayList<KnimeTuple>();
 		conditionTuples = new ArrayList<KnimeTuple>();
 
 		if (peiSchema.conforms(modelTable)) {
@@ -321,12 +319,12 @@ public class PrimaryJoiner implements Joiner {
 
 				if (estID != null) {
 					if (estIDs.add(estID)) {
-						tuples.add(tuple);
+						modelTuples.add(tuple);
 						conditionTuples.add(condTuple);
 					}
 				} else {
 					if (ids.add(id)) {
-						tuples.add(tuple);
+						modelTuples.add(tuple);
 						conditionTuples.add(condTuple);
 					}
 				}
@@ -344,35 +342,59 @@ public class PrimaryJoiner implements Joiner {
 
 				if (estID != null) {
 					if (estIDs.add(estID)) {
-						tuples.add(modelRow);
+						modelTuples.add(modelRow);
 					}
 				} else {
 					if (ids.add(id)) {
-						tuples.add(modelRow);
+						modelTuples.add(modelRow);
 					}
 				}
 			}
 
 			isEstimated = false;
 		}
-	}
 
-	private void getVariables() throws PmmException {
-		variables = new ArrayList<String>();
+		Set<String> variableSet = new LinkedHashSet<String>();
 
-		for (int i = 0; i < tuples.size(); i++) {
-			if (!variables.contains(tuples.get(i).getString(
-					Model1Schema.ATT_DEPVAR))) {
-				variables.add(tuples.get(i).getString(Model1Schema.ATT_DEPVAR));
-			}
+		for (int i = 0; i < modelTuples.size(); i++) {
+			variableSet.add(modelTuples.get(i).getString(
+					Model1Schema.ATT_DEPVAR));
 
-			for (String indep : tuples.get(i).getStringList(
+			for (String indep : modelTuples.get(i).getStringList(
 					Model1Schema.ATT_INDEPVAR)) {
-				if (!variables.contains(indep)) {
-					variables.add(indep);
-				}
+				variableSet.add(indep);
 			}
 		}
+
+		variables = new ArrayList<String>(variableSet);
+	}
+
+	private void readDataTable() throws PmmException {
+		Set<String> parameterSet = new LinkedHashSet<String>();
+
+		parameterSet.add("");
+		parameterSet.add(TimeSeriesSchema.ATT_TIME);
+		parameterSet.add(TimeSeriesSchema.ATT_LOGC);
+		parameterSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
+		parameterSet.add(TimeSeriesSchema.ATT_PH);
+		parameterSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
+
+		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
+				dataTable);
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				parameterSet.add(element.getName());
+			}
+		}
+
+		parameters = new ArrayList<String>(parameterSet);
 	}
 
 	private Map<String, String> getReplacementsFromFrame() {

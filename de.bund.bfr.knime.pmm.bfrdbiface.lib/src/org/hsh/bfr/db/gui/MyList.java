@@ -129,7 +129,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		            final int row, final boolean hasFocus) {
 		          super.getTreeCellRendererComponent(tree, value, sel, expanded,
 		              leaf, row, hasFocus);
-		          if (!((InvisibleNode) value).isVisible()) {
+		          if (value instanceof InvisibleNode && !((InvisibleNode) value).isVisible()) {
 		            setForeground(Color.yellow);
 		          }
 		          setText(GuiMessages.getString(getText()));

@@ -26,6 +26,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 
@@ -41,6 +42,8 @@ public class XML2TableNodeModel extends NodeModel {
 	static final String CFGKEY_COLNAME = "SelectedColumn";
 
     private final SettingsModelString m_col = new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "xml");
+    
+    private boolean appendData = true;
     
 
     /**
@@ -72,7 +75,7 @@ public class XML2TableNodeModel extends NodeModel {
 	                	PmmXmlDoc doc = new PmmXmlDoc(xml);
 	                	int countResult = 0;
 	                	for (PmmXmlElementConvertable el : doc.getElementSet()) {
-	                		if (el instanceof MiscXml) {		
+	                		if (el instanceof MiscXml) {
 	                			MiscXml mx = (MiscXml) el;
 	    	                    if (count < 0) {
 	    		                    DataColumnSpec[] allColSpecs = new DataColumnSpec[5];
@@ -92,6 +95,36 @@ public class XML2TableNodeModel extends NodeModel {
 	                            cells[2] = new StringCell(mx.getDescription());
 	                            cells[3] = new DoubleCell(mx.getValue());
 	                            cells[4] = new StringCell(mx.getUnit());
+	                            container.addRowToTable(new DefaultRow(key, cells));
+	                            countResult++;
+
+	                            exec.checkCanceled();
+	                            exec.setProgress(count / (double)data.getRowCount(), "Adding row " + count);
+	                		}
+	                		else if (el instanceof ParamXml) {
+	                			ParamXml px = (ParamXml) el;
+	    	                    if (count < 0) {
+	    		                    DataColumnSpec[] allColSpecs = new DataColumnSpec[7];
+	    		                    allColSpecs[0] = new DataColumnSpecCreator("Name", StringCell.TYPE).createSpec();
+	    		                    allColSpecs[1] = new DataColumnSpecCreator("Value", DoubleCell.TYPE).createSpec();
+	    		                    allColSpecs[2] = new DataColumnSpecCreator("Error", DoubleCell.TYPE).createSpec();
+	    		                    allColSpecs[3] = new DataColumnSpecCreator("Min", DoubleCell.TYPE).createSpec();
+	    		                    allColSpecs[4] = new DataColumnSpecCreator("Max", DoubleCell.TYPE).createSpec();
+	    		                    allColSpecs[5] = new DataColumnSpecCreator("P-value", DoubleCell.TYPE).createSpec();
+	    		                    allColSpecs[6] = new DataColumnSpecCreator("t-value", DoubleCell.TYPE).createSpec();
+	    		                    DataTableSpec outputSpec = new DataTableSpec(allColSpecs);
+	    		                    container = exec.createDataContainer(outputSpec);
+	    		                    count = 0;
+	    	                    }	                		                	
+	                            RowKey key = new RowKey("Row " + count + "." + countResult);
+	                            DataCell[] cells = new DataCell[7];
+	                            cells[0] = new StringCell(px.getName()); 
+	                            cells[1] = new DoubleCell(px.getValue()); 
+	                            cells[2] = new DoubleCell(px.getError());
+	                            cells[3] = new DoubleCell(px.getMin());
+	                            cells[4] = new DoubleCell(px.getMax());
+	                            cells[5] = new DoubleCell(px.getP());
+	                            cells[6] = new DoubleCell(px.gett());
 	                            container.addRowToTable(new DefaultRow(key, cells));
 	                            countResult++;
 

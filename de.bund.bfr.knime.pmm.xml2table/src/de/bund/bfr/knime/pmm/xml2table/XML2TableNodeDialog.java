@@ -3,7 +3,9 @@ package de.bund.bfr.knime.pmm.xml2table;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
+import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilter;
 
@@ -31,7 +33,7 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane {
         super();
         
         addDialogComponent(new DialogComponentColumnNameSelection(
-        	    new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, TimeSeriesSchema.ATT_MISC),
+        	    new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, ""), // TimeSeriesSchema.ATT_MISC
         	    "Select a column",
         	    0,
         	    true,
@@ -43,6 +45,9 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane {
         	            return "No xml columns in input table";
         	        }
         	    }));
+
+        addDialogComponent(new DialogComponentBoolean(new SettingsModelBoolean(
+        		XML2TableNodeModel.CFGKEY_APPENDDATA, true), "Append data to table"));
     }
 }
 

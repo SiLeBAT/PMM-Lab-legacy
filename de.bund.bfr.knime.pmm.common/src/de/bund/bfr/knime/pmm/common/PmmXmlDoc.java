@@ -73,6 +73,9 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(MiscXml.ELEMENT_MISC)) {
 				elementSet.add(new MiscXml(el));
 			}	
+			else if (el.getName().equals(ParamXml.ELEMENT_PARAM)) {
+				elementSet.add(new ParamXml(el));
+			}	
 		}			
 	}
 	

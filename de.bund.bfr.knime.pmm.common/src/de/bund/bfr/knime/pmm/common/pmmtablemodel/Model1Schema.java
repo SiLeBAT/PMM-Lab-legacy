@@ -45,6 +45,7 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_VALUE = "Value";
 	public static final String ATT_MODELNAME = "ModelName";
 	public static final String ATT_MODELID = "ModelCatalogID";
+	public static final String ATT_PARAMETER = "Parameter";
 	
 	public static final String ATT_ESTMODELID = "EstModelID";
 	public static final String ATT_RMS = "RMS";
@@ -76,6 +77,7 @@ public class Model1Schema extends KnimeSchema {
 			addStringAttribute( ATT_FORMULA );
 			addStringAttribute( ATT_DEPVAR );
 			addStringListAttribute( ATT_INDEPVAR );
+			addXmlAttribute( ATT_PARAMETER );
 			addStringListAttribute( ATT_PARAMNAME );
 			addDoubleListAttribute( ATT_MINVALUE );
 			addDoubleListAttribute( ATT_MAXVALUE );

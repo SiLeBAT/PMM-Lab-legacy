@@ -23,6 +23,33 @@ public class DbIo {
 	    }
     	return result;
     }
+    public static PmmXmlDoc convertArrays2ParamXmlDoc(Array name, Array value, Array error, Array min, Array max) {
+		PmmXmlDoc paramDoc = new PmmXmlDoc();
+	    if (name != null) {
+		    try {
+				Object[] na = (Object[])name.getArray();
+				Object[] va = (Object[])value.getArray();
+				Object[] er = (Object[])error.getArray();
+				Object[] mi = (Object[])min.getArray();
+				Object[] ma = (Object[])max.getArray();
+				if (na != null && na.length > 0) {
+					for (int i=0;i<na.length;i++) {
+						String nas = na[i].toString();
+						Double vad = va[i] == null ? Double.NaN : Double.parseDouble(va[i].toString());
+						Double erd = er[i] == null ? Double.NaN : Double.parseDouble(er[i].toString());
+						Double mid = mi[i] == null ? Double.NaN : Double.parseDouble(mi[i].toString());
+						Double mad = ma[i] == null ? Double.NaN : Double.parseDouble(ma[i].toString());
+						ParamXml px = new ParamXml(null,nas,vad,erd,mid,mad);
+						paramDoc.add(px);
+					}					
+				}
+			}
+		    catch (SQLException e) {
+				e.printStackTrace();
+			}
+	    }
+		return paramDoc;
+    }
     
     private static String convertO(Object o) {
 		if (o == null) {

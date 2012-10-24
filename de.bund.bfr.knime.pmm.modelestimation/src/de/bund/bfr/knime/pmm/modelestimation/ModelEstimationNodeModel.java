@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.modelestimation;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,6 +58,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -79,8 +81,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelEstimationNodeModel extends NodeModel {
 
+	protected static final String PRIMARY = "Primary";
+
 	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
 	static final String CFGKEY_ONESTEPMETHOD = "OneStepMethod";
+	static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
 	static final int DEFAULT_ENFORCELIMITS = 0;
 	static final int DEFAULT_ONESTEPMETHOD = 0;
 
@@ -92,6 +97,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	private int enforceLimits;
 	private int oneStepMethod;
+	private List<String> parameterGuesses;
 
 	/**
 	 * Constructor for the node model.
@@ -100,6 +106,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		super(1, 1);
 		enforceLimits = DEFAULT_ENFORCELIMITS;
 		oneStepMethod = DEFAULT_ONESTEPMETHOD;
+		parameterGuesses = new ArrayList<String>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -121,11 +128,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataTable outTable = null;
 
 		if (schema == peiSchema) {
-			outTable = doPrimaryEstimation(table, exec);
+			outTable = doPrimaryEstimation(table, exec,
+					getGuessMap(parameterGuesses));
 		} else if (schema == seiSchema && oneStepMethod != 1) {
-			outTable = doSecondaryEstimation(table, exec);
+			outTable = doSecondaryEstimation(table, exec,
+					getGuessMap(parameterGuesses));
 		} else if (schema == seiSchema && oneStepMethod == 1) {
-			outTable = doOneStepEstimation(table, exec);
+			outTable = doOneStepEstimation(table, exec,
+					getGuessMap(parameterGuesses));
 		}
 
 		return new BufferedDataTable[] { outTable };
@@ -176,6 +186,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
 		settings.addInt(CFGKEY_ONESTEPMETHOD, oneStepMethod);
+		settings.addString(CFGKEY_PARAMETERGUESSES,
+				ListUtilities.getStringFromList(parameterGuesses));
 	}
 
 	/**
@@ -194,6 +206,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 			oneStepMethod = settings.getInt(CFGKEY_ONESTEPMETHOD);
 		} catch (InvalidSettingsException e) {
 			oneStepMethod = DEFAULT_ONESTEPMETHOD;
+		}
+
+		try {
+			parameterGuesses = ListUtilities.getStringListFromString(settings
+					.getString(CFGKEY_PARAMETERGUESSES));
+		} catch (InvalidSettingsException e) {
+			parameterGuesses = new ArrayList<String>();
 		}
 	}
 
@@ -223,9 +242,91 @@ public class ModelEstimationNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
+	protected static Map<String, Map<String, Point2D.Double>> getGuessMap(
+			List<String> guesses) {
+		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, Point2D.Double>>();
+
+		for (String modelGuesses : guesses) {
+			String[] modelElements = modelGuesses.split(":");
+
+			if (modelElements.length == 2) {
+				String modelName = modelElements[0];
+				Map<String, Point2D.Double> modelMap = new LinkedHashMap<String, Point2D.Double>();
+
+				for (String guess : modelElements[1].split(",")) {
+					String[] elements = guess.split("=");
+
+					if (elements.length == 2) {
+						String paramName = elements[0];
+						String[] range = elements[1].split("-");
+						double min = Double.NaN;
+						double max = Double.NaN;
+
+						if (range.length == 2) {
+							try {
+								min = Double.parseDouble(range[0]);
+							} catch (NumberFormatException e) {
+							}
+
+							try {
+								max = Double.parseDouble(range[1]);
+							} catch (NumberFormatException e) {
+							}
+						}
+
+						modelMap.put(paramName, new Point2D.Double(min, max));
+					}
+				}
+
+				guessMap.put(modelName, modelMap);
+			}
+		}
+
+		return guessMap;
+	}
+
+	protected static List<String> guessMapToList(
+			Map<String, Map<String, Point2D.Double>> map) {
+		List<String> list = new ArrayList<String>();
+
+		for (String modelName : map.keySet()) {
+			Map<String, Point2D.Double> modelMap = map.get(modelName);
+			StringBuilder modelString = new StringBuilder(modelName + ":");
+
+			for (String paramName : modelMap.keySet()) {
+				Point2D.Double range = modelMap.get(paramName);
+				String rangeString = "";
+
+				if (!Double.isNaN(range.x)) {
+					rangeString += range.x + "-";
+				} else {
+					rangeString += "?-";
+				}
+
+				if (!Double.isNaN(range.y)) {
+					rangeString += range.y;
+				} else {
+					rangeString += "?";
+				}
+
+				modelString.append(paramName + "=" + rangeString + ",");
+			}
+
+			if (modelString.charAt(modelString.length() - 1) == ',') {
+				modelString.deleteCharAt(modelString.length() - 1);
+			}
+
+			list.add(modelString.toString());
+		}
+
+		return list;
+	}
+
 	private BufferedDataTable doPrimaryEstimation(BufferedDataTable table,
-			ExecutionContext exec) throws PmmException,
-			CanceledExecutionException, InterruptedException {
+			ExecutionContext exec,
+			Map<String, Map<String, Point2D.Double>> parameterGuesses)
+			throws PmmException, CanceledExecutionException,
+			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
@@ -251,8 +352,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Thread.sleep(100);
 			}
 
+			Map<String, Point2D.Double> guesses = parameterGuesses.get(PRIMARY);
+
+			if (guesses == null) {
+				guesses = new LinkedHashMap<String, Point2D.Double>();
+			}
+
 			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
-					runningThreads, finishedThreads));
+					guesses, runningThreads, finishedThreads));
 
 			runningThreads.incrementAndGet();
 			thread.start();
@@ -280,13 +387,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable doSecondaryEstimation(BufferedDataTable table,
-			ExecutionContext exec) throws CanceledExecutionException,
-			InterruptedException {
+			ExecutionContext exec,
+			Map<String, Map<String, Point2D.Double>> parameterGuesses)
+			throws CanceledExecutionException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new SecondaryEstimationThread(table,
-				container, progress));
+				parameterGuesses, container, progress));
 
 		thread.start();
 
@@ -305,13 +413,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable doOneStepEstimation(BufferedDataTable table,
-			ExecutionContext exec) throws CanceledExecutionException,
-			InterruptedException {
+			ExecutionContext exec,
+			Map<String, Map<String, Point2D.Double>> parameterGuesses)
+			throws CanceledExecutionException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new OneStepEstimationThread(table,
-				container, progress));
+				parameterGuesses, container, progress));
 
 		thread.start();
 
@@ -352,13 +461,16 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class PrimaryEstimationThread implements Runnable {
 
 		private KnimeTuple tuple;
+		private Map<String, Point2D.Double> guesses;
 
 		private AtomicInteger runningThreads;
 		private AtomicInteger finishedThreads;
 
 		public PrimaryEstimationThread(KnimeTuple tuple,
+				Map<String, Point2D.Double> guesses,
 				AtomicInteger runningThreads, AtomicInteger finishedThreads) {
 			this.tuple = tuple;
+			this.guesses = guesses;
 			this.runningThreads = runningThreads;
 			this.finishedThreads = finishedThreads;
 		}
@@ -373,6 +485,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 						.getDoubleList(Model1Schema.ATT_MINVALUE);
 				List<Double> maxParameterValues = tuple
 						.getDoubleList(Model1Schema.ATT_MAXVALUE);
+				List<Double> minGuessValues = new ArrayList<Double>();
+				List<Double> maxGuessValues = new ArrayList<Double>();
 				List<Double> targetValues = tuple
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 				List<Double> timeValues = tuple
@@ -391,6 +505,27 @@ public class ModelEstimationNodeModel extends NodeModel {
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
+				for (String param : parameters) {
+					if (guesses.containsKey(param)) {
+						Point2D.Double guess = guesses.get(param);
+
+						if (!Double.isNaN(guess.x)) {
+							minGuessValues.add(guess.x);
+						} else {
+							minGuessValues.add(null);
+						}
+
+						if (!Double.isNaN(guess.y)) {
+							maxGuessValues.add(guess.y);
+						} else {
+							maxGuessValues.add(null);
+						}
+					} else {
+						minGuessValues.add(null);
+						maxGuessValues.add(null);
+					}
+				}
+
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
 					argumentValues.add(timeValues);
 					MathUtilities
@@ -402,8 +537,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							.get(0)));
 					optimizer = new ParameterOptimizer(formula, parameters,
 							minParameterValues, maxParameterValues,
-							targetValues, arguments, argumentValues,
-							enforceLimits == 1);
+							minGuessValues, maxGuessValues, targetValues,
+							arguments, argumentValues, enforceLimits == 1);
 					optimizer.optimize(new AtomicInteger());
 					successful = optimizer.isSuccessful();
 				} else {
@@ -452,12 +587,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class SecondaryEstimationThread implements Runnable {
 
 		private BufferedDataTable inTable;
+		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 		private BufferedDataContainer container;
 		private AtomicInteger progress;
 
 		public SecondaryEstimationThread(BufferedDataTable inTable,
+				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
+			this.parameterGuesses = parameterGuesses;
 			this.container = container;
 			this.progress = progress;
 		}
@@ -581,10 +719,30 @@ public class ModelEstimationNodeModel extends NodeModel {
 								.getDoubleList(Model2Schema.ATT_MINVALUE);
 						List<Double> maxParameterValues = tuple
 								.getDoubleList(Model2Schema.ATT_MAXVALUE);
+						List<Double> minGuessValues = new ArrayList<Double>();
+						List<Double> maxGuessValues = new ArrayList<Double>();
 						List<Double> targetValues = depVarMap.get(id);
 						List<String> arguments = tuple
 								.getStringList(Model2Schema.ATT_INDEPVAR);
 						List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+
+						for (String param : parameters) {
+							Point2D.Double guess = parameterGuesses
+									.get(tuple.getInt(Model2Schema.ATT_MODELID)
+											+ "").get(param);
+
+							if (!Double.isNaN(guess.x)) {
+								minGuessValues.add(guess.x);
+							} else {
+								minGuessValues.add(null);
+							}
+
+							if (!Double.isNaN(guess.y)) {
+								maxGuessValues.add(guess.y);
+							} else {
+								maxGuessValues.add(null);
+							}
+						}
 
 						for (String arg : arguments) {
 							if (arg.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
@@ -617,9 +775,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 						if (!targetValues.isEmpty()) {
 							optimizer = new ParameterOptimizer(formula,
 									parameters, minParameterValues,
-									maxParameterValues, targetValues,
-									arguments, argumentValues,
-									enforceLimits == 1);
+									maxParameterValues, minGuessValues,
+									maxGuessValues, targetValues, arguments,
+									argumentValues, enforceLimits == 1);
 							optimizer.optimize(progress);
 							successful = optimizer.isSuccessful();
 						}
@@ -697,12 +855,16 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class OneStepEstimationThread implements Runnable {
 
 		private BufferedDataTable inTable;
+		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
+
 		private BufferedDataContainer container;
 		private AtomicInteger progress;
 
 		public OneStepEstimationThread(BufferedDataTable inTable,
+				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
+			this.parameterGuesses = parameterGuesses;
 			this.container = container;
 			this.progress = progress;
 		}
@@ -718,8 +880,83 @@ public class ModelEstimationNodeModel extends NodeModel {
 					seiTuples.add(reader.nextElement());
 				}
 
+				List<KnimeTuple> seiTuples2 = new ArrayList<KnimeTuple>();
+
+				for (KnimeTuple tuple : seiTuples) {
+					KnimeTuple tuple2 = new KnimeTuple(seiSchema,
+							seiSchema.createSpec(), tuple);
+
+					List<String> params = tuple2
+							.getStringList(Model1Schema.ATT_PARAMNAME);
+					List<Double> minValues = new ArrayList<Double>();
+					List<Double> maxValues = new ArrayList<Double>();
+
+					for (String param : params) {
+						if (parameterGuesses.containsKey(PRIMARY)
+								&& parameterGuesses.get(PRIMARY).containsKey(
+										param)) {
+							Point2D.Double guess = parameterGuesses
+									.get(PRIMARY).get(param);
+
+							if (!Double.isNaN(guess.x)) {
+								minValues.add(guess.x);
+							} else {
+								minValues.add(null);
+							}
+
+							if (!Double.isNaN(guess.y)) {
+								maxValues.add(guess.y);
+							} else {
+								maxValues.add(null);
+							}
+						} else {
+							minValues.add(null);
+							maxValues.add(null);
+						}
+					}
+
+					String secID = tuple2.getInt(Model2Schema.ATT_MODELID) + "";
+					List<String> secParams = tuple2
+							.getStringList(Model2Schema.ATT_PARAMNAME);
+					List<Double> minValuesSec = new ArrayList<Double>();
+					List<Double> maxValuesSec = new ArrayList<Double>();
+
+					for (String param : secParams) {
+						if (parameterGuesses.containsKey(secID)
+								&& parameterGuesses.get(secID).containsKey(
+										param)) {
+							Point2D.Double guess = parameterGuesses.get(secID)
+									.get(param);
+
+							if (!Double.isNaN(guess.x)) {
+								minValuesSec.add(guess.x);
+							} else {
+								minValuesSec.add(null);
+							}
+
+							if (!Double.isNaN(guess.y)) {
+								maxValuesSec.add(guess.y);
+							} else {
+								maxValuesSec.add(null);
+							}
+						} else {
+							minValuesSec.add(null);
+							maxValuesSec.add(null);
+						}
+					}
+
+					tuple2.setValue(Model1Schema.ATT_MINVALUE, minValues);
+					tuple2.setValue(Model1Schema.ATT_MAXVALUE, maxValues);
+					tuple2.setValue(Model2Schema.ATT_MINVALUE, minValuesSec);
+					tuple2.setValue(Model2Schema.ATT_MAXVALUE, maxValuesSec);
+					seiTuples2.add(tuple2);
+				}
+
 				List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
 						ModelCombiner.combine(seiTuples, seiSchema, true,
+								new LinkedHashMap<String, String>()).keySet());
+				List<KnimeTuple> tuples2 = new ArrayList<KnimeTuple>(
+						ModelCombiner.combine(seiTuples2, seiSchema, true,
 								new LinkedHashMap<String, String>()).keySet());
 				Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 				Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
@@ -811,6 +1048,10 @@ public class ModelEstimationNodeModel extends NodeModel {
 								.getDoubleList(Model1Schema.ATT_MINVALUE);
 						List<Double> maxParameterValues = tuple
 								.getDoubleList(Model1Schema.ATT_MAXVALUE);
+						List<Double> minGuessValues = tuples2.get(i)
+								.getDoubleList(Model1Schema.ATT_MINVALUE);
+						List<Double> maxGuessValues = tuples2.get(i)
+								.getDoubleList(Model1Schema.ATT_MAXVALUE);
 						List<Double> targetValues = targetValuesMap.get(id);
 						List<String> arguments = tuple
 								.getStringList(Model1Schema.ATT_INDEPVAR);
@@ -835,9 +1076,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 						if (!targetValues.isEmpty()) {
 							optimizer = new ParameterOptimizer(formula,
 									parameters, minParameterValues,
-									maxParameterValues, targetValues,
-									arguments, argumentValues,
-									enforceLimits == 1);
+									maxParameterValues, minGuessValues,
+									maxGuessValues, targetValues, arguments,
+									argumentValues, enforceLimits == 1);
 							optimizer.optimize(progress);
 							successful = optimizer.isSuccessful();
 						}
@@ -907,7 +1148,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				e.printStackTrace();
 			}
 		}
-
 	}
 
 }

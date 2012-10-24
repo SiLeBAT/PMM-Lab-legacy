@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.modelanddatajoiner;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.knime.core.data.DataTableSpec;
@@ -49,6 +48,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -174,18 +174,8 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		StringBuilder assignString = new StringBuilder();
-
-		for (String assign : assignments) {
-			assignString.append(assign);
-			assignString.append(";");
-		}
-
-		if (assignString.length() > 0) {
-			assignString.deleteCharAt(assignString.length() - 1);
-		}
-
-		settings.addString(CFGKEY_ASSIGNMENTS, assignString.toString());
+		settings.addString(CFGKEY_ASSIGNMENTS,
+				ListUtilities.getStringFromList(assignments));
 		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
 	}
 
@@ -196,13 +186,8 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			String assignString = settings.getString(CFGKEY_ASSIGNMENTS);
-
-			assignments = new ArrayList<String>();
-
-			if (!assignString.isEmpty()) {
-				assignments.addAll(Arrays.asList(assignString.split(";")));
-			}
+			assignments = ListUtilities.getStringListFromString(settings
+					.getString(CFGKEY_ASSIGNMENTS));
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();
 		}

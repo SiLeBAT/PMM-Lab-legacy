@@ -12,7 +12,7 @@ public class ListUtilities {
 		List<String> list = new ArrayList<String>();
 
 		if (!s.isEmpty()) {
-			for (String tok : s.split(",")) {
+			for (String tok : s.split(";")) {
 				if (tok.equals("?")) {
 					list.add(null);
 				} else {
@@ -28,7 +28,7 @@ public class ListUtilities {
 		List<Double> list = new ArrayList<Double>();
 
 		if (!s.isEmpty()) {
-			for (String tok : s.split(",")) {
+			for (String tok : s.split(";")) {
 				try {
 					list.add(Double.parseDouble(tok));
 				} catch (NumberFormatException e) {
@@ -45,9 +45,9 @@ public class ListUtilities {
 
 		for (Object o : list) {
 			if (o == null) {
-				s.append("?,");
+				s.append("?;");
 			} else {
-				s.append(o + ",");
+				s.append(o + ";");
 			}
 		}
 

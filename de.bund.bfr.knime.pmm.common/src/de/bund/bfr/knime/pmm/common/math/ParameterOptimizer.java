@@ -74,12 +74,13 @@ public class ParameterOptimizer {
 
 	public ParameterOptimizer(String formula, List<String> parameters,
 			List<Double> minParameterValues, List<Double> maxParameterValues,
+			List<Double> minGuessValues, List<Double> maxGuessValues,
 			List<Double> targetValues, List<String> arguments,
 			List<List<Double>> argumentValues, boolean enforceLimits)
 			throws ParseException {
 		this.parameters = parameters;
-		this.minParameterValues = minParameterValues;
-		this.maxParameterValues = maxParameterValues;
+		this.minParameterValues = minGuessValues;
+		this.maxParameterValues = maxGuessValues;
 		this.targetValues = targetValues;
 		this.arguments = arguments;
 		this.argumentValues = argumentValues;

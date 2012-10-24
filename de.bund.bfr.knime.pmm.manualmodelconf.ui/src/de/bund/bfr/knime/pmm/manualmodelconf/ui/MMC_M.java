@@ -17,7 +17,6 @@ import javax.swing.*;
 import javax.swing.border.*;
 import de.bund.bfr.knime.pmm.common.ui.*;
 
-import org.hsh.bfr.db.DBKernel;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;

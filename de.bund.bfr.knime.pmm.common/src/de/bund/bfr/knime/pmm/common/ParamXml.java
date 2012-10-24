@@ -2,8 +2,6 @@ package de.bund.bfr.knime.pmm.common;
 
 import org.jdom2.Element;
 
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-
 public class ParamXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_PARAM = "param";

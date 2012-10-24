@@ -101,31 +101,15 @@ public class StartApp {
 	  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 	  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 	  	
-	  	/*
-	    try {
-		      //DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");
-		      //DBKernel.getDBConnection().createStatement().execute("DROP USER " + DBKernel.delimitL("defad"));
-	    }
-	    catch (Exception e) {MyLogger.handleException(e);}
-	    */
 	    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher") + " WHERE " + DBKernel.delimitL("ID") + " != 5", false);
-      //DBKernel.sendRequest("GRANT CREATE VIEW ON * TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
-      //DBKernel.sendRequest("GRANT ALL ON * TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
-      
-  		//if (args != null && args.length > 0) login.setUN(args[0]);
-  		//loadDB(false);
-  		
-  		//testFocus();	
-      
-      //DBKernel.myList.setSelection("Versuchsbedingungen");
 	}
-	private static void setUIFont (final javax.swing.plaf.FontUIResource f){
+	private static void setUIFont(final javax.swing.plaf.FontUIResource f){
 	    //
 	    // sets the default font for all Swing components.
 	    // ex. 
 	    //  setUIFont (new javax.swing.plaf.FontUIResource("Serif",Font.ITALIC,12));
 	    //
-	    java.util.Enumeration keys = UIManager.getDefaults().keys();
+	    java.util.Enumeration<Object> keys = UIManager.getDefaults().keys();
 	    while (keys.hasMoreElements()) {
 	      Object key = keys.nextElement();
 	      Object value = UIManager.get (key);

@@ -39,7 +39,6 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
 import org.hsh.bfr.db.DBKernel;

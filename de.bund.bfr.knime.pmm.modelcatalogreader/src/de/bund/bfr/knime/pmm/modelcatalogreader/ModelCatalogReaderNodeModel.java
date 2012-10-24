@@ -156,6 +156,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
 	    		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
 	    		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME),
+	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 	    		//tuple.setValue( Model1Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model1Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
 	    		tuple.setValue( Model1Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );
@@ -228,6 +230,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
 	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
 	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME),
+	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 	    		//tuple.setValue( Model2Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model2Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
 	    		tuple.setValue( Model2Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );

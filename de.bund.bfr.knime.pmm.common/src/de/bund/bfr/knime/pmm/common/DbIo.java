@@ -28,18 +28,18 @@ public class DbIo {
 	    if (name != null) {
 		    try {
 				Object[] na = (Object[])name.getArray();
-				Object[] va = (Object[])value.getArray();
-				Object[] er = (Object[])error.getArray();
+				Object[] va = (value == null) ? null : (Object[])value.getArray();
+				Object[] er = (error == null) ? null : (Object[])error.getArray();
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
-						Double vad = va[i] == null ? Double.NaN : Double.parseDouble(va[i].toString());
-						Double erd = er[i] == null ? Double.NaN : Double.parseDouble(er[i].toString());
-						Double mid = mi[i] == null ? Double.NaN : Double.parseDouble(mi[i].toString());
-						Double mad = ma[i] == null ? Double.NaN : Double.parseDouble(ma[i].toString());
-						ParamXml px = new ParamXml(null,nas,vad,erd,mid,mad,null,null);
+						Double vad = (va == null || va[i] == null) ? Double.NaN : Double.parseDouble(va[i].toString());
+						Double erd = (er == null || er[i] == null) ? Double.NaN : Double.parseDouble(er[i].toString());
+						Double mid = (mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
+						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
+						ParamXml px = new ParamXml(nas,vad,erd,mid,mad,null,null);
 						paramDoc.add(px);
 					}					
 				}

@@ -4,21 +4,17 @@
     <name>ComBase Writer</name>
     
     <shortDescription>
-        
+        Writes ComBase CSV files
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Save microbial data from the workflow as CSV file. The structure is identical to the <a href="http://www.combase.cc">ComBase</a> data structure.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Write ComBase CSV file">Browse your folders and define the file name to save microbial data as ComBase CSV file.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Microbial data table">Microbial data table</inPort>
     </ports>        
 </knimeNode>

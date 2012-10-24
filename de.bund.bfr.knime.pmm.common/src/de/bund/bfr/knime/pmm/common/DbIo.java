@@ -39,7 +39,7 @@ public class DbIo {
 						Double erd = er[i] == null ? Double.NaN : Double.parseDouble(er[i].toString());
 						Double mid = mi[i] == null ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = ma[i] == null ? Double.NaN : Double.parseDouble(ma[i].toString());
-						ParamXml px = new ParamXml(null,nas,vad,erd,mid,mad);
+						ParamXml px = new ParamXml(null,nas,vad,erd,mid,mad,null,null);
 						paramDoc.add(px);
 					}					
 				}

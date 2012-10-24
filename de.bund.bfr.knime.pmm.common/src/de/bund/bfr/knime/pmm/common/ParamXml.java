@@ -14,17 +14,21 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double error = null;
 	private Double min = null;
 	private Double max = null;
+	private Double P = null;
+	private Double t = null;
 	
 	public ParamXml() {
 		id = MathUtilities.getRandomNegativeInt();
 	}
-	public ParamXml(Integer id, String name, Double value, Double error, Double min, Double max) {
+	public ParamXml(Integer id, String name, Double value, Double error, Double min, Double max, Double P, Double t) {
 		setID(id);
 		setName(name);
 		setValue(value);
 		setError(error);
 		setMin(min);
 		setMax(max);
+		setP(P);
+		sett(t);
 	}
 	public ParamXml(Element xmlElement) {
 		try {
@@ -38,6 +42,10 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setMin(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("max").getValue();
 			setMax(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("P-value").getValue();
+			setP(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("t-value").getValue();
+			sett(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -49,6 +57,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double getError() {return error;}
 	public Double getMin() {return min;}
 	public Double getMax() {return max;}
+	public Double getP() {return P;}
+	public Double gett() {return t;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
@@ -56,6 +66,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public void setError(Double error) {this.error = (error == null) ? Double.NaN : error;}
 	public void setMin(Double min) {this.min = (min == null) ? Double.NaN : min;}
 	public void setMax(Double max) {this.max = (max == null) ? Double.NaN : max;}
+	public void setP(Double P) {this.P = (P == null) ? Double.NaN : P;}
+	public void sett(Double t) {this.t = (t == null) ? Double.NaN : t;}
 
 	@Override
 	public Element toXmlElement() {
@@ -66,6 +78,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("error", "" + (error == null || Double.isNaN(error) ? "" : error));
 		modelElement.setAttribute("min", "" + (min == null || Double.isNaN(min) ? "" : min));
 		modelElement.setAttribute("max", "" + (max == null || Double.isNaN(max) ? "" : max));
+		modelElement.setAttribute("P-value", "" + (P == null || Double.isNaN(P) ? "" : P));
+		modelElement.setAttribute("t-value", "" + (t == null || Double.isNaN(t) ? "" : t));
 		return modelElement;
 	}
 }

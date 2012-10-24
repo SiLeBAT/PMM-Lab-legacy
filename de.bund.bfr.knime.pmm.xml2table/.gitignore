@@ -1,2 +1,3 @@
-bin/
+bin
 .metadata
+bin/de/bund/bfr/knime/pmm/xml2table/*

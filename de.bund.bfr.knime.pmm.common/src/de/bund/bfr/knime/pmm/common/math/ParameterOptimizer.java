@@ -69,6 +69,8 @@ public class ParameterOptimizer {
 	private double rms;
 	private double rSquare;
 	private List<Double> parameterStandardErrors;
+	private List<Double> parameterTValues;
+	private List<Double> parameterPValues;
 
 	private List<List<Integer>> changeLists;
 
@@ -330,6 +332,14 @@ public class ParameterOptimizer {
 		return parameterStandardErrors;
 	}
 
+	public List<Double> getParameterTValues() {
+		return parameterTValues;
+	}
+
+	public List<Double> getParameterPValues() {
+		return parameterPValues;
+	}
+
 	private void optimize(List<Double> startValues, int maxEval)
 			throws Exception {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
@@ -359,13 +369,24 @@ public class ParameterOptimizer {
 			double[] guess = optimizer.guessParametersErrors();
 
 			parameterStandardErrors = new ArrayList<Double>(parameters.size());
+			parameterTValues = new ArrayList<Double>(parameters.size());
+			parameterPValues = new ArrayList<Double>(parameters.size());
 
 			for (int i = 0; i < parameters.size(); i++) {
 				parameterStandardErrors.add(guess[i]);
+
+				double tValue = p.getPoint()[i] / guess[i];
+				int degreesOfFreedom = targetValues.size() - parameters.size();
+
+				parameterTValues.add(tValue);
+				parameterPValues.add(MathUtilities.getStudentProbability(
+						tValue, degreesOfFreedom));
 			}
 		} catch (Exception e) {
 			parameterStandardErrors = Collections.nCopies(parameters.size(),
 					null);
+			parameterTValues = Collections.nCopies(parameters.size(), null);
+			parameterPValues = Collections.nCopies(parameters.size(), null);
 		}
 
 		double targetMean = MathUtilities.computeSum(targetValues)

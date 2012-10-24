@@ -553,6 +553,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 					rSquare = optimizer.getRSquare();
 					aic = optimizer.getAIC();
 					bic = optimizer.getBIC();
+
+					List<Double> parameterPValues = optimizer
+							.getParameterPValues();
+
+					for (int j = 0; j < parameters.size(); j++) {
+						System.out.println(parameters.get(j) + "\t"
+								+ parameterPValues.get(j));
+					}
 				} else {
 					parameterValues = Collections.nCopies(parameters.size(),
 							null);
@@ -796,6 +804,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 							for (List<Double> values : argumentValues) {
 								minValues.add(Collections.min(values));
 								maxValues.add(Collections.max(values));
+							}
+
+							List<Double> parameterPValues = optimizer
+									.getParameterPValues();
+
+							for (int j = 0; j < parameters.size(); j++) {
+								System.out.println(parameters.get(j) + "\t"
+										+ parameterPValues.get(j));
 							}
 						} else {
 							parameterValues = Collections.nCopies(
@@ -1097,6 +1113,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 							for (List<Double> values : argumentValues) {
 								minValues.add(Collections.min(values));
 								maxValues.add(Collections.max(values));
+							}
+
+							List<Double> parameterPValues = optimizer
+									.getParameterPValues();
+
+							for (int j = 0; j < parameters.size(); j++) {
+								System.out.println(parameters.get(j) + "\t"
+										+ parameterPValues.get(j));
 							}
 						} else {
 							parameterValues = Collections.nCopies(

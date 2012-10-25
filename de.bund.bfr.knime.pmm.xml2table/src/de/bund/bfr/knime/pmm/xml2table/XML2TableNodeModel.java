@@ -47,13 +47,13 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
  */
 public class XML2TableNodeModel extends NodeModel {
     
-	private static final String CFGKEY_COLNAME = "SelectedColumn";
-	private static final String CFGKEY_APPENDDATA = "AppendDataBool";
-	private static final String CFGKEY_SELXMLENTRY = "SelectXMLEntry";
+	static final String CFGKEY_COLNAME = "SelectedColumn";
+	static final String CFGKEY_APPENDDATA = "AppendDataBool";
+	static final String CFGKEY_SELXMLENTRY = "SelectXMLEntry";
 
-    final static SettingsModelString m_col = new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "");
-    final static SettingsModelBoolean m_append = new SettingsModelBoolean(XML2TableNodeModel.CFGKEY_APPENDDATA, true);
-    final static SettingsModelStringArray m_xmlsel = new SettingsModelStringArray(XML2TableNodeModel.CFGKEY_SELXMLENTRY, null);
+    private final SettingsModelString m_col = new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "");
+    private final SettingsModelBoolean m_append = new SettingsModelBoolean(XML2TableNodeModel.CFGKEY_APPENDDATA, true);
+    private final SettingsModelStringArray m_xmlsel = new SettingsModelStringArray(XML2TableNodeModel.CFGKEY_SELXMLENTRY, null);
         
 
     /**

@@ -1060,7 +1060,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						String formula = tuple
 								.getString(Model1Schema.ATT_FORMULA);
 						PmmXmlDoc paramXml = tuple
-								.getPmmXml(Model2Schema.ATT_PARAMETER);
+								.getPmmXml(Model1Schema.ATT_PARAMETER);
 						List<String> parameters = new ArrayList<String>();
 						List<Double> minParameterValues = new ArrayList<Double>();
 						List<Double> maxParameterValues = new ArrayList<Double>();

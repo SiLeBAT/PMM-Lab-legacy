@@ -516,8 +516,12 @@ public class CombinedModelAndDataViewNodeView extends
 
 				infoParams.add(element.getName());
 				infoValues.add(element.getValue());
-				infoParams.add(element.getName() + " SE");
+				infoParams.add(element.getName() + ": SE");
 				infoValues.add(element.getError());
+				infoParams.add(element.getName() + ": t");
+				infoValues.add(element.gett());
+				infoParams.add(element.getName() + ": Pr > |t|");
+				infoValues.add(element.getP());
 			}
 
 			plotables.put(id, plotable);

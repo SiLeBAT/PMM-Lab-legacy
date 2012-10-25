@@ -68,6 +68,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
@@ -1040,6 +1041,21 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 				addFilters();
 			}
+		}
+
+		@Override
+		public void toggleSortOrder(int column) {
+			List<? extends SortKey> sortKeys = getSortKeys();
+
+			if (sortKeys.size() > 0) {
+				if (sortKeys.get(0).getColumn() == column
+						&& sortKeys.get(0).getSortOrder() == SortOrder.DESCENDING) {
+					setSortKeys(null);
+					return;
+				}
+			}
+
+			super.toggleSortOrder(column);
 		}
 
 		private void addFilters() {

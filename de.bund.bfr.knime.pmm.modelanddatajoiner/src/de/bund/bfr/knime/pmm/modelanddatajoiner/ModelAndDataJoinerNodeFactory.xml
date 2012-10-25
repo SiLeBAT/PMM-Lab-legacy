@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
-<knimeNode icon="./ModelAndDataJoiner.png" type="Manipulator">
+<knimeNode icon="./PMMJoiner.png" type="Manipulator">
     <name>PMM Joiner</name>
     
     <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (Log10C) to parameter names of the model formulas in preparation for a model estimation or a forecast.</shortDescription>

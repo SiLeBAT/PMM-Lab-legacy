@@ -72,7 +72,7 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
 		else if (XML2TableNodeModel.m_col.getStringValue().startsWith("Parameter")) {
 			list = ParamXml.getElements();
 		}
-        xmlseldialog.replaceListItems(list, (String[]) null);
+        if (list != null) xmlseldialog.replaceListItems(list, (String[]) null);
 	}
 }
 

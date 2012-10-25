@@ -1803,7 +1803,7 @@ public class Login extends JFrame {
 		MyTable Kostenkatalog = new MyTable("Kostenkatalog",
 				new String[]{"Kostenart","Kostenunterart","Beschreibung","Einheit"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)"},
-				new String[]{null,null,null,"Einheit pro Produkteinheit"},
+				new String[]{null,null,null,"Einheit pro Bezugseinheit (pro Liter Endprodukt)"},
 				new MyTable[]{null,null,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null},

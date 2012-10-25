@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Element;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
@@ -30,7 +37,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 			setName(xmlElement.getAttribute("name").getValue());
 			setDescription(xmlElement.getAttribute("description").getValue());
 			String strDbl = xmlElement.getAttribute("value").getValue();
-			setValue(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			setUnit(xmlElement.getAttribute("unit").getValue());
 		}
 		catch (Exception e) {
@@ -66,9 +73,36 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDescription(String description) {this.description = (description == null) ? "" : description;}
-	public void setValue(Double value) {this.value = (value == null) ? Double.NaN : value;;}
+	public void setValue(Double value) {this.value = (value == null) ? null : value;;}
 	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
 
+	public static List<String> getElements() {
+        List<String> list = new ArrayList<String>();
+        list.add("ID");
+        list.add("Name");
+        list.add("Description");
+        list.add("Value");
+        list.add("Unit");
+        return list;
+	}
+	public static DataType getDataType(String element) {
+		if (element.equalsIgnoreCase("id")) {
+			return IntCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("name")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("description")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("value")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("unit")) {
+			return StringCell.TYPE;
+		}
+		return null;
+	}
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_MISC);

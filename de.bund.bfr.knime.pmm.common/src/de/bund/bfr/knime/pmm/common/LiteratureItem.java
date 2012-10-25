@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Element;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -96,5 +99,4 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	public String toString() { return author+"_"+year; }
 	
 	public void setID(Integer id) {this.id = id;}
-	
 }

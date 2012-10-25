@@ -1,6 +1,13 @@
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Element;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 public class ParamXml implements PmmXmlElementConvertable {
 
@@ -14,6 +21,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double P = null;
 	private Double t = null;
 	
+	public ParamXml() {
+		
+	}
 	public ParamXml(String name, Double value, Double error, Double min, Double max, Double P, Double t) {
 		setName(name);
 		setValue(value);
@@ -27,17 +37,17 @@ public class ParamXml implements PmmXmlElementConvertable {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
 			String strDbl = xmlElement.getAttribute("value").getValue();
-			setValue(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("error").getValue();
-			setError(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			setError(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("min").getValue();
-			setMin(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			setMin(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("max").getValue();
-			setMax(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("P-value").getValue();
-			setP(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("t-value").getValue();
-			sett(strDbl.trim().isEmpty() ? Double.NaN : Double.parseDouble(strDbl));
+			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("P").getValue();
+			setP(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("t").getValue();
+			sett(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -52,12 +62,12 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double gett() {return t;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	public void setValue(Double value) {this.value = (value == null) ? Double.NaN : value;}
-	public void setError(Double error) {this.error = (error == null) ? Double.NaN : error;}
-	public void setMin(Double min) {this.min = (min == null) ? Double.NaN : min;}
-	public void setMax(Double max) {this.max = (max == null) ? Double.NaN : max;}
-	public void setP(Double P) {this.P = (P == null) ? Double.NaN : P;}
-	public void sett(Double t) {this.t = (t == null) ? Double.NaN : t;}
+	public void setValue(Double value) {this.value = (value == null) ? null : value;}
+	public void setError(Double error) {this.error = (error == null) ? null : error;}
+	public void setMin(Double min) {this.min = (min == null) ? null : min;}
+	public void setMax(Double max) {this.max = (max == null) ? null : max;}
+	public void setP(Double P) {this.P = (P == null) ? null : P;}
+	public void sett(Double t) {this.t = (t == null) ? null : t;}
 
 	@Override
 	public Element toXmlElement() {
@@ -67,8 +77,44 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("error", "" + (error == null || Double.isNaN(error) ? "" : error));
 		modelElement.setAttribute("min", "" + (min == null || Double.isNaN(min) ? "" : min));
 		modelElement.setAttribute("max", "" + (max == null || Double.isNaN(max) ? "" : max));
-		modelElement.setAttribute("P-value", "" + (P == null || Double.isNaN(P) ? "" : P));
-		modelElement.setAttribute("t-value", "" + (t == null || Double.isNaN(t) ? "" : t));
+		modelElement.setAttribute("P", "" + (P == null || Double.isNaN(P) ? "" : P));
+		modelElement.setAttribute("t", "" + (t == null || Double.isNaN(t) ? "" : t));
 		return modelElement;
+	}
+
+	public static List<String> getElements() {
+        List<String> list = new ArrayList<String>();
+        list.add("Name");
+        list.add("Value");
+        list.add("Error");
+        list.add("Min");
+        list.add("Max");
+        list.add("P");
+        list.add("t");
+        return list;
+	}
+	public static DataType getDataType(String element) {
+		if (element.equalsIgnoreCase("name")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("value")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("error")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("min")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("max")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("p")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("t")) {
+			return DoubleCell.TYPE;
+		}
+		return null;
 	}
 }

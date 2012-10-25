@@ -43,6 +43,7 @@ import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TE
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TIME;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_WATERACTIVITY;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -535,5 +536,4 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	@Deprecated
 	public void setDoublingTime( final double dt ) {}
-
 }

@@ -441,12 +441,18 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + value;									
 				}
 			}
-			else if (tn.equals("Zutatendaten") || tn.equals("Versuchsbedingungen") || tn.equals("Messwerte")) {
+			else if (tn.equals("Zutatendaten")) {
+				String fn = myT.getFieldNames()[selectedColumn];
+				if (fn.equals("Kosten")) sql = getKostenSQL(tn, value);
+				else sql = getSonstigeParameterSQL(tn, value);
+			}
+			else if (tn.equals("Versuchsbedingungen") || tn.equals("Messwerte")) {
 				sql = getSonstigeParameterSQL(tn, value);
 			}
 			else if (tn.equals("Prozessdaten")) {
 				String fn = myT.getFieldNames()[selectedColumn];
 				if (fn.equals("Sonstiges")) sql = getSonstigeParameterSQL(tn, value);
+				else if (fn.equals("Kosten")) sql = getKostenSQL(tn, value);
 				else if (fn.equals("Tenazitaet")) {
 					sql = "SELECT " + DBKernel.delimitL("Agensname") + "," + DBKernel.delimitL("DoubleKennzahlen") + "." + DBKernel.delimitL("Wert") + "," +
 					DBKernel.delimitL("DoubleKennzahlen") + "." + DBKernel.delimitL("Wert") +
@@ -512,6 +518,12 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 							Object dbl2 = rs.getObject(4);
 							if (dbl2 != null) refinedNumber += ", " + DBKernel.getDoubleStr(dbl2) + "]";		
 							result += rs.getString(2) + refinedNumber + "\n";							
+						}
+						else if (myT.getFieldNames()[selectedColumn].equals("Kosten")) { //  && myT.getTablename().equals("Prozessdaten")
+							String refinedNumber = "";
+							Object dbl = rs.getObject(2);
+							if (dbl != null) refinedNumber = DBKernel.getDoubleStr(dbl);		
+							result += rs.getString(1) + ": " + refinedNumber + " " + rs.getString(3) + "\n";							
 						}
 						else if (isINTmn) {
 							String res = "";
@@ -583,6 +595,19 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 		" ON " + DBKernel.delimitL(tn + "_Sonstiges") + "." + DBKernel.delimitL("Einheit") + "=" +
 		DBKernel.delimitL("Einheiten") + "." + DBKernel.delimitL("ID") +
 		" WHERE " + DBKernel.delimitL(tn) + "=" + value;				
+		return sql;
+	}
+	private String getKostenSQL(String tn, Object value) {
+		String sql = "SELECT " + DBKernel.delimitL("Kostenunterart") +
+		 "," + DBKernel.delimitL("DoubleKennzahlen") + "." + DBKernel.delimitL("Wert") + "," +DBKernel.delimitL("Einheit") +
+		" FROM " + DBKernel.delimitL("Kostenkatalog") +
+		" LEFT JOIN " + DBKernel.delimitL(tn + "_Kosten") +
+		" ON " + DBKernel.delimitL(tn + "_Kosten") + "." + DBKernel.delimitL("Kostenkatalog") + "=" +
+		DBKernel.delimitL("Kostenkatalog") + "." + DBKernel.delimitL("ID") +
+		" LEFT JOIN " + DBKernel.delimitL("DoubleKennzahlen") +
+		" ON " + DBKernel.delimitL(tn + "_Kosten") + "." + DBKernel.delimitL("Menge") + "=" +
+		DBKernel.delimitL("DoubleKennzahlen") + "." + DBKernel.delimitL("ID") +
+		" WHERE " + DBKernel.delimitL(tn + "_Kosten") + "." + DBKernel.delimitL(tn) + "=" + value;	
 		return sql;
 	}
 

@@ -49,7 +49,9 @@ import javax.swing.JSplitPane;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -243,14 +245,11 @@ public class SecondaryModelAndDataViewNodeView extends
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
 		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
 		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
 		Map<String, List<String>> indepVarMap = new LinkedHashMap<String, List<String>>();
 		Map<String, List<Double>> minIndepVarMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> maxIndepVarMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<String>> keyMap = new LinkedHashMap<String, List<String>>();
-		Map<String, List<Double>> valueMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> minValueMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> maxValueMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> temperatureDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> phDataMap = new LinkedHashMap<String, List<Double>>();
@@ -326,26 +325,20 @@ public class SecondaryModelAndDataViewNodeView extends
 						.getDoubleList(Model2Schema.ATT_MININDEP);
 				List<Double> maxIndepVarSec = row
 						.getDoubleList(Model2Schema.ATT_MAXINDEP);
-				List<String> paramNamesSec = row
-						.getStringList(Model2Schema.ATT_PARAMNAME);
-				List<Double> paramValuesSec = row
-						.getDoubleList(Model2Schema.ATT_VALUE);
-				List<Double> paramErrorsSec = row
-						.getDoubleList(Model2Schema.ATT_PARAMERR);
-				List<Double> paramMinValuesSec = row
-						.getDoubleList(Model2Schema.ATT_MINVALUE);
-				List<Double> paramMaxValuesSec = row
-						.getDoubleList(Model2Schema.ATT_MAXVALUE);
+				PmmXmlDoc paramXmlSec = row
+						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(
 						Model2Schema.ATT_MODELNAME, Model2Schema.ATT_FORMULA));
 				List<Object> infoValues = new ArrayList<Object>(Arrays.asList(
 						modelNameSec, formulaSec));
 
-				for (int i = 0; i < paramNamesSec.size(); i++) {
-					infoParams.add(paramNamesSec.get(i));
-					infoValues.add(paramValuesSec.get(i));
-					infoParams.add(paramNamesSec.get(i) + " SE");
-					infoValues.add(paramErrorsSec.get(i));
+				for (PmmXmlElementConvertable el : paramXmlSec.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					infoParams.add(element.getName());
+					infoValues.add(element.getValue());
+					infoParams.add(element.getName() + " SE");
+					infoValues.add(element.getError());
 				}
 
 				idSet.add(id);
@@ -362,10 +355,7 @@ public class SecondaryModelAndDataViewNodeView extends
 				indepVarMap.put(id, indepVarSec);
 				minIndepVarMap.put(id, minIndepVarSec);
 				maxIndepVarMap.put(id, maxIndepVarSec);
-				keyMap.put(id, paramNamesSec);
-				valueMap.put(id, paramValuesSec);
-				minValueMap.put(id, paramMinValuesSec);
-				maxValueMap.put(id, paramMaxValuesSec);
+				paramMap.put(id, paramXmlSec);
 				temperatureDataMap.put(id, new ArrayList<Double>());
 				phDataMap.put(id, new ArrayList<Double>());
 				awDataMap.put(id, new ArrayList<Double>());
@@ -380,11 +370,11 @@ public class SecondaryModelAndDataViewNodeView extends
 			}
 
 			if (getNodeModel().isSeiSchema()) {
-				List<String> keys = row
-						.getStringList(Model1Schema.ATT_PARAMNAME);
-				List<Double> values = row.getDoubleList(Model1Schema.ATT_VALUE);
+				PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 				String depVar = depVarMap.get(id);
-				Double depVarValue = values.get(keys.indexOf(depVar));
+				int depVarIndex = CellIO.getNameList(paramXml).indexOf(depVar);
+				Double depVarValue = ((ParamXml) paramXml.get(depVarIndex))
+						.getValue();
 
 				depVarDataMap.get(id).add(depVarValue);
 				temperatureDataMap.get(id).add(
@@ -418,6 +408,9 @@ public class SecondaryModelAndDataViewNodeView extends
 			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
+			List<Double> paramValues = new ArrayList<Double>();
+			List<Double> minParamValues = new ArrayList<Double>();
+			List<Double> maxParamValues = new ArrayList<Double>();
 
 			if (getNodeModel().isSeiSchema()) {
 				plotable = new Plotable(Plotable.BOTH_STRICT);
@@ -434,8 +427,13 @@ public class SecondaryModelAndDataViewNodeView extends
 						.get(i));
 			}
 
-			for (int i = 0; i < keyMap.get(id).size(); i++) {
-				constants.put(keyMap.get(id).get(i), valueMap.get(id).get(i));
+			for (PmmXmlElementConvertable el : paramMap.get(id).getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				constants.put(element.getName(), element.getValue());
+				paramValues.add(element.getValue());
+				minParamValues.add(element.getMin());
+				maxParamValues.add(element.getMax());
 			}
 
 			plotable.setFunction(formulaMap.get(id));
@@ -486,8 +484,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(valueMap.get(id),
-						minValueMap.get(id), maxValueMap.get(id))) {
+				} else if (!MathUtilities.areValuesInRange(paramValues,
+						minParamValues, maxParamValues)) {
 					stringColumnValues.get(2).add(ChartConstants.WARNING);
 				} else {
 					stringColumnValues.get(2).add(ChartConstants.YES);
@@ -528,6 +526,8 @@ public class SecondaryModelAndDataViewNodeView extends
 					List<Double> nonNullValues = new ArrayList<Double>(
 							miscs.get(miscParams.get(i)));
 
+					nonNullValues.removeAll(Arrays.asList((Double) null));
+
 					if (!nonNullValues.isEmpty()) {
 						doubleColumnValues.get(2 * i + 8).add(
 								Collections.min(nonNullValues));
@@ -543,8 +543,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			} else if (getNodeModel().isModel2Schema()) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(valueMap.get(id),
-						minValueMap.get(id), maxValueMap.get(id))) {
+				} else if (!MathUtilities.areValuesInRange(paramValues,
+						minParamValues, maxParamValues)) {
 					stringColumnValues.get(2).add(ChartConstants.WARNING);
 				} else {
 					stringColumnValues.get(2).add(ChartConstants.YES);

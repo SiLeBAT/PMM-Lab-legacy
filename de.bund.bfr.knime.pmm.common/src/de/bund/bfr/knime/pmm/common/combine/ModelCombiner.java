@@ -41,7 +41,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -104,11 +108,16 @@ public class ModelCombiner {
 				}
 
 				if (discardPrimaryParams) {
-					int n = newTuple.getDoubleList(Model1Schema.ATT_VALUE)
-							.size();
+					PmmXmlDoc params = newTuple
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-					newTuple.setValue(Model1Schema.ATT_VALUE,
-							Collections.nCopies(n, null));
+					for (PmmXmlElementConvertable el : params.getElementSet()) {
+						ParamXml element = (ParamXml) el;
+
+						element.setValue(null);
+					}
+
+					newTuple.setValue(Model1Schema.ATT_PARAMETER, params);
 				}
 
 				newTuples.put(id, newTuple);
@@ -136,29 +145,27 @@ public class ModelCombiner {
 				String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
 				List<String> indepVarsSec = tuple
 						.getStringList(Model2Schema.ATT_INDEPVAR);
-				List<String> keysSec = tuple
-						.getStringList(Model2Schema.ATT_PARAMNAME);
-				List<Double> valuesSec = tuple
-						.getDoubleList(Model2Schema.ATT_VALUE);
-				List<Double> minValuesSec = tuple
-						.getDoubleList(Model2Schema.ATT_MINVALUE);
-				List<Double> maxValuesSec = tuple
-						.getDoubleList(Model2Schema.ATT_MAXVALUE);
+				PmmXmlDoc paramsSec = tuple
+						.getPmmXml(Model2Schema.ATT_PARAMETER);
 
-				for (int i = 0; i < keysSec.size(); i++) {
+				for (int i = 0; i < paramsSec.getElementSet().size(); i++) {
 					int index = 1;
-					String newKey = keysSec.get(i);
+					String paramName = ((ParamXml) paramsSec.getElementSet()
+							.get(i)).getName();
+					String newParamName = paramName;
 
-					while (newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
-							.contains(newKey)) {
+					while (CellIO.getNameList(
+							newTuple.getPmmXml(Model1Schema.ATT_PARAMETER))
+							.contains(newParamName)) {
 						index++;
-						newKey = keysSec.get(i) + index;
+						newParamName = paramName + index;
 					}
 
 					if (index > 1) {
 						formulaSec = MathUtilities.replaceVariable(formulaSec,
-								keysSec.get(i), newKey);
-						keysSec.set(i, newKey);
+								paramName, newParamName);
+						((ParamXml) paramsSec.getElementSet().get(i))
+								.setName(newParamName);
 					}
 				}
 
@@ -168,43 +175,23 @@ public class ModelCombiner {
 						newTuple.getString(Model1Schema.ATT_FORMULA),
 						depVarSec, replacement);
 				Set<String> newIndepVars = new LinkedHashSet<String>();
-				List<String> newKeys = new ArrayList<String>();
-				List<Double> newValues = new ArrayList<Double>();
-				List<Double> newMinValues = new ArrayList<Double>();
-				List<Double> newMaxValues = new ArrayList<Double>();
+				PmmXmlDoc newParams = newTuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 				newIndepVars.addAll(newTuple
 						.getStringList(Model1Schema.ATT_INDEPVAR));
 				newIndepVars.addAll(indepVarsSec);
-				newValues
-						.addAll(newTuple.getDoubleList(Model1Schema.ATT_VALUE));
-				newMinValues.addAll(newTuple
-						.getDoubleList(Model1Schema.ATT_MINVALUE));
-				newMaxValues.addAll(newTuple
-						.getDoubleList(Model1Schema.ATT_MAXVALUE));
-				newKeys.addAll(newTuple
-						.getStringList(Model1Schema.ATT_PARAMNAME));
-				newValues.remove(newKeys.indexOf(depVarSec));
-				newMinValues.remove(newKeys.indexOf(depVarSec));
-				newMaxValues.remove(newKeys.indexOf(depVarSec));
-				newKeys.remove(depVarSec);
-				newValues.addAll(valuesSec);
-				newMinValues.addAll(maxValuesSec);
-				newMaxValues.addAll(minValuesSec);
-				newKeys.addAll(keysSec);
+				newParams.getElementSet().remove(
+						CellIO.getNameList(newParams).indexOf(depVarSec));
+				newParams.getElementSet().addAll(paramsSec.getElementSet());
 
 				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
 				newTuple.setValue(Model1Schema.ATT_INDEPVAR,
 						new ArrayList<String>(newIndepVars));
-				newTuple.setValue(Model1Schema.ATT_PARAMNAME, newKeys);
-				newTuple.setValue(Model1Schema.ATT_VALUE, newValues);
-				newTuple.setValue(Model1Schema.ATT_MINVALUE, newMinValues);
-				newTuple.setValue(Model1Schema.ATT_MAXVALUE, newMaxValues);
+				newTuple.setValue(Model1Schema.ATT_PARAMETER, newParams);
 			}
 
 			int modelCount = usedTuples.size() + 1;
-			int paramCount = newTuple.getStringList(Model1Schema.ATT_PARAMNAME)
-					.size();
 			int indepCount = newTuple.getStringList(Model1Schema.ATT_INDEPVAR)
 					.size();
 			int newID = newTuple.getInt(Model1Schema.ATT_MODELID) / modelCount;
@@ -240,8 +227,6 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_LITM, null);
 			newTuple.setValue(Model1Schema.ATT_RMS, null);
 			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
-			newTuple.setValue(Model1Schema.ATT_PARAMERR,
-					Collections.nCopies(paramCount, null));
 			newTuple.setValue(Model1Schema.ATT_MININDEP,
 					Collections.nCopies(indepCount, null));
 			newTuple.setValue(Model1Schema.ATT_MAXINDEP,

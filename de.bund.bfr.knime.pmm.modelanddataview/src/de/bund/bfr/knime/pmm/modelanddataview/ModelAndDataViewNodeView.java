@@ -51,6 +51,7 @@ import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -295,15 +296,10 @@ public class ModelAndDataViewNodeView extends
 					.getDoubleList(Model1Schema.ATT_MININDEP);
 			List<Double> indepMaxValues = row
 					.getDoubleList(Model1Schema.ATT_MAXINDEP);
-			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
-			List<Double> paramValues = row
-					.getDoubleList(Model1Schema.ATT_VALUE);
-			List<Double> paramErrors = row
-					.getDoubleList(Model1Schema.ATT_PARAMERR);
-			List<Double> paramMinValues = row
-					.getDoubleList(Model1Schema.ATT_MINVALUE);
-			List<Double> paramMaxValues = row
-					.getDoubleList(Model1Schema.ATT_MAXVALUE);
+			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+			List<Double> paramValues = new ArrayList<Double>();
+			List<Double> paramMinValues = new ArrayList<Double>();
+			List<Double> paramMaxValues = new ArrayList<Double>();
 			Plotable plotable = null;
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
@@ -319,8 +315,13 @@ public class ModelAndDataViewNodeView extends
 				varMax.put(indepVars.get(i), indepMaxValues.get(i));
 			}
 
-			for (int i = 0; i < params.size(); i++) {
-				parameters.put(params.get(i), paramValues.get(i));
+			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				parameters.put(element.getName(), element.getValue());
+				paramValues.add(element.getValue());
+				paramMinValues.add(element.getMin());
+				paramMaxValues.add(element.getMax());
 			}
 
 			if (getNodeModel().isPeiSchema()) {
@@ -490,11 +491,13 @@ public class ModelAndDataViewNodeView extends
 				}
 			}
 
-			for (int i = 0; i < params.size(); i++) {
-				infoParams.add(params.get(i));
-				infoValues.add(paramValues.get(i));
-				infoParams.add(params.get(i) + " SE");
-				infoValues.add(paramErrors.get(i));
+			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				infoParams.add(element.getName());
+				infoValues.add(element.getValue());
+				infoParams.add(element.getName() + " SE");
+				infoValues.add(element.getError());
 			}
 
 			plotables.put(id, plotable);

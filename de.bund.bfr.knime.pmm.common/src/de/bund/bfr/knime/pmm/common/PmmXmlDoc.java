@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -48,10 +49,10 @@ public class PmmXmlDoc {
 
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 	
-	private LinkedList<PmmXmlElementConvertable> elementSet;
+	private List<PmmXmlElementConvertable> elementSet;
 	
 	public PmmXmlDoc() {
-		elementSet = new LinkedList<PmmXmlElementConvertable>();
+		elementSet = new ArrayList<PmmXmlElementConvertable>();
 	}
 	
 	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		

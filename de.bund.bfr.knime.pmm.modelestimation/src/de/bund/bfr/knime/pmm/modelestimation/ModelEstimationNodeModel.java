@@ -60,6 +60,7 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -258,7 +259,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 					if (elements.length == 2) {
 						String paramName = elements[0];
-						String[] range = elements[1].split("-");
+						String[] range = elements[1].split("~");
 						double min = Double.NaN;
 						double max = Double.NaN;
 
@@ -298,9 +299,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 				String rangeString = "";
 
 				if (!Double.isNaN(range.x)) {
-					rangeString += range.x + "-";
+					rangeString += range.x + "~";
 				} else {
-					rangeString += "?-";
+					rangeString += "?~";
 				}
 
 				if (!Double.isNaN(range.y)) {
@@ -479,12 +480,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 		public void run() {
 			try {
 				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
-				List<String> parameters = tuple
-						.getStringList(Model1Schema.ATT_PARAMNAME);
-				List<Double> minParameterValues = tuple
-						.getDoubleList(Model1Schema.ATT_MINVALUE);
-				List<Double> maxParameterValues = tuple
-						.getDoubleList(Model1Schema.ATT_MAXVALUE);
+				PmmXmlDoc paramXml = tuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
+				List<String> parameters = new ArrayList<String>();
+				List<Double> minParameterValues = new ArrayList<Double>();
+				List<Double> maxParameterValues = new ArrayList<Double>();
 				List<Double> minGuessValues = new ArrayList<Double>();
 				List<Double> maxGuessValues = new ArrayList<Double>();
 				List<Double> targetValues = tuple
@@ -494,14 +494,29 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<String> arguments = Arrays
 						.asList(TimeSeriesSchema.ATT_TIME);
 				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
-				List<Double> parameterValues;
-				List<Double> parameterErrors;
-				Double rms;
-				Double rSquare;
-				Double aic;
-				Double bic;
-				List<Double> minIndep;
-				List<Double> maxIndep;
+
+				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					parameters.add(element.getName());
+					minParameterValues.add(element.getMin());
+					maxParameterValues.add(element.getMax());
+				}
+
+				List<Double> parameterValues = Collections.nCopies(
+						parameters.size(), null);
+				List<Double> parameterErrors = Collections.nCopies(
+						parameters.size(), null);
+				List<Double> parameterTValues = Collections.nCopies(
+						parameters.size(), null);
+				List<Double> parameterPValues = Collections.nCopies(
+						parameters.size(), null);
+				Double rms = null;
+				Double rSquare = null;
+				Double aic = null;
+				Double bic = null;
+				List<Double> minIndep = null;
+				List<Double> maxIndep = null;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
@@ -541,43 +556,33 @@ public class ModelEstimationNodeModel extends NodeModel {
 							arguments, argumentValues, enforceLimits == 1);
 					optimizer.optimize(new AtomicInteger());
 					successful = optimizer.isSuccessful();
-				} else {
-					minIndep = null;
-					maxIndep = null;
 				}
 
 				if (successful) {
 					parameterValues = optimizer.getParameterValues();
 					parameterErrors = optimizer.getParameterStandardErrors();
+					parameterTValues = optimizer.getParameterTValues();
+					parameterPValues = optimizer.getParameterPValues();
 					rms = optimizer.getRMS();
 					rSquare = optimizer.getRSquare();
 					aic = optimizer.getAIC();
 					bic = optimizer.getBIC();
-
-					List<Double> parameterPValues = optimizer
-							.getParameterPValues();
-
-					for (int j = 0; j < parameters.size(); j++) {
-						System.out.println(parameters.get(j) + "\t"
-								+ parameterPValues.get(j));
-					}
-				} else {
-					parameterValues = Collections.nCopies(parameters.size(),
-							null);
-					parameterErrors = Collections.nCopies(parameters.size(),
-							null);
-					rms = null;
-					rSquare = null;
-					aic = null;
-					bic = null;
 				}
 
-				tuple.setValue(Model1Schema.ATT_VALUE, parameterValues);
+				for (int i = 0; i < paramXml.getElementSet().size(); i++) {
+					ParamXml element = (ParamXml) paramXml.get(i);
+
+					element.setValue(parameterValues.get(i));
+					element.setError(parameterErrors.get(i));
+					element.sett(parameterTValues.get(i));
+					element.setP(parameterPValues.get(i));
+				}
+
+				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 				tuple.setValue(Model1Schema.ATT_RMS, rms);
 				tuple.setValue(Model1Schema.ATT_AIC, aic);
 				tuple.setValue(Model1Schema.ATT_BIC, bic);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
-				tuple.setValue(Model1Schema.ATT_PARAMERR, parameterErrors);
 				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);
 				tuple.setValue(Model1Schema.ATT_MAXINDEP, maxIndep);
 				tuple.setValue(Model1Schema.ATT_ESTMODELID,
@@ -649,25 +654,31 @@ public class ModelEstimationNodeModel extends NodeModel {
 						}
 					}
 
-					List<String> keys = tuple
-							.getStringList(Model1Schema.ATT_PARAMNAME);
-					List<Double> values = tuple
-							.getDoubleList(Model1Schema.ATT_VALUE);
-					List<Double> minValues = tuple
-							.getDoubleList(Model1Schema.ATT_MINVALUE);
-					List<Double> maxValues = tuple
-							.getDoubleList(Model1Schema.ATT_MAXVALUE);
+					PmmXmlDoc params = tuple
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
+					Double value = null;
+					Double minValue = null;
+					Double maxValue = null;
+					boolean valueMissing = false;
 
-					if (values.contains(null)) {
-						continue;
+					for (PmmXmlElementConvertable el : params.getElementSet()) {
+						ParamXml element = (ParamXml) el;
+
+						if (element.getValue() == null) {
+							valueMissing = true;
+						}
+
+						if (element.getName().equals(
+								tuple.getString(Model2Schema.ATT_DEPVAR))) {
+							value = element.getValue();
+							minValue = element.getMin();
+							maxValue = element.getMax();
+						}
 					}
 
-					double value = values.get(keys.indexOf(tuple
-							.getString(Model2Schema.ATT_DEPVAR)));
-					Double minValue = minValues.get(keys.indexOf(tuple
-							.getString(Model2Schema.ATT_DEPVAR)));
-					Double maxValue = maxValues.get(keys.indexOf(tuple
-							.getString(Model2Schema.ATT_DEPVAR)));
+					if (valueMissing) {
+						continue;
+					}
 
 					if ((minValue != null && value < minValue)
 							|| (maxValue != null && value > maxValue)) {
@@ -701,8 +712,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					}
 				}
 
-				Map<String, List<Double>> paramValueMap = new LinkedHashMap<String, List<Double>>();
-				Map<String, List<Double>> paramErrorMap = new LinkedHashMap<String, List<Double>>();
+				Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
 				Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 				Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
 				Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
@@ -718,21 +728,29 @@ public class ModelEstimationNodeModel extends NodeModel {
 					tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 							Model2Schema.WRITABLE);
 
-					if (!paramValueMap.containsKey(id)) {
+					if (!paramMap.containsKey(id)) {
 						String formula = tuple
 								.getString(Model2Schema.ATT_FORMULA);
-						List<String> parameters = tuple
-								.getStringList(Model2Schema.ATT_PARAMNAME);
-						List<Double> minParameterValues = tuple
-								.getDoubleList(Model2Schema.ATT_MINVALUE);
-						List<Double> maxParameterValues = tuple
-								.getDoubleList(Model2Schema.ATT_MAXVALUE);
+						PmmXmlDoc paramXml = tuple
+								.getPmmXml(Model2Schema.ATT_PARAMETER);
+						List<String> parameters = new ArrayList<String>();
+						List<Double> minParameterValues = new ArrayList<Double>();
+						List<Double> maxParameterValues = new ArrayList<Double>();
 						List<Double> minGuessValues = new ArrayList<Double>();
 						List<Double> maxGuessValues = new ArrayList<Double>();
 						List<Double> targetValues = depVarMap.get(id);
 						List<String> arguments = tuple
 								.getStringList(Model2Schema.ATT_INDEPVAR);
 						List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+
+						for (PmmXmlElementConvertable el : paramXml
+								.getElementSet()) {
+							ParamXml element = (ParamXml) el;
+
+							parameters.add(element.getName());
+							minParameterValues.add(element.getMin());
+							maxParameterValues.add(element.getMax());
+						}
 
 						for (String param : parameters) {
 							Point2D.Double guess = parameterGuesses
@@ -768,15 +786,23 @@ public class ModelEstimationNodeModel extends NodeModel {
 						MathUtilities.removeNullValues(targetValues,
 								argumentValues);
 
-						List<Double> parameterValues;
-						List<Double> parameterErrors;
-						Double rms;
-						Double rSquared;
-						Double aic;
-						Double bic;
+						List<Double> parameterValues = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterErrors = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterTValues = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterPValues = Collections.nCopies(
+								parameters.size(), null);
+						Double rms = null;
+						Double rSquared = null;
+						Double aic = null;
+						Double bic = null;
 						Integer estID = MathUtilities.getRandomNegativeInt();
-						List<Double> minValues;
-						List<Double> maxValues;
+						List<Double> minValues = Collections.nCopies(
+								arguments.size(), null);
+						List<Double> maxValues = Collections.nCopies(
+								arguments.size(), null);
 						boolean successful = false;
 						ParameterOptimizer optimizer = null;
 
@@ -794,6 +820,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							parameterValues = optimizer.getParameterValues();
 							parameterErrors = optimizer
 									.getParameterStandardErrors();
+							parameterTValues = optimizer.getParameterTValues();
+							parameterPValues = optimizer.getParameterPValues();
 							rms = optimizer.getRMS();
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
@@ -805,49 +833,33 @@ public class ModelEstimationNodeModel extends NodeModel {
 								minValues.add(Collections.min(values));
 								maxValues.add(Collections.max(values));
 							}
-
-							List<Double> parameterPValues = optimizer
-									.getParameterPValues();
-
-							for (int j = 0; j < parameters.size(); j++) {
-								System.out.println(parameters.get(j) + "\t"
-										+ parameterPValues.get(j));
-							}
-						} else {
-							parameterValues = Collections.nCopies(
-									parameters.size(), null);
-							parameterErrors = Collections.nCopies(
-									parameters.size(), null);
-							rms = null;
-							rSquared = null;
-							aic = null;
-							bic = null;
-							minValues = Collections.nCopies(arguments.size(),
-									null);
-							maxValues = Collections.nCopies(arguments.size(),
-									null);
 						}
 
-						paramValueMap.put(id, parameterValues);
+						for (int j = 0; j < paramXml.getElementSet().size(); j++) {
+							ParamXml element = (ParamXml) paramXml.get(j);
+
+							element.setValue(parameterValues.get(j));
+							element.setError(parameterErrors.get(j));
+							element.sett(parameterTValues.get(j));
+							element.setP(parameterPValues.get(j));
+						}
+
+						paramMap.put(id, paramXml);
 						rmsMap.put(id, rms);
 						rSquaredMap.put(id, rSquared);
 						aicMap.put(id, aic);
 						bicMap.put(id, bic);
-						paramErrorMap.put(id, parameterErrors);
 						minIndepMap.put(id, minValues);
 						maxIndepMap.put(id, maxValues);
 						estIDMap.put(id, estID);
 					}
 
-					tuple.setValue(Model2Schema.ATT_VALUE,
-							paramValueMap.get(id));
+					tuple.setValue(Model2Schema.ATT_PARAMETER, paramMap.get(id));
 					tuple.setValue(Model2Schema.ATT_RMS, rmsMap.get(id));
 					tuple.setValue(Model2Schema.ATT_RSQUARED,
 							rSquaredMap.get(id));
 					tuple.setValue(Model2Schema.ATT_AIC, aicMap.get(id));
 					tuple.setValue(Model2Schema.ATT_BIC, bicMap.get(id));
-					tuple.setValue(Model2Schema.ATT_PARAMERR,
-							paramErrorMap.get(id));
 					tuple.setValue(Model2Schema.ATT_MININDEP,
 							minIndepMap.get(id));
 					tuple.setValue(Model2Schema.ATT_MAXINDEP,
@@ -896,83 +908,73 @@ public class ModelEstimationNodeModel extends NodeModel {
 					seiTuples.add(reader.nextElement());
 				}
 
-				List<KnimeTuple> seiTuples2 = new ArrayList<KnimeTuple>();
-
 				for (KnimeTuple tuple : seiTuples) {
-					KnimeTuple tuple2 = new KnimeTuple(seiSchema,
-							seiSchema.createSpec(), tuple);
+					PmmXmlDoc params = tuple
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-					List<String> params = tuple2
-							.getStringList(Model1Schema.ATT_PARAMNAME);
-					List<Double> minValues = new ArrayList<Double>();
-					List<Double> maxValues = new ArrayList<Double>();
+					for (PmmXmlElementConvertable el : params.getElementSet()) {
+						ParamXml element = (ParamXml) el;
 
-					for (String param : params) {
 						if (parameterGuesses.containsKey(PRIMARY)
 								&& parameterGuesses.get(PRIMARY).containsKey(
-										param)) {
+										element.getName())) {
 							Point2D.Double guess = parameterGuesses
-									.get(PRIMARY).get(param);
+									.get(PRIMARY).get(element.getName());
 
 							if (!Double.isNaN(guess.x)) {
-								minValues.add(guess.x);
+								element.setP(guess.x);
 							} else {
-								minValues.add(null);
+								element.setP(null);
 							}
 
 							if (!Double.isNaN(guess.y)) {
-								maxValues.add(guess.y);
+								element.sett(guess.y);
 							} else {
-								maxValues.add(null);
+								element.sett(null);
 							}
 						} else {
-							minValues.add(null);
-							maxValues.add(null);
+							element.setP(null);
+							element.sett(null);
 						}
 					}
 
-					String secID = tuple2.getInt(Model2Schema.ATT_MODELID) + "";
-					List<String> secParams = tuple2
-							.getStringList(Model2Schema.ATT_PARAMNAME);
-					List<Double> minValuesSec = new ArrayList<Double>();
-					List<Double> maxValuesSec = new ArrayList<Double>();
+					String secID = tuple.getInt(Model2Schema.ATT_MODELID) + "";
+					PmmXmlDoc secParams = tuple
+							.getPmmXml(Model2Schema.ATT_PARAMETER);
 
-					for (String param : secParams) {
+					for (PmmXmlElementConvertable el : secParams
+							.getElementSet()) {
+						ParamXml element = (ParamXml) el;
+
 						if (parameterGuesses.containsKey(secID)
 								&& parameterGuesses.get(secID).containsKey(
-										param)) {
+										element.getName())) {
 							Point2D.Double guess = parameterGuesses.get(secID)
-									.get(param);
+									.get(element.getName());
 
 							if (!Double.isNaN(guess.x)) {
-								minValuesSec.add(guess.x);
+								element.setP(guess.x);
 							} else {
-								minValuesSec.add(null);
+								element.setP(null);
 							}
 
 							if (!Double.isNaN(guess.y)) {
-								maxValuesSec.add(guess.y);
+								element.sett(guess.y);
 							} else {
-								maxValuesSec.add(null);
+								element.sett(null);
 							}
 						} else {
-							minValuesSec.add(null);
-							maxValuesSec.add(null);
+							element.setP(null);
+							element.sett(null);
 						}
 					}
 
-					tuple2.setValue(Model1Schema.ATT_MINVALUE, minValues);
-					tuple2.setValue(Model1Schema.ATT_MAXVALUE, maxValues);
-					tuple2.setValue(Model2Schema.ATT_MINVALUE, minValuesSec);
-					tuple2.setValue(Model2Schema.ATT_MAXVALUE, maxValuesSec);
-					seiTuples2.add(tuple2);
+					tuple.setValue(Model1Schema.ATT_PARAMETER, params);
+					tuple.setValue(Model2Schema.ATT_PARAMETER, secParams);
 				}
 
 				List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
 						ModelCombiner.combine(seiTuples, seiSchema, true,
-								new LinkedHashMap<String, String>()).keySet());
-				List<KnimeTuple> tuples2 = new ArrayList<KnimeTuple>(
-						ModelCombiner.combine(seiTuples2, seiSchema, true,
 								new LinkedHashMap<String, String>()).keySet());
 				Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 				Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
@@ -1040,8 +1042,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					}
 				}
 
-				Map<Integer, List<Double>> paramValueMap = new LinkedHashMap<Integer, List<Double>>();
-				Map<Integer, List<Double>> paramErrorMap = new LinkedHashMap<Integer, List<Double>>();
+				Map<Integer, PmmXmlDoc> paramMap = new LinkedHashMap<Integer, PmmXmlDoc>();
 				Map<Integer, Double> rmsMap = new LinkedHashMap<Integer, Double>();
 				Map<Integer, Double> rSquaredMap = new LinkedHashMap<Integer, Double>();
 				Map<Integer, Double> aicMap = new LinkedHashMap<Integer, Double>();
@@ -1055,37 +1056,53 @@ public class ModelEstimationNodeModel extends NodeModel {
 					KnimeTuple tuple = tuples.get(i);
 					int id = tuple.getInt(Model1Schema.ATT_MODELID);
 
-					if (!paramValueMap.containsKey(id)) {
+					if (!paramMap.containsKey(id)) {
 						String formula = tuple
 								.getString(Model1Schema.ATT_FORMULA);
-						List<String> parameters = tuple
-								.getStringList(Model1Schema.ATT_PARAMNAME);
-						List<Double> minParameterValues = tuple
-								.getDoubleList(Model1Schema.ATT_MINVALUE);
-						List<Double> maxParameterValues = tuple
-								.getDoubleList(Model1Schema.ATT_MAXVALUE);
-						List<Double> minGuessValues = tuples2.get(i)
-								.getDoubleList(Model1Schema.ATT_MINVALUE);
-						List<Double> maxGuessValues = tuples2.get(i)
-								.getDoubleList(Model1Schema.ATT_MAXVALUE);
+						PmmXmlDoc paramXml = tuple
+								.getPmmXml(Model2Schema.ATT_PARAMETER);
+						List<String> parameters = new ArrayList<String>();
+						List<Double> minParameterValues = new ArrayList<Double>();
+						List<Double> maxParameterValues = new ArrayList<Double>();
+						List<Double> minGuessValues = new ArrayList<Double>();
+						List<Double> maxGuessValues = new ArrayList<Double>();
 						List<Double> targetValues = targetValuesMap.get(id);
 						List<String> arguments = tuple
 								.getStringList(Model1Schema.ATT_INDEPVAR);
 						List<List<Double>> argumentValues = argumentValuesMap
 								.get(id);
 
+						for (PmmXmlElementConvertable el : paramXml
+								.getElementSet()) {
+							ParamXml element = (ParamXml) el;
+
+							parameters.add(element.getName());
+							minParameterValues.add(element.getMin());
+							maxParameterValues.add(element.getMax());
+							minGuessValues.add(element.getP());
+							maxGuessValues.add(element.gett());
+						}
+
 						MathUtilities.removeNullValues(targetValues,
 								argumentValues);
 
-						List<Double> parameterValues;
-						List<Double> parameterErrors;
-						Double rms;
-						Double rSquared;
-						Double aic;
-						Double bic;
+						List<Double> parameterValues = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterErrors = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterTValues = Collections.nCopies(
+								parameters.size(), null);
+						List<Double> parameterPValues = Collections.nCopies(
+								parameters.size(), null);
+						Double rms = null;
+						Double rSquared = null;
+						Double aic = null;
+						Double bic = null;
 						Integer estID = MathUtilities.getRandomNegativeInt();
-						List<Double> minValues;
-						List<Double> maxValues;
+						List<Double> minValues = Collections.nCopies(
+								arguments.size(), null);
+						List<Double> maxValues = Collections.nCopies(
+								arguments.size(), null);
 						boolean successful = false;
 						ParameterOptimizer optimizer = null;
 
@@ -1103,6 +1120,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							parameterValues = optimizer.getParameterValues();
 							parameterErrors = optimizer
 									.getParameterStandardErrors();
+							parameterTValues = optimizer.getParameterTValues();
+							parameterPValues = optimizer.getParameterPValues();
 							rms = optimizer.getRMS();
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
@@ -1114,47 +1133,33 @@ public class ModelEstimationNodeModel extends NodeModel {
 								minValues.add(Collections.min(values));
 								maxValues.add(Collections.max(values));
 							}
-
-							List<Double> parameterPValues = optimizer
-									.getParameterPValues();
-
-							for (int j = 0; j < parameters.size(); j++) {
-								System.out.println(parameters.get(j) + "\t"
-										+ parameterPValues.get(j));
-							}
-						} else {
-							parameterValues = Collections.nCopies(
-									parameters.size(), null);
-							parameterErrors = Collections.nCopies(
-									parameters.size(), null);
-							rms = null;
-							rSquared = null;
-							aic = null;
-							bic = null;
-							minValues = null;
-							maxValues = null;
 						}
 
-						paramValueMap.put(id, parameterValues);
+						for (int j = 0; j < paramXml.getElementSet().size(); j++) {
+							ParamXml element = (ParamXml) paramXml.get(j);
+
+							element.setValue(parameterValues.get(j));
+							element.setError(parameterErrors.get(j));
+							element.sett(parameterTValues.get(j));
+							element.setP(parameterPValues.get(j));
+						}
+
+						paramMap.put(id, paramXml);
 						rmsMap.put(id, rms);
 						rSquaredMap.put(id, rSquared);
 						aicMap.put(id, aic);
 						bicMap.put(id, bic);
-						paramErrorMap.put(id, parameterErrors);
 						minIndepMap.put(id, minValues);
 						maxIndepMap.put(id, maxValues);
 						estIDMap.put(id, estID);
 					}
 
-					tuple.setValue(Model1Schema.ATT_VALUE,
-							paramValueMap.get(id));
+					tuple.setValue(Model1Schema.ATT_PARAMETER, paramMap.get(id));
 					tuple.setValue(Model1Schema.ATT_RMS, rmsMap.get(id));
 					tuple.setValue(Model1Schema.ATT_RSQUARED,
 							rSquaredMap.get(id));
 					tuple.setValue(Model1Schema.ATT_AIC, aicMap.get(id));
 					tuple.setValue(Model1Schema.ATT_BIC, bicMap.get(id));
-					tuple.setValue(Model1Schema.ATT_PARAMERR,
-							paramErrorMap.get(id));
 					tuple.setValue(Model1Schema.ATT_MININDEP,
 							minIndepMap.get(id));
 					tuple.setValue(Model1Schema.ATT_MAXINDEP,

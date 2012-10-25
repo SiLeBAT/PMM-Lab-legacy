@@ -61,10 +61,9 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
-import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -316,11 +315,11 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				while (peiReader.hasMoreElements()) {
 					KnimeTuple peiRow = peiReader.nextElement();
-					List<String> paramNames = peiRow
-							.getStringList(Model1Schema.ATT_PARAMNAME);
+					PmmXmlDoc params = peiRow
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 					if (!usedModels.get(i).equals(modelIDSec)
-							|| !paramNames.contains(depVarSec)) {
+							|| !CellIO.getNameList(params).contains(depVarSec)) {
 						continue;
 					}
 
@@ -389,20 +388,11 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
-			List<String> params = row.getStringList(Model1Schema.ATT_PARAMNAME);
-
-			for (String param : params) {
-				depParamSet.add(param);
-			}
-
+			PmmXmlDoc params = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				indepParamSet.add(element.getName());
-			}
-
+			depParamSet.addAll(CellIO.getNameList(params));
+			indepParamSet.addAll(CellIO.getNameList(misc));
 		}
 
 		independentParameters = new ArrayList<String>(indepParamSet);

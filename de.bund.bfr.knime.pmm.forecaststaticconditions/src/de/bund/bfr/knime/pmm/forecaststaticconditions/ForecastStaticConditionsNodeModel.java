@@ -56,7 +56,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -279,21 +281,23 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = newTuple.getString(Model1Schema.ATT_FORMULA);
-				List<String> params = newTuple
-						.getStringList(Model1Schema.ATT_PARAMNAME);
-				List<Double> values = newTuple
-						.getDoubleList(Model1Schema.ATT_VALUE);
+				PmmXmlDoc params = newTuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				Map<String, Double> constants = new LinkedHashMap<String, Double>();
 				String initialParameter = concentrationParameters.get(oldID);
 
-				values.set(params.indexOf(initialParameter), concentration);
-				checkPrimaryModel(combinedTuples.get(newTuple).get(0),
-						initialParameter, false);
+				checkPrimaryModel(newTuple, initialParameter, false);
 				checkSecondaryModels(combinedTuples.get(newTuple));
 				checkData(newTuple);
 
-				for (int i = 0; i < params.size(); i++) {
-					constants.put(params.get(i), values.get(i));
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					if (element.getName().equals(initialParameter)) {
+						constants.put(element.getName(), concentration);
+					} else {
+						constants.put(element.getName(), element.getValue());
+					}
 				}
 
 				constants.put(TimeSeriesSchema.ATT_PH, ph);
@@ -323,21 +327,22 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			}
 
 			for (KnimeTuple tuple : combinedTuples.get(newTuple)) {
-				List<String> params = tuple
-						.getStringList(Model1Schema.ATT_PARAMNAME);
-				List<Double> values = tuple
-						.getDoubleList(Model1Schema.ATT_VALUE);
+				PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 				if (concentrationParameters.containsKey(oldID)) {
-					values.set(
-							params.indexOf(concentrationParameters.get(oldID)),
-							concentration);
+					((ParamXml) params.get(CellIO.getNameList(params).indexOf(
+							concentrationParameters.get(oldID))))
+							.setValue(concentration);
 				} else {
-					values = Collections.nCopies(values.size(), null);
+					for (PmmXmlElementConvertable el : params.getElementSet()) {
+						ParamXml element = (ParamXml) el;
+
+						element.setValue(null);
+					}
 				}
 
 				tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
-				tuple.setValue(Model1Schema.ATT_VALUE, values);
+				tuple.setValue(Model1Schema.ATT_PARAMETER, params);
 				container.addRowToTable(tuple);
 			}
 
@@ -367,7 +372,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 		for (KnimeTuple tuple : tuples) {
 			String id = tuple.getInt(Model1Schema.ATT_MODELID) + "";
-			List<Double> values = tuple.getDoubleList(Model1Schema.ATT_VALUE);
+			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			List<Double> times = tuple.getDoubleList(TimeSeriesSchema.ATT_TIME);
 			List<Double> logcs;
 
@@ -377,17 +382,18 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
-				List<String> params = tuple
-						.getStringList(Model1Schema.ATT_PARAMNAME);
 				Map<String, Double> constants = new LinkedHashMap<String, Double>();
 				String initialParameter = concentrationParameters.get(id);
 
-				values.set(params.indexOf(initialParameter), concentration);
+				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
+						initialParameter))).setValue(concentration);
 				checkPrimaryModel(tuple, initialParameter, true);
 				checkData(tuple);
 
-				for (int i = 0; i < params.size(); i++) {
-					constants.put(params.get(i), values.get(i));
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					constants.put(element.getName(), element.getValue());
 				}
 
 				constants.put(TimeSeriesSchema.ATT_PH, ph);
@@ -412,7 +418,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				logcs = Collections.nCopies(times.size(), null);
 			}
 
-			tuple.setValue(Model1Schema.ATT_VALUE, values);
+			tuple.setValue(Model1Schema.ATT_PARAMETER, params);
 			tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
 			container.addRowToTable(tuple);
 			exec.setProgress((double) index / (double) tuples.size(), "");
@@ -451,17 +457,18 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			boolean outputEstID) throws PmmException {
 		String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
 		Integer estID = tuple.getInt(Model1Schema.ATT_ESTMODELID);
-		List<String> params = tuple.getStringList(Model1Schema.ATT_PARAMNAME);
-		List<Double> values = tuple.getDoubleList(Model1Schema.ATT_VALUE);
+		PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-		for (int i = 0; i < params.size(); i++) {
-			if (!params.get(i).equals(initialParameter)
-					&& values.get(i) == null) {
+		for (PmmXmlElementConvertable el : params.getElementSet()) {
+			ParamXml element = (ParamXml) el;
+
+			if (!element.getName().equals(initialParameter)
+					&& element.getValue() == null) {
 				if (outputEstID) {
-					setWarningMessage(params.get(i) + " in " + modelName + " ("
-							+ estID + ") is not specified");
+					setWarningMessage(element.getName() + " in " + modelName
+							+ " (" + estID + ") is not specified");
 				} else {
-					setWarningMessage(params.get(i) + " in " + modelName
+					setWarningMessage(element.getName() + " in " + modelName
 							+ " is not specified");
 				}
 			}
@@ -472,13 +479,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			throws PmmException {
 		for (KnimeTuple tuple : tuples) {
 			String depVar = tuple.getString(Model2Schema.ATT_DEPVAR);
-			List<String> params = tuple
-					.getStringList(Model2Schema.ATT_PARAMNAME);
-			List<Double> values = tuple.getDoubleList(Model2Schema.ATT_VALUE);
+			PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
 
-			for (int i = 0; i < params.size(); i++) {
-				if (values.get(i) == null) {
-					setWarningMessage(params.get(i) + " in " + depVar
+			for (PmmXmlElementConvertable el : params.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				if (element.getValue() == null) {
+					setWarningMessage(element.getName() + " in " + depVar
 							+ "-model is not specified");
 				}
 			}

@@ -54,7 +54,6 @@ import org.xml.sax.SAXException;
 
 public class CellIO {
 
-	
 	public static String getString(DataCell cell) {
 		if (cell.isMissing()) {
 			return null;
@@ -85,8 +84,7 @@ public class CellIO {
 
 		try {
 			return new PmmXmlDoc(xml.getStringValue());
-		}
-		catch (Exception e) {
+		} catch (Exception e) {
 			return new PmmXmlDoc();
 		}
 	}
@@ -204,10 +202,11 @@ public class CellIO {
 
 		return new StringCell(s.substring(0, s.length() - 1));
 	}
-	
+
 	public static DataCell createXmlCell(PmmXmlDoc xml) {
-    	if (xml == null) return null;
-    	DataCell xmlCell = null;
+		if (xml == null)
+			return null;
+		DataCell xmlCell = null;
 		try {
 			xmlCell = XMLCellFactory.create(xml.toXmlString());
 		} catch (IOException e) {
@@ -223,54 +222,55 @@ public class CellIO {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	return xmlCell;
+		return xmlCell;
 	}
-	public static DataCell createCell( Map<?,?> map ) throws PmmException {
-		
+
+	public static DataCell createCell(Map<?, ?> map) throws PmmException {
+
 		String ret, key, value;
 		Object prevalue;
-		
+
 		ret = "";
-		for( Object prekey : map.keySet() ) {
-			
-			if( prekey == null )
+		for (Object prekey : map.keySet()) {
+
+			if (prekey == null)
 				continue;
-			
-			prevalue = map.get( prekey );
-			if( prevalue == null )
+
+			prevalue = map.get(prekey);
+			if (prevalue == null)
 				continue;
-			
+
 			key = prekey.toString();
-			if( key == null )
+			if (key == null)
 				continue;
-			
+
 			value = prevalue.toString();
-			if( value == null )
+			if (value == null)
 				continue;
-			
-			if( key.contains( "=" ) )
-				throw new PmmException( "No '=' symbol allowed for in key '"
-					+key+"'" );
-			
-			if( key.contains( "," ) )
-				throw new PmmException( "No ',' symbol allowed for in key '"
-					+key+"'" );
-			
-			if( key.contains( "=" ) )
-				throw new PmmException( "No '=' symbol allowed for in value '"
-					+value+"'" );
-			
-			if( key.contains( "," ) )
-				throw new PmmException( "No ',' symbol allowed for in value '"
-					+value+"'" );
-			
-			if( !ret.isEmpty() )
+
+			if (key.contains("="))
+				throw new PmmException("No '=' symbol allowed for in key '"
+						+ key + "'");
+
+			if (key.contains(","))
+				throw new PmmException("No ',' symbol allowed for in key '"
+						+ key + "'");
+
+			if (key.contains("="))
+				throw new PmmException("No '=' symbol allowed for in value '"
+						+ value + "'");
+
+			if (key.contains(","))
+				throw new PmmException("No ',' symbol allowed for in value '"
+						+ value + "'");
+
+			if (!ret.isEmpty())
 				ret += ",";
-			
-			ret += key+"="+value;	
+
+			ret += key + "=" + value;
 		}
-		
-		return new StringCell( ret );
+
+		return new StringCell(ret);
 	}
 
 	public static DataCell createMissingCell() {
@@ -301,33 +301,48 @@ public class CellIO {
 		}
 	}
 
-	public static Map<String, String> getMap( DataCell dataCell )
-	throws PmmException {
+	public static Map<String, String> getMap(DataCell dataCell)
+			throws PmmException {
 
 		String[] t1, t2;
-		Map<String,String> ret;
-		
-		ret = new LinkedHashMap<String,String>();
-		
-		if( dataCell.isMissing() )
+		Map<String, String> ret;
+
+		ret = new LinkedHashMap<String, String>();
+
+		if (dataCell.isMissing())
 			return ret;
 
-		if( !( dataCell instanceof StringCell ) )
-			throw new PmmException( "Only String cell can return map." );
-		
-		t1 = ( ( StringCell)dataCell ).getStringValue().split( "," );
-		
-		
-		for( String map : t1 ) {
-			
-			t2 = map.split( "=" );
-			if( t2.length != 2 )
-				throw new PmmException( "Map string contains malformed item." );
-			
-			ret.put( t2[ 0 ], t2[ 1 ] );
+		if (!(dataCell instanceof StringCell))
+			throw new PmmException("Only String cell can return map.");
+
+		t1 = ((StringCell) dataCell).getStringValue().split(",");
+
+		for (String map : t1) {
+
+			t2 = map.split("=");
+			if (t2.length != 2)
+				throw new PmmException("Map string contains malformed item.");
+
+			ret.put(t2[0], t2[1]);
 		}
-		
+
 		return ret;
 	}
-	
+
+	public static List<String> getNameList(PmmXmlDoc xml) {
+		List<String> names = new ArrayList<String>();
+
+		for (PmmXmlElementConvertable element : xml.getElementSet()) {
+			if (element instanceof MiscXml) {
+				names.add(((MiscXml) element).getName());
+			} else if (element instanceof ParamXml) {
+				names.add(((ParamXml) element).getName());
+			} else {
+				throw new RuntimeException();
+			}
+		}
+
+		return names;
+	}
+
 }

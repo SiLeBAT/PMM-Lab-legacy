@@ -60,7 +60,10 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -207,15 +210,14 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			List<String> params = tuple
-					.getStringList(Model1Schema.ATT_PARAMNAME);
-			List<Double> mins = tuple.getDoubleList(Model1Schema.ATT_MINVALUE);
-			List<Double> maxs = tuple.getDoubleList(Model1Schema.ATT_MAXVALUE);
+			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-			for (int i = 0; i < params.size(); i++) {
-				parameterSet.add(params.get(i));
-				minValueMap.put(params.get(i), mins.get(i));
-				maxValueMap.put(params.get(i), maxs.get(i));
+			for (PmmXmlElementConvertable el : params.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				parameterSet.add(element.getName());
+				minValueMap.put(element.getName(), element.getMin());
+				maxValueMap.put(element.getName(), element.getMax());
 			}
 		}
 
@@ -237,32 +239,30 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new Model2Schema(), table);
-		Map<String, Set<String>> parameterSets = new LinkedHashMap<String, Set<String>>();
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
 			String id = tuple.getInt(Model2Schema.ATT_MODELID) + "";
-			List<String> params = tuple
-					.getStringList(Model2Schema.ATT_PARAMNAME);
-			List<Double> mins = tuple.getDoubleList(Model2Schema.ATT_MINVALUE);
-			List<Double> maxs = tuple.getDoubleList(Model2Schema.ATT_MAXVALUE);
 
-			if (!parameterSets.containsKey(id)) {
+			if (!modelNames.containsKey(id)) {
+				PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
+				List<String> paramNames = new ArrayList<String>();
+				Map<String, Double> min = new LinkedHashMap<String, Double>();
+				Map<String, Double> max = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					paramNames.add(element.getName());
+					min.put(element.getName(), element.getMin());
+					max.put(element.getName(), element.getMax());
+				}
+
 				modelNames.put(id, tuple.getString(Model2Schema.ATT_MODELNAME));
-				parameterSets.put(id, new LinkedHashSet<String>());
-				minValues.put(id, new LinkedHashMap<String, Double>());
-				maxValues.put(id, new LinkedHashMap<String, Double>());
+				parameters.put(id, paramNames);
+				minValues.put(id, min);
+				maxValues.put(id, max);
 			}
-
-			for (int i = 0; i < params.size(); i++) {
-				parameterSets.get(id).add(params.get(i));
-				minValues.get(id).put(params.get(i), mins.get(i));
-				maxValues.get(id).put(params.get(i), maxs.get(i));
-			}
-		}
-
-		for (String id : parameterSets.keySet()) {
-			parameters.put(id, new ArrayList<String>(parameterSets.get(id)));
 		}
 	}
 

@@ -257,6 +257,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
 		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
@@ -279,7 +281,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		if (getNodeModel().isSeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model2Schema.ATT_RMS, Model2Schema.ATT_RSQUARED, "Min "
+					Model2Schema.ATT_RMS, Model2Schema.ATT_RSQUARED,
+					Model2Schema.ATT_AIC, Model2Schema.ATT_BIC, "Min "
 							+ TimeSeriesSchema.ATT_TEMPERATURE, "Max "
 							+ TimeSeriesSchema.ATT_TEMPERATURE, "Min "
 							+ TimeSeriesSchema.ATT_PH, "Max "
@@ -287,6 +290,8 @@ public class SecondaryModelAndDataViewNodeView extends
 							+ TimeSeriesSchema.ATT_WATERACTIVITY, "Max "
 							+ TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -305,8 +310,11 @@ public class SecondaryModelAndDataViewNodeView extends
 			}
 		} else if (getNodeModel().isModel2Schema()) {
 			doubleColumns = Arrays.asList(Model2Schema.ATT_RMS,
-					Model2Schema.ATT_RSQUARED);
+					Model2Schema.ATT_RSQUARED, Model2Schema.ATT_AIC,
+					Model2Schema.ATT_BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
@@ -366,6 +374,8 @@ public class SecondaryModelAndDataViewNodeView extends
 				depVarDataMap.put(id, new ArrayList<Double>());
 				rmsMap.put(id, row.getDouble(Model2Schema.ATT_RMS));
 				rSquaredMap.put(id, row.getDouble(Model2Schema.ATT_RSQUARED));
+				aicMap.put(id, row.getDouble(Model2Schema.ATT_AIC));
+				bicMap.put(id, row.getDouble(Model2Schema.ATT_BIC));
 				miscDataMaps.put(id, new LinkedHashMap<String, List<Double>>());
 
 				for (String param : miscParams) {
@@ -497,33 +507,35 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				doubleColumnValues.get(0).add(rmsMap.get(id));
 				doubleColumnValues.get(1).add(rSquaredMap.get(id));
+				doubleColumnValues.get(2).add(bicMap.get(id));
+				doubleColumnValues.get(3).add(aicMap.get(id));
 
 				if (!nonNullTemperatures.isEmpty()) {
-					doubleColumnValues.get(2).add(
+					doubleColumnValues.get(4).add(
 							Collections.min(nonNullTemperatures));
-					doubleColumnValues.get(3).add(
+					doubleColumnValues.get(5).add(
 							Collections.max(nonNullTemperatures));
-				} else {
-					doubleColumnValues.get(2).add(null);
-					doubleColumnValues.get(3).add(null);
-				}
-
-				if (!nonNullPHs.isEmpty()) {
-					doubleColumnValues.get(4).add(Collections.min(nonNullPHs));
-					doubleColumnValues.get(5).add(Collections.max(nonNullPHs));
 				} else {
 					doubleColumnValues.get(4).add(null);
 					doubleColumnValues.get(5).add(null);
 				}
 
-				if (!nonNullWaterActivites.isEmpty()) {
-					doubleColumnValues.get(6).add(
-							Collections.min(nonNullWaterActivites));
-					doubleColumnValues.get(7).add(
-							Collections.max(nonNullWaterActivites));
+				if (!nonNullPHs.isEmpty()) {
+					doubleColumnValues.get(6).add(Collections.min(nonNullPHs));
+					doubleColumnValues.get(7).add(Collections.max(nonNullPHs));
 				} else {
 					doubleColumnValues.get(6).add(null);
 					doubleColumnValues.get(7).add(null);
+				}
+
+				if (!nonNullWaterActivites.isEmpty()) {
+					doubleColumnValues.get(8).add(
+							Collections.min(nonNullWaterActivites));
+					doubleColumnValues.get(9).add(
+							Collections.max(nonNullWaterActivites));
+				} else {
+					doubleColumnValues.get(8).add(null);
+					doubleColumnValues.get(9).add(null);
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {
@@ -533,13 +545,13 @@ public class SecondaryModelAndDataViewNodeView extends
 					nonNullValues.removeAll(Arrays.asList((Double) null));
 
 					if (!nonNullValues.isEmpty()) {
-						doubleColumnValues.get(2 * i + 8).add(
+						doubleColumnValues.get(2 * i + 10).add(
 								Collections.min(nonNullValues));
-						doubleColumnValues.get(2 * i + 9).add(
+						doubleColumnValues.get(2 * i + 11).add(
 								Collections.max(nonNullValues));
 					} else {
-						doubleColumnValues.get(2 * i + 8).add(null);
-						doubleColumnValues.get(2 * i + 9).add(null);
+						doubleColumnValues.get(2 * i + 10).add(null);
+						doubleColumnValues.get(2 * i + 11).add(null);
 					}
 				}
 
@@ -556,6 +568,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				doubleColumnValues.get(0).add(rmsMap.get(id));
 				doubleColumnValues.get(1).add(rSquaredMap.get(id));
+				doubleColumnValues.get(2).add(bicMap.get(id));
+				doubleColumnValues.get(3).add(aicMap.get(id));
 			}
 
 			plotables.put(id, plotable);

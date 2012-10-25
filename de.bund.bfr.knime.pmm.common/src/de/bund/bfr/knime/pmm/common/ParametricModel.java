@@ -33,12 +33,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -570,13 +568,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple.setValue( Model1Schema.ATT_BIC, getBic() );
 			tuple.setValue( Model1Schema.ATT_RSQUARED, getRsquared() );
 			
-			for( String paramName : getParamNameSet() ) {
-				tuple.addValue( Model1Schema.ATT_PARAMNAME, paramName );
-				tuple.addValue( Model1Schema.ATT_VALUE, getParamValue( paramName ) );
-				tuple.addValue( Model1Schema.ATT_PARAMERR, getParamError( paramName ) );
-				tuple.addValue( Model1Schema.ATT_MINVALUE, getParamMin( paramName ) );
-				tuple.addValue( Model1Schema.ATT_MAXVALUE, getParamMax( paramName ) );
+    		PmmXmlDoc paramDoc = new PmmXmlDoc();
+    		for( String paramName : getParamNameSet() ) {
+				tuple.addValue(Model1Schema.ATT_PARAMNAME, paramName);
+				tuple.addValue(Model1Schema.ATT_VALUE, getParamValue(paramName));
+				tuple.addValue(Model1Schema.ATT_PARAMERR, getParamError(paramName));
+				tuple.addValue(Model1Schema.ATT_MINVALUE, getParamMin(paramName));
+				tuple.addValue(Model1Schema.ATT_MAXVALUE, getParamMax(paramName));
+				ParamXml px = new ParamXml(paramName,getParamValue(paramName),getParamError(paramName),getParamMin(paramName),getParamMax(paramName),null,null);
+				paramDoc.add(px);
 			}		
+    		tuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
 			for( String indep : getIndepVarSet() ) {
 				tuple.addValue( Model1Schema.ATT_INDEPVAR, indep );
 				tuple.addValue( Model1Schema.ATT_MININDEP, getIndepMin( indep ) );
@@ -612,17 +614,19 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple.setValue( Model2Schema.ATT_BIC, getBic() );
 			tuple.setValue( Model2Schema.ATT_RSQUARED, getRsquared() );
 			
-			for( String paramName : getParamNameSet() ) {
-				// temporär wird hier der Parameter mit ; getrennt, da die Parameter nicht korrekt abgelegt wurden für Sekundary Modelle im MMC
-				//String var = paramName.substring(paramName.indexOf(";") + 1);
-				tuple.addValue( Model2Schema.ATT_PARAMNAME, paramName ); // var
-				//tuple.addValue( Model2Schema.ATT_PARAMNAME, paramName );
-				tuple.addValue( Model2Schema.ATT_VALUE, getParamValue( paramName ) );
-				tuple.addValue( Model2Schema.ATT_PARAMERR, getParamError( paramName ) );
-				tuple.addValue( Model2Schema.ATT_MINVALUE, getParamMin( paramName ) );
-				tuple.addValue( Model2Schema.ATT_MAXVALUE, getParamMax( paramName ) );
-			}
-			for( String indep : getIndepVarSet() ) {
+    		PmmXmlDoc paramDoc = new PmmXmlDoc();
+    		for(String paramName : getParamNameSet()) {
+				tuple.addValue(Model2Schema.ATT_PARAMNAME, paramName);
+				tuple.addValue(Model2Schema.ATT_VALUE, getParamValue(paramName));
+				tuple.addValue(Model2Schema.ATT_PARAMERR, getParamError(paramName));
+				tuple.addValue(Model2Schema.ATT_MINVALUE, getParamMin(paramName));
+				tuple.addValue(Model2Schema.ATT_MAXVALUE, getParamMax(paramName));
+				ParamXml px = new ParamXml(paramName,getParamValue(paramName),getParamError(paramName),getParamMin(paramName),getParamMax(paramName),null,null);
+				paramDoc.add(px);
+			}		
+    		tuple.setValue(Model2Schema.ATT_PARAMETER, paramDoc);
+
+    		for( String indep : getIndepVarSet() ) {
 				tuple.addValue( Model2Schema.ATT_INDEPVAR, indep );
 				tuple.addValue( Model2Schema.ATT_MININDEP, getIndepMin( indep ) );
 				tuple.addValue( Model2Schema.ATT_MAXINDEP, getIndepMax( indep ) );

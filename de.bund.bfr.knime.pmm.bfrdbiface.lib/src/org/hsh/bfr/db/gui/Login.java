@@ -1800,45 +1800,64 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null});
 		myList.addTable(prozessFlowReferenzen, -1);		
 		
+		MyTable Kostenkatalog = new MyTable("Kostenkatalog",
+				new String[]{"Kostenart","Kostenunterart","Beschreibung","Einheit"},
+				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)"},
+				new String[]{null,null,null,"Einheit pro Produkteinheit"},
+				new MyTable[]{null,null,null,null},
+				null,
+				new LinkedHashMap[]{null,null,null,null},
+				new String[]{null,null,null,null});
+		myList.addTable(Kostenkatalog, -1);
+		MyTable Kostenkatalogpreise = new MyTable("Kostenkatalogpreise",
+				new String[]{"Kostenkatalog","Betrieb","Datum","Preis","Waehrung"},
+				new String[]{"INTEGER","INTEGER","DATE","DOUBLE","VARCHAR(50)"},
+				new String[]{null,null,"Preis wurde erhoben am...",null,null},
+				new MyTable[]{Kostenkatalog,betriebe,null,newDoubleTable,null},
+				null,
+				new LinkedHashMap[]{null,null,null,null,hashGeld},
+				new String[]{null,null,null,null,null});
+		myList.addTable(Kostenkatalogpreise, DBKernel.isKNIME ? -1 : 66);
+
 		MyTable prozessdaten = new MyTable("Prozessdaten",
 				new String[]{"Referenz","Workflow","Bezugsgruppe","Prozess_CARVER","ProzessDetail",
 				"Kapazitaet","KapazitaetEinheit","KapazitaetEinheitBezug",
 				"Dauer","DauerEinheit",
 				"Zutaten",
 				"Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit",
-				"Sonstiges","Tenazitaet"}, // "Luftfeuchtigkeit [%]","Kochsalzgehalt [%]",
+				"Sonstiges","Tenazitaet","Kosten"}, // "Luftfeuchtigkeit [%]","Kochsalzgehalt [%]",
 				new String[]{"INTEGER","INTEGER","VARCHAR(60)","INTEGER","VARCHAR(255)",
 				"DOUBLE","INTEGER","VARCHAR(50)",
 				"DOUBLE","VARCHAR(50)",
 				"INTEGER",
 				"DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE",
-				"INTEGER","INTEGER"},
+				"INTEGER","INTEGER","INTEGER"},
 				new String[]{"Verweise auf Einträge aus der Tabelle Literatur, die diesen Prozessschritt beschreiben","Verweis auf einen Eintrag aus der Tabelle Workflow, zu dem dieser Prozessschritt gehört","Auswahlbox: EAN (betriebsspezifisch), Produktgruppe (überbetrieblich), Produktklasse (überbetrieblich)","Verweis auf einen Eintrag aus der Tabelle ProzessElemente, der den Prozesschritt benennt","DetailInformation zu diesem Prozessschritt",
 				"Fassungsvermögen des Prozesselements, z.B. Volumen, Gewicht",null,"Bei einem kontinuierlichen Prozess muss die zeitliche Bezugsgröße angegeben werden. Bei einem abgeschotteten Prozess bleibt das Feld leer",
 				"Dauer des Prozessschritts","Einheit der Dauer",
 				"Verweis auf Eintrag aus der Tabelle Zutatendaten, der Menge und Art der Zutat spezifiziert",
 				"Temperatur - in °C!!!",null,null,null,"Druck - in [bar]!!!","Luftfeuchtigkeit - Einheit bitte in [%]",
 				"Sonstige experimentelle Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",
-				"Tenazitätsdaten, falls vorliegend"},
+				"Tenazitätsdaten, falls vorliegend",null},
 				new MyTable[]{literatur,prozessFlow,null,prozessElemente,null,
 				newDoubleTable,null,null,
 				newDoubleTable,null,
 				null,
 				newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,
-				SonstigeParameter, agenzien},
+				SonstigeParameter, agenzien, Kostenkatalog},
 				null,
 				new LinkedHashMap[]{null,null,h1,null,null,
 				null,h4,hashZeit,
 				null,hashZeit,
 				null,
 				null,null,null,null,null,null,
-				null,null},
+				null,null,null},
 				new String[]{"Prozessdaten_Literatur",null,null,null,null,
 				null,null,null,
 				null,null,
 				"INT",
 				null,null,null,null,null,null,
-				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte"});
+				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte","Prozessdaten_Kosten"});
 		myList.addTable(prozessdaten, MyList.Prozessdaten_LIST); // MyList.Prozessdaten_LIST
 		prozessFlow.setForeignField(prozessdaten, 7);
 		MyTable prozessReferenzen = new MyTable("Prozessdaten_Literatur",
@@ -1866,6 +1885,15 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,hashZeit,null,null,null,null},
 				new String[]{null,null,null,null,null,null,null,null});
 		myList.addTable(Prozessdaten_Messwerte, -1);
+		MyTable Prozessdaten_Kosten = new MyTable("Prozessdaten_Kosten",
+				new String[]{"Prozessdaten","Kostenkatalog","Menge"},
+				new String[]{"INTEGER","INTEGER","DOUBLE"},
+				new String[]{null,null,null,},
+				new MyTable[]{prozessdaten,Kostenkatalog,newDoubleTable},
+				null,
+				new LinkedHashMap[]{null,null,null},
+				new String[]{null,null,null});
+		myList.addTable(Prozessdaten_Kosten, -1);
 
 		MyTable prozessLinks = new MyTable("Prozess_Verbindungen",
 				new String[]{"Ausgangsprozess","Zielprozess"},
@@ -1887,18 +1915,18 @@ public class Login extends JFrame {
 	    h1.put("Produkt", "Produkt");					
 		MyTable zutatendaten = new MyTable("Zutatendaten",
 				new String[]{"Prozessdaten","Zutat_Produkt","Units","Unitmenge","UnitEinheit","Vorprozess",
-				"Matrix","EAN","MatrixDetail","Verpackung","Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit","Sonstiges"},
+				"Matrix","EAN","MatrixDetail","Verpackung","Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit","Sonstiges","Kosten"},
 				new String[]{"INTEGER","VARCHAR(10)","DOUBLE","DOUBLE","INTEGER","INTEGER",
-				"INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER"},
+				"INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER","INTEGER"},
 				new String[]{"Verweis auf Einträge aus der Tabelle Zutatendaten (Bedeutung nur für interne Verarbeitung)","Auswahl ob es sich um eine Zutat oder ein Produkt","Größe einer Charge","Mengengröße pro Chargenelement","Einheit eines Chargenelements","Produkt des Vorprozesses",
-				null,"EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",null,"Temperatur in Grad Celcius","pH-Wert","aw-Wert","CO2 [ppm]","Druck [bar]","Luftfeuchtigkeit - Einheit bitte in [%]","Sonstige Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf"},
+				null,"EAN-Nummer aus SA2-Datenbank - falls bekannt","Details zur Matrix, die durch den Katalog nicht abgebildet werden",null,"Temperatur in Grad Celcius","pH-Wert","aw-Wert","CO2 [ppm]","Druck [bar]","Luftfeuchtigkeit - Einheit bitte in [%]","Sonstige Rahmenbedingungen in der Umgebung. Aber auch Facetten der Matrix.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf",null},
 				new MyTable[]{prozessdaten,null,newDoubleTable,newDoubleTable,null,null,
-				matrix,null,null,Verpackungen,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,SonstigeParameter}, // prozessLinks
+				matrix,null,null,Verpackungen,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,SonstigeParameter,Kostenkatalog}, // prozessLinks
 				null,
 				new LinkedHashMap[]{null,h1,null,null,h4,null,
-				null,null,null,null,null,null,null,null,null,null,null},
+				null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,
-				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges"});
+				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges","Zutatendaten_Kosten"});
 		myList.addTable(zutatendaten, -1);
 		prozessdaten.setForeignField(zutatendaten, 10);
 		zutatendaten.setForeignField(zutatendaten, 5);
@@ -1912,6 +1940,15 @@ public class Login extends JFrame {
 				new LinkedHashMap[]{null,null,null,null,null},
 				new String[]{null,null,null,null,null});
 		myList.addTable(Zutatendaten_Sonstiges, -1);
+		MyTable Zutatendaten_Kosten = new MyTable("Zutatendaten_Kosten",
+				new String[]{"Zutatendaten","Kostenkatalog","Menge"},
+				new String[]{"INTEGER","INTEGER","DOUBLE"},
+				new String[]{null,null,null,},
+				new MyTable[]{zutatendaten,Kostenkatalog,newDoubleTable},
+				null,
+				new LinkedHashMap[]{null,null,null},
+				new String[]{null,null,null});
+		myList.addTable(Zutatendaten_Kosten, -1);
 		
 
 		generateStatUpModellTables(myList, literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten);

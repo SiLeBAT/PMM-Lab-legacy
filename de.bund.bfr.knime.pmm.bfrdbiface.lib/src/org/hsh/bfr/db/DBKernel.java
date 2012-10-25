@@ -753,7 +753,9 @@ public class DBKernel {
   }
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
-	  return getDBConnection(dbPath, getTempSA(), getTempSAPass(), newConn); // MD5.encode("de6!§5ddy", "UTF-8")
+	  Connection result = getDBConnection(dbPath, getTempSA(), getTempSAPass(), newConn);
+	  if (result == null) result = getDBConnection(dbPath, getTempSA(true), getTempSAPass(true), newConn);
+	  return result;
   }
   public static Connection getDefaultAdminConn() throws Exception {
 	  return getDefaultAdminConn(DBKernel.HSHDB_PATH, false);

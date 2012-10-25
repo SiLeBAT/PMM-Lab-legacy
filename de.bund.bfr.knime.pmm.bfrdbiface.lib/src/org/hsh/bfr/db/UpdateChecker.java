@@ -97,6 +97,25 @@ public class UpdateChecker {
 		myList.getTable("VarParMaps").createTable(true);
 		DBKernel.grantDefaults("VarParMaps");
 		
+		myList.getTable("Kostenkatalog").createTable();
+		DBKernel.grantDefaults("Kostenkatalog");
+		myList.getTable("Kostenkatalogpreise").createTable();
+		DBKernel.grantDefaults("Kostenkatalogpreise");
+		myList.getTable("Prozessdaten_Kosten").createTable();
+		DBKernel.grantDefaults("Prozessdaten_Kosten");
+		myList.getTable("Zutatendaten_Kosten").createTable();
+		DBKernel.grantDefaults("Zutatendaten_Kosten");
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Prozessdaten") +
+				" ADD COLUMN " + DBKernel.delimitL("Kosten") + " INTEGER BEFORE " + DBKernel.delimitL("Guetescore"), DBKernel.isKNIME)) {
+			updateChangeLog("Prozessdaten", 20, false);
+			refreshFKs("Prozessdaten");			
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Zutatendaten") +
+				" ADD COLUMN " + DBKernel.delimitL("Kosten") + " INTEGER BEFORE " + DBKernel.delimitL("Kommentar"), DBKernel.isKNIME)) {
+			updateChangeLog("Zutatendaten", 18, false);
+			refreshFKs("Zutatendaten");			
+		}
+		
 		if (DBKernel.isKNIME) {
 		    try {
 		    	if (!DBKernel.getUsername().equals("SA")) DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");

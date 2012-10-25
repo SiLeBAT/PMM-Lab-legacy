@@ -153,6 +153,8 @@ public class MyTable {
 		 || tableName.equals("Symptome") || tableName.equals("Risikogruppen") || tableName.equals("Tierkrankheiten") || tableName.equals("Zertifizierungssysteme")
 		 || tableName.equals("ProzessElemente") //|| tableName.equals("Prozessdaten_Workflow")
 		 || tableName.equals("GueltigkeitsBereiche")
+		 || tableName.equals("Kostenkatalog") || tableName.equals("Kostenkatalogpreise")
+		 || tableName.equals("Prozessdaten_Kosten") || tableName.equals("Zutatendaten_Kosten")
 		 // StatUp
 		  || tableName.equals("Modellkatalog") || tableName.equals("GeschaetzteModelle")
 		  // Jans Tabellen

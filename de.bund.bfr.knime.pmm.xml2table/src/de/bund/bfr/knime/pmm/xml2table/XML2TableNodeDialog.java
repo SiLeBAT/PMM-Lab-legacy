@@ -9,8 +9,6 @@ import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.util.ColumnFilter;
 
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-
 /**
  * <code>NodeDialog</code> for the "XML2Table" Node.
  * 

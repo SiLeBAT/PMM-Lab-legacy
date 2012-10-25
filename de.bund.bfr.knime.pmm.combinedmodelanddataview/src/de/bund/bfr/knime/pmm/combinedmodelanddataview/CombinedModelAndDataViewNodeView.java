@@ -251,9 +251,12 @@ public class CombinedModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
+					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -274,8 +277,11 @@ public class CombinedModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);
+					Model1Schema.ATT_RSQUARED, Model1Schema.ATT_AIC,
+					Model1Schema.ATT_BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
@@ -436,10 +442,14 @@ public class CombinedModelAndDataViewNodeView extends
 				doubleColumnValues.get(1).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(2).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						row.getDouble(Model1Schema.ATT_AIC));
 				doubleColumnValues.get(3).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
+						row.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(5).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(6).add(
 						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -478,6 +488,10 @@ public class CombinedModelAndDataViewNodeView extends
 						row.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(1).add(
 						row.getDouble(Model1Schema.ATT_RSQUARED));
+				doubleColumnValues.get(2).add(
+						row.getDouble(Model1Schema.ATT_AIC));
+				doubleColumnValues.get(3).add(
+						row.getDouble(Model1Schema.ATT_BIC));
 				infoParams = new ArrayList<String>(
 						Arrays.asList(Model1Schema.ATT_FORMULA));
 				infoValues = new ArrayList<Object>(Arrays.asList(row

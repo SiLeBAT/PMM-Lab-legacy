@@ -69,9 +69,12 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
+					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -89,8 +92,11 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED);
+					Model1Schema.ATT_RSQUARED, Model1Schema.ATT_AIC,
+					Model1Schema.ATT_BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
@@ -230,10 +236,14 @@ public class TableReader {
 				doubleColumnValues.get(1).add(
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(2).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						tuple.getDouble(Model1Schema.ATT_AIC));
 				doubleColumnValues.get(3).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_PH));
+						tuple.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(5).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(6).add(
 						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -252,7 +262,7 @@ public class TableReader {
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 5).add(
+							doubleColumnValues.get(i + 7).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -260,7 +270,7 @@ public class TableReader {
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 5).add(null);
+						doubleColumnValues.get(i + 7).add(null);
 					}
 				}
 			} else {
@@ -278,6 +288,10 @@ public class TableReader {
 						tuple.getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(1).add(
 						tuple.getDouble(Model1Schema.ATT_RSQUARED));
+				doubleColumnValues.get(2).add(
+						tuple.getDouble(Model1Schema.ATT_AIC));
+				doubleColumnValues.get(3).add(
+						tuple.getDouble(Model1Schema.ATT_BIC));
 				infoParams = new ArrayList<String>(
 						Arrays.asList(Model1Schema.ATT_FORMULA));
 				infoValues = new ArrayList<Object>(Arrays.asList(tuple

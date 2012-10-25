@@ -227,6 +227,8 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_LITM, null);
 			newTuple.setValue(Model1Schema.ATT_RMS, null);
 			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
+			newTuple.setValue(Model1Schema.ATT_AIC, null);
+			newTuple.setValue(Model1Schema.ATT_BIC, null);
 			newTuple.setValue(Model1Schema.ATT_MININDEP,
 					Collections.nCopies(indepCount, null));
 			newTuple.setValue(Model1Schema.ATT_MAXINDEP,

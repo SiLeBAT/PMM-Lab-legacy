@@ -178,6 +178,12 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				continue;
 			}
 			
+			if( key.equals( "maximum rate" ) ) {
+				next.setMaximumRate( parse( token[ 1 ] ) );
+				continue;
+			}
+				
+			
 			if( key.startsWith( "time" ) && token[ 1 ].equals( "logc" ) ) {
 				
 				if( !key.endsWith( " (h)" ) )

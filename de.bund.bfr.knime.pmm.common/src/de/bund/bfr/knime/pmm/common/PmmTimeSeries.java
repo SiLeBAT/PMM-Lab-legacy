@@ -43,7 +43,6 @@ import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TE
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TIME;
 import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_WATERACTIVITY;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -60,6 +59,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	private static final String ELEMENT_TIMESERIES = "TimeSeries";
 	private static final String ELEMENT_TSTUPLE = "TimeSeriesTuple";
 	private String warningMsg = null;
+	private double mr;
 
 	public PmmTimeSeries() throws PmmException {
 		
@@ -300,10 +300,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	
-	@Deprecated
-	public Double getMaximumRate() {
-		return Double.NaN;
-	}
+	public Double getMaximumRate() { return mr; }
 	
 	@Deprecated
 	public Double getDoublingTime() {
@@ -531,9 +528,8 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
-	@Deprecated
-	public void setMaximumRate( final double mr ) {}
+	public void setMaximumRate( final double mr ) { this.mr = mr; }
 	
-	@Deprecated
+	@Deprecated	
 	public void setDoublingTime( final double dt ) {}
 }

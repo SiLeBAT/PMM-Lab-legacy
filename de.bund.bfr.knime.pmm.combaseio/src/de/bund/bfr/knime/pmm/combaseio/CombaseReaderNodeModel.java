@@ -54,8 +54,14 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseReader;
 
+import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -71,18 +77,16 @@ public class CombaseReaderNodeModel extends NodeModel {
 	protected static final String PARAM_SKIPEMPTY = "skipEmpty";
 
 	private String filename;
-	private boolean skipEmpty;
     
     /**
      * Constructor for the node model.
      */
     protected CombaseReaderNodeModel() {
     	
-        // super( 0, 2 );
-    	super( 0, 1 );
+        super( 0, 2 );
+    	// super( 0, 1 );
         
         filename = "";
-        skipEmpty = true;
     }
 
     /**
@@ -97,7 +101,12 @@ public class CombaseReaderNodeModel extends NodeModel {
     	PmmTimeSeries candidate;
     	DataCell[] row;
     	int j;
-    	PmmXmlDoc doc = new PmmXmlDoc();
+    	PmmXmlDoc doc;
+    	ParamXml paramXml;
+    	KnimeSchema tsm1Schema;
+    	KnimeTuple modelTuple;
+    	
+    	tsm1Schema = KnimeSchema.merge( new TimeSeriesSchema(), new Model1Schema() );
 
     	// initialize combase reader
     	reader = new CombaseReader( filename );
@@ -105,6 +114,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     	// initialize table buffer
     	// buf = exec.createDataContainer( PmmTimeSeriesSchema.createSpec( new File( filename ).getName() ) );
     	buf = exec.createDataContainer( new TimeSeriesSchema().createSpec() );
+    	buf2 = exec.createDataContainer( tsm1Schema.createSpec() );
     	
     	j = 0;
     	while( reader.hasMoreElements() ) {
@@ -112,25 +122,53 @@ public class CombaseReaderNodeModel extends NodeModel {
     		// fetch time series
     		candidate = reader.nextElement();
     		
-    		if( skipEmpty && candidate.isEmpty() )
+    		if( candidate.isEmpty() ) {
+    			
+    			modelTuple = new KnimeTuple( new Model1Schema() );
+    			
+    			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC = LogC0+mumax*t" );
+    			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
+    			modelTuple.setValue( Model1Schema.ATT_VALUE, "?,"+candidate.getMaximumRate() );
+    			modelTuple.setValue( Model1Schema.ATT_INDEPVAR, "t" );
+    			modelTuple.setValue( Model1Schema.ATT_DEPVAR, "LogC" );
+    			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
+    			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
+    			
+    			doc = new PmmXmlDoc();
+    			
+    			paramXml = new ParamXml();
+    			paramXml.setName( "LogC0" );
+    			doc.add( paramXml );
+    			
+    			paramXml = new ParamXml();
+    			paramXml.setName( "mumax" );
+    			paramXml.setValue( candidate.getMaximumRate() );
+    			doc.add( paramXml );
+    			
+    			modelTuple.setValue( Model1Schema.ATT_PARAMETER, doc );
+    			
+    			buf2.addRowToTable( new DefaultRow( String.valueOf( j++ ), KnimeTuple.merge( tsm1Schema, candidate, modelTuple ) ) );
+    			
     			continue;
+    		}
     		
-    		doc.add( candidate );
+    		// doc.add( candidate );
 			buf.addRowToTable( new DefaultRow( String.valueOf( j++ ), candidate ) );
     	
     	}
     	reader.close();
     	buf.close();
+    	buf2.close();
     	
-    	buf2 = exec.createDataContainer( createXmlSpec() );
+    	/* buf2 = exec.createDataContainer( createXmlSpec() );
     	row = new StringCell[ 1 ];
     	row[ 0 ] = new StringCell( doc.toXmlString() );
     	
     	buf2.addRowToTable( new DefaultRow( "0", row ) );
-    	buf2.close();
+    	buf2.close(); */
     	
         // return new BufferedDataTable[]{ buf.getTable(), buf2.getTable() };
-    	return new BufferedDataTable[]{ buf.getTable() };
+    	return new BufferedDataTable[]{ buf.getTable(), buf2.getTable() };
     }
 
     /**
@@ -145,13 +183,26 @@ public class CombaseReaderNodeModel extends NodeModel {
     @Override
     protected DataTableSpec[] configure( final DataTableSpec[] inSpecs )
             throws InvalidSettingsException {
+    	
+    	DataTableSpec[] ret;
+    	
+    	ret = null;
 
     	if( filename.isEmpty() )
     		throw new InvalidSettingsException( "Filename must be specified." );
     	
     	
         // return new DataTableSpec[] { PmmTimeSeriesSchema.createSpec( new File( filename ).getName() ), createXmlSpec() };
-    	return new DataTableSpec[] { new TimeSeriesSchema().createSpec() };
+    	try {
+			ret = new DataTableSpec[] {
+				new TimeSeriesSchema().createSpec(),
+				KnimeSchema.merge(  new TimeSeriesSchema(),
+									new Model1Schema() ).createSpec() };
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
     }
 
     /**

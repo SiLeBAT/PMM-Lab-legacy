@@ -117,7 +117,6 @@ public class DBKernel {
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
-	public static String lang = "en";
 
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
@@ -127,6 +126,7 @@ public class DBKernel {
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
+	public static String lang = isKrise ? "de" : "en";
 	
 	public static String getTempSA(boolean other) {
 		if (other) return isKNIME ? "defad": "SA";		
@@ -345,7 +345,7 @@ public class DBKernel {
       	}
       }
       if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle") &&
-    		  !DBKernel.isKrise && !DBKernel.isStatUp) {
+    		  !DBKernel.isStatUp) {
         stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
         		delimitL(tableName) + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName())); // (oneThread ? "QUEUE 0" : "") +    
         stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
@@ -571,7 +571,7 @@ public class DBKernel {
 		if (localConn != null && !localConn.isClosed()) {
 			if (!DBKernel.isServerConnection) {      		
 				try {
-					if (kompakt && !isAdmin() && !DBKernel.isKrise && !DBKernel.isStatUp) { // kompakt ist nur beim Programm schliessen true
+					if (kompakt && !isAdmin() && !DBKernel.isStatUp) { // kompakt ist nur beim Programm schliessen true
 						closeDBConnections(false);
 						try {
 							localConn = getDefaultAdminConn();
@@ -581,7 +581,7 @@ public class DBKernel {
 					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
 					MyLogger.handleMessage("vor SHUTDOWN");
     	      	        //stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-					if (DBKernel.isKrise || DBKernel.isStatUp) {
+					if (DBKernel.isStatUp) {
 						stmt.execute("SHUTDOWN SCRIPT");
 					}
 					else {
@@ -1051,7 +1051,7 @@ public class DBKernel {
         			}
         		}        		
         	}
-        	else if (foreignTable.equals("Artikel_Lieferung")) {
+        	else if (foreignTable.equals("Lieferungen")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
         			String cn = rs.getMetaData().getColumnName(i); 
         			if (cn.equals("Artikel")) {
@@ -1062,7 +1062,7 @@ public class DBKernel {
         			}
         		}        		
         	}
-        	else if (foreignTable.equals("Produzent_Artikel")) {
+        	else if (foreignTable.equals("Produktkatalog")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
         			String cn = rs.getMetaData().getColumnName(i); 
         			if (cn.equals("Artikelnummer") || cn.equals("Bezeichnung")) {

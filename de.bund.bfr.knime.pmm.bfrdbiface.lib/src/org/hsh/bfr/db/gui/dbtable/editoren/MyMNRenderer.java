@@ -121,7 +121,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 						DBKernel.delimitL("ProzessElemente") + "." + DBKernel.delimitL("ID") +
 						" WHERE " + DBKernel.delimitL("Workflow") + "=" + value;					    				    					    				
 	    			}
-	    			else if (ft.equals("Artikel_Lieferung")) {
+	    			else if (ft.equals("Lieferungen")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
 						DBKernel.delimitL("Lieferdatum") + " FROM " + DBKernel.delimitL(ft) +
 						" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
@@ -486,6 +486,28 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" ON " + DBKernel.delimitL("ProzessWorkflow_Literatur") + "." + DBKernel.delimitL("Literatur") + "=" +
 					DBKernel.delimitL("Literatur") + "." + DBKernel.delimitL("ID") +
 					" WHERE " + DBKernel.delimitL("ProzessWorkflow_Literatur") + "." + DBKernel.delimitL(tn) + "=" + value;				
+				}
+			}
+			else if (tn.equals("Knoten")) {
+				String fn = myT.getFieldNames()[selectedColumn];
+				if (fn.equals("Erregernachweis")) {
+					sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Agensname") + "," +
+					DBKernel.delimitL("AnzahlLabornachweise") + " FROM " + DBKernel.delimitL("Knoten_Agenzien") +
+					" LEFT JOIN " + DBKernel.delimitL("Agenzien") +
+					" ON " + DBKernel.delimitL("Knoten_Agenzien") + "." + DBKernel.delimitL("Erreger") + "=" +
+					DBKernel.delimitL("Agenzien") + "." + DBKernel.delimitL("ID") +
+					" WHERE " + DBKernel.delimitL(tn) + "=" + value;
+				}
+			}
+			else if (tn.equals("Produktkatalog")) {
+				String fn = myT.getFieldNames()[selectedColumn];
+				if (fn.equals("Matrices")) {
+					sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Matrixname") +
+					" FROM " + DBKernel.delimitL("Produktkatalog_Matrices") +
+					" LEFT JOIN " + DBKernel.delimitL("Matrices") +
+					" ON " + DBKernel.delimitL("Produktkatalog_Matrices") + "." + DBKernel.delimitL("Matrix") + "=" +
+					DBKernel.delimitL("Matrices") + "." + DBKernel.delimitL("ID") +
+					" WHERE " + DBKernel.delimitL(tn) + "=" + value;
 				}
 			}
 		}

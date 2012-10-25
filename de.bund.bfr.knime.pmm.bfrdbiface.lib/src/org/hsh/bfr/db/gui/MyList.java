@@ -319,7 +319,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
 				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
 				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle") &&
-					  !DBKernel.isKrise && !DBKernel.isStatUp) {
+					  !DBKernel.isStatUp) {
 					/*
 					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
 							DBKernel.delimitL(tableName) +
@@ -546,6 +546,18 @@ if (dbForm != null || owner != null) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
 				newDBTable.setTable(theNewTable, o);
 			}
+			else if (myT != null && tn.equals("Produktkatalog") &&
+					headerValue != null && headerValue.toString().equals("Lieferungen")) {
+				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
+				newDBTable.setTable(theNewTable, o);
+			}
+			/*
+			else if (myT != null && tn.equals("Knoten") &&
+					headerValue != null && headerValue.toString().equals("Erregernachweis")) {
+				Object[][] o = new Object[1][2]; o[0][0] = "Knoten"; o[0][1] = dbTable.getValueAt(row, 0);
+				newDBTable.setTable(theNewTable, o);
+			}
+			*/
 			else if (myT != null && tn.equals("ProzessWorkflow") &&
 					headerValue != null && headerValue.toString().equals("Prozessdaten")) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);

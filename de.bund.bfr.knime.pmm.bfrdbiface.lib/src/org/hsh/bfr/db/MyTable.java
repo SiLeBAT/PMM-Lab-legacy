@@ -123,12 +123,12 @@ public class MyTable {
 		 || tableName.startsWith("ICD10_") || tableName.equals("DoubleKennzahlen")
 		 || tableName.equals("SonstigeParameter") || tableName.equals("Einheiten")
 		 || tableName.equals("Infotabelle") || tableName.equals("ToxinUrsprung")
-		   || tableName.equals("Produzent_Artikel") || tableName.equals("Artikel_Lieferung") || tableName.equals("Lieferung_Lieferungen")
 		   || tableName.equals("Prozessdaten_Messwerte")
 		   || tableName.equals("Verpackungsmaterial")
 		   || tableName.equals("ImportedCombaseData")
 		   || tableName.equals("Parametertyp")
 		   || tableName.equals("Prozessdaten_Literatur") || tableName.equals("ProzessWorkflow_Literatur")
+		 || tableName.equals("Produzent_Artikel") || tableName.equals("Artikel_Lieferung") || tableName.equals("Lieferung_Lieferungen")
 		 // StatUp 
 		  || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
 		  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
@@ -159,7 +159,10 @@ public class MyTable {
 		  || tableName.equals("Modellkatalog") || tableName.equals("GeschaetzteModelle")
 		  // Jans Tabellen
 		 || tableName.equals("Exposition") || tableName.equals("Risikocharakterisierung") || tableName.equals("Verwendung") 
-		 || tableName.equals("Transport")  || tableName.equals("Methoden_Software") || tableName.equals("Produkt");
+		 || tableName.equals("Transport")  || tableName.equals("Methoden_Software") || tableName.equals("Produkt")
+		 // Krise
+		 || tableName.equals("LieferungVerbindungen") || tableName.equals("Lieferungen") || tableName.equals("Produktkatalog")
+		 || tableName.equals("Knoten") || tableName.equals("Knoten_Agenzien") || tableName.equals("Produktkatalog_Matrices");
 
 		 hideScore = hideTested
 			 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");

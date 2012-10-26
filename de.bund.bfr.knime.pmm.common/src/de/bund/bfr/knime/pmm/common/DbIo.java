@@ -50,6 +50,29 @@ public class DbIo {
 	    }
 		return paramDoc;
     }
+    public static PmmXmlDoc convertArrays2IndepXmlDoc(Array name, Array min, Array max) {
+		PmmXmlDoc indepDoc = new PmmXmlDoc();
+	    if (name != null) {
+		    try {
+				Object[] na = (Object[])name.getArray();
+				Object[] mi = (min == null) ? null : (Object[])min.getArray();
+				Object[] ma = (max == null) ? null : (Object[])max.getArray();
+				if (na != null && na.length > 0) {
+					for (int i=0;i<na.length;i++) {
+						String nas = na[i].toString();
+						Double mid = (mi == null || mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
+						Double mad = (ma == null || ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
+						IndepXml ix = new IndepXml(nas,mid,mad);
+						indepDoc.add(ix);
+					}					
+				}
+			}
+		    catch (SQLException e) {
+				e.printStackTrace();
+			}
+	    }
+		return indepDoc;
+    }
     
     private static String convertO(Object o) {
 		if (o == null) {

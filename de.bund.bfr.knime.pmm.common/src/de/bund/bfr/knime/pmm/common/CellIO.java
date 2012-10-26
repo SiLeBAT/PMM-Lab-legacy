@@ -337,6 +337,8 @@ public class CellIO {
 				names.add(((MiscXml) element).getName());
 			} else if (element instanceof ParamXml) {
 				names.add(((ParamXml) element).getName());
+			} else if (element instanceof IndepXml) {
+				names.add(((IndepXml) element).getName());
 			} else {
 				throw new RuntimeException();
 			}

@@ -579,11 +579,15 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				paramDoc.add(px);
 			}		
     		tuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
+    		PmmXmlDoc indepDoc = new PmmXmlDoc();
 			for( String indep : getIndepVarSet() ) {
-				tuple.addValue( Model1Schema.ATT_INDEPVAR, indep );
-				tuple.addValue( Model1Schema.ATT_MININDEP, getIndepMin( indep ) );
-				tuple.addValue( Model1Schema.ATT_MAXINDEP, getIndepMax( indep ) );
+				tuple.addValue(Model1Schema.ATT_INDEPVAR, indep);
+				tuple.addValue(Model1Schema.ATT_MININDEP, getIndepMin(indep));
+				tuple.addValue(Model1Schema.ATT_MAXINDEP, getIndepMax(indep));
+				IndepXml ix = new IndepXml(indep,getIndepMin(indep),getIndepMax(indep));
+				indepDoc.add(ix);
 			}
+    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepDoc);
 			for (String newDepVar : varParMap.keySet()) {
 				if (newDepVar != null) {
 					//tuple.addMap(Model1Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));
@@ -626,11 +630,16 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}		
     		tuple.setValue(Model2Schema.ATT_PARAMETER, paramDoc);
 
-    		for( String indep : getIndepVarSet() ) {
-				tuple.addValue( Model2Schema.ATT_INDEPVAR, indep );
-				tuple.addValue( Model2Schema.ATT_MININDEP, getIndepMin( indep ) );
-				tuple.addValue( Model2Schema.ATT_MAXINDEP, getIndepMax( indep ) );
+    		PmmXmlDoc indepDoc = new PmmXmlDoc();
+			for (String indep : getIndepVarSet()) {
+				tuple.addValue(Model2Schema.ATT_INDEPVAR, indep);
+				tuple.addValue(Model2Schema.ATT_MININDEP, getIndepMin(indep));
+				tuple.addValue(Model2Schema.ATT_MAXINDEP, getIndepMax(indep));
+				IndepXml ix = new IndepXml(indep,getIndepMin(indep),getIndepMax(indep));
+				indepDoc.add(ix);
 			}
+    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepDoc);
+    		
 			for (String newDepVar : varParMap.keySet()) {
 				if (newDepVar != null) {
 					//tuple.addMap(Model2Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));

@@ -16,6 +16,7 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.ColumnFilter;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 
@@ -76,6 +77,9 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
 		}
 		else if (m_col.getStringValue().startsWith("Parameter")) {
 			list = ParamXml.getElements();
+		}
+		else if (m_col.getStringValue().startsWith("Independent")) {
+			list = IndepXml.getElements();
 		}
         if (list != null) xmlseldialog.replaceListItems(list, (String[]) null);
 	}

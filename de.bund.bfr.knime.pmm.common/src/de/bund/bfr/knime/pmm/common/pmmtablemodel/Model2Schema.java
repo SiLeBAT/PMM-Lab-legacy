@@ -46,6 +46,7 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_MODELNAME = "ModelNameSec";
 	public static final String ATT_MODELID = "ModelCatalogIDSec";
 	public static final String ATT_PARAMETER = "ParameterSec";
+	public static final String ATT_INDEPENDENT = "IndependentSec";
 
 	public static final String ATT_ESTMODELID = "EstModelIDSec";
 	public static final String ATT_VARPARMAP = "VarParMapSec";
@@ -77,6 +78,7 @@ public class Model2Schema extends KnimeSchema {
 			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 			addStringAttribute( ATT_DEPVAR );
+			addXmlAttribute( ATT_INDEPENDENT );
 			addStringListAttribute( ATT_INDEPVAR );
 			addXmlAttribute( ATT_PARAMETER );
 			addStringListAttribute( ATT_PARAMNAME );

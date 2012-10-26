@@ -6,7 +6,6 @@ import java.util.List;
 import org.jdom2.Element;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
 public class ParamXml implements PmmXmlElementConvertable {

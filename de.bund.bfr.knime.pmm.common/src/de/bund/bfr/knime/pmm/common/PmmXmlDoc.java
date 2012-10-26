@@ -77,6 +77,9 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(ParamXml.ELEMENT_PARAM)) {
 				elementSet.add(new ParamXml(el));
 			}	
+			else if (el.getName().equals(IndepXml.ELEMENT_INDEP)) {
+				elementSet.add(new IndepXml(el));
+			}	
 		}			
 	}
 	

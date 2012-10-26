@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseReader;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -121,13 +122,15 @@ public class CombaseReaderNodeModel extends NodeModel {
     		candidate = reader.nextElement();
     		
     		if( candidate.isEmpty() ) {
+    			PmmXmlDoc indepXML = new PmmXmlDoc();
     			
     			modelTuple = new KnimeTuple( new Model1Schema() );
-    			
+    			indepXML.add(new IndepXml("t", null, null));
+    			    			
     			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC = LogC0+mumax*t" );
     			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			modelTuple.setValue( Model1Schema.ATT_VALUE, "?,"+candidate.getMaximumRate() );
-    			modelTuple.setValue( Model1Schema.ATT_INDEPVAR, "t" );
+    			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );
     			modelTuple.setValue( Model1Schema.ATT_DEPVAR, "LogC" );
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );

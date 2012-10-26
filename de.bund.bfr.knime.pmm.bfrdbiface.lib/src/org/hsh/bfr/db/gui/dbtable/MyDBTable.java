@@ -950,6 +950,10 @@ if (myDBPanel1 != null) {
 						c.setPreferredWidth(140);
 					} else if (fname.equals("Nachweisverfahren")) {
 						c.setPreferredWidth(120);
+					} else if (fname.equals("Labornachweis")) {
+						c.setPreferredWidth(80);
+					} else if (fname.equals("FallErfuellt")) {
+						c.setPreferredWidth(80);
 					} else {
 						c.setPreferredWidth(50);
 					}
@@ -1153,6 +1157,8 @@ if (myDBPanel1 != null) {
 								c.setPreferredWidth(130);
 							} else if (fname.equals("Therapie_Letal")) {
 								c.setPreferredWidth(130);
+							} else if (fname.equals("AnzahlLabornachweise")) {
+								c.setPreferredWidth(120);
 							}
 					    	if (actualTable.getForeignFields() != null && actualTable.getForeignFields().length > i &&
 					    			actualTable.getForeignFields()[i] != null) { // Es gibt hier einen Fremdtable!

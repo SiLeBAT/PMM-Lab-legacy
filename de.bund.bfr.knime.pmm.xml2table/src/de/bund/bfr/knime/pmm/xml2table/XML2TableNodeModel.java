@@ -33,6 +33,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -80,9 +81,9 @@ public class XML2TableNodeModel extends NodeModel {
                     	PmmXmlDoc doc = new PmmXmlDoc(xml);
                     	for (PmmXmlElementConvertable el : doc.getElementSet()) {
                     		if (el instanceof MiscXml) {
-                    			MiscXml mx = (MiscXml) el;
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
+                        			MiscXml mx = (MiscXml) el;
                     				for (int j=0;j<sarr.length;j++) {
                     					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
                     						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
@@ -99,13 +100,34 @@ public class XML2TableNodeModel extends NodeModel {
                     			}
                     		}
                     		else if (el instanceof ParamXml) {
-                    			ParamXml px = (ParamXml) el;
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
+                        			ParamXml px = (ParamXml) el;
                     				for (int j=0;j<sarr.length;j++) {
                     					if (!addColSpecs.containsKey(selColumn+"_"+px.getName()+"_"+sarr[j]))
                     						addColSpecs.put(selColumn+"_"+px.getName()+"_"+sarr[j],
                     								new DataColumnSpecCreator(selColumn+"_"+px.getName()+"_"+sarr[j], ParamXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				addColSpecs.put(selColumn+"_Name", new DataColumnSpecCreator(selColumn+"_Name", StringCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_Value", new DataColumnSpecCreator(selColumn+"_Value", DoubleCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_Error", new DataColumnSpecCreator(selColumn+"_Error", DoubleCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_Min", new DataColumnSpecCreator(selColumn+"_Min", DoubleCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_Max", new DataColumnSpecCreator(selColumn+"_Max", DoubleCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_P", new DataColumnSpecCreator(selColumn+"_P", DoubleCell.TYPE).createSpec());
+    	                			addColSpecs.put(selColumn+"_t", new DataColumnSpecCreator(selColumn+"_t", DoubleCell.TYPE).createSpec());
+    		                        break;
+                    			}
+                    		}
+                    		else if (el instanceof IndepXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                        			IndepXml ix = (IndepXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+ix.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+ix.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+ix.getName()+"_"+sarr[j], IndepXml.getDataType(sarr[j])).createSpec());                				                					
                     				}
                     			}
                     			else {
@@ -191,6 +213,13 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("max", px.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(px.getMax()));
 		                			addCells.put("p", px.getP() == null ? CellIO.createMissingCell() : new DoubleCell(px.getP()));
 		                			addCells.put("t", px.gett() == null ? CellIO.createMissingCell() : new DoubleCell(px.gett()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof IndepXml) {
+		                			IndepXml ix = (IndepXml) el;
+		                			addCells.put("name", ix.getName() == null ? CellIO.createMissingCell() : new StringCell(ix.getName())); 
+		                			addCells.put("min", ix.getMin() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMin()));
+		                			addCells.put("max", ix.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMax()));
 		                			v.add(addCells);
 		                		}
 		                	}

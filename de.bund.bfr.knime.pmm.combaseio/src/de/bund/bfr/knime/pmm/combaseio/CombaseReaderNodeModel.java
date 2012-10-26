@@ -131,6 +131,8 @@ public class CombaseReaderNodeModel extends NodeModel {
     			modelTuple.setValue( Model1Schema.ATT_DEPVAR, "LogC" );
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
+    			modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
+    			modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
     			
     			doc = new PmmXmlDoc();
     			

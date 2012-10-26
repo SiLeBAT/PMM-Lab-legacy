@@ -54,6 +54,7 @@ import org.hsqldb.server.Server;
 
 public class MainKernel {
 
+	public static long triggerFired = System.currentTimeMillis();
 	private static boolean isServer = false;
 	private static Server s = null;
 	private static String dbFolder = "/opt/data/HSQLDB/data/";
@@ -244,6 +245,7 @@ public class MainKernel {
 			    	//System.err.println(eintragAlt2String(rowBefore));
 			    	check4SerializationProblems(rowBefore);
 			    	ps.setObject(5, rowBefore);
+			    	triggerFired = System.currentTimeMillis();
 			    	ps.execute();
 		
 				result = true;

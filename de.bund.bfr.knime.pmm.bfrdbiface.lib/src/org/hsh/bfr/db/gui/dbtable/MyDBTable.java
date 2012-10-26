@@ -96,8 +96,10 @@ import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.SendMail;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyCheckBoxEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyComboBoxEditor;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyImageCell;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyJavaTypeRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyLabelRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyMNRenderer;
@@ -1022,7 +1024,10 @@ if (myDBPanel1 != null) {
 						}
 					}
 					else if (fieldTypes[i].startsWith("DATE")) {
-						c.setPreferredWidth(75);
+						//c.setPreferredWidth(75);
+					    c.setUserCellRenderer(new MyImageCell(MyImageCell.DATE));
+					    c.setUserCellEditor(new MyCellEditorDate());
+					    c.setPreferredWidth(100); // datum
 						//c.setType(Types.LONGVARCHAR);
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]); tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 						if (sorter != null) {

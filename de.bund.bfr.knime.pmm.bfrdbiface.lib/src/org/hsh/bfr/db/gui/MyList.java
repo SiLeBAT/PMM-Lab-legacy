@@ -546,18 +546,30 @@ if (dbForm != null || owner != null) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
 				newDBTable.setTable(theNewTable, o);
 			}
+			else if (myT != null && tn.equals("Knoten") &&
+					headerValue != null && headerValue.toString().equals("Produktkatalog")) {
+				Object[][] o = new Object[1][2]; o[0][0] = "Knoten"; o[0][1] = dbTable.getValueAt(row, 0);
+				newDBTable.setTable(theNewTable, o);
+			}
 			else if (myT != null && tn.equals("Produktkatalog") &&
 					headerValue != null && headerValue.toString().equals("Lieferungen")) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
 				newDBTable.setTable(theNewTable, o);
 			}
-			/*
-			else if (myT != null && tn.equals("Knoten") &&
-					headerValue != null && headerValue.toString().equals("Erregernachweis")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Knoten"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
+			else if (myT != null && tn.equals("Lieferungen") && headerValue != null) {					
+				if (headerValue.toString().equals("Vorprodukt")) {
+					Object[][] o = new Object[1][2]; o[0][0] = "Zielprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
+					newDBTable.setTable(theNewTable, o);
+				}
+				else if (headerValue.toString().equals("Zielprodukt")) {
+					Object[][] o = new Object[1][2]; o[0][0] = "Vorprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
+					newDBTable.setTable(theNewTable, o);
+				}
+				else {
+					newDBTable.setTable(theNewTable, conditions);
+				}
 			}
-			*/
+
 			else if (myT != null && tn.equals("ProzessWorkflow") &&
 					headerValue != null && headerValue.toString().equals("Prozessdaten")) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);
@@ -581,7 +593,8 @@ if (dbForm != null || owner != null) {
 					headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
 				Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
 				newDBTable.setTable(theNewTable, o);
-			} else {
+			}
+			else {
 				newDBTable.setTable(theNewTable, conditions);
 			}
 	

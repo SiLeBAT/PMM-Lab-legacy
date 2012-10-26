@@ -44,6 +44,7 @@ import javax.swing.JComponent;
 import javax.swing.JTextArea;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MainKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
@@ -88,7 +89,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 			return;
 		}		
 		else if (theValues.containsKey(value) && lastUpdate.containsKey(value) &&
-				lastUpdate.get(value) > DBKernel.triggerFired) {
+				lastUpdate.get(value) > DBKernel.triggerFired && lastUpdate.get(value) > MainKernel.triggerFired) {
 				//System.currentTimeMillis() - DBKernel.triggerFired > 1000) {
 			//System.out.println(selectedColumn + "\t" + value + "\t" + theValues.get(value));
 			this.setText(theValues.get(value));
@@ -121,10 +122,32 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 						DBKernel.delimitL("ProzessElemente") + "." + DBKernel.delimitL("ID") +
 						" WHERE " + DBKernel.delimitL("Workflow") + "=" + value;					    				    					    				
 	    			}
+	    			else if (ft.equals("Produktkatalog")) {
+						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Artikelnummer") + "," +
+						DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL(ft) +
+						" WHERE " + DBKernel.delimitL("Knoten") + "=" + value;
+	    			}
 	    			else if (ft.equals("Lieferungen")) {
-						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
-						DBKernel.delimitL("Lieferdatum") + " FROM " + DBKernel.delimitL(ft) +
+						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Bezeichnung") + "," +
+						DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("Lieferdatum") +
+						" FROM " + DBKernel.delimitL(ft) +
+						" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
+						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
 						" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
+	    			}
+	    			else if (ft.equals("LieferungVerbindungen")) {
+	    				String fn = myT.getFieldNames()[selectedColumn];
+						sql = "SELECT " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("ID") + "," +
+						DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Lieferdatum") + "," +
+						DBKernel.delimitL("ChargenNr") + " FROM " + DBKernel.delimitL(ft) +
+						" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+						" ON " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL(fn) + "=" +
+						DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+						" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
+						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+						" WHERE " + DBKernel.delimitL(fn.equals("Vorprodukt") ? "Zielprodukt" : "Vorprodukt") + "=" + value;
 	    			}
 	    			else if (ft.startsWith("Codes_")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + " FROM " + DBKernel.delimitL(ft) +

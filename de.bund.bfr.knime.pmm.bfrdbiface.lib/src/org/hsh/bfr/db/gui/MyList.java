@@ -546,9 +546,9 @@ if (dbForm != null || owner != null) {
 				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
 				newDBTable.setTable(theNewTable, o);
 			}
-			else if (myT != null && tn.equals("Knoten") &&
+			else if (myT != null && tn.equals("Station") &&
 					headerValue != null && headerValue.toString().equals("Produktkatalog")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Knoten"; o[0][1] = dbTable.getValueAt(row, 0);
+				Object[][] o = new Object[1][2]; o[0][0] = "Station"; o[0][1] = dbTable.getValueAt(row, 0);
 				newDBTable.setTable(theNewTable, o);
 			}
 			else if (myT != null && tn.equals("Produktkatalog") &&

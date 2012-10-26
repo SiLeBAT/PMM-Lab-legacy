@@ -2013,35 +2013,40 @@ public class Login extends JFrame {
 	private void doLieferkettenTabellen(final MyList myList, final MyTable adressen, final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
 		hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");
-		MyTable Knoten = new MyTable("Knoten", new String[]{"Kontaktadresse","Betriebsnummer","Betriebsart","VATnumber","Code",
-				"AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Produktkatalog"},
+		MyTable Knoten = new MyTable("Station", new String[]{"Kontaktadresse","Betriebsnummer","Betriebsart","VATnumber","Code",
+				"FallErfuellt","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Produktkatalog"},
 				new String[]{"INTEGER","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
-				"INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","INTEGER"},
+				"BOOLEAN","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","INTEGER"},
 				new String[]{"Verweis auf Einträge in Tabelle Kontakte mit Lebensmittel-Betrieben, Landwirten etc","Betriebsnummer aus BALVI-System sofern vorhanden",
 				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", "Steuernummer", "interner Code, z.B. NI00",
-				null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
-				new MyTable[]{adressen,null,null,null,null,null,null,null,null,null,null,agenzien,null},
+				"Falldefinition erfüllt (z.B. laut RKI)",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
+				new MyTable[]{adressen,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{null,null,null,null,null,null,null,null,null,null,null,"Knoten_Agenzien","INT"});
+				new LinkedHashMap[]{null,null,null,null,null,hYNB,null,null,null,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien","INT"});
 		myList.addTable(Knoten, MyList.Lieferketten_LIST);
-		MyTable Agensnachweis = new MyTable("Knoten_Agenzien", new String[]{"Knoten","Erreger","Labornachweis","AnzahlLabornachweise"},
+		MyTable Agensnachweis = new MyTable("Station_Agenzien", new String[]{"Station","Erreger","Labornachweis","AnzahlLabornachweise"},
 				new String[]{"INTEGER","INTEGER","BOOLEAN","INTEGER"},
 				new String[]{null,null,"Labornachweise vorhanden?",null},
 				new MyTable[]{Knoten,agenzien,null,null},
 				null,
 				new LinkedHashMap[]{null,null,hYNB,null});
 		myList.addTable(Agensnachweis, -1);
+		LinkedHashMap<String, String> proce = new LinkedHashMap<String, String>();
+		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
+		proce.put("erhitzt und verzehrsfertig (fast alles)", "erhitzt und verzehrsfertig (fast alles)");
+		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
+		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
-				new String[]{"Knoten","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Lieferungen"},
+				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Lieferungen"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER"},
 				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null},
 				new MyTable[]{Knoten,null,null,null,null,null,matrix,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,proce,null,null,null,null},
 				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT"});
 		myList.addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
-		Knoten.setForeignField(Produzent_Artikel, 12);
+		Knoten.setForeignField(Produzent_Artikel, 13);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
 				new String[]{"INTEGER","INTEGER"},
 				new String[]{null,null},

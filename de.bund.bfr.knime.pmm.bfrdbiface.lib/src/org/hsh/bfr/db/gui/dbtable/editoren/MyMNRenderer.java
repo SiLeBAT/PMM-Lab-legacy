@@ -125,7 +125,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 	    			else if (ft.equals("Produktkatalog")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Artikelnummer") + "," +
 						DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL(ft) +
-						" WHERE " + DBKernel.delimitL("Knoten") + "=" + value;
+						" WHERE " + DBKernel.delimitL("Station") + "=" + value;
 	    			}
 	    			else if (ft.equals("Lieferungen")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Bezeichnung") + "," +
@@ -511,13 +511,13 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" WHERE " + DBKernel.delimitL("ProzessWorkflow_Literatur") + "." + DBKernel.delimitL(tn) + "=" + value;				
 				}
 			}
-			else if (tn.equals("Knoten")) {
+			else if (tn.equals("Station")) {
 				String fn = myT.getFieldNames()[selectedColumn];
 				if (fn.equals("Erregernachweis")) {
 					sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Agensname") + "," +
-					DBKernel.delimitL("AnzahlLabornachweise") + " FROM " + DBKernel.delimitL("Knoten_Agenzien") +
+					DBKernel.delimitL("AnzahlLabornachweise") + " FROM " + DBKernel.delimitL("Station_Agenzien") +
 					" LEFT JOIN " + DBKernel.delimitL("Agenzien") +
-					" ON " + DBKernel.delimitL("Knoten_Agenzien") + "." + DBKernel.delimitL("Erreger") + "=" +
+					" ON " + DBKernel.delimitL("Station_Agenzien") + "." + DBKernel.delimitL("Erreger") + "=" +
 					DBKernel.delimitL("Agenzien") + "." + DBKernel.delimitL("ID") +
 					" WHERE " + DBKernel.delimitL(tn) + "=" + value;
 				}

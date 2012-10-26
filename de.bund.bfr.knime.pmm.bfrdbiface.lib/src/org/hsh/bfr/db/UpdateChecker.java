@@ -116,16 +116,22 @@ public class UpdateChecker {
 			refreshFKs("Zutatendaten");			
 		}
 		
-		myList.getTable("Knoten").createTable();
-		DBKernel.grantDefaults("Knoten");
-		myList.getTable("Knoten_Agenzien").createTable();
-		DBKernel.grantDefaults("Knoten_Agenzien");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("Knoten") + " TABLE IF EXISTS", false);
+		myList.getTable("Station").createTable();
+		DBKernel.grantDefaults("Station");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("Knoten_Agenzien") + " TABLE IF EXISTS", false);
+		myList.getTable("Station_Agenzien").createTable();
+		DBKernel.grantDefaults("Station_Agenzien");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("Produktkatalog") + " TABLE IF EXISTS", false);
 		myList.getTable("Produktkatalog").createTable();
 		DBKernel.grantDefaults("Produktkatalog");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("Produktkatalog_Matrices") + " TABLE IF EXISTS", false);
 		myList.getTable("Produktkatalog_Matrices").createTable();
 		DBKernel.grantDefaults("Produktkatalog_Matrices");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("Lieferungen") + " TABLE IF EXISTS", false);
 		myList.getTable("Lieferungen").createTable();
 		DBKernel.grantDefaults("Lieferungen");
+		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP " + DBKernel.delimitL("LieferungVerbindungen") + " TABLE IF EXISTS", false);
 		myList.getTable("LieferungVerbindungen").createTable();
 		DBKernel.grantDefaults("LieferungVerbindungen");
 

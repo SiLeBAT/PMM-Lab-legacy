@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -124,12 +126,8 @@ public class TableReader {
 			String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
 			String formula = tuple.getString(Model1Schema.ATT_FORMULA);
 			String depVar = tuple.getString(Model1Schema.ATT_DEPVAR);
-			List<String> indepVars = tuple
-					.getStringList(Model1Schema.ATT_INDEPVAR);
-			List<Double> indepMinValues = tuple
-					.getDoubleList(Model1Schema.ATT_MININDEP);
-			List<Double> indepMaxValues = tuple
-					.getDoubleList(Model1Schema.ATT_MAXINDEP);
+			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+			List<String> indepVars = CellIO.getNameList(indepXml);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			List<Double> paramValues = new ArrayList<Double>();
 			List<Double> paramMinValues = new ArrayList<Double>();
@@ -142,6 +140,15 @@ public class TableReader {
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
+			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+				IndepXml element = (IndepXml) el;
+
+				variables.put(element.getName(),
+						new ArrayList<Double>(Arrays.asList(0.0)));
+				varMin.put(element.getName(), element.getMin());
+				varMax.put(element.getName(), element.getMax());
+			}
+
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
@@ -150,16 +157,6 @@ public class TableReader {
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
 			}
-
-			if (indepVars.contains(TimeSeriesSchema.ATT_TIME)) {
-				int i = indepVars.indexOf(TimeSeriesSchema.ATT_TIME);
-
-				varMin.put(TimeSeriesSchema.ATT_TIME, indepMinValues.get(i));
-				varMax.put(TimeSeriesSchema.ATT_TIME, indepMaxValues.get(i));
-			}
-
-			variables.put(TimeSeriesSchema.ATT_TIME, new ArrayList<Double>(
-					Arrays.asList(0.0)));
 
 			if (schemaContainsData) {
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);

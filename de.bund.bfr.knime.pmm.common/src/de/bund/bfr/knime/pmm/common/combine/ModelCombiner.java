@@ -34,7 +34,6 @@
 package de.bund.bfr.knime.pmm.common.combine;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -143,8 +142,8 @@ public class ModelCombiner {
 			for (KnimeTuple tuple : usedTuples) {
 				String formulaSec = tuple.getString(Model2Schema.ATT_FORMULA);
 				String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
-				List<String> indepVarsSec = tuple
-						.getStringList(Model2Schema.ATT_INDEPVAR);
+				PmmXmlDoc indepVarsSec = tuple
+						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 				PmmXmlDoc paramsSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 
@@ -174,26 +173,23 @@ public class ModelCombiner {
 				String newFormula = MathUtilities.replaceVariable(
 						newTuple.getString(Model1Schema.ATT_FORMULA),
 						depVarSec, replacement);
-				Set<String> newIndepVars = new LinkedHashSet<String>();
+				PmmXmlDoc newIndepVars = newTuple
+						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 				PmmXmlDoc newParams = newTuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-				newIndepVars.addAll(newTuple
-						.getStringList(Model1Schema.ATT_INDEPVAR));
-				newIndepVars.addAll(indepVarsSec);
+				newIndepVars.getElementSet().addAll(
+						indepVarsSec.getElementSet());
 				newParams.getElementSet().remove(
 						CellIO.getNameList(newParams).indexOf(depVarSec));
 				newParams.getElementSet().addAll(paramsSec.getElementSet());
 
 				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
-				newTuple.setValue(Model1Schema.ATT_INDEPVAR,
-						new ArrayList<String>(newIndepVars));
+				newTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVars);
 				newTuple.setValue(Model1Schema.ATT_PARAMETER, newParams);
 			}
 
 			int modelCount = usedTuples.size() + 1;
-			int indepCount = newTuple.getStringList(Model1Schema.ATT_INDEPVAR)
-					.size();
 			int newID = newTuple.getInt(Model1Schema.ATT_MODELID) / modelCount;
 
 			for (KnimeTuple tuple : usedTuples) {
@@ -229,10 +225,6 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
 			newTuple.setValue(Model1Schema.ATT_AIC, null);
 			newTuple.setValue(Model1Schema.ATT_BIC, null);
-			newTuple.setValue(Model1Schema.ATT_MININDEP,
-					Collections.nCopies(indepCount, null));
-			newTuple.setValue(Model1Schema.ATT_MAXINDEP,
-					Collections.nCopies(indepCount, null));
 
 			tupleCombinations.put(newTuple, usedTuples);
 		}

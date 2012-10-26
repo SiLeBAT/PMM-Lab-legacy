@@ -50,6 +50,7 @@ import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -247,9 +248,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
 		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
 		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
-		Map<String, List<String>> indepVarMap = new LinkedHashMap<String, List<String>>();
-		Map<String, List<Double>> minIndepVarMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> maxIndepVarMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> temperatureDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, List<Double>> phDataMap = new LinkedHashMap<String, List<Double>>();
@@ -327,12 +326,6 @@ public class SecondaryModelAndDataViewNodeView extends
 				String modelNameSec = row.getString(Model2Schema.ATT_MODELNAME);
 				String formulaSec = row.getString(Model2Schema.ATT_FORMULA);
 				String depVarSec = row.getString(Model2Schema.ATT_DEPVAR);
-				List<String> indepVarSec = row
-						.getStringList(Model2Schema.ATT_INDEPVAR);
-				List<Double> minIndepVarSec = row
-						.getDoubleList(Model2Schema.ATT_MININDEP);
-				List<Double> maxIndepVarSec = row
-						.getDoubleList(Model2Schema.ATT_MAXINDEP);
 				PmmXmlDoc paramXmlSec = row
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(
@@ -364,9 +357,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				formulaMap.put(id, formulaSec);
 				depVarMap.put(id, depVarSec);
-				indepVarMap.put(id, indepVarSec);
-				minIndepVarMap.put(id, minIndepVarSec);
-				maxIndepVarMap.put(id, maxIndepVarSec);
+				indepVarMap
+						.put(id, row.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
 				temperatureDataMap.put(id, new ArrayList<Double>());
 				phDataMap.put(id, new ArrayList<Double>());
@@ -432,13 +424,14 @@ public class SecondaryModelAndDataViewNodeView extends
 				plotable = new Plotable(Plotable.FUNCTION);
 			}
 
-			for (int i = 0; i < indepVarMap.get(id).size(); i++) {
-				arguments.put(indepVarMap.get(id).get(i),
+			for (PmmXmlElementConvertable el : indepVarMap.get(id)
+					.getElementSet()) {
+				IndepXml element = (IndepXml) el;
+
+				arguments.put(element.getName(),
 						new ArrayList<Double>(Arrays.asList(0.0)));
-				minArg.put(indepVarMap.get(id).get(i), minIndepVarMap.get(id)
-						.get(i));
-				maxArg.put(indepVarMap.get(id).get(i), maxIndepVarMap.get(id)
-						.get(i));
+				minArg.put(element.getName(), element.getMin());
+				maxArg.put(element.getName(), element.getMax());
 			}
 
 			for (PmmXmlElementConvertable el : paramMap.get(id).getElementSet()) {

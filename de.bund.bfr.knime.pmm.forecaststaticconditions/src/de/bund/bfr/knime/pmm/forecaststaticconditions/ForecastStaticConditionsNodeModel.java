@@ -498,7 +498,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 		Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 		PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-		List<String> indepVars = tuple.getStringList(Model1Schema.ATT_INDEPVAR);
+		List<String> indepVars = CellIO.getNameList(tuple
+				.getPmmXml(Model1Schema.ATT_INDEPENDENT));
 
 		if (indepVars.contains(TimeSeriesSchema.ATT_TEMPERATURE)
 				&& temp == null) {

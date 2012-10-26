@@ -50,6 +50,7 @@ import javax.swing.JSplitPane;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -296,12 +297,7 @@ public class ModelAndDataViewNodeView extends
 			String modelName = row.getString(Model1Schema.ATT_MODELNAME);
 			String formula = row.getString(Model1Schema.ATT_FORMULA);
 			String depVar = row.getString(Model1Schema.ATT_DEPVAR);
-			List<String> indepVars = row
-					.getStringList(Model1Schema.ATT_INDEPVAR);
-			List<Double> indepMinValues = row
-					.getDoubleList(Model1Schema.ATT_MININDEP);
-			List<Double> indepMaxValues = row
-					.getDoubleList(Model1Schema.ATT_MAXINDEP);
+			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 			List<Double> paramValues = new ArrayList<Double>();
 			List<Double> paramMinValues = new ArrayList<Double>();
@@ -314,11 +310,13 @@ public class ModelAndDataViewNodeView extends
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
-			for (int i = 0; i < indepVars.size(); i++) {
-				variables.put(indepVars.get(i),
+			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+				IndepXml element = (IndepXml) el;				
+
+				variables.put(element.getName(),
 						new ArrayList<Double>(Arrays.asList(0.0)));
-				varMin.put(indepVars.get(i), indepMinValues.get(i));
-				varMax.put(indepVars.get(i), indepMaxValues.get(i));
+				varMin.put(element.getName(), element.getMin());
+				varMax.put(element.getName(), element.getMax());
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {

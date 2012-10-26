@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.combaseio;
 import java.io.File;
 import java.io.IOException;
 
-import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
 import org.knime.core.data.DataTableSpec;
@@ -99,7 +98,6 @@ public class CombaseReaderNodeModel extends NodeModel {
     	BufferedDataContainer buf, buf2;
     	CombaseReader reader;
     	PmmTimeSeries candidate;
-    	DataCell[] row;
     	int j;
     	PmmXmlDoc doc;
     	ParamXml paramXml;

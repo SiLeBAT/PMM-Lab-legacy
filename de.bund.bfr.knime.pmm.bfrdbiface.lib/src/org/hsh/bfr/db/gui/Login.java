@@ -1817,7 +1817,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null,null,null,hashGeld},
 				new String[]{null,null,null,null,null});
-		myList.addTable(Kostenkatalogpreise, DBKernel.isKNIME ? -1 : 66);
+		myList.addTable(Kostenkatalogpreise, (DBKernel.isKNIME || DBKernel.isKrise) ? -1 : 66);
 
 		MyTable prozessdaten = new MyTable("Prozessdaten",
 				new String[]{"Referenz","Workflow","Bezugsgruppe","Prozess_CARVER","ProzessDetail",

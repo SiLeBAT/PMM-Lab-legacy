@@ -129,12 +129,12 @@ public class DBKernel {
 	public static String lang = isKrise ? "de" : "en";
 	
 	public static String getTempSA(boolean other) {
-		if (other) return isKNIME ? "defad": "SA";		
-		else return isKNIME ? "SA" : "defad";		
+		if (other) return isKNIME || isKrise ? "defad": "SA";		
+		else return isKNIME || isKrise ? "SA" : "defad";		
 	}
 	public static String getTempSAPass(boolean other) {
-		if (other) return isKNIME ? "de6!§5ddy" : "";
-		else return isKNIME ? "" : "de6!§5ddy";		
+		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
+		else return isKNIME || isKrise ? "" : "de6!§5ddy";		
 	}
 	public static String getTempSA() {
 		return getTempSA(false);

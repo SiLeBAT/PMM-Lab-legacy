@@ -38,29 +38,38 @@ package org.hsh.bfr.db.gui.dbtable.editoren;
 
 import javax.swing.JComponent;
 import quick.dbtable.*;
+
+import org.freixas.jcalendar.DateEvent;
+import org.freixas.jcalendar.DateListener;
 import org.freixas.jcalendar.JCalendarCombo;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class MyCellEditorDate extends JCalendarCombo implements CellComponent {
+public class MyCellEditorDate extends JCalendarCombo implements CellComponent, DateListener {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 676858444625729903L;
+	private boolean dateChanged = false;
 
 	public MyCellEditorDate() {
-		super(Calendar.getInstance(Locale.GERMAN), Locale.GERMAN, JCalendarCombo.DISPLAY_DATE, false); //  | JCalendarCombo.DISPLAY_TIME
+		super(Calendar.getInstance(Locale.GERMAN), Locale.GERMAN, JCalendarCombo.DISPLAY_DATE, true); //  | JCalendarCombo.DISPLAY_TIME
+		dateChanged = false;
+		this.addDateListener(this);
 	}
 	
   public void setValue(Object value) {
   	if (value != null && value.toString().length() > 0) {
   		this.setDate((java.util.Date) value);
   	}
+  	else {
+  		dateChanged = false;  		
+  	}
   }
 
   public Object getValue() {
-    return this.getDate();
+    return dateChanged ? this.getDate() : null;
   }
 
   public JComponent getComponent() {
@@ -70,4 +79,9 @@ public class MyCellEditorDate extends JCalendarCombo implements CellComponent {
   public void addActionListener(java.awt.event.ActionListener listener) {
     this.addActionListener(listener);
   }
+
+@Override
+public void dateChanged(DateEvent arg0) {
+	dateChanged = true;
+}
 }

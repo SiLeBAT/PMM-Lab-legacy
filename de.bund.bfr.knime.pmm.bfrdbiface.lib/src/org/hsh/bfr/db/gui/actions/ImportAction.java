@@ -76,7 +76,8 @@ public class ImportAction extends AbstractAction {
 	  fc.addChoosableFileFilter(new MyProzessXMLImporter());
 	  fc.addChoosableFileFilter(new MyRisImporter());
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter());
-	  if (DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  
+	  //if (DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());
+	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
 	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());
 	  //fc.addChoosableFileFilter(new SymptomeImporterDOC());

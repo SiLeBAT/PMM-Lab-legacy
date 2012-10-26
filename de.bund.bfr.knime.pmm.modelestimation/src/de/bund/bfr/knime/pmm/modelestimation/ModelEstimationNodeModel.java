@@ -762,7 +762,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									&& parameterGuesses.get(modelID)
 											.containsKey(param)) {
 								Point2D.Double guess = parameterGuesses.get(
-										tuple.getInt(modelID)).get(param);
+										modelID).get(param);
 
 								if (!Double.isNaN(guess.x)) {
 									minGuessValues.add(guess.x);

@@ -1051,7 +1051,7 @@ public class Login extends JFrame {
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[][]{{"Erstautor","Jahr","Titel"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,hashFreigabe,null,lt,null});
-		myList.addTable(literatur, 66);
+		myList.addTable(literatur, DBKernel.isKrise ? -1 : 66);
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
 		wt.put(new Integer(1), "Einzelwert");
@@ -1955,7 +1955,7 @@ public class Login extends JFrame {
 
 		//doJansTabellen(myList, prozessFlow, literatur, agenzien);
 		
-		doLieferkettenTabellen(myList, betriebe, h4);
+		doLieferkettenTabellen(myList, adressen, agenzien, matrix, h4);
 
 		if (myDB != null) {
 			if (DBKernel.isStatUp) {				
@@ -2010,36 +2010,67 @@ public class Login extends JFrame {
 		}		
 	}
 	@SuppressWarnings("unchecked")
-	private void doLieferkettenTabellen(final MyList myList, final MyTable betriebe, final LinkedHashMap<Object, String> h4) {
-		MyTable Produzent_Artikel = new MyTable("Produzent_Artikel",
-				new String[]{"Produzent","Artikelnummer","Bezeichnung","Lieferungen"},
-				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","INTEGER"},
-				new String[]{null,null,null,null},
-				new MyTable[]{betriebe,null,null,null},
+	private void doLieferkettenTabellen(final MyList myList, final MyTable adressen, final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
+		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
+		hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");
+		MyTable Knoten = new MyTable("Knoten", new String[]{"Kontaktadresse","Betriebsnummer","Betriebsart","VATnumber","Code",
+				"AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Produktkatalog"},
+				new String[]{"INTEGER","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
+				"INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","INTEGER"},
+				new String[]{"Verweis auf Einträge in Tabelle Kontakte mit Lebensmittel-Betrieben, Landwirten etc","Betriebsnummer aus BALVI-System sofern vorhanden",
+				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", "Steuernummer", "interner Code, z.B. NI00",
+				null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
+				new MyTable[]{adressen,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null},
-				new String[]{null,null,null,"INT"});
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,"Knoten_Agenzien","INT"});
+		myList.addTable(Knoten, MyList.Lieferketten_LIST);
+		MyTable Agensnachweis = new MyTable("Knoten_Agenzien", new String[]{"Knoten","Erreger","Labornachweis","AnzahlLabornachweise"},
+				new String[]{"INTEGER","INTEGER","BOOLEAN","INTEGER"},
+				new String[]{null,null,"Labornachweise vorhanden?",null},
+				new MyTable[]{Knoten,agenzien,null,null},
+				null,
+				new LinkedHashMap[]{null,null,hYNB,null});
+		myList.addTable(Agensnachweis, -1);
+		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
+				new String[]{"Knoten","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Lieferungen"},
+				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER"},
+				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null},
+				new MyTable[]{Knoten,null,null,null,null,null,matrix,null},
+				null,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT"});
 		myList.addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
-		MyTable Artikel_Lieferung = new MyTable("Artikel_Lieferung",
-				new String[]{"Artikel","ChargenNr","MHD","Lieferdatum","#Units1","BezUnits1","#Units2","BezUnits2","Unitmenge","UnitEinheit","Empfänger","Vorprodukte"},
-				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(100)","VARCHAR(100)","VARCHAR(50)","VARCHAR(50)","VARCHAR(50)","VARCHAR(50)","VARCHAR(50)","VARCHAR(50)","INTEGER","INTEGER"},
-				new String[]{null,null,null,null,null,null,null,null,null,null,null,null},
-				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,betriebe,null},
-				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{null,null,null,null,null,null,null,null,null,null,null,"Lieferung_Lieferungen"});
-		myList.addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
-		Produzent_Artikel.setForeignField(Artikel_Lieferung, 3);
-		Artikel_Lieferung.setForeignField(Artikel_Lieferung, 11);
-		MyTable Lieferung_Lieferungen = new MyTable("Lieferung_Lieferungen",
-				new String[]{"Artikel_Lieferung","Vorprodukt"}, // man könnte hier sowas machen wie: ,"#Units","Unitmenge","UnitEinheit", um zu notieren wieviel der vorgelieferten Menge in das Produkt gegangen sind
-				new String[]{"INTEGER","INTEGER"}, // ,"VARCHAR(50)","VARCHAR(50)","VARCHAR(50)"
+		Knoten.setForeignField(Produzent_Artikel, 12);
+		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
+				new String[]{"INTEGER","INTEGER"},
 				new String[]{null,null},
-				new MyTable[]{Artikel_Lieferung,Artikel_Lieferung},
+				new MyTable[]{Produzent_Artikel,matrix},
 				null,
-				new LinkedHashMap[]{null,null},
-				new String[]{null,null});
-		myList.addTable(Lieferung_Lieferungen, -1);
+				new LinkedHashMap[]{null,null});
+		myList.addTable(Produktmatrices, -1);
+		MyTable Artikel_Lieferung = new MyTable("Lieferungen", // Artikel_Lieferung
+				new String[]{"Artikel","ChargenNr","MHD","Lieferdatum","#Units1","BezUnits1","#Units2","BezUnits2",
+					"Unitmenge","UnitEinheit","Empfänger","Vorprodukt","Zielprodukt"},
+				new String[]{"INTEGER","VARCHAR(255)","DATE","DATE","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER"},
+				new String[]{null,null,null,"Lieferdatum (arrival)",null,null,null,null,null,null,null,null,null},
+				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,Knoten,null,null},
+				null,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,"INT","INT"});
+		myList.addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
+		Produzent_Artikel.setForeignField(Artikel_Lieferung, 7);
+		MyTable Lieferung_Lieferungen = new MyTable("LieferungVerbindungen",
+				new String[]{"Vorprodukt","Zielprodukt","MixtureRatio"}, // man könnte hier sowas machen wie: ,"#Units","Unitmenge","UnitEinheit", um zu notieren wieviel der vorgelieferten Menge in das Produkt gegangen sind
+				new String[]{"INTEGER","INTEGER","DOUBLE"}, // ,"VARCHAR(50)","VARCHAR(50)","VARCHAR(50)"
+				new String[]{null,null,"Mixture Ratio (prozentualer Anteil vom Vorprodukt im Zielprodukt,\nz.B. Zielprodukt = Sprout mixture, Vorprodukt = alfalfa sprouts => z.B. 0.33 (33%))"},
+				new MyTable[]{Artikel_Lieferung,Artikel_Lieferung,null},
+				null,
+				new LinkedHashMap[]{null,null,null},
+				new String[]{null,null,null});
+		myList.addTable(Lieferung_Lieferungen, MyList.Lieferketten_LIST);
+		Artikel_Lieferung.setForeignField(Lieferung_Lieferungen, 11);
+		Artikel_Lieferung.setForeignField(Lieferung_Lieferungen, 12);
 
 		//check4Updates_129_130(myList);
 

@@ -116,6 +116,19 @@ public class UpdateChecker {
 			refreshFKs("Zutatendaten");			
 		}
 		
+		myList.getTable("Knoten").createTable();
+		DBKernel.grantDefaults("Knoten");
+		myList.getTable("Knoten_Agenzien").createTable();
+		DBKernel.grantDefaults("Knoten_Agenzien");
+		myList.getTable("Produktkatalog").createTable();
+		DBKernel.grantDefaults("Produktkatalog");
+		myList.getTable("Produktkatalog_Matrices").createTable();
+		DBKernel.grantDefaults("Produktkatalog_Matrices");
+		myList.getTable("Lieferungen").createTable();
+		DBKernel.grantDefaults("Lieferungen");
+		myList.getTable("LieferungVerbindungen").createTable();
+		DBKernel.grantDefaults("LieferungVerbindungen");
+
 		if (DBKernel.isKNIME) {
 		    try {
 		    	if (!DBKernel.getUsername().equals("SA")) DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL("SA") + " PASSWORD '' ADMIN");

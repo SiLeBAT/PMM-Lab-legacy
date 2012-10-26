@@ -96,8 +96,10 @@ import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.SendMail;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyCheckBoxEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyComboBoxEditor;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyImageCell;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyJavaTypeRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyLabelRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyMNRenderer;
@@ -859,6 +861,7 @@ if (myDBPanel1 != null) {
 	private void prepareColumns() {
 		Column c = this.getColumn(0);
 		c.setReadOnly(true);
+		c.setPreferredWidth(50);
 
 		if (actualTable != null) {
 			this.getTable().getTableHeader().setReorderingAllowed(false);
@@ -989,6 +992,22 @@ if (myDBPanel1 != null) {
 							c.setPreferredWidth(190);
 						} else if (fname.equals("Extraktionssystem_Bezeichnung")) {
 							c.setPreferredWidth(190);
+						} else if (fname.equals("Code")) {
+							c.setPreferredWidth(50);
+						} else if (fname.equals("VATnumber")) {
+							c.setPreferredWidth(60);
+						} else if (fname.equals("Betriebsart")) {
+							c.setPreferredWidth(60);
+						} else if (fname.equals("Betriebsnummer")) {
+							c.setPreferredWidth(90);
+						} else if (fname.startsWith("BezUnits")) {
+							c.setPreferredWidth(70);
+						} else if (fname.equals("UnitEinheit")) {
+							c.setPreferredWidth(70);
+						} else if (fname.equals("ChargenNr")) {
+							c.setPreferredWidth(60);
+						} else if (fname.equals("Artikelnummer")) {
+							c.setPreferredWidth(80);
 						} else {
 							c.setPreferredWidth(150);
 						}
@@ -1022,7 +1041,19 @@ if (myDBPanel1 != null) {
 						}
 					}
 					else if (fieldTypes[i].startsWith("DATE")) {
-						c.setPreferredWidth(75);
+						//c.setPreferredWidth(75);
+					    c.setUserCellRenderer(new MyImageCell(MyImageCell.DATE));
+					    c.setUserCellEditor(new MyCellEditorDate());
+				    	String fname = actualTable.getFieldNames()[i];
+					    if (fname.equals("MHD")) {
+					    	c.setPreferredWidth(70);
+					    }
+					    else if (fname.equals("Lieferdatum")) {
+					    	c.setPreferredWidth(70);
+					    }
+					    else {
+					    	c.setPreferredWidth(100); // datum
+					    }
 						//c.setType(Types.LONGVARCHAR);
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]); tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 						if (sorter != null) {
@@ -1063,6 +1094,10 @@ if (myDBPanel1 != null) {
 								c.setPreferredWidth(120);
 							} else if (fname.equals("Konzentration")) {
 								c.setPreferredWidth(170);
+							} else if (fname.equals("Unitmenge")) {
+								c.setPreferredWidth(60);
+							} else if (fname.startsWith("#Units")) {
+								c.setPreferredWidth(50);
 							} else {
 								c.setPreferredWidth(100);
 							}

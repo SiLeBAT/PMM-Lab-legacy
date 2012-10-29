@@ -48,43 +48,40 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class XLSReader {
 
 	private static String ID = "ID";
+	private static String DVALUE = "DValue";
 
-	private static String[] STANDARD_COLUMNS = { ID,
+	private static String[] TIMESERIES_STANDARD_COLUMNS = { ID,
 			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
 			TimeSeriesSchema.ATT_COMMENT, TimeSeriesSchema.ATT_TIME,
 			TimeSeriesSchema.ATT_LOGC, TimeSeriesSchema.ATT_TEMPERATURE,
 			TimeSeriesSchema.ATT_PH, TimeSeriesSchema.ATT_WATERACTIVITY };
 
+	private static String[] DVALUE_STANDARD_COLUMNS = { ID,
+			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
+			TimeSeriesSchema.ATT_COMMENT, DVALUE,
+			TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
+			TimeSeriesSchema.ATT_WATERACTIVITY };
+
 	private XLSReader() {
 	}
 
-	public static Map<String, KnimeTuple> getTuples(File file) throws Exception {
+	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file)
+			throws Exception {
+		Sheet sheet = getSheet(file);
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
-		InputStream inputStream = null;
-
-		if (file.exists()) {
-			inputStream = new FileInputStream(file);
-		} else {
-			try {
-				URL url = new URL(file.getPath());
-
-				inputStream = url.openStream();
-			} catch (Exception e) {
-				throw new FileNotFoundException("File not found");
-			}
-		}
-
-		Workbook wb = WorkbookFactory.create(inputStream);
-		Sheet sheet = wb.getSheetAt(0);
-		Map<String, Integer> standardColumns = getStandardColumns(sheet);
-		Map<String, Integer> miscColumns = getMiscColumns(sheet);
+		Map<String, Integer> standardColumns = getColumns(sheet,
+				TIMESERIES_STANDARD_COLUMNS);
+		Map<String, Integer> miscColumns = getOtherColumns(sheet,
+				TIMESERIES_STANDARD_COLUMNS);
 
 		KnimeTuple tuple = null;
 		String id = null;
@@ -228,8 +225,176 @@ public class XLSReader {
 		return tuples;
 	}
 
-	private static Map<String, Integer> getStandardColumns(Sheet sheet)
+	public static Map<String, KnimeTuple> getDValueTuples(File file)
 			throws Exception {
+		Sheet sheet = getSheet(file);
+		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, Integer> standardColumns = getColumns(sheet,
+				DVALUE_STANDARD_COLUMNS);
+		Map<String, Integer> miscColumns = getOtherColumns(sheet,
+				DVALUE_STANDARD_COLUMNS);
+
+		for (int i = 1;; i++) {
+			if (!hasID(sheet, i)) {
+				break;
+			}
+
+			Row row = sheet.getRow(i);
+			String id = row.getCell(standardColumns.get(ID)).toString();
+			Cell agentCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_AGENTNAME));
+			Cell matrixCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_MATRIXNAME));
+			Cell commentCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_COMMENT));
+			Cell tempCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_TEMPERATURE));
+			Cell phCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_PH));
+			Cell awCell = row.getCell(standardColumns
+					.get(TimeSeriesSchema.ATT_WATERACTIVITY));
+			Cell dValueCell = row.getCell(standardColumns.get(DVALUE));
+			KnimeTuple tuple = new KnimeTuple(new KnimeSchema(
+					new Model1Schema(), new TimeSeriesSchema()));
+
+			tuple.setValue(TimeSeriesSchema.ATT_CONDID,
+					MathUtilities.getRandomNegativeInt());
+
+			if (agentCell != null) {
+				tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentCell
+						.toString().trim());
+			}
+
+			if (matrixCell != null) {
+				tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixCell
+						.toString().trim());
+			}
+
+			if (commentCell != null) {
+				tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
+						.toString().trim());
+			}
+
+			if (tempCell != null && !tempCell.toString().trim().isEmpty()) {
+				try {
+					tuple.setValue(
+							TimeSeriesSchema.ATT_TEMPERATURE,
+							Double.parseDouble(tempCell.toString().replace(",",
+									".")));
+				} catch (NumberFormatException e) {
+					throw new Exception(TimeSeriesSchema.ATT_TEMPERATURE
+							+ " value in row " + (i + 1) + " is not valid");
+				}
+			}
+
+			if (phCell != null && !phCell.toString().trim().isEmpty()) {
+				try {
+					tuple.setValue(
+							TimeSeriesSchema.ATT_PH,
+							Double.parseDouble(phCell.toString().replace(",",
+									".")));
+				} catch (NumberFormatException e) {
+					throw new Exception(TimeSeriesSchema.ATT_PH
+							+ " value in row " + (i + 1) + " is not valid");
+				}
+			}
+
+			if (awCell != null && !awCell.toString().trim().isEmpty()) {
+				try {
+					tuple.setValue(
+							TimeSeriesSchema.ATT_WATERACTIVITY,
+							Double.parseDouble(awCell.toString().replace(",",
+									".")));
+				} catch (NumberFormatException e) {
+					throw new Exception(TimeSeriesSchema.ATT_WATERACTIVITY
+							+ " value in row " + (i + 1) + " is not valid");
+				}
+			}
+
+			PmmXmlDoc miscXML = new PmmXmlDoc();
+
+			for (String miscName : miscColumns.keySet()) {
+				Cell cell = row.getCell(miscColumns.get(miscName));
+				Double value = null;
+
+				try {
+					value = Double.parseDouble(cell.toString()
+							.replace(",", "."));
+				} catch (Exception e) {
+				}
+
+				miscXML.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
+						miscName, "", value, ""));
+			}
+
+			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
+
+			Double dValue = null;
+			Double log10N0 = null;
+
+			if (dValueCell != null && !dValueCell.toString().trim().isEmpty()) {
+				try {
+					dValue = Double.parseDouble(dValueCell.toString().replace(
+							",", "."));
+
+					if (dValue <= 0.0) {
+						log10N0 = 10.0;
+					} else {
+						log10N0 = 0.0;
+					}
+				} catch (NumberFormatException e) {
+					throw new Exception(DVALUE + " value in row " + (i + 1)
+							+ " is not valid");
+				}
+			}
+
+			PmmXmlDoc indepXML = new PmmXmlDoc();
+			PmmXmlDoc paramXML = new PmmXmlDoc();
+
+			indepXML.add(new IndepXml("t", null, null));
+			paramXML.add(new ParamXml("Log10N0", log10N0, null, null, null,
+					null, null));
+			paramXML.add(new ParamXml("DValue", dValue, null, null, null, null,
+					null));
+
+			tuple.setValue(Model1Schema.ATT_MODELID,
+					MathUtilities.getRandomNegativeInt());
+			tuple.setValue(Model1Schema.ATT_ESTMODELID,
+					MathUtilities.getRandomNegativeInt());
+			tuple.setValue(Model1Schema.ATT_FORMULA,
+					"Log10N=Log10N0+1/DValue*t");
+			tuple.setValue(Model1Schema.ATT_DEPVAR, "Log10N");
+			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
+			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXML);
+
+			tuples.put(id, tuple);
+		}
+
+		return tuples;
+	}
+
+	private static final Sheet getSheet(File file) throws Exception {
+		InputStream inputStream = null;
+
+		if (file.exists()) {
+			inputStream = new FileInputStream(file);
+		} else {
+			try {
+				URL url = new URL(file.getPath());
+
+				inputStream = url.openStream();
+			} catch (Exception e) {
+				throw new FileNotFoundException("File not found");
+			}
+		}
+
+		Workbook wb = WorkbookFactory.create(inputStream);
+
+		return wb.getSheetAt(0);
+	}
+
+	private static Map<String, Integer> getColumns(Sheet sheet,
+			String[] columnNames) throws Exception {
 		Map<String, Integer> standardColumns = new LinkedHashMap<String, Integer>();
 
 		for (int i = 0;; i++) {
@@ -241,21 +406,22 @@ public class XLSReader {
 
 			String columnName = cell.toString().trim();
 
-			if (Arrays.asList(STANDARD_COLUMNS).contains(columnName)) {
+			if (Arrays.asList(columnNames).contains(columnName)) {
 				standardColumns.put(columnName, i);
 			}
 		}
 
-		for (String columnName : STANDARD_COLUMNS) {
+		for (String columnName : columnNames) {
 			if (!standardColumns.containsKey(columnName)) {
-				throw new Exception("Column " + columnName + " is missing");
+				throw new Exception("Column \"" + columnName + "\" is missing");
 			}
 		}
 
 		return standardColumns;
 	}
 
-	private static Map<String, Integer> getMiscColumns(Sheet sheet) {
+	private static Map<String, Integer> getOtherColumns(Sheet sheet,
+			String[] columnNames) {
 		Map<String, Integer> miscColumns = new LinkedHashMap<String, Integer>();
 
 		for (int i = 0;; i++) {
@@ -267,7 +433,7 @@ public class XLSReader {
 
 			String columnName = cell.toString().trim();
 
-			if (!Arrays.asList(STANDARD_COLUMNS).contains(columnName)) {
+			if (!Arrays.asList(columnNames).contains(columnName)) {
 				miscColumns.put(columnName, i);
 			}
 		}
@@ -287,14 +453,37 @@ public class XLSReader {
 			Cell cell = sheet.getRow(i).getCell(j);
 
 			if (headerCell == null || headerCell.toString().trim().isEmpty()) {
-				break;
+				return true;
 			}
 
 			if (cell != null && !cell.toString().trim().isEmpty()) {
 				return false;
 			}
 		}
+	}
 
-		return true;
+	private static boolean hasID(Sheet sheet, int i) {
+		Row row = sheet.getRow(i);
+
+		if (row == null) {
+			return true;
+		}
+
+		for (int j = 0;; j++) {
+			Cell headerCell = sheet.getRow(0).getCell(j);
+			Cell cell = sheet.getRow(i).getCell(j);
+
+			if (headerCell == null || headerCell.toString().trim().isEmpty()) {
+				return false;
+			}
+
+			if (headerCell.toString().trim().equals(ID)) {
+				if (cell != null && !cell.toString().trim().isEmpty()) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}
 	}
 }

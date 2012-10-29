@@ -603,7 +603,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 			try {
 				Map<String, KnimeTuple> tuples = XLSReader
-						.getTuples(fileChooser.getSelectedFile());
+						.getTimeSeriesTuples(fileChooser.getSelectedFile());
 				Object[] values = tuples.keySet().toArray();
 				Object selection = JOptionPane.showInputDialog(panel,
 						"Select Time Series", "Input",

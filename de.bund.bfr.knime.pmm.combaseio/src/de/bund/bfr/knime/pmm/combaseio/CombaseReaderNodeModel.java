@@ -127,7 +127,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			modelTuple = new KnimeTuple( new Model1Schema() );
     			indepXML.add(new IndepXml("t", null, null));
     			    			
-    			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC = LogC0+mumax*t" );
+    			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC=LogC0+mumax*t" );
     			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			modelTuple.setValue( Model1Schema.ATT_VALUE, "?,"+candidate.getMaximumRate() );
     			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );

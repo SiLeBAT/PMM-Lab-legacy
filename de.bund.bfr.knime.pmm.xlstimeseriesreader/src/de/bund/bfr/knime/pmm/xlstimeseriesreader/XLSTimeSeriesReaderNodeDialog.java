@@ -40,6 +40,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -75,6 +76,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private JButton fileButton;
 	private StringTextField fileField;
+	private JComboBox formatBox;
 	private JComboBox timeBox;
 	private JComboBox logcBox;
 	private JComboBox tempBox;
@@ -84,15 +86,21 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	 */
 	protected XLSTimeSeriesReaderNodeDialog() {
 		JPanel panel = new JPanel();
-		JPanel optionsPanel = new JPanel();
+		JPanel mainPanel = new JPanel();
 		JPanel filePanel = new JPanel();
+		JPanel optionsPanel = new JPanel();
+		JPanel formatPanel = new JPanel();
 		JPanel unitsPanel = new JPanel();
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
+		JPanel leftUnitsPanel = new JPanel();
+		JPanel rightUnitsPanel = new JPanel();
 
 		fileButton = new JButton("Browse...");
 		fileButton.addActionListener(this);
 		fileField = new StringTextField();
+		formatBox = new JComboBox(new String[] {
+				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT,
+				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT });
+		formatBox.addActionListener(this);
 		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
 				TimeSeriesSchema.ATT_TIME).toArray());
 		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
@@ -105,35 +113,43 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		filePanel.add(fileField, BorderLayout.CENTER);
 		filePanel.add(fileButton, BorderLayout.EAST);
 
-		leftPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftPanel.add(new JLabel("Unit for "
+		formatPanel.setBorder(BorderFactory.createTitledBorder("File Format"));
+		formatPanel.setLayout(new GridLayout(1, 1));
+		formatPanel.add(formatBox);
+
+		leftUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftUnitsPanel.add(new JLabel("Unit for "
 				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)
 				+ ":"));
-		leftPanel.add(new JLabel("Unit for "
+		leftUnitsPanel.add(new JLabel("Unit for "
 				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)
 				+ ":"));
-		leftPanel.add(new JLabel("Unit for "
+		leftUnitsPanel.add(new JLabel("Unit for "
 				+ AttributeUtilities
 						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
 
-		rightPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightPanel.add(timeBox);
-		rightPanel.add(logcBox);
-		rightPanel.add(tempBox);
+		rightUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightUnitsPanel.add(timeBox);
+		rightUnitsPanel.add(logcBox);
+		rightUnitsPanel.add(tempBox);
 
 		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
 		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(leftPanel, BorderLayout.WEST);
-		unitsPanel.add(rightPanel, BorderLayout.EAST);
+		unitsPanel.add(leftUnitsPanel, BorderLayout.WEST);
+		unitsPanel.add(rightUnitsPanel, BorderLayout.EAST);
 
-		optionsPanel.setLayout(new BorderLayout());
-		optionsPanel.add(filePanel, BorderLayout.NORTH);
-		optionsPanel.add(unitsPanel, BorderLayout.WEST);
+		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
+		optionsPanel.add(formatPanel);
+		optionsPanel.add(unitsPanel);
+
+		mainPanel.setLayout(new BorderLayout());
+		mainPanel.add(filePanel, BorderLayout.NORTH);
+		mainPanel.add(optionsPanel, BorderLayout.WEST);
 
 		panel.setLayout(new BorderLayout());
-		panel.add(optionsPanel, BorderLayout.NORTH);
+		panel.add(mainPanel, BorderLayout.NORTH);
 
 		addTab("Options", panel);
 	}
@@ -146,6 +162,14 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME));
 		} catch (InvalidSettingsException e) {
 			fileField.setValue(null);
+		}
+
+		try {
+			formatBox.setSelectedItem(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILEFORMAT));
+		} catch (InvalidSettingsException e) {
+			formatBox
+					.setSelectedItem(XLSTimeSeriesReaderNodeModel.DEFAULT_FILEFORMAT);
 		}
 
 		try {
@@ -171,6 +195,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			tempBox.setSelectedItem(AttributeUtilities
 					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
 		}
+
+		updateComboBoxes();
 	}
 
 	@Override
@@ -182,6 +208,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
 				fileField.getText());
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILEFORMAT,
+				(String) formatBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
@@ -192,33 +220,49 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		JFileChooser fileChooser;
+		if (e.getSource() == fileButton) {
+			JFileChooser fileChooser;
 
-		try {
-			fileChooser = new JFileChooser(new File(fileField.getText()));
-		} catch (Exception ex) {
-			fileChooser = new JFileChooser();
-		}
-
-		FileFilter xlsFilter = new FileFilter() {
-
-			@Override
-			public String getDescription() {
-				return "Excel Spreadsheat (*.xls)";
+			try {
+				fileChooser = new JFileChooser(new File(fileField.getText()));
+			} catch (Exception ex) {
+				fileChooser = new JFileChooser();
 			}
 
-			@Override
-			public boolean accept(File f) {
-				return f.isDirectory()
-						|| f.getName().toLowerCase().endsWith(".xls");
+			FileFilter xlsFilter = new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return "Excel Spreadsheat (*.xls)";
+				}
+
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory()
+							|| f.getName().toLowerCase().endsWith(".xls");
+				}
+			};
+
+			fileChooser.setAcceptAllFileFilterUsed(false);
+			fileChooser.addChoosableFileFilter(xlsFilter);
+
+			if (fileChooser.showOpenDialog(fileButton) == JFileChooser.APPROVE_OPTION) {
+				fileField.setText(fileChooser.getSelectedFile()
+						.getAbsolutePath());
 			}
-		};
-
-		fileChooser.setAcceptAllFileFilterUsed(false);
-		fileChooser.addChoosableFileFilter(xlsFilter);
-
-		if (fileChooser.showOpenDialog(fileButton) == JFileChooser.APPROVE_OPTION) {
-			fileField.setText(fileChooser.getSelectedFile().getAbsolutePath());
+		} else if (e.getSource() == formatBox) {
+			updateComboBoxes();
 		}
 	}
+
+	private void updateComboBoxes() {
+		if (formatBox.getSelectedItem().equals(
+				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT)) {
+			logcBox.setEnabled(true);
+		} else if (formatBox.getSelectedItem().equals(
+				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT)) {
+			logcBox.setEnabled(false);
+		}
+	}
+
 }

@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -50,10 +49,12 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -64,17 +65,25 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
+	static final String TIMESERIESFORMAT = "Data with Time Series";
+	static final String DVALUEFORMAT = "Data with D-values";
+
 	static final String CFGKEY_FILENAME = "FileName";
+	static final String CFGKEY_FILEFORMAT = "FileFormat";
 	static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	static final String CFGKEY_TEMPUNIT = "TempUnit";
 
+	static final String DEFAULT_FILEFORMAT = TIMESERIESFORMAT;
+
 	private String fileName;
+	private String fileFormat;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
 
-	private KnimeSchema schema;
+	private KnimeSchema timeSeriesSchema;
+	private KnimeSchema dValueSchema;
 
 	/**
 	 * Constructor for the node model.
@@ -82,13 +91,21 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected XLSTimeSeriesReaderNodeModel() {
 		super(0, 1);
 		fileName = null;
+		fileFormat = DEFAULT_FILEFORMAT;
 		timeUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TIME);
 		logcUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
-		schema = new TimeSeriesSchema();
+
+		try {
+			timeSeriesSchema = new TimeSeriesSchema();
+			dValueSchema = new KnimeSchema(new Model1Schema(),
+					new TimeSeriesSchema());
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -97,29 +114,48 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		List<KnimeTuple> tuples = readTableFromXLS(fileName, schema);
+		List<KnimeTuple> tuples = null;
+		KnimeSchema schema = null;
+
+		if (fileFormat.equals(TIMESERIESFORMAT)) {
+			tuples = new ArrayList<KnimeTuple>(XLSReader.getTimeSeriesTuples(
+					new File(fileName)).values());
+			schema = timeSeriesSchema;
+		} else if (fileFormat.equals(DVALUEFORMAT)) {
+			tuples = new ArrayList<KnimeTuple>(XLSReader.getDValueTuples(
+					new File(fileName)).values());
+			schema = dValueSchema;
+		}
+
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
-			List<Double> timeList = tuple
-					.getDoubleList(TimeSeriesSchema.ATT_TIME);
-			List<Double> logcList = tuple
-					.getDoubleList(TimeSeriesSchema.ATT_LOGC);
-			Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+			if (fileFormat.equals(TIMESERIESFORMAT)) {
+				List<Double> timeList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_TIME);
+				List<Double> logcList = tuple
+						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 
-			for (int i = 0; i < timeList.size(); i++) {
-				timeList.set(i, AttributeUtilities.convertToStandardUnit(
-						TimeSeriesSchema.ATT_TIME, timeList.get(i), timeUnit));
-				logcList.set(i, AttributeUtilities.convertToStandardUnit(
-						TimeSeriesSchema.ATT_LOGC, logcList.get(i), logcUnit));
+				for (int i = 0; i < timeList.size(); i++) {
+					timeList.set(i, AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.ATT_TIME, timeList.get(i),
+							timeUnit));
+					logcList.set(i, AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.ATT_LOGC, logcList.get(i),
+							logcUnit));
+				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_TIME, timeList);
+				tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+			} else if (fileFormat.equals(DVALUEFORMAT)) {
+				// TODO
 			}
+
+			Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 
 			temp = AttributeUtilities.convertToStandardUnit(
 					TimeSeriesSchema.ATT_TEMPERATURE, temp, tempUnit);
-
-			tuple.setValue(TimeSeriesSchema.ATT_TIME, timeList);
-			tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcList);
 			tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 			container.addRowToTable(tuple);
 		}
@@ -146,7 +182,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("");
 		}
 
-		return new DataTableSpec[] { schema.createSpec() };
+		if (fileFormat.equals(TIMESERIESFORMAT)) {
+			return new DataTableSpec[] { timeSeriesSchema.createSpec() };
+		} else if (fileFormat.equals(DVALUEFORMAT)) {
+			return new DataTableSpec[] { dValueSchema.createSpec() };
+		} else {
+			throw new InvalidSettingsException("");
+		}
 	}
 
 	/**
@@ -155,6 +197,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
+		settings.addString(CFGKEY_FILEFORMAT, fileFormat);
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
@@ -170,6 +213,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			fileName = settings.getString(CFGKEY_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = null;
+		}
+
+		try {
+			fileFormat = settings.getString(CFGKEY_FILEFORMAT);
+		} catch (InvalidSettingsException e) {
+			fileFormat = DEFAULT_FILEFORMAT;
 		}
 
 		try {
@@ -218,14 +267,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static List<KnimeTuple> readTableFromXLS(String fileName,
-			KnimeSchema schema) throws Exception {
-		Map<String, KnimeTuple> tuples = XLSReader
-				.getTuples(new File(fileName));
-
-		return new ArrayList<KnimeTuple>(tuples.values());
 	}
 
 }

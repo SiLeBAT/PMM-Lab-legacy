@@ -311,7 +311,7 @@ public class ModelAndDataViewNodeView extends
 			List<Object> infoValues = null;
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
-				IndepXml element = (IndepXml) el;				
+				IndepXml element = (IndepXml) el;
 
 				variables.put(element.getName(),
 						new ArrayList<Double>(Arrays.asList(0.0)));
@@ -347,11 +347,11 @@ public class ModelAndDataViewNodeView extends
 					n = timeList.size();
 					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
 					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
-				}
 
-				for (int i = 0; i < n; i++) {
-					dataPoints.add(new Point2D.Double(timeList.get(i), logcList
-							.get(i)));
+					for (int i = 0; i < n; i++) {
+						dataPoints.add(new Point2D.Double(timeList.get(i),
+								logcList.get(i)));
+					}
 				}
 
 				if (temperature != null) {

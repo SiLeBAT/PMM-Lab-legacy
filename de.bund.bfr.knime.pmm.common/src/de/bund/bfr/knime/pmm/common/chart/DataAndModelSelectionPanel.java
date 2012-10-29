@@ -136,10 +136,12 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 			for (String column : filterableStringColumns) {
 				List<String> values = new ArrayList<String>();
+				Set<String> valueSet = new LinkedHashSet<String>(
+						stringColumnValues.get(stringColumns.indexOf(column)));
 
+				valueSet.remove(null);
 				values.add("");
-				values.addAll(new LinkedHashSet<String>(stringColumnValues
-						.get(stringColumns.indexOf(column))));
+				values.addAll(valueSet);
 				Collections.sort(values);
 
 				JComboBox box = new JComboBox(values.toArray(new String[0]));

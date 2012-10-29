@@ -360,18 +360,23 @@ public class SecondaryModelAndDataViewNodeView extends
 				indepVarMap
 						.put(id, row.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
-				temperatureDataMap.put(id, new ArrayList<Double>());
-				phDataMap.put(id, new ArrayList<Double>());
-				awDataMap.put(id, new ArrayList<Double>());
 				depVarDataMap.put(id, new ArrayList<Double>());
 				rmsMap.put(id, row.getDouble(Model2Schema.ATT_RMS));
 				rSquaredMap.put(id, row.getDouble(Model2Schema.ATT_RSQUARED));
 				aicMap.put(id, row.getDouble(Model2Schema.ATT_AIC));
 				bicMap.put(id, row.getDouble(Model2Schema.ATT_BIC));
-				miscDataMaps.put(id, new LinkedHashMap<String, List<Double>>());
 
-				for (String param : miscParams) {
-					miscDataMaps.get(id).put(param, new ArrayList<Double>());
+				if (getNodeModel().isSeiSchema()) {
+					temperatureDataMap.put(id, new ArrayList<Double>());
+					phDataMap.put(id, new ArrayList<Double>());
+					awDataMap.put(id, new ArrayList<Double>());
+					miscDataMaps.put(id,
+							new LinkedHashMap<String, List<Double>>());
+
+					for (String param : miscParams) {
+						miscDataMaps.get(id)
+								.put(param, new ArrayList<Double>());
+					}
 				}
 			}
 
@@ -417,6 +422,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			List<Double> paramValues = new ArrayList<Double>();
 			List<Double> minParamValues = new ArrayList<Double>();
 			List<Double> maxParamValues = new ArrayList<Double>();
+			boolean hasArguments = !indepVarMap.get(id).getElementSet()
+					.isEmpty();
 
 			if (getNodeModel().isSeiSchema()) {
 				plotable = new Plotable(Plotable.BOTH_STRICT);
@@ -489,6 +496,26 @@ public class SecondaryModelAndDataViewNodeView extends
 				nonNullPHs.removeAll(Arrays.asList((Double) null));
 				nonNullWaterActivites.removeAll(Arrays.asList((Double) null));
 
+				if (!hasArguments) {
+					if (!nonNullTemperatures.isEmpty()) {
+						plotable.getFunctionArguments().put(
+								TimeSeriesSchema.ATT_TEMPERATURE,
+								new ArrayList<Double>(Arrays.asList(0.0)));
+					}
+
+					if (!nonNullPHs.isEmpty()) {
+						plotable.getFunctionArguments().put(
+								TimeSeriesSchema.ATT_PH,
+								new ArrayList<Double>(Arrays.asList(0.0)));
+					}
+
+					if (!nonNullWaterActivites.isEmpty()) {
+						plotable.getFunctionArguments().put(
+								TimeSeriesSchema.ATT_WATERACTIVITY,
+								new ArrayList<Double>(Arrays.asList(0.0)));
+					}
+				}
+
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,
@@ -538,6 +565,11 @@ public class SecondaryModelAndDataViewNodeView extends
 					nonNullValues.removeAll(Arrays.asList((Double) null));
 
 					if (!nonNullValues.isEmpty()) {
+						plotable.getFunctionArguments().put(miscParams.get(i),
+								new ArrayList<Double>(Arrays.asList(0.0)));
+					}
+
+					if (!nonNullValues.isEmpty()) {
 						doubleColumnValues.get(2 * i + 10).add(
 								Collections.min(nonNullValues));
 						doubleColumnValues.get(2 * i + 11).add(
@@ -563,6 +595,11 @@ public class SecondaryModelAndDataViewNodeView extends
 				doubleColumnValues.get(1).add(rSquaredMap.get(id));
 				doubleColumnValues.get(2).add(bicMap.get(id));
 				doubleColumnValues.get(3).add(aicMap.get(id));
+
+				if (!hasArguments) {
+					plotable.getFunctionArguments().put("No argument",
+							new ArrayList<Double>(Arrays.asList(0.0)));
+				}
 			}
 
 			plotables.put(id, plotable);

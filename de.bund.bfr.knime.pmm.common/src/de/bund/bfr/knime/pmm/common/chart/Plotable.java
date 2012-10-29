@@ -72,6 +72,10 @@ public class Plotable {
 	public Plotable(int type) {
 		this.type = type;
 		valueLists = new HashMap<String, List<Double>>();
+		functionArguments = new HashMap<String, List<Double>>();
+		minArguments = new HashMap<String, Double>();
+		maxArguments = new HashMap<String, Double>();
+		functionConstants = new HashMap<String, Double>();
 	}
 
 	public int getType() {
@@ -215,7 +219,8 @@ public class Plotable {
 			return null;
 		}
 
-		if (!function.startsWith(paramY + "=") || !function.contains(paramX)) {
+		if (!function.startsWith(paramY + "=")
+				|| !functionArguments.containsKey(paramX)) {
 			return null;
 		}
 

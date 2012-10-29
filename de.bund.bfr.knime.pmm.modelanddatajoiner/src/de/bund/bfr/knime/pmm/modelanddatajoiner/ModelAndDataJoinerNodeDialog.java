@@ -48,6 +48,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -140,20 +141,8 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 			throw new InvalidSettingsException("");
 		}
 
-		List<String> assignments = joiner.getAssignments();
-		StringBuilder assignString = new StringBuilder();
-
-		for (String assign : assignments) {
-			assignString.append(assign);
-			assignString.append(";");
-		}
-
-		if (assignString.length() > 0) {
-			assignString.deleteCharAt(assignString.length() - 1);
-		}
-
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
-				assignString.toString());
+				ListUtilities.getStringFromList(joiner.getAssignments()));
 
 		if (joiner instanceof PrimaryJoiner) {
 			if (((PrimaryJoiner) joiner).isJoinSameConditions()) {

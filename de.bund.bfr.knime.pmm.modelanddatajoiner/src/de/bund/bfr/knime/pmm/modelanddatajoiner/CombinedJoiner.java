@@ -170,7 +170,7 @@ public class CombinedJoiner implements Joiner {
 	@Override
 	public List<String> getAssignments() {
 		List<String> assignments = new ArrayList<String>();
-		StringBuilder primaryAssignments = new StringBuilder(PRIMARY + ":");
+		StringBuilder primaryAssignments = new StringBuilder();
 
 		for (int i = 0; i < primaryVariables.size(); i++) {
 			String replacement = (String) primaryVariableBoxes.get(i)
@@ -182,12 +182,14 @@ public class CombinedJoiner implements Joiner {
 			}
 		}
 
-		primaryAssignments.deleteCharAt(primaryAssignments.length() - 1);
-		assignments.add(primaryAssignments.toString());
+		if (primaryAssignments.length() > 0) {
+			primaryAssignments.deleteCharAt(primaryAssignments.length() - 1);
+		}
+
+		assignments.add(PRIMARY + ":" + primaryAssignments.toString());
 
 		for (String depVarSec : secondaryVariables.keySet()) {
-			StringBuilder secondaryAssignments = new StringBuilder(depVarSec
-					+ ":");
+			StringBuilder secondaryAssignments = new StringBuilder();
 
 			for (int i = 0; i < secondaryVariables.get(depVarSec).size(); i++) {
 				String replacement = (String) secondaryVariableBoxes
@@ -200,7 +202,12 @@ public class CombinedJoiner implements Joiner {
 				}
 			}
 
-			assignments.add(secondaryAssignments.toString());
+			if (secondaryAssignments.length() > 0) {
+				secondaryAssignments
+						.deleteCharAt(secondaryAssignments.length() - 1);
+			}
+
+			assignments.add(depVarSec + ":" + secondaryAssignments.toString());
 		}
 
 		return assignments;
@@ -431,20 +438,27 @@ public class CombinedJoiner implements Joiner {
 		Map<String, Map<String, String>> assignmentsMap = new LinkedHashMap<String, Map<String, String>>();
 
 		for (String s : assignments) {
-			String[] elements = s.split(":");
+			if (s.contains(":")) {
+				String[] elements = s.split(":");
 
-			if (elements.length == 2) {
-				Map<String, String> modelMap = new LinkedHashMap<String, String>();
-				String model = elements[0];
-				String assigns = elements[1];
+				if (elements.length == 2) {
+					String model = elements[0];
+					String assigns = elements[1];
+					Map<String, String> modelMap = new LinkedHashMap<String, String>();
 
-				for (String assign : assigns.split(",")) {
-					String[] assignElements = assign.split("=");
+					for (String assign : assigns.split(",")) {
+						String[] assignElements = assign.split("=");
 
-					modelMap.put(assignElements[0], assignElements[1]);
+						modelMap.put(assignElements[0], assignElements[1]);
+					}
+
+					assignmentsMap.put(model, modelMap);
+				} else if (elements.length == 1) {
+					String model = elements[0];
+					Map<String, String> modelMap = new LinkedHashMap<String, String>();
+
+					assignmentsMap.put(model, modelMap);
 				}
-
-				assignmentsMap.put(model, modelMap);
 			}
 		}
 

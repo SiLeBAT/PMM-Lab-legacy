@@ -236,7 +236,7 @@ public class CombinedJoiner implements Joiner {
 		while (modelReader.hasMoreElements()) {
 			KnimeTuple modelTuple = modelReader.nextElement();
 
-			if (!ids.add(modelTuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
+			if (!ids.add(modelTuple.getInt(Model1Schema.ATT_MODELID) + "("
 					+ modelTuple.getString(Model2Schema.ATT_DEPVAR) + ")")) {
 				index += dataTable.getRowCount();
 				continue;

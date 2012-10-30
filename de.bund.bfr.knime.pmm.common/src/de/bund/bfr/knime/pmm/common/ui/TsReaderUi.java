@@ -43,7 +43,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 import org.knime.core.node.InvalidSettingsException;
 
@@ -54,8 +54,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TsReaderUi extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 20120913;
-	private JTextArea matrixArea;
-	private JTextArea agentArea;
+	private JTextField matrixField;
+	private JTextField agentField;
 	private JCheckBox matrixSwitch;
 	private JCheckBox agentSwitch;
 
@@ -76,9 +76,9 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		agentSwitch.addActionListener( this );
 		panel.add( agentSwitch, BorderLayout.NORTH );
 		panel.add( new JLabel( "Organism name   " ), BorderLayout.WEST );
-		agentArea = new JTextArea();
-		agentArea.setEnabled( false );
-		panel.add( agentArea, BorderLayout.CENTER );
+		agentField = new JTextField();
+		agentField.setEnabled( false );
+		panel.add( agentField, BorderLayout.CENTER );
 
 		
 		panel = new JPanel();
@@ -92,9 +92,9 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		panel.add( matrixSwitch, BorderLayout.NORTH );
 		panel.add( new JLabel( "Matrix name   " ), BorderLayout.WEST );
 		
-		matrixArea = new JTextArea();
-		matrixArea.setEnabled( false );
-		panel.add( matrixArea, BorderLayout.CENTER );
+		matrixField = new JTextField();
+		matrixField.setEnabled( false );
+		panel.add( matrixField, BorderLayout.CENTER );
 
 	}
 
@@ -105,9 +105,9 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		if( arg0.getSource() == agentSwitch ) {
 			
 			if( agentSwitch.isSelected() )
-				agentArea.setEnabled( true );
+				agentField.setEnabled( true );
 			else
-				agentArea.setEnabled( false );
+				agentField.setEnabled( false );
 			
 			return;
 		}
@@ -115,28 +115,28 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		if( arg0.getSource() == matrixSwitch ) {
 			
 			if( matrixSwitch.isSelected() )
-				matrixArea.setEnabled( true );
+				matrixField.setEnabled( true );
 			else
-				matrixArea.setEnabled( false );
+				matrixField.setEnabled( false );
 			
 			return;
 		}
 		
 	}
 	
-	public String getMatrixString() { return matrixArea.getText(); }
-	public String getAgentString() { return agentArea.getText(); }
+	public String getMatrixString() { return matrixField.getText(); }
+	public String getAgentString() { return agentField.getText(); }
 	public boolean isMatrixFilterEnabled() { return matrixSwitch.isSelected(); }
 	public boolean isAgentFilterEnabled() { return agentSwitch.isSelected(); }
 	
 	public void setMatrixEnabled( final boolean en ) {
 		matrixSwitch.setSelected( en );
-		matrixArea.setEnabled( en );
+		matrixField.setEnabled( en );
 	}
 	
 	public void setAgentEnabled( final boolean en ) {
 		agentSwitch.setSelected( en );
-			agentArea.setEnabled( en );
+			agentField.setEnabled( en );
 	}
 	
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
@@ -144,7 +144,7 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		if( str == null )
 			throw new InvalidSettingsException( "Matrix Filter string must not be null." );
 		
-		matrixArea.setText( str );
+		matrixField.setText( str );
 	}
 	
 	public void setAgentString( final String str ) throws InvalidSettingsException {
@@ -152,7 +152,7 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		if( str == null )
 			throw new InvalidSettingsException( "Matrix Filter string must not be null." );
 		
-		agentArea.setText( str );
+		agentField.setText( str );
 	}
 	
 	public static boolean passesFilter(
@@ -200,21 +200,21 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		agentSwitch.setEnabled( true );
 		
 		if( matrixSwitch.isSelected() )
-			matrixArea.setEnabled( true );
+			matrixField.setEnabled( true );
 		else
-			matrixArea.setEnabled( false );
+			matrixField.setEnabled( false );
 		
 		if( agentSwitch.isSelected() )
-			agentArea.setEnabled( true );
+			agentField.setEnabled( true );
 		else
-			agentArea.setEnabled( false );
+			agentField.setEnabled( false );
 	}
 	
 	public void setInactive() {
 		matrixSwitch.setEnabled( false );
 		agentSwitch.setEnabled( false );
-		matrixArea.setEnabled( false );
-		agentArea.setEnabled( false );
+		matrixField.setEnabled( false );
+		agentField.setEnabled( false );
 	}
 	
 

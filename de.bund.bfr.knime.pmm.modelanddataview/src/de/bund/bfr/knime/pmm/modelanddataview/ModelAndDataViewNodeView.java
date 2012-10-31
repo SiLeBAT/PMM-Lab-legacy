@@ -339,12 +339,12 @@ public class ModelAndDataViewNodeView extends
 				List<Double> logcList = row
 						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
-				int n = 1;
-
-				plotable = new Plotable(Plotable.BOTH);
+				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 				if (!timeList.isEmpty() && !logcList.isEmpty()) {
-					n = timeList.size();
+					int n = timeList.size();
+
+					plotable = new Plotable(Plotable.BOTH);
 					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
 					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
 
@@ -352,34 +352,35 @@ public class ModelAndDataViewNodeView extends
 						dataPoints.add(new Point2D.Double(timeList.get(i),
 								logcList.get(i)));
 					}
-				}
 
-				if (temperature != null) {
-					plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,
-							Collections.nCopies(n, temperature));
-				}
-
-				if (ph != null) {
-					plotable.addValueList(TimeSeriesSchema.ATT_PH,
-							Collections.nCopies(n, ph));
-				}
-
-				if (waterActivity != null) {
-					plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY,
-							Collections.nCopies(n, waterActivity));
-				}
-
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-				for (PmmXmlElementConvertable el : misc.getElementSet()) {
-					MiscXml element = (MiscXml) el;
-
-					if (element.getValue() != null) {
-						plotable.addValueList(
-								element.getName(),
-								new ArrayList<Double>(Collections.nCopies(n,
-										element.getValue())));
+					if (temperature != null) {
+						plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,
+								Collections.nCopies(n, temperature));
 					}
+
+					if (ph != null) {
+						plotable.addValueList(TimeSeriesSchema.ATT_PH,
+								Collections.nCopies(n, ph));
+					}
+
+					if (waterActivity != null) {
+						plotable.addValueList(
+								TimeSeriesSchema.ATT_WATERACTIVITY,
+								Collections.nCopies(n, waterActivity));
+					}
+
+					for (PmmXmlElementConvertable el : misc.getElementSet()) {
+						MiscXml element = (MiscXml) el;
+
+						if (element.getValue() != null) {
+							plotable.addValueList(
+									element.getName(),
+									new ArrayList<Double>(Collections.nCopies(
+											n, element.getValue())));
+						}
+					}
+				} else {
+					plotable = new Plotable(Plotable.FUNCTION);
 				}
 
 				String dataName;

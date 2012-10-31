@@ -191,9 +191,13 @@ public class TableReader {
 							.get(i)));
 				}
 
-				plotable = new Plotable(Plotable.BOTH);
-				plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-				plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+				if (!timeList.isEmpty() && !logcList.isEmpty()) {
+					plotable = new Plotable(Plotable.BOTH);
+					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
+					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+				} else {
+					plotable = new Plotable(Plotable.FUNCTION);
+				}
 
 				String dataName;
 				String agent;

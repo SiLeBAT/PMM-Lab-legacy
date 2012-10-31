@@ -56,8 +56,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class XLSReader {
 
-	private static String ID = "ID";
-	private static String DVALUE = "DValue";
+	public static String ID = "ID";
+	public static String DVALUE = "DValue";
+	public static String LOG10N0 = "LOG10N0";
 
 	private static String[] TIMESERIES_STANDARD_COLUMNS = { ID,
 			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
@@ -351,19 +352,20 @@ public class XLSReader {
 			PmmXmlDoc indepXML = new PmmXmlDoc();
 			PmmXmlDoc paramXML = new PmmXmlDoc();
 
-			indepXML.add(new IndepXml("t", null, null));
-			paramXML.add(new ParamXml("Log10N0", log10N0, null, null, null,
-					null, null));
-			paramXML.add(new ParamXml("DValue", dValue, null, null, null, null,
+			indepXML.add(new IndepXml(TimeSeriesSchema.ATT_TIME, null, null));
+			paramXML.add(new ParamXml(LOG10N0, log10N0, null, null, null, null,
+					null));
+			paramXML.add(new ParamXml(DVALUE, dValue, null, null, null, null,
 					null));
 
 			tuple.setValue(Model1Schema.ATT_MODELID,
 					MathUtilities.getRandomNegativeInt());
 			tuple.setValue(Model1Schema.ATT_ESTMODELID,
 					MathUtilities.getRandomNegativeInt());
-			tuple.setValue(Model1Schema.ATT_FORMULA,
-					"Log10N=Log10N0+1/DValue*t");
-			tuple.setValue(Model1Schema.ATT_DEPVAR, "Log10N");
+			tuple.setValue(Model1Schema.ATT_FORMULA, TimeSeriesSchema.ATT_LOGC
+					+ "=" + LOG10N0 + "+1/" + DVALUE + "*"
+					+ TimeSeriesSchema.ATT_TIME);
+			tuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.ATT_LOGC);
 			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXML);
 

@@ -49,7 +49,10 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -149,7 +152,22 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_TIME, timeList);
 				tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcList);
 			} else if (fileFormat.equals(DVALUEFORMAT)) {
-				// TODO
+				PmmXmlDoc paramXml = tuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					if (element.getName().equals(XLSReader.DVALUE)) {
+						element.setValue(AttributeUtilities
+								.convertToStandardUnit(
+										TimeSeriesSchema.ATT_TIME,
+										element.getValue(), timeUnit));
+						break;
+					}
+				}
+
+				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 			}
 
 			Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);

@@ -4,25 +4,20 @@
     <name>XML To Table</name>
     
     <shortDescription>
-        
+    Transforms parameters in the XML cells to one parameter per column    
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>Transforms parameters in the XML cells to one parameter per column and adds these columns to the end of the table in the outport.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
+        <option name="Select a column">Select the XML column which contains the needed parameters. In order to transform the content of more than one XML column place several "XML 2 Table" nodes one after another.</option>
+        <option name="Append to data table">Check this box to append the XML parameters to the outport table.</option>
+        <option name="Cols from XML 2 add to table">Choose the XML parameters to be added to the outport table. To choose two or more XML parameters press Ctrl or Shift and then click.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Models/data">Put this node anyhwere in the workflow where there are parameters in XML columns in the outport.</inPort>
+        <outPort index="0" name="Models/data plus additional columns">Models/data plus additional parameters from XML columns.</outPort>
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

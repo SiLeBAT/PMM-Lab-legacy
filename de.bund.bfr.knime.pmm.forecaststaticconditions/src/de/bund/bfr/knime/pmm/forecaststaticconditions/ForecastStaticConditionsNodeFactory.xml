@@ -16,7 +16,7 @@
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Needs models and data from the PMM Joiner</inPort>
-        <outPort index="0" name="Predicted model parameter">Predicted model parameter</outPort>
+        <inPort index="0" name="In-Port name">Needs estimated models and data (time steps) from the PMM Joiner</inPort>
+        <outPort index="0" name="Predicted microbial concentrations">Predicted microbial concentrations, which can be viewed with the nodes "Model View Primary" or "Model Selection Primary"</outPort>
     </ports>    
 </knimeNode>

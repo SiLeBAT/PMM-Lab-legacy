@@ -35,9 +35,10 @@
         <u>Y Transform:</u> Transforms the data on the Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).<br></br><br></br>
         <b>FILTER</b><br></br>Filter the rows in the table to be displayed for model name, microbial data ID and model fitting.<br></br> 
         <u>'Yes'</u> means the model could be fitted to the microbial data set.<br></br> 
-        <u>'Warning' (yellow)</u> says that to fitted the model to the data the given minimum or maximum value of the parameters had to be extended. If this is not an option (e.g. because it is biologically not sensible) check 'Enforce Limits' in the Model Fitting node.<br></br> 
+        <u>'Warning' (yellow)</u> says that to fit the model to the data the given minimum or maximum value of the parameters had to be extended. If this is not an option (e.g. because it is biologically not sensible) check 'Enforce Limits' in the Model Fitting node.<br></br> 
         <u>'No' (red)</u> means that the model could not be fitted to the data.<br></br><br></br>
-        <b>TABLE</b><br></br>The table shows the available sets of data, whether they are currently being displayed (selected), the color and shape of the symbol, the data set ID and the assay conditions temperature, pH and aw. It also shows two quality criteria: The root mean square and R^2.<br></br><br></br>
+        <b>COLUMNS</b><br></br>Click on "Customize" to select the columns to be displayed, e.g. model name, quality criteria (R^2, AIC) and assay conditions (temperature, pH, aw).<br></br><br></br>
+        <b>TABLE</b><br></br>The table shows the available sets of data, whether they are currently being displayed (selected), the color and shape of the symbol and other information (see "COLUMNS"). Clicking on a column header sorts the table.<br></br><br></br>
         <b>INFO BOX</b><br></br>Informs about assay conditions and model parameter values.<br></br>Data points: Click on <u>View</u> to find microbial data as numbers in a table. These can be highlighted and copied (Ctrl+C), for example to paste them in a spreadsheet.</view>        
     </views>
 </knimeNode>

@@ -19,6 +19,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double max = null;
 	private Double P = null;
 	private Double t = null;
+	private Double minGuess = null;
+	private Double maxGuess = null;
 	
 	public ParamXml() {
 		
@@ -30,7 +32,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		setMin(min);
 		setMax(max);
 		setP(P);
-		sett(t);
+		sett(t);		
 	}
 	public ParamXml(Element xmlElement) {
 		try {
@@ -47,6 +49,10 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setP(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("t").getValue();
 			sett(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("minGuess").getValue();
+			setMinGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("maxGuess").getValue();
+			setMaxGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -66,8 +72,21 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public void setMin(Double min) {this.min = (min == null) ? null : min;}
 	public void setMax(Double max) {this.max = (max == null) ? null : max;}
 	public void setP(Double P) {this.P = (P == null) ? null : P;}
-	public void sett(Double t) {this.t = (t == null) ? null : t;}
+	public void sett(Double t) {this.t = (t == null) ? null : t;}	
 
+	public Double getMinGuess() {
+		return minGuess;
+	}
+	public void setMinGuess(Double minGuess) {
+		this.minGuess = minGuess;
+	}
+	public Double getMaxGuess() {
+		return maxGuess;
+	}
+	public void setMaxGuess(Double maxGuess) {
+		this.maxGuess = maxGuess;
+	}
+	
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_PARAM);
@@ -78,6 +97,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("max", "" + (max == null || Double.isNaN(max) ? "" : max));
 		modelElement.setAttribute("P", "" + (P == null || Double.isNaN(P) ? "" : P));
 		modelElement.setAttribute("t", "" + (t == null || Double.isNaN(t) ? "" : t));
+		modelElement.setAttribute("minGuess", "" + (minGuess == null || Double.isNaN(minGuess) ? "" : minGuess));
+		modelElement.setAttribute("maxGuess", "" + (maxGuess == null || Double.isNaN(maxGuess) ? "" : maxGuess));
 		return modelElement;
 	}
 
@@ -90,6 +111,8 @@ public class ParamXml implements PmmXmlElementConvertable {
         list.add("Max");
         list.add("P");
         list.add("t");
+        list.add("MinGuess");
+        list.add("MaxGuess");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -112,6 +135,12 @@ public class ParamXml implements PmmXmlElementConvertable {
 			return DoubleCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("t")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("minGuess")) {
+			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("maxGuess")) {
 			return DoubleCell.TYPE;
 		}
 		return null;

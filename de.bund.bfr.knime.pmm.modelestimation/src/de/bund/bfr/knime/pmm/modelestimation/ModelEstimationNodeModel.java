@@ -939,50 +939,54 @@ public class ModelEstimationNodeModel extends NodeModel {
 									.getName());
 
 							if (!Double.isNaN(guess.x)) {
-								element.setP(guess.x);
+								element.setMinGuess(guess.x);
 							} else {
-								element.setP(null);
+								element.setMinGuess(null);
 							}
 
 							if (!Double.isNaN(guess.y)) {
-								element.sett(guess.y);
+								element.setMaxGuess(guess.y);
 							} else {
-								element.sett(null);
+								element.setMaxGuess(null);
 							}
 						} else {
-							element.setP(element.getMin());
-							element.sett(element.getMax());
+							element.setMinGuess(element.getMin());
+							element.setMaxGuess(element.getMax());
 						}
 					}
 
 					String secID = tuple.getInt(Model2Schema.ATT_MODELID) + "";
 					PmmXmlDoc secParams = tuple
 							.getPmmXml(Model2Schema.ATT_PARAMETER);
+					Map<String, Point2D.Double> secGuesses = parameterGuesses
+							.get(secID);
+
+					if (secGuesses == null) {
+						secGuesses = new LinkedHashMap<String, Point2D.Double>();
+					}
 
 					for (PmmXmlElementConvertable el : secParams
 							.getElementSet()) {
 						ParamXml element = (ParamXml) el;
 
-						if (parameterGuesses.containsKey(secID)
-								&& parameterGuesses.get(secID).containsKey(
-										element.getName())) {
-							Point2D.Double guess = parameterGuesses.get(secID)
-									.get(element.getName());
+						if (secGuesses.containsKey(element.getName())) {
+							Point2D.Double guess = secGuesses.get(element
+									.getName());
 
 							if (!Double.isNaN(guess.x)) {
-								element.setP(guess.x);
+								element.setMinGuess(guess.x);
 							} else {
-								element.setP(null);
+								element.setMinGuess(null);
 							}
 
 							if (!Double.isNaN(guess.y)) {
-								element.sett(guess.y);
+								element.setMaxGuess(guess.y);
 							} else {
-								element.sett(null);
+								element.setMaxGuess(null);
 							}
 						} else {
-							element.setP(element.getMin());
-							element.sett(element.getMax());
+							element.setMinGuess(element.getMin());
+							element.setMaxGuess(element.getMax());
 						}
 					}
 
@@ -1097,8 +1101,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							parameters.add(element.getName());
 							minParameterValues.add(element.getMin());
 							maxParameterValues.add(element.getMax());
-							minGuessValues.add(element.getP());
-							maxGuessValues.add(element.gett());
+							minGuessValues.add(element.getMinGuess());
+							maxGuessValues.add(element.getMaxGuess());
 						}
 
 						MathUtilities.removeNullValues(targetValues,

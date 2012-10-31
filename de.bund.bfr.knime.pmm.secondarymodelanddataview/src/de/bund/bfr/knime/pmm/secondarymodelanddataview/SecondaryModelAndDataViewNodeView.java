@@ -565,11 +565,12 @@ public class SecondaryModelAndDataViewNodeView extends
 					nonNullValues.removeAll(Arrays.asList((Double) null));
 
 					if (!nonNullValues.isEmpty()) {
-						plotable.getFunctionArguments().put(miscParams.get(i),
-								new ArrayList<Double>(Arrays.asList(0.0)));
-					}
+						if (!hasArguments) {
+							plotable.getFunctionArguments().put(
+									miscParams.get(i),
+									new ArrayList<Double>(Arrays.asList(0.0)));
+						}
 
-					if (!nonNullValues.isEmpty()) {
 						doubleColumnValues.get(2 * i + 10).add(
 								Collections.min(nonNullValues));
 						doubleColumnValues.get(2 * i + 11).add(

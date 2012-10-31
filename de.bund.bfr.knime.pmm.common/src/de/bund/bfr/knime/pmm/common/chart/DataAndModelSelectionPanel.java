@@ -991,7 +991,8 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 				for (int i = 0; i < colorList.size(); i++) {
 					g.setColor(colorList.get(i));
-					g.fillRect((int) (i * w), 0, (int) w, getHeight());
+					g.fillRect((int) (i * w), 0, (int) Math.max(w, 1),
+							getHeight());
 				}
 			}
 		}
@@ -1127,12 +1128,16 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			bottomPanel.add(okButton);
 			bottomPanel.add(cancelButton);
 
+			JPanel scrollPanel = new JPanel();
+
+			scrollPanel.setLayout(new BorderLayout());
+			scrollPanel.add(centerPanel, BorderLayout.NORTH);
+
 			setLayout(new BorderLayout());
-			add(centerPanel, BorderLayout.CENTER);
+			add(new JScrollPane(scrollPanel), BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 
-			setResizable(false);
 			setLocationRelativeTo(DataAndModelSelectionPanel.this);
 		}
 
@@ -1214,12 +1219,16 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			bottomPanel.add(okButton);
 			bottomPanel.add(cancelButton);
 
+			JPanel scrollPanel = new JPanel();
+
+			scrollPanel.setLayout(new BorderLayout());
+			scrollPanel.add(centerPanel, BorderLayout.NORTH);
+
 			setLayout(new BorderLayout());
-			add(centerPanel, BorderLayout.CENTER);
+			add(new JScrollPane(scrollPanel), BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 
-			setResizable(false);
 			setLocationRelativeTo(DataAndModelSelectionPanel.this);
 		}
 

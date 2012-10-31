@@ -503,6 +503,25 @@ public class ModelEstimationNodeModel extends NodeModel {
 					parameters.add(element.getName());
 					minParameterValues.add(element.getMin());
 					maxParameterValues.add(element.getMax());
+
+					if (guesses.containsKey(element.getName())) {
+						Point2D.Double guess = guesses.get(element.getName());
+
+						if (!Double.isNaN(guess.x)) {
+							minGuessValues.add(guess.x);
+						} else {
+							minGuessValues.add(null);
+						}
+
+						if (!Double.isNaN(guess.y)) {
+							maxGuessValues.add(guess.y);
+						} else {
+							maxGuessValues.add(null);
+						}
+					} else {
+						minGuessValues.add(element.getMin());
+						maxGuessValues.add(element.getMax());
+					}
 				}
 
 				List<Double> parameterValues = Collections.nCopies(
@@ -521,27 +540,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> maxIndep = null;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
-
-				for (String param : parameters) {
-					if (guesses.containsKey(param)) {
-						Point2D.Double guess = guesses.get(param);
-
-						if (!Double.isNaN(guess.x)) {
-							minGuessValues.add(guess.x);
-						} else {
-							minGuessValues.add(null);
-						}
-
-						if (!Double.isNaN(guess.y)) {
-							maxGuessValues.add(guess.y);
-						} else {
-							maxGuessValues.add(null);
-						}
-					} else {
-						minGuessValues.add(null);
-						maxGuessValues.add(null);
-					}
-				}
 
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
 					argumentValues.add(timeValues);
@@ -744,6 +742,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 						List<Double> targetValues = depVarMap.get(id);
 						List<String> arguments = CellIO.getNameList(indepXml);
 						List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+						String modelID = tuple.getInt(Model2Schema.ATT_MODELID)
+								+ "";
+						Map<String, Point2D.Double> modelGuesses = parameterGuesses
+								.get(modelID);
+
+						if (modelGuesses == null) {
+							modelGuesses = new LinkedHashMap<String, Point2D.Double>();
+						}
 
 						for (PmmXmlElementConvertable el : paramXml
 								.getElementSet()) {
@@ -752,17 +758,10 @@ public class ModelEstimationNodeModel extends NodeModel {
 							parameters.add(element.getName());
 							minParameterValues.add(element.getMin());
 							maxParameterValues.add(element.getMax());
-						}
 
-						for (String param : parameters) {
-							String modelID = tuple
-									.getInt(Model2Schema.ATT_MODELID) + "";
-
-							if (parameterGuesses.containsKey(modelID)
-									&& parameterGuesses.get(modelID)
-											.containsKey(param)) {
-								Point2D.Double guess = parameterGuesses.get(
-										modelID).get(param);
+							if (modelGuesses.containsKey(element.getName())) {
+								Point2D.Double guess = modelGuesses.get(element
+										.getName());
 
 								if (!Double.isNaN(guess.x)) {
 									minGuessValues.add(guess.x);
@@ -776,8 +775,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxGuessValues.add(null);
 								}
 							} else {
-								minGuessValues.add(null);
-								maxGuessValues.add(null);
+								minGuessValues.add(element.getMin());
+								maxGuessValues.add(element.getMax());
 							}
 						}
 
@@ -925,15 +924,19 @@ public class ModelEstimationNodeModel extends NodeModel {
 				for (KnimeTuple tuple : seiTuples) {
 					PmmXmlDoc params = tuple
 							.getPmmXml(Model1Schema.ATT_PARAMETER);
+					Map<String, Point2D.Double> primaryGuesses = parameterGuesses
+							.get(PRIMARY);
+
+					if (primaryGuesses == null) {
+						primaryGuesses = new LinkedHashMap<String, Point2D.Double>();
+					}
 
 					for (PmmXmlElementConvertable el : params.getElementSet()) {
 						ParamXml element = (ParamXml) el;
 
-						if (parameterGuesses.containsKey(PRIMARY)
-								&& parameterGuesses.get(PRIMARY).containsKey(
-										element.getName())) {
-							Point2D.Double guess = parameterGuesses
-									.get(PRIMARY).get(element.getName());
+						if (primaryGuesses.containsKey(element.getName())) {
+							Point2D.Double guess = primaryGuesses.get(element
+									.getName());
 
 							if (!Double.isNaN(guess.x)) {
 								element.setP(guess.x);
@@ -947,8 +950,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 								element.sett(null);
 							}
 						} else {
-							element.setP(null);
-							element.sett(null);
+							element.setP(element.getMin());
+							element.sett(element.getMax());
 						}
 					}
 
@@ -978,8 +981,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 								element.sett(null);
 							}
 						} else {
-							element.setP(null);
-							element.sett(null);
+							element.setP(element.getMin());
+							element.sett(element.getMax());
 						}
 					}
 

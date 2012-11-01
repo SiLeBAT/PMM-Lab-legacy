@@ -75,8 +75,12 @@ public class CombaseReaderNodeModel extends NodeModel {
 		
 	protected static final String PARAM_FILENAME = "filename";
 	protected static final String PARAM_SKIPEMPTY = "skipEmpty";
+	protected static final String PARAM_STARTELIM = "startElim";
+	protected static final String PARAM_STARTGROW = "startGrow";
 
 	private String filename;
+	private double startElim;
+	private double startGrow;
     
     /**
      * Constructor for the node model.
@@ -84,9 +88,10 @@ public class CombaseReaderNodeModel extends NodeModel {
     protected CombaseReaderNodeModel() {
     	
         super( 0, 2 );
-    	// super( 0, 1 );
         
         filename = "";
+        startElim = 10;
+        startGrow = 0;
     }
 
     /**
@@ -104,6 +109,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     	ParamXml paramXml;
     	KnimeSchema tsm1Schema;
     	KnimeTuple modelTuple;
+    	double start;
     	
     	tsm1Schema = KnimeSchema.merge( new TimeSeriesSchema(), new Model1Schema() );
 
@@ -129,7 +135,17 @@ public class CombaseReaderNodeModel extends NodeModel {
     			    			
     			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC=LogC0+mumax*t" );
     			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
-    			modelTuple.setValue( Model1Schema.ATT_VALUE, "?,"+candidate.getMaximumRate() );
+    			
+    			if( Double.isNaN( candidate.getMaximumRate() )
+					|| Double.isInfinite( candidate.getMaximumRate() ) )
+    				continue;
+    			
+    			if( candidate.getMaximumRate() >= 0 )
+    				start = startGrow;
+    			else
+    				start = startElim;
+    			
+    			modelTuple.setValue( Model1Schema.ATT_VALUE, start+","+candidate.getMaximumRate() );
     			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );
     			modelTuple.setValue( Model1Schema.ATT_DEPVAR, "LogC" );
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
@@ -215,7 +231,8 @@ public class CombaseReaderNodeModel extends NodeModel {
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
 
     	settings.addString( PARAM_FILENAME, filename );
-    	// settings.addBoolean( PARAM_SKIPEMPTY, skipEmpty );
+    	settings.addDouble( PARAM_STARTELIM, startElim );
+    	settings.addDouble( PARAM_STARTGROW, startGrow );
     }
 
     /**
@@ -226,7 +243,8 @@ public class CombaseReaderNodeModel extends NodeModel {
             throws InvalidSettingsException {
 
     	filename = settings.getString( PARAM_FILENAME );
-    	// skipEmpty = settings.getBoolean( PARAM_SKIPEMPTY );
+    	startElim = settings.getDouble( PARAM_STARTELIM );
+    	startGrow = settings.getDouble( PARAM_STARTGROW );
     }
 
     /**

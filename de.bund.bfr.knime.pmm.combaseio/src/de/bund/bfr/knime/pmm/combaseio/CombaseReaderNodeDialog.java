@@ -37,6 +37,9 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
+import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
+import org.knime.core.node.defaultnodesettings.SettingsModelNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -61,15 +64,20 @@ public class CombaseReaderNodeDialog extends DefaultNodeSettingsPane {
     	
     	SettingsModelString sms;
     	DialogComponentFileChooser dcfc;
+    	DialogComponentNumber dcn;
+    	SettingsModelDouble smn;
     	
     	sms = new SettingsModelString( CombaseReaderNodeModel.PARAM_FILENAME, "" );
     	dcfc = new DialogComponentFileChooser( sms, HISTORYID, JFileChooser.OPEN_DIALOG, false );
     	addDialogComponent( dcfc );
     	
-    	/* smb = new SettingsModelBoolean( CombaseReaderNodeModel.PARAM_SKIPEMPTY, true );
-    	dcb = new DialogComponentBoolean( smb, "Skip entries containing only growth rates/doubling time" );
-    	addDialogComponent( dcb ); */
-
+    	smn = new SettingsModelDouble( CombaseReaderNodeModel.PARAM_STARTELIM, 10 );
+    	dcn = new DialogComponentNumber( smn, "Start value for elimination:", .1 );
+    	addDialogComponent( dcn );
+    	
+    	smn = new SettingsModelDouble( CombaseReaderNodeModel.PARAM_STARTGROW, 0 );
+    	dcn = new DialogComponentNumber( smn, "Start value for growth:", .1 );
+    	addDialogComponent( dcn );
     }
 }
 

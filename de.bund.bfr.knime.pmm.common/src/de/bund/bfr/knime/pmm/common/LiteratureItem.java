@@ -33,9 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom2.Element;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -53,18 +50,18 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 
 	
 	private String author;
-	private int year;
-	private int id;
+	private Integer year;
+	private Integer id;
 	private String tag;
 	
-	public LiteratureItem( final String author, final int year, final String tag, final int id ) {
+	public LiteratureItem( final String author, final Integer year, final String tag, final Integer id ) {
 		this.author = author;
 		this.year = year;
 		this.id = id;
 		this.tag = tag;
 	}
 	
-	public LiteratureItem( final String author, final int year, final String tag ) {
+	public LiteratureItem( final String author, final Integer year, final String tag ) {
 		this( author, year, tag, MathUtilities.getRandomNegativeInt() );
 	}
 	
@@ -92,8 +89,8 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	}
 	
 	public String getAuthor() { return author; }
-	public int getYear() { return year; }
-	public int getId() { return id; }
+	public Integer getYear() { return year; }
+	public Integer getId() { return id; }
 	public String getTag() { return tag; }
 	@Override
 	public String toString() { return author+"_"+year; }

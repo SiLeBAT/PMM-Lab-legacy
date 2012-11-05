@@ -503,101 +503,33 @@ if (dbForm != null || owner != null) {
 		return result;
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col) {
-  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, null);
-  }
+	  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, null);
+	  }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions) {
+	  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, false);	  
+  }
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
   	//JDialog.setDefaultLookAndFeelDecorated(true);
-  	JDialog f = new JDialog(DBKernel.mainFrame, titel, dbTable != null);
+  	JDialog f = new JDialog(DBKernel.mainFrame, titel, dbTable != null || fromMMC);
 		//removeMinMaxClose(f);  
 
 		MyDBTable newDBTable = new MyDBTable(); 
 		MyDBTree newDBTree = null; 
 		boolean isHierarchic = DBKernel.showHierarchic(theNewTable.getTablename());
 		try {
-			boolean disableButtons = false;
 			if (dbTable == null) {
 				newDBTable.initConn(DBKernel.getDBConnection());
 			} else {
 				newDBTable.initConn(dbTable.getConnection());
 			}
+			
 			MyTable myT = null;
 			if (dbTable != null) {
 				myT = dbTable.getActualTable();
 			}
-			String tn = "";
-			if (myT != null) {
-				tn = myT.getTablename();
-			}
-			if (myT != null && tn.equals("Zutatendaten") &&
-					headerValue != null && headerValue.toString().equals("Vorprozess")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Zielprozess"; o[0][1] = dbTable.getValueAt(row, 1);
-				newDBTable.setTable(theNewTable, o);
-				disableButtons = true;
-			}
-			else if (myT != null && tn.equals("Prozessdaten") &&
-					headerValue != null && headerValue.toString().equals("Zutaten")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Prozessdaten"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("Produzent_Artikel") &&
-					headerValue != null && headerValue.toString().equals("Lieferungen")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("Station") &&
-					headerValue != null && headerValue.toString().equals("Produktkatalog")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Station"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("Produktkatalog") &&
-					headerValue != null && headerValue.toString().equals("Lieferungen")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("Lieferungen") && headerValue != null) {					
-				if (headerValue.toString().equals("Vorprodukt")) {
-					Object[][] o = new Object[1][2]; o[0][0] = "Zielprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
-					newDBTable.setTable(theNewTable, o);
-				}
-				else if (headerValue.toString().equals("Zielprodukt")) {
-					Object[][] o = new Object[1][2]; o[0][0] = "Vorprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
-					newDBTable.setTable(theNewTable, o);
-				}
-				else {
-					newDBTable.setTable(theNewTable, conditions);
-				}
-			}
-
-			else if (myT != null && tn.equals("ProzessWorkflow") &&
-					headerValue != null && headerValue.toString().equals("Prozessdaten")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && headerValue != null && headerValue.toString().equals("Katalogcodes")) { // tn.equals("Matrices"), tn.equals("Agenzien"), tn.equals("Methoden") 
-				Object[][] o = new Object[1][2]; o[0][0] = "Basis"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("Versuchsbedingungen") &&
-					headerValue != null && headerValue.toString().equals("Messwerte")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "Versuchsbedingungen"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("GeschaetzteModelle") &&
-					headerValue != null && headerValue.toString().equals("GeschaetzteParameterCovCor")) {
-				Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&
-					headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
-				Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
-				newDBTable.setTable(theNewTable, o);
-			}
-			else {
-				newDBTable.setTable(theNewTable, conditions);
-			}
-	
+			boolean disableButtons = defineTable4NewDBTable(myT, dbTable, value, headerValue, theNewTable, newDBTable, row, col, conditions);
 			if (isHierarchic) {
 				newDBTree = new MyDBTree(); 
 				String[] showOnly = null;
@@ -615,6 +547,7 @@ if (dbForm != null || owner != null) {
 				}
 				newDBTree.setTable(theNewTable, showOnly);
 			}
+
 			final MyDBPanel myP = new MyDBPanel(newDBTable, newDBTree, disableButtons);
 	  		if (value != null && value instanceof Integer) {
 	  			newDBTable.setSelectedID((Integer) value);
@@ -636,7 +569,7 @@ if (dbForm != null || owner != null) {
 	        		myP.getSuchfeld().requestFocus();
 	            }
 	        });
-			if (dbTable != null) {
+			if (dbTable != null || fromMMC) {
 				myP.setParentDialog(f, true);
 			}  
 			myP.setTreeVisible(isHierarchic);  
@@ -704,6 +637,81 @@ if (dbForm != null || owner != null) {
 		}
 		
 		return result;
+  }
+  private boolean defineTable4NewDBTable(MyTable myT, MyDBTable dbTable, final Object value, final Object headerValue, final MyTable theNewTable, MyDBTable newDBTable, final Integer row, final Integer col, final Object[][] conditions) {
+		boolean disableButtons = false;
+		String tn = "";
+		if (myT != null) {
+			tn = myT.getTablename();
+		}
+		if (myT != null && tn.equals("Zutatendaten") &&
+				headerValue != null && headerValue.toString().equals("Vorprozess")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Zielprozess"; o[0][1] = dbTable.getValueAt(row, 1);
+			newDBTable.setTable(theNewTable, o);
+			disableButtons = true;
+		}
+		else if (myT != null && tn.equals("Prozessdaten") &&
+				headerValue != null && headerValue.toString().equals("Zutaten")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Prozessdaten"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Produzent_Artikel") &&
+				headerValue != null && headerValue.toString().equals("Lieferungen")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Station") &&
+				headerValue != null && headerValue.toString().equals("Produktkatalog")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Station"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Produktkatalog") &&
+				headerValue != null && headerValue.toString().equals("Lieferungen")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Lieferungen") && headerValue != null) {					
+			if (headerValue.toString().equals("Vorprodukt")) {
+				Object[][] o = new Object[1][2]; o[0][0] = "Zielprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
+				newDBTable.setTable(theNewTable, o);
+			}
+			else if (headerValue.toString().equals("Zielprodukt")) {
+				Object[][] o = new Object[1][2]; o[0][0] = "Vorprodukt"; o[0][1] = dbTable.getValueAt(row, 0);
+				newDBTable.setTable(theNewTable, o);
+			}
+			else {
+				newDBTable.setTable(theNewTable, conditions);
+			}
+		}
+
+		else if (myT != null && tn.equals("ProzessWorkflow") &&
+				headerValue != null && headerValue.toString().equals("Prozessdaten")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && headerValue != null && headerValue.toString().equals("Katalogcodes")) { // tn.equals("Matrices"), tn.equals("Agenzien"), tn.equals("Methoden") 
+			Object[][] o = new Object[1][2]; o[0][0] = "Basis"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Versuchsbedingungen") &&
+				headerValue != null && headerValue.toString().equals("Messwerte")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Versuchsbedingungen"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("GeschaetzteModelle") &&
+				headerValue != null && headerValue.toString().equals("GeschaetzteParameterCovCor")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&
+				headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
+			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else {
+			newDBTable.setTable(theNewTable, conditions);
+		}
+		return disableButtons;
   }
 
   private void expandAll() {

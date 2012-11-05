@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
-			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, linegap, default:grow"
+			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, pargap, fill:default:grow, 1dlu, default"
 			"$columnGroupIds": "0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1"
 		} ) {
 			name: "this"
@@ -212,13 +212,60 @@ new FormModel {
 				"gridX": 11
 				"gridY": 15
 			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane2"
+				"preferredSize": new java.awt.Dimension( 452, 120 )
+				add( new FormComponent( "javax.swing.JTable" ) {
+					name: "referencesTable"
+					"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector, new java.util.Vector {
+						add( "Reference" )
+					}, new java.util.Vector {
+						add( class java.lang.Object )
+					}, new java.util.Vector {
+						add( false )
+					}, new java.util.Vector {
+						add( null )
+					} )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 17
+				"gridWidth": 17
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label9"
+				"text": "References:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridY": 17
+				"gridHeight": 3
+			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
-				"text": "Choose References"
+				"text": "New Reference"
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 19
+				"gridWidth": 5
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button3"
+				"text": "Edit Reference"
+				"enabled": false
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button3ActionPerformed", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 9
+				"gridY": 19
+				"gridWidth": 5
+			} )
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "button2"
+				"text": "Delete Reference"
+				"enabled": false
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button2ActionPerformed", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 15
-				"gridY": 17
+				"gridY": 19
 				"gridWidth": 5
 			} )
 		}, new FormLayoutConstraints( null ) {

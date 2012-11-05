@@ -12,11 +12,17 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.*;
 import de.bund.bfr.knime.pmm.common.ui.*;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
@@ -25,6 +31,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -69,6 +76,22 @@ public class MMC_M extends JPanel {
 			radioButton2.setEnabled(false);
 			radioButton3.setEnabled(false);
 		}
+		
+		referencesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+		    public void valueChanged(ListSelectionEvent lse) {
+		        if (!lse.getValueIsAdjusting()) {
+		            if (referencesTable.getSelectedRowCount() > 0) {
+		            	button2.setEnabled(true);
+		            	button3.setEnabled(true);
+		            }
+		            else {
+		            	button2.setEnabled(false);
+		            	button3.setEnabled(false);
+		            }
+		        }
+		    }
+		});
 	}
 	
 	public ParametricModel getPM() {
@@ -497,19 +520,51 @@ public class MMC_M extends JPanel {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
-		/*
-		BFRNodeService service = BfRNodePluginActivator.getBfRService();
-		//final Connection connection = service.getJDBCConnection();
-		//org.hsh.bfr.db.StartApp.go(connection, true, true);
+		doLit(null);
+	}
+
+	private void button2ActionPerformed(ActionEvent e) {
+		// Delete
+		deleteSelLitRow();
+	}
+
+	private void button3ActionPerformed(ActionEvent e) {
+		// Edit
+		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
+		doLit(li.getId());
+	}
+	private void deleteSelLitRow() {
+		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());		
+	}
+	private void doLit(Integer litID) {
+		MyTable lit = DBKernel.myList.getTable("Literatur");
 		Object newVal = DBKernel.myList.openNewWindow(
-				DBKernel.myList.getTable("Literatur"),
-				null,
+				lit,
+				litID,
 				(Object) "Literatur",
-				(MyDBTable) null,
+				null,
 				1,
-				1);
-		//org.hsh.bfr.db.StartApp.go(connection, true, true, "Literatur");
-		 * */
+				1,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			Object autor = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Erstautor");
+			Object year = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Jahr");
+			LiteratureItem li = new LiteratureItem(autor == null ? "?" : autor.toString(),
+					year == null ? null : (Integer) year,
+							LiteratureItem.TAG_EM,
+							(Integer) newVal);
+			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
+			vli.add(li);
+			if (litID != null) {
+				int selRow = referencesTable.getSelectedRow();
+				deleteSelLitRow();
+				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, vli);
+			}
+			else {
+				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
+			}
+		}		
 	}
 
 	private void r2FieldFocusLost(FocusEvent e) {
@@ -598,7 +653,12 @@ public class MMC_M extends JPanel {
 		aicField = new DoubleTextField(true);
 		label6 = new JLabel();
 		bicField = new DoubleTextField(true);
+		scrollPane2 = new JScrollPane();
+		referencesTable = new JTable();
+		label9 = new JLabel();
 		button1 = new JButton();
+		button3 = new JButton();
+		button2 = new JButton();
 
 		//======== this ========
 		setBorder(new CompoundBorder(
@@ -606,7 +666,7 @@ public class MMC_M extends JPanel {
 			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"3*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $lgap, default:grow"));
+			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $pgap, fill:default:grow, 1dlu, default"));
 		((FormLayout)getLayout()).setColumnGroups(new int[][] {{3, 9, 15}, {5, 11, 17}, {7, 13, 19}});
 
 		//---- depVarLabel ----
@@ -808,15 +868,65 @@ public class MMC_M extends JPanel {
 		});
 		add(bicField, CC.xy(11, 15));
 
+		//======== scrollPane2 ========
+		{
+			scrollPane2.setPreferredSize(new Dimension(452, 120));
+
+			//---- referencesTable ----
+			referencesTable.setModel(new DefaultTableModel(
+				new Object[][] {
+				},
+				new String[] {
+					"Reference"
+				}
+			) {
+				boolean[] columnEditable = new boolean[] {
+					false
+				};
+				@Override
+				public boolean isCellEditable(int rowIndex, int columnIndex) {
+					return columnEditable[columnIndex];
+				}
+			});
+			scrollPane2.setViewportView(referencesTable);
+		}
+		add(scrollPane2, CC.xywh(3, 17, 17, 1));
+
+		//---- label9 ----
+		label9.setText("References:");
+		add(label9, CC.xywh(1, 17, 1, 3));
+
 		//---- button1 ----
-		button1.setText("Choose References");
+		button1.setText("New Reference");
 		button1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xywh(15, 17, 5, 1));
+		add(button1, CC.xywh(3, 19, 5, 1));
+
+		//---- button3 ----
+		button3.setText("Edit Reference");
+		button3.setEnabled(false);
+		button3.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				button3ActionPerformed(e);
+			}
+		});
+		add(button3, CC.xywh(9, 19, 5, 1));
+
+		//---- button2 ----
+		button2.setText("Delete Reference");
+		button2.setEnabled(false);
+		button2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				button2ActionPerformed(e);
+			}
+		});
+		add(button2, CC.xywh(15, 19, 5, 1));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -851,7 +961,12 @@ public class MMC_M extends JPanel {
 	private DoubleTextField aicField;
 	private JLabel label6;
 	private DoubleTextField bicField;
+	private JScrollPane scrollPane2;
+	private JTable referencesTable;
+	private JLabel label9;
 	private JButton button1;
+	private JButton button3;
+	private JButton button2;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 }

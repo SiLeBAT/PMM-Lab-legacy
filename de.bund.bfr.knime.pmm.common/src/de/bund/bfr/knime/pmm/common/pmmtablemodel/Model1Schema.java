@@ -39,9 +39,12 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 public class Model1Schema extends KnimeSchema {
 
 	public static final String ATT_FORMULA = "Formula";
+	@Deprecated
 	public static final String ATT_PARAMNAME = "ParamName";
 	public static final String ATT_DEPVAR = "DepVar";
+	@Deprecated
 	public static final String ATT_INDEPVAR = "IndepVar";
+	@Deprecated
 	public static final String ATT_VALUE = "Value";
 	public static final String ATT_MODELNAME = "ModelName";
 	public static final String ATT_MODELID = "ModelCatalogID";
@@ -51,9 +54,13 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_ESTMODELID = "EstModelID";
 	public static final String ATT_RMS = "RMS";
 	public static final String ATT_RSQUARED = "Rsquared";
+	@Deprecated
 	public static final String ATT_MINVALUE = "MinValue";
+	@Deprecated
 	public static final String ATT_MAXVALUE = "MaxValue";
+	@Deprecated
 	public static final String ATT_MININDEP = "MinIndep";
+	@Deprecated
 	public static final String ATT_MAXINDEP = "MaxIndep";
 	public static final String ATT_LITIDM = "MLitID";
 	public static final String ATT_LITM = "MLit";

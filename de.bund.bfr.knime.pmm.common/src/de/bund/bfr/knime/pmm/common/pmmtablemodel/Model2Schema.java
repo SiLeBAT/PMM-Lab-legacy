@@ -41,7 +41,9 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_FORMULA = "FormulaSec";
 	public static final String ATT_PARAMNAME = "ParamNameSec";
 	public static final String ATT_DEPVAR = "DepVarSec";
+	@Deprecated
 	public static final String ATT_INDEPVAR = "IndepVarSec";
+	@Deprecated
 	public static final String ATT_VALUE = "ValueSec";
 	public static final String ATT_MODELNAME = "ModelNameSec";
 	public static final String ATT_MODELID = "ModelCatalogIDSec";
@@ -52,9 +54,13 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_VARPARMAP = "VarParMapSec";
 	public static final String ATT_RMS = "RMSSec";
 	public static final String ATT_RSQUARED = "RsquaredSec";
+	@Deprecated
 	public static final String ATT_MINVALUE = "MinValueSec";
+	@Deprecated
 	public static final String ATT_MAXVALUE = "MaxValueSec";
+	@Deprecated
 	public static final String ATT_MININDEP = "MinIndepSec";
+	@Deprecated
 	public static final String ATT_MAXINDEP = "MaxIndepSec";
 	public static final String ATT_LITIDM = "MLitIDSec";
 	public static final String ATT_LITM = "MLitSec";

@@ -446,7 +446,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
-	public void setPh( final Double ph ) throws PmmException {
+	public void setPh(final Double ph) throws PmmException {
 		
 		if( ph == null ) {
 			setValue( ATT_PH, null );
@@ -458,24 +458,15 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			return;
 		}
 		
-		if( ph < 0 ) {
-			throw new PmmException( "pH cannot be negative." );
+		if( ph < PmmConstants.MIN_PH ) {
+			throw new PmmException("pH cannot be lower than " + PmmConstants.MIN_PH);
 		}
 		
-		if( ph > 14 ) {
-			throw new PmmException( "pH cannot exceed 14." );
+		if( ph > PmmConstants.MAX_PH ) {
+			throw new PmmException("pH cannot exceed" + PmmConstants.MAX_PH);
 		}
 		
 		setValue( ATT_PH, ph );
-	}
-	
-	public void setPh( final String ph ) throws PmmException {
-		
-		if( ph == null ) {
-			setValue( ATT_PH, null );
-		} else {
-			setPh( Double.valueOf( ph ) );
-		}
 	}
 	
 	public void setWaterActivity( final Double aw ) throws PmmException {
@@ -490,12 +481,12 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			return;
 		}
 				
-		if( aw < 0 ) {
-			throw new PmmException( "Water activity connot be lower than 0." );
+		if (aw < PmmConstants.MIN_WATERACTIVITY)  {
+			throw new PmmException( "Water activity connot be lower than " + PmmConstants.MIN_WATERACTIVITY);
 		}
 		
-		if( aw > 1 ) {
-			throw new PmmException( "Water activity cannot exceed 1." );
+		if( aw > PmmConstants.MAX_WATERACTIVITY ) {
+			throw new PmmException( "Water activity cannot exceed " + PmmConstants.MAX_WATERACTIVITY );
 		}
 		
 		setValue( ATT_WATERACTIVITY, aw );

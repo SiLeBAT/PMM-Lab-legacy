@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -144,8 +145,10 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
     		tuple.setMisc(miscDoc);
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
-    		tuple.setPh( result.getString( Bfrdb.ATT_PH ) );
-    		tuple.setWaterActivity( result.getString( Bfrdb.ATT_AW ) );
+    		try {tuple.setPh(result.getDouble(Bfrdb.ATT_PH));}
+    		catch (PmmException e) {e.printStackTrace();}
+    		try {tuple.setWaterActivity(result.getDouble(Bfrdb.ATT_AW));}
+    		catch (PmmException e) {e.printStackTrace();}
     		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
     		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
     		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );

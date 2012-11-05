@@ -135,10 +135,11 @@ public class CombaseReaderNodeModel extends NodeModel {
     			PmmXmlDoc indepXML = new PmmXmlDoc();
     			
     			modelTuple = new KnimeTuple( commonSchema );
-    			indepXML.add(new IndepXml("t", null, null));
+    			indepXML.add(new IndepXml( TimeSeriesSchema.ATT_TIME, null, null));
     			
     			modelTuple = KnimeTuple.merge( commonSchema, modelTuple, candidate );
-    			modelTuple.setValue( Model1Schema.ATT_FORMULA, "LogC=LogC0+mumax*t" );
+    			modelTuple.setValue( Model1Schema.ATT_FORMULA,
+					TimeSeriesSchema.ATT_LOGC+"=LogC0+mumax*"+TimeSeriesSchema.ATT_TIME );
     			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			
     			if( Double.isNaN( candidate.getMaximumRate() )
@@ -152,7 +153,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			
     			modelTuple.setValue( Model1Schema.ATT_VALUE, start+","+candidate.getMaximumRate() );
     			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );
-    			modelTuple.setValue( Model1Schema.ATT_DEPVAR, "LogC" );
+    			modelTuple.setValue( Model1Schema.ATT_DEPVAR, TimeSeriesSchema.ATT_LOGC );
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
@@ -163,6 +164,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			
     			paramXml = new ParamXml();
     			paramXml.setName( "LogC0" );
+    			paramXml.setValue( start );
     			doc.add( paramXml );
     			
     			paramXml = new ParamXml();

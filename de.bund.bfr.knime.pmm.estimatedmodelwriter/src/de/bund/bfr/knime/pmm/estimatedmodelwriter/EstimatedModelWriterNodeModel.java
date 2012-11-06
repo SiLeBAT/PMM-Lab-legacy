@@ -581,7 +581,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     			pm.removeIndepVar(paramName.get(i));
 				pm.addIndepVar(paramName.get(i), minInD, maxInD);
 			} else {
-    			pm.removeParam(paramName.get(i));
+				pm.removeParam(paramName.get(i));
 				pm.addParam(paramName.get(i), paramValues.get(i) == null ? Double.NaN : paramValues.get(i), paramErrs.get(i) == null ? Double.NaN : paramErrs.get(i), minInD, maxInD);
 			}
 		}

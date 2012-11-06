@@ -41,7 +41,9 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_FORMULA = "Formula";
 	@Deprecated
 	public static final String ATT_PARAMNAME = "ParamName";
+	@Deprecated
 	public static final String ATT_DEPVAR = "DepVar";
+	public static final String ATT_DEPENDENT = "Dependent";
 	@Deprecated
 	public static final String ATT_INDEPVAR = "IndepVar";
 	@Deprecated
@@ -62,11 +64,19 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_MININDEP = "MinIndep";
 	@Deprecated
 	public static final String ATT_MAXINDEP = "MaxIndep";
+	@Deprecated
 	public static final String ATT_LITIDM = "MLitID";
+	@Deprecated
 	public static final String ATT_LITM = "MLit";
+	@Deprecated
 	public static final String ATT_LITIDEM = "EstMLitID";
+	@Deprecated
 	public static final String ATT_LITEM = "EstMLit";
+	public static final String ATT_MLIT = "M_Literatur";
+	public static final String ATT_EMLIT = "EM_Literatur";
+	@Deprecated
 	public static final String ATT_PARAMERR = "StandardError";
+	@Deprecated
 	public static final String ATT_VARPARMAP = "VarParMap";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
 	public static final String ATT_DBUUID = "M_DB_UID";
@@ -84,6 +94,7 @@ public class Model1Schema extends KnimeSchema {
 			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 			addStringAttribute( ATT_DEPVAR );
+			addXmlAttribute( ATT_DEPENDENT );
 			addXmlAttribute( ATT_INDEPENDENT );
 			addStringListAttribute( ATT_INDEPVAR );
 			addXmlAttribute( ATT_PARAMETER );
@@ -92,6 +103,7 @@ public class Model1Schema extends KnimeSchema {
 			addDoubleListAttribute( ATT_MAXVALUE );
 			addIntListAttribute( ATT_LITIDM );
 			addStringListAttribute( ATT_LITM );
+			addXmlAttribute(ATT_MLIT);
 			
 			addIntAttribute( ATT_ESTMODELID );
 			addDoubleAttribute( ATT_RMS );
@@ -104,6 +116,7 @@ public class Model1Schema extends KnimeSchema {
 			addDoubleListAttribute( ATT_MAXINDEP );
 			addIntListAttribute( ATT_LITIDEM );
 			addStringListAttribute( ATT_LITEM );
+			addXmlAttribute(ATT_EMLIT);
 			
 			//addStringListAttribute( ATT_VARPARMAP );
 			addMapAttribute(ATT_VARPARMAP);

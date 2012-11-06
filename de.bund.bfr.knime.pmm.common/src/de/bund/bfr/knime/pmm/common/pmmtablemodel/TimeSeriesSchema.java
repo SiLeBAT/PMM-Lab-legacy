@@ -56,8 +56,11 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_TIME = "Time";
 	public static final String ATT_LOGC = "Log10C";
 	public static final String ATT_COMMENT = "Comment";
+	@Deprecated
 	public static final String ATT_LITIDTS = "MDLitID";
+	@Deprecated
 	public static final String ATT_LITTS = "MDLit";
+	public static final String ATT_LITMD = "MD_Literatur";
 	public static final String ATT_DBUUID = "MD_DB_UID";
 
 	public static final String DATAID = "DataID";
@@ -86,6 +89,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addStringAttribute( ATT_COMMENT );
 			addIntAttribute( ATT_LITIDTS );
 			addStringAttribute( ATT_LITTS );
+			addXmlAttribute(ATT_LITMD);
 			
 			addStringAttribute( ATT_DBUUID );
 		}

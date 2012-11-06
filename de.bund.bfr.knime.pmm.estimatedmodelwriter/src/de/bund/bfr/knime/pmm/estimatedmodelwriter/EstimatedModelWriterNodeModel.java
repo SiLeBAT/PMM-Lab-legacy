@@ -54,10 +54,14 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -172,6 +176,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
 		    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
 		    		List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
+					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+					
 		    		List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
 		    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
 		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
@@ -185,7 +192,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
 		    		Double aic = row.getDouble(Model1Schema.ATT_AIC);
 		    		Double bic = row.getDouble(Model1Schema.ATT_BIC);
-		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
+		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);
 		    		
 		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
 		    		formula = res[0];
@@ -197,8 +204,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 					else {
 			    		ppm = new ParametricModel(modelName, formula, depVar, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
-			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
+			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
+			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
 			    		doLit(ppm, litStr, litID, false);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
@@ -221,8 +228,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 					else {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
-			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true);
+			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
+			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
 			    		doLit(ppm, litEMStr, litEMID, true);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
@@ -261,7 +268,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    			List<Double> maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
 			    			List<Double> minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
 			    			List<Double> maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
-			    			List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
+							PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
+							PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+
+							List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
 			    			List<Integer> litID = row.getIntList(Model2Schema.ATT_LITIDM);
 				    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
 				    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
@@ -286,8 +296,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							}
 							else {
 					    		spm = new ParametricModel( modelName, formula, depVar, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );				    		
-					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
+					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
+					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
 					    		doLit(spm, litStr, litID, false);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
@@ -309,8 +319,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setAic(aic);
 					    		spm.setBic(bic);
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false);
-					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true);
+					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
+					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
 					    		doLit(spm, litEMStr, litEMID, true);
 
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
@@ -567,7 +577,24 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     	}
     }
     private void doMinMax(final ParametricModel pm, final List<String> paramName, final List<Double> paramValues, final List<Double> paramErrs, final List<Double> minVal,
-    		final List<Double> maxVal, final boolean isIndep) {
+    		final List<Double> maxVal, final boolean isIndep, PmmXmlDoc paramXml) {
+    	for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+    		if (!isIndep && el instanceof ParamXml) {
+    			ParamXml px = (ParamXml) el;
+				pm.removeParam(px.getName());
+				pm.addParam(px.getName(), px.getValue() == null ? Double.NaN : px.getValue(),
+						px.getError() == null ? Double.NaN : px.getError(), px.getMin(), px.getMax());
+    		}
+    		else if (isIndep && el instanceof IndepXml) {
+    			IndepXml ix = (IndepXml) el;
+    			pm.removeIndepVar(ix.getName());
+				pm.addIndepVar(ix.getName(), ix.getMin(), ix.getMax());
+    		}
+    		else {
+    			System.err.println("ERROPR in doMinMax...");
+    		}
+    	}
+    	/*
 		for (int i=0;i<paramName.size();i++) {
 			Double minInD = null;
 			Double maxInD = null;
@@ -585,6 +612,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				pm.addParam(paramName.get(i), paramValues.get(i) == null ? Double.NaN : paramValues.get(i), paramErrs.get(i) == null ? Double.NaN : paramErrs.get(i), minInD, maxInD);
 			}
 		}
+		*/
     }
 
     /**

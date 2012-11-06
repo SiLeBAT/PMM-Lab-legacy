@@ -53,9 +53,13 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -135,7 +139,10 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
 		    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
 		    		List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
-		    		List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
+					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+					List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
 		    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
 		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
 		    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
@@ -148,8 +155,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 		    		ParametricModel pm = new ParametricModel( modelName, formula, depVar, 1, rowMcID );
 		    		
-		    		doMinMax(pm, paramName, minVal, maxVal, false);
-		    		doMinMax(pm, indepVar, minIndep, maxIndep, true);
+		    		doMinMax(pm, paramName, minVal, maxVal, false, paramXml);
+		    		doMinMax(pm, indepVar, minIndep, maxIndep, true, indepXml);
 		    		doLit(pm, litStr, litID, false);
 		    		doLit(pm, litEMStr, litEMID, true);
 
@@ -175,7 +182,10 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			    		List<Double> maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
 			    		List<Double> minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
 			    		List<Double> maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
-			    		List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
+						PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
+						PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+
+						List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
 			    		List<Integer> litID = row.getIntList(Model2Schema.ATT_LITIDM);
 			    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
 			    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
@@ -188,8 +198,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 			    		ParametricModel pm = new ParametricModel(modelName, formula, depVar, 2, rowMcID);
 			    		
-			    		doMinMax(pm, paramName, minVal, maxVal, false);
-			    		doMinMax(pm, indepVar, minIndep, maxIndep, true);
+			    		doMinMax(pm, paramName, minVal, maxVal, false, paramXml);
+			    		doMinMax(pm, indepVar, minIndep, maxIndep, true, indepXml);
 			    		doLit(pm, litStr, litID, false);
 			    		doLit(pm, litEMStr, litEMID, true);
 			    		
@@ -340,7 +350,23 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     	}
     }
     private void doMinMax(final ParametricModel pm, final List<String> paramName, final List<Double> minVal,
-    		final List<Double> maxVal, final boolean isIndep) {
+    		final List<Double> maxVal, final boolean isIndep, PmmXmlDoc paramXml) {
+    	for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+    		if (!isIndep && el instanceof ParamXml) {
+    			ParamXml px = (ParamXml) el;
+				pm.removeParam(px.getName());
+				pm.addParam(px.getName(), Double.NaN, Double.NaN, px.getMin(), px.getMax());
+    		}
+    		else if (isIndep && el instanceof IndepXml) {
+    			IndepXml ix = (IndepXml) el;
+    			pm.removeIndepVar(ix.getName());
+				pm.addIndepVar(ix.getName(), ix.getMin(), ix.getMax());
+    		}
+    		else {
+    			System.err.println("ERROPR in doMinMax...");
+    		}
+    	}
+    	/*
 		for (int i=0;i<paramName.size();i++) {
 			Double minInD = null;
 			Double maxInD = null;
@@ -358,6 +384,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				pm.addParam(paramName.get(i), Double.NaN, Double.NaN, minInD, maxInD);
 			}
 		}
+		*/
     }
     /**
      * {@inheritDoc}

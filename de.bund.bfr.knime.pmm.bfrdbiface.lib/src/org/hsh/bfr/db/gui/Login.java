@@ -2057,7 +2057,8 @@ public class Login extends JFrame {
 		MyTable Artikel_Lieferung = new MyTable("Lieferungen", // Artikel_Lieferung
 				new String[]{"Artikel","ChargenNr","MHD","Lieferdatum","#Units1","BezUnits1","#Units2","BezUnits2",
 					"Unitmenge","UnitEinheit","Empfänger","Vorprodukt","Zielprodukt"},
-				new String[]{"INTEGER","VARCHAR(255)","DATE","DATE","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER"},
+				new String[]{"INTEGER","VARCHAR(255)","DATE","DATE","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)",
+					"DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER"},
 				new String[]{null,null,null,"Lieferdatum (arrival)",null,null,null,null,null,null,null,null,null},
 				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,Knoten,null,null},
 				null,

@@ -61,10 +61,14 @@ public class UpdateChecker {
 				" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
 		myList.getTable("VarParMaps").createTable();
 		DBKernel.grantDefaults("VarParMaps");
-				*/
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
 				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false);
 		updateChangeLog("GeschaetzteModelle", 9, false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Unitmenge") + "=" + DBKernel.delimitL("#Units1"), false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("UnitEinheit") + "=" + DBKernel.delimitL("BezUnits1"), false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("#Units1") + "=NULL", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("BezUnits1") + "=NULL", false);
+				*/
 	}
 	public static void check4Updates_143_144(final MyList myList) {
 		boolean refreshFK = false;

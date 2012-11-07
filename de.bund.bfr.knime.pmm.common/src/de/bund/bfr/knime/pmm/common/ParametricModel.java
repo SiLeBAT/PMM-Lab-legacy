@@ -506,8 +506,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		element.setAttribute( ATT_PARAMNAME, depVar );
 		modelElement.addContent( element );
 		
-		for (String s : getParamNameSet()) {
-			
+		for (String s : getParamNameSet()) {			
 			element = new Element( ELEMENT_PARAM );
 			element.setAttribute( ATT_PARAMNAME, s );
 			element.setAttribute( ATT_VALUE, String.valueOf( param.get( s ) ) );
@@ -559,7 +558,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple = new KnimeTuple( new Model1Schema() );
 			
 			tuple.setValue( Model1Schema.ATT_FORMULA, getFormula() );
-			tuple.setValue( Model1Schema.ATT_DEPVAR, getDepVar() );
+			//tuple.setValue( Model1Schema.ATT_DEPVAR, getDepVar() );
+    		PmmXmlDoc depDoc = new PmmXmlDoc();
+    		depDoc.add(new DepXml(getDepVar()));
+    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 			tuple.setValue( Model1Schema.ATT_MODELNAME, getModelName() );
 			tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
 			tuple.setValue( Model1Schema.ATT_ESTMODELID, getEstModelId() );
@@ -570,20 +572,24 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			
     		PmmXmlDoc paramDoc = new PmmXmlDoc();
     		for( String paramName : getParamNameSet() ) {
+    			/*
 				tuple.addValue(Model1Schema.ATT_PARAMNAME, paramName);
 				tuple.addValue(Model1Schema.ATT_VALUE, getParamValue(paramName));
 				tuple.addValue(Model1Schema.ATT_PARAMERR, getParamError(paramName));
 				tuple.addValue(Model1Schema.ATT_MINVALUE, getParamMin(paramName));
 				tuple.addValue(Model1Schema.ATT_MAXVALUE, getParamMax(paramName));
+				*/
 				ParamXml px = new ParamXml(paramName,getParamValue(paramName),getParamError(paramName),getParamMin(paramName),getParamMax(paramName),null,null);
 				paramDoc.add(px);
 			}		
     		tuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
     		PmmXmlDoc indepDoc = new PmmXmlDoc();
 			for( String indep : getIndepVarSet() ) {
+				/*
 				tuple.addValue(Model1Schema.ATT_INDEPVAR, indep);
 				tuple.addValue(Model1Schema.ATT_MININDEP, getIndepMin(indep));
 				tuple.addValue(Model1Schema.ATT_MAXINDEP, getIndepMax(indep));
+				*/
 				IndepXml ix = new IndepXml(indep,getIndepMin(indep),getIndepMax(indep));
 				indepDoc.add(ix);
 			}
@@ -609,7 +615,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple = new KnimeTuple( new Model2Schema() );
 			
 			tuple.setValue( Model2Schema.ATT_FORMULA, getFormula() );
-			tuple.setValue( Model2Schema.ATT_DEPVAR, getDepVar() );
+			//tuple.setValue( Model2Schema.ATT_DEPVAR, getDepVar() );
+    		PmmXmlDoc depDoc = new PmmXmlDoc();
+    		depDoc.add(new DepXml(getDepVar()));
+    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
 			tuple.setValue( Model2Schema.ATT_MODELNAME, getModelName() );
 			tuple.setValue( Model2Schema.ATT_MODELID, getModelId() );
 			tuple.setValue( Model2Schema.ATT_ESTMODELID, getEstModelId() );
@@ -620,11 +629,13 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			
     		PmmXmlDoc paramDoc = new PmmXmlDoc();
     		for(String paramName : getParamNameSet()) {
+    			/*
 				tuple.addValue(Model2Schema.ATT_PARAMNAME, paramName);
 				tuple.addValue(Model2Schema.ATT_VALUE, getParamValue(paramName));
 				tuple.addValue(Model2Schema.ATT_PARAMERR, getParamError(paramName));
 				tuple.addValue(Model2Schema.ATT_MINVALUE, getParamMin(paramName));
 				tuple.addValue(Model2Schema.ATT_MAXVALUE, getParamMax(paramName));
+				*/
 				ParamXml px = new ParamXml(paramName,getParamValue(paramName),getParamError(paramName),getParamMin(paramName),getParamMax(paramName),null,null);
 				paramDoc.add(px);
 			}		
@@ -632,9 +643,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 
     		PmmXmlDoc indepDoc = new PmmXmlDoc();
 			for (String indep : getIndepVarSet()) {
+				/*
 				tuple.addValue(Model2Schema.ATT_INDEPVAR, indep);
 				tuple.addValue(Model2Schema.ATT_MININDEP, getIndepMin(indep));
 				tuple.addValue(Model2Schema.ATT_MAXINDEP, getIndepMax(indep));
+				*/
 				IndepXml ix = new IndepXml(indep,getIndepMin(indep),getIndepMax(indep));
 				indepDoc.add(ix);
 			}

@@ -52,6 +52,8 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -109,10 +111,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	ResultSet result;
     	Bfrdb db;
     	BufferedDataContainer buf;
-    	int i, j;
         KnimeSchema schema;
         KnimeTuple tuple;
-        int n;
         String formula;
         String dbuuid;
     	
@@ -136,7 +136,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
         	
     		buf = exec.createDataContainer( schema.createSpec() );
     	
-	    	i = 0;
+	    	int i = 0;
 	    	while( result.next() ) {
 	    		
 	    		// initialize row
@@ -149,13 +149,16 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 				}
 	    		
 	    		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
-	    		tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
-	    		tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-	    		tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
+	    		//tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
+	    		//tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
+	    		PmmXmlDoc depDoc = new PmmXmlDoc();
+	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+	    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
+	    		//tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 	    		tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
 	    		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
-	    		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
-	    		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		//tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
+	    		//tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 	    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(result.getArray(Bfrdb.ATT_INDEP),
 	    				null, null));	    		
 	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME),
@@ -166,7 +169,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model1Schema.ATT_LITM, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
 	    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
-	    		
+	    		/*
 	    		n = tuple.getStringList( Model1Schema.ATT_PARAMNAME ).size();
 	    		for( j = 0; j < n; j++ ) {
     				tuple.addValue( Model1Schema.ATT_VALUE, null );
@@ -195,7 +198,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 						tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
 					}
 				}
-	    		
+	    		*/
 	    		
 	    		// add row to data buffer
 				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
@@ -212,7 +215,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
         	
     		buf = exec.createDataContainer( schema.createSpec() );
     	
-	    	i = 0;
+	    	int i = 0;
 	    	while( result.next() ) {
 	    		
 	    		// initialize row
@@ -225,13 +228,16 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 				}
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
-	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
-	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
+	    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
+	    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
+	    		PmmXmlDoc depDoc = new PmmXmlDoc();
+	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+	    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
+	    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 	    		tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
-	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
-	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+	    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
+	    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(result.getArray(Bfrdb.ATT_INDEP),
 	    				null, null));	    		
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME),
@@ -242,7 +248,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
-
+	    		/*
 	    		n = tuple.getStringList( Model2Schema.ATT_PARAMNAME ).size();
 	    		for( j = 0; j < n; j++ ) {
 					tuple.addValue( Model2Schema.ATT_VALUE, null );
@@ -270,7 +276,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 						tuple.addValue( Model2Schema.ATT_MAXINDEP, null );
 					}
 				}
-	    		
+	    		*/
 	    		// add row to data buffer
 				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
 					buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );

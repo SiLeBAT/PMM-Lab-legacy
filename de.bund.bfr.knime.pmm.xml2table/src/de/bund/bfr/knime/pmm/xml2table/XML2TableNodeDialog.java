@@ -16,9 +16,13 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.ColumnFilter;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeDialog</code> for the "XML2Table" Node.
@@ -72,14 +76,20 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
 	@Override
 	public void stateChanged(ChangeEvent arg0) {
         List<String> list = null;
-		if (m_col.getStringValue().equals("Misc")) {
+		if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_MISC)) {
 			list = MiscXml.getElements();
 		}
-		else if (m_col.getStringValue().startsWith("Parameter")) {
+		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_TIMESERIES)) {
+			list = TimeSeriesXml.getElements();
+		}
+		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_PARAMETER)) {
 			list = ParamXml.getElements();
 		}
-		else if (m_col.getStringValue().startsWith("Independent")) {
+		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_INDEPENDENT)) {
 			list = IndepXml.getElements();
+		}
+		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_DEPENDENT)) {
+			list = DepXml.getElements();
 		}
         if (list != null) xmlseldialog.replaceListItems(list, (String[]) null);
 	}

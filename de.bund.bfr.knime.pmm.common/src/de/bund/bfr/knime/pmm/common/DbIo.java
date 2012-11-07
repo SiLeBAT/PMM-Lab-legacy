@@ -2,6 +2,8 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.sql.Array;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DbIo {
 
@@ -22,6 +24,26 @@ public class DbIo {
 			}
 	    }
     	return result;
+    }
+    public static PmmXmlDoc convertStringLists2TSXmlDoc(String t, String l) {
+		PmmXmlDoc tsDoc = new PmmXmlDoc();
+		String[] toksT = t.split(",");
+		String[] toksL = l.split(",");
+		if (toksT.length > 0) {
+			int i=0;
+			for (String time : toksT) {
+				try {
+					TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
+							time.equals("?") ? null : Double.parseDouble(time),
+									toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]));
+					tsDoc.add(tsx);
+				}
+				catch (Exception e) {
+				}
+				i++;
+			}
+		}
+		return tsDoc;    	
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(Array name, Array value, Array error, Array min, Array max) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();

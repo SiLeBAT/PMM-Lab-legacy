@@ -436,6 +436,10 @@ public class MMC_M extends JPanel {
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
 			}
 		}
+		for (int i=0;i<referencesTable.getRowCount();i++) {
+			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
+			pm.addEstModelLit(li);
+		}
 		/*
 		// add literature items
 			for (Map.Entry<Integer, String> entry : possLiterature.entrySet()) {

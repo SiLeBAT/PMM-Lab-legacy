@@ -147,11 +147,13 @@ public class KnimeTuple implements DataRow {
 		return new KnimeTuple(commonSchema, set1, set2);
 	}
 
+	@Deprecated
 	public void addValue(final String attName, final Object obj)
 			throws PmmException {
 		addValue(getIndex(attName), obj);
 	}
 	
+	@Deprecated
 	public void addMap( final String attName, final Object a, final Object b )
 	throws PmmException {
 		addMap( getIndex( attName ), a, b );
@@ -161,6 +163,7 @@ public class KnimeTuple implements DataRow {
 		return getDouble(getIndex(attName));
 	}
 
+	@Deprecated
 	public List<Double> getDoubleList(final String attName) throws PmmException {
 		return getDoubleList(getIndex(attName));
 	}
@@ -173,6 +176,7 @@ public class KnimeTuple implements DataRow {
 		return getInt(getIndex(attName));
 	}
 
+	@Deprecated
 	public List<Integer> getIntList(final String attName) throws PmmException {
 		return getIntList(getIndex(attName));
 	}
@@ -189,10 +193,12 @@ public class KnimeTuple implements DataRow {
 		return getString(getIndex(attName));
 	}
 
+	@Deprecated
 	public List<String> getStringList(final String attName) throws PmmException {
 		return getStringList(getIndex(attName));
 	}
 
+	@Deprecated
 	public Map<String,String> getMap( final String attName ) throws PmmException {
 		return getMap( getIndex( attName ) );
 	}

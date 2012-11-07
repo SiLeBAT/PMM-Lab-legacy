@@ -76,18 +76,6 @@ public class ManualModelConfNodeModel extends NodeModel {
 	static final String CFGKEY_PH = "pH";
 	static final String CFGKEY_AW = "aw";
 
-	static final String CFGKEY_LEVEL = "Level";
-	static final String CFGKEY_MODELNAME = "Modelname";
-	static final String CFGKEY_FORMULA = "Formula";
-	static final String CFGKEY_DEPVAR = "DepVar";
-	static final String CFGKEY_INDEPVAR = "IndepVarSet";
-	static final String CFGKEY_INDEPMIN = "IndepMin";
-	static final String CFGKEY_INDEPMAX = "IndepMax";
-	static final String CFGKEY_PARAM = "ParamNameSet";
-	static final String CFGKEY_PARAMMIN = "ParamMin";
-	static final String CFGKEY_PARAMMAX = "ParamMax";
-	static final String CFGKEY_LITERATUR = "literatur";	
-
 	protected static final String PARAM_XMLSTRING = "xmlString";
 		
 	private String agent;

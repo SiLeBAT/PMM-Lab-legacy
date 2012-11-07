@@ -39,6 +39,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 public class Model2Schema extends KnimeSchema {
 	
 	public static final String ATT_FORMULA = "FormulaSec";
+	@Deprecated
 	public static final String ATT_PARAMNAME = "ParamNameSec";
 	@Deprecated
 	public static final String ATT_DEPVAR = "DepVarSec";

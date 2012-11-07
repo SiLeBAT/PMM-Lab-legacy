@@ -49,9 +49,9 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	public static final String TAG_EM = "em";
 
 	
+	private Integer id;
 	private String author;
 	private Integer year;
-	private Integer id;
 	private String tag;
 	
 	public LiteratureItem( final String author, final Integer year, final String tag, final Integer id ) {
@@ -61,11 +61,11 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 		this.tag = tag;
 	}
 	
-	public LiteratureItem( final String author, final Integer year, final String tag ) {
-		this( author, year, tag, MathUtilities.getRandomNegativeInt() );
+	public LiteratureItem(final String author, final Integer year, final String tag) {
+		this(author, year, tag, MathUtilities.getRandomNegativeInt());
 	}
 	
-	public LiteratureItem( final Element el ) {
+	public LiteratureItem(final Element el) {
 
 		this(
 			el.getAttributeValue( LiteratureItem.ATT_AUTHOR ),
@@ -76,14 +76,13 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	
 	@Override
 	public Element toXmlElement() {
-		
 		Element ret;
 		
-		ret = new Element( ELEMENT_LITERATURE );
-		ret.setAttribute( ATT_AUTHOR, author );
-		ret.setAttribute( ATT_YEAR, String.valueOf( year ) );
-		ret.setAttribute( ATT_TAG, tag );
-		ret.setAttribute( ATT_ID, String.valueOf( id ) );
+		ret = new Element(ELEMENT_LITERATURE);
+		ret.setAttribute(ATT_AUTHOR, author);
+		ret.setAttribute(ATT_YEAR, String.valueOf(year));
+		ret.setAttribute(ATT_TAG, tag);
+		ret.setAttribute(ATT_ID, String.valueOf(id));
 		
 		return ret;
 	}

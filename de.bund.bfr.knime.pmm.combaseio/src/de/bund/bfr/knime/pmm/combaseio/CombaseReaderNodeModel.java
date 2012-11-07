@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseReader;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -140,7 +141,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			modelTuple = KnimeTuple.merge( commonSchema, modelTuple, candidate );
     			modelTuple.setValue( Model1Schema.ATT_FORMULA,
 					TimeSeriesSchema.ATT_LOGC+"=LogC0+mumax*"+TimeSeriesSchema.ATT_TIME );
-    			modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
+    			//modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			
     			if( Double.isNaN( candidate.getMaximumRate() )
 					|| Double.isInfinite( candidate.getMaximumRate() ) )
@@ -151,13 +152,23 @@ public class CombaseReaderNodeModel extends NodeModel {
     			else
     				start = startElim;
     			
-    			modelTuple.setValue( Model1Schema.ATT_VALUE, start+","+candidate.getMaximumRate() );
+    			PmmXmlDoc paramDoc = new PmmXmlDoc();
+				ParamXml px = new ParamXml("LocC0",start,null,null,null,null,null);
+				paramDoc.add(px);
+				px = new ParamXml("mumax",candidate.getMaximumRate(),null,null,null,null,null);
+				paramDoc.add(px);
+				modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramDoc);
+    			//modelTuple.setValue( Model1Schema.ATT_VALUE, start+","+candidate.getMaximumRate() );
     			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );
+    			paramDoc = new PmmXmlDoc();
+				DepXml dx = new DepXml(TimeSeriesSchema.ATT_LOGC);
+				paramDoc.add(dx);
+				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
     			modelTuple.setValue( Model1Schema.ATT_DEPVAR, TimeSeriesSchema.ATT_LOGC );
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
-    			modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
-    			modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
+    			//modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
+    			//modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
     			modelTuple.setValue( TimeSeriesSchema.ATT_COMMENT, COMMENT_CLAUSE );
     			
     			doc = new PmmXmlDoc();

@@ -13,6 +13,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public static final String ELEMENT_PARAM = "param";
 
 	private String name = null;
+	private String urName = null;
 	private Double value = null;
 	private Double error = null;
 	private Double min = null;
@@ -27,6 +28,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	}
 	public ParamXml(String name, Double value, Double error, Double min, Double max, Double P, Double t) {
 		setName(name);
+		setUrName(name);
 		setValue(value);
 		setError(error);
 		setMin(min);
@@ -37,6 +39,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public ParamXml(Element xmlElement) {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
+			setUrName(xmlElement.getAttribute("urname").getValue());
 			String strDbl = xmlElement.getAttribute("value").getValue();
 			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("error").getValue();
@@ -59,6 +62,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		}
 	}
 	public String getName() {return name;}
+	public String getUrName() {return urName;}
 	public Double getValue() {return value;}
 	public Double getError() {return error;}
 	public Double getMin() {return min;}
@@ -67,6 +71,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double gett() {return t;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
+	public void setUrName(String urName) {this.urName = (urName == null) ? "" : urName;}
 	public void setValue(Double value) {this.value = (value == null) ? null : value;}
 	public void setError(Double error) {this.error = (error == null) ? null : error;}
 	public void setMin(Double min) {this.min = (min == null) ? null : min;}
@@ -91,6 +96,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_PARAM);
 		modelElement.setAttribute("name", name);
+		modelElement.setAttribute("urname", urName);
 		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));
 		modelElement.setAttribute("error", "" + (error == null || Double.isNaN(error) ? "" : error));
 		modelElement.setAttribute("min", "" + (min == null || Double.isNaN(min) ? "" : min));
@@ -105,6 +111,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public static List<String> getElements() {
         List<String> list = new ArrayList<String>();
         list.add("Name");
+        list.add("Urname");
         list.add("Value");
         list.add("Error");
         list.add("Min");
@@ -117,6 +124,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 	}
 	public static DataType getDataType(String element) {
 		if (element.equalsIgnoreCase("name")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("urname")) {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("value")) {

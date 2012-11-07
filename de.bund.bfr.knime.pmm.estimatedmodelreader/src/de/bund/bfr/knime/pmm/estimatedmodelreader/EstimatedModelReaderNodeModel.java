@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -133,7 +134,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	Bfrdb db;
     	BufferedDataContainer buf;
     	KnimeTuple tuple;
-    	int i, j, n;
     	KnimeSchema schema;
     	String dbuuid;
     	String formula;
@@ -164,7 +164,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	// initialize data buffer
     	buf = exec.createDataContainer( schema.createSpec() );
     	
-    	i = 0;
+    	int i = 0;
     	while( result.next() ) {
     		
     		// initialize row
@@ -188,6 +188,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXDETAIL, result.getString( Bfrdb.ATT_MATRIXDETAIL ) );
     		tuple.setValue( TimeSeriesSchema.ATT_TIME, result.getString( Bfrdb.ATT_TIME ) );
     		tuple.setValue( TimeSeriesSchema.ATT_LOGC, result.getString( Bfrdb.ATT_LOG10N ) );
+    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
+    		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_LITIDTS, result.getInt( Bfrdb.ATT_LITERATUREID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_LITTS, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
@@ -202,10 +204,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		
     		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
-    		tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-    		tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP ) ) );
-    		tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME ) ) );
-    		tuple.setValue( Model1Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE ) ) );
+    		//tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
+    		PmmXmlDoc depDoc = new PmmXmlDoc();
+    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
+    		//tuple.setValue( Model1Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP ) ) );
+    		//tuple.setValue( Model1Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME ) ) );
+    		//tuple.setValue( Model1Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE ) ) );
     		tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
     		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
     		tuple.setValue( Model1Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID ) );
@@ -213,10 +218,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( Model1Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED ) );
     		tuple.setValue(Model1Schema.ATT_AIC, result.getString("AIC"));
     		tuple.setValue(Model1Schema.ATT_BIC, result.getString("BIC"));
-    		tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN ) ) );
-    		tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX ) ) );
-    		tuple.setValue( Model1Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP ) ) );
-    		tuple.setValue( Model1Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP ) ) );
+    		//tuple.setValue( Model1Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN ) ) );
+    		//tuple.setValue( Model1Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX ) ) );
+    		//tuple.setValue( Model1Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP ) ) );
+    		//tuple.setValue( Model1Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP ) ) );
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(result.getArray(Bfrdb.ATT_INDEP),
     				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP)));
     		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME),
@@ -226,10 +231,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( Model1Schema.ATT_LITM, result.getString( "LitM" ) );
     		tuple.setValue( Model1Schema.ATT_LITIDEM, result.getString( "LitEmID" ) );
     		tuple.setValue( Model1Schema.ATT_LITEM, result.getString( "LitEm" ) );
-    		tuple.setValue( Model1Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
+    		//tuple.setValue( Model1Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
     		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
     		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
-    		
+    		/*
     		n = tuple.getStringList( Model1Schema.ATT_PARAMNAME ).size();
     		if( tuple.isNull( Model1Schema.ATT_VALUE ) )
     			for( j = 0; j < n; j++ )	
@@ -251,7 +256,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		if( tuple.isNull( Model1Schema.ATT_MAXINDEP ) )
     			for( j = 0; j < n; j++ )
     				tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
-
+			*/
     		tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
     		paramList = tuple.getStringList( Model1Schema.ATT_PARAMNAME );
     		rms = tuple.getDouble( Model1Schema.ATT_RMS );
@@ -287,10 +292,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
-	    		tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );
-	    		tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP+"2" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME+"2" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );
+	    		depDoc = new PmmXmlDoc();
+	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP+"2")));
+	    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
+	    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_INDEP+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_PARAMNAME+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID+"2" ) );
@@ -298,10 +306,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED+"2" ) );
 	    		tuple.setValue(Model2Schema.ATT_AIC, result.getString("AIC2"));
 	    		tuple.setValue(Model2Schema.ATT_BIC, result.getString("BIC2"));
-	    		tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN+"2" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX+"2" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP+"2" ) ) );
-	    		tuple.setValue( Model2Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MIN+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAX+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_MININDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MININDEP+"2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_MAXINDEP, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_MAXINDEP+"2" ) ) );
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(result.getArray(Bfrdb.ATT_INDEP+"2"),
 	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2")));
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
@@ -311,10 +319,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( "LitM2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITIDEM, result.getString( "LitEmID2" ) );
 	    		tuple.setValue( Model2Schema.ATT_LITEM, result.getString( "LitEm2" ) );
-	    		tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError2" ) ) );
+	    		//tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
-	    		
+	    		/*
 	    		n = tuple.getStringList( Model2Schema.ATT_PARAMNAME ).size();
 	    		if( tuple.isNull( Model2Schema.ATT_VALUE ) )
 	    			for( j = 0; j < n; j++ )	
@@ -336,6 +344,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		if( tuple.isNull( Model2Schema.ATT_MAXINDEP ) )
 	    			for( j = 0; j < n; j++ )
 	    				tuple.addValue( Model2Schema.ATT_MAXINDEP, null );
+	    				*/
     		}
     		
     		// add row to data buffer

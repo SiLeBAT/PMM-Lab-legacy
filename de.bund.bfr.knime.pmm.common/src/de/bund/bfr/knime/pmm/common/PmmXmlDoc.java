@@ -80,6 +80,12 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(IndepXml.ELEMENT_INDEP)) {
 				elementSet.add(new IndepXml(el));
 			}	
+			else if (el.getName().equals(DepXml.ELEMENT_DEPENDENT)) {
+				elementSet.add(new DepXml(el));
+			}	
+			else if (el.getName().equals(TimeSeriesXml.ELEMENT_TIMESERIES)) {
+				elementSet.add(new TimeSeriesXml(el));
+			}	
 		}			
 	}
 	

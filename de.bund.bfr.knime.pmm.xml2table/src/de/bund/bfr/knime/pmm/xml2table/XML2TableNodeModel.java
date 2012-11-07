@@ -33,11 +33,13 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 
 /**
@@ -91,11 +93,10 @@ public class XML2TableNodeModel extends NodeModel {
                     				}
                     			}
                     			else {
-        		                	addColSpecs.put(selColumn+"_ID", new DataColumnSpecCreator(selColumn+"_ID", IntCell.TYPE).createSpec());
-        		                	addColSpecs.put(selColumn+"_Name", new DataColumnSpecCreator(selColumn+"_Name", StringCell.TYPE).createSpec());
-        		                	addColSpecs.put(selColumn+"_Description", new DataColumnSpecCreator(selColumn+"_Description", StringCell.TYPE).createSpec());
-        		                	addColSpecs.put(selColumn+"_Value", new DataColumnSpecCreator(selColumn+"_Value", DoubleCell.TYPE).createSpec());
-        		                	addColSpecs.put(selColumn+"_Unit", new DataColumnSpecCreator(selColumn+"_Unit", StringCell.TYPE).createSpec());                				
+                    				List<String> list = MiscXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, MiscXml.getDataType(element)).createSpec());                    					
+                    				}
         		                	break;
                     			}
                     		}
@@ -110,13 +111,10 @@ public class XML2TableNodeModel extends NodeModel {
                     				}
                     			}
                     			else {
-                    				addColSpecs.put(selColumn+"_Name", new DataColumnSpecCreator(selColumn+"_Name", StringCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Value", new DataColumnSpecCreator(selColumn+"_Value", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Error", new DataColumnSpecCreator(selColumn+"_Error", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Min", new DataColumnSpecCreator(selColumn+"_Min", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Max", new DataColumnSpecCreator(selColumn+"_Max", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_P", new DataColumnSpecCreator(selColumn+"_P", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_t", new DataColumnSpecCreator(selColumn+"_t", DoubleCell.TYPE).createSpec());
+                    				List<String> list = ParamXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, ParamXml.getDataType(element)).createSpec());                    					
+                    				}
     		                        break;
                     			}
                     		}
@@ -131,13 +129,46 @@ public class XML2TableNodeModel extends NodeModel {
                     				}
                     			}
                     			else {
-                    				addColSpecs.put(selColumn+"_Name", new DataColumnSpecCreator(selColumn+"_Name", StringCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Value", new DataColumnSpecCreator(selColumn+"_Value", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Error", new DataColumnSpecCreator(selColumn+"_Error", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Min", new DataColumnSpecCreator(selColumn+"_Min", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_Max", new DataColumnSpecCreator(selColumn+"_Max", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_P", new DataColumnSpecCreator(selColumn+"_P", DoubleCell.TYPE).createSpec());
-    	                			addColSpecs.put(selColumn+"_t", new DataColumnSpecCreator(selColumn+"_t", DoubleCell.TYPE).createSpec());
+                    				List<String> list = IndepXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, IndepXml.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
+                    		else if (el instanceof DepXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				DepXml dx = (DepXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+dx.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+dx.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+dx.getName()+"_"+sarr[j], DepXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = DepXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, DepXml.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
+                    		else if (el instanceof TimeSeriesXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				TimeSeriesXml tsx = (TimeSeriesXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+tsx.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+tsx.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+tsx.getName()+"_"+sarr[j], TimeSeriesXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = TimeSeriesXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, TimeSeriesXml.getDataType(element)).createSpec());                    					
+                    				}
     		                        break;
                     			}
                     		}
@@ -207,6 +238,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                		else if (el instanceof ParamXml) {
 		                			ParamXml px = (ParamXml) el;
 		                			addCells.put("name", px.getName() == null ? CellIO.createMissingCell() : new StringCell(px.getName())); 
+		                			addCells.put("urname", px.getUrName() == null ? CellIO.createMissingCell() : new StringCell(px.getUrName())); 
 		                			addCells.put("value", px.getValue() == null ? CellIO.createMissingCell() : new DoubleCell(px.getValue())); 
 		                			addCells.put("error", px.getError() == null ? CellIO.createMissingCell() : new DoubleCell(px.getError()));
 		                			addCells.put("min", px.getMin() == null ? CellIO.createMissingCell() : new DoubleCell(px.getMin()));
@@ -218,8 +250,22 @@ public class XML2TableNodeModel extends NodeModel {
 		                		else if (el instanceof IndepXml) {
 		                			IndepXml ix = (IndepXml) el;
 		                			addCells.put("name", ix.getName() == null ? CellIO.createMissingCell() : new StringCell(ix.getName())); 
+		                			addCells.put("urname", ix.getUrName() == null ? CellIO.createMissingCell() : new StringCell(ix.getUrName())); 
 		                			addCells.put("min", ix.getMin() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMin()));
 		                			addCells.put("max", ix.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMax()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof DepXml) {
+		                			DepXml dx = (DepXml) el;
+		                			addCells.put("name", dx.getName() == null ? CellIO.createMissingCell() : new StringCell(dx.getName())); 
+		                			addCells.put("urname", dx.getUrName() == null ? CellIO.createMissingCell() : new StringCell(dx.getUrName())); 
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof TimeSeriesXml) {
+		                			TimeSeriesXml tsx = (TimeSeriesXml) el;
+		                			addCells.put("name", tsx.getName() == null ? CellIO.createMissingCell() : new StringCell(tsx.getName())); 
+		                			addCells.put("time", tsx.getTime() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getTime()));
+		                			addCells.put("log10c", tsx.getLog10C() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getLog10C()));
 		                			v.add(addCells);
 		                		}
 		                	}

@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -157,6 +158,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    		
     		tuple.setCommasepTime( result.getString( Bfrdb.ATT_TIME ) );
     		tuple.setCommasepLogc( result.getString( Bfrdb.ATT_LOG10N ) );
+    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
+    		tuple.setMdData(tsDoc);
     		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		

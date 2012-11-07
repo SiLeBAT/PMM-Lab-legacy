@@ -76,6 +76,17 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public void setValue(Double value) {this.value = (value == null) ? null : value;;}
 	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
 
+	@Override
+	public Element toXmlElement() {
+		Element modelElement = new Element(ELEMENT_MISC);
+		modelElement.setAttribute("id", id.toString());
+		modelElement.setAttribute("name", name);
+		modelElement.setAttribute("description", description);
+		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));
+		modelElement.setAttribute("unit", unit);
+		return modelElement;
+	}
+
 	public static List<String> getElements() {
         List<String> list = new ArrayList<String>();
         list.add("ID");
@@ -102,15 +113,5 @@ public class MiscXml implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		return null;
-	}
-	@Override
-	public Element toXmlElement() {
-		Element modelElement = new Element(ELEMENT_MISC);
-		modelElement.setAttribute("id", id.toString());
-		modelElement.setAttribute("name", name);
-		modelElement.setAttribute("description", description);
-		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));
-		modelElement.setAttribute("unit", unit);
-		return modelElement;
 	}
 }

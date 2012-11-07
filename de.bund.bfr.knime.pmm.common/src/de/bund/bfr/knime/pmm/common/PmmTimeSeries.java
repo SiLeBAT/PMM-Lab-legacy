@@ -33,16 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_AGENTDETAIL;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_COMMENT;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_LOGC;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_MATRIXDETAIL;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_MISC;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_PH;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TEMPERATURE;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_TIME;
-import static de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema.ATT_WATERACTIVITY;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -383,13 +373,13 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setMisc(final PmmXmlDoc misc) throws PmmException {
-		setValue(ATT_MISC, misc);
+		setValue(TimeSeriesSchema.ATT_MISC, misc);
 	}
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
-		setValue( ATT_AGENTDETAIL, agentDetail );
+		setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
 	}
 	public void setMatrixDetail( final String matrixDetail ) throws PmmException {
-		setValue( ATT_MATRIXDETAIL, matrixDetail );
+		setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail );
 	}
 	
 	public void setAgentId( final Integer agentId ) throws PmmException {
@@ -401,7 +391,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setComment( final String comment ) throws PmmException {
-		setValue( ATT_COMMENT, comment );
+		setValue(TimeSeriesSchema.ATT_COMMENT, comment );
 	}
 	
 	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail )
@@ -421,12 +411,12 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public void setTemperature( final Double temperature ) throws PmmException {
 		
 		if( temperature == null ) {
-			setValue( ATT_TEMPERATURE, null );
+			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
 			return;
 		}
 		
 		if( temperature.isNaN() || temperature.isInfinite() ) {
-			setValue( ATT_TEMPERATURE, null );
+			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
 			return;
 		}
 		
@@ -434,13 +424,13 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			throw new PmmException( "Temperature cannot undergo absolute zero." );
 		}
 		
-		setValue( ATT_TEMPERATURE, temperature );
+		setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature );
 	}
 	
 	public void setTemperature( final String temperature ) throws PmmException {
 		
 		if( temperature == null ) {
-			setValue( ATT_TEMPERATURE, null );
+			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
 		} else {
 			setTemperature( Double.valueOf( temperature ) );
 		}
@@ -449,12 +439,12 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public void setPh(final Double ph) throws PmmException {
 		
 		if( ph == null ) {
-			setValue( ATT_PH, null );
+			setValue(TimeSeriesSchema.ATT_PH, null );
 			return;
 		}
 		
 		if( ph.isInfinite() || ph.isNaN() ) {
-			setValue( ATT_PH, null );
+			setValue(TimeSeriesSchema.ATT_PH, null );
 			return;
 		}
 		
@@ -466,18 +456,18 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			throw new PmmException("pH cannot exceed" + PmmConstants.MAX_PH);
 		}
 		
-		setValue( ATT_PH, ph );
+		setValue(TimeSeriesSchema.ATT_PH, ph );
 	}
 	
 	public void setWaterActivity( final Double aw ) throws PmmException {
 		
 		if( aw == null ) {
-			setValue( ATT_WATERACTIVITY, null );
+			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
 			return;
 		}
 			
 		if( aw.isNaN() || aw.isInfinite() ) {
-			setValue( ATT_WATERACTIVITY, null );
+			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
 			return;
 		}
 				
@@ -489,33 +479,37 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			throw new PmmException( "Water activity cannot exceed " + PmmConstants.MAX_WATERACTIVITY );
 		}
 		
-		setValue( ATT_WATERACTIVITY, aw );
+		setValue(TimeSeriesSchema.ATT_WATERACTIVITY, aw );
 	}
 	
 	public void setWaterActivity( final String aw ) throws PmmException {
 		
 		if( aw == null ) {
-			setValue( ATT_WATERACTIVITY, null );
+			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
 		} else {
 			setWaterActivity( Double.valueOf( aw ) );
 		}
 	}
-	
+	public void setMdData(final PmmXmlDoc MdData) throws PmmException {
+		setValue(TimeSeriesSchema.ATT_TIMESERIES, MdData);
+	}
+	@Deprecated
 	public void setCommasepTime( final String t ) throws PmmException {
 		
 		if( t == null ) {
-			setValue( ATT_TIME, null );
+			setValue(TimeSeriesSchema.ATT_TIME, null );
 		} else {
-			setValue( ATT_TIME, t.replaceAll( "E0", "" ) );
+			setValue(TimeSeriesSchema.ATT_TIME, t.replaceAll( "E0", "" ) );
 		}
 	}
 	
+	@Deprecated
 	public void setCommasepLogc( final String c ) throws PmmException {
 		
 		if( c == null ) {
-			setValue( ATT_LOGC, null );
+			setValue(TimeSeriesSchema.ATT_LOGC, null );
 		} else {
-			setValue( ATT_LOGC, c.replaceAll( "E0", "" ) );
+			setValue(TimeSeriesSchema.ATT_LOGC, c.replaceAll( "E0", "" ) );
 		}
 	}
 	

@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -168,14 +169,16 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
 		    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
 		    		String formula = row.getString(Model1Schema.ATT_FORMULA);
-		    		String depVar = row.getString(Model1Schema.ATT_DEPVAR);
-		    		List<String> indepVar = row.getStringList(Model1Schema.ATT_INDEPVAR);
-		    		List<String> paramName = row.getStringList(Model1Schema.ATT_PARAMNAME);
+		    		//String depVar = row.getString(Model1Schema.ATT_DEPVAR);
+					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
+					DepXml dx = (DepXml) depXml.getElementSet().get(0);
+		    		//List<String> indepVar = row.getStringList(Model1Schema.ATT_INDEPVAR);
+		    		//List<String> paramName = row.getStringList(Model1Schema.ATT_PARAMNAME);
 
-		    		List<Double> minVal = row.getDoubleList(Model1Schema.ATT_MINVALUE);
-		    		List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
-		    		List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
-		    		List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
+		    		//List<Double> minVal = row.getDoubleList(Model1Schema.ATT_MINVALUE);
+		    		//List<Double> maxVal = row.getDoubleList(Model1Schema.ATT_MAXVALUE);
+		    		//List<Double> minIndep = row.getDoubleList(Model1Schema.ATT_MININDEP);
+		    		//List<Double> maxIndep = row.getDoubleList(Model1Schema.ATT_MAXINDEP);
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 					
@@ -186,26 +189,26 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		
 		    		// ab hier: different from ModelCatalogWriter
 					Integer rowEstM1ID = row.getInt(Model1Schema.ATT_ESTMODELID);
-		    		List<Double> paramValues = row.getDoubleList(Model1Schema.ATT_VALUE);
-		    		List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
+		    		//List<Double> paramValues = row.getDoubleList(Model1Schema.ATT_VALUE);
+		    		//List<Double> paramErrs = row.getDoubleList(Model1Schema.ATT_PARAMERR);
 		    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
 		    		Double aic = row.getDouble(Model1Schema.ATT_AIC);
 		    		Double bic = row.getDouble(Model1Schema.ATT_BIC);
 		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);
-		    		
+		    		/*
 		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
 		    		formula = res[0];
 		    		depVar = res[1];
-
+					*/
 		    		// Modellkatalog primary
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
 						ppm = alreadyInsertedModel.get(rowMcID);
 					}
 					else {
-			    		ppm = new ParametricModel(modelName, formula, depVar, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
-			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
-			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
+			    		ppm = new ParametricModel(modelName, formula, dx.getName(), 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
+			    		doMinMax(ppm, false, paramXml);
+			    		doMinMax(ppm, true, indepXml);
 			    		doLit(ppm, litStr, litID, false);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
@@ -228,8 +231,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 					else {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
-			    		doMinMax(ppm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
-			    		doMinMax(ppm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
+			    		doMinMax(ppm, false, paramXml);
+			    		doMinMax(ppm, true, indepXml);
 			    		doLit(ppm, litEMStr, litEMID, true);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
@@ -260,14 +263,16 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
 			    		String modelName = row.getString(Model2Schema.ATT_MODELNAME);
 			    		String formula = row.getString(Model2Schema.ATT_FORMULA);
-			    		String depVar = row.getString(Model2Schema.ATT_DEPVAR);
-			    		List<String> indepVar = row.getStringList(Model2Schema.ATT_INDEPVAR);
-			    		List<String> paramName = row.getStringList(Model2Schema.ATT_PARAMNAME);
-			    		if (!paramName.isEmpty()) {
-			    			List<Double> minVal = row.getDoubleList(Model2Schema.ATT_MINVALUE);
-			    			List<Double> maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
-			    			List<Double> minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
-			    			List<Double> maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
+			    		//String depVar = row.getString(Model2Schema.ATT_DEPVAR);
+						PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
+						DepXml dx = (DepXml) depXml.getElementSet().get(0);
+			    		//List<String> indepVar = row.getStringList(Model2Schema.ATT_INDEPVAR);
+			    		//List<String> paramName = row.getStringList(Model2Schema.ATT_PARAMNAME);
+			    		//if (!paramName.isEmpty()) {
+			    			//List<Double> minVal = row.getDoubleList(Model2Schema.ATT_MINVALUE);
+			    			//List<Double> maxVal = row.getDoubleList(Model2Schema.ATT_MAXVALUE);
+			    			//List<Double> minIndep = row.getDoubleList(Model2Schema.ATT_MININDEP);
+			    			//List<Double> maxIndep = row.getDoubleList(Model2Schema.ATT_MAXINDEP);
 							PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
 							PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 
@@ -278,26 +283,26 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 
 				    		// ab hier: different from ModelCatalogWriter
 				    		//rowEstM2ID = row.getInt(Model2Schema.ATT_ESTMODELID);
-				    		List<Double> paramValues = row.getDoubleList(Model2Schema.ATT_VALUE);
-				    		List<Double> paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
+				    		//List<Double> paramValues = row.getDoubleList(Model2Schema.ATT_VALUE);
+				    		//List<Double> paramErrs = row.getDoubleList(Model2Schema.ATT_PARAMERR);
 				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
 				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
 				    		Double aic = row.getDouble(Model2Schema.ATT_AIC);
 				    		Double bic = row.getDouble(Model2Schema.ATT_BIC);
 				    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
-				    		
+				    		/*
 				    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
 				    		formula = res[0];
 				    		depVar = res[1];
-				    		
+				    		*/
 				    		// Modellkatalog secondary
 							if (alreadyInsertedModel.containsKey(rowMcID)) {
 								spm = alreadyInsertedModel.get(rowMcID);
 							}
 							else {
-					    		spm = new ParametricModel( modelName, formula, depVar, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );				    		
-					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
-					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
+					    		spm = new ParametricModel( modelName, formula, dx.getName(), 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );				    		
+					    		doMinMax(spm, false, paramXml);
+					    		doMinMax(spm, true, indepXml);
 					    		doLit(spm, litStr, litID, false);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
@@ -319,8 +324,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setAic(aic);
 					    		spm.setBic(bic);
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-					    		doMinMax(spm, paramName, paramValues, paramErrs, minVal, maxVal, false, paramXml);
-					    		doMinMax(spm, indepVar, null, null, minIndep, maxIndep, true, indepXml);
+					    		doMinMax(spm, false, paramXml);
+					    		doMinMax(spm, true, indepXml);
 					    		doLit(spm, litEMStr, litEMID, true);
 
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
@@ -334,7 +339,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 
 							if (!primEstIDs.containsKey(spm.getEstModelId())) primEstIDs.put(spm.getEstModelId(), new ArrayList<Integer>());
 							primEstIDs.get(spm.getEstModelId()).add(newPrimEstID);
-						}
+						//}
 		    		}
 					else {
 						String text = "Estimated secondary model (ID: " + rowEstM2ID +
@@ -365,6 +370,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
+    /*
     private String[] setVPM(String formula, String depVar, List<String> indepVar, List<String> paramName, List<String> varParMap) {
     	String[] result = new String[2];
 		// VarParMap setzen
@@ -384,6 +390,15 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		}  
 		return result;
     }
+	private String getVarPar(HashMap<String, String> hm, String varPar) {
+		String result;
+		if (hm == null || hm.get(varPar) == null) result = varPar;
+		else {
+			result = hm.get(varPar);
+		}
+		return result;
+	}
+	*/
 	private HashMap<String, String> getVarParHashmap(List<String> varParMap, boolean invers) {
 		HashMap<String, String> result = null;
 		if (varParMap != null && varParMap.size() > 0) {
@@ -395,14 +410,6 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					else result.put(map.substring(0, index), map.substring(index + 1));
 				}
 			}
-		}
-		return result;
-	}
-	private String getVarPar(HashMap<String, String> hm, String varPar) {
-		String result;
-		if (hm == null || hm.get(varPar) == null) result = varPar;
-		else {
-			result = hm.get(varPar);
 		}
 		return result;
 	}
@@ -576,8 +583,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     		}    	
     	}
     }
-    private void doMinMax(final ParametricModel pm, final List<String> paramName, final List<Double> paramValues, final List<Double> paramErrs, final List<Double> minVal,
-    		final List<Double> maxVal, final boolean isIndep, PmmXmlDoc paramXml) {
+    private void doMinMax(final ParametricModel pm, final boolean isIndep, PmmXmlDoc paramXml) {
     	for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
     		if (!isIndep && el instanceof ParamXml) {
     			ParamXml px = (ParamXml) el;

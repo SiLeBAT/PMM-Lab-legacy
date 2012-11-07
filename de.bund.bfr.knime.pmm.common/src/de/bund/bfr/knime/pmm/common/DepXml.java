@@ -5,35 +5,23 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataType;
-import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.StringCell;
 
-public class IndepXml implements PmmXmlElementConvertable {
+public class DepXml implements PmmXmlElementConvertable {
 
-	public static final String ELEMENT_INDEP = "indep";
+	public static final String ELEMENT_DEPENDENT = "dependent";
 
 	private String name = null;
 	private String urName = null;
-	private Double min = null;
-	private Double max = null;
 	
-	public IndepXml() {
-		
-	}
-	public IndepXml(String name, Double min, Double max) {
+	public DepXml(String name) {
 		setName(name);
 		setUrName(name);
-		setMin(min);
-		setMax(max);
 	}
-	public IndepXml(Element xmlElement) {
+	public DepXml(Element xmlElement) {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
 			setUrName(xmlElement.getAttribute("urname").getValue());
-			String strDbl = xmlElement.getAttribute("min").getValue();
-			setMin(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("max").getValue();
-			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -41,21 +29,15 @@ public class IndepXml implements PmmXmlElementConvertable {
 	}
 	public String getName() {return name;}
 	public String getUrName() {return urName;}
-	public Double getMin() {return min;}
-	public Double getMax() {return max;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setUrName(String urName) {this.urName = (urName == null) ? "" : urName;}
-	public void setMin(Double min) {this.min = (min == null) ? null : min;}
-	public void setMax(Double max) {this.max = (max == null) ? null : max;}
 
 	@Override
 	public Element toXmlElement() {
-		Element modelElement = new Element(ELEMENT_INDEP);
+		Element modelElement = new Element(ELEMENT_DEPENDENT);
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("urname", urName);
-		modelElement.setAttribute("min", "" + (min == null || Double.isNaN(min) ? "" : min));
-		modelElement.setAttribute("max", "" + (max == null || Double.isNaN(max) ? "" : max));
 		return modelElement;
 	}
 
@@ -63,8 +45,6 @@ public class IndepXml implements PmmXmlElementConvertable {
         List<String> list = new ArrayList<String>();
         list.add("Name");
         list.add("Urname");
-        list.add("Min");
-        list.add("Max");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -73,12 +53,6 @@ public class IndepXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("urname")) {
 			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("min")) {
-			return DoubleCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("max")) {
-			return DoubleCell.TYPE;
 		}
 		return null;
 	}

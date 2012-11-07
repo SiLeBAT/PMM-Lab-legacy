@@ -10,7 +10,7 @@ import org.knime.core.data.def.StringCell;
 
 public class TimeSeriesXml implements PmmXmlElementConvertable {
 
-	public static final String ELEMENT_TIMESERIES = "timeseries";
+	public static final String ELEMENT_TIMESERIES = "timeseriesxml";
 
 	private String name = null;
 	private Double time = null;

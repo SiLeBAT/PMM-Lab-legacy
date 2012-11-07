@@ -33,8 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.List;
-
 import org.jdom2.Element;
 
 public interface PmmXmlElementConvertable {

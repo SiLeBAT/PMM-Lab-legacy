@@ -559,9 +559,12 @@ public class MMC_M extends JPanel {
 		if (newVal != null && newVal instanceof Integer) {
 			Object autor = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Erstautor");
 			Object year = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Jahr");
+			Object title = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Titel");
+			Object mAbstract = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Abstract");
 			LiteratureItem li = new LiteratureItem(autor == null ? "?" : autor.toString(),
 					year == null ? null : (Integer) year,
-							LiteratureItem.TAG_EM,
+							title == null ? "?" : title.toString(),
+							mAbstract == null ? "?" : mAbstract.toString(),
 							(Integer) newVal);
 			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
 			vli.add(li);

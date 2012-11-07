@@ -35,6 +35,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -172,6 +173,24 @@ public class XML2TableNodeModel extends NodeModel {
     		                        break;
                     			}
                     		}
+                    		else if (el instanceof LiteratureItem) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				LiteratureItem li = (LiteratureItem) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+li.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+li.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+li.getName()+"_"+sarr[j], LiteratureItem.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = LiteratureItem.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, LiteratureItem.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
                     	}
                     }
                 }
@@ -266,6 +285,15 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("name", tsx.getName() == null ? CellIO.createMissingCell() : new StringCell(tsx.getName())); 
 		                			addCells.put("time", tsx.getTime() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getTime()));
 		                			addCells.put("log10c", tsx.getLog10C() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getLog10C()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof LiteratureItem) {
+		                			LiteratureItem li = (LiteratureItem) el;
+		                			addCells.put("id", li.getId() == null ? CellIO.createMissingCell() : new IntCell(li.getId()));
+		                			addCells.put("author", li.getAuthor() == null ? CellIO.createMissingCell() : new StringCell(li.getAuthor()));
+		                			addCells.put("year", li.getYear() == null ? CellIO.createMissingCell() : new IntCell(li.getYear()));
+		                			addCells.put("title", li.getTitle() == null ? CellIO.createMissingCell() : new StringCell(li.getTitle()));
+		                			addCells.put("abstract", li.getAbstract() == null ? CellIO.createMissingCell() : new StringCell(li.getAbstract()));
 		                			v.add(addCells);
 		                		}
 		                	}

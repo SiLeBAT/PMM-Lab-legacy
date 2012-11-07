@@ -42,8 +42,6 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
-
-
 public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertable {
 	
 	private static final String ELEMENT_TIMESERIES = "TimeSeries";

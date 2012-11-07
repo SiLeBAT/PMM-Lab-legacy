@@ -91,6 +91,9 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(TimeSeriesXml.ELEMENT_TIMESERIES)) {
 				elementSet.add(new TimeSeriesXml(el));
 			}	
+			else if (el.getName().equals(LiteratureItem.ELEMENT_LITERATURE)) {
+				elementSet.add(new LiteratureItem(el));
+			}	
 		}					
 	}
 	public void add(PmmXmlElementConvertable el) {

@@ -430,29 +430,31 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				HashMap<Integer, Integer> foreignDbIdsTable = d.get(dbTablename[i]);
 		    	if (dbTablename[i].equals("Literatur")) { // hasList
 		        	boolean est = schemaAttr[i].equals(Model1Schema.ATT_LITIDEM) || schemaAttr[i].equals(Model2Schema.ATT_LITIDEM);
-		        	LinkedList<LiteratureItem> lili;
+		        	PmmXmlDoc lili;
 		        	if (est) lili = pm.getEstModelLit();
 		        	else lili = pm.getModelLit();
 		    		List<Integer> keys = row.getIntList(schemaAttr[i]);
 		    		if (keys != null) {
 			    		int ii=0;
-			        	for (LiteratureItem li : lili) {
-			        		Integer key = keys.get(ii);
-			        		if (key != null && foreignDbIdsTable.containsKey(key)) {
-			        			if (before) li.setID(foreignDbIdsTable.get(key));
-			        			else if (foreignDbIdsTable.get(key) != li.getId()) {
-			        				System.err.println("checkIDs ... shouldn't happen");
-			        			}
-			        		}
-			        		else {
-			        			if (before) {
-			        				li.setID(MathUtilities.getRandomNegativeInt());
-			        			}
-			        			else foreignDbIdsTable.put(key, li.getId());
-			        		}
-			        		ii++;
-			        		//row.setValue(attr, foreignDbIdsTable.get(key));
-			        	}
+						for (PmmXmlElementConvertable el : lili.getElementSet()) {
+							if (el instanceof LiteratureItem) {
+								LiteratureItem li = (LiteratureItem) el;
+				        		Integer key = keys.get(ii);
+				        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+				        			if (before) li.setId(foreignDbIdsTable.get(key));
+				        			else if (foreignDbIdsTable.get(key) != li.getId()) {
+				        				System.err.println("checkIDs ... shouldn't happen");
+				        			}
+				        		}
+				        		else {
+				        			if (before) {
+				        				li.setId(MathUtilities.getRandomNegativeInt());
+				        			}
+				        			else foreignDbIdsTable.put(key, li.getId());
+				        		}
+				        		ii++;
+							}							
+						}
 		    		}
 		    	}
 		    	else {

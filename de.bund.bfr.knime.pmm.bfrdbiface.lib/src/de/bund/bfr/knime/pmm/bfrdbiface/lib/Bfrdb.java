@@ -41,7 +41,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -1501,28 +1500,29 @@ public class Bfrdb extends Hsqldbiface {
 
 		return modelId;
 	}
-	private void insertModLit(final int modelId, final LinkedList<LiteratureItem> modelLit, final boolean estimatedModels, final ParametricModel m) {
+	private void insertModLit(final int modelId, PmmXmlDoc modelLit, final boolean estimatedModels, final ParametricModel m) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "DELETE FROM " + (estimatedModels ? "\"GeschaetztesModell_Referenz\" WHERE \"GeschaetztesModell\"" : "\"Modell_Referenz\"WHERE \"Modell\"") + " = " + modelId);
+			PreparedStatement ps = conn.prepareStatement("DELETE FROM " + (estimatedModels ? "\"GeschaetztesModell_Referenz\" WHERE \"GeschaetztesModell\"" : "\"Modell_Referenz\"WHERE \"Modell\"") + " = " + modelId);
 			ps.executeUpdate();
 			ps.close();
-			PreparedStatement psm = conn.prepareStatement( "INSERT INTO \"Modell_Referenz\"(\"Modell\", \"Literatur\")VALUES(?,?)", Statement.RETURN_GENERATED_KEYS );
-			PreparedStatement psgm = conn.prepareStatement( "INSERT INTO \"GeschaetztesModell_Referenz\"(\"GeschaetztesModell\", \"Literatur\")VALUES(?,?)", Statement.RETURN_GENERATED_KEYS );
-			for (LiteratureItem lid : modelLit) {
-				if (lid.getTag() != null) {
-					if (lid.getId() >= 0) { // neue Literatur evtl. später hinzufügen, aber Achtung: DB Gleichheit checken!!!
+			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Modell_Referenz\"(\"Modell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement psgm = conn.prepareStatement("INSERT INTO \"GeschaetztesModell_Referenz\"(\"GeschaetztesModell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
+				if (el instanceof LiteratureItem) {
+					LiteratureItem li = (LiteratureItem) el;
+					if (li.getId() >= 0) { // neue Literatur evtl. später hinzufügen, aber Achtung: DB Gleichheit checken!!!
 						// Ausserdem: hier die neu insertierten IDs updaten im ParametricModel!!!!!
-						if (lid.getTag().equals(LiteratureItem.TAG_M)) {
-							psm.setInt( 1, modelId );
-							psm.setInt( 2, lid.getId() );
+						if (!estimatedModels) {
+							psm.setInt(1, modelId);
+							psm.setInt(2, li.getId());
 							psm.executeUpdate();
-							//m.addModelLit(lid); nach einem realiseirten INSERT: überpürfen, ob korrekt
+							//m.addModelLit(lid); nach einem realiseirten INSERT: überprüfen, ob korrekt
 						}
 						else {
-							psgm.setInt( 1, modelId );
-							psgm.setInt( 2, lid.getId() );
+							psgm.setInt(1, modelId);
+							psgm.setInt(2, li.getId());
 							psgm.executeUpdate();
-							//m.addEstModelLit(lid); nach einem realiseirten INSERT: überpürfen, ob korrekt
+							//m.addEstModelLit(lid); nach einem realiseirten INSERT: überprüfen, ob korrekt
 						}
 					}
 				}

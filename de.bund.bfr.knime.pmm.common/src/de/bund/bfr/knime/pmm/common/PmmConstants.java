@@ -34,11 +34,8 @@
 package de.bund.bfr.knime.pmm.common;
 
 public interface PmmConstants {
-
 	public static final double MIN_PH = 0.0;
 	public static final double MAX_PH = 15.0;
 	public static final double MIN_WATERACTIVITY = 0.0;
 	public static final double MAX_WATERACTIVITY = 1.0;
-	
-
 }

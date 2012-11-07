@@ -33,66 +33,109 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.jdom2.Element;
+import org.knime.core.data.DataType;
+import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 public class LiteratureItem implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_LITERATURE = "Literature";
-	public static final String ATT_AUTHOR = "Author";
-	public static final String ATT_YEAR = "Year";
-	public static final String ATT_ID = "ID";
-	private static final String ATT_TAG = "Tag";
-	
-	public static final String TAG_M = "m";
-	public static final String TAG_EM = "em";
 
+	private static final String ATT_AUTHOR = "author";
+	private static final String ATT_YEAR = "year";
+	private static final String ATT_TITLE = "title";
+	private static final String ATT_ABSTRACT = "abstract";
+	private static final String ATT_ID = "id";
 	
 	private Integer id;
+	private String name;
 	private String author;
+	private String title;
+	private String m_abstract;
 	private Integer year;
-	private String tag;
 	
-	public LiteratureItem( final String author, final Integer year, final String tag, final Integer id ) {
+	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id) {
 		this.author = author;
+		this.title = title;
+		this.m_abstract = m_abstract;
 		this.year = year;
 		this.id = id;
-		this.tag = tag;
+		setName();
 	}
 	
-	public LiteratureItem(final String author, final Integer year, final String tag) {
-		this(author, year, tag, MathUtilities.getRandomNegativeInt());
+	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract) {
+		this(author, year, title, m_abstract, MathUtilities.getRandomNegativeInt());
 	}
 	
 	public LiteratureItem(final Element el) {
-
 		this(
-			el.getAttributeValue( LiteratureItem.ATT_AUTHOR ),
-			Integer.valueOf( el.getAttributeValue( LiteratureItem.ATT_YEAR ) ),
-			el.getAttributeValue( ATT_TAG ),
-			Integer.valueOf( el.getAttributeValue( LiteratureItem.ATT_ID ) ) );
+			el.getAttributeValue(ATT_AUTHOR),
+			Integer.valueOf(el.getAttributeValue(ATT_YEAR)),
+			el.getAttributeValue(ATT_TITLE),
+			el.getAttributeValue(ATT_ABSTRACT),
+			Integer.valueOf(el.getAttributeValue(ATT_ID)));
 	}
 	
 	@Override
 	public Element toXmlElement() {
-		Element ret;
-		
-		ret = new Element(ELEMENT_LITERATURE);
+		Element ret = new Element(ELEMENT_LITERATURE);
 		ret.setAttribute(ATT_AUTHOR, author);
 		ret.setAttribute(ATT_YEAR, String.valueOf(year));
-		ret.setAttribute(ATT_TAG, tag);
-		ret.setAttribute(ATT_ID, String.valueOf(id));
-		
+		ret.setAttribute(ATT_TITLE, title);
+		ret.setAttribute(ATT_ABSTRACT, m_abstract);
+		ret.setAttribute(ATT_ID, String.valueOf(id));		
 		return ret;
 	}
 	
-	public String getAuthor() { return author; }
-	public Integer getYear() { return year; }
-	public Integer getId() { return id; }
-	public String getTag() { return tag; }
+	public String getName() {return name;}
+	public String getAuthor() {return author;}
+	public String getTitle() {return title;}
+	public String getAbstract() {return m_abstract;}
+	public Integer getYear() {return year;}
+	public Integer getId() {return id;}
+
+	public void setAuthor(String author) {this.author = (author == null) ? "" : author;}
+	public void setTitle(String title) {this.title = title;}
+	public void setAbstract(String m_abstract) {this.m_abstract = m_abstract;}
+	public void setYear(Integer year) {this.year = year;}
+	public void setId(Integer id) {this.id = id;}
+	public void setName(String name) {this.name = name;}
+	public void setName() {name = author+"_"+year+"_"+title;}
+
 	@Override
-	public String toString() { return author+"_"+year; }
+	public String toString() {setName(); return name;}
 	
-	public void setID(Integer id) {this.id = id;}
+	public static List<String> getElements() {
+        List<String> list = new ArrayList<String>();
+        list.add("ID");
+        list.add("Author");
+        list.add("Year");
+        list.add("Title");
+        list.add("Abstract");
+        return list;
+	}
+	public static DataType getDataType(String element) {
+		if (element.equalsIgnoreCase("id")) {
+			return IntCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("author")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("year")) {
+			return IntCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("title")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("abstract")) {
+			return StringCell.TYPE;
+		}
+		return null;
+	}
 }

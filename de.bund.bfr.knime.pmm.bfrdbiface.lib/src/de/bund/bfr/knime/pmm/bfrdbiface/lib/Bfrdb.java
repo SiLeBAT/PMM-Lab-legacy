@@ -1047,10 +1047,11 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	public Integer insertEm(final ParametricModel pm) { // , HashMap<String, String> hm
 		Integer estModelId = null;
-		/*
+
 		Double rms = pm.getRms();
 		Double r2 = pm.getRsquared();
 		//if (!Double.isNaN(rms)) {
+		/*
 			LinkedList<String> paramNameSet = new LinkedList<String>();
 			paramNameSet.addAll(pm.getParamNameSet());
 			int numParams = paramNameSet.size();
@@ -1060,16 +1061,19 @@ public class Bfrdb extends Hsqldbiface {
 				valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
 				paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
 			}		
-			
+			*/
 			estModelId = pm.getEstModelId();
 			int condId = pm.getCondId();
 			int modelId = pm.getModelId();
 			
 			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
-			int responseId = queryParamId(modelId, pm.getDepVar(), PARAMTYPE_DEP);
+			int responseId = queryParamId(modelId, pm.getDepXml().getOrigName(), PARAMTYPE_DEP);
+			if (!pm.getDepXml().getOrigName().equals(pm.getDepXml().getName())) hmi.put(pm.getDepXml().getName(), responseId);
+			/*
 			if (hm != null && hm.get(pm.getDepVar()) != null) {
 				hmi.put(hm.get(pm.getDepVar()), responseId);
 			}
+			*/
 			if (responseId < 0) {
 				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + pm.getDepVar());
 			}
@@ -1082,6 +1086,18 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			
 			deleteFrom("GeschaetzteParameter", "GeschaetztesModell", estModelId);
+			for (PmmXmlElementConvertable el : pm.getParameter().getElementSet()) {
+				if (el instanceof ParamXml) {
+					ParamXml px = (ParamXml) el;
+					int paramId = queryParamId(modelId, px.getOrigName(), PARAMTYPE_PARAM);
+					if (paramId < 0) {
+						System.err.println("paramId < 0... " + px.getOrigName());
+					}
+					if (!px.getOrigName().equals(px.getName())) hmi.put(px.getName(), paramId);
+					insertEstParam(estModelId, paramId, px.getValue(), px.getError());
+				}
+			}
+			/*
 			for (int i = 0; i < numParams; i++ ) {			
 				int paramId = queryParamId(modelId, paramNameSet.get(i), PARAMTYPE_PARAM);
 				if (paramId < 0) {
@@ -1092,10 +1108,24 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
 			}
-			
+			*/
 			insertModLit(estModelId, pm.getEstModelLit(), true, pm);
 			
 			deleteFrom("GueltigkeitsBereiche", "GeschaetztesModell", estModelId);
+			for (PmmXmlElementConvertable el : pm.getIndependent().getElementSet()) {
+				if (el instanceof IndepXml) {
+					IndepXml ix = (IndepXml) el;
+					int indepId = queryParamId(modelId, ix.getOrigName(), PARAMTYPE_INDEP);
+					if (indepId >= 0) {
+						insertMinMaxIndep(estModelId, indepId, ix.getMin(), ix.getMax());	
+						if (!ix.getOrigName().equals(ix.getName())) hmi.put(ix.getName(), indepId);
+					}
+					else {
+						System.err.println("insertEm:\t" + ix.getOrigName() + "\t" + modelId);
+					}
+				}
+			}
+			/*
 			for (String name : pm.getIndepVarSet()) {
 				int indepId = queryParamId(modelId, name, PARAMTYPE_INDEP);
 				if (indepId >= 0) {
@@ -1108,13 +1138,13 @@ public class Bfrdb extends Hsqldbiface {
 					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + name);
 				}
 			}
-						
+			*/
 			// insert mapping of parameters and variables of this estimation
 			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);			
 			for (String newName : hmi.keySet()) {
 				insertVarParMaps(estModelId, hmi.get(newName), newName);					
 			}			
-			*/
+			
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
@@ -1449,7 +1479,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		*/
 		// insert parameters
-		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
+		for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
 			if (el instanceof ParamXml) {
 				ParamXml px = (ParamXml) el;
 				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax());

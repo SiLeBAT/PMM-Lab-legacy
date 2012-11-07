@@ -115,6 +115,8 @@ public class MMC_M extends JPanel {
 					//String oldDepVar = formula.substring(0, index);
 					//System.err.println(oldDepVar + "=" + depVar);
 					//pm.getDepXml().setOrigName(oldDepVar);//.addVarParMap(depVar, oldDepVar);
+					
+					//formula = MathUtilities.replaceVariable(formula.substring(index), depVar, depVar+depVar);			
 					formula = depVar + formula.substring(index);
 					pm.setDepVar(depVar);
 					pm.setFormula(formula);

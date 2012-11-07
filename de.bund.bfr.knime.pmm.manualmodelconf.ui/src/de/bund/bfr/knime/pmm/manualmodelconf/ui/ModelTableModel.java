@@ -284,10 +284,17 @@ public class ModelTableModel extends JTable {
 			  }
 			  
 			  try {
-				  UIDefaults uiDefaults = UIManager.getDefaults();
-				  Color selBGColor = (Color) uiDefaults.get("Table.selectionBackground");
-				  if (isSelected && hasFocus) c.setBackground(Color.CYAN);
-				  else if (isSelected) c.setBackground(selBGColor);				  
+				  if (isSelected && hasFocus) {
+					  c.setBackground(Color.CYAN);
+					  c.setForeground(Color.BLACK);
+				  }
+				  else if (isSelected) {
+					  UIDefaults uiDefaults = UIManager.getDefaults();
+					  Color selBGColor = (Color) uiDefaults.get("Table.selectionBackground");
+					  Color selFGColor = (Color) uiDefaults.get("Table.selectionForeground");
+					  c.setBackground(selBGColor);			
+					  c.setForeground(selFGColor);
+				  }
 			  }
 			  catch (Exception e) {}
 			  

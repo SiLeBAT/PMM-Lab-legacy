@@ -33,14 +33,12 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.jdom2.Element;
-import org.jdom2.JDOMException;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;

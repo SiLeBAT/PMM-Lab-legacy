@@ -323,6 +323,7 @@ public class MMC_M extends JPanel {
 			ParametricModel newPM = new ParametricModel(newMN, formulaArea.getText(), pm.getDepVar(), pm.getLevel(), MathUtilities.getRandomNegativeInt());
 			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
+			cloneSecondary(pm, newPM);
 			modelNameBox.setSelectedItem(newPM);
 		}
 	}
@@ -356,16 +357,7 @@ public class MMC_M extends JPanel {
 			ParametricModel newPM = pm.clone();
 			newPM.setModelName(modelnameField.getText());
 			newPM.setModelId(MathUtilities.getRandomNegativeInt());
-			//if (m_secondaryModels != null) {
-				HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm);
-				if (smOld != null && !m_secondaryModels.containsKey(newPM)) {
-					HashMap<String, ParametricModel> smNew = new HashMap<String, ParametricModel>();
-					for (String key : smOld.keySet()) {
-						if (smOld.get(key) != null) smNew.put(key, smOld.get(key).clone());
-					}
-					m_secondaryModels.put(newPM, smNew);
-				}
-			//}
+			cloneSecondary(pm, newPM);
 			/*
 			System.err.println(pm.getParamValue("a0") + "\t" + pm + "\t" + pm.hashCode() + "\n" +
 					newPM.getParamValue("a0") + "\t" + newPM + "\t" + newPM.hashCode() + "\n" +
@@ -374,6 +366,16 @@ public class MMC_M extends JPanel {
 			insertNselectPMintoBox(newPM);
 			modelNameBox.setSelectedItem(newPM);
 		}
+	}
+	private void cloneSecondary(ParametricModel pm, ParametricModel newPM) {
+		HashMap<String, ParametricModel> smOld = m_secondaryModels.get(pm);
+		if (smOld != null && !m_secondaryModels.containsKey(newPM)) {
+			HashMap<String, ParametricModel> smNew = new HashMap<String, ParametricModel>();
+			for (String key : smOld.keySet()) {
+				if (smOld.get(key) != null) smNew.put(key, smOld.get(key).clone());
+			}
+			m_secondaryModels.put(newPM, smNew);
+		}		
 	}
 
 	private void modelnameFieldKeyReleased(KeyEvent e) {

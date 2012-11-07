@@ -137,7 +137,7 @@ public class ModelTableModel extends JTable {
 
 		public int getRowCount() {
         	if (thePM == null) return 0;
-        	else return thePM.getIndependent().size() + thePM.getParameter().size();//thePM.getAllParVars().size();
+        	else return thePM.getAllParVars().size();
         }
  
         public int getColumnCount() {
@@ -154,12 +154,12 @@ public class ModelTableModel extends JTable {
             	if (columnIndex == 0) return rowID;
             	if (columnIndex == 1) return isIndep;
             	if (columnIndex == 2) return isIndep ? null : 
-            		Double.isNaN(thePM.getParamValue(rowID)) ? null : thePM.getParamValue(rowID);
+            		thePM.getParamValue(rowID) == null || Double.isNaN(thePM.getParamValue(rowID)) ? null : thePM.getParamValue(rowID);
             	if (columnIndex == 3) return isIndep ? null : 
-            		Double.isNaN(thePM.getParamError(rowID)) ? null : thePM.getParamError(rowID);
-            	if (columnIndex == 4) return isIndep ? (Double.isNaN(thePM.getIndepMin(rowID)) ? null : thePM.getIndepMin(rowID)) :
+            		thePM.getParamError(rowID) == null || Double.isNaN(thePM.getParamError(rowID)) ? null : thePM.getParamError(rowID);
+            	if (columnIndex == 4) return isIndep ? (thePM.getIndepMin(rowID) == null || Double.isNaN(thePM.getIndepMin(rowID)) ? null : thePM.getIndepMin(rowID)) :
             		(thePM.getParamMin(rowID) == null || Double.isNaN(thePM.getParamMin(rowID)) ? null : thePM.getParamMin(rowID));
-            	if (columnIndex == 5) return isIndep ? (Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
+            	if (columnIndex == 5) return isIndep ? (thePM.getIndepMax(rowID) == null || Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
             		(thePM.getParamMax(rowID) == null || Double.isNaN(thePM.getParamMax(rowID)) ? null : thePM.getParamMax(rowID));
         	}
         	return null;

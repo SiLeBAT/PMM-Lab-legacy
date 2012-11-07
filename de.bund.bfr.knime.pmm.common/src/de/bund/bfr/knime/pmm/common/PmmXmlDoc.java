@@ -55,13 +55,18 @@ public class PmmXmlDoc {
 		elementSet = new ArrayList<PmmXmlElementConvertable>();
 	}
 	
+	public PmmXmlDoc(Element rootElement) throws IOException, JDOMException {		
+		parseElement(rootElement);
+	}
 	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		
 		this();
 		SAXBuilder builder = new SAXBuilder();
 		Document doc = builder.build(new StringReader(xmlString));
 		
 		Element rootElement = doc.getRootElement();
-		
+		parseElement(rootElement);
+	}
+	private void parseElement(Element rootElement) {
 		for (Element el : rootElement.getChildren()) {
 			/*
 			if (el instanceof PmmXmlElementConvertable) {
@@ -86,9 +91,8 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(TimeSeriesXml.ELEMENT_TIMESERIES)) {
 				elementSet.add(new TimeSeriesXml(el));
 			}	
-		}			
+		}					
 	}
-	
 	public void add(PmmXmlElementConvertable el) {
 		elementSet.add(el);
 	}

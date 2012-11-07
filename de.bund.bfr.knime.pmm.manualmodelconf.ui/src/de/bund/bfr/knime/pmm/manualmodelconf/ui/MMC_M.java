@@ -253,10 +253,10 @@ public class MMC_M extends JPanel {
 		    for (Object o : st.keySet()) {
 		    	String os = o.toString();
 		        if (!os.equals(depVar)) {
-		        	if (oldPM.getIndepVarSet().contains(os)) {
+		        	if (oldPM.containsIndep(os)) {
 		        		newPM.addIndepVar(os, oldPM.getIndepMin(os), oldPM.getIndepMax(os));
 		        	}
-		        	else if (oldPM.getParamNameSet().contains(os)) {
+		        	else if (oldPM.containsParam(os)) {
 		        		newPM.addParam(os, oldPM.getParamValue(os), oldPM.getParamError(os), oldPM.getParamMin(os), oldPM.getParamMax(os));
 		        	}
 		        	else {
@@ -463,7 +463,7 @@ public class MMC_M extends JPanel {
 		if (radioButton3.isSelected()) {
 			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm).entrySet()) {
 				String key = entry.getKey();
-				if (pm.getParamNameSet().contains(key)) {
+				if (pm.containsParam(key)) {
 					ParametricModel value = entry.getValue();
 					doc.add(value);
 				}

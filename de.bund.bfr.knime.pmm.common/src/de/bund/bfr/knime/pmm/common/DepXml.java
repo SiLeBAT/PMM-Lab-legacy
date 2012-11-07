@@ -12,46 +12,46 @@ public class DepXml implements PmmXmlElementConvertable {
 	public static final String ELEMENT_DEPENDENT = "dependent";
 
 	private String name = null;
-	private String urName = null;
+	private String origName = null;
 	
 	public DepXml(String name) {
 		setName(name);
-		setUrName(name);
+		setOrigName(name);
 	}
 	public DepXml(Element xmlElement) {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
-			setUrName(xmlElement.getAttribute("urname").getValue());
+			setOrigName(xmlElement.getAttribute("origname").getValue());
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	public String getName() {return name;}
-	public String getUrName() {return urName;}
+	public String getOrigName() {return origName;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	public void setUrName(String urName) {this.urName = (urName == null) ? "" : urName;}
+	public void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
 
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_DEPENDENT);
 		modelElement.setAttribute("name", name);
-		modelElement.setAttribute("urname", urName);
+		modelElement.setAttribute("origname", origName);
 		return modelElement;
 	}
 
 	public static List<String> getElements() {
         List<String> list = new ArrayList<String>();
         list.add("Name");
-        list.add("Urname");
+        list.add("Origname");
         return list;
 	}
 	public static DataType getDataType(String element) {
 		if (element.equalsIgnoreCase("name")) {
 			return StringCell.TYPE;
 		}
-		else if (element.equalsIgnoreCase("urname")) {
+		else if (element.equalsIgnoreCase("origname")) {
 			return StringCell.TYPE;
 		}
 		return null;

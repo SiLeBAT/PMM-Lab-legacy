@@ -116,7 +116,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         		if (el instanceof ParametricModel) {        		
 	        		ParametricModel model = (ParametricModel) el;	        		
 	    			if (model.getLevel() == 1) { // can occur only once
-	    				if (model.getIndepVarSet().size() > 0) {
+	    				if (model.getIndependent().size() > 0) {
 	    					tupleM1 = model.getKnimeTuple();
 	    					tupleM1.setValue(Model1Schema.ATT_DATABASEWRITABLE, 1);
 	    				}
@@ -186,7 +186,7 @@ public class ManualModelConfNodeModel extends NodeModel {
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {        		
         		if (el instanceof ParametricModel) {
 	        		ParametricModel model = (ParametricModel) el;
-	        		if (model.getLevel() == 1 && model.getIndepVarSet().size() > 0) {
+	        		if (model.getLevel() == 1 && model.getIndependent().size() > 0) {
 						return true;
 					}
         		}

@@ -137,7 +137,7 @@ public class ModelTableModel extends JTable {
 
 		public int getRowCount() {
         	if (thePM == null) return 0;
-        	else return thePM.getAllParVars().size();
+        	else return thePM.getIndependent().size() + thePM.getParameter().size();//thePM.getAllParVars().size();
         }
  
         public int getColumnCount() {

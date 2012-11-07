@@ -1045,6 +1045,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	public Integer insertEm(final ParametricModel pm, HashMap<String, String> hm) {
 		Integer estModelId = null;
+		/*
 		Double rms = pm.getRms();
 		Double r2 = pm.getRsquared();
 		//if (!Double.isNaN(rms)) {
@@ -1111,19 +1112,7 @@ public class Bfrdb extends Hsqldbiface {
 			for (String newName : hmi.keySet()) {
 				insertVarParMaps(estModelId, hmi.get(newName), newName);					
 			}			
-			/*
-			if (hm != null) {
-				for (String key : hm.keySet()) {
-					if (hmi.containsKey(hm.get(key))) {
-						insertVarParMaps(estModelId, hmi.get(hm.get(key)), key+"="+hm.get(key)); // {b=P, aw=x3, Temp=x1, pH=x2}
-					}
-				}			
-			}
 			*/
-		//}
-
-			
-			//}
 		return estModelId;
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
@@ -1390,6 +1379,7 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public Integer insertM(final ParametricModel m) {		
 		int modelId = m.getModelId();
+		/*
 		String modelName = m.getModelName();
 		int level = m.getLevel();
 		String formula = m.getFormula();
@@ -1467,7 +1457,7 @@ public class Bfrdb extends Hsqldbiface {
 		// deleteParamNotIn kann man eigentlich nicht machen!!! Sonst sind irgendwann die Response-Verknüpfungen weg....
 		// andererseits hat man das Problem, dass sich die Parameter sammeln...
 		deleteParamNotIn( modelId, paramIdSet );
-		
+		*/
 		return modelId;
 	}
 	private void insertModLit(final int modelId, final LinkedList<LiteratureItem> modelLit, final boolean estimatedModels, final ParametricModel m) {

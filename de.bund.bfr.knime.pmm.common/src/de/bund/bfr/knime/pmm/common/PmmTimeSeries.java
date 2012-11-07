@@ -201,9 +201,8 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
-	public void setLiterature( int litId, String litRef ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_LITIDTS, litId );
-		setValue( TimeSeriesSchema.ATT_LITTS, litRef );
+	public void setLiterature(PmmXmlDoc li) throws PmmException {
+		setValue(TimeSeriesSchema.ATT_LITMD, li);
 	}
 	
 	public boolean isEmpty() throws PmmException {
@@ -239,6 +238,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);
+	}
+	public PmmXmlDoc getLiterature() throws PmmException {
+		return getPmmXml(TimeSeriesSchema.ATT_LITMD);
 	}
 	
 	public LinkedList<double[]> getTimeSeries() throws PmmException {

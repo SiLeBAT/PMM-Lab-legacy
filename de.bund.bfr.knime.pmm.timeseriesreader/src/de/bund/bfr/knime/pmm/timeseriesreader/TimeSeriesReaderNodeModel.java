@@ -52,6 +52,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -163,12 +164,13 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
-    		s = result.getString( Bfrdb.ATT_LITERATUREID );
-    		if( s != null )
-			 {
-				tuple.setLiterature( Integer.valueOf( s ), result.getString( Bfrdb.ATT_LITERATURETEXT ) );
-    		// tuple.setCommasepLitIDTs( result.getString( Bfrdb.ATT_LITIDTS ) );
-    		// tuple.setCommasepLitTs( result.getString( Bfrdb.ATT_LITTS ) );
+    		s = result.getString(Bfrdb.ATT_LITERATUREID);
+    		if (s != null) {
+    			PmmXmlDoc l = new PmmXmlDoc();
+    			String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
+    			LiteratureItem li = new LiteratureItem(au_ja, null, null, null, Integer.valueOf(s)); 
+    			l.add(li);
+				tuple.setLiterature(l);
 			}
     		
     		    		

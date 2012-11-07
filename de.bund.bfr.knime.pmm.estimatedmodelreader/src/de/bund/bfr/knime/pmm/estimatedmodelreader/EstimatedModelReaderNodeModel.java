@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -56,6 +55,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -139,8 +139,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	String dbuuid;
     	String formula;
     	int numParam, numSample;
-    	List<Double> tList;
-    	List<String> paramList;
     	Double rms;
     	
         // fetch database connection
@@ -191,8 +189,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_LITIDTS, result.getInt( Bfrdb.ATT_LITERATUREID ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_LITTS, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
+    		
+			PmmXmlDoc l = new PmmXmlDoc();
+			String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
+			LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
+			l.add(li);
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
+
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
     		// fill m1
@@ -238,10 +241,18 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
     				result.getArray(Bfrdb.ATT_MAX)));
-    		tuple.setValue( Model1Schema.ATT_LITIDM, result.getString( "LitMID" ) );
-    		tuple.setValue( Model1Schema.ATT_LITM, result.getString( "LitM" ) );
-    		tuple.setValue( Model1Schema.ATT_LITIDEM, result.getString( "LitEmID" ) );
-    		tuple.setValue( Model1Schema.ATT_LITEM, result.getString( "LitEm" ) );
+    		/*
+			l = new PmmXmlDoc();
+			au_ja = result.getString("LitM");
+			li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitMID")); 
+			l.add(li);
+			tuple.setValue(Model1Schema.ATT_MLIT, l);
+			l = new PmmXmlDoc();
+			au_ja = result.getString("LitEm");
+			li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitEmID")); 
+			l.add(li);
+			tuple.setValue(Model1Schema.ATT_EMLIT, l);
+    		 */
     		//tuple.setValue( Model1Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
     		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
     		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
@@ -268,8 +279,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			for( j = 0; j < n; j++ )
     				tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
 			*/
-    		tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
-    		paramList = tuple.getStringList( Model1Schema.ATT_PARAMNAME );
+        	List<Double> tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
+    		//paramList = tuple.getStringList( Model1Schema.ATT_PARAMNAME );
+    		PmmXmlDoc paramList = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
     		rms = tuple.getDouble( Model1Schema.ATT_RMS );
     		
     		if( tList != null )
@@ -335,10 +347,18 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
 	    				result.getArray(Bfrdb.ATT_MAX+"2")));
-	    		tuple.setValue( Model2Schema.ATT_LITIDM, result.getString( "LitMID2" ) );
-	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( "LitM2" ) );
-	    		tuple.setValue( Model2Schema.ATT_LITIDEM, result.getString( "LitEmID2" ) );
-	    		tuple.setValue( Model2Schema.ATT_LITEM, result.getString( "LitEm2" ) );
+	    		/*
+				l = new PmmXmlDoc();
+				au_ja = result.getString("LitM2");
+				li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitMID2")); 
+				l.add(li);
+				tuple.setValue(Model2Schema.ATT_MLIT, l);
+				l = new PmmXmlDoc();
+				au_ja = result.getString("LitEm2");
+				li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitEmID2")); 
+				l.add(li);
+				tuple.setValue(Model2Schema.ATT_EMLIT, l);
+				*/
 	    		//tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );

@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -165,8 +166,13 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 	    		//tuple.setValue( Model1Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model1Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
-	    		tuple.setValue( Model1Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );
-	    		tuple.setValue( Model1Schema.ATT_LITM, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
+	    		/*
+	    		PmmXmlDoc l = new PmmXmlDoc();
+				String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
+				LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
+				l.add(li);
+				tuple.setValue(Model1Schema.ATT_MLIT, l);
+				*/
 	    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
 	    		/*
@@ -244,8 +250,13 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 	    		//tuple.setValue( Model2Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
 	    		//tuple.setValue( Model2Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
-	    		tuple.setValue( Model2Schema.ATT_LITIDM, result.getString( Bfrdb.ATT_LITERATUREID ) );
-	    		tuple.setValue( Model2Schema.ATT_LITM, result.getString( Bfrdb.ATT_LITERATURETEXT ) );
+	    		/*
+	    		PmmXmlDoc l = new PmmXmlDoc();
+				String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
+				LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
+				l.add(li);
+				tuple.setValue(Model2Schema.ATT_MLIT, l);
+				*/
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
 	    		/*

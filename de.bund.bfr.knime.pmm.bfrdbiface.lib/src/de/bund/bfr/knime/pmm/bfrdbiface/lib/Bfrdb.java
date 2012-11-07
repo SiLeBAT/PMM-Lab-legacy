@@ -1189,7 +1189,7 @@ public class Bfrdb extends Hsqldbiface {
 	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism,
 			final String environment, final String combaseId,
 			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment,
-			final Integer litID, final String lit, PmmTimeSeries ts) {
+			PmmXmlDoc lit, PmmTimeSeries ts) {
 			
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
@@ -1267,11 +1267,13 @@ public class Bfrdb extends Hsqldbiface {
 				} else {
 					ps.setString( 9, comment );
 				}
-				if( litID == null || litID <= 0) {
-					ps.setNull(10, Types.INTEGER);
-				} else {
-					ps.setInt(10, litID);
-					try {ts.setLiterature(litID, lit);} catch (PmmException e) {e.printStackTrace();}
+				List<PmmXmlElementConvertable> l = lit.getElementSet();
+				if (l.size() > 0) {
+					LiteratureItem li = (LiteratureItem) l.get(0);
+					ps.setInt(10, li.getId());
+				}
+				else {
+					ps.setNull(10, Types.INTEGER);					
 				}
 				if (doUpdate) {
 					ps.setInt( 11, condId );
@@ -1375,8 +1377,7 @@ public class Bfrdb extends Hsqldbiface {
 		String matrixDetail = ts.getMatrixDetail();
 		String comment = ts.getComment();
 		PmmXmlDoc misc = ts.getMisc();
-		Integer litID = ts.getInt(TimeSeriesSchema.ATT_LITIDTS);
-		String lit = ts.getString(TimeSeriesSchema.ATT_LITTS);
+		PmmXmlDoc lit = ts.getLiterature();
 
 		List<Double> time = ts.getDoubleList(TimeSeriesSchema.ATT_TIME);
 		List<Double> logc = ts.getDoubleList(TimeSeriesSchema.ATT_LOGC);
@@ -1388,7 +1389,7 @@ public class Bfrdb extends Hsqldbiface {
 
 		condId = insertCondition(condId, tempId, phId, awId, organism, environment, combaseId,
 				matrixId, agentId, agentDetail, matrixDetail, misc, comment,
-				litID, lit, ts);
+				lit, ts);
 			
 		ts.setCondId(condId);
 		if( condId == null || condId < 0 ) {

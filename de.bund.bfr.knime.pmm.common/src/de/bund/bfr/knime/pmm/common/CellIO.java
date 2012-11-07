@@ -301,8 +301,7 @@ public class CellIO {
 		}
 	}
 
-	public static Map<String, String> getMap(DataCell dataCell)
-			throws PmmException {
+	public static Map<String, String> getMap(DataCell dataCell) throws PmmException {
 
 		String[] t1, t2;
 		Map<String, String> ret;

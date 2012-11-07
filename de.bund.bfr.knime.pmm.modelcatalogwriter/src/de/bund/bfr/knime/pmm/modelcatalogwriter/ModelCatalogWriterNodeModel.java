@@ -156,10 +156,12 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		    		formula = res[0];
 		    		depVar = res[1];
 		    		 */
-		    		ParametricModel pm = new ParametricModel( modelName, formula, dx.getName(), 1, rowMcID );
+		    		ParametricModel pm = new ParametricModel( modelName, formula, dx, 1, rowMcID );
 		    		
-		    		doMinMax(pm, false, paramXml);
-		    		doMinMax(pm, true, indepXml);
+		    		pm.setParameter(paramXml);
+		    		pm.setIndependent(indepXml);
+		    		//doMinMax(pm, false, paramXml);
+		    		//doMinMax(pm, true, indepXml);
 		    		doLit(pm, litStr, litID, false);
 		    		doLit(pm, litEMStr, litEMID, true);
 
@@ -201,10 +203,12 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			    		formula = res[0];
 			    		depVar = res[1];
 						*/
-			    		ParametricModel pm = new ParametricModel(modelName, formula, dx.getName(), 2, rowMcID);
+			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, rowMcID);
 			    		
-			    		doMinMax(pm, false, paramXml);
-			    		doMinMax(pm, true, indepXml);
+			    		pm.setParameter(paramXml);
+			    		pm.setIndependent(indepXml);
+			    		//doMinMax(pm, false, paramXml);
+			    		//doMinMax(pm, true, indepXml);
 			    		doLit(pm, litStr, litID, false);
 			    		doLit(pm, litEMStr, litEMID, true);
 			    		

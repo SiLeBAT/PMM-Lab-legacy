@@ -73,7 +73,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_MININDEP = "MinIndep";
 	private static final String ATT_MAXINDEP = "MaxIndep";
 	private static final String ATT_PARAMERR = "StandardError";
-	private static final String ATT_VARPARMAP = "VarParMap";
+	private static final String ATT_RMAP = "rMap";
 
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
@@ -81,7 +81,6 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private DepXml depXml = null;
 	private PmmXmlDoc independent = null;
 	private PmmXmlDoc parameter = null;
-	private HashMap<String, String> varParMap;
 	/*
 	private HashMap<String, Double> paramMin;
 	private HashMap<String, Double> paramMax;
@@ -137,37 +136,36 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		indepMax = new HashMap<String, Double>();
 		
 		*/
-		varParMap = new HashMap<String, String>();
 		independent = new PmmXmlDoc();
 		parameter = new PmmXmlDoc();
 	}
 	
 	public ParametricModel(final String modelName, final String formula,
-		final String depVar, final int level, final int modelId, final int estModelId ) {
+			DepXml depXml, final int level, final int modelId, final int estModelId ) {
 		
-		this(modelName, formula, depVar, level, modelId);
+		this(modelName, formula, depXml, level, modelId);
 		
 		this.estModelId = estModelId;
 		
 	}
 	
 	public ParametricModel(final String modelName, final String formula,
-		final String depVar, final int level, final int modelId) {
+			DepXml depXml, final int level, final int modelId) {
 		
-		this(modelName, formula, depVar, level);
+		this(modelName, formula, depXml, level);
 				
 		this.modelId = modelId;
 	}
 	
 	
 	public ParametricModel(final String modelName, final String formula,
-			final String depVar, final int level) {
+			DepXml depXml, final int level) {
 		
 		this();			
 		this.modelName = modelName;
 		setFormula( formula );
 		//this.depVar = depVar;
-		depXml = new DepXml(depVar);
+		this.depXml = depXml;
 		this.level = level;
 	}
 	
@@ -190,6 +188,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
 		condId = Integer.valueOf( modelElement.getAttributeValue( ATT_CONDID ) );
 		
+		HashMap<String, String> rMap = new HashMap<String, String>();
 		for (Element el : modelElement.getChildren()) {
 			if (el.getName().equals(ATT_FORMULA)) {
 				formula = el.getText();
@@ -223,8 +222,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				IndepXml ix = new IndepXml(el.getAttributeValue(ATT_PARAMNAME), min, max);
 				independent.add(ix);
 			}
-			else if (el.getName().equals(ATT_VARPARMAP)) {
-				varParMap.put(el.getAttributeValue("NEW"), el.getAttributeValue("OLD"));
+			else if (el.getName().equals(ATT_RMAP)) {
+				rMap.put(el.getAttributeValue("NEW"), el.getAttributeValue("OLD"));
 			}
 			else if (el.getName().equals(ATT_DEPVAR)) {
 				depXml = new DepXml(el.getAttributeValue(ATT_PARAMNAME));
@@ -268,8 +267,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				assert false;
 			}
 		}
-		for (String name : varParMap.keySet()) {
-			String origName = varParMap.get(name);
+		for (String name : rMap.keySet()) {
+			String origName = rMap.get(name);
 			if (depXml.getOrigName().equals(origName)) {
 				depXml.setName(name);
 			}
@@ -301,9 +300,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public DepXml getDepXml() {return depXml;}
 	public PmmXmlDoc getIndependent() {return independent;}
 	public PmmXmlDoc getParameter() {return parameter;}
-	
+
 	public ParametricModel clone() {
-		ParametricModel clonedPM = new ParametricModel(modelName, formula, depXml.getName(), level, modelId, estModelId); 
+		ParametricModel clonedPM = new ParametricModel(modelName, formula, depXml, level, modelId, estModelId); 
 
 		try {
 			clonedPM.setRms(rms);
@@ -341,9 +340,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		for (String key : indepVar) {
 		    clonedPM.addIndepVar(key, indepMin.get(key), indepMax.get(key));
 		}
-		for (String newDepVar : varParMap.keySet()) {
+		for (String newDepVar : rMap.keySet()) {
 			if (newDepVar != null) {
-				clonedPM.addVarParMap(newDepVar, varParMap.get(newDepVar));
+				clonedPM.addrMap(newDepVar, rMap.get(newDepVar));
 			}
 		}
 */
@@ -476,7 +475,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public void setDepVar(final String depVar) {
-		depXml.setName(depVar);
+		if (depXml == null) depXml = new DepXml(depVar);
+		else depXml.setName(depVar);
 		//this.depVar = depVar;
 	}
 	public void setRms( final Double rms ) throws PmmException {		
@@ -523,17 +523,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void addIndepVar( final String varName ) {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
-	
-	public void addVarParMap(String newDepVar, String oldDepVar) {
-		if (!newDepVar.equals(oldDepVar)) varParMap.put(newDepVar, oldDepVar);
-		else if (varParMap.containsKey(newDepVar)) varParMap.remove(newDepVar);
+	/*
+	public void addrMap(String newDepVar, String oldDepVar) {
+		if (!newDepVar.equals(oldDepVar)) rMap.put(newDepVar, oldDepVar);
+		else if (rMap.containsKey(newDepVar)) rMap.remove(newDepVar);
 	}
-	public String getVarPar(String newDepVar) {
-		return varParMap.get(newDepVar);
+	public String getr(String newDepVar) {
+		return rMap.get(newDepVar);
 	}
-	public void setVarParMap(HashMap<String, String> newVarParMap) {
-		varParMap = newVarParMap;
+	public void setrMap(HashMap<String, String> newrMap) {
+		rMap = newrMap;
 	}
+	*/
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
 		IndepXml ix = new IndepXml(varName, min, max);
 		independent.add(ix);
@@ -697,6 +698,33 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		}
 		return result;
 	}
+	public String revertFormula() {
+		String result = formula;
+		if (depXml != null && !depXml.getName().equals(depXml.getOrigName())) {
+			result = MathUtilities.replaceVariable(formula, depXml.getName(), depXml.getOrigName());			
+		}
+		if (parameter != null && parameter.getElementSet() != null) {
+			for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+				if (el instanceof ParamXml) {
+					ParamXml px = (ParamXml) el;
+					if (!px.getName().equals(px.getOrigName())) {
+						result = MathUtilities.replaceVariable(formula, px.getName(), px.getOrigName());									
+					}
+				}
+			}			
+		}
+		if (independent != null && independent.getElementSet() != null) {
+			for (PmmXmlElementConvertable el : independent.getElementSet()) {
+				if (el instanceof IndepXml) {
+					IndepXml ix = (IndepXml) el;
+					if (!ix.getName().equals(ix.getOrigName())) {
+						result = MathUtilities.replaceVariable(formula, ix.getName(), ix.getOrigName());									
+					}
+				}
+			}
+		}
+		return result;
+	}
 	
 	public void setFormula( final String formula ) {
 		
@@ -786,11 +814,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				modelElement.addContent( element );
 			}
 		}
-		for (String newDepVar : varParMap.keySet()) {
+		for (String newDepVar : rMap.keySet()) {
 			if (newDepVar != null) {
-				element = new Element(ATT_VARPARMAP);
+				element = new Element(ATT_RMAP);
 				element.setAttribute("NEW", newDepVar);
-				element.setAttribute("OLD", varParMap.get(newDepVar));
+				element.setAttribute("OLD", rMap.get(newDepVar));
 				modelElement.addContent(element);
 			}
 		}
@@ -859,10 +887,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		*/
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, independent);
     		/*
-			for (String newDepVar : varParMap.keySet()) {
+			for (String newDepVar : rMap.keySet()) {
 				if (newDepVar != null) {
-					//tuple.addMap(Model1Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));
-					tuple.addValue(Model1Schema.ATT_VARPARMAP, newDepVar + "=" + varParMap.get(newDepVar));
+					//tuple.addMap(Model1Schema.ATT_RMAP, newDepVar, rMap.get(newDepVar));
+					tuple.addValue(Model1Schema.ATT_RMAP, newDepVar + "=" + rMap.get(newDepVar));
 				}
 			}
     		*/
@@ -924,10 +952,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				*/
     		tuple.setValue(Model2Schema.ATT_INDEPENDENT, independent);
     		/*
-			for (String newDepVar : varParMap.keySet()) {
+			for (String newDepVar : rMap.keySet()) {
 				if (newDepVar != null) {
-					//tuple.addMap(Model2Schema.ATT_VARPARMAP, newDepVar, varParMap.get(newDepVar));
-					tuple.addValue(Model2Schema.ATT_VARPARMAP, newDepVar + "=" + varParMap.get(newDepVar));
+					//tuple.addMap(Model2Schema.ATT_RMAP, newDepVar, rMap.get(newDepVar));
+					tuple.addValue(Model2Schema.ATT_RMAP, newDepVar + "=" + rMap.get(newDepVar));
 				}
 			}
 			*/

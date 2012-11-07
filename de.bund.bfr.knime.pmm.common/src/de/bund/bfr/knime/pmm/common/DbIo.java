@@ -3,7 +3,11 @@ package de.bund.bfr.knime.pmm.common;
 import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+
+import org.knime.core.data.def.StringCell;
 
 public class DbIo {
 
@@ -45,7 +49,7 @@ public class DbIo {
 		}
 		return tsDoc;    	
     }
-    public static PmmXmlDoc convertArrays2ParamXmlDoc(Array name, Array value, Array error, Array min, Array max) {
+    public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array value, Array error, Array min, Array max) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -62,6 +66,7 @@ public class DbIo {
 						Double mid = (mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						ParamXml px = new ParamXml(nas,vad,erd,mid,mad,null,null);
+			    		if (varMap != null && varMap.containsKey(px.getName())) px.setOrigName(varMap.get(px.getName()));
 						paramDoc.add(px);
 					}					
 				}
@@ -72,7 +77,7 @@ public class DbIo {
 	    }
 		return paramDoc;
     }
-    public static PmmXmlDoc convertArrays2IndepXmlDoc(Array name, Array min, Array max) {
+    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -85,6 +90,7 @@ public class DbIo {
 						Double mid = (mi == null || mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma == null || ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						IndepXml ix = new IndepXml(nas,mid,mad);
+			    		if (varMap != null && varMap.containsKey(ix.getName())) ix.setOrigName(varMap.get(ix.getName()));
 						indepDoc.add(ix);
 					}					
 				}
@@ -104,4 +110,15 @@ public class DbIo {
 		}
     }
 
+    public static LinkedHashMap<String, String> getVarParMap(String varparStr) {
+    	LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
+		String[] t1 = varparStr.split(",");
+
+		for (String map : t1) {
+			String[] t2 = map.split("=");
+			if (t2.length == 2) ret.put(t2[0], t2[1]);
+		}
+
+		return ret;    	
+    }
 }

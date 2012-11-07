@@ -31,6 +31,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -111,9 +112,9 @@ public class MMC_M extends JPanel {
 				String formula = pm.getFormula();
 				int index = formula.lastIndexOf("=");
 				if (index >= 0) {
-					String oldDepVar = formula.substring(0, index);
+					//String oldDepVar = formula.substring(0, index);
 					//System.err.println(oldDepVar + "=" + depVar);
-					pm.addVarParMap(depVar, oldDepVar);
+					//pm.getDepXml().setOrigName(oldDepVar);//.addVarParMap(depVar, oldDepVar);
 					formula = depVar + formula.substring(index);
 					pm.setDepVar(depVar);
 					pm.setFormula(formula);
@@ -154,7 +155,7 @@ public class MMC_M extends JPanel {
 			modelNameBox.removeAllItems();
 			//if (m_secondaryModels != null) m_secondaryModels.clear();
 			int level = radioButton2.isSelected() ? 2 : 1;
-			ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", "", level);
+			ParametricModel pm = new ParametricModel(LABEL_OWNMODEL, "", null, level);
 			modelNameBox.addItem(pm);
 			//System.err.println("added1:" + pm + "\t" + pm.hashCode());
 			try {			
@@ -165,7 +166,7 @@ public class MMC_M extends JPanel {
 					String formula = result.getString(Bfrdb.ATT_FORMULA);
 					int modelID = result.getInt(Bfrdb.ATT_MODELID);
 
-					pm = new ParametricModel(modelName, formula, result.getString(Bfrdb.ATT_DEP), level, modelID);
+					pm = new ParametricModel(modelName, formula, new DepXml(result.getString(Bfrdb.ATT_DEP)), level, modelID);
 					manageDBMinMax(result, pm);
 					manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
 					
@@ -320,7 +321,7 @@ public class MMC_M extends JPanel {
 		ParametricModel pm = table.getPM();
 		if (pm != null && !pm.getFormula().equals(formulaArea.getText())) {
 			String newMN = getNewModelname(pm);
-			ParametricModel newPM = new ParametricModel(newMN, formulaArea.getText(), pm.getDepVar(), pm.getLevel(), MathUtilities.getRandomNegativeInt());
+			ParametricModel newPM = new ParametricModel(newMN, formulaArea.getText(), pm.getDepXml(), pm.getLevel(), MathUtilities.getRandomNegativeInt());
 			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
 			cloneSecondary(pm, newPM);

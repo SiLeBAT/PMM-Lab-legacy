@@ -46,8 +46,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -1043,7 +1045,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm(final ParametricModel pm, HashMap<String, String> hm) {
+	public Integer insertEm(final ParametricModel pm) { // , HashMap<String, String> hm
 		Integer estModelId = null;
 		/*
 		Double rms = pm.getRms();
@@ -1379,23 +1381,16 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public Integer insertM(final ParametricModel m) {		
 		int modelId = m.getModelId();
-		/*
-		String modelName = m.getModelName();
-		int level = m.getLevel();
-		String formula = m.getFormula();
-		String depVar = m.getDepVar();
-		Collection<String> indepVar = m.getIndepVarSet();
-		Collection<String> paramNameSet = m.getParamNameSet();
-		
+
 		if (isObjectPresent("Modellkatalog", modelId)) {
 			//Date date = new Date( System.currentTimeMillis() );		
 			
 			try {
 				PreparedStatement ps = conn.prepareStatement( "UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?" );
-				ps.setString(1, modelName);
-				ps.setInt(2, level);
+				ps.setString(1, m.getModelName());
+				ps.setInt(2, m.getLevel());
 				//ps.setDate( 3, date );
-				ps.setString(3, formula);
+				ps.setString(3, m.getFormula());
 				ps.setInt(4, modelId);
 
 				ps.executeUpdate();
@@ -1408,11 +1403,11 @@ public class Bfrdb extends Hsqldbiface {
 			
 			try {				
 				PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Modellkatalog\" ( \"Name\", \"Level\", \"Eingabedatum\", \"Formel\", \"Notation\", \"Klasse\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
-				ps.setString( 1, modelName + "_" + (-modelId) );
-				ps.setInt( 2, level );
+				ps.setString( 1, m.getModelName() + "_" + (-modelId) );
+				ps.setInt( 2, m.getLevel() );
 				ps.setDate( 3, date );
-				ps.setString( 4, formula );
-				ps.setString( 5, modelName.toLowerCase().replaceAll( "\\s", "_") );
+				ps.setString( 4, m.getFormula() );
+				ps.setString( 5, m.getModelName().toLowerCase().replaceAll( "\\s", "_") );
 				ps.setInt(6, 0); // erstmal Unknown!
 				
 				modelId = -1;
@@ -1436,28 +1431,44 @@ public class Bfrdb extends Hsqldbiface {
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
 		// insert dependent variable
-		int paramId = insertParam(modelId, depVar, PARAMTYPE_DEP, null, null);
+		int paramId = insertParam(modelId, m.getDepXml().getOrigName(), PARAMTYPE_DEP, null, null);
 		paramIdSet.add(paramId);
 		
 		// insert independent variable set
+		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax());
+				paramIdSet.add(paramId);
+			}
+		}
+		/*
 		for (String name : indepVar) {
 			paramId = insertParam(modelId, name, PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}
-		
+		*/
 		// insert parameters
+		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax());
+				paramIdSet.add(paramId);
+			}
+		}
+		/*
 		for (String name : paramNameSet) {			
 			paramId = insertParam(modelId, name, PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
 			paramIdSet.add(paramId);
 		}
-		
+		*/
 		insertModLit(modelId, m.getModelLit(), false, m);
 		
 		// delete dangling parameters
 		// deleteParamNotIn kann man eigentlich nicht machen!!! Sonst sind irgendwann die Response-Verknüpfungen weg....
 		// andererseits hat man das Problem, dass sich die Parameter sammeln...
 		deleteParamNotIn( modelId, paramIdSet );
-		*/
+
 		return modelId;
 	}
 	private void insertModLit(final int modelId, final LinkedList<LiteratureItem> modelLit, final boolean estimatedModels, final ParametricModel m) {

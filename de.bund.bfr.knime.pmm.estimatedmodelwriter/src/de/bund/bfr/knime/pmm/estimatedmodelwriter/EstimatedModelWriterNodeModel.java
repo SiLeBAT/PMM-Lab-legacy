@@ -195,8 +195,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
 		    		Double aic = row.getDouble(Model1Schema.ATT_AIC);
 		    		Double bic = row.getDouble(Model1Schema.ATT_BIC);
-		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);
 		    		/*
+		    		List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);
 		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
 		    		formula = res[0];
 		    		depVar = res[1];
@@ -206,9 +206,12 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						ppm = alreadyInsertedModel.get(rowMcID);
 					}
 					else {
-			    		ppm = new ParametricModel(modelName, formula, dx.getName(), 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
-			    		doMinMax(ppm, false, paramXml);
-			    		doMinMax(ppm, true, indepXml);
+			    		ppm = new ParametricModel(modelName, formula, dx, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
+			    		ppm.setFormula(ppm.revertFormula());
+			    		ppm.setParameter(paramXml);
+			    		ppm.setIndependent(indepXml);
+			    		//doMinMax(ppm, false, paramXml);
+			    		//doMinMax(ppm, true, indepXml);
 			    		doLit(ppm, litStr, litID, false);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
@@ -231,15 +234,17 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 					else {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
-			    		doMinMax(ppm, false, paramXml);
-			    		doMinMax(ppm, true, indepXml);
+			    		ppm.setParameter(paramXml);
+			    		ppm.setIndependent(indepXml);
+			    		//doMinMax(ppm, false, paramXml);
+			    		//doMinMax(ppm, true, indepXml);
 			    		doLit(ppm, litEMStr, litEMID, true);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-						newPrimEstID = db.insertEm(ppm, getVarParHashmap(varParMap, true));
+						newPrimEstID = db.insertEm(ppm);
 						//System.err.println("Prim\t" + rowEstM1ID + "\t" + newPrimEstID);
 						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
@@ -289,20 +294,19 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
 				    		Double aic = row.getDouble(Model2Schema.ATT_AIC);
 				    		Double bic = row.getDouble(Model2Schema.ATT_BIC);
-				    		List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
-				    		/*
-				    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
-				    		formula = res[0];
-				    		depVar = res[1];
-				    		*/
+				    		//List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);
+				    						    		
 				    		// Modellkatalog secondary
 							if (alreadyInsertedModel.containsKey(rowMcID)) {
 								spm = alreadyInsertedModel.get(rowMcID);
 							}
 							else {
-					    		spm = new ParametricModel( modelName, formula, dx.getName(), 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );				    		
-					    		doMinMax(spm, false, paramXml);
-					    		doMinMax(spm, true, indepXml);
+					    		spm = new ParametricModel( modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );
+					    		spm.setFormula(spm.revertFormula());
+					    		spm.setParameter(paramXml);
+					    		spm.setIndependent(indepXml);
+					    		//doMinMax(spm, false, paramXml);
+					    		//doMinMax(spm, true, indepXml);
 					    		doLit(spm, litStr, litID, false);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
@@ -324,15 +328,17 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setAic(aic);
 					    		spm.setBic(bic);
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
-					    		doMinMax(spm, false, paramXml);
-					    		doMinMax(spm, true, indepXml);
+					    		spm.setParameter(paramXml);
+					    		spm.setIndependent(indepXml);
+					    		//doMinMax(spm, false, paramXml);
+					    		//doMinMax(spm, true, indepXml);
 					    		doLit(spm, litEMStr, litEMID, true);
 
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-								db.insertEm(spm, getVarParHashmap(varParMap, true));
+								db.insertEm(spm);
 								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 							}

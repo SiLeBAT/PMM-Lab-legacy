@@ -99,7 +99,7 @@ public class ModelTableModel extends JTable {
 		return hasChanged;
 	}
 	public void clearTable() {
-		thePM = new ParametricModel("", "", "", 1);
+		thePM = new ParametricModel("", "", null, 1);
 		this.revalidate();
 		hasChanged = false;
 		rowHasChanged = new HashMap<String, Boolean>();

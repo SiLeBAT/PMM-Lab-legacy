@@ -102,9 +102,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT });
 		formatBox.addActionListener(this);
 		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_TIME).toArray());
+				TimeSeriesSchema.TIME).toArray());
 		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_LOGC).toArray());
+				TimeSeriesSchema.LOGC).toArray());
 		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
 				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
 
@@ -120,11 +120,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		leftUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		leftUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		leftUnitsPanel.add(new JLabel("Unit for "
-				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME)
-				+ ":"));
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.TIME) + ":"));
 		leftUnitsPanel.add(new JLabel("Unit for "
-				+ AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC)
-				+ ":"));
+				+ AttributeUtilities.getFullName(TimeSeriesSchema.LOGC) + ":"));
 		leftUnitsPanel.add(new JLabel("Unit for "
 				+ AttributeUtilities
 						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
@@ -177,7 +175,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
 			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TIME));
+					.getStandardUnit(TimeSeriesSchema.TIME));
 		}
 
 		try {
@@ -185,7 +183,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
 			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_LOGC));
+					.getStandardUnit(TimeSeriesSchema.LOGC));
 		}
 
 		try {

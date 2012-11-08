@@ -300,8 +300,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			String transformY, List<String> visibleColumns) {
 		configPanel = new DataAndModelChartConfigPanel(
 				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
-		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.ATT_TIME));
-		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.ATT_LOGC));
+		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.TIME));
+		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);

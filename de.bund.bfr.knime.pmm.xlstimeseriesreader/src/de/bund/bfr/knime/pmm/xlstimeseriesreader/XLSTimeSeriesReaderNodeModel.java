@@ -53,6 +53,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -95,10 +96,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		super(0, 1);
 		fileName = null;
 		fileFormat = DEFAULT_FILEFORMAT;
-		timeUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_TIME);
-		logcUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
+		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
 
@@ -135,22 +134,21 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 		for (KnimeTuple tuple : tuples) {
 			if (fileFormat.equals(TIMESERIESFORMAT)) {
-				List<Double> timeList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
-				for (int i = 0; i < timeList.size(); i++) {
-					timeList.set(i, AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.ATT_TIME, timeList.get(i),
-							timeUnit));
-					logcList.set(i, AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.ATT_LOGC, logcList.get(i),
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					element.setTime(AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.TIME, element.getTime(), timeUnit));
+					element.setLog10C(AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.LOGC, element.getLog10C(),
 							logcUnit));
 				}
 
-				tuple.setValue(TimeSeriesSchema.ATT_TIME, timeList);
-				tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 			} else if (fileFormat.equals(DVALUEFORMAT)) {
 				PmmXmlDoc paramXml = tuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -160,8 +158,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 					if (element.getName().equals(XLSReader.DVALUE)) {
 						element.setValue(AttributeUtilities
-								.convertToStandardUnit(
-										TimeSeriesSchema.ATT_TIME,
+								.convertToStandardUnit(TimeSeriesSchema.TIME,
 										element.getValue(), timeUnit));
 						break;
 					}
@@ -243,14 +240,14 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
 			timeUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TIME);
+					.getStandardUnit(TimeSeriesSchema.TIME);
 		}
 
 		try {
 			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
 		} catch (InvalidSettingsException e) {
 			logcUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+					.getStandardUnit(TimeSeriesSchema.LOGC);
 		}
 
 		try {

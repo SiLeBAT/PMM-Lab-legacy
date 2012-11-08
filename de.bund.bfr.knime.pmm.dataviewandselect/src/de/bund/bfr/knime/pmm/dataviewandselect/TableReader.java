@@ -15,6 +15,7 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -89,18 +90,22 @@ public class TableReader {
 			Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 			Double waterActivity = tuple
 					.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-			List<Double> timeList = tuple
-					.getDoubleList(TimeSeriesSchema.ATT_TIME);
-			List<Double> logcList = tuple
-					.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+			PmmXmlDoc timeSeriesXml = tuple
+					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+			List<Double> timeList = new ArrayList<Double>();
+			List<Double> logcList = new ArrayList<Double>();
 			List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 			String dataName;
 			String agent;
 			String matrix;
 
-			for (int i = 0; i < timeList.size(); i++) {
-				dataPoints.add(new Point2D.Double(timeList.get(i), logcList
-						.get(i)));
+			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
+				TimeSeriesXml element = (TimeSeriesXml) el;
+
+				timeList.add(element.getTime());
+				logcList.add(element.getLog10C());
+				dataPoints.add(new Point2D.Double(element.getTime(), element
+						.getLog10C()));
 			}
 
 			if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
@@ -138,10 +143,10 @@ public class TableReader {
 					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
-			
+
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			for (int i = 0; i < miscParams.size(); i++) {				
+			for (int i = 0; i < miscParams.size(); i++) {
 				boolean paramFound = false;
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
@@ -162,8 +167,8 @@ public class TableReader {
 			Plotable plotable = new Plotable(Plotable.DATASET);
 
 			if (!timeList.isEmpty() && !logcList.isEmpty()) {
-				plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-				plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
 			}
 
 			plotables.put(id, plotable);

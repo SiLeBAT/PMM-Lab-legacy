@@ -59,6 +59,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -66,6 +67,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -489,13 +491,19 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<Double> maxParameterValues = new ArrayList<Double>();
 				List<Double> minGuessValues = new ArrayList<Double>();
 				List<Double> maxGuessValues = new ArrayList<Double>();
-				List<Double> targetValues = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
-				List<Double> timeValues = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<String> arguments = Arrays
-						.asList(TimeSeriesSchema.ATT_TIME);
-				List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+				PmmXmlDoc timeSeriesXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				List<Double> targetValues = new ArrayList<Double>();
+				List<Double> timeValues = new ArrayList<Double>();
+				List<String> arguments = Arrays.asList(TimeSeriesSchema.TIME);
+
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					timeValues.add(element.getTime());
+					targetValues.add(element.getLog10C());
+				}
 
 				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -536,20 +544,20 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Double rSquare = null;
 				Double aic = null;
 				Double bic = null;
-				List<Double> minIndep = null;
-				List<Double> maxIndep = null;
+				Double minIndep = null;
+				Double maxIndep = null;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
 				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
+					List<List<Double>> argumentValues = new ArrayList<List<Double>>();
+
 					argumentValues.add(timeValues);
 					MathUtilities
 							.removeNullValues(targetValues, argumentValues);
 
-					minIndep = Arrays.asList(Collections.min(argumentValues
-							.get(0)));
-					maxIndep = Arrays.asList(Collections.max(argumentValues
-							.get(0)));
+					minIndep = Collections.min(argumentValues.get(0));
+					maxIndep = Collections.max(argumentValues.get(0));
 					optimizer = new ParameterOptimizer(formula, parameters,
 							minParameterValues, maxParameterValues,
 							minGuessValues, maxGuessValues, targetValues,
@@ -578,13 +586,18 @@ public class ModelEstimationNodeModel extends NodeModel {
 					element.setP(parameterPValues.get(i));
 				}
 
+				PmmXmlDoc indepXml = tuple
+						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+				((IndepXml) indepXml.get(0)).setMin(minIndep);
+				((IndepXml) indepXml.get(0)).setMax(maxIndep);
+
 				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 				tuple.setValue(Model1Schema.ATT_RMS, rms);
 				tuple.setValue(Model1Schema.ATT_AIC, aic);
 				tuple.setValue(Model1Schema.ATT_BIC, bic);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
-				tuple.setValue(Model1Schema.ATT_MININDEP, minIndep);
-				tuple.setValue(Model1Schema.ATT_MAXINDEP, maxIndep);
+				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
 				tuple.setValue(Model1Schema.ATT_ESTMODELID,
 						MathUtilities.getRandomNegativeInt());
 				runningThreads.decrementAndGet();
@@ -636,7 +649,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 				while (reader.hasMoreElements()) {
 					KnimeTuple tuple = reader.nextElement();
-					String id = tuple.getString(Model2Schema.ATT_DEPVAR);
+					String id = ((DepXml) tuple.getPmmXml(
+							Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 					tuples.add(tuple);
 
@@ -668,8 +682,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							valueMissing = true;
 						}
 
-						if (element.getName().equals(
-								tuple.getString(Model2Schema.ATT_DEPVAR))) {
+						if (element.getName().equals(id)) {
 							value = element.getValue();
 							minValue = element.getMin();
 							maxValue = element.getMax();
@@ -722,7 +735,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 				for (int i = 0; i < n; i++) {
 					KnimeTuple tuple = tuples.get(i);
-					String id = tuple.getString(Model2Schema.ATT_DEPVAR);
+					String id = ((DepXml) tuple.getPmmXml(
+							Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 					tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 							Model2Schema.WRITABLE);
@@ -1005,23 +1019,33 @@ public class ModelEstimationNodeModel extends NodeModel {
 					PmmXmlDoc indepXml = tuple
 							.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 					List<String> arguments = CellIO.getNameList(indepXml);
-					List<Double> targetValues = tuple
-							.getDoubleList(TimeSeriesSchema.ATT_LOGC);
-					List<Double> timeList = tuple
-							.getDoubleList(TimeSeriesSchema.ATT_TIME);
+					PmmXmlDoc timeSeriesXml = tuple
+							.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+					int n = timeSeriesXml.getElementSet().size();
+					Double temp = tuple
+							.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+					Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
+					Double aw = tuple
+							.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+
+					List<Double> targetValues = new ArrayList<Double>();
+					List<Double> timeList = new ArrayList<Double>();
 					List<Double> tempList = new ArrayList<Double>(
-							Collections.nCopies(
-									timeList.size(),
-									tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE)));
+							Collections.nCopies(n, temp));
 					List<Double> phList = new ArrayList<Double>(
-							Collections.nCopies(timeList.size(),
-									tuple.getDouble(TimeSeriesSchema.ATT_PH)));
+							Collections.nCopies(n, ph));
 					List<Double> awList = new ArrayList<Double>(
-							Collections.nCopies(
-									timeList.size(),
-									tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY)));
+							Collections.nCopies(n, aw));
 					Map<String, List<Double>> miscLists = new LinkedHashMap<String, List<Double>>();
 					PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+					for (PmmXmlElementConvertable el : timeSeriesXml
+							.getElementSet()) {
+						TimeSeriesXml element = (TimeSeriesXml) el;
+
+						timeList.add(element.getTime());
+						targetValues.add(element.getLog10C());
+					}
 
 					for (PmmXmlElementConvertable el : misc.getElementSet()) {
 						MiscXml element = (MiscXml) el;
@@ -1046,7 +1070,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					targetValuesMap.get(id).addAll(targetValues);
 
 					for (int i = 0; i < arguments.size(); i++) {
-						if (arguments.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+						if (arguments.get(i).equals(TimeSeriesSchema.TIME)) {
 							argumentValuesMap.get(id).get(i).addAll(timeList);
 						} else if (arguments.get(i).equals(
 								TimeSeriesSchema.ATT_TEMPERATURE)) {

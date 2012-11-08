@@ -41,6 +41,8 @@ import java.util.Map;
 import java.util.Set;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -124,7 +126,8 @@ public class ModelCombiner {
 				replacements.put(id, new LinkedHashSet<String>());
 			}
 
-			String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
+			String depVarSec = ((DepXml) tuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 			if (!depVarSec.equals(doNotReplace.get(tuple
 					.getInt(Model1Schema.ATT_MODELID) + ""))
@@ -141,7 +144,8 @@ public class ModelCombiner {
 
 			for (KnimeTuple tuple : usedTuples) {
 				String formulaSec = tuple.getString(Model2Schema.ATT_FORMULA);
-				String depVarSec = tuple.getString(Model2Schema.ATT_DEPVAR);
+				String depVarSec = ((DepXml) tuple.getPmmXml(
+						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc indepVarsSec = tuple
 						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 				PmmXmlDoc paramsSec = tuple
@@ -173,16 +177,23 @@ public class ModelCombiner {
 				String newFormula = MathUtilities.replaceVariable(
 						newTuple.getString(Model1Schema.ATT_FORMULA),
 						depVarSec, replacement);
-				PmmXmlDoc newIndepVars = newTuple
-						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 				PmmXmlDoc newParams = newTuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
+				PmmXmlDoc newIndepVars = newTuple
+						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
-				newIndepVars.getElementSet().addAll(
-						indepVarsSec.getElementSet());
 				newParams.getElementSet().remove(
 						CellIO.getNameList(newParams).indexOf(depVarSec));
 				newParams.getElementSet().addAll(paramsSec.getElementSet());
+
+				for (PmmXmlElementConvertable el : indepVarsSec.getElementSet()) {
+					IndepXml element = (IndepXml) el;
+
+					if (!CellIO.getNameList(newIndepVars).contains(
+							element.getName())) {
+						newIndepVars.getElementSet().add(element);
+					}
+				}
 
 				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
 				newTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVars);
@@ -217,10 +228,6 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
 			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
-			newTuple.setValue(Model1Schema.ATT_LITEM, null);
-			newTuple.setValue(Model1Schema.ATT_LITIDEM, null);
-			newTuple.setValue(Model1Schema.ATT_LITIDM, null);
-			newTuple.setValue(Model1Schema.ATT_LITM, null);
 			newTuple.setValue(Model1Schema.ATT_RMS, null);
 			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
 			newTuple.setValue(Model1Schema.ATT_AIC, null);

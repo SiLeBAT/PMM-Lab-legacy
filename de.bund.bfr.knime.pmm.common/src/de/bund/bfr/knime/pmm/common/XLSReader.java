@@ -62,8 +62,8 @@ public class XLSReader {
 
 	private static String[] TIMESERIES_STANDARD_COLUMNS = { ID,
 			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
-			TimeSeriesSchema.ATT_COMMENT, TimeSeriesSchema.ATT_TIME,
-			TimeSeriesSchema.ATT_LOGC, TimeSeriesSchema.ATT_TEMPERATURE,
+			TimeSeriesSchema.ATT_COMMENT, TimeSeriesSchema.TIME,
+			TimeSeriesSchema.LOGC, TimeSeriesSchema.ATT_TEMPERATURE,
 			TimeSeriesSchema.ATT_PH, TimeSeriesSchema.ATT_WATERACTIVITY };
 
 	private static String[] DVALUE_STANDARD_COLUMNS = { ID,
@@ -85,11 +85,14 @@ public class XLSReader {
 				TIMESERIES_STANDARD_COLUMNS);
 
 		KnimeTuple tuple = null;
+		PmmXmlDoc timeSeriesXml = null;
 		String id = null;
 
 		for (int i = 1;; i++) {
 			if (isEndOfFile(sheet, i)) {
 				if (tuple != null) {
+					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
+							timeSeriesXml);
 					tuples.put(id, tuple);
 				}
 
@@ -111,13 +114,15 @@ public class XLSReader {
 			Cell awCell = row.getCell(standardColumns
 					.get(TimeSeriesSchema.ATT_WATERACTIVITY));
 			Cell timeCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_TIME));
+					.get(TimeSeriesSchema.TIME));
 			Cell logcCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_LOGC));
+					.get(TimeSeriesSchema.LOGC));
 
 			if (idCell != null && !idCell.toString().trim().isEmpty()
 					&& !idCell.toString().trim().equals(id)) {
 				if (tuple != null) {
+					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
+							timeSeriesXml);
 					tuples.put(id, tuple);
 				}
 
@@ -125,6 +130,7 @@ public class XLSReader {
 				tuple = new KnimeTuple(new TimeSeriesSchema());
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 						MathUtilities.getRandomNegativeInt());
+				timeSeriesXml = new PmmXmlDoc();
 
 				if (agentCell != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentCell
@@ -197,29 +203,30 @@ public class XLSReader {
 			}
 
 			if (tuple != null) {
+				Double time = null;
+				Double logc = null;
+
 				if (timeCell != null && !timeCell.toString().trim().isEmpty()) {
 					try {
-						tuple.addValue(
-								TimeSeriesSchema.ATT_TIME,
-								Double.parseDouble(timeCell.toString().replace(
-										",", ".")));
+						time = Double.parseDouble(timeCell.toString().replace(
+								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.ATT_TIME
+						throw new Exception(TimeSeriesSchema.TIME
 								+ " value in row " + (i + 1) + " is not valid");
 					}
 				}
 
 				if (logcCell != null && !logcCell.toString().trim().isEmpty()) {
 					try {
-						tuple.addValue(
-								TimeSeriesSchema.ATT_LOGC,
-								Double.parseDouble(logcCell.toString().replace(
-										",", ".")));
+						logc = Double.parseDouble(logcCell.toString().replace(
+								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.ATT_LOGC
+						throw new Exception(TimeSeriesSchema.LOGC
 								+ " value in row " + (i + 1) + " is not valid");
 					}
 				}
+
+				timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
 			}
 		}
 
@@ -349,10 +356,12 @@ public class XLSReader {
 				}
 			}
 
+			PmmXmlDoc depXML = new PmmXmlDoc();
 			PmmXmlDoc indepXML = new PmmXmlDoc();
 			PmmXmlDoc paramXML = new PmmXmlDoc();
 
-			indepXML.add(new IndepXml(TimeSeriesSchema.ATT_TIME, null, null));
+			depXML.add(new DepXml(TimeSeriesSchema.LOGC));
+			indepXML.add(new IndepXml(TimeSeriesSchema.TIME, null, null));
 			paramXML.add(new ParamXml(LOG10N0, log10N0, null, null, null, null,
 					null));
 			paramXML.add(new ParamXml(DVALUE, dValue, null, null, null, null,
@@ -362,10 +371,10 @@ public class XLSReader {
 					MathUtilities.getRandomNegativeInt());
 			tuple.setValue(Model1Schema.ATT_ESTMODELID,
 					MathUtilities.getRandomNegativeInt());
-			tuple.setValue(Model1Schema.ATT_FORMULA, TimeSeriesSchema.ATT_LOGC
+			tuple.setValue(Model1Schema.ATT_FORMULA, TimeSeriesSchema.LOGC
 					+ "=" + LOG10N0 + "+1/" + DVALUE + "*"
-					+ TimeSeriesSchema.ATT_TIME);
-			tuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.ATT_LOGC);
+					+ TimeSeriesSchema.TIME);
+			tuple.setValue(Model1Schema.ATT_DEPENDENT, depXML);
 			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXML);
 

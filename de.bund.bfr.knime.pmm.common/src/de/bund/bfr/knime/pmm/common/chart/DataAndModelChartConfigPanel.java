@@ -413,8 +413,8 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			if (!parameters.isEmpty()) {
 				if (parameters.contains(lastParamX)) {
 					xBox.setSelectedItem(lastParamX);
-				} else if (parameters.contains(TimeSeriesSchema.ATT_TIME)) {
-					xBox.setSelectedItem(TimeSeriesSchema.ATT_TIME);
+				} else if (parameters.contains(TimeSeriesSchema.TIME)) {
+					xBox.setSelectedItem(TimeSeriesSchema.TIME);
 				} else {
 					xBox.setSelectedIndex(0);
 				}

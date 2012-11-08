@@ -197,16 +197,16 @@ public class DataAndModelChartCreator extends ChartPanel {
 			usedMaxX = 100.0;
 		}
 
-		if (paramX.equals(TimeSeriesSchema.ATT_TIME)
-				|| paramX.equals(TimeSeriesSchema.ATT_LOGC)) {
+		if (paramX.equals(TimeSeriesSchema.TIME)
+				|| paramX.equals(TimeSeriesSchema.LOGC)) {
 			usedMinX = Math.min(usedMinX, 0.0);
 			xAxis.setAutoRangeIncludesZero(true);
 		} else {
 			xAxis.setAutoRangeIncludesZero(false);
 		}
 
-		if (paramY.equals(TimeSeriesSchema.ATT_TIME)
-				|| paramY.equals(TimeSeriesSchema.ATT_LOGC)) {
+		if (paramY.equals(TimeSeriesSchema.TIME)
+				|| paramY.equals(TimeSeriesSchema.LOGC)) {
 			yAxis.setAutoRangeIncludesZero(true);
 		} else {
 			yAxis.setAutoRangeIncludesZero(false);

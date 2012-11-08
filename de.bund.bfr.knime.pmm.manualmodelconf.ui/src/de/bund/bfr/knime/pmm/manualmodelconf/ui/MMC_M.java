@@ -892,6 +892,10 @@ public class MMC_M extends JPanel {
 					"Reference"
 				}
 			) {
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 2116023616116493648L;
 				boolean[] columnEditable = new boolean[] {
 					false
 				};

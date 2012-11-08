@@ -272,7 +272,8 @@ public class PlausibleAction extends AbstractAction {
   		}
   		catch (Exception e) {return null;}
   	}
-  	private void checkSonstigesInProzessketten() {
+  	@SuppressWarnings("unused")
+	private void checkSonstigesInProzessketten() {
 		ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Prozess_ID") + "," + DBKernel.delimitL("ProzessElement") +
 				" FROM " + DBKernel.delimitL("ProzessElemente") + " WHERE LCASE (" + DBKernel.delimitL("ProzessElement") + ") LIKE  '%onstige%'", false);
 		try {
@@ -296,7 +297,8 @@ public class PlausibleAction extends AbstractAction {
   		
   	}
   	
-  	private void downloadCombase() {
+  	@SuppressWarnings("unused")
+	private void downloadCombase() {
   		String folder = "Q:/BfR/Desktop/combaseFetch/websites/";
   		String baseURL = "http://browser.combase.cc";
   		File dir = new File(folder);
@@ -316,11 +318,11 @@ public class PlausibleAction extends AbstractAction {
 						Iterator<Element> td = tr.next().select("td").iterator();
 						if (td.hasNext()) {
 					    	String source_id = td.next().text();
-					    	String title_blabla = td.next().text();
+					    	td.next().text(); // String title_blabla = 
 					    	int numRecords = Integer.parseInt(td.next().text());
 					    	sumEntriesInCB += numRecords;
 					    	Element e = td.next();
-					    	String Summary_Details = e.text();
+					    	e.text(); // String Summary_Details = 
 					    	// Summary
 					    	Element link = e.select("a").first();
 					    	String url = link.attr("href");
@@ -429,7 +431,8 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
 				}
         }
     }
-  	private void check4EmptyPKsMWs(final String tablename, final String nullFeldname) {
+  	@SuppressWarnings("unused")
+	private void check4EmptyPKsMWs(final String tablename, final String nullFeldname) {
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL(nullFeldname) + " IS NULL", false);
 		try {
 			if (rs != null && rs.first()) {
@@ -448,7 +451,8 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
 		catch (Exception e) {MyLogger.handleException(e);}
 		DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL(nullFeldname) + " IS NULL", false);
   	}
-  	private void checkAllEntriesIfOthersAlreadyEditedUpdates() {
+  	@SuppressWarnings("unused")
+	private void checkAllEntriesIfOthersAlreadyEditedUpdates() {
 		LinkedHashMap<String, MyTable> myTables = DBKernel.myList.getAllTables();
 
 		for(String key : myTables.keySet()) {

@@ -194,130 +194,6 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 					" WHERE " + DBKernel.delimitL(tn) + "=" + value;				
 				}
 			}
-	    	else if (tn.equals("Modell")) {	
-					
-				if (selectedColumn==3) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Verwendung") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Verwendung_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Verwendung_Verbund") + "." + DBKernel.delimitL("Verwendung") + "=" +
-				DBKernel.delimitL("Verwendung") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				if (selectedColumn==4) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Agensname") + " FROM " + DBKernel.delimitL("Agenzien") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Agenzien_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Agenzien_Verbund") + "." + DBKernel.delimitL("Agenzien") + "=" +
-				DBKernel.delimitL("Agenzien") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				if (selectedColumn==5) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Resistenz") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Resistenz_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Resistenz_Verbund") + "." + DBKernel.delimitL("Resistenz") + "=" +
-				DBKernel.delimitL("Resistenz") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				if (selectedColumn==7) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Methoden_Software") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Software_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Software_Verbund") + "." + DBKernel.delimitL("Methoden_Software") + "=" +
-				DBKernel.delimitL("Methoden_Software") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				if (selectedColumn==8) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Preharvest") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Preharvest_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Preharvest_Verbund") + "." + DBKernel.delimitL("Preharvest") + "=" +
-				DBKernel.delimitL("Preharvest") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				if (selectedColumn==9) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Harvest") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Harvest_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Harvest_Verbund") + "." + DBKernel.delimitL("Harvest") + "=" +
-				DBKernel.delimitL("Harvest") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				/*
-				if (selectedColumn==10) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Matrixname") + " FROM " + DBKernel.delimitL("Matrices") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Zwischenprodukt_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Zwischenprodukt_Verbund") + "." + DBKernel.delimitL("Matrices") + "=" +
-				DBKernel.delimitL("Matrices") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				*/
-				
-				if (selectedColumn==10) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Produkt") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Zwischenprodukt_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Zwischenprodukt_Verbund") + "." + DBKernel.delimitL("Produkt") + "=" +
-				DBKernel.delimitL("Produkt") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				/*
-				if (selectedColumn==xx) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Name") + " FROM " + DBKernel.delimitL("ProzessWorkflow") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_ProzessFlow_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_ProzessFlow_Verbund") + "." + DBKernel.delimitL("ProzessWorkflow") + "=" +
-				DBKernel.delimitL("ProzessWorkflow") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				*/
-				
-				/*if (selectedColumn==11) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Matrixname") + " FROM " + DBKernel.delimitL("Matrices") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Einzelhandelsprodukt_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Einzelhandelsprodukt_Verbund") + "." + DBKernel.delimitL("Matrices") + "=" +
-				DBKernel.delimitL("Matrices") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				*/
-				if (selectedColumn==11) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Produkt") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Einzelhandelsprodukt_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Einzelhandelsprodukt_Verbund") + "." + DBKernel.delimitL("Produkt") + "=" +
-				DBKernel.delimitL("Produkt") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				
-				if (selectedColumn==12) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Transport") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Transport_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Transport_Verbund") + "." + DBKernel.delimitL("Transport") + "=" +
-				DBKernel.delimitL("Transport") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-				
-				
-				if (selectedColumn==13) { 
-					/*sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Expositionsart") +  "," + DBKernel.delimitL("Produkt") 
-					+ " FROM " + DBKernel.delimitL("Exposition") +
-					" LEFT JOIN " + DBKernel.delimitL("Modell_Exposition_Verbund") +
-					" ON " + DBKernel.delimitL("Modell_Exposition_Verbund") + "." + DBKernel.delimitL("Exposition") + "=" +
-					DBKernel.delimitL("Exposition") + "." + DBKernel.delimitL("ID") +
-					" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-					*/
-					
-					sql="SELECT " + DBKernel.delimitL("Exposition") + "." +  DBKernel.delimitL("Expositionsart") + "," +
-					DBKernel.delimitL("Produkt") + "." +  DBKernel.delimitL("Bezeichnung")
-				 	+ " FROM " + DBKernel.delimitL("Exposition") + " LEFT JOIN " + DBKernel.delimitL("Modell_Exposition_Verbund") 
-				 	+  " ON " +  DBKernel.delimitL("Exposition") + "." +  DBKernel.delimitL("ID") + " = "  
-				 	+ DBKernel.delimitL("Modell_Exposition_Verbund") + "." + DBKernel.delimitL("Exposition")  
-				 	+ " LEFT JOIN " + DBKernel.delimitL("Produkt") + " ON " + DBKernel.delimitL("Exposition") + "." + DBKernel.delimitL("Produkt") + " = "  
-				 	+ DBKernel.delimitL("Produkt") + "." + DBKernel.delimitL("ID") + " WHERE " + DBKernel.delimitL(tn) + "=" + value;
-					
-					/*
-					try {
-						ResultSet rs = DBKernel.getResultSet(sql, false);
-						if (rs.first()) { 
-							do {								
-								result += rs.getString(1);
-								if (rs.getString(2) != null)  result += ": " +  rs.getString(2) + "\n";								
-							}  
-							while (rs.next());
-						}
-					}
-					catch (Exception e) {MyLogger.handleException(e); }
-					System.out.println(result);
-					this.setText(result);
-					if (theValues.containsKey(value)) theValues.remove(value);
-					theValues.put(value, result);
-					return;
-					*/
-				}
-				
-				
-				if (selectedColumn==14) sql = "SELECT " + DBKernel.delimitL("ID") +  "," + DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL("Risikocharakterisierung") +
-				" LEFT JOIN " + DBKernel.delimitL("Modell_Risikocharakterisierung_Verbund") +
-				" ON " + DBKernel.delimitL("Modell_Risikocharakterisierung_Verbund") + "." + DBKernel.delimitL("Risikocharakterisierung") + "=" +
-				DBKernel.delimitL("Risikocharakterisierung") + "." + DBKernel.delimitL("ID") +
-				" WHERE " + DBKernel.delimitL(tn) + "=" + value;
-					
-			}
     		else if (tn.equals("Nachweisverfahren")) {
 				String fn = myT.getFieldNames()[selectedColumn];
 				if (fn.equals("Kits")) {
@@ -543,12 +419,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 				//System.err.println(rs + "\t" + sql);
 				if (rs != null && rs.first()) {
 					do {
-						if (selectedColumn==13 && myT.getTablename().equals("Modell")) {
-							// Exposition?
-							result += rs.getString(1);
-							if (rs.getString(2) != null)  result += ": " +  rs.getString(2) + "\n";								
-						}
-						else if (selectedColumn==10 && myT.getTablename().equals("GeschaetzteModelle")) {
+						if (selectedColumn==10 && myT.getTablename().equals("GeschaetzteModelle")) {
 							// estimated parameters
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
@@ -580,21 +451,6 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 							if (numCols == 1) result += res + "; "; // es gibt wohl nur die ID
 							else result += res + "\n";
 						}
-						/*
-						else if (isDBLmn) { // value instanceof Double
-							Object dblo = rs.getObject(2);
-							if (dblo == null) { // Verteilung, Funktion (Zeit), Funktion (?)
-								result += rs.getString(1) + ": " + rs.getString(3) + "\n";
-							}
-							else {
-								Double dbl = rs.getDouble(2);
-								NumberFormat f = NumberFormat.getInstance(Locale.US);
-								f.setGroupingUsed(false);
-								String refinedNumber = f.format(dbl);
-								result += rs.getString(1) + ": " + refinedNumber + "\n";								
-							}
-						}
-						*/
 						else { // Integer
 							int numCols = rs.getMetaData().getColumnCount(); 
 							if (numCols == 1) {

@@ -78,8 +78,7 @@ public class MyImageCell extends JLabel implements CellComponent {
         this.setText("TEXT");
       }
       else if (cellType == DATE) {
-        if (value == null) this.setText("");
-        else this.setText(getDate((java.util.Date) value, "dd.MM.yyyy"));
+        this.setText(getDate((java.util.Date) value, "dd.MM.yyyy"));
       }
     }
     else {

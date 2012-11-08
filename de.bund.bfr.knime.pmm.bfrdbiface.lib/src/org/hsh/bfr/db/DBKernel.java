@@ -125,6 +125,7 @@ public class DBKernel {
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
+	@SuppressWarnings("unused")
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
 	public static String getTempSA(boolean other) {

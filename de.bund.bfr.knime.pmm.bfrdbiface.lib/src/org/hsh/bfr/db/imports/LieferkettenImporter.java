@@ -107,17 +107,17 @@ public class LieferkettenImporter extends FileFilter implements MyImporter {
 				      if (lfdNr.trim().length() == 0) {
 				      	break;
 				      }
-				      String BL0 = getStrVal(row.getCell(1));
-				      String KP = getStrVal(row.getCell(2));
+				      //String BL0 = getStrVal(row.getCell(1));
+				      //String KP = getStrVal(row.getCell(2));
 				      String firma1 = getStrVal(row.getCell(3));
 				      String adress1 = getStrVal(row.getCell(4));
 				      String plz1 = getStrVal(row.getCell(5));
 				      String ort1 = getStrVal(row.getCell(6));
 				      String bn1 = getStrVal(row.getCell(7));
 				      String BL1 = getStrVal(row.getCell(8));
-				      String Aa = getStrVal(row.getCell(9));
+				      //String Aa = getStrVal(row.getCell(9));
 				      String LM1 = getStrVal(row.getCell(10));
-				      String rZ = getStrVal(row.getCell(11));
+				      //String rZ = getStrVal(row.getCell(11));
 				      String m11 = getStrVal(row.getCell(12));
 				      String m12 = getStrVal(row.getCell(13));
 				      String m13 = getStrVal(row.getCell(14));
@@ -125,7 +125,7 @@ public class LieferkettenImporter extends FileFilter implements MyImporter {
 				      String an1 = getStrVal(row.getCell(15));
 				      String ldv = punktAnsDatum(getStrVal(row.getCell(16)));
 				      String ldb = punktAnsDatum(getStrVal(row.getCell(17)));
-				      String vera = getStrVal(row.getCell(18));
+				      //String vera = getStrVal(row.getCell(18));
 				      String LM2 = getStrVal(row.getCell(19));
 				      String m21 = getStrVal(row.getCell(20));
 				      String m22 = getStrVal(row.getCell(21));
@@ -135,7 +135,7 @@ public class LieferkettenImporter extends FileFilter implements MyImporter {
 				      String ld2 = punktAnsDatum(getStrVal(row.getCell(24)));
 				      String vzv = punktAnsDatum(getStrVal(row.getCell(25)));
 				      String vzb = punktAnsDatum(getStrVal(row.getCell(26)));
-				      String bes = getStrVal(row.getCell(27));
+				      //String bes = getStrVal(row.getCell(27));
 				      String firma2 = getStrVal(row.getCell(28));
 				      String adress2 = getStrVal(row.getCell(29));
 				      String plz2 = getStrVal(row.getCell(30));

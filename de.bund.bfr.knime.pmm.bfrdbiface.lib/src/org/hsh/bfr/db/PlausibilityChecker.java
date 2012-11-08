@@ -585,6 +585,7 @@ public class PlausibilityChecker {
 		return result;
 	}
 	
+	@SuppressWarnings("unused")
 	private static Double getDouble(String strVal) {
 		Double val = null;
 		try {
@@ -593,6 +594,7 @@ public class PlausibilityChecker {
 		catch (Exception e) {}
 		return val;
 	}
+	@SuppressWarnings("unused")
 	private static String checkPlausibleDBL(Object kzID, String tname, String spaltenname, Integer tableID) {
 		String ergebnis = null;		
 		if (kzID != null) {

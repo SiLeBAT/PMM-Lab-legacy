@@ -69,7 +69,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
 	private static final long serialVersionUID = 1L;
 //static final long serialVersionUID = 8847671986526504938L;
   
-  protected Vector listeners = new Vector();
+  protected Vector<CellEditorListener> listeners = new Vector<CellEditorListener>();
   Point screenLoc;
   MyDBTable table = null;
   String endungen = "";
@@ -199,14 +199,14 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
 
     ChangeEvent ce = new ChangeEvent(this);
     for (int i=listeners.size()-1; i>=0; i--) {
-      ((CellEditorListener)listeners.elementAt(i)).editingCanceled(ce);
+      listeners.elementAt(i).editingCanceled(ce);
     }
   }
   public boolean stopCellEditing() {
     //System.out.println("stopCellEditing");
       ChangeEvent ce = new ChangeEvent(this);
       for (int i=listeners.size()-1; i>=0; i--) {
-        ((CellEditorListener)listeners.elementAt(i)).editingStopped(ce);
+        listeners.elementAt(i).editingStopped(ce);
       }
       if ( isShowing() ) {
         screenLoc = getLocationOnScreen();

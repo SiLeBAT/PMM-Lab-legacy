@@ -102,8 +102,8 @@ public class LieferkettenImporterNew extends FileFilter implements MyImporter {
 				      if (lfdNr.trim().length() == 0) {
 				      	break;
 				      }
-				      String BL0 = getStrVal(row.getCell(1));
-				      String KP = getStrVal(row.getCell(2));
+				      //String BL0 = getStrVal(row.getCell(1));
+				      //String KP = getStrVal(row.getCell(2));
 				      String firma1 = getStrVal(row.getCell(3));
 				      String adress1 = getStrVal(row.getCell(4));
 				      String plz1 = getStrVal(row.getCell(5));
@@ -144,7 +144,7 @@ public class LieferkettenImporterNew extends FileFilter implements MyImporter {
 				      if (m26.endsWith(".")) m26 = m26.substring(0, m26.length() - 1); // keine Abkürzungszeichen erlaubt!
 				      String cn2 = getStrVal(row.getCell(36));
 				      String mhd2 = getStrVal(row.getCell(37));
-				      String fi2 = getStrVal(row.getCell(38));
+				      //String fi2 = getStrVal(row.getCell(38));
 
 				      String firma3 = getStrVal(row.getCell(39));
 				      String adress3 = getStrVal(row.getCell(40));

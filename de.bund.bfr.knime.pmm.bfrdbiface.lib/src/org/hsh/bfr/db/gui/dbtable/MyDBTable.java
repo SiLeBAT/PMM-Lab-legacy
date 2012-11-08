@@ -85,7 +85,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.RowSorterEvent;
 import javax.swing.event.RowSorterListener;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -144,9 +143,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	private MyDBTableErrorListener dberrlis = new MyDBTableErrorListener();
 	private boolean bigbigTable = false;
 	private Object[][] filterConditions = null;
+	/*
 	private Vector<MyMNRenderer> myDblmnr = new Vector<MyMNRenderer>();
-	
 	private boolean doEFSA = false;
+	*/
 	
 	private boolean enableSorter = false;
 		
@@ -499,9 +499,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			this.getActualTable().restoreProperties(this); this.syncTableRowHeights();
 		}
 	}
-	private void disableAllFiltersSorters() {
-		
-	}
+
 	public void insertNewRow(final boolean copySelected, final Vector<Object> vecIn) {
 		MyTable myT = this.getActualTable();
 		String tablename = myT.getTablename();
@@ -528,7 +526,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			}
 			Object oldID = null;
 			if (copySelected) {
-				Vector vec = new Vector();
+				Vector<Object> vec = new Vector<Object>();
 				int row = this.getSelectedRow();
 				if (row < 0) {
 					return;
@@ -792,6 +790,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
         */
 	    this.printPreview();		
 	}
+	/*
 	private Object[][] getVisibleData() {
 		Object[][] result = new Object[this.getRowCount()][this.getColumnCount()];
 		int i, j;
@@ -809,6 +808,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 		return result;
 	}
+	*/
 	public void myRefresh() {
 		myRefresh(this.getSelectedRow());
 	}
@@ -1523,7 +1523,7 @@ if (myDBPanel1 != null) {
     if (col > 0 && col <= myTs.length && myTs[col-1] != null &&
     		!myTs[col-1].getTablename().equals("DoubleKennzahlen")) { 
 		JScrollPane scroller = getScroller();
-		int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
+		//int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
 		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
 
 		//MyLogger.handleMessage("checkForeignWindow2Open1 : " + row);
@@ -1701,6 +1701,7 @@ if (myDBPanel1 != null) {
 			      }
 			    });
 	}
+	/*
 	private int[] getRowHeights(final JTable table) {
 		int[] result = new int[table.getRowCount()];
 		for (int i=0;i<table.getRowCount();i++) {
@@ -1725,7 +1726,7 @@ if (myDBPanel1 != null) {
 	    
 	    return width;
 	}
-	
+	*/
 	  private void myCopyToClipboard() { 
 		    int row = this.getTable().getSelectedRow(); 
 		    int column = this.getTable().getSelectedColumn();
@@ -2075,7 +2076,7 @@ public void keyTyped(final KeyEvent keyEvent) {
 	    if (lastClickedCol > 0 && lastClickedCol <= myTs.length && myTs[lastClickedCol-1] != null &&
 	    		myTs[lastClickedCol-1].getTablename().equals("DoubleKennzahlen")) {
 	  		JScrollPane scroller = getScroller();
-	  		int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
+	  		//int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
 	  		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
 
 	  		String spaltenName = this.getActualTable().getFieldNames()[lastClickedCol-1];

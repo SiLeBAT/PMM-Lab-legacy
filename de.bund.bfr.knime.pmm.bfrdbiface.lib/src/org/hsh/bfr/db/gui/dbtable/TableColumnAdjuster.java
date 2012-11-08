@@ -366,6 +366,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Update the input and action maps with new ToggleAction
 	 */
+	/*
 	private void installToggleAction(
 		boolean isToggleDynamic, boolean isToggleLarger, String key, String keyStroke)
 	{
@@ -374,7 +375,8 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 		table.getInputMap().put(ks, key);
 		table.getActionMap().put(key, action);
 	}
-
+*/
+	
 	/*
 	 *  Action to adjust or restore the width of a single column or all columns
 	 */

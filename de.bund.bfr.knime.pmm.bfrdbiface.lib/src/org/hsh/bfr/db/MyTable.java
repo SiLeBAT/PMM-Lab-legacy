@@ -43,6 +43,7 @@ import java.util.Vector;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -72,7 +73,7 @@ public class MyTable {
 	// Parameter zum Abspeichern
 	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<Integer, Integer>();
 	private int[] colWidths = null;
-	private List sortKeyList = null;
+	private List<? extends SortKey> sortKeyList = null;
 	private String searchString = "";
 	private int selectedRow = -1;
 	private int selectedCol = 0;
@@ -132,15 +133,7 @@ public class MyTable {
 		 // StatUp 
 		  || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
 		  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
-		  || tableName.equals("VarParMaps")
-		  // Jans Tabellen
-		 || tableName.equals("Modell_Agenzien_Verbund") 
-		 || tableName.equals("Modell_Software_Verbund") || tableName.equals("Modell_Resistenz_Verbund") || tableName.equals("Modell_Preharvest_Verbund") 
-		 || tableName.equals("Modell_Harvest_Verbund") || tableName.equals("Modell_ProzessFlow_Verbund") 
-		 || tableName.equals("Modell_Exposition_Verbund") || tableName.equals("Modell_Risikocharakterisierung_Verbund")
-		 || tableName.equals("Modell_Verwendung_Verbund") || tableName.equals("Modell_Einzelhandelsprodukt_Verbund") 
-		 || tableName.equals("Modell_Zwischenprodukt_Verbund") || tableName.equals("Modell_Transport_Verbund") || tableName.equals("Laender") || tableName.equals("Resistenz"); 
-		 //|| tableName.equals("Preharvest") || tableName.equals("Harvest"); 
+		  || tableName.equals("VarParMaps");
 
 		 hideTested = hideKommentar || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
 		 || tableName.equals("Zutatendaten_Sonstiges") || tableName.equals("Versuchsbedingungen_Sonstiges") || tableName.equals("Messwerte_Sonstiges")
@@ -209,6 +202,7 @@ public class MyTable {
 		try{myDB.getMyDBPanel().getSuchfeld().setText(searchString);myDB.getMyDBPanel().handleSuchfeldChange(null);}catch (Exception e) {}
 		if (sortKeyList != null) {
 			bigTable.getRowSorter().setSortKeys(sortKeyList);
+			@SuppressWarnings("unchecked")
 			TableRowSorter<TableModel> sorter = (TableRowSorter<TableModel>) bigTable.getRowSorter();
 			sorter.sort();
 			

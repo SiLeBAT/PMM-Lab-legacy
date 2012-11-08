@@ -194,11 +194,20 @@ public class TableReader {
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
+					double time = Double.NaN;
+					double logc = Double.NaN;
+
+					if (element.getTime() != null) {
+						time = element.getTime();
+					}
+
+					if (element.getLog10C() != null) {
+						logc = element.getLog10C();
+					}
 
 					timeList.add(element.getTime());
 					logcList.add(element.getLog10C());
-					dataPoints.add(new Point2D.Double(element.getTime(),
-							element.getLog10C()));
+					dataPoints.add(new Point2D.Double(time, logc));
 				}
 
 				if (!timeList.isEmpty() && !logcList.isEmpty()) {

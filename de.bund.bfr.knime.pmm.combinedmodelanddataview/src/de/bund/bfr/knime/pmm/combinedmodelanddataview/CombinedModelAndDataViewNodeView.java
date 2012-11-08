@@ -50,12 +50,14 @@ import javax.swing.JSplitPane;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
@@ -307,7 +309,8 @@ public class CombinedModelAndDataViewNodeView extends
 
 			String modelName = row.getString(Model1Schema.ATT_MODELNAME);
 			String formula = row.getString(Model1Schema.ATT_FORMULA);
-			String depVar = row.getString(Model1Schema.ATT_DEPVAR);
+			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
+					.get(0)).getName();
 			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 			List<Double> paramValues = new ArrayList<Double>();
@@ -345,34 +348,38 @@ public class CombinedModelAndDataViewNodeView extends
 				Double ph = row.getDouble(TimeSeriesSchema.ATT_PH);
 				Double waterActivity = row
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-				List<Double> timeList = row
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = row
-						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = row
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
-				int n = 1;
+				int n = Math.max(1, timeSeriesXml.getElementSet().size());
 
 				plotable = new Plotable(Plotable.BOTH);
 
-				if (!timeList.isEmpty() && !logcList.isEmpty()) {
-					n = timeList.size();
-					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+				if (!timeSeriesXml.getElementSet().isEmpty()) {
+					List<Double> timeList = new ArrayList<Double>();
+					List<Double> logcList = new ArrayList<Double>();
 
-					for (int i = 0; i < n; i++) {
+					for (PmmXmlElementConvertable el : timeSeriesXml
+							.getElementSet()) {
+						TimeSeriesXml element = (TimeSeriesXml) el;
 						double time = Double.NaN;
 						double logc = Double.NaN;
 
-						if (timeList.get(i) != null) {
-							time = timeList.get(i);
+						if (element.getTime() != null) {
+							time = element.getTime();
 						}
 
-						if (logcList.get(i) != null) {
-							logc = logcList.get(i);
+						if (element.getLog10C() != null) {
+							logc = element.getLog10C();
 						}
 
+						timeList.add(element.getTime());
+						logcList.add(element.getLog10C());
 						dataPoints.add(new Point2D.Double(time, logc));
 					}
+
+					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
 				}
 
 				if (temperature != null) {

@@ -33,8 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.List;
-
 import org.jdom2.Element;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -44,64 +42,52 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertable {
 	
 	private static final String ELEMENT_TIMESERIES = "TimeSeries";
-	private static final String ELEMENT_TSTUPLE = "TimeSeriesTuple";
+	//private static final String ELEMENT_TSTUPLE = "TimeSeriesTuple";
 	private static final String ELEMENT_TSXML = "TimeSeriesXml";
 	private String warningMsg = null;
 	private double mr;
-	private PmmXmlDoc timeSeriesXmlDoc = null;
 
 	public PmmTimeSeries() throws PmmException {		
-		super( new TimeSeriesSchema() );
+		super(new TimeSeriesSchema());
 				
 		setCondId( MathUtilities.getRandomNegativeInt() );
 		setMatrixId( MathUtilities.getRandomNegativeInt() );
 		setAgentId( MathUtilities.getRandomNegativeInt() );
 		
-		timeSeriesXmlDoc = new PmmXmlDoc();
 	}
 	
-	public PmmTimeSeries( final int condId ) throws PmmException {
+	public PmmTimeSeries(final int condId) throws PmmException {
 		this();
-		setCondId( condId );
+		setCondId(condId);
 	}
 	
-	public PmmTimeSeries( String combaseId ) throws PmmException {
+	public PmmTimeSeries(String combaseId) throws PmmException {
 		this();
-		setCombaseId( combaseId );
+		setCombaseId(combaseId);
 	}
 	
-	public PmmTimeSeries( int condId, String combaseId ) throws PmmException {
-		this( condId );
-		setCombaseId( combaseId );
+	public PmmTimeSeries(int condId, String combaseId) throws PmmException {
+		this(condId);
+		setCombaseId(combaseId);
 	}
 	
-	public PmmTimeSeries( KnimeTuple tuple ) throws PmmException {
-		
-		super( tuple.getSchema() );
-		
-		int i;
-		
-		for( i = 0; i < size(); i++ ) {
-			setCell( i, tuple.getCell( i ) );
-		}
-			
+	public PmmTimeSeries(KnimeTuple tuple) throws PmmException {		
+		super(tuple.getSchema());
+		for (int i = 0; i < size(); i++) {
+			setCell(i, tuple.getCell(i));
+		}			
 	}
 		
 	@Override
 	public Element toXmlElement() {
 		
-		Element ret, el;
-		List<Double> tlist;
-		List<Double> clist;
-		int i;
-		
-		ret = new Element( ELEMENT_TIMESERIES );
+		Element ret = new Element(ELEMENT_TIMESERIES);
 		
 		try {
 		
-			if( getCombaseId() != null ) {
-				if( !getCombaseId().isEmpty() ) {
-					ret.setAttribute( TimeSeriesSchema.ATT_COMBASEID, getCombaseId() );
+			if (getCombaseId() != null) {
+				if (!getCombaseId().isEmpty()) {
+					ret.setAttribute(TimeSeriesSchema.ATT_COMBASEID, getCombaseId());
 				}
 			}
 			
@@ -133,7 +119,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 				ret.setAttribute( ATT_MAXIMUMRATE, String.valueOf( maximumRate ) );
 			
 			if( !isNaN( doublingTime ) )
-				ret.setAttribute( ATT_DOUBLINGTIME, String.valueOf( doublingTime ) ); */
+				ret.setAttribute( ATT_DOUBLINGTIME, String.valueOf( doublingTime ) ); 
 			
 			tlist = this.getDoubleList( TimeSeriesSchema.ATT_TIME );
 			clist = this.getDoubleList( TimeSeriesSchema.ATT_LOGC );
@@ -147,8 +133,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 					ret.addContent( el );
 				}
 			}
-			
+			*/
 			Element element = new Element(ELEMENT_TSXML);
+			PmmXmlDoc timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			element.addContent(timeSeriesXmlDoc.toXmlString());
 			ret.addContent(element);
 		}
@@ -161,10 +148,12 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public void add(String name, Double t, Double n) throws PmmException {		
 		TimeSeriesXml tsx = new TimeSeriesXml(name, t, n);
+		PmmXmlDoc timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 		timeSeriesXmlDoc.add(tsx);
+		this.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
 		setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
-		addValue(TimeSeriesSchema.ATT_TIME, t);
-		addValue(TimeSeriesSchema.ATT_LOGC, n);
+		//addValue(TimeSeriesSchema.ATT_TIME, t);
+		//addValue(TimeSeriesSchema.ATT_LOGC, n);
 	}
 	public void add(Double t, Double n) throws PmmException {		
 		add("t"+System.currentTimeMillis(), t, n);
@@ -184,7 +173,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public boolean isEmpty() throws PmmException {
-		return isNull(TimeSeriesSchema.ATT_TIME); // TimeSeriesSchema.ATT_TIMESERIES
+		return isNull(TimeSeriesSchema.ATT_TIMESERIES); // TimeSeriesSchema.ATT_TIME
 	}
 	
 	public Integer getCondId() throws PmmException {
@@ -222,6 +211,13 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public PmmXmlDoc getTimeSeries() {
+		PmmXmlDoc timeSeriesXmlDoc = null;
+		try {
+			timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+		}
+		catch (PmmException e) {
+			e.printStackTrace();
+		}
 		return timeSeriesXmlDoc;
 	}
 	

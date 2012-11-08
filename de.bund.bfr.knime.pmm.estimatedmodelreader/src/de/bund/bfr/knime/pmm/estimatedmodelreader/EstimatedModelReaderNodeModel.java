@@ -181,8 +181,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXID, result.getString( Bfrdb.ATT_MATRIXID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXNAME, result.getString( Bfrdb.ATT_MATRIXNAME ) );
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXDETAIL, result.getString( Bfrdb.ATT_MATRIXDETAIL ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_TIME, result.getString( Bfrdb.ATT_TIME ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_LOGC, result.getString( Bfrdb.ATT_LOG10N ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_TIME, result.getString( Bfrdb.ATT_TIME ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_LOGC, result.getString( Bfrdb.ATT_LOG10N ) );
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT ) );

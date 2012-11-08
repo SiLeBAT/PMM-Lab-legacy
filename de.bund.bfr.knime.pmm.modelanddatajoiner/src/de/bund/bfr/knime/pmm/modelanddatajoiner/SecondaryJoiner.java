@@ -276,7 +276,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				Map<String, String> replace = replacements.get(i);
 				boolean allVarsReplaced = true;
 
-				if (replace.containsKey(depVarSec)) {
+				if (replace.containsKey(depVarSecName)) {
 					((DepXml) depVarSec.get(0)).setName(replace
 							.get(depVarSecName));
 				} else {
@@ -312,7 +312,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 					if (!usedModels.get(i).equals(modelIDSec)
-							|| !CellIO.getNameList(params).contains(depVarSec)) {
+							|| !CellIO.getNameList(params).contains(
+									depVarSecName)) {
 						continue;
 					}
 

@@ -258,8 +258,8 @@ public class CombinedJoiner implements Joiner {
 			boolean allVarsReplaced = true;
 
 			if (replacements.get(PRIMARY).containsKey(depVarName)) {
-				((DepXml) depVar.get(0)).setName(replacements.get(PRIMARY).get(
-						depVarName));
+				depVarName = replacements.get(PRIMARY).get(depVarName);
+				((DepXml) depVar.get(0)).setName(depVarName);
 			} else {
 				allVarsReplaced = false;
 			}

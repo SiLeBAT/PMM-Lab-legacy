@@ -277,8 +277,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				boolean allVarsReplaced = true;
 
 				if (replace.containsKey(depVarSecName)) {
-					((DepXml) depVarSec.get(0)).setName(replace
-							.get(depVarSecName));
+					depVarSecName = replace.get(depVarSecName);
+					((DepXml) depVarSec.get(0)).setName(depVarSecName);
 				} else {
 					allVarsReplaced = false;
 				}
@@ -310,6 +310,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					KnimeTuple peiRow = peiReader.nextElement();
 					PmmXmlDoc params = peiRow
 							.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+					System.out.println(CellIO.getNameList(params));
+					System.out.println(depVarSecName);
 
 					if (!usedModels.get(i).equals(modelIDSec)
 							|| !CellIO.getNameList(params).contains(

@@ -197,7 +197,8 @@ public class PrimaryJoiner implements Joiner {
 			boolean allVarsReplaced = true;
 
 			if (replacements.containsKey(depVarName)) {
-				((DepXml) depVar.get(0)).setName(replacements.get(depVarName));
+				depVarName = replacements.get(depVarName);
+				((DepXml) depVar.get(0)).setName(depVarName);
 			} else {
 				allVarsReplaced = false;
 			}

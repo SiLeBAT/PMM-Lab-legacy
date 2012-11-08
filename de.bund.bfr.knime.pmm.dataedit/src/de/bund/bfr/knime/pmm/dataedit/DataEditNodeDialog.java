@@ -61,6 +61,9 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -270,11 +273,9 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		JLabel timeLabel = new JLabel(
-				AttributeUtilities
-						.getFullNameWithUnit(TimeSeriesSchema.ATT_TIME));
+				AttributeUtilities.getFullNameWithUnit(TimeSeriesSchema.TIME));
 		JLabel logcLabel = new JLabel(
-				AttributeUtilities
-						.getFullNameWithUnit(TimeSeriesSchema.ATT_LOGC));
+				AttributeUtilities.getFullNameWithUnit(TimeSeriesSchema.LOGC));
 
 		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		logcLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -367,23 +368,22 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		addButtons.clear();
 		emptyLabels.clear();
 
-		List<Double> timeList = tuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_TIME);
-		List<Double> logcList = tuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_LOGC);
+		PmmXmlDoc timeSeriesXml = tuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_TIMESERIES);
 
-		for (int i = 0; i < timeList.size(); i++) {
+		for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
+			TimeSeriesXml element = (TimeSeriesXml) el;
 			DoubleTextField timeField = new DoubleTextField();
 			DoubleTextField logcField = new DoubleTextField();
 			JButton removebutton = new JButton("-");
 			JButton addButton = new JButton("+");
 
-			if (timeList.get(i) != null) {
-				timeField.setValue(timeList.get(i));
+			if (element.getTime() != null) {
+				timeField.setValue(element.getTime());
 			}
 
-			if (logcList.get(i) != null) {
-				logcField.setValue(logcList.get(i));
+			if (element.getLog10C() != null) {
+				logcField.setValue(element.getLog10C());
 			}
 
 			tablePanel.add(timeField);
@@ -455,8 +455,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		List<Double> timeList = new ArrayList<Double>();
-		List<Double> logcList = new ArrayList<Double>();
+		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 
 		for (int j = 0; j < timeFields.size(); j++) {
 			if (!timeFields.get(j).isValueValid()) {
@@ -467,12 +466,11 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 				dataValid = false;
 			}
 
-			timeList.add(timeFields.get(j).getValue());
-			logcList.add(logcFields.get(j).getValue());
+			timeSeriesXml.add(new TimeSeriesXml(null, timeFields.get(j)
+					.getValue(), logcFields.get(j).getValue()));
 		}
 
-		tuples.get(i).setValue(TimeSeriesSchema.ATT_TIME, timeList);
-		tuples.get(i).setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+		tuples.get(i).setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		processRowChanges();
 	}
 
@@ -524,57 +522,30 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		int index = idBox.getSelectedIndex();
 		List<String> rowChanges = new ArrayList<String>();
 
-		List<Double> oldTimes = oldTuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_TIME);
-		List<Double> newTimes = tuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_TIME);
-		List<Double> oldLogcs = oldTuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_LOGC);
-		List<Double> newLogcs = tuples.get(index).getDoubleList(
-				TimeSeriesSchema.ATT_LOGC);
+		PmmXmlDoc oldTimeSeries = oldTuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_TIMESERIES);
+		PmmXmlDoc newTimeSeries = tuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_TIMESERIES);
+		int n = oldTimeSeries.getElementSet().size();
 
-		if (oldTimes.size() != newTimes.size()) {
-			if (!newTimes.isEmpty()) {
-				rowChanges.add(TimeSeriesSchema.ATT_TIME + "->"
-						+ DataEditNodeModel.convertToString(newTimes));
-				rowChanges.add(TimeSeriesSchema.ATT_LOGC + "->"
-						+ DataEditNodeModel.convertToString(newLogcs));
-			} else {
-				rowChanges.add(TimeSeriesSchema.ATT_TIME + "->");
-				rowChanges.add(TimeSeriesSchema.ATT_LOGC + "->");
-			}
+		if (newTimeSeries.getElementSet().size() != n) {
+			rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES + "->"
+					+ DataEditNodeModel.convertToString(newTimeSeries));
 		} else {
-			int n = oldTimes.size();
-
 			for (int i = 0; i < n; i++) {
-				if (oldTimes.get(i) == null) {
-					if (newTimes.get(i) != null) {
-						rowChanges.add(TimeSeriesSchema.ATT_TIME + "->"
-								+ DataEditNodeModel.convertToString(newTimes));
-						break;
-					}
-				} else {
-					if (!oldTimes.get(i).equals(newTimes.get(i))) {
-						rowChanges.add(TimeSeriesSchema.ATT_TIME + "->"
-								+ DataEditNodeModel.convertToString(newTimes));
-						break;
-					}
-				}
-			}
+				Double oldTime = ((TimeSeriesXml) oldTimeSeries.get(i))
+						.getTime();
+				Double oldLogc = ((TimeSeriesXml) oldTimeSeries.get(i))
+						.getLog10C();
+				Double newTime = ((TimeSeriesXml) newTimeSeries.get(i))
+						.getTime();
+				Double newLogc = ((TimeSeriesXml) newTimeSeries.get(i))
+						.getLog10C();
 
-			for (int i = 0; i < n; i++) {
-				if (oldLogcs.get(i) == null) {
-					if (newLogcs.get(i) != null) {
-						rowChanges.add(TimeSeriesSchema.ATT_LOGC + "->"
-								+ DataEditNodeModel.convertToString(newLogcs));
-						break;
-					}
-				} else {
-					if (!oldLogcs.get(i).equals(newLogcs.get(i))) {
-						rowChanges.add(TimeSeriesSchema.ATT_LOGC + "->"
-								+ DataEditNodeModel.convertToString(newLogcs));
-						break;
-					}
+				if (!areEqual(oldTime, newTime) || !areEqual(oldLogc, newLogc)) {
+					rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES + "->"
+							+ DataEditNodeModel.convertToString(newTimeSeries));
+					break;
 				}
 			}
 		}
@@ -660,6 +631,14 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 	}
 
+	private boolean areEqual(Double v1, Double v2) {
+		if (v1 == null) {
+			return v2 == null;
+		} else {
+			return v1.equals(v2);
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
@@ -685,31 +664,26 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			} else if (removeButtons.contains(e.getSource())) {
 				int i = idBox.getSelectedIndex();
 				int j = removeButtons.indexOf(e.getSource());
-				List<Double> timeList = tuples.get(i).getDoubleList(
-						TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = tuples.get(i).getDoubleList(
-						TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_TIMESERIES);
 
-				timeList.remove(j);
-				logcList.remove(j);
+				timeSeriesXml.getElementSet().remove(j);
 
-				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIME, timeList);
-				tuples.get(i).setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIMESERIES,
+						timeSeriesXml);
 				updateTextFields();
 				processRowChanges();
 			} else if (addButtons.contains(e.getSource())) {
 				int i = idBox.getSelectedIndex();
 				int j = addButtons.indexOf(e.getSource());
-				List<Double> timeList = tuples.get(i).getDoubleList(
-						TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = tuples.get(i).getDoubleList(
-						TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_TIMESERIES);
 
-				timeList.add(j, 0.0);
-				logcList.add(j, 0.0);
+				timeSeriesXml.getElementSet().add(j,
+						new TimeSeriesXml(null, 0.0, 0.0));
 
-				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIME, timeList);
-				tuples.get(i).setValue(TimeSeriesSchema.ATT_LOGC, logcList);
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIMESERIES,
+						timeSeriesXml);
 				updateTextFields();
 				processRowChanges();
 			}

@@ -58,6 +58,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -254,9 +257,10 @@ public class DataEditNodeModel extends NodeModel {
 											Integer.parseInt(value));
 								} else if (type == KnimeAttribute.TYPE_STRING) {
 									tuple.setValue(attr, value);
-								} else if (type == KnimeAttribute.TYPE_COMMASEP_DOUBLE) {
+								} else if (attr
+										.equals(TimeSeriesSchema.ATT_TIMESERIES)) {
 									tuple.setValue(attr,
-											convertToDoubleList(value));
+											convertToTimeSeries(value));
 								}
 							} else {
 								tuple.setValue(attr, null);
@@ -276,46 +280,52 @@ public class DataEditNodeModel extends NodeModel {
 		return newTuples;
 	}
 
-	public static List<Double> convertToDoubleList(String s) {
-		List<Double> list = new ArrayList<Double>();
+	public static PmmXmlDoc convertToTimeSeries(String s) {
+		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		String[] toks = s.split(",");
 
-		if (toks.length == 0) {
-			return null;
-		}
-
 		for (String t : toks) {
-			if (t.equals("?")) {
-				list.add(null);
-			} else {
-				try {
-					list.add(Double.parseDouble(t));
-				} catch (NumberFormatException e) {
-					return null;
-				}
+			String[] timeLogc = t.split("/");
+			Double time = null;
+			Double logc = null;
+
+			try {
+				time = Double.parseDouble(timeLogc[0]);
+			} catch (NumberFormatException e) {
 			}
+
+			try {
+				logc = Double.parseDouble(timeLogc[1]);
+			} catch (NumberFormatException e) {
+			}
+
+			timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
 		}
 
-		return list;
+		return timeSeriesXml;
 	}
 
-	public static String convertToString(List<Double> list) {
-		if (list == null || list.isEmpty()) {
-			return null;
+	public static String convertToString(PmmXmlDoc timeSeries) {
+		if (timeSeries == null || timeSeries.getElementSet().isEmpty()) {
+			return "";
 		}
 
 		String s = "";
 
-		for (Double d : list) {
-			if (d == null) {
-				s += "?,";
-			} else {
-				if (d.isNaN() || d.isInfinite()) {
-					s += "?,";
-				} else {
-					s += d + ",";
-				}
+		for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
+			TimeSeriesXml element = (TimeSeriesXml) el;
+			String time = "?";
+			String logc = "?";
+
+			if (element.getTime() != null) {
+				time = element.getTime() + "";
 			}
+
+			if (element.getLog10C() != null) {
+				logc = element.getLog10C() + "";
+			}
+
+			s += time + "/" + logc + ",";
 		}
 
 		return s.substring(0, s.length() - 1);

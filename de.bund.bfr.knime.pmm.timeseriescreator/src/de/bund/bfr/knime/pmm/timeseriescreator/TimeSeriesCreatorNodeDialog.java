@@ -68,6 +68,7 @@ import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -153,9 +154,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY,
 				true);
 		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_TIME).toArray());
+				TimeSeriesSchema.TIME).toArray());
 		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_LOGC).toArray());
+				TimeSeriesSchema.LOGC).toArray());
 		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
 				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
 
@@ -168,9 +169,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"));
 		settingsNamePanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_TIME) + ":"));
+				.getFullName(TimeSeriesSchema.TIME) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_LOGC) + ":"));
+				.getFullName(TimeSeriesSchema.LOGC) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
@@ -320,7 +321,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
 			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TIME));
+					.getStandardUnit(TimeSeriesSchema.TIME));
 		}
 
 		try {
@@ -328,7 +329,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
 			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_LOGC));
+					.getStandardUnit(TimeSeriesSchema.LOGC));
 		}
 
 		try {
@@ -643,12 +644,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					condValueFields.get(0).setValue(value);
 				}
 
-				List<Double> timeList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				int count = timeSeriesXml.getElementSet().size();
 
-				if (timeList.size() > ROW_COUNT) {
+				if (count > ROW_COUNT) {
 					JOptionPane.showMessageDialog(panel,
 							"Number of measured points XLS-file exceeds maximum number of rows ("
 									+ ROW_COUNT + ")", "Warning",
@@ -659,9 +659,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					Double time = null;
 					Double logc = null;
 
-					if (i < timeList.size()) {
-						time = timeList.get(i);
-						logc = logcList.get(i);
+					if (i < count) {
+						time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
+						logc = ((TimeSeriesXml) timeSeriesXml.get(i))
+								.getLog10C();
 					}
 
 					table.setTime(i, time);

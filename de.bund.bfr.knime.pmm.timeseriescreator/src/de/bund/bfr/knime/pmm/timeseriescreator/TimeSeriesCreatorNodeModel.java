@@ -52,6 +52,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -104,10 +105,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		schema = new TimeSeriesSchema();
 		timeValues = new ArrayList<Double>();
 		logcValues = new ArrayList<Double>();
-		timeUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_TIME);
-		logcUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
+		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
 		miscNames = new ArrayList<String>();
@@ -123,8 +122,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		int id = MathUtilities.getRandomNegativeInt();
-		List<Double> times = new ArrayList<Double>();
-		List<Double> logcs = new ArrayList<Double>();
+		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		PmmXmlDoc miscXML = new PmmXmlDoc();
 
 		for (int i = 0; i < miscNames.size(); i++) {
@@ -133,10 +131,11 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		for (int i = 0; i < timeValues.size(); i++) {
-			times.add(AttributeUtilities.convertToStandardUnit(
-					TimeSeriesSchema.ATT_TIME, timeValues.get(i), timeUnit));
-			logcs.add(AttributeUtilities.convertToStandardUnit(
-					TimeSeriesSchema.ATT_LOGC, logcValues.get(i), logcUnit));
+			timeSeriesXml.add(new TimeSeriesXml(null, AttributeUtilities
+					.convertToStandardUnit(TimeSeriesSchema.TIME,
+							timeValues.get(i), timeUnit), AttributeUtilities
+					.convertToStandardUnit(TimeSeriesSchema.LOGC,
+							logcValues.get(i), logcUnit)));
 		}
 
 		KnimeTuple tuple = new KnimeTuple(schema);
@@ -150,8 +149,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 						temperature, tempUnit));
 		tuple.setValue(TimeSeriesSchema.ATT_PH, ph);
 		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
-		tuple.setValue(TimeSeriesSchema.ATT_TIME, times);
-		tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
+		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
 
 		container.addRowToTable(tuple);
@@ -279,14 +277,14 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
 			timeUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TIME);
+					.getStandardUnit(TimeSeriesSchema.TIME);
 		}
 
 		try {
 			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
 		} catch (InvalidSettingsException e) {
 			logcUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_LOGC);
+					.getStandardUnit(TimeSeriesSchema.LOGC);
 		}
 
 		try {

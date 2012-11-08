@@ -95,7 +95,7 @@ public class AttributeUtilities {
 			return "Organism";
 		} else if (attr.equals(TimeSeriesSchema.ATT_MATRIXNAME)) {
 			return "Matrix";
-		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			return "Concentration";
 		} else {
 			return attr;
@@ -128,9 +128,9 @@ public class AttributeUtilities {
 	}
 
 	public static List<String> getUnitsForAttribute(String attr) {
-		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+		if (attr.equals(TimeSeriesSchema.TIME)) {
 			return Arrays.asList(HOURS, MINUTES, SECONDS, DAYS, WEEKS);
-		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			return Arrays.asList(LOGCFU, LNCFU, CFU);
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
 			return Arrays.asList(CELSIUS, FAHRENHEIT);
@@ -145,7 +145,7 @@ public class AttributeUtilities {
 			return null;
 		}
 
-		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+		if (attr.equals(TimeSeriesSchema.TIME)) {
 			if (unit.equals(HOURS)) {
 				return value;
 			} else if (unit.equals(MINUTES)) {
@@ -157,7 +157,7 @@ public class AttributeUtilities {
 			} else if (unit.equals(WEEKS)) {
 				return value * 168.0;
 			}
-		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			if (unit.equals(LOGCFU)) {
 				return value;
 			} else if (unit.equals(LNCFU)) {
@@ -177,9 +177,9 @@ public class AttributeUtilities {
 	}
 
 	public static String getStandardUnit(String attr) {
-		if (attr.equals(TimeSeriesSchema.ATT_TIME)) {
+		if (attr.equals(TimeSeriesSchema.TIME)) {
 			return HOURS;
-		} else if (attr.equals(TimeSeriesSchema.ATT_LOGC)) {
+		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			return LOGCFU;
 		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
 			return CELSIUS;

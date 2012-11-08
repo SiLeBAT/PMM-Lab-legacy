@@ -677,12 +677,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 					for (PmmXmlElementConvertable el : params.getElementSet()) {
 						ParamXml element = (ParamXml) el;
+						String depVarSec = ((DepXml) tuple.getPmmXml(
+								Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 						if (element.getValue() == null) {
 							valueMissing = true;
 						}
 
-						if (element.getName().equals(id)) {
+						if (element.getName().equals(depVarSec)) {
 							value = element.getValue();
 							minValue = element.getMin();
 							maxValue = element.getMax();

@@ -50,6 +50,7 @@ import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -266,14 +267,14 @@ public class SecondaryModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		stringColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,
+		stringColumns = Arrays.asList(Model1Schema.ATT_DEPENDENT,
 				Model1Schema.ATT_MODELNAME, ChartConstants.IS_FITTED);
 		filterableStringColumns = Arrays.asList(ChartConstants.IS_FITTED);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = Arrays.asList(Model1Schema.ATT_DEPVAR,
+		visibleColumns = Arrays.asList(Model1Schema.ATT_DEPENDENT,
 				Model1Schema.ATT_MODELNAME, Model2Schema.ATT_RMS,
 				Model2Schema.ATT_RSQUARED);
 
@@ -320,12 +321,14 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
-			String id = row.getString(Model2Schema.ATT_DEPVAR);
+			String id = ((DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT)
+					.get(0)).getName();
 
 			if (!idSet.contains(id)) {
 				String modelNameSec = row.getString(Model2Schema.ATT_MODELNAME);
 				String formulaSec = row.getString(Model2Schema.ATT_FORMULA);
-				String depVarSec = row.getString(Model2Schema.ATT_DEPVAR);
+				String depVarSec = ((DepXml) row.getPmmXml(
+						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = row
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(

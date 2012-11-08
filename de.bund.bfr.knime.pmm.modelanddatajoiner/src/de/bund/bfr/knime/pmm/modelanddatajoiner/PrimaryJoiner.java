@@ -57,6 +57,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -188,23 +189,15 @@ public class PrimaryJoiner implements Joiner {
 			}
 
 			String formula = modelTuple.getString(Model1Schema.ATT_FORMULA);
-			String depVar = modelTuple.getString(Model1Schema.ATT_DEPVAR);
+			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
+			String depVarName = ((DepXml) depVar.get(0)).getName();
 			PmmXmlDoc indepVar = modelTuple
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-			Map<String, String> varMap = modelTuple
-					.getMap(Model1Schema.ATT_VARPARMAP);
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
-			Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 			boolean allVarsReplaced = true;
 
 			if (replacements.containsKey(depVar)) {
-				if (varMap.containsKey(depVar)) {
-					newVarMap.put(replacements.get(depVar), varMap.get(depVar));
-				} else {
-					newVarMap.put(replacements.get(depVar), depVar);
-				}
-
-				depVar = replacements.get(depVar);
+				((DepXml) depVar.get(0)).setName(replacements.get(depVarName));
 			} else {
 				allVarsReplaced = false;
 			}
@@ -219,14 +212,6 @@ public class PrimaryJoiner implements Joiner {
 				IndepXml iv = (IndepXml) el;
 
 				if (replacements.containsKey(iv.getName())) {
-					if (varMap.containsKey(iv.getName())) {
-						newVarMap.put(replacements.get(iv.getName()),
-								varMap.get(iv.getName()));
-					} else {
-						newVarMap.put(replacements.get(iv.getName()),
-								iv.getName());
-					}
-
 					iv.setName(replacements.get(iv.getName()));
 					newIndepVar.add(iv);
 				} else {
@@ -240,9 +225,8 @@ public class PrimaryJoiner implements Joiner {
 			}
 
 			modelTuple.setValue(Model1Schema.ATT_FORMULA, formula);
-			modelTuple.setValue(Model1Schema.ATT_DEPVAR, depVar);
+			modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
 			modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVar);
-			modelTuple.setValue(Model1Schema.ATT_VARPARMAP, newVarMap);
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 
@@ -364,7 +348,8 @@ public class PrimaryJoiner implements Joiner {
 		Set<String> variableSet = new LinkedHashSet<String>();
 
 		for (KnimeTuple tuple : modelTuples) {
-			variableSet.add(tuple.getString(Model1Schema.ATT_DEPVAR));
+			variableSet.add(((DepXml) tuple.getPmmXml(
+					Model1Schema.ATT_DEPENDENT).get(0)).getName());
 			variableSet.addAll(CellIO.getNameList(tuple
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT)));
 		}
@@ -376,8 +361,8 @@ public class PrimaryJoiner implements Joiner {
 		Set<String> parameterSet = new LinkedHashSet<String>();
 
 		parameterSet.add("");
-		parameterSet.add(TimeSeriesSchema.ATT_TIME);
-		parameterSet.add(TimeSeriesSchema.ATT_LOGC);
+		parameterSet.add(TimeSeriesSchema.TIME);
+		parameterSet.add(TimeSeriesSchema.LOGC);
 		parameterSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
 		parameterSet.add(TimeSeriesSchema.ATT_PH);
 		parameterSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);

@@ -62,6 +62,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -264,27 +265,20 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						+ "";
 				String formulaSec = modelRow
 						.getString(Model2Schema.ATT_FORMULA);
-				String depVarSec = modelRow.getString(Model2Schema.ATT_DEPVAR);
+				PmmXmlDoc depVarSec = modelRow
+						.getPmmXml(Model2Schema.ATT_DEPENDENT);
+				String depVarSecName = ((DepXml) depVarSec.get(0)).getName();
 				PmmXmlDoc indepVarsSec = modelRow
 						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-				Map<String, String> varMapSec = modelRow
-						.getMap(Model2Schema.ATT_VARPARMAP);
 				PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-				Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 				KnimeRelationReader peiReader = new KnimeRelationReader(
 						dataSchema, dataTable);
 				Map<String, String> replace = replacements.get(i);
 				boolean allVarsReplaced = true;
 
 				if (replace.containsKey(depVarSec)) {
-					if (varMapSec.containsKey(depVarSec)) {
-						newVarMap.put(replace.get(depVarSec),
-								varMapSec.get(depVarSec));
-					} else {
-						newVarMap.put(replace.get(depVarSec), depVarSec);
-					}
-
-					depVarSec = replace.get(depVarSec);
+					((DepXml) depVarSec.get(0)).setName(replace
+							.get(depVarSecName));
 				} else {
 					allVarsReplaced = false;
 				}
@@ -300,14 +294,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					IndepXml iv = (IndepXml) el;
 
 					if (replace.containsKey(iv.getName())) {
-						if (varMapSec.containsKey(iv.getName())) {
-							newVarMap.put(replace.get(iv.getName()),
-									varMapSec.get(iv.getName()));
-						} else {
-							newVarMap.put(replace.get(iv.getName()),
-									iv.getName());
-						}
-
 						iv.setName(replace.get(iv.getName()));
 						newIndepVarsSec.add(iv);
 					} else {
@@ -334,10 +320,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							peiRow);
 
 					seiRow.setValue(Model2Schema.ATT_FORMULA, formulaSec);
-					seiRow.setValue(Model2Schema.ATT_DEPVAR, depVarSec);
+					seiRow.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
 					seiRow.setValue(Model2Schema.ATT_INDEPENDENT,
 							newIndepVarsSec);
-					seiRow.setValue(Model2Schema.ATT_VARPARMAP, newVarMap);
 					seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 							Model2Schema.NOTWRITABLE);
 
@@ -377,7 +362,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			modelNames.put(modelID, row.getString(Model2Schema.ATT_MODELNAME));
 			modelFormulas.put(modelID, row.getString(Model2Schema.ATT_FORMULA));
 			dependentVariables.put(modelID,
-					row.getString(Model2Schema.ATT_DEPVAR));
+					((DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0))
+							.getName());
 			independentVariables.put(modelID, CellIO.getNameList(row
 					.getPmmXml(Model2Schema.ATT_INDEPENDENT)));
 		}

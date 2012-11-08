@@ -58,6 +58,7 @@ import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -235,41 +236,30 @@ public class CombinedJoiner implements Joiner {
 
 		while (modelReader.hasMoreElements()) {
 			KnimeTuple modelTuple = modelReader.nextElement();
+			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 			if (!ids.add(modelTuple.getInt(Model1Schema.ATT_MODELID) + "("
-					+ modelTuple.getString(Model2Schema.ATT_DEPVAR) + ")")) {
+					+ depVarSecName + ")")) {
 				index += dataTable.getRowCount();
 				continue;
 			}
 
 			String formula = modelTuple.getString(Model1Schema.ATT_FORMULA);
-			String depVar = modelTuple.getString(Model1Schema.ATT_DEPVAR);
+			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
+			String depVarName = ((DepXml) depVar.get(0)).getName();
 			PmmXmlDoc indepVar = modelTuple
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-			Map<String, String> varMap = modelTuple
-					.getMap(Model1Schema.ATT_VARPARMAP);
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
-			Map<String, String> newVarMap = new LinkedHashMap<String, String>();
 			String formulaSec = modelTuple.getString(Model2Schema.ATT_FORMULA);
-			String depVarSec = modelTuple.getString(Model2Schema.ATT_DEPVAR);
 			PmmXmlDoc indepVarSec = modelTuple
 					.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-			Map<String, String> varMapSec = modelTuple
-					.getMap(Model2Schema.ATT_VARPARMAP);
 			PmmXmlDoc newIndepVarSec = new PmmXmlDoc();
-			Map<String, String> newVarMapSec = new LinkedHashMap<String, String>();
 			boolean allVarsReplaced = true;
 
-			if (replacements.get(PRIMARY).containsKey(depVar)) {
-				if (varMap.containsKey(depVar)) {
-					newVarMap.put(replacements.get(PRIMARY).get(depVar),
-							varMap.get(depVar));
-				} else {
-					newVarMap
-							.put(replacements.get(PRIMARY).get(depVar), depVar);
-				}
-
-				depVar = replacements.get(PRIMARY).get(depVar);
+			if (replacements.get(PRIMARY).containsKey(depVarName)) {
+				((DepXml) depVar.get(0)).setName(replacements.get(PRIMARY).get(
+						depVarName));
 			} else {
 				allVarsReplaced = false;
 			}
@@ -284,16 +274,6 @@ public class CombinedJoiner implements Joiner {
 				IndepXml iv = (IndepXml) el;
 
 				if (replacements.get(PRIMARY).containsKey(iv.getName())) {
-					if (varMap.containsKey(iv.getName())) {
-						newVarMap.put(
-								replacements.get(PRIMARY).get(iv.getName()),
-								varMap.get(iv.getName()));
-					} else {
-						newVarMap.put(
-								replacements.get(PRIMARY).get(iv.getName()),
-								iv.getName());
-					}
-
 					iv.setName(replacements.get(PRIMARY).get(iv.getName()));
 					newIndepVar.add(iv);
 				} else {
@@ -302,8 +282,8 @@ public class CombinedJoiner implements Joiner {
 				}
 			}
 
-			for (String var : replacements.get(depVarSec).keySet()) {
-				String newVar = replacements.get(depVarSec).get(var);
+			for (String var : replacements.get(depVarSecName).keySet()) {
+				String newVar = replacements.get(depVarSecName).get(var);
 
 				formulaSec = MathUtilities.replaceVariable(formulaSec, var,
 						newVar);
@@ -312,20 +292,11 @@ public class CombinedJoiner implements Joiner {
 			for (PmmXmlElementConvertable el : indepVarSec.getElementSet()) {
 				IndepXml iv = (IndepXml) el;
 
-				if (replacements.containsKey(depVarSec)
-						&& replacements.get(depVarSec)
-								.containsKey(iv.getName())) {
-					if (varMapSec.containsKey(iv.getName())) {
-						newVarMapSec.put(
-								replacements.get(depVarSec).get(iv.getName()),
-								varMapSec.get(iv.getName()));
-					} else {
-						newVarMapSec.put(
-								replacements.get(depVarSec).get(iv.getName()),
-								iv.getName());
-					}
-
-					iv.setName(replacements.get(depVarSec).get(iv.getName()));
+				if (replacements.containsKey(depVarSecName)
+						&& replacements.get(depVarSecName).containsKey(
+								iv.getName())) {
+					iv.setName(replacements.get(depVarSecName)
+							.get(iv.getName()));
 					newIndepVarSec.add(iv);
 				} else {
 					allVarsReplaced = false;
@@ -339,14 +310,12 @@ public class CombinedJoiner implements Joiner {
 			}
 
 			modelTuple.setValue(Model1Schema.ATT_FORMULA, formula);
-			modelTuple.setValue(Model1Schema.ATT_DEPVAR, depVar);
+			modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
 			modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVar);
-			modelTuple.setValue(Model1Schema.ATT_VARPARMAP, newVarMap);
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 			modelTuple.setValue(Model2Schema.ATT_FORMULA, formulaSec);
 			modelTuple.setValue(Model2Schema.ATT_INDEPENDENT, newIndepVarSec);
-			modelTuple.setValue(Model2Schema.ATT_VARPARMAP, newVarMapSec);
 			modelTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 
@@ -396,8 +365,8 @@ public class CombinedJoiner implements Joiner {
 			}
 		}
 
-		primaryParameters = Arrays.asList("", TimeSeriesSchema.ATT_LOGC,
-				TimeSeriesSchema.ATT_TIME);
+		primaryParameters = Arrays.asList("", TimeSeriesSchema.LOGC,
+				TimeSeriesSchema.TIME);
 		secondaryParameters = new ArrayList<String>(secParamSet);
 	}
 
@@ -411,22 +380,23 @@ public class CombinedJoiner implements Joiner {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
+			String depVar = ((DepXml) tuple.getPmmXml(
+					Model1Schema.ATT_DEPENDENT).get(0)).getName();
+			String depVarSec = ((DepXml) tuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
 			if (!ids.add(tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-					+ tuple.getString(Model2Schema.ATT_DEPVAR) + ")")) {
+					+ depVarSec + ")")) {
 				continue;
 			}
 
-			primaryVarSet.add(tuple.getString(Model1Schema.ATT_DEPVAR));
+			primaryVarSet.add(depVar);
 			primaryVarSet.addAll(CellIO.getNameList(tuple
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT)));
 
-			if (!secondaryVariables.containsKey(tuple
-					.getString(Model2Schema.ATT_DEPVAR))) {
-				secondaryVariables.put(
-						tuple.getString(Model2Schema.ATT_DEPVAR),
-						CellIO.getNameList(tuple
-								.getPmmXml(Model2Schema.ATT_INDEPENDENT)));
+			if (!secondaryVariables.containsKey(depVarSec)) {
+				secondaryVariables.put(depVarSec, CellIO.getNameList(tuple
+						.getPmmXml(Model2Schema.ATT_INDEPENDENT)));
 			}
 		}
 

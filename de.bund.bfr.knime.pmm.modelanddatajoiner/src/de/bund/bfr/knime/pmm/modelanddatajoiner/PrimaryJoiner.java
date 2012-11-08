@@ -196,7 +196,7 @@ public class PrimaryJoiner implements Joiner {
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
 			boolean allVarsReplaced = true;
 
-			if (replacements.containsKey(depVar)) {
+			if (replacements.containsKey(depVarName)) {
 				((DepXml) depVar.get(0)).setName(replacements.get(depVarName));
 			} else {
 				allVarsReplaced = false;

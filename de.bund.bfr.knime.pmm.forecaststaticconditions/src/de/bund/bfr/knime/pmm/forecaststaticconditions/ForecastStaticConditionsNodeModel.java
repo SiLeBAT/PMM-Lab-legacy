@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.forecaststaticconditions;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,12 +56,14 @@ import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -270,9 +271,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				continue;
 			}
 
-			List<Double> times = newTuple
-					.getDoubleList(TimeSeriesSchema.ATT_TIME);
-			List<Double> logcs;
+			PmmXmlDoc timeSeriesXml = newTuple
+					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
 			if (concentrationParameters.containsKey(oldID)) {
 				Double temp = newTuple
@@ -304,7 +304,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				constants.put(TimeSeriesSchema.ATT_PH, ph);
 				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
 				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
-				logcs = new ArrayList<Double>();
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -312,9 +311,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					constants.put(element.getName(), element.getValue());
 				}
 
-				for (double t : times) {
-					constants.put(TimeSeriesSchema.ATT_TIME, t);
-					logcs.add(computeLogc(formula, constants));
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					constants.put(TimeSeriesSchema.TIME, element.getTime());
+					element.setLog10C(computeLogc(formula, constants));
 				}
 			} else {
 				setWarningMessage("Initial Concentration Parameter for "
@@ -324,7 +326,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 								.getString(
 										Model1Schema.ATT_MODELNAME
 												+ "is not specified"));
-				logcs = Collections.nCopies(times.size(), null);
+
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					element.setLog10C(null);
+				}
 			}
 
 			for (KnimeTuple tuple : combinedTuples.get(newTuple)) {
@@ -342,7 +350,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					}
 				}
 
-				tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
+				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 				tuple.setValue(Model1Schema.ATT_PARAMETER, params);
 				container.addRowToTable(tuple);
 			}
@@ -374,8 +382,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		for (KnimeTuple tuple : tuples) {
 			String id = tuple.getInt(Model1Schema.ATT_MODELID) + "";
 			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			List<Double> times = tuple.getDoubleList(TimeSeriesSchema.ATT_TIME);
-			List<Double> logcs;
+			PmmXmlDoc timeSeriesXml = tuple
+					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
 			if (concentrationParameters.containsKey(id)) {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
@@ -400,7 +408,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				constants.put(TimeSeriesSchema.ATT_PH, ph);
 				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
 				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
-				logcs = new ArrayList<Double>();
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -408,19 +415,28 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					constants.put(element.getName(), element.getValue());
 				}
 
-				for (double t : times) {
-					constants.put(TimeSeriesSchema.ATT_TIME, t);
-					logcs.add(computeLogc(formula, constants));
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					constants.put(TimeSeriesSchema.TIME, element.getTime());
+					element.setLog10C(computeLogc(formula, constants));
 				}
 			} else {
 				setWarningMessage("Initial Concentration Parameter for "
 						+ tuple.getString(Model1Schema.ATT_MODELNAME
 								+ "is not specified"));
-				logcs = Collections.nCopies(times.size(), null);
+
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					element.setLog10C(null);
+				}
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);
-			tuple.setValue(TimeSeriesSchema.ATT_LOGC, logcs);
+			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 			container.addRowToTable(tuple);
 			exec.setProgress((double) index / (double) tuples.size(), "");
 			exec.checkCanceled();
@@ -444,7 +460,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		try {
-			Node f = parser.parse(formula.replaceAll(TimeSeriesSchema.ATT_LOGC
+			Node f = parser.parse(formula.replaceAll(TimeSeriesSchema.LOGC
 					+ "=", ""));
 			double value = (Double) parser.evaluate(f);
 
@@ -479,7 +495,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	private void checkSecondaryModels(List<KnimeTuple> tuples)
 			throws PmmException {
 		for (KnimeTuple tuple : tuples) {
-			String depVar = tuple.getString(Model2Schema.ATT_DEPVAR);
+			String depVar = ((DepXml) tuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 			PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
 
 			for (PmmXmlElementConvertable el : params.getElementSet()) {
@@ -569,7 +586,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			Double min = minIndepValues.get(i);
 			Double max = maxIndepValues.get(i);
 
-			if (indep.equals(TimeSeriesSchema.ATT_TIME)
+			if (indep.equals(TimeSeriesSchema.TIME)
 					|| indep.equals(TimeSeriesSchema.ATT_TEMPERATURE)
 					|| indep.equals(TimeSeriesSchema.ATT_PH)
 					|| indep.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {

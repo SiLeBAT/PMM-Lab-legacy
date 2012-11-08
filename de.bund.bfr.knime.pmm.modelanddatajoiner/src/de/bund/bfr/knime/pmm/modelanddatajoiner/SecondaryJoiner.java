@@ -309,10 +309,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				while (peiReader.hasMoreElements()) {
 					KnimeTuple peiRow = peiReader.nextElement();
 					PmmXmlDoc params = peiRow
-							.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-					System.out.println(CellIO.getNameList(params));
-					System.out.println(depVarSecName);
+							.getPmmXml(Model1Schema.ATT_PARAMETER);					
 
 					if (!usedModels.get(i).equals(modelIDSec)
 							|| !CellIO.getNameList(params).contains(

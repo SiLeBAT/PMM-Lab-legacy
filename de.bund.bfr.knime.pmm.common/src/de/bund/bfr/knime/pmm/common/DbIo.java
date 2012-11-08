@@ -2,12 +2,7 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.sql.Array;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.knime.core.data.def.StringCell;
 
 public class DbIo {
 

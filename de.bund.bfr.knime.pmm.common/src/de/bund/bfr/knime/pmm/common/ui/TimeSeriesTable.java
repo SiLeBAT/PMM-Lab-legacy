@@ -45,13 +45,13 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public TimeSeriesTable(int rowCount, boolean editable) {
 		setModel(new TimeSeriesTableModel(rowCount));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME))
+		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME))
 				.setCellEditor(new DoubleCellEditor(editable));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC))
+		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC))
 				.setCellEditor(new DoubleCellEditor(editable));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TIME))
+		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME))
 				.setCellRenderer(new DoubleCellRenderer());
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_LOGC))
+		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC))
 				.setCellRenderer(new DoubleCellRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		setCellSelectionEnabled(true);
@@ -183,10 +183,10 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			switch (column) {
 			case 0:
 				return AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_TIME);
+						.getFullName(TimeSeriesSchema.TIME);
 			case 1:
 				return AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_LOGC);
+						.getFullName(TimeSeriesSchema.LOGC);
 			default:
 				return null;
 			}

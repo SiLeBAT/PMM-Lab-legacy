@@ -250,11 +250,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public Double getMaximumRate() { return mr; }
 	
-	@Deprecated
-	public Double getDoublingTime() {
-		return Double.NaN;
-	}
-	
 	public boolean hasCombaseId() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_COMBASEID );
 	}
@@ -306,13 +301,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public boolean hasComment() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_COMMENT );
 	}
-	
-	@Deprecated
-	public boolean hasMaximumRate() { return false; }
-	
-	@Deprecated
-	public boolean hasDoublingTime() { return false; } 
-	
 	
 	public void setCondId( final int condId ) throws PmmException { 
 		setValue( TimeSeriesSchema.ATT_CONDID, condId );
@@ -451,28 +439,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public void setMdData(final PmmXmlDoc MdData) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_TIMESERIES, MdData);
 	}
-	@Deprecated
-	public void setCommasepTime( final String t ) throws PmmException {
 		
-		if( t == null ) {
-			setValue(TimeSeriesSchema.ATT_TIME, null );
-		} else {
-			setValue(TimeSeriesSchema.ATT_TIME, t.replaceAll( "E0", "" ) );
-		}
-	}
-	
-	@Deprecated
-	public void setCommasepLogc( final String c ) throws PmmException {
-		
-		if( c == null ) {
-			setValue(TimeSeriesSchema.ATT_LOGC, null );
-		} else {
-			setValue(TimeSeriesSchema.ATT_LOGC, c.replaceAll( "E0", "" ) );
-		}
-	}
-	
 	public void setMaximumRate( final double mr ) { this.mr = mr; }
-	
-	@Deprecated	
-	public void setDoublingTime( final double dt ) {}
 }

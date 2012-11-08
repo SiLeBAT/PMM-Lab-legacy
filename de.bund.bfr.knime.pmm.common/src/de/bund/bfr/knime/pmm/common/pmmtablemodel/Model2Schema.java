@@ -39,45 +39,21 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 public class Model2Schema extends KnimeSchema {
 	
 	public static final String ATT_FORMULA = "FormulaSec";
-	@Deprecated
-	public static final String ATT_PARAMNAME = "ParamNameSec";
-	@Deprecated
-	public static final String ATT_DEPVAR = "DepVarSec";
 	public static final String ATT_DEPENDENT = "DependentSec";
-	@Deprecated
-	public static final String ATT_INDEPVAR = "IndepVarSec";
-	@Deprecated
-	public static final String ATT_VALUE = "ValueSec";
+
 	public static final String ATT_MODELNAME = "ModelNameSec";
 	public static final String ATT_MODELID = "ModelCatalogIDSec";
 	public static final String ATT_PARAMETER = "ParameterSec";
 	public static final String ATT_INDEPENDENT = "IndependentSec";
 
 	public static final String ATT_ESTMODELID = "EstModelIDSec";
-	@Deprecated
-	public static final String ATT_VARPARMAP = "VarParMapSec";
+
 	public static final String ATT_RMS = "RMSSec";
 	public static final String ATT_RSQUARED = "RsquaredSec";
-	@Deprecated
-	public static final String ATT_MINVALUE = "MinValueSec";
-	@Deprecated
-	public static final String ATT_MAXVALUE = "MaxValueSec";
-	@Deprecated
-	public static final String ATT_MININDEP = "MinIndepSec";
-	@Deprecated
-	public static final String ATT_MAXINDEP = "MaxIndepSec";
-	@Deprecated
-	public static final String ATT_LITIDM = "MLitIDSec";
-	@Deprecated
-	public static final String ATT_LITM = "MLitSec";
-	@Deprecated
-	public static final String ATT_LITIDEM = "EstMLitIDSec";
-	@Deprecated
-	public static final String ATT_LITEM = "EstMLitSec";
+
 	public static final String ATT_MLIT = "M_LiteraturSec";
 	public static final String ATT_EMLIT = "EM_LiteraturSec";
-	@Deprecated
-	public static final String ATT_PARAMERR = "StandardErrorSec";
+
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritableSec";
 	public static final String ATT_DBUUID = "M_DB_UIDSec";
 
@@ -94,16 +70,12 @@ public class Model2Schema extends KnimeSchema {
 			addIntAttribute( ATT_MODELID );
 			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
-			addStringAttribute( ATT_DEPVAR );
+
 			addXmlAttribute( ATT_DEPENDENT );
 			addXmlAttribute( ATT_INDEPENDENT );
-			addStringListAttribute( ATT_INDEPVAR );
+
 			addXmlAttribute( ATT_PARAMETER );
-			addStringListAttribute( ATT_PARAMNAME );
-			addDoubleListAttribute( ATT_MINVALUE );
-			addDoubleListAttribute( ATT_MAXVALUE );
-			addIntListAttribute( ATT_LITIDM );
-			addStringListAttribute( ATT_LITM );
+
 			addXmlAttribute(ATT_MLIT);
 			
 			addIntAttribute( ATT_ESTMODELID );
@@ -111,16 +83,9 @@ public class Model2Schema extends KnimeSchema {
 			addDoubleAttribute( ATT_RSQUARED );
 			addDoubleAttribute( ATT_AIC );
 			addDoubleAttribute( ATT_BIC );
-			addDoubleListAttribute( ATT_VALUE );
-			addDoubleListAttribute( ATT_PARAMERR );
-			addDoubleListAttribute( ATT_MININDEP );
-			addDoubleListAttribute( ATT_MAXINDEP );
-			addIntListAttribute( ATT_LITIDEM );
-			addStringListAttribute( ATT_LITEM );
+
 			addXmlAttribute(ATT_EMLIT);
 			
-			//addStringListAttribute( ATT_VARPARMAP );
-			addMapAttribute(ATT_VARPARMAP);
 			addIntAttribute( ATT_DATABASEWRITABLE );
 			addStringAttribute( ATT_DBUUID );					
 		}

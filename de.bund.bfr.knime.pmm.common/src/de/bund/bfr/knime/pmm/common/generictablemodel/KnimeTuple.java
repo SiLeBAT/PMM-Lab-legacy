@@ -147,25 +147,8 @@ public class KnimeTuple implements DataRow {
 		return new KnimeTuple(commonSchema, set1, set2);
 	}
 
-	@Deprecated
-	public void addValue(final String attName, final Object obj)
-			throws PmmException {
-		addValue(getIndex(attName), obj);
-	}
-	
-	@Deprecated
-	public void addMap( final String attName, final Object a, final Object b )
-	throws PmmException {
-		addMap( getIndex( attName ), a, b );
-	}
-
 	public Double getDouble(final String attName) throws PmmException {
 		return getDouble(getIndex(attName));
-	}
-
-	@Deprecated
-	public List<Double> getDoubleList(final String attName) throws PmmException {
-		return getDoubleList(getIndex(attName));
 	}
 
 	public int getIndex(final String attName) throws PmmException {
@@ -174,11 +157,6 @@ public class KnimeTuple implements DataRow {
 
 	public Integer getInt(final String attName) throws PmmException {
 		return getInt(getIndex(attName));
-	}
-
-	@Deprecated
-	public List<Integer> getIntList(final String attName) throws PmmException {
-		return getIntList(getIndex(attName));
 	}
 
 	public String getName(final int i) {
@@ -193,16 +171,6 @@ public class KnimeTuple implements DataRow {
 		return getString(getIndex(attName));
 	}
 
-	@Deprecated
-	public List<String> getStringList(final String attName) throws PmmException {
-		return getStringList(getIndex(attName));
-	}
-
-	@Deprecated
-	public Map<String,String> getMap( final String attName ) throws PmmException {
-		return getMap( getIndex( attName ) );
-	}
-	
 	public KnimeSchema getSchema() {
 		return schema;
 	}
@@ -336,91 +304,6 @@ public class KnimeTuple implements DataRow {
 			throw new PmmException("Only Int/Double/String/XML/Missing cells are allowed.");
 	}
 
-	private void addValue(final int i, final Object obj) throws PmmException {
-
-		String o, n;
-
-		if (obj == null)
-			n = "?";
-		else
-
-			switch (schema.getType(i)) {
-
-			case KnimeAttribute.TYPE_COMMASEP_INT:
-
-				if (!(obj instanceof Integer))
-					throw new PmmException("Value must be integer.");
-
-				n = String.valueOf((Integer) obj);
-
-				break;
-
-			case KnimeAttribute.TYPE_COMMASEP_DOUBLE:
-
-				if (!(obj instanceof Double))
-					throw new PmmException("Value must be double.");
-
-				if( ( ( Double )obj ).isNaN() || ( ( Double )obj ).isInfinite() )
-					n = "?";
-				else
-					n = String.valueOf((Double) obj);
-
-				break;
-
-			case KnimeAttribute.TYPE_COMMASEP_STRING:
-			case KnimeAttribute.TYPE_MAP:
-
-				if (!(obj instanceof String))
-					throw new PmmException("Value must be String.");
-
-				n = (String) obj;
-
-				break;
-			
-			case KnimeAttribute.TYPE_INT:
-			case KnimeAttribute.TYPE_DOUBLE:
-			case KnimeAttribute.TYPE_STRING:
-			case KnimeAttribute.TYPE_XML:
-				throw new PmmException("Attribute '"+getName( i )+"' is not addable.");
-
-			default:
-				throw new PmmException("Unknown datatype.");
-			}
-
-		if (cell[i].isMissing())
-			cell[i] = CellIO.createCell(n);
-		else {
-			o = ((StringCell) cell[i]).getStringValue();
-			cell[i] = CellIO.createCell(o + "," + n);
-		}
-	}
-	
-	private void addMap( final int i, final Object a, final Object b )
-	throws PmmException {
-		
-		String o, n;
-		
-		if( a == null )
-			throw new PmmException( "Object A must not be null." );
-		
-		if( b == null )
-			throw new PmmException( "Object B must not be null." );
-		
-		if( schema.getType( i ) != KnimeAttribute.TYPE_MAP )
-			throw new PmmException( "Cell type is not a map." );
-		
-		n = a.toString()+"="+b.toString();
-		
-		if( cell[ i ].isMissing() )
-			cell[ i ] = CellIO.createCell( n );
-		else {
-			
-			o = ( ( StringCell )cell[ i ] ).getStringValue();
-			cell[ i ] = CellIO.createCell( o+","+n );
-		}
-		
-	}
-
 	private Double getDouble(final int i) throws PmmException {
 
 		switch (schema.getType(i)) {
@@ -438,16 +321,6 @@ public class KnimeTuple implements DataRow {
 			throw new PmmException(
 					"Comma separated type cannot be cast to double.");
 		}
-	}
-
-	private List<Double> getDoubleList(final int i) throws PmmException {
-
-		if (!(schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_DOUBLE || schema
-				.getType(i) == KnimeAttribute.TYPE_COMMASEP_INT))
-			throw new PmmException(
-					"No comma separated double or int list in schema.");
-
-		return CellIO.getDoubleList(cell[i]);
 	}
 
 	private Integer getInt(final int i) throws PmmException {
@@ -469,14 +342,6 @@ public class KnimeTuple implements DataRow {
 		}
 	}
 
-	private List<Integer> getIntList(final int i) throws PmmException {
-
-		if (schema.getType(i) != KnimeAttribute.TYPE_COMMASEP_INT)
-			throw new PmmException("No comma separated int list in schema.");
-
-		return CellIO.getIntList(cell[i]);
-	}
-	
 	private PmmXmlDoc getPmmXml(final int i) throws PmmException {
 		switch (schema.getType(i)) {
 			case KnimeAttribute.TYPE_XML:
@@ -499,25 +364,6 @@ public class KnimeTuple implements DataRow {
 		default:
 			return CellIO.getString(cell[i]);
 		}
-	}
-
-	private List<String> getStringList(final int i) throws PmmException {
-
-		if ( !( schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_STRING
-				|| schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_DOUBLE
-				|| schema.getType(i) == KnimeAttribute.TYPE_COMMASEP_INT
-				|| schema.getType( i ) == KnimeAttribute.TYPE_MAP ) )
-			throw new PmmException( "No comma separated list in schema." );
-
-		return CellIO.getStringList( cell[i] );
-	}
-	
-	private Map<String,String> getMap( final int i ) throws PmmException {
-		
-		if( !( schema.getType( i ) == KnimeAttribute.TYPE_MAP ) )
-			throw new PmmException( "No map attribute in schema." );
-		
-		return CellIO.getMap( cell[ i ] );
 	}
 
 	private boolean isNull(final int i) {

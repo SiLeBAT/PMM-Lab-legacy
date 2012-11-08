@@ -57,16 +57,10 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_MATRIXID = "MatrixID";
 	public static final String ATT_MATRIXNAME = "MatrixName";
 	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
-	@Deprecated
-	public static final String ATT_TIME = "Time";
-	@Deprecated
-	public static final String ATT_LOGC = "Log10C";
+
 	public static final String ATT_TIMESERIES = "MD_Data";
 	public static final String ATT_COMMENT = "Comment";
-	@Deprecated
-	public static final String ATT_LITIDTS = "MDLitID";
-	@Deprecated
-	public static final String ATT_LITTS = "MDLit";
+
 	public static final String ATT_LITMD = "MD_Literatur";
 	public static final String ATT_DBUUID = "MD_DB_UID";
 
@@ -87,16 +81,13 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addDoubleAttribute( ATT_TEMPERATURE );
 			addDoubleAttribute( ATT_WATERACTIVITY );
 			addDoubleAttribute( ATT_PH );
-			addDoubleListAttribute( ATT_TIME );
-			addDoubleListAttribute( ATT_LOGC );
+
 			addXmlAttribute(ATT_TIMESERIES);
-			//addIntListAttribute( ATT_MISCID );
+
 			addXmlAttribute( ATT_MISC );
-			//addStringListAttribute( ATT_MISCVALUE );
-			//addStringListAttribute( ATT_MISCUNIT );
+
 			addStringAttribute( ATT_COMMENT );
-			addIntAttribute( ATT_LITIDTS );
-			addStringAttribute( ATT_LITTS );
+
 			addXmlAttribute(ATT_LITMD);
 			
 			addStringAttribute( ATT_DBUUID );

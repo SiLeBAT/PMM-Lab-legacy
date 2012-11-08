@@ -45,6 +45,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 public class CombaseWriter {
 
@@ -117,9 +118,13 @@ public class CombaseWriter {
 			buf.append( "\"Time (h)\"\t\"logc\"\n" );
 			
 			if( !candidate.isEmpty() ) {
-				for( double[] tuple : candidate.getTimeSeries() ) {
-					buf.append( "\""+tuple[ 0 ]+"\"\t\""+tuple[ 1 ]+"\"\n" );
-				}
+				PmmXmlDoc tsXmlDoc = candidate.getTimeSeries();
+            	for (PmmXmlElementConvertable el : tsXmlDoc.getElementSet()) {
+            		if (el instanceof TimeSeriesXml) {
+            			TimeSeriesXml tsx = (TimeSeriesXml) el;
+            			buf.append("\"" + tsx.getTime() + "\"\t\"" + tsx.getLog10C() + "\"\n" );
+            		}
+            	}
 			}
 			
 			buf.append( "\n\n\n" );

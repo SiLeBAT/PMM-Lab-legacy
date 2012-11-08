@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -138,8 +137,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	KnimeSchema schema;
     	String dbuuid;
     	String formula;
-    	int numParam, numSample;
-    	Double rms;
     	
         // fetch database connection
         db = null;
@@ -241,73 +238,39 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
     				result.getArray(Bfrdb.ATT_MAX)));
-    		/*
-			l = new PmmXmlDoc();
-			au_ja = result.getString("LitM");
-			li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitMID")); 
-			l.add(li);
-			tuple.setValue(Model1Schema.ATT_MLIT, l);
-			l = new PmmXmlDoc();
-			au_ja = result.getString("LitEm");
-			li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitEmID")); 
-			l.add(li);
-			tuple.setValue(Model1Schema.ATT_EMLIT, l);
-    		 */
+    		
+    		String s = result.getString("LitMID");
+    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
+    		s = result.getString("LitEmID");
+    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(s));
+    		
     		//tuple.setValue( Model1Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError" ) ) );
     		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
     		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
-    		/*
-    		n = tuple.getStringList( Model1Schema.ATT_PARAMNAME ).size();
-    		if( tuple.isNull( Model1Schema.ATT_VALUE ) )
-    			for( j = 0; j < n; j++ )	
-    				tuple.addValue( Model1Schema.ATT_VALUE, null );    				
-    		if( tuple.isNull( Model1Schema.ATT_MINVALUE ) )
-    			for( j = 0; j < n; j++ )	
-    				tuple.addValue( Model1Schema.ATT_MINVALUE, null );
-    		if( tuple.isNull( Model1Schema.ATT_MAXVALUE ) )
-    			for( j = 0; j < n; j++ )	
-    				tuple.addValue( Model1Schema.ATT_MAXVALUE, null );
-    		if( tuple.isNull( Model1Schema.ATT_PARAMERR ) )
-    			for( j = 0; j < n; j++ )	
-    				tuple.addValue( Model1Schema.ATT_PARAMERR, null );
-    		
-    		n = tuple.getStringList( Model1Schema.ATT_INDEPVAR ).size();
-    		if( tuple.isNull( Model1Schema.ATT_MININDEP ) )
-    			for( j = 0; j < n; j++ )
-    				tuple.addValue( Model1Schema.ATT_MININDEP, null );
-    		if( tuple.isNull( Model1Schema.ATT_MAXINDEP ) )
-    			for( j = 0; j < n; j++ )
-    				tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
-			*/
-        	List<Double> tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
+
+        	//List<Double> tList = tuple.getDoubleList( TimeSeriesSchema.ATT_TIME );
     		//paramList = tuple.getStringList( Model1Schema.ATT_PARAMNAME );
+    		/*
+    		PmmXmlDoc tList = tuple.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
     		PmmXmlDoc paramList = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+    	int numParam, numSample;
+    	Double rms;
     		rms = tuple.getDouble( Model1Schema.ATT_RMS );
     		
-    		if( tList != null )
-    			numSample = tList.size();
-    		else
-    			numSample = -1;
+    		if (tList != null) numSample = tList.size();
+    		else numSample = -1;
     		
-    		if( paramList != null )
-    			numParam = paramList.size();
-    		else
-    			numParam = -1;
+    		if (paramList != null) numParam = paramList.size();
+    		else numParam = -1;
     		
-    		if( rms == null )
-    			rms = -1.;
+    		if (rms == null) rms = -1.;
     		
-    		
-    		
-    		tuple.setValue( Model1Schema.ATT_AIC,
-				MathUtilities.akaikeCriterion( numParam, numSample, rms ) );
-    		
-    		tuple.setValue( Model1Schema.ATT_BIC,
-				MathUtilities.bayesCriterion( numParam, numSample, rms ) );
+    		tuple.setValue(Model1Schema.ATT_AIC, MathUtilities.akaikeCriterion(numParam, numSample, rms));    		
+    		tuple.setValue(Model1Schema.ATT_BIC, MathUtilities.bayesCriterion(numParam, numSample, rms));
+    		*/
     		
     		// fill m2
-    		if( level == 2 ) {
-    			
+    		if (level == 2) {   			
         		formula = result.getString( Bfrdb.ATT_FORMULA+"2" );
         		//tuple.setValue( Model2Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO+"2" ) );
         		//varMap = tuple.getMap( Model2Schema.ATT_VARPARMAP );
@@ -347,44 +310,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
 	    				result.getArray(Bfrdb.ATT_MAX+"2")));
-	    		/*
-				l = new PmmXmlDoc();
-				au_ja = result.getString("LitM2");
-				li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitMID2")); 
-				l.add(li);
-				tuple.setValue(Model2Schema.ATT_MLIT, l);
-				l = new PmmXmlDoc();
-				au_ja = result.getString("LitEm2");
-				li = new LiteratureItem(au_ja, null, null, null, result.getInt("LitEmID2")); 
-				l.add(li);
-				tuple.setValue(Model2Schema.ATT_EMLIT, l);
-				*/
+
+	    		s = result.getString("LitMID2");
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+	    		s = result.getString("LitEmID2");
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(s));
+
 	    		//tuple.setValue( Model2Schema.ATT_PARAMERR, DbIo.convertArray2String( result.getArray( "StandardError2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
-	    		/*
-	    		n = tuple.getStringList( Model2Schema.ATT_PARAMNAME ).size();
-	    		if( tuple.isNull( Model2Schema.ATT_VALUE ) )
-	    			for( j = 0; j < n; j++ )	
-	    				tuple.addValue( Model2Schema.ATT_VALUE, null );    				
-	    		if( tuple.isNull( Model2Schema.ATT_MINVALUE ) )
-	    			for( j = 0; j < n; j++ )	
-	    				tuple.addValue( Model2Schema.ATT_MINVALUE, null );
-	    		if( tuple.isNull( Model2Schema.ATT_MAXVALUE ) )
-	    			for( j = 0; j < n; j++ )	
-	    				tuple.addValue( Model2Schema.ATT_MAXVALUE, null );
-	    		if( tuple.isNull( Model2Schema.ATT_PARAMERR ) )
-	    			for( j = 0; j < n; j++ )	
-	    				tuple.addValue( Model2Schema.ATT_PARAMERR, null );
-	    		
-	    		n = tuple.getStringList( Model2Schema.ATT_INDEPVAR ).size();
-	    		if( tuple.isNull( Model2Schema.ATT_MININDEP ) )
-	    			for( j = 0; j < n; j++ )
-	    				tuple.addValue( Model2Schema.ATT_MININDEP, null );
-	    		if( tuple.isNull( Model2Schema.ATT_MAXINDEP ) )
-	    			for( j = 0; j < n; j++ )
-	    				tuple.addValue( Model2Schema.ATT_MAXINDEP, null );
-	    				*/
     		}
     		
     		// add row to data buffer
@@ -403,6 +337,23 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	db.close();
 
         return new BufferedDataTable[]{ buf.getTable() };
+    }
+    private PmmXmlDoc getLiterature(String s) {
+		PmmXmlDoc l = new PmmXmlDoc();
+		String [] ids = s.split(",");
+		for (String id : ids) {
+			Object author = DBKernel.getValue("Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue("Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue("Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue("Literatur", "ID", id, "Abstract");
+			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+					(Integer) (year == null ? null : year),
+					title == null ? null : title.toString(),
+					abstrac == null ? null : abstrac.toString(),
+					Integer.valueOf(id)); 
+			l.add(li);
+		}    
+		return l;
     }
 
     /**

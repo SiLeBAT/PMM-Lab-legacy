@@ -164,47 +164,14 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    				null, null));	    		
 	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
-	    		//tuple.setValue( Model1Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
-	    		//tuple.setValue( Model1Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
-	    		/*
-	    		PmmXmlDoc l = new PmmXmlDoc();
-				String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
-				LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
-				l.add(li);
-				tuple.setValue(Model1Schema.ATT_MLIT, l);
-				*/
-	    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
-	    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
-	    		/*
-	    		n = tuple.getStringList( Model1Schema.ATT_PARAMNAME ).size();
-	    		for( j = 0; j < n; j++ ) {
-    				tuple.addValue( Model1Schema.ATT_VALUE, null );
-    				tuple.addValue( Model1Schema.ATT_PARAMERR, null );
-	    		}
 	    		
-				if( tuple.isNull( Model1Schema.ATT_MINVALUE ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model1Schema.ATT_MINVALUE, null );
-					}
-				}
-				if( tuple.isNull( Model1Schema.ATT_MAXVALUE ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model1Schema.ATT_MAXVALUE, null );
-					}
+	    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+	    		if (s != null) {
+					tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
 				}
 				
-				n = tuple.getStringList( Model1Schema.ATT_INDEPVAR ).size();
-				if( tuple.isNull( Model1Schema.ATT_MININDEP ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model1Schema.ATT_MININDEP, null );
-					}
-				}
-				if( tuple.isNull( Model1Schema.ATT_MAXINDEP ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model1Schema.ATT_MAXINDEP, null );
-					}
-				}
-	    		*/
+	    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
+	    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
 	    		
 	    		// add row to data buffer
 				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
@@ -248,46 +215,15 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    				null, null));	    		
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
-	    		//tuple.setValue( Model2Schema.ATT_MININDEP, convertArray2String(result.getArray( Bfrdb.ATT_MININDEP ) ));
-	    		//tuple.setValue( Model2Schema.ATT_MAXINDEP, convertArray2String(result.getArray( Bfrdb.ATT_MAXINDEP ) ));
-	    		/*
-	    		PmmXmlDoc l = new PmmXmlDoc();
-				String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
-				LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
-				l.add(li);
-				tuple.setValue(Model2Schema.ATT_MLIT, l);
-				*/
+
+	    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+	    		if (s != null) {
+					tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+				}
+
 	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
-	    		/*
-	    		n = tuple.getStringList( Model2Schema.ATT_PARAMNAME ).size();
-	    		for( j = 0; j < n; j++ ) {
-					tuple.addValue( Model2Schema.ATT_VALUE, null );
-				}
-	    		
-				if( tuple.isNull( Model2Schema.ATT_MINVALUE ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model2Schema.ATT_MINVALUE, null );
-					}
-				}
-				if( tuple.isNull( Model2Schema.ATT_MAXVALUE ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model2Schema.ATT_MAXVALUE, null );
-					}
-				}
-				
-				n = tuple.getStringList( Model2Schema.ATT_INDEPVAR ).size();
-				if( tuple.isNull( Model2Schema.ATT_MININDEP ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model2Schema.ATT_MININDEP, null );
-					}
-				}
-				if( tuple.isNull( Model2Schema.ATT_MAXINDEP ) ) {
-					for( j = 0; j < n; j++ ) {
-						tuple.addValue( Model2Schema.ATT_MAXINDEP, null );
-					}
-				}
-	    		*/
+
 	    		// add row to data buffer
 				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
 					buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
@@ -301,6 +237,23 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	db.close();
 
         return new BufferedDataTable[]{ buf.getTable() };
+    }
+    private PmmXmlDoc getLiterature(String s) {
+		PmmXmlDoc l = new PmmXmlDoc();
+		String [] ids = s.split(",");
+		for (String id : ids) {
+			Object author = DBKernel.getValue("Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue("Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue("Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue("Literatur", "ID", id, "Abstract");
+			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+					(Integer) (year == null ? null : year),
+					title == null ? null : title.toString(),
+					abstrac == null ? null : abstrac.toString(),
+					Integer.valueOf(id)); 
+			l.add(li);
+		}    
+		return l;
     }
 
     /**

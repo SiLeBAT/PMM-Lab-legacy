@@ -38,6 +38,10 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class TimeSeriesSchema extends KnimeSchema {
 	
+	public static final String TIME = "Time";
+	public static final String LOGC = "Log10C";
+
+	
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
 	//public static final String ATT_MISCID = "MiscID";

@@ -74,21 +74,20 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	}
 	
 	public LiteratureItem(final Element el) {
-		this(
-			el.getAttributeValue(ATT_AUTHOR),
-			Integer.valueOf(el.getAttributeValue(ATT_YEAR)),
-			el.getAttributeValue(ATT_TITLE),
-			el.getAttributeValue(ATT_ABSTRACT),
+		this(el.getAttributeValue(ATT_AUTHOR).isEmpty() ? null : el.getAttributeValue(ATT_AUTHOR),
+			el.getAttributeValue(ATT_YEAR).isEmpty() ? null : Integer.valueOf(el.getAttributeValue(ATT_YEAR)),
+			el.getAttributeValue(ATT_TITLE).isEmpty() ? null : el.getAttributeValue(ATT_TITLE),
+			el.getAttributeValue(ATT_ABSTRACT).isEmpty() ? null : el.getAttributeValue(ATT_ABSTRACT),
 			Integer.valueOf(el.getAttributeValue(ATT_ID)));
 	}
 	
 	@Override
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_LITERATURE);
-		ret.setAttribute(ATT_AUTHOR, author);
-		ret.setAttribute(ATT_YEAR, String.valueOf(year));
-		ret.setAttribute(ATT_TITLE, title);
-		ret.setAttribute(ATT_ABSTRACT, m_abstract);
+		ret.setAttribute(ATT_AUTHOR, author == null ? "" : author);
+		ret.setAttribute(ATT_YEAR, year == null ? "" : String.valueOf(year));
+		ret.setAttribute(ATT_TITLE, title == null ? "" : title);
+		ret.setAttribute(ATT_ABSTRACT, m_abstract == null ? "" : m_abstract);
 		ret.setAttribute(ATT_ID, String.valueOf(id));		
 		return ret;
 	}

@@ -178,42 +178,41 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				continue;
 			}
 			
-			if( key.equals( "maximum rate" ) ) {
-				next.setMaximumRate( parse( token[ 1 ] ) );
+			if (key.equals("maximum rate")) {
+				next.setMaximumRate(parse(token[1]));
 				continue;
 			}
 				
 			
-			if( key.startsWith( "time" ) && token[ 1 ].equals( "logc" ) ) {
+			if (key.startsWith("time") && token[ 1 ].equals( "logc")) {
 				
-				if( !key.endsWith( " (h)" ) )
-					throw new Exception( "Time unit must be [h]." );
+				if (!key.endsWith("(h)")) throw new Exception("Time unit must be [h].");
 				
-				while( true ) {
-					
+				while (true) {					
 					line = reader.readLine();
 					
-					if( line == null )
-						return;
+					if (line == null) return;
 					
-					if( line.replaceAll( "\\t\"", "" ).isEmpty() )
+					if (line.replaceAll( "\\t\"", "" ).isEmpty()) break;
+					
+					token = line.split("\t");
+					
+					for (int i = 0; i < token.length; i++) {
+						token[i] = token[i].replaceAll("[^a-zA-Z0-9° \\.\\(\\)/,]", "");
+					}
+					
+					if (token.length < 2) {
 						break;
-					
-					token = line.split( "\t" );
-					
-					for(int i = 0; i < token.length; i++ )
-						token[ i ] = token[ i ].replaceAll( "[^a-zA-Z0-9° \\.\\(\\)/,]", "" );
-					
-					if( token.length < 2 )
-						break;
+					}
 
 					double t = parse(token[0]);
-					double logc = parse( token[ 1 ] );
+					double logc = parse(token[ 1 ]);
 					
-					if( Double.isNaN( t ) || Double.isNaN( logc ) )
+					if (Double.isNaN(t) || Double.isNaN(logc)) {
 						continue;
+					}
 					
-					next.add( t, logc );
+					next.add(t, logc);
 				}
 				break;
 			}

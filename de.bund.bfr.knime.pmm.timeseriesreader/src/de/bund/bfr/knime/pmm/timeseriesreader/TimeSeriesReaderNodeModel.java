@@ -114,7 +114,6 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	Bfrdb db;
     	BufferedDataContainer buf;
     	int i;
-    	String s;
         PmmTimeSeries tuple;
         String dbuuid;
 
@@ -128,16 +127,12 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 
     	dbuuid = db.getDBUUID();
     
-    	
     	result = db.selectTs();
     	
     	// initialize data buffer
-    	buf = exec.createDataContainer( new TimeSeriesSchema().createSpec() );
+    	buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
     	i = 0;
-    	while( result.next() ) {
-    		
-    		
-    		 
+    	while (result.next()) {
     		// initialize row
     		tuple = new PmmTimeSeries();
     		
@@ -156,7 +151,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
     		tuple.setMatrixId( result.getInt( Bfrdb.ATT_MATRIXID ) );
     		tuple.setMatrixName( result.getString( Bfrdb.ATT_MATRIXNAME ) );
-    		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    		
+    		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
+    		tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
     		tuple.setCommasepTime( result.getString( Bfrdb.ATT_TIME ) );
     		tuple.setCommasepLogc( result.getString( Bfrdb.ATT_LOG10N ) );
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
@@ -164,17 +160,21 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
-    		s = result.getString(Bfrdb.ATT_LITERATUREID);
+    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
     			PmmXmlDoc l = new PmmXmlDoc();
-    			String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
-    			LiteratureItem li = new LiteratureItem(au_ja, null, null, null, Integer.valueOf(s)); 
+    			Object author = DBKernel.getValue("Literatur", "ID", s, "Erstautor");
+    			Object year = DBKernel.getValue("Literatur", "ID", s, "Jahr");
+    			Object title = DBKernel.getValue("Literatur", "ID", s, "Titel");
+    			Object abstrac = DBKernel.getValue("Literatur", "ID", s, "Abstract");
+    			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+    					(Integer) (year == null ? null : year),
+    					title == null ? null : title.toString(),
+    					abstrac == null ? null : abstrac.toString(),
+    					Integer.valueOf(s)); 
     			l.add(li);
 				tuple.setLiterature(l);
 			}
-    		
-    		    		
-    		
     		
     		// add row to data buffer
     		if( TsReaderUi.passesFilter( matrixEnabled, matrixString, agentEnabled, agentString, tuple ) )

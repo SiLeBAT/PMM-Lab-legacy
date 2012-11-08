@@ -33,7 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jdom2.Element;
@@ -46,16 +45,19 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	private static final String ELEMENT_TIMESERIES = "TimeSeries";
 	private static final String ELEMENT_TSTUPLE = "TimeSeriesTuple";
+	private static final String ELEMENT_TSXML = "TimeSeriesXml";
 	private String warningMsg = null;
 	private double mr;
+	private PmmXmlDoc timeSeriesXmlDoc = null;
 
-	public PmmTimeSeries() throws PmmException {
-		
+	public PmmTimeSeries() throws PmmException {		
 		super( new TimeSeriesSchema() );
 				
 		setCondId( MathUtilities.getRandomNegativeInt() );
 		setMatrixId( MathUtilities.getRandomNegativeInt() );
 		setAgentId( MathUtilities.getRandomNegativeInt() );
+		
+		timeSeriesXmlDoc = new PmmXmlDoc();
 	}
 	
 	public PmmTimeSeries( final int condId ) throws PmmException {
@@ -84,39 +86,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 			
 	}
-	
-	@Override
-	public String toString() {
 		
-		String ret;
-		
-		ret = "";
-		
-		try {
-		
-			ret += "RecordID       : "+getCombaseId()+"\n";
-			ret += "Organism       : "+getAgentDetail()+"\n";
-			ret += "Environment    : "+getMatrixDetail()+"\n";
-			ret += "Temperature    : "+getTemperature()+"\n";
-			ret += "pH             : "+getPh()+"\n";
-			ret += "Water activity : "+getWaterActivity()+"\n";
-			//ret += "Conditions     : "+getCommasepMisc()+"\n";
-			try {
-				ret += "Time           : "+getString( TimeSeriesSchema.ATT_TIME );
-				ret += "LocC           : "+getString( TimeSeriesSchema.ATT_LOGC );
-			} catch( PmmException e ) {
-				e.printStackTrace( System.err );
-			}
-			ret += "\n";
-			
-		}
-		catch( PmmException ex ) {
-			ex.printStackTrace( System.err );
-		}
-		
-		return ret;
-	}
-	
 	@Override
 	public Element toXmlElement() {
 		
@@ -177,6 +147,10 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 					ret.addContent( el );
 				}
 			}
+			
+			Element element = new Element(ELEMENT_TSXML);
+			element.addContent(timeSeriesXmlDoc.toXmlString());
+			ret.addContent(element);
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace( System.err );
@@ -185,19 +159,23 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return ret;
 	}
 	
-	public void add( double t, double n ) throws PmmException {
-		
-		addValue( TimeSeriesSchema.ATT_TIME, t );
-		addValue( TimeSeriesSchema.ATT_LOGC, n );
+	public void add(String name, Double t, Double n) throws PmmException {		
+		TimeSeriesXml tsx = new TimeSeriesXml(name, t, n);
+		timeSeriesXmlDoc.add(tsx);
+		setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
+		addValue(TimeSeriesSchema.ATT_TIME, t);
+		addValue(TimeSeriesSchema.ATT_LOGC, n);
+	}
+	public void add(Double t, Double n) throws PmmException {		
+		add("t"+System.currentTimeMillis(), t, n);
 	}
 	
-	public void add( String t, String n ) {
-		
+	public void add(String t, String n) {		
 		try {
-			add( Double.valueOf( t ), Double.valueOf( n ) );
+			add(Double.valueOf(t), Double.valueOf(n));
 		}
 		catch( Exception ex ) {
-			ex.printStackTrace( System.err );
+			ex.printStackTrace();
 		}
 	}
 	
@@ -206,7 +184,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public boolean isEmpty() throws PmmException {
-		return isNull( TimeSeriesSchema.ATT_TIME );
+		return isNull(TimeSeriesSchema.ATT_TIME); // TimeSeriesSchema.ATT_TIMESERIES
 	}
 	
 	public Integer getCondId() throws PmmException {
@@ -243,24 +221,8 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return getPmmXml(TimeSeriesSchema.ATT_LITMD);
 	}
 	
-	public LinkedList<double[]> getTimeSeries() throws PmmException {
-		
-		LinkedList<double[]> ts;
-		int i, n;
-		List<Double> t, logc;
-		
-		ts = new LinkedList<double[]>();
-		
-		t = getDoubleList( TimeSeriesSchema.ATT_TIME );
-		logc = getDoubleList( TimeSeriesSchema.ATT_LOGC );
-		n = t.size();
-		
-		for( i = 0; i < n; i++ ) {
-			ts.add( new double[] { t.get( i ), logc.get( i ) } );
-		}
-		
-		
-		return ts;
+	public PmmXmlDoc getTimeSeries() {
+		return timeSeriesXmlDoc;
 	}
 	
 	public Integer getAgentId() throws PmmException {

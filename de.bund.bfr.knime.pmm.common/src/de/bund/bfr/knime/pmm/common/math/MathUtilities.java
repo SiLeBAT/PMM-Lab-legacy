@@ -318,10 +318,10 @@ public class MathUtilities {
 		if (rms < 0)
 			return null;
 
-		if (numParam < 0)
+		if (numParam <= 0)
 			return null;
 
-		if (numSample < 0)
+		if (numSample <= 0)
 			return null;
 
 		return numSample * Math.log(rms * rms) + 2 * numParam;
@@ -336,10 +336,10 @@ public class MathUtilities {
 		if (rms < 0)
 			return null;
 
-		if (numParam < 0)
+		if (numParam <= 0)
 			return null;
 
-		if (numSample < 0)
+		if (numSample <= 0)
 			return null;
 
 		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);

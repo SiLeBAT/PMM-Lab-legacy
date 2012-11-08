@@ -54,7 +54,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 
 public class Bfrdb extends Hsqldbiface {
 
@@ -1378,10 +1378,7 @@ public class Bfrdb extends Hsqldbiface {
 		String comment = ts.getComment();
 		PmmXmlDoc misc = ts.getMisc();
 		PmmXmlDoc lit = ts.getLiterature();
-
-		List<Double> time = ts.getDoubleList(TimeSeriesSchema.ATT_TIME);
-		List<Double> logc = ts.getDoubleList(TimeSeriesSchema.ATT_LOGC);
-		
+		PmmXmlDoc mdData = ts.getTimeSeries();		
 		
 		int tempId = insertDouble( temp );
 		int phId = insertDouble( ph );
@@ -1396,15 +1393,15 @@ public class Bfrdb extends Hsqldbiface {
 			return null;
 		}
 		
-		if (time != null && logc != null) {
-			// delete old data
-			deleteFrom("Messwerte", "Versuchsbedingungen", condId);
-			
-			for (int i = 0; i < time.size(); i++) {				
-				int timeId = insertDouble( time.get(i) );				
-				int lognId = insertDouble( logc.get(i) );				
+		// delete old data
+		deleteFrom("Messwerte", "Versuchsbedingungen", condId);
+		for (PmmXmlElementConvertable el : mdData.getElementSet()) {
+			if (el instanceof TimeSeriesXml) {
+				TimeSeriesXml tsx = (TimeSeriesXml) el;
+				int timeId = insertDouble(tsx.getTime());				
+				int lognId = insertDouble(tsx.getLog10C());				
 				insertData(condId, timeId, lognId);
-			}	
+			}
 		}
 		return condId;
 	}
@@ -1780,19 +1777,19 @@ public class Bfrdb extends Hsqldbiface {
 		return false;
 	}
 	
-	private void insertEstParam( final int estModelId, final int paramId, final double value, final double paramErr ) {
+	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr) {
 		PreparedStatement ps = null;
 		try {
 			
 			ps = conn.prepareStatement( "INSERT INTO \"GeschaetzteParameter\" ( \"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\" ) VALUES( ?, ?, ?, ? )" );
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
-			if(Double.isNaN(value)) {
+			if (value == null || Double.isNaN(value)) {
 				ps.setNull(3, Types.DOUBLE);
 			} else {
 				ps.setDouble(3, value);
 			}
-			if(Double.isNaN(paramErr)) {
+			if (paramErr == null || Double.isNaN(paramErr)) {
 				ps.setNull(4, Types.DOUBLE);
 			} else {
 				ps.setDouble(4, paramErr);

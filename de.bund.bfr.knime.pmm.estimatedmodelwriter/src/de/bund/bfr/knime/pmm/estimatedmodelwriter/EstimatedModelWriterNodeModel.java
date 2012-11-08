@@ -152,9 +152,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
-				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
+			//	checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
 				newTsID = db.insertTs(ts);				
-				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);
+			//	checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);
 				
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
@@ -221,9 +221,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+				//		checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						db.insertM(ppm);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+				//		checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						alreadyInsertedModel.put(rowMcID, ppm);
 					}
@@ -248,10 +248,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					//	checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						newPrimEstID = db.insertEm(ppm);
-						//System.err.println("Prim\t" + rowEstM1ID + "\t" + newPrimEstID);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					//	checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
 				    		//ppm.setEstModelId(newPrimEstID);
@@ -322,9 +321,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
-								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						//		checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 					    		db.insertM(spm);
-								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						//		checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								alreadyInsertedModel.put(rowMcID, spm);
 							}
@@ -348,9 +347,9 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						//		checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								db.insertEm(spm);
-								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						//		checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 							}
 

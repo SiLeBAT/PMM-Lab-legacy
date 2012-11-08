@@ -128,9 +128,9 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITIDTS};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
-				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
+			//	checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);				
 				db.insertTs(ts);				
-				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);
+			//	checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames);
 				
 				alreadyInsertedTs.put(rowTsID, ts);
 			}

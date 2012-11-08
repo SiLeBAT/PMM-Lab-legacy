@@ -163,7 +163,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 				DepXml dx = new DepXml(TimeSeriesSchema.LOGC);
 				paramDoc.add(dx);
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
-    			modelTuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.LOGC);
+    			//modelTuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.LOGC);
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
     			//modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );

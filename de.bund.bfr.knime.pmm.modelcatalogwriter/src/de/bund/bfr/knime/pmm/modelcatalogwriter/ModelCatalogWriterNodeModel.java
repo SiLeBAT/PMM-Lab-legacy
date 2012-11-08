@@ -173,9 +173,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 					
-					checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+		//			checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 					db.insertM(pm);
-					checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+		//			checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 				}
 			}
 			if (model2Conform) {
@@ -226,9 +226,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+				//		checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 			    		db.insertM(pm);
-						checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+				//		checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 		    		//}
 	    		}
 			}

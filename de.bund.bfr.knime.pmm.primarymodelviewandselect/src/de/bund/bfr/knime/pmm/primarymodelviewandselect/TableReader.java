@@ -12,12 +12,14 @@ import java.util.Set;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -125,7 +127,8 @@ public class TableReader {
 
 			String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
 			String formula = tuple.getString(Model1Schema.ATT_FORMULA);
-			String depVar = tuple.getString(Model1Schema.ATT_DEPVAR);
+			String depVar = ((DepXml) tuple.getPmmXml(
+					Model1Schema.ATT_DEPENDENT).get(0)).getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			List<String> indepVars = CellIO.getNameList(indepXml);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -143,10 +146,12 @@ public class TableReader {
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
 
-				variables.put(element.getName(),
-						new ArrayList<Double>(Arrays.asList(0.0)));
-				varMin.put(element.getName(), element.getMin());
-				varMax.put(element.getName(), element.getMax());
+				if (element.getName().equals(TimeSeriesSchema.TIME)) {
+					variables.put(element.getName(), new ArrayList<Double>(
+							Arrays.asList(0.0)));
+					varMin.put(element.getName(), element.getMin());
+					varMax.put(element.getName(), element.getMax());
+				}
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -169,7 +174,7 @@ public class TableReader {
 				}
 
 				for (int i = 0; i < indepVars.size(); i++) {
-					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+					if (!indepVars.get(i).equals(TimeSeriesSchema.TIME)) {
 						if (miscValues.containsKey(indepVars.get(i))) {
 							parameters.put(indepVars.get(i),
 									miscValues.get(indepVars.get(i)));
@@ -180,21 +185,26 @@ public class TableReader {
 					}
 				}
 
-				List<Double> timeList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_TIME);
-				List<Double> logcList = tuple
-						.getDoubleList(TimeSeriesSchema.ATT_LOGC);
+				PmmXmlDoc timeSeriesXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				List<Double> timeList = new ArrayList<Double>();
+				List<Double> logcList = new ArrayList<Double>();
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 
-				for (int i = 0; i < timeList.size(); i++) {
-					dataPoints.add(new Point2D.Double(timeList.get(i), logcList
-							.get(i)));
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					timeList.add(element.getTime());
+					logcList.add(element.getLog10C());
+					dataPoints.add(new Point2D.Double(element.getTime(),
+							element.getLog10C()));
 				}
 
 				if (!timeList.isEmpty() && !logcList.isEmpty()) {
 					plotable = new Plotable(Plotable.BOTH);
-					plotable.addValueList(TimeSeriesSchema.ATT_TIME, timeList);
-					plotable.addValueList(TimeSeriesSchema.ATT_LOGC, logcList);
+					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
 				} else {
 					plotable = new Plotable(Plotable.FUNCTION);
 				}
@@ -276,7 +286,7 @@ public class TableReader {
 				}
 			} else {
 				for (int i = 0; i < indepVars.size(); i++) {
-					if (!indepVars.get(i).equals(TimeSeriesSchema.ATT_TIME)) {
+					if (!indepVars.get(i).equals(TimeSeriesSchema.TIME)) {
 						parameters.put(indepVars.get(i), 0.0);
 					}
 				}

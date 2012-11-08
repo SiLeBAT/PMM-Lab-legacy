@@ -215,8 +215,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 				reader.getPlotables(), reader.getShortLegend(),
 				reader.getLongLegend());
 
-		creator.setParamX(TimeSeriesSchema.ATT_TIME);
-		creator.setParamY(TimeSeriesSchema.ATT_LOGC);
+		creator.setParamX(TimeSeriesSchema.TIME);
+		creator.setParamY(TimeSeriesSchema.LOGC);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.setColors(colors);
 		creator.setShapes(shapes);

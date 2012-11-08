@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -182,11 +181,15 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 					
+					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
+					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
+					/*
 		    		List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
 		    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
 		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
 		    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
-		    		
+		    		*/
+					
 		    		// ab hier: different from ModelCatalogWriter
 					Integer rowEstM1ID = row.getInt(Model1Schema.ATT_ESTMODELID);
 		    		//List<Double> paramValues = row.getDoubleList(Model1Schema.ATT_VALUE);
@@ -210,9 +213,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setFormula(ppm.revertFormula());
 			    		ppm.setParameter(paramXml);
 			    		ppm.setIndependent(indepXml);
+			    		ppm.setMLit(mLitXmlDoc);
 			    		//doMinMax(ppm, false, paramXml);
 			    		//doMinMax(ppm, true, indepXml);
-			    		doLit(ppm, litStr, litID, false);
+			    		//doLit(ppm, litStr, litID, false);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
@@ -236,9 +240,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
 			    		ppm.setParameter(paramXml);
 			    		ppm.setIndependent(indepXml);
+			    		ppm.setEstLit(emLitXmlDoc);
 			    		//doMinMax(ppm, false, paramXml);
 			    		//doMinMax(ppm, true, indepXml);
-			    		doLit(ppm, litEMStr, litEMID, true);
+			    		//doLit(ppm, litEMStr, litEMID, true);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_LITIDEM};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
@@ -281,11 +286,15 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
 							PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 
+							PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
+							PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
+							/*
 							List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
 			    			List<Integer> litID = row.getIntList(Model2Schema.ATT_LITIDM);
 				    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
 				    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
-
+							*/
+							
 				    		// ab hier: different from ModelCatalogWriter
 				    		//rowEstM2ID = row.getInt(Model2Schema.ATT_ESTMODELID);
 				    		//List<Double> paramValues = row.getDoubleList(Model2Schema.ATT_VALUE);
@@ -305,9 +314,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setFormula(spm.revertFormula());
 					    		spm.setParameter(paramXml);
 					    		spm.setIndependent(indepXml);
+					    		spm.setMLit(mLitXmlDoc);
 					    		//doMinMax(spm, false, paramXml);
 					    		//doMinMax(spm, true, indepXml);
-					    		doLit(spm, litStr, litID, false);
+					    		//doLit(spm, litStr, litID, false);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
@@ -330,9 +340,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
 					    		spm.setParameter(paramXml);
 					    		spm.setIndependent(indepXml);
+					    		spm.setEstLit(emLitXmlDoc);
 					    		//doMinMax(spm, false, paramXml);
 					    		//doMinMax(spm, true, indepXml);
-					    		doLit(spm, litEMStr, litEMID, true);
+					    		//doLit(spm, litEMStr, litEMID, true);
 
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_LITIDEM};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
@@ -404,7 +415,6 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		}
 		return result;
 	}
-	*/
 	private HashMap<String, String> getVarParHashmap(List<String> varParMap, boolean invers) {
 		HashMap<String, String> result = null;
 		if (varParMap != null && varParMap.size() > 0) {
@@ -419,6 +429,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		}
 		return result;
 	}
+	*/
     private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm, HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {

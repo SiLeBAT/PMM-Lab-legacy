@@ -241,7 +241,7 @@ public class MainFrame extends JFrame {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.lang);
+		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.getLanguage());
 		toolBar1 = new JToolBar();
 		button7 = new JButton();
 		button6 = new JButton();

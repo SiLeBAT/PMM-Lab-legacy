@@ -144,25 +144,31 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 					PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
+					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
+					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
+					/*
 					List<String> litStr = row.getStringList(Model1Schema.ATT_LITM);
 		    		List<Integer> litID = row.getIntList(Model1Schema.ATT_LITIDM);
 		    		List<String> litEMStr = row.getStringList(Model1Schema.ATT_LITEM);
 		    		List<Integer> litEMID = row.getIntList(Model1Schema.ATT_LITIDEM);
-
+					*/
+					
 		    		//List<String> varParMap = row.getStringList(Model1Schema.ATT_VARPARMAP);		
 		    		/*
 		    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
 		    		formula = res[0];
 		    		depVar = res[1];
 		    		 */
-		    		ParametricModel pm = new ParametricModel( modelName, formula, dx, 1, rowMcID );
+		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, rowMcID);
 		    		
 		    		pm.setParameter(paramXml);
 		    		pm.setIndependent(indepXml);
+		    		pm.setMLit(mLitXmlDoc);
+		    		pm.setEstLit(emLitXmlDoc);
 		    		//doMinMax(pm, false, paramXml);
 		    		//doMinMax(pm, true, indepXml);
-		    		doLit(pm, litStr, litID, false);
-		    		doLit(pm, litEMStr, litEMID, true);
+		    		//doLit(pm, litStr, litID, false);
+		    		//doLit(pm, litEMStr, litEMID, true);
 
 					String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_LITIDM};
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
@@ -191,11 +197,15 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						PmmXmlDoc paramXml = row.getPmmXml(Model2Schema.ATT_PARAMETER);
 						PmmXmlDoc indepXml = row.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 
+						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
+						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
+						/*
 						List<String> litStr = row.getStringList(Model2Schema.ATT_LITM);
 			    		List<Integer> litID = row.getIntList(Model2Schema.ATT_LITIDM);
 			    		List<String> litEMStr = row.getStringList(Model2Schema.ATT_LITEM);
 			    		List<Integer> litEMID = row.getIntList(Model2Schema.ATT_LITIDEM);
-		
+						*/
+						
 			    		//List<String> varParMap = row.getStringList(Model2Schema.ATT_VARPARMAP);		
 			    		/*
 			    		String[] res = setVPM(formula, depVar, indepVar, paramName, varParMap);
@@ -206,10 +216,12 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			    		
 			    		pm.setParameter(paramXml);
 			    		pm.setIndependent(indepXml);
+			    		pm.setMLit(mLitXmlDoc);
+			    		pm.setEstLit(emLitXmlDoc);
 			    		//doMinMax(pm, false, paramXml);
 			    		//doMinMax(pm, true, indepXml);
-			    		doLit(pm, litStr, litID, false);
-			    		doLit(pm, litEMStr, litEMID, true);
+			    		//doLit(pm, litStr, litID, false);
+			    		//doLit(pm, litEMStr, litEMID, true);
 			    		
 						String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_LITIDM};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};

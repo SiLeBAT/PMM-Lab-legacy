@@ -38,7 +38,7 @@ import java.util.ResourceBundle;
 import org.hsh.bfr.db.DBKernel;
 
 public class GuiMessages {
-	private static final String BUNDLE_NAME = "org.hsh.bfr.db.gui.dbtable.header.guimessages_" + DBKernel.lang; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "org.hsh.bfr.db.gui.dbtable.header.guimessages_" + DBKernel.getLanguage(); //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME);
 

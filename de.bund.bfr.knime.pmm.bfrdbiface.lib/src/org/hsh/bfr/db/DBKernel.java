@@ -126,7 +126,6 @@ public class DBKernel {
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
-	public static String lang = isKrise ? "de" : "en";
 	
 	public static String getTempSA(boolean other) {
 		if (other) return isKNIME || isKrise ? "defad": "SA";		
@@ -141,6 +140,9 @@ public class DBKernel {
 	}
 	public static String getTempSAPass() {
 		return getTempSAPass(false);
+	}
+	public static String getLanguage() {
+		return isKrise || !isKNIME ? "de" : "en";
 	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);

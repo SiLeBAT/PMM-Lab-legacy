@@ -23,8 +23,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double minGuess = null;
 	private Double maxGuess = null;
 	
-	public ParamXml() {
-		
+	public ParamXml(String name, Double value) {
+		this(name, value, null, null, null, null, null);
 	}
 	public ParamXml(String name, Double value, Double error, Double min, Double max, Double P, Double t) {
 		setName(name);

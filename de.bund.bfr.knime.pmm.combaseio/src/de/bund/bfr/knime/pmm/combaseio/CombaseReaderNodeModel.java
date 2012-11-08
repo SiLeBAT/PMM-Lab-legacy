@@ -172,19 +172,15 @@ public class CombaseReaderNodeModel extends NodeModel {
     			
     			doc = new PmmXmlDoc();
     			
-    			paramXml = new ParamXml();
-    			paramXml.setName( "LogC0" );
-    			paramXml.setValue( start );
-    			doc.add( paramXml );
+    			paramXml = new ParamXml("LogC0", start);
+    			doc.add(paramXml);
     			
-    			paramXml = new ParamXml();
-    			paramXml.setName( "mumax" );
-    			paramXml.setValue( candidate.getMaximumRate() );
-    			doc.add( paramXml );
+    			paramXml = new ParamXml("mumax", candidate.getMaximumRate());
+    			doc.add(paramXml);
     			
-    			modelTuple.setValue( Model1Schema.ATT_PARAMETER, doc );
+    			modelTuple.setValue(Model1Schema.ATT_PARAMETER, doc);
     			
-    			buf2.addRowToTable( new DefaultRow( String.valueOf( j++ ), KnimeTuple.merge( tsm1Schema, candidate, modelTuple ) ) );
+    			buf2.addRowToTable(new DefaultRow(String.valueOf(j++), KnimeTuple.merge(tsm1Schema, candidate, modelTuple)));
     			
     			continue;
     		}

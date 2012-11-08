@@ -17,9 +17,6 @@ public class IndepXml implements PmmXmlElementConvertable {
 	private Double min = null;
 	private Double max = null;
 	
-	public IndepXml() {
-		
-	}
 	public IndepXml(String name, Double min, Double max) {
 		setName(name);
 		setOrigName(name);

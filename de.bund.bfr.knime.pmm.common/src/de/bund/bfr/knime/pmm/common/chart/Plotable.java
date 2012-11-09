@@ -59,6 +59,7 @@ public class Plotable {
 	public static final int FUNCTION = 1;
 	public static final int BOTH = 2;
 	public static final int BOTH_STRICT = 3;
+	public static final int FUNCTION_SAMPLE = 4;
 
 	private int type;
 	private Map<String, List<Double>> valueLists;
@@ -68,6 +69,7 @@ public class Plotable {
 	private Map<String, Double> functionConstants;
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
+	private List<Double> samples;
 
 	public Plotable(int type) {
 		this.type = type;
@@ -76,6 +78,7 @@ public class Plotable {
 		minArguments = new HashMap<String, Double>();
 		maxArguments = new HashMap<String, Double>();
 		functionConstants = new HashMap<String, Double>();
+		samples = new ArrayList<Double>();
 	}
 
 	public int getType() {
@@ -136,6 +139,14 @@ public class Plotable {
 
 	public void setMaxArguments(Map<String, Double> maxArguments) {
 		this.maxArguments = maxArguments;
+	}
+
+	public List<Double> getSamples() {
+		return samples;
+	}
+
+	public void setSamples(List<Double> samples) {
+		this.samples = samples;
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String transformY) {
@@ -284,8 +295,91 @@ public class Plotable {
 		return points;
 	}
 
+	public double[][] getFunctionSamplePoints(String paramX, String paramY,
+			String transformY, double minX, double maxX, double minY,
+			double maxY) {
+		return getFunctionSamplePoints(paramX, paramY, transformY, minX, maxX,
+				minY, maxY, getStandardChoice());
+	}
+
+	public double[][] getFunctionSamplePoints(String paramX, String paramY,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, Map<String, Integer> choice) {
+		if (function == null || samples.isEmpty()) {
+			return null;
+		}
+
+		if (!function.startsWith(paramY + "=")
+				|| !functionArguments.containsKey(paramX)) {
+			return null;
+		}
+
+		double[][] points = new double[2][FUNCTION_STEPS];
+		DJep parser = MathUtilities.createParser();
+		Node f = null;
+
+		for (String param : functionConstants.keySet()) {
+			if (functionConstants.get(param) == null) {
+				return null;
+			}
+
+			parser.addConstant(param, functionConstants.get(param));
+		}
+
+		for (String param : functionArguments.keySet()) {
+			if (!param.equals(paramX)) {
+				parser.addConstant(param,
+						functionArguments.get(param).get(choice.get(param)));
+			}
+		}
+
+		parser.addVariable(paramX, 0.0);
+
+		try {
+			f = parser.parse(function.replace(paramY + "=", ""));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		int i = 0;
+
+		for (double x : samples) {
+			if (x < minX || x > maxX) {
+				continue;
+			}
+
+			parser.setVarValue(paramX, x);
+
+			try {
+				Object number = parser.evaluate(f);
+				double y;
+
+				if (number instanceof Double) {
+					y = (Double) number;
+					y = transformDouble(y, transformY);
+
+					if (y < minY || y > maxY || Double.isInfinite(y)) {
+						y = Double.NaN;
+					}
+				} else {
+					y = Double.NaN;
+				}
+
+				points[0][i] = x;
+				points[1][i] = y;
+				i++;
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return points;
+	}
+
 	public boolean isPlotable() {
-		if (type == FUNCTION) {
+		if (type == FUNCTION || type == FUNCTION_SAMPLE) {
 			for (String param : functionConstants.keySet()) {
 				if (functionConstants.get(param) == null) {
 					return false;
@@ -421,7 +515,7 @@ public class Plotable {
 
 		if (type == DATASET) {
 			return dataSetPlotable;
-		} else if (type == FUNCTION) {
+		} else if (type == FUNCTION || type == FUNCTION_SAMPLE) {
 			return functionPlotable;
 		} else if (type == BOTH || type == BOTH_STRICT) {
 			return dataSetPlotable && functionPlotable;

@@ -312,7 +312,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 				}
 				else {
-					System.err.println("newPrimEstID: " + newPrimEstID);
+					//System.err.println("newPrimEstID: " + newPrimEstID);
 				}
 			}
 		}

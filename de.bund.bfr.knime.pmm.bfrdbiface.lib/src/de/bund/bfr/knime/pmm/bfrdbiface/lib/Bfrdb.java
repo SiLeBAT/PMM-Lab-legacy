@@ -1871,8 +1871,8 @@ public class Bfrdb extends Hsqldbiface {
 		catch(SQLException ex) {ex.printStackTrace();}
 	}
 	
-	private int insertEstModel( final int condId, final int modelId, final double rms,
-		final double rsquared, final double aic, final double bic, final int responseId ) {		
+	private int insertEstModel(final int condId, final int modelId, final Double rms,
+		final Double rsquared, final Double aic, final Double bic, final int responseId) {		
 		int ret = -1;
 		try {
 			
@@ -1883,27 +1883,27 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setNull( 1, Types.INTEGER );
 			}
 			ps.setInt( 2, modelId );
-			if( Double.isNaN( rms ) ) {
+			if (rms == null || Double.isNaN(rms)) {
 				ps.setNull( 3, Types.DOUBLE );
 			} else {
-				ps.setDouble( 3, rms );
+				ps.setDouble(3, rms);
 			}
-			if( Double.isNaN( rsquared ) ) {
-				ps.setNull( 4, Types.DOUBLE );
+			if (rsquared == null || Double.isNaN(rsquared)) {
+				ps.setNull(4, Types.DOUBLE);
 			} else {
-				ps.setDouble( 4, rsquared );
+				ps.setDouble(4, rsquared);
 			}
-			if (Double.isNaN(aic)) {
+			if (aic == null || Double.isNaN(aic)) {
 				ps.setNull(5, Types.DOUBLE);
 			} else {
 				ps.setDouble(5, aic);
 			}
-			if (Double.isNaN(bic)) {
+			if (bic == null || Double.isNaN(bic)) {
 				ps.setNull(6, Types.DOUBLE);
 			} else {
 				ps.setDouble(6, bic);
 			}
-			if( responseId > 0 ) {
+			if (responseId > 0) {
 				ps.setInt( 7, responseId );
 			} else {
 				ps.setNull( 7, Types.INTEGER );

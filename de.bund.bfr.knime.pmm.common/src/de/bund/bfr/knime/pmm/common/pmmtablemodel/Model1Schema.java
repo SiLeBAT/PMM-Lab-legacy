@@ -57,10 +57,8 @@ public class Model1Schema extends KnimeSchema {
 	
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
-		
-	
-	public Model1Schema() {
-		
+			
+	public Model1Schema() {		
 		try {			
 			addIntAttribute( ATT_MODELID );
 			addStringAttribute( ATT_MODELNAME );

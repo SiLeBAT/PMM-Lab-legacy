@@ -52,6 +52,14 @@ public class MMC_TS extends JPanel {
 		
 		return tuple;
 	}
+	public void setTS(PmmTimeSeries ts) throws PmmException {
+		agentField.setText(ts.getAgentName() == null ? ts.getAgentDetail() : ts.getAgentName());
+		matrixField.setText(ts.getMatrixName() == null ? ts.getMatrixDetail() : ts.getMatrixName());
+		commentField.setText(ts.getComment());
+		temperatureField.setValue(ts.getTemperature());
+		phField.setValue(ts.getPh());
+		waterActivityField.setValue(ts.getWaterActivity());
+	}
 	public void setTS(String agent, String matrix, String comment, double temp, double ph, double aw) throws PmmException {
 		agentField.setText(agent);
 		matrixField.setText(matrix);

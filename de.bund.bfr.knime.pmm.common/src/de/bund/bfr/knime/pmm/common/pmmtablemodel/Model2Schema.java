@@ -38,30 +38,30 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class Model2Schema extends KnimeSchema {
 	
-	public static final String ATT_FORMULA = "FormulaSec";
-	public static final String ATT_DEPENDENT = "DependentSec";
+	public static final String ATT_FORMULA = getAttribute(Model1Schema.ATT_FORMULA, 2);
+	public static final String ATT_DEPENDENT = getAttribute(Model1Schema.ATT_DEPENDENT, 2);
 
-	public static final String ATT_MODELNAME = "ModelNameSec";
-	public static final String ATT_MODELID = "ModelCatalogIDSec";
-	public static final String ATT_PARAMETER = "ParameterSec";
-	public static final String ATT_INDEPENDENT = "IndependentSec";
+	public static final String ATT_MODELNAME = getAttribute(Model1Schema.ATT_MODELNAME, 2);
+	public static final String ATT_MODELID = getAttribute(Model1Schema.ATT_MODELID, 2);
+	public static final String ATT_PARAMETER = getAttribute(Model1Schema.ATT_PARAMETER, 2);
+	public static final String ATT_INDEPENDENT = getAttribute(Model1Schema.ATT_INDEPENDENT, 2);
 
-	public static final String ATT_ESTMODELID = "EstModelIDSec";
+	public static final String ATT_ESTMODELID = getAttribute(Model1Schema.ATT_ESTMODELID, 2);
 
-	public static final String ATT_RMS = "RMSSec";
-	public static final String ATT_RSQUARED = "RsquaredSec";
+	public static final String ATT_RMS = getAttribute(Model1Schema.ATT_RMS, 2);
+	public static final String ATT_RSQUARED = getAttribute(Model1Schema.ATT_RSQUARED, 2);
 
-	public static final String ATT_MLIT = "M_LiteraturSec";
-	public static final String ATT_EMLIT = "EM_LiteraturSec";
+	public static final String ATT_MLIT = getAttribute(Model1Schema.ATT_MLIT, 2);
+	public static final String ATT_EMLIT = getAttribute(Model1Schema.ATT_EMLIT, 2);
 
-	public static final String ATT_DATABASEWRITABLE = "DatabaseWritableSec";
-	public static final String ATT_DBUUID = "M_DB_UIDSec";
+	public static final String ATT_DATABASEWRITABLE = getAttribute(Model1Schema.ATT_DATABASEWRITABLE, 2);
+	public static final String ATT_DBUUID = getAttribute(Model1Schema.ATT_DBUUID, 2);
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
 	
-	public static final String ATT_AIC = "AICSec";
-	public static final String ATT_BIC = "BICSec";
+	public static final String ATT_AIC = getAttribute(Model1Schema.ATT_AIC, 2);
+	public static final String ATT_BIC = getAttribute(Model1Schema.ATT_BIC, 2);
 
 
 	public Model2Schema() {

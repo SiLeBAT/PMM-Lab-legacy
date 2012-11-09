@@ -264,5 +264,10 @@ public class KnimeSchema {
 		addAttribute( new KnimeAttribute( name, type ) );
 	}
 	
+	public static String getAttribute(String attribute, int level) {
+		if (level == 1) return attribute;
+		else if (level == 2) return attribute + "Sec";
+		else return null;
+	}
 	
 }

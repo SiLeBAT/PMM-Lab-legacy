@@ -68,7 +68,7 @@ public class ManualModelConfNodeFactory
     @Override
     public NodeView<ManualModelConfNodeModel> createNodeView(final int viewIndex,
             final ManualModelConfNodeModel nodeModel) {
-        return new ManualModelConfNodeView(nodeModel);
+        return null;
     }
 
     /**

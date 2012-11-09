@@ -37,14 +37,23 @@ import javax.swing.JOptionPane;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_M;
 import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
 
@@ -59,9 +68,8 @@ import de.bund.bfr.knime.pmm.manualmodelconf.ui.MMC_TS;
  * 
  * @author ManualModelConf
  */
-public class ManualModelConfNodeDialog extends NodeDialogPane {
+public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 	
-	//private ManualModelConfUi m_confui;
 	private MMC_M m_mmcm;
 	private MMC_TS m_mmcts;
 
@@ -70,11 +78,6 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
      */
     protected ManualModelConfNodeDialog() {
     	try {    
-    		/*
-    		m_confui = new ManualModelConfUi(JOptionPane.getRootFrame());        	
-    		m_confui.setDb( BfRNodePluginActivator.getBfRService() );        	
-    		this.addTab("Model definition", m_confui);    	
-    		*/
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
     		m_mmcm.setConnection(DBKernel.getLocalConn(true));
     		this.addTab("Model Definition", m_mmcm);    	
@@ -89,7 +92,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     }
 
 	@Override
-	protected void saveSettingsTo( final NodeSettingsWO settings )
+	protected void saveSettingsTo(final NodeSettingsWO settings)
 			throws InvalidSettingsException {	
 		//m_confui.stopCellEditing();
 		m_mmcm.stopCellEditing();
@@ -145,35 +148,85 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 	}
 	
 	@Override
-	protected void loadSettingsFrom( final NodeSettingsRO settings, final DataTableSpec[] specs ) {
-
-		try {
-			if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
-				//m_confui.setFromXmlString( settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING) );
-				m_mmcm.setFromXmlString(settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING));
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			BufferedDataTable[] inData) throws NotConfigurableException {
+		if (inData != null && inData.length == 1) {
+		    DataTableSpec inSpec = inData[0].getDataTableSpec();
+		    KnimeSchema inSchema = new TimeSeriesSchema();
+		    try {
+		    	if (inSchema.conforms(inSpec)) {
+		    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+		    		if (reader.hasMoreElements()) {
+		    			KnimeTuple row = reader.nextElement();
+		    			PmmTimeSeries ts = new PmmTimeSeries(row);
+		    			try {
+		    				m_mmcts.setTS(ts);
+		    			}
+		    			catch (Exception e) {}
+		    		}
+		   		}
+		    }
+		    catch (PmmException e) {}
+		    
+	    	boolean hasM1 = false;
+	    	inSchema = new Model1Schema();
+	    	try {
+	    		if (inSchema.conforms(inSpec)) {
+	    			hasM1 = true;
+		    		try {
+			    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+			    		if (reader.hasMoreElements()) {
+			    			KnimeTuple row = reader.nextElement();
+			    			ParametricModel pm = new ParametricModel(row, 1, null);
+			    			try {
+			    				m_mmcm.setPM(pm); // setFromXmlString
+			    			}
+			    			catch (Exception e) {}
+			    		}
+		    		}
+		    		catch (Exception e) {}
+	    		}	
+	    	}
+	    	catch (PmmException e) {}
+	    	
+	    	boolean hasM2 = false;
+	    	inSchema = new Model2Schema();
+	    	try {
+	    		if (inSchema.conforms(inSpec)) {
+	    			hasM2 = true;
+	    		}	
+	    	}
+	    	catch (PmmException e) {}
+	    	
+	    	if (hasM1 && hasM2) {
+	    		
+	    	}
+	    	else if (hasM1) {
+	    	}
+	    	else if (hasM2) {
+	    		
+	    	}
+		}
+		else {
+			try {
+				if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
+					m_mmcm.setFromXmlString(settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING));
+				}
 			}
+			catch( InvalidSettingsException e ) {
+				e.printStackTrace( System.err );
+			}
+			
+			try {
+				m_mmcts.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
+						settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
+						settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
+						settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
+						settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
+						settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
+			}
+			catch (Exception e) {}
 		}
-		catch( InvalidSettingsException e ) {
-			e.printStackTrace( System.err );
-		}
-		
-		try {
-			/*
-			m_confui.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
-					settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
-					settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
-					*/
-			m_mmcts.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
-					settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
-					settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
-					settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
-		}
-		catch (Exception e) {}
 	}
 }
 

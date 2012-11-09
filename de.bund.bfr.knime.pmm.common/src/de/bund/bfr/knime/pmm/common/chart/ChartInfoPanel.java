@@ -58,8 +58,7 @@ import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
 
-public class DataAndModelChartInfoPanel extends JPanel implements
-		ActionListener {
+public class ChartInfoPanel extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -72,8 +71,8 @@ public class DataAndModelChartInfoPanel extends JPanel implements
 
 	private Map<JButton, List<Point2D.Double>> timeSeriesByButton;
 
-	public DataAndModelChartInfoPanel(List<String> ids,
-			List<List<String>> parameters, List<List<?>> parameterValues) {
+	public ChartInfoPanel(List<String> ids, List<List<String>> parameters,
+			List<List<?>> parameterValues) {
 		this.ids = ids;
 		this.parameters = parameters;
 		this.parameterValues = parameterValues;
@@ -169,8 +168,7 @@ public class DataAndModelChartInfoPanel extends JPanel implements
 		private static final long serialVersionUID = 1L;
 
 		public TimeSeriesDialog(List<Point2D.Double> timeSeries) {
-			super(JOptionPane
-					.getFrameForComponent(DataAndModelChartInfoPanel.this),
+			super(JOptionPane.getFrameForComponent(ChartInfoPanel.this),
 					TimeSeriesSchema.DATAPOINTS, true);
 
 			JButton okButton = new JButton("OK");
@@ -181,13 +179,13 @@ public class DataAndModelChartInfoPanel extends JPanel implements
 			bottomPanel.add(okButton);
 
 			setLayout(new BorderLayout());
-			add(new JScrollPane(new TimeSeriesTable(timeSeries, false)),
+			add(new JScrollPane(new TimeSeriesTable(timeSeries, false, false)),
 					BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 
 			setResizable(false);
-			setLocationRelativeTo(DataAndModelChartInfoPanel.this);
+			setLocationRelativeTo(ChartInfoPanel.this);
 		}
 
 		@Override

@@ -56,10 +56,10 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -74,15 +74,15 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  * @author Christian Thoens
  */
 public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
-		implements DataAndModelSelectionPanel.SelectionListener,
-		DataAndModelChartConfigPanel.ConfigListener {
+		implements ChartSelectionPanel.SelectionListener,
+		ChartConfigPanel.ConfigListener {
 
 	private TableReader reader;
 
-	private DataAndModelChartCreator chartCreator;
-	private DataAndModelSelectionPanel selectionPanel;
-	private DataAndModelChartConfigPanel configPanel;
-	private DataAndModelChartInfoPanel infoPanel;
+	private ChartCreator chartCreator;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartInfoPanel infoPanel;
 
 	/**
 	 * New pane for configuring the DataViewAndSelect node.
@@ -298,8 +298,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			double maxY, boolean drawLines, boolean showLegend,
 			boolean addLegendInfo, boolean displayHighlighted,
 			String transformY, List<String> visibleColumns) {
-		configPanel = new DataAndModelChartConfigPanel(
-				DataAndModelChartConfigPanel.NO_PARAMETER_INPUT);
+		configPanel = new ChartConfigPanel(
+				ChartConfigPanel.NO_PARAMETER_INPUT);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.TIME));
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);
@@ -313,16 +313,16 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setDisplayFocusedRow(displayHighlighted);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
-		selectionPanel = new DataAndModelSelectionPanel(reader.getIds(), false,
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
 				visibleColumns, new ArrayList<String>());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);
-		chartCreator = new DataAndModelChartCreator(reader.getPlotables(),
+		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
-		infoPanel = new DataAndModelChartInfoPanel(reader.getIds(),
+		infoPanel = new ChartInfoPanel(reader.getIds(),
 				reader.getInfoParameters(), reader.getInfoParameterValues());
 
 		if (selectedIDs != null) {

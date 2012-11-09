@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.predictorview;
 
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,16 +56,18 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeView</code> for the "PredictorView" Node.
@@ -73,8 +76,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
  * @author Christian Thoens
  */
 public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
-		implements DataAndModelSelectionPanel.SelectionListener,
-		DataAndModelChartConfigPanel.ConfigListener {
+		implements ChartSelectionPanel.SelectionListener,
+		ChartConfigPanel.ConfigListener, ChartSamplePanel.EditListener {
 
 	private List<String> ids;
 	private Map<String, Plotable> plotables;
@@ -88,10 +91,11 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	private DataAndModelChartCreator chartCreator;
-	private DataAndModelSelectionPanel selectionPanel;
-	private DataAndModelChartConfigPanel configPanel;
-	private DataAndModelChartInfoPanel infoPanel;
+	private ChartCreator chartCreator;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartInfoPanel infoPanel;
+	private ChartSamplePanel samplePanel;
 
 	/**
 	 * Creates a new view.
@@ -125,26 +129,34 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		try {
 			readTable();
 
-			configPanel = new DataAndModelChartConfigPanel(
-					DataAndModelChartConfigPanel.PARAMETER_FIELDS);
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_FIELDS);
 			configPanel.addConfigListener(this);
-			selectionPanel = new DataAndModelSelectionPanel(ids, true,
-					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, visibleColumns, stringColumns);
+			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
+					stringColumnValues, doubleColumns, doubleColumnValues,
+					visibleColumns, stringColumns);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
-					longLegend);
-			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
+			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
+			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
+			samplePanel = new ChartSamplePanel();
+			samplePanel.addEditListener(this);
+
+			JPanel upperRightPanel = new JPanel();
+
+			upperRightPanel.setLayout(new GridLayout(2, 1));
+			upperRightPanel.add(selectionPanel);
+			upperRightPanel.add(samplePanel);
 
 			JSplitPane upperSplitPane = new JSplitPane(
-					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
+					JSplitPane.HORIZONTAL_SPLIT, chartCreator, upperRightPanel);
 			JPanel bottomPanel = new JPanel();
 
 			upperSplitPane.setResizeWeight(1.0);
 			bottomPanel.setLayout(new BorderLayout());
 			bottomPanel.add(configPanel, BorderLayout.WEST);
 			bottomPanel.add(infoPanel, BorderLayout.CENTER);
+			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
@@ -187,12 +199,22 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues);
+			configPanel.setParamsX(variables, possibleValues,
+					TimeSeriesSchema.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
+
+			double[][] samplePoints = plotable.getFunctionSamplePoints(
+					TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
+					ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY);
+
+			samplePanel.setDataPoints(samplePoints);
 		} else {
 			configPanel.setParamsX(null);
 			configPanel.setParamsY(null);
@@ -319,7 +341,6 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionConstants(parameters);
-			plotable.setSamples(Arrays.asList(10.0));
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.NO);
@@ -366,6 +387,11 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		if (configPanel.isDisplayFocusedRow()) {
 			createChart();
 		}
+	}
+
+	@Override
+	public void timeValuesChanged() {
+		createChart();
 	}
 
 }

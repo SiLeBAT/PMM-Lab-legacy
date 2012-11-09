@@ -66,7 +66,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -211,7 +211,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 
 		container.close();
 
-		DataAndModelChartCreator creator = new DataAndModelChartCreator(
+		ChartCreator creator = new ChartCreator(
 				reader.getPlotables(), reader.getShortLegend(),
 				reader.getLongLegend());
 

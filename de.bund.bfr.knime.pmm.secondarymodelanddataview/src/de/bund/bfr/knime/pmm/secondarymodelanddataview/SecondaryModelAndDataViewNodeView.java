@@ -58,10 +58,10 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -78,8 +78,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class SecondaryModelAndDataViewNodeView extends
 		NodeView<SecondaryModelAndDataViewNodeModel> implements
-		DataAndModelSelectionPanel.SelectionListener,
-		DataAndModelChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener,
+		ChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
 	private List<Integer> colorCounts;
@@ -95,10 +95,10 @@ public class SecondaryModelAndDataViewNodeView extends
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	private DataAndModelChartCreator chartCreator;
-	private DataAndModelSelectionPanel selectionPanel;
-	private DataAndModelChartConfigPanel configPanel;
-	private DataAndModelChartInfoPanel infoPanel;
+	private ChartCreator chartCreator;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartInfoPanel infoPanel;
 
 	/**
 	 * Creates a new view.
@@ -134,16 +134,16 @@ public class SecondaryModelAndDataViewNodeView extends
 			readTable();
 
 			if (getNodeModel().isSeiSchema()) {
-				configPanel = new DataAndModelChartConfigPanel(
-						DataAndModelChartConfigPanel.PARAMETER_BOXES);
-				selectionPanel = new DataAndModelSelectionPanel(ids, true,
+				configPanel = new ChartConfigPanel(
+						ChartConfigPanel.PARAMETER_BOXES);
+				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
 						filterableStringColumns, colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
-				configPanel = new DataAndModelChartConfigPanel(
-						DataAndModelChartConfigPanel.PARAMETER_FIELDS);
-				selectionPanel = new DataAndModelSelectionPanel(ids, true,
+				configPanel = new ChartConfigPanel(
+						ChartConfigPanel.PARAMETER_FIELDS);
+				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
 						filterableStringColumns);
@@ -151,9 +151,9 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			configPanel.addConfigListener(this);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
+			chartCreator = new ChartCreator(plotables, shortLegend,
 					longLegend);
-			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
+			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
 			JSplitPane upperSplitPane = new JSplitPane(

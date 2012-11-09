@@ -26,6 +26,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableColumn;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -34,8 +35,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	public TimeSeriesTable(List<Point2D.Double> timeSeries, boolean editable) {
-		this(timeSeries.size(), editable);
+	public TimeSeriesTable(List<Point2D.Double> timeSeries,
+			boolean timeEditable, boolean logcEditable) {
+		this(timeSeries.size(), timeEditable, logcEditable);
 
 		for (int i = 0; i < timeSeries.size(); i++) {
 			setTime(i, timeSeries.get(i).x);
@@ -43,16 +45,13 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		}
 	}
 
-	public TimeSeriesTable(int rowCount, boolean editable) {
+	public TimeSeriesTable(int rowCount, boolean timeEditable,
+			boolean logcEditable) {
 		setModel(new TimeSeriesTableModel(rowCount));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME))
-				.setCellEditor(new DoubleCellEditor(editable));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC))
-				.setCellEditor(new DoubleCellEditor(editable));
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME))
-				.setCellRenderer(new DoubleCellRenderer());
-		getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC))
-				.setCellRenderer(new DoubleCellRenderer());
+		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
+		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));
+		getTimeColumn().setCellRenderer(new DoubleCellRenderer());
+		getLogcColumn().setCellRenderer(new DoubleCellRenderer());
 		setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		setCellSelectionEnabled(true);
 		registerKeyboardAction(this, "Copy", KeyStroke.getKeyStroke(
@@ -61,6 +60,14 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		registerKeyboardAction(this, "Paste", KeyStroke.getKeyStroke(
 				KeyEvent.VK_V, ActionEvent.CTRL_MASK, false),
 				JComponent.WHEN_FOCUSED);
+	}
+
+	public TableColumn getTimeColumn() {
+		return getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME));
+	}
+
+	public TableColumn getLogcColumn() {
+		return getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC));
 	}
 
 	public Double getTime(int i) {
@@ -182,11 +189,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return AttributeUtilities
-						.getFullName(TimeSeriesSchema.TIME);
+				return AttributeUtilities.getFullName(TimeSeriesSchema.TIME);
 			case 1:
-				return AttributeUtilities
-						.getFullName(TimeSeriesSchema.LOGC);
+				return AttributeUtilities.getFullName(TimeSeriesSchema.LOGC);
 			default:
 				return null;
 			}

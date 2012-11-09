@@ -59,10 +59,10 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartConfigPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.DataAndModelSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -79,8 +79,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class CombinedModelAndDataViewNodeView extends
 		NodeView<CombinedModelAndDataViewNodeModel> implements
-		DataAndModelSelectionPanel.SelectionListener,
-		DataAndModelChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener,
+		ChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
 	private Map<String, Plotable> plotables;
@@ -94,10 +94,10 @@ public class CombinedModelAndDataViewNodeView extends
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	private DataAndModelChartCreator chartCreator;
-	private DataAndModelSelectionPanel selectionPanel;
-	private DataAndModelChartConfigPanel configPanel;
-	private DataAndModelChartInfoPanel infoPanel;
+	private ChartCreator chartCreator;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartInfoPanel infoPanel;
 
 	/**
 	 * Creates a new view.
@@ -132,16 +132,16 @@ public class CombinedModelAndDataViewNodeView extends
 		try {
 			readTable();
 
-			configPanel = new DataAndModelChartConfigPanel(
-					DataAndModelChartConfigPanel.PARAMETER_FIELDS);
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_FIELDS);
 			configPanel.addConfigListener(this);
-			selectionPanel = new DataAndModelSelectionPanel(ids, true,
+			selectionPanel = new ChartSelectionPanel(ids, true,
 					stringColumns, stringColumnValues, doubleColumns,
 					doubleColumnValues, visibleColumns, stringColumns);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new DataAndModelChartCreator(plotables, shortLegend,
+			chartCreator = new ChartCreator(plotables, shortLegend,
 					longLegend);
-			infoPanel = new DataAndModelChartInfoPanel(ids, infoParameters,
+			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
 			JSplitPane upperSplitPane = new JSplitPane(

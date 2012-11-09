@@ -314,7 +314,7 @@ public class Plotable {
 			return null;
 		}
 
-		double[][] points = new double[2][FUNCTION_STEPS];
+		double[][] points = new double[2][samples.size()];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
 
@@ -341,11 +341,12 @@ public class Plotable {
 			e.printStackTrace();
 		}
 
-		int i = 0;
+		for (int i = 0; i < samples.size(); i++) {
+			double x = samples.get(i);
 
-		for (double x : samples) {
 			if (x < minX || x > maxX) {
-				continue;
+				points[0][i] = Double.NaN;
+				points[1][i] = Double.NaN;
 			}
 
 			parser.setVarValue(paramX, x);
@@ -366,8 +367,7 @@ public class Plotable {
 				}
 
 				points[0][i] = x;
-				points[1][i] = y;
-				i++;
+				points[1][i] = y;				
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} catch (ClassCastException e) {

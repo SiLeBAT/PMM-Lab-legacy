@@ -59,7 +59,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
-public class DataAndModelChartCreator extends ChartPanel {
+public class ChartCreator extends ChartPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -83,7 +83,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 	private boolean showLegend;
 	private boolean addInfoInLegend;
 
-	public DataAndModelChartCreator(Map<String, Plotable> plotables,
+	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
 		getPopupMenu().insert(new DataAndModelChartSaveAsItem(), 4);
@@ -756,7 +756,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 		}
 
 		private void fireSaveAsButtonClicked(String fileName) {
-			DataAndModelChartCreator chartPanel = DataAndModelChartCreator.this;
+			ChartCreator chartPanel = ChartCreator.this;
 
 			ChartUtilities.saveChartAs(chartPanel.getChart(), fileName,
 					chartPanel.getWidth(), chartPanel.getHeight());
@@ -782,7 +782,7 @@ public class DataAndModelChartCreator extends ChartPanel {
 			fileChooser.setAcceptAllFileFilterUsed(false);
 			fileChooser.addChoosableFileFilter(svgFilter);
 
-			if (fileChooser.showSaveDialog(DataAndModelChartCreator.this) == JFileChooser.APPROVE_OPTION) {
+			if (fileChooser.showSaveDialog(ChartCreator.this) == JFileChooser.APPROVE_OPTION) {
 				String fileName = fileChooser.getSelectedFile().getName();
 				String path = fileChooser.getSelectedFile().getAbsolutePath();
 

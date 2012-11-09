@@ -83,8 +83,8 @@ import javax.swing.table.TableRowSorter;
 
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
 
-public class DataAndModelSelectionPanel extends JPanel implements
-		ActionListener, CellEditorListener, ListSelectionListener {
+public class ChartSelectionPanel extends JPanel implements ActionListener,
+		CellEditorListener, ListSelectionListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -104,21 +104,20 @@ public class DataAndModelSelectionPanel extends JPanel implements
 	private JButton customizeColumnsButton;
 	private Map<String, JComboBox> comboBoxes;
 
-	public DataAndModelSelectionPanel(List<String> ids,
-			boolean selectionsExclusive, List<String> stringColumns,
-			List<List<String>> stringColumnValues, List<String> doubleColumns,
-			List<List<Double>> doubleColumnValues, List<String> visibleColumns,
-			List<String> filterableColumns) {
+	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
+			List<String> stringColumns, List<List<String>> stringColumnValues,
+			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
+			List<String> visibleColumns, List<String> filterableColumns) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
 				doubleColumns, doubleColumnValues, visibleColumns,
 				filterableColumns, null);
 	}
 
-	public DataAndModelSelectionPanel(List<String> ids,
-			boolean selectionsExclusive, List<String> stringColumns,
-			List<List<String>> stringColumnValues, List<String> doubleColumns,
-			List<List<Double>> doubleColumnValues, List<String> visibleColumns,
-			List<String> filterableStringColumns, List<Integer> colorCounts) {
+	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
+			List<String> stringColumns, List<List<String>> stringColumnValues,
+			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
+			List<String> visibleColumns, List<String> filterableStringColumns,
+			List<Integer> colorCounts) {
 		listeners = new ArrayList<SelectionListener>();
 
 		JPanel upperPanel = new JPanel();
@@ -129,7 +128,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			JPanel upperPanel1 = new JPanel();
 			JPanel filterPanel = new JPanel();
 
-			upperPanel1.setLayout(new FlowLayout(FlowLayout.LEFT));
+			upperPanel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 			filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			comboBoxes = new LinkedHashMap<String, JComboBox>();
@@ -158,7 +157,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 		JPanel upperPanel2 = new JPanel();
 
-		upperPanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
+		upperPanel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
 		if (!selectionsExclusive) {
 			JPanel selectPanel = new JPanel();
@@ -1093,8 +1092,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private JButton cancelButton;
 
 		public ColorListDialog(List<Color> initialColors) {
-			super(JOptionPane
-					.getFrameForComponent(DataAndModelSelectionPanel.this),
+			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
 					"Color Palette", true);
 
 			approved = false;
@@ -1138,7 +1136,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 
-			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+			setLocationRelativeTo(ChartSelectionPanel.this);
 		}
 
 		public boolean isApproved() {
@@ -1187,8 +1185,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 		private JButton cancelButton;
 
 		public ShapeListDialog(List<String> initialShapes) {
-			super(JOptionPane
-					.getFrameForComponent(DataAndModelSelectionPanel.this),
+			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
 					"Shape Palette", true);
 
 			approved = false;
@@ -1229,7 +1226,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 
-			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+			setLocationRelativeTo(ChartSelectionPanel.this);
 		}
 
 		public boolean isApproved() {
@@ -1272,8 +1269,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 
 		public ColumnSelectionDialog(List<String> columnNames,
 				List<Boolean> initialSelection) {
-			super(JOptionPane
-					.getFrameForComponent(DataAndModelSelectionPanel.this),
+			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
 					"Column Selection", true);
 
 			approved = false;
@@ -1309,7 +1305,7 @@ public class DataAndModelSelectionPanel extends JPanel implements
 			pack();
 
 			setResizable(false);
-			setLocationRelativeTo(DataAndModelSelectionPanel.this);
+			setLocationRelativeTo(ChartSelectionPanel.this);
 		}
 
 		public boolean isApproved() {

@@ -60,8 +60,8 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 
-public class DataAndModelChartConfigPanel extends JPanel implements
-		ActionListener, TextListener {
+public class ChartConfigPanel extends JPanel implements ActionListener,
+		TextListener {
 
 	public static final int NO_PARAMETER_INPUT = 1;
 	public static final int PARAMETER_FIELDS = 2;
@@ -103,7 +103,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 
 	private String lastParamX;
 
-	public DataAndModelChartConfigPanel(int type) {
+	public ChartConfigPanel(int type) {
 		this.type = type;
 		listeners = new ArrayList<ConfigListener>();
 		setLayout(new GridLayout(3, 1));
@@ -189,7 +189,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 		parameterFields = new ArrayList<DoubleTextField>();
 		parameterButtons = new ArrayList<JButton>();
 
-		parametersPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		parametersPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		parametersPanel.setBorder(BorderFactory
 				.createTitledBorder("Parameters"));
 		parametersPanel.add(new JLabel("X:"));
@@ -384,6 +384,11 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 
 	public void setParamsX(List<String> parameters,
 			List<List<Double>> possibleValues) {
+		setParamsX(parameters, possibleValues, null);
+	}
+
+	public void setParamsX(List<String> parameters,
+			List<List<Double>> possibleValues, String paramX) {
 		boolean parametersChanged = false;
 
 		if (parameters == null) {
@@ -406,8 +411,12 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			xBox.removeActionListener(this);
 			xBox.removeAllItems();
 
-			for (String param : parameters) {
-				xBox.addItem(param);
+			if (paramX != null) {
+				xBox.addItem(paramX);
+			} else {
+				for (String param : parameters) {
+					xBox.addItem(param);
+				}
 			}
 
 			if (!parameters.isEmpty()) {
@@ -490,7 +499,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 		parameterButtons.clear();
 
 		for (int i = 0; i < parameters.size(); i++) {
-			if (i == xBox.getSelectedIndex()) {
+			if (parameters.get(i).equals(xBox.getSelectedItem())) {
 				continue;
 			}
 
@@ -595,8 +604,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 
 		public SelectDialog(String title, List<Double> values,
 				List<Boolean> initialSelected) {
-			super(JOptionPane
-					.getFrameForComponent(DataAndModelChartConfigPanel.this),
+			super(JOptionPane.getFrameForComponent(ChartConfigPanel.this),
 					title, true);
 
 			approved = false;
@@ -633,7 +641,7 @@ public class DataAndModelChartConfigPanel extends JPanel implements
 			pack();
 
 			setResizable(false);
-			setLocationRelativeTo(DataAndModelChartConfigPanel.this);
+			setLocationRelativeTo(ChartConfigPanel.this);
 		}
 
 		public boolean isApproved() {

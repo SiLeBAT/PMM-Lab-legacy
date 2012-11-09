@@ -240,7 +240,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		buttonPanel.add(stepsButton);
 		buttonPanel.add(clearButton);
 
-		table = new TimeSeriesTable(ROW_COUNT, true);
+		table = new TimeSeriesTable(ROW_COUNT, true, true);
 		panel.setLayout(new BorderLayout());
 		panel.add(panel1, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table), BorderLayout.CENTER);

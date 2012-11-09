@@ -395,8 +395,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			parameters = new ArrayList<String>();
 		}
 
-		if (this.parameters == null
-				|| parameters.size() != this.parameters.size()) {
+		if (possibleValues == null) {
+			possibleValues = new ArrayList<List<Double>>();
+		}
+
+		if (this.parameters == null || this.possibleValues == null
+				|| parameters.size() != this.parameters.size()
+				|| possibleValues.size() != this.possibleValues.size()) {
 			parametersChanged = true;
 		} else {
 			for (int i = 0; i < parameters.size(); i++) {
@@ -410,7 +415,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 					List<Double> oldValues = this.possibleValues
 							.get(this.parameters.indexOf(param));
 
-					if (!values.equals(oldValues)) {
+					if ((values == null && oldValues != null)
+							|| (values != null && !values.equals(oldValues))) {
 						parametersChanged = true;
 						break;
 					}

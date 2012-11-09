@@ -86,22 +86,23 @@ public class ManualModelConfNodeModel extends NodeModel {
 	private Double waterActivity;
 	
 	private PmmXmlDoc doc = null;
-
+	
 	/**
      * Constructor for the node model.
      */
-    protected ManualModelConfNodeModel() {
-    
-        super( 0, 1 );
-        
+    protected ManualModelConfNodeModel() {    
+        this(false);        
+    }
+    protected ManualModelConfNodeModel(boolean hasEditFeature) {    
+        super(hasEditFeature ? 1 : 0, 1);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
-            final ExecutionContext exec ) throws Exception {
+    protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
+            final ExecutionContext exec) throws Exception {
     	if (doc != null) {        	
         	KnimeTuple tupleM1 = null;
 			PmmTimeSeries tstuple = new PmmTimeSeries();

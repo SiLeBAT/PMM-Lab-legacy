@@ -101,7 +101,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 	private static final String ATT_LEVEL = "Level";
 	
-	protected ParametricModel() {		
+	protected ParametricModel() {
+		initVars();
+	}
+	private void initVars() {
 		rss = Double.NaN;
 		rsquared = Double.NaN;
 		rms = Double.NaN;
@@ -115,30 +118,21 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelLit = new PmmXmlDoc();
 
 		independent = new PmmXmlDoc();
-		parameter = new PmmXmlDoc();
+		parameter = new PmmXmlDoc();		
 	}
 	
-	public ParametricModel(final String modelName, final String formula,
-			DepXml depXml, final int level, final int modelId, final int estModelId ) {
-		
-		this(modelName, formula, depXml, level, modelId);
-		
-		this.estModelId = estModelId;
-		
+	public ParametricModel(final String modelName, final String formula, DepXml depXml, final int level, final int modelId, final int estModelId) {		
+		this(modelName, formula, depXml, level, modelId);		
+		this.estModelId = estModelId;		
 	}
 	
-	public ParametricModel(final String modelName, final String formula,
-			DepXml depXml, final int level, final int modelId) {
-		
-		this(modelName, formula, depXml, level);
-				
+	public ParametricModel(final String modelName, final String formula, DepXml depXml, final int level, final int modelId) {		
+		this(modelName, formula, depXml, level);				
 		this.modelId = modelId;
 	}
 	
 	
-	public ParametricModel(final String modelName, final String formula,
-			DepXml depXml, final int level) {
-		
+	public ParametricModel(final String modelName, final String formula, DepXml depXml, final int level) {
 		this();			
 		this.modelName = modelName;
 		setFormula( formula );
@@ -146,6 +140,30 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		this.level = level;
 	}
 	
+	public ParametricModel(KnimeTuple row, int level, Integer newTsID) throws PmmException {	
+		initVars();
+		this.level = level;
+		this.modelId = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_MODELID, level));
+		this.modelName = row.getString(Model1Schema.getAttribute(Model1Schema.ATT_MODELNAME, level));
+		setFormula(row.getString(Model1Schema.getAttribute(Model1Schema.ATT_FORMULA, level)));
+		PmmXmlDoc depXml = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_DEPENDENT, level));
+		this.depXml = (DepXml) depXml.getElementSet().get(0);
+
+		this.parameter = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_PARAMETER, level));
+		this.independent = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_INDEPENDENT, level));
+		
+		this.modelLit = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MLIT, level));
+		this.estLit = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_EMLIT, level));
+		
+		Integer rowEstM1ID = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, level));
+		this.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
+		this.rms = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_RMS, level));
+		this.rsquared = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_RSQUARED, level));
+		this.aic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_AIC, level));
+		this.bic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_BIC, level));
+
+		if (newTsID != null) this.setCondId(newTsID);
+	}
 	public ParametricModel(final Element modelElement) {
 		this();
 		

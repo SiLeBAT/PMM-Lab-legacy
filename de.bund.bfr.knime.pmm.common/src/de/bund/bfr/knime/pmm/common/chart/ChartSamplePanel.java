@@ -52,7 +52,7 @@ public class ChartSamplePanel extends JPanel implements CellEditorListener {
 
 	private static final int ROW_COUNT = 10;
 
-	private TimeSeriesTable table;
+	private TimeSeriesTable table;	
 
 	private List<EditListener> listeners;
 
@@ -64,6 +64,22 @@ public class ChartSamplePanel extends JPanel implements CellEditorListener {
 		setLayout(new BorderLayout());
 		add(new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+	}
+
+	public String getTimeColumnName() {
+		return table.getTimeColumnName();
+	}
+
+	public void setTimeColumnName(String timeColumnName) {
+		table.setTimeColumnName(timeColumnName);
+	}
+
+	public String getLogcColumnName() {
+		return table.getLogcColumnName();
+	}
+
+	public void setLogcColumnName(String logcColumnName) {
+		table.setLogcColumnName(logcColumnName);
 	}
 
 	public void addEditListener(EditListener listener) {

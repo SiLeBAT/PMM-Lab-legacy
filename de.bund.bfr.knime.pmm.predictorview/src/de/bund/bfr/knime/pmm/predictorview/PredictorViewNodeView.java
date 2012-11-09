@@ -66,6 +66,7 @@ import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -140,6 +141,10 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 			samplePanel = new ChartSamplePanel();
+			samplePanel.setTimeColumnName(AttributeUtilities
+					.getFullNameWithUnit(TimeSeriesSchema.TIME));
+			samplePanel.setLogcColumnName(AttributeUtilities
+					.getFullNameWithUnit(TimeSeriesSchema.LOGC));
 			samplePanel.addEditListener(this);
 
 			JPanel upperRightPanel = new JPanel();
@@ -210,7 +215,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			double[][] samplePoints = plotable.getFunctionSamplePoints(
 					TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
-					ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
+					configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY);
 
@@ -223,6 +228,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			chartCreator.setTransformY(null);
 		}
 
+		samplePanel.setLogcColumnName(AttributeUtilities.getFullNameWithUnit(
+				TimeSeriesSchema.LOGC, configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

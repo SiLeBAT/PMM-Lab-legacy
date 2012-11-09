@@ -35,6 +35,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private String timeColumnName;
+	private String logcColumnName;
+
 	public TimeSeriesTable(List<Point2D.Double> timeSeries,
 			boolean timeEditable, boolean logcEditable) {
 		this(timeSeries.size(), timeEditable, logcEditable);
@@ -47,6 +50,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public TimeSeriesTable(int rowCount, boolean timeEditable,
 			boolean logcEditable) {
+		timeColumnName = AttributeUtilities.getFullName(TimeSeriesSchema.TIME);
+		logcColumnName = AttributeUtilities.getFullName(TimeSeriesSchema.LOGC);
 		setModel(new TimeSeriesTableModel(rowCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
 		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));
@@ -62,12 +67,30 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 				JComponent.WHEN_FOCUSED);
 	}
 
+	public String getTimeColumnName() {
+		return timeColumnName;
+	}
+
+	public void setTimeColumnName(String timeColumnName) {
+		getColumn(this.timeColumnName).setHeaderValue(timeColumnName);
+		this.timeColumnName = timeColumnName;		
+	}
+
+	public String getLogcColumnName() {
+		return logcColumnName;
+	}
+
+	public void setLogcColumnName(String logcColumnName) {
+		getColumn(this.logcColumnName).setHeaderValue(logcColumnName); 
+		this.logcColumnName = logcColumnName;		
+	}
+
 	public TableColumn getTimeColumn() {
-		return getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.TIME));
+		return getColumn(getTimeColumnName());
 	}
 
 	public TableColumn getLogcColumn() {
-		return getColumn(AttributeUtilities.getFullName(TimeSeriesSchema.LOGC));
+		return getColumn(getLogcColumnName());
 	}
 
 	public Double getTime(int i) {
@@ -189,9 +212,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		public String getColumnName(int column) {
 			switch (column) {
 			case 0:
-				return AttributeUtilities.getFullName(TimeSeriesSchema.TIME);
+				return timeColumnName;
 			case 1:
-				return AttributeUtilities.getFullName(TimeSeriesSchema.LOGC);
+				return logcColumnName;
 			default:
 				return null;
 			}

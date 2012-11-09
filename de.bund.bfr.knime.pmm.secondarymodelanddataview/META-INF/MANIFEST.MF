@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SecondaryModelAndDataView-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.secondarymodelanddataview; singleton:=true
-Bundle-Version: 1.0.0.v20121022
+Bundle-Version: 1.0.0.v20121109
 Bundle-ClassPath: secondarymodelanddataview.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.secondarymodelanddataview.SecondaryModelAndDataViewNodePlugin
 Bundle-Vendor: BfR

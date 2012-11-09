@@ -1712,12 +1712,12 @@ public class Bfrdb extends Hsqldbiface {
 			ps.setInt( 1, modelId );
 			ps.setString( 2, paramName );
 			ps.setInt( 3, paramType );
-			if (min == null) {
+			if (min == null || paramType != PARAMTYPE_PARAM) {
 				ps.setNull(4, java.sql.Types.DOUBLE);
 			} else {
 				ps.setDouble(4, min);
 			}
-			if (max == null) {
+			if (max == null || paramType != PARAMTYPE_PARAM) {
 				ps.setNull(5, java.sql.Types.DOUBLE);
 			} else {
 				ps.setDouble(5, max);

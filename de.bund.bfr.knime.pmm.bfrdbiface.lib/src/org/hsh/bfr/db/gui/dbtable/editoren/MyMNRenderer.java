@@ -419,14 +419,14 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 				//System.err.println(rs + "\t" + sql);
 				if (rs != null && rs.first()) {
 					do {
-						if (selectedColumn==10 && myT.getTablename().equals("GeschaetzteModelle")) {
+						if (selectedColumn==11 && myT.getTablename().equals("GeschaetzteModelle")) {
 							// estimated parameters
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
 							if (dbl != null) refinedNumber = " = " + DBKernel.getDoubleStr(dbl);		
 							result += rs.getString(2) + refinedNumber + "\n";							
 						}
-						else if (selectedColumn==12 && myT.getTablename().equals("GeschaetzteModelle")) {
+						else if (selectedColumn==13 && myT.getTablename().equals("GeschaetzteModelle")) {
 							// range of validity
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
@@ -457,17 +457,18 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 								result += rs.getString(1) + "\n";
 							}
 							else if (numCols == 3) { // Artikel_Lieferung
-								result += rs.getString(2) + "; " + rs.getString(3) + "\n";
+								result += rs.getString(2) + "; " + getDblOrString(rs.getObject(3)) + "\n";
 							}
 							else if (numCols == 4) { // Sonstiges mit Kennzahl und Wert und Einheit
 								String refinedNumber = "";
 								Object dbl = rs.getObject(3);
-								if (dbl != null) refinedNumber = ": " + DBKernel.getDoubleStr(dbl) + " " + rs.getString(4);		
+								if (dbl != null) refinedNumber = ": " + DBKernel.getDoubleStr(dbl) + " " + getDblOrString(rs.getObject(4));		
 								result += rs.getString(1) + refinedNumber + "\n";
 							}
 							else {
 								result += rs.getString(2) + "\n";								
 							}
+							System.err.println(result);
 						}
 					} while (rs.next());					
 				}
@@ -481,6 +482,9 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 		theValues.put(value, result);
 		if (lastUpdate.containsKey(value)) lastUpdate.remove(value);
 		lastUpdate.put(value, System.currentTimeMillis());
+	}
+	private String getDblOrString(Object dbl) {
+		return (dbl == null) ? null : (DBKernel.isDouble(dbl.toString()) ? DBKernel.getDoubleStr(dbl) : dbl.toString());
 	}
 	private String getSonstigeParameterSQL(String tn, Object value) {
 		String sql = "SELECT " + DBKernel.delimitL("Parameter") + "," + DBKernel.delimitL("DoubleKennzahlen") + "." + DBKernel.delimitL("Wert") + "," +

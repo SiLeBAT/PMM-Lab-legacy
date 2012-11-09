@@ -153,8 +153,6 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setMatrixName( result.getString( Bfrdb.ATT_MATRIXNAME ) );
     		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
     		tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
-    		//tuple.setCommasepTime( result.getString( Bfrdb.ATT_TIME ) );
-    		//tuple.setCommasepLogc( result.getString( Bfrdb.ATT_LOG10N ) );
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setMdData(tsDoc);
     		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );

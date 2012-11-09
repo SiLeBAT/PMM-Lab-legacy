@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.hsh.bfr.db.DBKernel;
+
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -647,9 +649,7 @@ public class Bfrdb extends Hsqldbiface {
 		//super.close();
 	}
 	
-	public static String queryEstPei() throws SQLException {
-		
-		
+	public static String queryEstPei() throws SQLException {		
 		String q;
 		
 		q = "WITH \"Em1View\" AS( "+queryEstModelPrim3+" ), "
@@ -660,12 +660,10 @@ public class Bfrdb extends Hsqldbiface {
 		+"RIGHT JOIN \"Em1View\" "
 		+"ON \"Em1View\".\""+ATT_CONDITIONID+"\"=\"TsView\".\""+ATT_CONDITIONID+"\"";
 
-		return q;
-		
+		return q;		
 	}
 	
-	public String queryEstSei() throws SQLException {
-		
+	public String queryEstSei() throws SQLException {		
 		String q;
 		
 		q = queryEstPei();
@@ -676,6 +674,8 @@ public class Bfrdb extends Hsqldbiface {
 			+" JOIN \"Em2View\" "
 			+"ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesSekundaermodell\"=\"Em2View\".\"GeschaetztesModell2\"";
 		
+		q += " ORDER BY " + DBKernel.delimitL("Em2View") + "." + DBKernel.delimitL("GeschaetztesModell2") + " ASC";
+
 		return q;
 	}
 	

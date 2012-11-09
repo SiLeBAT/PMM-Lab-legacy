@@ -151,9 +151,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		schema = createSchema();
 		    	
     	if( level == 1 ) {
-			result = db.selectEstModel( 1 );
+			result = db.selectEstModel(1);
 		} else {
-			result = db.selectEstModel( 2 );
+			result = db.selectEstModel(2);
 		}
     	
     	// initialize data buffer
@@ -164,12 +164,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// initialize row
     		tuple = new KnimeTuple( schema );
-    		
-    		
+    		    		
     		// fill ts
     		tuple.setValue( TimeSeriesSchema.ATT_CONDID, result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_COMBASEID, result.getString( Bfrdb.ATT_COMBASEID ) );
-    		//tuple.setValue( TimeSeriesSchema.ATT_MISCID, result.getString( Bfrdb.ATT_MISCID ) );
     		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
     		tuple.setValue( TimeSeriesSchema.ATT_MISC, miscDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_TEMPERATURE, result.getString( Bfrdb.ATT_TEMPERATURE ) );
@@ -181,17 +179,25 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXID, result.getString( Bfrdb.ATT_MATRIXID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXNAME, result.getString( Bfrdb.ATT_MATRIXNAME ) );
     		tuple.setValue( TimeSeriesSchema.ATT_MATRIXDETAIL, result.getString( Bfrdb.ATT_MATRIXDETAIL ) );
-    		//tuple.setValue( TimeSeriesSchema.ATT_TIME, result.getString( Bfrdb.ATT_TIME ) );
-    		//tuple.setValue( TimeSeriesSchema.ATT_LOGC, result.getString( Bfrdb.ATT_LOG10N ) );
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue( TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT ) );
     		
-			PmmXmlDoc l = new PmmXmlDoc();
-			String au_ja = result.getString(Bfrdb.ATT_LITERATURETEXT);
-			LiteratureItem li = new LiteratureItem(au_ja, null, null, null, result.getInt(Bfrdb.ATT_LITERATUREID)); 
-			l.add(li);
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
+    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+    		if (s != null) {
+    			PmmXmlDoc l = new PmmXmlDoc();
+    			Object author = DBKernel.getValue("Literatur", "ID", s, "Erstautor");
+    			Object year = DBKernel.getValue("Literatur", "ID", s, "Jahr");
+    			Object title = DBKernel.getValue("Literatur", "ID", s, "Titel");
+    			Object abstrac = DBKernel.getValue("Literatur", "ID", s, "Abstract");
+    			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+    					(Integer) (year == null ? null : year),
+    					title == null ? null : title.toString(),
+    					abstrac == null ? null : abstrac.toString(),
+    					Integer.valueOf(s)); 
+    			l.add(li);
+				tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
+			}
 
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
@@ -239,7 +245,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
     				result.getArray(Bfrdb.ATT_MAX)));
     		
-    		String s = result.getString("LitMID");
+    		s = result.getString("LitMID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
     		s = result.getString("LitEmID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(s));

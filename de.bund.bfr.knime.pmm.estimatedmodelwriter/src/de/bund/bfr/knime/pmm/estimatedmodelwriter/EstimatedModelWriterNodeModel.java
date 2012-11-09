@@ -213,6 +213,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
 			    		ppm.setParameter(paramXml);
 			    		ppm.setIndependent(indepXml);
+			    		ppm.setDepXml(dx);
 			    		ppm.setEstLit(emLitXmlDoc);
 
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_EMLIT};
@@ -288,6 +289,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setEstModelId(rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID);
 					    		spm.setParameter(paramXml);
 					    		spm.setIndependent(indepXml);
+					    		spm.setDepXml(dx);
 					    		spm.setEstLit(emLitXmlDoc);
 
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_EMLIT};
@@ -310,7 +312,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 				}
 				else {
-					//System.err.println("newPrimEstID: " + newPrimEstID);
+					System.err.println("newPrimEstID: " + newPrimEstID);
 				}
 			}
 		}

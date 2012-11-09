@@ -120,7 +120,6 @@ public class CombaseReaderNodeModel extends NodeModel {
     	reader = new CombaseReader( filename );
     	
     	// initialize table buffer
-    	// buf = exec.createDataContainer( PmmTimeSeriesSchema.createSpec( new File( filename ).getName() ) );
     	buf = exec.createDataContainer( new TimeSeriesSchema().createSpec() );
     	buf2 = exec.createDataContainer( tsm1Schema.createSpec() );
     	
@@ -224,9 +223,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     	if( filename.isEmpty() )
     		throw new InvalidSettingsException( "Filename must be specified." );
     	
-    	
-        // return new DataTableSpec[] { PmmTimeSeriesSchema.createSpec( new File( filename ).getName() ), createXmlSpec() };
-    	try {
+       	try {
 			ret = new DataTableSpec[] {
 				new TimeSeriesSchema().createSpec(),
 				KnimeSchema.merge(  new TimeSeriesSchema(),

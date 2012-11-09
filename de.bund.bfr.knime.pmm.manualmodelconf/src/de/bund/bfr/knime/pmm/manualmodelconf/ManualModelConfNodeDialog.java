@@ -48,6 +48,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -152,60 +153,53 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 			BufferedDataTable[] inData) throws NotConfigurableException {
 		if (inData != null && inData.length == 1) {
 		    DataTableSpec inSpec = inData[0].getDataTableSpec();
-		    KnimeSchema inSchema = new TimeSeriesSchema();
 		    try {
-		    	if (inSchema.conforms(inSpec)) {
-		    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-		    		if (reader.hasMoreElements()) {
+			    KnimeSchema tsSchema = new TimeSeriesSchema();
+			    KnimeSchema inSchema1 = new Model1Schema();
+			    KnimeSchema inSchema2 = new Model2Schema();
+			    boolean hasTs = tsSchema.conforms(inSpec);
+			    boolean hasM1 = inSchema1.conforms(inSpec);
+			    boolean hasM2 = inSchema2.conforms(inSpec);
+		    	
+			    KnimeSchema finalSchema = null;
+		    	if (hasM1 && hasM2) finalSchema = KnimeSchema.merge(inSchema1, inSchema2);
+		    	else if (hasM1) finalSchema = inSchema1;
+		    	else if (hasM2) finalSchema = inSchema2;
+		    	if (hasTs) finalSchema = (finalSchema == null) ? tsSchema : KnimeSchema.merge(tsSchema, finalSchema);
+		    	if (finalSchema != null) {
+		    		KnimeRelationReader reader = new KnimeRelationReader(finalSchema, inData[0]);
+		    		PmmXmlDoc pmmDoc = new PmmXmlDoc();
+		    		Integer condID = null;
+		    		Integer firstM1EstID = null;
+		    		while (reader.hasMoreElements()) {
 		    			KnimeTuple row = reader.nextElement();
-		    			PmmTimeSeries ts = new PmmTimeSeries(row);
-		    			try {
-		    				m_mmcts.setTS(ts);
+		    			Integer actualM1EstID = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, 1));
+		    			if (hasTs) {
+		    				if (firstM1EstID == null || actualM1EstID.intValue() == firstM1EstID.intValue()) {
+				    			PmmTimeSeries ts = new PmmTimeSeries(row);
+				    			m_mmcts.setTS(ts);
+				    			condID = ts.getCondId();
+		    				}
 		    			}
-		    			catch (Exception e) {}
+		    			if (hasM1) {
+		    				if (firstM1EstID == null) {
+				    			ParametricModel pm = new ParametricModel(row, 1, hasTs ? condID : null);
+				    			pmmDoc.add(pm);
+			    				if (!hasM2) break;
+			    				firstM1EstID = pm.getEstModelId();
+		    				}
+		    			}
+		    			if (hasM2) {
+		    				if (!hasM1 || actualM1EstID.intValue() == firstM1EstID.intValue()) {
+				    			pmmDoc.add(new ParametricModel(row, 2, null));
+		    				}
+			    			if (!hasM1) break;
+		    			}
 		    		}
-		   		}
+		    		m_mmcm.setFromXmlString(pmmDoc.toXmlString());
+		    	}
 		    }
 		    catch (PmmException e) {}
-		    
-	    	boolean hasM1 = false;
-	    	inSchema = new Model1Schema();
-	    	try {
-	    		if (inSchema.conforms(inSpec)) {
-	    			hasM1 = true;
-		    		try {
-			    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
-			    		if (reader.hasMoreElements()) {
-			    			KnimeTuple row = reader.nextElement();
-			    			ParametricModel pm = new ParametricModel(row, 1, null);
-			    			try {
-			    				m_mmcm.setPM(pm); // setFromXmlString
-			    			}
-			    			catch (Exception e) {}
-			    		}
-		    		}
-		    		catch (Exception e) {}
-	    		}	
-	    	}
-	    	catch (PmmException e) {}
-	    	
-	    	boolean hasM2 = false;
-	    	inSchema = new Model2Schema();
-	    	try {
-	    		if (inSchema.conforms(inSpec)) {
-	    			hasM2 = true;
-	    		}	
-	    	}
-	    	catch (PmmException e) {}
-	    	
-	    	if (hasM1 && hasM2) {
-	    		
-	    	}
-	    	else if (hasM1) {
-	    	}
-	    	else if (hasM2) {
-	    		
-	    	}
 		}
 		else {
 			try {

@@ -319,7 +319,7 @@ public class TableReader {
 			}
 
 			plotable.setFunction(formula);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);

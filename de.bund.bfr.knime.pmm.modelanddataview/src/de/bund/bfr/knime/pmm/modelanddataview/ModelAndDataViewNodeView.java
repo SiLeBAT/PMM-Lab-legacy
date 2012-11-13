@@ -499,7 +499,7 @@ public class ModelAndDataViewNodeView extends
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
 
 			if (getNodeModel().isPeiSchema()) {
 				if (!plotable.isPlotable()) {

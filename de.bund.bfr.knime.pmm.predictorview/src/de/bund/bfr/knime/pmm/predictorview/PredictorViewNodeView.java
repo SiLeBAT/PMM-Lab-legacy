@@ -306,6 +306,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameterErrors = new LinkedHashMap<String, Double>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -322,6 +323,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				ParamXml element = (ParamXml) el;
 
 				parameters.put(element.getName(), element.getValue());
+				parameterErrors.put(element.getName(), element.getError());
 				paramValues.add(element.getValue());
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
@@ -347,7 +349,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
+			plotable.setParameterErrors(parameterErrors);
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.NO);

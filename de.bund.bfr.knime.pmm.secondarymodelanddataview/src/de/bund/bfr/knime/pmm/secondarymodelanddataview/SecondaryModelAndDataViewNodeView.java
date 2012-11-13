@@ -458,7 +458,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setFunctionArguments(arguments);
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
-			plotable.setFunctionConstants(constants);
+			plotable.setFunctionParameters(constants);
 
 			if (getNodeModel().isSeiSchema()) {
 				List<Double> depVarData = depVarDataMap.get(id);

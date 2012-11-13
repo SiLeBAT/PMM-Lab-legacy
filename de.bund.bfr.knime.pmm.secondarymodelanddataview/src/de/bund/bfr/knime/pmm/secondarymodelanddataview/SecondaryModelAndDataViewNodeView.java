@@ -34,6 +34,8 @@
 package de.bund.bfr.knime.pmm.secondarymodelanddataview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,8 +80,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class SecondaryModelAndDataViewNodeView extends
 		NodeView<SecondaryModelAndDataViewNodeModel> implements
-		ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
 	private List<Integer> colorCounts;
@@ -151,8 +152,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			configPanel.addConfigListener(this);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new ChartCreator(plotables, shortLegend,
-					longLegend);
+			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
 			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
@@ -164,12 +164,20 @@ public class SecondaryModelAndDataViewNodeView extends
 			bottomPanel.setLayout(new BorderLayout());
 			bottomPanel.add(configPanel, BorderLayout.WEST);
 			bottomPanel.add(infoPanel, BorderLayout.CENTER);
+			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
+			Dimension preferredSize = splitPane.getPreferredSize();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+			preferredSize.width = Math.min(preferredSize.width,
+					(int) (screenSize.width * 0.9));
+			preferredSize.height = Math.min(preferredSize.height,
+					(int) (screenSize.height * 0.9));
 
 			splitPane.setResizeWeight(1.0);
-
+			splitPane.setPreferredSize(preferredSize);
 			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();

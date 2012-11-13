@@ -34,7 +34,9 @@
 package de.bund.bfr.knime.pmm.predictorview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,8 +57,8 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
@@ -165,9 +167,16 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
+			Dimension preferredSize = splitPane.getPreferredSize();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+			preferredSize.width = Math.min(preferredSize.width,
+					(int) (screenSize.width * 0.9));
+			preferredSize.height = Math.min(preferredSize.height,
+					(int) (screenSize.height * 0.9));
 
 			splitPane.setResizeWeight(1.0);
-
+			splitPane.setPreferredSize(preferredSize);
 			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();

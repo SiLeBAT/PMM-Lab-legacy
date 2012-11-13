@@ -384,7 +384,8 @@ public class Plotable {
 				points[0][j] = x;
 
 				if (!failed) {
-					y = Math.sqrt(y);
+					// the error is multiplied by 1.96 to get the 95% interval
+					y = Math.sqrt(y) * 1.96;
 					y = transformDouble(y, transformY);
 					points[1][j] = y;
 				} else {

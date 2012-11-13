@@ -511,12 +511,14 @@ public class ChartCreator extends ChartPanel {
 
 	private void plotFunctionSample(XYPlot plot, Plotable plotable, String id,
 			Color defaultColor, Shape defaultShape, double minX, double maxX) {
-
 		double[][] functionPoints = plotable.getFunctionPoints(paramX, paramY,
 				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
 		double[][] samplePoints = plotable.getFunctionSamplePoints(paramX,
 				paramY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY);
+		double[][] functionErrors = plotable.getFunctionErrors(paramX, paramY,
+				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
 
 		if (functionPoints != null) {
@@ -593,6 +595,63 @@ public class ChartCreator extends ChartPanel {
 
 			plot.setDataset(i, sampleDataset);
 			plot.setRenderer(i, sampleRenderer);
+		}
+
+		if (functionPoints != null && functionErrors != null) {
+			int n = functionPoints[0].length;
+			double[][] minPoints = new double[2][n];
+			double[][] maxPoints = new double[2][n];
+
+			for (int i = 0; i < n; i++) {
+				minPoints[0][i] = functionPoints[0][i];
+				maxPoints[0][i] = functionPoints[0][i];
+				minPoints[1][i] = functionPoints[1][i] - functionErrors[1][i];
+				maxPoints[1][i] = functionPoints[1][i] + functionErrors[1][i];
+			}
+
+			DefaultXYDataset minDataset = new DefaultXYDataset();
+			DefaultXYDataset maxDataset = new DefaultXYDataset();
+			XYLineAndShapeRenderer minRenderer = new XYLineAndShapeRenderer(
+					true, false);
+			XYLineAndShapeRenderer maxRenderer = new XYLineAndShapeRenderer(
+					true, false);
+
+			if (addInfoInLegend) {
+				minDataset.addSeries(longLegend.get(id) + " (Min)", minPoints);
+				maxDataset.addSeries(longLegend.get(id) + " (Max)", maxPoints);
+			} else {
+				minDataset.addSeries(shortLegend.get(id) + " (Min)", minPoints);
+				maxDataset.addSeries(shortLegend.get(id) + " (Max)", maxPoints);
+			}
+
+			if (colors.containsKey(id)) {
+				minRenderer.setSeriesPaint(0, colors.get(id));
+				maxRenderer.setSeriesPaint(0, colors.get(id));
+			} else {
+				minRenderer.setSeriesPaint(0, defaultColor);
+				maxRenderer.setSeriesPaint(0, defaultColor);
+			}
+
+			if (shapes.containsKey(id)) {
+				minRenderer.setSeriesShape(0, shapes.get(id));
+				maxRenderer.setSeriesShape(0, shapes.get(id));
+			} else {
+				minRenderer.setSeriesShape(0, defaultShape);
+				maxRenderer.setSeriesShape(0, defaultShape);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, minDataset);
+			plot.setRenderer(i, minRenderer);
+			plot.setDataset(i + 1, maxDataset);
+			plot.setRenderer(i + 1, maxRenderer);
 		}
 	}
 

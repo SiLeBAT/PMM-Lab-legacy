@@ -35,7 +35,9 @@ package de.bund.bfr.knime.pmm.primarymodelviewandselect;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Shape;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -408,10 +410,19 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		bottomPanel.setLayout(new BorderLayout());
 		bottomPanel.add(configPanel, BorderLayout.WEST);
 		bottomPanel.add(infoPanel, BorderLayout.CENTER);
+		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 				upperSplitPane, bottomPanel);
+		Dimension preferredSize = splitPane.getPreferredSize();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
+		preferredSize.width = Math.min(preferredSize.width,
+				(int) (screenSize.width * 0.9));
+		preferredSize.height = Math.min(preferredSize.height,
+				(int) (screenSize.height * 0.9));
+
+		splitPane.setPreferredSize(preferredSize);
 		splitPane.setResizeWeight(1.0);
 
 		return splitPane;

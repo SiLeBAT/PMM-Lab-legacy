@@ -547,9 +547,12 @@ public class ChartCreator extends ChartPanel {
 				}
 
 				for (int j = 0; j < n; j++) {
+					double error = Double.isNaN(functionErrors[1][j]) ? 0.0
+							: functionErrors[1][j];
+
 					series.add(functionPoints[0][j], functionPoints[1][j],
-							functionPoints[1][j] - functionErrors[1][j],
-							functionPoints[1][j] + functionErrors[1][j]);
+							functionPoints[1][j] - error, functionPoints[1][j]
+									+ error);
 				}
 
 				functionDataset.addSeries(series);

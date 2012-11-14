@@ -562,7 +562,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							minParameterValues, maxParameterValues,
 							minGuessValues, maxGuessValues, targetValues,
 							arguments, argumentValues, enforceLimits == 1);
-					optimizer.optimize(new AtomicInteger());
+					optimizer.optimize(new AtomicInteger(), 10000, 10, true);
 					successful = optimizer.isSuccessful();
 				}
 
@@ -838,7 +838,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress);
+							optimizer.optimize(progress, 10000, 10, true);
 							successful = optimizer.isSuccessful();
 						}
 
@@ -1160,7 +1160,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress);
+							optimizer.optimize(progress, 10000, 10, true);
 							successful = optimizer.isSuccessful();
 						}
 

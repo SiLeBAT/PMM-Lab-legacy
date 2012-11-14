@@ -64,10 +64,15 @@ public class ParameterOptimizer {
 
 	private DJep parser;
 
+	private LevenbergMarquardtOptimizer optimizer;
+	private PointVectorValuePair optimizerValues;
+
 	private boolean successful;
 	private List<Double> parameterValues;
 	private double rms;
 	private double rSquare;
+	private double aic;
+	private double bic;
 	private List<Double> parameterStandardErrors;
 	private List<Double> parameterTValues;
 	private List<Double> parameterPValues;
@@ -117,13 +122,14 @@ public class ParameterOptimizer {
 		}
 	}
 
-	public void optimize(AtomicInteger progress) {
+	public void optimize(AtomicInteger progress, int nParameterSpace,
+			int nLevenberg, boolean stopWhenSuccessful) {
 		List<Double> paramMin = new ArrayList<Double>();
 		List<Integer> paramStepCount = new ArrayList<Integer>();
 		List<Double> paramStepSize = new ArrayList<Double>();
 		int maxCounter = 1;
-		int maxStepCount = 10;
 		int paramsWithRange = 0;
+		int maxStepCount = 10;
 
 		for (int i = 0; i < parameters.size(); i++) {
 			Double min = minParameterValues.get(i);
@@ -135,8 +141,8 @@ public class ParameterOptimizer {
 		}
 
 		if (paramsWithRange != 0) {
-			maxStepCount = (int) Math.pow(10000.0,
-					1.0 / (double) paramsWithRange);
+			maxStepCount = (int) Math.pow(nParameterSpace,
+					1.0 / paramsWithRange);
 			maxStepCount = Math.max(maxStepCount, 2);
 			maxStepCount = Math.min(maxStepCount, 10);
 		}
@@ -174,15 +180,21 @@ public class ParameterOptimizer {
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			} else {
-				paramMin.add(0.0);
+				paramMin.add(MathUtilities.EPSILON);
 				paramStepCount.add(1);
 				paramStepSize.add(1.0);
 			}
 		}
 
-		List<Double> bestValues = new ArrayList<Double>(Collections.nCopies(
-				parameters.size(), 1.0));
-		double bestError = Double.POSITIVE_INFINITY;
+		List<List<Double>> bestValues = new ArrayList<List<Double>>();
+		List<Double> bestError = new ArrayList<Double>();
+
+		for (int i = 0; i < nLevenberg; i++) {
+			bestValues.add(new ArrayList<Double>(Collections.nCopies(
+					parameters.size(), i + 1.0)));
+			bestError.add(Double.POSITIVE_INFINITY);
+		}
+
 		List<Integer> paramStepIndex = new ArrayList<Integer>(
 				Collections.nCopies(parameters.size(), 0));
 		boolean done = false;
@@ -223,9 +235,17 @@ public class ParameterOptimizer {
 				}
 			}
 
-			if (error < bestError) {
-				bestError = error;
-				bestValues = values;
+			for (int i = nLevenberg; i >= 0; i--) {
+				if (i == 0 || !(error < bestError.get(i - 1))) {
+					if (i != nLevenberg) {
+						bestError.add(i, error);
+						bestValues.add(i, values);
+						bestError.remove(nLevenberg);
+						bestValues.remove(nLevenberg);
+					}
+
+					break;
+				}
 			}
 
 			for (int i = 0;; i++) {
@@ -244,32 +264,22 @@ public class ParameterOptimizer {
 			}
 		}
 
-		double[] factors = new double[] { 1.0, 1.1, 1.0 / 1.1, 1.2, 1.0 / 1.2,
-				1.3, 1.0 / 1.3, 1.4, 1 / 1.4, 1.5, 1.0 / 1.5, };
-
 		successful = false;
 
-		for (double factor : factors) {
-			List<Double> startValues = new ArrayList<Double>(parameters.size());
-
-			for (double value : bestValues) {
-				if (value != 0.0) {
-					startValues.add(value * factor);
-				} else {
-					if (factor >= 0) {
-						startValues.add(MathUtilities.EPSILON * factor);
-					} else {
-						startValues.add(-MathUtilities.EPSILON / factor);
-					}
-				}
-			}
-
+		for (List<Double> startValues : bestValues) {
 			try {
 				optimize(startValues, 10000);
 
-				if (rSquare != 0.0) {
-					successful = true;
-					break;
+				if (!successful || optimizer.getRMS() < rms) {
+					useCurrentResults();
+
+					if (rSquare != 0.0) {
+						successful = true;
+
+						if (stopWhenSuccessful) {
+							break;
+						}
+					}
 				}
 			} catch (TooManyEvaluationsException e) {
 				break;
@@ -297,13 +307,11 @@ public class ParameterOptimizer {
 	}
 
 	public double getAIC() {
-		return MathUtilities.akaikeCriterion(parameters.size(),
-				targetValues.size(), rms);
+		return aic;
 	}
 
 	public double getBIC() {
-		return MathUtilities.bayesCriterion(parameters.size(),
-				targetValues.size(), rms);
+		return bic;
 	}
 
 	public List<Double> getParameterStandardErrors() {
@@ -320,7 +328,6 @@ public class ParameterOptimizer {
 
 	private void optimize(List<Double> startValues, int maxEval)
 			throws Exception {
-		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		double[] targets = new double[targetValues.size()];
 		double[] weights = new double[targetValues.size()];
 		double[] startValueArray = new double[startValues.size()];
@@ -334,13 +341,16 @@ public class ParameterOptimizer {
 			startValueArray[i] = startValues.get(i);
 		}
 
-		PointVectorValuePair p = optimizer.optimize(maxEval, optimizerFunction,
+		optimizer = new LevenbergMarquardtOptimizer();
+		optimizerValues = optimizer.optimize(maxEval, optimizerFunction,
 				targets, weights, startValueArray);
+	}
 
+	private void useCurrentResults() {
 		parameterValues = new ArrayList<Double>(parameters.size());
 
 		for (int i = 0; i < parameters.size(); i++) {
-			parameterValues.add(p.getPoint()[i]);
+			parameterValues.add(optimizerValues.getPoint()[i]);
 		}
 
 		try {
@@ -353,7 +363,7 @@ public class ParameterOptimizer {
 			for (int i = 0; i < parameters.size(); i++) {
 				parameterStandardErrors.add(guess[i]);
 
-				double tValue = p.getPoint()[i] / guess[i];
+				double tValue = optimizerValues.getPoint()[i] / guess[i];
 				int degreesOfFreedom = targetValues.size() - parameters.size();
 
 				parameterTValues.add(tValue);
@@ -381,6 +391,10 @@ public class ParameterOptimizer {
 		// rSquare < 0 möglich, siehe hier:
 		// http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
 		rSquare = Math.max(rSquare, 0.0);
+		aic = MathUtilities.akaikeCriterion(parameters.size(),
+				targetValues.size(), rms);
+		bic = MathUtilities.bayesCriterion(parameters.size(),
+				targetValues.size(), rms);
 	}
 
 	private double evalWithSingularityCheck(Node f, List<Double> argValues,

@@ -54,9 +54,13 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
+import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 
@@ -93,11 +97,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private List<String> parameters;
 	private List<List<Double>> possibleValues;
 	private List<List<Boolean>> selectedValues;
+	private Map<String, Double> minParamValues;
+	private Map<String, Double> maxParamValues;
 
 	private JPanel parameterValuesPanel;
-	private List<JLabel> parameterLabels;
-	private List<DoubleTextField> parameterFields;
 	private List<JButton> parameterButtons;
+	private List<DoubleTextField> parameterFields;
 
 	private int type;
 
@@ -185,7 +190,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		yTransBox.addActionListener(this);
 
 		parameterValuesPanel = new JPanel();
-		parameterLabels = new ArrayList<JLabel>();
 		parameterFields = new ArrayList<DoubleTextField>();
 		parameterButtons = new ArrayList<JButton>();
 
@@ -342,7 +346,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				if (parameterFields.get(i) instanceof DoubleTextField) {
 					DoubleTextField field = (DoubleTextField) parameterFields
 							.get(i);
-					String paramName = parameterLabels.get(i).getText()
+					String paramName = parameterButtons.get(i).getText()
 							.replace(":", "");
 
 					if (field.getValue() != null) {
@@ -384,11 +388,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setParamsX(List<String> parameters,
 			List<List<Double>> possibleValues) {
-		setParamsX(parameters, possibleValues, null);
+		setParamsX(parameters, possibleValues, null, null, null);
 	}
 
 	public void setParamsX(List<String> parameters,
-			List<List<Double>> possibleValues, String paramX) {
+			List<List<Double>> possibleValues,
+			Map<String, Double> minParamValues,
+			Map<String, Double> maxParamValues, String paramX) {
 		boolean parametersChanged = false;
 
 		if (parameters == null) {
@@ -397,6 +403,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		if (possibleValues == null) {
 			possibleValues = new ArrayList<List<Double>>();
+		}
+
+		if (minParamValues == null) {
+			minParamValues = new LinkedHashMap<String, Double>();
+		}
+
+		if (maxParamValues == null) {
+			maxParamValues = new LinkedHashMap<String, Double>();
 		}
 
 		if (this.parameters == null || this.possibleValues == null
@@ -426,6 +440,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		this.parameters = parameters;
 		this.possibleValues = possibleValues;
+		this.minParamValues = minParamValues;
+		this.maxParamValues = maxParamValues;
 
 		if (parametersChanged) {
 			xBox.removeActionListener(this);
@@ -502,10 +518,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			return;
 		}
 
-		for (JLabel label : parameterLabels) {
-			parameterValuesPanel.remove(label);
-		}
-
 		for (DoubleTextField input : parameterFields) {
 			parameterValuesPanel.remove(input);
 		}
@@ -514,7 +526,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			parameterValuesPanel.remove(button);
 		}
 
-		parameterLabels.clear();
 		parameterFields.clear();
 		parameterButtons.clear();
 
@@ -524,7 +535,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 
 			if (type == PARAMETER_FIELDS) {
-				JLabel label = new JLabel(parameters.get(i) + ":");
+				JButton selectButton = new JButton(parameters.get(i) + ":");
 				DoubleTextField input = new DoubleTextField();
 				double value = 0.0;
 
@@ -532,12 +543,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 					value = possibleValues.get(i).get(0);
 				}
 
+				selectButton.addActionListener(this);
 				input.setPreferredSize(new Dimension(50, input
 						.getPreferredSize().height));
 				input.setValue(value);
 				input.addTextListener(this);
-				parameterLabels.add(label);
-				parameterValuesPanel.add(label);
+				parameterButtons.add(selectButton);
+				parameterValuesPanel.add(selectButton);
 				parameterFields.add(input);
 				parameterValuesPanel.add(input);
 			} else if (type == PARAMETER_BOXES) {
@@ -584,16 +596,44 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			lastParamX = (String) xBox.getSelectedItem();
 			updateParametersPanel();
 		} else if (parameterButtons.contains(e.getSource())) {
-			JButton button = (JButton) e.getSource();
-			String param = button.getText().replace(" Values", "");
-			int i = parameters.indexOf(param);
-			SelectDialog dialog = new SelectDialog(param,
-					possibleValues.get(i), selectedValues.get(i));
+			if (type == PARAMETER_FIELDS) {
+				JButton button = (JButton) e.getSource();
+				DoubleTextField field = parameterFields.get(parameterButtons
+						.indexOf(button));
+				String param = button.getText().replace(":", "");
+				Double min = minParamValues.get(param);
+				Double max = maxParamValues.get(param);
 
-			dialog.setVisible(true);
+				if (min != null && max != null) {
+					double value = field.getValue() != null ? field.getValue()
+							: min;
+					SliderDialog dialog = new SliderDialog(param, min, max,
+							value);
 
-			if (dialog.isApproved()) {
-				selectedValues.set(i, dialog.getSelected());
+					dialog.setVisible(true);
+
+					if (dialog.isApproved()) {
+						field.removeTextListener(this);
+						field.setValue(dialog.getValue());
+						field.addTextListener(this);
+					}
+				} else {
+					JOptionPane.showMessageDialog(this,
+							"Range for Parameter is not available");
+					return;
+				}
+			} else if (type == PARAMETER_BOXES) {
+				JButton button = (JButton) e.getSource();
+				String param = button.getText().replace(" Values", "");
+				int i = parameters.indexOf(param);
+				SelectDialog dialog = new SelectDialog(param,
+						possibleValues.get(i), selectedValues.get(i));
+
+				dialog.setVisible(true);
+
+				if (dialog.isApproved()) {
+					selectedValues.set(i, dialog.getSelected());
+				}
 			}
 		}
 
@@ -703,6 +743,101 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
+	}
+
+	private class SliderDialog extends JDialog implements ActionListener,
+			ChangeListener {
+
+		private static final long serialVersionUID = 1L;
+		private static final int SLIDER_STEPS = 100;
+
+		private boolean approved;
+		private double value;
+		private double min;
+		private double max;
+
+		private JSlider slider;
+		private FormattedDoubleTextField valueField;
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public SliderDialog(String title, double min, double max,
+				double initialValue) {
+			super(JOptionPane.getFrameForComponent(ChartConfigPanel.this),
+					title, true);
+			this.min = min;
+			this.max = max;
+
+			approved = false;
+			value = Double.NaN;
+
+			valueField = new FormattedDoubleTextField();
+			valueField.setValue(initialValue);
+			valueField.setEditable(false);
+			slider = new JSlider(0, SLIDER_STEPS, doubleToInt(initialValue));
+			slider.addChangeListener(this);
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel valuePanel = new JPanel();
+			JPanel centerPanel = new JPanel();
+			JPanel bottomPanel = new JPanel();
+
+			valuePanel.setLayout(new BorderLayout(5, 5));
+			valuePanel.add(new JLabel("Value:"), BorderLayout.WEST);
+			valuePanel.add(valueField, BorderLayout.CENTER);
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel.setLayout(new BorderLayout(5, 5));
+			centerPanel.add(valuePanel, BorderLayout.NORTH);
+			centerPanel.add(slider, BorderLayout.CENTER);
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(ChartConfigPanel.this);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public double getValue() {
+			return value;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				value = valueField.getValue();
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			valueField.setValue(intToDouble(slider.getValue()));
+		}
+
+		private int doubleToInt(double d) {
+			return (int) ((d - min) / (max - min) * (double) SLIDER_STEPS);
+		}
+
+		private double intToDouble(int i) {
+			return (double) i / (double) SLIDER_STEPS * (max - min) + min;
+		}
 	}
 
 }

@@ -39,7 +39,6 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -199,22 +198,29 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			List<String> variables = new ArrayList<String>(plotable
 					.getFunctionArguments().keySet());
 			List<List<Double>> possibleValues = new ArrayList<List<Double>>();
+			Map<String, Double> minValues = new LinkedHashMap<String, Double>();
+			Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
 
 			for (String var : variables) {
-				if (plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(var));
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
+				Double min = plotable.getMinArguments().get(var);
+				Double max = plotable.getMaxArguments().get(var);
 
-					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+				minValues.put(var, min);
+				maxValues.put(var, max);
+
+				if (min != null) {
+					possibleValues
+							.add(new ArrayList<Double>(Arrays.asList(min)));
+				} else if (max != null) {
+					possibleValues
+							.add(new ArrayList<Double>(Arrays.asList(max)));
 				} else {
 					possibleValues.add(null);
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues,
-					TimeSeriesSchema.TIME);
+			configPanel.setParamsX(variables, possibleValues, minValues,
+					maxValues, TimeSeriesSchema.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
@@ -322,8 +328,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
 
-				variables.put(element.getName(),
-						new ArrayList<Double>(Arrays.asList(0.0)));
+				variables.put(element.getName(), new ArrayList<Double>());
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
 			}

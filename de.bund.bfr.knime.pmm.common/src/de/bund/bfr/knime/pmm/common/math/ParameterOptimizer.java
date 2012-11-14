@@ -115,7 +115,6 @@ public class ParameterOptimizer {
 			parser.addVariable(param, 0.0);
 			derivatives.add(parser.differentiate(function, param));
 		}
-		// checkIndepVars4Singularities();
 	}
 
 	public void optimize(AtomicInteger progress) {
@@ -249,7 +248,7 @@ public class ParameterOptimizer {
 				1.3, 1.0 / 1.3, 1.4, 1 / 1.4, 1.5, 1.0 / 1.5, };
 
 		successful = false;
-		// boolean concergenceProblem = false;
+
 		for (double factor : factors) {
 			List<Double> startValues = new ArrayList<Double>(parameters.size());
 
@@ -275,27 +274,10 @@ public class ParameterOptimizer {
 			} catch (TooManyEvaluationsException e) {
 				break;
 			} catch (ConvergenceException e) {
-				// concergenceProblem = true;
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
-		// if (!successful && concergenceProblem) {
-		// System.out
-		// .println("Function or its derivatives seem to have singularities:");
-		// System.out.println("Formula:");
-		// parser.println(function);
-		// System.out.println("Arguments:");
-		// for (List<Double> dbllist : argumentValues) {
-		// for (double dbl : dbllist)
-		// System.out.print(dbl + "\t");
-		// System.out.println();
-		// }
-		// System.out.println("Targets:");
-		// for (double dbl : targetValues)
-		// System.out.print(dbl + "\t");
-		// System.out.println();
-		// }
 	}
 
 	public boolean isSuccessful() {
@@ -311,10 +293,6 @@ public class ParameterOptimizer {
 	}
 
 	public double getRSquare() {
-		/*
-		 * int p = parameters.size(); int n = targetValues.size(); double
-		 * rSquareCorrected = rSquare - (1 - rSquare) * p / (n-p-1);
-		 */
 		return rSquare;
 	}
 
@@ -578,21 +556,6 @@ public class ParameterOptimizer {
 						retValue[i][j] = evalWithSingularityCheck(
 								derivatives.get(j), argValues, paramValues);
 					}
-
-					// for (int j = 0; j < arguments.size(); j++) {
-					// parser.setVarValue(arguments.get(j), argumentValues
-					// .get(j).get(i));
-					// }
-					//
-					// for (int j = 0; j < derivatives.size(); j++) {
-					// Object number = parser.evaluate(derivatives.get(j));
-					//
-					// if (number instanceof Complex) {
-					// retValue[i][j] = Double.NaN;
-					// } else {
-					// retValue[i][j] = (Double) number;
-					// }
-					// }
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();
@@ -601,56 +564,4 @@ public class ParameterOptimizer {
 			return retValue;
 		}
 	};
-
-	// // maybe a good idea to do similar thing for parameter singularities???
-	// private void checkIndepVars4Singularities() {
-	// for (int ii = 0; ii < 100; ii++) {
-	// for (int i = 0; i < parameters.size(); i++) { // Parameters
-	// parser.setVarValue(parameters.get(i), Math.random());
-	// }
-	// int index = getNaNIndex();
-	// if (index >= 0) {
-	// for (int j = 0; j < arguments.size(); j++) { // indepVars
-	// List<Double> l = argumentValues.get(j);
-	// double val = l.get(index);
-	// if (index < l.size() - 1) {
-	// double diff = l.get(index + 1) - val;
-	// val = val + diff / (1000.0 + Math.random());
-	// } else {
-	// double diff = val - l.get(index - 1);
-	// val = val - diff / (1000.0 + Math.random());
-	// }
-	// l.remove(index);
-	// l.add(index, val);
-	// }
-	// } else {
-	// break;
-	// }
-	// }
-	// }
-	//
-	// private int getNaNIndex() {
-	// int i = 0;
-	// try {
-	// for (; i < argumentValues.size(); i++) { // TimeSeries, usually Time
-	// for (int j = 0; j < arguments.size(); j++) { // indepVars
-	// parser.setVarValue(arguments.get(j), argumentValues.get(j)
-	// .get(i));
-	// }
-	//
-	// for (int j = 0; j < derivatives.size(); j++) {
-	// Object number = parser.evaluate(derivatives.get(j));
-	//
-	// if (number instanceof Complex
-	// || Double.isNaN((Double) number)) {
-	// return i;
-	// }
-	// }
-	// }
-	// } catch (ParseException e) {
-	// e.printStackTrace();
-	// return i;
-	// }
-	// return -1;
-	// }
 }

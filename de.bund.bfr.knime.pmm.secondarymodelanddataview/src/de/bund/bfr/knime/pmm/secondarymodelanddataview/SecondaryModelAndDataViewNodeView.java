@@ -136,14 +136,14 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			if (getNodeModel().isSeiSchema()) {
 				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_BOXES);
+						ChartConfigPanel.PARAMETER_BOXES, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
 						filterableStringColumns, colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
 				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_FIELDS);
+						ChartConfigPanel.PARAMETER_FIELDS, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,

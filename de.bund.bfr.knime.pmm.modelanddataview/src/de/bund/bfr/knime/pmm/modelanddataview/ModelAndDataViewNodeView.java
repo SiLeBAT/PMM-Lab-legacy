@@ -132,7 +132,7 @@ public class ModelAndDataViewNodeView extends
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS);
+					ChartConfigPanel.PARAMETER_FIELDS, false);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,

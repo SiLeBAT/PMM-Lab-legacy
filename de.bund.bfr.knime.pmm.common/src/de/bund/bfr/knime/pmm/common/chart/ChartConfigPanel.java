@@ -84,6 +84,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JCheckBox showLegendBox;
 	private JCheckBox addInfoInLegendBox;
 	private JCheckBox displayFocusedRowBox;
+	private JCheckBox showConfidenceBox;
 
 	private JCheckBox manualRangeBox;
 	private DoubleTextField minXField;
@@ -108,7 +109,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private String lastParamX;
 
-	public ChartConfigPanel(int type) {
+	public ChartConfigPanel(int type, boolean allowConfidenceInterval) {
 		this.type = type;
 		listeners = new ArrayList<ConfigListener>();
 		setLayout(new GridLayout(3, 1));
@@ -135,6 +136,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		displayOptionsPanel.add(showLegendBox);
 		displayOptionsPanel.add(addInfoInLegendBox);
 		displayOptionsPanel.add(displayFocusedRowBox);
+
+		if (allowConfidenceInterval) {
+			showConfidenceBox = new JCheckBox("Show Confidence Interval");
+			showConfidenceBox.setSelected(false);
+			showConfidenceBox.addActionListener(this);
+			displayOptionsPanel.add(showConfidenceBox);
+		}
+
 		add(new SpacePanel(displayOptionsPanel));
 
 		JPanel rangePanel = new JPanel();
@@ -320,6 +329,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setDisplayFocusedRow(boolean displayFocusedRow) {
 		displayFocusedRowBox.setSelected(displayFocusedRow);
+	}
+
+	public boolean isShowConfidenceInterval() {
+		return showConfidenceBox.isSelected();
+	}
+
+	public void setShowConfidenceInterval(boolean showConfidenceInterval) {
+		showConfidenceBox.setSelected(showConfidenceInterval);
 	}
 
 	public String getParamX() {

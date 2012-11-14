@@ -80,8 +80,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class PrimaryModelViewAndSelectNodeDialog extends
 		DataAwareNodeDialogPane implements
-		ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
 
 	private TableReader reader;
 
@@ -368,8 +367,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			boolean addLegendInfo, boolean displayHighlighted,
 			String transformY, List<String> visibleColumns, String modelFilter,
 			String dataFilter, String fittedFilter) {
-		configPanel = new ChartConfigPanel(
-				ChartConfigPanel.NO_PARAMETER_INPUT);
+		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
+				false);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.TIME));
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);

@@ -132,7 +132,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS);
+					ChartConfigPanel.PARAMETER_FIELDS, true);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
@@ -253,6 +253,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);

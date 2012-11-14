@@ -86,6 +86,7 @@ public class ChartCreator extends ChartPanel {
 	private boolean drawLines;
 	private boolean showLegend;
 	private boolean addInfoInLegend;
+	private boolean showConfidenceInterval;
 
 	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
@@ -394,6 +395,14 @@ public class ChartCreator extends ChartPanel {
 		this.addInfoInLegend = addInfoInLegend;
 	}
 
+	public boolean isShowConfidenceInterval() {
+		return showConfidenceInterval;
+	}
+
+	public void setShowConfidenceInterval(boolean showConfidenceInterval) {
+		this.showConfidenceInterval = showConfidenceInterval;
+	}
+
 	public Map<String, Color> getColors() {
 		return colors;
 	}
@@ -520,9 +529,13 @@ public class ChartCreator extends ChartPanel {
 		double[][] samplePoints = plotable.getFunctionSamplePoints(paramX,
 				paramY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
-		double[][] functionErrors = plotable.getFunctionErrors(paramX, paramY,
-				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+		double[][] functionErrors = null;
+
+		if (showConfidenceInterval) {
+			functionErrors = plotable.getFunctionErrors(paramX, paramY,
+					transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY);
+		}
 
 		if (functionPoints != null) {
 			int i;

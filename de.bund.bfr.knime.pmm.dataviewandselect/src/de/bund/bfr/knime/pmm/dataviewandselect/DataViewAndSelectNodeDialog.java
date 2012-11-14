@@ -300,7 +300,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			double maxY, boolean drawLines, boolean showLegend,
 			boolean addLegendInfo, boolean displayHighlighted,
 			String transformY, List<String> visibleColumns) {
-		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT);
+		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
+				false);
 		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.TIME));
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);

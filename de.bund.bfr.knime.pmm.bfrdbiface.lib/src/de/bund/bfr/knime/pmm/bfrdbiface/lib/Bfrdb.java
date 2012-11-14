@@ -1316,7 +1316,28 @@ public class Bfrdb extends Hsqldbiface {
         	for (PmmXmlElementConvertable el : misc.getElementSet()) {
         		if (el instanceof MiscXml) {		
         			MiscXml mx = (MiscXml) el;
-    				Integer paramID = getID("SonstigeParameter", "Beschreibung", mx.getDescription().toLowerCase()); // Parameter Beschreibung
+					String n = mx.getName();
+					String d = mx.getDescription();
+					if (n == null || n.isEmpty()) n = d;
+					if (d == null || d.isEmpty()) d = n;
+    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
+    				if (paramID == null) {
+						try {
+							if (n != null && d != null && !n.isEmpty() && !d.isEmpty()) {
+								ps = conn.prepareStatement("INSERT INTO \"SonstigeParameter\" (\"Parameter\", \"Beschreibung\") VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+								ps.setString(1, n);
+								ps.setString(2, d.toLowerCase());
+								if (ps.executeUpdate() > 0) {
+									ResultSet rs = ps.getGeneratedKeys();
+									rs.next();
+									paramID = rs.getInt(1);
+									rs.close();
+								}
+								ps.close();
+							}
+						}
+						catch(SQLException ex) {ex.printStackTrace();}
+    				}
     				if (paramID != null) {
     					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
     					try {
@@ -1346,7 +1367,7 @@ public class Bfrdb extends Hsqldbiface {
     				}
     				else {
     					//System.err.println("handleConditions, paramID not known:\t" + val + "\t" + after);
-    					result += "Insert of Misc failed:\t" + mx.getDescription() + "\n";
+    					result += "Insert of Misc failed:\t" + mx.getName() + "\t" + mx.getDescription() + "\n";
     				}
         		}
         	}

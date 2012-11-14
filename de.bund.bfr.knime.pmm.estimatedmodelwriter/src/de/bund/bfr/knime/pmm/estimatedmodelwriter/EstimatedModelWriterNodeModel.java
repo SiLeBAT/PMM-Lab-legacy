@@ -155,6 +155,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 				
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
+				
+				if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
+					warnings += ts.getWarning() + "\n";
+				}
 			}
 			
 			if (newTsID != null) {

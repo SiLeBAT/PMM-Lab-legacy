@@ -135,10 +135,10 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
 				
 				alreadyInsertedTs.put(rowTsID, ts);
-			}
-
-			if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
-				warnings += ts.getWarning() + "\n";
+				
+				if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
+					warnings += ts.getWarning() + "\n";
+				}
 			}
 		}
 		if (!warnings.isEmpty()) {

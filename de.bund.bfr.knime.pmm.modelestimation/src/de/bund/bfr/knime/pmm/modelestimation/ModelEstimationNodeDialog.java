@@ -50,6 +50,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -71,6 +72,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
+import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 
 /**
  * <code>NodeDialog</code> for the "ModelEstimation" Node.
@@ -87,6 +89,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 
 	private JCheckBox limitsBox;
 	private JCheckBox oneStepBox;
+	private IntTextField nParamSpaceField;
+	private IntTextField nLevenbergField;
+	private JCheckBox stopWhenSuccessBox;
 
 	private Map<String, String> modelNames;
 	private Map<String, List<String>> parameters;
@@ -111,6 +116,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 			BufferedDataTable[] input) throws NotConfigurableException {
 		int enforceLimits;
 		int doOneStepFit;
+		int nParameterSpace;
+		int nLevenberg;
+		int stopWhenSuccessful;
 		List<String> parameterGuesses;
 
 		try {
@@ -125,6 +133,27 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 					.getInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD);
 		} catch (InvalidSettingsException e) {
 			doOneStepFit = ModelEstimationNodeModel.DEFAULT_ONESTEPMETHOD;
+		}
+
+		try {
+			nParameterSpace = settings
+					.getInt(ModelEstimationNodeModel.CFGKEY_NPARAMETERSPACE);
+		} catch (InvalidSettingsException e) {
+			nParameterSpace = ModelEstimationNodeModel.DEFAULT_NPARAMETERSPACE;
+		}
+
+		try {
+			nLevenberg = settings
+					.getInt(ModelEstimationNodeModel.CFGKEY_NLEVENBERG);
+		} catch (InvalidSettingsException e) {
+			nLevenberg = ModelEstimationNodeModel.DEFAULT_NLEVENBERG;
+		}
+
+		try {
+			stopWhenSuccessful = settings
+					.getInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL);
+		} catch (InvalidSettingsException e) {
+			stopWhenSuccessful = ModelEstimationNodeModel.DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
 		try {
@@ -152,6 +181,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 		}
 
 		JPanel panel = createPanel(enforceLimits == 1, doOneStepFit == 1,
+				nParameterSpace, nLevenberg, stopWhenSuccessful == 1,
 				ModelEstimationNodeModel.getGuessMap(parameterGuesses));
 
 		((JPanel) getTab("Options")).removeAll();
@@ -161,6 +191,15 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()) {
+			throw new InvalidSettingsException("");
+		}
+
+		settings.addInt(ModelEstimationNodeModel.CFGKEY_NPARAMETERSPACE,
+				nParamSpaceField.getValue());
+		settings.addInt(ModelEstimationNodeModel.CFGKEY_NLEVENBERG,
+				nLevenbergField.getValue());
+
 		if (limitsBox.isSelected()) {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
 		} else {
@@ -171,6 +210,14 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 1);
 		} else {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 0);
+		}
+
+		if (stopWhenSuccessBox.isSelected()) {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL,
+					1);
+		} else {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL,
+					0);
 		}
 
 		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, Point2D.Double>>();
@@ -267,14 +314,28 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 	}
 
 	private JPanel createPanel(boolean enforceLimits, boolean doOneStepFit,
+			int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
 			Map<String, Map<String, Point2D.Double>> guessMap) {
 		JPanel panel = new JPanel();
 		JPanel limitsPanel = new JPanel();
 		JPanel oneStepPanel = new JPanel();
+		JPanel regressionPanel = new JPanel();
+		JPanel leftRegressionPanel = new JPanel();
+		JPanel rightRegressionPanel = new JPanel();
 		JPanel rangePanel = new JPanel();
 
 		limitsBox = new JCheckBox("Enforce Limits", enforceLimits);
 		oneStepBox = new JCheckBox("Use One Step Method", doOneStepFit);
+		nParamSpaceField = new IntTextField(0, 1000000);
+		nParamSpaceField.setValue(nParameterSpace);
+		nParamSpaceField.setPreferredSize(new Dimension(100, nParamSpaceField
+				.getPreferredSize().height));
+		nLevenbergField = new IntTextField(1, 100);
+		nLevenbergField.setValue(nLevenberg);
+		nLevenbergField.setPreferredSize(new Dimension(100, nLevenbergField
+				.getPreferredSize().height));
+		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful",
+				stopWhenSuccessful);
 		minimumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
 		maximumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
 
@@ -284,6 +345,26 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 		oneStepPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		oneStepPanel.setLayout(new BorderLayout());
 		oneStepPanel.add(oneStepBox, BorderLayout.WEST);
+
+		leftRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
+				5));
+		leftRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftRegressionPanel.add(new JLabel(
+				"Maximal Evaluations to Find Start Values"));
+		leftRegressionPanel.add(new JLabel(
+				"Maximal Executions of the Levenberg Algorithm"));
+		leftRegressionPanel.add(stopWhenSuccessBox);
+		rightRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
+				5));
+		rightRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightRegressionPanel.add(nParamSpaceField);
+		rightRegressionPanel.add(nLevenbergField);
+		rightRegressionPanel.add(new JLabel());
+		regressionPanel.setBorder(new TitledBorder(
+				"Nonlinear Regression Parameters"));
+		regressionPanel.setLayout(new BorderLayout());
+		regressionPanel.add(leftRegressionPanel, BorderLayout.WEST);
+		regressionPanel.add(rightRegressionPanel, BorderLayout.EAST);
 
 		if (parameters.size() == 1
 				&& parameters.containsKey(ModelEstimationNodeModel.PRIMARY)) {
@@ -426,6 +507,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(limitsPanel);
 		panel.add(oneStepPanel);
+		panel.add(regressionPanel);
 		panel.add(rangePanel);
 
 		return panel;

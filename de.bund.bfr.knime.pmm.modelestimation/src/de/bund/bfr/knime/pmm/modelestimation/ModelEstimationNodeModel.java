@@ -90,9 +90,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
 	static final String CFGKEY_ONESTEPMETHOD = "OneStepMethod";
+	static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
+	static final String CFGKEY_NLEVENBERG = "NLevenberg";
+	static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
 	static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
 	static final int DEFAULT_ENFORCELIMITS = 0;
 	static final int DEFAULT_ONESTEPMETHOD = 0;
+	static final int DEFAULT_NPARAMETERSPACE = 10000;
+	static final int DEFAULT_NLEVENBERG = 10;
+	static final int DEFAULT_STOPWHENSUCCESSFUL = 1;
 
 	private static final int MAX_THREADS = 8;
 
@@ -102,6 +108,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	private int enforceLimits;
 	private int oneStepMethod;
+	private int nParameterSpace;
+	private int nLevenberg;
+	private int stopWhenSuccessful;
 	private List<String> parameterGuesses;
 
 	/**
@@ -111,6 +120,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 		super(1, 1);
 		enforceLimits = DEFAULT_ENFORCELIMITS;
 		oneStepMethod = DEFAULT_ONESTEPMETHOD;
+		nParameterSpace = DEFAULT_NPARAMETERSPACE;
+		nLevenberg = DEFAULT_NLEVENBERG;
+		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
 		parameterGuesses = new ArrayList<String>();
 
 		try {
@@ -191,6 +203,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
 		settings.addInt(CFGKEY_ONESTEPMETHOD, oneStepMethod);
+		settings.addInt(CFGKEY_NPARAMETERSPACE, nParameterSpace);
+		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
+		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
 		settings.addString(CFGKEY_PARAMETERGUESSES,
 				ListUtilities.getStringFromList(parameterGuesses));
 	}
@@ -211,6 +226,24 @@ public class ModelEstimationNodeModel extends NodeModel {
 			oneStepMethod = settings.getInt(CFGKEY_ONESTEPMETHOD);
 		} catch (InvalidSettingsException e) {
 			oneStepMethod = DEFAULT_ONESTEPMETHOD;
+		}
+
+		try {
+			nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
+		} catch (InvalidSettingsException e) {
+			nParameterSpace = DEFAULT_NPARAMETERSPACE;
+		}
+
+		try {
+			nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
+		} catch (InvalidSettingsException e) {
+			nLevenberg = DEFAULT_NLEVENBERG;
+		}
+
+		try {
+			stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
+		} catch (InvalidSettingsException e) {
+			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
 		try {
@@ -562,7 +595,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 							minParameterValues, maxParameterValues,
 							minGuessValues, maxGuessValues, targetValues,
 							arguments, argumentValues, enforceLimits == 1);
-					optimizer.optimize(new AtomicInteger(), 10000, 10, true);
+					optimizer.optimize(new AtomicInteger(), nParameterSpace,
+							nLevenberg, stopWhenSuccessful == 1);
 					successful = optimizer.isSuccessful();
 				}
 
@@ -838,7 +872,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress, 10000, 10, true);
+							optimizer.optimize(progress, nParameterSpace,
+									nLevenberg, stopWhenSuccessful == 1);
 							successful = optimizer.isSuccessful();
 						}
 
@@ -1160,7 +1195,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress, 10000, 10, true);
+							optimizer.optimize(progress, nParameterSpace,
+									nLevenberg, stopWhenSuccessful == 1);
 							successful = optimizer.isSuccessful();
 						}
 

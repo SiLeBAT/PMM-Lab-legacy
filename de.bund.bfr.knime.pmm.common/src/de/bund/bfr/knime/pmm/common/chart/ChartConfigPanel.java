@@ -398,10 +398,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		return valueLists;
 	}
 
-	public void setParamsX(Map<String, List<Double>> parameters) {
-		setParamsX(parameters, null, null, null);
-	}
-
 	public void setParamsX(Map<String, List<Double>> parameters,
 			Map<String, Double> minParamValues,
 			Map<String, Double> maxParamValues, String paramX) {
@@ -470,7 +466,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			for (String param : parameters.keySet()) {
 				List<Double> values = parameters.get(param);
 
-				if (values != null) {
+				if (!values.isEmpty()) {
 					List<Boolean> selected = new ArrayList<Boolean>(
 							Collections.nCopies(values.size(), false));
 

@@ -215,14 +215,15 @@ public class SecondaryModelAndDataViewNodeView extends
 				}
 			}
 
-			configPanel.setParamsX(variables);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);

@@ -200,14 +200,15 @@ public class CombinedModelAndDataViewNodeView extends
 				}
 			}
 
-			configPanel.setParamsX(variables);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);

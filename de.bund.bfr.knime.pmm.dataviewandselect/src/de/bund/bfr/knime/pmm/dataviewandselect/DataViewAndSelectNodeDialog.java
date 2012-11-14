@@ -306,7 +306,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
-		configPanel.setParamsX(paramsX);
+		configPanel.setParamsX(paramsX, null, null, null);
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);
 		configPanel.setMinX(minX);

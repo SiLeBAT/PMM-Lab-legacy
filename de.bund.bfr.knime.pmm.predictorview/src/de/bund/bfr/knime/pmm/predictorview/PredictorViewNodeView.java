@@ -196,15 +196,10 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
-			Map<String, Double> minValues = new LinkedHashMap<String, Double>();
-			Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
 
 			for (String var : plotable.getFunctionArguments().keySet()) {
 				Double min = plotable.getMinArguments().get(var);
 				Double max = plotable.getMaxArguments().get(var);
-
-				minValues.put(var, min);
-				maxValues.put(var, max);
 
 				if (min != null) {
 					variables.put(var,
@@ -217,8 +212,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				}
 			}
 
-			configPanel.setParamsX(variables, minValues, maxValues,
-					TimeSeriesSchema.TIME);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), TimeSeriesSchema.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
@@ -234,7 +229,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			samplePanel.setDataPoints(samplePoints);
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);

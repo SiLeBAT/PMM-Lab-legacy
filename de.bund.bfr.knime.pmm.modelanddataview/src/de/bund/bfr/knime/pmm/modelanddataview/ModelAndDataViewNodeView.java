@@ -183,24 +183,22 @@ public class ModelAndDataViewNodeView extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = new ArrayList<List<Double>>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : variables) {
+			for (String var : plotable.getFunctionArguments().keySet()) {
 				if (plotable.getValueList(var) != null) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
 					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+					variables.put(var, valuesList);
 				} else {
-					possibleValues.add(null);
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues);
+			configPanel.setParamsX(variables);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());

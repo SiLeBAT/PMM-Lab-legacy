@@ -197,14 +197,10 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = null;
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			if (getNodeModel().isSeiSchema()) {
-				possibleValues = new ArrayList<List<Double>>();
-
-				for (String var : variables) {
+			for (String var : plotable.getFunctionArguments().keySet()) {
+				if (getNodeModel().isSeiSchema()) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 
@@ -213,11 +209,13 @@ public class SecondaryModelAndDataViewNodeView extends
 					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
 					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+					variables.put(var, valuesList);
+				} else if (getNodeModel().isModel2Schema()) {
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues);
+			configPanel.setParamsX(variables);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());

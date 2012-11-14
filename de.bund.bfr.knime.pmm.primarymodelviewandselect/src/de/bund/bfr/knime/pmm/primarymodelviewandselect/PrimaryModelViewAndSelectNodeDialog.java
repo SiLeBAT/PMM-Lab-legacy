@@ -367,9 +367,13 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			boolean addLegendInfo, boolean displayHighlighted,
 			String transformY, List<String> visibleColumns, String modelFilter,
 			String dataFilter, String fittedFilter) {
+		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
+
+		paramsX.put(TimeSeriesSchema.TIME, new ArrayList<Double>());
+
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
-		configPanel.setParamsX(Arrays.asList(TimeSeriesSchema.TIME));
+		configPanel.setParamsX(paramsX);
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);
 		configPanel.setMinX(minX);

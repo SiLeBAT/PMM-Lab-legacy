@@ -95,9 +95,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JComboBox xBox;
 	private JComboBox yBox;
 	private JComboBox yTransBox;
-	private List<String> parameters;
-	private List<List<Double>> possibleValues;
-	private List<List<Boolean>> selectedValues;
+	private Map<String, List<Double>> parameters;
+	private Map<String, List<Boolean>> selectedValues;
 	private Map<String, Double> minParamValues;
 	private Map<String, Double> maxParamValues;
 
@@ -378,9 +377,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				}
 			}
 		} else if (type == PARAMETER_BOXES) {
-			for (int i = 0; i < parameters.size(); i++) {
-				List<Double> values = possibleValues.get(i);
-				List<Boolean> selected = selectedValues.get(i);
+			for (String param : parameters.keySet()) {
+				List<Double> values = parameters.get(param);
+				List<Boolean> selected = selectedValues.get(param);
 				List<Double> newValues = new ArrayList<Double>();
 
 				for (int j = 0; j < values.size(); j++) {
@@ -389,7 +388,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 					}
 				}
 
-				valueLists.put(parameters.get(i), newValues);
+				valueLists.put(param, newValues);
 			}
 		}
 
@@ -399,27 +398,17 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		return valueLists;
 	}
 
-	public void setParamsX(List<String> parameters) {
-		setParamsX(parameters, null);
+	public void setParamsX(Map<String, List<Double>> parameters) {
+		setParamsX(parameters, null, null, null);
 	}
 
-	public void setParamsX(List<String> parameters,
-			List<List<Double>> possibleValues) {
-		setParamsX(parameters, possibleValues, null, null, null);
-	}
-
-	public void setParamsX(List<String> parameters,
-			List<List<Double>> possibleValues,
+	public void setParamsX(Map<String, List<Double>> parameters,
 			Map<String, Double> minParamValues,
 			Map<String, Double> maxParamValues, String paramX) {
 		boolean parametersChanged = false;
 
 		if (parameters == null) {
-			parameters = new ArrayList<String>();
-		}
-
-		if (possibleValues == null) {
-			possibleValues = new ArrayList<List<Double>>();
+			parameters = new LinkedHashMap<String, List<Double>>();
 		}
 
 		if (minParamValues == null) {
@@ -430,33 +419,23 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			maxParamValues = new LinkedHashMap<String, Double>();
 		}
 
-		if (this.parameters == null || this.possibleValues == null
-				|| parameters.size() != this.parameters.size()
-				|| possibleValues.size() != this.possibleValues.size()) {
+		if (this.parameters == null
+				|| parameters.size() != this.parameters.size()) {
 			parametersChanged = true;
 		} else {
-			for (int i = 0; i < parameters.size(); i++) {
-				String param = parameters.get(i);
-				List<Double> values = possibleValues.get(i);
-
-				if (!this.parameters.contains(param)) {
+			for (String param : parameters.keySet()) {
+				if (!this.parameters.containsKey(param)) {
 					parametersChanged = true;
 					break;
-				} else {
-					List<Double> oldValues = this.possibleValues
-							.get(this.parameters.indexOf(param));
-
-					if ((values == null && oldValues != null)
-							|| (values != null && !values.equals(oldValues))) {
-						parametersChanged = true;
-						break;
-					}
+				} else if (!parameters.get(param).equals(
+						this.parameters.get(param))) {
+					parametersChanged = true;
+					break;
 				}
 			}
 		}
 
 		this.parameters = parameters;
-		this.possibleValues = possibleValues;
 		this.minParamValues = minParamValues;
 		this.maxParamValues = maxParamValues;
 
@@ -467,15 +446,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			if (paramX != null) {
 				xBox.addItem(paramX);
 			} else {
-				for (String param : parameters) {
+				for (String param : parameters.keySet()) {
 					xBox.addItem(param);
 				}
 			}
 
 			if (!parameters.isEmpty()) {
-				if (parameters.contains(lastParamX)) {
+				if (parameters.containsKey(lastParamX)) {
 					xBox.setSelectedItem(lastParamX);
-				} else if (parameters.contains(TimeSeriesSchema.TIME)) {
+				} else if (parameters.containsKey(TimeSeriesSchema.TIME)) {
 					xBox.setSelectedItem(TimeSeriesSchema.TIME);
 				} else {
 					xBox.setSelectedIndex(0);
@@ -486,19 +465,19 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 			xBox.addActionListener(this);
 
-			if (possibleValues != null) {
-				selectedValues = new ArrayList<List<Boolean>>();
+			selectedValues = new LinkedHashMap<String, List<Boolean>>();
 
-				for (List<Double> values : possibleValues) {
-					if (values != null) {
-						List<Boolean> selected = new ArrayList<Boolean>(
-								Collections.nCopies(values.size(), false));
+			for (String param : parameters.keySet()) {
+				List<Double> values = parameters.get(param);
 
-						selected.set(0, true);
-						selectedValues.add(selected);
-					} else {
-						selectedValues.add(null);
-					}
+				if (values != null) {
+					List<Boolean> selected = new ArrayList<Boolean>(
+							Collections.nCopies(values.size(), false));
+
+					selected.set(0, true);
+					selectedValues.put(param, selected);
+				} else {
+					selectedValues.put(param, null);
 				}
 			}
 
@@ -546,18 +525,18 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterFields.clear();
 		parameterButtons.clear();
 
-		for (int i = 0; i < parameters.size(); i++) {
-			if (parameters.get(i).equals(xBox.getSelectedItem())) {
+		for (String param : parameters.keySet()) {
+			if (param.equals(xBox.getSelectedItem())) {
 				continue;
 			}
 
 			if (type == PARAMETER_FIELDS) {
-				JButton selectButton = new JButton(parameters.get(i) + ":");
+				JButton selectButton = new JButton(param + ":");
 				DoubleTextField input = new DoubleTextField();
 				double value = 0.0;
 
-				if (possibleValues != null && possibleValues.get(i) != null) {
-					value = possibleValues.get(i).get(0);
+				if (!parameters.get(param).isEmpty()) {
+					value = parameters.get(param).get(0);
 				}
 
 				selectButton.addActionListener(this);
@@ -570,8 +549,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				parameterFields.add(input);
 				parameterValuesPanel.add(input);
 			} else if (type == PARAMETER_BOXES) {
-				JButton selectButton = new JButton(parameters.get(i)
-						+ " Values");
+				JButton selectButton = new JButton(param + " Values");
 
 				selectButton.addActionListener(this);
 				parameterButtons.add(selectButton);
@@ -642,14 +620,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			} else if (type == PARAMETER_BOXES) {
 				JButton button = (JButton) e.getSource();
 				String param = button.getText().replace(" Values", "");
-				int i = parameters.indexOf(param);
 				SelectDialog dialog = new SelectDialog(param,
-						possibleValues.get(i), selectedValues.get(i));
+						parameters.get(param), selectedValues.get(param));
 
 				dialog.setVisible(true);
 
 				if (dialog.isApproved()) {
-					selectedValues.set(i, dialog.getSelected());
+					selectedValues.put(param, dialog.getSelected());
 				}
 			}
 		}

@@ -195,13 +195,11 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = new ArrayList<List<Double>>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> minValues = new LinkedHashMap<String, Double>();
 			Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
 
-			for (String var : variables) {
+			for (String var : plotable.getFunctionArguments().keySet()) {
 				Double min = plotable.getMinArguments().get(var);
 				Double max = plotable.getMaxArguments().get(var);
 
@@ -209,18 +207,18 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				maxValues.put(var, max);
 
 				if (min != null) {
-					possibleValues
-							.add(new ArrayList<Double>(Arrays.asList(min)));
+					variables.put(var,
+							new ArrayList<Double>(Arrays.asList(min)));
 				} else if (max != null) {
-					possibleValues
-							.add(new ArrayList<Double>(Arrays.asList(max)));
+					variables.put(var,
+							new ArrayList<Double>(Arrays.asList(max)));
 				} else {
-					possibleValues.add(null);
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues, minValues,
-					maxValues, TimeSeriesSchema.TIME);
+			configPanel.setParamsX(variables, minValues, maxValues,
+					TimeSeriesSchema.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());

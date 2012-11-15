@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -579,7 +578,7 @@ public class Plotable {
 			return null;
 		}
 
-		Map<String, Integer> choice = new HashMap<String, Integer>();
+		Map<String, Integer> choice = new LinkedHashMap<String, Integer>();
 
 		for (String arg : functionArguments.keySet()) {
 			choice.put(arg, 0);

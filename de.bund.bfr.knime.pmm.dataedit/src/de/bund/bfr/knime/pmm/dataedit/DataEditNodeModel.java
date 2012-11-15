@@ -260,7 +260,10 @@ public class DataEditNodeModel extends NodeModel {
 								} else if (attr
 										.equals(TimeSeriesSchema.ATT_TIMESERIES)) {
 									tuple.setValue(attr,
-											convertToTimeSeries(value));
+											stringToTimeSeries(value));
+								} else if (attr
+										.equals(TimeSeriesSchema.ATT_MISC)) {
+									tuple.setValue(attr, stringToMisc(value));
 								}
 							} else {
 								tuple.setValue(attr, null);
@@ -280,7 +283,7 @@ public class DataEditNodeModel extends NodeModel {
 		return newTuples;
 	}
 
-	public static PmmXmlDoc convertToTimeSeries(String s) {
+	protected static PmmXmlDoc stringToTimeSeries(String s) {
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		String[] toks = s.split(",");
 
@@ -305,7 +308,58 @@ public class DataEditNodeModel extends NodeModel {
 		return timeSeriesXml;
 	}
 
-	public static String convertToString(PmmXmlDoc timeSeries) {
+	protected static String timeSeriesToString(PmmXmlDoc timeSeries) {
+		if (timeSeries == null || timeSeries.getElementSet().isEmpty()) {
+			return "";
+		}
+
+		String s = "";
+
+		for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
+			TimeSeriesXml element = (TimeSeriesXml) el;
+			String time = "?";
+			String logc = "?";
+
+			if (element.getTime() != null) {
+				time = element.getTime() + "";
+			}
+
+			if (element.getLog10C() != null) {
+				logc = element.getLog10C() + "";
+			}
+
+			s += time + "/" + logc + ",";
+		}
+
+		return s.substring(0, s.length() - 1);
+	}
+
+	protected static PmmXmlDoc stringToMisc(String s) {
+		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
+		String[] toks = s.split(",");
+
+		for (String t : toks) {
+			String[] timeLogc = t.split("/");
+			Double time = null;
+			Double logc = null;
+
+			try {
+				time = Double.parseDouble(timeLogc[0]);
+			} catch (NumberFormatException e) {
+			}
+
+			try {
+				logc = Double.parseDouble(timeLogc[1]);
+			} catch (NumberFormatException e) {
+			}
+
+			timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
+		}
+
+		return timeSeriesXml;
+	}
+
+	protected static String miscToString(PmmXmlDoc timeSeries) {
 		if (timeSeries == null || timeSeries.getElementSet().isEmpty()) {
 			return "";
 		}

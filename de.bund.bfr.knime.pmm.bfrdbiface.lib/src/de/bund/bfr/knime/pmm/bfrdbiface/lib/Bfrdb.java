@@ -1429,10 +1429,15 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public Integer insertM(final ParametricModel m) {		
 		int modelId = m.getModelId();
-
-		if (isObjectPresent("Modellkatalog", modelId)) {
+		Integer fID = getId4Formula(m.getFormula());
+		boolean iop = isObjectPresent("Modellkatalog", modelId); 
+		
+		if (iop || fID != null) {
 			//Date date = new Date( System.currentTimeMillis() );		
-			
+			if (!iop) {
+				modelId = fID;
+				m.setModelId(modelId);
+			}
 			try {
 				PreparedStatement ps = conn.prepareStatement( "UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?" );
 				ps.setString(1, m.getModelName());
@@ -1768,6 +1773,10 @@ public class Bfrdb extends Hsqldbiface {
 		return id;
 	}
 	
+	private Integer getId4Formula(final String formula) {
+		Integer o = (Integer) DBKernel.getValue("Modellkatalog", "Formel", formula, "ID");
+		return o;
+	}
 	private boolean isObjectPresent( final String tablename, final int id ) {
 		
 		if( id <= 0 ) {

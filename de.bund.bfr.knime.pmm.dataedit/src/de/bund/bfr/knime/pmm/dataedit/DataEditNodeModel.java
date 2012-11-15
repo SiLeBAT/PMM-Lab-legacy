@@ -57,6 +57,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -335,51 +336,82 @@ public class DataEditNodeModel extends NodeModel {
 	}
 
 	protected static PmmXmlDoc stringToMisc(String s) {
-		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
-		String[] toks = s.split(",");
+		PmmXmlDoc miscXml = new PmmXmlDoc();
+		String[] toks = s.split(";;");
 
 		for (String t : toks) {
-			String[] timeLogc = t.split("/");
-			Double time = null;
-			Double logc = null;
+			String[] elements = t.split(",,");
+			Integer id = null;
+			String name = null;
+			String description = null;
+			Double value = null;
+			String unit = null;
 
 			try {
-				time = Double.parseDouble(timeLogc[0]);
+				id = Integer.parseInt(elements[0]);
 			} catch (NumberFormatException e) {
 			}
 
+			if (!elements[1].equals("?")) {
+				name = elements[1];
+			}
+
+			if (!elements[2].equals("?")) {
+				description = elements[2];
+			}
+
 			try {
-				logc = Double.parseDouble(timeLogc[1]);
+				value = Double.parseDouble(elements[3]);
 			} catch (NumberFormatException e) {
 			}
 
-			timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
+			if (!elements[4].equals("?")) {
+				unit = elements[4];
+			}
+
+			miscXml.add(new MiscXml(id, name, description, value, unit));
 		}
 
-		return timeSeriesXml;
+		return miscXml;
 	}
 
-	protected static String miscToString(PmmXmlDoc timeSeries) {
-		if (timeSeries == null || timeSeries.getElementSet().isEmpty()) {
+	protected static String miscToString(PmmXmlDoc misc) {
+		if (misc == null || misc.getElementSet().isEmpty()) {
 			return "";
 		}
 
 		String s = "";
 
-		for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
-			TimeSeriesXml element = (TimeSeriesXml) el;
-			String time = "?";
-			String logc = "?";
+		for (PmmXmlElementConvertable el : misc.getElementSet()) {
+			MiscXml element = (MiscXml) el;
+			String id = "?";
+			String name = "?";
+			String description = "?";
+			String value = "?";
+			String unit = "?";
 
-			if (element.getTime() != null) {
-				time = element.getTime() + "";
+			if (element.getID() != null) {
+				id = element.getID() + "";
 			}
 
-			if (element.getLog10C() != null) {
-				logc = element.getLog10C() + "";
+			if (element.getName() != null) {
+				name = element.getName();
 			}
 
-			s += time + "/" + logc + ",";
+			if (element.getDescription() != null) {
+				description = element.getDescription();
+			}
+
+			if (element.getValue() != null) {
+				value = element.getValue() + "";
+			}
+
+			if (element.getUnit() != null) {
+				unit = element.getUnit();
+			}
+
+			s += id + ",," + name + ",," + description + ",," + value + ",,"
+					+ unit + ";;";
 		}
 
 		return s.substring(0, s.length() - 1);

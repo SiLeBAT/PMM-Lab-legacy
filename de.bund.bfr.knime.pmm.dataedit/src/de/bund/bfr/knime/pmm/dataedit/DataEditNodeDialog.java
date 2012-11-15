@@ -468,6 +468,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		for (JLabel label : miscEmptyLabels) {
+			miscPanel.remove(label);
 			miscButtonsPanel.remove(label);
 		}
 
@@ -496,6 +497,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			idField.setValue(element.getID());
 			idField.setPreferredSize(new Dimension(100, idField
 					.getPreferredSize().height));
+			idField.setEditable(false);
 			nameField.setValue(element.getName());
 			nameField.setPreferredSize(new Dimension(100, nameField
 					.getPreferredSize().height));
@@ -570,6 +572,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		for (JLabel label : emptyLabels) {
+			timeSeriesPanel.remove(label);
 			timeSeriesButtonsPanel.remove(label);
 		}
 
@@ -670,6 +673,37 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		PmmXmlDoc miscXml = new PmmXmlDoc();
+
+		for (int j = 0; j < miscIDFields.size(); j++) {
+			if (!miscIDFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscNameFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscDescriptionFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscValueFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscUnitFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			miscXml.add(new MiscXml(miscIDFields.get(j).getValue(),
+					miscNameFields.get(j).getValue(), miscDescriptionFields
+							.get(j).getValue(), miscValueFields.get(j)
+							.getValue(), miscUnitFields.get(j).getValue()));
+		}
+
+		tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 
 		for (int j = 0; j < timeFields.size(); j++) {
@@ -709,6 +743,22 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		for (DoubleTextField field : logcFields) {
 			field.addTextListener(this);
 		}
+
+		for (StringTextField field : miscNameFields) {
+			field.addTextListener(this);
+		}
+
+		for (StringTextField field : miscDescriptionFields) {
+			field.addTextListener(this);
+		}
+
+		for (DoubleTextField field : miscValueFields) {
+			field.addTextListener(this);
+		}
+
+		for (StringTextField field : miscUnitFields) {
+			field.addTextListener(this);
+		}
 	}
 
 	private void removeDocumentListeners() {
@@ -731,23 +781,71 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		for (DoubleTextField field : logcFields) {
 			field.removeTextListener(this);
 		}
+
+		for (StringTextField field : miscNameFields) {
+			field.removeTextListener(this);
+		}
+
+		for (StringTextField field : miscDescriptionFields) {
+			field.removeTextListener(this);
+		}
+
+		for (DoubleTextField field : miscValueFields) {
+			field.removeTextListener(this);
+		}
+
+		for (StringTextField field : miscUnitFields) {
+			field.removeTextListener(this);
+		}
 	}
 
 	private void processRowChanges() throws PmmException {
 		int index = idBox.getSelectedIndex();
 		List<String> rowChanges = new ArrayList<String>();
 
+		PmmXmlDoc oldMisc = oldTuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_MISC);
+		PmmXmlDoc newMisc = tuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_MISC);
+
+		if (newMisc.getElementSet().size() != oldMisc.getElementSet().size()) {
+			rowChanges.add(TimeSeriesSchema.ATT_MISC + "->"
+					+ DataEditNodeModel.miscToString(newMisc));
+		} else {
+			for (int i = 0; i < oldMisc.getElementSet().size(); i++) {
+				String oldName = ((MiscXml) oldMisc.get(i)).getName();
+				String newName = ((MiscXml) newMisc.get(i)).getName();
+				String oldDescription = ((MiscXml) oldMisc.get(i))
+						.getDescription();
+				String newDescription = ((MiscXml) newMisc.get(i))
+						.getDescription();
+				Double oldValue = ((MiscXml) oldMisc.get(i)).getValue();
+				Double newValue = ((MiscXml) newMisc.get(i)).getValue();
+				String oldUnit = ((MiscXml) oldMisc.get(i)).getUnit();
+				String newUnit = ((MiscXml) newMisc.get(i)).getUnit();
+
+				if (!areEqual(oldName, newName)
+						|| !areEqual(oldDescription, newDescription)
+						|| !areEqual(oldValue, newValue)
+						|| !areEqual(oldUnit, newUnit)) {
+					rowChanges.add(TimeSeriesSchema.ATT_MISC + "->"
+							+ DataEditNodeModel.miscToString(newMisc));
+					break;
+				}
+			}
+		}
+
 		PmmXmlDoc oldTimeSeries = oldTuples.get(index).getPmmXml(
 				TimeSeriesSchema.ATT_TIMESERIES);
 		PmmXmlDoc newTimeSeries = tuples.get(index).getPmmXml(
 				TimeSeriesSchema.ATT_TIMESERIES);
-		int n = oldTimeSeries.getElementSet().size();
 
-		if (newTimeSeries.getElementSet().size() != n) {
+		if (newTimeSeries.getElementSet().size() != oldTimeSeries
+				.getElementSet().size()) {
 			rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES + "->"
 					+ DataEditNodeModel.timeSeriesToString(newTimeSeries));
 		} else {
-			for (int i = 0; i < n; i++) {
+			for (int i = 0; i < oldTimeSeries.getElementSet().size(); i++) {
 				Double oldTime = ((TimeSeriesXml) oldTimeSeries.get(i))
 						.getTime();
 				Double oldLogc = ((TimeSeriesXml) oldTimeSeries.get(i))
@@ -848,6 +946,14 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 	}
 
+	private boolean areEqual(String v1, String v2) {
+		if (v1 == null) {
+			return v2 == null;
+		} else {
+			return v1.equals(v2);
+		}
+	}
+
 	private boolean areEqual(Double v1, Double v2) {
 		if (v1 == null) {
 			return v2 == null;
@@ -901,6 +1007,31 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 
 				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIMESERIES,
 						timeSeriesXml);
+				updateTextFields();
+				processRowChanges();
+			} else if (miscRemoveButtons.contains(e.getSource())) {
+				int i = idBox.getSelectedIndex();
+				int j = miscRemoveButtons.indexOf(e.getSource());
+				PmmXmlDoc miscXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_MISC);
+
+				miscXml.getElementSet().remove(j);
+
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+				updateTextFields();
+				processRowChanges();
+			} else if (miscAddButtons.contains(e.getSource())) {
+				int i = idBox.getSelectedIndex();
+				int j = miscAddButtons.indexOf(e.getSource());
+				PmmXmlDoc miscXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_MISC);
+
+				miscXml.getElementSet().add(
+						j,
+						new MiscXml(MathUtilities.getRandomNegativeInt(), "",
+								"", 0.0, ""));
+
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
 				updateTextFields();
 				processRowChanges();
 			}

@@ -23,44 +23,50 @@ public class QualityMeasurementComputation {
 
 	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples)
 			throws PmmException {
-		Map<Integer, KnimeTuple> tupleMap = new LinkedHashMap<Integer, KnimeTuple>();
-		Map<Integer, Set<Integer>> usedCondIDs = new LinkedHashMap<Integer, Set<Integer>>();
-		Map<Integer, List<Double>> targetValueMap = new LinkedHashMap<Integer, List<Double>>();
-		Map<Integer, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<Integer, Map<String, List<Double>>>();
+		Map<String, KnimeTuple> tupleMap = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, Set<Integer>> usedCondIDs = new LinkedHashMap<String, Set<Integer>>();
+		Map<String, List<Double>> targetValueMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<String, Map<String, List<Double>>>();
 
 		for (KnimeTuple tuple : tuples) {
-			Integer estID = tuple.getInt(Model1Schema.ATT_ESTMODELID);
-
-			if (estID == null) {
+			if (tuple.getInt(Model1Schema.ATT_ESTMODELID) == null) {
 				continue;
 			}
 
-			if (!tupleMap.containsKey(estID)) {
+			String id;
+
+			if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() > 1) {
+				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
+			} else {
+				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
+						+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			}
+
+			if (!tupleMap.containsKey(id)) {
 				PmmXmlDoc indepXml = tuple
 						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
-				tupleMap.put(estID, tuple);
-				usedCondIDs.put(estID, new LinkedHashSet<Integer>());
-				targetValueMap.put(estID, new ArrayList<Double>());
-				variableValueMap.put(estID,
+				tupleMap.put(id, tuple);
+				usedCondIDs.put(id, new LinkedHashSet<Integer>());
+				targetValueMap.put(id, new ArrayList<Double>());
+				variableValueMap.put(id,
 						new LinkedHashMap<String, List<Double>>());
 
 				for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 					IndepXml element = (IndepXml) el;
 
-					variableValueMap.get(estID).put(element.getName(),
+					variableValueMap.get(id).put(element.getName(),
 							new ArrayList<Double>());
 				}
 			}
 
-			if (!usedCondIDs.get(estID).add(
+			if (!usedCondIDs.get(id).add(
 					tuple.getInt(TimeSeriesSchema.ATT_CONDID))) {
 				continue;
 			}
 
-			List<Double> targetValues = targetValueMap.get(estID);
-			Map<String, List<Double>> variableValues = variableValueMap
-					.get(estID);
+			List<Double> targetValues = targetValueMap.get(id);
+			Map<String, List<Double>> variableValues = variableValueMap.get(id);
 			Map<String, Double> miscValues = new LinkedHashMap<String, Double>();
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			List<String> miscNames = CellIO.getNameList(miscXml);
@@ -122,16 +128,15 @@ public class QualityMeasurementComputation {
 			}
 		}
 
-		Map<Integer, Double> rmsMap = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Double> rSquaredMap = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Double> aicMap = new LinkedHashMap<Integer, Double>();
-		Map<Integer, Double> bicMap = new LinkedHashMap<Integer, Double>();
+		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
 
-		for (Integer estID : tupleMap.keySet()) {
-			KnimeTuple tuple = tupleMap.get(estID);
-			List<Double> targetValues = targetValueMap.get(estID);
-			Map<String, List<Double>> variableValues = variableValueMap
-					.get(estID);
+		for (String id : tupleMap.keySet()) {
+			KnimeTuple tuple = tupleMap.get(id);
+			List<Double> targetValues = targetValueMap.get(id);
+			Map<String, List<Double>> variableValues = variableValueMap.get(id);
 
 			DJep parser = MathUtilities.createParser();
 			String formula = tuple.getString(Model1Schema.ATT_FORMULA);
@@ -190,10 +195,10 @@ public class QualityMeasurementComputation {
 				double bic = MathUtilities.bayesCriterion(paramXml
 						.getElementSet().size(), usedTargetValues.size(), rms);
 
-				rmsMap.put(estID, rms);
-				rSquaredMap.put(estID, rSquared);
-				aicMap.put(estID, aic);
-				bicMap.put(estID, bic);
+				rmsMap.put(id, rms);
+				rSquaredMap.put(id, rSquared);
+				aicMap.put(id, aic);
+				bicMap.put(id, bic);
 			}
 		}
 
@@ -202,14 +207,26 @@ public class QualityMeasurementComputation {
 		for (KnimeTuple tuple : tuples) {
 			KnimeTuple newTuple = new KnimeTuple(tuple.getSchema(), tuple
 					.getSchema().createSpec(), tuple);
-			Integer estID = newTuple.getInt(Model1Schema.ATT_ESTMODELID);
 
-			if (rmsMap.containsKey(estID)) {
-				newTuple.setValue(Model1Schema.ATT_RMS, rmsMap.get(estID));
+			if (newTuple.getInt(Model1Schema.ATT_ESTMODELID) == null) {
+				continue;
+			}
+
+			String id;
+
+			if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() > 1) {
+				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
+			} else {
+				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
+						+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			}
+
+			if (rmsMap.containsKey(id)) {
+				newTuple.setValue(Model1Schema.ATT_RMS, rmsMap.get(id));
 				newTuple.setValue(Model1Schema.ATT_RSQUARED,
-						rSquaredMap.get(estID));
-				newTuple.setValue(Model1Schema.ATT_AIC, aicMap.get(estID));
-				newTuple.setValue(Model1Schema.ATT_BIC, bicMap.get(estID));
+						rSquaredMap.get(id));
+				newTuple.setValue(Model1Schema.ATT_AIC, aicMap.get(id));
+				newTuple.setValue(Model1Schema.ATT_BIC, bicMap.get(id));
 			}
 
 			newTuples.add(newTuple);

@@ -180,18 +180,21 @@ public class QualityMeasurementComputation {
 				}
 			}
 
-			rms = Math.sqrt(rms / usedTargetValues.size());
+			if (!usedTargetValues.isEmpty()) {
+				rms = Math.sqrt(rms / usedTargetValues.size());
 
-			double rSquared = MathUtilities.getRSquared(rms, usedTargetValues);
-			double aic = MathUtilities.akaikeCriterion(variableValues.keySet()
-					.size(), usedTargetValues.size(), rms);
-			double bic = MathUtilities.bayesCriterion(variableValues.keySet()
-					.size(), usedTargetValues.size(), rms);
+				double rSquared = MathUtilities.getRSquared(rms,
+						usedTargetValues);
+				double aic = MathUtilities.akaikeCriterion(paramXml
+						.getElementSet().size(), usedTargetValues.size(), rms);
+				double bic = MathUtilities.bayesCriterion(paramXml
+						.getElementSet().size(), usedTargetValues.size(), rms);
 
-			rmsMap.put(estID, rms);
-			rSquaredMap.put(estID, rSquared);
-			aicMap.put(estID, aic);
-			bicMap.put(estID, bic);
+				rmsMap.put(estID, rms);
+				rSquaredMap.put(estID, rSquared);
+				aicMap.put(estID, aic);
+				bicMap.put(estID, bic);
+			}
 		}
 
 		List<KnimeTuple> newTuples = new ArrayList<KnimeTuple>();

@@ -60,6 +60,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
@@ -239,8 +240,15 @@ public class CombinedModelAndDataViewNodeView extends
 			tuples.add(reader.nextElement());
 		}
 
-		Set<KnimeTuple> combinedTuples = ModelCombiner.combine(tuples,
-				getNodeModel().getSchema(), false, null).keySet();
+		List<KnimeTuple> combinedTuples = new ArrayList<KnimeTuple>(
+				ModelCombiner.combine(tuples, getNodeModel().getSchema(),
+						false, null).keySet());
+		List<KnimeTuple> newTuples = null;
+
+		if (getNodeModel().isSeiSchema()) {
+			newTuples = QualityMeasurementComputation
+					.computePrimary(combinedTuples);
+		}
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -262,9 +270,16 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
 					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
+					Model1Schema.ATT_RMS + "(Data)", Model1Schema.ATT_RSQUARED
+							+ "(Data)", Model1Schema.ATT_AIC + "(Data)",
+					Model1Schema.ATT_BIC + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -298,7 +313,8 @@ public class CombinedModelAndDataViewNodeView extends
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
 		}
 
-		for (KnimeTuple row : combinedTuples) {
+		for (int nr = 0; nr < combinedTuples.size(); nr++) {
+			KnimeTuple row = combinedTuples.get(nr);
 			String id = null;
 
 			if (getNodeModel().isSeiSchema()) {
@@ -458,10 +474,18 @@ public class CombinedModelAndDataViewNodeView extends
 				doubleColumnValues.get(3).add(
 						row.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(5).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(6).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_AIC));
+				doubleColumnValues.get(7).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_BIC));
+				doubleColumnValues.get(8).add(
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(9).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(10).add(
 						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -480,7 +504,7 @@ public class CombinedModelAndDataViewNodeView extends
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 5).add(
+							doubleColumnValues.get(i + 11).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -488,7 +512,7 @@ public class CombinedModelAndDataViewNodeView extends
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 5).add(null);
+						doubleColumnValues.get(i + 11).add(null);
 					}
 				}
 			} else if (getNodeModel().isModel12Schema()) {

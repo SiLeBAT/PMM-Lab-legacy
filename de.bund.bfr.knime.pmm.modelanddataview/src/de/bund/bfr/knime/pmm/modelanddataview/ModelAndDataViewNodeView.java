@@ -248,10 +248,15 @@ public class ModelAndDataViewNodeView extends
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
 					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
-					Model1Schema.ATT_RMS + "(Data)",
+					Model1Schema.ATT_RMS + "(Data)", Model1Schema.ATT_RSQUARED
+							+ "(Data)", Model1Schema.ATT_AIC + "(Data)",
+					Model1Schema.ATT_BIC + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -467,10 +472,16 @@ public class ModelAndDataViewNodeView extends
 				doubleColumnValues.get(4).add(
 						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(5).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(6).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_AIC));
 				doubleColumnValues.get(7).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_BIC));
+				doubleColumnValues.get(8).add(
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(9).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(10).add(
 						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -489,7 +500,7 @@ public class ModelAndDataViewNodeView extends
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 8).add(
+							doubleColumnValues.get(i + 11).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -497,7 +508,7 @@ public class ModelAndDataViewNodeView extends
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 8).add(null);
+						doubleColumnValues.get(i + 11).add(null);
 					}
 				}
 			} else if (getNodeModel().isModel1Schema()) {

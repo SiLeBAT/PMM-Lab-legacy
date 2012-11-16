@@ -2,8 +2,10 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
@@ -22,6 +24,7 @@ public class QualityMeasurementComputation {
 	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples)
 			throws PmmException {
 		Map<Integer, KnimeTuple> tupleMap = new LinkedHashMap<Integer, KnimeTuple>();
+		Map<Integer, Set<Integer>> usedCondIDs = new LinkedHashMap<Integer, Set<Integer>>();
 		Map<Integer, List<Double>> targetValueMap = new LinkedHashMap<Integer, List<Double>>();
 		Map<Integer, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<Integer, Map<String, List<Double>>>();
 
@@ -37,6 +40,7 @@ public class QualityMeasurementComputation {
 						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
 				tupleMap.put(estID, tuple);
+				usedCondIDs.put(estID, new LinkedHashSet<Integer>());
 				targetValueMap.put(estID, new ArrayList<Double>());
 				variableValueMap.put(estID,
 						new LinkedHashMap<String, List<Double>>());
@@ -47,6 +51,11 @@ public class QualityMeasurementComputation {
 					variableValueMap.get(estID).put(element.getName(),
 							new ArrayList<Double>());
 				}
+			}
+
+			if (!usedCondIDs.get(estID).add(
+					tuple.getInt(TimeSeriesSchema.ATT_CONDID))) {
+				continue;
 			}
 
 			List<Double> targetValues = targetValueMap.get(estID);
@@ -105,7 +114,9 @@ public class QualityMeasurementComputation {
 							element.getTime());
 
 					for (String var : variableValues.keySet()) {
-						variableValues.get(var).add(miscValues.get(var));
+						if (!var.equals(TimeSeriesSchema.TIME)) {
+							variableValues.get(var).add(miscValues.get(var));
+						}
 					}
 				}
 			}
@@ -138,7 +149,7 @@ public class QualityMeasurementComputation {
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
-				parser.addConstant(element.getName(), element.getValue());
+				parser.addVariable(element.getName(), element.getValue());
 			}
 
 			for (String var : variableValues.keySet()) {

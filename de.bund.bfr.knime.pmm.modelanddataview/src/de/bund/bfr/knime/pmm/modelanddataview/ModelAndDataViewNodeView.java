@@ -59,6 +59,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
@@ -227,9 +228,6 @@ public class ModelAndDataViewNodeView extends
 	}
 
 	private void readTable() throws PmmException {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
-				.getSchema(), getNodeModel().getTable());
 		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
@@ -250,9 +248,11 @@ public class ModelAndDataViewNodeView extends
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
 					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
+					Model1Schema.ATT_RMS + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -286,8 +286,24 @@ public class ModelAndDataViewNodeView extends
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
 		}
 
+		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
+				.getSchema(), getNodeModel().getTable());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+
 		while (reader.hasMoreElements()) {
-			KnimeTuple row = reader.nextElement();
+			tuples.add(reader.nextElement());
+		}
+
+		List<KnimeTuple> newTuples = null;
+
+		if (getNodeModel().isPeiSchema()) {
+			newTuples = QualityMeasurementComputation.computePrimary(tuples);
+		}
+
+		Set<String> idSet = new LinkedHashSet<String>();
+
+		for (int nr = 0; nr < tuples.size(); nr++) {
+			KnimeTuple row = tuples.get(nr);
 			String id = null;
 
 			if (getNodeModel().isPeiSchema()) {
@@ -449,10 +465,12 @@ public class ModelAndDataViewNodeView extends
 				doubleColumnValues.get(3).add(
 						row.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(5).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
 				doubleColumnValues.get(6).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(7).add(
 						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -471,7 +489,7 @@ public class ModelAndDataViewNodeView extends
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 7).add(
+							doubleColumnValues.get(i + 8).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -479,7 +497,7 @@ public class ModelAndDataViewNodeView extends
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 7).add(null);
+						doubleColumnValues.get(i + 8).add(null);
 					}
 				}
 			} else if (getNodeModel().isModel1Schema()) {

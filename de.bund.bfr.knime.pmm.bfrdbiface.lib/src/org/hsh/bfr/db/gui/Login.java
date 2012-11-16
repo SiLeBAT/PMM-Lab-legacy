@@ -147,6 +147,7 @@ public class Login extends JFrame {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			loadDB();
 			//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
+			//DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
 		}
 		finally {
 			this.setCursor(Cursor.getDefaultCursor());
@@ -1152,7 +1153,7 @@ public class Login extends JFrame {
 				null,
 				null,
 				new String[]{null,null,null,"Methoden_Normen","INT"});
-		myList.addTable(methoden, -1);
+		myList.addTable(methoden, DBKernel.getUsername().equals("buschulte") ? 66 : -1);
 		MyTable methoden_Normen = new MyTable("Methoden_Normen",
 				new String[]{"Methoden","Normen","Norm_Nummer"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
@@ -1817,7 +1818,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null,null,null,hashGeld},
 				new String[]{null,null,null,null,null});
-		myList.addTable(Kostenkatalogpreise, (DBKernel.isKNIME || DBKernel.isKrise) ? -1 : 66);
+		myList.addTable(Kostenkatalogpreise, DBKernel.getUsername().equals("burchardi") ? 66 : -1);
 
 		MyTable prozessdaten = new MyTable("Prozessdaten",
 				new String[]{"Referenz","Workflow","Bezugsgruppe","Prozess_CARVER","ProzessDetail",

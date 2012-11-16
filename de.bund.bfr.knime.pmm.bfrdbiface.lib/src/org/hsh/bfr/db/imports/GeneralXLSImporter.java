@@ -83,13 +83,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
       		}
 
       		InputStream is = null;
+      		System.out.println(filename);
 		    	if (filename.startsWith("http://")) {
 		    		URL url = new URL(filename);
 		    		URLConnection uc = url.openConnection();
 		    		is = uc.getInputStream();
 		    	}
 		    	else if (filename.startsWith("/org/hsh/bfr/db/res/")) {
-						is = getClass().getResourceAsStream(filename);		    		
+						is = this.getClass().getResourceAsStream(filename);
 		    	}
 		    	else {
 		    		is = new FileInputStream(filename);

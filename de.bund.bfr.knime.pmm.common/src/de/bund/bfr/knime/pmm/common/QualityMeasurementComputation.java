@@ -235,8 +235,4 @@ public class QualityMeasurementComputation {
 		return newTuples;
 	}
 
-	public static List<KnimeTuple> computeSecondary(List<KnimeTuple> tuples) {
-		return null;
-	}
-
 }

@@ -387,10 +387,7 @@ public class ParameterOptimizer {
 		}
 
 		rms = optimizer.getRMS();
-		rSquare = 1 - rms * rms * targetValues.size() / targetTotalSumOfSquares;
-		// rSquare < 0 möglich, siehe hier:
-		// http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
-		rSquare = Math.max(rSquare, 0.0);
+		rSquare = MathUtilities.getRSquared(rms, targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
 				targetValues.size(), rms);
 		bic = MathUtilities.bayesCriterion(parameters.size(),

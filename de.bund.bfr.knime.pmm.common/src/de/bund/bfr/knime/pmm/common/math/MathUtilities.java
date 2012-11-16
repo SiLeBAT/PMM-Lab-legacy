@@ -309,6 +309,24 @@ public class MathUtilities {
 
 	}
 
+	public static Double getRSquared(double rms, List<Double> targetValues) {
+		double targetMean = MathUtilities.computeSum(targetValues)
+				/ targetValues.size();
+		double targetTotalSumOfSquares = 0.0;
+
+		for (int i = 0; i < targetValues.size(); i++) {
+			targetTotalSumOfSquares += Math.pow(targetValues.get(i)
+					- targetMean, 2.0);
+		}
+
+		double rSquared = 1 - rms * rms * targetValues.size()
+				/ targetTotalSumOfSquares;
+
+		// rSquare < 0 möglich, siehe hier:
+		// http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
+		return Math.max(rSquared, 0.0);
+	}
+
 	public static Double akaikeCriterion(final int numParam,
 			final int numSample, final double rms) {
 

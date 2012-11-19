@@ -102,6 +102,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private JButton unselectAllButton;
 	private JButton invertSelectionButton;
 	private JButton customizeColumnsButton;
+	private JButton resizeColumnsButton;
 	private Map<String, JComboBox> comboBoxes;
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
@@ -181,8 +182,11 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		customizeColumnsButton = new JButton("Customize");
 		customizeColumnsButton.addActionListener(this);
+		resizeColumnsButton = new JButton("Set Optimal Width");
+		resizeColumnsButton.addActionListener(this);
 		columnPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		columnPanel.add(customizeColumnsButton);
+		columnPanel.add(resizeColumnsButton);
 
 		upperPanel2.add(columnPanel);
 		upperPanel.add(new SpacePanel(upperPanel2));
@@ -511,6 +515,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					}
 				}
 			}
+		} else if (e.getSource() == resizeColumnsButton) {
+			packColumns();
 		} else {
 			applyFilters();
 		}
@@ -545,6 +551,33 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		selectTable.setRowSorter(new SelectTableRowSorter(
 				(SelectTableModel) selectTable.getModel(), filters));
+	}
+
+	private void packColumns() {
+		for (int c = 0; c < selectTable.getColumnCount(); c++) {
+			TableColumn col = selectTable.getColumnModel().getColumn(c);
+
+			if (col.getPreferredWidth() == 0) {
+				continue;
+			}
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			Component comp = selectTable
+					.getTableHeader()
+					.getDefaultRenderer()
+					.getTableCellRendererComponent(selectTable,
+							col.getHeaderValue(), false, false, 0, 0);
+			int width = comp.getPreferredSize().width;
+
+			for (int r = 0; r < selectTable.getRowCount(); r++) {
+				renderer = selectTable.getCellRenderer(r, c);
+				comp = renderer.getTableCellRendererComponent(selectTable,
+						selectTable.getValueAt(r, c), false, false, r, c);
+				width = Math.max(width, comp.getPreferredSize().width);
+			}
+
+			col.setPreferredWidth(width);
+		}
 	}
 
 	public static interface SelectionListener {

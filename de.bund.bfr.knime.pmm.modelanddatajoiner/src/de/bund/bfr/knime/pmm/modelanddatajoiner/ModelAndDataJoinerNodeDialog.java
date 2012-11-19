@@ -34,7 +34,6 @@
 package de.bund.bfr.knime.pmm.modelanddatajoiner;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -44,6 +43,7 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import org.knime.core.node.BufferedDataTable;
@@ -174,7 +174,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (!joiner.isValid()) {
+		if (joiner == null || !joiner.isValid()) {
 			throw new InvalidSettingsException("");
 		}
 
@@ -242,11 +242,11 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		joinerPanel.removeAll();
 
 		if (joiner != null) {
-			joinerBox.setForeground(Color.BLACK);
 			joinerPanel.add(joiner.createPanel(assignments),
 					BorderLayout.CENTER);
 		} else {
-			joinerBox.setForeground(Color.RED);
+			JOptionPane.showMessageDialog(joinerBox, "Data is not valid for "
+					+ joinType);
 			joinerPanel.add(new JLabel(), BorderLayout.CENTER);
 		}
 

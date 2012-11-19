@@ -86,16 +86,22 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelEstimationNodeModel extends NodeModel {
 
-	protected static final String PRIMARY = "Primary";
+	static final String PRIMARY = "Primary";
 
+	static final String NO_FITTING = "";
+	static final String PRIMARY_FITTING = "Primary Fitting";
+	static final String SECONDARY_FITTING = "Secondary Fitting";
+	static final String ONESTEP_FITTING = "One-Step Fitting";
+
+	static final String CFGKEY_FITTINGTYPE = "FittingType";
 	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
-	static final String CFGKEY_ONESTEPMETHOD = "OneStepMethod";
 	static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
 	static final String CFGKEY_NLEVENBERG = "NLevenberg";
 	static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
 	static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
+
+	static final String DEFAULT_FITTINGTYPE = NO_FITTING;
 	static final int DEFAULT_ENFORCELIMITS = 0;
-	static final int DEFAULT_ONESTEPMETHOD = 0;
 	static final int DEFAULT_NPARAMETERSPACE = 10000;
 	static final int DEFAULT_NLEVENBERG = 10;
 	static final int DEFAULT_STOPWHENSUCCESSFUL = 1;
@@ -106,8 +112,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private KnimeSchema seiSchema;
 	private KnimeSchema schema;
 
+	private String fittingType;
 	private int enforceLimits;
-	private int oneStepMethod;
 	private int nParameterSpace;
 	private int nLevenberg;
 	private int stopWhenSuccessful;
@@ -118,8 +124,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	protected ModelEstimationNodeModel() {
 		super(1, 1);
+		fittingType = DEFAULT_FITTINGTYPE;
 		enforceLimits = DEFAULT_ENFORCELIMITS;
-		oneStepMethod = DEFAULT_ONESTEPMETHOD;
 		nParameterSpace = DEFAULT_NPARAMETERSPACE;
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
@@ -144,13 +150,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataTable table = inData[0];
 		BufferedDataTable outTable = null;
 
-		if (schema == peiSchema) {
+		if (fittingType.equals(PRIMARY_FITTING)) {
 			outTable = doPrimaryEstimation(table, exec,
 					getGuessMap(parameterGuesses));
-		} else if (schema == seiSchema && oneStepMethod != 1) {
+		} else if (fittingType.equals(SECONDARY_FITTING)) {
 			outTable = doSecondaryEstimation(table, exec,
 					getGuessMap(parameterGuesses));
-		} else if (schema == seiSchema && oneStepMethod == 1) {
+		} else if (fittingType.equals(ONESTEP_FITTING)) {
 			outTable = doOneStepEstimation(table, exec,
 					getGuessMap(parameterGuesses));
 		}
@@ -174,19 +180,29 @@ public class ModelEstimationNodeModel extends NodeModel {
 		try {
 			KnimeSchema outSchema = null;
 
-			if (seiSchema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = seiSchema;
-
-				if (oneStepMethod != 1) {
+			if (fittingType.equals(NO_FITTING)) {
+				throw new InvalidSettingsException("Node has to be configured!");
+			} else if (fittingType.equals(PRIMARY_FITTING)) {
+				if (peiSchema.conforms(inSpecs[0])) {
+					schema = peiSchema;
+					outSchema = peiSchema;
+				} else {
+					throw new InvalidSettingsException("Wrong input!");
+				}
+			} else if (fittingType.equals(SECONDARY_FITTING)) {
+				if (seiSchema.conforms(inSpecs[0])) {
+					schema = seiSchema;
 					outSchema = seiSchema;
 				} else {
-					outSchema = peiSchema;
+					throw new InvalidSettingsException("Wrong input!");
 				}
-			} else if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = peiSchema;
-				outSchema = peiSchema;
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
+			} else if (fittingType.equals(ONESTEP_FITTING)) {
+				if (seiSchema.conforms(inSpecs[0])) {
+					schema = seiSchema;
+					outSchema = peiSchema;
+				} else {
+					throw new InvalidSettingsException("Wrong input!");
+				}
 			}
 
 			return new DataTableSpec[] { outSchema.createSpec() };
@@ -201,8 +217,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addString(CFGKEY_FITTINGTYPE, fittingType);
 		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
-		settings.addInt(CFGKEY_ONESTEPMETHOD, oneStepMethod);
 		settings.addInt(CFGKEY_NPARAMETERSPACE, nParameterSpace);
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
@@ -217,15 +233,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
+			fittingType = settings.getString(CFGKEY_FITTINGTYPE);
 		} catch (InvalidSettingsException e) {
-			enforceLimits = DEFAULT_ENFORCELIMITS;
+			fittingType = DEFAULT_FITTINGTYPE;
 		}
 
 		try {
-			oneStepMethod = settings.getInt(CFGKEY_ONESTEPMETHOD);
+			enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
 		} catch (InvalidSettingsException e) {
-			oneStepMethod = DEFAULT_ONESTEPMETHOD;
+			enforceLimits = DEFAULT_ENFORCELIMITS;
 		}
 
 		try {

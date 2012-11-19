@@ -37,6 +37,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,8 +50,12 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.TitledBorder;
 
 import org.knime.core.node.BufferedDataTable;
@@ -85,19 +91,25 @@ import de.bund.bfr.knime.pmm.common.ui.IntTextField;
  * 
  * @author Christian Thoens
  */
-public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
+public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
+		implements ActionListener {
 
-	private JCheckBox limitsBox;
-	private JCheckBox oneStepBox;
+	private BufferedDataTable[] input;
+
+	private Map<String, Map<String, Point2D.Double>> guessMap;
+
+	private JComboBox fittingBox;
 	private IntTextField nParamSpaceField;
 	private IntTextField nLevenbergField;
 	private JCheckBox stopWhenSuccessBox;
+	private JCheckBox limitsBox;
 
 	private Map<String, String> modelNames;
 	private Map<String, List<String>> parameters;
 	private Map<String, Map<String, Double>> minValues;
 	private Map<String, Map<String, Double>> maxValues;
 
+	private JPanel fittingPanel;
 	private Map<String, Map<String, DoubleTextField>> minimumFields;
 	private Map<String, Map<String, DoubleTextField>> maximumFields;
 
@@ -106,33 +118,87 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 	 */
 	protected ModelEstimationNodeDialog() {
 		JPanel panel = new JPanel();
+		JPanel upperPanel = new JPanel();
+		JPanel fittingTypePanel = new JPanel();
+		JPanel regressionPanel = new JPanel();
+		JPanel leftRegressionPanel = new JPanel();
+		JPanel rightRegressionPanel = new JPanel();
+
+		fittingBox = new JComboBox(new Object[] {
+				ModelEstimationNodeModel.PRIMARY_FITTING,
+				ModelEstimationNodeModel.SECONDARY_FITTING,
+				ModelEstimationNodeModel.ONESTEP_FITTING });
+		nParamSpaceField = new IntTextField(0, 1000000);
+		nParamSpaceField.setPreferredSize(new Dimension(100, nParamSpaceField
+				.getPreferredSize().height));
+		nLevenbergField = new IntTextField(1, 100);
+		nLevenbergField.setPreferredSize(new Dimension(100, nLevenbergField
+				.getPreferredSize().height));
+		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
+		limitsBox = new JCheckBox("Enforce Limits");
+		fittingPanel = new JPanel();
+		fittingPanel.setLayout(new BorderLayout());
+
+		fittingTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		fittingTypePanel.add(fittingBox);
+
+		leftRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
+				5));
+		leftRegressionPanel.setLayout(new GridLayout(4, 1, 5, 5));
+		leftRegressionPanel.add(new JLabel(
+				"Maximal Evaluations to Find Start Values"));
+		leftRegressionPanel.add(new JLabel(
+				"Maximal Executions of the Levenberg Algorithm"));
+		leftRegressionPanel.add(stopWhenSuccessBox);
+		leftRegressionPanel.add(limitsBox);
+
+		rightRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
+				5));
+		rightRegressionPanel.setLayout(new GridLayout(4, 1, 5, 5));
+		rightRegressionPanel.add(nParamSpaceField);
+		rightRegressionPanel.add(nLevenbergField);
+		rightRegressionPanel.add(new JLabel());
+		rightRegressionPanel.add(new JLabel());
+
+		regressionPanel.setBorder(new TitledBorder(
+				"Nonlinear Regression Parameters"));
+		regressionPanel.setLayout(new BorderLayout());
+		regressionPanel.add(leftRegressionPanel, BorderLayout.WEST);
+		regressionPanel.add(rightRegressionPanel, BorderLayout.EAST);
+
+		upperPanel.setLayout(new BorderLayout());
+		upperPanel.add(fittingTypePanel, BorderLayout.NORTH);
+		upperPanel.add(regressionPanel, BorderLayout.CENTER);
 
 		panel.setLayout(new BorderLayout());
+		panel.add(upperPanel, BorderLayout.NORTH);
+		panel.add(fittingPanel, BorderLayout.CENTER);
 		addTab("Options", panel);
 	}
 
-	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		int enforceLimits;
-		int doOneStepFit;
+		this.input = input;
+
+		String fittingType;
 		int nParameterSpace;
 		int nLevenberg;
 		int stopWhenSuccessful;
+		int enforceLimits;
 		List<String> parameterGuesses;
+
+		try {
+			fittingType = settings
+					.getString(ModelEstimationNodeModel.CFGKEY_FITTINGTYPE);
+		} catch (InvalidSettingsException e) {
+			fittingType = ModelEstimationNodeModel.DEFAULT_FITTINGTYPE;
+		}
 
 		try {
 			enforceLimits = settings
 					.getInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS);
 		} catch (InvalidSettingsException e) {
 			enforceLimits = ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS;
-		}
-
-		try {
-			doOneStepFit = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD);
-		} catch (InvalidSettingsException e) {
-			doOneStepFit = ModelEstimationNodeModel.DEFAULT_ONESTEPMETHOD;
 		}
 
 		try {
@@ -164,37 +230,47 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 			parameterGuesses = new ArrayList<String>();
 		}
 
-		try {
-			KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-			KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-					new Model1Schema(), new Model2Schema()),
-					new TimeSeriesSchema());
+		if (fittingType.equals(ModelEstimationNodeModel.NO_FITTING)) {
+			try {
+				KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
+						new Model1Schema(), new Model2Schema()),
+						new TimeSeriesSchema());
 
-			if (seiSchema.conforms(input[0].getDataTableSpec())) {
-				readSecondaryTable(input[0]);
-			} else if (peiSchema.conforms(input[0].getDataTableSpec())) {
-				readPrimaryTable(input[0]);
+				if (seiSchema.conforms(input[0])) {
+					fittingType = ModelEstimationNodeModel.SECONDARY_FITTING;
+				} else {
+					fittingType = ModelEstimationNodeModel.PRIMARY_FITTING;
+				}
+			} catch (PmmException e) {
+				e.printStackTrace();
 			}
+		}
+
+		fittingBox.setSelectedItem(fittingType);
+		fittingBox.addActionListener(this);
+		nParamSpaceField.setValue(nParameterSpace);
+		nLevenbergField.setValue(nLevenberg);
+		stopWhenSuccessBox.setSelected(stopWhenSuccessful == 1);
+		limitsBox.setSelected(enforceLimits == 1);
+		guessMap = ModelEstimationNodeModel.getGuessMap(parameterGuesses);
+
+		try {
+			initGUI();
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}
-
-		JPanel panel = createPanel(enforceLimits == 1, doOneStepFit == 1,
-				nParameterSpace, nLevenberg, stopWhenSuccessful == 1,
-				ModelEstimationNodeModel.getGuessMap(parameterGuesses));
-
-		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(panel, BorderLayout.NORTH);
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()) {
+		if (!nParamSpaceField.isValueValid() || !nLevenbergField.isValueValid()
+				|| minimumFields == null || maximumFields == null) {
 			throw new InvalidSettingsException("");
 		}
 
+		settings.addString(ModelEstimationNodeModel.CFGKEY_FITTINGTYPE,
+				(String) fittingBox.getSelectedItem());
 		settings.addInt(ModelEstimationNodeModel.CFGKEY_NPARAMETERSPACE,
 				nParamSpaceField.getValue());
 		settings.addInt(ModelEstimationNodeModel.CFGKEY_NLEVENBERG,
@@ -204,12 +280,6 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
 		} else {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 0);
-		}
-
-		if (oneStepBox.isSelected()) {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 1);
-		} else {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_ONESTEPMETHOD, 0);
 		}
 
 		if (stopWhenSuccessBox.isSelected()) {
@@ -313,58 +383,12 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 		}
 	}
 
-	private JPanel createPanel(boolean enforceLimits, boolean doOneStepFit,
-			int nParameterSpace, int nLevenberg, boolean stopWhenSuccessful,
-			Map<String, Map<String, Point2D.Double>> guessMap) {
+	private JComponent createPanel() {
 		JPanel panel = new JPanel();
-		JPanel limitsPanel = new JPanel();
-		JPanel oneStepPanel = new JPanel();
-		JPanel regressionPanel = new JPanel();
-		JPanel leftRegressionPanel = new JPanel();
-		JPanel rightRegressionPanel = new JPanel();
 		JPanel rangePanel = new JPanel();
 
-		limitsBox = new JCheckBox("Enforce Limits", enforceLimits);
-		oneStepBox = new JCheckBox("Use One Step Method", doOneStepFit);
-		nParamSpaceField = new IntTextField(0, 1000000);
-		nParamSpaceField.setValue(nParameterSpace);
-		nParamSpaceField.setPreferredSize(new Dimension(100, nParamSpaceField
-				.getPreferredSize().height));
-		nLevenbergField = new IntTextField(1, 100);
-		nLevenbergField.setValue(nLevenberg);
-		nLevenbergField.setPreferredSize(new Dimension(100, nLevenbergField
-				.getPreferredSize().height));
-		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful",
-				stopWhenSuccessful);
 		minimumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
 		maximumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
-
-		limitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		limitsPanel.setLayout(new BorderLayout());
-		limitsPanel.add(limitsBox, BorderLayout.WEST);
-		oneStepPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		oneStepPanel.setLayout(new BorderLayout());
-		oneStepPanel.add(oneStepBox, BorderLayout.WEST);
-
-		leftRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
-				5));
-		leftRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		leftRegressionPanel.add(new JLabel(
-				"Maximal Evaluations to Find Start Values"));
-		leftRegressionPanel.add(new JLabel(
-				"Maximal Executions of the Levenberg Algorithm"));
-		leftRegressionPanel.add(stopWhenSuccessBox);
-		rightRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
-				5));
-		rightRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
-		rightRegressionPanel.add(nParamSpaceField);
-		rightRegressionPanel.add(nLevenbergField);
-		rightRegressionPanel.add(new JLabel());
-		regressionPanel.setBorder(new TitledBorder(
-				"Nonlinear Regression Parameters"));
-		regressionPanel.setLayout(new BorderLayout());
-		regressionPanel.add(leftRegressionPanel, BorderLayout.WEST);
-		regressionPanel.add(rightRegressionPanel, BorderLayout.EAST);
 
 		if (parameters.size() == 1
 				&& parameters.containsKey(ModelEstimationNodeModel.PRIMARY)) {
@@ -504,12 +528,70 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane {
 			}
 		}
 
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(limitsPanel);
-		panel.add(oneStepPanel);
-		panel.add(regressionPanel);
-		panel.add(rangePanel);
+		panel.setLayout(new BorderLayout());
+		panel.add(rangePanel, BorderLayout.NORTH);
 
-		return panel;
+		return new JScrollPane(panel);
+	}
+
+	private void initGUI() throws PmmException {
+		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
+				new TimeSeriesSchema());
+		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
+				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
+
+		modelNames = null;
+		parameters = null;
+		minValues = null;
+		maxValues = null;
+		minimumFields = null;
+		maximumFields = null;
+		fittingPanel.removeAll();
+
+		if (fittingBox.getSelectedItem().equals(
+				ModelEstimationNodeModel.PRIMARY_FITTING)) {
+			if (peiSchema.conforms(input[0])) {
+				readPrimaryTable(input[0]);
+				fittingPanel.add(createPanel());
+			} else {
+				JOptionPane.showMessageDialog(fittingBox,
+						"Data is not valid for "
+								+ ModelEstimationNodeModel.PRIMARY_FITTING);
+				fittingPanel.add(new JLabel());
+			}
+		} else if (fittingBox.getSelectedItem().equals(
+				ModelEstimationNodeModel.SECONDARY_FITTING)) {
+			if (seiSchema.conforms(input[0])) {
+				readSecondaryTable(input[0]);
+				fittingPanel.add(createPanel());
+			} else {
+				JOptionPane.showMessageDialog(fittingBox,
+						"Data is not valid for "
+								+ ModelEstimationNodeModel.SECONDARY_FITTING);
+				fittingPanel.add(new JLabel());
+			}
+		} else if (fittingBox.getSelectedItem().equals(
+				ModelEstimationNodeModel.ONESTEP_FITTING)) {
+			if (seiSchema.conforms(input[0])) {
+				readSecondaryTable(input[0]);
+				fittingPanel.add(createPanel());
+			} else {
+				JOptionPane.showMessageDialog(fittingBox,
+						"Data is not valid for "
+								+ ModelEstimationNodeModel.ONESTEP_FITTING);
+				fittingPanel.add(new JLabel());
+			}
+		}
+
+		fittingPanel.revalidate();
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			initGUI();
+		} catch (PmmException e1) {
+			e1.printStackTrace();
+		}
 	}
 }

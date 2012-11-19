@@ -106,7 +106,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		upperPanel.add(joinerBox);
 
 		panel.setLayout(new BorderLayout());
-		panel.add(joinerBox, BorderLayout.NORTH);
+		panel.add(upperPanel, BorderLayout.NORTH);
 		panel.add(joinerPanel, BorderLayout.CENTER);
 		addTab("Options", panel);
 	}
@@ -139,7 +139,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
 			try {
-				KnimeSchema model1Schema = new Model1Schema();
 				KnimeSchema model2Schema = new Model2Schema();
 				KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
 						new Model2Schema());
@@ -153,9 +152,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 				} else if (model12Schema.conforms(input[0])
 						&& dataSchema.conforms(input[1])) {
 					joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
-				} else if (model1Schema.conforms(input[0])
-						&& dataSchema.conforms(input[1])) {
-					joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
 				} else {
 					joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
 				}

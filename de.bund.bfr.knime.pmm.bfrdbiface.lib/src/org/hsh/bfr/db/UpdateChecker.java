@@ -119,7 +119,7 @@ public class UpdateChecker {
 			updateChangeLog("Zutatendaten", 18, false);
 			refreshFKs("Zutatendaten");			
 		}
-		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Kostenkatalog_mit_Einheiten.xls", DBKernel.mainFrame.getProgressBar(), false);
+		if (!DBKernel.isKNIME) new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Kostenkatalog_mit_Einheiten.xls", DBKernel.mainFrame.getProgressBar(), false);
 		
 		// Krise
 		refreshFKs("Knoten", true);

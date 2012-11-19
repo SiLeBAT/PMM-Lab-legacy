@@ -34,10 +34,16 @@
 package de.bund.bfr.knime.pmm.modelanddatajoiner;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.knime.core.node.BufferedDataTable;
@@ -66,35 +72,60 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  * 
  * @author Christian Thoens
  */
-public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
+public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
+		implements ActionListener {
+
+	private JComboBox joinerBox;
+	private JPanel joinerPanel;
 
 	private Joiner joiner;
+
+	private String joinType;
+	private List<String> assignments;
+	private int joinSameConditions;
+
+	private BufferedDataTable[] input;
 
 	/**
 	 * New pane for configuring the ModelAndDataJoiner node.
 	 */
 	protected ModelAndDataJoinerNodeDialog() {
 		JPanel panel = new JPanel();
+		JPanel upperPanel = new JPanel();
+
+		joinerBox = new JComboBox(new Object[] {
+				ModelAndDataJoinerNodeModel.PRIMARY_JOIN,
+				ModelAndDataJoinerNodeModel.SECONDARY_JOIN,
+				ModelAndDataJoinerNodeModel.COMBINED_JOIN });
+		joinerBox.addActionListener(this);
+		joinerPanel = new JPanel();
+		joinerPanel.setBorder(BorderFactory.createTitledBorder("Join Options"));
+		joinerPanel.setLayout(new BorderLayout());
+
+		upperPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		upperPanel.add(joinerBox);
 
 		panel.setLayout(new BorderLayout());
+		panel.add(joinerBox, BorderLayout.NORTH);
+		panel.add(joinerPanel, BorderLayout.CENTER);
 		addTab("Options", panel);
 	}
 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		List<String> assignments;
-		int joinSameConditions;
+		this.input = input;
 
 		try {
-			String assignString = settings
-					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS);
+			joinType = settings
+					.getString(ModelAndDataJoinerNodeModel.CFGKEY_JOINTYPE);
+		} catch (InvalidSettingsException e) {
+			joinType = ModelAndDataJoinerNodeModel.DEFAULT_JOINTYPE;
+		}
 
-			assignments = new ArrayList<String>();
-
-			if (!assignString.isEmpty()) {
-				assignments.addAll(Arrays.asList(assignString.split(";")));
-			}
+		try {
+			assignments = ListUtilities.getStringListFromString(settings
+					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS));
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();
 		}
@@ -106,32 +137,38 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 			joinSameConditions = ModelAndDataJoinerNodeModel.DEFAULT_JOINSAMECONDITIONS;
 		}
 
-		try {
-			KnimeSchema model1Schema = new Model1Schema();
-			KnimeSchema model2Schema = new Model2Schema();
-			KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-			KnimeSchema dataSchema = new TimeSeriesSchema();
-			KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
+		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
+			try {
+				KnimeSchema model1Schema = new Model1Schema();
+				KnimeSchema model2Schema = new Model2Schema();
+				KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
+						new Model2Schema());
+				KnimeSchema dataSchema = new TimeSeriesSchema();
+				KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
+						new TimeSeriesSchema());
 
-			if (model2Schema.conforms(input[0].getSpec())
-					&& peiSchema.conforms(input[1].getSpec())) {
-				joiner = new SecondaryJoiner(input[0], input[1]);
-			} else if (model12Schema.conforms(input[0].getSpec())
-					&& dataSchema.conforms(input[1].getSpec())) {
-				joiner = new CombinedJoiner(input[0], input[1]);
-			} else if (model1Schema.conforms(input[0].getSpec())
-					&& dataSchema.conforms(input[1].getSpec())) {
-				joiner = new PrimaryJoiner(input[0], input[1],
-						joinSameConditions == 1);
+				if (model2Schema.conforms(input[0])
+						&& peiSchema.conforms(input[1])) {
+					joinType = ModelAndDataJoinerNodeModel.SECONDARY_JOIN;
+				} else if (model12Schema.conforms(input[0])
+						&& dataSchema.conforms(input[1])) {
+					joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
+				} else if (model1Schema.conforms(input[0])
+						&& dataSchema.conforms(input[1])) {
+					joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
+				} else {
+					joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
+				}
+			} catch (PmmException e) {
+				e.printStackTrace();
 			}
+		}
+
+		try {
+			initGUI();
 		} catch (PmmException e) {
 			e.printStackTrace();
 		}
-
-		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(joiner.createPanel(assignments));
 	}
 
 	@Override
@@ -141,10 +178,12 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 			throw new InvalidSettingsException("");
 		}
 
+		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_JOINTYPE,
+				joinType);
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
 				ListUtilities.getStringFromList(joiner.getAssignments()));
 
-		if (joiner instanceof PrimaryJoiner) {
+		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
 			if (((PrimaryJoiner) joiner).isJoinSameConditions()) {
 				settings.addInt(
 						ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
@@ -159,5 +198,58 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane {
 					ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
 					ModelAndDataJoinerNodeModel.DEFAULT_JOINSAMECONDITIONS);
 		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		try {
+			joinType = (String) joinerBox.getSelectedItem();
+			initGUI();
+		} catch (PmmException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	private void initGUI() throws PmmException {
+		KnimeSchema model1Schema = new Model1Schema();
+		KnimeSchema model2Schema = new Model2Schema();
+		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
+				new Model2Schema());
+		KnimeSchema dataSchema = new TimeSeriesSchema();
+		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
+				new TimeSeriesSchema());
+
+		joinerBox.setSelectedItem(joinType);
+		joiner = null;
+
+		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
+			if (model1Schema.conforms(input[0])
+					&& dataSchema.conforms(input[1])) {
+				joiner = new PrimaryJoiner(input[0], input[1],
+						joinSameConditions == 1);
+			}
+		} else if (joinType.equals(ModelAndDataJoinerNodeModel.SECONDARY_JOIN)) {
+			if (model2Schema.conforms(input[0]) && peiSchema.conforms(input[1])) {
+				joiner = new SecondaryJoiner(input[0], input[1]);
+			}
+		} else if (joinType.equals(ModelAndDataJoinerNodeModel.COMBINED_JOIN)) {
+			if (model12Schema.conforms(input[0])
+					&& dataSchema.conforms(input[1])) {
+				joiner = new CombinedJoiner(input[0], input[1]);
+			}
+		}
+
+		joinerPanel.removeAll();
+
+		if (joiner != null) {
+			joinerBox.setForeground(Color.BLACK);
+			joinerPanel.add(joiner.createPanel(assignments),
+					BorderLayout.CENTER);
+		} else {
+			joinerBox.setForeground(Color.RED);
+			joinerPanel.add(new JLabel(), BorderLayout.CENTER);
+		}
+
+		joinerPanel.revalidate();
 	}
 }

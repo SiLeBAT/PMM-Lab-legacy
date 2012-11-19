@@ -63,25 +63,28 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelAndDataJoinerNodeModel extends NodeModel {
 
+	static final String NO_JOIN = "";
+	static final String PRIMARY_JOIN = "Primary Join";
+	static final String SECONDARY_JOIN = "Secondary Join";
+	static final String COMBINED_JOIN = "Combined Join";
+
+	static final String CFGKEY_JOINTYPE = "JoinType";
 	static final String CFGKEY_ASSIGNMENTS = "Assignments";
 	static final String CFGKEY_JOINSAMECONDITIONS = "JoinSameConditions";
 
+	static final String DEFAULT_JOINTYPE = NO_JOIN;
 	static final int DEFAULT_JOINSAMECONDITIONS = 0;
 
-	private static final int PRIMARY_JOIN = 1;
-	private static final int SECONDARY_JOIN = 2;
-	private static final int COMBINED_JOIN = 3;
-
+	private String joinType;
 	private List<String> assignments;
 	private int joinSameConditions;
-
-	private int joinType;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ModelAndDataJoinerNodeModel() {
 		super(2, 1);
+		joinType = DEFAULT_JOINTYPE;
 		assignments = new ArrayList<String>();
 		joinSameConditions = DEFAULT_JOINSAMECONDITIONS;
 	}
@@ -94,12 +97,12 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		Joiner joiner = null;
 
-		if (joinType == SECONDARY_JOIN) {
-			joiner = new SecondaryJoiner(inData[0], inData[1]);
-		} else if (joinType == PRIMARY_JOIN) {
+		if (joinType.equals(PRIMARY_JOIN)) {
 			joiner = new PrimaryJoiner(inData[0], inData[1],
 					joinSameConditions == 1);
-		} else if (joinType == COMBINED_JOIN) {
+		} else if (joinType.equals(SECONDARY_JOIN)) {
+			joiner = new SecondaryJoiner(inData[0], inData[1]);
+		} else if (joinType.equals(COMBINED_JOIN)) {
 			joiner = new CombinedJoiner(inData[0], inData[1]);
 		}
 
@@ -131,35 +134,43 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
 					new Model1Schema(), new Model2Schema()),
 					new TimeSeriesSchema());
-			KnimeSchema outSchema;
+			KnimeSchema outSchema = null;
 
-			if (model2Schema.conforms(inSpecs[0])
-					&& peiSchema.conforms(inSpecs[1])) {
-				outSchema = seiSchema;
-				joinType = SECONDARY_JOIN;
-			} else if (model12Schema.conforms(inSpecs[0])
-					&& dataSchema.conforms(inSpecs[1])) {
-				outSchema = seiSchema;
-				joinType = COMBINED_JOIN;
-			} else if (model1Schema.conforms(inSpecs[0])
-					&& dataSchema.conforms(inSpecs[1])) {
-				outSchema = peiSchema;
-				joinType = PRIMARY_JOIN;
-			} else if (model2Schema.conforms(inSpecs[1])
-					&& peiSchema.conforms(inSpecs[0])) {
-				throw new InvalidSettingsException("Please switch the ports!");
-			} else if (model12Schema.conforms(inSpecs[1])
-					&& dataSchema.conforms(inSpecs[0])) {
-				throw new InvalidSettingsException("Please switch the ports!");
-			} else if (model1Schema.conforms(inSpecs[1])
-					&& dataSchema.conforms(inSpecs[0])) {
-				throw new InvalidSettingsException("Please switch the ports!");
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			if (assignments.isEmpty()) {
-				throw new InvalidSettingsException("Node has to be configured");
+			if (joinType.equals(NO_JOIN)) {
+				throw new InvalidSettingsException("Node has to be configured!");
+			} else if (joinType.equals(PRIMARY_JOIN)) {
+				if (model1Schema.conforms(inSpecs[0])
+						&& dataSchema.conforms(inSpecs[1])) {
+					outSchema = peiSchema;
+				} else if (model1Schema.conforms(inSpecs[1])
+						&& dataSchema.conforms(inSpecs[0])) {
+					throw new InvalidSettingsException(
+							"Please switch the ports!");
+				} else {
+					throw new InvalidSettingsException("Wrong input!");
+				}
+			} else if (joinType.equals(SECONDARY_JOIN)) {
+				if (model2Schema.conforms(inSpecs[0])
+						&& peiSchema.conforms(inSpecs[1])) {
+					outSchema = seiSchema;
+				} else if (model2Schema.conforms(inSpecs[1])
+						&& peiSchema.conforms(inSpecs[0])) {
+					throw new InvalidSettingsException(
+							"Please switch the ports!");
+				} else {
+					throw new InvalidSettingsException("Wrong input!");
+				}
+			} else if (joinType.equals(COMBINED_JOIN)) {
+				if (model12Schema.conforms(inSpecs[0])
+						&& dataSchema.conforms(inSpecs[1])) {
+					outSchema = seiSchema;
+				} else if (model12Schema.conforms(inSpecs[1])
+						&& dataSchema.conforms(inSpecs[0])) {
+					throw new InvalidSettingsException(
+							"Please switch the ports!");
+				} else {
+					throw new InvalidSettingsException("Wrong input!");
+				}
 			}
 
 			return new DataTableSpec[] { outSchema.createSpec() };
@@ -174,6 +185,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addString(CFGKEY_JOINTYPE, joinType);
 		settings.addString(CFGKEY_ASSIGNMENTS,
 				ListUtilities.getStringFromList(assignments));
 		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
@@ -185,6 +197,12 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		try {
+			joinType = settings.getString(CFGKEY_JOINTYPE);
+		} catch (InvalidSettingsException e) {
+			joinType = DEFAULT_JOINTYPE;
+		}
+
 		try {
 			assignments = ListUtilities.getStringListFromString(settings
 					.getString(CFGKEY_ASSIGNMENTS));

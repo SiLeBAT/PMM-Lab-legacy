@@ -37,6 +37,7 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentLabel;
 import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
 import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
@@ -69,6 +70,8 @@ public class CombaseReaderNodeDialog extends DefaultNodeSettingsPane {
     	sms = new SettingsModelString( CombaseReaderNodeModel.PARAM_FILENAME, "" );
     	dcfc = new DialogComponentFileChooser( sms, HISTORYID, JFileChooser.OPEN_DIALOG, false );
     	addDialogComponent( dcfc );
+    	
+    	addDialogComponent( new DialogComponentLabel( "Start values for data model output where only maximum rate is known:" ) );
     	
     	smn = new SettingsModelDouble( CombaseReaderNodeModel.PARAM_STARTELIM, 10 );
     	dcn = new DialogComponentNumber( smn, "Start value for elimination:", .1 );

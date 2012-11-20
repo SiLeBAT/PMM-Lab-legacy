@@ -601,10 +601,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			} else if (this.equals(splitPane.getRightComponent())) {
 				splitPane.setDividerLocation(getParent().getWidth() - w
 						- splitPane.getDividerSize());
-			}
-
-			splitPane.setDividerLocation(getParent().getWidth() - tableWidth
-					- splitPane.getDividerSize());
+			}			
 		} else if (getParent() instanceof JComponent) {
 			tableScrollPane.setPreferredSize(new Dimension(tableWidth,
 					tableScrollPane.getPreferredSize().height));

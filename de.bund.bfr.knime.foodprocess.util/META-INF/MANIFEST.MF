@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: de.bund.bfr.knime.util
+Bundle-SymbolicName: de.bund.bfr.knime.foodprocess.util
+Bundle-Version: 1.0.0.qualifier
+Bundle-Vendor: BfR
+Require-Bundle: org.eclipse.core.runtime
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Bundle-ClassPath: lib/lombok.jar,
+ .
+Export-Package: de.bund.bfr.knime.util

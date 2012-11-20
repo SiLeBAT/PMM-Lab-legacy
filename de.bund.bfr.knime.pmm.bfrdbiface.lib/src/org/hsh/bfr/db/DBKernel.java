@@ -639,8 +639,9 @@ public class DBKernel {
 				do {
 					try {
 						final String filename = rs.getString("Dateiname");
-		        final InputStream is = rs.getBinaryStream("Datei");
-		        if (is != null) {
+		        //final InputStream is = rs.getBinaryStream("Datei");
+		        final byte[] b = rs.getBytes("Datei");
+		        if (b != null) { // is
 		        	Runnable runnable = new Runnable() {
 		            @Override
 					public void run() {
@@ -659,17 +660,19 @@ public class DBKernel {
 						        		out = new FileOutputStream(pathname);
 							        	//int c;
 							        	//while ((c = is.read()) != -1) out.write(c);
-				                          int availableLength = is.available();
-				                          byte[] totalBytes = new byte[availableLength];
+				                          //int availableLength = is.available();
+				                          //byte[] totalBytes = new byte[availableLength];
 				                          //int bytedata = is.read(totalBytes);
-				                          out.write(totalBytes);
+				                          out.write(b); // totalBytes
 							        	//byte[] ba = out.toByteArray();
 							        	//System.out.println("InputStreamLen = " + ba.length + "\tfeldname = " + feldname + "\ttableID = " + tableID + "\tfilename = " + filename);
 						          }
 						          finally {
+						        	  /*
 						          	if (is != null) {
 										is.close();
 									}
+									*/
 						            if (out != null) {
 										out.close();
 									}

@@ -595,6 +595,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Double bic = null;
 				Double minIndep = null;
 				Double maxIndep = null;
+				Integer estID = null;
 				boolean successful = false;
 				ParameterOptimizer optimizer = null;
 
@@ -625,6 +626,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					rSquare = optimizer.getRSquare();
 					aic = optimizer.getAIC();
 					bic = optimizer.getBIC();
+					estID = MathUtilities.getRandomNegativeInt();
 				}
 
 				for (int i = 0; i < paramXml.getElementSet().size(); i++) {
@@ -648,8 +650,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				tuple.setValue(Model1Schema.ATT_BIC, bic);
 				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
 				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
-				tuple.setValue(Model1Schema.ATT_ESTMODELID,
-						MathUtilities.getRandomNegativeInt());
+				tuple.setValue(Model1Schema.ATT_ESTMODELID, estID);
 				runningThreads.decrementAndGet();
 				finishedThreads.incrementAndGet();
 			} catch (PmmException e) {

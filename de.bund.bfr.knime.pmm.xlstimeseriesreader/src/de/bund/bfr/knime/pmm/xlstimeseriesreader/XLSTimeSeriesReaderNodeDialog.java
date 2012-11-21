@@ -37,16 +37,12 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.filechooser.FileFilter;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -58,7 +54,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.ui.StringTextField;
+import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 
 /**
  * <code>NodeDialog</code> for the "XLSTimeSeriesReader" Node.
@@ -74,8 +70,7 @@ import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		ActionListener {
 
-	private JButton fileButton;
-	private StringTextField fileField;
+	private FilePanel filePanel;
 	private JComboBox formatBox;
 	private JComboBox timeBox;
 	private JComboBox logcBox;
@@ -87,16 +82,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	protected XLSTimeSeriesReaderNodeDialog() {
 		JPanel panel = new JPanel();
 		JPanel mainPanel = new JPanel();
-		JPanel filePanel = new JPanel();
 		JPanel optionsPanel = new JPanel();
 		JPanel formatPanel = new JPanel();
 		JPanel unitsPanel = new JPanel();
 		JPanel leftUnitsPanel = new JPanel();
 		JPanel rightUnitsPanel = new JPanel();
 
-		fileButton = new JButton("Browse...");
-		fileButton.addActionListener(this);
-		fileField = new StringTextField();
+		filePanel = new FilePanel("XLS File");
+		filePanel.setAcceptAllFiles(false);
+		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
 		formatBox = new JComboBox(new String[] {
 				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT,
 				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT });
@@ -107,11 +101,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				TimeSeriesSchema.LOGC).toArray());
 		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
 				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
-
-		filePanel.setBorder(BorderFactory.createTitledBorder("XLS File"));
-		filePanel.setLayout(new BorderLayout(5, 5));
-		filePanel.add(fileField, BorderLayout.CENTER);
-		filePanel.add(fileButton, BorderLayout.EAST);
 
 		formatPanel.setBorder(BorderFactory.createTitledBorder("File Format"));
 		formatPanel.setLayout(new GridLayout(1, 1));
@@ -156,10 +145,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			fileField.setValue(settings
+			filePanel.setFileName(settings
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME));
 		} catch (InvalidSettingsException e) {
-			fileField.setValue(null);
+			filePanel.setFileName(null);
 		}
 
 		try {
@@ -200,12 +189,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (fileField.getText().trim().isEmpty()) {
+		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("");
 		}
 
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
-				fileField.getText());
+				filePanel.getFileName());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILEFORMAT,
 				(String) formatBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
@@ -218,37 +207,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == fileButton) {
-			JFileChooser fileChooser;
-
-			try {
-				fileChooser = new JFileChooser(new File(fileField.getText()));
-			} catch (Exception ex) {
-				fileChooser = new JFileChooser();
-			}
-
-			FileFilter xlsFilter = new FileFilter() {
-
-				@Override
-				public String getDescription() {
-					return "Excel Spreadsheat (*.xls)";
-				}
-
-				@Override
-				public boolean accept(File f) {
-					return f.isDirectory()
-							|| f.getName().toLowerCase().endsWith(".xls");
-				}
-			};
-
-			fileChooser.setAcceptAllFileFilterUsed(false);
-			fileChooser.addChoosableFileFilter(xlsFilter);
-
-			if (fileChooser.showOpenDialog(fileButton) == JFileChooser.APPROVE_OPTION) {
-				fileField.setText(fileChooser.getSelectedFile()
-						.getAbsolutePath());
-			}
-		} else if (e.getSource() == formatBox) {
+		if (e.getSource() == formatBox) {
 			updateComboBoxes();
 		}
 	}

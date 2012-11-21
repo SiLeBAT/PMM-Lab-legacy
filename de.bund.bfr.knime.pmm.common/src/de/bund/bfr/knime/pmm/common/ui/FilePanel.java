@@ -69,10 +69,16 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 		field = new StringTextField();
 		field.addTextListener(this);
 
+		JPanel panel = new JPanel();
+
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		panel.setLayout(new BorderLayout(5, 5));
+		panel.add(field, BorderLayout.CENTER);
+		panel.add(button, BorderLayout.EAST);
+
 		setBorder(BorderFactory.createTitledBorder(name));
-		setLayout(new BorderLayout(5, 5));
-		add(field, BorderLayout.CENTER);
-		add(button, BorderLayout.EAST);
+		setLayout(new BorderLayout());
+		add(panel, BorderLayout.CENTER);
 	}
 
 	public void addFileListener(FileListener listener) {
@@ -111,6 +117,12 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 
 	public void addFileFilter(String fileExtension, String description) {
 		fileFilters.add(new StandardFileFilter(fileExtension, description));
+	}
+
+	public boolean isFileNameValid() {
+		String fileName = getFileName();
+
+		return fileName != null && new File(fileName).exists();
 	}
 
 	private void fireFileChanged() {

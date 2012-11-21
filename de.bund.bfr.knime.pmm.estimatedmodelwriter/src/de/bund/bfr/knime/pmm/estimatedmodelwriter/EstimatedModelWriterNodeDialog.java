@@ -62,37 +62,6 @@ public class EstimatedModelWriterNodeDialog extends NodeDialogPane {
      */
     protected EstimatedModelWriterNodeDialog() {
     	
-    	/* addDialogComponent(
-    			new DialogComponentBoolean(
-    				new SettingsModelBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE, false ),
-    				"Override default database"
-    			)
-        	);
-
-
-    	addDialogComponent(
-    			new DialogComponentString(
-    					new SettingsModelString(
-    							EstimatedModelWriterNodeModel.PARAM_FILENAME,
-    							"C:\\Dokumente und Einstellungen\\BrandtJ\\"+
-    							"localHSH\\BfR\\DB" ),
-    					"Filename : jdbc:hsqldb:file:", true, 40 ) );
-    	
-    	addDialogComponent(
-    			new DialogComponentString(
-    					new SettingsModelString(
-    							EstimatedModelWriterNodeModel.PARAM_LOGIN,
-    							"SA" ),
-    					"Login :", true, 10 ) );
-    	
-    	addDialogComponent(
-    			new DialogComponentString(
-    					new SettingsModelString(
-    							EstimatedModelWriterNodeModel.PARAM_PASSWD,
-    							"" ),
-    					"Password :", false, 7 ) ); */
-    	
-    	
     	ui = new DbConfigurationUi();    	
     	addTab( "Database connection", ui );
     }

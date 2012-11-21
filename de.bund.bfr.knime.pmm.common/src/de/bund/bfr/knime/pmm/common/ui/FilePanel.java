@@ -48,21 +48,26 @@ import javax.swing.filechooser.FileFilter;
 
 public class FilePanel extends JPanel implements ActionListener, TextListener {
 
+	public static final int OPEN_DIALOG = 1;
+	public static final int SAVE_DIALOG = 2;
+
 	private static final long serialVersionUID = 1L;
 
 	private List<FileListener> listeners;
 
+	private int dialogType;
 	private boolean acceptAllFiles;
 	private List<FileFilter> fileFilters;
 
 	private JButton button;
 	private StringTextField field;
 
-	public FilePanel(String name) {
-		listeners = new ArrayList<FileListener>();
-
+	public FilePanel(String name, int dialogType) {
+		this.dialogType = dialogType;
 		acceptAllFiles = true;
 		fileFilters = new ArrayList<FileFilter>();
+
+		listeners = new ArrayList<FileListener>();
 
 		button = new JButton("Browse...");
 		button.addActionListener(this);
@@ -122,7 +127,13 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	public boolean isFileNameValid() {
 		String fileName = getFileName();
 
-		return fileName != null && new File(fileName).exists();
+		if (dialogType == OPEN_DIALOG) {
+			return fileName != null && new File(fileName).exists();
+		} else if (dialogType == SAVE_DIALOG) {
+			return fileName != null;
+		}
+
+		return false;
 	}
 
 	private void fireFileChanged() {
@@ -147,8 +158,21 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 			fileChooser.addChoosableFileFilter(filter);
 		}
 
-		if (fileChooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
-			field.setText(fileChooser.getSelectedFile().getAbsolutePath());
+		if (dialogType == OPEN_DIALOG) {
+			if (fileChooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
+				field.setText(fileChooser.getSelectedFile().getAbsolutePath());
+			}
+		} else if (dialogType == SAVE_DIALOG) {
+			if (fileChooser.showSaveDialog(button) == JFileChooser.APPROVE_OPTION) {
+				String fileName = fileChooser.getSelectedFile()
+						.getAbsolutePath();
+
+				if (!fileName.toLowerCase().endsWith(".csv")) {
+					fileName += ".csv";
+				}
+
+				field.setText(fileName);
+			}
 		}
 	}
 

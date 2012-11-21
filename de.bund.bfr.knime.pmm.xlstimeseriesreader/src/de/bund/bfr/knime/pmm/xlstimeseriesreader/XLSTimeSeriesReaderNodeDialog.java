@@ -88,7 +88,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		JPanel leftUnitsPanel = new JPanel();
 		JPanel rightUnitsPanel = new JPanel();
 
-		filePanel = new FilePanel("XLS File");
+		filePanel = new FilePanel("XLS File", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
 		formatBox = new JComboBox(new String[] {

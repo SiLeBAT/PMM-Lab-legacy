@@ -74,7 +74,9 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 	 * New pane for configuring the CombaseReader node.
 	 */
 	protected CombaseReaderNodeDialog() {
-		filePanel = new FilePanel("Combase File");
+		filePanel = new FilePanel("Combase File", FilePanel.OPEN_DIALOG);
+		filePanel.setAcceptAllFiles(false);
+		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
 		eleminationField = new DoubleTextField();
 		eleminationField.setPreferredSize(new Dimension(100, eleminationField
 				.getPreferredSize().height));

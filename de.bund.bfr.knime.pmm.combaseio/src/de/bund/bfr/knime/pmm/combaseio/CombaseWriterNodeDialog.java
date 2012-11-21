@@ -33,38 +33,74 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.combaseio;
 
-import javax.swing.JFileChooser;
+import java.awt.BorderLayout;
 
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+
+import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 
 /**
  * <code>NodeDialog</code> for the "CombaseWriter" Node.
  * 
- *
+ * 
  * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Jorgen Brandt
  */
-public class CombaseWriterNodeDialog extends DefaultNodeSettingsPane {
-	
-	private static final String HISTORYID = "CombaseWriterNodeDialogHistory";
+public class CombaseWriterNodeDialog extends NodeDialogPane {
 
-    /**
-     * New pane for configuring the CombaseWriter node.
-     */
-    protected CombaseWriterNodeDialog() {
-    	
-    	SettingsModelString sms;
-    	DialogComponentFileChooser dcfc;
-    	
-    	sms = new SettingsModelString( CombaseWriterNodeModel.PARAM_FILENAME, "" );
-    	dcfc = new DialogComponentFileChooser( sms, HISTORYID, JFileChooser.SAVE_DIALOG, false, ".csv" );
-    	addDialogComponent( dcfc );
-    }
+	private FilePanel filePanel;
+
+	/**
+	 * New pane for configuring the CombaseWriter node.
+	 */
+	protected CombaseWriterNodeDialog() {
+		filePanel = new FilePanel("Combase File", FilePanel.SAVE_DIALOG);
+		filePanel.setAcceptAllFiles(false);
+		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(filePanel, BorderLayout.NORTH);
+
+		addTab("Options", panel);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			DataTableSpec[] specs) throws NotConfigurableException {
+		String fileName;
+
+		try {
+			fileName = settings
+					.getString(CombaseWriterNodeModel.PARAM_FILENAME);
+		} catch (InvalidSettingsException e) {
+			fileName = CombaseWriterNodeModel.DEFAULT_FILENAME;
+		}
+
+		filePanel.setFileName(fileName);
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (!filePanel.isFileNameValid()) {
+			throw new InvalidSettingsException("");
+		}
+
+		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME,
+				filePanel.getFileName());
+	}
 }
-

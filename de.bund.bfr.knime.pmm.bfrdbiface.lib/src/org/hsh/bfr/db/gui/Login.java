@@ -128,10 +128,6 @@ public class Login extends JFrame {
 			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
 		}
 	}
-	public void setUN(final String un) {
-		textField1.setText(un);
-	}
-
 
 	private void okButtonActionPerformed(final ActionEvent e) {
 		DBKernel.HSHDB_PATH = textField2.getText();
@@ -175,7 +171,7 @@ public class Login extends JFrame {
 	private void cancelButtonActionPerformed(final ActionEvent e) {
 		this.dispose();
 	}
-	private void changePasswort(final MyDBTable myDB, final String newPassword) throws Exception {
+	private void changePasswort(final MyDBTable myDB, String username, final String newPassword) throws Exception {
     	boolean isAdmin = DBKernel.isAdmin();
     	if (isAdmin) {
 			DBKernel.sendRequest("SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
@@ -183,9 +179,9 @@ public class Login extends JFrame {
 		else {
     		DBKernel.closeDBConnections(false);
     		DBKernel.getDefaultAdminConn();
-    		DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(textField1.getText()) + " SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
+    		DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
     		DBKernel.closeDBConnections(false);
-			myDB.initConn(textField1.getText(), newPassword); // MD5.encode(newPassword, "UTF-8")
+			myDB.initConn(username, newPassword); // MD5.encode(newPassword, "UTF-8")
     	}		
 	}
 	private MyList loadDB() {
@@ -199,22 +195,23 @@ public class Login extends JFrame {
 
 			myDB = new MyDBTable();
 			// Login fehlgeschlagen
+			String username = textField1.getText();
 			String password = new String(passwordField1.getPassword()); // DBKernel.isStatUp ? new String(passwordField1.getPassword()) : MD5.encode(new String(passwordField1.getPassword()), "UTF-8");
 			//MD5.encode(password, "UTF-8");
-			if (!myDB.initConn(textField1.getText(), password)) {
+			if (!myDB.initConn(username, password)) {
 				if (DBKernel.passFalse) {
 					String md5Password = MD5.encode(password, "UTF-8");
-					if (!myDB.initConn(textField1.getText(), md5Password)) {
+					if (!myDB.initConn(username, md5Password)) {
 						if (DBKernel.passFalse) {
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();												
+							passwordField1.requestFocus();																				
 						}
 						return myList;
 					}
 					else {
-						changePasswort(myDB, password);
+						changePasswort(myDB, username, password);
 					}
 				}
 			}
@@ -229,7 +226,7 @@ public class Login extends JFrame {
 					InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
 					ib.setVisible(true);    				  										        									    		
 		    	}
-				MyLogger.handleMessage(textField1.getText() + " logged in!" + "\nDB.data (size): " + fs);
+				MyLogger.handleMessage(username + " logged in!" + "\nDB.data (size): " + fs);
 				if (fs >= 500*1024*1024) { // 500MB
 			    	MyLogger.handleMessage("vor CHECKPOINT DEFRAG: " + fs);
 			    	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
@@ -237,7 +234,7 @@ public class Login extends JFrame {
 			    	MyLogger.handleMessage("nach CHECKPOINT DEFRAG: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
 				}				
 			}
-			DBKernel.prefs.put("LAST_USER_LOGIN", textField1.getText());
+			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 			MyLogger.handleMessage("HSHDB_PATH: " + DBKernel.HSHDB_PATH);
 			// Datenbank erstellen
@@ -266,7 +263,7 @@ public class Login extends JFrame {
 						return myList;
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
-						changePasswort(myDB, newPassword);
+						changePasswort(myDB, username, newPassword);
 					}
 					else {
 						passwordField1.setBackground(Color.WHITE);

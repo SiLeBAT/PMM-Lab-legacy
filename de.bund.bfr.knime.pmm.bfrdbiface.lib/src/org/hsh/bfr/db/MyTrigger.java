@@ -75,8 +75,8 @@ public void fire(final int triggerType, final String triggerName, final String t
         					if (oldAccRight == Users.ADMIN) {
         						int newAccRight = (rowAfter == null || rowAfter[4] == null) ? -1 : ((Integer) rowAfter[4]).intValue();
         						if (newAccRight != oldAccRight) {
-	          						if (DBKernel.countAdmins() == 1) {
-			                  			//System.out.println(DBKernel.countAdmins());     
+	          						if (DBKernel.countUsers(true) == 1) {
+			                  			//System.out.println(DBKernel.countUsers(true));     
 			                  			rowAfter[4] = new Integer(Users.ADMIN);  
 	          						}        							
         						}

@@ -177,7 +177,8 @@ public class QualityMeasurementComputation {
 					e.printStackTrace();
 				}
 
-				if (value instanceof Double) {
+				if (value instanceof Double && !((Double) value).isNaN()
+						&& !((Double) value).isInfinite()) {
 					double diff = targetValues.get(i) - (Double) value;
 
 					rms += diff * diff;

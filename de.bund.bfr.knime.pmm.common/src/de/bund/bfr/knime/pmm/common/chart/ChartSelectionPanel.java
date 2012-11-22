@@ -599,9 +599,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			if (this.equals(splitPane.getLeftComponent())) {
 				splitPane.setDividerLocation(w + splitPane.getDividerSize());
 			} else if (this.equals(splitPane.getRightComponent())) {
-				splitPane.setDividerLocation(getParent().getWidth() - w
+				splitPane.setDividerLocation(splitPane.getWidth() - w
 						- splitPane.getDividerSize());
-			}			
+			}
+		} else if (getParent().getParent() != null
+				&& getParent().getParent() instanceof JSplitPane) {
+			JSplitPane splitPane = (JSplitPane) getParent().getParent();
+			int w = Math.max(tableWidth, optionsPanel.getPreferredSize().width);
+
+			if (getParent().equals(splitPane.getLeftComponent())) {
+				splitPane.setDividerLocation(w + splitPane.getDividerSize());
+			} else if (getParent().equals(splitPane.getRightComponent())) {
+				splitPane.setDividerLocation(splitPane.getWidth() - w
+						- splitPane.getDividerSize());
+			}
 		} else if (getParent() instanceof JComponent) {
 			tableScrollPane.setPreferredSize(new Dimension(tableWidth,
 					tableScrollPane.getPreferredSize().height));

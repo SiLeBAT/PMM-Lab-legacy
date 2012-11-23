@@ -126,6 +126,8 @@ public class PrimaryJoiner implements Joiner {
 
 			if (replacements.containsKey(var)) {
 				box.setSelectedItem(replacements.get(var));
+			} else {
+				box.setSelectedItem(null);
 			}
 
 			box.setPreferredSize(new Dimension(150,
@@ -278,6 +280,12 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public boolean isValid() {
+		for (JComboBox box : variableBoxes) {
+			if (box.getSelectedItem() == null) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -361,7 +369,6 @@ public class PrimaryJoiner implements Joiner {
 	private void readDataTable() throws PmmException {
 		Set<String> parameterSet = new LinkedHashSet<String>();
 
-		parameterSet.add("");
 		parameterSet.add(TimeSeriesSchema.TIME);
 		parameterSet.add(TimeSeriesSchema.LOGC);
 		parameterSet.add(TimeSeriesSchema.ATT_TEMPERATURE);

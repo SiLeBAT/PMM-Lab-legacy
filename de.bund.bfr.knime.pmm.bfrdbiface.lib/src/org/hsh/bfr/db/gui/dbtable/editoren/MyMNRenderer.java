@@ -468,7 +468,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 							else {
 								result += rs.getString(2) + "\n";								
 							}
-							System.err.println(result);
+							//System.err.println(result);
 						}
 					} while (rs.next());					
 				}

@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.pmm.dataedit;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -50,6 +51,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.SwingConstants;
 
 import org.knime.core.node.BufferedDataTable;
@@ -60,6 +62,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -109,7 +112,18 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	private Map<String, IntTextField> intColumnFields;
 	private Map<String, DoubleTextField> doubleColumnFields;
 
-	private JPanel tablePanel;
+	private JPanel miscPanel;
+	private JPanel miscButtonsPanel;
+	private List<IntTextField> miscIDFields;
+	private List<StringTextField> miscNameFields;
+	private List<StringTextField> miscDescriptionFields;
+	private List<DoubleTextField> miscValueFields;
+	private List<StringTextField> miscUnitFields;
+	private List<JButton> miscRemoveButtons;
+	private List<JButton> miscAddButtons;
+	private List<JLabel> miscEmptyLabels;
+	private JPanel timeSeriesPanel;
+	private JPanel timeSeriesButtonsPanel;
 	private List<DoubleTextField> timeFields;
 	private List<DoubleTextField> logcFields;
 	private List<JButton> removeButtons;
@@ -216,39 +230,37 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private JPanel createMainPanel() {
-		JPanel mainPanel = new JPanel();
-		JPanel upperPanel = new JPanel();
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
-		JPanel idPanel = new JPanel();
-		JPanel centerPanel = new JPanel();
-		JPanel bottomPanel = new JPanel();
-
 		idBox = new JComboBox(nameList.toArray());
 		idBox.setSelectedIndex(0);
 		idBox.addActionListener(this);
 		deleteRecordButton = new JButton("Delete Record");
 		deleteRecordButton.addActionListener(this);
-		idPanel.add(new JLabel("Original ID:"));
-		idPanel.add(idBox);
-		idPanel.add(deleteRecordButton);
 		condIDField = new IntTextField();
 		condIDField.setEditable(false);
-		rightPanel.add(condIDField);
-		leftPanel.add(new JLabel(TimeSeriesSchema.ATT_CONDID + ":"));
 		stringColumnFields = new LinkedHashMap<String, StringTextField>();
 		intColumnFields = new LinkedHashMap<String, IntTextField>();
 		doubleColumnFields = new LinkedHashMap<String, DoubleTextField>();
 
+		// ------------------------------------------------------------------ //
+
+		JPanel idPanel = new JPanel();
+
+		idPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		idPanel.add(new JLabel("Original ID:"));
+		idPanel.add(idBox);
+		idPanel.add(deleteRecordButton);
+
+		// ------------------------------------------------------------------ //
+
+		JPanel leftPanel = new JPanel();
+		JPanel rightPanel = new JPanel();
+
 		leftPanel.setLayout(new GridLayout(0, 1, 5, 5));
 		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftPanel.add(new JLabel(TimeSeriesSchema.ATT_CONDID + ":"));
 		rightPanel.setLayout(new GridLayout(0, 1, 5, 5));
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		idPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		upperPanel.setLayout(new BorderLayout());
-		upperPanel.add(new SpacePanel(idPanel), BorderLayout.NORTH);
-		upperPanel.add(leftPanel, BorderLayout.WEST);
-		upperPanel.add(rightPanel, BorderLayout.CENTER);
+		rightPanel.add(condIDField);
 
 		for (int i = 0; i < schema.size(); i++) {
 			int type = schema.getType(i);
@@ -272,6 +284,53 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		// ------------------------------------------------------------------ //
+
+		JPanel upperPanel = new JPanel();
+
+		upperPanel.setLayout(new BorderLayout());
+		upperPanel.add(new SpacePanel(idPanel), BorderLayout.NORTH);
+		upperPanel.add(leftPanel, BorderLayout.WEST);
+		upperPanel.add(rightPanel, BorderLayout.CENTER);
+
+		// ------------------------------------------------------------------ //
+
+		JPanel centerPanel1 = new JPanel();
+		JPanel tablePanel1 = new JPanel();
+		JLabel idLabel = new JLabel("ID");
+		JLabel nameLabel = new JLabel("Name");
+		JLabel descriptionLabel = new JLabel("Description");
+		JLabel valueLabel = new JLabel("Value");
+		JLabel unitLabel = new JLabel("Unit");
+
+		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		nameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		descriptionLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		valueLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		unitLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		miscPanel = new JPanel();
+		miscPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		miscPanel.setLayout(new GridLayout(0, 5, 5, 5));
+		miscPanel.add(idLabel);
+		miscPanel.add(nameLabel);
+		miscPanel.add(descriptionLabel);
+		miscPanel.add(valueLabel);
+		miscPanel.add(unitLabel);
+		miscButtonsPanel = new JPanel();
+		miscButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		miscButtonsPanel.setLayout(new GridLayout(0, 2, 5, 5));
+		miscButtonsPanel.add(new JLabel());
+		miscButtonsPanel.add(new JLabel());
+		tablePanel1.setLayout(new BorderLayout());
+		tablePanel1.add(miscPanel, BorderLayout.CENTER);
+		tablePanel1.add(miscButtonsPanel, BorderLayout.EAST);
+		centerPanel1.setLayout(new BorderLayout());
+		centerPanel1.add(tablePanel1, BorderLayout.NORTH);
+
+		// ------------------------------------------------------------------ //
+
+		JPanel centerPanel2 = new JPanel();
+		JPanel tablePanel2 = new JPanel();
 		JLabel timeLabel = new JLabel(
 				AttributeUtilities.getFullNameWithUnit(TimeSeriesSchema.TIME));
 		JLabel logcLabel = new JLabel(
@@ -279,28 +338,64 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 
 		timeLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		logcLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		tablePanel = new JPanel();
-		tablePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		tablePanel.setLayout(new GridLayout(0, 4, 5, 5));
-		tablePanel.add(timeLabel);
-		tablePanel.add(logcLabel);
-		tablePanel.add(new JLabel());
-		tablePanel.add(new JLabel());
-		centerPanel.setLayout(new BorderLayout());
-		centerPanel.add(tablePanel, BorderLayout.NORTH);
+		timeSeriesPanel = new JPanel();
+		timeSeriesPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		timeSeriesPanel.setLayout(new GridLayout(0, 2, 5, 5));
+		timeSeriesPanel.add(timeLabel);
+		timeSeriesPanel.add(logcLabel);
+		timeSeriesButtonsPanel = new JPanel();
+		timeSeriesButtonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5,
+				5, 5));
+		timeSeriesButtonsPanel.setLayout(new GridLayout(0, 2, 5, 5));
+		timeSeriesButtonsPanel.add(new JLabel());
+		timeSeriesButtonsPanel.add(new JLabel());
+		tablePanel2.setLayout(new BorderLayout());
+		tablePanel2.add(timeSeriesPanel, BorderLayout.CENTER);
+		tablePanel2.add(timeSeriesButtonsPanel, BorderLayout.EAST);
+		centerPanel2.setLayout(new BorderLayout());
+		centerPanel2.add(tablePanel2, BorderLayout.NORTH);
+
+		// ------------------------------------------------------------------ //
+
+		JSplitPane centerPanel = new JSplitPane();
+
+		centerPanel.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		centerPanel.setTopComponent(new JScrollPane(centerPanel1,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		centerPanel.setBottomComponent(new JScrollPane(centerPanel2,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+		centerPanel.setResizeWeight(0.5);
+
+		// ------------------------------------------------------------------ //
+
+		JPanel bottomPanel = new JPanel();
 
 		clearButton = new JButton("Clear Changes");
 		clearButton.addActionListener(this);
 		bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		bottomPanel.add(clearButton);
 
+		// ------------------------------------------------------------------ //
+
+		JPanel mainPanel = new JPanel();
+
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(upperPanel, BorderLayout.NORTH);
-		mainPanel.add(new JScrollPane(centerPanel,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		mainPanel.add(centerPanel, BorderLayout.CENTER);
 		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
+		// ------------------------------------------------------------------ //
+
+		miscIDFields = new ArrayList<IntTextField>();
+		miscNameFields = new ArrayList<StringTextField>();
+		miscDescriptionFields = new ArrayList<StringTextField>();
+		miscValueFields = new ArrayList<DoubleTextField>();
+		miscUnitFields = new ArrayList<StringTextField>();
+		miscRemoveButtons = new ArrayList<JButton>();
+		miscAddButtons = new ArrayList<JButton>();
+		miscEmptyLabels = new ArrayList<JLabel>();
 		timeFields = new ArrayList<DoubleTextField>();
 		logcFields = new ArrayList<DoubleTextField>();
 		removeButtons = new ArrayList<JButton>();
@@ -342,24 +437,143 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			doubleColumnFields.get(column).setValue(value);
 		}
 
+		// ------------------------------------------------------------------ //
+
+		for (IntTextField field : miscIDFields) {
+			miscPanel.remove(field);
+		}
+
+		for (StringTextField field : miscNameFields) {
+			miscPanel.remove(field);
+		}
+
+		for (StringTextField field : miscDescriptionFields) {
+			miscPanel.remove(field);
+		}
+
+		for (DoubleTextField field : miscValueFields) {
+			miscPanel.remove(field);
+		}
+
+		for (StringTextField field : miscUnitFields) {
+			miscPanel.remove(field);
+		}
+
+		for (JButton button : miscRemoveButtons) {
+			miscButtonsPanel.remove(button);
+		}
+
+		for (JButton button : miscAddButtons) {
+			miscButtonsPanel.remove(button);
+		}
+
+		for (JLabel label : miscEmptyLabels) {
+			miscPanel.remove(label);
+			miscButtonsPanel.remove(label);
+		}
+
+		miscIDFields.clear();
+		miscNameFields.clear();
+		miscDescriptionFields.clear();
+		miscValueFields.clear();
+		miscUnitFields.clear();
+		miscAddButtons.clear();
+		miscRemoveButtons.clear();
+		miscEmptyLabels.clear();
+
+		PmmXmlDoc miscXml = tuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_MISC);
+
+		for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+			MiscXml element = (MiscXml) el;
+			IntTextField idField = new IntTextField();
+			StringTextField nameField = new StringTextField();
+			StringTextField descriptionField = new StringTextField(true);
+			DoubleTextField valueField = new DoubleTextField(true);
+			StringTextField unitField = new StringTextField(true);
+			JButton removebutton = new JButton("-");
+			JButton addButton = new JButton("+");
+
+			idField.setValue(element.getID());
+			idField.setPreferredSize(new Dimension(100, idField
+					.getPreferredSize().height));
+			idField.setEditable(false);
+			nameField.setValue(element.getName());
+			nameField.setPreferredSize(new Dimension(100, nameField
+					.getPreferredSize().height));
+			descriptionField.setValue(element.getDescription());
+			descriptionField.setPreferredSize(new Dimension(100,
+					descriptionField.getPreferredSize().height));
+			valueField.setValue(element.getValue());
+			valueField.setPreferredSize(new Dimension(100, valueField
+					.getPreferredSize().height));
+			unitField.setValue(element.getUnit());
+			unitField.setPreferredSize(new Dimension(100, unitField
+					.getPreferredSize().height));
+
+			miscPanel.add(idField);
+			miscPanel.add(nameField);
+			miscPanel.add(descriptionField);
+			miscPanel.add(valueField);
+			miscPanel.add(unitField);
+			miscButtonsPanel.add(removebutton);
+			miscButtonsPanel.add(addButton);
+			miscIDFields.add(idField);
+			miscNameFields.add(nameField);
+			miscDescriptionFields.add(descriptionField);
+			miscValueFields.add(valueField);
+			miscUnitFields.add(unitField);
+			miscRemoveButtons.add(removebutton);
+			miscAddButtons.add(addButton);
+			removebutton.addActionListener(this);
+			addButton.addActionListener(this);
+		}
+
+		JLabel miscLabel1 = new JLabel();
+		JLabel miscLabel2 = new JLabel();
+		JLabel miscLabel3 = new JLabel();
+		JLabel miscLabel4 = new JLabel();
+		JLabel miscLabel5 = new JLabel();
+		JLabel miscLabel6 = new JLabel();
+		JButton miscAddButton = new JButton("+");
+
+		miscPanel.add(miscLabel1);
+		miscPanel.add(miscLabel2);
+		miscPanel.add(miscLabel3);
+		miscPanel.add(miscLabel4);
+		miscPanel.add(miscLabel5);
+		miscButtonsPanel.add(miscLabel6);
+		miscButtonsPanel.add(miscAddButton);
+		miscEmptyLabels.add(miscLabel1);
+		miscEmptyLabels.add(miscLabel2);
+		miscEmptyLabels.add(miscLabel3);
+		miscEmptyLabels.add(miscLabel4);
+		miscEmptyLabels.add(miscLabel5);
+		miscEmptyLabels.add(miscLabel6);
+		miscAddButtons.add(miscAddButton);
+		miscAddButton.addActionListener(this);
+
+		// ------------------------------------------------------------------ //
+
 		for (DoubleTextField field : timeFields) {
-			tablePanel.remove(field);
+			timeSeriesPanel.remove(field);
 		}
 
 		for (DoubleTextField field : logcFields) {
-			tablePanel.remove(field);
+			timeSeriesPanel.remove(field);
 		}
 
 		for (JButton button : removeButtons) {
-			tablePanel.remove(button);
+			timeSeriesButtonsPanel.remove(button);
 		}
 
 		for (JButton button : addButtons) {
-			tablePanel.remove(button);
+			timeSeriesButtonsPanel.remove(button);
 		}
 
 		for (JLabel label : emptyLabels) {
-			tablePanel.remove(label);
+			timeSeriesPanel.remove(label);
+			timeSeriesButtonsPanel.remove(label);
 		}
 
 		timeFields.clear();
@@ -378,18 +592,17 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			JButton removebutton = new JButton("-");
 			JButton addButton = new JButton("+");
 
-			if (element.getTime() != null) {
-				timeField.setValue(element.getTime());
-			}
+			timeField.setValue(element.getTime());
+			timeField.setPreferredSize(new Dimension(100, timeField
+					.getPreferredSize().height));
+			logcField.setValue(element.getLog10C());
+			logcField.setPreferredSize(new Dimension(100, logcField
+					.getPreferredSize().height));
 
-			if (element.getLog10C() != null) {
-				logcField.setValue(element.getLog10C());
-			}
-
-			tablePanel.add(timeField);
-			tablePanel.add(logcField);
-			tablePanel.add(removebutton);
-			tablePanel.add(addButton);
+			timeSeriesPanel.add(timeField);
+			timeSeriesPanel.add(logcField);
+			timeSeriesButtonsPanel.add(removebutton);
+			timeSeriesButtonsPanel.add(addButton);
 			timeFields.add(timeField);
 			logcFields.add(logcField);
 			removeButtons.add(removebutton);
@@ -403,17 +616,22 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		JLabel label2 = new JLabel();
 		JLabel label3 = new JLabel();
 
-		tablePanel.add(label1);
-		tablePanel.add(label2);
-		tablePanel.add(label3);
-		tablePanel.add(addButton);
+		timeSeriesPanel.add(label1);
+		timeSeriesPanel.add(label2);
+		timeSeriesButtonsPanel.add(label3);
+		timeSeriesButtonsPanel.add(addButton);
 		emptyLabels.add(label1);
 		emptyLabels.add(label2);
 		emptyLabels.add(label3);
 		addButtons.add(addButton);
 		addButton.addActionListener(this);
 
-		tablePanel.revalidate();
+		// ------------------------------------------------------------------ //
+
+		miscPanel.revalidate();
+		miscButtonsPanel.revalidate();
+		timeSeriesPanel.revalidate();
+		timeSeriesButtonsPanel.revalidate();
 		addDocumentListeners();
 	}
 
@@ -455,6 +673,37 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		PmmXmlDoc miscXml = new PmmXmlDoc();
+
+		for (int j = 0; j < miscIDFields.size(); j++) {
+			if (!miscIDFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscNameFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscDescriptionFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscValueFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			if (!miscUnitFields.get(j).isValueValid()) {
+				dataValid = false;
+			}
+
+			miscXml.add(new MiscXml(miscIDFields.get(j).getValue(),
+					miscNameFields.get(j).getValue(), miscDescriptionFields
+							.get(j).getValue(), miscValueFields.get(j)
+							.getValue(), miscUnitFields.get(j).getValue()));
+		}
+
+		tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 
 		for (int j = 0; j < timeFields.size(); j++) {
@@ -494,6 +743,22 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		for (DoubleTextField field : logcFields) {
 			field.addTextListener(this);
 		}
+
+		for (StringTextField field : miscNameFields) {
+			field.addTextListener(this);
+		}
+
+		for (StringTextField field : miscDescriptionFields) {
+			field.addTextListener(this);
+		}
+
+		for (DoubleTextField field : miscValueFields) {
+			field.addTextListener(this);
+		}
+
+		for (StringTextField field : miscUnitFields) {
+			field.addTextListener(this);
+		}
 	}
 
 	private void removeDocumentListeners() {
@@ -516,23 +781,71 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		for (DoubleTextField field : logcFields) {
 			field.removeTextListener(this);
 		}
+
+		for (StringTextField field : miscNameFields) {
+			field.removeTextListener(this);
+		}
+
+		for (StringTextField field : miscDescriptionFields) {
+			field.removeTextListener(this);
+		}
+
+		for (DoubleTextField field : miscValueFields) {
+			field.removeTextListener(this);
+		}
+
+		for (StringTextField field : miscUnitFields) {
+			field.removeTextListener(this);
+		}
 	}
 
 	private void processRowChanges() throws PmmException {
 		int index = idBox.getSelectedIndex();
 		List<String> rowChanges = new ArrayList<String>();
 
+		PmmXmlDoc oldMisc = oldTuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_MISC);
+		PmmXmlDoc newMisc = tuples.get(index).getPmmXml(
+				TimeSeriesSchema.ATT_MISC);
+
+		if (newMisc.getElementSet().size() != oldMisc.getElementSet().size()) {
+			rowChanges.add(TimeSeriesSchema.ATT_MISC + "->"
+					+ DataEditNodeModel.miscToString(newMisc));
+		} else {
+			for (int i = 0; i < oldMisc.getElementSet().size(); i++) {
+				String oldName = ((MiscXml) oldMisc.get(i)).getName();
+				String newName = ((MiscXml) newMisc.get(i)).getName();
+				String oldDescription = ((MiscXml) oldMisc.get(i))
+						.getDescription();
+				String newDescription = ((MiscXml) newMisc.get(i))
+						.getDescription();
+				Double oldValue = ((MiscXml) oldMisc.get(i)).getValue();
+				Double newValue = ((MiscXml) newMisc.get(i)).getValue();
+				String oldUnit = ((MiscXml) oldMisc.get(i)).getUnit();
+				String newUnit = ((MiscXml) newMisc.get(i)).getUnit();
+
+				if (!areEqual(oldName, newName)
+						|| !areEqual(oldDescription, newDescription)
+						|| !areEqual(oldValue, newValue)
+						|| !areEqual(oldUnit, newUnit)) {
+					rowChanges.add(TimeSeriesSchema.ATT_MISC + "->"
+							+ DataEditNodeModel.miscToString(newMisc));
+					break;
+				}
+			}
+		}
+
 		PmmXmlDoc oldTimeSeries = oldTuples.get(index).getPmmXml(
 				TimeSeriesSchema.ATT_TIMESERIES);
 		PmmXmlDoc newTimeSeries = tuples.get(index).getPmmXml(
 				TimeSeriesSchema.ATT_TIMESERIES);
-		int n = oldTimeSeries.getElementSet().size();
 
-		if (newTimeSeries.getElementSet().size() != n) {
+		if (newTimeSeries.getElementSet().size() != oldTimeSeries
+				.getElementSet().size()) {
 			rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES + "->"
-					+ DataEditNodeModel.convertToString(newTimeSeries));
+					+ DataEditNodeModel.timeSeriesToString(newTimeSeries));
 		} else {
-			for (int i = 0; i < n; i++) {
+			for (int i = 0; i < oldTimeSeries.getElementSet().size(); i++) {
 				Double oldTime = ((TimeSeriesXml) oldTimeSeries.get(i))
 						.getTime();
 				Double oldLogc = ((TimeSeriesXml) oldTimeSeries.get(i))
@@ -543,8 +856,10 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 						.getLog10C();
 
 				if (!areEqual(oldTime, newTime) || !areEqual(oldLogc, newLogc)) {
-					rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES + "->"
-							+ DataEditNodeModel.convertToString(newTimeSeries));
+					rowChanges.add(TimeSeriesSchema.ATT_TIMESERIES
+							+ "->"
+							+ DataEditNodeModel
+									.timeSeriesToString(newTimeSeries));
 					break;
 				}
 			}
@@ -631,6 +946,14 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 		}
 	}
 
+	private boolean areEqual(String v1, String v2) {
+		if (v1 == null) {
+			return v2 == null;
+		} else {
+			return v1.equals(v2);
+		}
+	}
+
 	private boolean areEqual(Double v1, Double v2) {
 		if (v1 == null) {
 			return v2 == null;
@@ -684,6 +1007,31 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 
 				tuples.get(i).setValue(TimeSeriesSchema.ATT_TIMESERIES,
 						timeSeriesXml);
+				updateTextFields();
+				processRowChanges();
+			} else if (miscRemoveButtons.contains(e.getSource())) {
+				int i = idBox.getSelectedIndex();
+				int j = miscRemoveButtons.indexOf(e.getSource());
+				PmmXmlDoc miscXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_MISC);
+
+				miscXml.getElementSet().remove(j);
+
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+				updateTextFields();
+				processRowChanges();
+			} else if (miscAddButtons.contains(e.getSource())) {
+				int i = idBox.getSelectedIndex();
+				int j = miscAddButtons.indexOf(e.getSource());
+				PmmXmlDoc miscXml = tuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_MISC);
+
+				miscXml.getElementSet().add(
+						j,
+						new MiscXml(MathUtilities.getRandomNegativeInt(), "",
+								"", 0.0, ""));
+
+				tuples.get(i).setValue(TimeSeriesSchema.ATT_MISC, miscXml);
 				updateTextFields();
 				processRowChanges();
 			}

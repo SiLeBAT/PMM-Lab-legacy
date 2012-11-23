@@ -57,6 +57,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -260,7 +261,10 @@ public class DataEditNodeModel extends NodeModel {
 								} else if (attr
 										.equals(TimeSeriesSchema.ATT_TIMESERIES)) {
 									tuple.setValue(attr,
-											convertToTimeSeries(value));
+											stringToTimeSeries(value));
+								} else if (attr
+										.equals(TimeSeriesSchema.ATT_MISC)) {
+									tuple.setValue(attr, stringToMisc(value));
 								}
 							} else {
 								tuple.setValue(attr, null);
@@ -280,7 +284,7 @@ public class DataEditNodeModel extends NodeModel {
 		return newTuples;
 	}
 
-	public static PmmXmlDoc convertToTimeSeries(String s) {
+	protected static PmmXmlDoc stringToTimeSeries(String s) {
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		String[] toks = s.split(",");
 
@@ -305,7 +309,7 @@ public class DataEditNodeModel extends NodeModel {
 		return timeSeriesXml;
 	}
 
-	public static String convertToString(PmmXmlDoc timeSeries) {
+	protected static String timeSeriesToString(PmmXmlDoc timeSeries) {
 		if (timeSeries == null || timeSeries.getElementSet().isEmpty()) {
 			return "";
 		}
@@ -326,6 +330,88 @@ public class DataEditNodeModel extends NodeModel {
 			}
 
 			s += time + "/" + logc + ",";
+		}
+
+		return s.substring(0, s.length() - 1);
+	}
+
+	protected static PmmXmlDoc stringToMisc(String s) {
+		PmmXmlDoc miscXml = new PmmXmlDoc();
+		String[] toks = s.split(";;");
+
+		for (String t : toks) {
+			String[] elements = t.split(",,");
+			Integer id = null;
+			String name = null;
+			String description = null;
+			Double value = null;
+			String unit = null;
+
+			try {
+				id = Integer.parseInt(elements[0]);
+			} catch (NumberFormatException e) {
+			}
+
+			if (!elements[1].equals("?")) {
+				name = elements[1];
+			}
+
+			if (!elements[2].equals("?")) {
+				description = elements[2];
+			}
+
+			try {
+				value = Double.parseDouble(elements[3]);
+			} catch (NumberFormatException e) {
+			}
+
+			if (!elements[4].equals("?")) {
+				unit = elements[4];
+			}
+
+			miscXml.add(new MiscXml(id, name, description, value, unit));
+		}
+
+		return miscXml;
+	}
+
+	protected static String miscToString(PmmXmlDoc misc) {
+		if (misc == null || misc.getElementSet().isEmpty()) {
+			return "";
+		}
+
+		String s = "";
+
+		for (PmmXmlElementConvertable el : misc.getElementSet()) {
+			MiscXml element = (MiscXml) el;
+			String id = "?";
+			String name = "?";
+			String description = "?";
+			String value = "?";
+			String unit = "?";
+
+			if (element.getID() != null) {
+				id = element.getID() + "";
+			}
+
+			if (element.getName() != null) {
+				name = element.getName();
+			}
+
+			if (element.getDescription() != null) {
+				description = element.getDescription();
+			}
+
+			if (element.getValue() != null) {
+				value = element.getValue() + "";
+			}
+
+			if (element.getUnit() != null) {
+				unit = element.getUnit();
+			}
+
+			s += id + ",," + name + ",," + description + ",," + value + ",,"
+					+ unit + ";;";
 		}
 
 		return s.substring(0, s.length() - 1);

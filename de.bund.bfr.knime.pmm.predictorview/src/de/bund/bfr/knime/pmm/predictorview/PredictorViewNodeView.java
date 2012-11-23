@@ -34,10 +34,11 @@
 package de.bund.bfr.knime.pmm.predictorview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -51,18 +52,18 @@ import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.combine.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -131,7 +132,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS);
+					ChartConfigPanel.PARAMETER_FIELDS, true);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
@@ -165,9 +166,16 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
+			Dimension preferredSize = splitPane.getPreferredSize();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+			preferredSize.width = Math.min(preferredSize.width,
+					(int) (screenSize.width * 0.9));
+			preferredSize.height = Math.min(preferredSize.height,
+					(int) (screenSize.height * 0.9));
 
 			splitPane.setResizeWeight(1.0);
-
+			splitPane.setPreferredSize(preferredSize);
 			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -187,25 +195,25 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = new ArrayList<List<Double>>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : variables) {
-				if (plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(var));
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
+			for (String var : plotable.getFunctionArguments().keySet()) {
+				Double min = plotable.getMinArguments().get(var);
+				Double max = plotable.getMaxArguments().get(var);
 
-					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+				if (min != null) {
+					variables.put(var,
+							new ArrayList<Double>(Arrays.asList(min)));
+				} else if (max != null) {
+					variables.put(var,
+							new ArrayList<Double>(Arrays.asList(max)));
 				} else {
-					possibleValues.add(null);
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues,
-					TimeSeriesSchema.TIME);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), TimeSeriesSchema.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
@@ -221,7 +229,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			samplePanel.setDataPoints(samplePoints);
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
@@ -238,6 +246,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);
@@ -306,14 +316,14 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameterErrors = new LinkedHashMap<String, Double>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
 
-				variables.put(element.getName(),
-						new ArrayList<Double>(Arrays.asList(0.0)));
+				variables.put(element.getName(), new ArrayList<Double>());
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
 			}
@@ -322,6 +332,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				ParamXml element = (ParamXml) el;
 
 				parameters.put(element.getName(), element.getValue());
+				parameterErrors.put(element.getName(), element.getError());
 				paramValues.add(element.getValue());
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
@@ -347,7 +358,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
+			plotable.setParameterErrors(parameterErrors);
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.NO);

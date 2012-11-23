@@ -68,7 +68,7 @@ class MyDataChangeListener extends DatabaseChangeListener {
   				return false;
     		}
     		/*
-    		if (DBKernel.countAdmins() == 1) {
+    		if (DBKernel.countUsers(true) == 1) {
     			int oldAccRight = ((Integer) table.getValueAt(row, 4)).intValue();
     			if (oldAccRight == Users.ADMIN) {
     				JOptionPane.showMessageDialog(table, "Mindestens ein User muss Admin Rechte haben!", "Löschen nicht möglich", JOptionPane.INFORMATION_MESSAGE);

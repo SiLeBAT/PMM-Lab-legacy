@@ -512,13 +512,7 @@ Done, aber bitte checken: 5, 6, 7, 13, 170
 
 + die Leute bitten die Literatur sauber einzutragen
 
-- Für KNIME: DB-update Strategie einbauen!!!
 - niederberger Prozessketten teilweise korrigieren.... mehrere Prozessketten unter demselben Workflow...
-
-- Prozessschritte für ife ergänzen
-    
-- Datenbank anpassen bzgl. Modell Baranyi  siehe Maildiskussion mit Lösung dekadisch vs. logarithmisch...
-
    	
  - Editierbarkeit der Kataloge hinterfragen!!!!! Lieber abschaffen?????
  - alle doppelten (identischen String-) Einträge checken!! Aus Versehen Copy/Paste-Gefahr bzw. Sort/Filter-Gefahr
@@ -530,8 +524,6 @@ Done, aber bitte checken: 5, 6, 7, 13, 170
 - Nachweisverfahren: ist bei ID32 die Bezeichnung rausgenommen worden von Katja?
 
 - StatupInserts.sql anpassen/ersetzen an Lars' Kram
-- firstDB_sinLars und firstDB wieder austauschen - das eine ist Silebatfrei, das andere für Silebat
-
 
 - Agens- und Matrix-Detail in AGENZEIN_MATRICES 
 

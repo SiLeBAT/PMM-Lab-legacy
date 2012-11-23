@@ -167,9 +167,11 @@ public class MyDBPanel extends JPanel {
 		if (myDBTree1 != null) myDBTree1.setTable(myDBTree1.getActualTable());
 	}
 	public void setTreeVisible(boolean visible) {
+		/*
 		if (isFormVisible()) {
 			return;
 		}
+		*/
 		splitPane1.getLeftComponent().setVisible(visible);
 		//((WindowsSplitPaneUI) splitPane1.getUI()).getDivider().setVisible(visible);
 		BasicSplitPaneUI splitPaneUI1 = (BasicSplitPaneUI)(splitPane1.getUI());

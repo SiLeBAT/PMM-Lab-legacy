@@ -34,6 +34,8 @@
 package de.bund.bfr.knime.pmm.modelanddataview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,6 +59,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
@@ -78,8 +81,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelAndDataViewNodeView extends
 		NodeView<ModelAndDataViewNodeModel> implements
-		ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
 	private Map<String, Plotable> plotables;
@@ -131,14 +133,13 @@ public class ModelAndDataViewNodeView extends
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS);
+					ChartConfigPanel.PARAMETER_FIELDS, false);
 			configPanel.addConfigListener(this);
-			selectionPanel = new ChartSelectionPanel(ids, true,
-					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, visibleColumns, stringColumns);
+			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
+					stringColumnValues, doubleColumns, doubleColumnValues,
+					visibleColumns, stringColumns);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new ChartCreator(plotables, shortLegend,
-					longLegend);
+			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
 			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
@@ -150,12 +151,20 @@ public class ModelAndDataViewNodeView extends
 			bottomPanel.setLayout(new BorderLayout());
 			bottomPanel.add(configPanel, BorderLayout.WEST);
 			bottomPanel.add(infoPanel, BorderLayout.CENTER);
+			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
+			Dimension preferredSize = splitPane.getPreferredSize();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
+			preferredSize.width = Math.min(preferredSize.width,
+					(int) (screenSize.width * 0.9));
+			preferredSize.height = Math.min(preferredSize.height,
+					(int) (screenSize.height * 0.9));
+
+			splitPane.setPreferredSize(preferredSize);
 			splitPane.setResizeWeight(1.0);
-
 			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -175,31 +184,30 @@ public class ModelAndDataViewNodeView extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = new ArrayList<List<Double>>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : variables) {
+			for (String var : plotable.getFunctionArguments().keySet()) {
 				if (plotable.getValueList(var) != null) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
 					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+					variables.put(var, valuesList);
 				} else {
-					possibleValues.add(null);
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
@@ -220,9 +228,6 @@ public class ModelAndDataViewNodeView extends
 	}
 
 	private void readTable() throws PmmException {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
-				.getSchema(), getNodeModel().getTable());
 		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
@@ -243,9 +248,16 @@ public class ModelAndDataViewNodeView extends
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
 					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
+					Model1Schema.ATT_RMS + "(Data)", Model1Schema.ATT_RSQUARED
+							+ "(Data)", Model1Schema.ATT_AIC + "(Data)",
+					Model1Schema.ATT_BIC + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -279,8 +291,24 @@ public class ModelAndDataViewNodeView extends
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
 		}
 
+		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
+				.getSchema(), getNodeModel().getTable());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+
 		while (reader.hasMoreElements()) {
-			KnimeTuple row = reader.nextElement();
+			tuples.add(reader.nextElement());
+		}
+
+		List<KnimeTuple> newTuples = null;
+
+		if (getNodeModel().isPeiSchema()) {
+			newTuples = QualityMeasurementComputation.computePrimary(tuples);
+		}
+
+		Set<String> idSet = new LinkedHashSet<String>();
+
+		for (int nr = 0; nr < tuples.size(); nr++) {
+			KnimeTuple row = tuples.get(nr);
 			String id = null;
 
 			if (getNodeModel().isPeiSchema()) {
@@ -442,10 +470,18 @@ public class ModelAndDataViewNodeView extends
 				doubleColumnValues.get(3).add(
 						row.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(5).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(6).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_AIC));
+				doubleColumnValues.get(7).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_BIC));
+				doubleColumnValues.get(8).add(
+						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(9).add(
+						row.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(10).add(
 						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -464,7 +500,7 @@ public class ModelAndDataViewNodeView extends
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 7).add(
+							doubleColumnValues.get(i + 11).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -472,7 +508,7 @@ public class ModelAndDataViewNodeView extends
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 7).add(null);
+						doubleColumnValues.get(i + 11).add(null);
 					}
 				}
 			} else if (getNodeModel().isModel1Schema()) {
@@ -499,7 +535,7 @@ public class ModelAndDataViewNodeView extends
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
 
 			if (getNodeModel().isPeiSchema()) {
 				if (!plotable.isPlotable()) {

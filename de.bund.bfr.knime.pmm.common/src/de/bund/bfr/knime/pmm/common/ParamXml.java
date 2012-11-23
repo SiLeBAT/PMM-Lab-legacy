@@ -1,6 +1,7 @@
 package de.bund.bfr.knime.pmm.common;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.jdom2.Element;
@@ -23,6 +24,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double minGuess = null;
 	private Double maxGuess = null;
 	
+	private HashMap<String, Double> correlations = new HashMap<String, Double>();
+	
 	public ParamXml(String name, Double value) {
 		this(name, value, null, null, null, null, null);
 	}
@@ -34,7 +37,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		setMin(min);
 		setMax(max);
 		setP(P);
-		sett(t);		
+		sett(t);
 	}
 	public ParamXml(Element xmlElement) {
 		try {
@@ -56,10 +59,29 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setMinGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("maxGuess").getValue();
 			setMaxGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			
+			for (Element el : xmlElement.getChildren()) {
+				if (el.getName().equals("correlation")) {
+					String n = el.getAttributeValue("origname");
+					strDbl = el.getAttributeValue("value");
+					Double d = strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl);
+					correlations.put(n, d);
+				}
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	public void addCorrelation(String otherOrigname, Double value) {
+		correlations.put(otherOrigname, value);
+	}
+	public Double getCorrelation(String otherOrigname) {
+		if (correlations.containsKey(otherOrigname)) return correlations.get(otherOrigname);
+		else return null;
+	}
+	public HashMap<String, Double> getAllCorrelations() {
+		return correlations;
 	}
 	public String getName() {return name;}
 	public String getOrigName() {return origName;}
@@ -71,7 +93,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double gett() {return t;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	public void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
+	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
 	public void setValue(Double value) {this.value = (value == null) ? null : value;}
 	public void setError(Double error) {this.error = (error == null) ? null : error;}
 	public void setMin(Double min) {this.min = (min == null) ? null : min;}
@@ -105,6 +127,15 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("t", "" + (t == null || Double.isNaN(t) ? "" : t));
 		modelElement.setAttribute("minGuess", "" + (minGuess == null || Double.isNaN(minGuess) ? "" : minGuess));
 		modelElement.setAttribute("maxGuess", "" + (maxGuess == null || Double.isNaN(maxGuess) ? "" : maxGuess));
+
+		for (String origname : correlations.keySet()) {
+			Element element = new Element("correlation");
+			element.setAttribute("origname", origname);
+			Double d = correlations.get(origname);
+			element.setAttribute("value", "" + (d == null || Double.isNaN(d) ? "" : d));
+			modelElement.addContent(element);			
+		}
+
 		return modelElement;
 	}
 

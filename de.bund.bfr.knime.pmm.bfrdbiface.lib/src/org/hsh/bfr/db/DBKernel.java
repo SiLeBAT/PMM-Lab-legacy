@@ -129,10 +129,12 @@ public class DBKernel {
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
 	public static String getTempSA(boolean other) {
+		if (debug) return "SA";
 		if (other) return isKNIME || isKrise ? "defad": "SA";		
 		else return isKNIME || isKrise ? "SA" : "defad";		
 	}
 	public static String getTempSAPass(boolean other) {
+		if (debug) return "";
 		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
 		else return isKNIME || isKrise ? "" : "de6!§5ddy";		
 	}
@@ -639,8 +641,9 @@ public class DBKernel {
 				do {
 					try {
 						final String filename = rs.getString("Dateiname");
-		        final InputStream is = rs.getBinaryStream("Datei");
-		        if (is != null) {
+		        //final InputStream is = rs.getBinaryStream("Datei");
+		        final byte[] b = rs.getBytes("Datei");
+		        if (b != null) { // is
 		        	Runnable runnable = new Runnable() {
 		            @Override
 					public void run() {
@@ -659,17 +662,19 @@ public class DBKernel {
 						        		out = new FileOutputStream(pathname);
 							        	//int c;
 							        	//while ((c = is.read()) != -1) out.write(c);
-				                          int availableLength = is.available();
-				                          byte[] totalBytes = new byte[availableLength];
+				                          //int availableLength = is.available();
+				                          //byte[] totalBytes = new byte[availableLength];
 				                          //int bytedata = is.read(totalBytes);
-				                          out.write(totalBytes);
+				                          out.write(b); // totalBytes
 							        	//byte[] ba = out.toByteArray();
 							        	//System.out.println("InputStreamLen = " + ba.length + "\tfeldname = " + feldname + "\ttableID = " + tableID + "\tfilename = " + filename);
 						          }
 						          finally {
+						        	  /*
 						          	if (is != null) {
 										is.close();
 									}
+									*/
 						            if (out != null) {
 										out.close();
 									}
@@ -1364,11 +1369,10 @@ public class DBKernel {
   public static boolean showHierarchic(final String tableName) {
   	return tableName.equals("Matrices") || tableName.equals("Methoden") || tableName.equals("Agenzien") || tableName.equals("Methodiken");
   }
-	public static int countAdmins() {
+	public static int countUsers(boolean adminsOnly) {
 		int result = -1;
 		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + delimitL("Users") +
-				" WHERE " + delimitL("Zugriffsrecht") + " = " + Users.ADMIN +
-				" AND " + delimitL("Username") + " IS NOT NULL", true);
+				" WHERE " + (adminsOnly ? delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " : "") + delimitL("Username") + " IS NOT NULL", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = rs.getInt(1);

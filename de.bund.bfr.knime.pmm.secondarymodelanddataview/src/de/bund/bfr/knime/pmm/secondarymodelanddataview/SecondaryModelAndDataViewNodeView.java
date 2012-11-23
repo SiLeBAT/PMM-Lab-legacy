@@ -34,6 +34,8 @@
 package de.bund.bfr.knime.pmm.secondarymodelanddataview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -78,8 +80,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class SecondaryModelAndDataViewNodeView extends
 		NodeView<SecondaryModelAndDataViewNodeModel> implements
-		ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
 
 	private List<String> ids;
 	private List<Integer> colorCounts;
@@ -135,14 +136,14 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			if (getNodeModel().isSeiSchema()) {
 				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_BOXES);
+						ChartConfigPanel.PARAMETER_BOXES, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
 						filterableStringColumns, colorCounts);
 			} else if (getNodeModel().isModel2Schema()) {
 				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_FIELDS);
+						ChartConfigPanel.PARAMETER_FIELDS, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
@@ -151,8 +152,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			configPanel.addConfigListener(this);
 			selectionPanel.addSelectionListener(this);
-			chartCreator = new ChartCreator(plotables, shortLegend,
-					longLegend);
+			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
 			infoPanel = new ChartInfoPanel(ids, infoParameters,
 					infoParameterValues);
 
@@ -164,12 +164,20 @@ public class SecondaryModelAndDataViewNodeView extends
 			bottomPanel.setLayout(new BorderLayout());
 			bottomPanel.add(configPanel, BorderLayout.WEST);
 			bottomPanel.add(infoPanel, BorderLayout.CENTER);
+			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
 			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
 					upperSplitPane, bottomPanel);
+			Dimension preferredSize = splitPane.getPreferredSize();
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+			preferredSize.width = Math.min(preferredSize.width,
+					(int) (screenSize.width * 0.9));
+			preferredSize.height = Math.min(preferredSize.height,
+					(int) (screenSize.height * 0.9));
 
 			splitPane.setResizeWeight(1.0);
-
+			splitPane.setPreferredSize(preferredSize);
 			setComponent(splitPane);
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -189,14 +197,10 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			List<String> variables = new ArrayList<String>(plotable
-					.getFunctionArguments().keySet());
-			List<List<Double>> possibleValues = null;
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			if (getNodeModel().isSeiSchema()) {
-				possibleValues = new ArrayList<List<Double>>();
-
-				for (String var : variables) {
+			for (String var : plotable.getFunctionArguments().keySet()) {
+				if (getNodeModel().isSeiSchema()) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 
@@ -205,18 +209,21 @@ public class SecondaryModelAndDataViewNodeView extends
 					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
 					Collections.sort(valuesList);
-					possibleValues.add(valuesList);
+					variables.put(var, valuesList);
+				} else if (getNodeModel().isModel2Schema()) {
+					variables.put(var, new ArrayList<Double>());
 				}
 			}
 
-			configPanel.setParamsX(variables, possibleValues);
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 		} else {
-			configPanel.setParamsX(null);
+			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
@@ -458,7 +465,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setFunctionArguments(arguments);
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
-			plotable.setFunctionConstants(constants);
+			plotable.setFunctionParameters(constants);
 
 			if (getNodeModel().isSeiSchema()) {
 				List<Double> depVarData = depVarDataMap.get(id);

@@ -58,6 +58,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -78,6 +79,8 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
  * @author Christian Thoens
  */
 public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane {
+
+	private static final String NO_PARAM = "\"Skip Prediction\"";
 
 	private KnimeSchema schema;
 	private List<String> ids;
@@ -117,18 +120,9 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		}
 
 		try {
-			String paramsString = settings
-					.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS);
-
-			concentrationParameters = new LinkedHashMap<String, String>();
-
-			if (!paramsString.isEmpty()) {
-				for (String assign : paramsString.split(",")) {
-					String[] elems = assign.split(":");
-
-					concentrationParameters.put(elems[0], elems[1]);
-				}
-			}
+			concentrationParameters = ForecastStaticConditionsNodeModel
+					.toParameterMap(ListUtilities.getStringListFromString(settings
+							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
@@ -155,24 +149,22 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATION,
 				valueField.getValue());
 
-		StringBuilder paramsString = new StringBuilder();
+		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
 
 		for (String id : ids) {
-			if (!paramBoxes.get(id).getSelectedItem().equals("")) {
-				paramsString.append(id);
-				paramsString.append(":");
-				paramsString.append(paramBoxes.get(id).getSelectedItem());
-				paramsString.append(",");
+			if (!paramBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
+				parameterMap.put(id, (String) paramBoxes.get(id)
+						.getSelectedItem());
+			} else {
+				parameterMap.put(id, null);
 			}
-		}
-
-		if (paramsString.length() > 0) {
-			paramsString.deleteCharAt(paramsString.length() - 1);
 		}
 
 		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				paramsString.toString());
+				ListUtilities
+						.getStringFromList(ForecastStaticConditionsNodeModel
+								.toParameterList(parameterMap)));
 	}
 
 	private void readTable(BufferedDataTable table) throws PmmException {
@@ -199,7 +191,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 			List<String> params = new ArrayList<String>();
 
-			params.add("");
+			params.add(NO_PARAM);
 			params.addAll(CellIO.getNameList(tuple
 					.getPmmXml(Model1Schema.ATT_PARAMETER)));
 
@@ -243,7 +235,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 			JComboBox box = new JComboBox(availableParams.get(id).toArray());
 			JLabel label = new JLabel(modelNames.get(id) + ":");
 
-			if (params.containsKey(id)) {
+			if (params.get(id) != null) {
 				box.setSelectedItem(params.get(id));
 			}
 

@@ -33,50 +33,142 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.combaseio;
 
-import javax.swing.JFileChooser;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
-import org.knime.core.node.defaultnodesettings.DialogComponentNumber;
-import org.knime.core.node.defaultnodesettings.SettingsModelDouble;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
+
+import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
+import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 
 /**
  * <code>NodeDialog</code> for the "CombaseReader" Node.
  * 
- *
+ * 
  * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
- * creation of a simple dialog with standard components. If you need a more 
- * complex dialog please derive directly from 
+ * creation of a simple dialog with standard components. If you need a more
+ * complex dialog please derive directly from
  * {@link org.knime.core.node.NodeDialogPane}.
  * 
  * @author Jorgen Brandt
  */
-public class CombaseReaderNodeDialog extends DefaultNodeSettingsPane {
+public class CombaseReaderNodeDialog extends NodeDialogPane {
 
-	private static final String HISTORYID = "CombaseReaderNodeDialogHistory";
-	
-    /**
-     * New pane for configuring the CombaseReader node.
-     */
-    protected CombaseReaderNodeDialog() {
-    	
-    	SettingsModelString sms;
-    	DialogComponentFileChooser dcfc;
-    	DialogComponentNumber dcn;
-    	SettingsModelDouble smn;
-    	
-    	sms = new SettingsModelString( CombaseReaderNodeModel.PARAM_FILENAME, "" );
-    	dcfc = new DialogComponentFileChooser( sms, HISTORYID, JFileChooser.OPEN_DIALOG, false );
-    	addDialogComponent( dcfc );
-    	
-    	smn = new SettingsModelDouble( CombaseReaderNodeModel.PARAM_STARTELIM, 10 );
-    	dcn = new DialogComponentNumber( smn, "Start value for elimination:", .1 );
-    	addDialogComponent( dcn );
-    	
-    	smn = new SettingsModelDouble( CombaseReaderNodeModel.PARAM_STARTGROW, 0 );
-    	dcn = new DialogComponentNumber( smn, "Start value for growth:", .1 );
-    	addDialogComponent( dcn );
-    }
+	private FilePanel filePanel;
+	private DoubleTextField eleminationField;
+	private DoubleTextField growthField;
+
+	/**
+	 * New pane for configuring the CombaseReader node.
+	 */
+	protected CombaseReaderNodeDialog() {
+		filePanel = new FilePanel("Combase File", FilePanel.OPEN_DIALOG);
+		filePanel.setAcceptAllFiles(false);
+		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
+		eleminationField = new DoubleTextField();
+		eleminationField.setPreferredSize(new Dimension(100, eleminationField
+				.getPreferredSize().height));
+		growthField = new DoubleTextField();
+		growthField.setPreferredSize(new Dimension(100, growthField
+				.getPreferredSize().height));
+
+		JPanel leftOptionsPanel = new JPanel();
+
+		leftOptionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		leftOptionsPanel.setLayout(new GridLayout(2, 1, 5, 5));
+		leftOptionsPanel.add(new JLabel("Start value for elimination:"));
+		leftOptionsPanel.add(new JLabel("Start value for growth:"));
+
+		JPanel rightOptionsPanel = new JPanel();
+
+		rightOptionsPanel
+				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		rightOptionsPanel.setLayout(new GridLayout(2, 1, 5, 5));
+		rightOptionsPanel.add(eleminationField);
+		rightOptionsPanel.add(growthField);
+
+		JPanel optionsPanel = new JPanel();
+
+		optionsPanel
+				.setBorder(BorderFactory
+						.createTitledBorder("Values for Data Model if only Maximum Rate is known"));
+		optionsPanel.setLayout(new BorderLayout());
+		optionsPanel.add(leftOptionsPanel, BorderLayout.WEST);
+		optionsPanel.add(rightOptionsPanel, BorderLayout.EAST);
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
+		northPanel.add(filePanel);
+		northPanel.add(optionsPanel);
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(northPanel, BorderLayout.NORTH);
+
+		addTab("Options", panel);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			DataTableSpec[] specs) throws NotConfigurableException {
+		String fileName;
+		double startElim;
+		double startGrow;
+
+		try {
+			fileName = settings
+					.getString(CombaseReaderNodeModel.PARAM_FILENAME);
+		} catch (InvalidSettingsException e) {
+			fileName = CombaseReaderNodeModel.DEFAULT_FILENAME;
+		}
+
+		try {
+			startElim = settings
+					.getDouble(CombaseReaderNodeModel.PARAM_STARTELIM);
+		} catch (InvalidSettingsException e) {
+			startElim = CombaseReaderNodeModel.DEFAULT_STARTELIM;
+		}
+
+		try {
+			startGrow = settings
+					.getDouble(CombaseReaderNodeModel.PARAM_STARTGROW);
+		} catch (InvalidSettingsException e) {
+			startGrow = CombaseReaderNodeModel.DEFAULT_STARTGROW;
+		}
+
+		filePanel.setFileName(fileName);
+		eleminationField.setValue(startElim);
+		growthField.setValue(startGrow);
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (!filePanel.isFileNameValid() || !eleminationField.isValueValid()
+				|| !growthField.isValueValid()) {
+			throw new InvalidSettingsException("");
+		}
+
+		settings.addString(CombaseReaderNodeModel.PARAM_FILENAME,
+				filePanel.getFileName());
+		settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM,
+				eleminationField.getValue());
+		settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW,
+				growthField.getValue());
+	}
+
 }
-

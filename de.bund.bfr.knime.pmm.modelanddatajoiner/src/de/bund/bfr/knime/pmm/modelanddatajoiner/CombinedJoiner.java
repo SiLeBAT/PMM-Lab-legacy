@@ -129,6 +129,8 @@ public class CombinedJoiner implements Joiner {
 			if (replacements.containsKey(PRIMARY)
 					&& replacements.get(PRIMARY).containsKey(var)) {
 				box.setSelectedItem(replacements.get(PRIMARY).get(var));
+			} else {
+				box.setSelectedItem(null);
 			}
 
 			primaryVariableBoxes.add(box);
@@ -152,6 +154,8 @@ public class CombinedJoiner implements Joiner {
 				if (replacements.containsKey(depVarSec)
 						&& replacements.get(depVarSec).containsKey(var)) {
 					box.setSelectedItem(replacements.get(depVarSec).get(var));
+				} else {
+					box.setSelectedItem(null);
 				}
 
 				boxes.add(box);
@@ -365,7 +369,7 @@ public class CombinedJoiner implements Joiner {
 			}
 		}
 
-		primaryParameters = Arrays.asList("", TimeSeriesSchema.LOGC,
+		primaryParameters = Arrays.asList(TimeSeriesSchema.LOGC,
 				TimeSeriesSchema.TIME);
 		secondaryParameters = new ArrayList<String>(secParamSet);
 	}

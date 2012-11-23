@@ -19,6 +19,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
@@ -50,8 +51,6 @@ public class TableReader {
 
 	public TableReader(BufferedDataTable table, KnimeSchema schema,
 			boolean schemaContainsData) throws PmmException {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<String> miscParams = null;
 
 		allIds = new ArrayList<String>();
@@ -74,9 +73,16 @@ public class TableReader {
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
 					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
+					Model1Schema.ATT_RMS + "(Data)", Model1Schema.ATT_RSQUARED
+							+ "(Data)", Model1Schema.ATT_AIC + "(Data)",
+					Model1Schema.ATT_BIC + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -105,8 +111,23 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
 
+		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+
 		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
+			tuples.add(reader.nextElement());
+		}
+
+		List<KnimeTuple> newTuples = null;
+
+		if (schemaContainsData) {
+			newTuples = QualityMeasurementComputation.computePrimary(tuples);
+		}
+
+		Set<String> idSet = new LinkedHashSet<String>();
+
+		for (int nr = 0; nr < tuples.size(); nr++) {
+			KnimeTuple tuple = tuples.get(nr);
 			String id = null;
 
 			if (schemaContainsData) {
@@ -260,10 +281,18 @@ public class TableReader {
 				doubleColumnValues.get(3).add(
 						tuple.getDouble(Model1Schema.ATT_BIC));
 				doubleColumnValues.get(4).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
 				doubleColumnValues.get(5).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_PH));
+						newTuples.get(nr).getDouble(Model1Schema.ATT_RSQUARED));
 				doubleColumnValues.get(6).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_AIC));
+				doubleColumnValues.get(7).add(
+						newTuples.get(nr).getDouble(Model1Schema.ATT_BIC));
+				doubleColumnValues.get(8).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
+				doubleColumnValues.get(9).add(
+						tuple.getDouble(TimeSeriesSchema.ATT_PH));
+				doubleColumnValues.get(10).add(
 						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
@@ -282,7 +311,7 @@ public class TableReader {
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 7).add(
+							doubleColumnValues.get(i + 11).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -290,7 +319,7 @@ public class TableReader {
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 7).add(null);
+						doubleColumnValues.get(i + 11).add(null);
 					}
 				}
 			} else {
@@ -319,7 +348,7 @@ public class TableReader {
 			}
 
 			plotable.setFunction(formula);
-			plotable.setFunctionConstants(parameters);
+			plotable.setFunctionParameters(parameters);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);

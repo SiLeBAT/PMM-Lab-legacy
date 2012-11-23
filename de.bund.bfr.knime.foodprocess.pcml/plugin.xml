@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         point="org.knime.workbench.repository.nodes">
+      <node
+            category-path="/pmmlab/foodprocess"
+            factory-class="de.bund.bfr.knime.pcml.node.xmltopcml.XMLToPCMLNodeFactory"
+            id="de.bund.bfr.knime.pcml.node.xmltopcml.XMLToPCMLNodeFactory"/>
+	  <node
+            category-path="/pmmlab/foodprocess"
+            factory-class="de.bund.bfr.knime.pcml.node.pcmltoxml.PCMLToXMLNodeFactory"
+            id="de.bund.bfr.knime.pcml.node.pcmltoxml.PCMLToXMLNodeFactory"/>
+      <node
+            category-path="/pmmlab/foodprocess"
+            factory-class="de.bund.bfr.knime.pcml.node.pcmltotable.PCMLToDataTableNodeFactory"
+            id="de.bund.bfr.knime.pcml.node.pcmltotable.PCMLToDataTableNodeFactory"/>
+      <node
+            category-path="/pmmlab/foodprocess"
+            factory-class="de.bund.bfr.knime.pcml.node.pcmltest.packaging.PCMLTestDataNodeFactory"
+            id="de.bund.bfr.knime.pcml.node.pcmltest.packaging.PCMLTestDataNodeFactory">
+      </node>    
+   </extension>
+   
+</plugin>

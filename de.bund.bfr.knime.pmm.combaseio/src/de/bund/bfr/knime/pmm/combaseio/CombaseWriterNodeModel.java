@@ -45,7 +45,6 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseWriter;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -64,8 +63,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class CombaseWriterNodeModel extends NodeModel {
 	
 	protected static final String PARAM_FILENAME = "filename";
+	protected static final String DEFAULT_FILENAME = "";	
 	
-	private SettingsModelString filename;
+	private String filename;
 
     /**
      * Constructor for the node model.
@@ -74,7 +74,7 @@ public class CombaseWriterNodeModel extends NodeModel {
     
         super( 1, 0 );
         
-        filename = new SettingsModelString( PARAM_FILENAME, "" );
+        filename = DEFAULT_FILENAME;
     }
 
     /**
@@ -90,7 +90,7 @@ public class CombaseWriterNodeModel extends NodeModel {
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
 
 		int j = 0;
-		CombaseWriter cbw = new CombaseWriter(filename.getStringValue());
+		CombaseWriter cbw = new CombaseWriter(filename);
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
     		
@@ -114,7 +114,7 @@ public class CombaseWriterNodeModel extends NodeModel {
      */
     @Override
     protected DataTableSpec[] configure( final DataTableSpec[] inSpecs ) throws InvalidSettingsException {   	
-    	if( filename.getStringValue().isEmpty() )
+    	if( filename.isEmpty() )
     		throw new InvalidSettingsException( "Filename must be specified." );
     	getInSchema(inSpecs[0]);    	
     	return null;//new DataTableSpec[]{};
@@ -142,7 +142,7 @@ public class CombaseWriterNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
-    	filename.saveSettingsTo( settings );
+    	settings.addString(PARAM_FILENAME, filename);    	
     }
 
     /**
@@ -151,7 +151,7 @@ public class CombaseWriterNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-    	filename.loadSettingsFrom( settings );
+    	filename = settings.getString(PARAM_FILENAME);
     }
 
     /**
@@ -159,8 +159,7 @@ public class CombaseWriterNodeModel extends NodeModel {
      */
     @Override
     protected void validateSettings(final NodeSettingsRO settings)
-            throws InvalidSettingsException {
-    	filename.validateSettings( settings );
+            throws InvalidSettingsException {    	
     }
     
     /**

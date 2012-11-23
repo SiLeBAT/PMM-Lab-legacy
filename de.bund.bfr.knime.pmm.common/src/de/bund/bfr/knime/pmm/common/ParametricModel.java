@@ -161,7 +161,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		this.rsquared = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_RSQUARED, level));
 		this.aic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_AIC, level));
 		this.bic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_BIC, level));
-
+		if (this.rms == null) this.rms = Double.NaN;
+		if (this.rsquared == null) this.rsquared = Double.NaN;
+		if (this.aic == null) this.aic = Double.NaN;
+		if (this.bic == null) this.bic = Double.NaN;
 		if (newTsID != null) this.setCondId(newTsID);
 	}
 	public ParametricModel(final Element modelElement) {
@@ -171,8 +174,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
-		if (modelElement.getAttributeValue(ATT_RSS) != null) rss = Double.valueOf( modelElement.getAttributeValue( ATT_RSS ) );
-		rms = Double.valueOf( modelElement.getAttributeValue( ATT_RMS ) );
+		if (modelElement.getAttributeValue(ATT_RSS) != null) rss = Double.valueOf( modelElement.getAttributeValue(ATT_RSS) );
+		if (modelElement.getAttributeValue(ATT_RMS) != null) rms = Double.valueOf( modelElement.getAttributeValue(ATT_RMS) );
 		if (modelElement.getAttributeValue(ATT_AIC) != null) aic = Double.valueOf( modelElement.getAttributeValue(ATT_AIC) );
 		if (modelElement.getAttributeValue(ATT_BIC) != null) bic = Double.valueOf( modelElement.getAttributeValue(ATT_BIC) );
 		rsquared = Double.valueOf( modelElement.getAttributeValue( ATT_RSQUARED ) );
@@ -454,8 +457,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			this.rms = rms;
 		}
 	}
-	public void setAic( final Double aic ) { this.aic = aic; }
-	public void setBic( final Double bic ) { this.bic = bic; }
+	public void setAic(final Double aic) {this.aic = (aic == null) ? Double.NaN : aic;}
+	public void setBic(final Double bic) {this.bic = (bic == null) ? Double.NaN : bic;}
 	
 	public void removeIndepVar( final String varName ) {
 		for (PmmXmlElementConvertable el : independent.getElementSet()) {

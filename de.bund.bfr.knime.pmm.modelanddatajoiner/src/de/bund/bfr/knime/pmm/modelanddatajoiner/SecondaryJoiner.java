@@ -309,7 +309,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				while (peiReader.hasMoreElements()) {
 					KnimeTuple peiRow = peiReader.nextElement();
 					PmmXmlDoc params = peiRow
-							.getPmmXml(Model1Schema.ATT_PARAMETER);					
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 					if (!usedModels.get(i).equals(modelIDSec)
 							|| !CellIO.getNameList(params).contains(
@@ -459,6 +459,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				JComboBox depBox = new JComboBox(dependentParameters.toArray());
 
+				depBox.setSelectedItem(null);
 				depBox.addActionListener(this);
 				boxes.put(dependentVariables.get(model), depBox);
 				assignmentPanel.add(new JLabel(dependentVariables.get(model)
@@ -469,6 +470,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					JComboBox indepBox = new JComboBox(
 							independentParameters.toArray());
 
+					indepBox.setSelectedItem(null);
 					indepBox.addActionListener(this);
 					boxes.put(indepVar, indepBox);
 					assignmentPanel.add(new JLabel(indepVar + ":"));
@@ -519,15 +521,21 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
 				JComboBox box = boxes.get(depVar);
-				JComboBox sameValueBox = depVarBoxes.get(box.getSelectedItem());
 
-				if (sameValueBox != null) {
-					box.setForeground(Color.RED);
-					sameValueBox.setForeground(Color.RED);
+				if (box.getSelectedItem() == null) {
 					isValid = false;
 				} else {
-					box.setForeground(Color.BLACK);
-					depVarBoxes.put((String) box.getSelectedItem(), box);
+					JComboBox sameValueBox = depVarBoxes.get(box
+							.getSelectedItem());
+
+					if (sameValueBox != null) {
+						box.setForeground(Color.RED);
+						sameValueBox.setForeground(Color.RED);
+						isValid = false;
+					} else {
+						box.setForeground(Color.BLACK);
+						depVarBoxes.put((String) box.getSelectedItem(), box);
+					}
 				}
 			}
 		}
@@ -544,16 +552,22 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					}
 
 					JComboBox box = boxes.get(var);
-					JComboBox sameValueBox = indepVarBoxes.get(box
-							.getSelectedItem());
 
-					if (sameValueBox != null) {
-						box.setForeground(Color.RED);
-						sameValueBox.setForeground(Color.RED);
+					if (box.getSelectedItem() == null) {
 						isValid = false;
 					} else {
-						box.setForeground(Color.BLACK);
-						indepVarBoxes.put((String) box.getSelectedItem(), box);
+						JComboBox sameValueBox = indepVarBoxes.get(box
+								.getSelectedItem());
+
+						if (sameValueBox != null) {
+							box.setForeground(Color.RED);
+							sameValueBox.setForeground(Color.RED);
+							isValid = false;
+						} else {
+							box.setForeground(Color.BLACK);
+							indepVarBoxes.put((String) box.getSelectedItem(),
+									box);
+						}
 					}
 				}
 			}

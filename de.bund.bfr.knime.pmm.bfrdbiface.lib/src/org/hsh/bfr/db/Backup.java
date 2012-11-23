@@ -224,7 +224,7 @@ public class Backup extends FileFilter {
 			
 			try {
 				if (!DBKernel.isKNIME) {
-					Connection conn = DBKernel.getDBConnection();
+					Connection conn = getDBConnectionYOrCreateUser();
 					if (conn != null) {
 						myDB.initConn(conn);
 						myDB.setTable();					
@@ -261,6 +261,27 @@ public class Backup extends FileFilter {
 		DBKernel.openDBGUI();
   	}
   	return result;
+  }
+  private static Connection getDBConnectionYOrCreateUser() {
+	  Connection conn = null;	  
+	  try {
+		  conn = DBKernel.getDBConnection();
+		  if (conn == null) {
+				DBKernel.getDefaultAdminConn();
+				if (DBKernel.countUsers(false) == 0) {
+					String username = DBKernel.getUsername();
+					String password = DBKernel.getPassword();
+					DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Users") +
+							"(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht") +
+							") VALUES ('" + username + "', " + Users.SUPER_WRITE_ACCESS + ")", false);
+					DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + password + "';", false);
+				}
+				DBKernel.closeDBConnections(false);
+				conn = DBKernel.getDBConnection();
+		  }
+	  }
+	  catch (Exception e) {e.printStackTrace();}
+	  return conn;
   }
   private static void deleteOldFiles() {
     java.io.File f = new java.io.File(DBKernel.HSHDB_PATH);

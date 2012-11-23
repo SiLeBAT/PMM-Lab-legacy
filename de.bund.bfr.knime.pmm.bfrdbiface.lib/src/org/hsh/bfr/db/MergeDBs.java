@@ -110,22 +110,19 @@ public class MergeDBs {
 				usedIDs = new Hashtable<String, String>();
 				checkIfOthersAlreadyEditedUpdates = new HashMap<String, Integer>();
 				String folder = "Q:/BfR/DBs/";
-				//String dateFrom = "2012-04-03 12:00:00"; // 20120403
-				String dateFrom = "2012-08-22 12:00:00"; // Lars
-				folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/144_lars/";
+				String dateFrom = "2012-07-10 00:00:00"; // 20120403
+				//String dateFrom = "2012-08-22 12:00:00"; // Lars
+				//folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/144_lars/";
 
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
-				go4It(folder, dateFrom);
-				/*
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
-				isBoehnlein = true; go4It(folder + "141_boehnlein/", dateFrom); isBoehnlein = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
+				//isBoehnlein = true; go4It(folder + "141_boehnlein/", dateFrom); isBoehnlein = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				//isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isMertens = true; go4It(folder + "141_mertens/", dateFrom); isMertens = false;
-				*/
+				isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
+
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
 					DBKernel.doMNs(e.nextElement());
 				}

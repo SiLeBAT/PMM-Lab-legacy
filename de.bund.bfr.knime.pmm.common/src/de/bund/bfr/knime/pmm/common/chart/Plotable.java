@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -66,18 +65,20 @@ public class Plotable {
 	private String function;
 	private String functionValue;
 	private Map<String, List<Double>> functionArguments;
-	private Map<String, Double> functionConstants;
+	private Map<String, Double> functionParameters;
+	private Map<String, Double> parameterErrors;
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
 	private List<Double> samples;
 
 	public Plotable(int type) {
 		this.type = type;
-		valueLists = new HashMap<String, List<Double>>();
-		functionArguments = new HashMap<String, List<Double>>();
-		minArguments = new HashMap<String, Double>();
-		maxArguments = new HashMap<String, Double>();
-		functionConstants = new HashMap<String, Double>();
+		valueLists = new LinkedHashMap<String, List<Double>>();
+		functionArguments = new LinkedHashMap<String, List<Double>>();
+		minArguments = new LinkedHashMap<String, Double>();
+		maxArguments = new LinkedHashMap<String, Double>();
+		functionParameters = new LinkedHashMap<String, Double>();
+		parameterErrors = new LinkedHashMap<String, Double>();
 		samples = new ArrayList<Double>();
 	}
 
@@ -117,12 +118,20 @@ public class Plotable {
 		this.functionArguments = functionArguments;
 	}
 
-	public Map<String, Double> getFunctionConstants() {
-		return functionConstants;
+	public Map<String, Double> getFunctionParameters() {
+		return functionParameters;
 	}
 
-	public void setFunctionConstants(Map<String, Double> functionConstants) {
-		this.functionConstants = functionConstants;
+	public void setFunctionParameters(Map<String, Double> functionParameters) {
+		this.functionParameters = functionParameters;
+	}
+
+	public Map<String, Double> getParameterErrors() {
+		return parameterErrors;
+	}
+
+	public void setParameterErrors(Map<String, Double> parameterErrors) {
+		this.parameterErrors = parameterErrors;
 	}
 
 	public Map<String, Double> getMinArguments() {
@@ -239,12 +248,12 @@ public class Plotable {
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
 
-		for (String param : functionConstants.keySet()) {
-			if (functionConstants.get(param) == null) {
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null) {
 				return null;
 			}
 
-			parser.addConstant(param, functionConstants.get(param));
+			parser.addConstant(param, functionParameters.get(param));
 		}
 
 		for (String param : functionArguments.keySet()) {
@@ -295,6 +304,102 @@ public class Plotable {
 		return points;
 	}
 
+	public double[][] getFunctionErrors(String paramX, String paramY,
+			String transformY, double minX, double maxX, double minY,
+			double maxY) {
+		return getFunctionErrors(paramX, paramY, transformY, minX, maxX, minY,
+				maxY, getStandardChoice());
+	}
+
+	public double[][] getFunctionErrors(String paramX, String paramY,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, Map<String, Integer> choice) {
+		if (function == null) {
+			return null;
+		}
+
+		if (!function.startsWith(paramY + "=")
+				|| !functionArguments.containsKey(paramX)) {
+			return null;
+		}
+
+		double[][] points = new double[2][FUNCTION_STEPS];
+		DJep parser = MathUtilities.createParser();
+		Node f = null;
+
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null
+					|| parameterErrors.get(param) == null) {
+				return null;
+			}
+
+			parser.addConstant(param, functionParameters.get(param));
+		}
+
+		for (String param : functionArguments.keySet()) {
+			if (!param.equals(paramX)) {
+				parser.addConstant(param,
+						functionArguments.get(param).get(choice.get(param)));
+			}
+		}
+
+		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+
+		parser.addVariable(paramX, 0.0);
+
+		try {
+			f = parser.parse(function.replace(paramY + "=", ""));
+
+			for (String param : functionParameters.keySet()) {
+				derivatives.put(param, parser.differentiate(f, param));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		for (int j = 0; j < FUNCTION_STEPS; j++) {
+			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
+					* (maxX - minX);
+
+			parser.setVarValue(paramX, x);
+
+			try {
+				double y = 0.0;
+				boolean failed = false;
+
+				for (String param : functionParameters.keySet()) {
+					Object obj = parser.evaluate(derivatives.get(param));
+
+					if (!(obj instanceof Double)) {
+						failed = true;
+						break;
+					}
+
+					double error = (Double) obj * parameterErrors.get(param);
+
+					y += error * error;
+				}
+
+				points[0][j] = x;
+
+				if (!failed) {
+					// the error is multiplied by 1.96 to get the 95% interval
+					y = Math.sqrt(y) * 1.96;
+					y = transformDouble(y, transformY);
+					points[1][j] = y;
+				} else {
+					points[1][j] = Double.NaN;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return points;
+	}
+
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
 			String transformY, double minX, double maxX, double minY,
 			double maxY) {
@@ -318,12 +423,12 @@ public class Plotable {
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
 
-		for (String param : functionConstants.keySet()) {
-			if (functionConstants.get(param) == null) {
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null) {
 				return null;
 			}
 
-			parser.addConstant(param, functionConstants.get(param));
+			parser.addConstant(param, functionParameters.get(param));
 		}
 
 		for (String param : functionArguments.keySet()) {
@@ -367,7 +472,7 @@ public class Plotable {
 				}
 
 				points[0][i] = x;
-				points[1][i] = y;				
+				points[1][i] = y;
 			} catch (ParseException e) {
 				e.printStackTrace();
 			} catch (ClassCastException e) {
@@ -380,8 +485,8 @@ public class Plotable {
 
 	public boolean isPlotable() {
 		if (type == FUNCTION || type == FUNCTION_SAMPLE) {
-			for (String param : functionConstants.keySet()) {
-				if (functionConstants.get(param) == null) {
+			for (String param : functionParameters.keySet()) {
+				if (functionParameters.get(param) == null) {
 					return false;
 				}
 			}
@@ -473,7 +578,7 @@ public class Plotable {
 			return null;
 		}
 
-		Map<String, Integer> choice = new HashMap<String, Integer>();
+		Map<String, Integer> choice = new LinkedHashMap<String, Integer>();
 
 		for (String arg : functionArguments.keySet()) {
 			choice.put(arg, 0);
@@ -501,7 +606,7 @@ public class Plotable {
 				&& functionArguments.containsKey(paramX)) {
 			boolean notValid = false;
 
-			for (Double value : functionConstants.values()) {
+			for (Double value : functionParameters.values()) {
 				if (!isValidValue(value)) {
 					notValid = true;
 					break;

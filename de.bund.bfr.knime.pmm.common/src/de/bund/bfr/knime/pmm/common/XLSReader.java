@@ -384,7 +384,7 @@ public class XLSReader {
 		return tuples;
 	}
 
-	private static final Sheet getSheet(File file) throws Exception {
+	private static Sheet getSheet(File file) throws Exception {
 		InputStream inputStream = null;
 
 		if (file.exists()) {

@@ -60,8 +60,10 @@ public class DbIo {
 						Double erd = (er == null || er[i] == null) ? Double.NaN : Double.parseDouble(er[i].toString());
 						Double mid = (mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
-						ParamXml px = new ParamXml(nas,vad,erd,mid,mad,null,null);
-			    		if (varMap != null && varMap.containsKey(px.getName())) px.setOrigName(varMap.get(px.getName()));
+						String onas = nas;
+			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
+						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null);
+						px.setName(nas);
 						paramDoc.add(px);
 					}					
 				}
@@ -84,8 +86,10 @@ public class DbIo {
 						String nas = na[i].toString();
 						Double mid = (mi == null || mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma == null || ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
-						IndepXml ix = new IndepXml(nas,mid,mad);
-			    		if (varMap != null && varMap.containsKey(ix.getName())) ix.setOrigName(varMap.get(ix.getName()));
+						String onas = nas;
+			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
+						IndepXml ix = new IndepXml(onas,mid,mad);
+						ix.setName(nas);
 						indepDoc.add(ix);
 					}					
 				}

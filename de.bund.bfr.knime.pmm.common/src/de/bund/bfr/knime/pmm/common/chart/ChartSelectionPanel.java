@@ -65,6 +65,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
@@ -97,11 +98,15 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private ColorAndShapeCreator colorAndShapes;
 
 	private JTable selectTable;
+	private JComponent optionsPanel;
+
+	private JScrollPane tableScrollPane;
 	private ShapeRenderer checkBoxRenderer;
 	private JButton selectAllButton;
 	private JButton unselectAllButton;
 	private JButton invertSelectionButton;
 	private JButton customizeColumnsButton;
+	private JButton resizeColumnsButton;
 	private Map<String, JComboBox> comboBoxes;
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
@@ -181,8 +186,11 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		customizeColumnsButton = new JButton("Customize");
 		customizeColumnsButton.addActionListener(this);
+		resizeColumnsButton = new JButton("Set Optimal Width");
+		resizeColumnsButton.addActionListener(this);
 		columnPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		columnPanel.add(customizeColumnsButton);
+		columnPanel.add(resizeColumnsButton);
 
 		upperPanel2.add(columnPanel);
 		upperPanel.add(new SpacePanel(upperPanel2));
@@ -286,11 +294,14 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		setLayout(new BorderLayout());
-		add(new SpacePanel(upperPanel), BorderLayout.NORTH);
-		add(new JScrollPane(selectTable,
+		optionsPanel = new SpacePanel(upperPanel);
+		tableScrollPane = new JScrollPane(selectTable,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+		setLayout(new BorderLayout());
+		add(optionsPanel, BorderLayout.NORTH);
+		add(tableScrollPane, BorderLayout.CENTER);
 	}
 
 	public String getFocusedID() {
@@ -511,6 +522,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					}
 				}
 			}
+		} else if (e.getSource() == resizeColumnsButton) {
+			packColumns();
 		} else {
 			applyFilters();
 		}
@@ -545,6 +558,66 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		selectTable.setRowSorter(new SelectTableRowSorter(
 				(SelectTableModel) selectTable.getModel(), filters));
+	}
+
+	private void packColumns() {
+		int tableWidth = 0;
+
+		for (int c = 0; c < selectTable.getColumnCount(); c++) {
+			TableColumn col = selectTable.getColumnModel().getColumn(c);
+
+			if (col.getPreferredWidth() == 0) {
+				continue;
+			}
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			Component comp = selectTable
+					.getTableHeader()
+					.getDefaultRenderer()
+					.getTableCellRendererComponent(selectTable,
+							col.getHeaderValue(), false, false, 0, 0);
+			int width = comp.getPreferredSize().width;
+
+			for (int r = 0; r < selectTable.getRowCount(); r++) {
+				renderer = selectTable.getCellRenderer(r, c);
+				comp = renderer.getTableCellRendererComponent(selectTable,
+						selectTable.getValueAt(r, c), false, false, r, c);
+				width = Math.max(width, comp.getPreferredSize().width);
+			}
+
+			width += 5;
+			col.setPreferredWidth(width);
+			tableWidth += width;
+		}
+
+		tableWidth += 10;
+
+		if (getParent() instanceof JSplitPane) {
+			JSplitPane splitPane = (JSplitPane) getParent();
+			int w = Math.max(tableWidth, optionsPanel.getPreferredSize().width);
+
+			if (this.equals(splitPane.getLeftComponent())) {
+				splitPane.setDividerLocation(w + splitPane.getDividerSize());
+			} else if (this.equals(splitPane.getRightComponent())) {
+				splitPane.setDividerLocation(splitPane.getWidth() - w
+						- splitPane.getDividerSize());
+			}
+		} else if (getParent().getParent() != null
+				&& getParent().getParent() instanceof JSplitPane) {
+			JSplitPane splitPane = (JSplitPane) getParent().getParent();
+			int w = Math.max(tableWidth, optionsPanel.getPreferredSize().width);
+
+			if (getParent().equals(splitPane.getLeftComponent())) {
+				splitPane.setDividerLocation(w + splitPane.getDividerSize());
+			} else if (getParent().equals(splitPane.getRightComponent())) {
+				splitPane.setDividerLocation(splitPane.getWidth() - w
+						- splitPane.getDividerSize());
+			}
+		} else if (getParent() instanceof JComponent) {
+			tableScrollPane.setPreferredSize(new Dimension(tableWidth,
+					tableScrollPane.getPreferredSize().height));
+			((JComponent) getParent()).revalidate();
+		}
 	}
 
 	public static interface SelectionListener {

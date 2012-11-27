@@ -120,7 +120,7 @@ public class KnimeSchema {
 	public boolean conforms( DataColumnSpec[] spec ) throws PmmException {
 		
 		if( spec == null )
-			throw new PmmException( "Array of column specs must not be null." );
+			return false;
 		
 		return conforms( new DataTableSpec( spec ) );
 	}
@@ -128,7 +128,7 @@ public class KnimeSchema {
 	public boolean conforms( DataTable table ) throws PmmException {
 		
 		if( table == null )
-			throw new PmmException( "Buffered data table must not be null." );
+			return false;
 		
 		return conforms( table.getDataTableSpec() );
 	}
@@ -140,7 +140,7 @@ public class KnimeSchema {
 		DataColumnSpec cspec;
 		
 		if( tspec == null )
-			throw new PmmException( "Table spec must not be null." );
+			return false;
 		
 		n = tspec.getNumColumns();
 		for( KnimeAttribute col : attributeSet ) {

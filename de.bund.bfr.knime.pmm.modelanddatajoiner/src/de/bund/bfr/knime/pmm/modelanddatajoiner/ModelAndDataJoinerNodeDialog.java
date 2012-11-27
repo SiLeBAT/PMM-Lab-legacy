@@ -215,7 +215,9 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
 				new TimeSeriesSchema());
 
+		joinerBox.removeActionListener(this);
 		joinerBox.setSelectedItem(joinType);
+		joinerBox.addActionListener(this);
 		joiner = null;
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {

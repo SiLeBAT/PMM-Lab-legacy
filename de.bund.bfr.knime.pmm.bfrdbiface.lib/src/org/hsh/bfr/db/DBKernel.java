@@ -129,12 +129,12 @@ public class DBKernel {
 	public static boolean createNewFirstDB = false && DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp;
 	
 	public static String getTempSA(boolean other) {
-		if (debug) return "SA";
+		//if (debug) return "SA";
 		if (other) return isKNIME || isKrise ? "defad": "SA";		
 		else return isKNIME || isKrise ? "SA" : "defad";		
 	}
 	public static String getTempSAPass(boolean other) {
-		if (debug) return "";
+		//if (debug) return "";
 		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
 		else return isKNIME || isKrise ? "" : "de6!§5ddy";		
 	}
@@ -1625,9 +1625,13 @@ public class DBKernel {
 					catch (Exception e) {}
 
 				  	String dbVersion = DBKernel.getDBVersion();
-				  	if (dbVersion == null || dbVersion.equals("1.4.4")) {
+				  	if (dbVersion == null) { //  || dbVersion.equals("1.4.4")
 				  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
 				  		DBKernel.setDBVersion("1.4.4");
+				  	}
+				  	else if (dbVersion.equals("1.4.4")) {
+				  		//UpdateChecker.check4Updates_144_145(DBKernel.myList);
+				  		//DBKernel.setDBVersion("1.4.5");
 				  	}
 		  		}				
 			}

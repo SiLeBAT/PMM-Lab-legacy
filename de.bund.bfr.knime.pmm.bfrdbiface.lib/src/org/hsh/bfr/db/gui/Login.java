@@ -77,6 +77,7 @@ import javax.swing.JTextField;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MainKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.MyTrigger;
@@ -143,7 +144,13 @@ public class Login extends JFrame {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			loadDB();
 			//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
-			//DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
+			/*
+			DBKernel.sendRequest("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA()) +
+					" PASSWORD '" + DBKernel.getTempSAPass() + "' ADMIN", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+			DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
+			*/
 		}
 		finally {
 			this.setCursor(Cursor.getDefaultCursor());

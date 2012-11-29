@@ -23,7 +23,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 
 import com.jgoodies.forms.factories.Borders;
-import com.jgoodies.forms.factories.FormFactory;
+import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.ColumnSpec;
 import com.jgoodies.forms.layout.FormLayout;
@@ -137,8 +137,8 @@ String inhalt = "";
                           buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
                           buttonBar.setLayout(new FormLayout(
                                   new ColumnSpec[] {
-                                          FormFactory.GLUE_COLSPEC,
-                                          FormFactory.BUTTON_COLSPEC
+                                		  FormSpecs.GLUE_COLSPEC,
+                                		  FormSpecs.BUTTON_COLSPEC
                                   },
                                   RowSpec.decodeSpecs("pref")));
 

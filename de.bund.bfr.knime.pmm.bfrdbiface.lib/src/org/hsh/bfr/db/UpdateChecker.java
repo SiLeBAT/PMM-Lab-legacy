@@ -70,6 +70,9 @@ public class UpdateChecker {
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("BezUnits1") + "=NULL", false);
 				*/
 	}
+	public static void check4Updates_144_145(final MyList myList) {
+		
+	}
 	public static void check4Updates_143_144(final MyList myList) {
 		boolean refreshFK = false;
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +

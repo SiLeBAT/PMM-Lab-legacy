@@ -162,6 +162,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    }
 		    if (DBKernel.isKrise) {
 				children[Lieferketten_LIST].setVisible(true);
+				if (DBKernel.debug) children[SystemTabellen_LIST].setVisible(true);
 			}
 		    
 		    boolean isAdmin  = DBKernel.isAdmin();
@@ -290,7 +291,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 			else if (child >= 0) {
 				InvisibleNode iNode = new InvisibleNode(myT);
 				if (DBKernel.isKrise) {
-					iNode.setVisible(child == Lieferketten_LIST); // visible			
+					iNode.setVisible(child == Lieferketten_LIST || DBKernel.debug && child == SystemTabellen_LIST); // visible			
 				}
 				children[child].add(iNode);
 			}

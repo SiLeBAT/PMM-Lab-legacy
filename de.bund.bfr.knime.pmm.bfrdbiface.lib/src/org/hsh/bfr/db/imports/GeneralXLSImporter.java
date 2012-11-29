@@ -337,7 +337,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 							      			*/
 							      	}
 					      		}
-					          catch(Exception e1) {numFailed++;MyLogger.handleException(e1);} 
+					          catch(Exception e1) {numFailed++;MyLogger.handleMessage(ps.toString()); MyLogger.handleException(e1);} 
 					      	}
 				    			if (progress != null) {lfd++;progress.setValue(lfd);}
 					      }

@@ -675,7 +675,7 @@ public class MMC_M extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Model Properties"),
-			Borders.DLU2_BORDER));
+			Borders.DLU2)); // DLU2_BORDER
 		setLayout(new FormLayout(
 			"3*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
 			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $pgap, fill:default:grow, 1dlu, default"));

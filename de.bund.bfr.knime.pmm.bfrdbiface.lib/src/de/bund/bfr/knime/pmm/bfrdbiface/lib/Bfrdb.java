@@ -782,18 +782,7 @@ public class Bfrdb extends Hsqldbiface {
 		return pushQuery( queryTimeSeries5 );
 	}
 	
-	public ResultSet selectParam( final int paramtype ) throws SQLException {
-		
-		String q;
-		
-		q = "SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\" FROM \""+
-				REL_PARAM+"\" WHERE \""+ATT_PARAMTYPE+"\"="+paramtype;
-		
-		return pushQuery( q );
-	}
-	
-	public ResultSet selectRelatedLiterature( final String modelName )
-	throws SQLException {
+	public ResultSet selectRelatedLiterature( final String modelName ) throws SQLException {
 		
 		
 		String q;

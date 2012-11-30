@@ -750,7 +750,7 @@ public class MyDBForm extends JPanel {
 
 		//======== scrollPane3 ========
 		{
-			scrollPane3.setBorder(Borders.DIALOG_BORDER);
+			scrollPane3.setBorder(Borders.DIALOG);
 			scrollPane3.setBackground(new Color(255, 204, 255));
 
 			//======== panel1 ========

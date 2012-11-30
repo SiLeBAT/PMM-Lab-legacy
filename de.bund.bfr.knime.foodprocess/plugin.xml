@@ -1,5 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse version="3.0"?>
+
 <plugin>
 
    <!-- This is an example for providing an own category 
@@ -13,43 +14,25 @@
             path="/"/>
    </extension>
    -->
-   <extension
-         point="org.knime.workbench.repository.categories">
-      <category
-            level-id="foodprocess"
-            name="Foodprocess"
-            path="/pmmlab">
+   <extension point="org.knime.workbench.repository.categories">
+      <category level-id="foodprocess" name="Foodprocess" path="/pmmlab">
       </category>
    </extension>
    
-   <extension
-         point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/pmmlab/foodprocess"
-            factory-class="de.bund.bfr.knime.foodprocess.FoodProcessNodeFactory"
-            id="de.bund.bfr.knime.foodprocess.FoodProcessNodeFactory"/>
-      <node
-            category-path="/pmmlab/foodprocess"
-            factory-class="de.bund.bfr.knime.foodprocess.addons.IngredientsNodeFactory"
-            id="de.bund.bfr.knime.foodprocess.ingredients.IngredientsNodeFactory">
+   <extension point="org.knime.workbench.repository.nodes">
+      <node category-path="/pmmlab/foodprocess" factory-class="de.bund.bfr.knime.foodprocess.FoodProcessNodeFactory" id="de.bund.bfr.knime.foodprocess.FoodProcessNodeFactory"/>
+      <node category-path="/pmmlab/foodprocess" factory-class="de.bund.bfr.knime.foodprocess.addons.IngredientsNodeFactory" id="de.bund.bfr.knime.foodprocess.ingredients.IngredientsNodeFactory">
       </node>
-      <node
-            category-path="/pmmlab/foodprocess"
-            factory-class="de.bund.bfr.knime.foodprocess.addons.AgentsNodeFactory"
-            id="de.bund.bfr.knime.foodprocess.ingredients.AgentsNodeFactory">
+      <node category-path="/pmmlab/foodprocess" factory-class="de.bund.bfr.knime.foodprocess.addons.AgentsNodeFactory" id="de.bund.bfr.knime.foodprocess.ingredients.AgentsNodeFactory">
       </node>
-   </extension>
-   <extension
-         point="org.eclipse.ui.newWizards">
-      <wizard
-            class="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard"
-            id="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard"
-            name="Process chain importer">
+   <node category-path="/" factory-class="de.bund.bfr.knime.krise.MyKrisenInterfacesNodeFactory" id="de.bund.bfr.knime.krise.MyKrisenInterfacesNodeFactory"/>
+</extension>
+   <extension point="org.eclipse.ui.newWizards">
+      <wizard class="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard" id="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard" name="Process chain importer">
          <description>
             Process chain importer that import process chains directly from the integrated database
          </description>
-         <selection
-               class="org.eclipse.core.resources.IResource">
+         <selection class="org.eclipse.core.resources.IResource">
          </selection>
       </wizard>
    </extension>

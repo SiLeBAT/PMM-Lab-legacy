@@ -112,7 +112,7 @@ String inhalt = "";
 
           //======== dialogPane ========
           {
-                  dialogPane.setBorder(Borders.DIALOG_BORDER);
+                  dialogPane.setBorder(Borders.DIALOG);
                   dialogPane.setLayout(new BorderLayout());
 
                   //======== contentPane ========
@@ -134,7 +134,7 @@ String inhalt = "";
 
                   //======== buttonBar ========
                   {
-                          buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
+                          buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
                           buttonBar.setLayout(new FormLayout(
                                   new ColumnSpec[] {
                                 		  FormSpecs.GLUE_COLSPEC,

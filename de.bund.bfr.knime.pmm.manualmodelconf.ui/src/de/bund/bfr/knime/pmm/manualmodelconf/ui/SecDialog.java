@@ -70,7 +70,7 @@ public class SecDialog extends JDialog {
 
 		//======== dialogPane ========
 		{
-			dialogPane.setBorder(Borders.DIALOG_BORDER);
+			dialogPane.setBorder(Borders.DIALOG);
 			dialogPane.setLayout(new BorderLayout());
 
 			//======== contentPanel ========
@@ -83,7 +83,7 @@ public class SecDialog extends JDialog {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
+				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setLayout(new FormLayout(
 					"$glue, $button, $rgap, $button",
 					"pref"));

@@ -77,7 +77,6 @@ import javax.swing.JTextField;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MainKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.MyTrigger;
@@ -2593,7 +2592,7 @@ public class Login extends JFrame {
 
 		//======== dialogPane ========
 		{
-			dialogPane.setBorder(Borders.DIALOG_BORDER);
+			dialogPane.setBorder(Borders.DIALOG);
 			dialogPane.setFont(new Font("Tahoma", Font.PLAIN, 13));
 			dialogPane.setLayout(new BorderLayout());
 
@@ -2708,7 +2707,7 @@ public class Login extends JFrame {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
+				buttonBar.setBorder(Borders.BUTTON_BAR_PAD); // BUTTON_BAR_GAP_BORDER
 				buttonBar.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				buttonBar.setLayout(new FormLayout(
 					"$glue, $button, $rgap, $button",

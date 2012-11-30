@@ -90,22 +90,17 @@ public class MyFilter implements Filter {
         		 for (int i=0;tok.hasMoreTokens();i++) {
     				findStrings[i] = tok.nextToken().toUpperCase();
         		 }
-        		 int numCols = tm.getColumnCount();
         		 int numRows = tm.getRowCount();
         		 MyTable[] foreignFields = myDBTable1.getActualTable().getForeignFields();
         		 String[] mnTable = myDBTable1.getActualTable().getMNTable();
         		 if (userIDs != null) {
             		 for (Integer row : rows2check) {
-         		  		 for (int col = 0; col < numCols; col++) {
-         		  			if (loopInternal(vv, row.intValue(), col, mnTable, foreignFields, tm, findStrings)) break;
-             	    	}
+         		  		 loopInternal(vv, row.intValue(), mnTable, foreignFields, tm, findStrings);
             		 }        		 
         		 }
         		 else {
         			 for (int row = 0; row < numRows; row++) {
-         		  		 for (int col = 0; col < numCols; col++) {
-          		  			if (loopInternal(vv, row, col, mnTable, foreignFields, tm, findStrings)) break;
-             	    	}
+         		  		 loopInternal(vv, row, mnTable, foreignFields, tm, findStrings);
         			 }
         		 }
             	 result = getAllFilter(tm, vv);
@@ -117,29 +112,31 @@ public class MyFilter implements Filter {
  		}
  		return result;
      }
-     private boolean loopInternal(Vector<Integer> vv, int row, int col, String[] mnTable, MyTable[] foreignFields, TableModel tm, String[] findStrings) {
-		 String res;
-    	 boolean isMN = (col > 0 && mnTable != null && mnTable.length > col-1 && mnTable[col-1] != null);
-    	 	if (myDBTable1.getColumn(col).getType() != java.sql.Types.BOOLEAN && !isMN) {
-    	 		Object o = tm.getValueAt(row, col+1);
-    	 		if (o != null) { // sonst Fehler in z.B. Methoden bei der Suchfunktion
-      	  			boolean lookIn = (col > 0 && foreignFields != null && foreignFields.length > col-1 && foreignFields[col-1] != null && myDBTable1.hashBox[col-1] != null);
-  		  	    	if (lookIn && myDBTable1.hashBox[col-1].get(o) != null) res = myDBTable1.hashBox[col-1].get(o).toString();
-  		  	    	else res = o.toString();
-  		  	    	//System.err.println(row + "\t" + col + "\t" + o + "\t" + res);
-  		  	    	if (res != null) {
-  		  	    		int i;
-  			  	    	for (i=0;i<findStrings.length;i++) {
-  			  	    		if (res.toUpperCase().indexOf(findStrings[i]) < 0) break;
-  			  	    	}
-  			  	    	if (i == findStrings.length) {
-  			  	    		vv.addElement(new Integer(row));
-  			  	    		return true;
-  			  	    	}
-  		  	    	}
-  		  	    }
-	  	}  	
-	  			return false;
+     private boolean loopInternal(Vector<Integer> vv, int row, String[] mnTable, MyTable[] foreignFields, TableModel tm, String[] findStrings) {
+		 String res = "";
+		 for (int col = 0; col < tm.getColumnCount(); col++) {
+			 boolean isMN = (col > 0 && mnTable != null && mnTable.length > col-1 && mnTable[col-1] != null);
+	    	 	if (myDBTable1.getColumn(col).getType() != java.sql.Types.BOOLEAN && !isMN) {
+	    	 		Object o = tm.getValueAt(row, col+1);
+	    	 		if (o != null) { // sonst Fehler in z.B. Methoden bei der Suchfunktion
+	      	  			boolean lookIn = (col > 0 && foreignFields != null && foreignFields.length > col-1 && foreignFields[col-1] != null && myDBTable1.hashBox[col-1] != null);
+	  		  	    	if (lookIn && myDBTable1.hashBox[col-1].get(o) != null) res += "\n" + myDBTable1.hashBox[col-1].get(o).toString();
+	  		  	    	else res += "\n" + o.toString();
+	  		  	    	//System.err.println(row + "\t" + col + "\t" + o + "\t" + res);
+	    	 		}
+	    	 	}
+		 }
+    	if (res != null && !res.isEmpty()) {
+    		int i;
+  	    	for (i=0;i<findStrings.length;i++) {
+  	    		if (res.toUpperCase().indexOf(findStrings[i]) < 0) break;
+  	    	}
+  	    	if (i == findStrings.length) {
+  	    		vv.addElement(new Integer(row));
+  	    		return true;
+  	    	}
+    	}
+    	return false;
      }
      private int[] getAllFilter(TableModel tm, Vector<Integer> vv) {
     	 if (vv == null) {

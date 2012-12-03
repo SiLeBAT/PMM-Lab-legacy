@@ -667,8 +667,18 @@ if (dbForm != null || owner != null) {
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Produktkatalog") &&
-				headerValue != null && headerValue.toString().equals("Lieferungen")) {
+				headerValue != null && headerValue.toString().equals("Chargen")) {
 			Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Chargen") &&
+				headerValue != null && headerValue.toString().equals("Zutaten")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Produkt"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Chargen") &&
+				headerValue != null && headerValue.toString().equals("Lieferungen")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Charge"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Lieferungen") && headerValue != null) {					
@@ -683,6 +693,15 @@ if (dbForm != null || owner != null) {
 			else {
 				newDBTable.setTable(theNewTable, conditions);
 			}
+		}
+		else if (myT != null && tn.equals("ChargenVerbindungen") &&
+				headerValue != null && headerValue.toString().equals("Zutat")) {
+			Object charge = dbTable.getValueAt(row, 2);
+			Object artikel = DBKernel.getValue("Chargen", "ID", charge+"", "Artikel");
+			Object station = DBKernel.getValue("Produktkatalog", "ID", artikel+"", "Station");
+			//System.err.println("WW:" + charge + "\t" + artikel + "\t" + station);
+			Object[][] o = new Object[1][2]; o[0][0] = "Empfänger"; o[0][1] = station;//dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
 		}
 
 		else if (myT != null && tn.equals("ProzessWorkflow") &&

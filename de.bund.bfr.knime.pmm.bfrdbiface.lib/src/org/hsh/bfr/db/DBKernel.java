@@ -121,7 +121,7 @@ public class DBKernel {
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.4.4";
+	public static String DBVersion = "1.4.5";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
@@ -1062,10 +1062,21 @@ public class DBKernel {
         	else if (foreignTable.equals("Lieferungen")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
         			String cn = rs.getMetaData().getColumnName(i); 
+        			if (cn.equals("Charge")) {
+        				value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        			
+        			}
+        			else if (cn.equals("Unitmenge") || cn.equals("UnitEinheit") || cn.equals("Lieferdatum")) {
+        				value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
+        			}
+        		}        		
+        	}
+        	else if (foreignTable.equals("Chargen")) {
+        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
+        			String cn = rs.getMetaData().getColumnName(i); 
         			if (cn.equals("Artikel")) {
         				value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        			
         			}
-        			else if (cn.equals("ChargenNr") || cn.equals("Lieferdatum")) {
+        			else if (cn.equals("ChargenNr") || cn.equals("Herstellungsdatum")) {
         				value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
         			}
         		}        		

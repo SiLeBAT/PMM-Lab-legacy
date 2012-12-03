@@ -154,8 +154,8 @@ public class MyTable {
 		 || tableName.equals("Exposition") || tableName.equals("Risikocharakterisierung") || tableName.equals("Verwendung") 
 		 || tableName.equals("Transport")  || tableName.equals("Methoden_Software") || tableName.equals("Produkt")
 		 // Krise
-		 || tableName.equals("LieferungVerbindungen") || tableName.equals("Lieferungen") || tableName.equals("Produktkatalog")
-		 || tableName.equals("Station") || tableName.equals("Station_Agenzien") || tableName.equals("Produktkatalog_Matrices");
+		 || tableName.equals("LieferungVerbindungen") || tableName.equals("ChargenVerbindungen") || tableName.equals("Lieferungen") || tableName.equals("Produktkatalog")
+		 || tableName.equals("Station") || tableName.equals("Chargen") || tableName.equals("Station_Agenzien") || tableName.equals("Produktkatalog_Matrices");
 
 		 hideScore = hideTested
 			 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");

@@ -72,6 +72,51 @@ public class UpdateChecker {
 	}
 	public static void check4Updates_144_145(final MyList myList) {
 		
+		myList.getTable("Chargen").createTable();
+		DBKernel.grantDefaults("Chargen");
+		myList.getTable("ChargenVerbindungen").createTable();
+		DBKernel.grantDefaults("ChargenVerbindungen");
+		//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("LieferungVerbindungen"), false);
+		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("LieferungVerbindungen") + " IF EXISTS", false);
+		
+		DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Lieferungen") + " WHERE " + DBKernel.delimitL("Unitmenge") + "=0", false);
+
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Produktkatalog") +
+				" ALTER COLUMN " + DBKernel.delimitL("Lieferungen") + " RENAME TO " + DBKernel.delimitL("Chargen"), false);
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") +
+				" ADD COLUMN " + DBKernel.delimitL("Charge") + " INTEGER BEFORE " + DBKernel.delimitL("Artikel"), false)) {
+			updateChangeLog("Lieferungen", 1, false);		
+		}
+		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Chargen") +
+				" (" + DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
+				") SELECT DISTINCT " + DBKernel.delimitL("Artikel") + "," +
+				DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
+				" FROM " + DBKernel.delimitL("Lieferungen"), false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") +
+				" SET " + DBKernel.delimitL("Charge") + "=" +
+				" SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") + " WHERE " +
+				DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel"), false);
+		
+		DBKernel.doMNs(DBKernel.myList.getTable("Chargen"));
+
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Zielprodukt"), false)) {
+			updateChangeLog("Lieferungen", 14, true);		
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Vorprodukt"), false)) {
+			updateChangeLog("Lieferungen", 13, true);		
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("MHD"), false)) {
+			updateChangeLog("Lieferungen", 4, true);		
+		}
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("ChargenNr"), false)) {
+			updateChangeLog("Lieferungen", 3, true);		
+		}
+		refreshFKs("Lieferungen", true);
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Artikel"), false)) {
+			updateChangeLog("Lieferungen", 2, true);		
+		}
+		refreshFKs("Lieferungen");
+		refreshFKs("Produktkatalog");
 	}
 	public static void check4Updates_143_144(final MyList myList) {
 		boolean refreshFK = false;

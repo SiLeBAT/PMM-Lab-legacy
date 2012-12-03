@@ -999,19 +999,21 @@ if (myDBPanel1 != null) {
 						} else if (fname.equals("Code")) {
 							c.setPreferredWidth(50);
 						} else if (fname.equals("VATnumber")) {
-							c.setPreferredWidth(60);
-						} else if (fname.equals("Betriebsart")) {
-							c.setPreferredWidth(60);
-						} else if (fname.equals("Betriebsnummer")) {
 							c.setPreferredWidth(90);
+						} else if (fname.equals("Betriebsart")) {
+							c.setPreferredWidth(80);
+						} else if (fname.equals("Betriebsnummer")) {
+							c.setPreferredWidth(110);
 						} else if (fname.startsWith("BezUnits")) {
 							c.setPreferredWidth(70);
 						} else if (fname.equals("UnitEinheit")) {
 							c.setPreferredWidth(70);
 						} else if (fname.equals("ChargenNr")) {
-							c.setPreferredWidth(60);
+							c.setPreferredWidth(100);
 						} else if (fname.equals("Artikelnummer")) {
-							c.setPreferredWidth(80);
+							c.setPreferredWidth(100);
+						} else if (fname.equals("VATnumber")) {
+							c.setPreferredWidth(110);
 						} else {
 							c.setPreferredWidth(150);
 						}
@@ -1044,16 +1046,25 @@ if (myDBPanel1 != null) {
 							sorter.setComparator(i+2, new MyIntegerSorter());
 						}
 					}
-					else if (fieldTypes[i].startsWith("DATE")) {
+					else if (fieldTypes[i].startsWith("DATE")) { // DATE, DATETIME
 						//c.setPreferredWidth(75);
-					    c.setUserCellRenderer(new MyImageCell(MyImageCell.DATE));
+					    c.setUserCellRenderer(new MyImageCell(fieldTypes[i].equals("DATETIME") ? MyImageCell.DATETIME : MyImageCell.DATE));
 					    c.setUserCellEditor(new MyCellEditorDate());
 				    	String fname = actualTable.getFieldNames()[i];
 					    if (fname.equals("MHD")) {
 					    	c.setPreferredWidth(70);
 					    }
 					    else if (fname.equals("Lieferdatum")) {
-					    	c.setPreferredWidth(70);
+					    	c.setPreferredWidth(90);
+					    }
+					    else if (fname.equals("Zeitstempel")) {
+					    	c.setPreferredWidth(140);
+					    }
+					    else if (fname.equals("DatumHoehepunkt")) {
+					    	c.setPreferredWidth(120);
+					    }
+					    else if (fname.equals("Herstellungsdatum")) {
+					    	c.setPreferredWidth(120);
 					    }
 					    else {
 					    	c.setPreferredWidth(100); // datum
@@ -1064,7 +1075,7 @@ if (myDBPanel1 != null) {
 							sorter.setComparator(i+2, new MyDatetimeSorter());
 						}
 					}
-					else { // DATETIME, INTEGER, DOUBLE
+					else { // INTEGER, DOUBLE
 						c.setPreferredWidth(75);
 						c.setUserCellRenderer(new MyLabelRenderer());
 						String tooltip = fieldComments[i];
@@ -1074,6 +1085,7 @@ if (myDBPanel1 != null) {
 						}
 					    
 					    if (fieldTypes[i].equals("DATETIME")) {
+						    c.setUserCellRenderer(new MyImageCell(MyImageCell.DATETIME));
 							c.setPreferredWidth(125);
 							if (sorter != null) {
 								sorter.setComparator(i+2, new MyDatetimeSorter());
@@ -1099,9 +1111,9 @@ if (myDBPanel1 != null) {
 							} else if (fname.equals("Konzentration")) {
 								c.setPreferredWidth(170);
 							} else if (fname.equals("Unitmenge")) {
-								c.setPreferredWidth(60);
+								c.setPreferredWidth(80);
 							} else if (fname.startsWith("#Units")) {
-								c.setPreferredWidth(50);
+								c.setPreferredWidth(60);
 							} else {
 								c.setPreferredWidth(100);
 							}
@@ -1157,6 +1169,8 @@ if (myDBPanel1 != null) {
 								c.setPreferredWidth(130);
 							} else if (fname.equals("Therapie_Letal")) {
 								c.setPreferredWidth(130);
+							} else if (fname.equals("AnzahlFaelle")) {
+								c.setPreferredWidth(110);
 							} else if (fname.equals("AnzahlLabornachweise")) {
 								c.setPreferredWidth(120);
 							}

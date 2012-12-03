@@ -50,7 +50,7 @@ public class MyImageCell extends JLabel implements CellComponent {
   static final int MUSIC = 1;
   static final int WWW = 2;
   static final int TEXT = 3;
-  static final int DATETIME = 4;
+  public static final int DATETIME = 4;
   public static final int DATE = 5;
 
   int cellType;
@@ -78,8 +78,11 @@ public class MyImageCell extends JLabel implements CellComponent {
         this.setText("TEXT");
       }
       else if (cellType == DATE) {
-        this.setText(getDate((java.util.Date) value, "dd.MM.yyyy"));
-      }
+          this.setText(getDate((java.util.Date) value, "dd.MM.yyyy"));
+        }
+      else if (cellType == DATETIME) {
+          this.setText(getDate((java.util.Date) value, "dd.MM.yyyy HH:mm:ss"));
+        }
     }
     else {
       this.setText("");

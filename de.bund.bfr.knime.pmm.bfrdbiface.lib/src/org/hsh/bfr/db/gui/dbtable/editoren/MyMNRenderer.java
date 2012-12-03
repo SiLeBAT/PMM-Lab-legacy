@@ -127,14 +127,32 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 						DBKernel.delimitL("Bezeichnung") + " FROM " + DBKernel.delimitL(ft) +
 						" WHERE " + DBKernel.delimitL("Station") + "=" + value;
 	    			}
-	    			else if (ft.equals("Lieferungen")) {
-						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Bezeichnung") + "," +
-						DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("Lieferdatum") +
-						" FROM " + DBKernel.delimitL(ft) +
-						" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
-						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+	    			else if (ft.equals("Chargen")) {
+						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
+						DBKernel.delimitL("Herstellungsdatum") + " FROM " + DBKernel.delimitL(ft) +
 						" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
+	    			}
+	    			else if (ft.equals("Lieferungen")) {
+	    				String fn = myT.getFieldNames()[selectedColumn];
+	    				System.err.println(fn);
+	    				if (tn.equals("Produktkatalog")) {
+							sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
+							DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
+							" FROM " + DBKernel.delimitL(ft) +
+							" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+							" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
+							DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+							" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
+	    				}
+	    				else if (tn.equals("Chargen")) {
+							sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
+							DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
+							" FROM " + DBKernel.delimitL(ft) +
+							" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+							" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" +
+							DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+							" WHERE " + DBKernel.delimitL("Charge") + "=" + value;
+	    				}
 	    			}
 	    			else if (ft.equals("LieferungVerbindungen")) {
 	    				String fn = myT.getFieldNames()[selectedColumn];
@@ -148,6 +166,21 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
 						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
 						" WHERE " + DBKernel.delimitL(fn.equals("Vorprodukt") ? "Zielprodukt" : "Vorprodukt") + "=" + value;
+	    			}
+	    			else if (ft.equals("ChargenVerbindungen")) {
+						sql = "SELECT " + DBKernel.delimitL(ft) + "." + DBKernel.delimitL("ID") + "," +
+						DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Herstellungsdatum") + "," +
+						DBKernel.delimitL("ChargenNr") + " FROM " + DBKernel.delimitL(ft) +
+						" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+						" ON " + DBKernel.delimitL(ft) + "." + DBKernel.delimitL("Zutat") + "=" +
+						DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+						" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" +
+						DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+						" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+						" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" +
+						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+						" WHERE " + DBKernel.delimitL("Produkt") + "=" + value;
 	    			}
 	    			else if (ft.startsWith("Codes_")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + " FROM " + DBKernel.delimitL(ft) +

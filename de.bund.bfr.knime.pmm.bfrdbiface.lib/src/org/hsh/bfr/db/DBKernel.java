@@ -1122,7 +1122,8 @@ public class DBKernel {
           			else if (cn.equals("Matrix")) {
           	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        				
           			}
-        		}        		
+        		}       
+        		if (value.isEmpty()) value ="(Mix...)";
         	}
         	else if (foreignTable.equals("Matrices")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {

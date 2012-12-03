@@ -70,7 +70,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
     	LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>(); 
-    	// Alle Stationen
+    	// Alle Stationen -> 33
     	BufferedDataContainer output33Nodes = exec.createDataContainer(getSpec33Nodes());
     	ResultSet rs = db.pushQuery("SELECT * FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
     			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse"));
@@ -96,10 +96,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	output33Nodes.close();
     	rs.close();
 
-    	// Alle Lieferungen
+    	// Alle Lieferungen -> 33
     	BufferedDataContainer output33Links = exec.createDataContainer(getSpec33Links());
-    	rs = db.pushQuery("SELECT * FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    	rs = db.pushQuery("SELECT * FROM " + DBKernel.delimitL("Lieferungen") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
     			" ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"));
     	rowNumber = 0;
     	while (rs.next()) {
@@ -157,7 +160,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	    cells[1] = new IntCell(numCases);
     	    cells[2] = casesSi ? BooleanCell.TRUE : BooleanCell.FALSE;
     	        	    
-	    	setLieferungen(db, id, cells, 3);
+    	    cells[3] = DataType.getMissingCell(); // Produkte
+    	    cells[4] = DataType.getMissingCell(); // Verzehrsdatums
+    	    cells[5] = DataType.getMissingCell(); // Zutaten
+    	    cells[6] = DataType.getMissingCell(); // Lieferdatums
+    	    cells[7] = DataType.getMissingCell(); // Zulieferer
+
+    	    setLieferungen(db, id, cells, 3);
     	    
     	    cells[8] = DataType.getMissingCell(); // Zutaten2
     	    cells[9] = DataType.getMissingCell(); // Lieferdatums2
@@ -168,9 +177,11 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 
     	    setVorlieferungen(db, id, true, cells, 5, 2);
 
-    	    DataRow outputRow = new DefaultRow(key, cells);
+    	    if (!onlyMissingCells(cells, 3)) {
+        	    DataRow outputRow = new DefaultRow(key, cells);
 
-    	    outputBurow.addRowToTable(outputRow);
+        	    outputBurow.addRowToTable(outputRow);
+    	    }
     	    exec.checkCanceled();
     	    //exec.setProgress(rowNumber / (double)inData[0].getRowCount(), "Adding row " + rowNumber);   	    
     	    rowNumber++;
@@ -182,10 +193,24 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         return new BufferedDataTable[]{output33Nodes.getTable(), output33Links.getTable(), outputBurow.getTable()};
     }
 
+    private boolean onlyMissingCells(DataCell[] cells, int startCol) {
+    	boolean result = true;
+    	for (int i=startCol;i<cells.length;i++) {
+    		String tstr = cells[i].toString().replace(",", "").trim();
+    		if (tstr.isEmpty()) {
+    			cells[i] = DataType.getMissingCell();
+    		}
+    		if (!cells[i].isMissing() && !cells[i].toString().isEmpty()) result = false;
+    	}
+    	return result;
+    }
     private void setLieferungen(Bfrdb db, Integer stationID, DataCell[] cells, int cellLfd) throws SQLException {
     	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("Lieferdatum") +
-    			" FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Lieferungen") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
     			" WHERE " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + stationID);
 		String lieferdatum = "";
 		String zutaten = "";
@@ -201,37 +226,56 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	    cells[cellLfd + 1] = lieferdatum.length() == 0 ? DataType.getMissingCell() : new StringCell(lieferdatum); // Verzehrsdatum
     }
     private void setVorlieferungen(Bfrdb db, Integer lieferID, boolean isEmpfaenger, DataCell[] cells, int cellLfd, int depth) throws SQLException {
-    	ResultSet rs;
+    	String sql;
     	if (isEmpfaenger) {
-    		rs = db.pushQuery("SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("Lieferdatum") +
-    			" FROM " + DBKernel.delimitL("Lieferungen") + " WHERE " + DBKernel.delimitL("Empfänger") + "=" + lieferID);
+    		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Lieferdatum") +
+    			" FROM " + DBKernel.delimitL("Lieferungen") +
+    			" WHERE " + DBKernel.delimitL("Empfänger") + "=" + lieferID;
     	}
     	else {
+    		/*
 			rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + " AS " + DBKernel.delimitL("ID") +
 	    			"," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + " AS " + DBKernel.delimitL("Artikel") +
 	    			"," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum") + " AS " + DBKernel.delimitL("Lieferdatum") +
 	    			" FROM " + DBKernel.delimitL("LieferungVerbindungen") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
 	    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("Vorprodukt") +
 	    			" WHERE " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("Zielprodukt") + "=" + lieferID);
+	    			*/
+    		sql = "SELECT " + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") + " AS " + DBKernel.delimitL("ID") +
+	    			"," + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("Charge") + " AS " + DBKernel.delimitL("Charge") +
+	    			"," + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("Lieferdatum") + " AS " + DBKernel.delimitL("Lieferdatum") +
+	    			" FROM " + DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ProduktLieferung") +
+	    			" LEFT JOIN " + DBKernel.delimitL("ChargenVerbindungen") +
+	    			" ON " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") + "=" + DBKernel.delimitL("ProduktLieferung") + "." + DBKernel.delimitL("Charge") +
+	    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ZutatLieferung") +
+	    			" ON " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + "=" + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") +
+	    			" WHERE " + DBKernel.delimitL("ProduktLieferung") + "." + DBKernel.delimitL("ID") + "=" + lieferID +
+	    			" AND " + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") + ">" + 0;
     		}
+    	ResultSet rs = db.pushQuery(sql);
 		String lieferdatum = "";
 		String zutaten = "";
 		String lieferanten = "";
     	while (rs.next()) {
+    		String charge = rs.getObject("Charge") == null ? "" : rs.getString("Charge");
     		lieferdatum += "," + (rs.getObject("Lieferdatum") == null ? "" : rs.getString("Lieferdatum"));
-    		String zutat = rs.getObject("Artikel") == null ? "" : rs.getString("Artikel");
-    		zutaten += "," + zutat;
-	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", zutat, "Station");
+    		zutaten += "," + charge;
+    		String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
+	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
 	    	
+	    	if (depth == 1) {
+	    		System.err.println("");
+	    	}
 	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1);
     	}
 	    if (lieferdatum.length() > 0) lieferdatum = "(" + lieferdatum.substring(1) + ")";
-	    if (zutaten.length() > 0) zutaten = "(" + zutaten.substring(1) + ")";
 	    if (lieferanten.length() > 0) lieferanten = "(" + lieferanten.substring(1) + ")";
+	    if (zutaten.length() > 1) zutaten = "(" + zutaten.substring(1) + ")";
 	    
 	    cells[cellLfd] = setStringCellVal(cells[cellLfd], zutaten);
 	    cells[cellLfd + 1] = setStringCellVal(cells[cellLfd + 1], lieferdatum);
 	    cells[cellLfd + 2] = setStringCellVal(cells[cellLfd + 2], lieferanten);
+	    
 	    /*
 	    cells[cellLfd] = zutaten.length() == 0 ? DataType.getMissingCell() : new StringCell(zutaten); // Zutaten
 	    cells[cellLfd + 1] = lieferdatum.length() == 0 ? DataType.getMissingCell() : new StringCell(lieferdatum); // Lieferdatums
@@ -240,7 +284,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     }
     private DataCell setStringCellVal(DataCell cell, String content) {
 	    String newVal = cell == null || cell.isMissing() ? content : ((StringCell) cell).getStringValue() + "," + content;
-	    return newVal.length() == 0 ? DataType.getMissingCell() : new StringCell(newVal);
+	    return new StringCell(newVal);
     }
     private DataTableSpec getSpecBurow() {
     	DataColumnSpec[] spec = new DataColumnSpec[14];

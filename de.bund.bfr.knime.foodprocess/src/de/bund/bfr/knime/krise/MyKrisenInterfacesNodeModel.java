@@ -43,11 +43,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
+	static final String PARAM_ANONYMIZE = "anonymize";
+	static final String PARAM_FILTER_COMPANY = "filter_Company";
+	static final String PARAM_FILTER_CHARGE = "filter_Charge";
+	static final String PARAM_FILTER_ARTIKEL = "filter_Artikel";
 
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
+	private boolean doAnonymize;
+	private String company, charge, artikel;
 
 	/**
      * Constructor for the node model.
@@ -70,7 +76,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
 
     	LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>(); 
-    	// Alle Stationen -> 33
+    	// Alle Stationen -> Nodes33
     	BufferedDataContainer output33Nodes = exec.createDataContainer(getSpec33Nodes());
     	ResultSet rs = db.pushQuery("SELECT * FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
     			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse"));
@@ -78,13 +84,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	while (rs.next()) {
     		int id = rs.getInt("ID");
     		String bl = getBL(rs.getString("Bundesland"));
-    		id2Code.put(id, bl + rowNumber);
+    		String company  = (rs.getObject("Name") == null || doAnonymize) ? bl + rowNumber : rs.getString("Name");
+    		id2Code.put(id, company);
     	    RowKey key = RowKey.createRowKey(rowNumber);
-    	    DataCell[] cells = new DataCell[4];
-    	    cells[0] = new StringCell(bl + rowNumber);
+    	    DataCell[] cells = new DataCell[13];
+    	    cells[0] = new StringCell(company);
     	    cells[1] = new StringCell("square"); // circle, square, triangle
     	    cells[2] = new DoubleCell(1.5);
     	    cells[3] = new StringCell("yellow"); // red, yellow
+    	    cells[4] = (doAnonymize || rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
+    	    cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
+    	    cells[6] = (doAnonymize || rs.getObject("Bundesland") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
+    	    cells[7] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+    	    cells[8] = (rs.getObject("FallErfuellt") == null) ? DataType.getMissingCell() : (rs.getBoolean("FallErfuellt") ? BooleanCell.TRUE : BooleanCell.FALSE);
+    	    cells[9] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle"));
+    	    cells[10] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+    	    cells[11] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+    	    cells[12] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
     	    DataRow outputRow = new DefaultRow(key, cells);
 
     	    output33Nodes.addRowToTable(outputRow);
@@ -96,7 +112,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	output33Nodes.close();
     	rs.close();
 
-    	// Alle Lieferungen -> 33
+    	// Alle Lieferungen -> Links33
     	BufferedDataContainer output33Links = exec.createDataContainer(getSpec33Links());
     	rs = db.pushQuery("SELECT * FROM " + DBKernel.delimitL("Lieferungen") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
@@ -112,10 +128,25 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         		String from = id2Code.get(id1);
         		String to = id2Code.get(id2);
         	    RowKey key = RowKey.createRowKey(rowNumber);
-        	    DataCell[] cells = new DataCell[3];
+        	    DataCell[] cells = new DataCell[18];
         	    cells[0] = new StringCell(from);
         	    cells[1] = new StringCell(to);
         	    cells[2] = new StringCell("black"); // black
+        	    cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
+        	    cells[4] = (doAnonymize || rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
+        	    cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
+        	    cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
+        	    cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
+        	    cells[8] = (rs.getObject("MHD") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("MHD"));
+        	    cells[9] = (rs.getObject("Herstellungsdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Herstellungsdatum"));
+        	    cells[10] = (rs.getObject("Lieferungen.Lieferdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Lieferdatum"));
+        	    cells[11] = (rs.getObject("#Units1") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units1"));
+        	    cells[12] = (rs.getObject("BezUnits1") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits1"));
+        	    cells[13] = (rs.getObject("#Units2") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units2"));
+        	    cells[14] = (rs.getObject("BezUnits2") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits2"));
+        	    cells[15] = (rs.getObject("Unitmenge") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("Unitmenge"));
+        	    cells[16] = (rs.getObject("UnitEinheit") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("UnitEinheit"));
+        	    cells[17] = new StringCell("Row" + rowNumber);
         	    DataRow outputRow = new DefaultRow(key, cells);
 
         	    output33Links.addRowToTable(outputRow);
@@ -306,18 +337,42 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Nodes() {
-    	DataColumnSpec[] spec = new DataColumnSpec[4];
+    	DataColumnSpec[] spec = new DataColumnSpec[13];
     	spec[0] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
     	spec[1] = new DataColumnSpecCreator("shape", StringCell.TYPE).createSpec();
     	spec[2] = new DataColumnSpecCreator("size", DoubleCell.TYPE).createSpec();
     	spec[3] = new DataColumnSpecCreator("colour", StringCell.TYPE).createSpec();    
+    	spec[4] = new DataColumnSpecCreator("PLZ", StringCell.TYPE).createSpec();    
+    	spec[5] = new DataColumnSpecCreator("Ort", StringCell.TYPE).createSpec();    
+    	spec[6] = new DataColumnSpecCreator("Bundesland", StringCell.TYPE).createSpec();    
+    	spec[7] = new DataColumnSpecCreator("Betriebsart", StringCell.TYPE).createSpec();    
+    	spec[8] = new DataColumnSpecCreator("FallErfuellt", BooleanCell.TYPE).createSpec();    
+    	spec[9] = new DataColumnSpecCreator("NumFaelle", IntCell.TYPE).createSpec();    
+    	spec[10] = new DataColumnSpecCreator("DatumBeginn", StringCell.TYPE).createSpec();    
+    	spec[11] = new DataColumnSpecCreator("DatumHoehepunkt", StringCell.TYPE).createSpec();    
+    	spec[12] = new DataColumnSpecCreator("DatumEnde", StringCell.TYPE).createSpec();    
     	return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Links() {
-    	DataColumnSpec[] spec = new DataColumnSpec[3];
+    	DataColumnSpec[] spec = new DataColumnSpec[18];
     	spec[0] = new DataColumnSpecCreator("from", StringCell.TYPE).createSpec();
     	spec[1] = new DataColumnSpecCreator("to", StringCell.TYPE).createSpec();
     	spec[2] = new DataColumnSpecCreator("colour", StringCell.TYPE).createSpec();
+    	spec[3] = new DataColumnSpecCreator("Artikelnummer", StringCell.TYPE).createSpec();
+    	spec[4] = new DataColumnSpecCreator("Bezeichnung", StringCell.TYPE).createSpec();
+    	spec[5] = new DataColumnSpecCreator("Prozessierung", StringCell.TYPE).createSpec();
+    	spec[6] = new DataColumnSpecCreator("IntendedUse", StringCell.TYPE).createSpec();
+    	spec[7] = new DataColumnSpecCreator("ChargenNr", StringCell.TYPE).createSpec();
+    	spec[8] = new DataColumnSpecCreator("MHD", StringCell.TYPE).createSpec();
+    	spec[9] = new DataColumnSpecCreator("Herstellungsdatum", StringCell.TYPE).createSpec();
+    	spec[10] = new DataColumnSpecCreator("Lieferdatum", StringCell.TYPE).createSpec();
+    	spec[11] = new DataColumnSpecCreator("#Units1", DoubleCell.TYPE).createSpec();
+    	spec[12] = new DataColumnSpecCreator("BezUnits1", StringCell.TYPE).createSpec();
+    	spec[13] = new DataColumnSpecCreator("#Units2", DoubleCell.TYPE).createSpec();
+    	spec[14] = new DataColumnSpecCreator("BezUnits2", StringCell.TYPE).createSpec();
+    	spec[15] = new DataColumnSpecCreator("Unitmenge", DoubleCell.TYPE).createSpec();
+    	spec[16] = new DataColumnSpecCreator("UnitEinheit", StringCell.TYPE).createSpec();
+    	spec[17] = new DataColumnSpecCreator("EdgeID", StringCell.TYPE).createSpec();
     	return new DataTableSpec(spec);
     }
     
@@ -354,6 +409,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
+    	settings.addBoolean( PARAM_ANONYMIZE, doAnonymize );
+    	settings.addString( PARAM_FILTER_COMPANY, company );
+    	settings.addString( PARAM_FILTER_CHARGE, charge );
+    	settings.addString( PARAM_FILTER_ARTIKEL, artikel );
     }
 
     /**
@@ -366,6 +425,10 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
+    	doAnonymize = settings.getBoolean( PARAM_ANONYMIZE );
+    	company = settings.getString( PARAM_FILTER_COMPANY );
+    	charge = settings.getString( PARAM_FILTER_CHARGE );
+    	artikel = settings.getString( PARAM_FILTER_ARTIKEL );
     }
 
     /**

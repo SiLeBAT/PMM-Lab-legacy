@@ -131,7 +131,7 @@ public class Login extends JFrame {
 
 	private void okButtonActionPerformed(final ActionEvent e) {
 		DBKernel.HSHDB_PATH = textField2.getText();
-		  if (isHsqlServer(DBKernel.HSHDB_PATH)) {
+		  if (DBKernel.isHsqlServer(DBKernel.HSHDB_PATH)) {
 			DBKernel.isServerConnection = true;
 		} else {
 			  DBKernel.isServerConnection = false;
@@ -154,24 +154,6 @@ public class Login extends JFrame {
 		finally {
 			this.setCursor(Cursor.getDefaultCursor());
 		}
-	}
-	private boolean isHsqlServer(String checkURL) {
-		boolean result = false; //checkURL.startsWith("192") || checkURL.startsWith("localhost");
-		String host = "";
-		try {
-			if (!checkURL.startsWith("http")) {
-				checkURL = "http://" + checkURL;
-			}
-			URL url = new URL(checkURL); // "192.168.212.54/silebat"
-			host = url.getHost();
-			InetSocketAddress isa = new InetSocketAddress(host, 9001);//new URL(checkURL).openConnection();
-			result = !isa.isUnresolved();
-		}
-		catch (MalformedURLException e) {
-			//e.printStackTrace();
-		}
-		//System.err.println(checkURL + "\t" + result + "\t" + host);
-		return result;
 	}
 
 	private void cancelButtonActionPerformed(final ActionEvent e) {
@@ -2053,7 +2035,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null,null,proce,null,null,null,null},
 				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT"});
-		myList.addTable(Produzent_Artikel, DBKernel.debug ? MyList.Lieferketten_LIST : -1);
+		myList.addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
 		Knoten.setForeignField(Produzent_Artikel, 13);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
 				new String[]{"INTEGER","INTEGER"},
@@ -2071,7 +2053,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null},
 				new String[]{null,"INT",null,null,null,null,null,"INT"});
-		myList.addTable(Chargen, DBKernel.debug ? MyList.Lieferketten_LIST : -1);
+		myList.addTable(Chargen, MyList.Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
 		MyTable Artikel_Lieferung = new MyTable("Lieferungen", // Artikel_Lieferung
@@ -2084,7 +2066,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null}, // ,null,null
 				new String[]{null,null,null,null,null,null,null,null,null}); // ,"INT","INT"
-		myList.addTable(Artikel_Lieferung, DBKernel.debug ? MyList.Lieferketten_LIST : -1);
+		myList.addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
 		Chargen.setForeignField(Artikel_Lieferung, 7);
 		
 		MyTable ChargenVerbindungen = new MyTable("ChargenVerbindungen",

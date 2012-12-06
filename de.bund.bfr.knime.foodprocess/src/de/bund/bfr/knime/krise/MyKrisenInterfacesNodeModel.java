@@ -48,6 +48,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	static final String PARAM_FILTER_COMPANY = "filter_Company";
 	static final String PARAM_FILTER_CHARGE = "filter_Charge";
 	static final String PARAM_FILTER_ARTIKEL = "filter_Artikel";
+	static final String PARAM_ANTIARTICLE = "antiArtikel";
+	static final String PARAM_ANTICHARGE = "antiCharge";
+	static final String PARAM_ANTICOMPANY = "antiCompany";
 
 	private String filename;
 	private String login;
@@ -55,6 +58,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private boolean override;
 	private boolean doAnonymize;
 	private String company, charge, artikel;
+	private boolean antiArticle, antiCharge, antiCompany;
 
 	/**
      * Constructor for the node model.
@@ -100,28 +104,30 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse"));
     	int rowNumber = 0;
     	while (rs.next()) {
-    		int id = rs.getInt("ID");
-    		String bl = getBL(rs.getString("Bundesland"));
-    		String company  = (rs.getObject("Name") == null || doAnonymize) ? bl + rowNumber : rs.getString("Name");
-    		id2Code.put(id, company);
-    	    RowKey key = RowKey.createRowKey(rowNumber);
-    	    DataCell[] cells = new DataCell[13];
-    	    cells[0] = new StringCell(company);
-    	    cells[1] = new StringCell("square"); // circle, square, triangle
-    	    cells[2] = new DoubleCell(1.5);
-    	    cells[3] = new StringCell("yellow"); // red, yellow
-    	    cells[4] = (doAnonymize || rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
-    	    cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
-    	    cells[6] = (doAnonymize || rs.getObject("Bundesland") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
-    	    cells[7] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
-    	    cells[8] = (rs.getObject("FallErfuellt") == null) ? DataType.getMissingCell() : (rs.getBoolean("FallErfuellt") ? BooleanCell.TRUE : BooleanCell.FALSE);
-    	    cells[9] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle"));
-    	    cells[10] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-    	    cells[11] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-    	    cells[12] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
-    	    DataRow outputRow = new DefaultRow(key, cells);
+    		int stationID = rs.getInt("Station.ID");
+    		if (!antiArticle || !checkCase(stationID) || !checkCompanyReceivedArticle(stationID, articleChain)) {
+        		String bl = getBL(rs.getString("Bundesland"));
+        		String company  = (rs.getObject("Name") == null || doAnonymize) ? bl + rowNumber : rs.getString("Name");
+        		id2Code.put(stationID, company);
+        	    RowKey key = RowKey.createRowKey(rowNumber);
+        	    DataCell[] cells = new DataCell[13];
+        	    cells[0] = new StringCell(company);
+        	    cells[1] = new StringCell("square"); // circle, square, triangle
+        	    cells[2] = new DoubleCell(1.5);
+        	    cells[3] = new StringCell("yellow"); // red, yellow
+        	    cells[4] = (doAnonymize || rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
+        	    cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
+        	    cells[6] = (doAnonymize || rs.getObject("Bundesland") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
+        	    cells[7] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+        	    cells[8] = (rs.getObject("FallErfuellt") == null) ? DataType.getMissingCell() : (rs.getBoolean("FallErfuellt") ? BooleanCell.TRUE : BooleanCell.FALSE);
+        	    cells[9] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle"));
+        	    cells[10] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+        	    cells[11] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+        	    cells[12] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+        	    DataRow outputRow = new DefaultRow(key, cells);
 
-    	    output33Nodes.addRowToTable(outputRow);
+        	    output33Nodes.addRowToTable(outputRow);
+    		}
     	    exec.checkCanceled();
     	    //exec.setProgress(rowNumber / 10000, "Adding row " + rowNumber);
 
@@ -143,7 +149,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		int lieferID = rs.getInt("Lieferungen.ID");
     		if ((company.trim().isEmpty() || compChain.containsKey(lieferID)) &&
     				(charge.trim().isEmpty() || chargeChain.containsKey(lieferID)) &&
-    				(artikel.trim().isEmpty() || articleChain.containsKey(lieferID))) {
+    				(antiArticle || artikel.trim().isEmpty() || articleChain.containsKey(lieferID))) {
         		int id1 = rs.getInt("Produktkatalog.Station");
         		int id2 = rs.getInt("Lieferungen.Empfänger");
         		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
@@ -247,6 +253,20 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         return new BufferedDataTable[]{output33Nodes.getTable(), output33Links.getTable(), outputBurow.getTable()};
     }
 
+    private boolean checkCompanyReceivedArticle(int stationID, LinkedHashMap<Integer, Integer> articleChain) throws SQLException {
+    	boolean result = false;
+    	for (Integer empfaengerID : articleChain.values()) {
+    		if (empfaengerID == stationID) {
+        		result = true;
+    			break;
+    		}
+    	}
+    	return result;
+    }
+    private boolean checkCase(int stationID) {
+    	boolean result = (DBKernel.getValue("Station", "ID", stationID+"", "FallErfuellt") != null); 
+		return result;
+    }
     private boolean onlyMissingCells(DataCell[] cells, int startCol) {
     	boolean result = true;
     	for (int i=startCol;i<cells.length;i++) {
@@ -408,7 +428,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     
     private LinkedHashMap<Integer, Integer> applyChargeFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
     			" FROM " + DBKernel.delimitL("Chargen") +
     			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
@@ -416,16 +437,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		while (rs.next()) {
 			int lieferID = rs.getInt("ID");
 			if (lieferID > 0) {
-				result.put(lieferID, 0);
-		    	goForward(db, lieferID, result, 1);
-		    	goBackward(db, lieferID, result, -1);
+				result.put(lieferID, rs.getInt("Empfänger"));
+		    	goForward(db, lieferID, result);
+		    	goBackward(db, lieferID, result);
 			}
 		}
 		return result;
     }
     private LinkedHashMap<Integer, Integer> applyArticleFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
     			" FROM " + DBKernel.delimitL("Produktkatalog") +
     			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
@@ -435,16 +457,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		while (rs.next()) {
 			int lieferID = rs.getInt("ID");
 			if (lieferID > 0) {
-				result.put(lieferID, 0);
-		    	goForward(db, lieferID, result, 1);
-		    	goBackward(db, lieferID, result, -1);
+				result.put(lieferID, rs.getInt("Empfänger"));
+		    	goForward(db, lieferID, result);
+		    	goBackward(db, lieferID, result);
 			}
 		}
 		return result;
     }
     private LinkedHashMap<Integer, Integer> applyCompanyFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
     			" FROM " + DBKernel.delimitL("Station") +
     			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
     			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
@@ -454,9 +477,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		while (rs.next()) {
 			int lieferID = rs.getInt("ID");
 			if (lieferID > 0) {
-				result.put(lieferID, -1);
-		    	goForward(db, lieferID, result, 0);
-		    	goBackward(db, lieferID, result, -2);
+				result.put(lieferID, rs.getInt("Empfänger"));
+		    	goForward(db, lieferID, result);
+		    	goBackward(db, lieferID, result);
 			}
 		}
     	rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
@@ -474,8 +497,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			int lieferID = rs.getInt("ID");
 			if (lieferID > 0) {
 				result.put(lieferID, 0);
-		    	goForward(db, lieferID, result, 1);
-		    	goBackward(db, lieferID, result, -1);				
+		    	goForward(db, lieferID, result);
+		    	goBackward(db, lieferID, result);				
 			}
 		}
     	return result;
@@ -499,8 +522,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 					chain_ = new LinkedHashMap<Integer, Integer>();
 					oldStationID = stationID;
 				}
-				chain_.put(lieferID, 0);
-		    	goBackward(db, lieferID, chain_, -1);
+				chain_.put(lieferID, stationID);
+		    	goBackward(db, lieferID, chain_);
 			}
 		}
 		if (chain_.size() > 0) chains.add(chain_);
@@ -512,6 +535,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 				HashSet<Integer> gemeinsamStationsClone = (HashSet<Integer>) gemeinsamStations.clone();
 				for (Integer stationID : gemeinsamStationsClone) {
 					if (!chainStations.contains(stationID)) {
+						if (stationID == 626) { // z.B. Kita Wirbelwind, ID = 208
+							//System.err.println("");
+						}
 						gemeinsamStations.remove(stationID);
 					}
 				}
@@ -537,8 +563,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	}
     	return result;
     }
-    private void goForward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results, int depth) throws SQLException {
+    private void goForward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results) throws SQLException {
 		String sql = "SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+			"," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
 			" FROM " + DBKernel.delimitL("ChargenVerbindungen") +
 			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
 			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") +
@@ -548,13 +575,13 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		while (rs.next()) {
 			int newLieferID = rs.getInt("ID");
 			if (!results.containsKey(newLieferID)) {
-				results.put(newLieferID, depth);
-				goForward(db, newLieferID, results, depth + 1);
+				results.put(newLieferID, rs.getInt("Empfänger"));
+				goForward(db, newLieferID, results);
 			}
 		}
     }
-    private void goBackward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results, int depth) throws SQLException {
-		String sql = "SELECT " + DBKernel.delimitL("Zutat") +
+    private void goBackward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results) throws SQLException {
+		String sql = "SELECT " + DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("Empfänger") +
 			" FROM " + DBKernel.delimitL("Lieferungen") +
 			" LEFT JOIN " + DBKernel.delimitL("ChargenVerbindungen") +
 			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") +
@@ -564,8 +591,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		while (rs.next()) {
 			int newLieferID = rs.getInt("Zutat");
 			if (newLieferID > 0 && !results.containsKey(newLieferID)) {
-				results.put(newLieferID, depth);
-				goBackward(db, newLieferID, results, depth - 1);
+				results.put(newLieferID, rs.getInt("Empfänger"));
+				goBackward(db, newLieferID, results);
 			}
 		}
     }
@@ -598,6 +625,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	settings.addString( PARAM_FILTER_COMPANY, company );
     	settings.addString( PARAM_FILTER_CHARGE, charge );
     	settings.addString( PARAM_FILTER_ARTIKEL, artikel );
+    	settings.addBoolean( PARAM_ANTIARTICLE, antiArticle );
+    	settings.addBoolean( PARAM_ANTICHARGE, antiCharge );
+    	settings.addBoolean( PARAM_ANTICOMPANY, antiCompany );
     }
 
     /**
@@ -614,6 +644,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	company = settings.getString( PARAM_FILTER_COMPANY );
     	charge = settings.getString( PARAM_FILTER_CHARGE );
     	artikel = settings.getString( PARAM_FILTER_ARTIKEL );
+    	antiArticle = settings.getBoolean( PARAM_ANTIARTICLE );
+    	antiCharge = settings.getBoolean( PARAM_ANTICHARGE );
+    	antiCompany = settings.getBoolean( PARAM_ANTICOMPANY );
     }
 
     /**

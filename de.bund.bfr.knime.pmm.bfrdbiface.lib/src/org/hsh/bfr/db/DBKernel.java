@@ -43,6 +43,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.sql.Connection;
@@ -232,11 +234,7 @@ public class DBKernel {
 		      		" (" + DBKernel.delimitL("ID") + ", " + DBKernel.delimitL("Zeitstempel") + ", " + DBKernel.delimitL("Username") + ", " +
 		      		DBKernel.delimitL("Tabelle") + ", " + DBKernel.delimitL("TabellenID") + ", " +
 		      		DBKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + DBKernel.delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
-		    	/*
-		    	Integer nextID = getNextChangeLogID(conn);
-		    	if (nextID == null) ps.setNull(1, java.sql.Types.INTEGER);
-		    	else ps.setInt(1, nextID);
-		    	*/
+
 		    	ps.setTimestamp(1, new Timestamp(new Date().getTime()));
 		    	ps.setString(2, username);
 		    	ps.setString(3, tablename);
@@ -775,7 +773,7 @@ public class DBKernel {
 		return getNewLocalConnection(dbUsername, dbPassword, path + "DB");
 	}
   }
-  private static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath) throws Exception {
+  public static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath) throws Exception {
 	  //serverPath = "192.168.212.54/silebat";
 	    Connection result = null;
 	    passFalse = false;
@@ -791,6 +789,24 @@ public class DBKernel {
 	    }
 	    return result;
   }
+	public static boolean isHsqlServer(String checkURL) {
+		boolean result = false; //checkURL.startsWith("192") || checkURL.startsWith("localhost");
+		String host = "";
+		try {
+			if (!checkURL.startsWith("http")) {
+				checkURL = "http://" + checkURL;
+			}
+			URL url = new URL(checkURL); // "192.168.212.54/silebat"
+			host = url.getHost();
+			InetSocketAddress isa = new InetSocketAddress(host, 9001);//new URL(checkURL).openConnection();
+			result = !isa.isUnresolved();
+		}
+		catch (MalformedURLException e) {
+			//e.printStackTrace();
+		}
+		//System.err.println(checkURL + "\t" + result + "\t" + host);
+		return result;
+	}
   private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
   	  //startHsqldbServer("c:/tmp/DB", "DB");
     Connection result = null;

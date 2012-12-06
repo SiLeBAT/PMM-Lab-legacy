@@ -72,7 +72,8 @@ public class MainKernel {
 //		{"bios_140","bios_140","defad","de6!§5ddy"},
 //		{"bios_141","bios_141","defad","de6!§5ddy"},
 //		{"bios_142","bios_142","defad","de6!§5ddy"},
-		{"bios_143","bios_143","defad","de6!§5ddy"},
+//		{"bios_143","bios_143","defad","de6!§5ddy"},
+		{"krise_145","krise_145","SA",""},
 		//{"statup_knime_trigger","aktuell_statup_knime","SA",""},
 		
 		};
@@ -222,14 +223,7 @@ public class MainKernel {
 			      		" (" + delimitL("ID") + ", " + delimitL("Zeitstempel") + ", " + delimitL("Username") + ", " +
 			      		delimitL("Tabelle") + ", " + delimitL("TabellenID") + ", " +
 			      		delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
-		    	/*
-			    	Integer nextID = getNextChangeLogID(conn);
-			    	if (nextID == null) {
-						ps.setNull(1, java.sql.Types.INTEGER);
-					} else {
-						ps.setInt(1, nextID);
-					}
-					*/
+
 			    	ps.setTimestamp(1, new Timestamp(new Date().getTime()));
 			    	ps.setString(2, username);
 			    	ps.setString(3, tablename);

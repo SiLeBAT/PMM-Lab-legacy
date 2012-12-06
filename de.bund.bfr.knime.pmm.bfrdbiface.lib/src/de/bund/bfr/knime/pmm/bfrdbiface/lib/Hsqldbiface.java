@@ -41,6 +41,8 @@ import java.sql.Statement;
 import java.sql.SQLWarning;
 import java.util.UUID;
 
+import org.hsh.bfr.db.DBKernel;
+
 public class Hsqldbiface {
 	
 	protected Connection conn;
@@ -50,14 +52,22 @@ public class Hsqldbiface {
 	
 	public Hsqldbiface( String filename, String login, String pw ) throws ClassNotFoundException, SQLException {
 		
-		Class.forName( "org.hsqldb.jdbc.JDBCDriver" );
-		// Class.forName( "org.sqlite.JDBC" );
-		
-		conn = DriverManager.getConnection(
-				"jdbc:hsqldb:file:"
-				// "jdbc:sqlite:"
-				+filename+";shutdown=true", login, pw );
-		
+		DBKernel.isServerConnection = DBKernel.isHsqlServer(filename);
+		if (DBKernel.isServerConnection) {
+			try {
+				conn = DBKernel.getNewServerConnection(login, pw, filename);				
+			}
+			catch (Exception e) {throw new SQLException(e.getMessage());}
+		}
+		else {
+			Class.forName( "org.hsqldb.jdbc.JDBCDriver" );
+			// Class.forName( "org.sqlite.JDBC" );
+			
+			conn = DriverManager.getConnection(
+					"jdbc:hsqldb:file:"
+					// "jdbc:sqlite:"
+					+filename+";shutdown=true", login, pw );			
+		}		
 	}
 	
 	public void pushUpdate( String query ) throws SQLException {		

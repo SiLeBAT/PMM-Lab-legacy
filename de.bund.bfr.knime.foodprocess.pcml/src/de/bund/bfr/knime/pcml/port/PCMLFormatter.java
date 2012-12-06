@@ -41,7 +41,7 @@ import java.util.Map;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlTokenSource;
-import org.dmg.pmml40.PMMLDocument;
+import org.dmg.pmml.PMMLDocument;
 
 
 /**

@@ -29,5 +29,5 @@ Import-Package: de.bund.bfr.knime.pcml.port,
  org.eclipse.ui.ide,
  org.knime.workbench.ui.layout.commands,
  org.knime.workbench.ui.nature
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

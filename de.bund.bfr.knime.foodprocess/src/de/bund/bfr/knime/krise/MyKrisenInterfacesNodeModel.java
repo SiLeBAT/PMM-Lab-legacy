@@ -503,7 +503,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		}
     	return result;
     }
-    private HashSet<Integer> makeTracingBack(Bfrdb db) throws SQLException {
+    @SuppressWarnings("unchecked")
+	private HashSet<Integer> makeTracingBack(Bfrdb db) throws SQLException {
     	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
     			DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
     			" FROM " + DBKernel.delimitL("Station") +

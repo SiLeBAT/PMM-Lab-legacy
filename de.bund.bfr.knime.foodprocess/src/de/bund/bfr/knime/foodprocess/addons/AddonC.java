@@ -32,7 +32,7 @@ public class AddonC extends JPanel {
 	private List<Matrix> lmat = new ArrayList<Matrix>(); 
 	private List<Agent> lage = new ArrayList<Agent>(); 
 	private List<JFormattedTextField> l2 = new ArrayList<JFormattedTextField>(); 
-	private List<JComboBox> l3 = new ArrayList<JComboBox>(); 
+	private List<JComboBox<String>> l3 = new ArrayList<JComboBox<String>>(); 
 	private List<JButton> l4 = new ArrayList<JButton>(); 
 	private List<JButton> l5 = new ArrayList<JButton>(); 
 	
@@ -182,8 +182,8 @@ public class AddonC extends JPanel {
 		});
 		JFormattedTextField formattedTextField = new JFormattedTextField();
 		formattedTextField.setColumns(5);
-		JComboBox comboBoxEinheit = new JComboBox();
-		comboBoxEinheit.setModel(new DefaultComboBoxModel(new String[] {
+		JComboBox<String> comboBoxEinheit = new JComboBox<String>();
+		comboBoxEinheit.setModel(new DefaultComboBoxModel<String>(new String[] {
 				"l",
 				"g"
 			}));
@@ -316,7 +316,7 @@ public class AddonC extends JPanel {
 		panel1 = new JPanel();
 		button = new JButton();
 		formattedTextField1 = new JFormattedTextField();
-		comboBox2 = new JComboBox();
+		comboBox2 = new JComboBox<String>();
 		button2 = new JButton();
 		button3 = new JButton();
 
@@ -351,7 +351,7 @@ public class AddonC extends JPanel {
 				panel1.add(formattedTextField1, CC.xy(3, 1));
 
 				//---- comboBox2 ----
-				comboBox2.setModel(new DefaultComboBoxModel(new String[] {
+				comboBox2.setModel(new DefaultComboBoxModel<String>(new String[] {
 					"l",
 					"g"
 				}));
@@ -388,7 +388,7 @@ public class AddonC extends JPanel {
 	private JPanel panel1;
 	private JButton button;
 	private JFormattedTextField formattedTextField1;
-	private JComboBox comboBox2;
+	private JComboBox<String> comboBox2;
 	private JButton button2;
 	private JButton button3;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables

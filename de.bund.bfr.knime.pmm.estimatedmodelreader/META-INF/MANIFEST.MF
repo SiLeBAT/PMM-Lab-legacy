@@ -16,5 +16,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.timeseriesreader
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

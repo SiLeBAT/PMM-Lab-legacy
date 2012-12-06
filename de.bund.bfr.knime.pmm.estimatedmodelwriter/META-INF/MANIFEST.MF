@@ -15,5 +15,5 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.modelcatalogreader
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelwriter
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 

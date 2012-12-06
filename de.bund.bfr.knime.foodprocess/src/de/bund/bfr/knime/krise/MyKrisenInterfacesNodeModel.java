@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.DBKernel;
@@ -75,6 +76,23 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
 
+    	LinkedHashMap<Integer, Integer> compChain = applyCompanyFilter(db);
+    	LinkedHashMap<Integer, Integer> chargeChain = applyChargeFilter(db);
+    	LinkedHashMap<Integer, Integer> articleChain = applyArticleFilter(db);
+    	HashSet<Integer> tb = makeTracingBack(db);
+    	String warningMessage = "";
+    	for (Integer stationID : tb) {
+        	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Name") + " FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+        			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+        			" WHERE " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + stationID);
+        	rs.next();
+    		warningMessage += " " + rs.getString("Name") + " (ID:" + stationID + ")";
+    	}
+    	if (!warningMessage.isEmpty()) {
+    		warningMessage = "Tracing succesful, susceptible Companies:" + warningMessage;
+    	}
+    	this.setWarningMessage(warningMessage);
+
     	LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>(); 
     	// Alle Stationen -> Nodes33
     	BufferedDataContainer output33Nodes = exec.createDataContainer(getSpec33Nodes());
@@ -122,38 +140,43 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     			" ORDER BY " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID"));
     	rowNumber = 0;
     	while (rs.next()) {
-    		int id1 = rs.getInt("Produktkatalog.Station");
-    		int id2 = rs.getInt("Lieferungen.Empfänger");
-    		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
-        		String from = id2Code.get(id1);
-        		String to = id2Code.get(id2);
-        	    RowKey key = RowKey.createRowKey(rowNumber);
-        	    DataCell[] cells = new DataCell[18];
-        	    cells[0] = new StringCell(from);
-        	    cells[1] = new StringCell(to);
-        	    cells[2] = new StringCell("black"); // black
-        	    cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
-        	    cells[4] = (doAnonymize || rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
-        	    cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
-        	    cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
-        	    cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
-        	    cells[8] = (rs.getObject("MHD") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("MHD"));
-        	    cells[9] = (rs.getObject("Herstellungsdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Herstellungsdatum"));
-        	    cells[10] = (rs.getObject("Lieferungen.Lieferdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Lieferdatum"));
-        	    cells[11] = (rs.getObject("#Units1") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units1"));
-        	    cells[12] = (rs.getObject("BezUnits1") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits1"));
-        	    cells[13] = (rs.getObject("#Units2") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units2"));
-        	    cells[14] = (rs.getObject("BezUnits2") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits2"));
-        	    cells[15] = (rs.getObject("Unitmenge") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("Unitmenge"));
-        	    cells[16] = (rs.getObject("UnitEinheit") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("UnitEinheit"));
-        	    cells[17] = new StringCell("Row" + rowNumber);
-        	    DataRow outputRow = new DefaultRow(key, cells);
+    		int lieferID = rs.getInt("Lieferungen.ID");
+    		if ((company.trim().isEmpty() || compChain.containsKey(lieferID)) &&
+    				(charge.trim().isEmpty() || chargeChain.containsKey(lieferID)) &&
+    				(artikel.trim().isEmpty() || articleChain.containsKey(lieferID))) {
+        		int id1 = rs.getInt("Produktkatalog.Station");
+        		int id2 = rs.getInt("Lieferungen.Empfänger");
+        		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
+            		String from = id2Code.get(id1);
+            		String to = id2Code.get(id2);
+            	    RowKey key = RowKey.createRowKey(rowNumber);
+            	    DataCell[] cells = new DataCell[18];
+            	    cells[0] = new StringCell(from);
+            	    cells[1] = new StringCell(to);
+            	    cells[2] = new StringCell("black"); // black
+            	    cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
+            	    cells[4] = (doAnonymize || rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
+            	    cells[5] = (rs.getObject("Prozessierung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Prozessierung"));
+            	    cells[6] = (rs.getObject("IntendedUse") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("IntendedUse"));
+            	    cells[7] = (doAnonymize || rs.getObject("ChargenNr") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("ChargenNr"));
+            	    cells[8] = (rs.getObject("MHD") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("MHD"));
+            	    cells[9] = (rs.getObject("Herstellungsdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Herstellungsdatum"));
+            	    cells[10] = (rs.getObject("Lieferungen.Lieferdatum") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Lieferungen.Lieferdatum"));
+            	    cells[11] = (rs.getObject("#Units1") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units1"));
+            	    cells[12] = (rs.getObject("BezUnits1") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits1"));
+            	    cells[13] = (rs.getObject("#Units2") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("#Units2"));
+            	    cells[14] = (rs.getObject("BezUnits2") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("BezUnits2"));
+            	    cells[15] = (rs.getObject("Unitmenge") == null) ? DataType.getMissingCell() : new DoubleCell(rs.getDouble("Unitmenge"));
+            	    cells[16] = (rs.getObject("UnitEinheit") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("UnitEinheit"));
+            	    cells[17] = new StringCell("Row" + rowNumber);
+            	    DataRow outputRow = new DefaultRow(key, cells);
 
-        	    output33Links.addRowToTable(outputRow);
-        	    rowNumber++;
-    		}
-    		else {
-    			exec.setMessage(id1 + " or " + id2 + " not found in Stationen...");
+            	    output33Links.addRowToTable(outputRow);
+            	    rowNumber++;
+        		}
+        		else {
+        			exec.setMessage(id1 + " or " + id2 + " not found in Stationen...");
+        		}
     		}
     	    exec.checkCanceled();
     	    //exec.setProgress(rowNumber / (double)inData[0].getRowCount(), "Adding row " + rowNumber);   	    
@@ -294,9 +317,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
 	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
 	    	
-	    	if (depth == 1) {
-	    		System.err.println("");
-	    	}
 	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1);
     	}
 	    if (lieferdatum.length() > 0) lieferdatum = "(" + lieferdatum.substring(1) + ")";
@@ -383,6 +403,171 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		result = result.substring(0, 2);
     	}
     	return result;
+    }
+    
+    
+    private LinkedHashMap<Integer, Integer> applyChargeFilter(Bfrdb db) throws SQLException {
+    	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Chargen") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
+    			" WHERE UCASE(" + DBKernel.delimitL("ChargenNr") + ") LIKE '%" + charge.toUpperCase() + "%'");
+		while (rs.next()) {
+			int lieferID = rs.getInt("ID");
+			if (lieferID > 0) {
+				result.put(lieferID, 0);
+		    	goForward(db, lieferID, result, 1);
+		    	goBackward(db, lieferID, result, -1);
+			}
+		}
+		return result;
+    }
+    private LinkedHashMap<Integer, Integer> applyArticleFilter(Bfrdb db) throws SQLException {
+    	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Produktkatalog") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" WHERE UCASE(" + DBKernel.delimitL("Bezeichnung") + ") LIKE '%" + artikel.toUpperCase() + "%'");
+		while (rs.next()) {
+			int lieferID = rs.getInt("ID");
+			if (lieferID > 0) {
+				result.put(lieferID, 0);
+		    	goForward(db, lieferID, result, 1);
+		    	goBackward(db, lieferID, result, -1);
+			}
+		}
+		return result;
+    }
+    private LinkedHashMap<Integer, Integer> applyCompanyFilter(Bfrdb db) throws SQLException {
+    	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Station") +
+    			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+    			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+    			" WHERE UCASE(" + DBKernel.delimitL("Name") + ") LIKE '%" + company.toUpperCase() + "%'");
+		while (rs.next()) {
+			int lieferID = rs.getInt("ID");
+			if (lieferID > 0) {
+				result.put(lieferID, -1);
+		    	goForward(db, lieferID, result, 0);
+		    	goBackward(db, lieferID, result, -2);
+			}
+		}
+    	rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Station") +
+    			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+    			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+    			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+    			" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" WHERE UCASE(" + DBKernel.delimitL("Name") + ") LIKE '%" + company.toUpperCase() + "%'");
+		while (rs.next()) {
+			int lieferID = rs.getInt("ID");
+			if (lieferID > 0) {
+				result.put(lieferID, 0);
+		    	goForward(db, lieferID, result, 1);
+		    	goBackward(db, lieferID, result, -1);				
+			}
+		}
+    	return result;
+    }
+    private HashSet<Integer> makeTracingBack(Bfrdb db) throws SQLException {
+    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+    			DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+    			" FROM " + DBKernel.delimitL("Station") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+    			" WHERE " + DBKernel.delimitL("FallErfuellt"));
+    	HashSet<LinkedHashMap<Integer, Integer>> chains = new HashSet<LinkedHashMap<Integer, Integer>>();
+    	LinkedHashMap<Integer, Integer> chain_ = new LinkedHashMap<Integer, Integer>();
+    	int oldStationID = 0;
+		while (rs.next()) {
+			int lieferID = rs.getInt("Lieferungen.ID");
+			int stationID = rs.getInt("Station.ID");
+			if (lieferID > 0) {
+				if (oldStationID != stationID) {
+					if (chain_.size() > 0) chains.add(chain_);
+					chain_ = new LinkedHashMap<Integer, Integer>();
+					oldStationID = stationID;
+				}
+				chain_.put(lieferID, 0);
+		    	goBackward(db, lieferID, chain_, -1);
+			}
+		}
+		if (chain_.size() > 0) chains.add(chain_);
+		HashSet<Integer> gemeinsamStations = null;
+		for (LinkedHashMap<Integer, Integer> chain : chains) {
+			HashSet<Integer> chainStations = getLieferStations(db, chain);
+			if (gemeinsamStations == null) gemeinsamStations = chainStations;
+			else {
+				HashSet<Integer> gemeinsamStationsClone = (HashSet<Integer>) gemeinsamStations.clone();
+				for (Integer stationID : gemeinsamStationsClone) {
+					if (!chainStations.contains(stationID)) {
+						gemeinsamStations.remove(stationID);
+					}
+				}
+			}
+		}
+		return gemeinsamStations;
+    }
+    private HashSet<Integer> getLieferStations(Bfrdb db, LinkedHashMap<Integer, Integer> chain) throws SQLException {
+    	HashSet<Integer> result = new HashSet<Integer>();
+    	for (Integer lieferID : chain.keySet()) {
+    		String sql = "SELECT " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
+			" FROM " + DBKernel.delimitL("Lieferungen") +
+			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + lieferID;
+		
+			ResultSet rs = db.pushQuery(sql);
+			while (rs.next()) {
+				result.add(rs.getInt("Station"));
+			}
+    	}
+    	return result;
+    }
+    private void goForward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results, int depth) throws SQLException {
+		String sql = "SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+			" FROM " + DBKernel.delimitL("ChargenVerbindungen") +
+			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") +
+			" WHERE " + DBKernel.delimitL("Zutat") + "=" + lieferID;
+		
+		ResultSet rs = db.pushQuery(sql);
+		while (rs.next()) {
+			int newLieferID = rs.getInt("ID");
+			if (!results.containsKey(newLieferID)) {
+				results.put(newLieferID, depth);
+				goForward(db, newLieferID, results, depth + 1);
+			}
+		}
+    }
+    private void goBackward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results, int depth) throws SQLException {
+		String sql = "SELECT " + DBKernel.delimitL("Zutat") +
+			" FROM " + DBKernel.delimitL("Lieferungen") +
+			" LEFT JOIN " + DBKernel.delimitL("ChargenVerbindungen") +
+			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Produkt") +
+			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + lieferID;
+	
+		ResultSet rs = db.pushQuery(sql);
+		while (rs.next()) {
+			int newLieferID = rs.getInt("Zutat");
+			if (newLieferID > 0 && !results.containsKey(newLieferID)) {
+				results.put(newLieferID, depth);
+				goBackward(db, newLieferID, results, depth - 1);
+			}
+		}
     }
     /**
      * {@inheritDoc}

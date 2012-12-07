@@ -50,17 +50,17 @@ public class ParametersDef {
 
 	@Getter private JTextField volume;
 	@Getter private JButton volume_func;
-	@Getter private JComboBox volumeUnit;
+	@Getter private JComboBox<String> volumeUnit;
 	@Getter private JTextField temperature;
 	@Getter private JButton temperature_func;
-	@Getter private JComboBox temperatureUnit;
+	@Getter private JComboBox<String> temperatureUnit;
 	@Getter private JTextField ph;
 	@Getter private JButton ph_func;
 	@Getter private JTextField aw;
 	@Getter private JButton aw_func;
 	@Getter private JTextField pressure;
 	@Getter private JButton pressure_func;
-	@Getter private JComboBox pressureUnit;
+	@Getter private JComboBox<String> pressureUnit;
 
 	public ParametersDef() {
 		//NumberFormat nf = NumberFormat.getNumberInstance( java.util.Locale.US );
@@ -76,7 +76,7 @@ public class ParametersDef {
 				func_ActionPerformed(e, "Percent", volume);
 			}
 		});
-		volumeUnit = new JComboBox( FoodProcessDef.COMBO_VOLUMEUNIT );
+		volumeUnit = new JComboBox<String>( FoodProcessDef.COMBO_VOLUMEUNIT );
 		
 		temperature = new JTextField();
 		temperature.setColumns(10);
@@ -88,7 +88,7 @@ public class ParametersDef {
 				func_ActionPerformed(e, "Temperature", temperature);
 			}
 		});
-		temperatureUnit = new JComboBox( FoodProcessDef.COMBO_TEMPERATUREUNIT );
+		temperatureUnit = new JComboBox<String>( FoodProcessDef.COMBO_TEMPERATUREUNIT );
 
 		ph = new JTextField();
 		ph.setColumns(10);
@@ -122,7 +122,7 @@ public class ParametersDef {
 				func_ActionPerformed(e, "Pressure", pressure);
 			}
 		});
-		pressureUnit = new JComboBox( FoodProcessDef.COMBO_PRESSUREUNIT );
+		pressureUnit = new JComboBox<String>( FoodProcessDef.COMBO_PRESSUREUNIT );
 	}
 	public ParametersSetting getSetting() {
 		ParametersSetting ps = new ParametersSetting();

@@ -48,7 +48,7 @@ public class OutPortDef {
 	private int n_inports, n_outports;
 
 	@Getter private JFormattedTextField outFlux;
-	@Getter private JComboBox newMatrixDefinition;
+	@Getter private JComboBox<String> newMatrixDefinition;
 	@Getter private JFormattedTextField[] fromInPort;
 	@Getter private ParametersDef parametersDef;
 
@@ -81,7 +81,7 @@ public class OutPortDef {
 		};
 		outFlux.setColumns(5);
 		
-		newMatrixDefinition = new JComboBox( fetchMatrixSuggestion() );
+		newMatrixDefinition = new JComboBox<String>( fetchMatrixSuggestion() );
 		newMatrixDefinition.setSelectedIndex( 0 );
 		newMatrixDefinition.setEditable( true );
 		

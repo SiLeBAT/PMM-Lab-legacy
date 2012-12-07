@@ -53,7 +53,7 @@ public class MMC_M extends JPanel {
 	private static final String LABEL_OWNMODEL = "Manually defined formula";
 
 	private Frame m_parentFrame = null;
-	private JComboBox[] threeBoxes = new JComboBox[3];
+	private JComboBox<ParametricModel>[] threeBoxes = new JComboBox[3];
 	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private Connection m_conn = null;
 	private boolean dontTouch = false;
@@ -143,7 +143,7 @@ public class MMC_M extends JPanel {
 		remove(modelNameBox);
 		modelNameBox = threeBoxes[getSelRadio() - 1];
 		if (modelNameBox == null) {
-			modelNameBox = new JComboBox();
+			modelNameBox = new JComboBox<ParametricModel>();
 			modelNameBox.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -301,7 +301,7 @@ public class MMC_M extends JPanel {
 	private void insertNselectPMintoBox(ParametricModel pm) {
 		int i=0;
 		for (i=0;i<modelNameBox.getItemCount();i++) {
-			if (pm.getModelId() == ((ParametricModel) modelNameBox.getItemAt(i)).getModelId()) {
+			if (pm.getModelId() == modelNameBox.getItemAt(i).getModelId()) {
 			//if (pm.hashCode() == ((ParametricModel) modelNameBox.getItemAt(i)).hashCode()) {
 				break;
 			}
@@ -311,7 +311,7 @@ public class MMC_M extends JPanel {
 			modelNameBox.addItem(pm);
 			//System.err.println("added3:" + pm + "\t" + pm.hashCode());
 		}
-		else if (!pm.equals((ParametricModel) modelNameBox.getItemAt(i))) {
+		else if (!pm.equals(modelNameBox.getItemAt(i))) {
 			modelNameBox.removeItemAt(i);
 			modelNameBox.insertItemAt(pm, i);
 		}
@@ -647,7 +647,7 @@ public class MMC_M extends JPanel {
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
 		modelNameLabel = new JLabel();
-		modelNameBox = new JComboBox();
+		modelNameBox = new JComboBox<ParametricModel>();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
 		label2 = new JLabel();
@@ -959,7 +959,7 @@ public class MMC_M extends JPanel {
 	private JRadioButton radioButton2;
 	private JRadioButton radioButton3;
 	private JLabel modelNameLabel;
-	private JComboBox modelNameBox;
+	private JComboBox<ParametricModel> modelNameBox;
 	private JLabel label1;
 	private JTextField modelnameField;
 	private JLabel label2;

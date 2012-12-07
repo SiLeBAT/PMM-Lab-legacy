@@ -54,14 +54,14 @@ public class FoodProcessDef {
 
 	private final String LABEL_EXPERT = "Expert";
 
-	@Getter private JComboBox nameBox;
+	@Getter private JComboBox<String> nameBox;
 	@Getter private JFormattedTextField capacityField;
-	@Getter private JComboBox capacityNomBox;
-	@Getter private JComboBox capacityDenomBox;
+	@Getter private JComboBox<String> capacityNomBox;
+	@Getter private JComboBox<String> capacityDenomBox;
 	@Getter private JFormattedTextField durationField;
-	@Getter private JComboBox durationBox;
+	@Getter private JComboBox<String> durationBox;
 	@Getter private JFormattedTextField stepwidthField;
-	@Getter private JComboBox stepwidthBox;
+	@Getter private JComboBox<String> stepwidthBox;
 	
 	@Getter private ParametersDef parametersDef;
 
@@ -85,19 +85,19 @@ public class FoodProcessDef {
 		this.n_inports = n_inports;
 		this.n_outports = n_outports;
 		
-		nameBox = new JComboBox();
+		nameBox = new JComboBox<String>();
 		nameBox.setEditable(true);
 		capacityField = new JFormattedTextField( nf );
 		capacityField.setColumns(5);
 		capacityField.setValue(null);
-		capacityNomBox = new JComboBox( COMBO_VOLUMEUNIT );
-		capacityDenomBox = new JComboBox( COMBO_TIMEUNIT );
+		capacityNomBox = new JComboBox<String>( COMBO_VOLUMEUNIT );
+		capacityDenomBox = new JComboBox<String>( COMBO_TIMEUNIT );
 		durationField = new JFormattedTextField( nf );
 		durationField.setColumns(5);
-		durationBox = new JComboBox( COMBO_TIMEUNIT );
+		durationBox = new JComboBox<String>( COMBO_TIMEUNIT );
 		stepwidthField = new JFormattedTextField( nf );
 		stepwidthField.setColumns(5);
-		stepwidthBox = new JComboBox( COMBO_TIMEUNIT );
+		stepwidthBox = new JComboBox<String>( COMBO_TIMEUNIT );
 
 		parametersDef = new ParametersDef();
 		

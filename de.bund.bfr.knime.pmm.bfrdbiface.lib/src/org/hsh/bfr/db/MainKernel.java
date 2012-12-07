@@ -73,7 +73,7 @@ public class MainKernel {
 //		{"bios_141","bios_141","defad","de6!§5ddy"},
 //		{"bios_142","bios_142","defad","de6!§5ddy"},
 //		{"bios_143","bios_143","defad","de6!§5ddy"},
-		{"krise_145","krise_145","SA",""},
+		{"krise_145","krise_145","SA","de6!§5ddy"},
 		//{"statup_knime_trigger","aktuell_statup_knime","SA",""},
 		
 		};

@@ -75,7 +75,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		implements ActionListener {
 
-	private JComboBox joinerBox;
+	private JComboBox<String> joinerBox;
 	private JPanel joinerPanel;
 
 	private Joiner joiner;
@@ -93,7 +93,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		JPanel panel = new JPanel();
 		JPanel upperPanel = new JPanel();
 
-		joinerBox = new JComboBox(new Object[] {
+		joinerBox = new JComboBox<String>(new String[] {
 				ModelAndDataJoinerNodeModel.PRIMARY_JOIN,
 				ModelAndDataJoinerNodeModel.SECONDARY_JOIN,
 				ModelAndDataJoinerNodeModel.COMBINED_JOIN });

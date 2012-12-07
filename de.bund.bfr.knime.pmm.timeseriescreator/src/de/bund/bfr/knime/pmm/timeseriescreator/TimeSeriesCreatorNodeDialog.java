@@ -108,9 +108,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private DoubleTextField temperatureField;
 	private DoubleTextField phField;
 	private DoubleTextField waterActivityField;
-	private JComboBox timeBox;
-	private JComboBox logcBox;
-	private JComboBox tempBox;
+	private JComboBox<String> timeBox;
+	private JComboBox<String> logcBox;
+	private JComboBox<String> tempBox;
 
 	private List<StringTextField> condNameFields;
 	private List<DoubleTextField> condValueFields;
@@ -153,12 +153,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		waterActivityField = new DoubleTextField(
 				PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY,
 				true);
-		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.TIME).toArray());
-		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.LOGC).toArray());
-		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
+		timeBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
+						new String[0]));
+		logcBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
+						new String[0]));
+		tempBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.ATT_TEMPERATURE)
+				.toArray(new String[0]));
 
 		settingsNamePanel
 				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));

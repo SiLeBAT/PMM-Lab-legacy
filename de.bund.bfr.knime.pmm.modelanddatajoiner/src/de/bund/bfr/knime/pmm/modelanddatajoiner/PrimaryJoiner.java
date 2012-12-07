@@ -83,7 +83,7 @@ public class PrimaryJoiner implements Joiner {
 	private boolean isEstimated;
 
 	private JCheckBox joinBox;
-	private List<JComboBox> variableBoxes;
+	private List<JComboBox<String>> variableBoxes;
 
 	private List<String> variables;
 	private List<String> parameters;
@@ -119,10 +119,11 @@ public class PrimaryJoiner implements Joiner {
 		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightPanel.setLayout(new GridLayout(variables.size(), 1, 5, 5));
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		variableBoxes = new ArrayList<JComboBox>(variables.size());
+		variableBoxes = new ArrayList<JComboBox<String>>(variables.size());
 
 		for (String var : variables) {
-			JComboBox box = new JComboBox(parameters.toArray());
+			JComboBox<String> box = new JComboBox<String>(
+					parameters.toArray(new String[0]));
 
 			if (replacements.containsKey(var)) {
 				box.setSelectedItem(replacements.get(var));
@@ -280,7 +281,7 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public boolean isValid() {
-		for (JComboBox box : variableBoxes) {
+		for (JComboBox<String> box : variableBoxes) {
 			if (box.getSelectedItem() == null) {
 				return false;
 			}

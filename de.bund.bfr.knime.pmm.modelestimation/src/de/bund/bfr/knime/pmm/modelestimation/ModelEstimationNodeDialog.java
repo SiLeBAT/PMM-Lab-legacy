@@ -98,7 +98,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 	private Map<String, Map<String, Point2D.Double>> guessMap;
 
-	private JComboBox fittingBox;
+	private JComboBox<String> fittingBox;
 	private IntTextField nParamSpaceField;
 	private IntTextField nLevenbergField;
 	private JCheckBox stopWhenSuccessBox;
@@ -124,7 +124,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		JPanel leftRegressionPanel = new JPanel();
 		JPanel rightRegressionPanel = new JPanel();
 
-		fittingBox = new JComboBox(new Object[] {
+		fittingBox = new JComboBox<String>(new String[] {
 				ModelEstimationNodeModel.PRIMARY_FITTING,
 				ModelEstimationNodeModel.SECONDARY_FITTING,
 				ModelEstimationNodeModel.ONESTEP_FITTING });

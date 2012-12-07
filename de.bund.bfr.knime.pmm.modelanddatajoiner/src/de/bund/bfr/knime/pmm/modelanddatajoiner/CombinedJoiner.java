@@ -83,8 +83,8 @@ public class CombinedJoiner implements Joiner {
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
 
-	private List<JComboBox> primaryVariableBoxes;
-	private Map<String, List<JComboBox>> secondaryVariableBoxes;
+	private List<JComboBox<String>> primaryVariableBoxes;
+	private Map<String, List<JComboBox<String>>> secondaryVariableBoxes;
 
 	private List<String> primaryVariables;
 	private Map<String, List<String>> secondaryVariables;
@@ -108,8 +108,9 @@ public class CombinedJoiner implements Joiner {
 	public JComponent createPanel(List<String> assignments) {
 		Map<String, Map<String, String>> replacements = getAssignmentsMap(assignments);
 
-		primaryVariableBoxes = new ArrayList<JComboBox>(primaryVariables.size());
-		secondaryVariableBoxes = new LinkedHashMap<String, List<JComboBox>>();
+		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
+				primaryVariables.size());
+		secondaryVariableBoxes = new LinkedHashMap<String, List<JComboBox<String>>>();
 
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
@@ -124,7 +125,8 @@ public class CombinedJoiner implements Joiner {
 				.createTitledBorder("Primary Variables"));
 
 		for (String var : primaryVariables) {
-			JComboBox box = new JComboBox(primaryParameters.toArray());
+			JComboBox<String> box = new JComboBox<String>(
+					primaryParameters.toArray(new String[0]));
 
 			if (replacements.containsKey(PRIMARY)
 					&& replacements.get(PRIMARY).containsKey(var)) {
@@ -142,14 +144,15 @@ public class CombinedJoiner implements Joiner {
 
 		for (String depVarSec : secondaryVariables.keySet()) {
 			JPanel secondaryPanel = new JPanel();
-			List<JComboBox> boxes = new ArrayList<JComboBox>();
+			List<JComboBox<String>> boxes = new ArrayList<JComboBox<String>>();
 
 			secondaryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			secondaryPanel.setBorder(BorderFactory.createTitledBorder(depVarSec
 					+ "-Model Variables"));
 
 			for (String var : secondaryVariables.get(depVarSec)) {
-				JComboBox box = new JComboBox(secondaryParameters.toArray());
+				JComboBox<String> box = new JComboBox<String>(
+						secondaryParameters.toArray(new String[0]));
 
 				if (replacements.containsKey(depVarSec)
 						&& replacements.get(depVarSec).containsKey(var)) {

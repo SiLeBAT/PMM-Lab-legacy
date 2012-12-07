@@ -377,15 +377,6 @@ public class ParameterOptimizer {
 			parameterPValues = Collections.nCopies(parameters.size(), null);
 		}
 
-		double targetMean = MathUtilities.computeSum(targetValues)
-				/ targetValues.size();
-		double targetTotalSumOfSquares = 0.0;
-
-		for (int i = 0; i < targetValues.size(); i++) {
-			targetTotalSumOfSquares += Math.pow(targetValues.get(i)
-					- targetMean, 2.0);
-		}
-
 		rms = optimizer.getRMS();
 		rSquare = MathUtilities.getRSquared(rms, targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),

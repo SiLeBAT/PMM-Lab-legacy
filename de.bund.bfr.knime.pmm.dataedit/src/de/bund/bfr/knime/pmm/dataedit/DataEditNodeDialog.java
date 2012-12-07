@@ -105,7 +105,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	private List<KnimeTuple> tuples;
 	private List<KnimeTuple> oldTuples;
 
-	private JComboBox idBox;
+	private JComboBox<String> idBox;
 	private JButton deleteRecordButton;
 	private IntTextField condIDField;
 	private Map<String, StringTextField> stringColumnFields;
@@ -230,7 +230,7 @@ public class DataEditNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private JPanel createMainPanel() {
-		idBox = new JComboBox(nameList.toArray());
+		idBox = new JComboBox<String>(nameList.toArray(new String[0]));
 		idBox.setSelectedIndex(0);
 		idBox.addActionListener(this);
 		deleteRecordButton = new JButton("Delete Record");

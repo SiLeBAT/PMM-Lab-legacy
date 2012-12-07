@@ -71,10 +71,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		ActionListener {
 
 	private FilePanel filePanel;
-	private JComboBox formatBox;
-	private JComboBox timeBox;
-	private JComboBox logcBox;
-	private JComboBox tempBox;
+	private JComboBox<String> formatBox;
+	private JComboBox<String> timeBox;
+	private JComboBox<String> logcBox;
+	private JComboBox<String> tempBox;
 
 	/**
 	 * New pane for configuring the XLSTimeSeriesReader node.
@@ -91,16 +91,19 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		filePanel = new FilePanel("XLS File", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
-		formatBox = new JComboBox(new String[] {
+		formatBox = new JComboBox<String>(new String[] {
 				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT,
 				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT });
 		formatBox.addActionListener(this);
-		timeBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.TIME).toArray());
-		logcBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.LOGC).toArray());
-		tempBox = new JComboBox(AttributeUtilities.getUnitsForAttribute(
-				TimeSeriesSchema.ATT_TEMPERATURE).toArray());
+		timeBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
+						new String[0]));
+		logcBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
+						new String[0]));
+		tempBox = new JComboBox<String>(AttributeUtilities
+				.getUnitsForAttribute(TimeSeriesSchema.ATT_TEMPERATURE)
+				.toArray(new String[0]));
 
 		formatPanel.setBorder(BorderFactory.createTitledBorder("File Format"));
 		formatPanel.setLayout(new GridLayout(1, 1));

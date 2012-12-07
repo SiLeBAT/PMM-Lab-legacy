@@ -88,7 +88,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 	private Map<String, String> formulas;
 	private Map<String, List<String>> availableParams;
 	private DoubleTextField valueField;
-	private Map<String, JComboBox> paramBoxes;
+	private Map<String, JComboBox<String>> paramBoxes;
 
 	/**
 	 * New pane for configuring the ForecastStaticConditions node.
@@ -229,10 +229,11 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightPanel.setLayout(new GridLayout(ids.size(), 1, 5, 5));
 		rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		paramBoxes = new LinkedHashMap<String, JComboBox>();
+		paramBoxes = new LinkedHashMap<String, JComboBox<String>>();
 
 		for (String id : ids) {
-			JComboBox box = new JComboBox(availableParams.get(id).toArray());
+			JComboBox<String> box = new JComboBox<String>(availableParams.get(
+					id).toArray(new String[0]));
 			JLabel label = new JLabel(modelNames.get(id) + ":");
 
 			if (params.get(id) != null) {

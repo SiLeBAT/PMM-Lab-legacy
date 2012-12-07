@@ -97,7 +97,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	private Map<String, JPanel> boxPanels;
 	private Map<String, JPanel> buttonPanels;
-	private Map<String, List<Map<String, JComboBox>>> comboBoxes;
+	private Map<String, List<Map<String, JComboBox<String>>>> comboBoxes;
 	private Map<String, List<JButton>> addButtons;
 	private Map<String, List<JButton>> removeButtons;
 
@@ -123,7 +123,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		boxPanels = new LinkedHashMap<String, JPanel>();
 		buttonPanels = new LinkedHashMap<String, JPanel>();
-		comboBoxes = new LinkedHashMap<String, List<Map<String, JComboBox>>>();
+		comboBoxes = new LinkedHashMap<String, List<Map<String, JComboBox<String>>>>();
 		addButtons = new LinkedHashMap<String, List<JButton>>();
 		removeButtons = new LinkedHashMap<String, List<JButton>>();
 		panel.setLayout(new BorderLayout());
@@ -132,7 +132,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		for (String modelID : models) {
 			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
-			List<Map<String, JComboBox>> modelBoxes = new ArrayList<Map<String, JComboBox>>();
+			List<Map<String, JComboBox<String>>> modelBoxes = new ArrayList<Map<String, JComboBox<String>>>();
 			List<JButton> modelAddButtons = new ArrayList<JButton>();
 			List<JButton> modelRemoveButtons = new ArrayList<JButton>();
 
@@ -150,12 +150,13 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			rightPanel.setLayout(new GridLayout(0, 1));
 
 			for (Map<String, String> assignment : modelAssignments) {
-				Map<String, JComboBox> boxes = new LinkedHashMap<String, JComboBox>();
+				Map<String, JComboBox<String>> boxes = new LinkedHashMap<String, JComboBox<String>>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox depBox = new JComboBox(dependentParameters.toArray());
+				JComboBox<String> depBox = new JComboBox<String>(
+						dependentParameters.toArray(new String[0]));
 
 				depBox.setSelectedItem(assignment.get(dependentVariables
 						.get(modelID)));
@@ -166,8 +167,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				assignmentPanel.add(depBox);
 
 				for (String indepVar : independentVariables.get(modelID)) {
-					JComboBox indepBox = new JComboBox(
-							independentParameters.toArray());
+					JComboBox<String> indepBox = new JComboBox<String>(
+							independentParameters.toArray(new String[0]));
 
 					indepBox.setSelectedItem(assignment.get(indepVar));
 					indepBox.addActionListener(this);
@@ -399,11 +400,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		replacements = new ArrayList<Map<String, String>>();
 
 		for (String model : comboBoxes.keySet()) {
-			for (Map<String, JComboBox> modelBoxes : comboBoxes.get(model)) {
+			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
+					.get(model)) {
 				Map<String, String> modelAssignments = new LinkedHashMap<String, String>();
 
 				for (String var : modelBoxes.keySet()) {
-					JComboBox box = modelBoxes.get(var);
+					JComboBox<String> box = modelBoxes.get(var);
 
 					modelAssignments.put(var, (String) box.getSelectedItem());
 				}
@@ -446,18 +448,20 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		for (String model : addButtons.keySet()) {
 			List<JButton> modelAddButtons = addButtons.get(model);
 			List<JButton> modelRemoveButtons = removeButtons.get(model);
-			List<Map<String, JComboBox>> modelBoxes = comboBoxes.get(model);
+			List<Map<String, JComboBox<String>>> modelBoxes = comboBoxes
+					.get(model);
 			JPanel leftPanel = boxPanels.get(model);
 			JPanel rightPanel = buttonPanels.get(model);
 
 			if (modelAddButtons.contains(button)) {
 				int index = modelAddButtons.indexOf(button);
-				Map<String, JComboBox> boxes = new LinkedHashMap<String, JComboBox>();
+				Map<String, JComboBox<String>> boxes = new LinkedHashMap<String, JComboBox<String>>();
 				JPanel assignmentPanel = new JPanel();
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox depBox = new JComboBox(dependentParameters.toArray());
+				JComboBox<String> depBox = new JComboBox<String>(
+						dependentParameters.toArray(new String[0]));
 
 				depBox.setSelectedItem(null);
 				depBox.addActionListener(this);
@@ -467,8 +471,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				assignmentPanel.add(depBox);
 
 				for (String indepVar : independentVariables.get(model)) {
-					JComboBox indepBox = new JComboBox(
-							independentParameters.toArray());
+					JComboBox<String> indepBox = new JComboBox<String>(
+							independentParameters.toArray(new String[0]));
 
 					indepBox.setSelectedItem(null);
 					indepBox.addActionListener(this);
@@ -513,19 +517,19 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void checkIfInputIsValid() {
-		Map<String, JComboBox> depVarBoxes = new LinkedHashMap<String, JComboBox>();
+		Map<String, JComboBox<String>> depVarBoxes = new LinkedHashMap<String, JComboBox<String>>();
 		isValid = true;
 
 		for (String model : comboBoxes.keySet()) {
 			String depVar = dependentVariables.get(model);
 
-			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
-				JComboBox box = boxes.get(depVar);
+			for (Map<String, JComboBox<String>> boxes : comboBoxes.get(model)) {
+				JComboBox<String> box = boxes.get(depVar);
 
 				if (box.getSelectedItem() == null) {
 					isValid = false;
 				} else {
-					JComboBox sameValueBox = depVarBoxes.get(box
+					JComboBox<String> sameValueBox = depVarBoxes.get(box
 							.getSelectedItem());
 
 					if (sameValueBox != null) {
@@ -543,20 +547,20 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		for (String model : comboBoxes.keySet()) {
 			String depVar = dependentVariables.get(model);
 
-			for (Map<String, JComboBox> boxes : comboBoxes.get(model)) {
-				Map<String, JComboBox> indepVarBoxes = new LinkedHashMap<String, JComboBox>();
+			for (Map<String, JComboBox<String>> boxes : comboBoxes.get(model)) {
+				Map<String, JComboBox<String>> indepVarBoxes = new LinkedHashMap<String, JComboBox<String>>();
 
 				for (String var : boxes.keySet()) {
 					if (var.equals(depVar)) {
 						continue;
 					}
 
-					JComboBox box = boxes.get(var);
+					JComboBox<String> box = boxes.get(var);
 
 					if (box.getSelectedItem() == null) {
 						isValid = false;
 					} else {
-						JComboBox sameValueBox = indepVarBoxes.get(box
+						JComboBox<String> sameValueBox = indepVarBoxes.get(box
 								.getSelectedItem());
 
 						if (sameValueBox != null) {

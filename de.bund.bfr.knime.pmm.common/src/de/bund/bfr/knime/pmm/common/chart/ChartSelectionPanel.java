@@ -107,7 +107,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private JButton invertSelectionButton;
 	private JButton customizeColumnsButton;
 	private JButton resizeColumnsButton;
-	private Map<String, JComboBox> comboBoxes;
+	private Map<String, JComboBox<String>> comboBoxes;
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
@@ -136,7 +136,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			upperPanel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 			filterPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			comboBoxes = new LinkedHashMap<String, JComboBox>();
+			comboBoxes = new LinkedHashMap<String, JComboBox<String>>();
 
 			for (String column : filterableStringColumns) {
 				List<String> values = new ArrayList<String>();
@@ -148,7 +148,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				values.addAll(valueSet);
 				Collections.sort(values);
 
-				JComboBox box = new JComboBox(values.toArray(new String[0]));
+				JComboBox<String> box = new JComboBox<String>(
+						values.toArray(new String[0]));
 
 				box.addActionListener(this);
 				filterPanel.add(new JLabel(column + ":"));
@@ -231,7 +232,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable = new JTable(model);
 		selectTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		selectTable.getSelectionModel().addListSelectionListener(this);
-		selectTable.setRowHeight((new JComboBox()).getPreferredSize().height);
+		selectTable
+				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(model, null));
 		checkBoxRenderer = new ShapeRenderer();
 		selectTable.getColumn(SelectTableModel.ID).setMinWidth(0);
@@ -250,7 +252,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			selectTable.getColumn(SelectTableModel.COLOR).setCellRenderer(
 					new ColorRenderer());
 			selectTable.getColumn(SelectTableModel.SHAPE).setCellEditor(
-					new DefaultCellEditor(new JComboBox(
+					new DefaultCellEditor(new JComboBox<String>(
 							ColorAndShapeCreator.SHAPE_NAMES)));
 		} else {
 			selectTable.getColumn(SelectTableModel.COLOR).setCellEditor(
@@ -549,7 +551,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		Map<String, String> filters = new LinkedHashMap<String, String>();
 
 		for (String column : comboBoxes.keySet()) {
-			JComboBox box = comboBoxes.get(column);
+			JComboBox<String> box = comboBoxes.get(column);
 
 			if (!box.getSelectedItem().equals("")) {
 				filters.put(column, (String) box.getSelectedItem());
@@ -1252,7 +1254,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private boolean approved;
 		private List<String> shapeList;
 
-		private List<JComboBox> shapeBoxes;
+		private List<JComboBox<String>> shapeBoxes;
 
 		private JButton okButton;
 		private JButton cancelButton;
@@ -1264,7 +1266,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			approved = false;
 			shapeList = null;
 
-			shapeBoxes = new ArrayList<JComboBox>();
+			shapeBoxes = new ArrayList<JComboBox<String>>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -1278,7 +1280,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					.setLayout(new GridLayout(initialShapes.size(), 1, 5, 5));
 
 			for (String shape : initialShapes) {
-				JComboBox box = new JComboBox(ColorAndShapeCreator.SHAPE_NAMES);
+				JComboBox<String> box = new JComboBox<String>(
+						ColorAndShapeCreator.SHAPE_NAMES);
 
 				box.setSelectedItem(shape);
 				shapeBoxes.add(box);
@@ -1316,7 +1319,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				approved = true;
 				shapeList = new ArrayList<String>();
 
-				for (JComboBox box : shapeBoxes) {
+				for (JComboBox<String> box : shapeBoxes) {
 					shapeList.add((String) box.getSelectedItem());
 				}
 

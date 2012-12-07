@@ -57,7 +57,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private String passwd;
 	private boolean override;
 	private boolean doAnonymize;
-	private String company, charge, artikel;
+	private String companyFilter, chargeFilter, artikelFilter;
 	private boolean antiArticle, antiCharge, antiCompany;
 
 	/**
@@ -147,9 +147,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	rowNumber = 0;
     	while (rs.next()) {
     		int lieferID = rs.getInt("Lieferungen.ID");
-    		if ((company.trim().isEmpty() || compChain.containsKey(lieferID)) &&
-    				(charge.trim().isEmpty() || chargeChain.containsKey(lieferID)) &&
-    				(antiArticle || artikel.trim().isEmpty() || articleChain.containsKey(lieferID))) {
+    		if ((companyFilter.trim().isEmpty() || compChain.containsKey(lieferID)) &&
+    				(chargeFilter.trim().isEmpty() || chargeChain.containsKey(lieferID)) &&
+    				(antiArticle || artikelFilter.trim().isEmpty() || articleChain.containsKey(lieferID))) {
         		int id1 = rs.getInt("Produktkatalog.Station");
         		int id2 = rs.getInt("Lieferungen.Empfänger");
         		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
@@ -428,79 +428,94 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     
     private LinkedHashMap<Integer, Integer> applyChargeFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
-    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
-    			" FROM " + DBKernel.delimitL("Chargen") +
-    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
-    			" WHERE UCASE(" + DBKernel.delimitL("ChargenNr") + ") LIKE '%" + charge.toUpperCase() + "%'");
-		while (rs.next()) {
-			int lieferID = rs.getInt("ID");
-			if (lieferID > 0) {
-				result.put(lieferID, rs.getInt("Empfänger"));
-		    	goForward(db, lieferID, result);
-		    	goBackward(db, lieferID, result);
+    	if (!chargeFilter.trim().isEmpty()) {
+	    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+	    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
+	    			" FROM " + DBKernel.delimitL("Chargen") +
+	    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+	    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") +
+	    			" WHERE " + getFilterAsSQL(DBKernel.delimitL("ChargenNr"), chargeFilter));
+			while (rs.next()) {
+				int lieferID = rs.getInt("ID");
+				if (lieferID > 0) {
+					result.put(lieferID, rs.getInt("Empfänger"));
+			    	goForward(db, lieferID, result);
+			    	goBackward(db, lieferID, result);
+				}
 			}
-		}
+    	}
 		return result;
     }
     private LinkedHashMap<Integer, Integer> applyArticleFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
-    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
-    			" FROM " + DBKernel.delimitL("Produktkatalog") +
-    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
-    			" WHERE UCASE(" + DBKernel.delimitL("Bezeichnung") + ") LIKE '%" + artikel.toUpperCase() + "%'");
-		while (rs.next()) {
-			int lieferID = rs.getInt("ID");
-			if (lieferID > 0) {
-				result.put(lieferID, rs.getInt("Empfänger"));
-		    	goForward(db, lieferID, result);
-		    	goBackward(db, lieferID, result);
+    	if (!artikelFilter.trim().isEmpty()) {
+	    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+	    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
+	    			" FROM " + DBKernel.delimitL("Produktkatalog") +
+	    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+	    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+	    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+	    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+	    			" WHERE " + getFilterAsSQL(DBKernel.delimitL("Bezeichnung"), artikelFilter));
+			while (rs.next()) {
+				int lieferID = rs.getInt("ID");
+				if (lieferID > 0) {
+					result.put(lieferID, rs.getInt("Empfänger"));
+			    	goForward(db, lieferID, result);
+			    	goBackward(db, lieferID, result);
+				}
 			}
-		}
+    	}
 		return result;
+    }
+    private String getFilterAsSQL(String fieldname, String filter) {
+    	String result = "";
+    	String[] parts = filter.split(" ", 0);
+    	for (int i=0;i<parts.length;i++) {
+    		if (!parts[i].trim().isEmpty()) result += " OR UCASE(" + fieldname + ") LIKE '%" + parts[i].toUpperCase() + "%'";
+    	}
+    	if (!result.isEmpty()) result = result.substring(4);
+    	return result;
     }
     private LinkedHashMap<Integer, Integer> applyCompanyFilter(Bfrdb db) throws SQLException {
     	LinkedHashMap<Integer, Integer> result = new LinkedHashMap<Integer, Integer>(); 
-    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
-    			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
-    			" FROM " + DBKernel.delimitL("Station") +
-    			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
-    			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
-    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
-    			" WHERE UCASE(" + DBKernel.delimitL("Name") + ") LIKE '%" + company.toUpperCase() + "%'");
-		while (rs.next()) {
-			int lieferID = rs.getInt("ID");
-			if (lieferID > 0) {
-				result.put(lieferID, rs.getInt("Empfänger"));
-		    	goForward(db, lieferID, result);
-		    	goBackward(db, lieferID, result);
-			}
-		}
-    	rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
-    			" FROM " + DBKernel.delimitL("Station") +
-    			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
-    			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
-    			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-    			" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
-    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
-    			" WHERE UCASE(" + DBKernel.delimitL("Name") + ") LIKE '%" + company.toUpperCase() + "%'");
-		while (rs.next()) {
-			int lieferID = rs.getInt("ID");
-			if (lieferID > 0) {
-				result.put(lieferID, 0);
-		    	goForward(db, lieferID, result);
-		    	goBackward(db, lieferID, result);				
-			}
-		}
+    	if (!companyFilter.trim().isEmpty()) {
+        	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
+        			DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") +
+        			" FROM " + DBKernel.delimitL("Station") +
+        			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+        			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+        			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+        			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+        			" WHERE " + getFilterAsSQL(DBKernel.delimitL("Name"), companyFilter));
+    		while (rs.next()) {
+    			int lieferID = rs.getInt("ID");
+    			if (lieferID > 0) {
+    				result.put(lieferID, rs.getInt("Empfänger"));
+    		    	goForward(db, lieferID, result);
+    		    	goBackward(db, lieferID, result);
+    			}
+    		}
+        	rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
+        			" FROM " + DBKernel.delimitL("Station") +
+        			" LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+        			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+        			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+        			" ON " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
+        			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+        			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+        			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+        			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+        			" WHERE " + getFilterAsSQL(DBKernel.delimitL("Name"), companyFilter));
+    		while (rs.next()) {
+    			int lieferID = rs.getInt("ID");
+    			if (lieferID > 0) {
+    				result.put(lieferID, 0);
+    		    	goForward(db, lieferID, result);
+    		    	goBackward(db, lieferID, result);				
+    			}
+    		}
+    	}
     	return result;
     }
     @SuppressWarnings("unchecked")
@@ -623,9 +638,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
     	settings.addBoolean( PARAM_ANONYMIZE, doAnonymize );
-    	settings.addString( PARAM_FILTER_COMPANY, company );
-    	settings.addString( PARAM_FILTER_CHARGE, charge );
-    	settings.addString( PARAM_FILTER_ARTIKEL, artikel );
+    	settings.addString( PARAM_FILTER_COMPANY, companyFilter );
+    	settings.addString( PARAM_FILTER_CHARGE, chargeFilter );
+    	settings.addString( PARAM_FILTER_ARTIKEL, artikelFilter );
     	settings.addBoolean( PARAM_ANTIARTICLE, antiArticle );
     	settings.addBoolean( PARAM_ANTICHARGE, antiCharge );
     	settings.addBoolean( PARAM_ANTICOMPANY, antiCompany );
@@ -642,9 +657,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
     	doAnonymize = settings.getBoolean( PARAM_ANONYMIZE );
-    	company = settings.getString( PARAM_FILTER_COMPANY );
-    	charge = settings.getString( PARAM_FILTER_CHARGE );
-    	artikel = settings.getString( PARAM_FILTER_ARTIKEL );
+    	companyFilter = settings.getString( PARAM_FILTER_COMPANY );
+    	chargeFilter = settings.getString( PARAM_FILTER_CHARGE );
+    	artikelFilter = settings.getString( PARAM_FILTER_ARTIKEL );
     	antiArticle = settings.getBoolean( PARAM_ANTIARTICLE );
     	antiCharge = settings.getBoolean( PARAM_ANTICHARGE );
     	antiCompany = settings.getBoolean( PARAM_ANTICOMPANY );

@@ -60,6 +60,7 @@ import com.jgoodies.forms.layout.*;
 /**
  * @author Armin Weiser
  */
+@SuppressWarnings("rawtypes")
 public class MyDBForm extends JPanel {
 	
 	/**
@@ -639,6 +640,7 @@ public class MyDBForm extends JPanel {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		scrollPane3 = new JScrollPane();

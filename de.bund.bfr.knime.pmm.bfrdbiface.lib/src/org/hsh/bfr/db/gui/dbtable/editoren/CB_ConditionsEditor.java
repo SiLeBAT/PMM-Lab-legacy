@@ -143,7 +143,7 @@ public class CB_ConditionsEditor extends JDialog {
 		label44 = new JLabel();
 		textField44 = new JTextField();
 		label45 = new JLabel();
-		comboBox1 = new JComboBox();
+		comboBox1 = new JComboBox<String>();
 		label46 = new JLabel();
 		textField46 = new JTextField();
 		label47 = new JLabel();
@@ -474,7 +474,7 @@ public class CB_ConditionsEditor extends JDialog {
 				panel1.add(label45, cc.xy(13, 11));
 
 				//---- comboBox1 ----
-				comboBox1.setModel(new DefaultComboBoxModel(new String[] {
+				comboBox1.setModel(new DefaultComboBoxModel<String>(new String[] {
 					"ppm",
 					"%",
 					"IU/ml",
@@ -1075,7 +1075,7 @@ public class CB_ConditionsEditor extends JDialog {
 	private JLabel label44;
 	private JTextField textField44;
 	private JLabel label45;
-	private JComboBox comboBox1;
+	private JComboBox<String> comboBox1;
 	private JLabel label46;
 	private JTextField textField46;
 	private JLabel label47;

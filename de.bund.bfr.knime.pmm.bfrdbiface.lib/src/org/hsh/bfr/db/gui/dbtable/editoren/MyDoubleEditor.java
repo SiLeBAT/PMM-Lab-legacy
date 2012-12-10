@@ -190,7 +190,7 @@ public class MyDoubleEditor extends JDialog {
 		checkBox11 = new JCheckBox();
 		label12 = new JLabel();
 		button12 = new JButton();
-		comboBox12 = new JComboBox();
+		comboBox12 = new JComboBox<String>();
 		label13 = new JLabel();
 		checkBox13 = new JCheckBox();
 		panel1 = new JPanel();
@@ -481,7 +481,7 @@ public class MyDoubleEditor extends JDialog {
 		contentPane.add(button12, CC.xy(3, 25));
 
 		//---- comboBox12 ----
-		comboBox12.setModel(new DefaultComboBoxModel(new String[] {
+		comboBox12.setModel(new DefaultComboBoxModel<String>(new String[] {
 			"\u00b0C",
 			"pH",
 			"aw",
@@ -564,7 +564,7 @@ public class MyDoubleEditor extends JDialog {
 	private JCheckBox checkBox11;
 	private JLabel label12;
 	private JButton button12;
-	private JComboBox comboBox12;
+	private JComboBox<String> comboBox12;
 	private JLabel label13;
 	private JCheckBox checkBox13;
 	private JPanel panel1;
@@ -617,13 +617,13 @@ public class MyDoubleEditor extends JDialog {
 			MyLogger.handleException(e);
 		}
 	}
-	private boolean readValue(ResultSet rs, JLabel jl, JButton bt, JCheckBox cb, JComboBox combo) {
+	private boolean readValue(ResultSet rs, JLabel jl, JButton bt, JCheckBox cb, JComboBox<String> combo) {
 		return readValue(rs, jl, null, cb, true, bt, combo);
 	}
 	private boolean readValue(ResultSet rs, JLabel jl, JTextField tf, JCheckBox cb) {
 		return readValue(rs, jl, tf, cb, false, null, null);
 	}
-	private boolean readValue(ResultSet rs, JLabel jl, JTextField tf, JCheckBox cb, boolean isString, JButton bt, JComboBox combo) {
+	private boolean readValue(ResultSet rs, JLabel jl, JTextField tf, JCheckBox cb, boolean isString, JButton bt, JComboBox<String> combo) {
 		boolean result = false;
 		try {
 			String kz = rs.getString("Kennzahl");
@@ -696,7 +696,7 @@ public class MyDoubleEditor extends JDialog {
 	private void saveValue(PreparedStatement ps, JLabel jl, String tfText, JCheckBox cb, boolean isString) {
 		saveValue(ps, jl, tfText, cb, isString, null);
 	}
-	private void saveValue(PreparedStatement ps, JLabel jl, String tfText, JCheckBox cb, boolean isString, JComboBox combo) {
+	private void saveValue(PreparedStatement ps, JLabel jl, String tfText, JCheckBox cb, boolean isString, JComboBox<String> combo) {
 		try {
 			if (tfText.trim().length() > 0) {
 				try {

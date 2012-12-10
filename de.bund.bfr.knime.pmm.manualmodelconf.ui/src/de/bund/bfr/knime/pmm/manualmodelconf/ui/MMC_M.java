@@ -53,6 +53,7 @@ public class MMC_M extends JPanel {
 	private static final String LABEL_OWNMODEL = "Manually defined formula";
 
 	private Frame m_parentFrame = null;
+	@SuppressWarnings("unchecked")
 	private JComboBox<ParametricModel>[] threeBoxes = new JComboBox[3];
 	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private Connection m_conn = null;

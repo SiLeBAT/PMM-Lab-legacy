@@ -191,8 +191,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	rs.close();
     	
     	// 4 Burow
-		String dateFrom = "2012-09-20 00:00:00";
-		String dateTo = "2012-09-30 00:00:00";
+		//String dateFrom = "2012-09-20 00:00:00";
+		//String dateTo = "2012-09-30 00:00:00";
 
     	BufferedDataContainer outputBurow = exec.createDataContainer(getSpecBurow());
     	rs = db.pushQuery("SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("AnzahlFaelle") + "," + DBKernel.delimitL("FallErfuellt") +

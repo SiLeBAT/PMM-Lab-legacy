@@ -53,7 +53,7 @@ import quick.dbtable.CellComponent;
  */
 public class MyComboBoxEditor implements CellComponent {
 
-	private JComboBox myCombo = null;
+	private JComboBox<KeyValue> myCombo = null;
 	private JTextArea myTA = null;
 	private LinkedHashMap<Object, String> hash = null;
 	private LinkedHashMap<Object, KeyValue> hashKVs = null;
@@ -72,7 +72,7 @@ public class MyComboBoxEditor implements CellComponent {
 			myTA.setWrapStyleWord(true);
 		}
 		else {
-			myCombo = new JComboBox();
+			myCombo = new JComboBox<KeyValue>();
 			hashKVs = new LinkedHashMap<Object, KeyValue>();
 			for (Object key : hash.keySet()) {
 				KeyValue kv = new KeyValue(key, hash.get(key));

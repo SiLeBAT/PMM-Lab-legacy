@@ -36,6 +36,7 @@ package de.bund.bfr.knime.gis;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -49,6 +50,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,11 +70,10 @@ public class GISCanvas extends JComponent implements ActionListener,
 	private static final long serialVersionUID = 1L;
 	private static final double ZOOMING_FACTOR = 1.1;
 
-	private List<ShpPolygon> shapes;
-	private List<String> columnNames;
-	private List<List<String>> dataRows;
-	private String idColumn;
-	private Map<String, Double> data;
+	private Map<String, ShpPolygon> shapes;
+	private Map<String, Point2D.Double> shapeCenters;
+	private Map<String, Double> regionData;
+	private Map<Edge, Double> edgeData;
 
 	private boolean transformComputed;
 	private double scaleX;
@@ -81,12 +82,13 @@ public class GISCanvas extends JComponent implements ActionListener,
 	private double translationY;
 
 	private boolean transformedShapesComputed;
-	private List<List<Polygon>> transformedShapes;
+	private Map<String, List<Polygon>> transformedShapes;
+	private Map<String, Point> transformedShapeCenters;
 
 	private boolean leftButtonPressed;
 	private int lastX;
 	private int lastY;
-	private int lastContainingPolygon;
+	private String lastContainingPolygon;
 
 	private double gainFactor;
 	private boolean logScale;
@@ -97,17 +99,18 @@ public class GISCanvas extends JComponent implements ActionListener,
 	private JRadioButtonMenuItem gain1Item;
 	private JRadioButtonMenuItem gain10Item;
 
-	public GISCanvas(List<ShpPolygon> shapes, List<String> columnNames,
-			List<List<String>> dataRows, String idColumn) {
+	public GISCanvas(Map<String, ShpPolygon> shapes) {
 		this.shapes = shapes;
-		this.columnNames = columnNames;
-		this.dataRows = dataRows;
-		this.idColumn = idColumn;
+		shapeCenters = new LinkedHashMap<String, Point2D.Double>();
+
+		for (String id : shapes.keySet()) {
+			shapeCenters.put(id, GISUtilities.getCenter(shapes.get(id)));
+		}
 
 		transformComputed = false;
 		transformedShapesComputed = false;
 		leftButtonPressed = false;
-		lastContainingPolygon = -1;
+		lastContainingPolygon = null;
 
 		addMouseListener(this);
 		addMouseMotionListener(this);
@@ -120,8 +123,12 @@ public class GISCanvas extends JComponent implements ActionListener,
 		logScaleItem.setSelected(false);
 	}
 
-	public void setData(Map<String, Double> data) {
-		this.data = data;
+	public void setRegionData(Map<String, Double> regionData) {
+		this.regionData = regionData;
+	}
+
+	public void setEdgeData(Map<Edge, Double> edgeData) {
+		this.edgeData = edgeData;
 	}
 
 	@Override
@@ -141,14 +148,14 @@ public class GISCanvas extends JComponent implements ActionListener,
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
-		if (data != null) {
-			double max = Collections.max(data.values());
+		if (regionData != null) {
+			double max = Collections.max(regionData.values());
 
-			for (int i = 0; i < transformedShapes.size(); i++) {
-				String id = dataRows.get(i).get(columnNames.indexOf(idColumn));
-				Double value = data.get(id);
+			for (String id : regionData.keySet()) {
+				List<Polygon> poly = transformedShapes.get(id);
+				Double value = regionData.get(id);
 
-				if (value != null) {
+				if (poly != null) {
 					value /= max;
 					value *= gainFactor;
 					value = Math.max(0.0, value);
@@ -163,7 +170,7 @@ public class GISCanvas extends JComponent implements ActionListener,
 					if (alpha != 0.0) {
 						g.setColor(new Color(1.0f, 1.0f - alpha, 1.0f - alpha));
 
-						for (Polygon part : transformedShapes.get(i)) {
+						for (Polygon part : poly) {
 							g.fillPolygon(part);
 						}
 					}
@@ -173,9 +180,20 @@ public class GISCanvas extends JComponent implements ActionListener,
 
 		g.setColor(Color.BLACK);
 
-		for (List<Polygon> poly : transformedShapes) {
+		for (List<Polygon> poly : transformedShapes.values()) {
 			for (Polygon part : poly) {
 				g.drawPolygon(part);
+			}
+		}
+
+		if (edgeData != null) {
+			for (Edge edge : edgeData.keySet()) {
+				Point center1 = transformedShapeCenters.get(edge.getFrom());
+				Point center2 = transformedShapeCenters.get(edge.getTo());
+
+				if (center1 != null && center2 != null) {
+					g.drawLine(center1.x, center1.y, center2.x, center2.y);
+				}
 			}
 		}
 	}
@@ -202,10 +220,14 @@ public class GISCanvas extends JComponent implements ActionListener,
 	}
 
 	private void computeTransformedShapes() {
-		transformedShapes = new ArrayList<List<Polygon>>();
+		transformedShapes = new LinkedHashMap<String, List<Polygon>>();
+		transformedShapeCenters = new LinkedHashMap<String, Point>();
 
-		for (ShpPolygon poly : shapes) {
+		for (String id : shapes.keySet()) {
+			ShpPolygon poly = shapes.get(id);
+			Point2D.Double center = shapeCenters.get(id);
 			List<Polygon> transPoly = new ArrayList<Polygon>();
+			Point transCenter = new Point();
 
 			for (Part part : poly.getParts()) {
 				int[] xs = new int[part.getPointCount()];
@@ -219,7 +241,11 @@ public class GISCanvas extends JComponent implements ActionListener,
 				transPoly.add(new Polygon(xs, ys, part.getPointCount()));
 			}
 
-			transformedShapes.add(transPoly);
+			transCenter.x = (int) (center.x * scaleX + translationX);
+			transCenter.y = (int) (center.y * scaleY + translationY);
+
+			transformedShapes.put(id, transPoly);
+			transformedShapeCenters.put(id, transCenter);
 		}
 	}
 
@@ -229,7 +255,7 @@ public class GISCanvas extends JComponent implements ActionListener,
 		double minY = Double.POSITIVE_INFINITY;
 		double maxY = Double.NEGATIVE_INFINITY;
 
-		for (ShpPolygon poly : shapes) {
+		for (ShpPolygon poly : shapes.values()) {
 			for (Part part : poly.getParts()) {
 				for (double x : part.getXs()) {
 					minX = Math.min(minX, x);
@@ -301,58 +327,16 @@ public class GISCanvas extends JComponent implements ActionListener,
 		popup.add(gainMenu);
 	}
 
-	private int getIndexOfContainingPolygon(int x, int y) {
+	private String getIdOfContainingPolygon(int x, int y) {
 		Point2D.Double p = getInversedPoint(x, y);
 
-		for (int i = 0; i < shapes.size(); i++) {
-			for (Part part : shapes.get(i).getParts()) {
-				if (containsPoint(part, p)) {
-					return i;
-				}
+		for (String id : shapes.keySet()) {
+			if (GISUtilities.containsPoint(shapes.get(id), p)) {
+				return id;
 			}
 		}
 
-		return -1;
-	}
-
-	private boolean containsPoint(Part poly, Point2D.Double point) {
-		int n = poly.getPointCount();
-		double[] xs = poly.getXs();
-		double[] ys = poly.getYs();
-		double x = point.x;
-		double y = point.y;
-
-		int hits = 0;
-		double x1 = xs[n - 1];
-		double y1 = ys[n - 1];
-
-		for (int i = 0; i < n; i++) {
-			double x2 = xs[i];
-			double y2 = ys[i];
-
-			if (y == y2) {
-				if (x < x2) {
-					double y3 = ys[(i + 1) % n];
-
-					if (y > Math.min(y1, y3) && y < Math.max(y1, y3)) {
-						hits++;
-					}
-				}
-			} else {
-				if (y > Math.min(y1, y2) && y < Math.max(y1, y2)) {
-					double xProjection = (x2 - x1) / (y2 - y1) * (y - y1) + x1;
-
-					if (x < xProjection) {
-						hits++;
-					}
-				}
-			}
-
-			x1 = x2;
-			y1 = y2;
-		}
-
-		return hits % 2 != 0;
+		return null;
 	}
 
 	@Override
@@ -414,24 +398,20 @@ public class GISCanvas extends JComponent implements ActionListener,
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		int index = getIndexOfContainingPolygon(e.getX(), e.getY());
+		String id = getIdOfContainingPolygon(e.getX(), e.getY());
 
-		if (index != lastContainingPolygon) {
-			if (index == -1) {
-				setToolTipText(null);
-			} else {
-				String id = dataRows.get(index).get(
-						columnNames.indexOf(idColumn));
-				Double value = data.get(id);
-				String row1 = "<tr><td>ID</td><td>" + id + "</td></tr>";
-				String row2 = "<tr><td>Value</td><td>" + value + "</td></tr>";
+		if (id == null) {
+			setToolTipText(null);
+		} else if (!id.equals(lastContainingPolygon)) {
+			Double value = regionData.get(id);
+			String row1 = "<tr><td>ID</td><td>" + id + "</td></tr>";
+			String row2 = "<tr><td>Value</td><td>" + value + "</td></tr>";
 
-				setToolTipText("<html><table border=\"0\">" + row1 + row2
-						+ "</table></html>");
-			}
-
-			lastContainingPolygon = index;
+			setToolTipText("<html><table border=\"0\">" + row1 + row2
+					+ "</table></html>");
 		}
+
+		lastContainingPolygon = id;
 	}
 
 	@Override
@@ -453,6 +433,25 @@ public class GISCanvas extends JComponent implements ActionListener,
 		} else if (e.getSource() == gain10Item) {
 			gainFactor = 10.0;
 			repaint();
+		}
+	}
+
+	public static class Edge {
+
+		private String from;
+		private String to;
+
+		public Edge(String from, String to) {
+			this.from = from;
+			this.to = to;
+		}
+
+		public String getFrom() {
+			return from;
+		}
+
+		public String getTo() {
+			return to;
 		}
 	}
 

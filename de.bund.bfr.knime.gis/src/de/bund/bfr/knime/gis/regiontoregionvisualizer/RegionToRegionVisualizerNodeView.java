@@ -33,49 +33,167 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.regiontoregionvisualizer;
 
+import java.awt.BorderLayout;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JPanel;
+
+import org.eclipse.stem.gis.ShapefileReader;
+import org.eclipse.stem.gis.dbf.DbfFieldDef;
+import org.eclipse.stem.gis.shp.ShpPolygon;
+import org.eclipse.stem.gis.shp.ShpRecord;
+import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
+import org.knime.core.data.RowIterator;
 import org.knime.core.node.NodeView;
+
+import de.bund.bfr.knime.gis.GISCanvas;
 
 /**
  * <code>NodeView</code> for the "RegionToRegionVisualizer" Node.
  * 
- *
+ * 
  * @author Christian Thoens
  */
-public class RegionToRegionVisualizerNodeView extends NodeView<RegionToRegionVisualizerNodeModel> {
+public class RegionToRegionVisualizerNodeView extends
+		NodeView<RegionToRegionVisualizerNodeModel> {
 
-    /**
-     * Creates a new view.
-     * 
-     * @param nodeModel The model (class: {@link RegionToRegionVisualizerNodeModel})
-     */
-    protected RegionToRegionVisualizerNodeView(final RegionToRegionVisualizerNodeModel nodeModel) {
-        super(nodeModel);
-        // TODO: generated method stub
-    }
+	/**
+	 * Creates a new view.
+	 * 
+	 * @param nodeModel
+	 *            The model (class: {@link GISVisualizationNodeModel})
+	 */
+	protected RegionToRegionVisualizerNodeView(
+			final RegionToRegionVisualizerNodeModel nodeModel) {
+		super(nodeModel);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void modelChanged() {
-        // TODO: generated method stub
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void modelChanged() {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onClose() {
-        // TODO: generated method stub
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onClose() {
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void onOpen() {
-        // TODO: generated method stub
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void onOpen() {
+		try {
+			GISCanvas canvas = createGISCanvas(getNodeModel().getFileName(),
+					getNodeModel().getFileIdColumn());
+			Map<String, Double> regionData = createRegionDataMap(getNodeModel()
+					.getRegionTable(), getNodeModel().getTableIdColumn(),
+					getNodeModel().getTableValueColumn());
+			Map<GISCanvas.Edge, Double> edgeData = createEdgeDataMap(
+					getNodeModel().getEdgeTable(), getNodeModel()
+							.getEdgeFromColumn(), getNodeModel()
+							.getEdgeToColumn(), getNodeModel()
+							.getEdgeValueColumn());
+
+			canvas.setRegionData(regionData);
+			canvas.setEdgeData(edgeData);
+
+			JPanel panel = new JPanel();
+
+			panel.setLayout(new BorderLayout());
+			panel.add(canvas, BorderLayout.CENTER);
+
+			setComponent(panel);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private GISCanvas createGISCanvas(String fileName, String fileIdColumn)
+			throws IOException {
+		ShapefileReader reader = new ShapefileReader(new File(fileName));
+		List<DbfFieldDef> fields = reader.getTableHeader()
+				.getFieldDefinitions();
+		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();
+		int idColumnIndex = -1;
+
+		for (int i = 0; i < fields.size(); i++) {
+			if (fields.get(i).getFieldName().trim().equals(fileIdColumn)) {
+				idColumnIndex = i;
+			}
+		}
+
+		while (reader.hasMoreRecords()) {
+			ShpRecord shp = reader.getNextRecord();
+
+			if (shp instanceof ShpPolygon) {
+				String id = shp.getTableAttributes().getData()
+						.get(idColumnIndex).toString().trim();
+
+				shapes.put(id, (ShpPolygon) shp);
+			}
+		}
+
+		return new GISCanvas(shapes);
+	}
+
+	private Map<String, Double> createRegionDataMap(DataTable table,
+			String idColumn, String valueColumn) {
+		Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
+		int idIndex = table.getDataTableSpec().findColumnIndex(idColumn);
+		int valueIndex = table.getDataTableSpec().findColumnIndex(valueColumn);
+		RowIterator it = table.iterator();
+
+		while (it.hasNext()) {
+			DataRow row = it.next();
+
+			try {
+				String id = row.getCell(idIndex).toString().trim();
+				double value = Double.parseDouble(row.getCell(valueIndex)
+						.toString().trim());
+
+				dataMap.put(id, value);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return dataMap;
+	}
+
+	private Map<GISCanvas.Edge, Double> createEdgeDataMap(DataTable table,
+			String fromColumn, String toColumn, String valueColumn) {
+		Map<GISCanvas.Edge, Double> dataMap = new LinkedHashMap<GISCanvas.Edge, Double>();
+		int fromIndex = table.getDataTableSpec().findColumnIndex(fromColumn);
+		int toIndex = table.getDataTableSpec().findColumnIndex(toColumn);
+		int valueIndex = table.getDataTableSpec().findColumnIndex(valueColumn);
+		RowIterator it = table.iterator();
+
+		while (it.hasNext()) {
+			DataRow row = it.next();
+
+			try {
+				String from = row.getCell(fromIndex).toString().trim();
+				String to = row.getCell(toIndex).toString().trim();
+				double value = Double.parseDouble(row.getCell(valueIndex)
+						.toString().trim());
+
+				dataMap.put(new GISCanvas.Edge(from, to), value);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return dataMap;
+	}
 
 }
-

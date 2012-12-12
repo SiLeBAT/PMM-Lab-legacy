@@ -86,7 +86,7 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> tableValueBox;
 
 	/**
-	 * New pane for configuring the GISVisualization node.
+	 * New pane for configuring the RegionVisualizer node.
 	 */
 	protected RegionVisualizerNodeDialog() {
 		fileField = new JTextField();

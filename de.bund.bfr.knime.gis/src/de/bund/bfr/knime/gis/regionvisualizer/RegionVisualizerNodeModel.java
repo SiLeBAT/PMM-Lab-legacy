@@ -61,7 +61,7 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	protected static final String CFG_TABLEIDCOLUMN = "TableIDColumn";
 	protected static final String CFG_TABLEVALUECOLUMN = "TableValueColumn";
 
-	private static final String INTERNAL_FILENAME = "GISVisualization.zip";
+	private static final String INTERNAL_FILENAME = "RegionVisualizer.zip";
 
 	private DataTable table;
 	private String fileName;

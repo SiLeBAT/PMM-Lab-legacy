@@ -36,7 +36,6 @@ package de.bund.bfr.knime.gis.regionvisualizer;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +98,7 @@ public class RegionVisualizerNodeView extends
 					.getTable(), getNodeModel().getTableIdColumn(),
 					getNodeModel().getTableValueColumn());
 
-			canvas.setData(dataMap);
+			canvas.setRegionData(dataMap);
 
 			JPanel panel = new JPanel();
 
@@ -117,31 +116,27 @@ public class RegionVisualizerNodeView extends
 		ShapefileReader reader = new ShapefileReader(new File(fileName));
 		List<DbfFieldDef> fields = reader.getTableHeader()
 				.getFieldDefinitions();
-		List<ShpPolygon> shapes = new ArrayList<ShpPolygon>();
-		List<String> columnNames = new ArrayList<String>();
-		List<List<String>> dataRows = new ArrayList<List<String>>();
+		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();
+		int idColumnIndex = -1;
+
+		for (int i = 0; i < fields.size(); i++) {
+			if (fields.get(i).getFieldName().trim().equals(fileIdColumn)) {
+				idColumnIndex = i;
+			}
+		}
 
 		while (reader.hasMoreRecords()) {
 			ShpRecord shp = reader.getNextRecord();
 
 			if (shp instanceof ShpPolygon) {
-				List<Object> dbfData = shp.getTableAttributes().getData();
-				List<String> row = new ArrayList<String>();
+				String id = shp.getTableAttributes().getData()
+						.get(idColumnIndex).toString().trim();
 
-				for (Object o : dbfData) {
-					row.add(o.toString().trim());
-				}
-
-				shapes.add((ShpPolygon) shp);
-				dataRows.add(row);
+				shapes.put(id, (ShpPolygon) shp);
 			}
 		}
 
-		for (DbfFieldDef f : fields) {
-			columnNames.add(f.getFieldName().trim());
-		}
-
-		return new GISCanvas(shapes, columnNames, dataRows, fileIdColumn);
+		return new GISCanvas(shapes);
 	}
 
 	private Map<String, Double> createDataMap(DataTable table, String idColumn,

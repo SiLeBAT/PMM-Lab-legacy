@@ -208,8 +208,8 @@ public class GISCanvas extends JComponent implements ActionListener,
 		Rectangle canvasBounds = getBounds();
 		double widthRatio = canvasBounds.width / polygonsBounds.width;
 		double heightRatio = canvasBounds.height / polygonsBounds.height;
-		int canvasCenterX = canvasBounds.x + canvasBounds.width / 2;
-		int canvasCenterY = canvasBounds.y + canvasBounds.height / 2;
+		double canvasCenterX = canvasBounds.getCenterX();
+		double canvasCenterY = canvasBounds.getCenterY();
 		double polygonCenterX = polygonsBounds.getCenterX();
 		double polygonCenterY = polygonsBounds.getCenterY();
 

@@ -63,8 +63,7 @@ public class TsReaderUi extends JPanel {
 	private LinkedHashMap<String, DoubleTextField[]> params;
 	private JPanel theParamPanel;
 	
-	public TsReaderUi() {
-		
+	public TsReaderUi() {		
 		JPanel panel;
 		
 		setLayout( new BoxLayout( this, BoxLayout.Y_AXIS ) );
@@ -129,6 +128,7 @@ public class TsReaderUi extends JPanel {
 			params.put("param3", dtf);
 		}
 		
+		this.setVisible(false);
 		theParamPanel.removeAll();
 		//theParamPanel.setVisible(false);
 		int lfd = 0;
@@ -140,9 +140,8 @@ public class TsReaderUi extends JPanel {
 			lfd++;
 			if (lfd > 5) break;
 		}	
-		//theParamPanel.revalidate();
-		//theParamPanel.validate();
-		//theParamPanel.setVisible(true);
+		this.revalidate();
+		this.setVisible(true);
 	}
 
 	public String getMatrixString() { return matrixField.getText(); }

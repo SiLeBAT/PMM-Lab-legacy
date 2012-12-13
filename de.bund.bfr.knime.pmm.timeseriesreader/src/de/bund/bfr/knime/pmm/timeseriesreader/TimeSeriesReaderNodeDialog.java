@@ -33,7 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import javax.swing.BoxLayout;
@@ -49,7 +48,7 @@ import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
-import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.MdReaderUi;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesReader" Node.
@@ -65,7 +64,7 @@ import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
 public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 	
 	private DbConfigurationUi dbui;
-	private TsReaderUi tsui;
+	private MdReaderUi tsui;
 
     /**
      * New pane for configuring the TimeSeriesReader node.
@@ -81,7 +80,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	dbui = new DbConfigurationUi();
     	panel.add( dbui );
     	
-    	tsui = new TsReaderUi();
+    	tsui = new MdReaderUi();
     	panel.add( tsui );
     	
     	addTab( "Database connection", panel );
@@ -105,19 +104,19 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 		LinkedHashMap<String, DoubleTextField[]> params = tsui.getParameter();
 		Config c = settings.addConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
 		String[] pars = new String[params.size()];
-		double[] mins = new double[params.size()];
-		double[] maxs = new double[params.size()];
+		String[] mins = new String[params.size()];
+		String[] maxs = new String[params.size()];
 		int i=0;
 		for (String par : params.keySet()) {
 			DoubleTextField[] dbl = params.get(par);
 			pars[i] = par;
-			if (dbl[0].getValue() != null) mins[i] = dbl[0].getValue();
-			if (dbl[1].getValue() != null) maxs[i] = dbl[1].getValue();
+			mins[i] = ""+dbl[0].getValue();
+			maxs[i] = ""+dbl[1].getValue();
 			i++;
 		}
 		c.addStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERNAME, pars);
-		c.addDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN, mins);
-		c.addDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX, maxs);
+		c.addStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN, mins);
+		c.addStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX, maxs);
 	}
 
 	@Override
@@ -134,14 +133,16 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 			
 			Config c = settings.getConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
 			String[] pars = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERNAME);
-			double[] mins = c.getDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN);
-			double[] maxs = c.getDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX);
+			String[] mins = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN);
+			String[] maxs = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX);
 
 			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 			for (int i=0;i<pars.length;i++) {
 				DoubleTextField[] dbl = new DoubleTextField[2];
-				dbl[0].setValue(mins[i]);
-				dbl[1].setValue(maxs[i]);
+				dbl[0] = new DoubleTextField(true);
+				dbl[1] = new DoubleTextField(true);
+				if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
+				if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
 				params.put(pars[i], dbl);
 			}
 			tsui.setParameter(params);

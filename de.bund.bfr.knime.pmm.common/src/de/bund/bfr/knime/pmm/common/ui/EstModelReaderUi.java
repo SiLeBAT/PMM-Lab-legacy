@@ -63,7 +63,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	private JRadioButton qualityButtonRms;
 	private JRadioButton qualityButtonR2;
 	private DoubleTextField qualityField;
-	private TsReaderUi tsReaderUi;
+	private MdReaderUi tsReaderUi;
 	private ModelReaderUi modelReaderUi;
 	
 	public static final int MODE_OFF = 0;
@@ -85,7 +85,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		qualityField = new DoubleTextField( false );
 		qualityField.setText( "0.8" );
 		qualityField.setEnabled( false );
-		tsReaderUi = new TsReaderUi();
+		tsReaderUi = new MdReaderUi();
 						
 		JPanel buttonPanel = new JPanel();
 		ButtonGroup group = new ButtonGroup();	
@@ -227,7 +227,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     	Double thresh;
     	
     	if( level == 1 )
-    		if( !TsReaderUi.passesFilter( matrixString,
+    		if( !MdReaderUi.passesFilter( matrixString,
 				agentString, null,null, tuple ) )
     			return false;
     	
@@ -278,10 +278,11 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     }
     
     private void updateTsReaderUi() {
-    	
+    	/*
     	if( modelReaderUi.getLevel() == 1 )
     		tsReaderUi.setActive();
     	else
     		tsReaderUi.setInactive();
+    		*/
     }
 }

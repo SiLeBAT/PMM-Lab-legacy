@@ -36,7 +36,7 @@ package de.bund.bfr.knime.pmm.timeseriesreader;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -59,7 +59,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
+import de.bund.bfr.knime.pmm.common.ui.MdReaderUi;
 
 /**
  * This is the model implementation of TimeSeriesReader.
@@ -89,7 +89,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 	private String agentString;
 	private String literatureString;
 	
-	private HashMap<String, double[]> parameter;
+	private LinkedHashMap<String, Double[]> parameter;
     
     /**
      * Constructor for the node model.
@@ -106,7 +106,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         agentString = "";
         literatureString = "";
 
-        parameter = new HashMap<String, double[]>();
+        parameter = new LinkedHashMap<String, Double[]>();
     }
 
     /**
@@ -181,7 +181,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			}
     		
     		// add row to data buffer
-    		if( TsReaderUi.passesFilter( matrixString, agentString, literatureString, parameter, tuple ) )
+    		if( MdReaderUi.passesFilter( matrixString, agentString, literatureString, parameter, tuple ) )
     			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     		
     	}
@@ -224,19 +224,19 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	
 		Config c = settings.addConfig(PARAM_PARAMETERS);
 		String[] pars = new String[parameter.size()];
-		double[] mins = new double[parameter.size()];
-		double[] maxs = new double[parameter.size()];
+		String[] mins = new String[parameter.size()];
+		String[] maxs = new String[parameter.size()];
 		int i=0;
 		for (String par : parameter.keySet()) {
-			double[] dbl = parameter.get(par);
+			Double[] dbl = parameter.get(par);
 			pars[i] = par;
-			mins[i] = dbl[0];
-			maxs[i] = dbl[1];
+			mins[i] = ""+dbl[0];
+			maxs[i] = ""+dbl[1];
 			i++;
 		}
 		c.addStringArray(PARAM_PARAMETERNAME, pars);
-		c.addDoubleArray(PARAM_PARAMETERMIN, mins);
-		c.addDoubleArray(PARAM_PARAMETERMAX, maxs);
+		c.addStringArray(PARAM_PARAMETERMIN, mins);
+		c.addStringArray(PARAM_PARAMETERMAX, maxs);
     }
 
     /**
@@ -255,14 +255,14 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 
 		Config c = settings.getConfig(PARAM_PARAMETERS);
 		String[] pars = c.getStringArray(PARAM_PARAMETERNAME);
-		double[] mins = c.getDoubleArray(PARAM_PARAMETERMIN);
-		double[] maxs = c.getDoubleArray(PARAM_PARAMETERMAX);
+		String[] mins = c.getStringArray(PARAM_PARAMETERMIN);
+		String[] maxs = c.getStringArray(PARAM_PARAMETERMAX);
 
-        parameter = new HashMap<String, double[]>();
+        parameter = new LinkedHashMap<String, Double[]>();
 		for (int i=0;i<pars.length;i++) {
-			double[] dbl = new double[2];
-			dbl[0] = mins[i];
-			dbl[1] = maxs[i];
+			Double[] dbl = new Double[2];
+			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);
+			if (!maxs[i].equals("null")) dbl[1] = Double.parseDouble(maxs[i]);
 			parameter.put(pars[i], dbl);
 		}
     }

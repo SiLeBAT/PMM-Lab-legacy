@@ -108,8 +108,6 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_MODELLIST, estmodelui.getModelList() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE, estmodelui.getQualityMode() );
 		settings.addDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH, estmodelui.getQualityThresh() );
-		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MATRIXENABLED, estmodelui.isMatrixFilterEnabled() );
-		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_AGENTENABLED, estmodelui.isAgentFilterEnabled() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING, estmodelui.getMatrixString() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING, estmodelui.getAgentString() );
 	}

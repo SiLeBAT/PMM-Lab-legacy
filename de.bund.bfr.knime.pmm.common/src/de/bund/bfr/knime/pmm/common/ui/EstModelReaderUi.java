@@ -177,8 +177,6 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		return MODE_R2;
 	}
 	
-	public boolean isAgentFilterEnabled() { return tsReaderUi.isAgentFilterEnabled(); }
-	public boolean isMatrixFilterEnabled() { return tsReaderUi.isMatrixFilterEnabled(); }
 	public boolean isModelFilterEnabled() { return modelReaderUi.isModelFilterEnabled(); }
 	
 	public void setLevel( int level ) throws PmmException { modelReaderUi.setLevel( level ); }
@@ -229,8 +227,8 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     	Double thresh;
     	
     	if( level == 1 )
-    		if( !TsReaderUi.passesFilter( matrixEnabled, matrixString,
-				agentEnabled, agentString, tuple ) )
+    		if( !TsReaderUi.passesFilter( matrixString,
+				agentString, null,null, tuple ) )
     			return false;
     	
     	if( !ModelReaderUi.passesFilter( modelFilterEnabled,

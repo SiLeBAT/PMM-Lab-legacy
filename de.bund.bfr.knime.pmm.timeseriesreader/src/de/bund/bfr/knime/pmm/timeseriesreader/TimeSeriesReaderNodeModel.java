@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.timeseriesreader;
 import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
+import java.util.HashMap;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -49,6 +50,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
@@ -71,19 +73,23 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
-	static final String PARAM_MATRIXENABLED = "matrixEnabled";
-	static final String PARAM_AGENTENABLED = "agentEnabled";
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
+	static final String PARAM_LITERATURESTRING = "literatureString";
+	static final String PARAM_PARAMETERS = "parameters";
+	static final String PARAM_PARAMETERNAME = "parameterName";
+	static final String PARAM_PARAMETERMIN = "parameterMin";
+	static final String PARAM_PARAMETERMAX = "parameterMax";
 	
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
-	private boolean matrixEnabled;
-	private boolean agentEnabled;
 	private String matrixString;
 	private String agentString;
+	private String literatureString;
+	
+	private HashMap<String, double[]> parameter;
     
     /**
      * Constructor for the node model.
@@ -96,11 +102,11 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         login = "";
         passwd = "";
         override = false;
-        matrixEnabled = false;
-        agentEnabled = false;
         matrixString = "";
         agentString = "";
+        literatureString = "";
 
+        parameter = new HashMap<String, double[]>();
     }
 
     /**
@@ -175,7 +181,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			}
     		
     		// add row to data buffer
-    		if( TsReaderUi.passesFilter( matrixEnabled, matrixString, agentEnabled, agentString, tuple ) )
+    		if( TsReaderUi.passesFilter( matrixString, agentString, literatureString, parameter, tuple ) )
     			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     		
     	}
@@ -212,10 +218,25 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
-    	settings.addBoolean( PARAM_MATRIXENABLED, matrixEnabled );
-    	settings.addBoolean( PARAM_AGENTENABLED, agentEnabled );
     	settings.addString( PARAM_MATRIXSTRING, matrixString );
     	settings.addString( PARAM_AGENTSTRING, agentString );
+    	settings.addString( PARAM_LITERATURESTRING, literatureString );
+    	
+		Config c = settings.addConfig(PARAM_PARAMETERS);
+		String[] pars = new String[parameter.size()];
+		double[] mins = new double[parameter.size()];
+		double[] maxs = new double[parameter.size()];
+		int i=0;
+		for (String par : parameter.keySet()) {
+			double[] dbl = parameter.get(par);
+			pars[i] = par;
+			mins[i] = dbl[0];
+			maxs[i] = dbl[1];
+			i++;
+		}
+		c.addStringArray(PARAM_PARAMETERNAME, pars);
+		c.addDoubleArray(PARAM_PARAMETERMIN, mins);
+		c.addDoubleArray(PARAM_PARAMETERMAX, maxs);
     }
 
     /**
@@ -228,10 +249,22 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
-    	matrixEnabled = settings.getBoolean( PARAM_MATRIXENABLED );
-    	agentEnabled = settings.getBoolean( PARAM_AGENTENABLED );
     	matrixString = settings.getString( PARAM_MATRIXSTRING );
     	agentString = settings.getString( PARAM_AGENTSTRING );
+    	literatureString = settings.getString( PARAM_LITERATURESTRING );
+
+		Config c = settings.getConfig(PARAM_PARAMETERS);
+		String[] pars = c.getStringArray(PARAM_PARAMETERNAME);
+		double[] mins = c.getDoubleArray(PARAM_PARAMETERMIN);
+		double[] maxs = c.getDoubleArray(PARAM_PARAMETERMAX);
+
+        parameter = new HashMap<String, double[]>();
+		for (int i=0;i<pars.length;i++) {
+			double[] dbl = new double[2];
+			dbl[0] = mins[i];
+			dbl[1] = maxs[i];
+			parameter.put(pars[i], dbl);
+		}
     }
 
     /**

@@ -35,30 +35,33 @@ package de.bund.bfr.knime.pmm.common.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
-public class TsReaderUi extends JPanel implements ActionListener {
+public class TsReaderUi extends JPanel {
 	
 	private static final long serialVersionUID = 20120913;
-	private JTextField matrixField;
+	private JTextField matrixField, literatureField;
 	private JTextField agentField;
-	private JCheckBox matrixSwitch;
-	private JCheckBox agentSwitch;
-
+	private LinkedHashMap<String, DoubleTextField[]> params;
+	private JPanel theParamPanel;
 	
 	public TsReaderUi() {
 		
@@ -72,12 +75,8 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		panel.setPreferredSize( new Dimension( 300, 75 ) );
 		add( panel );
 		
-		agentSwitch = new JCheckBox( "Filter by organism" );
-		agentSwitch.addActionListener( this );
-		panel.add( agentSwitch, BorderLayout.NORTH );
 		panel.add( new JLabel( "Organism name   " ), BorderLayout.WEST );
 		agentField = new JTextField();
-		agentField.setEnabled( false );
 		panel.add( agentField, BorderLayout.CENTER );
 
 		
@@ -87,56 +86,75 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		panel.setPreferredSize( new Dimension( 250, 75 ) );
 		add( panel );
 		
-		matrixSwitch = new JCheckBox( "Filter by matrix" );
-		matrixSwitch.addActionListener( this );
-		panel.add( matrixSwitch, BorderLayout.NORTH );
 		panel.add( new JLabel( "Matrix name   " ), BorderLayout.WEST );
 		
 		matrixField = new JTextField();
-		matrixField.setEnabled( false );
 		panel.add( matrixField, BorderLayout.CENTER );
 
+		panel = new JPanel();
+		panel.setBorder( BorderFactory.createTitledBorder( "Literature" ) );
+		panel.setLayout( new BorderLayout() );
+		panel.setPreferredSize( new Dimension( 250, 75 ) );
+		add( panel );
+		
+		panel.add( new JLabel( "Author/Title   " ), BorderLayout.WEST );
+		
+		literatureField = new JTextField();
+		panel.add( literatureField, BorderLayout.CENTER );
+
+		theParamPanel = new JPanel();
+		theParamPanel.setBorder( BorderFactory.createTitledBorder( "Parameters" ) );
+		theParamPanel.setLayout(new GridLayout(6, 3));
+		theParamPanel.setPreferredSize( new Dimension( 250, 200 ) );
+		add( theParamPanel );
+
+		handleParams();
 	}
 
-
-	@Override
-	public void actionPerformed(ActionEvent arg0) {
-
-		if( arg0.getSource() == agentSwitch ) {
-			
-			if( agentSwitch.isSelected() )
-				agentField.setEnabled( true );
-			else
-				agentField.setEnabled( false );
-			
-			return;
+	private void handleParams() {
+		DoubleTextField[] dtf;
+		if (params == null) {
+			params = new LinkedHashMap<String, DoubleTextField[]>();
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("Temperature", dtf);
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("pH", dtf);
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("aw", dtf);
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("param1", dtf);
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("param2", dtf);
+			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
+			params.put("param3", dtf);
 		}
 		
-		if( arg0.getSource() == matrixSwitch ) {
-			
-			if( matrixSwitch.isSelected() )
-				matrixField.setEnabled( true );
-			else
-				matrixField.setEnabled( false );
-			
-			return;
-		}
-		
+		theParamPanel.removeAll();
+		//theParamPanel.setVisible(false);
+		int lfd = 0;
+		for (String par : params.keySet()) {
+			theParamPanel.add(new JTextField(par));
+			dtf = params.get(par);
+			theParamPanel.add(dtf[0]);
+			theParamPanel.add(dtf[1]);
+			lfd++;
+			if (lfd > 5) break;
+		}	
+		//theParamPanel.revalidate();
+		//theParamPanel.validate();
+		//theParamPanel.setVisible(true);
 	}
-	
+
 	public String getMatrixString() { return matrixField.getText(); }
 	public String getAgentString() { return agentField.getText(); }
-	public boolean isMatrixFilterEnabled() { return matrixSwitch.isSelected(); }
-	public boolean isAgentFilterEnabled() { return agentSwitch.isSelected(); }
+	public String getLiteratureString() { return literatureField.getText(); }
 	
-	public void setMatrixEnabled( final boolean en ) {
-		matrixSwitch.setSelected( en );
-		matrixField.setEnabled( en );
+	public LinkedHashMap<String, DoubleTextField[]> getParameter() {
+		return params;
 	}
-	
-	public void setAgentEnabled( final boolean en ) {
-		agentSwitch.setSelected( en );
-			agentField.setEnabled( en );
+	public void setParameter(LinkedHashMap<String, DoubleTextField[]> params) {
+		this.params = params;
+		handleParams();
 	}
 	
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
@@ -155,66 +173,105 @@ public class TsReaderUi extends JPanel implements ActionListener {
 		agentField.setText( str );
 	}
 	
+	public void setLiteratureString( final String str ) throws InvalidSettingsException {
+		
+		if( str == null )
+			throw new InvalidSettingsException( "Literature Filter string must not be null." );
+		
+		literatureField.setText( str );
+	}
+	
 	public static boolean passesFilter(
-		final boolean matrixEnabled,
 		final String matrixString,
-		final boolean agentEnabled,
 		final String agentString,
+		final String literatureString,
+		final HashMap<String, double[]> parameter,
 		final KnimeTuple tuple ) throws PmmException {
+			
+		if (matrixString != null && !matrixString.trim().isEmpty()) {
+			String s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
+			String sd = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
+			if (s == null) s = ""; else s = s.toLowerCase();
+			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+			if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
+		}
 		
-		String s;
-		String t;
+		if (agentString != null && !agentString.trim().isEmpty()) {
+			String s = tuple.getString( TimeSeriesSchema.ATT_AGENTNAME );
+			String sd = tuple.getString( TimeSeriesSchema.ATT_AGENTDETAIL );
+			if (s == null) s = ""; else s = s.toLowerCase();
+			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+			if (!s.contains(agentString.toLowerCase()) && !sd.contains(agentString.toLowerCase())) return false;
+		}
 		
-		s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
-		if( s == null )
-			s = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
-		if( s == null )
-			s = "";
+		if (literatureString != null && !literatureString.trim().isEmpty()) {
+			PmmXmlDoc litXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+        	for (PmmXmlElementConvertable el : litXmlDoc.getElementSet()) {
+        		if (el instanceof LiteratureItem) {
+        			LiteratureItem lit = (LiteratureItem) el;
+        			String s = lit.getAuthor();
+        			String sd = lit.getTitle();
+        			if (s == null) s = ""; else s = s.toLowerCase();
+        			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+        			if (!s.contains(literatureString.toLowerCase()) && !sd.contains(literatureString.toLowerCase())) return false;
+        		}
+        	}
+		}
 		
-		s = s.toLowerCase();
-		t = matrixString.toLowerCase();
-		
-		if( matrixEnabled )
-			if( !s.contains( t ) )
-				return false;
-		
-		s = tuple.getString( TimeSeriesSchema.ATT_AGENTNAME );
-		if( s == null )
-			s = tuple.getString( TimeSeriesSchema.ATT_AGENTDETAIL );
-		if( s == null )
-			s = "";
-		
-		s = s.toLowerCase();
-		t = agentString.toLowerCase();
-		
-		if( agentEnabled )
-			if( !s.contains( t ) )
-				return false;
+		for (String par : parameter.keySet()) {
+			double[] dbl = parameter.get(par);
+			if (par.equalsIgnoreCase("temperature")) {
+				double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+				if (temp < dbl[0] || temp > dbl[1]) {
+					return false;
+				}
+			}
+			else if (par.equalsIgnoreCase("ph")) {
+				double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
+				if (temp < dbl[0] || temp > dbl[1]) {
+					return false;
+				}
+			}
+			else if (par.equalsIgnoreCase("aw")) {
+				double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				if (temp < dbl[0] || temp > dbl[1]) {
+					return false;
+				}
+			}
+			else {
+				boolean paramFound = false;
+				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+	        		if (el instanceof MiscXml) {
+	        			MiscXml mx = (MiscXml) el;
+	        			if (mx.getName().toLowerCase().equals(par)) {
+	        				if (mx.getValue() < dbl[0] || mx.getValue() > dbl[1]) {
+	        					return false;
+	        				}
+	        				else {
+	        					paramFound = true;
+	        					break;
+	        				}
+	        			}
+	        		}
+	        	}
+	        	if (!paramFound) return false;
+			}
+		}
 		
 		return true;
 	}
 	
 	public void setActive() {
-		
-		matrixSwitch.setEnabled( true );
-		agentSwitch.setEnabled( true );
-		
-		if( matrixSwitch.isSelected() )
-			matrixField.setEnabled( true );
-		else
-			matrixField.setEnabled( false );
-		
-		if( agentSwitch.isSelected() )
-			agentField.setEnabled( true );
-		else
-			agentField.setEnabled( false );
+		matrixField.setEnabled( true );
+		agentField.setEnabled( true );
+		literatureField.setEnabled( true );
 	}
 	
 	public void setInactive() {
-		matrixSwitch.setEnabled( false );
-		agentSwitch.setEnabled( false );
 		matrixField.setEnabled( false );
 		agentField.setEnabled( false );
+		literatureField.setEnabled( false );
 	}
 	
 

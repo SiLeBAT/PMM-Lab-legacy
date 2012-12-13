@@ -1176,7 +1176,7 @@ public class DBKernel {
         	else if (foreignTable.equals("GeschaetzteModelle")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
         			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Versuchsbedingung") || cn.equals("Modell")) {
+        			if (cn.equals("Versuchsbedingung") || cn.equals("Modell") || cn.equals("ID")) {
       	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
         			}
         		}        		

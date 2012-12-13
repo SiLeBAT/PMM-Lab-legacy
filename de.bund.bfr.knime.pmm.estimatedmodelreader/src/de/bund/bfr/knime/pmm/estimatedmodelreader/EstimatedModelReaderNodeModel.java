@@ -77,8 +77,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
-	static final String PARAM_MATRIXENABLED = "matrixEnabled";
-	static final String PARAM_AGENTENABLED = "agentEnabled";
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
 	static final String PARAM_LEVEL = "level";
@@ -402,9 +400,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
-    	settings.addBoolean( PARAM_MATRIXENABLED, matrixEnabled );
     	settings.addString( PARAM_MATRIXSTRING, matrixString );
-    	settings.addBoolean( PARAM_AGENTENABLED, agentEnabled );
     	settings.addString( PARAM_AGENTSTRING, agentString );
     }
 
@@ -423,9 +419,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	modelList = settings.getString( PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
-    	matrixEnabled = settings.getBoolean( PARAM_MATRIXENABLED );
     	matrixString = settings.getString( PARAM_MATRIXSTRING );
-    	agentEnabled = settings.getBoolean( PARAM_AGENTENABLED );
     	agentString = settings.getString( PARAM_AGENTSTRING );
     }
 

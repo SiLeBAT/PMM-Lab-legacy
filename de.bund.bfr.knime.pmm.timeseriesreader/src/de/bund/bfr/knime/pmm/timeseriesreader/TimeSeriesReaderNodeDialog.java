@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
@@ -40,10 +43,12 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.config.Config;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TsReaderUi;
 
 /**
@@ -93,25 +98,53 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
-		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED, tsui.isMatrixFilterEnabled() );
-		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED, tsui.isAgentFilterEnabled() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, tsui.getMatrixString() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, tsui.getAgentString() );
+		settings.addString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING, tsui.getLiteratureString() );
+		
+		LinkedHashMap<String, DoubleTextField[]> params = tsui.getParameter();
+		Config c = settings.addConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
+		String[] pars = new String[params.size()];
+		double[] mins = new double[params.size()];
+		double[] maxs = new double[params.size()];
+		int i=0;
+		for (String par : params.keySet()) {
+			DoubleTextField[] dbl = params.get(par);
+			pars[i] = par;
+			if (dbl[0].getValue() != null) mins[i] = dbl[0].getValue();
+			if (dbl[1].getValue() != null) maxs[i] = dbl[1].getValue();
+			i++;
+		}
+		c.addStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERNAME, pars);
+		c.addDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN, mins);
+		c.addDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX, maxs);
 	}
 
 	@Override
 	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {
 		
-		try {
-			
+		try {			
 			dbui.setFilename( settings.getString( TimeSeriesReaderNodeModel.PARAM_FILENAME ) );
 			dbui.setLogin( settings.getString( TimeSeriesReaderNodeModel.PARAM_LOGIN ) );
 			dbui.setPasswd( settings.getString( TimeSeriesReaderNodeModel.PARAM_PASSWD ) );
 			dbui.setOverride( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE ) );
-			tsui.setMatrixEnabled( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_MATRIXENABLED ) );
-			tsui.setAgentEnabled( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_AGENTENABLED ) );
 			tsui.setMatrixString( settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING ) );
 			tsui.setAgentString( settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING ) );
+			tsui.setLiteratureString(settings.getString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING ) );
+			
+			Config c = settings.getConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
+			String[] pars = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERNAME);
+			double[] mins = c.getDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMIN);
+			double[] maxs = c.getDoubleArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERMAX);
+
+			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+			for (int i=0;i<pars.length;i++) {
+				DoubleTextField[] dbl = new DoubleTextField[2];
+				dbl[0].setValue(mins[i]);
+				dbl[1].setValue(maxs[i]);
+				params.put(pars[i], dbl);
+			}
+			tsui.setParameter(params);
 		}
 		catch( InvalidSettingsException ex ) {
 			

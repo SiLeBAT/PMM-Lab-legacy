@@ -217,14 +217,6 @@ new FormModel {
 					"gridX": 5
 					"gridY": 9
 				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField8"
-					"columns": 20
-					"text": "param2"
-					"horizontalAlignment": 4
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridY": 11
-				} )
 				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
 					name: "doubleTextField9"
 					auxiliary() {

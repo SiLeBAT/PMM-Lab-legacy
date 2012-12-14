@@ -33,11 +33,15 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -69,30 +73,38 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     /**
      * New pane for configuring the TimeSeriesReader node.
      */
-    protected TimeSeriesReaderNodeDialog() {
-    	
+    protected TimeSeriesReaderNodeDialog() {    	
     	JPanel panel;
     	
     	panel = new JPanel();
-    	panel.setLayout( new BoxLayout( panel, BoxLayout.Y_AXIS ) );
-    	
+    	panel.setLayout( new BoxLayout( panel, BoxLayout.Y_AXIS ) );    	
     	
     	dbui = new DbConfigurationUi();
     	panel.add( dbui );
     	
-    	tsui = new MdReaderUi();
+    	tsui = new MdReaderUi(getItemListMisc());
     	panel.add( tsui );
     	
-    	addTab( "Database connection", panel );
-    	
-
-
+    	addTab("Database connection", panel);
+    }
+    
+    private String[] getItemListMisc() {
+    	HashSet<String> hs = new HashSet<String>();
+    	ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter"), false);
+    	try {
+			do {
+				hs.add(rs.getString("Parameter"));    		
+			} while (rs.next());
+		}
+    	catch (Exception e) {
+			e.printStackTrace();
+		}
+    	return hs.toArray(new String[]{});
     }
     
 	@Override
 	protected void saveSettingsTo( final NodeSettingsWO settings )
-			throws InvalidSettingsException {
-		
+			throws InvalidSettingsException {		
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );

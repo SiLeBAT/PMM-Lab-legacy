@@ -4,10 +4,12 @@
 
 package de.bund.bfr.knime.pmm.common.ui;
 
+import java.awt.event.*;
 import java.util.LinkedHashMap;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.knime.core.node.InvalidSettingsException;
 
@@ -32,9 +34,15 @@ public class MdReaderUi extends JPanel {
 	 */
 	private static final long serialVersionUID = 4203454706269875728L;
 	private LinkedHashMap<String, DoubleTextField[]> params;
+	private String[] itemListMisc;
+	private String deselectedItem = "";
 
 	public MdReaderUi() {
 		initComponents();
+	}
+	public MdReaderUi(String[] itemListMisc) {
+		initComponents();
+		this.itemListMisc = itemListMisc;
 		handleParams();
 	}
 
@@ -49,11 +57,11 @@ public class MdReaderUi extends JPanel {
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put("aw", dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("param1", dtf);
+			params.put("raw", dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("param2", dtf);
+			params.put("HCl", dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("param3", dtf);
+			params.put("irradiation", dtf);
 		}
 		
 		panel4.setVisible(false);
@@ -81,10 +89,49 @@ public class MdReaderUi extends JPanel {
 
 		int index = 3;
 		for (String par : params.keySet()) {
-			JTextField textField = new JTextField();
-			textField.setText(par);
-			textField.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField, CC.xy(1, index));
+			JComponent c;
+			if (par.equalsIgnoreCase("temperature") || par.equalsIgnoreCase("ph") || par.equalsIgnoreCase("aw")) {
+				JTextField textField = new JTextField();
+				textField.setText(par);
+				textField.setEnabled(false);
+				textField.setHorizontalAlignment(SwingConstants.RIGHT);
+				c = textField;
+			}
+			else {
+				final JComboBox<String> comboBox = new JComboBox<String>();
+				ListCellRenderer<?> renderer = comboBox.getRenderer();
+				if(renderer instanceof BasicComboBoxRenderer) {
+					((BasicComboBoxRenderer) renderer).setHorizontalAlignment(SwingConstants.RIGHT);
+				}
+				fillCombo(comboBox);
+				comboBox.setSelectedItem(par);
+			    ItemListener itemListener = new ItemListener() {
+			    	boolean flag = false;
+			        public void itemStateChanged(ItemEvent itemEvent) {
+			        	if (itemEvent.getStateChange() != ItemEvent.SELECTED) {
+			        		deselectedItem = itemEvent.getItem().toString();
+			        	}
+			        	else if (flag) {
+			        		flag = false;
+			        	}
+			        	else if (params.containsKey(itemEvent.getItem().toString())) {
+			        		flag = true;
+			        		comboBox.setSelectedItem(deselectedItem);
+			        	}
+			        	else if (params.containsKey(deselectedItem)) {
+			        		LinkedHashMap<String, DoubleTextField[]> newParams = new LinkedHashMap<String, DoubleTextField[]>();
+			        		for (String key : params.keySet()) {
+			        			if (key.equals(deselectedItem)) newParams.put(itemEvent.getItem().toString(), params.get(deselectedItem));
+			        			else newParams.put(key, params.get(key));
+			        		}
+			        		params = newParams;
+			        	}
+			        }
+			    }; 
+			    comboBox.addItemListener(itemListener);
+				c = comboBox;
+			}
+			panel4.add(c, CC.xy(1, index));
 
 			dtf = params.get(par);
 			DoubleTextField doubleTextFieldMin = dtf[0];
@@ -100,6 +147,12 @@ public class MdReaderUi extends JPanel {
 		panel4.revalidate();
 		panel4.setVisible(true);
 		//add(panel4, CC.xy(1, 7));		
+	}
+	
+	private void fillCombo(JComboBox<String> comboBox) {
+		for (String misc : itemListMisc) {
+			comboBox.addItem(misc);			
+		}
 	}
 	
 	public String getMatrixString() { return matrixField.getText(); }
@@ -202,6 +255,10 @@ public class MdReaderUi extends JPanel {
 	        		if (el instanceof MiscXml) {
 	        			MiscXml mx = (MiscXml) el;
 	        			if (mx.getName().toLowerCase().equals(par)) {
+	        				if (mx.getValue() == null) {
+	        					paramFound = true;
+	        					break;
+	        				}
 	        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
 	        					return false;
 	        				}
@@ -246,7 +303,6 @@ public class MdReaderUi extends JPanel {
 		textField7 = new JTextField();
 		doubleTextField7 = new DoubleTextField(true);
 		doubleTextField8 = new DoubleTextField(true);
-		textField8 = new JTextField();
 		doubleTextField9 = new DoubleTextField(true);
 		doubleTextField10 = new DoubleTextField(true);
 
@@ -365,12 +421,6 @@ public class MdReaderUi extends JPanel {
 			panel4.add(textField7, CC.xy(1, 9));
 			panel4.add(doubleTextField7, CC.xy(3, 9));
 			panel4.add(doubleTextField8, CC.xy(5, 9));
-
-			//---- textField8 ----
-			textField8.setColumns(20);
-			textField8.setText("param2");
-			textField8.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField8, CC.xy(1, 11));
 			panel4.add(doubleTextField9, CC.xy(3, 11));
 			panel4.add(doubleTextField10, CC.xy(5, 11));
 		}
@@ -404,7 +454,6 @@ public class MdReaderUi extends JPanel {
 	private JTextField textField7;
 	private DoubleTextField doubleTextField7;
 	private DoubleTextField doubleTextField8;
-	private JTextField textField8;
 	private DoubleTextField doubleTextField9;
 	private DoubleTextField doubleTextField10;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables

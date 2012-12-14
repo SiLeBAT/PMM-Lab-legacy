@@ -33,14 +33,14 @@
  ******************************************************************************/
 package de.bund.bfr.knime.gis.regiontoregionvisualizer;
 
-import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 
 import org.eclipse.stem.gis.ShapefileReader;
 import org.eclipse.stem.gis.dbf.DbfFieldDef;
@@ -52,6 +52,7 @@ import org.knime.core.data.RowIterator;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.gis.GISCanvas;
+import de.bund.bfr.knime.gis.GraphCanvas;
 
 /**
  * <code>NodeView</code> for the "RegionToRegionVisualizer" Node.
@@ -93,7 +94,14 @@ public class RegionToRegionVisualizerNodeView extends
 	@Override
 	protected void onOpen() {
 		try {
-			GISCanvas canvas = createGISCanvas(getNodeModel().getFileName(),
+			GraphCanvas graphCanvas = createGraphCanvas(getNodeModel()
+					.getNodeTable(), getNodeModel().getEdgeTable(),
+					getNodeModel().getNodeIdColumn(), getNodeModel()
+							.getNodeRegionIdColumn(), getNodeModel()
+							.getEdgeFromColumn(), getNodeModel()
+							.getEdgeToColumn(), getNodeModel()
+							.getEdgeValueColumn());
+			GISCanvas gisCanvas = createGISCanvas(getNodeModel().getFileName(),
 					getNodeModel().getFileRegionIdColumn());
 			Map<String, String> idToRegionMap = createIdToRegionMap(
 					getNodeModel().getNodeTable(), getNodeModel()
@@ -108,18 +116,69 @@ public class RegionToRegionVisualizerNodeView extends
 							.getEdgeToColumn(), getNodeModel()
 							.getEdgeValueColumn(), idToRegionMap);
 
-			canvas.setRegionData(regionData);
-			canvas.setEdgeData(edgeData);
+			gisCanvas.setRegionData(regionData);
+			gisCanvas.setEdgeData(edgeData);
 
-			JPanel panel = new JPanel();
+			JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+					graphCanvas, gisCanvas);
 
-			panel.setLayout(new BorderLayout());
-			panel.add(canvas, BorderLayout.CENTER);
-
+			panel.setResizeWeight(0.5);
 			setComponent(panel);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private GraphCanvas createGraphCanvas(DataTable nodeTable,
+			DataTable edgeTable, String nodeIdColumn, String nodeRegionColumn,
+			String edgeFromColumn, String edgeToColumn, String edgeValueColumn) {
+		int nodeIdIndex = nodeTable.getDataTableSpec().findColumnIndex(
+				nodeIdColumn);
+		int nodeRegionIndex = nodeTable.getDataTableSpec().findColumnIndex(
+				nodeRegionColumn);
+		int edgeFromIndex = edgeTable.getDataTableSpec().findColumnIndex(
+				edgeFromColumn);
+		int edgeToIndex = edgeTable.getDataTableSpec().findColumnIndex(
+				edgeToColumn);
+		int edgeValueIndex = edgeTable.getDataTableSpec().findColumnIndex(
+				edgeValueColumn);
+		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<String, GraphCanvas.Node>();
+		List<GraphCanvas.Edge> edges = new ArrayList<GraphCanvas.Edge>();
+
+		RowIterator nodeIt = nodeTable.iterator();
+
+		while (nodeIt.hasNext()) {
+			try {
+				DataRow row = nodeIt.next();
+				String id = row.getCell(nodeIdIndex).toString().trim();
+				String region = row.getCell(nodeRegionIndex).toString().trim();
+
+				nodes.put(id, new GraphCanvas.Node(region));
+			} catch (Exception e) {
+			}
+		}
+
+		RowIterator edgeIt = edgeTable.iterator();
+
+		while (edgeIt.hasNext()) {
+			try {
+				DataRow row = edgeIt.next();
+				String from = row.getCell(edgeFromIndex).toString().trim();
+				String to = row.getCell(edgeToIndex).toString().trim();
+				double value = Double.parseDouble(row.getCell(edgeValueIndex)
+						.toString().trim());
+				GraphCanvas.Node node1 = nodes.get(from);
+				GraphCanvas.Node node2 = nodes.get(to);
+
+				if (node1 != null && node2 != null) {
+					edges.add(new GraphCanvas.Edge(node1, node2, value));
+				}
+			} catch (Exception e) {
+			}
+		}
+
+		return new GraphCanvas(new ArrayList<GraphCanvas.Node>(nodes.values()),
+				edges);
 	}
 
 	private GISCanvas createGISCanvas(String fileName, String fileRegionIdColumn)

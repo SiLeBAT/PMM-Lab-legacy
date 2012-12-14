@@ -212,7 +212,7 @@ public class GISCanvas extends JComponent implements ActionListener,
 
 	private void computeTransform() {
 		Rectangle2D.Double polygonsBounds = getPolygonsBounds();
-		Rectangle canvasBounds = getBounds();
+		Rectangle canvasBounds = getVisibleRect();
 		double widthRatio = canvasBounds.width / polygonsBounds.width;
 		double heightRatio = canvasBounds.height / polygonsBounds.height;
 		double canvasCenterX = canvasBounds.getCenterX();
@@ -341,9 +341,9 @@ public class GISCanvas extends JComponent implements ActionListener,
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if (e.getWheelRotation() < 0) {
+		if (e.getWheelRotation() > 0) {
 			zoomIn(e.getX(), e.getY());
-		} else if (e.getWheelRotation() > 0) {
+		} else if (e.getWheelRotation() < 0) {
 			zoomOut(e.getX(), e.getY());
 		}
 	}

@@ -58,6 +58,7 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -1672,4 +1673,17 @@ public class DBKernel {
 		}
 		return result;
 	}
+    public static String[] getItemListMisc() {
+    	HashSet<String> hs = new HashSet<String>();
+    	ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter"), false);
+    	try {
+			do {
+				hs.add(rs.getString("Parameter"));    		
+			} while (rs.next());
+		}
+    	catch (Exception e) {
+			e.printStackTrace();
+		}
+    	return hs.toArray(new String[]{});
+    }
 }

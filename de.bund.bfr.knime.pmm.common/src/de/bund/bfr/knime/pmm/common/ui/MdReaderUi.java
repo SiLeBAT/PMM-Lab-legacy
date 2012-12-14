@@ -150,8 +150,10 @@ public class MdReaderUi extends JPanel {
 	}
 	
 	private void fillCombo(JComboBox<String> comboBox) {
-		for (String misc : itemListMisc) {
-			comboBox.addItem(misc);			
+		if (itemListMisc != null) {
+			for (String misc : itemListMisc) {
+				comboBox.addItem(misc);			
+			}
 		}
 	}
 	

@@ -82,26 +82,12 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	dbui = new DbConfigurationUi();
     	panel.add( dbui );
     	
-    	tsui = new MdReaderUi(getItemListMisc());
+    	tsui = new MdReaderUi(DBKernel.getItemListMisc());
     	panel.add( tsui );
     	
     	addTab("Database connection", panel);
     }
-    
-    private String[] getItemListMisc() {
-    	HashSet<String> hs = new HashSet<String>();
-    	ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter"), false);
-    	try {
-			do {
-				hs.add(rs.getString("Parameter"));    		
-			} while (rs.next());
-		}
-    	catch (Exception e) {
-			e.printStackTrace();
-		}
-    	return hs.toArray(new String[]{});
-    }
-    
+        
 	@Override
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {		

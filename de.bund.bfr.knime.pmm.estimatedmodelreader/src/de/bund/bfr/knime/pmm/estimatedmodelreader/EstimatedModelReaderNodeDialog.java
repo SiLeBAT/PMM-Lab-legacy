@@ -38,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashMap;
 
 import javax.swing.JPanel;
 
@@ -46,12 +47,14 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.config.Config;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
 
 /**
@@ -79,7 +82,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	
     	dbui = new DbConfigurationUi( true );
     	dbui.getApplyButton().addActionListener( this );
-    	estmodelui = new EstModelReaderUi();
+    	estmodelui = new EstModelReaderUi(DBKernel.getItemListMisc());
     	
     	panel.setLayout( new BorderLayout() );
     	panel.add( dbui, BorderLayout.NORTH );    	
@@ -110,10 +113,27 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		settings.addDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH, estmodelui.getQualityThresh() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING, estmodelui.getMatrixString() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING, estmodelui.getAgentString() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_LITERATURESTRING, estmodelui.getLiteratureString() );
+		
+		LinkedHashMap<String, DoubleTextField[]> params = estmodelui.getParameter();
+		Config c = settings.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
+		String[] pars = new String[params.size()];
+		String[] mins = new String[params.size()];
+		String[] maxs = new String[params.size()];
+		int i=0;
+		for (String par : params.keySet()) {
+			DoubleTextField[] dbl = params.get(par);
+			pars[i] = par;
+			mins[i] = ""+dbl[0].getValue();
+			maxs[i] = ""+dbl[1].getValue();
+			i++;
+		}
+		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME, pars);
+		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN, mins);
+		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX, maxs);
 	}
 
-	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
-		
+	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
 		try {
 			
 			dbui.setFilename( settings.getString( EstimatedModelReaderNodeModel.PARAM_FILENAME ) );
@@ -125,6 +145,25 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 			estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
 			estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
 			estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
+			estmodelui.setMatrixString( settings.getString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING ) );
+			estmodelui.setAgentString( settings.getString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING ) );
+			estmodelui.setLiteratureString(settings.getString( EstimatedModelReaderNodeModel.PARAM_LITERATURESTRING ) );
+			
+			Config c = settings.getConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
+			String[] pars = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME);
+			String[] mins = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN);
+			String[] maxs = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX);
+
+			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+			for (int i=0;i<pars.length;i++) {
+				DoubleTextField[] dbl = new DoubleTextField[2];
+				dbl[0] = new DoubleTextField(true);
+				dbl[1] = new DoubleTextField(true);
+				if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
+				if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
+				params.put(pars[i], dbl);
+			}
+			estmodelui.setParameter(params);
 		}
 		catch( InvalidSettingsException e ) {			
 			e.printStackTrace( System.err );

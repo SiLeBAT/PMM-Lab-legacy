@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -70,9 +71,11 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
 	
-
+	public EstModelReaderUi() {
+		this(null);
+	}
 	
-	public EstModelReaderUi() {								
+	public EstModelReaderUi(String[] itemListMisc) {								
 		modelReaderUi = new ModelReaderUi();
 		modelReaderUi.addLevelListener( this );
 		qualityButtonNone = new JRadioButton( "Do not filter" );
@@ -85,7 +88,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		qualityField = new DoubleTextField( false );
 		qualityField.setText( "0.8" );
 		qualityField.setEnabled( false );
-		tsReaderUi = new MdReaderUi();
+		tsReaderUi = new MdReaderUi(itemListMisc);
 						
 		JPanel buttonPanel = new JPanel();
 		ButtonGroup group = new ButtonGroup();	
@@ -151,9 +154,23 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		modelReaderUi.addModelSec( id, name );
 	}
 	
+	public void setMatrixString( final String str ) throws InvalidSettingsException {
+		tsReaderUi.setMatrixString(str);
+	}
+	public void setAgentString( final String str ) throws InvalidSettingsException {
+		tsReaderUi.setAgentString(str);
+	}
+	public void setLiteratureString( final String str ) throws InvalidSettingsException {
+		tsReaderUi.setLiteratureString(str);
+	}
+	public void setParameter(LinkedHashMap<String, DoubleTextField[]> params) {
+		tsReaderUi.setParameter(params);
+	}
 	public void clearModelSet() { modelReaderUi.clearModelSet(); }
 	public void enableModelList( String idList ) { modelReaderUi.enableModelList( idList ); }
 	public String getAgentString() { return tsReaderUi.getAgentString(); }
+	public String getLiteratureString() { return tsReaderUi.getLiteratureString(); }
+	public LinkedHashMap<String, DoubleTextField[]> getParameter() { return tsReaderUi.getParameter(); }
 	public int getLevel() { return modelReaderUi.getLevel(); }
 	public String getMatrixString() { return tsReaderUi.getMatrixString(); }
 	public String getModelList() { return modelReaderUi.getModelList(); }
@@ -215,10 +232,10 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final int level,
     		final int qualityMode,
     		final double qualityThresh,
-    		final boolean matrixEnabled,
     		final String matrixString,
-    		final boolean agentEnabled,
     		final String agentString,
+    		final String literatureString,
+    		final LinkedHashMap<String, Double[]> parameter,
     		final boolean modelFilterEnabled,
     		final String modelList,
     		final KnimeTuple tuple )
@@ -228,7 +245,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     	
     	if( level == 1 )
     		if( !MdReaderUi.passesFilter( matrixString,
-				agentString, null,null, tuple ) )
+				agentString, literatureString, parameter, tuple ) )
     			return false;
     	
     	if( !ModelReaderUi.passesFilter( modelFilterEnabled,

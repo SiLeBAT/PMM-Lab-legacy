@@ -50,6 +50,7 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
@@ -83,6 +84,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	static final String PARAM_MODELLIST = "modelList";
 
+	static final String PARAM_LITERATURESTRING = "literatureString";
+	static final String PARAM_PARAMETERS = "parameters";
+	static final String PARAM_PARAMETERNAME = "parameterName";
+	static final String PARAM_PARAMETERMIN = "parameterMin";
+	static final String PARAM_PARAMETERMAX = "parameterMax";
+
 	private String filename;
 	private String login;
 	private String passwd;
@@ -92,10 +99,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String modelList;
 	private int qualityMode;
 	private double qualityThresh;
-	private boolean matrixEnabled;
-	private boolean agentEnabled;
 	private String matrixString;
 	private String agentString;
+	private String literatureString;
+	
+	private LinkedHashMap<String, Double[]> parameter;
 	
 	static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	static final String PARAM_QUALITYTHRESH = "qualityThreshold";
@@ -116,9 +124,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         qualityThresh = .8;
         qualityMode = EstModelReaderUi.MODE_OFF;
         agentString = "";
-        agentEnabled = false;
         matrixString = "";
-        matrixEnabled = false;
+        literatureString = "";
+
+        parameter = new LinkedHashMap<String, Double[]>();
     }
 
     /**
@@ -331,7 +340,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		if( EstModelReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
-				matrixEnabled, matrixString, agentEnabled, agentString,
+				matrixString, agentString, literatureString, parameter,
 				modelFilterEnabled, modelList, tuple ) )
 				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     	}
@@ -402,6 +411,23 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addDouble( PARAM_QUALITYTHRESH, qualityThresh );
     	settings.addString( PARAM_MATRIXSTRING, matrixString );
     	settings.addString( PARAM_AGENTSTRING, agentString );
+    	settings.addString( PARAM_LITERATURESTRING, literatureString );
+    	
+		Config c = settings.addConfig(PARAM_PARAMETERS);
+		String[] pars = new String[parameter.size()];
+		String[] mins = new String[parameter.size()];
+		String[] maxs = new String[parameter.size()];
+		int i=0;
+		for (String par : parameter.keySet()) {
+			Double[] dbl = parameter.get(par);
+			pars[i] = par;
+			mins[i] = ""+dbl[0];
+			maxs[i] = ""+dbl[1];
+			i++;
+		}
+		c.addStringArray(PARAM_PARAMETERNAME, pars);
+		c.addStringArray(PARAM_PARAMETERMIN, mins);
+		c.addStringArray(PARAM_PARAMETERMAX, maxs);
     }
 
     /**
@@ -421,6 +447,20 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	qualityThresh = settings.getDouble( PARAM_QUALITYTHRESH );
     	matrixString = settings.getString( PARAM_MATRIXSTRING );
     	agentString = settings.getString( PARAM_AGENTSTRING );
+    	literatureString = settings.getString( PARAM_LITERATURESTRING );
+
+		Config c = settings.getConfig(PARAM_PARAMETERS);
+		String[] pars = c.getStringArray(PARAM_PARAMETERNAME);
+		String[] mins = c.getStringArray(PARAM_PARAMETERMIN);
+		String[] maxs = c.getStringArray(PARAM_PARAMETERMAX);
+
+        parameter = new LinkedHashMap<String, Double[]>();
+		for (int i=0;i<pars.length;i++) {
+			Double[] dbl = new Double[2];
+			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);
+			if (!maxs[i].equals("null")) dbl[1] = Double.parseDouble(maxs[i]);
+			parameter.put(pars[i], dbl);
+		}
     }
 
     /**

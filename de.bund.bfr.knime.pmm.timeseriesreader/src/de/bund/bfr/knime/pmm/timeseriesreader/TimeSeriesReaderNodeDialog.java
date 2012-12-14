@@ -33,9 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import javax.swing.BoxLayout;

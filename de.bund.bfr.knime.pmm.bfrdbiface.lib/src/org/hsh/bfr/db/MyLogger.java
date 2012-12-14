@@ -69,15 +69,21 @@ public class MyLogger {
 		handleException(e, false);
 	}
 	public static void handleException(Exception e, boolean forceMessage) {
-		Calendar c1 = Calendar.getInstance();
-		System.err.println("Datum: " + sdf.format(c1.getTime()));
-		e.printStackTrace();
-		System.err.println("\n" + e.getMessage());
-		if (!MainKernel.isServer()) {
-			checkOOM(e.getMessage());
-			if (forceMessage) {
-				InfoBox ib = new InfoBox("Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)\n" + e.getMessage(), true, new Dimension(750, 300), null, false);
-				ib.setVisible(true);    				  										        												
+		if (DBKernel.isKNIME &&
+				(e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+			;
+		}
+		else {
+			Calendar c1 = Calendar.getInstance();
+			System.err.println("Datum: " + sdf.format(c1.getTime()));
+			e.printStackTrace();
+			System.err.println("\n" + e.getMessage());
+			if (!MainKernel.isServer()) {
+				checkOOM(e.getMessage());
+				if (forceMessage) {
+					InfoBox ib = new InfoBox("Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)\n" + e.getMessage(), true, new Dimension(750, 300), null, false);
+					ib.setVisible(true);    				  										        												
+				}
 			}
 		}
 	}

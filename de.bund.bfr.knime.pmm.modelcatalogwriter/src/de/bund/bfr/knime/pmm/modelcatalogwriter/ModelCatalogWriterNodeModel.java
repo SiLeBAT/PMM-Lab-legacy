@@ -107,6 +107,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
+    	db.getConnection().setReadOnly(false);
     	
     	int n = inData[ 0 ].getRowCount();
     	
@@ -185,6 +186,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			}
 		}
     	
+    	db.getConnection().setReadOnly(true);
     	db.close();
         return null;
     }

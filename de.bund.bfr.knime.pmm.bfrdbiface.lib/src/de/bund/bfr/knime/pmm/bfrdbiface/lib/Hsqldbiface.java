@@ -60,14 +60,25 @@ public class Hsqldbiface {
 			catch (Exception e) {throw new SQLException(e.getMessage());}
 		}
 		else {
+			try {
+				conn = DBKernel.getNewLocalConnection(login, pw, filename);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+			/*
 			Class.forName( "org.hsqldb.jdbc.JDBCDriver" );
 			// Class.forName( "org.sqlite.JDBC" );
 			
 			conn = DriverManager.getConnection(
 					"jdbc:hsqldb:file:"
 					// "jdbc:sqlite:"
-					+filename+";shutdown=true", login, pw );			
+					+filename+";shutdown=true", login, pw );		
+					*/	
 		}		
+	}
+	public Connection getConnection() {
+		return conn;
 	}
 	
 	public void pushUpdate( String query ) throws SQLException {		

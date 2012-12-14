@@ -147,9 +147,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	private Vector<MyMNRenderer> myDblmnr = new Vector<MyMNRenderer>();
 	private boolean doEFSA = false;
 	*/
-	
-	private boolean enableSorter = false;
-		
+			
 	public MyDBTable(){
 		//this.addFocusListener(this);
 	}
@@ -871,7 +869,7 @@ if (myDBPanel1 != null) {
       //this.getTable().getTableHeader().addMouseListener((new MyTableHeaderMouseListener(this)));		
       
 		// Sorter initialisieren
-		if (enableSorter) {
+		if (false && actualTable.isReadOnly()) {
 			sorterModel = new MyTableModel4Sorter(this); 
 			sorter = new TableRowSorter<TableModel>(sorterModel); //this.getTable().getModel());//new MyTableModel4Sorter(this)); //
 			sorter.setMaxSortKeys(1); // eins genügt wohl
@@ -1340,6 +1338,7 @@ if (myDBPanel1 != null) {
 		checkUnsavedStuff(true);
 	}
 	public void checkUnsavedStuff(final boolean saveProps) {
+		if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
 		// eigentlich würde es genügen, wenn man nur this.save() ausführt. this.save() hat selbst eine Routine, die checkt, ob was geändert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
 		if (this.getEditingColumn() >= 0 && this.getEditingRow() >= 0) {
 			this.save();
@@ -1360,7 +1359,7 @@ if (myDBPanel1 != null) {
 		}
 		if (myDBPanel1 != null) {
 			myDBPanel1.checkUnsavedStuffInForm();
-		}
+		}			
 	}
 
 	@Override
@@ -2106,38 +2105,38 @@ public void keyTyped(final KeyEvent keyEvent) {
 					c.setUserCellRenderer(new MyComboBoxEditor(hashBox[lastClickedCol-1], true));
 
 					this.save();
-		  		int sr = this.getSelectedID();
-		  		int sc = this.getSelectedColumn();
-
-		  		try {
-			    	this.refresh();
+			  		int sr = this.getSelectedID();
+			  		int sc = this.getSelectedColumn();
+	
+			  		try {
+				    	this.refresh();
+				    }
+				    catch (Exception e1) {
+				    	MyLogger.handleException(e1);
+				    }
+			  		if (myDBPanel1 != null) {
+						myDBPanel1.handleSuchfeldChange(null);
+					}
+				    this.updateRowHeader(!bigbigTable);
+				    if (sc >= 0 && sc < this.getColumnCount()) {
+						this.getTable().setColumnSelectionInterval(sc, sc);
+					}
+				    
+			    	/*
+				    if (sr >= 0 && sr < this.getRowCount()) {
+				    	this.setRowSelectionInterval(sr, sr);
+				    	this.goTo(sr);
+				    }
+				*/
+				    if (sorterModel != null) {
+						sorterModel.initArray();
+					}
+				    //if (scrollVal >= 0) this.getScroller().getVerticalScrollBar().setValue(scrollVal);
+				    if (hscrollVal >= 0) {
+						this.getScroller().getHorizontalScrollBar().setValue(hscrollVal);
+					}
+			    	this.setSelectedID(sr);
 			    }
-			    catch (Exception e1) {
-			    	MyLogger.handleException(e1);
-			    }
-		  		if (myDBPanel1 != null) {
-					myDBPanel1.handleSuchfeldChange(null);
-				}
-			    this.updateRowHeader(!bigbigTable);
-			    if (sc >= 0 && sc < this.getColumnCount()) {
-					this.getTable().setColumnSelectionInterval(sc, sc);
-				}
-			    
-		    	/*
-			    if (sr >= 0 && sr < this.getRowCount()) {
-			    	this.setRowSelectionInterval(sr, sr);
-			    	this.goTo(sr);
-			    }
-			*/
-			    if (sorterModel != null) {
-					sorterModel.initArray();
-				}
-			    //if (scrollVal >= 0) this.getScroller().getVerticalScrollBar().setValue(scrollVal);
-			    if (hscrollVal >= 0) {
-					this.getScroller().getHorizontalScrollBar().setValue(hscrollVal);
-				}
-		    	this.setSelectedID(sr);
-		    }
 			}
 				
 	    /*
@@ -2172,6 +2171,22 @@ public void keyTyped(final KeyEvent keyEvent) {
 	@Override
 	public void mouseReleased(final MouseEvent e) {
 	}
+
+	private void getReferences(final String tableName, int oldID, int newID) {
+		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
+				" WHERE PKTABLE_NAME = '" + tableName + "'", false);
+		try {
+		    if (rs != null && rs.first()) {
+		    	do {
+		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
+		    		String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
+		    		System.err.println(tableName + " wird in Column " + fkc + " von Tabelle " + fkt + " referenziert");
+		    	} while (rs.next());
+		    }
+	    }
+	    catch(Exception e) {MyLogger.handleException(e);}		    
+	}
+
 	private void makeKrisenGrafiken() {
 		/*
     	String[] os = new String[]{"Gärtnerhof Bienenbüttel GmbH (NI)","B&G Sprossenparadies GmbH (BY)"};

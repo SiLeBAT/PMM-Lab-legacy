@@ -780,9 +780,10 @@ public class DBKernel {
 	    passFalse = false;
 	    Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
 	    //System.out.println(dbFile); 
-	    String connStr = "jdbc:hsqldb:hsql://" + serverPath;// + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";
+	    String connStr = "jdbc:hsqldb:hsql://" + serverPath;// + (isKNIME ? ";readonly=true" : "");// + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";
 	    try {
-	    	result = DriverManager.getConnection(connStr, dbUsername, dbPassword);	    			
+	    	result = DriverManager.getConnection(connStr, dbUsername, dbPassword);	    		
+	    	if (isKNIME) result.setReadOnly(true);
 	    }
 	    catch(Exception e) {
 	    	passFalse = e.getMessage().startsWith("invalid authorization specification");
@@ -808,18 +809,19 @@ public class DBKernel {
 		//System.err.println(checkURL + "\t" + result + "\t" + host);
 		return result;
 	}
-  private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
+  public static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
   	  //startHsqldbServer("c:/tmp/DB", "DB");
     Connection result = null;
     passFalse = false;
     Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
     //System.out.println(dbFile); 
-    String connStr = "jdbc:hsqldb:file:" + dbFile + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";
+    String connStr = "jdbc:hsqldb:file:" + dbFile + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";// + (isKNIME ? ";readonly=true" : "");
     //connStr = "jdbc:hsqldb:hsql://localhost/DB;hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000;hsqldb.tx=mvcc"; // 
     try {
     	result = DriverManager.getConnection(connStr
     			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
-    			,dbUsername, dbPassword);   			
+    			,dbUsername, dbPassword);  
+    	if (isKNIME) result.setReadOnly(true);
     }
     catch(Exception e) {
     	// Database lock acquisition failure: lockFile: org.hsqldb.persist.LockFile@137939d4[file =C:\Dokumente und Einstellungen\Weiser\.localHSH\BfR\DBs\DB.lck, exists=true, locked=false, valid=false, ] method: checkHeartbeat read: 2010-12-08 09:08:12 heartbeat - read: -4406 ms.
@@ -1376,8 +1378,9 @@ public class DBKernel {
     }
     catch (Exception e) {
       if (!suppressWarnings) {
-    	  MyLogger.handleMessage(sql);
-        MyLogger.handleException(e);
+    	  if (!DBKernel.isKNIME ||
+    			  (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+    	  MyLogger.handleException(e);
       }
     }
     return result;
@@ -1589,6 +1592,12 @@ public class DBKernel {
 
 	public static void openDBGUI() {
 		final Connection connection = getLocalConn(true);
+		try {
+			connection.setReadOnly(true);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
 		StartApp.go(connection);
 	}
 	public static Connection getInternalKNIMEDB_LoadGui() {

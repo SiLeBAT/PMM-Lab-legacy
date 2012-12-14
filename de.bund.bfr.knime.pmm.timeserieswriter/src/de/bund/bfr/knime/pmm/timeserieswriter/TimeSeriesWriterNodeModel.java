@@ -104,6 +104,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
+    	db.getConnection().setReadOnly(false);
     	
     	int n = inData[ 0 ].getRowCount();
     	
@@ -144,6 +145,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
+    	db.getConnection().setReadOnly(true);
     	db.close();
         return null;
     }

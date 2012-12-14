@@ -76,6 +76,7 @@ public class ParameterOptimizer {
 	private List<Double> parameterStandardErrors;
 	private List<Double> parameterTValues;
 	private List<Double> parameterPValues;
+	private List<List<Double>> covariances;
 
 	private List<List<Integer>> changeLists;
 
@@ -326,6 +327,10 @@ public class ParameterOptimizer {
 		return parameterPValues;
 	}
 
+	public List<List<Double>> getCovariances() {
+		return covariances;
+	}
+
 	private void optimize(List<Double> startValues, int maxEval)
 			throws Exception {
 		double[] targets = new double[targetValues.size()];
@@ -354,27 +359,54 @@ public class ParameterOptimizer {
 		}
 
 		try {
-			double[] guess = optimizer.guessParametersErrors();
+			if (targetValues.size() <= parameters.size()) {
+				throw new RuntimeException();
+			}
+
+			double[][] covMatrix = optimizer.getCovariances();
+			double factor = optimizer.getChiSquare()
+					/ (targetValues.size() - parameters.size());
 
 			parameterStandardErrors = new ArrayList<Double>(parameters.size());
 			parameterTValues = new ArrayList<Double>(parameters.size());
 			parameterPValues = new ArrayList<Double>(parameters.size());
+			covariances = new ArrayList<List<Double>>();
 
 			for (int i = 0; i < parameters.size(); i++) {
-				parameterStandardErrors.add(guess[i]);
+				double error = Math.sqrt(factor * covMatrix[i][i]);
 
-				double tValue = optimizerValues.getPoint()[i] / guess[i];
+				parameterStandardErrors.add(error);
+
+				double tValue = optimizerValues.getPoint()[i] / error;
 				int degreesOfFreedom = targetValues.size() - parameters.size();
 
 				parameterTValues.add(tValue);
 				parameterPValues.add(MathUtilities.getStudentProbability(
 						tValue, degreesOfFreedom));
 			}
+
+			for (int i = 0; i < parameters.size(); i++) {
+				List<Double> cov = new ArrayList<Double>();
+
+				for (int j = 0; j < parameters.size(); j++) {
+					cov.add(factor * covMatrix[i][j]);
+				}
+
+				covariances.add(cov);
+			}
 		} catch (Exception e) {
 			parameterStandardErrors = Collections.nCopies(parameters.size(),
 					null);
 			parameterTValues = Collections.nCopies(parameters.size(), null);
 			parameterPValues = Collections.nCopies(parameters.size(), null);
+			covariances = new ArrayList<List<Double>>();
+
+			for (int i = 0; i < parameters.size(); i++) {
+				List<Double> nullList = Collections.nCopies(parameters.size(),
+						null);
+
+				covariances.add(nullList);
+			}
 		}
 
 		rms = optimizer.getRMS();

@@ -67,6 +67,7 @@ public class Plotable {
 	private Map<String, List<Double>> functionArguments;
 	private Map<String, Double> functionParameters;
 	private Map<String, Double> parameterErrors;
+	private Map<String, Map<String, Double>> covariances;
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
 	private List<Double> samples;
@@ -79,6 +80,7 @@ public class Plotable {
 		maxArguments = new LinkedHashMap<String, Double>();
 		functionParameters = new LinkedHashMap<String, Double>();
 		parameterErrors = new LinkedHashMap<String, Double>();
+		covariances = new LinkedHashMap<String, Map<String, Double>>();
 		samples = new ArrayList<Double>();
 	}
 
@@ -132,6 +134,14 @@ public class Plotable {
 
 	public void setParameterErrors(Map<String, Double> parameterErrors) {
 		this.parameterErrors = parameterErrors;
+	}
+
+	public Map<String, Map<String, Double>> getCovariances() {
+		return covariances;
+	}
+
+	public void setCovariances(Map<String, Map<String, Double>> covariances) {
+		this.covariances = covariances;
 	}
 
 	public Map<String, Double> getMinArguments() {
@@ -329,8 +339,14 @@ public class Plotable {
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null
-					|| parameterErrors.get(param) == null) {
+					|| covariances.get(param) == null) {
 				return null;
+			}
+
+			for (String param2 : functionParameters.keySet()) {
+				if (covariances.get(param).get(param2) == null) {
+					return null;
+				}
 			}
 
 			parser.addConstant(param, functionParameters.get(param));
@@ -357,8 +373,8 @@ public class Plotable {
 			e.printStackTrace();
 		}
 
-		for (int j = 0; j < FUNCTION_STEPS; j++) {
-			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
+		for (int n = 0; n < FUNCTION_STEPS; n++) {
+			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
 			parser.setVarValue(paramX, x);
@@ -366,8 +382,10 @@ public class Plotable {
 			try {
 				double y = 0.0;
 				boolean failed = false;
+				List<String> paramList = new ArrayList<String>(
+						functionParameters.keySet());
 
-				for (String param : functionParameters.keySet()) {
+				for (String param : paramList) {
 					Object obj = parser.evaluate(derivatives.get(param));
 
 					if (!(obj instanceof Double)) {
@@ -375,20 +393,39 @@ public class Plotable {
 						break;
 					}
 
-					double error = (Double) obj * parameterErrors.get(param);
-
-					y += error * error;
+					y += (Double) obj * (Double) obj
+							* covariances.get(param).get(param);
 				}
 
-				points[0][j] = x;
+				for (int i = 0; i < paramList.size() - 1; i++) {
+					for (int j = i + 1; j < paramList.size(); j++) {
+						Object obj1 = parser.evaluate(derivatives.get(paramList
+								.get(i)));
+						Object obj2 = parser.evaluate(derivatives.get(paramList
+								.get(j)));
+
+						if (!(obj1 instanceof Double)
+								|| !(obj2 instanceof Double)) {
+							failed = true;
+							break;
+						}
+
+						double cov = covariances.get(paramList.get(i)).get(
+								paramList.get(j));
+
+						y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
+					}
+				}
+
+				points[0][n] = x;
 
 				if (!failed) {
 					// the error is multiplied by 1.96 to get the 95% interval
 					y = Math.sqrt(y) * 1.96;
 					y = transformDouble(y, transformY);
-					points[1][j] = y;
+					points[1][n] = y;
 				} else {
-					points[1][j] = Double.NaN;
+					points[1][n] = Double.NaN;
 				}
 			} catch (ParseException e) {
 				e.printStackTrace();

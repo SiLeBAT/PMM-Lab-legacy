@@ -589,6 +589,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 						parameters.size(), null);
 				List<Double> parameterPValues = Collections.nCopies(
 						parameters.size(), null);
+				List<List<Double>> covariances = new ArrayList<List<Double>>();
+
+				for (int j = 0; j < parameters.size(); j++) {
+					List<Double> nullList = Collections.nCopies(
+							parameters.size(), null);
+
+					covariances.add(nullList);
+				}
+
 				Double rms = null;
 				Double rSquare = null;
 				Double aic = null;
@@ -622,6 +631,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					parameterErrors = optimizer.getParameterStandardErrors();
 					parameterTValues = optimizer.getParameterTValues();
 					parameterPValues = optimizer.getParameterPValues();
+					covariances = optimizer.getCovariances();
 					rms = optimizer.getRMS();
 					rSquare = optimizer.getRSquare();
 					aic = optimizer.getAIC();
@@ -636,6 +646,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 					element.setError(parameterErrors.get(i));
 					element.sett(parameterTValues.get(i));
 					element.setP(parameterPValues.get(i));
+
+					for (int j = 0; j < paramXml.getElementSet().size(); j++) {
+						element.addCorrelation(
+								((ParamXml) paramXml.get(j)).getOrigName(),
+								covariances.get(i).get(j));
+					}
 				}
 
 				PmmXmlDoc indepXml = tuple
@@ -871,6 +887,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 								parameters.size(), null);
 						List<Double> parameterPValues = Collections.nCopies(
 								parameters.size(), null);
+						List<List<Double>> covariances = new ArrayList<List<Double>>();
+
+						for (int j = 0; j < parameters.size(); j++) {
+							List<Double> nullList = Collections.nCopies(
+									parameters.size(), null);
+
+							covariances.add(nullList);
+						}
+
 						Double rms = null;
 						Double rSquared = null;
 						Double aic = null;
@@ -900,6 +925,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									.getParameterStandardErrors();
 							parameterTValues = optimizer.getParameterTValues();
 							parameterPValues = optimizer.getParameterPValues();
+							covariances = optimizer.getCovariances();
 							rms = optimizer.getRMS();
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
@@ -920,6 +946,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 							element.setError(parameterErrors.get(j));
 							element.sett(parameterTValues.get(j));
 							element.setP(parameterPValues.get(j));
+
+							for (int k = 0; k < paramXml.getElementSet().size(); k++) {
+								element.addCorrelation(((ParamXml) paramXml
+										.get(k)).getOrigName(), covariances
+										.get(j).get(k));
+							}
 						}
 
 						for (int j = 0; j < indepXml.getElementSet().size(); j++) {
@@ -1163,6 +1195,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						PmmXmlDoc indepXml = tuple
 								.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 						List<String> parameters = new ArrayList<String>();
+						List<String> paramOrigNames = new ArrayList<String>();
 						List<Double> minParameterValues = new ArrayList<Double>();
 						List<Double> maxParameterValues = new ArrayList<Double>();
 						List<Double> minGuessValues = new ArrayList<Double>();
@@ -1177,6 +1210,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							ParamXml element = (ParamXml) el;
 
 							parameters.add(element.getName());
+							paramOrigNames.add(element.getOrigName());
 							minParameterValues.add(element.getMin());
 							maxParameterValues.add(element.getMax());
 							minGuessValues.add(element.getMinGuess());
@@ -1194,6 +1228,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 								parameters.size(), null);
 						List<Double> parameterPValues = Collections.nCopies(
 								parameters.size(), null);
+						List<List<Double>> covariances = new ArrayList<List<Double>>();
+
+						for (int j = 0; j < parameters.size(); j++) {
+							List<Double> nullList = Collections.nCopies(
+									parameters.size(), null);
+
+							covariances.add(nullList);
+						}
+
 						Double rms = null;
 						Double rSquared = null;
 						Double aic = null;
@@ -1223,6 +1266,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 									.getParameterStandardErrors();
 							parameterTValues = optimizer.getParameterTValues();
 							parameterPValues = optimizer.getParameterPValues();
+							covariances = optimizer.getCovariances();
 							rms = optimizer.getRMS();
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
@@ -1243,6 +1287,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 							element.setError(parameterErrors.get(j));
 							element.sett(parameterTValues.get(j));
 							element.setP(parameterPValues.get(j));
+
+							for (int k = 0; k < paramXml.getElementSet().size(); k++) {
+								element.addCorrelation(((ParamXml) paramXml
+										.get(k)).getOrigName(), covariances
+										.get(j).get(k));
+							}
 						}
 
 						for (int j = 0; j < indepXml.getElementSet().size(); j++) {

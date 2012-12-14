@@ -144,10 +144,10 @@ public class ModelCombiner {
 				PmmXmlDoc paramsSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 
-				for (int i = 0; i < paramsSec.getElementSet().size(); i++) {
+				for (PmmXmlElementConvertable el : paramsSec.getElementSet()) {
+					ParamXml element = (ParamXml) el;
 					int index = 1;
-					String paramName = ((ParamXml) paramsSec.getElementSet()
-							.get(i)).getName();
+					String paramName = element.getName();
 					String newParamName = paramName;
 
 					while (CellIO.getNameList(
@@ -160,9 +160,10 @@ public class ModelCombiner {
 					if (index > 1) {
 						formulaSec = MathUtilities.replaceVariable(formulaSec,
 								paramName, newParamName);
-						((ParamXml) paramsSec.getElementSet().get(i))
-								.setName(newParamName);
+						element.setName(newParamName);
 					}
+
+					element.getAllCorrelations().clear();
 				}
 
 				String replacement = "("

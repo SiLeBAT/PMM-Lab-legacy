@@ -132,7 +132,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, false);
+					ChartConfigPanel.PARAMETER_FIELDS, true);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
@@ -246,8 +246,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		// chartCreator.setShowConfidenceInterval(configPanel
-		// .isShowConfidenceInterval());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);
@@ -317,6 +317,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameterErrors = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -336,6 +337,15 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				paramValues.add(element.getValue());
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
+
+				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el2 : paramXml.getElementSet()) {
+					cov.put(((ParamXml) el2).getName(), element
+							.getCorrelation(((ParamXml) el2).getOrigName()));
+				}
+
+				covariances.put(element.getName(), cov);
 			}
 
 			shortLegend.put(id, modelName);
@@ -360,6 +370,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);
 			plotable.setParameterErrors(parameterErrors);
+			plotable.setCovariances(covariances);
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.NO);

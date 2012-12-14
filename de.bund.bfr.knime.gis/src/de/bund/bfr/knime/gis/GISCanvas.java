@@ -72,6 +72,7 @@ public class GISCanvas extends JComponent implements ActionListener,
 
 	private Map<String, ShpPolygon> shapes;
 	private Map<String, Point2D.Double> shapeCenters;
+	private Map<String, Rectangle2D.Double> shapeBoundingBoxes;
 	private Map<String, Double> regionData;
 	private Map<Edge, Double> edgeData;
 
@@ -102,9 +103,15 @@ public class GISCanvas extends JComponent implements ActionListener,
 	public GISCanvas(Map<String, ShpPolygon> shapes) {
 		this.shapes = shapes;
 		shapeCenters = new LinkedHashMap<String, Point2D.Double>();
+		shapeBoundingBoxes = new LinkedHashMap<String, Rectangle2D.Double>();
 
 		for (String id : shapes.keySet()) {
 			shapeCenters.put(id, GISUtilities.getCenter(shapes.get(id)));
+		}
+
+		for (String id : shapes.keySet()) {
+			shapeBoundingBoxes.put(id,
+					GISUtilities.getBoundingBox(shapes.get(id)));
 		}
 
 		transformComputed = false;
@@ -250,26 +257,18 @@ public class GISCanvas extends JComponent implements ActionListener,
 	}
 
 	private Rectangle2D.Double getPolygonsBounds() {
-		double minX = Double.POSITIVE_INFINITY;
-		double maxX = Double.NEGATIVE_INFINITY;
-		double minY = Double.POSITIVE_INFINITY;
-		double maxY = Double.NEGATIVE_INFINITY;
+		Rectangle2D.Double bounds = null;
 
-		for (ShpPolygon poly : shapes.values()) {
-			for (Part part : poly.getParts()) {
-				for (double x : part.getXs()) {
-					minX = Math.min(minX, x);
-					maxX = Math.max(maxX, x);
-				}
-
-				for (double y : part.getYs()) {
-					minY = Math.min(minY, y);
-					maxY = Math.max(maxY, y);
-				}
+		for (String id : shapeBoundingBoxes.keySet()) {
+			if (bounds == null) {
+				bounds = shapeBoundingBoxes.get(id);
+			} else {
+				bounds = (Rectangle2D.Double) bounds
+						.createUnion(shapeBoundingBoxes.get(id));
 			}
 		}
 
-		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+		return bounds;
 	}
 
 	private void zoomIn(int x, int y) {
@@ -331,7 +330,8 @@ public class GISCanvas extends JComponent implements ActionListener,
 		Point2D.Double p = getInversedPoint(x, y);
 
 		for (String id : shapes.keySet()) {
-			if (GISUtilities.containsPoint(shapes.get(id), p)) {
+			if (shapeBoundingBoxes.get(id).contains(p)
+					&& GISUtilities.containsPoint(shapes.get(id), p)) {
 				return id;
 			}
 		}

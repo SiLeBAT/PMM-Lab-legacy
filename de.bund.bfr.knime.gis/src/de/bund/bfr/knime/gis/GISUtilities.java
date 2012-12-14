@@ -34,6 +34,7 @@
 package de.bund.bfr.knime.gis;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 import org.eclipse.stem.gis.shp.ShpPolygon;
 import org.eclipse.stem.gis.shp.type.Part;
@@ -95,6 +96,27 @@ public class GISUtilities {
 		}
 
 		return center;
+	}
+
+	public static Rectangle2D.Double getBoundingBox(ShpPolygon poly) {
+		double minX = Double.POSITIVE_INFINITY;
+		double maxX = Double.NEGATIVE_INFINITY;
+		double minY = Double.POSITIVE_INFINITY;
+		double maxY = Double.NEGATIVE_INFINITY;
+
+		for (Part part : poly.getParts()) {
+			for (double x : part.getXs()) {
+				minX = Math.min(minX, x);
+				maxX = Math.max(maxX, x);
+			}
+
+			for (double y : part.getYs()) {
+				minY = Math.min(minY, y);
+				maxY = Math.max(maxY, y);
+			}
+		}
+
+		return new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
 	}
 
 	public static boolean containsPoint(ShpPolygon poly, Point2D.Double point) {

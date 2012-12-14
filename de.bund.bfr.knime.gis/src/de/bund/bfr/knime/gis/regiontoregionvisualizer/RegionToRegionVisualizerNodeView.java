@@ -226,12 +226,11 @@ public class RegionToRegionVisualizerNodeView extends
 
 				if (fromRegion != null && toRegion != null) {
 					GISCanvas.Edge edge = new GISCanvas.Edge(fromRegion,
-							toRegion);					
+							toRegion);
 
 					if (dataMap.containsKey(edge)) {
 						dataMap.put(edge, dataMap.get(edge) + value);
 					} else {
-						System.out.println(fromRegion + "\t" + toRegion);
 						dataMap.put(edge, value);
 					}
 				}

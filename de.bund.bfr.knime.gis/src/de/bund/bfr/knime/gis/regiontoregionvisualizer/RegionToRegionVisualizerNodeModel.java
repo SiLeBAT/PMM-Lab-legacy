@@ -57,22 +57,24 @@ import org.knime.core.node.NodeSettingsWO;
 public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 	protected static final String CFG_FILENAME = "FileName";
-	protected static final String CFG_FILEIDCOLUMN = "FileIDColumn";
-	protected static final String CFG_TABLEIDCOLUMN = "TableIDColumn";
-	protected static final String CFG_TABLEVALUECOLUMN = "TableValueColumn";
-	protected static final String CFG_EDGEFROMCOLUMN = "EdgeFromColumn";
-	protected static final String CFG_EDGETOCOLUMN = "EdgeToColumn";
-	protected static final String CFG_EDGEVALUECOLUMN = "EdgeValueColumn";
+	protected static final String CFG_FILE_REGION_ID_COLUMN = "FileRegionIDColumn";
+	protected static final String CFG_NODE_ID_COLUMN = "NodeIDColumn";
+	protected static final String CFG_NODE_REGION_ID_COLUMN = "NodeRegionIDColumn";
+	protected static final String CFG_NODE_VALUE_COLUMN = "NodeValueColumn";
+	protected static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
+	protected static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
+	protected static final String CFG_EDGE_VALUE_COLUMN = "EdgeValueColumn";
 
 	private static final String INTERNAL_FILENAME1 = "RegionToRegionVisualizer1.zip";
 	private static final String INTERNAL_FILENAME2 = "RegionToRegionVisualizer2.zip";
 
-	private DataTable regionTable;
+	private DataTable nodeTable;
 	private DataTable edgeTable;
 	private String fileName;
-	private String fileIdColumn;
-	private String tableIdColumn;
-	private String tableValueColumn;
+	private String fileRegionIdColumn;
+	private String nodeIdColumn;
+	private String nodeRegionIdColumn;
+	private String nodeValueColumn;
 	private String edgeFromColumn;
 	private String edgeToColumn;
 	private String edgeValueColumn;
@@ -90,7 +92,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		regionTable = inData[0];
+		nodeTable = inData[0];
 		edgeTable = inData[1];
 
 		return new BufferedDataTable[] {};
@@ -118,12 +120,13 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_FILENAME, fileName);
-		settings.addString(CFG_FILEIDCOLUMN, fileIdColumn);
-		settings.addString(CFG_TABLEIDCOLUMN, tableIdColumn);
-		settings.addString(CFG_TABLEVALUECOLUMN, tableValueColumn);
-		settings.addString(CFG_EDGEFROMCOLUMN, edgeFromColumn);
-		settings.addString(CFG_EDGETOCOLUMN, edgeToColumn);
-		settings.addString(CFG_EDGEVALUECOLUMN, edgeValueColumn);
+		settings.addString(CFG_FILE_REGION_ID_COLUMN, fileRegionIdColumn);
+		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);
+		settings.addString(CFG_NODE_REGION_ID_COLUMN, nodeRegionIdColumn);
+		settings.addString(CFG_NODE_VALUE_COLUMN, nodeValueColumn);
+		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
+		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
+		settings.addString(CFG_EDGE_VALUE_COLUMN, edgeValueColumn);
 	}
 
 	/**
@@ -139,37 +142,43 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		}
 
 		try {
-			fileIdColumn = settings.getString(CFG_FILEIDCOLUMN);
+			fileRegionIdColumn = settings.getString(CFG_FILE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			fileIdColumn = "";
+			fileRegionIdColumn = "";
 		}
 
 		try {
-			tableIdColumn = settings.getString(CFG_TABLEIDCOLUMN);
+			nodeIdColumn = settings.getString(CFG_NODE_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			tableIdColumn = "";
+			nodeIdColumn = "";
 		}
 
 		try {
-			tableValueColumn = settings.getString(CFG_TABLEVALUECOLUMN);
+			nodeRegionIdColumn = settings.getString(CFG_NODE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			tableValueColumn = "";
+			nodeRegionIdColumn = "";
 		}
 
 		try {
-			edgeFromColumn = settings.getString(CFG_EDGEFROMCOLUMN);
+			nodeValueColumn = settings.getString(CFG_NODE_VALUE_COLUMN);
+		} catch (InvalidSettingsException e) {
+			nodeValueColumn = "";
+		}
+
+		try {
+			edgeFromColumn = settings.getString(CFG_EDGE_FROM_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeFromColumn = "";
 		}
 
 		try {
-			edgeToColumn = settings.getString(CFG_EDGETOCOLUMN);
+			edgeToColumn = settings.getString(CFG_EDGE_TO_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeToColumn = "";
 		}
 
 		try {
-			edgeValueColumn = settings.getString(CFG_EDGEVALUECOLUMN);
+			edgeValueColumn = settings.getString(CFG_EDGE_VALUE_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeValueColumn = "";
 		}
@@ -190,7 +199,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected void loadInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		regionTable = DataContainer.readFromZip(new File(internDir,
+		nodeTable = DataContainer.readFromZip(new File(internDir,
 				INTERNAL_FILENAME1));
 		edgeTable = DataContainer.readFromZip(new File(internDir,
 				INTERNAL_FILENAME2));
@@ -203,14 +212,14 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-		DataContainer.writeToZip(regionTable, new File(internDir,
+		DataContainer.writeToZip(nodeTable, new File(internDir,
 				INTERNAL_FILENAME1), exec);
 		DataContainer.writeToZip(edgeTable, new File(internDir,
 				INTERNAL_FILENAME2), exec);
 	}
 
-	protected DataTable getRegionTable() {
-		return regionTable;
+	protected DataTable getNodeTable() {
+		return nodeTable;
 	}
 
 	protected DataTable getEdgeTable() {
@@ -221,16 +230,20 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		return fileName;
 	}
 
-	protected String getFileIdColumn() {
-		return fileIdColumn;
+	protected String getFileRegionIdColumn() {
+		return fileRegionIdColumn;
 	}
 
-	protected String getTableIdColumn() {
-		return tableIdColumn;
+	protected String getNodeIdColumn() {
+		return nodeIdColumn;
 	}
 
-	protected String getTableValueColumn() {
-		return tableValueColumn;
+	protected String getNodeRegionIdColumn() {
+		return nodeRegionIdColumn;
+	}
+
+	protected String getNodeValueColumn() {
+		return nodeValueColumn;
 	}
 
 	protected String getEdgeFromColumn() {

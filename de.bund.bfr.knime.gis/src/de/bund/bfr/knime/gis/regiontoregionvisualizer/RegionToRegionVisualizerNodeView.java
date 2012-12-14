@@ -94,15 +94,19 @@ public class RegionToRegionVisualizerNodeView extends
 	protected void onOpen() {
 		try {
 			GISCanvas canvas = createGISCanvas(getNodeModel().getFileName(),
-					getNodeModel().getFileIdColumn());
+					getNodeModel().getFileRegionIdColumn());
+			Map<String, String> idToRegionMap = createIdToRegionMap(
+					getNodeModel().getNodeTable(), getNodeModel()
+							.getNodeIdColumn(), getNodeModel()
+							.getNodeRegionIdColumn());
 			Map<String, Double> regionData = createRegionDataMap(getNodeModel()
-					.getRegionTable(), getNodeModel().getTableIdColumn(),
-					getNodeModel().getTableValueColumn());
+					.getNodeTable(), getNodeModel().getNodeIdColumn(),
+					getNodeModel().getNodeValueColumn(), idToRegionMap);
 			Map<GISCanvas.Edge, Double> edgeData = createEdgeDataMap(
 					getNodeModel().getEdgeTable(), getNodeModel()
 							.getEdgeFromColumn(), getNodeModel()
 							.getEdgeToColumn(), getNodeModel()
-							.getEdgeValueColumn());
+							.getEdgeValueColumn(), idToRegionMap);
 
 			canvas.setRegionData(regionData);
 			canvas.setEdgeData(edgeData);
@@ -118,7 +122,7 @@ public class RegionToRegionVisualizerNodeView extends
 		}
 	}
 
-	private GISCanvas createGISCanvas(String fileName, String fileIdColumn)
+	private GISCanvas createGISCanvas(String fileName, String fileRegionIdColumn)
 			throws IOException {
 		ShapefileReader reader = new ShapefileReader(new File(fileName));
 		List<DbfFieldDef> fields = reader.getTableHeader()
@@ -127,7 +131,7 @@ public class RegionToRegionVisualizerNodeView extends
 		int idColumnIndex = -1;
 
 		for (int i = 0; i < fields.size(); i++) {
-			if (fields.get(i).getFieldName().trim().equals(fileIdColumn)) {
+			if (fields.get(i).getFieldName().trim().equals(fileRegionIdColumn)) {
 				idColumnIndex = i;
 			}
 		}
@@ -146,8 +150,32 @@ public class RegionToRegionVisualizerNodeView extends
 		return new GISCanvas(shapes);
 	}
 
+	private Map<String, String> createIdToRegionMap(DataTable table,
+			String idColumn, String regionColumn) {
+		Map<String, String> idToRegionMap = new LinkedHashMap<String, String>();
+		int idIndex = table.getDataTableSpec().findColumnIndex(idColumn);
+		int regionIndex = table.getDataTableSpec()
+				.findColumnIndex(regionColumn);
+
+		RowIterator it = table.iterator();
+
+		while (it.hasNext()) {
+			DataRow row = it.next();
+
+			if (!row.getCell(regionIndex).isMissing()) {
+				String id = row.getCell(idIndex).toString().trim();
+				String region = row.getCell(regionIndex).toString().trim();
+
+				idToRegionMap.put(id, region);
+			}
+		}
+
+		return idToRegionMap;
+	}
+
 	private Map<String, Double> createRegionDataMap(DataTable table,
-			String idColumn, String valueColumn) {
+			String idColumn, String valueColumn,
+			Map<String, String> idToRegionMap) {
 		Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
 		int idIndex = table.getDataTableSpec().findColumnIndex(idColumn);
 		int valueIndex = table.getDataTableSpec().findColumnIndex(valueColumn);
@@ -160,10 +188,16 @@ public class RegionToRegionVisualizerNodeView extends
 				String id = row.getCell(idIndex).toString().trim();
 				double value = Double.parseDouble(row.getCell(valueIndex)
 						.toString().trim());
+				String region = idToRegionMap.get(id);
 
-				dataMap.put(id, value);
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				if (region != null) {
+					if (dataMap.containsKey(region)) {
+						dataMap.put(region, dataMap.get(region) + value);
+					} else {
+						dataMap.put(region, value);
+					}
+				}
+			} catch (Exception e) {
 			}
 		}
 
@@ -171,7 +205,8 @@ public class RegionToRegionVisualizerNodeView extends
 	}
 
 	private Map<GISCanvas.Edge, Double> createEdgeDataMap(DataTable table,
-			String fromColumn, String toColumn, String valueColumn) {
+			String fromColumn, String toColumn, String valueColumn,
+			Map<String, String> idToRegionMap) {
 		Map<GISCanvas.Edge, Double> dataMap = new LinkedHashMap<GISCanvas.Edge, Double>();
 		int fromIndex = table.getDataTableSpec().findColumnIndex(fromColumn);
 		int toIndex = table.getDataTableSpec().findColumnIndex(toColumn);
@@ -186,10 +221,21 @@ public class RegionToRegionVisualizerNodeView extends
 				String to = row.getCell(toIndex).toString().trim();
 				double value = Double.parseDouble(row.getCell(valueIndex)
 						.toString().trim());
+				String fromRegion = idToRegionMap.get(from);
+				String toRegion = idToRegionMap.get(to);
 
-				dataMap.put(new GISCanvas.Edge(from, to), value);
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				if (fromRegion != null && toRegion != null) {
+					GISCanvas.Edge edge = new GISCanvas.Edge(fromRegion,
+							toRegion);					
+
+					if (dataMap.containsKey(edge)) {
+						dataMap.put(edge, dataMap.get(edge) + value);
+					} else {
+						System.out.println(fromRegion + "\t" + toRegion);
+						dataMap.put(edge, value);
+					}
+				}
+			} catch (Exception e) {
 			}
 		}
 

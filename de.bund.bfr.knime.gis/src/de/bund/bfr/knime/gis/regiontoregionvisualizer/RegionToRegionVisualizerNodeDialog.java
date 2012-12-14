@@ -80,10 +80,11 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 	private JTextField fileField;
 	private JButton fileButton;
-	private JComboBox<String> fileIdBox;
+	private JComboBox<String> fileRegionIdBox;
 
-	private JComboBox<String> tableIdBox;
-	private JComboBox<String> tableValueBox;
+	private JComboBox<String> nodeIdBox;
+	private JComboBox<String> nodeRegionIdBox;
+	private JComboBox<String> nodeValueBox;
 
 	private JComboBox<String> edgeFromBox;
 	private JComboBox<String> edgeToBox;
@@ -97,9 +98,10 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		fileField.getDocument().addDocumentListener(this);
 		fileButton = new JButton("Browse...");
 		fileButton.addActionListener(this);
-		fileIdBox = new JComboBox<String>();
-		tableIdBox = new JComboBox<String>();
-		tableValueBox = new JComboBox<String>();
+		fileRegionIdBox = new JComboBox<String>();
+		nodeIdBox = new JComboBox<String>();
+		nodeRegionIdBox = new JComboBox<String>();
+		nodeValueBox = new JComboBox<String>();
 		edgeFromBox = new JComboBox<String>();
 		edgeToBox = new JComboBox<String>();
 		edgeValueBox = new JComboBox<String>();
@@ -113,8 +115,9 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		JPanel fileIdPanel = new JPanel();
 
 		fileIdPanel.setLayout(new BorderLayout(5, 5));
-		fileIdPanel.add(new JLabel("Column with IDs:"), BorderLayout.WEST);
-		fileIdPanel.add(fileIdBox, BorderLayout.CENTER);
+		fileIdPanel.add(new JLabel("Column with Region IDs:"),
+				BorderLayout.WEST);
+		fileIdPanel.add(fileRegionIdBox, BorderLayout.CENTER);
 
 		JPanel innerFilePanel = new JPanel();
 
@@ -131,15 +134,17 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		JPanel leftTablePanel = new JPanel();
 
-		leftTablePanel.setLayout(new GridLayout(2, 1, 5, 5));
-		leftTablePanel.add(new JLabel("Column with IDs:"));
+		leftTablePanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftTablePanel.add(new JLabel("Column with Node IDs:"));
+		leftTablePanel.add(new JLabel("Column with Region IDs:"));
 		leftTablePanel.add(new JLabel("Column with Values:"));
 
 		JPanel rightTablePanel = new JPanel();
 
-		rightTablePanel.setLayout(new GridLayout(2, 1, 5, 5));
-		rightTablePanel.add(tableIdBox);
-		rightTablePanel.add(tableValueBox);
+		rightTablePanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightTablePanel.add(nodeIdBox);
+		rightTablePanel.add(nodeRegionIdBox);
+		rightTablePanel.add(nodeValueBox);
 
 		JPanel innerTablePanel = new JPanel();
 
@@ -150,15 +155,15 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		JPanel outerTablePanel = new JPanel();
 
-		outerTablePanel.setBorder(BorderFactory.createTitledBorder("Regions"));
+		outerTablePanel.setBorder(BorderFactory.createTitledBorder("Nodes"));
 		outerTablePanel.setLayout(new BorderLayout());
 		outerTablePanel.add(innerTablePanel, BorderLayout.CENTER);
 
 		JPanel leftEdgePanel = new JPanel();
 
 		leftEdgePanel.setLayout(new GridLayout(3, 1, 5, 5));
-		leftEdgePanel.add(new JLabel("Column with Origin IDs:"));
-		leftEdgePanel.add(new JLabel("Column with Destination IDs:"));
+		leftEdgePanel.add(new JLabel("Column with Origin Node IDs:"));
+		leftEdgePanel.add(new JLabel("Column with Destination Node IDs:"));
 		leftEdgePanel.add(new JLabel("Column with Values:"));
 
 		JPanel rightEdgePanel = new JPanel();
@@ -200,9 +205,10 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
 		String fileName;
-		String fileIdColumn;
-		String tableIdColumn;
-		String tableValueColumn;
+		String fileRegionIdColumn;
+		String nodeIdColumn;
+		String nodeRegionIdColumn;
+		String nodeValueColumn;
 		String edgeFromColumn;
 		String edgeToColumn;
 		String edgeValueColumn;
@@ -215,62 +221,71 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		}
 
 		try {
-			fileIdColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_FILEIDCOLUMN);
+			fileRegionIdColumn = settings
+					.getString(RegionToRegionVisualizerNodeModel.CFG_FILE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			fileIdColumn = "";
+			fileRegionIdColumn = "";
 		}
 
 		try {
-			tableIdColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_TABLEIDCOLUMN);
+			nodeIdColumn = settings
+					.getString(RegionToRegionVisualizerNodeModel.CFG_NODE_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			tableIdColumn = "";
+			nodeIdColumn = "";
 		}
 
 		try {
-			tableValueColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_TABLEVALUECOLUMN);
+			nodeRegionIdColumn = settings
+					.getString(RegionToRegionVisualizerNodeModel.CFG_NODE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
-			tableValueColumn = "";
+			nodeRegionIdColumn = "";
+		}
+
+		try {
+			nodeValueColumn = settings
+					.getString(RegionToRegionVisualizerNodeModel.CFG_NODE_VALUE_COLUMN);
+		} catch (InvalidSettingsException e) {
+			nodeValueColumn = "";
 		}
 
 		try {
 			edgeFromColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGEFROMCOLUMN);
+					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGE_FROM_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeFromColumn = "";
 		}
 
 		try {
 			edgeToColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGETOCOLUMN);
+					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGE_TO_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeToColumn = "";
 		}
 
 		try {
 			edgeValueColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGEVALUECOLUMN);
+					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGE_VALUE_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeValueColumn = "";
 		}
 
 		fileField.setText(fileName);
-		fileIdBox.setSelectedItem(fileIdColumn);
+		fileRegionIdBox.setSelectedItem(fileRegionIdColumn);
 
 		List<String> tableColumns = Arrays.asList(specs[0].getColumnNames());
 		List<String> edgeColumns = Arrays.asList(specs[1].getColumnNames());
 
-		tableIdBox.removeAllItems();
-		tableValueBox.removeAllItems();
+		nodeIdBox.removeAllItems();
+		nodeRegionIdBox.removeAllItems();
+		nodeValueBox.removeAllItems();
 		edgeFromBox.removeAllItems();
 		edgeToBox.removeAllItems();
 		edgeValueBox.removeAllItems();
 
 		for (String column : tableColumns) {
-			tableIdBox.addItem(column);
-			tableValueBox.addItem(column);
+			nodeIdBox.addItem(column);
+			nodeRegionIdBox.addItem(column);
+			nodeValueBox.addItem(column);
 		}
 
 		for (String column : edgeColumns) {
@@ -279,8 +294,9 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 			edgeValueBox.addItem(column);
 		}
 
-		tableIdBox.setSelectedItem(tableIdColumn);
-		tableValueBox.setSelectedItem(tableValueColumn);
+		nodeIdBox.setSelectedItem(nodeIdColumn);
+		nodeRegionIdBox.setSelectedItem(nodeRegionIdColumn);
+		nodeValueBox.setSelectedItem(nodeValueColumn);
 		edgeFromBox.setSelectedItem(edgeFromColumn);
 		edgeToBox.setSelectedItem(edgeToColumn);
 		edgeValueBox.setSelectedItem(edgeValueColumn);
@@ -299,20 +315,26 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		settings.addString(RegionToRegionVisualizerNodeModel.CFG_FILENAME,
 				fileName);
-		settings.addString(RegionToRegionVisualizerNodeModel.CFG_FILEIDCOLUMN,
-				(String) fileIdBox.getSelectedItem());
-		settings.addString(RegionToRegionVisualizerNodeModel.CFG_TABLEIDCOLUMN,
-				(String) tableIdBox.getSelectedItem());
 		settings.addString(
-				RegionToRegionVisualizerNodeModel.CFG_TABLEVALUECOLUMN,
-				(String) tableValueBox.getSelectedItem());
+				RegionToRegionVisualizerNodeModel.CFG_FILE_REGION_ID_COLUMN,
+				(String) fileRegionIdBox.getSelectedItem());
 		settings.addString(
-				RegionToRegionVisualizerNodeModel.CFG_EDGEFROMCOLUMN,
+				RegionToRegionVisualizerNodeModel.CFG_NODE_ID_COLUMN,
+				(String) nodeIdBox.getSelectedItem());
+		settings.addString(
+				RegionToRegionVisualizerNodeModel.CFG_NODE_REGION_ID_COLUMN,
+				(String) nodeRegionIdBox.getSelectedItem());
+		settings.addString(
+				RegionToRegionVisualizerNodeModel.CFG_NODE_VALUE_COLUMN,
+				(String) nodeValueBox.getSelectedItem());
+		settings.addString(
+				RegionToRegionVisualizerNodeModel.CFG_EDGE_FROM_COLUMN,
 				(String) edgeFromBox.getSelectedItem());
-		settings.addString(RegionToRegionVisualizerNodeModel.CFG_EDGETOCOLUMN,
+		settings.addString(
+				RegionToRegionVisualizerNodeModel.CFG_EDGE_TO_COLUMN,
 				(String) edgeToBox.getSelectedItem());
 		settings.addString(
-				RegionToRegionVisualizerNodeModel.CFG_EDGEVALUECOLUMN,
+				RegionToRegionVisualizerNodeModel.CFG_EDGE_VALUE_COLUMN,
 				(String) edgeValueBox.getSelectedItem());
 	}
 
@@ -369,7 +391,7 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 			String fileName = fileField.getText();
 			File file = new File(fileName);
 
-			fileIdBox.removeAllItems();
+			fileRegionIdBox.removeAllItems();
 
 			if (file.exists() && fileName.toLowerCase().endsWith(".shp")) {
 				try {
@@ -378,7 +400,7 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 							.getFieldDefinitions();
 
 					for (DbfFieldDef f : fields) {
-						fileIdBox.addItem(f.getFieldName().trim());
+						fileRegionIdBox.addItem(f.getFieldName().trim());
 					}
 				} catch (IOException e1) {
 					e1.printStackTrace();

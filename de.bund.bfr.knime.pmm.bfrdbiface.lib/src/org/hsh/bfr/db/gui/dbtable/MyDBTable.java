@@ -2172,21 +2172,6 @@ public void keyTyped(final KeyEvent keyEvent) {
 	public void mouseReleased(final MouseEvent e) {
 	}
 
-	private void getReferences(final String tableName, int oldID, int newID) {
-		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
-				" WHERE PKTABLE_NAME = '" + tableName + "'", false);
-		try {
-		    if (rs != null && rs.first()) {
-		    	do {
-		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
-		    		String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
-		    		System.err.println(tableName + " wird in Column " + fkc + " von Tabelle " + fkt + " referenziert");
-		    	} while (rs.next());
-		    }
-	    }
-	    catch(Exception e) {MyLogger.handleException(e);}		    
-	}
-
 	private void makeKrisenGrafiken() {
 		/*
     	String[] os = new String[]{"Gärtnerhof Bienenbüttel GmbH (NI)","B&G Sprossenparadies GmbH (BY)"};

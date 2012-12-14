@@ -147,6 +147,17 @@ public class Login extends JFrame {
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 			DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
 			*/
+			/*
+			DBKernel.mergeIDs("Kontakte", 585, 595);
+			DBKernel.mergeIDs("Kontakte", 586, 596);
+			DBKernel.mergeIDs("Kontakte", 587, 597);
+			DBKernel.mergeIDs("Kontakte", 588, 598);
+			DBKernel.mergeIDs("Kontakte", 589, 599);
+			DBKernel.mergeIDs("Kontakte", 590, 600);
+			DBKernel.mergeIDs("Kontakte", 591, 601);
+			DBKernel.mergeIDs("Kontakte", 592, 603);
+			DBKernel.mergeIDs("Kontakte", 593, 604);
+			*/
 		}
 		finally {
 			this.setCursor(Cursor.getDefaultCursor());

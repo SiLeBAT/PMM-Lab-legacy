@@ -139,7 +139,7 @@ public class DBKernel {
 	public static String getTempSAPass(boolean other) {
 		//if (debug) return "";
 		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
-		else return isKNIME || isKrise ? "" : "de6!§5ddy";		
+		else return isKNIME || isKrise ? "" : "de6!§5ddy";
 	}
 	public static String getTempSA() {
 		return getTempSA(false);

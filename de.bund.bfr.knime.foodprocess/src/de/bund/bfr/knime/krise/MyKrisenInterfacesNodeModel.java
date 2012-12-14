@@ -110,20 +110,21 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         		String company  = (rs.getObject("Name") == null || doAnonymize) ? bl + rowNumber : rs.getString("Name");
         		id2Code.put(stationID, company);
         	    RowKey key = RowKey.createRowKey(rowNumber);
-        	    DataCell[] cells = new DataCell[13];
-        	    cells[0] = new StringCell(company);
-        	    cells[1] = new StringCell("square"); // circle, square, triangle
-        	    cells[2] = new DoubleCell(1.5);
-        	    cells[3] = new StringCell("yellow"); // red, yellow
-        	    cells[4] = (doAnonymize || rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
-        	    cells[5] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
-        	    cells[6] = (doAnonymize || rs.getObject("Bundesland") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
-        	    cells[7] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
-        	    cells[8] = (rs.getObject("FallErfuellt") == null) ? DataType.getMissingCell() : (rs.getBoolean("FallErfuellt") ? BooleanCell.TRUE : BooleanCell.FALSE);
-        	    cells[9] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle"));
-        	    cells[10] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
-        	    cells[11] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
-        	    cells[12] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
+        	    DataCell[] cells = new DataCell[14];
+        	    cells[0] = new IntCell(stationID);
+        	    cells[1] = new StringCell(company);
+        	    cells[2] = new StringCell("square"); // circle, square, triangle
+        	    cells[3] = new DoubleCell(1.5);
+        	    cells[4] = new StringCell("yellow"); // red, yellow
+        	    cells[5] = (doAnonymize || rs.getObject("PLZ") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("PLZ"));
+        	    cells[6] = (doAnonymize || rs.getObject("Ort") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Ort"));
+        	    cells[7] = (doAnonymize || rs.getObject("Bundesland") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bundesland"));
+        	    cells[8] = (rs.getObject("Betriebsart") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Betriebsart"));
+        	    cells[9] = (rs.getObject("FallErfuellt") == null) ? DataType.getMissingCell() : (rs.getBoolean("FallErfuellt") ? BooleanCell.TRUE : BooleanCell.FALSE);
+        	    cells[10] = (rs.getObject("AnzahlFaelle") == null) ? DataType.getMissingCell() : new IntCell(rs.getInt("AnzahlFaelle"));
+        	    cells[11] = (rs.getObject("DatumBeginn") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumBeginn"));
+        	    cells[12] = (rs.getObject("DatumHoehepunkt") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumHoehepunkt"));
+        	    cells[13] = (rs.getObject("DatumEnde") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("DatumEnde"));
         	    DataRow outputRow = new DefaultRow(key, cells);
 
         	    output33Nodes.addRowToTable(outputRow);
@@ -153,12 +154,12 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         		int id1 = rs.getInt("Produktkatalog.Station");
         		int id2 = rs.getInt("Lieferungen.Empfänger");
         		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {
-            		String from = id2Code.get(id1);
-            		String to = id2Code.get(id2);
+            		int from = id1;//id2Code.get(id1);
+            		int to = id2;//id2Code.get(id2);
             	    RowKey key = RowKey.createRowKey(rowNumber);
             	    DataCell[] cells = new DataCell[18];
-            	    cells[0] = new StringCell(from);
-            	    cells[1] = new StringCell(to);
+            	    cells[0] = new IntCell(from);
+            	    cells[1] = new IntCell(to);
             	    cells[2] = new StringCell("black"); // black
             	    cells[3] = (doAnonymize || rs.getObject("Artikelnummer") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Artikelnummer"));
             	    cells[4] = (doAnonymize || rs.getObject("Bezeichnung") == null) ? DataType.getMissingCell() : new StringCell(rs.getString("Bezeichnung"));
@@ -377,26 +378,27 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Nodes() {
-    	DataColumnSpec[] spec = new DataColumnSpec[13];
-    	spec[0] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
-    	spec[1] = new DataColumnSpecCreator("shape", StringCell.TYPE).createSpec();
-    	spec[2] = new DataColumnSpecCreator("size", DoubleCell.TYPE).createSpec();
-    	spec[3] = new DataColumnSpecCreator("colour", StringCell.TYPE).createSpec();    
-    	spec[4] = new DataColumnSpecCreator("PLZ", StringCell.TYPE).createSpec();    
-    	spec[5] = new DataColumnSpecCreator("Ort", StringCell.TYPE).createSpec();    
-    	spec[6] = new DataColumnSpecCreator("Bundesland", StringCell.TYPE).createSpec();    
-    	spec[7] = new DataColumnSpecCreator("Betriebsart", StringCell.TYPE).createSpec();    
-    	spec[8] = new DataColumnSpecCreator("FallErfuellt", BooleanCell.TYPE).createSpec();    
-    	spec[9] = new DataColumnSpecCreator("NumFaelle", IntCell.TYPE).createSpec();    
-    	spec[10] = new DataColumnSpecCreator("DatumBeginn", StringCell.TYPE).createSpec();    
-    	spec[11] = new DataColumnSpecCreator("DatumHoehepunkt", StringCell.TYPE).createSpec();    
-    	spec[12] = new DataColumnSpecCreator("DatumEnde", StringCell.TYPE).createSpec();    
+    	DataColumnSpec[] spec = new DataColumnSpec[14];
+    	spec[0] = new DataColumnSpecCreator("ID", IntCell.TYPE).createSpec();
+    	spec[1] = new DataColumnSpecCreator("node", StringCell.TYPE).createSpec();
+    	spec[2] = new DataColumnSpecCreator("shape", StringCell.TYPE).createSpec();
+    	spec[3] = new DataColumnSpecCreator("size", DoubleCell.TYPE).createSpec();
+    	spec[4] = new DataColumnSpecCreator("colour", StringCell.TYPE).createSpec();    
+    	spec[5] = new DataColumnSpecCreator("PLZ", StringCell.TYPE).createSpec();    
+    	spec[6] = new DataColumnSpecCreator("Ort", StringCell.TYPE).createSpec();    
+    	spec[7] = new DataColumnSpecCreator("Bundesland", StringCell.TYPE).createSpec();    
+    	spec[8] = new DataColumnSpecCreator("Betriebsart", StringCell.TYPE).createSpec();    
+    	spec[9] = new DataColumnSpecCreator("FallErfuellt", BooleanCell.TYPE).createSpec();    
+    	spec[10] = new DataColumnSpecCreator("NumFaelle", IntCell.TYPE).createSpec();    
+    	spec[11] = new DataColumnSpecCreator("DatumBeginn", StringCell.TYPE).createSpec();    
+    	spec[12] = new DataColumnSpecCreator("DatumHoehepunkt", StringCell.TYPE).createSpec();    
+    	spec[13] = new DataColumnSpecCreator("DatumEnde", StringCell.TYPE).createSpec();    
     	return new DataTableSpec(spec);
     }
     private DataTableSpec getSpec33Links() {
     	DataColumnSpec[] spec = new DataColumnSpec[18];
-    	spec[0] = new DataColumnSpecCreator("from", StringCell.TYPE).createSpec();
-    	spec[1] = new DataColumnSpecCreator("to", StringCell.TYPE).createSpec();
+    	spec[0] = new DataColumnSpecCreator("from", IntCell.TYPE).createSpec();
+    	spec[1] = new DataColumnSpecCreator("to", IntCell.TYPE).createSpec();
     	spec[2] = new DataColumnSpecCreator("colour", StringCell.TYPE).createSpec();
     	spec[3] = new DataColumnSpecCreator("Artikelnummer", StringCell.TYPE).createSpec();
     	spec[4] = new DataColumnSpecCreator("Bezeichnung", StringCell.TYPE).createSpec();

@@ -363,7 +363,7 @@ public class MathUtilities {
 		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
 	}
 
-	public static double getStudentProbability(double tValue,
+	public static double getPValue(double tValue,
 			int degreesOfFreedom) {
 		TDistribution dist = new TDistribution(degreesOfFreedom);
 

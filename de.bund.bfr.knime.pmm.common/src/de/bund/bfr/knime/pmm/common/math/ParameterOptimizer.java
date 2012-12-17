@@ -381,7 +381,7 @@ public class ParameterOptimizer {
 				int degreesOfFreedom = targetValues.size() - parameters.size();
 
 				parameterTValues.add(tValue);
-				parameterPValues.add(MathUtilities.getStudentProbability(
+				parameterPValues.add(MathUtilities.getPValue(
 						tValue, degreesOfFreedom));
 			}
 

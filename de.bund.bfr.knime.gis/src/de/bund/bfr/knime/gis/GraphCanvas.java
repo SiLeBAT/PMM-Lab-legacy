@@ -6,18 +6,22 @@ import java.awt.FlowLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
 import org.apache.commons.collections15.Transformer;
 
+import de.bund.bfr.knime.gis.GraphCanvas.Node;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
@@ -25,8 +29,10 @@ import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 
-public class GraphCanvas extends JPanel implements ActionListener {
+public class GraphCanvas extends JPanel implements ActionListener,
+		GraphMouseListener<Node> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -66,9 +72,9 @@ public class GraphCanvas extends JPanel implements ActionListener {
 		if (e.getSource() == applyButton) {
 			try {
 				remove(viewer);
-				add(createViewer((String) layoutBox.getSelectedItem(),
-						Integer.parseInt(nodeSizeField.getText())),
-						BorderLayout.CENTER);
+				viewer = createViewer((String) layoutBox.getSelectedItem(),
+						Integer.parseInt(nodeSizeField.getText()));
+				add(viewer, BorderLayout.CENTER);
 				revalidate();
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
@@ -76,6 +82,22 @@ public class GraphCanvas extends JPanel implements ActionListener {
 						JOptionPane.ERROR_MESSAGE);
 			}
 		}
+	}
+
+	@Override
+	public void graphClicked(Node v, MouseEvent me) {
+		JPopupMenu menu = new JPopupMenu("Properties");
+
+		menu.add(new JMenuItem(v.getRegion()));
+		menu.show(me.getComponent(), me.getX(), me.getY());
+	}
+
+	@Override
+	public void graphPressed(Node v, MouseEvent me) {
+	}
+
+	@Override
+	public void graphReleased(Node v, MouseEvent me) {
 	}
 
 	private VisualizationViewer<Node, Edge> createViewer(String layoutType,
@@ -103,6 +125,7 @@ public class GraphCanvas extends JPanel implements ActionListener {
 
 		vv.setPreferredSize(size);
 		vv.setGraphMouse(new DefaultModalGraphMouse<Integer, String>());
+		vv.addGraphMouseListener(this);
 		vv.getRenderContext().setVertexShapeTransformer(
 				new ShapeTransformer(nodeSize));
 

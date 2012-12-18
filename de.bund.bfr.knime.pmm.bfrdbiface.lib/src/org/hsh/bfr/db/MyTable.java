@@ -149,7 +149,7 @@ public class MyTable {
 		 || tableName.equals("Kostenkatalog") || tableName.equals("Kostenkatalogpreise")
 		 || tableName.equals("Prozessdaten_Kosten") || tableName.equals("Zutatendaten_Kosten")
 		 // StatUp
-		  || tableName.equals("Modellkatalog") || tableName.equals("GeschaetzteModelle")
+		  || tableName.equals("Modellkatalog")
 		  // Jans Tabellen
 		 || tableName.equals("Exposition") || tableName.equals("Risikocharakterisierung") || tableName.equals("Verwendung") 
 		 || tableName.equals("Transport")  || tableName.equals("Methoden_Software") || tableName.equals("Produkt")

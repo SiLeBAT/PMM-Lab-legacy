@@ -124,7 +124,7 @@ public class DBKernel {
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.4.5";
+	public static String DBVersion = "1.4.6";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	public static boolean isStatUp = false;
@@ -1668,13 +1668,19 @@ public class DBKernel {
 					catch (Exception e) {}
 
 				  	String dbVersion = DBKernel.getDBVersion();
-				  	if (dbVersion == null) { //  || dbVersion.equals("1.4.4")
-				  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
-				  		DBKernel.setDBVersion("1.4.4");
-				  	}
-				  	else if (dbVersion.equals("1.4.4")) {
-				  		//UpdateChecker.check4Updates_144_145(DBKernel.myList);
-				  		//DBKernel.setDBVersion("1.4.5");
+				  	if (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion)) {
+					  	if (DBKernel.getDBVersion() == null) {
+					  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.4");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.4")) {
+					  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.5");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+					  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.6");
+					  	}
 				  	}
 		  		}				
 			}

@@ -59,7 +59,6 @@ import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
-import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -491,6 +490,10 @@ public class Login extends JFrame {
 					  	else if (dbVersion.equals("1.4.4")) {
 					  		UpdateChecker.check4Updates_144_145(myList); 
 					  		DBKernel.setDBVersion("1.4.5");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+					  		UpdateChecker.check4Updates_145_146(myList); 
+					  		DBKernel.setDBVersion("1.4.6");
 					  	}
 					  	/*
 					  	else if (dbVersion.equals("1.4.2")) {

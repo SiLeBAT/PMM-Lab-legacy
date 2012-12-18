@@ -51,24 +51,14 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void temporarily(final MyList myList) {
-		/*
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") +
-				" ADD COLUMN " + DBKernel.delimitL("StandardError") + " DOUBLE BEFORE " + DBKernel.delimitL("t"), false);
-		updateChangeLog("GeschaetzteParameter", 9, false);
-		refreshFKs("GeschaetzteParameter");
-		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
-				" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", false);
-		myList.getTable("VarParMaps").createTable();
-		DBKernel.grantDefaults("VarParMaps");
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
-				" ADD COLUMN " + DBKernel.delimitL("BIC") + " DOUBLE BEFORE " + DBKernel.delimitL("Score"), false);
-		updateChangeLog("GeschaetzteModelle", 9, false);
-		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Unitmenge") + "=" + DBKernel.delimitL("#Units1"), false);
-		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("UnitEinheit") + "=" + DBKernel.delimitL("BezUnits1"), false);
-		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("#Units1") + "=NULL", false);
-		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("BezUnits1") + "=NULL", false);
-				*/
+	public static void check4Updates_145_146(final MyList myList) {
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("Guetescore") + " INTEGER BEFORE " + DBKernel.delimitL("Kommentar"), false))
+			updateChangeLog("GeschaetzteModelle", 16, false);		
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("Geprueft") + " BOOLEAN", false))
+			updateChangeLog("GeschaetzteModelle", 18, false);	
+		refreshFKs("GeschaetzteModelle");
 	}
 	public static void check4Updates_144_145(final MyList myList) {
 		
@@ -116,7 +106,7 @@ public class UpdateChecker {
 			updateChangeLog("Lieferungen", 2, true);		
 		}
 		refreshFKs("Lieferungen");
-		refreshFKs("Produktkatalog");
+		refreshFKs("Produktkatalog");		
 	}
 	public static void check4Updates_143_144(final MyList myList) {
 		boolean refreshFK = false;

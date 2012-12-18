@@ -52,7 +52,7 @@ public class SettingsDialog extends JDialog {
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
-		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbPath.getText());
+		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbPath.getText() + System.getProperty("file.separator"));
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
 		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());

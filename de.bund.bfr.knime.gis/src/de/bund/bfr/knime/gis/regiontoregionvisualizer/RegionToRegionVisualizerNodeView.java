@@ -152,8 +152,16 @@ public class RegionToRegionVisualizerNodeView extends
 				DataRow row = nodeIt.next();
 				String id = row.getCell(nodeIdIndex).toString().trim();
 				String region = row.getCell(nodeRegionIndex).toString().trim();
+				Map<String, String> properties = new LinkedHashMap<String, String>();
 
-				nodes.put(id, new GraphCanvas.Node(region));
+				for (int i = 0; i < nodeTable.getDataTableSpec()
+						.getNumColumns(); i++) {
+					properties.put(nodeTable.getDataTableSpec()
+							.getColumnSpec(i).getName().trim(), row.getCell(i)
+							.toString().trim());
+				}
+
+				nodes.put(id, new GraphCanvas.Node(region, properties));
 			} catch (Exception e) {
 			}
 		}

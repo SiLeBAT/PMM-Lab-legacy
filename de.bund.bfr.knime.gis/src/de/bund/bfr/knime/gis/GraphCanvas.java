@@ -1,22 +1,24 @@
 package de.bund.bfr.knime.gis;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
 import org.apache.commons.collections15.Transformer;
@@ -86,10 +88,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	@Override
 	public void graphClicked(Node v, MouseEvent me) {
-		JPopupMenu menu = new JPopupMenu("Properties");
+		NodePropertiesDialog dialog = new NodePropertiesDialog(
+				me.getComponent(), v);
 
-		menu.add(new JMenuItem(v.getRegion()));
-		menu.show(me.getComponent(), me.getX(), me.getY());
+		dialog.setLocation(me.getLocationOnScreen());
+		dialog.setVisible(true);
 	}
 
 	@Override
@@ -157,13 +160,19 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	public static class Node {
 
 		private String region;
+		private Map<String, String> properties;
 
-		public Node(String region) {
+		public Node(String region, Map<String, String> properties) {
 			this.region = region;
+			this.properties = properties;
 		}
 
 		public String getRegion() {
 			return region;
+		}
+
+		public Map<String, String> getProperties() {
+			return properties;
 		}
 	}
 
@@ -208,6 +217,57 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return circle;
 		}
 
+	}
+
+	private static class NodePropertiesDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		public NodePropertiesDialog(Component parent, Node node) {
+			super(JOptionPane.getFrameForComponent(parent), "Properties", true);
+
+			JPanel centerPanel = new JPanel();
+			JPanel leftCenterPanel = new JPanel();
+			JPanel rightCenterPanel = new JPanel();
+
+			leftCenterPanel.setLayout(new GridLayout(node.getProperties()
+					.size(), 1, 5, 5));
+			rightCenterPanel.setLayout(new GridLayout(node.getProperties()
+					.size(), 1, 5, 5));
+
+			for (Map.Entry<String, String> property : node.getProperties()
+					.entrySet()) {
+				JTextField field = new JTextField(property.getValue());
+
+				field.setEditable(false);
+				leftCenterPanel.add(new JLabel(property.getKey() + ":"));
+				rightCenterPanel.add(field);
+			}
+
+			centerPanel.setLayout(new BorderLayout(5, 5));
+			centerPanel.add(leftCenterPanel, BorderLayout.WEST);
+			centerPanel.add(rightCenterPanel, BorderLayout.CENTER);
+
+			JButton okButton = new JButton("OK");
+			JPanel bottomPanel = new JPanel();
+
+			okButton.addActionListener(this);
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
 	}
 
 }

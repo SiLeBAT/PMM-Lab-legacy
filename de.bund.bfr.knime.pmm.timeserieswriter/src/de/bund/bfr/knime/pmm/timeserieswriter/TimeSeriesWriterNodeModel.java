@@ -239,7 +239,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     }
     private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
     	KnimeSchema result = null;
-    	String errorMsg = "Expected format: TS";
+    	String errorMsg = "Unexpected format - Microbial data is not present in the columns of the incoming table";
     	KnimeSchema inSchema = new TimeSeriesSchema();
     	try {
     		if (inSchema.conforms(inSpec)) {

@@ -265,7 +265,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     }
     private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
     	KnimeSchema result = null;
-		String errorMsg = "Expected format: M1 or M2";
+		String errorMsg = "Unexpected format - Model definitions are not present in the columns of the incoming table";
 		KnimeSchema inSchema = new Model1Schema();
 		try {
 			if (inSchema.conforms(inSpec)) {

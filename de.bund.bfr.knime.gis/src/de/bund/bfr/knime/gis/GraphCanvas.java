@@ -13,11 +13,14 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -30,6 +33,9 @@ import org.apache.commons.collections15.Transformer;
 import de.bund.bfr.knime.gis.GraphCanvas.Node;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.algorithms.layout.FRLayout2;
+import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
+import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
@@ -45,7 +51,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private static final String CIRCLE_LAYOUT = "Circle Layout";
 	private static final String FR_LAYOUT = "FR Layout";
-	private static final String[] LAYOUTS = { CIRCLE_LAYOUT, FR_LAYOUT };
+	private static final String FR_LAYOUT_2 = "FR Layout 2";
+	private static final String ISOM_LAYOUT = "ISOM Layout";
+	private static final String KK_LAYOUT = "KK Layout";
+	private static final String[] LAYOUTS = { CIRCLE_LAYOUT, FR_LAYOUT,
+			FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT };
 
 	private static final String TRANSFORMING_MODE = "Transforming";
 	private static final String PICKING_MODE = "Picking";
@@ -53,9 +63,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
+	private static final boolean DEFAULT_HIDE_NODES = true;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
 
-	private Graph<Node, Edge> graph;
+	private List<Node> nodes;
+	private List<Edge> edges;
 	private VisualizationViewer<Node, Edge> viewer;
 	private DefaultModalGraphMouse<Integer, String> mouseModel;
 
@@ -65,22 +77,15 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private JComboBox<String> layoutBox;
 	private JTextField nodeSizeField;
+	private JCheckBox hideNodeBox;
 	private JButton applyButton;
 	private JComboBox<String> modeBox;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges) {
-		graph = new SparseMultigraph<Node, Edge>();
+		this.nodes = nodes;
+		this.edges = edges;
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
 		selectedNodes = new ArrayList<Node>();
-
-		for (Node node : nodes) {
-			graph.addVertex(node);
-		}
-
-		for (Edge edge : edges) {
-			graph.addEdge(edge, edge.getN1(), edge.getN2());
-		}
-
 		mouseModel = new DefaultModalGraphMouse<Integer, String>();
 
 		if (DEFAULT_MODE.equals(TRANSFORMING_MODE)) {
@@ -89,7 +94,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			mouseModel.setMode(Mode.PICKING);
 		}
 
-		viewer = createViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE);
+		viewer = createViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE,
+				DEFAULT_HIDE_NODES);
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(createOptionsPanel(), BorderLayout.SOUTH);
@@ -109,7 +115,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			try {
 				remove(viewer);
 				viewer = createViewer((String) layoutBox.getSelectedItem(),
-						Integer.parseInt(nodeSizeField.getText()));
+						Integer.parseInt(nodeSizeField.getText()),
+						hideNodeBox.isSelected());
 				add(viewer, BorderLayout.CENTER);
 				revalidate();
 			} catch (NumberFormatException ex) {
@@ -161,9 +168,23 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	}
 
 	private VisualizationViewer<Node, Edge> createViewer(String layoutType,
-			int nodeSize) {
+			int nodeSize, boolean hideNodes) {
+		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
 		Layout<Node, Edge> layout = null;
+		Set<Node> usedNodes = new LinkedHashSet<Node>();
+
+		for (Edge edge : edges) {
+			graph.addEdge(edge, edge.getN1(), edge.getN2());
+			usedNodes.add(edge.getN1());
+			usedNodes.add(edge.getN2());
+		}
+
+		for (Node node : nodes) {
+			if (!hideNodes || usedNodes.contains(node)) {
+				graph.addVertex(node);
+			}
+		}
 
 		if (viewer != null) {
 			size = viewer.getSize();
@@ -175,7 +196,12 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			layout = new CircleLayout<Node, Edge>(graph);
 		} else if (layoutType.equals(FR_LAYOUT)) {
 			layout = new FRLayout<Node, Edge>(graph);
-			((FRLayout<Node, Edge>) layout).setMaxIterations(100);
+		} else if (layoutType.equals(FR_LAYOUT_2)) {
+			layout = new FRLayout2<Node, Edge>(graph);
+		} else if (layoutType.equals(ISOM_LAYOUT)) {
+			layout = new ISOMLayout<Node, Edge>(graph);
+		} else if (layoutType.equals(KK_LAYOUT)) {
+			layout = new KKLayout<Node, Edge>(graph);
 		}
 
 		layout.setSize(size);
@@ -199,6 +225,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		nodeSizeField = new JTextField("" + DEFAULT_NODESIZE);
 		nodeSizeField.setPreferredSize(new Dimension(50, nodeSizeField
 				.getPreferredSize().height));
+		hideNodeBox = new JCheckBox("Hide Nodes without Links");
+		hideNodeBox.setSelected(DEFAULT_HIDE_NODES);
 		applyButton = new JButton("Apply");
 		applyButton.addActionListener(this);
 		modeBox = new JComboBox<String>(MODES);
@@ -213,6 +241,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		layoutPanel.add(layoutBox);
 		layoutPanel.add(new JLabel("Node Size:"));
 		layoutPanel.add(nodeSizeField);
+		layoutPanel.add(hideNodeBox);
 		layoutPanel.add(applyButton);
 
 		JPanel modePanel = new JPanel();

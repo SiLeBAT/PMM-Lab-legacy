@@ -90,6 +90,7 @@ public class StartApp {
 	  		login.setVisible(true);	    	  
 	  	}
 	  	else {
+	  		DBKernel.myList.getMyDBTable().initConn(conn);
     	  	MyTable myT = DBKernel.myList.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);

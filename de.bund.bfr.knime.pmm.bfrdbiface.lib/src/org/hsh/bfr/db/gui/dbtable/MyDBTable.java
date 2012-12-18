@@ -247,7 +247,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 	}
 	public boolean setTable(final MyTable myT) {
-		return setTable(myT, null);
+		return setTable(myT, filterConditions); // null
 	}
 	  @SuppressWarnings("unchecked")
 	public boolean setTable(final MyTable myT, final Object[][] conditions) {

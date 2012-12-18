@@ -166,7 +166,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 			}
 		    
 		    boolean isAdmin  = DBKernel.isAdmin();
-		    if (isAdmin && (!DBKernel.isKNIME || DBKernel.debug)) {
+		    if (isAdmin) { //  && (!DBKernel.isKNIME || DBKernel.debug)
 				root.add(children[SystemTabellen_LIST]);
 			}		
 		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[BasisTabellen_LIST]);

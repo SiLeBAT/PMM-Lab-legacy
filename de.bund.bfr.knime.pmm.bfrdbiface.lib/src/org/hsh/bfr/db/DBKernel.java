@@ -106,7 +106,7 @@ public class DBKernel {
 	public static boolean importing = false;
 	public static boolean dontLog = false;
 	
-	public static Preferences prefs = null;
+	public static Preferences prefs = Preferences.userNodeForPackage(Login.class);
 	public static MyList myList = null;
 	public static MyDBTable topTable = null;
 	public static MainFrame mainFrame = null;
@@ -783,7 +783,7 @@ public class DBKernel {
 	    String connStr = "jdbc:hsqldb:hsql://" + serverPath;// + (isKNIME ? ";readonly=true" : "");// + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";
 	    try {
 	    	result = DriverManager.getConnection(connStr, dbUsername, dbPassword);	    		
-	    	if (isKNIME) result.setReadOnly(true);
+	    	if (isKNIME) result.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 	    }
 	    catch(Exception e) {
 	    	passFalse = e.getMessage().startsWith("invalid authorization specification");
@@ -821,7 +821,7 @@ public class DBKernel {
     	result = DriverManager.getConnection(connStr
     			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
     			,dbUsername, dbPassword);  
-    	if (isKNIME) result.setReadOnly(true);
+    	if (isKNIME) result.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     }
     catch(Exception e) {
     	// Database lock acquisition failure: lockFile: org.hsqldb.persist.LockFile@137939d4[file =C:\Dokumente und Einstellungen\Weiser\.localHSH\BfR\DBs\DB.lck, exists=true, locked=false, valid=false, ] method: checkHeartbeat read: 2010-12-08 09:08:12 heartbeat - read: -4406 ms.
@@ -1593,19 +1593,22 @@ public class DBKernel {
 	public static void openDBGUI() {
 		final Connection connection = getLocalConn(true);
 		try {
-			connection.setReadOnly(true);
+			connection.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
 		StartApp.go(connection);
 	}
+	public static String getInternalDefaultDBPath() {
+		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
+				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
+	}
 	public static Connection getInternalKNIMEDB_LoadGui() {
 		Connection result = null;
 		try {
 			// Create a file object from the URL
-			String internalPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
-				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
+			String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
 			File incFileInternalDBFolder = new File(internalPath);
 			if (!incFileInternalDBFolder.exists()) {
 				incFileInternalDBFolder.mkdirs();
@@ -1631,8 +1634,10 @@ public class DBKernel {
 			}
 			try {
 			  	HSHDB_PATH = internalPath;
-				result = getDBConnection(getTempSA(), getTempSAPass());
-				if (result == null) result = getDBConnection(getTempSA(true), getTempSAPass(true));
+				result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA()),
+						DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass()));
+				if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(true)),
+						DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(true)));
 				// UpdateChecker
 		  		if (DBKernel.myList == null) {
 		    	  	Login login = new Login();

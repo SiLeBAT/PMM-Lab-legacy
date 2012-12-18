@@ -336,7 +336,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
-    	db.getConnection().setReadOnly(true);
+    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }
@@ -505,7 +505,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     }
     private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
     	KnimeSchema result = null;
-    	String errorMsg = "Expected format: TS and (M1 or M1 and M2)";
+    	String errorMsg = "Unexpected format - it is not possible to save secondary models without defined primary models"; // "Expected format: TS and (M1 or M1 and M2)";
     	KnimeSchema inSchema = new TimeSeriesSchema();
     	try {
     		if (inSchema.conforms(inSpec)) {

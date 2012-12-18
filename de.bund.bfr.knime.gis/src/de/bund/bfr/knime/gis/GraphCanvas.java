@@ -13,6 +13,7 @@ import java.awt.geom.Ellipse2D;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -32,6 +33,7 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
+import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphCanvas extends JPanel implements ActionListener,
 		GraphMouseListener<Node> {
@@ -42,15 +44,22 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private static final String FR_LAYOUT = "FR Layout";
 	private static final String[] LAYOUTS = { CIRCLE_LAYOUT, FR_LAYOUT };
 
+	private static final String TRANSFORMATION_MODE = "Transformation";
+	private static final String PICKING_MODE = "Picking";
+	private static final String[] MODES = { TRANSFORMATION_MODE, PICKING_MODE };
+
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
+	private static final String DEFAULT_MODE = TRANSFORMATION_MODE;
 
 	private Graph<Node, Edge> graph;
 	private VisualizationViewer<Node, Edge> viewer;
+	private DefaultModalGraphMouse<Integer, String> mouseModel;
 
 	private JComboBox<String> layoutBox;
 	private JTextField nodeSizeField;
 	private JButton applyButton;
+	private JComboBox<String> modeBox;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges) {
 		graph = new SparseMultigraph<Node, Edge>();
@@ -61,6 +70,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		for (Edge edge : edges) {
 			graph.addEdge(edge, edge.getN1(), edge.getN2());
+		}
+
+		mouseModel = new DefaultModalGraphMouse<Integer, String>();
+
+		if (DEFAULT_MODE.equals(TRANSFORMATION_MODE)) {
+			mouseModel.setMode(Mode.TRANSFORMING);
+		} else if (DEFAULT_MODE.equals(PICKING_MODE)) {
+			mouseModel.setMode(Mode.PICKING);
 		}
 
 		viewer = createViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE);
@@ -83,16 +100,24 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						"Node Size must be Integer Value", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
+		} else if (e.getSource() == modeBox) {
+			if (modeBox.getSelectedItem().equals(TRANSFORMATION_MODE)) {
+				mouseModel.setMode(Mode.TRANSFORMING);
+			} else if (modeBox.getSelectedItem().equals(PICKING_MODE)) {
+				mouseModel.setMode(Mode.PICKING);
+			}
 		}
 	}
 
 	@Override
 	public void graphClicked(Node v, MouseEvent me) {
-		NodePropertiesDialog dialog = new NodePropertiesDialog(
-				me.getComponent(), v);
+		if (me.getButton() == MouseEvent.BUTTON3) {
+			NodePropertiesDialog dialog = new NodePropertiesDialog(
+					me.getComponent(), v);
 
-		dialog.setLocation(me.getLocationOnScreen());
-		dialog.setVisible(true);
+			dialog.setLocation(me.getLocationOnScreen());
+			dialog.setVisible(true);
+		}
 	}
 
 	@Override
@@ -127,7 +152,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				layout);
 
 		vv.setPreferredSize(size);
-		vv.setGraphMouse(new DefaultModalGraphMouse<Integer, String>());
+		vv.setGraphMouse(mouseModel);
 		vv.addGraphMouseListener(this);
 		vv.getRenderContext().setVertexShapeTransformer(
 				new ShapeTransformer(nodeSize));
@@ -138,21 +163,36 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private JPanel createOptionsPanel() {
 		layoutBox = new JComboBox<String>(LAYOUTS);
 		layoutBox.setSelectedItem(DEFAULT_LAYOUT);
-		layoutBox.addActionListener(this);
 		nodeSizeField = new JTextField("" + DEFAULT_NODESIZE);
 		nodeSizeField.setPreferredSize(new Dimension(50, nodeSizeField
 				.getPreferredSize().height));
 		applyButton = new JButton("Apply");
 		applyButton.addActionListener(this);
+		modeBox = new JComboBox<String>(MODES);
+		modeBox.setSelectedItem(DEFAULT_MODE);
+		modeBox.addActionListener(this);
+
+		JPanel layoutPanel = new JPanel();
+
+		layoutPanel.setBorder(BorderFactory.createTitledBorder("Layout"));
+		layoutPanel.setLayout(new FlowLayout());
+		layoutPanel.add(new JLabel("Type:"));
+		layoutPanel.add(layoutBox);
+		layoutPanel.add(new JLabel("Node Size:"));
+		layoutPanel.add(nodeSizeField);
+		layoutPanel.add(applyButton);
+
+		JPanel modePanel = new JPanel();
+
+		modePanel.setBorder(BorderFactory.createTitledBorder("Editing Mode"));
+		modePanel.setLayout(new FlowLayout());
+		modePanel.add(modeBox);
 
 		JPanel panel = new JPanel();
 
-		panel.setLayout(new FlowLayout());
-		panel.add(new JLabel("Layout Type:"));
-		panel.add(layoutBox);
-		panel.add(new JLabel("Node Size:"));
-		panel.add(nodeSizeField);
-		panel.add(applyButton);
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel.add(layoutPanel);
+		panel.add(modePanel);
 
 		return panel;
 	}

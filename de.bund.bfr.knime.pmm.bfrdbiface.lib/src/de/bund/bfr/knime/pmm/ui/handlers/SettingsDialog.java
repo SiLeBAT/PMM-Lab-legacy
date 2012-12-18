@@ -6,6 +6,8 @@ package de.bund.bfr.knime.pmm.ui.handlers;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+
 import javax.swing.*;
 
 import org.hsh.bfr.db.DBKernel;
@@ -52,13 +54,15 @@ public class SettingsDialog extends JDialog {
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
-		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbPath.getText() + System.getProperty("file.separator"));
+		String dbt = dbPath.getText().endsWith(System.getProperty("file.separator")) ? dbPath.getText() : dbPath.getText() + System.getProperty("file.separator");
+		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
 		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
 		DBKernel.closeDBConnections(false);
-		DBKernel.getLocalConn(true);
-		//DBKernel.myList.getMyDBTable().setTable();
+		Connection conn = DBKernel.getLocalConn(true);
+  		DBKernel.myList.getMyDBTable().initConn(conn);
+		DBKernel.myList.getMyDBTable().setTable();
 		//DBKernel.myList.setSelection("Matrices");
 		//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
 		this.dispose();

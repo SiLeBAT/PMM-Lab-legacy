@@ -200,7 +200,7 @@ public class MyTable {
 	public void restoreProperties(MyDBTable myDB) {
 		JTable bigTable = myDB.getTable();
 		try{myDB.getMyDBPanel().getSuchfeld().setText(searchString);myDB.getMyDBPanel().handleSuchfeldChange(null);}catch (Exception e) {}
-		if (sortKeyList != null) {
+		if (sortKeyList != null && bigTable.getRowSorter() != null) {
 			bigTable.getRowSorter().setSortKeys(sortKeyList);
 			@SuppressWarnings("unchecked")
 			TableRowSorter<TableModel> sorter = (TableRowSorter<TableModel>) bigTable.getRowSorter();

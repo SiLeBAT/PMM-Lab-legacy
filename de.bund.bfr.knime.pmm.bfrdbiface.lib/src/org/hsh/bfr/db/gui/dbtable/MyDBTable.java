@@ -112,7 +112,7 @@ import org.hsh.bfr.db.gui.dbtable.header.TableRowHeaderResizer;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyBooleanSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyComboSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyDatetimeSorter;
-import org.hsh.bfr.db.gui.dbtable.sorter.MyDblComboSorter;
+import org.hsh.bfr.db.gui.dbtable.sorter.MyDblKZSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyDoubleSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyIntegerSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyLongSorter;
@@ -856,6 +856,25 @@ if (myDBPanel1 != null) {
 		}
 		this.getTable().requestFocus();
 	}
+	private void initSorter() {
+		// Sorter initialisieren
+		if (actualTable.isReadOnly()) {
+			sorterModel = new MyTableModel4Sorter(this); 
+			sorter = new TableRowSorter<TableModel>(sorterModel); //this.getTable().getModel());//new MyTableModel4Sorter(this)); //
+			sorter.setMaxSortKeys(1); // eins genügt wohl
+			sorter.addRowSorterListener(this);
+			sorter.setSortsOnUpdates(false); // lieber nicht, danach ist alles immer so unübersichtlich.
+			this.getTable().setRowSorter(sorter);      
+      			
+			sorter.setComparator(1, new MyIntegerSorter()); // ID
+		}
+		else {
+			sorterModel = null;
+			sorter = null;
+			this.getTable().setRowSorter(null);
+		}
+      		
+	}
 	private void prepareColumns() {
 		Column c = this.getColumn(0);
 		c.setReadOnly(true);
@@ -868,18 +887,7 @@ if (myDBPanel1 != null) {
 
       //this.getTable().getTableHeader().addMouseListener((new MyTableHeaderMouseListener(this)));		
       
-		// Sorter initialisieren
-		if (false && actualTable.isReadOnly()) {
-			sorterModel = new MyTableModel4Sorter(this); 
-			sorter = new TableRowSorter<TableModel>(sorterModel); //this.getTable().getModel());//new MyTableModel4Sorter(this)); //
-			sorter.setMaxSortKeys(1); // eins genügt wohl
-			sorter.addRowSorterListener(this);
-			sorter.setSortsOnUpdates(false); // lieber nicht, danach ist alles immer so unübersichtlich.
-			this.getTable().setRowSorter(sorter);      
-      			
-			sorter.setComparator(1, new MyIntegerSorter()); // ID
-		}
-      
+			initSorter();
 /*
       for (int i=0;i<this.getTable().getColumnCount();i++) {
       	System.out.println(i + "\t" + this.getTable().convertColumnIndexToModel(i) + "\t" + this.getTable().convertColumnIndexToView(i)
@@ -1124,7 +1132,7 @@ if (myDBPanel1 != null) {
 					    			System.err.println("Wasn jetzt los? keine DoubleKennzahlen???");
 					    		}
 					    		if (sorter != null) {
-									sorter.setComparator(i+2, new MyDblComboSorter(hashBox, i));
+									sorter.setComparator(i+2, new MyDblKZSorter());
 								}			
 						    	//tooltip += "\nHier sind mehrere Einträge/Kennzahlen möglich!";
 					    	}

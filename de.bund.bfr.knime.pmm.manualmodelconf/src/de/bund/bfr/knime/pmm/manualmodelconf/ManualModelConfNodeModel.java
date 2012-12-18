@@ -71,6 +71,10 @@ public class ManualModelConfNodeModel extends NodeModel {
 	
 	static final String CFGKEY_AGENT = "Agent";
 	static final String CFGKEY_MATRIX = "Matrix";
+	static final String CFGKEY_AGENTID = "AgentID";
+	static final String CFGKEY_MATRIXID = "MatrixID";
+	static final String CFGKEY_AGENTDETAIL = "AgentDetail";
+	static final String CFGKEY_MATRIXDETAIL = "MatrixDetail";
 	static final String CFGKEY_COMMENT = "Comment";
 	static final String CFGKEY_TEMPERATURE = "Temperature";
 	static final String CFGKEY_PH = "pH";
@@ -80,6 +84,10 @@ public class ManualModelConfNodeModel extends NodeModel {
 		
 	private String agent;
 	private String matrix;
+	private String agentDetail;
+	private String matrixDetail;
+	private Integer agentID;
+	private Integer matrixID;
 	private String comment;
 	private Double temperature;
 	private Double ph;
@@ -106,8 +114,12 @@ public class ManualModelConfNodeModel extends NodeModel {
     	if (doc != null) {        	
         	KnimeTuple tupleM1 = null;
 			PmmTimeSeries tstuple = new PmmTimeSeries();
-			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
-			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrix);
+			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail);
+			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail);
+			tstuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agent);
+			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrix);
+			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
+			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
 			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
 			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
 			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
@@ -253,9 +265,21 @@ public class ManualModelConfNodeModel extends NodeModel {
 		if (agent != null) {
 			settings.addString(CFGKEY_AGENT, agent);
 		}
+		if (agentID != null) {
+			settings.addInt(CFGKEY_AGENTID, agentID);
+		}
+		if (agentDetail != null) {
+			settings.addString(CFGKEY_AGENTDETAIL, agentDetail);
+		}
 
 		if (matrix != null) {
 			settings.addString(CFGKEY_MATRIX, matrix);
+		}
+		if (matrixID != null) {
+			settings.addInt(CFGKEY_MATRIXID, matrixID);
+		}
+		if (matrixDetail != null) {
+			settings.addString(CFGKEY_MATRIXDETAIL, matrixDetail);
 		}
 
 		if (comment != null) {
@@ -301,6 +325,18 @@ public class ManualModelConfNodeModel extends NodeModel {
 		catch (InvalidSettingsException e) {
 			agent = null;
 		}
+		try {
+			agentID = settings.getInt(CFGKEY_AGENTID);
+		}
+		catch (InvalidSettingsException e) {
+			agentID = null;
+		}
+		try {
+			agentDetail = settings.getString(CFGKEY_AGENTDETAIL);
+		}
+		catch (InvalidSettingsException e) {
+			agentDetail = null;
+		}
 
 		try {
 			matrix = settings.getString(CFGKEY_MATRIX);
@@ -308,6 +344,19 @@ public class ManualModelConfNodeModel extends NodeModel {
 		catch (InvalidSettingsException e) {
 			matrix = null;
 		}
+		try {
+			matrixID = settings.getInt(CFGKEY_MATRIXID);
+		}
+		catch (InvalidSettingsException e) {
+			matrixID = null;
+		}
+		try {
+			matrixDetail = settings.getString(CFGKEY_MATRIXDETAIL);
+		}
+		catch (InvalidSettingsException e) {
+			matrixDetail = null;
+		}
+
 
 		try {
 			comment = settings.getString(CFGKEY_COMMENT);

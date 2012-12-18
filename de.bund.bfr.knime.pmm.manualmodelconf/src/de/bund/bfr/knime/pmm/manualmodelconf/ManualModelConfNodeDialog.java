@@ -102,18 +102,19 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 		try {
 			//PmmTimeSeries ts = confui.getTS();
 			PmmTimeSeries ts = m_mmcts.getTS();
-			if (ts.getAgentDetail() != null) {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentDetail());
-			}
-			else {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, "");
-			}
-			if (ts.getMatrixDetail() != null) {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixDetail());
-			}
-			else {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, "");
-			}
+			if (ts.getAgentDetail() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL, ts.getAgentDetail());}
+			else {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL, "");}
+			if (ts.getAgentName() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentName());}
+			else {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, "");}
+			if (ts.getAgentId() != null) {settings.addInt(ManualModelConfNodeModel.CFGKEY_AGENTID, ts.getAgentId());}
+			else {settings.addInt(ManualModelConfNodeModel.CFGKEY_AGENTID, -1);}
+			if (ts.getMatrixDetail() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL, ts.getMatrixDetail());}
+			else {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL, "");}
+			if (ts.getMatrixName() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixName());}
+			else {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, "");}
+			if (ts.getMatrixId() != null) {settings.addInt(ManualModelConfNodeModel.CFGKEY_MATRIXID, ts.getMatrixId());}
+			else {settings.addInt(ManualModelConfNodeModel.CFGKEY_MATRIXID, -1);}
+			
 			if (ts.getComment() != null) {
 				settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, ts.getComment());
 			}
@@ -130,13 +131,13 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 				settings.addDouble(ManualModelConfNodeModel.CFGKEY_PH, ts.getPh());
 			}
 			else {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, Double.NaN);
+				settings.addDouble(ManualModelConfNodeModel.CFGKEY_PH, Double.NaN);
 			}
 			if (ts.getWaterActivity() != null) {
 				settings.addDouble(ManualModelConfNodeModel.CFGKEY_AW, ts.getWaterActivity());
 			}
 			else {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, Double.NaN);
+				settings.addDouble(ManualModelConfNodeModel.CFGKEY_AW, Double.NaN);
 			}
 		}
 		catch (PmmException e) {
@@ -213,13 +214,17 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 			
 			try {
 				m_mmcts.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
+						settings.getString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL),
+						settings.getInt(ManualModelConfNodeModel.CFGKEY_AGENTID),
 						settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
+						settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL),
+						settings.getInt(ManualModelConfNodeModel.CFGKEY_MATRIXID),
 						settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
 						settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
 						settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
 						settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
 			}
-			catch (Exception e) {}
+			catch (Exception e) {} // e.printStackTrace();
 		}
 	}
 }

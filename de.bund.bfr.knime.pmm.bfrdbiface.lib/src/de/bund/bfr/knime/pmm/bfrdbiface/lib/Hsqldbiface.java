@@ -133,6 +133,6 @@ public class Hsqldbiface {
 	private void setDBUUID(final String uuid) throws SQLException {
 		conn.setReadOnly(false);
 		pushUpdate("INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')");
-		conn.setReadOnly(true);
+		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 	}
 }

@@ -250,7 +250,8 @@ public class MyTable {
 		return hideKommentar;
 	}
 	public boolean isReadOnly() {
-		return DBKernel.isKNIME || tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher");
+		return tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
+				DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);
 	}
 	public Vector<Integer> getMyBLOBs() {
 		Vector<Integer> myBLOBs = new Vector<Integer>();

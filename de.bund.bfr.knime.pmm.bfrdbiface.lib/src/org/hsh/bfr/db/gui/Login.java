@@ -108,13 +108,13 @@ public class Login extends JFrame {
 	private boolean firstRun;
 	
 	public Login() {
-		DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());		
+		//DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());		
 	}
 	public Login(final boolean firstRun) {
 		this.firstRun = firstRun;
 		initComponents();	
 		DBKernel.login = this;
-		DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());
+		//DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());
 		String lastUser = DBKernel.prefs.get("LAST_USER_LOGIN", "");
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);

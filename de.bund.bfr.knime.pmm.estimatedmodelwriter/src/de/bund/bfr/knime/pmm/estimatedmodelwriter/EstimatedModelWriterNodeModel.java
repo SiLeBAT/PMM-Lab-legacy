@@ -336,7 +336,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
-    	db.getConnection().setReadOnly(true);
+    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }

@@ -186,7 +186,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			}
 		}
     	
-    	db.getConnection().setReadOnly(true);
+    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }

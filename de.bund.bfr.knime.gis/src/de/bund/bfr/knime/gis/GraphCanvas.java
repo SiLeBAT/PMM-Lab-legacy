@@ -37,6 +37,8 @@ import edu.uci.ics.jung.algorithms.layout.FRLayout2;
 import edu.uci.ics.jung.algorithms.layout.ISOMLayout;
 import edu.uci.ics.jung.algorithms.layout.KKLayout;
 import edu.uci.ics.jung.algorithms.layout.Layout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout;
+import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -54,8 +56,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private static final String FR_LAYOUT_2 = "FR Layout 2";
 	private static final String ISOM_LAYOUT = "ISOM Layout";
 	private static final String KK_LAYOUT = "KK Layout";
+	private static final String SPRING_LAYOUT = "Spring Layout";
+	private static final String SPRING_LAYOUT_2 = "Spring Layout 2";
 	private static final String[] LAYOUTS = { CIRCLE_LAYOUT, FR_LAYOUT,
-			FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT };
+			FR_LAYOUT_2, ISOM_LAYOUT, KK_LAYOUT, SPRING_LAYOUT, SPRING_LAYOUT_2 };
 
 	private static final String TRANSFORMING_MODE = "Transforming";
 	private static final String PICKING_MODE = "Picking";
@@ -86,16 +90,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		this.edges = edges;
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
 		selectedNodes = new ArrayList<Node>();
-		mouseModel = new DefaultModalGraphMouse<Integer, String>();
 
-		if (DEFAULT_MODE.equals(TRANSFORMING_MODE)) {
-			mouseModel.setMode(Mode.TRANSFORMING);
-		} else if (DEFAULT_MODE.equals(PICKING_MODE)) {
-			mouseModel.setMode(Mode.PICKING);
-		}
+		mouseModel = null;
+		updateMouseModel(DEFAULT_MODE);
 
-		viewer = createViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE,
-				DEFAULT_HIDE_NODES);
+		viewer = null;
+		updateViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE, DEFAULT_HIDE_NODES);
+
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(createOptionsPanel(), BorderLayout.SOUTH);
@@ -113,23 +114,16 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == applyButton) {
 			try {
-				remove(viewer);
-				viewer = createViewer((String) layoutBox.getSelectedItem(),
+				updateViewer((String) layoutBox.getSelectedItem(),
 						Integer.parseInt(nodeSizeField.getText()),
 						hideNodeBox.isSelected());
-				add(viewer, BorderLayout.CENTER);
-				revalidate();
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
 						"Node Size must be Integer Value", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} else if (e.getSource() == modeBox) {
-			if (modeBox.getSelectedItem().equals(TRANSFORMING_MODE)) {
-				mouseModel.setMode(Mode.TRANSFORMING);
-			} else if (modeBox.getSelectedItem().equals(PICKING_MODE)) {
-				mouseModel.setMode(Mode.PICKING);
-			}
+			updateMouseModel((String) modeBox.getSelectedItem());
 		}
 	}
 
@@ -167,8 +161,19 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	public void graphReleased(Node v, MouseEvent me) {
 	}
 
-	private VisualizationViewer<Node, Edge> createViewer(String layoutType,
-			int nodeSize, boolean hideNodes) {
+	private void updateMouseModel(String mode) {
+		if (mouseModel == null) {
+			mouseModel = new DefaultModalGraphMouse<Integer, String>();
+		}
+
+		if (mode.equals(TRANSFORMING_MODE)) {
+			mouseModel.setMode(Mode.TRANSFORMING);
+		} else if (mode.equals(PICKING_MODE)) {
+			mouseModel.setMode(Mode.PICKING);
+		}
+	}
+
+	private void updateViewer(String layoutType, int nodeSize, boolean hideNodes) {
 		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
 		Layout<Node, Edge> layout = null;
@@ -202,21 +207,27 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			layout = new ISOMLayout<Node, Edge>(graph);
 		} else if (layoutType.equals(KK_LAYOUT)) {
 			layout = new KKLayout<Node, Edge>(graph);
+		} else if (layoutType.equals(SPRING_LAYOUT)) {
+			layout = new SpringLayout<Node, Edge>(graph);
+		} else if (layoutType.equals(SPRING_LAYOUT_2)) {
+			layout = new SpringLayout2<Node, Edge>(graph);
 		}
 
 		layout.setSize(size);
 
-		VisualizationViewer<Node, Edge> vv = new VisualizationViewer<Node, Edge>(
-				layout);
-
-		vv.setPreferredSize(size);
-		vv.setGraphMouse(mouseModel);
-		vv.addGraphMouseListener(this);
-		vv.getRenderContext().setVertexShapeTransformer(
-				new ShapeTransformer(nodeSize));
-		vv.getPickedVertexState().addItemListener(this);
-
-		return vv;
+		if (viewer != null) {
+			viewer.setGraphLayout(layout);
+			viewer.getRenderContext().setVertexShapeTransformer(
+					new ShapeTransformer(nodeSize));
+		} else {
+			viewer = new VisualizationViewer<Node, Edge>(layout);
+			viewer.setPreferredSize(size);
+			viewer.setGraphMouse(mouseModel);
+			viewer.addGraphMouseListener(this);
+			viewer.getPickedVertexState().addItemListener(this);
+			viewer.getRenderContext().setVertexShapeTransformer(
+					new ShapeTransformer(nodeSize));
+		}
 	}
 
 	private JPanel createOptionsPanel() {

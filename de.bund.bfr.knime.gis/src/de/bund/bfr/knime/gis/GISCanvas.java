@@ -75,6 +75,7 @@ public class GISCanvas extends JComponent implements ActionListener,
 	private Map<String, Rectangle2D.Double> shapeBoundingBoxes;
 	private Map<String, Double> regionData;
 	private Map<Edge, Double> edgeData;
+	private List<String> highlightedRegions;
 
 	private boolean transformComputed;
 	private double scaleX;
@@ -138,6 +139,10 @@ public class GISCanvas extends JComponent implements ActionListener,
 		this.edgeData = edgeData;
 	}
 
+	public void setHighlightedRegions(List<String> highlightedRegions) {
+		this.highlightedRegions = highlightedRegions;
+	}
+
 	@Override
 	protected void paintComponent(Graphics g) {
 		if (!transformComputed) {
@@ -180,6 +185,20 @@ public class GISCanvas extends JComponent implements ActionListener,
 						for (Polygon part : poly) {
 							g.fillPolygon(part);
 						}
+					}
+				}
+			}
+		}
+
+		if (highlightedRegions != null) {
+			for (String id : highlightedRegions) {
+				List<Polygon> poly = transformedShapes.get(id);
+
+				if (poly != null) {
+					g.setColor(Color.GREEN);
+
+					for (Polygon part : poly) {
+						g.fillPolygon(part);
 					}
 				}
 			}

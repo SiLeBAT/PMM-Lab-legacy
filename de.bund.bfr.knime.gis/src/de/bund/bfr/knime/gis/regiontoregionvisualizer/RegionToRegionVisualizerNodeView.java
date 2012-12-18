@@ -61,7 +61,11 @@ import de.bund.bfr.knime.gis.GraphCanvas;
  * @author Christian Thoens
  */
 public class RegionToRegionVisualizerNodeView extends
-		NodeView<RegionToRegionVisualizerNodeModel> {
+		NodeView<RegionToRegionVisualizerNodeModel> implements
+		GraphCanvas.NodeSelectionListener {
+
+	private GraphCanvas graphCanvas;
+	private GISCanvas gisCanvas;
 
 	/**
 	 * Creates a new view.
@@ -94,15 +98,17 @@ public class RegionToRegionVisualizerNodeView extends
 	@Override
 	protected void onOpen() {
 		try {
-			GraphCanvas graphCanvas = createGraphCanvas(getNodeModel()
-					.getNodeTable(), getNodeModel().getEdgeTable(),
-					getNodeModel().getNodeIdColumn(), getNodeModel()
+			graphCanvas = createGraphCanvas(getNodeModel().getNodeTable(),
+					getNodeModel().getEdgeTable(), getNodeModel()
+							.getNodeIdColumn(), getNodeModel()
 							.getNodeRegionIdColumn(), getNodeModel()
 							.getEdgeFromColumn(), getNodeModel()
 							.getEdgeToColumn(), getNodeModel()
 							.getEdgeValueColumn());
-			GISCanvas gisCanvas = createGISCanvas(getNodeModel().getFileName(),
+			graphCanvas.addNodeSelectionListener(this);
+			gisCanvas = createGISCanvas(getNodeModel().getFileName(),
 					getNodeModel().getFileRegionIdColumn());
+
 			Map<String, String> idToRegionMap = createIdToRegionMap(
 					getNodeModel().getNodeTable(), getNodeModel()
 							.getNodeIdColumn(), getNodeModel()
@@ -127,6 +133,18 @@ public class RegionToRegionVisualizerNodeView extends
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public void selectionChanged(List<GraphCanvas.Node> selectedNodes) {
+		List<String> regions = new ArrayList<String>();
+
+		for (GraphCanvas.Node node : selectedNodes) {
+			regions.add(node.getRegion());
+		}
+
+		gisCanvas.setHighlightedRegions(regions);
+		gisCanvas.repaint();
 	}
 
 	private GraphCanvas createGraphCanvas(DataTable nodeTable,

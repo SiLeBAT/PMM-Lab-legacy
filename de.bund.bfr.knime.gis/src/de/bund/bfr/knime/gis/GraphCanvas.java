@@ -8,8 +8,11 @@ import java.awt.GridLayout;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +39,7 @@ import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphCanvas extends JPanel implements ActionListener,
-		GraphMouseListener<Node> {
+		GraphMouseListener<Node>, ItemListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -44,17 +47,21 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private static final String FR_LAYOUT = "FR Layout";
 	private static final String[] LAYOUTS = { CIRCLE_LAYOUT, FR_LAYOUT };
 
-	private static final String TRANSFORMATION_MODE = "Transformation";
+	private static final String TRANSFORMING_MODE = "Transforming";
 	private static final String PICKING_MODE = "Picking";
-	private static final String[] MODES = { TRANSFORMATION_MODE, PICKING_MODE };
+	private static final String[] MODES = { TRANSFORMING_MODE, PICKING_MODE };
 
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
-	private static final String DEFAULT_MODE = TRANSFORMATION_MODE;
+	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
 
 	private Graph<Node, Edge> graph;
 	private VisualizationViewer<Node, Edge> viewer;
 	private DefaultModalGraphMouse<Integer, String> mouseModel;
+
+	private List<NodeSelectionListener> nodeSelectionListeners;
+
+	private List<Node> selectedNodes;
 
 	private JComboBox<String> layoutBox;
 	private JTextField nodeSizeField;
@@ -63,6 +70,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges) {
 		graph = new SparseMultigraph<Node, Edge>();
+		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
+		selectedNodes = new ArrayList<Node>();
 
 		for (Node node : nodes) {
 			graph.addVertex(node);
@@ -74,7 +83,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		mouseModel = new DefaultModalGraphMouse<Integer, String>();
 
-		if (DEFAULT_MODE.equals(TRANSFORMATION_MODE)) {
+		if (DEFAULT_MODE.equals(TRANSFORMING_MODE)) {
 			mouseModel.setMode(Mode.TRANSFORMING);
 		} else if (DEFAULT_MODE.equals(PICKING_MODE)) {
 			mouseModel.setMode(Mode.PICKING);
@@ -84,6 +93,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(createOptionsPanel(), BorderLayout.SOUTH);
+	}
+
+	public void addNodeSelectionListener(NodeSelectionListener listener) {
+		nodeSelectionListeners.add(listener);
+	}
+
+	public void removeNodeSelectionListener(NodeSelectionListener listener) {
+		nodeSelectionListeners.remove(listener);
 	}
 
 	@Override
@@ -101,10 +118,25 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} else if (e.getSource() == modeBox) {
-			if (modeBox.getSelectedItem().equals(TRANSFORMATION_MODE)) {
+			if (modeBox.getSelectedItem().equals(TRANSFORMING_MODE)) {
 				mouseModel.setMode(Mode.TRANSFORMING);
 			} else if (modeBox.getSelectedItem().equals(PICKING_MODE)) {
 				mouseModel.setMode(Mode.PICKING);
+			}
+		}
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getItem() instanceof Node) {
+			Node node = (Node) e.getItem();
+
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				selectedNodes.add(node);
+				fireNodeSelectionChanged();
+			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
+				selectedNodes.remove(node);
+				fireNodeSelectionChanged();
 			}
 		}
 	}
@@ -156,6 +188,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		vv.addGraphMouseListener(this);
 		vv.getRenderContext().setVertexShapeTransformer(
 				new ShapeTransformer(nodeSize));
+		vv.getPickedVertexState().addItemListener(this);
 
 		return vv;
 	}
@@ -195,6 +228,12 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		panel.add(modePanel);
 
 		return panel;
+	}
+
+	private void fireNodeSelectionChanged() {
+		for (NodeSelectionListener listener : nodeSelectionListeners) {
+			listener.selectionChanged(selectedNodes);
+		}
 	}
 
 	public static class Node {
@@ -256,7 +295,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 			return circle;
 		}
+	}
 
+	public static interface NodeSelectionListener {
+
+		public void selectionChanged(List<Node> selectedNodes);
 	}
 
 	private static class NodePropertiesDialog extends JDialog implements
@@ -285,6 +328,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				rightCenterPanel.add(field);
 			}
 
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 			centerPanel.setLayout(new BorderLayout(5, 5));
 			centerPanel.add(leftCenterPanel, BorderLayout.WEST);
 			centerPanel.add(rightCenterPanel, BorderLayout.CENTER);

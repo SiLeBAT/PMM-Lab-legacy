@@ -58,6 +58,8 @@ public class MMC_M extends JPanel {
 	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private Connection m_conn = null;
 	private boolean dontTouch = false;
+	
+	private boolean modelNameChangedManually = false;
 
 	public MMC_M() {
 		this(null, 1, "");
@@ -341,6 +343,7 @@ public class MMC_M extends JPanel {
 	private String getNewModelname(ParametricModel pm) {
 		if (pm == null) return null;
 		String mn = pm.getModelName();
+		if (modelNameChangedManually) return mn;
 		int lio = mn.lastIndexOf(" (v");
 		String result = mn;
 		try {
@@ -369,6 +372,7 @@ public class MMC_M extends JPanel {
 					*/
 			insertNselectPMintoBox(newPM);
 			modelNameBox.setSelectedItem(newPM);
+			modelNameChangedManually = true;
 		}
 	}
 	private void cloneSecondary(ParametricModel pm, ParametricModel newPM) {

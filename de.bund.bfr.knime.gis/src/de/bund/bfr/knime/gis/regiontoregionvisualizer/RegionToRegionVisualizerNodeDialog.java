@@ -39,6 +39,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -308,6 +310,13 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		String fileName = fileField.getText();
 		File file = new File(fileName);
 
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(fileName).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
 		if (!file.exists() || !fileName.toLowerCase().endsWith(".shp")) {
 			throw new InvalidSettingsException(
 					"Valid Shapefile (*.shp) must be specified!");
@@ -390,6 +399,13 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		if (e.getDocument() == fileField.getDocument()) {
 			String fileName = fileField.getText();
 			File file = new File(fileName);
+
+			if (!file.exists()) {
+				try {
+					file = new File(new URI(fileName).getPath());
+				} catch (URISyntaxException e1) {
+				}
+			}
 
 			fileRegionIdBox.removeAllItems();
 

@@ -35,6 +35,8 @@ package de.bund.bfr.knime.gis.regiontoregionvisualizer;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -209,7 +211,16 @@ public class RegionToRegionVisualizerNodeView extends
 
 	private GISCanvas createGISCanvas(String fileName, String fileRegionIdColumn)
 			throws IOException {
-		ShapefileReader reader = new ShapefileReader(new File(fileName));
+		File file = new File(fileName);
+
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(fileName).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
+		ShapefileReader reader = new ShapefileReader(file);
 		List<DbfFieldDef> fields = reader.getTableHeader()
 				.getFieldDefinitions();
 		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();

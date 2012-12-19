@@ -94,8 +94,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	}
     	if (!warningMessage.isEmpty()) {
     		warningMessage = "Tracing succesful, susceptible Companies:" + warningMessage;
+        	this.setWarningMessage(warningMessage);
     	}
-    	this.setWarningMessage(warningMessage);
 
     	LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>(); 
     	// Alle Stationen -> Nodes33

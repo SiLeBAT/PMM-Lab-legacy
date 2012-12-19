@@ -108,9 +108,14 @@ public class MMC_TS extends JPanel {
 		if (newVal != null && newVal instanceof Integer) {
 			Object agensname = DBKernel.getValue("Agenzien", "ID", newVal.toString(), "Agensname");
 			agentField.setText(agensname+"");
-			agensDetailField.setText(""+DBKernel.getValue("Matrices", "ID", newVal.toString(), "AgensDetail"));
 			agensIDField.setText(""+newVal);
+			agensDetailField.setText("");
 		}		
+		else {
+			agentField.setText("");
+			agensIDField.setText("");
+			agensDetailField.setText("");
+		}
 	}
 
 	private void button2ActionPerformed(ActionEvent e) {
@@ -130,9 +135,14 @@ public class MMC_TS extends JPanel {
 		if (newVal != null && newVal instanceof Integer) {
 			Object matrixname = DBKernel.getValue("Matrices", "ID", newVal.toString(), "Matrixname");
 			matrixField.setText(matrixname+"");
-			matrixDetailField.setText(""+DBKernel.getValue("Matrices", "ID", newVal.toString(), "MatrixDetail"));
 			matrixIDField.setText(""+newVal);
-		}		
+			matrixDetailField.setText("");
+		}	
+		else {
+			matrixField.setText("");
+			matrixIDField.setText("");
+			matrixDetailField.setText("");
+		}
 	}
 
 	private void initComponents() {
@@ -140,12 +150,12 @@ public class MMC_TS extends JPanel {
 		agentLabel = new JLabel();
 		agentField = new StringTextField(true);
 		button1 = new JButton();
-		agensDetailField = new StringTextField();
+		agensDetailField = new StringTextField(true);
 		agensIDField = new JTextField();
 		matrixLabel = new JLabel();
 		matrixField = new StringTextField(true);
 		button2 = new JButton();
-		matrixDetailField = new StringTextField();
+		matrixDetailField = new StringTextField(true);
 		matrixIDField = new JTextField();
 		commentLabel = new JLabel();
 		commentField = new StringTextField(true);
@@ -159,15 +169,18 @@ public class MMC_TS extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Microbial Data Properties"),
-			Borders.DLU2));
+			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
-			"default, $lcgap, default:grow, 3*($lcgap, default)",
+			"default, $lcgap, default:grow, $lcgap, default, $lcgap, default:grow, $lcgap, default",
 			"5*(default, $lgap), default"));
 
 		//---- agentLabel ----
 		agentLabel.setText("Agent:");
 		agentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":");
 		add(agentLabel, CC.xy(1, 1));
+
+		//---- agentField ----
+		agentField.setEditable(false);
 		add(agentField, CC.xy(3, 1));
 
 		//---- button1 ----
@@ -182,7 +195,6 @@ public class MMC_TS extends JPanel {
 
 		//---- agensDetailField ----
 		agensDetailField.setColumns(4);
-		agensDetailField.setVisible(false);
 		add(agensDetailField, CC.xy(7, 1));
 
 		//---- agensIDField ----
@@ -194,6 +206,9 @@ public class MMC_TS extends JPanel {
 		matrixLabel.setText("Matrix:");
 		matrixLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":");
 		add(matrixLabel, CC.xy(1, 3));
+
+		//---- matrixField ----
+		matrixField.setEditable(false);
 		add(matrixField, CC.xy(3, 3));
 
 		//---- button2 ----
@@ -207,7 +222,6 @@ public class MMC_TS extends JPanel {
 		add(button2, CC.xy(5, 3));
 
 		//---- matrixDetailField ----
-		matrixDetailField.setVisible(false);
 		matrixDetailField.setColumns(5);
 		add(matrixDetailField, CC.xy(7, 3));
 
@@ -220,25 +234,25 @@ public class MMC_TS extends JPanel {
 		commentLabel.setText(":");
 		commentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_COMMENT) + ":");
 		add(commentLabel, CC.xy(1, 5));
-		add(commentField, CC.xywh(3, 5, 3, 1));
+		add(commentField, CC.xywh(3, 5, 5, 1));
 
 		//---- tempLabel ----
 		tempLabel.setText("Temperature:");
 		tempLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":");
 		add(tempLabel, CC.xy(1, 7));
-		add(temperatureField, CC.xywh(3, 7, 3, 1));
+		add(temperatureField, CC.xywh(3, 7, 5, 1));
 
 		//---- phLabel ----
 		phLabel.setText("pH:");
 		phLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_PH) + ":");
 		add(phLabel, CC.xy(1, 9));
-		add(phField, CC.xywh(3, 9, 3, 1));
+		add(phField, CC.xywh(3, 9, 5, 1));
 
 		//---- awLabel ----
 		awLabel.setText("aw:");
 		awLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":");
 		add(awLabel, CC.xy(1, 11));
-		add(waterActivityField, CC.xywh(3, 11, 3, 1));
+		add(waterActivityField, CC.xywh(3, 11, 5, 1));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 

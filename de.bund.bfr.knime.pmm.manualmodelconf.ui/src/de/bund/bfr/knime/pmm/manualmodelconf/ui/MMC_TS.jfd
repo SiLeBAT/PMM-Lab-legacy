@@ -4,7 +4,7 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default"
+			"$columnSpecs": "default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default"
 			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
 		} ) {
 			name: "this"
@@ -21,6 +21,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "agentField"
+				"editable": false
 				auxiliary() {
 					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
 				}
@@ -39,7 +40,9 @@ new FormModel {
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "agensDetailField"
 				"columns": 4
-				"visible": false
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 7
 				"gridY": 1
@@ -64,6 +67,7 @@ new FormModel {
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "matrixField"
+				"editable": false
 				auxiliary() {
 					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
 				}
@@ -81,8 +85,10 @@ new FormModel {
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "matrixDetailField"
-				"visible": false
 				"columns": 5
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 7
 				"gridY": 3
@@ -113,7 +119,7 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 5
-				"gridWidth": 3
+				"gridWidth": 5
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "tempLabel"
@@ -133,7 +139,7 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 7
-				"gridWidth": 3
+				"gridWidth": 5
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "phLabel"
@@ -153,7 +159,7 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 9
-				"gridWidth": 3
+				"gridWidth": 5
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "awLabel"
@@ -173,7 +179,7 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
 				"gridY": 11
-				"gridWidth": 3
+				"gridWidth": 5
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

@@ -31,6 +31,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	private DbConfigurationUi dbui;
 	private JCheckBox doAnonymize, antiArticle, antiCharge, antiCompany;
 	private JTextField company, charge, artikel;
+	//private JDateChooser  dateFrom, dateTo;
 
 	protected MyKrisenInterfacesNodeDialog() {
     	JPanel panel;

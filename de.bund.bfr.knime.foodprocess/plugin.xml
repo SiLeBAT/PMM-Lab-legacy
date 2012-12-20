@@ -25,7 +25,6 @@
       </node>
       <node category-path="/pmmlab/foodprocess" factory-class="de.bund.bfr.knime.foodprocess.addons.AgentsNodeFactory" id="de.bund.bfr.knime.foodprocess.ingredients.AgentsNodeFactory">
       </node>
-   <node category-path="/" factory-class="de.bund.bfr.knime.krise.MyKrisenInterfacesNodeFactory" id="de.bund.bfr.knime.krise.MyKrisenInterfacesNodeFactory"/>
 </extension>
    <extension point="org.eclipse.ui.newWizards">
       <wizard class="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard" id="de.bund.bfr.knime.foodprocess.ui.MyPCImportWizard" name="Process chain importer">

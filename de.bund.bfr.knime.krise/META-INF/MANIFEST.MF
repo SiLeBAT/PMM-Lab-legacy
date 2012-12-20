@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: MyKrisenInterfaces-Node extension for KNIME Workbench
+Bundle-SymbolicName: de.bund.bfr.knime.krise; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-ClassPath: mykriseninterfaces.jar,
+ lib/jcalendar.jar
+Bundle-Activator: de.bund.bfr.knime.krise.MyKrisenInterfacesNodePlugin
+Bundle-Vendor: aaw
+Require-Bundle: org.eclipse.core.runtime,
+ org.knime.workbench.core,
+ org.knime.workbench.repository,
+ org.knime.base,
+ de.bund.bfr.knime.pmm.bfrdbiface.lib;bundle-version="1.0.0",
+ de.bund.bfr.knime.pmm.common;bundle-version="1.0.0"
+Bundle-ActivationPolicy: lazy
+Export-Package: de.bund.bfr.knime.krise
+

@@ -19,5 +19,6 @@
         <outPort index="0" name="Nodes33">Nodes33</outPort>
         <outPort index="1" name="Links33">Links33</outPort>
         <outPort index="2" name="Burow">Burow</outPort>
+        <outPort index="3" name="BurowNew">BurowNew</outPort>
     </ports>    
 </knimeNode>

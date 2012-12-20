@@ -182,8 +182,11 @@ public class UpdateChecker {
 		myList.getTable("Lieferungen").createTable();
 		DBKernel.grantDefaults("Lieferungen");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("LieferungVerbindungen") + " IF EXISTS", false);
-		myList.getTable("LieferungVerbindungen").createTable();
-		DBKernel.grantDefaults("LieferungVerbindungen");
+		MyTable myT = myList.getTable("LieferungVerbindungen");
+		if (myT != null) {
+			myT.createTable();
+			DBKernel.grantDefaults("LieferungVerbindungen");
+		}
 
 		if (DBKernel.isKNIME) {
 		    try {

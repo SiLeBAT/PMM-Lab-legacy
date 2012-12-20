@@ -147,15 +147,12 @@ public class Login extends JFrame {
 			DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
 			*/
 			/*
-			DBKernel.mergeIDs("Kontakte", 585, 595);
-			DBKernel.mergeIDs("Kontakte", 586, 596);
-			DBKernel.mergeIDs("Kontakte", 587, 597);
-			DBKernel.mergeIDs("Kontakte", 588, 598);
-			DBKernel.mergeIDs("Kontakte", 589, 599);
-			DBKernel.mergeIDs("Kontakte", 590, 600);
-			DBKernel.mergeIDs("Kontakte", 591, 601);
-			DBKernel.mergeIDs("Kontakte", 592, 603);
-			DBKernel.mergeIDs("Kontakte", 593, 604);
+			DBKernel.mergeIDs("Station", 786, 769);
+			DBKernel.mergeIDs("Station", 770, 763);
+			DBKernel.mergeIDs("Station", 766, 11);
+			DBKernel.mergeIDs("Station", 473, 484);
+			DBKernel.mergeIDs("Station", 783, 28);
+			DBKernel.mergeIDs("Station", 784, 30);
 			*/
 		}
 		finally {
@@ -1113,7 +1110,7 @@ public class Login extends JFrame {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
 		hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");
 		LinkedHashMap<Integer, String> hYNT = new LinkedHashMap<Integer, String>();
-		hYNT.put(new Integer(1), "mit Therapie");hYNT.put(new Integer(0), "ohne Therapie");
+		hYNT.put(new Integer(1), "mit Therapie");hYNT.put(new Integer(0), "ohne Therapie");hYNT.put(new Integer(2), "Keine Angabe");
 		MyTable agenzien = new MyTable("Agenzien",
 				new String[]{"Agensname","Kurzbezeichnung","WissenschaftlicheBezeichnung",
 				"Klassifizierung","Familie","Gattung","Spezies","Subspezies_Subtyp",

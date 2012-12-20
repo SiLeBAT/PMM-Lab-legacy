@@ -4,8 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Vector;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataCell;
@@ -52,6 +57,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	static final String PARAM_ANTICHARGE = "antiCharge";
 	static final String PARAM_ANTICOMPANY = "antiCompany";
 
+	static final String PARAM_FILTER_DATEFROM = "dateFrom";
+	static final String PARAM_FILTER_DATETO = "dateTo";
+
 	private String filename;
 	private String login;
 	private String passwd;
@@ -59,12 +67,17 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private boolean doAnonymize;
 	private String companyFilter, chargeFilter, artikelFilter;
 	private boolean antiArticle, antiCharge, antiCompany;
+	private String dateFrom, dateTo;
+	
+	private int maxDepth = 2;
+	private String referenzDatum;
+	private SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
 
 	/**
      * Constructor for the node model.
      */
     protected MyKrisenInterfacesNodeModel() {
-        super(0, 3);
+        super(0, 4);
     }
 
     /**
@@ -192,25 +205,15 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	rs.close();
     	
     	// 4 Burow
-		//String dateFrom = "2012-09-20 00:00:00";
-		//String dateTo = "2012-09-30 00:00:00";
-
     	BufferedDataContainer outputBurow = exec.createDataContainer(getSpecBurow());
     	rs = db.pushQuery("SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("AnzahlFaelle") + "," + DBKernel.delimitL("FallErfuellt") +
-    			" FROM " + DBKernel.delimitL("Station") + " WHERE " + DBKernel.delimitL("FallErfuellt"));
-    	/*
-    	rs = db.pushQuery("SELECT MIN(" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + ") AS " + DBKernel.delimitL("ID") + 
-    			",MIN(" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("AnzahlFaelle") + ") AS " + DBKernel.delimitL("AnzahlFaelle") +
-    			",MIN(" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("FallErfuellt") + ") AS " + DBKernel.delimitL("FallErfuellt") +
-    			",ARRAY_AGG(" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + " ORDER BY " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + ") AS " + DBKernel.delimitL("LieferID") +
-    			",ARRAY_AGG(" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum") + " ORDER BY " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + ") AS " + DBKernel.delimitL("Lieferdatum") +
-    			",ARRAY_AGG (" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + " ORDER BY " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + ") AS " + DBKernel.delimitL("Artikel") +
-    			" FROM " + DBKernel.delimitL("Lieferungen") + " LEFT JOIN " + DBKernel.delimitL("Station") +
-    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
-    			" WHERE " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("FallErfuellt") +
-    			" GROUP BY " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum"));
-    			*/
+    			" FROM " + DBKernel.delimitL("Station")); //  + " WHERE " + DBKernel.delimitL("FallErfuellt")
     	rowNumber = 0;
+    	referenzDatum = dateFrom;
+	    HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenLieferanten = new HashMap<Integer, HashMap<Integer, Vector<Integer>>>();
+	    HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenZutaten = new HashMap<Integer, HashMap<Integer, Vector<Integer>>>();
+	    HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenDatums = new HashMap<Integer, HashMap<Integer, Vector<Integer>>>();
+	    HashMap<Integer, DataCell[]> stationenSonstiges = new HashMap<Integer, DataCell[]>();
     	while (rs.next()) {
     		int numCases = rs.getInt("AnzahlFaelle");
     		boolean casesSi = rs.getBoolean("FallErfuellt");
@@ -220,23 +223,35 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	    cells[0] = new IntCell(id);
     	    cells[1] = new IntCell(numCases);
     	    cells[2] = casesSi ? BooleanCell.TRUE : BooleanCell.FALSE;
-    	        	    
+    	        	        	    
     	    cells[3] = DataType.getMissingCell(); // Produkte
     	    cells[4] = DataType.getMissingCell(); // Verzehrsdatums
+
+    	    stationenSonstiges.put(id, cells);
+    	    
+    	    setLieferungen(db, id, cells, 3);
+    	    
     	    cells[5] = DataType.getMissingCell(); // Zutaten
     	    cells[6] = DataType.getMissingCell(); // Lieferdatums
     	    cells[7] = DataType.getMissingCell(); // Zulieferer
-
-    	    setLieferungen(db, id, cells, 3);
-    	    
     	    cells[8] = DataType.getMissingCell(); // Zutaten2
     	    cells[9] = DataType.getMissingCell(); // Lieferdatums2
     	    cells[10] = DataType.getMissingCell(); // Zulieferer2
     	    cells[11] = DataType.getMissingCell(); // Zutaten3
     	    cells[12] = DataType.getMissingCell(); // Lieferdatums3
     	    cells[13] = DataType.getMissingCell(); // Zulieferer3
+    	    
+    	    HashMap<Integer, Vector<Integer>> hm1 = new HashMap<Integer, Vector<Integer>>();
+    	    HashMap<Integer, Vector<Integer>> hm2 = new HashMap<Integer, Vector<Integer>>();
+    	    HashMap<Integer, Vector<Integer>> hm3 = new HashMap<Integer, Vector<Integer>>();
+    	    
+    	    setVorlieferungen(db, id, true, cells, 5, maxDepth, hm1, hm2, hm3);
 
-    	    setVorlieferungen(db, id, true, cells, 5, 2);
+    	    if (hm1.size() > 0) {
+    	    	stationenLieferanten.put(id, hm1);
+        	    stationenZutaten.put(id, hm2);
+        	    stationenDatums.put(id, hm3);
+    	    }
 
     	    if (!onlyMissingCells(cells, 3)) {
         	    DataRow outputRow = new DefaultRow(key, cells);
@@ -251,7 +266,56 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	rs.close();
     	
     	db.close();
-        return new BufferedDataTable[]{output33Nodes.getTable(), output33Links.getTable(), outputBurow.getTable()};
+
+	    HashMap<String, Integer> colMap = new HashMap<String, Integer>();
+    	BufferedDataContainer outputBurowNew = exec.createDataContainer(getOutSpecBurow(stationenLieferanten, stationenZutaten, stationenDatums, colMap));
+    	rowNumber = 0;
+    	for (Integer endstation : stationenLieferanten.keySet()) {
+    		DataCell[] c = stationenSonstiges.get(endstation);
+    		RowKey key = RowKey.createRowKey(rowNumber);
+    	    DataCell[] cells = new DataCell[colMap.size() + 5];
+    	    cells[0] = c[0];
+    	    cells[1] = c[1];
+    	    cells[2] = c[2];
+    	    cells[3] = c[3];
+    	    cells[4] = c[4];
+    	    int[] res = new int[colMap.size()];
+    	    for (int i=0;i<colMap.size();i++) {
+    	    	res[i] = 0;
+    	    }
+    	    
+    	    HashMap<Integer, Vector<Integer>> hm1 = stationenLieferanten.get(endstation);
+    	    for (Integer round : hm1.keySet()) {
+    	    	for (Integer id : hm1.get(round)) {
+            	    res[colMap.get("s" + round + "_" + id)]++;
+    	    	}
+    	    }
+    	    HashMap<Integer, Vector<Integer>> hm2 = stationenZutaten.get(endstation);
+    	    for (Integer round : hm2.keySet()) {
+    	    	for (Integer id : hm2.get(round)) {
+            	    res[colMap.get("Z" + round + "_" + id)]++;
+    	    	}
+    	    }
+    	    HashMap<Integer, Vector<Integer>> hm3 = stationenDatums.get(endstation);
+    	    for (Integer round : hm3.keySet()) {
+    	    	for (Integer id : hm3.get(round)) {
+            	    res[colMap.get("sdat_" + round + "_" + id)]++;
+    	    	}
+    	    }
+    	    
+    	    for (int i=0;i<colMap.size();i++) {
+    	    	cells[5 + i] = new IntCell(res[i]);
+    	    }
+
+    	    DataRow outputRow = new DefaultRow(key, cells);
+    	    outputBurowNew.addRowToTable(outputRow);
+
+    	    exec.checkCanceled();
+    	    rowNumber++;
+    	}
+    	outputBurowNew.close();
+
+    	return new BufferedDataTable[]{output33Nodes.getTable(), output33Links.getTable(), outputBurow.getTable(), outputBurowNew.getTable()};
     }
 
     private boolean checkCompanyReceivedArticle(int stationID, LinkedHashMap<Integer, Integer> articleChain) throws SQLException {
@@ -286,7 +350,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
     			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
     			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-    			" WHERE " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + stationID);
+    			" WHERE " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + stationID +
+	    		(dateFrom != null && !dateFrom.isEmpty() ? " AND " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum") + ">='" + dateFrom + "'" : "") +
+	    		(dateTo != null && !dateTo.isEmpty() ? " AND " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum") + "<='" + dateTo + "'" : ""));
 		String lieferdatum = "";
 		String zutaten = "";
     	while (rs.next()) {
@@ -300,22 +366,19 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	    cells[cellLfd] = zutaten.length() == 0 ? DataType.getMissingCell() : new StringCell(zutaten); // Produkte
 	    cells[cellLfd + 1] = lieferdatum.length() == 0 ? DataType.getMissingCell() : new StringCell(lieferdatum); // Verzehrsdatum
     }
-    private void setVorlieferungen(Bfrdb db, Integer lieferID, boolean isEmpfaenger, DataCell[] cells, int cellLfd, int depth) throws SQLException {
+    private void setVorlieferungen(Bfrdb db, Integer lieferID, boolean isEmpfaenger, DataCell[] cells, int cellLfd, int depth,
+    		HashMap<Integer, Vector<Integer>> stationenLieferanten,
+    		HashMap<Integer, Vector<Integer>> stationenZutaten,
+    		HashMap<Integer, Vector<Integer>> stationenDatums) throws SQLException {
     	String sql;
     	if (isEmpfaenger) {
     		sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Lieferdatum") +
     			" FROM " + DBKernel.delimitL("Lieferungen") +
-    			" WHERE " + DBKernel.delimitL("Empfänger") + "=" + lieferID;
+    			" WHERE " + DBKernel.delimitL("Empfänger") + "=" + lieferID +
+    			(depth < maxDepth ? "" : (dateFrom != null && !dateFrom.isEmpty() ? " AND " + DBKernel.delimitL("Lieferdatum") + ">='" + dateFrom + "'" : "") +
+    					(dateTo != null && !dateTo.isEmpty() ? " AND " + DBKernel.delimitL("Lieferdatum") + "<='" + dateTo + "'" : ""));
     	}
     	else {
-    		/*
-			rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + " AS " + DBKernel.delimitL("ID") +
-	    			"," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + " AS " + DBKernel.delimitL("Artikel") +
-	    			"," + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Lieferdatum") + " AS " + DBKernel.delimitL("Lieferdatum") +
-	    			" FROM " + DBKernel.delimitL("LieferungVerbindungen") + " LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-	    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("Vorprodukt") +
-	    			" WHERE " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("Zielprodukt") + "=" + lieferID);
-	    			*/
     		sql = "SELECT " + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") + " AS " + DBKernel.delimitL("ID") +
 	    			"," + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("Charge") + " AS " + DBKernel.delimitL("Charge") +
 	    			"," + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("Lieferdatum") + " AS " + DBKernel.delimitL("Lieferdatum") +
@@ -325,21 +388,63 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") + " AS " + DBKernel.delimitL("ZutatLieferung") +
 	    			" ON " + DBKernel.delimitL("ChargenVerbindungen") + "." + DBKernel.delimitL("Zutat") + "=" + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") +
 	    			" WHERE " + DBKernel.delimitL("ProduktLieferung") + "." + DBKernel.delimitL("ID") + "=" + lieferID +
-	    			" AND " + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") + ">" + 0;
+	    			" AND " + DBKernel.delimitL("ZutatLieferung") + "." + DBKernel.delimitL("ID") + ">" + 0 +
+	    			(depth < maxDepth ? "" : (dateFrom != null && !dateFrom.isEmpty() ? " AND " + DBKernel.delimitL("Lieferdatum") + ">='" + dateFrom + "'" : "") +
+	    					(dateTo != null && !dateTo.isEmpty() ? " AND " + DBKernel.delimitL("Lieferdatum") + "<='" + dateTo + "'" : ""));
     		}
     	ResultSet rs = db.pushQuery(sql);
 		String lieferdatum = "";
 		String zutaten = "";
 		String lieferanten = "";
+		Vector<Integer> datum = new Vector<Integer>();
+		Vector<Integer> zut = new Vector<Integer>();
+		Vector<Integer> lief = new Vector<Integer>();
     	while (rs.next()) {
+    		if (rs.getObject("Charge") != null) {
+    			String charge = rs.getString("Charge");
+    			String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
+    			Object li = DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
+    			
+				int diffDays = 0;
+    			if (rs.getObject("Lieferdatum") != null) {
+    				if (referenzDatum == null || referenzDatum.isEmpty()) referenzDatum = sdfToDate.format(rs.getDate("Lieferdatum"));
+    				try {
+						long diff = rs.getDate("Lieferdatum").getTime() - sdfToDate.parse(referenzDatum).getTime();
+						diffDays = (int) (diff / (24 * 60 * 60 * 1000));  
+					}
+    				catch (ParseException e) {
+						e.printStackTrace();
+					}
+    			}
+				datum.add(diffDays);
+    			zut.add(rs.getInt("Charge"));
+    			if (li instanceof Integer) lief.add((Integer) li); else lief.add(0);
+    		}
     		String charge = rs.getObject("Charge") == null ? "" : rs.getString("Charge");
     		lieferdatum += "," + (rs.getObject("Lieferdatum") == null ? "" : rs.getString("Lieferdatum"));
     		zutaten += "," + charge;
     		String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
 	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
 	    	
-	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1);
+	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1, stationenLieferanten, stationenZutaten, stationenDatums);
     	}
+		if (lief.size() > 0) {
+			if (stationenLieferanten.containsKey(maxDepth - depth + 1)) {
+				Vector<Integer> liefIn = stationenLieferanten.get(maxDepth - depth + 1);
+				for (Integer li : liefIn) lief.add(li);
+			}
+			stationenLieferanten.put(maxDepth - depth + 1, lief);
+			if (stationenZutaten.containsKey(maxDepth - depth + 1)) {
+				Vector<Integer> zutIn = stationenZutaten.get(maxDepth - depth + 1);
+				for (Integer li : zutIn) zut.add(li);
+			}
+			stationenZutaten.put(maxDepth - depth + 1, zut);
+			if (stationenDatums.containsKey(maxDepth - depth + 1)) {
+				Vector<Integer> datumIn = stationenDatums.get(maxDepth - depth + 1);
+				for (Integer li : datumIn) datum.add(li);
+			}
+			stationenDatums.put(maxDepth - depth + 1, datum);
+		}
 	    if (lieferdatum.length() > 0) lieferdatum = "(" + lieferdatum.substring(1) + ")";
 	    if (lieferanten.length() > 0) lieferanten = "(" + lieferanten.substring(1) + ")";
 	    if (zutaten.length() > 1) zutaten = "(" + zutaten.substring(1) + ")";
@@ -347,12 +452,6 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	    cells[cellLfd] = setStringCellVal(cells[cellLfd], zutaten);
 	    cells[cellLfd + 1] = setStringCellVal(cells[cellLfd + 1], lieferdatum);
 	    cells[cellLfd + 2] = setStringCellVal(cells[cellLfd + 2], lieferanten);
-	    
-	    /*
-	    cells[cellLfd] = zutaten.length() == 0 ? DataType.getMissingCell() : new StringCell(zutaten); // Zutaten
-	    cells[cellLfd + 1] = lieferdatum.length() == 0 ? DataType.getMissingCell() : new StringCell(lieferdatum); // Lieferdatums
-	    cells[cellLfd + 2] = lieferanten.length() == 0 ? DataType.getMissingCell() : new StringCell(lieferanten); // Zulieferer
-	    */
     }
     private DataCell setStringCellVal(DataCell cell, String content) {
 	    String newVal = cell == null || cell.isMissing() ? content : ((StringCell) cell).getStringValue() + "," + content;
@@ -376,6 +475,57 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	spec[12] = new DataColumnSpecCreator("Lieferdatums3", StringCell.TYPE).createSpec(); 	
     	spec[13] = new DataColumnSpecCreator("Zulieferer3", StringCell.TYPE).createSpec();
     	return new DataTableSpec(spec);
+    }
+    private DataTableSpec getOutSpecBurow(HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenLieferanten,
+    		HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenZutaten,
+    		HashMap<Integer, HashMap<Integer, Vector<Integer>>> stationenDatums,
+    		HashMap<String, Integer> colMap) {
+    	LinkedHashSet<DataColumnSpec> hsSpec = new LinkedHashSet<DataColumnSpec>();
+    	
+    	hsSpec.add(new DataColumnSpecCreator("Endstation", IntCell.TYPE).createSpec());
+    	hsSpec.add(new DataColumnSpecCreator("N_Fälle", IntCell.TYPE).createSpec());
+    	hsSpec.add(new DataColumnSpecCreator("Falldefinition", BooleanCell.TYPE).createSpec());
+    	hsSpec.add(new DataColumnSpecCreator("Produkte", StringCell.TYPE).createSpec());
+    	hsSpec.add(new DataColumnSpecCreator("Verzehrsdatums", StringCell.TYPE).createSpec());
+
+    	int lfd = 0;
+    	for (Integer endstation : stationenLieferanten.keySet()) {
+    	    HashMap<Integer, Vector<Integer>> hm1 = stationenLieferanten.get(endstation);
+    	    for (Integer round : hm1.keySet()) {
+    	    	for (Integer id : hm1.get(round)) {
+    	    		String s = "s" + round + "_" + id;
+    	    		if (!colMap.containsKey(s)) {
+    	    			colMap.put(s, lfd);
+    	    			hsSpec.add(new DataColumnSpecCreator(s, IntCell.TYPE).createSpec());
+        	    		lfd++;
+    	    		}
+    	    	}
+    	    }
+    	    HashMap<Integer, Vector<Integer>> hm2 = stationenZutaten.get(endstation);
+    	    for (Integer round : hm2.keySet()) {
+    	    	for (Integer id : hm2.get(round)) {
+    	    		String s = "Z" + round + "_" + id;
+    	    		if (!colMap.containsKey(s)) {
+    	    			colMap.put(s, lfd);
+    	    			hsSpec.add(new DataColumnSpecCreator(s, IntCell.TYPE).createSpec());
+        	    		lfd++;
+    	    		}
+    	    	}
+    	    }
+    	    HashMap<Integer, Vector<Integer>> hm3 = stationenDatums.get(endstation);
+    	    for (Integer round : hm3.keySet()) {
+    	    	for (Integer id : hm3.get(round)) {
+    	    		String s = "sdat_" + round + "_" + id;
+    	    		if (!colMap.containsKey(s)) {
+    	    			colMap.put(s, lfd);
+    	    			hsSpec.add(new DataColumnSpecCreator(s, IntCell.TYPE).createSpec());
+        	    		lfd++;
+    	    		}
+    	    	}
+    	    }
+    	}
+
+	    return new DataTableSpec(hsSpec.toArray(new DataColumnSpec[]{}));
     }
     private DataTableSpec getSpec33Nodes() {
     	DataColumnSpec[] spec = new DataColumnSpec[14];
@@ -627,7 +777,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
-        return new DataTableSpec[]{getSpec33Nodes(), getSpec33Links(), getSpecBurow()};
+        return new DataTableSpec[]{getSpec33Nodes(), getSpec33Links(), getSpecBurow(), null};
     }
 
     /**
@@ -646,6 +796,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	settings.addBoolean( PARAM_ANTIARTICLE, antiArticle );
     	settings.addBoolean( PARAM_ANTICHARGE, antiCharge );
     	settings.addBoolean( PARAM_ANTICOMPANY, antiCompany );
+    	
+    	settings.addString(PARAM_FILTER_DATEFROM, dateFrom);
+    	settings.addString(PARAM_FILTER_DATETO, dateTo);
     }
 
     /**
@@ -665,6 +818,9 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	antiArticle = settings.getBoolean( PARAM_ANTIARTICLE );
     	antiCharge = settings.getBoolean( PARAM_ANTICHARGE );
     	antiCompany = settings.getBoolean( PARAM_ANTICOMPANY );
+    	
+    	dateFrom = settings.getString(PARAM_FILTER_DATEFROM);
+    	dateTo = settings.getString(PARAM_FILTER_DATETO);
     }
 
     /**

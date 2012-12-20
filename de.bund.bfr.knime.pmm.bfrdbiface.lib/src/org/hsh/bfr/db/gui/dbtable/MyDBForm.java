@@ -220,7 +220,7 @@ public class MyDBForm extends JPanel {
 				manageForeign(textField13, rs.getObject("Morbiditaet"), getForeignVal("DoubleKennzahlen", rs.getInt("Morbiditaet"), DBKernel.delimitL("Wert") + "," + DBKernel.delimitL("Minimum") + "," + DBKernel.delimitL("Maximum")));
 				manageForeign(textField14, rs.getObject("Mortalitaet"), getForeignVal("DoubleKennzahlen", rs.getInt("Mortalitaet"), DBKernel.delimitL("Wert") + "," + DBKernel.delimitL("Minimum") + "," + DBKernel.delimitL("Maximum")));
 				manageForeign(textField15, rs.getObject("Letalitaet"), getForeignVal("DoubleKennzahlen", rs.getInt("Letalitaet"), DBKernel.delimitL("Wert") + "," + DBKernel.delimitL("Minimum") + "," + DBKernel.delimitL("Maximum")));
-				comboBox22.setSelectedItem(rs.getObject("Therapie_Letal") == null ? null : (rs.getInt("Therapie_Letal") == 1 ? "mit Therapie" : "ohne Therapie"));
+				comboBox22.setSelectedItem(rs.getObject("Therapie_Letal") == null ? null : (rs.getInt("Therapie_Letal") == 1 ? "mit Therapie" : rs.getInt("Therapie_Letal") == 2 ? "Keine Angabe" : "ohne Therapie"));
 				comboBox16.setSelectedItem(rs.getString("Ausscheidungsdauer"));
 				comboBox17.setSelectedItem(rs.getObject("ansteckend") == null ? null : (rs.getBoolean("ansteckend") ? "ja" : "nein"));
 				comboBox18.setSelectedItem(rs.getObject("Therapie") == null ? null : (rs.getBoolean("Therapie") ? "ja" : "nein"));
@@ -526,7 +526,8 @@ public class MyDBForm extends JPanel {
 			ps.setNull(index, java.sql.Types.INTEGER);
 		}
 		else {
-			ps.setInt(index, val.toString().equalsIgnoreCase("mit Therapie") ? 1 : 0);
+			String str = val.toString();
+			ps.setInt(index, str.equalsIgnoreCase("mit Therapie") ? 1 : str.equalsIgnoreCase("Keine Angabe") ? 2 : 0);
 			nullVal = false;
 		}
 		return nullVal;
@@ -912,7 +913,8 @@ public class MyDBForm extends JPanel {
 				comboBox22.setModel(new DefaultComboBoxModel(new String[] {
 					" ",
 					"mit Therapie",
-					"ohne Therapie"
+					"ohne Therapie",
+					"Keine Angabe"
 				}));
 				panel1.add(comboBox22, CC.xy(11, 7));
 

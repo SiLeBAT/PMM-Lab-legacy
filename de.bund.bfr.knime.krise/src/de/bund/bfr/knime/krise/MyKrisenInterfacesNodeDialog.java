@@ -1,5 +1,8 @@
 package de.bund.bfr.knime.krise;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -12,6 +15,8 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
+
+import com.toedter.calendar.JDateChooser;
 
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 
@@ -31,7 +36,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 	private DbConfigurationUi dbui;
 	private JCheckBox doAnonymize, antiArticle, antiCharge, antiCompany;
 	private JTextField company, charge, artikel;
-	//private JDateChooser  dateFrom, dateTo;
+	private JDateChooser dateFrom, dateTo;
 
 	protected MyKrisenInterfacesNodeDialog() {
     	JPanel panel;
@@ -42,6 +47,8 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	
     	dbui = new DbConfigurationUi();
     	panel.add(dbui);
+    	panel.add(new JLabel("dateFrom:")); dateFrom = new JDateChooser(); panel.add(dateFrom);
+    	panel.add(new JLabel("dateTo:")); dateTo = new JDateChooser(); panel.add(dateTo);
     	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymisieren?"); panel.add(doAnonymize);
     	company = new JTextField(); panel.add(new JLabel("Company:")); panel.add(company);
     	antiCompany = new JCheckBox(); antiCompany.setText("Anti Company?"); panel.add(antiCompany); antiCompany.setVisible(false);
@@ -68,11 +75,18 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_ANTIARTICLE, antiArticle.isSelected() );
 		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_ANTICHARGE, antiCharge.isSelected() );
 		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_ANTICOMPANY, antiCompany.isSelected() );
+		
+	    SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
+	    String strDate = dateFrom.getDate() == null ? "" : sdfToDate.format(dateFrom.getDate());
+	    strDate = strDate.substring(0, strDate.indexOf(" ")) + " 00:00:00";
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATEFROM, strDate);
+		strDate = dateTo.getDate() == null ? "" : sdfToDate.format(dateTo.getDate());
+	    strDate = strDate.substring(0, strDate.indexOf(" ")) + " 23:59:59";
+		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATETO, strDate);
 	}
 
 	@Override
-	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {
-		
+	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {		
 		try {
 			
 			dbui.setFilename( settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILENAME ) );
@@ -86,6 +100,17 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 			antiArticle.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANTIARTICLE));
 			antiCharge.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANTICHARGE));
 			antiCompany.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANTICOMPANY));
+
+		    SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
+	    	try {
+	    		String df = settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATEFROM);
+				if (df != null && !df.isEmpty()) dateFrom.setDate(sdfToDate.parse(df));
+	    		df = settings.getString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATETO);
+				if (df != null && !df.isEmpty()) dateTo.setDate(sdfToDate.parse(df));
+			}
+	    	catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 		catch( InvalidSettingsException ex ) {
 			

@@ -78,10 +78,10 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		
 	    SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
 	    String strDate = dateFrom.getDate() == null ? "" : sdfToDate.format(dateFrom.getDate());
-	    strDate = strDate.substring(0, strDate.indexOf(" ")) + " 00:00:00";
+	    if (!strDate.isEmpty()) strDate = strDate.substring(0, strDate.indexOf(" ")) + " 00:00:00";
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATEFROM, strDate);
 		strDate = dateTo.getDate() == null ? "" : sdfToDate.format(dateTo.getDate());
-	    strDate = strDate.substring(0, strDate.indexOf(" ")) + " 23:59:59";
+		if (!strDate.isEmpty()) strDate = strDate.substring(0, strDate.indexOf(" ")) + " 23:59:59";
 		settings.addString(MyKrisenInterfacesNodeModel.PARAM_FILTER_DATETO, strDate);
 	}
 

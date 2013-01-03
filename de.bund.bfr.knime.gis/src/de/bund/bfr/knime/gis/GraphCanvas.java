@@ -12,6 +12,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,7 +47,6 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
-import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public class GraphCanvas extends JPanel implements ActionListener,
 		GraphMouseListener<Node>, ItemListener {
@@ -218,11 +218,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		layout.setSize(size);
 
 		if (viewer != null) {
-			MutableTransformer modelTransformer = viewer.getRenderContext()
-					.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
-
-			modelTransformer.translate(-modelTransformer.getTranslateX(),
-					-modelTransformer.getTranslateY());
+			viewer.getRenderContext().getMultiLayerTransformer()
+					.getTransformer(Layer.LAYOUT).setTranslate(0.0, 0.0);
+			viewer.getRenderContext().getMultiLayerTransformer()
+					.getTransformer(Layer.VIEW)
+					.setScale(1.0, 1.0, new Point2D.Double(0.0, 0.0));
 			viewer.setGraphLayout(layout);
 			viewer.getRenderContext().setVertexShapeTransformer(
 					new ShapeTransformer(nodeSize));

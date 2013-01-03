@@ -38,21 +38,36 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class Model1Schema extends KnimeSchema {
 
+	public static final String ATT_MODELCATALOG = "CatModel";
+	public static final String ATT_ESTMODEL = "EstModel";
+
+	@Deprecated
 	public static final String ATT_FORMULA = "Formula";
+
 	public static final String ATT_DEPENDENT = "Dependent";
+	@Deprecated
 	public static final String ATT_MODELNAME = "ModelName";
+	@Deprecated
 	public static final String ATT_MODELID = "ModelCatalogID";
+
 	public static final String ATT_PARAMETER = "Parameter";
 	public static final String ATT_INDEPENDENT = "Independent";
 	
+	@Deprecated
 	public static final String ATT_ESTMODELID = "EstModelID";
+	@Deprecated
 	public static final String ATT_RMS = "RMS";
+	@Deprecated
 	public static final String ATT_RSQUARED = "Rsquared";
+
 	public static final String ATT_MLIT = "M_Literatur";
 	public static final String ATT_EMLIT = "EM_Literatur";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
 	public static final String ATT_DBUUID = "M_DB_UID";
+	
+	@Deprecated
 	public static final String ATT_AIC = "AIC";
+	@Deprecated
 	public static final String ATT_BIC = "BIC";
 	
 	public static final int WRITABLE = 1;
@@ -64,10 +79,14 @@ public class Model1Schema extends KnimeSchema {
 			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 
+			addXmlAttribute( ATT_MODELCATALOG );
+
 			addXmlAttribute( ATT_DEPENDENT );
 			addXmlAttribute( ATT_INDEPENDENT );
 
 			addXmlAttribute( ATT_PARAMETER );
+
+			addXmlAttribute( ATT_ESTMODEL );
 
 			addXmlAttribute(ATT_MLIT);
 			

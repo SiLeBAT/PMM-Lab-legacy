@@ -38,17 +38,26 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class Model2Schema extends KnimeSchema {
 	
+	public static final String ATT_MODELCATALOG = getAttribute(Model1Schema.ATT_MODELCATALOG, 2);
+	public static final String ATT_ESTMODEL = getAttribute(Model1Schema.ATT_ESTMODEL, 2);
+
+	@Deprecated
 	public static final String ATT_FORMULA = getAttribute(Model1Schema.ATT_FORMULA, 2);
 	public static final String ATT_DEPENDENT = getAttribute(Model1Schema.ATT_DEPENDENT, 2);
 
+	@Deprecated
 	public static final String ATT_MODELNAME = getAttribute(Model1Schema.ATT_MODELNAME, 2);
+	@Deprecated
 	public static final String ATT_MODELID = getAttribute(Model1Schema.ATT_MODELID, 2);
 	public static final String ATT_PARAMETER = getAttribute(Model1Schema.ATT_PARAMETER, 2);
 	public static final String ATT_INDEPENDENT = getAttribute(Model1Schema.ATT_INDEPENDENT, 2);
 
+	@Deprecated
 	public static final String ATT_ESTMODELID = getAttribute(Model1Schema.ATT_ESTMODELID, 2);
 
+	@Deprecated
 	public static final String ATT_RMS = getAttribute(Model1Schema.ATT_RMS, 2);
+	@Deprecated
 	public static final String ATT_RSQUARED = getAttribute(Model1Schema.ATT_RSQUARED, 2);
 
 	public static final String ATT_MLIT = getAttribute(Model1Schema.ATT_MLIT, 2);
@@ -60,7 +69,9 @@ public class Model2Schema extends KnimeSchema {
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
 	
+	@Deprecated
 	public static final String ATT_AIC = getAttribute(Model1Schema.ATT_AIC, 2);
+	@Deprecated
 	public static final String ATT_BIC = getAttribute(Model1Schema.ATT_BIC, 2);
 
 
@@ -71,10 +82,14 @@ public class Model2Schema extends KnimeSchema {
 			addStringAttribute( ATT_MODELNAME );
 			addStringAttribute( ATT_FORMULA );
 
+			addXmlAttribute( ATT_MODELCATALOG );
+
 			addXmlAttribute( ATT_DEPENDENT );
 			addXmlAttribute( ATT_INDEPENDENT );
 
 			addXmlAttribute( ATT_PARAMETER );
+
+			addXmlAttribute( ATT_ESTMODEL );
 
 			addXmlAttribute(ATT_MLIT);
 			

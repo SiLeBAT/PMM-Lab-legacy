@@ -80,9 +80,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	private List<NodeSelectionListener> nodeSelectionListeners;
 
-	private List<Node> selectedNodes;
-	private List<Edge> selectedEdges;
-
 	private JComboBox<String> layoutBox;
 	private JTextField nodeSizeField;
 	private JCheckBox hideNodeBox;
@@ -106,8 +103,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		}
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
-		selectedNodes = new ArrayList<Node>();
-		selectedEdges = new ArrayList<Edge>();
 
 		mouseModel = null;
 		updateMouseModel(DEFAULT_MODE);
@@ -145,7 +140,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		} else if (e.getSource() == nodePropertiesButton) {
 			List<Map<String, String>> propertyValues = new ArrayList<Map<String, String>>();
 
-			for (Node node : selectedNodes) {
+			for (Node node : viewer.getPickedVertexState().getPicked()) {
 				propertyValues.add(node.getProperties());
 			}
 
@@ -156,7 +151,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		} else if (e.getSource() == edgePropertiesButton) {
 			List<Map<String, String>> propertyValues = new ArrayList<Map<String, String>>();
 
-			for (Edge edge : selectedEdges) {
+			for (Edge edge : viewer.getPickedEdgeState().getPicked()) {
 				propertyValues.add(edge.getProperties());
 			}
 
@@ -173,9 +168,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			Node node = (Node) e.getItem();
 
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				selectedNodes.add(node);
-				fireNodeSelectionChanged();
-
 				for (Edge edge : connectingEdges.get(node)) {
 					Node otherNode = null;
 
@@ -185,25 +177,13 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 						otherNode = edge.getN1();
 					}
 
-					if (selectedNodes.contains(otherNode)
-							&& !selectedEdges.contains(edge)) {
+					if (viewer.getPickedVertexState().isPicked(otherNode)) {
 						viewer.getPickedEdgeState().pick(edge, true);
 					}
 				}
-			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-				selectedNodes.remove(node);
-				fireNodeSelectionChanged();
 			}
-		} else if (e.getItem() instanceof Edge) {
-			Edge edge = (Edge) e.getItem();
 
-			System.out.println(edge);
-
-			if (e.getStateChange() == ItemEvent.SELECTED) {
-				selectedEdges.add(edge);
-			} else if (e.getStateChange() == ItemEvent.DESELECTED) {
-				selectedEdges.remove(edge);
-			}
+			fireNodeSelectionChanged();
 		}
 	}
 
@@ -344,7 +324,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	private void fireNodeSelectionChanged() {
 		for (NodeSelectionListener listener : nodeSelectionListeners) {
-			listener.selectionChanged(selectedNodes);
+			listener.selectionChanged(viewer.getPickedVertexState().getPicked());
 		}
 	}
 
@@ -411,7 +391,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	public static interface NodeSelectionListener {
 
-		public void selectionChanged(List<Node> selectedNodes);
+		public void selectionChanged(Set<Node> selectedNodes);
 	}
 
 	private static class PropertiesDialog extends JDialog implements

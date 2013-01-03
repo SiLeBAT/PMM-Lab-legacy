@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JSplitPane;
 
@@ -137,7 +138,7 @@ public class RegionToRegionVisualizerNodeView extends
 	}
 
 	@Override
-	public void selectionChanged(List<GraphCanvas.Node> selectedNodes) {
+	public void selectionChanged(Set<GraphCanvas.Node> selectedNodes) {
 		List<String> regions = new ArrayList<String>();
 
 		for (GraphCanvas.Node node : selectedNodes) {

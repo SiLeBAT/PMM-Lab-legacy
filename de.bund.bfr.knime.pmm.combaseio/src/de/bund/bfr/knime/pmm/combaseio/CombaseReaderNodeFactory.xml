@@ -17,5 +17,6 @@
     
     <ports>
         <outPort index="0" name="Microbial data table"> Microbial data table.</outPort>
+        <outPort index="1" name="Model table"> Model table.</outPort>
     </ports>        
 </knimeNode>

@@ -32,8 +32,10 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -191,6 +193,42 @@ public class XML2TableNodeModel extends NodeModel {
     		                        break;
                     			}
                     		}
+                    		else if (el instanceof CatalogModelXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				CatalogModelXml cmx = (CatalogModelXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+cmx.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+cmx.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+cmx.getName()+"_"+sarr[j], CatalogModelXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = CatalogModelXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, CatalogModelXml.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
+                    		else if (el instanceof EstModelXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				EstModelXml emx = (EstModelXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+emx.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+emx.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+emx.getName()+"_"+sarr[j], EstModelXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = EstModelXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, EstModelXml.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
                     	}
                     }
                 }
@@ -294,6 +332,23 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("year", li.getYear() == null ? CellIO.createMissingCell() : new IntCell(li.getYear()));
 		                			addCells.put("title", li.getTitle() == null ? CellIO.createMissingCell() : new StringCell(li.getTitle()));
 		                			addCells.put("abstract", li.getAbstract() == null ? CellIO.createMissingCell() : new StringCell(li.getAbstract()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof CatalogModelXml) {
+		                			CatalogModelXml cmx = (CatalogModelXml) el;
+		                			addCells.put("id", cmx.getID() == null ? CellIO.createMissingCell() : new IntCell(cmx.getID()));
+		                			addCells.put("name", cmx.getName() == null ? CellIO.createMissingCell() : new StringCell(cmx.getName())); 
+		                			addCells.put("formula", cmx.getFormula() == null ? CellIO.createMissingCell() : new StringCell(cmx.getFormula()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof EstModelXml) {
+		                			EstModelXml emx = (EstModelXml) el;
+		                			addCells.put("id", emx.getID() == null ? CellIO.createMissingCell() : new IntCell(emx.getID()));
+		                			addCells.put("name", emx.getName() == null ? CellIO.createMissingCell() : new StringCell(emx.getName())); 
+		                			addCells.put("rms", emx.getRMS() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getRMS()));
+		                			addCells.put("r2", emx.getR2() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getR2()));
+		                			addCells.put("aic", emx.getAIC() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getAIC()));
+		                			addCells.put("bic", emx.getBIC() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getBIC()));
 		                			v.add(addCells);
 		                		}
 		                	}

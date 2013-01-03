@@ -53,8 +53,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -218,6 +220,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
     		}
     		
+			PmmXmlDoc cmDoc = new PmmXmlDoc();
+			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+			cmDoc.add(cmx);
+			tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+
     		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
     		//tuple.setValue( Model1Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
     		PmmXmlDoc depDoc = new PmmXmlDoc();
@@ -237,6 +244,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		//tuple.setValue( Model1Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE ) ) );
     		tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
     		tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
+    		
+    		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
+			PmmXmlDoc emDoc = new PmmXmlDoc();
+			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS), result.getDouble(Bfrdb.ATT_RSQUARED), result.getDouble("AIC"), result.getDouble("BIC"));
+			emDoc.add(emx);
+			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
     		tuple.setValue( Model1Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID ) );
     		tuple.setValue( Model1Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS ) );
     		tuple.setValue( Model1Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED ) );
@@ -288,10 +301,16 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		//tuple.setValue( Model2Schema.ATT_VARPARMAP, result.getString( Bfrdb.ATT_VARMAPTO+"2" ) );
         		//varMap = tuple.getMap( Model2Schema.ATT_VARPARMAP );
         		varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO+"2" ));
-        		for( String to : varMap.keySet() )	
+        		for( String to : varMap.keySet() )	{
         			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
+        		}
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
+	    		
+    			cmDoc = new PmmXmlDoc();
+    			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula); 
+    			cmDoc.add(cmx);
+    			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 	    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP+"2" ) );
 	    		depDoc = new PmmXmlDoc();
 	    		dep = result.getString(Bfrdb.ATT_DEP+"2");
@@ -309,6 +328,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		//tuple.setValue( Model2Schema.ATT_VALUE, DbIo.convertArray2String( result.getArray( Bfrdb.ATT_VALUE+"2" ) ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID+"2" ) );
+	    		
+	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID+"2");
+				emDoc = new PmmXmlDoc();
+				emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS+"2"), result.getDouble(Bfrdb.ATT_RSQUARED+"2"), result.getDouble("AIC2"), result.getDouble("BIC2"));
+				emDoc.add(emx);
+				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 	    		tuple.setValue( Model2Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RMS, result.getString( Bfrdb.ATT_RMS+"2" ) );
 	    		tuple.setValue( Model2Schema.ATT_RSQUARED, result.getString( Bfrdb.ATT_RSQUARED+"2" ) );

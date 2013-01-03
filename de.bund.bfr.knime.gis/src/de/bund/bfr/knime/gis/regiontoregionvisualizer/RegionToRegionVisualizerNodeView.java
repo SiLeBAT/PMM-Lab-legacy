@@ -105,8 +105,7 @@ public class RegionToRegionVisualizerNodeView extends
 							.getNodeIdColumn(), getNodeModel()
 							.getNodeRegionIdColumn(), getNodeModel()
 							.getEdgeFromColumn(), getNodeModel()
-							.getEdgeToColumn(), getNodeModel()
-							.getEdgeValueColumn());
+							.getEdgeToColumn());
 			graphCanvas.addNodeSelectionListener(this);
 			gisCanvas = createGISCanvas(getNodeModel().getFileName(),
 					getNodeModel().getFileRegionIdColumn());
@@ -151,7 +150,7 @@ public class RegionToRegionVisualizerNodeView extends
 
 	private GraphCanvas createGraphCanvas(DataTable nodeTable,
 			DataTable edgeTable, String nodeIdColumn, String nodeRegionColumn,
-			String edgeFromColumn, String edgeToColumn, String edgeValueColumn) {
+			String edgeFromColumn, String edgeToColumn) {
 		int nodeIdIndex = nodeTable.getDataTableSpec().findColumnIndex(
 				nodeIdColumn);
 		int nodeRegionIndex = nodeTable.getDataTableSpec().findColumnIndex(
@@ -160,8 +159,6 @@ public class RegionToRegionVisualizerNodeView extends
 				edgeFromColumn);
 		int edgeToIndex = edgeTable.getDataTableSpec().findColumnIndex(
 				edgeToColumn);
-		int edgeValueIndex = edgeTable.getDataTableSpec().findColumnIndex(
-				edgeValueColumn);
 		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<String, GraphCanvas.Node>();
 		List<GraphCanvas.Edge> edges = new ArrayList<GraphCanvas.Edge>();
 
@@ -193,13 +190,19 @@ public class RegionToRegionVisualizerNodeView extends
 				DataRow row = edgeIt.next();
 				String from = row.getCell(edgeFromIndex).toString().trim();
 				String to = row.getCell(edgeToIndex).toString().trim();
-				double value = Double.parseDouble(row.getCell(edgeValueIndex)
-						.toString().trim());
 				GraphCanvas.Node node1 = nodes.get(from);
 				GraphCanvas.Node node2 = nodes.get(to);
+				Map<String, String> properties = new LinkedHashMap<String, String>();
+
+				for (int i = 0; i < edgeTable.getDataTableSpec()
+						.getNumColumns(); i++) {
+					properties.put(edgeTable.getDataTableSpec()
+							.getColumnSpec(i).getName().trim(), row.getCell(i)
+							.toString().trim());
+				}
 
 				if (node1 != null && node2 != null) {
-					edges.add(new GraphCanvas.Edge(node1, node2, value));
+					edges.add(new GraphCanvas.Edge(node1, node2, properties));
 				}
 			} catch (Exception e) {
 			}

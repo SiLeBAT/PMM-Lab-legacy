@@ -93,6 +93,12 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(LiteratureItem.ELEMENT_LITERATURE)) {
 				elementSet.add(new LiteratureItem(el));
 			}	
+			else if (el.getName().equals(CatalogModelXml.ELEMENT_CATALOGMODEL)) {
+				elementSet.add(new CatalogModelXml(el));
+			}	
+			else if (el.getName().equals(EstModelXml.ELEMENT_ESTMODEL)) {
+				elementSet.add(new EstModelXml(el));
+			}	
 		}					
 	}
 	public void add(PmmXmlElementConvertable el) {

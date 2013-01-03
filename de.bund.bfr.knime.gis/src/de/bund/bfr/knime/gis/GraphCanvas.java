@@ -41,10 +41,12 @@ import edu.uci.ics.jung.algorithms.layout.SpringLayout;
 import edu.uci.ics.jung.algorithms.layout.SpringLayout2;
 import edu.uci.ics.jung.graph.Graph;
 import edu.uci.ics.jung.graph.SparseMultigraph;
+import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
+import edu.uci.ics.jung.visualization.transform.MutableTransformer;
 
 public class GraphCanvas extends JPanel implements ActionListener,
 		GraphMouseListener<Node>, ItemListener {
@@ -216,6 +218,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		layout.setSize(size);
 
 		if (viewer != null) {
+			MutableTransformer modelTransformer = viewer.getRenderContext()
+					.getMultiLayerTransformer().getTransformer(Layer.LAYOUT);
+
+			modelTransformer.translate(-modelTransformer.getTranslateX(),
+					-modelTransformer.getTranslateY());
 			viewer.setGraphLayout(layout);
 			viewer.getRenderContext().setVertexShapeTransformer(
 					new ShapeTransformer(nodeSize));

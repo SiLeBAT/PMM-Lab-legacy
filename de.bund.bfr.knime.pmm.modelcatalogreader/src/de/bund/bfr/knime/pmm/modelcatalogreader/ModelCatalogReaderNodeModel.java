@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
@@ -149,6 +150,11 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 				}
 	    		
+				PmmXmlDoc cmDoc = new PmmXmlDoc();
+				CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+				cmDoc.add(cmx);
+				tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+
 	    		tuple.setValue( Model1Schema.ATT_FORMULA, formula );
 	    		PmmXmlDoc depDoc = new PmmXmlDoc();
 	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
@@ -194,6 +200,11 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		if( formula != null ) {
 					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 				}
+
+				PmmXmlDoc cmDoc = new PmmXmlDoc();
+				CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+				cmDoc.add(cmx);
+				tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 
 	    		tuple.setValue( Model2Schema.ATT_FORMULA, formula );
 	    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));

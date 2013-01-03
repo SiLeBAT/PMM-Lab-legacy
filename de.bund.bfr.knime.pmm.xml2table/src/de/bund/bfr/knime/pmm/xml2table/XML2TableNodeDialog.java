@@ -16,7 +16,9 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.ColumnFilter;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -90,6 +92,12 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
 		}
 		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_DEPENDENT)) {
 			list = DepXml.getElements();
+		}
+		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_MODELCATALOG)) {
+			list = CatalogModelXml.getElements();
+		}
+		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_ESTMODEL)) {
+			list = EstModelXml.getElements();
 		}
         if (list != null) xmlseldialog.replaceListItems(list, (String[]) null);
 	}

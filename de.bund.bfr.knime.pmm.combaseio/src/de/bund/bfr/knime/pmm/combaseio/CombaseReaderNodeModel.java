@@ -53,7 +53,9 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseReader;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -141,6 +143,12 @@ public class CombaseReaderNodeModel extends NodeModel {
     			indepXML.add(new IndepXml(TimeSeriesSchema.TIME, null, null));
     			
     			modelTuple = KnimeTuple.merge( commonSchema, modelTuple, candidate );
+    			
+    			PmmXmlDoc cmDoc = new PmmXmlDoc();
+    			CatalogModelXml cmx = new CatalogModelXml(MathUtilities.getRandomNegativeInt(), "D-Value", TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME);
+    			cmDoc.add(cmx);
+    			modelTuple.setValue( Model1Schema.ATT_MODELCATALOG, cmDoc);
+    			
     			modelTuple.setValue( Model1Schema.ATT_FORMULA, TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME );
     			//modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			
@@ -167,6 +175,11 @@ public class CombaseReaderNodeModel extends NodeModel {
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
     			//modelTuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.LOGC);
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
+    			int ri = MathUtilities.getRandomNegativeInt();
+    			PmmXmlDoc emDoc = new PmmXmlDoc();
+    			EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null);
+    			emDoc.add(emx);
+    			modelTuple.setValue( Model1Schema.ATT_ESTMODEL, emDoc);
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
     			//modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
     			//modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );

@@ -60,7 +60,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected static final String CFG_FILE_REGION_ID_COLUMN = "FileRegionIDColumn";
 	protected static final String CFG_NODE_ID_COLUMN = "NodeIDColumn";
 	protected static final String CFG_NODE_REGION_ID_COLUMN = "NodeRegionIDColumn";
-	protected static final String CFG_NODE_VALUE_COLUMN = "NodeValueColumn";
 	protected static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	protected static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
 	protected static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
@@ -77,7 +76,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	private String fileRegionIdColumn;
 	private String nodeIdColumn;
 	private String nodeRegionIdColumn;
-	private String nodeValueColumn;
 	private boolean skipEdgelessNodes;
 	private String edgeFromColumn;
 	private String edgeToColumn;
@@ -127,7 +125,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		settings.addString(CFG_FILE_REGION_ID_COLUMN, fileRegionIdColumn);
 		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);
 		settings.addString(CFG_NODE_REGION_ID_COLUMN, nodeRegionIdColumn);
-		settings.addString(CFG_NODE_VALUE_COLUMN, nodeValueColumn);
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
@@ -162,12 +159,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 			nodeRegionIdColumn = settings.getString(CFG_NODE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
 			nodeRegionIdColumn = "";
-		}
-
-		try {
-			nodeValueColumn = settings.getString(CFG_NODE_VALUE_COLUMN);
-		} catch (InvalidSettingsException e) {
-			nodeValueColumn = "";
 		}
 
 		try {
@@ -251,10 +242,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 	protected String getNodeRegionIdColumn() {
 		return nodeRegionIdColumn;
-	}
-
-	protected String getNodeValueColumn() {
-		return nodeValueColumn;
 	}
 
 	protected boolean isSkipEdgelessNodes() {

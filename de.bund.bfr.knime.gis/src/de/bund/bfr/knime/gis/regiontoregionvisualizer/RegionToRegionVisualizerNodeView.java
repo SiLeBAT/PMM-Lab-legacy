@@ -51,7 +51,11 @@ import org.eclipse.stem.gis.dbf.DbfFieldDef;
 import org.eclipse.stem.gis.shp.ShpPolygon;
 import org.eclipse.stem.gis.shp.ShpRecord;
 import org.knime.core.data.DataRow;
+import org.knime.core.data.DataTable;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowIterator;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.gis.GISCanvas;
@@ -283,38 +287,52 @@ public class RegionToRegionVisualizerNodeView extends
 		return new GISCanvas(shapes);
 	}
 
-	private Map<String, Double> createRegionDataMap(
+	private Map<String, Map<String, Double>> createRegionDataMap(
 			Map<String, String> idToRegionMap, Set<String> connectedNodes) {
-		Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
-		int idIndex = getNodeModel().getNodeTable().getDataTableSpec()
-				.findColumnIndex(getNodeModel().getNodeIdColumn());
-		int valueIndex = getNodeModel().getNodeTable().getDataTableSpec()
-				.findColumnIndex(getNodeModel().getNodeValueColumn());
-		RowIterator it = getNodeModel().getNodeTable().iterator();
+		Map<String, Map<String, Double>> dataMap = new LinkedHashMap<>();
+		DataTable nodeTable = getNodeModel().getNodeTable();
+		DataTableSpec nodeTableSpec = nodeTable.getDataTableSpec();
+		int idIndex = nodeTable.getDataTableSpec().findColumnIndex(
+				getNodeModel().getNodeIdColumn());
+
+		for (int i = 0; i < nodeTableSpec.getNumColumns(); i++) {
+			if (nodeTableSpec.getColumnSpec(i).getType() == DoubleCell.TYPE
+					|| nodeTableSpec.getColumnSpec(i).getType() == IntCell.TYPE) {
+				dataMap.put(nodeTableSpec.getColumnSpec(i).getName(),
+						new LinkedHashMap<String, Double>());
+			}
+		}
+
+		RowIterator it = nodeTable.iterator();
 
 		while (it.hasNext()) {
 			DataRow row = it.next();
 
-			try {
-				String id = row.getCell(idIndex).toString().trim();
+			String id = row.getCell(idIndex).toString().trim();
 
-				if (getNodeModel().isSkipEdgelessNodes()
-						&& !connectedNodes.contains(id)) {
-					continue;
-				}
+			if (getNodeModel().isSkipEdgelessNodes()
+					&& !connectedNodes.contains(id)) {
+				continue;
+			}
 
-				double value = Double.parseDouble(row.getCell(valueIndex)
-						.toString().trim());
-				String region = idToRegionMap.get(id);
+			String region = idToRegionMap.get(id);
 
-				if (region != null) {
-					if (dataMap.containsKey(region)) {
-						dataMap.put(region, dataMap.get(region) + value);
-					} else {
-						dataMap.put(region, value);
+			if (region != null) {
+				for (String property : dataMap.keySet()) {
+					try {
+						int column = nodeTableSpec.findColumnIndex(property);
+						double value = Double.parseDouble(row.getCell(column)
+								.toString().trim());
+
+						if (dataMap.get(property).containsKey(region)) {
+							dataMap.get(property).put(region,
+									dataMap.get(property).get(region) + value);
+						} else {
+							dataMap.get(property).put(region, value);
+						}
+					} catch (Exception e) {
 					}
 				}
-			} catch (Exception e) {
 			}
 		}
 

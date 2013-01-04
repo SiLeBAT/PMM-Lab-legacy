@@ -63,6 +63,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -81,11 +82,13 @@ public class GISCanvas extends JPanel implements ActionListener {
 	private static final int DEFAULT_BORDER_ALPHA = 255;
 
 	private GISComponent gisComponent;
+	private JComboBox<String> propertyBox;
 	private JSlider borderAlphaSlider;
 	private JButton layoutButton;
 
 	public GISCanvas(Map<String, ShpPolygon> shapes) {
 		gisComponent = new GISComponent(shapes, DEFAULT_BORDER_ALPHA);
+		propertyBox = new JComboBox<>();
 		borderAlphaSlider = new JSlider(0, 255, DEFAULT_BORDER_ALPHA);
 		layoutButton = new JButton("Apply");
 		layoutButton.addActionListener(this);
@@ -94,7 +97,9 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		layoutPanel.setBorder(BorderFactory.createTitledBorder("Layout"));
 		layoutPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		layoutPanel.add(new JLabel("Border Alpha"));
+		layoutPanel.add(new JLabel("Property:"));
+		layoutPanel.add(propertyBox);
+		layoutPanel.add(new JLabel("Border Alpha:"));
 		layoutPanel.add(borderAlphaSlider);
 		layoutPanel.add(layoutButton);
 
@@ -108,8 +113,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 		add(optionsPanel, BorderLayout.SOUTH);
 	}
 
-	public void setRegionData(Map<String, Double> regionData) {
+	public void setRegionData(Map<String, Map<String, Double>> regionData) {
+		for (String property : regionData.keySet()) {
+			propertyBox.addItem(property);
+		}
+
+		propertyBox.setSelectedIndex(0);
 		gisComponent.setRegionData(regionData);
+		gisComponent.setProperty((String) propertyBox.getSelectedItem());
 	}
 
 	public void setEdgeData(Map<Edge, Double> edgeData) {
@@ -123,6 +134,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == layoutButton) {
+			gisComponent.setProperty((String) propertyBox.getSelectedItem());
 			gisComponent.setBorderAlpha((borderAlphaSlider.getValue()));
 			gisComponent.repaint();
 		}
@@ -193,9 +205,10 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private Map<String, ShpPolygon> shapes;
 		private Map<String, Point2D.Double> shapeCenters;
 		private Map<String, Rectangle2D.Double> shapeBoundingBoxes;
-		private Map<String, Double> regionData;
+		private Map<String, Map<String, Double>> regionData;
 		private Map<Edge, Double> edgeData;
 		private List<String> highlightedRegions;
+		private String property;
 		private int borderAlpha;
 
 		private boolean transformComputed;
@@ -253,7 +266,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 			logScaleItem.setSelected(false);
 		}
 
-		public void setRegionData(Map<String, Double> regionData) {
+		public void setRegionData(Map<String, Map<String, Double>> regionData) {
 			this.regionData = regionData;
 		}
 
@@ -263,6 +276,10 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		public void setHighlightedRegions(List<String> highlightedRegions) {
 			this.highlightedRegions = highlightedRegions;
+		}
+
+		public void setProperty(String property) {
+			this.property = property;
 		}
 
 		public void setBorderAlpha(int borderAlpha) {
@@ -286,12 +303,13 @@ public class GISCanvas extends JPanel implements ActionListener {
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
-			if (regionData != null) {
-				double max = Collections.max(regionData.values());
+			if (property != null) {
+				Map<String, Double> data = regionData.get(property);
+				double max = Collections.max(data.values());
 
-				for (String id : regionData.keySet()) {
+				for (String id : data.keySet()) {
 					List<Polygon> poly = transformedShapes.get(id);
-					Double value = regionData.get(id);
+					Double value = data.get(id);
 
 					if (poly != null) {
 						value /= max;
@@ -561,7 +579,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 			if (id == null) {
 				setToolTipText(null);
 			} else if (!id.equals(lastContainingPolygon)) {
-				Double value = regionData.get(id);
+				Double value = null;
+
+				if (property != null) {
+					value = regionData.get(property).get(id);
+				}
+
 				String row1 = "<tr><td>ID</td><td>" + id + "</td></tr>";
 				String row2 = "<tr><td>Value</td><td>" + value + "</td></tr>";
 

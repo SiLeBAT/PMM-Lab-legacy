@@ -87,7 +87,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 	private JComboBox<String> nodeIdBox;
 	private JComboBox<String> nodeRegionIdBox;
-	private JComboBox<String> nodeValueBox;
 	private JCheckBox skipEdgelessNodesBox;
 
 	private JComboBox<String> edgeFromBox;
@@ -105,7 +104,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		fileRegionIdBox = new JComboBox<String>();
 		nodeIdBox = new JComboBox<String>();
 		nodeRegionIdBox = new JComboBox<String>();
-		nodeValueBox = new JComboBox<String>();
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		edgeFromBox = new JComboBox<String>();
 		edgeToBox = new JComboBox<String>();
@@ -139,18 +137,16 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		JPanel leftTablePanel = new JPanel();
 
-		leftTablePanel.setLayout(new GridLayout(4, 1, 5, 5));
+		leftTablePanel.setLayout(new GridLayout(3, 1, 5, 5));
 		leftTablePanel.add(new JLabel("Column with Node IDs:"));
 		leftTablePanel.add(new JLabel("Column with Region IDs:"));
-		leftTablePanel.add(new JLabel("Column with Values:"));
 		leftTablePanel.add(new JLabel(""));
 
 		JPanel rightTablePanel = new JPanel();
 
-		rightTablePanel.setLayout(new GridLayout(4, 1, 5, 5));
+		rightTablePanel.setLayout(new GridLayout(3, 1, 5, 5));
 		rightTablePanel.add(nodeIdBox);
 		rightTablePanel.add(nodeRegionIdBox);
-		rightTablePanel.add(nodeValueBox);
 		rightTablePanel.add(skipEdgelessNodesBox);
 
 		JPanel innerTablePanel = new JPanel();
@@ -215,7 +211,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		String fileRegionIdColumn;
 		String nodeIdColumn;
 		String nodeRegionIdColumn;
-		String nodeValueColumn;
 		boolean skipEdgelessNodes;
 		String edgeFromColumn;
 		String edgeToColumn;
@@ -247,13 +242,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 					.getString(RegionToRegionVisualizerNodeModel.CFG_NODE_REGION_ID_COLUMN);
 		} catch (InvalidSettingsException e) {
 			nodeRegionIdColumn = "";
-		}
-
-		try {
-			nodeValueColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_NODE_VALUE_COLUMN);
-		} catch (InvalidSettingsException e) {
-			nodeValueColumn = "";
 		}
 
 		try {
@@ -292,7 +280,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		nodeIdBox.removeAllItems();
 		nodeRegionIdBox.removeAllItems();
-		nodeValueBox.removeAllItems();
 		edgeFromBox.removeAllItems();
 		edgeToBox.removeAllItems();
 		edgeValueBox.removeAllItems();
@@ -300,7 +287,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		for (String column : tableColumns) {
 			nodeIdBox.addItem(column);
 			nodeRegionIdBox.addItem(column);
-			nodeValueBox.addItem(column);
 		}
 
 		for (String column : edgeColumns) {
@@ -311,7 +297,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		nodeIdBox.setSelectedItem(nodeIdColumn);
 		nodeRegionIdBox.setSelectedItem(nodeRegionIdColumn);
-		nodeValueBox.setSelectedItem(nodeValueColumn);
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
 		edgeFromBox.setSelectedItem(edgeFromColumn);
 		edgeToBox.setSelectedItem(edgeToColumn);
@@ -347,9 +332,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		settings.addString(
 				RegionToRegionVisualizerNodeModel.CFG_NODE_REGION_ID_COLUMN,
 				(String) nodeRegionIdBox.getSelectedItem());
-		settings.addString(
-				RegionToRegionVisualizerNodeModel.CFG_NODE_VALUE_COLUMN,
-				(String) nodeValueBox.getSelectedItem());
 		settings.addBoolean(
 				RegionToRegionVisualizerNodeModel.CFG_SKIP_EDGELESS_NODES,
 				skipEdgelessNodesBox.isSelected());

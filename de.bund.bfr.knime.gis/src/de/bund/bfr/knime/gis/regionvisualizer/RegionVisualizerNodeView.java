@@ -97,8 +97,10 @@ public class RegionVisualizerNodeView extends
 			Map<String, Double> dataMap = createDataMap(getNodeModel()
 					.getTable(), getNodeModel().getTableIdColumn(),
 					getNodeModel().getTableValueColumn());
+			Map<String, Map<String, Double>> map = new LinkedHashMap<>();
 
-			canvas.setRegionData(dataMap);
+			map.put("test", dataMap);
+			canvas.setRegionData(map);
 
 			JPanel panel = new JPanel();
 

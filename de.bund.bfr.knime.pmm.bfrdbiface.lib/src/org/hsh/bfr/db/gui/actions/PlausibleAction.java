@@ -191,18 +191,25 @@ public class PlausibleAction extends AbstractAction {
 	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
 	    		, false);
 */
-		checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3});
-		
-		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false);
+		checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
+				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+
+		checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
+				null, null, null);
+
+		checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+				null, null, null);
+
+		DBKernel.sendRequest("DROP FUNCTION LD", false);
 	}
-	private void checkTable4ISM(String tablename, String[] fieldnames, int[] simScores) throws SQLException {
-		if (simScores.length != fieldnames.length) {
+	private void checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
+		if (maxScores.length != fieldnames.length) {
 			System.err.println("fieldnames and simScores with different size...");
 			return;
 		}
 		System.err.print(tablename);
 		for (int i=0;i<fieldnames.length;i++) System.err.print("\t" + fieldnames[i]);
-		for (int i=0;i<simScores.length;i++) System.err.print("\t" + simScores[i]);
+		for (int i=0;i<maxScores.length;i++) System.err.print("\t" + maxScores[i]);
 		System.err.println();
 		
 		String sql = "SELECT " + DBKernel.delimitL("ID");
@@ -211,6 +218,8 @@ public class PlausibleAction extends AbstractAction {
         ResultSet rs = DBKernel.getResultSet(sql, false);
         if (rs != null && rs.first()) {
         	do {
+        		
+        		// Firstly - fieldnames
         		int id = rs.getInt("ID");
         		String result = ""+id;
         		Object[] fieldVals = new Object[fieldnames.length];
@@ -219,20 +228,58 @@ public class PlausibleAction extends AbstractAction {
         			if (fieldVals[i] != null) fieldVals[i] = fieldVals[i].toString().replace("'", "''");
         			result += "\t" + fieldVals[i];
         		}
+        		
+        		// Firstly - otherTableDesires
+        		if (otherTable != null) {
+        			result += " (" + otherTable + ": ";
+        			sql = "SELECT " + DBKernel.delimitL("ID");
+            		for (int i=0;i<otherTableDesires.length;i++) sql += "," + DBKernel.delimitL(otherTableDesires[i]);
+            		sql += " FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + id;
+        			ResultSet rs3 = DBKernel.getResultSet(sql, false);
+        			if (rs3 != null && rs3.first()) {
+                    	do {
+                    		result += rs3.getInt("ID");
+                    		for (int i=0;i<otherTableDesires.length;i++) result += "\t" + rs3.getString(otherTableDesires[i]);
+                    	} while(rs3.next());
+        			}
+        			result += ")";
+        		}
+    			
         		result += "\n";
+        		
                 sql = "SELECT " + DBKernel.delimitL("ID");
         		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
-        		for (int i=0;i<fieldnames.length;i++) sql += "," + (fieldVals[i] == null ? "1" : DBKernel.delimitL("LD") + "('" + fieldVals[i] + "'," + DBKernel.delimitL(fieldnames[i]) + ")") + " AS SCORE" + i;
+        		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
                 sql += " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + ">" + id;
-        		for (int i=0;i<fieldnames.length;i++) sql += " AND " + (fieldVals[i] == null ? DBKernel.delimitL(fieldnames[i]) + " IS NULL" : DBKernel.delimitL("LD") + "('" + fieldVals[i] + "'," + DBKernel.delimitL(fieldnames[i]) + ") < " + simScores[i]);
+        		for (int i=0;i<fieldnames.length;i++) sql += " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {
                 	do {
+                		
+                		// Match - fieldnames
                 		result += rs2.getInt("ID");
                 		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getString(fieldnames[i]);
                 		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getDouble("SCORE" + i);
+                		
+                		// Match - otherTableDesires
+                		if (otherTable != null) {
+                			result += " (" + otherTable + ": ";
+                			sql = "SELECT " + DBKernel.delimitL("ID");
+                    		for (int i=0;i<otherTableDesires.length;i++) sql += "," + DBKernel.delimitL(otherTableDesires[i]);
+                    		sql += " FROM " + DBKernel.delimitL(otherTable) + " WHERE " + DBKernel.delimitL(otherTableField) + "=" + rs2.getInt("ID");
+                    		ResultSet rs3 = DBKernel.getResultSet(sql, false);
+                			if (rs3 != null && rs3.first()) {
+                            	do {
+                            		result += rs3.getInt("ID");
+                            		for (int i=0;i<otherTableDesires.length;i++) result += "\t" + rs3.getString(otherTableDesires[i]);
+                            	} while(rs3.next());
+                			}
+                			result += ")";
+                		}
+                		
                 		result += "\n";
+                		
                 	} while(rs2.next());
                     System.err.println(result);
                 }

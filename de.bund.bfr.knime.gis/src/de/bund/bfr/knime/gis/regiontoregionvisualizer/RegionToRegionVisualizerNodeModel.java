@@ -63,7 +63,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	protected static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
 	protected static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
-	protected static final String CFG_EDGE_VALUE_COLUMN = "EdgeValueColumn";
 
 	protected static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 
@@ -79,7 +78,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	private boolean skipEdgelessNodes;
 	private String edgeFromColumn;
 	private String edgeToColumn;
-	private String edgeValueColumn;
 
 	/**
 	 * Constructor for the node model.
@@ -128,7 +126,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
-		settings.addString(CFG_EDGE_VALUE_COLUMN, edgeValueColumn);
 	}
 
 	/**
@@ -177,12 +174,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 			edgeToColumn = settings.getString(CFG_EDGE_TO_COLUMN);
 		} catch (InvalidSettingsException e) {
 			edgeToColumn = "";
-		}
-
-		try {
-			edgeValueColumn = settings.getString(CFG_EDGE_VALUE_COLUMN);
-		} catch (InvalidSettingsException e) {
-			edgeValueColumn = "";
 		}
 	}
 
@@ -254,10 +245,6 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 	protected String getEdgeToColumn() {
 		return edgeToColumn;
-	}
-
-	protected String getEdgeValueColumn() {
-		return edgeValueColumn;
 	}
 
 }

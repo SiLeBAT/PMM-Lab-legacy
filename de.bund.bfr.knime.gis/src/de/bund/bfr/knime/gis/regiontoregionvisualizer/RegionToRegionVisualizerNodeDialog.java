@@ -91,7 +91,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 	private JComboBox<String> edgeFromBox;
 	private JComboBox<String> edgeToBox;
-	private JComboBox<String> edgeValueBox;
 
 	/**
 	 * New pane for configuring the RegionToRegionVisualizer node.
@@ -107,7 +106,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		skipEdgelessNodesBox = new JCheckBox("Skip Nodes without Edges");
 		edgeFromBox = new JComboBox<String>();
 		edgeToBox = new JComboBox<String>();
-		edgeValueBox = new JComboBox<String>();
 
 		JPanel fileOpenPanel = new JPanel();
 
@@ -164,17 +162,15 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 
 		JPanel leftEdgePanel = new JPanel();
 
-		leftEdgePanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftEdgePanel.setLayout(new GridLayout(2, 1, 5, 5));
 		leftEdgePanel.add(new JLabel("Column with Origin Node IDs:"));
 		leftEdgePanel.add(new JLabel("Column with Destination Node IDs:"));
-		leftEdgePanel.add(new JLabel("Column with Values:"));
 
 		JPanel rightEdgePanel = new JPanel();
 
-		rightEdgePanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightEdgePanel.setLayout(new GridLayout(2, 1, 5, 5));
 		rightEdgePanel.add(edgeFromBox);
 		rightEdgePanel.add(edgeToBox);
-		rightEdgePanel.add(edgeValueBox);
 
 		JPanel innerEdgePanel = new JPanel();
 
@@ -214,7 +210,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		boolean skipEdgelessNodes;
 		String edgeFromColumn;
 		String edgeToColumn;
-		String edgeValueColumn;
 
 		try {
 			fileName = settings
@@ -265,13 +260,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 			edgeToColumn = "";
 		}
 
-		try {
-			edgeValueColumn = settings
-					.getString(RegionToRegionVisualizerNodeModel.CFG_EDGE_VALUE_COLUMN);
-		} catch (InvalidSettingsException e) {
-			edgeValueColumn = "";
-		}
-
 		fileField.setText(fileName);
 		fileRegionIdBox.setSelectedItem(fileRegionIdColumn);
 
@@ -282,7 +270,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		nodeRegionIdBox.removeAllItems();
 		edgeFromBox.removeAllItems();
 		edgeToBox.removeAllItems();
-		edgeValueBox.removeAllItems();
 
 		for (String column : tableColumns) {
 			nodeIdBox.addItem(column);
@@ -292,7 +279,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		for (String column : edgeColumns) {
 			edgeFromBox.addItem(column);
 			edgeToBox.addItem(column);
-			edgeValueBox.addItem(column);
 		}
 
 		nodeIdBox.setSelectedItem(nodeIdColumn);
@@ -300,7 +286,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		skipEdgelessNodesBox.setSelected(skipEdgelessNodes);
 		edgeFromBox.setSelectedItem(edgeFromColumn);
 		edgeToBox.setSelectedItem(edgeToColumn);
-		edgeValueBox.setSelectedItem(edgeValueColumn);
 	}
 
 	@Override
@@ -341,9 +326,6 @@ public class RegionToRegionVisualizerNodeDialog extends NodeDialogPane
 		settings.addString(
 				RegionToRegionVisualizerNodeModel.CFG_EDGE_TO_COLUMN,
 				(String) edgeToBox.getSelectedItem());
-		settings.addString(
-				RegionToRegionVisualizerNodeModel.CFG_EDGE_VALUE_COLUMN,
-				(String) edgeValueBox.getSelectedItem());
 	}
 
 	@Override

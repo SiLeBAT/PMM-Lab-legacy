@@ -346,8 +346,6 @@ public class RegionToRegionVisualizerNodeView extends
 				.findColumnIndex(getNodeModel().getEdgeFromColumn());
 		int toIndex = getNodeModel().getEdgeTable().getDataTableSpec()
 				.findColumnIndex(getNodeModel().getEdgeToColumn());
-		int valueIndex = getNodeModel().getEdgeTable().getDataTableSpec()
-				.findColumnIndex(getNodeModel().getEdgeValueColumn());
 		RowIterator it = getNodeModel().getEdgeTable().iterator();
 
 		while (it.hasNext()) {
@@ -356,8 +354,6 @@ public class RegionToRegionVisualizerNodeView extends
 			try {
 				String from = row.getCell(fromIndex).toString().trim();
 				String to = row.getCell(toIndex).toString().trim();
-				double value = Double.parseDouble(row.getCell(valueIndex)
-						.toString().trim());
 				String fromRegion = idToRegionMap.get(from);
 				String toRegion = idToRegionMap.get(to);
 
@@ -366,9 +362,9 @@ public class RegionToRegionVisualizerNodeView extends
 							toRegion);
 
 					if (dataMap.containsKey(edge)) {
-						dataMap.put(edge, dataMap.get(edge) + value);
+						dataMap.put(edge, null);
 					} else {
-						dataMap.put(edge, value);
+						dataMap.put(edge, null);
 					}
 				}
 			} catch (Exception e) {

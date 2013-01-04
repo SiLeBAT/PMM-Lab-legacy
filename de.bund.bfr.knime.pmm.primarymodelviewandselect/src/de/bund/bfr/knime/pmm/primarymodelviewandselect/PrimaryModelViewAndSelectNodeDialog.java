@@ -353,7 +353,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY,
 				configPanel.getTransformY());
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_MODELFILTER,
-				selectionPanel.getFilter(Model1Schema.ATT_MODELNAME));
+				selectionPanel.getFilter(Model1Schema.MODELNAME));
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_DATAFILTER,
 				selectionPanel.getFilter(TimeSeriesSchema.DATAID));
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_FITTEDFILTER,
@@ -392,7 +392,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				visibleColumns, reader.getStringColumns());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
-		selectionPanel.setFilter(Model1Schema.ATT_MODELNAME, modelFilter);
+		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
 		selectionPanel.setFilter(TimeSeriesSchema.DATAID, dataFilter);
 		selectionPanel.setFilter(ChartConstants.IS_FITTED, fittedFilter);
 		selectionPanel.addSelectionListener(this);

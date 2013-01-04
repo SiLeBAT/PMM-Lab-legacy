@@ -110,9 +110,9 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final int DEFAULT_ADDLEGENDINFO = 0;
 	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	static final String DEFAULT_VISIBLECOLUMNS = Model1Schema.ATT_MODELNAME
-			+ "," + TimeSeriesSchema.DATAID + "," + Model1Schema.ATT_RMS + ","
-			+ Model1Schema.ATT_RSQUARED;
+	static final String DEFAULT_VISIBLECOLUMNS = Model1Schema.MODELNAME + ","
+			+ TimeSeriesSchema.DATAID + "," + Model1Schema.RMS + ","
+			+ Model1Schema.RSQUARED;
 	static final String DEFAULT_MODELFILTER = "";
 	static final String DEFAULT_DATAFILTER = "";
 	static final String DEFAULT_FITTEDFILTER = "";
@@ -211,9 +211,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 
 		container.close();
 
-		ChartCreator creator = new ChartCreator(
-				reader.getPlotables(), reader.getShortLegend(),
-				reader.getLongLegend());
+		ChartCreator creator = new ChartCreator(reader.getPlotables(),
+				reader.getShortLegend(), reader.getLongLegend());
 
 		creator.setParamX(TimeSeriesSchema.TIME);
 		creator.setParamY(TimeSeriesSchema.LOGC);

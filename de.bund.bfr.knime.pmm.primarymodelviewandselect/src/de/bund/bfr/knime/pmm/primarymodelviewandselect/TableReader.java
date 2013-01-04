@@ -11,8 +11,10 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -64,18 +66,17 @@ public class TableReader {
 
 		if (schemaContainsData) {
 			miscParams = getAllMiscParams(table);
-			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					TimeSeriesSchema.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED,
-					Model1Schema.ATT_AIC, Model1Schema.ATT_BIC,
-					Model1Schema.ATT_RMS + "(Data)", Model1Schema.ATT_RSQUARED
-							+ "(Data)", Model1Schema.ATT_AIC + "(Data)",
-					Model1Schema.ATT_BIC + "(Data)",
+					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
+					Model1Schema.BIC, Model1Schema.RMS + "(Data)",
+					Model1Schema.RSQUARED + "(Data)", Model1Schema.AIC
+							+ "(Data)", Model1Schema.BIC + "(Data)",
 					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
 					TimeSeriesSchema.ATT_WATERACTIVITY));
 			doubleColumnValues = new ArrayList<List<Double>>();
@@ -96,14 +97,13 @@ public class TableReader {
 				doubleColumnValues.add(new ArrayList<Double>());
 			}
 		} else {
-			stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-					Model1Schema.ATT_RSQUARED, Model1Schema.ATT_AIC,
-					Model1Schema.ATT_BIC);
+			doubleColumns = Arrays.asList(Model1Schema.RMS,
+					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -128,13 +128,12 @@ public class TableReader {
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple tuple = tuples.get(nr);
-			String id = null;
+			String id = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID()
+					+ "";
 
 			if (schemaContainsData) {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-						+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
-			} else {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			allIds.add(id);
@@ -146,8 +145,9 @@ public class TableReader {
 
 			ids.add(id);
 
-			String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
-			String formula = tuple.getString(Model1Schema.ATT_FORMULA);
+			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
+			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) tuple.getPmmXml(
 					Model1Schema.ATT_DEPENDENT).get(0)).getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
@@ -267,27 +267,32 @@ public class TableReader {
 					matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
 				}
 
+				PmmXmlDoc estModelXml = tuple
+						.getPmmXml(Model1Schema.ATT_ESTMODEL);
+				PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
+						Model1Schema.ATT_ESTMODEL);
+
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
 				stringColumnValues.get(0).add(modelName);
 				stringColumnValues.get(1).add(dataName);
 				doubleColumnValues.get(0).add(
-						tuple.getDouble(Model1Schema.ATT_RMS));
+						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(
-						tuple.getDouble(Model1Schema.ATT_RSQUARED));
+						((EstModelXml) estModelXml.get(0)).getR2());
 				doubleColumnValues.get(2).add(
-						tuple.getDouble(Model1Schema.ATT_AIC));
+						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
-						tuple.getDouble(Model1Schema.ATT_BIC));
+						((EstModelXml) estModelXml.get(0)).getBIC());
 				doubleColumnValues.get(4).add(
-						newTuples.get(nr).getDouble(Model1Schema.ATT_RMS));
+						((EstModelXml) newEstModelXml.get(0)).getRMS());
 				doubleColumnValues.get(5).add(
-						newTuples.get(nr).getDouble(Model1Schema.ATT_RSQUARED));
+						((EstModelXml) newEstModelXml.get(0)).getR2());
 				doubleColumnValues.get(6).add(
-						newTuples.get(nr).getDouble(Model1Schema.ATT_AIC));
+						((EstModelXml) newEstModelXml.get(0)).getAIC());
 				doubleColumnValues.get(7).add(
-						newTuples.get(nr).getDouble(Model1Schema.ATT_BIC));
+						((EstModelXml) newEstModelXml.get(0)).getBIC());
 				doubleColumnValues.get(8).add(
 						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
 				doubleColumnValues.get(9).add(
@@ -295,13 +300,12 @@ public class TableReader {
 				doubleColumnValues.get(10).add(
 						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.ATT_FORMULA, TimeSeriesSchema.DATAPOINTS,
+						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENTNAME,
 						TimeSeriesSchema.ATT_MATRIXNAME,
 						TimeSeriesSchema.ATT_COMMENT));
-				infoValues = new ArrayList<Object>(Arrays.asList(
-						tuple.getString(Model1Schema.ATT_FORMULA), dataPoints,
-						agent, matrix,
+				infoValues = new ArrayList<Object>(Arrays.asList(formula,
+						dataPoints, agent, matrix,
 						tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
 
 				for (int i = 0; i < miscParams.size(); i++) {
@@ -329,22 +333,24 @@ public class TableReader {
 					}
 				}
 
+				PmmXmlDoc estModelXml = tuple
+						.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
 				stringColumnValues.get(0).add(modelName);
 				doubleColumnValues.get(0).add(
-						tuple.getDouble(Model1Schema.ATT_RMS));
+						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(
-						tuple.getDouble(Model1Schema.ATT_RSQUARED));
+						((EstModelXml) estModelXml.get(0)).getR2());
 				doubleColumnValues.get(2).add(
-						tuple.getDouble(Model1Schema.ATT_AIC));
+						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
-						tuple.getDouble(Model1Schema.ATT_BIC));
+						((EstModelXml) estModelXml.get(0)).getBIC());
 				infoParams = new ArrayList<String>(
-						Arrays.asList(Model1Schema.ATT_FORMULA));
-				infoValues = new ArrayList<Object>(Arrays.asList(tuple
-						.getString(Model1Schema.ATT_FORMULA)));
+						Arrays.asList(Model1Schema.FORMULA));
+				infoValues = new ArrayList<Object>(Arrays.asList(formula));
 			}
 
 			plotable.setFunction(formula);

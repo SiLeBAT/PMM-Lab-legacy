@@ -356,10 +356,17 @@ public class XLSReader {
 				}
 			}
 
+			PmmXmlDoc modelXML = new PmmXmlDoc();
+			PmmXmlDoc estModelXML = new PmmXmlDoc();
 			PmmXmlDoc depXML = new PmmXmlDoc();
 			PmmXmlDoc indepXML = new PmmXmlDoc();
 			PmmXmlDoc paramXML = new PmmXmlDoc();
 
+			modelXML.add(new CatalogModelXml(MathUtilities
+					.getRandomNegativeInt(), "", TimeSeriesSchema.LOGC + "="
+					+ LOG10N0 + "+1/" + DVALUE + "*" + TimeSeriesSchema.TIME));
+			estModelXML.add(new EstModelXml(MathUtilities
+					.getRandomNegativeInt(), "", null, null, null, null));
 			depXML.add(new DepXml(TimeSeriesSchema.LOGC));
 			indepXML.add(new IndepXml(TimeSeriesSchema.TIME, null, null));
 			paramXML.add(new ParamXml(LOG10N0, log10N0, null, null, null, null,
@@ -367,13 +374,8 @@ public class XLSReader {
 			paramXML.add(new ParamXml(DVALUE, dValue, null, null, null, null,
 					null));
 
-			tuple.setValue(Model1Schema.ATT_MODELID,
-					MathUtilities.getRandomNegativeInt());
-			tuple.setValue(Model1Schema.ATT_ESTMODELID,
-					MathUtilities.getRandomNegativeInt());
-			tuple.setValue(Model1Schema.ATT_FORMULA, TimeSeriesSchema.LOGC
-					+ "=" + LOG10N0 + "+1/" + DVALUE + "*"
-					+ TimeSeriesSchema.TIME);
+			tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXML);
+			tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXML);
 			tuple.setValue(Model1Schema.ATT_DEPENDENT, depXML);
 			tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXML);

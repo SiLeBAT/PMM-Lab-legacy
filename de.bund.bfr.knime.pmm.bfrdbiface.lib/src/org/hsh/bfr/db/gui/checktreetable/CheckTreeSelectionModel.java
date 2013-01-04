@@ -67,7 +67,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel{
             TreePath[] selectionPaths = getSelectionPaths(); 
             if(selectionPaths==null) 
                 break; 
-            ArrayList toBeRemoved = new ArrayList(); 
+            ArrayList<TreePath> toBeRemoved = new ArrayList<TreePath>(); 
             for(int j = 0; j<selectionPaths.length; j++){ 
                 if(isDescendant(selectionPaths[j], path)) 
                     toBeRemoved.add(selectionPaths[j]); 
@@ -132,7 +132,7 @@ public class CheckTreeSelectionModel extends DefaultTreeSelectionModel{
     //  and selection all its descendants except given path and descendants. 
     // otherwise just unselect the given path 
     private void toggleRemoveSelection(TreePath path){ 
-        Stack stack = new Stack(); 
+        Stack<TreePath> stack = new Stack<TreePath>(); 
         TreePath parent = path.getParentPath(); 
         while(parent!=null && !isPathSelected(parent)){ 
             stack.push(parent); 

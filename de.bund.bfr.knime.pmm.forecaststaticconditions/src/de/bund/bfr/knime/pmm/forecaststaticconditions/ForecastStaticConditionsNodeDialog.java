@@ -57,9 +57,11 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -183,7 +185,8 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		availableParams = new LinkedHashMap<String, List<String>>();
 
 		for (KnimeTuple tuple : tuples) {
-			String id = tuple.getInt(Model1Schema.ATT_MODELID) + "";
+			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String id = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 
 			if (!idSet.add(id)) {
 				continue;
@@ -196,8 +199,8 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 					.getPmmXml(Model1Schema.ATT_PARAMETER)));
 
 			ids.add(id);
-			modelNames.put(id, tuple.getString(Model1Schema.ATT_MODELNAME));
-			formulas.put(id, tuple.getString(Model1Schema.ATT_FORMULA));
+			modelNames.put(id, ((CatalogModelXml) modelXml.get(0)).getName());
+			formulas.put(id, ((CatalogModelXml) modelXml.get(0)).getFormula());
 			availableParams.put(id, params);
 		}
 	}

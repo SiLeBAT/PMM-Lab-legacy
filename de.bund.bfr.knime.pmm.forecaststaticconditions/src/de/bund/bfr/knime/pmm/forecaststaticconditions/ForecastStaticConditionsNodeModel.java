@@ -55,8 +55,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -238,11 +240,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		int index = 0;
 
 		for (KnimeTuple newTuple : combinedTuples.keySet()) {
-			String id = newTuple.getInt(Model1Schema.ATT_MODELID) + "("
-					+ newTuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
-			String oldID = combinedTuples.get(newTuple).get(0)
-					.getInt(Model1Schema.ATT_MODELID)
-					+ "";
+
+			String id = ((CatalogModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					+ "(" + newTuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			String oldID = ((CatalogModelXml) combinedTuples.get(newTuple)
+					.get(0).getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
+					.getID() + "";
 
 			if (!idSet.add(id)) {
 				continue;
@@ -259,7 +263,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				Double aw = newTuple
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				String formula = newTuple.getString(Model1Schema.ATT_FORMULA);
+				String formula = ((CatalogModelXml) newTuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
 				PmmXmlDoc params = newTuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				Map<String, Double> constants = new LinkedHashMap<String, Double>();
@@ -297,9 +302,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				}
 			} else {
 				setWarningMessage("Initial Concentration Parameter for "
-						+ combinedTuples.get(newTuple).get(0)
-								.getString(Model1Schema.ATT_MODELNAME)
-						+ " is not specified");
+						+ ((CatalogModelXml) combinedTuples.get(newTuple)
+								.get(0)
+								.getPmmXml(Model1Schema.ATT_MODELCATALOG)
+								.get(0)).getName() + " is not specified");
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
@@ -354,7 +360,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		int index = 0;
 
 		for (KnimeTuple tuple : tuples) {
-			String id = tuple.getInt(Model1Schema.ATT_MODELID) + "";
+			String id = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					+ "";
 			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
@@ -365,7 +373,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
 				Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
+				String formula = ((CatalogModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
 				Map<String, Double> constants = new LinkedHashMap<String, Double>();
 
 				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
@@ -398,8 +407,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				}
 			} else {
 				setWarningMessage("Initial Concentration Parameter for "
-						+ tuple.getString(Model1Schema.ATT_MODELNAME
-								+ "is not specified"));
+						+ ((CatalogModelXml) tuple.getPmmXml(
+								Model1Schema.ATT_MODELCATALOG).get(0))
+								.getName() + "is not specified");
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
@@ -446,8 +456,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 	private void checkPrimaryModel(KnimeTuple tuple, String initialParameter,
 			boolean outputEstID) throws PmmException {
-		String modelName = tuple.getString(Model1Schema.ATT_MODELNAME);
-		Integer estID = tuple.getInt(Model1Schema.ATT_ESTMODELID);
+		String modelName = ((CatalogModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0)).getName();
+		Integer estID = ((EstModelXml) tuple.getPmmXml(
+				Model1Schema.ATT_ESTMODEL).get(0)).getID();
 		PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 		for (PmmXmlElementConvertable el : params.getElementSet()) {

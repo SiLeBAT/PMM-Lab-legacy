@@ -190,7 +190,8 @@ public class FoodProcessNodeModel extends NodeModel {
 		calculateNewTimes(processNodes, processChainData, processNode, 0.0);
         
 		// the process chain data
-		ProcessChainData pcData = pcml.getProcessChainData();//.addNewProcessChainData();
+		ProcessChainData pcData = pcml.getProcessChainData();
+		if (pcData == null) pcData = pcml.addNewProcessChainData();
 		ProcessData p1Data = pcData.addNewProcessData();
 		p1Data.setRef(processNodeID);
 
@@ -380,7 +381,7 @@ public class FoodProcessNodeModel extends NodeModel {
 			ProcessNode pn = processNodes.get(opr.getRef());
 			ProcessData pd = processChainData.get(opr.getRef());
 			if (pd == null) {
-				System.err.println("WW");
+				System.err.println("WW pd == null");
 			}
 			else {
 				Double newTime = time  - pn.getParameters().getDuration();
@@ -395,8 +396,10 @@ public class FoodProcessNodeModel extends NodeModel {
 	private Map<String, ProcessData> createProcessChainDataMap(final PCMLDocument pcmlDoc) {
 		Map<String, ProcessData> processChainData = new HashMap<String, ProcessData>();
 		
-		for (ProcessData pcd : pcmlDoc.getPCML().getProcessChainData().getProcessDataArray()) {
-			processChainData.put(pcd.getRef(), pcd);
+		if (pcmlDoc.getPCML().getProcessChainData() != null) {
+			for (ProcessData pcd : pcmlDoc.getPCML().getProcessChainData().getProcessDataArray()) {
+				processChainData.put(pcd.getRef(), pcd);
+			}			
 		}
 		
 		return processChainData;

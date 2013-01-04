@@ -195,7 +195,7 @@ public class PlausibleAction extends AbstractAction {
 				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 
 		checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
-				null, null, null);
+				"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
 
 		checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
 				null, null, null);

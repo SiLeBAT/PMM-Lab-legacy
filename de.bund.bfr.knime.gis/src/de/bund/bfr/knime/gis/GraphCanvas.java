@@ -21,7 +21,6 @@ import java.util.Set;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -69,7 +68,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
-	private static final boolean DEFAULT_HIDE_NODES = true;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
 
 	private List<Node> nodes;
@@ -82,7 +80,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	private JComboBox<String> layoutBox;
 	private JTextField nodeSizeField;
-	private JCheckBox hideNodeBox;
 	private JButton applyButton;
 	private JComboBox<String> modeBox;
 	private JButton nodePropertiesButton;
@@ -108,7 +105,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		updateMouseModel(DEFAULT_MODE);
 
 		viewer = null;
-		updateViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE, DEFAULT_HIDE_NODES);
+		updateViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -128,8 +125,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		if (e.getSource() == applyButton) {
 			try {
 				updateViewer((String) layoutBox.getSelectedItem(),
-						Integer.parseInt(nodeSizeField.getText()),
-						hideNodeBox.isSelected());
+						Integer.parseInt(nodeSizeField.getText()));
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
 						"Node Size must be Integer Value", "Error",
@@ -199,22 +195,17 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		}
 	}
 
-	private void updateViewer(String layoutType, int nodeSize, boolean hideNodes) {
+	private void updateViewer(String layoutType, int nodeSize) {
 		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
 		Layout<Node, Edge> layout = null;
-		Set<Node> usedNodes = new LinkedHashSet<Node>();
+
+		for (Node node : nodes) {
+			graph.addVertex(node);
+		}
 
 		for (Edge edge : edges) {
 			graph.addEdge(edge, edge.getN1(), edge.getN2());
-			usedNodes.add(edge.getN1());
-			usedNodes.add(edge.getN2());
-		}
-
-		for (Node node : nodes) {
-			if (!hideNodes || usedNodes.contains(node)) {
-				graph.addVertex(node);
-			}
 		}
 
 		if (viewer != null) {
@@ -266,8 +257,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		nodeSizeField = new JTextField("" + DEFAULT_NODESIZE);
 		nodeSizeField.setPreferredSize(new Dimension(50, nodeSizeField
 				.getPreferredSize().height));
-		hideNodeBox = new JCheckBox("Hide Nodes without Links");
-		hideNodeBox.setSelected(DEFAULT_HIDE_NODES);
 		applyButton = new JButton("Apply");
 		applyButton.addActionListener(this);
 		modeBox = new JComboBox<String>(MODES);
@@ -286,7 +275,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		layoutPanel.add(layoutBox);
 		layoutPanel.add(new JLabel("Node Size:"));
 		layoutPanel.add(nodeSizeField);
-		layoutPanel.add(hideNodeBox);
 		layoutPanel.add(applyButton);
 
 		JPanel modePanel = new JPanel();

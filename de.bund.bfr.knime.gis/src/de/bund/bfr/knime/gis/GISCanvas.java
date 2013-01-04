@@ -64,6 +64,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -81,26 +82,26 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 	private GISComponent gisComponent;
 	private JSlider borderAlphaSlider;
-	private JButton borderAlphaButton;
+	private JButton layoutButton;
 
 	public GISCanvas(Map<String, ShpPolygon> shapes) {
 		gisComponent = new GISComponent(shapes, DEFAULT_BORDER_ALPHA);
 		borderAlphaSlider = new JSlider(0, 255, DEFAULT_BORDER_ALPHA);
-		borderAlphaButton = new JButton("Apply");
-		borderAlphaButton.addActionListener(this);
+		layoutButton = new JButton("Apply");
+		layoutButton.addActionListener(this);
 
-		JPanel borderAlphaPanel = new JPanel();
+		JPanel layoutPanel = new JPanel();
 
-		borderAlphaPanel.setBorder(BorderFactory
-				.createTitledBorder("Border Alpha"));
-		borderAlphaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		borderAlphaPanel.add(borderAlphaSlider);
-		borderAlphaPanel.add(borderAlphaButton);
+		layoutPanel.setBorder(BorderFactory.createTitledBorder("Layout"));
+		layoutPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		layoutPanel.add(new JLabel("Border Alpha"));
+		layoutPanel.add(borderAlphaSlider);
+		layoutPanel.add(layoutButton);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		optionsPanel.add(borderAlphaPanel);
+		optionsPanel.add(layoutPanel);
 
 		setLayout(new BorderLayout());
 		add(gisComponent, BorderLayout.CENTER);
@@ -121,7 +122,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == borderAlphaButton) {
+		if (e.getSource() == layoutButton) {
 			gisComponent.setBorderAlpha((borderAlphaSlider.getValue()));
 			gisComponent.repaint();
 		}

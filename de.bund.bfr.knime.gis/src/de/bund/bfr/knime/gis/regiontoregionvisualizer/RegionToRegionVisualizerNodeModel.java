@@ -61,9 +61,12 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	protected static final String CFG_NODE_ID_COLUMN = "NodeIDColumn";
 	protected static final String CFG_NODE_REGION_ID_COLUMN = "NodeRegionIDColumn";
 	protected static final String CFG_NODE_VALUE_COLUMN = "NodeValueColumn";
+	protected static final String CFG_SKIP_EDGELESS_NODES = "SkipEdgelessNodes";
 	protected static final String CFG_EDGE_FROM_COLUMN = "EdgeFromColumn";
 	protected static final String CFG_EDGE_TO_COLUMN = "EdgeToColumn";
 	protected static final String CFG_EDGE_VALUE_COLUMN = "EdgeValueColumn";
+
+	protected static final boolean DEFAULT_SKIP_EDGELESS_NODES = true;
 
 	private static final String INTERNAL_FILENAME1 = "RegionToRegionVisualizer1.zip";
 	private static final String INTERNAL_FILENAME2 = "RegionToRegionVisualizer2.zip";
@@ -75,6 +78,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 	private String nodeIdColumn;
 	private String nodeRegionIdColumn;
 	private String nodeValueColumn;
+	private boolean skipEdgelessNodes;
 	private String edgeFromColumn;
 	private String edgeToColumn;
 	private String edgeValueColumn;
@@ -124,6 +128,7 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 		settings.addString(CFG_NODE_ID_COLUMN, nodeIdColumn);
 		settings.addString(CFG_NODE_REGION_ID_COLUMN, nodeRegionIdColumn);
 		settings.addString(CFG_NODE_VALUE_COLUMN, nodeValueColumn);
+		settings.addBoolean(CFG_SKIP_EDGELESS_NODES, skipEdgelessNodes);
 		settings.addString(CFG_EDGE_FROM_COLUMN, edgeFromColumn);
 		settings.addString(CFG_EDGE_TO_COLUMN, edgeToColumn);
 		settings.addString(CFG_EDGE_VALUE_COLUMN, edgeValueColumn);
@@ -163,6 +168,12 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 			nodeValueColumn = settings.getString(CFG_NODE_VALUE_COLUMN);
 		} catch (InvalidSettingsException e) {
 			nodeValueColumn = "";
+		}
+
+		try {
+			skipEdgelessNodes = settings.getBoolean(CFG_SKIP_EDGELESS_NODES);
+		} catch (InvalidSettingsException e) {
+			skipEdgelessNodes = DEFAULT_SKIP_EDGELESS_NODES;
 		}
 
 		try {
@@ -244,6 +255,10 @@ public class RegionToRegionVisualizerNodeModel extends NodeModel {
 
 	protected String getNodeValueColumn() {
 		return nodeValueColumn;
+	}
+
+	protected boolean isSkipEdgelessNodes() {
+		return skipEdgelessNodes;
 	}
 
 	protected String getEdgeFromColumn() {

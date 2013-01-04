@@ -21,19 +21,15 @@ import org.knime.core.node.port.PortType;
 import de.bund.bfr.knime.pcml.port.PCMLPortObject;
 import de.bund.bfr.knime.pcml.port.PCMLPortObjectSpec;
 import de.bund.bfr.knime.pcml.port.PCMLUtil;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.pcml10.NameAndDatabaseId;
 import de.bund.bfr.pcml10.PCMLDocument;
 import de.bund.bfr.pcml10.ProcessNodeType;
 import de.bund.bfr.pcml10.ProcessParameters;
-import de.bund.bfr.pcml10.DataTableDocument.DataTable;
 import de.bund.bfr.pcml10.MatrixIncredientDocument.MatrixIncredient;
 import de.bund.bfr.pcml10.MatrixRecipeDocument.MatrixRecipe;
 import de.bund.bfr.pcml10.OutportDocument.Outport;
 import de.bund.bfr.pcml10.PCMLDocument.PCML;
-import de.bund.bfr.pcml10.ProcessChainDataDocument.ProcessChainData;
 import de.bund.bfr.pcml10.ProcessChainDocument.ProcessChain;
-import de.bund.bfr.pcml10.ProcessDataDocument.ProcessData;
 import de.bund.bfr.pcml10.ProcessNodeDocument.ProcessNode;
 
 

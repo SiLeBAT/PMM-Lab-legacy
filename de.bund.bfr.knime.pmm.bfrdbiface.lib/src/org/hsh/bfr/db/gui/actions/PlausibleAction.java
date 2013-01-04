@@ -49,8 +49,11 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Vector;
 
@@ -58,12 +61,16 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JProgressBar;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
 import org.hsh.bfr.db.gui.PlausibleDialog;
+import org.hsh.bfr.db.gui.checktreetable.MyTreeTable;
+import org.hsh.bfr.db.gui.checktreetable.MyTreeTableNode;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.imports.InfoBox;
 import org.jsoup.Jsoup;
@@ -191,21 +198,56 @@ public class PlausibleAction extends AbstractAction {
 	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
 	    		, false);
 */
-		checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
+		LinkedHashMap<String[], LinkedHashSet<String[]>> vals = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
 				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 
-		checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
+		MyTreeTable mtt = new MyTreeTable(new String[]{"KontaktID","Name","PLZ","Strasse","Hausnummer","Ort","StationID","FallErfuellt","AnzahlFaelle"}, vals);
+		TreePath[] tps = mtt.getCheckedPaths();
+		for (TreePath tp : tps) {
+			System.err.println(tp.getPathComponent(0));			
+		}
+
+		vals = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
 				"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
 
-		checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+		vals = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
 				null, null, null);
 
+		mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
+		tps = mtt.getCheckedPaths();
+		for (TreePath tp : tps) {
+			int idTop = 0;
+			HashSet<Integer> idDowns = new HashSet<Integer>();
+			TreeNode node = (TreeNode) tp.getLastPathComponent();		
+			if (node instanceof MyTreeTableNode) {
+				MyTreeTableNode mttn = (MyTreeTableNode) node;
+				idTop = Integer.parseInt(mttn.getValueAt(0).toString());
+				if (tp.getPathCount() == 3) { // unterste Ebene
+					idDowns.add(idTop);
+					mttn = (MyTreeTableNode) tp.getParentPath().getLastPathComponent();
+					idTop = Integer.parseInt(mttn.getValueAt(0).toString());
+				}
+				else if (tp.getPathCount() == 2) { // obere Ebene
+					for (int i=0;i<mtt.getTheModel().getChildCount(node);i++) {
+						mttn = (MyTreeTableNode) mtt.getTheModel().getChild(node, i);
+						idDowns.add(Integer.parseInt(mttn.getValueAt(0).toString()));
+					}
+				}
+				System.out.print("IdTop=" + idTop + "\tIdDowns=");
+				for (int id : idDowns) {
+					System.out.print(" " + id);
+				}
+				System.out.println();
+			}
+		}
+		
 		DBKernel.sendRequest("DROP FUNCTION LD", false);
 	}
-	private void checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
+	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
+		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<String[], LinkedHashSet<String[]>>();
 		if (maxScores.length != fieldnames.length) {
 			System.err.println("fieldnames and simScores with different size...");
-			return;
+			return null;
 		}
 		System.err.print(tablename);
 		for (int i=0;i<fieldnames.length;i++) System.err.print("\t" + fieldnames[i]);
@@ -219,14 +261,18 @@ public class PlausibleAction extends AbstractAction {
         if (rs != null && rs.first()) {
         	do {
         		
+        		String[] resRowFirst = new String[fieldnames.length + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
+
         		// Firstly - fieldnames
         		int id = rs.getInt("ID");
+        		resRowFirst[0] = id+"";
         		String result = ""+id;
         		Object[] fieldVals = new Object[fieldnames.length];
         		for (int i=0;i<fieldnames.length;i++) {
         			fieldVals[i] = rs.getObject(fieldnames[i]);
         			if (fieldVals[i] != null) fieldVals[i] = fieldVals[i].toString().replace("'", "''");
         			result += "\t" + fieldVals[i];
+        			resRowFirst[i+1] = fieldVals[i]+"";
         		}
         		
         		// Firstly - otherTableDesires
@@ -239,7 +285,13 @@ public class PlausibleAction extends AbstractAction {
         			if (rs3 != null && rs3.first()) {
                     	do {
                     		result += rs3.getInt("ID");
-                    		for (int i=0;i<otherTableDesires.length;i++) result += "\t" + rs3.getString(otherTableDesires[i]);
+                    		if (resRowFirst[fieldnames.length+1] == null || resRowFirst[fieldnames.length+1].isEmpty()) resRowFirst[fieldnames.length+1] = rs3.getInt("ID")+"";
+                    		else resRowFirst[fieldnames.length+1] += "," + rs3.getInt("ID")+"";
+                    		for (int i=0;i<otherTableDesires.length;i++) {
+                    			result += "\t" + rs3.getString(otherTableDesires[i]);
+                    			if (resRowFirst[fieldnames.length+2+i] == null || resRowFirst[fieldnames.length+2+i].isEmpty()) resRowFirst[fieldnames.length+2+i] = rs3.getString(otherTableDesires[i]);
+                    			else resRowFirst[fieldnames.length+2+i] += "," + rs3.getString(otherTableDesires[i]);
+                    		}
                     	} while(rs3.next());
         			}
         			result += ")";
@@ -255,11 +307,18 @@ public class PlausibleAction extends AbstractAction {
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {
+                	LinkedHashSet<String[]> resSetOther = new LinkedHashSet<String[]>(); 
                 	do {
                 		
+                		String[] resRowOther = new String[fieldnames.length + 1 + (otherTableDesires == null ? 0 : otherTableDesires.length + 1)];
+
                 		// Match - fieldnames
                 		result += rs2.getInt("ID");
-                		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getString(fieldnames[i]);
+                		resRowOther[0] = rs2.getInt("ID")+"";
+                		for (int i=0;i<fieldnames.length;i++) {
+                			result += "\t" + rs2.getString(fieldnames[i]);
+                			resRowOther[i+1] = rs2.getString(fieldnames[i]);
+                		}
                 		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getDouble("SCORE" + i);
                 		
                 		// Match - otherTableDesires
@@ -272,19 +331,29 @@ public class PlausibleAction extends AbstractAction {
                 			if (rs3 != null && rs3.first()) {
                             	do {
                             		result += rs3.getInt("ID");
-                            		for (int i=0;i<otherTableDesires.length;i++) result += "\t" + rs3.getString(otherTableDesires[i]);
+                            		if (resRowOther[fieldnames.length+1] == null || resRowOther[fieldnames.length+1].isEmpty()) resRowOther[fieldnames.length+1] = rs3.getInt("ID")+"";
+                            		else resRowOther[fieldnames.length+1] += "," + rs3.getInt("ID")+"";
+                            		for (int i=0;i<otherTableDesires.length;i++) {
+                            			result += "\t" + rs3.getString(otherTableDesires[i]);
+                            			if (resRowOther[fieldnames.length+2+i] == null || resRowOther[fieldnames.length+2+i].isEmpty()) resRowOther[fieldnames.length+2+i] = rs3.getString(otherTableDesires[i]);
+                            			else resRowOther[fieldnames.length+2+i] += "," + rs3.getString(otherTableDesires[i]);
+                            		}
                             	} while(rs3.next());
                 			}
                 			result += ")";
                 		}
                 		
+                		resSetOther.add(resRowOther);
+                		
                 		result += "\n";
                 		
                 	} while(rs2.next());
                     System.err.println(result);
+                    ldResult.put(resRowFirst, resSetOther);
                 }
         	} while(rs.next());
         }		
+		return ldResult;
 	}
 	private void go4Table(final String tn, final Vector<String> result, final int id1, final int id2, final MyTable myT, final boolean showOnlyDataFromCurrentUser) {
 		if (!tn.equals("Users")) {

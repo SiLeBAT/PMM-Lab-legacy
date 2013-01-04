@@ -83,13 +83,12 @@ public class ModelCombiner {
 		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
 
 		for (KnimeTuple tuple : tuples) {
-			String id = null;
+			String id = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID()
+					+ "";
 
 			if (inSchema == seiSchema) {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-						+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
-			} else if (inSchema == model12Schema) {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			if (!newTuples.containsKey(id)) {
@@ -121,9 +120,11 @@ public class ModelCombiner {
 
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
+			String modelID = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					+ "";
 
-			if (!depVarSec.equals(doNotReplace.get(tuple
-					.getInt(Model1Schema.ATT_MODELID) + ""))
+			if (!depVarSec.equals(doNotReplace.get(modelID))
 					&& replacements.get(id).add(depVarSec)) {
 				usedTupleLists.get(id).add(tuple);
 			}
@@ -136,7 +137,8 @@ public class ModelCombiner {
 			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
 
 			for (KnimeTuple tuple : usedTuples) {
-				String formulaSec = tuple.getString(Model2Schema.ATT_FORMULA);
+				String formulaSec = ((CatalogModelXml) tuple.getPmmXml(
+						Model2Schema.ATT_MODELCATALOG).get(0)).getFormula();
 				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc indepVarsSec = tuple
@@ -168,8 +170,9 @@ public class ModelCombiner {
 
 				String replacement = "("
 						+ formulaSec.replace(depVarSec + "=", "") + ")";
-				String newFormula = MathUtilities.replaceVariable(
-						newTuple.getString(Model1Schema.ATT_FORMULA),
+				String formula = ((CatalogModelXml) newTuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
+				String newFormula = MathUtilities.replaceVariable(formula,
 						depVarSec, replacement);
 				PmmXmlDoc newParams = newTuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -189,43 +192,63 @@ public class ModelCombiner {
 					}
 				}
 
-				newTuple.setValue(Model1Schema.ATT_FORMULA, newFormula);
+				PmmXmlDoc modelXml = tuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+
+				((CatalogModelXml) modelXml.get(0)).setFormula(newFormula);
+
+				newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 				newTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVars);
 				newTuple.setValue(Model1Schema.ATT_PARAMETER, newParams);
 			}
 
 			int modelCount = usedTuples.size() + 1;
-			int newID = newTuple.getInt(Model1Schema.ATT_MODELID) / modelCount;
+			int newID = ((CatalogModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					/ modelCount;
 
 			for (KnimeTuple tuple : usedTuples) {
-				newID += tuple.getInt(Model2Schema.ATT_MODELID) / modelCount;
+				newID += ((CatalogModelXml) tuple.getPmmXml(
+						Model2Schema.ATT_MODELCATALOG).get(0)).getID()
+						/ modelCount;
 			}
 
-			if (newTuple.getInt(Model1Schema.ATT_ESTMODELID) != null) {
-				Integer newEstID = newTuple.getInt(Model1Schema.ATT_ESTMODELID)
-						/ modelCount;
+			Integer newEstID = ((EstModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+
+			if (newEstID != null) {
+				newEstID /= modelCount;
 
 				for (KnimeTuple tuple : usedTuples) {
-					if (tuple.getInt(Model2Schema.ATT_ESTMODELID) != null) {
-						newEstID += tuple.getInt(Model2Schema.ATT_ESTMODELID)
-								/ modelCount;
+					Integer estID = ((EstModelXml) tuple.getPmmXml(
+							Model2Schema.ATT_ESTMODEL).get(0)).getID();
+
+					if (estID != null) {
+						newEstID += estID / modelCount;
 					} else {
 						newEstID = null;
 						break;
 					}
 				}
-
-				newTuple.setValue(Model1Schema.ATT_ESTMODELID, newEstID);
 			}
 
-			newTuple.setValue(Model1Schema.ATT_MODELID, newID);
+			PmmXmlDoc modelXml = newTuple
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc estModelXml = newTuple
+					.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+			((CatalogModelXml) modelXml.get(0)).setID(newID);
+			((EstModelXml) estModelXml.get(0)).setID(newEstID);
+			((EstModelXml) estModelXml.get(0)).setRMS(null);
+			((EstModelXml) estModelXml.get(0)).setR2(null);
+			((EstModelXml) estModelXml.get(0)).setAIC(null);
+			((EstModelXml) estModelXml.get(0)).setBIC(null);
+
+			newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+			newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
 			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
-			newTuple.setValue(Model1Schema.ATT_RMS, null);
-			newTuple.setValue(Model1Schema.ATT_RSQUARED, null);
-			newTuple.setValue(Model1Schema.ATT_AIC, null);
-			newTuple.setValue(Model1Schema.ATT_BIC, null);
 
 			tupleCombinations.put(newTuple, usedTuples);
 		}

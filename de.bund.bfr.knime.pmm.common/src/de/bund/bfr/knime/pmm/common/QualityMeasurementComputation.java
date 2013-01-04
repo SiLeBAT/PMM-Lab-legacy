@@ -29,17 +29,17 @@ public class QualityMeasurementComputation {
 		Map<String, Map<String, List<Double>>> variableValueMap = new LinkedHashMap<String, Map<String, List<Double>>>();
 
 		for (KnimeTuple tuple : tuples) {
-			if (tuple.getInt(Model1Schema.ATT_ESTMODELID) == null) {
+			if (((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL)
+					.get(0)).getID() == null) {
 				continue;
 			}
 
-			String id;
+			String id = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID()
+					+ "";
 
-			if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() > 1) {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
-			} else {
-				id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-						+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			if (!tupleMap.containsKey(id)) {
@@ -139,7 +139,8 @@ public class QualityMeasurementComputation {
 			Map<String, List<Double>> variableValues = variableValueMap.get(id);
 
 			DJep parser = MathUtilities.createParser();
-			String formula = tuple.getString(Model1Schema.ATT_FORMULA);
+			String formula = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
 			Node function = null;
 
 			try {
@@ -209,22 +210,27 @@ public class QualityMeasurementComputation {
 			KnimeTuple newTuple = new KnimeTuple(tuple.getSchema(), tuple
 					.getSchema().createSpec(), tuple);
 
-			if (newTuple.getInt(Model1Schema.ATT_ESTMODELID) != null) {
-				String id;
+			if (((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL)
+					.get(0)).getID() != null) {
+				String id = ((EstModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_ESTMODEL).get(0)).getID()
+						+ "";
 
-				if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() > 1) {
-					id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "";
-				} else {
-					id = tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-							+ tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+				if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
+					id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 				}
 
 				if (rmsMap.containsKey(id)) {
-					newTuple.setValue(Model1Schema.ATT_RMS, rmsMap.get(id));
-					newTuple.setValue(Model1Schema.ATT_RSQUARED,
-							rSquaredMap.get(id));
-					newTuple.setValue(Model1Schema.ATT_AIC, aicMap.get(id));
-					newTuple.setValue(Model1Schema.ATT_BIC, bicMap.get(id));
+					PmmXmlDoc estModelXml = newTuple
+							.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+					((EstModelXml) estModelXml.get(0)).setRMS(rmsMap.get(id));
+					((EstModelXml) estModelXml.get(0)).setR2(rSquaredMap
+							.get(id));
+					((EstModelXml) estModelXml.get(0)).setAIC(aicMap.get(id));
+					((EstModelXml) estModelXml.get(0)).setBIC(bicMap.get(id));
+
+					newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
 				}
 			}
 

@@ -228,11 +228,13 @@ public class PlausibilityChecker {
 						" WHERE " + DBKernel.delimitL("Name") + " IS NULL",
 						GuiMessages.getString("Ein Name sollte angegeben werden!")
 						});
-				result.add(new String[]{
-						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
-						" WHERE " + DBKernel.delimitL("EMail") + " IS NULL OR " + DBKernel.delimitL("Telefon") + " IS NULL",
-						GuiMessages.getString("Eine E-Mail Adresse oder eine Telefonnummer sollte angegeben werden!")
-						});
+				if (!DBKernel.isKrise) {
+					result.add(new String[]{
+							"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
+							" WHERE " + DBKernel.delimitL("EMail") + " IS NULL OR " + DBKernel.delimitL("Telefon") + " IS NULL",
+							GuiMessages.getString("Eine E-Mail Adresse oder eine Telefonnummer sollte angegeben werden!")
+							});
+				}
 			}
 		}
 		else if (tablename.equals("Literatur")) {

@@ -74,6 +74,9 @@ public class Levenshtein {
     char t_j; // jth character of t
     int cost; // cost
 
+    if (s == null && t == null) return 0;
+    else if (s == null || t == null) return 100000;
+    
       // Step 1
 
       n = s.length ();

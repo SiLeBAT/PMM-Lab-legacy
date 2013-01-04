@@ -47,6 +47,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.sql.Array;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -156,7 +157,9 @@ public class PlausibleAction extends AbstractAction {
 		        			log = vectorToString(result, "\n");
 		        		}
 		        		InfoBox ib = new InfoBox(log, true, new Dimension(800, 500), null, false);
-		        		ib.setVisible(true);    				  										        			
+		        		ib.setVisible(true);   
+		        		
+		        		if (DBKernel.isKrise) go4ISM();
 				    }
 				    catch (Exception e) {MyLogger.handleException(e);}
 		      }
@@ -168,6 +171,73 @@ public class PlausibleAction extends AbstractAction {
 	  	else {
 	  		doSpecialThings();
 	  	}
+	}
+	private void go4ISM() throws SQLException {
+		DBKernel.sendRequest(
+	    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
+	    		"RETURNS INT\n" + 
+	    		"NO SQL\n" +
+	    		"LANGUAGE JAVA\n" +
+	    		"PARAMETER STYLE JAVA\n" +
+	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.Levenshtein.LD'"
+	    		, false);
+		/*
+		DBKernel.sendRequest(
+	    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
+	    		"RETURNS INT\n" + 
+	    		"NO SQL\n" +
+	    		"LANGUAGE JAVA\n" +
+	    		"PARAMETER STYLE JAVA\n" +
+	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
+	    		, false);
+*/
+		checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3});
+		
+		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false);
+	}
+	private void checkTable4ISM(String tablename, String[] fieldnames, int[] simScores) throws SQLException {
+		if (simScores.length != fieldnames.length) {
+			System.err.println("fieldnames and simScores with different size...");
+			return;
+		}
+		System.err.print(tablename);
+		for (int i=0;i<fieldnames.length;i++) System.err.print("\t" + fieldnames[i]);
+		for (int i=0;i<simScores.length;i++) System.err.print("\t" + simScores[i]);
+		System.err.println();
+		
+		String sql = "SELECT " + DBKernel.delimitL("ID");
+		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
+		sql += " FROM " + DBKernel.delimitL(tablename);
+        ResultSet rs = DBKernel.getResultSet(sql, false);
+        if (rs != null && rs.first()) {
+        	do {
+        		int id = rs.getInt("ID");
+        		String result = ""+id;
+        		Object[] fieldVals = new Object[fieldnames.length];
+        		for (int i=0;i<fieldnames.length;i++) {
+        			fieldVals[i] = rs.getObject(fieldnames[i]);
+        			if (fieldVals[i] != null) fieldVals[i] = fieldVals[i].toString().replace("'", "''");
+        			result += "\t" + fieldVals[i];
+        		}
+        		result += "\n";
+                sql = "SELECT " + DBKernel.delimitL("ID");
+        		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
+        		for (int i=0;i<fieldnames.length;i++) sql += "," + (fieldVals[i] == null ? "1" : DBKernel.delimitL("LD") + "('" + fieldVals[i] + "'," + DBKernel.delimitL(fieldnames[i]) + ")") + " AS SCORE" + i;
+                sql += " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + ">" + id;
+        		for (int i=0;i<fieldnames.length;i++) sql += " AND " + (fieldVals[i] == null ? DBKernel.delimitL(fieldnames[i]) + " IS NULL" : DBKernel.delimitL("LD") + "('" + fieldVals[i] + "'," + DBKernel.delimitL(fieldnames[i]) + ") < " + simScores[i]);
+                //sql += " ORDER BY SCORE ASC";
+                ResultSet rs2 = DBKernel.getResultSet(sql, false);
+                if (rs2 != null && rs2.first()) {
+                	do {
+                		result += rs2.getInt("ID");
+                		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getString(fieldnames[i]);
+                		for (int i=0;i<fieldnames.length;i++) result += "\t" + rs2.getDouble("SCORE" + i);
+                		result += "\n";
+                	} while(rs2.next());
+                    System.err.println(result);
+                }
+        	} while(rs.next());
+        }		
 	}
 	private void go4Table(final String tn, final Vector<String> result, final int id1, final int id2, final MyTable myT, final boolean showOnlyDataFromCurrentUser) {
 		if (!tn.equals("Users")) {

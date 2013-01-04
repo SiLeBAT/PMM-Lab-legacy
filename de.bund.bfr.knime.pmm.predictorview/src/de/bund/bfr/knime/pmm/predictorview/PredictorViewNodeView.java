@@ -134,7 +134,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, false);
+					ChartConfigPanel.PARAMETER_FIELDS, true);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
@@ -248,8 +248,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		// chartCreator.setShowConfidenceInterval(configPanel
-		// .isShowConfidenceInterval());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);
@@ -377,6 +377,8 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setFunctionParameters(parameters);
 			plotable.setParameterErrors(parameterErrors);
 			plotable.setCovariances(covariances);
+			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
+					.getDOF());
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(1).add(ChartConstants.NO);

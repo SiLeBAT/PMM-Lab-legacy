@@ -177,7 +177,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			int ri = MathUtilities.getRandomNegativeInt();
     			PmmXmlDoc emDoc = new PmmXmlDoc();
-    			EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null);
+    			EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null, null);
     			emDoc.add(emx);
     			modelTuple.setValue( Model1Schema.ATT_ESTMODEL, emDoc);
     			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );

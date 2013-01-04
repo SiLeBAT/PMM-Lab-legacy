@@ -605,6 +605,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Double rSquare = null;
 				Double aic = null;
 				Double bic = null;
+				Integer dof = null;
 				Double minIndep = null;
 				Double maxIndep = null;
 				Integer estID = null;
@@ -639,6 +640,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					rSquare = optimizer.getRSquare();
 					aic = optimizer.getAIC();
 					bic = optimizer.getBIC();
+					dof = targetValues.size() - parameters.size();
 					estID = MathUtilities.getRandomNegativeInt();
 				}
 
@@ -671,6 +673,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				((EstModelXml) estModelXml.get(0)).setR2(rSquare);
 				((EstModelXml) estModelXml.get(0)).setAIC(aic);
 				((EstModelXml) estModelXml.get(0)).setBIC(bic);
+				((EstModelXml) estModelXml.get(0)).setDOF(dof);
 
 				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
@@ -906,6 +909,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						Double rSquared = null;
 						Double aic = null;
 						Double bic = null;
+						Integer dof = null;
 						Integer estID = MathUtilities.getRandomNegativeInt();
 						List<Double> minValues = Collections.nCopies(
 								arguments.size(), null);
@@ -936,6 +940,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
 							bic = optimizer.getBIC();
+							dof = targetValues.size() - parameters.size();
 							minValues = new ArrayList<Double>();
 							maxValues = new ArrayList<Double>();
 
@@ -975,6 +980,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						((EstModelXml) estModelXml.get(0)).setR2(rSquared);
 						((EstModelXml) estModelXml.get(0)).setAIC(aic);
 						((EstModelXml) estModelXml.get(0)).setBIC(bic);
+						((EstModelXml) estModelXml.get(0)).setDOF(dof);
 
 						paramMap.put(id, paramXml);
 						indepMap.put(id, indepXml);
@@ -1248,6 +1254,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						Double rSquared = null;
 						Double aic = null;
 						Double bic = null;
+						Integer dof = null;
 						Integer estID = MathUtilities.getRandomNegativeInt();
 						List<Double> minValues = Collections.nCopies(
 								arguments.size(), null);
@@ -1278,6 +1285,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							rSquared = optimizer.getRSquare();
 							aic = optimizer.getAIC();
 							bic = optimizer.getBIC();
+							dof = targetValues.size() - parameters.size();
 							minValues = new ArrayList<Double>();
 							maxValues = new ArrayList<Double>();
 
@@ -1317,6 +1325,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						((EstModelXml) estModelXml.get(0)).setR2(rSquared);
 						((EstModelXml) estModelXml.get(0)).setAIC(aic);
 						((EstModelXml) estModelXml.get(0)).setBIC(bic);
+						((EstModelXml) estModelXml.get(0)).setDOF(dof);
 
 						paramMap.put(id, paramXml);
 						indepMap.put(id, indepXml);

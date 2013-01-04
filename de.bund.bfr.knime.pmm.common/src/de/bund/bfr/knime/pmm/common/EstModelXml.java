@@ -21,14 +21,16 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private Double r2 = null;
 	private Double aic = null;
 	private Double bic = null;
+	private Integer dof = null;
 	
-	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic) {
+	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof) {
 		setID(id);
 		setName(name);
 		setRMS(rms);
 		setR2(r2);
 		setAIC(aic);
 		setBIC(bic);
+		setDOF(dof);
 	}
 	public EstModelXml(Element xmlElement) {
 		try {
@@ -42,6 +44,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 			setAIC(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("bic").getValue();
 			setBIC(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			strDbl = xmlElement.getAttribute("dof").getValue();
+			setDOF(strDbl.trim().isEmpty() ? null : Integer.parseInt(strDbl));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -53,6 +57,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public Double getR2() {return r2;}
 	public Double getAIC() {return aic;}
 	public Double getBIC() {return bic;}
+	public Integer getDOF() {return dof;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
@@ -60,6 +65,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public void setR2(Double r2) {this.r2 = (r2 == null) ? null : r2;}
 	public void setAIC(Double aic) {this.aic = (aic == null) ? null : aic;}
 	public void setBIC(Double bic) {this.bic = (bic == null) ? null : bic;}
+	public void setDOF(Integer dof) {this.dof = dof;}
 
 	@Override
 	public Element toXmlElement() {
@@ -70,6 +76,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("r2", "" + (r2 == null || Double.isNaN(r2) ? "" : r2));
 		modelElement.setAttribute("aic", "" + (aic == null || Double.isNaN(aic) ? "" : aic));
 		modelElement.setAttribute("bic", "" + (bic == null || Double.isNaN(bic) ? "" : bic));
+		modelElement.setAttribute("dof", "" + (dof == null ? "" : dof));
 		return modelElement;
 	}
 
@@ -81,6 +88,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
         list.add("R2");
         list.add("AIC");
         list.add("BIC");
+        list.add("DOF");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -101,6 +109,9 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("bic")) {
 			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dof")) {
+			return IntCell.TYPE;
 		}
 		return null;
 	}

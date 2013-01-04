@@ -247,7 +247,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
-			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS), result.getDouble(Bfrdb.ATT_RSQUARED), result.getDouble("AIC"), result.getDouble("BIC"));
+			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS), result.getDouble(Bfrdb.ATT_RSQUARED), result.getDouble("AIC"), result.getDouble("BIC"), null);
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
     		tuple.setValue( Model1Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID ) );
@@ -331,7 +331,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		
 	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID+"2");
 				emDoc = new PmmXmlDoc();
-				emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS+"2"), result.getDouble(Bfrdb.ATT_RSQUARED+"2"), result.getDouble("AIC2"), result.getDouble("BIC2"));
+				emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS+"2"), result.getDouble(Bfrdb.ATT_RSQUARED+"2"), result.getDouble("AIC2"), result.getDouble("BIC2"), null);
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 	    		tuple.setValue( Model2Schema.ATT_ESTMODELID, result.getInt( Bfrdb.ATT_ESTMODELID+"2" ) );

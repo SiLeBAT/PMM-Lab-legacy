@@ -366,7 +366,7 @@ public class XLSReader {
 					.getRandomNegativeInt(), "", TimeSeriesSchema.LOGC + "="
 					+ LOG10N0 + "+1/" + DVALUE + "*" + TimeSeriesSchema.TIME));
 			estModelXML.add(new EstModelXml(MathUtilities
-					.getRandomNegativeInt(), "", null, null, null, null));
+					.getRandomNegativeInt(), "", null, null, null, null, null));
 			depXML.add(new DepXml(TimeSeriesSchema.LOGC));
 			indepXML.add(new IndepXml(TimeSeriesSchema.TIME, null, null));
 			paramXML.add(new ParamXml(LOG10N0, log10N0, null, null, null, null,

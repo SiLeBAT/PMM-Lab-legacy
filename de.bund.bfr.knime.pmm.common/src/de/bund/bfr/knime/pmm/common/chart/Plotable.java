@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math3.distribution.TDistribution;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -71,6 +72,7 @@ public class Plotable {
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
 	private List<Double> samples;
+	private Integer degreesOfFreedom;
 
 	public Plotable(int type) {
 		this.type = type;
@@ -82,6 +84,7 @@ public class Plotable {
 		parameterErrors = new LinkedHashMap<String, Double>();
 		covariances = new LinkedHashMap<String, Map<String, Double>>();
 		samples = new ArrayList<Double>();
+		degreesOfFreedom = null;
 	}
 
 	public int getType() {
@@ -166,6 +169,14 @@ public class Plotable {
 
 	public void setSamples(List<Double> samples) {
 		this.samples = samples;
+	}
+
+	public Integer getDegreesOfFreedom() {
+		return degreesOfFreedom;
+	}
+
+	public void setDegreesOfFreedom(Integer degreesOfFreedom) {
+		this.degreesOfFreedom = degreesOfFreedom;
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String transformY) {
@@ -420,8 +431,11 @@ public class Plotable {
 				points[0][n] = x;
 
 				if (!failed) {
-					// the error is multiplied by 1.96 to get the 95% interval
-					y = Math.sqrt(y) * 1.96;
+					// 95% interval
+					TDistribution dist = new TDistribution(degreesOfFreedom);
+
+					y = Math.sqrt(y)
+							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 					y = transformDouble(y, transformY);
 					points[1][n] = y;
 				} else {

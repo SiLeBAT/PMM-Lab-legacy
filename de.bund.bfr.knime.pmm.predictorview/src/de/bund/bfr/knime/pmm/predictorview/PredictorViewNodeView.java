@@ -50,7 +50,9 @@ import javax.swing.JSplitPane;
 
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -276,26 +278,25 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		visibleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-				Model1Schema.ATT_RSQUARED);
-		stringColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
+		visibleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED);
+		stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 				ChartConstants.IS_FITTED);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = Arrays.asList(Model1Schema.ATT_RMS,
-				Model1Schema.ATT_RSQUARED, Model1Schema.ATT_AIC,
-				Model1Schema.ATT_BIC);
+		doubleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED,
+				Model1Schema.AIC, Model1Schema.BIC);
 		doubleColumnValues = new ArrayList<List<Double>>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
-		visibleColumns = Arrays.asList(Model1Schema.ATT_MODELNAME,
-				Model1Schema.ATT_RMS, Model1Schema.ATT_RSQUARED);
+		visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+				Model1Schema.RMS, Model1Schema.RSQUARED);
 
 		for (KnimeTuple row : tuples) {
-			String id = row.getInt(Model1Schema.ATT_ESTMODELID) + "";
+			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)
+					.get(0)).getID() + "";
 
 			if (!idSet.add(id)) {
 				continue;
@@ -303,8 +304,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			ids.add(id);
 
-			String modelName = row.getString(Model1Schema.ATT_MODELNAME);
-			String formula = row.getString(Model1Schema.ATT_FORMULA);
+			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
+			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
 					.get(0)).getName();
 			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
@@ -348,18 +350,22 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				covariances.put(element.getName(), cov);
 			}
 
+			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
 			shortLegend.put(id, modelName);
 			longLegend.put(id, modelName + " " + formula);
 			stringColumnValues.get(0).add(modelName);
-			doubleColumnValues.get(0).add(row.getDouble(Model1Schema.ATT_RMS));
+			doubleColumnValues.get(0).add(
+					((EstModelXml) estModelXml.get(0)).getRMS());
 			doubleColumnValues.get(1).add(
-					row.getDouble(Model1Schema.ATT_RSQUARED));
-			doubleColumnValues.get(2).add(row.getDouble(Model1Schema.ATT_AIC));
-			doubleColumnValues.get(3).add(row.getDouble(Model1Schema.ATT_BIC));
+					((EstModelXml) estModelXml.get(0)).getR2());
+			doubleColumnValues.get(2).add(
+					((EstModelXml) estModelXml.get(0)).getAIC());
+			doubleColumnValues.get(3).add(
+					((EstModelXml) estModelXml.get(0)).getBIC());
 			infoParams = new ArrayList<String>(
-					Arrays.asList(Model1Schema.ATT_FORMULA));
-			infoValues = new ArrayList<Object>(Arrays.asList(row
-					.getString(Model1Schema.ATT_FORMULA)));
+					Arrays.asList(Model1Schema.FORMULA));
+			infoValues = new ArrayList<Object>(Arrays.asList(formula));
 
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 

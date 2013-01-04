@@ -56,8 +56,10 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -191,7 +193,9 @@ public class PrimaryJoiner implements Joiner {
 						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 			}
 
-			String formula = modelTuple.getString(Model1Schema.ATT_FORMULA);
+			PmmXmlDoc modelXml = modelTuple
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 			String depVarName = ((DepXml) depVar.get(0)).getName();
 			PmmXmlDoc indepVar = modelTuple
@@ -228,7 +232,9 @@ public class PrimaryJoiner implements Joiner {
 				continue;
 			}
 
-			modelTuple.setValue(Model1Schema.ATT_FORMULA, formula);
+			((CatalogModelXml) modelXml.get(0)).setFormula(formula);
+
+			modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
 			modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVar);
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
@@ -315,8 +321,10 @@ public class PrimaryJoiner implements Joiner {
 						peiSchema.createSpec(), tuple);
 				KnimeTuple condTuple = new KnimeTuple(dataSchema,
 						peiSchema.createSpec(), tuple);
-				Integer id = modelTuple.getInt(Model1Schema.ATT_MODELID);
-				Integer estID = modelTuple.getInt(Model1Schema.ATT_ESTMODELID);
+				int id = ((CatalogModelXml) modelTuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+				Integer estID = ((EstModelXml) modelTuple.getPmmXml(
+						Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
 				if (estID != null) {
 					if (estIDs.add(estID)) {
@@ -338,8 +346,10 @@ public class PrimaryJoiner implements Joiner {
 
 			while (reader.hasMoreElements()) {
 				KnimeTuple modelRow = reader.nextElement();
-				Integer id = modelRow.getInt(Model1Schema.ATT_MODELID);
-				Integer estID = modelRow.getInt(Model1Schema.ATT_ESTMODELID);
+				int id = ((CatalogModelXml) modelRow.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+				Integer estID = ((EstModelXml) modelRow.getPmmXml(
+						Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
 				if (estID != null) {
 					if (estIDs.add(estID)) {

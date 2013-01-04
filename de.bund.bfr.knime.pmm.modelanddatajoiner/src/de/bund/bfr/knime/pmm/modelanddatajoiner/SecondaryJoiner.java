@@ -61,6 +61,7 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
@@ -262,10 +263,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 			while (modelReader.hasMoreElements()) {
 				KnimeTuple modelRow = modelReader.nextElement();
-				String modelIDSec = modelRow.getInt(Model2Schema.ATT_MODELID)
-						+ "";
-				String formulaSec = modelRow
-						.getString(Model2Schema.ATT_FORMULA);
+				PmmXmlDoc modelXmlSec = modelRow
+						.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+				String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
+						.getID() + "";
+				String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
+						.getFormula();
 				PmmXmlDoc depVarSec = modelRow
 						.getPmmXml(Model2Schema.ATT_DEPENDENT);
 				String depVarSecName = ((DepXml) depVarSec.get(0)).getName();
@@ -290,6 +293,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					formulaSec = MathUtilities.replaceVariable(formulaSec, var,
 							newVar);
 				}
+
+				((CatalogModelXml) modelXmlSec.get(0)).setFormula(formulaSec);
 
 				for (PmmXmlElementConvertable el : indepVarsSec.getElementSet()) {
 					IndepXml iv = (IndepXml) el;
@@ -321,7 +326,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					KnimeTuple seiRow = new KnimeTuple(seiSchema, modelRow,
 							peiRow);
 
-					seiRow.setValue(Model2Schema.ATT_FORMULA, formulaSec);
+					seiRow.setValue(Model2Schema.ATT_MODELCATALOG, modelXmlSec);
 					seiRow.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
 					seiRow.setValue(Model2Schema.ATT_INDEPENDENT,
 							newIndepVarsSec);
@@ -354,15 +359,18 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
-			String modelID = row.getInt(Model2Schema.ATT_MODELID) + "";
+			PmmXmlDoc modelXml = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 
 			if (dependentVariables.containsKey(modelID)) {
 				continue;
 			}
 
 			models.add(modelID);
-			modelNames.put(modelID, row.getString(Model2Schema.ATT_MODELNAME));
-			modelFormulas.put(modelID, row.getString(Model2Schema.ATT_FORMULA));
+			modelNames.put(modelID,
+					((CatalogModelXml) modelXml.get(0)).getName());
+			modelFormulas.put(modelID,
+					((CatalogModelXml) modelXml.get(0)).getFormula());
 			dependentVariables.put(modelID,
 					((DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0))
 							.getName());

@@ -58,8 +58,10 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.nfunk.jep.ParseException;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -532,7 +534,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 		@Override
 		public void run() {
 			try {
-				String formula = tuple.getString(Model1Schema.ATT_FORMULA);
+				String formula = ((CatalogModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
 				PmmXmlDoc paramXml = tuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				List<String> parameters = new ArrayList<String>();
@@ -660,13 +663,18 @@ public class ModelEstimationNodeModel extends NodeModel {
 				((IndepXml) indepXml.get(0)).setMin(minIndep);
 				((IndepXml) indepXml.get(0)).setMax(maxIndep);
 
+				PmmXmlDoc estModelXml = tuple
+						.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+				((EstModelXml) estModelXml.get(0)).setID(estID);
+				((EstModelXml) estModelXml.get(0)).setRMS(rms);
+				((EstModelXml) estModelXml.get(0)).setR2(rSquare);
+				((EstModelXml) estModelXml.get(0)).setAIC(aic);
+				((EstModelXml) estModelXml.get(0)).setBIC(bic);
+
 				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
-				tuple.setValue(Model1Schema.ATT_RMS, rms);
-				tuple.setValue(Model1Schema.ATT_AIC, aic);
-				tuple.setValue(Model1Schema.ATT_BIC, bic);
-				tuple.setValue(Model1Schema.ATT_RSQUARED, rSquare);
 				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
-				tuple.setValue(Model1Schema.ATT_ESTMODELID, estID);
+				tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
 				runningThreads.decrementAndGet();
 				finishedThreads.incrementAndGet();
 			} catch (PmmException e) {
@@ -796,11 +804,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 				Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
 				Map<String, PmmXmlDoc> indepMap = new LinkedHashMap<String, PmmXmlDoc>();
-				Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
-				Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
-				Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
-				Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
-				Map<String, Integer> estIDMap = new LinkedHashMap<String, Integer>();
+				Map<String, PmmXmlDoc> estModelMap = new LinkedHashMap<String, PmmXmlDoc>();
 
 				for (int i = 0; i < n; i++) {
 					KnimeTuple tuple = tuples.get(i);
@@ -811,12 +815,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 							Model2Schema.WRITABLE);
 
 					if (!paramMap.containsKey(id)) {
-						String formula = tuple
-								.getString(Model2Schema.ATT_FORMULA);
+						PmmXmlDoc modelXml = tuple
+								.getPmmXml(Model2Schema.ATT_MODELCATALOG);
 						PmmXmlDoc paramXml = tuple
 								.getPmmXml(Model2Schema.ATT_PARAMETER);
 						PmmXmlDoc indepXml = tuple
 								.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+						String formula = ((CatalogModelXml) modelXml.get(0))
+								.getFormula();
 						List<String> parameters = new ArrayList<String>();
 						List<Double> minParameterValues = new ArrayList<Double>();
 						List<Double> maxParameterValues = new ArrayList<Double>();
@@ -825,8 +831,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 						List<Double> targetValues = depVarMap.get(id);
 						List<String> arguments = CellIO.getNameList(indepXml);
 						List<List<Double>> argumentValues = new ArrayList<List<Double>>();
-						String modelID = tuple.getInt(Model2Schema.ATT_MODELID)
-								+ "";
+						String modelID = ((CatalogModelXml) modelXml.get(0))
+								.getID() + "";
 						Map<String, Point2D.Double> modelGuesses = parameterGuesses
 								.get(modelID);
 
@@ -961,25 +967,25 @@ public class ModelEstimationNodeModel extends NodeModel {
 							element.setMax(maxValues.get(j));
 						}
 
+						PmmXmlDoc estModelXml = tuple
+								.getPmmXml(Model2Schema.ATT_ESTMODEL);
+
+						((EstModelXml) estModelXml.get(0)).setID(estID);
+						((EstModelXml) estModelXml.get(0)).setRMS(rms);
+						((EstModelXml) estModelXml.get(0)).setR2(rSquared);
+						((EstModelXml) estModelXml.get(0)).setAIC(aic);
+						((EstModelXml) estModelXml.get(0)).setBIC(bic);
+
 						paramMap.put(id, paramXml);
-						rmsMap.put(id, rms);
-						rSquaredMap.put(id, rSquared);
-						aicMap.put(id, aic);
-						bicMap.put(id, bic);
 						indepMap.put(id, indepXml);
-						estIDMap.put(id, estID);
+						estModelMap.put(id, estModelXml);
 					}
 
 					tuple.setValue(Model2Schema.ATT_PARAMETER, paramMap.get(id));
-					tuple.setValue(Model2Schema.ATT_RMS, rmsMap.get(id));
-					tuple.setValue(Model2Schema.ATT_RSQUARED,
-							rSquaredMap.get(id));
-					tuple.setValue(Model2Schema.ATT_AIC, aicMap.get(id));
-					tuple.setValue(Model2Schema.ATT_BIC, bicMap.get(id));
 					tuple.setValue(Model2Schema.ATT_INDEPENDENT,
 							indepMap.get(id));
-					tuple.setValue(Model2Schema.ATT_ESTMODELID,
-							estIDMap.get(id));
+					tuple.setValue(Model2Schema.ATT_ESTMODEL,
+							estModelMap.get(id));
 
 					container.addRowToTable(tuple);
 				}
@@ -1055,7 +1061,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 						}
 					}
 
-					String secID = tuple.getInt(Model2Schema.ATT_MODELID) + "";
+					String secID = ((CatalogModelXml) tuple.getPmmXml(
+							Model2Schema.ATT_MODELCATALOG).get(0)).getID()
+							+ "";
 					PmmXmlDoc secParams = tuple
 							.getPmmXml(Model2Schema.ATT_PARAMETER);
 					Map<String, Point2D.Double> secGuesses = parameterGuesses
@@ -1101,7 +1109,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
 
 				for (KnimeTuple tuple : tuples) {
-					int id = tuple.getInt(Model1Schema.ATT_MODELID);
+					int id = ((CatalogModelXml) tuple.getPmmXml(
+							Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 					PmmXmlDoc indepXml = tuple
 							.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 					List<String> arguments = CellIO.getNameList(indepXml);
@@ -1176,20 +1185,18 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 				Map<Integer, PmmXmlDoc> paramMap = new LinkedHashMap<Integer, PmmXmlDoc>();
 				Map<Integer, PmmXmlDoc> indepMap = new LinkedHashMap<Integer, PmmXmlDoc>();
-				Map<Integer, Double> rmsMap = new LinkedHashMap<Integer, Double>();
-				Map<Integer, Double> rSquaredMap = new LinkedHashMap<Integer, Double>();
-				Map<Integer, Double> aicMap = new LinkedHashMap<Integer, Double>();
-				Map<Integer, Double> bicMap = new LinkedHashMap<Integer, Double>();
-				Map<Integer, Integer> estIDMap = new LinkedHashMap<Integer, Integer>();
+				Map<Integer, PmmXmlDoc> estModelMap = new LinkedHashMap<Integer, PmmXmlDoc>();
 				int n = tuples.size();
 
 				for (int i = 0; i < n; i++) {
 					KnimeTuple tuple = tuples.get(i);
-					int id = tuple.getInt(Model1Schema.ATT_MODELID);
+					PmmXmlDoc modelXml = tuple
+							.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+					int id = ((CatalogModelXml) modelXml.get(0)).getID();
 
 					if (!paramMap.containsKey(id)) {
-						String formula = tuple
-								.getString(Model1Schema.ATT_FORMULA);
+						String formula = ((CatalogModelXml) modelXml.get(0))
+								.getFormula();
 						PmmXmlDoc paramXml = tuple
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
 						PmmXmlDoc indepXml = tuple
@@ -1302,25 +1309,25 @@ public class ModelEstimationNodeModel extends NodeModel {
 							element.setMax(maxValues.get(j));
 						}
 
+						PmmXmlDoc estModelXml = tuple
+								.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+						((EstModelXml) estModelXml.get(0)).setID(estID);
+						((EstModelXml) estModelXml.get(0)).setRMS(rms);
+						((EstModelXml) estModelXml.get(0)).setR2(rSquared);
+						((EstModelXml) estModelXml.get(0)).setAIC(aic);
+						((EstModelXml) estModelXml.get(0)).setBIC(bic);
+
 						paramMap.put(id, paramXml);
-						rmsMap.put(id, rms);
-						rSquaredMap.put(id, rSquared);
-						aicMap.put(id, aic);
-						bicMap.put(id, bic);
 						indepMap.put(id, indepXml);
-						estIDMap.put(id, estID);
+						estModelMap.put(id, estModelXml);
 					}
 
 					tuple.setValue(Model1Schema.ATT_PARAMETER, paramMap.get(id));
-					tuple.setValue(Model1Schema.ATT_RMS, rmsMap.get(id));
-					tuple.setValue(Model1Schema.ATT_RSQUARED,
-							rSquaredMap.get(id));
-					tuple.setValue(Model1Schema.ATT_AIC, aicMap.get(id));
-					tuple.setValue(Model1Schema.ATT_BIC, bicMap.get(id));
 					tuple.setValue(Model1Schema.ATT_INDEPENDENT,
 							indepMap.get(id));
-					tuple.setValue(Model1Schema.ATT_ESTMODELID,
-							estIDMap.get(id));
+					tuple.setValue(Model1Schema.ATT_ESTMODEL,
+							estModelMap.get(id));
 
 					container.addRowToTable(tuple);
 				}

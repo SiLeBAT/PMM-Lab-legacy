@@ -52,7 +52,7 @@ public class Model1Schema extends KnimeSchema {
 
 	public static final String ATT_PARAMETER = "Parameter";
 	public static final String ATT_INDEPENDENT = "Independent";
-	
+
 	@Deprecated
 	public static final String ATT_ESTMODELID = "EstModelID";
 	@Deprecated
@@ -64,45 +64,50 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_EMLIT = "EM_Literatur";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
 	public static final String ATT_DBUUID = "M_DB_UID";
-	
+
 	@Deprecated
 	public static final String ATT_AIC = "AIC";
 	@Deprecated
 	public static final String ATT_BIC = "BIC";
-	
+
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
-			
-	public Model1Schema() {		
-		try {			
-			addIntAttribute( ATT_MODELID );
-			addStringAttribute( ATT_MODELNAME );
-			addStringAttribute( ATT_FORMULA );
+	public static final String MODELNAME = "ModelName";
+	public static final String FORMULA = "Formula";
+	public static final String RMS = "RMS";
+	public static final String RSQUARED = "Rsquared";
+	public static final String AIC = "AIC";
+	public static final String BIC = "BIC";
 
-			addXmlAttribute( ATT_MODELCATALOG );
+	public Model1Schema() {
+		try {
+			addIntAttribute(ATT_MODELID);
+			addStringAttribute(ATT_MODELNAME);
+			addStringAttribute(ATT_FORMULA);
 
-			addXmlAttribute( ATT_DEPENDENT );
-			addXmlAttribute( ATT_INDEPENDENT );
+			addXmlAttribute(ATT_MODELCATALOG);
 
-			addXmlAttribute( ATT_PARAMETER );
+			addXmlAttribute(ATT_DEPENDENT);
+			addXmlAttribute(ATT_INDEPENDENT);
 
-			addXmlAttribute( ATT_ESTMODEL );
+			addXmlAttribute(ATT_PARAMETER);
+
+			addXmlAttribute(ATT_ESTMODEL);
 
 			addXmlAttribute(ATT_MLIT);
-			
-			addIntAttribute( ATT_ESTMODELID );
-			addDoubleAttribute( ATT_RMS );
-			addDoubleAttribute( ATT_RSQUARED );
-			addDoubleAttribute( ATT_AIC );
-			addDoubleAttribute( ATT_BIC );
+
+			addIntAttribute(ATT_ESTMODELID);
+			addDoubleAttribute(ATT_RMS);
+			addDoubleAttribute(ATT_RSQUARED);
+			addDoubleAttribute(ATT_AIC);
+			addDoubleAttribute(ATT_BIC);
 
 			addXmlAttribute(ATT_EMLIT);
-			
-			addIntAttribute( ATT_DATABASEWRITABLE );
-			addStringAttribute( ATT_DBUUID );			
-		}
-		catch( PmmException ex ) {
-			ex.printStackTrace( System.err );
+
+			addIntAttribute(ATT_DATABASEWRITABLE);
+			addStringAttribute(ATT_DBUUID);
+		} catch (PmmException ex) {
+			ex.printStackTrace(System.err);
 		}
 	}
 

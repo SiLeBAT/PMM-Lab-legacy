@@ -66,6 +66,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -359,7 +360,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			String id = tuple.getInt(Model2Schema.ATT_MODELID) + "";
+			PmmXmlDoc modelXml = tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+			String id = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 
 			if (!modelNames.containsKey(id)) {
 				PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
@@ -375,7 +377,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 					max.put(element.getName(), element.getMax());
 				}
 
-				modelNames.put(id, tuple.getString(Model2Schema.ATT_MODELNAME));
+				modelNames.put(id,
+						((CatalogModelXml) modelXml.get(0)).getName());
 				parameters.put(id, paramNames);
 				minValues.put(id, min);
 				maxValues.put(id, max);

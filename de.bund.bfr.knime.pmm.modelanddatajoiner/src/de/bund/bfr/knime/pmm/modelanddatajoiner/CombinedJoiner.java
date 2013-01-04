@@ -57,8 +57,10 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -243,22 +245,28 @@ public class CombinedJoiner implements Joiner {
 
 		while (modelReader.hasMoreElements()) {
 			KnimeTuple modelTuple = modelReader.nextElement();
+			int modelID = ((CatalogModelXml) modelTuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-			if (!ids.add(modelTuple.getInt(Model1Schema.ATT_MODELID) + "("
-					+ depVarSecName + ")")) {
+			if (!ids.add(modelID + "(" + depVarSecName + ")")) {
 				index += dataTable.getRowCount();
 				continue;
 			}
 
-			String formula = modelTuple.getString(Model1Schema.ATT_FORMULA);
+			PmmXmlDoc modelXml = modelTuple
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 			String depVarName = ((DepXml) depVar.get(0)).getName();
 			PmmXmlDoc indepVar = modelTuple
 					.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc newIndepVar = new PmmXmlDoc();
-			String formulaSec = modelTuple.getString(Model2Schema.ATT_FORMULA);
+			PmmXmlDoc modelXmlSec = modelTuple
+					.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+			String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
+					.getFormula();
 			PmmXmlDoc indepVarSec = modelTuple
 					.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 			PmmXmlDoc newIndepVarSec = new PmmXmlDoc();
@@ -316,12 +324,15 @@ public class CombinedJoiner implements Joiner {
 				continue;
 			}
 
-			modelTuple.setValue(Model1Schema.ATT_FORMULA, formula);
+			((CatalogModelXml) modelXml.get(0)).setFormula(formula);
+			((CatalogModelXml) modelXmlSec.get(0)).setFormula(formulaSec);
+
+			modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
 			modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVar);
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
-			modelTuple.setValue(Model2Schema.ATT_FORMULA, formulaSec);
+			modelTuple.setValue(Model2Schema.ATT_MODELCATALOG, modelXmlSec);
 			modelTuple.setValue(Model2Schema.ATT_INDEPENDENT, newIndepVarSec);
 			modelTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
@@ -387,13 +398,14 @@ public class CombinedJoiner implements Joiner {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
+			int estModelID = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 			String depVar = ((DepXml) tuple.getPmmXml(
 					Model1Schema.ATT_DEPENDENT).get(0)).getName();
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-			if (!ids.add(tuple.getInt(Model1Schema.ATT_ESTMODELID) + "("
-					+ depVarSec + ")")) {
+			if (!ids.add(estModelID + "(" + depVarSec + ")")) {
 				continue;
 			}
 

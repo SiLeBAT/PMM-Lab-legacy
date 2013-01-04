@@ -68,6 +68,12 @@ public class Model2Schema extends KnimeSchema {
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
+	public static final String MODELNAME = "ModelNameSec";
+	public static final String FORMULA = "FormulaSec";
+	public static final String RMS = "RMSSec";
+	public static final String RSQUARED = "RsquaredSec";
+	public static final String AIC = "AICSec";
+	public static final String BIC = "BICSec";
 	
 	@Deprecated
 	public static final String ATT_AIC = getAttribute(Model1Schema.ATT_AIC, 2);

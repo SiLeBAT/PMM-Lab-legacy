@@ -51,8 +51,10 @@ import javax.swing.JSplitPane;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -274,23 +276,23 @@ public class SecondaryModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		stringColumns = Arrays.asList(Model1Schema.ATT_DEPENDENT,
-				Model1Schema.ATT_MODELNAME, ChartConstants.IS_FITTED);
+		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
+				Model2Schema.MODELNAME, ChartConstants.IS_FITTED);
 		filterableStringColumns = Arrays.asList(ChartConstants.IS_FITTED);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = Arrays.asList(Model1Schema.ATT_DEPENDENT,
-				Model1Schema.ATT_MODELNAME, Model2Schema.ATT_RMS,
-				Model2Schema.ATT_RSQUARED);
+		visibleColumns = Arrays
+				.asList(Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME,
+						Model2Schema.RMS, Model2Schema.RSQUARED);
 
 		if (getNodeModel().isSeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model2Schema.ATT_RMS, Model2Schema.ATT_RSQUARED,
-					Model2Schema.ATT_AIC, Model2Schema.ATT_BIC, "Min "
-							+ TimeSeriesSchema.ATT_TEMPERATURE, "Max "
+					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
+					Model2Schema.BIC,
+					"Min " + TimeSeriesSchema.ATT_TEMPERATURE, "Max "
 							+ TimeSeriesSchema.ATT_TEMPERATURE, "Min "
 							+ TimeSeriesSchema.ATT_PH, "Max "
 							+ TimeSeriesSchema.ATT_PH, "Min "
@@ -316,9 +318,8 @@ public class SecondaryModelAndDataViewNodeView extends
 				doubleColumnValues.add(new ArrayList<Double>());
 			}
 		} else if (getNodeModel().isModel2Schema()) {
-			doubleColumns = Arrays.asList(Model2Schema.ATT_RMS,
-					Model2Schema.ATT_RSQUARED, Model2Schema.ATT_AIC,
-					Model2Schema.ATT_BIC);
+			doubleColumns = Arrays.asList(Model2Schema.RMS,
+					Model2Schema.RSQUARED, Model2Schema.AIC, Model2Schema.BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -332,14 +333,20 @@ public class SecondaryModelAndDataViewNodeView extends
 					.get(0)).getName();
 
 			if (!idSet.contains(id)) {
-				String modelNameSec = row.getString(Model2Schema.ATT_MODELNAME);
-				String formulaSec = row.getString(Model2Schema.ATT_FORMULA);
+				PmmXmlDoc modelXmlSec = row
+						.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+				PmmXmlDoc estModelXmlSec = row
+						.getPmmXml(Model2Schema.ATT_ESTMODEL);
+				String modelNameSec = ((CatalogModelXml) modelXmlSec.get(0))
+						.getName();
+				String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
+						.getFormula();
 				String depVarSec = ((DepXml) row.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = row
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(
-						Model2Schema.ATT_MODELNAME, Model2Schema.ATT_FORMULA));
+						Model2Schema.MODELNAME, Model2Schema.FORMULA));
 				List<Object> infoValues = new ArrayList<Object>(Arrays.asList(
 						modelNameSec, formulaSec));
 
@@ -371,10 +378,11 @@ public class SecondaryModelAndDataViewNodeView extends
 						.put(id, row.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
 				depVarDataMap.put(id, new ArrayList<Double>());
-				rmsMap.put(id, row.getDouble(Model2Schema.ATT_RMS));
-				rSquaredMap.put(id, row.getDouble(Model2Schema.ATT_RSQUARED));
-				aicMap.put(id, row.getDouble(Model2Schema.ATT_AIC));
-				bicMap.put(id, row.getDouble(Model2Schema.ATT_BIC));
+				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRMS());
+				rSquaredMap.put(id,
+						((EstModelXml) estModelXmlSec.get(0)).getR2());
+				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAIC());
+				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
 
 				if (getNodeModel().isSeiSchema()) {
 					temperatureDataMap.put(id, new ArrayList<Double>());

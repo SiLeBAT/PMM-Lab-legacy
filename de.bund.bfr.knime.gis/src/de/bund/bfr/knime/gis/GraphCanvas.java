@@ -14,6 +14,7 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -183,7 +184,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			String property = (String) conditionPropertyBox.getSelectedItem();
 			String type = (String) conditionTypeBox.getSelectedItem();
 			String value = conditionField.getText();
-			Set<Node> highlightedNodes = new LinkedHashSet<>();
+			Map<Node, Double> highlightedNodes = new LinkedHashMap<>();
 
 			for (Node node : nodes) {
 				if (node.getProperties().containsKey(property)) {
@@ -191,17 +192,17 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 					if (type.equals(EQUAL)) {
 						if (nodeValue.equals(value)) {
-							highlightedNodes.add(node);
+							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(NOT_EQUAL)) {
 						if (!nodeValue.equals(value)) {
-							highlightedNodes.add(node);
+							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(GREATER)) {
 						try {
 							if (Double.parseDouble(nodeValue) > Double
 									.parseDouble(value)) {
-								highlightedNodes.add(node);
+								highlightedNodes.put(node, 1.0);
 							}
 						} catch (NumberFormatException ex) {
 						}
@@ -209,8 +210,14 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 						try {
 							if (Double.parseDouble(nodeValue) < Double
 									.parseDouble(value)) {
-								highlightedNodes.add(node);
+								highlightedNodes.put(node, 1.0);
 							}
+						} catch (NumberFormatException ex) {
+						}
+					} else if (type.equals(VALUE)) {
+						try {
+							highlightedNodes.put(node,
+									Double.parseDouble(nodeValue));
 						} catch (NumberFormatException ex) {
 						}
 					}
@@ -313,7 +320,8 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
 			viewer.getRenderContext().setVertexFillPaintTransformer(
-					new FillTransformer(viewer, new LinkedHashSet<Node>()));
+					new FillTransformer(viewer,
+							new LinkedHashMap<Node, Double>()));
 			viewer.getRenderContext().setVertexShapeTransformer(
 					new ShapeTransformer(DEFAULT_NODESIZE));
 		}
@@ -481,20 +489,29 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private static class FillTransformer implements Transformer<Node, Paint> {
 
 		private VisualizationViewer<Node, Edge> viewer;
-		private Set<Node> highlightedNodes;
+		private Map<Node, Double> highlightedNodes;
+		private double maxValue;
 
 		public FillTransformer(VisualizationViewer<Node, Edge> viewer,
-				Set<Node> highlightedNodes) {
+				Map<Node, Double> highlightedNodes) {
 			this.viewer = viewer;
 			this.highlightedNodes = highlightedNodes;
+
+			if (!highlightedNodes.isEmpty()) {
+				maxValue = Collections.max(highlightedNodes.values());
+			} else {
+				maxValue = Double.NaN;
+			}
 		}
 
 		@Override
 		public Paint transform(Node n) {
 			if (viewer.getPickedVertexState().getPicked().contains(n)) {
 				return Color.GREEN;
-			} else if (highlightedNodes.contains(n)) {
-				return Color.RED;
+			} else if (highlightedNodes.containsKey(n)) {
+				float alpha = (float) (highlightedNodes.get(n) / maxValue);
+
+				return new Color(1.0f, 1.0f - alpha, 1.0f - alpha);
 			} else {
 				return Color.WHITE;
 			}

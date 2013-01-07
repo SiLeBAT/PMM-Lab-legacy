@@ -195,16 +195,15 @@ public class PlausibleAction extends AbstractAction {
 */
 		LinkedHashMap<String[], LinkedHashSet<String[]>> vals = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
 				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
-		showAndFilterVals("Station", vals, 6);
-
-		vals = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
-				"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
-		showAndFilterVals("Produktkatalog", vals, 0);
-		
-		vals = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
-				null, null, null);		
-		showAndFilterVals("Lieferungen", vals, 0);
-
+		if (showAndFilterVals("Station", vals, 6)) {
+			vals = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
+					"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
+			if (showAndFilterVals("Produktkatalog", vals, 0)) {
+				vals = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+						null, null, null);		
+				showAndFilterVals("Lieferungen", vals, 0);
+			}
+		}
 		/*
 		MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
 		TreePath[] tps = mtt.getCheckedPaths();
@@ -236,7 +235,7 @@ public class PlausibleAction extends AbstractAction {
 		*/
 		DBKernel.sendRequest("DROP FUNCTION LD", false);
 	}
-	private void showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn) {
+	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn) {
 		for (String[] p : vals.keySet()) {
 			try {
 				LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
@@ -249,7 +248,7 @@ public class PlausibleAction extends AbstractAction {
 				}
 				MyTable theTable = DBKernel.myList.getTable(tablename);
 				MyIDFilter mf = new MyIDFilter(filterIDs);
-				DBKernel.myList.openNewWindow(
+				Object val = DBKernel.myList.openNewWindow(
 						theTable,
 						null,
 						(Object) tablename,
@@ -258,9 +257,13 @@ public class PlausibleAction extends AbstractAction {
 						1,
 						null,
 						true, mf);
+				if (val == null) {
+					return false;
+				}
 			}
 			catch (Exception e) {e.printStackTrace();}
 		}		
+		return true;
 	}
 	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
 		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<String[], LinkedHashSet<String[]>>();

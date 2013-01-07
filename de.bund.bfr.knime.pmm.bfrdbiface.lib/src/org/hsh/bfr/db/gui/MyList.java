@@ -637,7 +637,7 @@ if (dbForm != null || owner != null) {
 			}
 			//MyLogger.handleMessage(result);
 			if (result instanceof Integer && (Integer) result < 0) {
-				result = null;
+				if (mf == null) result = null;
 			}
 			//MyLogger.handleMessage(result);
 			DBKernel.topTable = dbTable;

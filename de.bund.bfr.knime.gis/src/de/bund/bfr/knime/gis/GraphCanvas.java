@@ -71,8 +71,9 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private static final String NOT_EQUAL = "!=";
 	private static final String GREATER = ">";
 	private static final String LESS = "<";
+	private static final String VALUE = "Value";
 	private static final String[] CONDITIONS = { EQUAL, NOT_EQUAL, GREATER,
-			LESS };
+			LESS, VALUE };
 
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
@@ -116,9 +117,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
 
-		viewer = null;
-		updateViewer(DEFAULT_LAYOUT);
-
+		updateViewer();
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
 		add(createOptionsPanel(), BorderLayout.SOUTH);
@@ -135,7 +134,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == layoutButton) {
-			updateViewer((String) layoutBox.getSelectedItem());
+			updateViewer();
 		} else if (e.getSource() == nodeSizeButton) {
 			try {
 				viewer.getRenderContext().setVertexShapeTransformer(
@@ -249,9 +248,10 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		}
 	}
 
-	private void updateViewer(String layoutType) {
+	private void updateViewer() {
 		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
+		String layoutType = null;
 		Layout<Node, Edge> layout = null;
 
 		for (Node node : nodes) {
@@ -266,6 +266,12 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			size = viewer.getSize();
 		} else {
 			size = new Dimension(400, 600);
+		}
+
+		if (layoutBox != null) {
+			layoutType = (String) layoutBox.getSelectedItem();
+		} else {
+			layoutType = DEFAULT_LAYOUT;
 		}
 
 		if (layoutType.equals(CIRCLE_LAYOUT)) {

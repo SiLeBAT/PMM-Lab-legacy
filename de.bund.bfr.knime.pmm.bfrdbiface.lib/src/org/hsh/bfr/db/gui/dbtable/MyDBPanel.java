@@ -78,6 +78,7 @@ public class MyDBPanel extends JPanel {
 	private JDialog parentDialog = null;
 	private boolean savePressed = false;
 	private boolean disableButtons = false;
+	private boolean disableAdding = false;
 	private Object[][] t2Conditions = null;
 	private int firstSelectedID = -1;
 	private long tf1LastFocus = 0;
@@ -85,6 +86,7 @@ public class MyDBPanel extends JPanel {
 	private Integer gmRow = null;
 	private MyDBForm myDBForm1;
 	private boolean isParameterTyp = false;
+	private boolean filterChangeAllowed = true;
 	
 	public MyDBPanel() {
 		this(null, null);
@@ -286,6 +288,8 @@ public class MyDBPanel extends JPanel {
 	  		boolean isRO = false;
 			try {isRO = DBKernel.getDBConnection().isReadOnly();}
 			catch (Exception e) {MyLogger.handleException(e);}
+			
+			if (disableAdding) button1.setEnabled(false);
 			if (disableButtons) {
 				button1.setEnabled(false);
 				button2.setEnabled(false);
@@ -323,6 +327,17 @@ public class MyDBPanel extends JPanel {
 	  	}
 	  	super.paintComponent(g);
 	}
+  public void disableFilter() {
+	  filterChangeAllowed = false;
+		this.getSuchfeld().setEnabled(false);
+		this.getSuchIchCheckBox().setEnabled(false);
+  }
+  public void disableAdding() {
+	  disableAdding = true;
+  }
+  public boolean addingDisabled() {
+	  return disableAdding;
+  }
 
   public boolean isMN() {
   	return splitPane2.getRightComponent().isVisible();
@@ -388,6 +403,7 @@ public class MyDBPanel extends JPanel {
 		handleSuchfeldChange(e, true);
 	}
 	public void handleSuchfeldChange(KeyEvent e, boolean doFilter) {
+		if (!filterChangeAllowed) return;
 		if (isFormVisible()) {
 			return;
 		}

@@ -71,6 +71,8 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 
+import quick.dbtable.Filter;
+
 
 /**
  * @author Armin
@@ -510,6 +512,9 @@ if (dbForm != null || owner != null) {
 	  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, false);	  
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC) {
+	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, null);
+  }
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
   	//JDialog.setDefaultLookAndFeelDecorated(true);
@@ -550,6 +555,11 @@ if (dbForm != null || owner != null) {
 			}
 
 			final MyDBPanel myP = new MyDBPanel(newDBTable, newDBTree, disableButtons);
+			if (mf != null) {
+				newDBTable.setFilter(mf);
+				myP.disableAdding();
+				myP.disableFilter();
+			}
 	  		if (value != null && value instanceof Integer) {
 	  			newDBTable.setSelectedID((Integer) value);
 	  			myP.setFirstSelectedID((Integer) value);

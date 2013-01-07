@@ -122,6 +122,7 @@ import org.hsh.bfr.db.gui.dbtable.sorter.MyTableModel4Sorter;
 
 import quick.dbtable.Column;
 import quick.dbtable.DBTable;
+import quick.dbtable.Filter;
 
 /**
  * @author Armin
@@ -143,6 +144,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	private MyDBTableErrorListener dberrlis = new MyDBTableErrorListener();
 	private boolean bigbigTable = false;
 	private Object[][] filterConditions = null;
+	private Filter theFilter = null;
 	/*
 	private Vector<MyMNRenderer> myDblmnr = new Vector<MyMNRenderer>();
 	private boolean doEFSA = false;
@@ -816,6 +818,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			myRefresh(row, this.getSelectedColumn()); // bei bigbigTable muss erstmal nicht nen autoupdate nach afterUpdate von MyDataChangeListener gemacht werden.. is sonst zu lahm
 		}
 	}
+	public void setFilter(Filter mf) {
+		theFilter = mf;
+    	if (theFilter != null) this.filter(theFilter);
+	}
 	public void myRefresh(final int row, final int col) {
 		JScrollPane scroller = getScroller();
 		int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
@@ -824,6 +830,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		int id = getSelectedID();
 	    try {
 	    	this.refresh();
+	    	if (theFilter != null) this.filter(theFilter);
 	    }
 	    catch (Exception e1) {
 	    	MyLogger.handleException(e1);
@@ -1925,7 +1932,8 @@ if (myDBPanel1 != null) {
      	return;
     }
     else if (keyEvent.getKeyCode() == KeyEvent.VK_INSERT) {
-    	this.insertNewRow(keyEvent.isAltDown() || keyEvent.isControlDown(), null);
+    	if (getMyDBPanel().addingDisabled()) keyEvent.consume();
+    	else this.insertNewRow(keyEvent.isAltDown() || keyEvent.isControlDown(), null);
     }
     else if (keyEvent.getKeyCode() == KeyEvent.VK_DELETE) {
     	keyEvent.consume();

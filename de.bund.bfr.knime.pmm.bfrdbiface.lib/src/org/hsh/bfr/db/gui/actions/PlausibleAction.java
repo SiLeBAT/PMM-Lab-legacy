@@ -49,7 +49,6 @@ import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -60,17 +59,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 import javax.swing.JProgressBar;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
 import org.hsh.bfr.db.gui.PlausibleDialog;
-import org.hsh.bfr.db.gui.checktreetable.MyTreeTable;
-import org.hsh.bfr.db.gui.checktreetable.MyTreeTableNode;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
 import org.hsh.bfr.db.imports.InfoBox;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -199,21 +195,19 @@ public class PlausibleAction extends AbstractAction {
 */
 		LinkedHashMap<String[], LinkedHashSet<String[]>> vals = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
 				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
-
-		MyTreeTable mtt = new MyTreeTable(new String[]{"KontaktID","Name","PLZ","Strasse","Hausnummer","Ort","StationID","FallErfuellt","AnzahlFaelle"}, vals);
-		TreePath[] tps = mtt.getCheckedPaths();
-		for (TreePath tp : tps) {
-			System.err.println(tp.getPathComponent(0));			
-		}
+		showAndFilterVals("Station", vals, 6);
 
 		vals = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
 				"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
-
+		showAndFilterVals("Produktkatalog", vals, 0);
+		
 		vals = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
-				null, null, null);
+				null, null, null);		
+		showAndFilterVals("Lieferungen", vals, 0);
 
-		mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
-		tps = mtt.getCheckedPaths();
+		/*
+		MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
+		TreePath[] tps = mtt.getCheckedPaths();
 		for (TreePath tp : tps) {
 			int idTop = 0;
 			HashSet<Integer> idDowns = new HashSet<Integer>();
@@ -239,8 +233,34 @@ public class PlausibleAction extends AbstractAction {
 				System.out.println();
 			}
 		}
-		
+		*/
 		DBKernel.sendRequest("DROP FUNCTION LD", false);
+	}
+	private void showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn) {
+		for (String[] p : vals.keySet()) {
+			try {
+				LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
+				Integer pID = Integer.parseInt(p[idColumn]);
+				filterIDs.add(pID);
+				LinkedHashSet<String[]> lhs = vals.get(p);
+				for (String[] sa : lhs) {
+					Integer cID = Integer.parseInt(sa[idColumn]);
+					filterIDs.add(cID);
+				}
+				MyTable theTable = DBKernel.myList.getTable(tablename);
+				MyIDFilter mf = new MyIDFilter(filterIDs);
+				DBKernel.myList.openNewWindow(
+						theTable,
+						null,
+						(Object) tablename,
+						null,
+						1,
+						1,
+						null,
+						true, mf);
+			}
+			catch (Exception e) {e.printStackTrace();}
+		}		
 	}
 	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
 		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<String[], LinkedHashSet<String[]>>();

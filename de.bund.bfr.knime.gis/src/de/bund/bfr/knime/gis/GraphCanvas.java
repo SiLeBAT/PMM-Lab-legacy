@@ -1,9 +1,11 @@
 package de.bund.bfr.knime.gis;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,7 +25,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -66,6 +67,13 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private static final String PICKING_MODE = "Picking";
 	private static final String[] MODES = { TRANSFORMING_MODE, PICKING_MODE };
 
+	private static final String EQUAL = "==";
+	private static final String NOT_EQUAL = "!=";
+	private static final String GREATER = ">";
+	private static final String LESS = "<";
+	private static final String[] CONDITIONS = { EQUAL, NOT_EQUAL, GREATER,
+			LESS };
+
 	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
 	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
@@ -73,25 +81,32 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private List<Node> nodes;
 	private List<Edge> edges;
 	private Map<Node, List<Edge>> connectingEdges;
+	private Set<String> allNodeProperties;
 	private VisualizationViewer<Node, Edge> viewer;
-	private DefaultModalGraphMouse<Integer, String> mouseModel;
 
 	private List<NodeSelectionListener> nodeSelectionListeners;
 
 	private JComboBox<String> layoutBox;
+	private JButton layoutButton;
 	private JTextField nodeSizeField;
-	private JButton applyButton;
+	private JButton nodeSizeButton;
 	private JComboBox<String> modeBox;
 	private JButton nodePropertiesButton;
 	private JButton edgePropertiesButton;
+	private JComboBox<String> conditionPropertyBox;
+	private JComboBox<String> conditionTypeBox;
+	private JTextField conditionField;
+	private JButton conditionButton;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges) {
 		this.nodes = nodes;
 		this.edges = edges;
 		connectingEdges = new LinkedHashMap<>();
+		allNodeProperties = new LinkedHashSet<>();
 
 		for (Node node : nodes) {
 			connectingEdges.put(node, new ArrayList<Edge>());
+			allNodeProperties.addAll(node.getProperties().keySet());
 		}
 
 		for (Edge edge : edges) {
@@ -101,11 +116,8 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
 
-		mouseModel = null;
-		updateMouseModel(DEFAULT_MODE);
-
 		viewer = null;
-		updateViewer(DEFAULT_LAYOUT, DEFAULT_NODESIZE);
+		updateViewer(DEFAULT_LAYOUT);
 
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -122,17 +134,30 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == applyButton) {
+		if (e.getSource() == layoutButton) {
+			updateViewer((String) layoutBox.getSelectedItem());
+		} else if (e.getSource() == nodeSizeButton) {
 			try {
-				updateViewer((String) layoutBox.getSelectedItem(),
-						Integer.parseInt(nodeSizeField.getText()));
+				viewer.getRenderContext().setVertexShapeTransformer(
+						new ShapeTransformer(Integer.parseInt(nodeSizeField
+								.getText())));
+				viewer.repaint();
 			} catch (NumberFormatException ex) {
 				JOptionPane.showMessageDialog(this,
 						"Node Size must be Integer Value", "Error",
 						JOptionPane.ERROR_MESSAGE);
 			}
 		} else if (e.getSource() == modeBox) {
-			updateMouseModel((String) modeBox.getSelectedItem());
+			DefaultModalGraphMouse<Integer, String> mouseModel = new DefaultModalGraphMouse<Integer, String>();
+			String mode = (String) modeBox.getSelectedItem();
+
+			if (mode.equals(TRANSFORMING_MODE)) {
+				mouseModel.setMode(Mode.TRANSFORMING);
+			} else if (mode.equals(PICKING_MODE)) {
+				mouseModel.setMode(Mode.PICKING);
+			}
+
+			viewer.setGraphMouse(mouseModel);
 		} else if (e.getSource() == nodePropertiesButton) {
 			List<Map<String, String>> propertyValues = new ArrayList<Map<String, String>>();
 
@@ -155,6 +180,47 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 			dialog.setLocationRelativeTo(this);
 			dialog.setVisible(true);
+		} else if (e.getSource() == conditionButton) {
+			String property = (String) conditionPropertyBox.getSelectedItem();
+			String type = (String) conditionTypeBox.getSelectedItem();
+			String value = conditionField.getText();
+			Set<Node> highlightedNodes = new LinkedHashSet<>();
+
+			for (Node node : nodes) {
+				if (node.getProperties().containsKey(property)) {
+					String nodeValue = node.getProperties().get(property);
+
+					if (type.equals(EQUAL)) {
+						if (nodeValue.equals(value)) {
+							highlightedNodes.add(node);
+						}
+					} else if (type.equals(NOT_EQUAL)) {
+						if (!nodeValue.equals(value)) {
+							highlightedNodes.add(node);
+						}
+					} else if (type.equals(GREATER)) {
+						try {
+							if (Double.parseDouble(nodeValue) > Double
+									.parseDouble(value)) {
+								highlightedNodes.add(node);
+							}
+						} catch (NumberFormatException ex) {
+						}
+					} else if (type.equals(LESS)) {
+						try {
+							if (Double.parseDouble(nodeValue) < Double
+									.parseDouble(value)) {
+								highlightedNodes.add(node);
+							}
+						} catch (NumberFormatException ex) {
+						}
+					}
+				}
+			}
+
+			viewer.getRenderContext().setVertexFillPaintTransformer(
+					new FillTransformer(viewer, highlightedNodes));
+			viewer.repaint();
 		}
 	}
 
@@ -183,19 +249,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		}
 	}
 
-	private void updateMouseModel(String mode) {
-		if (mouseModel == null) {
-			mouseModel = new DefaultModalGraphMouse<Integer, String>();
-		}
-
-		if (mode.equals(TRANSFORMING_MODE)) {
-			mouseModel.setMode(Mode.TRANSFORMING);
-		} else if (mode.equals(PICKING_MODE)) {
-			mouseModel.setMode(Mode.PICKING);
-		}
-	}
-
-	private void updateViewer(String layoutType, int nodeSize) {
+	private void updateViewer(String layoutType) {
 		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
 		Layout<Node, Edge> layout = null;
@@ -239,26 +293,36 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 					.getTransformer(Layer.VIEW)
 					.setScale(1.0, 1.0, new Point2D.Double(0.0, 0.0));
 			viewer.setGraphLayout(layout);
-			viewer.getRenderContext().setVertexShapeTransformer(
-					new ShapeTransformer(nodeSize));
 		} else {
+			DefaultModalGraphMouse<Integer, String> mouseModel = new DefaultModalGraphMouse<>();
+
+			if (DEFAULT_MODE.equals(TRANSFORMING_MODE)) {
+				mouseModel.setMode(Mode.TRANSFORMING);
+			} else if (DEFAULT_MODE.equals(PICKING_MODE)) {
+				mouseModel.setMode(Mode.PICKING);
+			}
+
 			viewer = new VisualizationViewer<Node, Edge>(layout);
 			viewer.setPreferredSize(size);
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
+			viewer.getRenderContext().setVertexFillPaintTransformer(
+					new FillTransformer(viewer, new LinkedHashSet<Node>()));
 			viewer.getRenderContext().setVertexShapeTransformer(
-					new ShapeTransformer(nodeSize));
+					new ShapeTransformer(DEFAULT_NODESIZE));
 		}
 	}
 
 	private JPanel createOptionsPanel() {
 		layoutBox = new JComboBox<String>(LAYOUTS);
 		layoutBox.setSelectedItem(DEFAULT_LAYOUT);
+		layoutButton = new JButton("Apply");
+		layoutButton.addActionListener(this);
 		nodeSizeField = new JTextField("" + DEFAULT_NODESIZE);
 		nodeSizeField.setPreferredSize(new Dimension(50, nodeSizeField
 				.getPreferredSize().height));
-		applyButton = new JButton("Apply");
-		applyButton.addActionListener(this);
+		nodeSizeButton = new JButton("Apply");
+		nodeSizeButton.addActionListener(this);
 		modeBox = new JComboBox<String>(MODES);
 		modeBox.setSelectedItem(DEFAULT_MODE);
 		modeBox.addActionListener(this);
@@ -266,16 +330,30 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		nodePropertiesButton.addActionListener(this);
 		edgePropertiesButton = new JButton("Edge Properties");
 		edgePropertiesButton.addActionListener(this);
+		conditionPropertyBox = new JComboBox<String>(
+				allNodeProperties.toArray(new String[0]));
+		conditionPropertyBox.setSelectedItem(null);
+		conditionTypeBox = new JComboBox<String>(CONDITIONS);
+		conditionTypeBox.setSelectedItem(EQUAL);
+		conditionField = new JTextField();
+		conditionField.setPreferredSize(new Dimension(50, conditionField
+				.getPreferredSize().height));
+		conditionButton = new JButton("Apply");
+		conditionButton.addActionListener(this);
 
 		JPanel layoutPanel = new JPanel();
 
 		layoutPanel.setBorder(BorderFactory.createTitledBorder("Layout"));
 		layoutPanel.setLayout(new FlowLayout());
-		layoutPanel.add(new JLabel("Type:"));
 		layoutPanel.add(layoutBox);
-		layoutPanel.add(new JLabel("Node Size:"));
-		layoutPanel.add(nodeSizeField);
-		layoutPanel.add(applyButton);
+		layoutPanel.add(layoutButton);
+
+		JPanel nodeSizePanel = new JPanel();
+
+		nodeSizePanel.setBorder(BorderFactory.createTitledBorder("Node Size"));
+		nodeSizePanel.setLayout(new FlowLayout());
+		nodeSizePanel.add(nodeSizeField);
+		nodeSizePanel.add(nodeSizeButton);
 
 		JPanel modePanel = new JPanel();
 
@@ -290,22 +368,39 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		selectionPanel.add(nodePropertiesButton);
 		selectionPanel.add(edgePropertiesButton);
 
-		JPanel upperPanel = new JPanel();
+		JPanel highlightPanel = new JPanel();
 
-		upperPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		upperPanel.add(layoutPanel);
+		highlightPanel.setBorder(BorderFactory
+				.createTitledBorder("Highlight Nodes"));
+		highlightPanel.setLayout(new FlowLayout());
+		highlightPanel.add(conditionPropertyBox);
+		highlightPanel.add(conditionTypeBox);
+		highlightPanel.add(conditionField);
+		highlightPanel.add(conditionButton);
 
-		JPanel lowerPanel = new JPanel();
+		JPanel panel1 = new JPanel();
 
-		lowerPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		lowerPanel.add(modePanel);
-		lowerPanel.add(selectionPanel);
+		panel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel1.add(layoutPanel);
+		panel1.add(nodeSizePanel);
+
+		JPanel panel2 = new JPanel();
+
+		panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel2.add(modePanel);
+		panel2.add(selectionPanel);
+
+		JPanel panel3 = new JPanel();
+
+		panel3.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		panel3.add(highlightPanel);
 
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(upperPanel);
-		panel.add(lowerPanel);
+		panel.add(panel1);
+		panel.add(panel2);
+		panel.add(panel3);
 
 		return panel;
 	}
@@ -369,12 +464,36 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		}
 
 		@Override
-		public Shape transform(Node i) {
+		public Shape transform(Node n) {
 			Ellipse2D circle = new Ellipse2D.Double(-size / 2, -size / 2, size,
 					size);
 
 			return circle;
 		}
+	}
+
+	private static class FillTransformer implements Transformer<Node, Paint> {
+
+		private VisualizationViewer<Node, Edge> viewer;
+		private Set<Node> highlightedNodes;
+
+		public FillTransformer(VisualizationViewer<Node, Edge> viewer,
+				Set<Node> highlightedNodes) {
+			this.viewer = viewer;
+			this.highlightedNodes = highlightedNodes;
+		}
+
+		@Override
+		public Paint transform(Node n) {
+			if (viewer.getPickedVertexState().getPicked().contains(n)) {
+				return Color.GREEN;
+			} else if (highlightedNodes.contains(n)) {
+				return Color.RED;
+			} else {
+				return Color.WHITE;
+			}
+		}
+
 	}
 
 	public static interface NodeSelectionListener {

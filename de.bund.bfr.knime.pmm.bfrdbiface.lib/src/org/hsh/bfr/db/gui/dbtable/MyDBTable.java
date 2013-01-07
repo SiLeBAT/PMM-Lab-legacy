@@ -119,6 +119,7 @@ import org.hsh.bfr.db.gui.dbtable.sorter.MyLongSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyOtherSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyStringSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyTableModel4Sorter;
+import org.hsh.bfr.db.imports.InfoBox;
 
 import quick.dbtable.Column;
 import quick.dbtable.DBTable;
@@ -481,22 +482,30 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		int selRow = this.getSelectedRow();
 		if (this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount() &&
 				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
-			this.getActualTable().saveProperties(this);
-			
-			if (this.getTable().getRowSorter() != null && this.getTable().getRowSorter().getSortKeys().size() > 0) {
-				try {this.delete(new int[]{this.getTable().convertRowIndexToModel(selRow)});}
-				catch (Exception e1) {System.err.println("strangeDeleteRowBehaviour: " + e1.getMessage());}
+			int id = this.getSelectedID();
+			int numForeignCounts = DBKernel.getUsagecountOfID(tablename, id);
+			if (numForeignCounts > 0) {
+    			InfoBox ib = new InfoBox("numForeignCounts=" + numForeignCounts + " for Table " + tablename + ", ID " + id, true, new Dimension(700, 150), null, true);
+    			ib.setVisible(true);    				    			
 			}
 			else {
-				this.delete();				
-			}
+				this.getActualTable().saveProperties(this);
 				
-			this.save();
-			this.myRefresh(selRow);
-			if (myDBPanel1 != null) {
-				myDBPanel1.refreshTree();
-			} 
-			this.getActualTable().restoreProperties(this); this.syncTableRowHeights();
+				if (this.getTable().getRowSorter() != null && this.getTable().getRowSorter().getSortKeys().size() > 0) {
+					try {this.delete(new int[]{this.getTable().convertRowIndexToModel(selRow)});}
+					catch (Exception e1) {System.err.println("strangeDeleteRowBehaviour: " + e1.getMessage());}
+				}
+				else {
+					this.delete();				
+				}
+					
+				this.save();
+				this.myRefresh(selRow);
+				if (myDBPanel1 != null) {
+					myDBPanel1.refreshTree();
+				} 
+				this.getActualTable().restoreProperties(this); this.syncTableRowHeights();
+			}			
 		}
 	}
 

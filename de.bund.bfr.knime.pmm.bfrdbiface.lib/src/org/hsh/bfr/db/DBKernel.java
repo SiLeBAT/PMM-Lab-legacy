@@ -1723,4 +1723,23 @@ public class DBKernel {
 	    }
 	    catch (Exception e) {MyLogger.handleException(e);}		    
 	}
+    public static int getUsagecountOfID(final String tableName, int id) {
+    	int result = 0;
+		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
+				" WHERE PKTABLE_NAME = '" + tableName + "'", false);
+		try {
+		    if (rs != null && rs.first()) {
+		    	do {
+		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
+		    		String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
+		    		//System.err.println(tableName + " wird in " + fkt + "->" + fkc + " referenziert");
+			    	ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) +
+			    			" WHERE " + DBKernel.delimitL(fkc) + "=" + id, false);
+			    	if (rs2 != null && rs2.last()) result += rs2.getRow();
+		    	} while (rs.next());
+		    }
+	    }
+	    catch (Exception e) {MyLogger.handleException(e);}		
+		return result;
+	}
 }

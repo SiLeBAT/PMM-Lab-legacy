@@ -119,6 +119,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 
 		independent = new PmmXmlDoc();
 		parameter = new PmmXmlDoc();		
+		
 	}
 	
 	public ParametricModel(final String modelName, final String formula, DepXml depXml, final int level, final int modelId, final int estModelId) {		
@@ -143,9 +144,23 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public ParametricModel(KnimeTuple row, int level, Integer newTsID) throws PmmException {	
 		initVars();
 		this.level = level;
-		this.modelId = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_MODELID, level));
-		this.modelName = row.getString(Model1Schema.getAttribute(Model1Schema.ATT_MODELNAME, level));
-		setFormula(row.getString(Model1Schema.getAttribute(Model1Schema.ATT_FORMULA, level)));
+		
+		PmmXmlDoc x = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, level));
+		if (x != null) {
+			for (PmmXmlElementConvertable el : x.getElementSet()) {
+				if (el instanceof CatalogModelXml) {
+					CatalogModelXml cmx = (CatalogModelXml) el;
+					this.modelId = cmx.getID();
+					this.modelName = cmx.getName();
+					setFormula(cmx.getFormula());
+					break;
+				}
+			}
+		}
+					
+		//this.modelId = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_MODELID, level));
+		//this.modelName = row.getString(Model1Schema.getAttribute(Model1Schema.ATT_MODELNAME, level));
+		//setFormula(row.getString(Model1Schema.getAttribute(Model1Schema.ATT_FORMULA, level)));
 		PmmXmlDoc depXml = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_DEPENDENT, level));
 		this.depXml = (DepXml) depXml.getElementSet().get(0);
 
@@ -155,12 +170,28 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		this.modelLit = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MLIT, level));
 		this.estLit = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_EMLIT, level));
 		
+		x = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODEL, level));
+		if (x != null) {
+			for (PmmXmlElementConvertable el : x.getElementSet()) {
+				if (el instanceof EstModelXml) {
+					EstModelXml emx = (EstModelXml) el;
+					this.setEstModelId(emx.getID());
+					this.rms = emx.getRMS();
+					this.rsquared = emx.getR2();
+					this.aic = emx.getAIC();
+					this.bic = emx.getBIC();
+					break;
+				}
+			}
+		}
+		/*
 		Integer rowEstM1ID = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, level));
 		this.setEstModelId(rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID);
 		this.rms = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_RMS, level));
 		this.rsquared = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_RSQUARED, level));
 		this.aic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_AIC, level));
 		this.bic = row.getDouble(Model1Schema.getAttribute(Model1Schema.ATT_BIC, level));
+		*/
 		if (this.rms == null) this.rms = Double.NaN;
 		if (this.rsquared == null) this.rsquared = Double.NaN;
 		if (this.aic == null) this.aic = Double.NaN;
@@ -296,6 +327,19 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getParameter() {return parameter;}
 	public PmmXmlDoc getEstModelLit() {return estLit;}
 	public PmmXmlDoc getModelLit() {return modelLit;}
+	public PmmXmlDoc getCatModel() {
+		PmmXmlDoc catModel = new PmmXmlDoc();
+		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula()); 
+		catModel.add(cmx);
+		return catModel;
+	}
+	public PmmXmlDoc getEstModel() {
+		PmmXmlDoc emDoc = new PmmXmlDoc();
+		int emid = getEstModelId();
+		EstModelXml emx = new EstModelXml(emid, "EM_" + emid, getRms(), getRsquared(), getAic(), getBic(), null);
+		emDoc.add(emx);
+		return emDoc;
+	}
 	
 
 	public ParametricModel clone() {
@@ -747,17 +791,23 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					
 			tuple = new KnimeTuple( new Model1Schema() );
 			
-			tuple.setValue( Model1Schema.ATT_FORMULA, getFormula() );
+			PmmXmlDoc cmDoc = getCatModel();//new PmmXmlDoc();
+			tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+			
+			//tuple.setValue( Model1Schema.ATT_FORMULA, getFormula() );
     		PmmXmlDoc depDoc = new PmmXmlDoc();
     		depDoc.add(new DepXml(getDepVar()));
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-			tuple.setValue( Model1Schema.ATT_MODELNAME, getModelName() );
-			tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
-			tuple.setValue( Model1Schema.ATT_ESTMODELID, getEstModelId() );
-			tuple.setValue( Model1Schema.ATT_RMS, getRms() );
-			tuple.setValue( Model1Schema.ATT_AIC, getAic() );
-			tuple.setValue( Model1Schema.ATT_BIC, getBic() );
-			tuple.setValue( Model1Schema.ATT_RSQUARED, getRsquared() );
+			//tuple.setValue( Model1Schema.ATT_MODELNAME, getModelName() );
+			//tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
+			//tuple.setValue( Model1Schema.ATT_ESTMODELID, getEstModelId() );
+			//tuple.setValue( Model1Schema.ATT_RMS, getRms() );
+			//tuple.setValue( Model1Schema.ATT_AIC, getAic() );
+			//tuple.setValue( Model1Schema.ATT_BIC, getBic() );
+			//tuple.setValue( Model1Schema.ATT_RSQUARED, getRsquared() );
+			
+			PmmXmlDoc emDoc = getEstModel();//new PmmXmlDoc();
+			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
     		tuple.setValue(Model1Schema.ATT_PARAMETER, parameter);
 
@@ -770,11 +820,15 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			
 			tuple = new KnimeTuple( new Model2Schema() );
 			
-			tuple.setValue( Model2Schema.ATT_FORMULA, getFormula() );
+			PmmXmlDoc cmDoc = getCatModel();//new PmmXmlDoc();
+			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
+
+			//tuple.setValue( Model2Schema.ATT_FORMULA, getFormula() );
 
     		PmmXmlDoc depDoc = new PmmXmlDoc();
     		depDoc.add(new DepXml(getDepVar()));
     		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
+    		/*
 			tuple.setValue( Model2Schema.ATT_MODELNAME, getModelName() );
 			tuple.setValue( Model2Schema.ATT_MODELID, getModelId() );
 			tuple.setValue( Model2Schema.ATT_ESTMODELID, getEstModelId() );
@@ -782,6 +836,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			tuple.setValue( Model2Schema.ATT_AIC, getAic() );
 			tuple.setValue( Model2Schema.ATT_BIC, getBic() );
 			tuple.setValue( Model2Schema.ATT_RSQUARED, getRsquared() );
+			*/
+			PmmXmlDoc emDoc = getEstModel();//new PmmXmlDoc();
+			tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 
     		tuple.setValue(Model2Schema.ATT_PARAMETER, parameter);
 

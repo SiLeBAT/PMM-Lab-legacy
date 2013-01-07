@@ -51,6 +51,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
@@ -125,11 +126,21 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     		
 			KnimeTuple row = reader.nextElement();
 			if (model1Conform) {
-				Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
-				if (rowMcID != null && !alreadySaved.contains(rowMcID)) {
-					alreadySaved.add(rowMcID);
-		    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
-		    		String formula = row.getString(Model1Schema.ATT_FORMULA);
+				//Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
+				CatalogModelXml cmx = null;
+				PmmXmlDoc catModel = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+				if (catModel != null) {
+					for (PmmXmlElementConvertable el : catModel.getElementSet()) {
+						if (el instanceof CatalogModelXml) {
+							cmx = (CatalogModelXml) el;
+							break;
+						}
+					}
+				}
+				if (cmx.getID() != null && !alreadySaved.contains(cmx.getID())) {
+					alreadySaved.add(cmx.getID());
+		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
+		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 					PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -138,14 +149,14 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
 
-		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, rowMcID);
+		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getID());
 		    		pm.setFormula(pm.revertFormula());
 		    		pm.setParameter(paramXml);
 		    		pm.setIndependent(indepXml);
 		    		pm.setMLit(mLitXmlDoc);
 		    		pm.setEstLit(emLitXmlDoc);
 
-					String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_MLIT};
+					String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 					
 					checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
@@ -154,11 +165,21 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 				}
 			}
 			if (model2Conform) {
-	    		Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
-				if (rowMcID != null && !alreadySaved.contains(rowMcID)) {
-					alreadySaved.add(rowMcID);
-		    		String modelName = row.getString(Model2Schema.ATT_MODELNAME);
-		    		String formula = row.getString(Model2Schema.ATT_FORMULA);
+	    		//Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
+				CatalogModelXml cmx = null;
+				PmmXmlDoc catModel = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+				if (catModel != null) {
+					for (PmmXmlElementConvertable el : catModel.getElementSet()) {
+						if (el instanceof CatalogModelXml) {
+							cmx = (CatalogModelXml) el;
+							break;
+						}
+					}
+				}
+				if (cmx.getID() != null && !alreadySaved.contains(cmx.getID())) {
+					alreadySaved.add(cmx.getID());
+		    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
+		    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
@@ -168,14 +189,14 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
 						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, rowMcID);
+			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getID());
 			    		pm.setFormula(pm.revertFormula());
 			    		pm.setParameter(paramXml);
 			    		pm.setIndependent(indepXml);
 			    		pm.setMLit(mLitXmlDoc);
 			    		pm.setEstLit(emLitXmlDoc);
 			    		
-						String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_MLIT};
+						String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
 						checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
@@ -232,19 +253,29 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     		}
     	}
     	else { // Modellkatalog
-        	Integer key = row.getInt(attr);
-        	if (key != null) {
-	    		if (foreignDbIdsTable.containsKey(key)) {
-	    			if (before) pm.setModelId(foreignDbIdsTable.get(key));
-	    			else if (foreignDbIdsTable.get(key) != pm.getModelId()) {
-	    				System.err.println("checkIDs ... shouldn't happen");
-	    			}
-	    		}
-	    		else {
-	    			if (before) pm.setModelId(MathUtilities.getRandomNegativeInt());
-	    			else foreignDbIdsTable.put(key, pm.getModelId());
-	    		}
-        	}
+        	PmmXmlDoc modelCat = row.getPmmXml(attr);
+    		if (modelCat != null) {
+    			PmmXmlDoc fromToXmlDB = pm.getCatModel();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : modelCat.getElementSet()) {
+    				if (el instanceof CatalogModelXml) {
+    					CatalogModelXml cmx = (CatalogModelXml) el;
+    					CatalogModelXml cmxDB = ((CatalogModelXml) fromToXmlDB.get(i));
+    					Integer key = cmx.getID();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) cmxDB.setID(foreignDbIdsTable.get(key));
+		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) cmxDB.setID(MathUtilities.getRandomNegativeInt());
+		        			else foreignDbIdsTable.put(key, cmxDB.getID());
+		        		}
+    				}
+            		i++;
+    			}
+    		}
     	}
     }
 

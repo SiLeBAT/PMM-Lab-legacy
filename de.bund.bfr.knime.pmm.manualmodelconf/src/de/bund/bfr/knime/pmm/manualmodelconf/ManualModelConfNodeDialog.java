@@ -45,10 +45,12 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -174,7 +176,17 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 		    		Integer firstM1EstID = null;
 		    		while (reader.hasMoreElements()) {
 		    			KnimeTuple row = reader.nextElement();
-		    			Integer actualM1EstID = row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, 1));
+		    			Integer actualM1EstID = null;//row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, 1));
+		    			PmmXmlDoc x = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODEL, 1));
+		    			if (x != null) {
+		    				for (PmmXmlElementConvertable el : x.getElementSet()) {
+		    					if (el instanceof EstModelXml) {
+		    						EstModelXml emx = (EstModelXml) el;
+		    						actualM1EstID = emx.getID();
+		    						break;
+		    					}
+		    				}
+		    			}
 		    			if (hasTs) {
 		    				if (firstM1EstID == null || actualM1EstID.intValue() == firstM1EstID.intValue()) {
 				    			PmmTimeSeries ts = new PmmTimeSeries(row);

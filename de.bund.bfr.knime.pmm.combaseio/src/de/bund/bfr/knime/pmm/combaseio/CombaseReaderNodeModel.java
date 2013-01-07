@@ -149,7 +149,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			cmDoc.add(cmx);
     			modelTuple.setValue( Model1Schema.ATT_MODELCATALOG, cmDoc);
     			
-    			modelTuple.setValue( Model1Schema.ATT_FORMULA, TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME );
+    			//modelTuple.setValue( Model1Schema.ATT_FORMULA, TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME );
     			//modelTuple.setValue( Model1Schema.ATT_PARAMNAME, "LocC0,mumax" );
     			
     			if( Double.isNaN( candidate.getMaximumRate() )
@@ -174,13 +174,13 @@ public class CombaseReaderNodeModel extends NodeModel {
 				paramDoc.add(dx);
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
     			//modelTuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.LOGC);
-    			modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
+    			//modelTuple.setValue( Model1Schema.ATT_MODELID, MathUtilities.getRandomNegativeInt() );
     			int ri = MathUtilities.getRandomNegativeInt();
     			PmmXmlDoc emDoc = new PmmXmlDoc();
     			EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null, null);
     			emDoc.add(emx);
     			modelTuple.setValue( Model1Schema.ATT_ESTMODEL, emDoc);
-    			modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
+    			//modelTuple.setValue( Model1Schema.ATT_ESTMODELID, MathUtilities.getRandomNegativeInt() );
     			//modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
     			//modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
     			modelTuple.setValue( TimeSeriesSchema.ATT_COMMENT, COMMENT_CLAUSE );

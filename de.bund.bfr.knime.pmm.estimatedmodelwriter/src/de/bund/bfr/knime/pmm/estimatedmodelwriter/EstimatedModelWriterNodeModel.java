@@ -51,7 +51,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
@@ -164,12 +166,34 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			
 			if (newTsID != null) {
 				Integer newPrimEstID = null;
+				EstModelXml emx = null;
+				PmmXmlDoc estModel = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
+				if (estModel != null) {
+					for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+						if (el instanceof EstModelXml) {
+							emx = (EstModelXml) el;
+							break;
+						}
+					}
+				}
+				Integer rowEstM1ID = emx.getID();//row.getInt(Model1Schema.ATT_ESTMODELID);
 				Integer dw = row.getInt(Model1Schema.ATT_DATABASEWRITABLE);
 				M1Writable = (dw != null && dw == 1);
-				if (M1Writable) {					
-					Integer rowMcID = row.getInt(Model1Schema.ATT_MODELID);
-		    		String modelName = row.getString(Model1Schema.ATT_MODELNAME);
-		    		String formula = row.getString(Model1Schema.ATT_FORMULA);
+				if (M1Writable) {
+					CatalogModelXml cmx = null;
+					PmmXmlDoc catModel = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+					if (catModel != null) {
+						for (PmmXmlElementConvertable el : catModel.getElementSet()) {
+							if (el instanceof CatalogModelXml) {
+								cmx = (CatalogModelXml) el;
+								break;
+							}
+						}
+					}
+
+					Integer rowMcID = cmx.getID();//row.getInt(Model1Schema.ATT_MODELID);
+		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
+		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
 					DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
@@ -179,11 +203,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
 					
-					Integer rowEstM1ID = row.getInt(Model1Schema.ATT_ESTMODELID);
-		    		Double rms = row.getDouble(Model1Schema.ATT_RMS);
-		    		Double r2 = row.getDouble(Model1Schema.ATT_RSQUARED);
-		    		Double aic = row.getDouble(Model1Schema.ATT_AIC);
-		    		Double bic = row.getDouble(Model1Schema.ATT_BIC);
+		    		Double rms = emx.getRMS();//row.getDouble(Model1Schema.ATT_RMS);
+		    		Double r2 = emx.getR2();//row.getDouble(Model1Schema.ATT_RSQUARED);
+		    		Double aic = emx.getAIC();//row.getDouble(Model1Schema.ATT_AIC);
+		    		Double bic = emx.getBIC();//row.getDouble(Model1Schema.ATT_BIC);
 
 		    		// Modellkatalog primary
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
@@ -196,7 +219,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setIndependent(indepXml);
 			    		ppm.setMLit(mLitXmlDoc);
 			    		
-						String[] attrs = new String[] {Model1Schema.ATT_MODELID, Model1Schema.ATT_MLIT};
+						String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
@@ -221,7 +244,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			    		ppm.setDepXml(dx);
 			    		ppm.setEstLit(emLitXmlDoc);
 
-			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODELID, Model1Schema.ATT_EMLIT};
+			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODEL, Model1Schema.ATT_EMLIT};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
@@ -235,19 +258,40 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					}
 				}
 				else {
-					String text = "Estimated primary model (ID: " + row.getInt(Model1Schema.ATT_ESTMODELID) +
+					String text = "Estimated primary model (ID: " + rowEstM1ID + //row.getInt(Model1Schema.ATT_ESTMODELID) +
 						") is not storable due to joining with unassociated kinetic data\n";
 					if (warnings.indexOf(text) < 0)	warnings += text;
 				}
 				if (model2Conform && newPrimEstID != null) {
 					dw = row.getInt(Model2Schema.ATT_DATABASEWRITABLE);
 					M2Writable = (dw != null && dw == 1);
-					rowEstM2ID = row.getInt(Model2Schema.ATT_ESTMODELID);
+					//rowEstM2ID = row.getInt(Model2Schema.ATT_ESTMODELID);
+					emx = null;
+					estModel = row.getPmmXml(Model2Schema.ATT_ESTMODEL);
+					if (estModel != null) {
+						for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+							if (el instanceof EstModelXml) {
+								emx = (EstModelXml) el;
+								break;
+							}
+						}
+					}
+					rowEstM2ID = emx.getID();
 					//System.err.println(newPrimEstID + "\t" + rowEstM2ID);
 					if (M2Writable) {
-			    		Integer rowMcID = row.getInt(Model2Schema.ATT_MODELID);
-			    		String modelName = row.getString(Model2Schema.ATT_MODELNAME);
-			    		String formula = row.getString(Model2Schema.ATT_FORMULA);
+						CatalogModelXml cmx = null;
+						PmmXmlDoc catModel = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+						if (catModel != null) {
+							for (PmmXmlElementConvertable el : catModel.getElementSet()) {
+								if (el instanceof CatalogModelXml) {
+									cmx = (CatalogModelXml) el;
+									break;
+								}
+							}
+						}
+			    		Integer rowMcID = cmx.getID();//row.getInt(Model2Schema.ATT_MODELID);
+			    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
+			    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 						PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
 						DepXml dx = (DepXml) depXml.getElementSet().get(0);
 
@@ -257,10 +301,10 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 							PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
 							PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-				    		Double rms = row.getDouble(Model2Schema.ATT_RMS);
-				    		Double r2 = row.getDouble(Model2Schema.ATT_RSQUARED);
-				    		Double aic = row.getDouble(Model2Schema.ATT_AIC);
-				    		Double bic = row.getDouble(Model2Schema.ATT_BIC);
+				    		Double rms = emx.getRMS();//row.getDouble(Model2Schema.ATT_RMS);
+				    		Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
+				    		Double aic = emx.getAIC();//row.getDouble(Model2Schema.ATT_AIC);
+				    		Double bic = emx.getBIC();//row.getDouble(Model2Schema.ATT_BIC);
 				    						    		
 				    		// Modellkatalog secondary
 							if (alreadyInsertedModel.containsKey(rowMcID)) {
@@ -273,7 +317,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setIndependent(indepXml);
 					    		spm.setMLit(mLitXmlDoc);
 	
-								String[] attrs = new String[] {Model2Schema.ATT_MODELID, Model2Schema.ATT_MLIT};
+								String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
 								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
@@ -297,7 +341,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 					    		spm.setDepXml(dx);
 					    		spm.setEstLit(emLitXmlDoc);
 
-					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODELID, Model2Schema.ATT_EMLIT};
+					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
@@ -382,35 +426,55 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
     			}
     		}
     	}
-    	else if (attr.startsWith(Model1Schema.ATT_MODELID)) { // Modellkatalog
-        	Integer key = row.getInt(attr);
-        	if (key != null) {
-	    		if (foreignDbIdsTable.containsKey(key)) {
-	    			if (before) pm.setModelId(foreignDbIdsTable.get(key));
-	    			else if (foreignDbIdsTable.get(key) != pm.getModelId()) {
-	    				System.err.println("checkIDs ... shouldn't happen");
-	    			}
-	    		}
-	    		else {
-	    			if (before) pm.setModelId(MathUtilities.getRandomNegativeInt());
-	    			else foreignDbIdsTable.put(key, pm.getModelId());
-	    		}
-        	}
+    	else if (attr.startsWith(Model1Schema.ATT_MODELCATALOG)) { // Modellkatalog
+        	PmmXmlDoc modelCat = row.getPmmXml(attr);
+    		if (modelCat != null) {
+    			PmmXmlDoc fromToXmlDB = pm.getCatModel();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : modelCat.getElementSet()) {
+    				if (el instanceof CatalogModelXml) {
+    					CatalogModelXml cmx = (CatalogModelXml) el;
+    					CatalogModelXml cmxDB = ((CatalogModelXml) fromToXmlDB.get(i));
+    					Integer key = cmx.getID();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) cmxDB.setID(foreignDbIdsTable.get(key));
+		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) cmxDB.setID(MathUtilities.getRandomNegativeInt());
+		        			else foreignDbIdsTable.put(key, cmxDB.getID());
+		        		}
+    				}
+            		i++;
+    			}
+    		}
     	}
-    	else if (attr.startsWith(Model1Schema.ATT_ESTMODELID)) { // GeschaetzteModelle
-        	Integer key = row.getInt(attr);
-        	if (key != null) {
-	    		if (foreignDbIdsTable.containsKey(key)) {
-	    			if (before) pm.setEstModelId(foreignDbIdsTable.get(key));
-	    			else if (foreignDbIdsTable.get(key) != pm.getEstModelId()) {
-	    				System.err.println("checkIDs ... shouldn't happen");
-	    			}
-	    		}
-	    		else {
-	    			if (before) pm.setEstModelId(MathUtilities.getRandomNegativeInt());
-	    			else foreignDbIdsTable.put(key, pm.getEstModelId());
-	    		}
-        	}
+    	else if (attr.startsWith(Model1Schema.ATT_ESTMODEL)) { // GeschaetzteModelle
+        	PmmXmlDoc estModel = row.getPmmXml(attr);
+    		if (estModel != null) {
+    			PmmXmlDoc fromToXmlDB = pm.getEstModel();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+    				if (el instanceof EstModelXml) {
+    					EstModelXml emx = (EstModelXml) el;
+    					EstModelXml emxDB = ((EstModelXml) fromToXmlDB.get(i));
+    					Integer key = emx.getID();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) emxDB.setID(foreignDbIdsTable.get(key));
+		        			else if (foreignDbIdsTable.get(key) != emxDB.getID()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) emxDB.setID(MathUtilities.getRandomNegativeInt());
+		        			else foreignDbIdsTable.put(key, emxDB.getID());
+		        		}
+    				}
+            		i++;
+    			}
+    		}
     	}
     }
     

@@ -49,10 +49,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class ModelReaderUi extends JPanel implements ActionListener {
 	
@@ -240,10 +242,22 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public boolean complies(KnimeTuple tuple) throws PmmException {
 
-		if (isModelFilterEnabled())
+		if (isModelFilterEnabled()) {
+			PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, tuple.getSchema().conforms(new Model1Schema()) ? 1 : 2));
+			if (x != null) {
+				for (PmmXmlElementConvertable el : x.getElementSet()) {
+					if (el instanceof CatalogModelXml) {
+						CatalogModelXml cmx = (CatalogModelXml) el;
+						if (modelNameEnabled(cmx.getName())) return true;
+						break;
+					}
+				}
+			}
+		}
+		/*
 			if (modelNameEnabled(tuple.getString(Model1Schema.ATT_MODELNAME)))
 				return true;
-
+*/
 		return false;
 	}
 
@@ -316,21 +330,31 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public static boolean passesFilter(final boolean modelFilterEnabled,
 			final String modelList, final KnimeTuple tuple) throws PmmException {
 
-		int id;
-		String[] token;
-
 		if (!modelFilterEnabled)
 			return true;
 
 		if (modelList.isEmpty())
 			return false;
 
+		Integer id = null;
+		PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, tuple.getSchema().conforms(new Model1Schema()) ? 1 : 2));
+		if (x != null) {
+			for (PmmXmlElementConvertable el : x.getElementSet()) {
+				if (el instanceof CatalogModelXml) {
+					CatalogModelXml cmx = (CatalogModelXml) el;
+					id = cmx.getID();
+					break;
+				}
+			}
+		}
+		/*
 		if (tuple.getSchema().conforms(new Model1Schema()))
 			id = tuple.getInt(Model1Schema.ATT_MODELID);
 		else
 			id = tuple.getInt(Model2Schema.ATT_MODELID);
-
-		token = modelList.split(",");
+		 */
+		
+		String[] token = modelList.split(",");
 		for (String candidate : token)
 			if (Integer.valueOf(candidate) == id)
 				return true;

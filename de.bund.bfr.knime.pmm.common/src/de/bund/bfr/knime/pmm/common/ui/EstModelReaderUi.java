@@ -49,10 +49,12 @@ import javax.swing.JRadioButton;
 
 import org.knime.core.node.InvalidSettingsException;
 
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class EstModelReaderUi extends JPanel implements ActionListener {
 	
@@ -240,9 +242,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final String modelList,
     		final KnimeTuple tuple )
     throws PmmException {
-    	
-    	Double thresh;
-    	
+
     	if( level == 1 )
     		if( !MdReaderUi.passesFilter( matrixString,
 				agentString, literatureString, parameter, tuple ) )
@@ -254,40 +254,29 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		
     		
         	
-    	switch( qualityMode ) {
+		PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODEL, level));
+		EstModelXml emx = null;
+		if (x != null) {
+			for (PmmXmlElementConvertable el : x.getElementSet()) {
+				if (el instanceof EstModelXml) {
+					emx = (EstModelXml) el;
+					break;
+				}
+			}
+		}
+
+		switch( qualityMode ) {
     	
     		case MODE_OFF :
     			return true;
     			
-    		case MODE_RMS :
+    		case MODE_RMS :    			
+    			if (emx != null && emx.getRMS() <= qualityThresh) return true;    			
+    			else return false;
     			
-    			if( level == 1 )
-    				thresh = tuple.getDouble( Model1Schema.ATT_RMS );
-				else
-					thresh = tuple.getDouble( Model2Schema.ATT_RMS );
-    			
-    			if( thresh == null )
-    				return false;
-    			
-    			if( thresh <= qualityThresh )
-    				return true;
-    			
-    			return false;
-    			
-    		case MODE_R2 :
-    			
-    			if( level == 1 )
-    				thresh = tuple.getDouble( Model1Schema.ATT_RSQUARED );
-				else
-					thresh = tuple.getDouble( Model2Schema.ATT_RSQUARED );
-    			
-    			if( thresh == null )
-    				return false;
-    			
-    			if( thresh >= qualityThresh )
-    				return true;
-    			
-    			return false;
+    		case MODE_R2 :    			
+    			if (emx != null && emx.getR2() != null && emx.getR2() >= qualityThresh) return true;    			
+    			else return false;
     			
     		default :
     			throw new PmmException( "Unrecognized Quality Filter mode." );

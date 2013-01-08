@@ -36,6 +36,8 @@ package de.bund.bfr.knime.gis.regionvisualizer;
 import java.awt.BorderLayout;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +50,10 @@ import org.eclipse.stem.gis.shp.ShpPolygon;
 import org.eclipse.stem.gis.shp.ShpRecord;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
+import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowIterator;
+import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.gis.GISCanvas;
@@ -92,20 +97,14 @@ public class RegionVisualizerNodeView extends
 	@Override
 	protected void onOpen() {
 		try {
-			GISCanvas canvas = createGISCanvas(getNodeModel().getFileName(),
-					getNodeModel().getFileIdColumn());
-			Map<String, Double> dataMap = createDataMap(getNodeModel()
-					.getTable(), getNodeModel().getTableIdColumn(),
-					getNodeModel().getTableValueColumn());
-			Map<String, Map<String, Double>> map = new LinkedHashMap<>();
+			GISCanvas gisCanvas = createGISCanvas();
 
-			map.put("test", dataMap);
-			canvas.setRegionData(map);
+			gisCanvas.setRegionData(createRegionDataMap());
 
 			JPanel panel = new JPanel();
 
 			panel.setLayout(new BorderLayout());
-			panel.add(canvas, BorderLayout.CENTER);
+			panel.add(gisCanvas, BorderLayout.CENTER);
 
 			setComponent(panel);
 		} catch (IOException e) {
@@ -113,16 +112,25 @@ public class RegionVisualizerNodeView extends
 		}
 	}
 
-	private GISCanvas createGISCanvas(String fileName, String fileIdColumn)
-			throws IOException {
-		ShapefileReader reader = new ShapefileReader(new File(fileName));
+	private GISCanvas createGISCanvas() throws IOException {
+		File file = new File(getNodeModel().getFileName());
+
+		if (!file.exists()) {
+			try {
+				file = new File(new URI(getNodeModel().getFileName()).getPath());
+			} catch (URISyntaxException e1) {
+			}
+		}
+
+		ShapefileReader reader = new ShapefileReader(file);
 		List<DbfFieldDef> fields = reader.getTableHeader()
 				.getFieldDefinitions();
 		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();
 		int idColumnIndex = -1;
 
 		for (int i = 0; i < fields.size(); i++) {
-			if (fields.get(i).getFieldName().trim().equals(fileIdColumn)) {
+			if (fields.get(i).getFieldName().trim()
+					.equals(getNodeModel().getFileIdColumn())) {
 				idColumnIndex = i;
 			}
 		}
@@ -141,24 +149,44 @@ public class RegionVisualizerNodeView extends
 		return new GISCanvas(shapes);
 	}
 
-	private Map<String, Double> createDataMap(DataTable table, String idColumn,
-			String valueColumn) {
-		Map<String, Double> dataMap = new LinkedHashMap<String, Double>();
-		int idIndex = table.getDataTableSpec().findColumnIndex(idColumn);
-		int valueIndex = table.getDataTableSpec().findColumnIndex(valueColumn);
-		RowIterator it = table.iterator();
+	private Map<String, Map<String, Double>> createRegionDataMap() {
+		Map<String, Map<String, Double>> dataMap = new LinkedHashMap<>();
+		DataTable nodeTable = getNodeModel().getTable();
+		DataTableSpec nodeTableSpec = nodeTable.getDataTableSpec();
+		int idIndex = nodeTable.getDataTableSpec().findColumnIndex(
+				getNodeModel().getTableIdColumn());
+
+		for (int i = 0; i < nodeTableSpec.getNumColumns(); i++) {
+			if (nodeTableSpec.getColumnSpec(i).getType() == DoubleCell.TYPE
+					|| nodeTableSpec.getColumnSpec(i).getType() == IntCell.TYPE) {
+				dataMap.put(nodeTableSpec.getColumnSpec(i).getName(),
+						new LinkedHashMap<String, Double>());
+			}
+		}
+
+		RowIterator it = nodeTable.iterator();
 
 		while (it.hasNext()) {
 			DataRow row = it.next();
 
-			try {
+			if (!row.getCell(idIndex).isMissing()) {
 				String id = row.getCell(idIndex).toString().trim();
-				double value = Double.parseDouble(row.getCell(valueIndex)
-						.toString().trim());
 
-				dataMap.put(id, value);
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
+				for (String property : dataMap.keySet()) {
+					try {
+						int column = nodeTableSpec.findColumnIndex(property);
+						double value = Double.parseDouble(row.getCell(column)
+								.toString().trim());
+
+						if (dataMap.get(property).containsKey(id)) {
+							dataMap.get(property).put(id,
+									dataMap.get(property).get(id) + value);
+						} else {
+							dataMap.get(property).put(id, value);
+						}
+					} catch (Exception e) {
+					}
+				}
 			}
 		}
 

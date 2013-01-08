@@ -81,9 +81,7 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 	private JTextField fileField;
 	private JButton fileButton;
 	private JComboBox<String> fileIdBox;
-
 	private JComboBox<String> tableIdBox;
-	private JComboBox<String> tableValueBox;
 
 	/**
 	 * New pane for configuring the RegionVisualizer node.
@@ -95,7 +93,6 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 		fileButton.addActionListener(this);
 		fileIdBox = new JComboBox<String>();
 		tableIdBox = new JComboBox<String>();
-		tableValueBox = new JComboBox<String>();
 
 		JPanel fileOpenPanel = new JPanel();
 
@@ -124,15 +121,13 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 
 		JPanel leftTablePanel = new JPanel();
 
-		leftTablePanel.setLayout(new GridLayout(2, 1, 5, 5));
+		leftTablePanel.setLayout(new GridLayout(1, 1, 5, 5));
 		leftTablePanel.add(new JLabel("Column with IDs:"));
-		leftTablePanel.add(new JLabel("Column with Values:"));
 
 		JPanel rightTablePanel = new JPanel();
 
-		rightTablePanel.setLayout(new GridLayout(2, 1, 5, 5));
+		rightTablePanel.setLayout(new GridLayout(1, 1, 5, 5));
 		rightTablePanel.add(tableIdBox);
-		rightTablePanel.add(tableValueBox);
 
 		JPanel innerTablePanel = new JPanel();
 
@@ -167,7 +162,6 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 		String fileName;
 		String fileIdColumn;
 		String tableIdColumn;
-		String tableValueColumn;
 
 		try {
 			fileName = settings
@@ -190,28 +184,18 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 			tableIdColumn = "";
 		}
 
-		try {
-			tableValueColumn = settings
-					.getString(RegionVisualizerNodeModel.CFG_TABLEVALUECOLUMN);
-		} catch (InvalidSettingsException e) {
-			tableValueColumn = "";
-		}
-
 		fileField.setText(fileName);
 		fileIdBox.setSelectedItem(fileIdColumn);
 
 		List<String> tableColumns = Arrays.asList(specs[0].getColumnNames());
 
 		tableIdBox.removeAllItems();
-		tableValueBox.removeAllItems();
 
 		for (String column : tableColumns) {
 			tableIdBox.addItem(column);
-			tableValueBox.addItem(column);
 		}
 
 		tableIdBox.setSelectedItem(tableIdColumn);
-		tableValueBox.setSelectedItem(tableValueColumn);
 	}
 
 	@Override
@@ -230,8 +214,6 @@ public class RegionVisualizerNodeDialog extends NodeDialogPane implements
 				(String) fileIdBox.getSelectedItem());
 		settings.addString(RegionVisualizerNodeModel.CFG_TABLEIDCOLUMN,
 				(String) tableIdBox.getSelectedItem());
-		settings.addString(RegionVisualizerNodeModel.CFG_TABLEVALUECOLUMN,
-				(String) tableValueBox.getSelectedItem());
 	}
 
 	@Override

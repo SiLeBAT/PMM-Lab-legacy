@@ -59,7 +59,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	protected static final String CFG_FILENAME = "FileName";
 	protected static final String CFG_FILEIDCOLUMN = "FileIDColumn";
 	protected static final String CFG_TABLEIDCOLUMN = "TableIDColumn";
-	protected static final String CFG_TABLEVALUECOLUMN = "TableValueColumn";
 
 	private static final String INTERNAL_FILENAME = "RegionVisualizer.zip";
 
@@ -67,7 +66,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 	private String fileName;
 	private String fileIdColumn;
 	private String tableIdColumn;
-	private String tableValueColumn;
 
 	/**
 	 * Constructor for the node model.
@@ -111,7 +109,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 		settings.addString(CFG_FILENAME, fileName);
 		settings.addString(CFG_FILEIDCOLUMN, fileIdColumn);
 		settings.addString(CFG_TABLEIDCOLUMN, tableIdColumn);
-		settings.addString(CFG_TABLEVALUECOLUMN, tableValueColumn);
 	}
 
 	/**
@@ -136,12 +133,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 			tableIdColumn = settings.getString(CFG_TABLEIDCOLUMN);
 		} catch (InvalidSettingsException e) {
 			tableIdColumn = "";
-		}
-
-		try {
-			tableValueColumn = settings.getString(CFG_TABLEVALUECOLUMN);
-		} catch (InvalidSettingsException e) {
-			tableValueColumn = "";
 		}
 	}
 
@@ -189,10 +180,6 @@ public class RegionVisualizerNodeModel extends NodeModel {
 
 	protected String getTableIdColumn() {
 		return tableIdColumn;
-	}
-
-	protected String getTableValueColumn() {
-		return tableValueColumn;
 	}
 
 }

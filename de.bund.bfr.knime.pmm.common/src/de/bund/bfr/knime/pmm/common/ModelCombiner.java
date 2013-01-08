@@ -216,6 +216,20 @@ public class ModelCombiner {
 			Integer newEstID = ((EstModelXml) newTuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
+			if (!usedTuples.isEmpty()) {
+				boolean allParamsReplaced = usedTuples.get(0)
+						.getPmmXml(Model1Schema.ATT_PARAMETER).size() == usedTuples
+						.size();
+
+				// if all primary parameters were replaced by secondary models,
+				// the estID of the primary is not used for the new tertiary
+				// estID (catalog id is used instead)
+				if (allParamsReplaced) {
+					newEstID = ((CatalogModelXml) newTuple.getPmmXml(
+							Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+				}
+			}
+
 			if (newEstID != null) {
 				newEstID /= modelCount;
 

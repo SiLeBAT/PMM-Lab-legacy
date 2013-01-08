@@ -50,12 +50,15 @@ import org.eclipse.stem.gis.ShapefileReader;
 import org.eclipse.stem.gis.dbf.DbfFieldDef;
 import org.eclipse.stem.gis.shp.ShpPolygon;
 import org.eclipse.stem.gis.shp.ShpRecord;
+import org.knime.core.data.DataCell;
+import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.gis.GISCanvas;
@@ -192,7 +195,39 @@ public class RegionToRegionVisualizerNodeView extends
 				.findColumnIndex(getNodeModel().getEdgeFromColumn());
 		int edgeToIndex = getNodeModel().getEdgeTable().getDataTableSpec()
 				.findColumnIndex(getNodeModel().getEdgeToColumn());
-		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<String, GraphCanvas.Node>();
+		Map<String, Class<?>> nodeProperties = new LinkedHashMap<>();
+
+		for (int i = 0; i < getNodeModel().getNodeTable().getDataTableSpec()
+				.getNumColumns(); i++) {
+			DataColumnSpec columnSpec = getNodeModel().getNodeTable()
+					.getDataTableSpec().getColumnSpec(i);
+
+			if (columnSpec.getType() == StringCell.TYPE) {
+				nodeProperties.put(columnSpec.getName(), String.class);
+			} else if (columnSpec.getType() == IntCell.TYPE) {
+				nodeProperties.put(columnSpec.getName(), Integer.class);
+			} else if (columnSpec.getType() == DoubleCell.TYPE) {
+				nodeProperties.put(columnSpec.getName(), Double.class);
+			}
+		}
+
+		Map<String, Class<?>> edgeProperties = new LinkedHashMap<>();
+
+		for (int i = 0; i < getNodeModel().getEdgeTable().getDataTableSpec()
+				.getNumColumns(); i++) {
+			DataColumnSpec columnSpec = getNodeModel().getEdgeTable()
+					.getDataTableSpec().getColumnSpec(i);
+
+			if (columnSpec.getType() == StringCell.TYPE) {
+				edgeProperties.put(columnSpec.getName(), String.class);
+			} else if (columnSpec.getType() == IntCell.TYPE) {
+				edgeProperties.put(columnSpec.getName(), Integer.class);
+			} else if (columnSpec.getType() == DoubleCell.TYPE) {
+				edgeProperties.put(columnSpec.getName(), Double.class);
+			}
+		}
+
+		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<>();
 		RowIterator nodeIt = getNodeModel().getNodeTable().iterator();
 
 		while (nodeIt.hasNext()) {
@@ -206,13 +241,26 @@ public class RegionToRegionVisualizerNodeView extends
 				}
 
 				String region = row.getCell(nodeRegionIndex).toString().trim();
-				Map<String, String> properties = new LinkedHashMap<String, String>();
+				Map<String, Object> properties = new LinkedHashMap<>();
 
 				for (int i = 0; i < getNodeModel().getNodeTable()
 						.getDataTableSpec().getNumColumns(); i++) {
-					properties.put(getNodeModel().getNodeTable()
-							.getDataTableSpec().getColumnSpec(i).getName()
-							.trim(), row.getCell(i).toString().trim());
+					DataColumnSpec columnSpec = getNodeModel().getNodeTable()
+							.getDataTableSpec().getColumnSpec(i);
+					DataCell cell = row.getCell(i);
+
+					if (cell.isMissing()) {
+						properties.put(columnSpec.getName(), null);
+					} else if (columnSpec.getType() == StringCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((StringCell) cell).getStringValue());
+					} else if (columnSpec.getType() == IntCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((IntCell) cell).getIntValue());
+					} else if (columnSpec.getType() == DoubleCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((DoubleCell) cell).getDoubleValue());
+					}
 				}
 
 				nodes.put(id, new GraphCanvas.Node(region, properties));
@@ -230,13 +278,26 @@ public class RegionToRegionVisualizerNodeView extends
 				String to = row.getCell(edgeToIndex).toString().trim();
 				GraphCanvas.Node node1 = nodes.get(from);
 				GraphCanvas.Node node2 = nodes.get(to);
-				Map<String, String> properties = new LinkedHashMap<String, String>();
+				Map<String, Object> properties = new LinkedHashMap<>();
 
 				for (int i = 0; i < getNodeModel().getEdgeTable()
 						.getDataTableSpec().getNumColumns(); i++) {
-					properties.put(getNodeModel().getEdgeTable()
-							.getDataTableSpec().getColumnSpec(i).getName()
-							.trim(), row.getCell(i).toString().trim());
+					DataColumnSpec columnSpec = getNodeModel().getEdgeTable()
+							.getDataTableSpec().getColumnSpec(i);
+					DataCell cell = row.getCell(i);
+
+					if (cell.isMissing()) {
+						properties.put(columnSpec.getName(), null);
+					} else if (columnSpec.getType() == StringCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((StringCell) cell).getStringValue());
+					} else if (columnSpec.getType() == IntCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((IntCell) cell).getIntValue());
+					} else if (columnSpec.getType() == DoubleCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((DoubleCell) cell).getDoubleValue());
+					}
 				}
 
 				if (node1 != null && node2 != null) {
@@ -247,7 +308,7 @@ public class RegionToRegionVisualizerNodeView extends
 		}
 
 		return new GraphCanvas(new ArrayList<GraphCanvas.Node>(nodes.values()),
-				edges);
+				edges, nodeProperties, edgeProperties);
 	}
 
 	private GISCanvas createGISCanvas() throws IOException {

@@ -2,7 +2,6 @@ package de.bund.bfr.knime.gis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Paint;
@@ -16,7 +15,6 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +23,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -82,8 +80,9 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 	private List<Node> nodes;
 	private List<Edge> edges;
+	private Map<String, Class<?>> nodeProperties;
+	private Map<String, Class<?>> edgeProperties;
 	private Map<Node, List<Edge>> connectingEdges;
-	private Set<String> allNodeProperties;
 	private VisualizationViewer<Node, Edge> viewer;
 
 	private List<NodeSelectionListener> nodeSelectionListeners;
@@ -100,15 +99,17 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private JTextField conditionField;
 	private JButton conditionButton;
 
-	public GraphCanvas(List<Node> nodes, List<Edge> edges) {
+	public GraphCanvas(List<Node> nodes, List<Edge> edges,
+			Map<String, Class<?>> nodeProperties,
+			Map<String, Class<?>> edgeProperties) {
 		this.nodes = nodes;
 		this.edges = edges;
+		this.nodeProperties = nodeProperties;
+		this.edgeProperties = edgeProperties;
 		connectingEdges = new LinkedHashMap<>();
-		allNodeProperties = new LinkedHashSet<>();
 
 		for (Node node : nodes) {
 			connectingEdges.put(node, new ArrayList<Edge>());
-			allNodeProperties.addAll(node.getProperties().keySet());
 		}
 
 		for (Edge edge : edges) {
@@ -159,24 +160,26 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 			viewer.setGraphMouse(mouseModel);
 		} else if (e.getSource() == nodePropertiesButton) {
-			List<Map<String, String>> propertyValues = new ArrayList<Map<String, String>>();
+			List<Map<String, Object>> propertyValues = new ArrayList<>();
 
 			for (Node node : viewer.getPickedVertexState().getPicked()) {
 				propertyValues.add(node.getProperties());
 			}
 
-			PropertiesDialog dialog = new PropertiesDialog(this, propertyValues);
+			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
+					nodeProperties);
 
 			dialog.setLocationRelativeTo(this);
 			dialog.setVisible(true);
 		} else if (e.getSource() == edgePropertiesButton) {
-			List<Map<String, String>> propertyValues = new ArrayList<Map<String, String>>();
+			List<Map<String, Object>> propertyValues = new ArrayList<>();
 
 			for (Edge edge : viewer.getPickedEdgeState().getPicked()) {
 				propertyValues.add(edge.getProperties());
 			}
 
-			PropertiesDialog dialog = new PropertiesDialog(this, propertyValues);
+			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
+					edgeProperties);
 
 			dialog.setLocationRelativeTo(this);
 			dialog.setVisible(true);
@@ -188,37 +191,32 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 			for (Node node : nodes) {
 				if (node.getProperties().containsKey(property)) {
-					String nodeValue = node.getProperties().get(property);
+					Object nodeValue = node.getProperties().get(property);
 
 					if (type.equals(EQUAL)) {
-						if (nodeValue.equals(value)) {
+						if (value.toString().equals(nodeValue)) {
 							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(NOT_EQUAL)) {
-						if (!nodeValue.equals(value)) {
+						if (!value.toString().equals(nodeValue)) {
 							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(GREATER)) {
-						try {
-							if (Double.parseDouble(nodeValue) > Double
-									.parseDouble(value)) {
-								highlightedNodes.put(node, 1.0);
-							}
-						} catch (NumberFormatException ex) {
+						if (nodeValue instanceof Number
+								&& ((Number) nodeValue).doubleValue() > Double
+										.parseDouble(value)) {
+							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(LESS)) {
-						try {
-							if (Double.parseDouble(nodeValue) < Double
-									.parseDouble(value)) {
-								highlightedNodes.put(node, 1.0);
-							}
-						} catch (NumberFormatException ex) {
+						if (nodeValue instanceof Number
+								&& ((Number) nodeValue).doubleValue() < Double
+										.parseDouble(value)) {
+							highlightedNodes.put(node, 1.0);
 						}
 					} else if (type.equals(VALUE)) {
-						try {
+						if (nodeValue instanceof Number) {
 							highlightedNodes.put(node,
-									Double.parseDouble(nodeValue));
-						} catch (NumberFormatException ex) {
+									((Number) nodeValue).doubleValue());
 						}
 					}
 				}
@@ -344,8 +342,8 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		nodePropertiesButton.addActionListener(this);
 		edgePropertiesButton = new JButton("Edge Properties");
 		edgePropertiesButton.addActionListener(this);
-		conditionPropertyBox = new JComboBox<String>(
-				allNodeProperties.toArray(new String[0]));
+		conditionPropertyBox = new JComboBox<String>(nodeProperties.keySet()
+				.toArray(new String[0]));
 		conditionPropertyBox.setSelectedItem(null);
 		conditionTypeBox = new JComboBox<String>(CONDITIONS);
 		conditionTypeBox.setSelectedItem(EQUAL);
@@ -428,9 +426,9 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	public static class Node {
 
 		private String region;
-		private Map<String, String> properties;
+		private Map<String, Object> properties;
 
-		public Node(String region, Map<String, String> properties) {
+		public Node(String region, Map<String, Object> properties) {
 			this.region = region;
 			this.properties = properties;
 		}
@@ -439,7 +437,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			return region;
 		}
 
-		public Map<String, String> getProperties() {
+		public Map<String, Object> getProperties() {
 			return properties;
 		}
 	}
@@ -448,9 +446,9 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 		private Node n1;
 		private Node n2;
-		private Map<String, String> properties;
+		private Map<String, Object> properties;
 
-		public Edge(Node n1, Node n2, Map<String, String> properties) {
+		public Edge(Node n1, Node n2, Map<String, Object> properties) {
 			this.n1 = n1;
 			this.n2 = n2;
 			this.properties = properties;
@@ -464,7 +462,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			return n2;
 		}
 
-		public Map<String, String> getProperties() {
+		public Map<String, Object> getProperties() {
 			return properties;
 		}
 	}
@@ -524,36 +522,37 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		public void selectionChanged(Set<Node> selectedNodes);
 	}
 
-	private static class PropertiesDialog extends JDialog implements
+	private static class PropertiesDialog extends JFrame implements
 			ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
-		public PropertiesDialog(Component parent,
-				List<Map<String, String>> propertyValues) {
-			super(JOptionPane.getFrameForComponent(parent), "Properties", true);
+		public PropertiesDialog(List<Map<String, Object>> propertyValues,
+				Map<String, Class<?>> properties) {
+			super("Properties");
+			List<String> columnNames = new ArrayList<>();
+			List<Class<?>> columnTypes = new ArrayList<>();
+			List<List<Object>> columnValueTuples = new ArrayList<>();
 
-			Set<String> propertySet = new LinkedHashSet<String>();
-
-			for (Map<String, String> propertyMap : propertyValues) {
-				propertySet.addAll(propertyMap.keySet());
+			for (Map.Entry<String, Class<?>> entry : properties.entrySet()) {
+				columnNames.add(entry.getKey());
+				columnTypes.add(entry.getValue());
 			}
 
-			List<String> properties = new ArrayList<String>(propertySet);
-			List<List<String>> propertyValueTuples = new ArrayList<List<String>>();
+			for (Map<String, Object> propertyMap : propertyValues) {
+				List<Object> tuple = new ArrayList<>();
 
-			for (Map<String, String> propertyMap : propertyValues) {
-				List<String> tuple = new ArrayList<String>();
-
-				for (String property : properties) {
+				for (String property : columnNames) {
 					tuple.add(propertyMap.get(property));
 				}
 
-				propertyValueTuples.add(tuple);
+				columnValueTuples.add(tuple);
 			}
 
-			JTable table = new JTable(new PropertiesTableModel(properties,
-					propertyValueTuples));
+			JTable table = new JTable(new PropertiesTableModel(columnNames,
+					columnTypes, columnValueTuples));
+
+			table.setAutoCreateRowSorter(true);
 
 			JButton okButton = new JButton("OK");
 			JPanel bottomPanel = new JPanel();
@@ -578,11 +577,14 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			private static final long serialVersionUID = 1L;
 
 			private List<String> columnNames;
-			private List<List<String>> columnValueTuples;
+			private List<Class<?>> columnTypes;
+			private List<List<Object>> columnValueTuples;
 
 			public PropertiesTableModel(List<String> columnNames,
-					List<List<String>> columnValueTuples) {
+					List<Class<?>> columnTypes,
+					List<List<Object>> columnValueTuples) {
 				this.columnNames = columnNames;
+				this.columnTypes = columnTypes;
 				this.columnValueTuples = columnValueTuples;
 			}
 
@@ -604,6 +606,11 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			@Override
 			public String getColumnName(int column) {
 				return columnNames.get(column);
+			}
+
+			@Override
+			public Class<?> getColumnClass(int columnIndex) {
+				return columnTypes.get(columnIndex);
 			}
 
 		}

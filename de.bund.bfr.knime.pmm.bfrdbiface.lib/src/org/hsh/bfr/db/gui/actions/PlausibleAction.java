@@ -193,17 +193,22 @@ public class PlausibleAction extends AbstractAction {
 	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
 	    		, false);
 */
-		LinkedHashMap<String[], LinkedHashSet<String[]>> vals = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
+		LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
 				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
-		if (showAndFilterVals("Station", vals, 6)) {
-			vals = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
+
+		LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
 					"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
-			if (showAndFilterVals("Produktkatalog", vals, 0)) {
-				vals = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+
+		LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
 						null, null, null);		
-				showAndFilterVals("Lieferungen", vals, 0);
+
+		int total = vals1.size() + vals2.size() + vals3.size();
+		if (showAndFilterVals("Station", vals1, 6, 0, total)) {
+			if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
+				showAndFilterVals("Lieferungen", vals3, 0, vals1.size() + vals2.size(), total);
 			}
 		}
+		
 		/*
 		MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
 		TreePath[] tps = mtt.getCheckedPaths();
@@ -235,8 +240,11 @@ public class PlausibleAction extends AbstractAction {
 		*/
 		DBKernel.sendRequest("DROP FUNCTION LD", false);
 	}
-	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn) {
+	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn,
+			int lfd, int total) {
+		int i=0;
 		for (String[] p : vals.keySet()) {
+			i++;
 			try {
 				LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
 				Integer pID = Integer.parseInt(p[idColumn]);
@@ -251,7 +259,7 @@ public class PlausibleAction extends AbstractAction {
 				Object val = DBKernel.myList.openNewWindow(
 						theTable,
 						null,
-						(Object) tablename,
+						(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),
 						null,
 						1,
 						1,

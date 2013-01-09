@@ -76,7 +76,7 @@ public class PredictorViewNodeFactory extends
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**

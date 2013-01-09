@@ -35,6 +35,10 @@ package de.bund.bfr.knime.pmm.predictorview;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
@@ -48,6 +52,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -61,18 +66,23 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
  */
 public class PredictorViewNodeModel extends NodeModel {
 
-	static final String CFG_FILENAME = "PredictorView.zip";
+	protected static final String CFGKEY_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
+
+	private static final String CFG_FILENAME = "PredictorView.zip";
 
 	private DataTable table;
 	private KnimeSchema schema;
 	private KnimeSchema model1Schema;
 	private KnimeSchema model12Schema;
 
+	private List<String> concentrationParameters;
+
 	/**
 	 * Constructor for the node model.
 	 */
 	protected PredictorViewNodeModel() {
 		super(1, 0);
+		concentrationParameters = new ArrayList<String>();
 
 		try {
 			model1Schema = new Model1Schema();
@@ -116,6 +126,10 @@ public class PredictorViewNodeModel extends NodeModel {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 
+			if (concentrationParameters.isEmpty()) {
+				throw new InvalidSettingsException("Node has to be configured");
+			}
+
 			return new DataTableSpec[] {};
 		} catch (PmmException e) {
 			e.printStackTrace();
@@ -128,6 +142,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
+				ListUtilities.getStringFromList(concentrationParameters));
 	}
 
 	/**
@@ -136,6 +152,13 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
+		try {
+			concentrationParameters = ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
+		} catch (InvalidSettingsException e) {
+			concentrationParameters = new ArrayList<String>();
+		}
 	}
 
 	/**
@@ -188,12 +211,51 @@ public class PredictorViewNodeModel extends NodeModel {
 		return schema;
 	}
 
+	protected Map<String, String> getConcentrationParameters() {
+		return toParameterMap(concentrationParameters);
+	}
+
 	protected boolean isModel1Schema() {
 		return schema == model1Schema;
 	}
 
 	protected boolean isModel12Schema() {
 		return schema == model12Schema;
+	}
+
+	protected static Map<String, String> toParameterMap(List<String> parameters) {
+		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
+
+		for (String p : parameters) {
+			String[] toks = p.split(":");
+			String modelID = toks[0];
+			String param = toks[1];
+
+			if (param.equals("?")) {
+				param = null;
+			}
+
+			parameterMap.put(modelID, param);
+		}
+
+		return parameterMap;
+	}
+
+	protected static List<String> toParameterList(
+			Map<String, String> parameterMap) {
+		List<String> parameters = new ArrayList<String>();
+
+		for (String modelID : parameterMap.keySet()) {
+			String param = parameterMap.get(modelID);
+
+			if (param == null) {
+				param = "?";
+			}
+
+			parameters.add(modelID + ":" + param);
+		}
+
+		return parameters;
 	}
 
 }

@@ -39,6 +39,7 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -203,7 +204,14 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 				Double min = plotable.getMinArguments().get(var);
 				Double max = plotable.getMaxArguments().get(var);
 
-				if (min != null) {
+				if (plotable.getValueList(var) != null) {
+					Set<Double> valuesSet = new LinkedHashSet<Double>(
+							plotable.getValueList(var));
+					List<Double> valuesList = new ArrayList<Double>(valuesSet);
+
+					Collections.sort(valuesList);
+					variables.put(var, valuesList);
+				} else if (min != null) {
 					variables.put(var,
 							new ArrayList<Double>(Arrays.asList(min)));
 				} else if (max != null) {
@@ -265,11 +273,33 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			tuples.add(reader.nextElement());
 		}
 
-		if (getNodeModel().isModel12Schema()) {
-			Set<KnimeTuple> combinedTuples = ModelCombiner.combine(tuples,
-					getNodeModel().getSchema(), false, null).keySet();
+		Map<String, String> initParams = getNodeModel()
+				.getConcentrationParameters();
 
-			tuples = new ArrayList<KnimeTuple>(combinedTuples);
+		if (getNodeModel().isModel12Schema()) {
+			Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
+					.combine(tuples, getNodeModel().getSchema(), false,
+							initParams);
+
+			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
+
+			for (KnimeTuple tuple : tuples) {
+				List<KnimeTuple> usedTuples = combinedTuples.get(tuple);
+
+				if (!usedTuples.isEmpty()) {
+					String oldID = ((CatalogModelXml) usedTuples.get(0)
+							.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
+							.getID() + "";
+					String newID = ((CatalogModelXml) tuple.getPmmXml(
+							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+							+ "";
+
+					if (initParams.containsKey(oldID)) {
+						initParams.put(newID, initParams.get(oldID));
+						initParams.remove(oldID);
+					}
+				}
+			}
 		}
 
 		ids = new ArrayList<String>();
@@ -305,6 +335,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			ids.add(id);
 
 			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
@@ -322,6 +353,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
+			String initParam = initParams.get(modelID);
+
+			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -334,20 +368,31 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
-				parameters.put(element.getName(), element.getValue());
-				parameterErrors.put(element.getName(), element.getError());
-				paramValues.add(element.getValue());
-				paramMinValues.add(element.getMin());
-				paramMaxValues.add(element.getMax());
-
-				Map<String, Double> cov = new LinkedHashMap<String, Double>();
-
-				for (PmmXmlElementConvertable el2 : paramXml.getElementSet()) {
-					cov.put(((ParamXml) el2).getName(), element
-							.getCorrelation(((ParamXml) el2).getOrigName()));
+				if (element.getName().equals(initParam)) {
+					variables.put(element.getName(), new ArrayList<Double>());
+					varMin.put(element.getName(), element.getMin());
+					varMax.put(element.getName(), element.getMax());
+					plotable.addValueList(element.getName(), new ArrayList<>(
+							Arrays.asList(element.getValue())));
+				} else {
+					parameters.put(element.getName(), element.getValue());
+					parameterErrors.put(element.getName(), element.getError());
+					paramValues.add(element.getValue());
+					paramMinValues.add(element.getMin());
+					paramMaxValues.add(element.getMax());
 				}
 
-				covariances.put(element.getName(), cov);
+				if (initParam == null) {
+					Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+					for (PmmXmlElementConvertable el2 : paramXml
+							.getElementSet()) {
+						cov.put(((ParamXml) el2).getName(), element
+								.getCorrelation(((ParamXml) el2).getOrigName()));
+					}
+
+					covariances.put(element.getName(), cov);
+				}
 			}
 
 			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
@@ -366,8 +411,6 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			infoParams = new ArrayList<String>(
 					Arrays.asList(Model1Schema.FORMULA));
 			infoValues = new ArrayList<Object>(Arrays.asList(formula));
-
-			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);
@@ -391,6 +434,10 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
+				
+				if (element.getName().equals(initParam)) {
+					continue;
+				}
 
 				infoParams.add(element.getName());
 				infoValues.add(element.getValue());

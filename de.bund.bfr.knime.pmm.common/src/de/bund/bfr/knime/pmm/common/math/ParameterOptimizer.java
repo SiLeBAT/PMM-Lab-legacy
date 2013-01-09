@@ -539,35 +539,43 @@ public class ParameterOptimizer {
 
 		private DJep parser;
 		private Node function;
-		private List<String> parameters;
-		private List<String> arguments;
-		private List<List<Double>> argumentValues;
-		private List<Double> targetValues;
+		private String[] parameters;
+		private String[] arguments;
+		private double[][] argumentValues;
+		private double[] targetValues;
 
 		public OptimizerFunction(DJep parser, Node function,
 				List<String> parameters, List<String> arguments,
 				List<List<Double>> argumentValues, List<Double> targetValues) {
 			this.parser = parser;
 			this.function = function;
-			this.parameters = parameters;
-			this.arguments = arguments;
-			this.argumentValues = argumentValues;
-			this.targetValues = targetValues;
+			this.parameters = parameters.toArray(new String[0]);
+			this.arguments = arguments.toArray(new String[0]);
+			this.argumentValues = new double[targetValues.size()][arguments
+					.size()];
+			this.targetValues = new double[targetValues.size()];
+
+			for (int i = 0; i < targetValues.size(); i++) {
+				this.targetValues[i] = targetValues.get(i);
+
+				for (int j = 0; j < arguments.size(); j++) {
+					this.argumentValues[i][j] = argumentValues.get(j).get(i);
+				}
+			}
 		}
 
 		@Override
 		public double[] value(double[] point) throws IllegalArgumentException {
-			double[] retValue = new double[targetValues.size()];
+			double[] retValue = new double[targetValues.length];
 
-			for (int i = 0; i < parameters.size(); i++) {
-				parser.setVarValue(parameters.get(i), point[i]);
+			for (int i = 0; i < parameters.length; i++) {
+				parser.setVarValue(parameters[i], point[i]);
 			}
 
 			try {
-				for (int i = 0; i < targetValues.size(); i++) {
-					for (int j = 0; j < arguments.size(); j++) {
-						parser.setVarValue(arguments.get(j), argumentValues
-								.get(j).get(i));
+				for (int i = 0; i < targetValues.length; i++) {
+					for (int j = 0; j < arguments.length; j++) {
+						parser.setVarValue(arguments[j], argumentValues[i][j]);
 					}
 
 					Object number = parser.evaluate(function);

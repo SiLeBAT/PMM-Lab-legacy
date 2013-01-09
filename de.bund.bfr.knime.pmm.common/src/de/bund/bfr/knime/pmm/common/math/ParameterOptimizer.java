@@ -84,8 +84,6 @@ public class ParameterOptimizer {
 	private List<Double> parameterPValues;
 	private List<List<Double>> covariances;
 
-	private List<List<Integer>> changeLists;
-
 	public ParameterOptimizer(String formula, List<String> parameters,
 			List<Double> minParameterValues, List<Double> maxParameterValues,
 			List<Double> minGuessValues, List<Double> maxGuessValues,
@@ -117,7 +115,6 @@ public class ParameterOptimizer {
 		parser = MathUtilities.createParser();
 		function = parser.parse(formula.substring(formula.indexOf("=") + 1));
 		derivatives = new ArrayList<Node>(parameters.size());
-		changeLists = createChangeLists();
 
 		for (String arg : arguments) {
 			parser.addVariable(arg, 0.0);
@@ -352,6 +349,12 @@ public class ParameterOptimizer {
 			startValueArray[i] = startValues.get(i);
 		}
 
+		OptimizerFunction optimizerFunction = new OptimizerFunction(parser,
+				function, parameters, arguments, argumentValues, targetValues);
+		OptimizerFunctionJacobian optimizerFunctionJacobian = new OptimizerFunctionJacobian(
+				parser, function, parameters, derivatives, arguments,
+				argumentValues, targetValues);
+
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
@@ -429,117 +432,26 @@ public class ParameterOptimizer {
 				targetValues.size(), rms);
 	}
 
-	private double evalWithSingularityCheck(Node f, List<Double> argValues,
-			List<Double> paramValues) throws ParseException {
-		for (int i = 0; i < parameters.size(); i++) {
-			parser.setVarValue(parameters.get(i), paramValues.get(i));
+	private static class OptimizerFunction implements
+			MultivariateVectorFunction {
+
+		private DJep parser;
+		private Node function;
+		private List<String> parameters;
+		private List<String> arguments;
+		private List<List<Double>> argumentValues;
+		private List<Double> targetValues;
+
+		public OptimizerFunction(DJep parser, Node function,
+				List<String> parameters, List<String> arguments,
+				List<List<Double>> argumentValues, List<Double> targetValues) {
+			this.parser = parser;
+			this.function = function;
+			this.parameters = parameters;
+			this.arguments = arguments;
+			this.argumentValues = argumentValues;
+			this.targetValues = targetValues;
 		}
-
-		for (List<Integer> list : changeLists) {
-			for (int i = 0; i < arguments.size(); i++) {
-				double d = list.get(i) * MathUtilities.EPSILON;
-
-				parser.setVarValue(arguments.get(i), argValues.get(i) + d);
-			}
-
-			Object number = parser.evaluate(f);
-
-			if (number instanceof Double && !Double.isNaN((Double) number)) {
-				return (Double) number;
-			}
-		}
-
-		if (derivatives.contains(f)) {
-			for (List<Integer> list : changeLists) {
-				for (int i = 0; i < arguments.size(); i++) {
-					double d = list.get(i) * MathUtilities.EPSILON;
-
-					parser.setVarValue(arguments.get(i), argValues.get(i) + d);
-				}
-
-				int index = derivatives.indexOf(f);
-
-				parser.setVarValue(parameters.get(index),
-						paramValues.get(index) - MathUtilities.EPSILON);
-
-				Object number1 = parser.evaluate(function);
-
-				parser.setVarValue(parameters.get(index),
-						paramValues.get(index) + MathUtilities.EPSILON);
-
-				Object number2 = parser.evaluate(function);
-
-				if (number1 instanceof Double
-						&& !Double.isNaN((Double) number1)
-						&& number2 instanceof Double
-						&& !Double.isNaN((Double) number2)) {
-					return ((Double) number2 - (Double) number1)
-							/ (2 * MathUtilities.EPSILON);
-				}
-			}
-		}
-
-		return Double.NaN;
-	}
-
-	private List<List<Integer>> createChangeLists() {
-		int n = arguments.size();
-		boolean done = false;
-		List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
-		List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n, -1));
-
-		while (!done) {
-			changeLists.add(new ArrayList<Integer>(list));
-
-			for (int i = 0;; i++) {
-				if (i >= n) {
-					done = true;
-					break;
-				}
-
-				list.set(i, list.get(i) + 1);
-
-				if (list.get(i) > 1) {
-					list.set(i, -1);
-				} else {
-					break;
-				}
-			}
-		}
-
-		Collections.sort(changeLists, new Comparator<List<Integer>>() {
-
-			@Override
-			public int compare(List<Integer> l1, List<Integer> l2) {
-				int n1 = 0;
-				int n2 = 0;
-
-				for (int i : l1) {
-					if (i == 0) {
-						n1++;
-					}
-				}
-
-				for (int i : l2) {
-					if (i == 0) {
-						n2++;
-					}
-				}
-
-				if (n1 < n2) {
-					return 1;
-				} else if (n1 > n2) {
-					return -1;
-				} else {
-					return 0;
-				}
-			}
-		});
-
-		return changeLists;
-	}
-
-	private MultivariateVectorFunction optimizerFunction = new MultivariateVectorFunction() {
 
 		@Override
 		public double[] value(double[] point) throws IllegalArgumentException {
@@ -570,10 +482,35 @@ public class ParameterOptimizer {
 
 			return retValue;
 		}
+	}
 
-	};
+	private static class OptimizerFunctionJacobian implements
+			MultivariateMatrixFunction {
 
-	private MultivariateMatrixFunction optimizerFunctionJacobian = new MultivariateMatrixFunction() {
+		private DJep parser;
+		private Node function;
+		private List<String> parameters;
+		private List<Node> derivatives;
+		private List<String> arguments;
+		private List<List<Double>> argumentValues;
+		private List<Double> targetValues;
+
+		private List<List<Integer>> changeLists;
+
+		public OptimizerFunctionJacobian(DJep parser, Node function,
+				List<String> parameters, List<Node> derivatives,
+				List<String> arguments, List<List<Double>> argumentValues,
+				List<Double> targetValues) {
+			this.parser = parser;
+			this.function = function;
+			this.parameters = parameters;
+			this.derivatives = derivatives;
+			this.arguments = arguments;
+			this.argumentValues = argumentValues;
+			this.targetValues = targetValues;
+
+			changeLists = createChangeLists();
+		}
 
 		@Override
 		public double[][] value(double[] point) throws IllegalArgumentException {
@@ -604,5 +541,118 @@ public class ParameterOptimizer {
 
 			return retValue;
 		}
-	};
+
+		private double evalWithSingularityCheck(Node f, List<Double> argValues,
+				List<Double> paramValues) throws ParseException {
+			for (int i = 0; i < parameters.size(); i++) {
+				parser.setVarValue(parameters.get(i), paramValues.get(i));
+			}
+
+			for (List<Integer> list : changeLists) {
+				for (int i = 0; i < arguments.size(); i++) {
+					double d = list.get(i) * MathUtilities.EPSILON;
+
+					parser.setVarValue(arguments.get(i), argValues.get(i) + d);
+				}
+
+				Object number = parser.evaluate(f);
+
+				if (number instanceof Double && !Double.isNaN((Double) number)) {
+					return (Double) number;
+				}
+			}
+
+			if (derivatives.contains(f)) {
+				for (List<Integer> list : changeLists) {
+					for (int i = 0; i < arguments.size(); i++) {
+						double d = list.get(i) * MathUtilities.EPSILON;
+
+						parser.setVarValue(arguments.get(i), argValues.get(i)
+								+ d);
+					}
+
+					int index = derivatives.indexOf(f);
+
+					parser.setVarValue(parameters.get(index),
+							paramValues.get(index) - MathUtilities.EPSILON);
+
+					Object number1 = parser.evaluate(function);
+
+					parser.setVarValue(parameters.get(index),
+							paramValues.get(index) + MathUtilities.EPSILON);
+
+					Object number2 = parser.evaluate(function);
+
+					if (number1 instanceof Double
+							&& !Double.isNaN((Double) number1)
+							&& number2 instanceof Double
+							&& !Double.isNaN((Double) number2)) {
+						return ((Double) number2 - (Double) number1)
+								/ (2 * MathUtilities.EPSILON);
+					}
+				}
+			}
+
+			return Double.NaN;
+		}
+
+		private List<List<Integer>> createChangeLists() {
+			int n = arguments.size();
+			boolean done = false;
+			List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
+			List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n,
+					-1));
+
+			while (!done) {
+				changeLists.add(new ArrayList<Integer>(list));
+
+				for (int i = 0;; i++) {
+					if (i >= n) {
+						done = true;
+						break;
+					}
+
+					list.set(i, list.get(i) + 1);
+
+					if (list.get(i) > 1) {
+						list.set(i, -1);
+					} else {
+						break;
+					}
+				}
+			}
+
+			Collections.sort(changeLists, new Comparator<List<Integer>>() {
+
+				@Override
+				public int compare(List<Integer> l1, List<Integer> l2) {
+					int n1 = 0;
+					int n2 = 0;
+
+					for (int i : l1) {
+						if (i == 0) {
+							n1++;
+						}
+					}
+
+					for (int i : l2) {
+						if (i == 0) {
+							n2++;
+						}
+					}
+
+					if (n1 < n2) {
+						return 1;
+					} else if (n1 > n2) {
+						return -1;
+					} else {
+						return 0;
+					}
+				}
+			});
+
+			return changeLists;
+		}
+	}
+
 }

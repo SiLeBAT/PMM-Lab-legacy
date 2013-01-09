@@ -364,13 +364,16 @@ public class ParameterOptimizer {
 	}
 
 	private void useCurrentResults() {
-		double[] params = new double[parameters.size()];
-
 		parameterValues = new ArrayList<Double>(parameters.size());
+		rms = optimizer.getRMS();
+		rSquare = MathUtilities.getRSquared(rms, targetValues);
+		aic = MathUtilities.akaikeCriterion(parameters.size(),
+				targetValues.size(), rms);
+		bic = MathUtilities.bayesCriterion(parameters.size(),
+				targetValues.size(), rms);
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);
-			params[i] = optimizerValues.getPoint()[i];
 		}
 
 		try {
@@ -378,6 +381,7 @@ public class ParameterOptimizer {
 				throw new RuntimeException();
 			}
 
+			double[] params = optimizerValues.getPoint();
 			double[][] covMatrix = optimizer.computeCovariances(params, 1e-14);
 			double factor = optimizer.getChiSquare()
 					/ (targetValues.size() - parameters.size());
@@ -423,13 +427,11 @@ public class ParameterOptimizer {
 				covariances.add(nullList);
 			}
 		}
+	}
 
-		rms = optimizer.getRMS();
-		rSquare = MathUtilities.getRSquared(rms, targetValues);
-		aic = MathUtilities.akaikeCriterion(parameters.size(),
-				targetValues.size(), rms);
-		bic = MathUtilities.bayesCriterion(parameters.size(),
-				targetValues.size(), rms);
+	private double[][] computeCovarianceMatrix() {
+		// TODO
+		return null;
 	}
 
 	private static class OptimizerFunction implements

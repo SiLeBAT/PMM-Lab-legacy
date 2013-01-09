@@ -39,12 +39,18 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.commons.math3.analysis.DifferentiableMultivariateVectorFunction;
 import org.apache.commons.math3.analysis.MultivariateMatrixFunction;
+import org.apache.commons.math3.analysis.MultivariateVectorFunction;
 import org.apache.commons.math3.exception.ConvergenceException;
 import org.apache.commons.math3.exception.TooManyEvaluationsException;
-import org.apache.commons.math3.optimization.PointVectorValuePair;
-import org.apache.commons.math3.optimization.general.LevenbergMarquardtOptimizer;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.PointVectorValuePair;
+import org.apache.commons.math3.optim.nonlinear.vector.ModelFunction;
+import org.apache.commons.math3.optim.nonlinear.vector.ModelFunctionJacobian;
+import org.apache.commons.math3.optim.nonlinear.vector.Target;
+import org.apache.commons.math3.optim.nonlinear.vector.Weight;
+import org.apache.commons.math3.optim.nonlinear.vector.jacobian.LevenbergMarquardtOptimizer;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
@@ -347,15 +353,21 @@ public class ParameterOptimizer {
 		}
 
 		optimizer = new LevenbergMarquardtOptimizer();
-		optimizerValues = optimizer.optimize(maxEval, optimizerFunction,
-				targets, weights, startValueArray);
+		optimizerValues = optimizer.optimize(new ModelFunction(
+				optimizerFunction), new ModelFunctionJacobian(
+				optimizerFunctionJacobian), new MaxEval(maxEval), new Target(
+				targets), new Weight(weights),
+				new InitialGuess(startValueArray));
 	}
 
 	private void useCurrentResults() {
+		double[] params = new double[parameters.size()];
+
 		parameterValues = new ArrayList<Double>(parameters.size());
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);
+			params[i] = optimizerValues.getPoint()[i];
 		}
 
 		try {
@@ -363,7 +375,7 @@ public class ParameterOptimizer {
 				throw new RuntimeException();
 			}
 
-			double[][] covMatrix = optimizer.getCovariances();
+			double[][] covMatrix = optimizer.computeCovariances(params, 1e-14);
 			double factor = optimizer.getChiSquare()
 					/ (targetValues.size() - parameters.size());
 
@@ -381,8 +393,8 @@ public class ParameterOptimizer {
 				int degreesOfFreedom = targetValues.size() - parameters.size();
 
 				parameterTValues.add(tValue);
-				parameterPValues.add(MathUtilities.getPValue(
-						tValue, degreesOfFreedom));
+				parameterPValues.add(MathUtilities.getPValue(tValue,
+						degreesOfFreedom));
 			}
 
 			for (int i = 0; i < parameters.size(); i++) {
@@ -527,7 +539,7 @@ public class ParameterOptimizer {
 		return changeLists;
 	}
 
-	private DifferentiableMultivariateVectorFunction optimizerFunction = new DifferentiableMultivariateVectorFunction() {
+	private MultivariateVectorFunction optimizerFunction = new MultivariateVectorFunction() {
 
 		@Override
 		public double[] value(double[] point) throws IllegalArgumentException {
@@ -557,11 +569,6 @@ public class ParameterOptimizer {
 			}
 
 			return retValue;
-		}
-
-		@Override
-		public MultivariateMatrixFunction jacobian() {
-			return optimizerFunctionJacobian;
 		}
 
 	};

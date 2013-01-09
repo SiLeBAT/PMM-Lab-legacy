@@ -363,11 +363,9 @@ public class MathUtilities {
 		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
 	}
 
-	public static double getPValue(double tValue,
-			int degreesOfFreedom) {
+	public static double getPValue(double tValue, int degreesOfFreedom) {
 		TDistribution dist = new TDistribution(degreesOfFreedom);
 
-		return 1.0 - dist.cumulativeProbability(-Math.abs(tValue),
-				Math.abs(tValue));
+		return 1.0 - dist.probability(-Math.abs(tValue), Math.abs(tValue));
 	}
 }

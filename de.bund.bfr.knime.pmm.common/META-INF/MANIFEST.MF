@@ -11,7 +11,6 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ClassPath: .,
  lib/jdom-2.0.1.jar,
- lib/commons-math3-3.0.jar,
  lib/poi-3.8-20120326.jar,
  lib/poi-ooxml-3.8-20120326.jar,
  lib/ext-1.1.1.jar,
@@ -27,7 +26,8 @@ Bundle-ClassPath: .,
  lib/poi-scratchpad-3.8-20120326.jar,
  lib/jgoodies-common-1.4.0.jar,
  lib/jgoodies-forms-1.6.0.jar,
- lib/jgoodies-looks-2.5.2.jar
+ lib/jgoodies-looks-2.5.2.jar,
+ lib/commons-math3-3.1.jar
 Export-Package: com.jgoodies.common.base,
  com.jgoodies.common.bean,
  com.jgoodies.common.collect,

@@ -58,6 +58,8 @@ import org.nfunk.jep.type.Complex;
 
 public class ParameterOptimizer {
 
+	private static final int MAX_EVAL = 10000;
+
 	private List<String> parameters;
 	private List<Double> minParameterValues;
 	private List<Double> maxParameterValues;
@@ -272,10 +274,10 @@ public class ParameterOptimizer {
 
 		for (List<Double> startValues : bestValues) {
 			try {
-				optimize(startValues, 10000);
+				optimize(startValues);
 
 				if (!successful || optimizer.getRMS() < rms) {
-					useCurrentResults();
+					useCurrentResults(startValues);
 
 					if (rSquare != 0.0) {
 						successful = true;
@@ -334,8 +336,7 @@ public class ParameterOptimizer {
 		return covariances;
 	}
 
-	private void optimize(List<Double> startValues, int maxEval)
-			throws Exception {
+	private void optimize(List<Double> startValues) throws Exception {
 		double[] targets = new double[targetValues.size()];
 		double[] weights = new double[targetValues.size()];
 		double[] startValueArray = new double[startValues.size()];
@@ -358,12 +359,12 @@ public class ParameterOptimizer {
 		optimizer = new LevenbergMarquardtOptimizer();
 		optimizerValues = optimizer.optimize(new ModelFunction(
 				optimizerFunction), new ModelFunctionJacobian(
-				optimizerFunctionJacobian), new MaxEval(maxEval), new Target(
+				optimizerFunctionJacobian), new MaxEval(MAX_EVAL), new Target(
 				targets), new Weight(weights),
 				new InitialGuess(startValueArray));
 	}
 
-	private void useCurrentResults() {
+	private void useCurrentResults(List<Double> startValues) {
 		parameterValues = new ArrayList<Double>(parameters.size());
 		rms = optimizer.getRMS();
 		rSquare = MathUtilities.getRSquared(rms, targetValues);
@@ -429,10 +430,109 @@ public class ParameterOptimizer {
 		}
 	}
 
-	private double[][] computeCovarianceMatrix() {
-		// TODO
-		return null;
-	}
+	// private double[][] computeCovarianceMatrix(List<Double> startValues,
+	// int iterations) {
+	// int n = targetValues.size();
+	// List<List<Double>> paramValuesList = new ArrayList<>();
+	// int iteration = 0;
+	// double factor = optimizer.getChiSquare()
+	// / (targetValues.size() - parameters.size());
+	//
+	// while (iteration < iterations) {
+	// List<Double> newTargetValues = new ArrayList<>();
+	// List<List<Double>> newArgumentValues = new ArrayList<>();
+	//
+	// for (int j = 0; j < arguments.size(); j++) {
+	// newArgumentValues.add(new ArrayList<Double>());
+	// }
+	//
+	// for (int i = 0; i < n; i++) {
+	// int randomPick = MathUtilities.getRandomGenerator().nextInt(n);
+	//
+	// newTargetValues.add(targetValues.get(randomPick));
+	//
+	// for (int j = 0; j < arguments.size(); j++) {
+	// newArgumentValues.get(j).add(
+	// argumentValues.get(j).get(randomPick));
+	// }
+	// }
+	//
+	// OptimizerFunction optimizerFunction = new OptimizerFunction(parser,
+	// function, parameters, arguments, newArgumentValues,
+	// newTargetValues);
+	// OptimizerFunctionJacobian optimizerFunctionJacobian = new
+	// OptimizerFunctionJacobian(
+	// parser, function, parameters, derivatives, arguments,
+	// newArgumentValues, newTargetValues);
+	// double[] targets = new double[newTargetValues.size()];
+	// double[] weights = new double[newTargetValues.size()];
+	// double[] startValueArray = new double[startValues.size()];
+	//
+	// for (int i = 0; i < newTargetValues.size(); i++) {
+	// targets[i] = newTargetValues.get(i);
+	// weights[i] = 1.0;
+	// }
+	//
+	// for (int i = 0; i < startValues.size(); i++) {
+	// startValueArray[i] = startValues.get(i);
+	// }
+	//
+	// LevenbergMarquardtOptimizer optimizer = new
+	// LevenbergMarquardtOptimizer();
+	//
+	// try {
+	// PointVectorValuePair optimizerValues = optimizer.optimize(
+	// new ModelFunction(optimizerFunction),
+	// new ModelFunctionJacobian(optimizerFunctionJacobian),
+	// new MaxEval(MAX_EVAL), new Target(targets), new Weight(
+	// weights), new InitialGuess(startValueArray));
+	// List<Double> paramValues = new ArrayList<>();
+	//
+	// for (int i = 0; i < parameters.size(); i++) {
+	// paramValues.add(optimizerValues.getPoint()[i]);
+	// }
+	//
+	// paramValuesList.add(paramValues);
+	// System.out.println(iteration++);
+	// } catch (Exception e) {
+	// }
+	// }
+	//
+	// List<Double> meanValues = new ArrayList<>(Collections.nCopies(
+	// parameters.size(), 0.0));
+	// List<Double> variances = new ArrayList<>(Collections.nCopies(
+	// parameters.size(), 0.0));
+	//
+	// for (List<Double> paramValues : paramValuesList) {
+	// for (int i = 0; i < parameters.size(); i++) {
+	// meanValues.set(i, meanValues.get(i) + paramValues.get(i));
+	// }
+	// }
+	//
+	// for (int i = 0; i < parameters.size(); i++) {
+	// meanValues.set(i, meanValues.get(i) / iterations);
+	// }
+	//
+	// for (List<Double> paramValues : paramValuesList) {
+	// for (int i = 0; i < parameters.size(); i++) {
+	// double d = Math
+	// .pow(paramValues.get(i) - meanValues.get(i), 2.0);
+	//
+	// variances.set(i, variances.get(i) + d);
+	// }
+	// }
+	//
+	// for (int i = 0; i < parameters.size(); i++) {
+	// variances.set(i, variances.get(i) / iterations * factor);
+	// }
+	//
+	// for (int i = 0; i < parameters.size(); i++) {
+	// System.out.println(parameters.get(i) + "\t" + meanValues.get(i)
+	// + "\t" + Math.sqrt(variances.get(i)));
+	// }
+	//
+	// return null;
+	// }
 
 	private static class OptimizerFunction implements
 			MultivariateVectorFunction {
@@ -491,11 +591,11 @@ public class ParameterOptimizer {
 
 		private DJep parser;
 		private Node function;
-		private List<String> parameters;
-		private List<Node> derivatives;
-		private List<String> arguments;
-		private List<List<Double>> argumentValues;
-		private List<Double> targetValues;
+		private String[] parameters;
+		private Node[] derivatives;
+		private String[] arguments;
+		private double[][] argumentValues;
+		private double[] targetValues;
 
 		private List<List<Integer>> changeLists;
 
@@ -505,36 +605,33 @@ public class ParameterOptimizer {
 				List<Double> targetValues) {
 			this.parser = parser;
 			this.function = function;
-			this.parameters = parameters;
-			this.derivatives = derivatives;
-			this.arguments = arguments;
-			this.argumentValues = argumentValues;
-			this.targetValues = targetValues;
+			this.parameters = parameters.toArray(new String[0]);
+			this.derivatives = derivatives.toArray(new Node[0]);
+			this.arguments = arguments.toArray(new String[0]);
+			this.argumentValues = new double[targetValues.size()][arguments
+					.size()];
+			this.targetValues = new double[targetValues.size()];
+
+			for (int i = 0; i < targetValues.size(); i++) {
+				this.targetValues[i] = targetValues.get(i);
+
+				for (int j = 0; j < arguments.size(); j++) {
+					this.argumentValues[i][j] = argumentValues.get(j).get(i);
+				}
+			}
 
 			changeLists = createChangeLists();
 		}
 
 		@Override
 		public double[][] value(double[] point) throws IllegalArgumentException {
-			double[][] retValue = new double[targetValues.size()][parameters
-					.size()];
-			List<Double> paramValues = new ArrayList<Double>();
-
-			for (int i = 0; i < parameters.size(); i++) {
-				paramValues.add(point[i]);
-			}
+			double[][] retValue = new double[targetValues.length][parameters.length];
 
 			try {
-				for (int i = 0; i < targetValues.size(); i++) {
-					List<Double> argValues = new ArrayList<Double>();
-
-					for (int j = 0; j < arguments.size(); j++) {
-						argValues.add(argumentValues.get(j).get(i));
-					}
-
-					for (int j = 0; j < derivatives.size(); j++) {
-						retValue[i][j] = evalWithSingularityCheck(
-								derivatives.get(j), argValues, paramValues);
+				for (int i = 0; i < targetValues.length; i++) {
+					for (int j = 0; j < derivatives.length; j++) {
+						retValue[i][j] = evalWithSingularityCheck(j,
+								argumentValues[i], point);
 					}
 				}
 			} catch (ParseException e) {
@@ -544,54 +641,49 @@ public class ParameterOptimizer {
 			return retValue;
 		}
 
-		private double evalWithSingularityCheck(Node f, List<Double> argValues,
-				List<Double> paramValues) throws ParseException {
-			for (int i = 0; i < parameters.size(); i++) {
-				parser.setVarValue(parameters.get(i), paramValues.get(i));
+		private double evalWithSingularityCheck(int index, double[] argValues,
+				double[] paramValues) throws ParseException {
+			for (int i = 0; i < parameters.length; i++) {
+				parser.setVarValue(parameters[i], paramValues[i]);
 			}
 
 			for (List<Integer> list : changeLists) {
-				for (int i = 0; i < arguments.size(); i++) {
+				for (int i = 0; i < arguments.length; i++) {
 					double d = list.get(i) * MathUtilities.EPSILON;
 
-					parser.setVarValue(arguments.get(i), argValues.get(i) + d);
+					parser.setVarValue(arguments[i], argValues[i] + d);
 				}
 
-				Object number = parser.evaluate(f);
+				Object number = parser.evaluate(derivatives[index]);
 
 				if (number instanceof Double && !Double.isNaN((Double) number)) {
 					return (Double) number;
 				}
 			}
 
-			if (derivatives.contains(f)) {
-				for (List<Integer> list : changeLists) {
-					for (int i = 0; i < arguments.size(); i++) {
-						double d = list.get(i) * MathUtilities.EPSILON;
+			for (List<Integer> list : changeLists) {
+				for (int i = 0; i < arguments.length; i++) {
+					double d = list.get(i) * MathUtilities.EPSILON;
 
-						parser.setVarValue(arguments.get(i), argValues.get(i)
-								+ d);
-					}
+					parser.setVarValue(arguments[i], argValues[i] + d);
+				}
 
-					int index = derivatives.indexOf(f);
+				parser.setVarValue(parameters[index], paramValues[index]
+						- MathUtilities.EPSILON);
 
-					parser.setVarValue(parameters.get(index),
-							paramValues.get(index) - MathUtilities.EPSILON);
+				Object number1 = parser.evaluate(function);
 
-					Object number1 = parser.evaluate(function);
+				parser.setVarValue(parameters[index], paramValues[index]
+						+ MathUtilities.EPSILON);
 
-					parser.setVarValue(parameters.get(index),
-							paramValues.get(index) + MathUtilities.EPSILON);
+				Object number2 = parser.evaluate(function);
 
-					Object number2 = parser.evaluate(function);
-
-					if (number1 instanceof Double
-							&& !Double.isNaN((Double) number1)
-							&& number2 instanceof Double
-							&& !Double.isNaN((Double) number2)) {
-						return ((Double) number2 - (Double) number1)
-								/ (2 * MathUtilities.EPSILON);
-					}
+				if (number1 instanceof Double
+						&& !Double.isNaN((Double) number1)
+						&& number2 instanceof Double
+						&& !Double.isNaN((Double) number2)) {
+					return ((Double) number2 - (Double) number1)
+							/ (2 * MathUtilities.EPSILON);
 				}
 			}
 
@@ -599,7 +691,7 @@ public class ParameterOptimizer {
 		}
 
 		private List<List<Integer>> createChangeLists() {
-			int n = arguments.size();
+			int n = arguments.length;
 			boolean done = false;
 			List<List<Integer>> changeLists = new ArrayList<List<Integer>>();
 			List<Integer> list = new ArrayList<Integer>(Collections.nCopies(n,

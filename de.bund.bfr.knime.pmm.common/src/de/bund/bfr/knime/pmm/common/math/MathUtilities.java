@@ -110,6 +110,14 @@ public class MathUtilities {
 		}
 	}
 
+	public static Random getRandomGenerator() {
+		if (random == null) {
+			random = new Random();
+		}
+
+		return random;
+	}
+
 	public static int getRandomNegativeInt() {
 		if (random == null) {
 			random = new Random();

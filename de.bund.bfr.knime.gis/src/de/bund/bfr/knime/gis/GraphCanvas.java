@@ -25,7 +25,10 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -71,14 +74,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private static final String PICKING_MODE = "Picking";
 	private static final String[] MODES = { TRANSFORMING_MODE, PICKING_MODE };
 
-	private static final String EQUAL = "==";
-	private static final String NOT_EQUAL = "!=";
-	private static final String GREATER = ">";
-	private static final String LESS = "<";
-	private static final String VALUE = "Value";
-	private static final String[] CONDITIONS = { EQUAL, NOT_EQUAL, GREATER,
-			LESS, VALUE };
-
 	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
 	private static final String DEFAULT_MODE = PICKING_MODE;
@@ -90,22 +85,20 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private Map<Node, List<Edge>> connectingEdges;
 	private VisualizationViewer<Node, Edge> viewer;
 
-	private List<NodeSelectionListener> nodeSelectionListeners;
-
 	private JComboBox<String> layoutBox;
 	private JButton layoutButton;
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
 	private JComboBox<String> modeBox;
-	private JComboBox<String> conditionPropertyBox;
-	private JComboBox<String> conditionTypeBox;
-	private JTextField conditionField;
-	private JButton conditionButton;
 
 	private JPopupMenu popup;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem highlightNodesItem;
+	private JMenuItem clearHighlightItem;
+
+	private List<NodeSelectionListener> nodeSelectionListeners;
+	private HighlightCondition highlightCondition;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges,
 			Map<String, Class<?>> nodeProperties,
@@ -126,6 +119,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
+		highlightCondition = null;
 
 		createPopupMenu();
 		updateViewer();
@@ -168,48 +162,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			}
 
 			viewer.setGraphMouse(mouseModel);
-		} else if (e.getSource() == conditionButton) {
-			String property = (String) conditionPropertyBox.getSelectedItem();
-			String type = (String) conditionTypeBox.getSelectedItem();
-			String value = conditionField.getText();
-			Map<Node, Double> highlightedNodes = new LinkedHashMap<>();
-
-			for (Node node : nodes) {
-				if (node.getProperties().containsKey(property)) {
-					Object nodeValue = node.getProperties().get(property);
-
-					if (type.equals(EQUAL)) {
-						if (value.toString().equals(nodeValue)) {
-							highlightedNodes.put(node, 1.0);
-						}
-					} else if (type.equals(NOT_EQUAL)) {
-						if (!value.toString().equals(nodeValue)) {
-							highlightedNodes.put(node, 1.0);
-						}
-					} else if (type.equals(GREATER)) {
-						if (nodeValue instanceof Number
-								&& ((Number) nodeValue).doubleValue() > Double
-										.parseDouble(value)) {
-							highlightedNodes.put(node, 1.0);
-						}
-					} else if (type.equals(LESS)) {
-						if (nodeValue instanceof Number
-								&& ((Number) nodeValue).doubleValue() < Double
-										.parseDouble(value)) {
-							highlightedNodes.put(node, 1.0);
-						}
-					} else if (type.equals(VALUE)) {
-						if (nodeValue instanceof Number) {
-							highlightedNodes.put(node,
-									((Number) nodeValue).doubleValue());
-						}
-					}
-				}
-			}
-
-			viewer.getRenderContext().setVertexFillPaintTransformer(
-					new FillTransformer(viewer, highlightedNodes));
-			viewer.repaint();
 		} else if (e.getSource() == nodePropertiesItem) {
 			List<Map<String, Object>> propertyValues = new ArrayList<>();
 
@@ -235,7 +187,30 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			dialog.setLocationRelativeTo(this);
 			dialog.setVisible(true);
 		} else if (e.getSource() == highlightNodesItem) {
-			// TODO
+			HighlightNodesDialog dialog = new HighlightNodesDialog(this,
+					nodeProperties, highlightCondition);
+
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+
+			if (dialog.isSuccessful()) {
+				highlightCondition = dialog.getHighlightCondition();
+
+				Map<Node, Double> highlightedNodes = highlightCondition
+						.getValues(nodes);
+
+				viewer.getRenderContext().setVertexFillPaintTransformer(
+						new FillTransformer(viewer, highlightedNodes));
+				viewer.repaint();
+			}
+		} else if (e.getSource() == clearHighlightItem) {
+			highlightCondition = null;
+
+			Map<Node, Double> highlightedNodes = new LinkedHashMap<>();
+
+			viewer.getRenderContext().setVertexFillPaintTransformer(
+					new FillTransformer(viewer, highlightedNodes));
+			viewer.repaint();
 		}
 	}
 
@@ -367,11 +342,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		edgePropertiesItem.addActionListener(this);
 		highlightNodesItem = new JMenuItem("Highlight Nodes");
 		highlightNodesItem.addActionListener(this);
+		clearHighlightItem = new JMenuItem("Clear Highlights");
+		clearHighlightItem.addActionListener(this);
 
 		popup = new JPopupMenu();
 		popup.add(nodePropertiesItem);
 		popup.add(edgePropertiesItem);
 		popup.add(highlightNodesItem);
+		popup.add(clearHighlightItem);
 	}
 
 	private JPanel createOptionsPanel() {
@@ -387,16 +365,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		modeBox = new JComboBox<String>(MODES);
 		modeBox.setSelectedItem(DEFAULT_MODE);
 		modeBox.addActionListener(this);
-		conditionPropertyBox = new JComboBox<String>(nodeProperties.keySet()
-				.toArray(new String[0]));
-		conditionPropertyBox.setSelectedItem(null);
-		conditionTypeBox = new JComboBox<String>(CONDITIONS);
-		conditionTypeBox.setSelectedItem(EQUAL);
-		conditionField = new JTextField();
-		conditionField.setPreferredSize(new Dimension(50, conditionField
-				.getPreferredSize().height));
-		conditionButton = new JButton("Apply");
-		conditionButton.addActionListener(this);
 
 		JPanel layoutPanel = new JPanel();
 
@@ -418,16 +386,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		modePanel.setLayout(new FlowLayout());
 		modePanel.add(modeBox);
 
-		JPanel highlightPanel = new JPanel();
-
-		highlightPanel.setBorder(BorderFactory
-				.createTitledBorder("Highlight Nodes"));
-		highlightPanel.setLayout(new FlowLayout());
-		highlightPanel.add(conditionPropertyBox);
-		highlightPanel.add(conditionTypeBox);
-		highlightPanel.add(conditionField);
-		highlightPanel.add(conditionButton);
-
 		JPanel panel1 = new JPanel();
 
 		panel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
@@ -435,16 +393,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		panel1.add(nodeSizePanel);
 		panel1.add(modePanel);
 
-		JPanel panel2 = new JPanel();
-		panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-
-		panel2.add(highlightPanel);
-
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(panel1);
-		panel.add(panel2);
 
 		return panel;
 	}
@@ -644,6 +596,166 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes.get(columnIndex);
 			}
+		}
+	}
+
+	private static class HighlightNodesDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		private JComboBox<String> valuePropertyBox;
+		private JComboBox<String> valueTypeBox;
+
+		private HighlightCondition highlightCondition;
+		private boolean successful;
+
+		public HighlightNodesDialog(JComponent parent,
+				Map<String, Class<?>> nodeProperties,
+				HighlightCondition initialHighlightCondition) {
+			super(JOptionPane.getFrameForComponent(parent),
+					"Highlight Condition", true);
+			highlightCondition = null;
+			successful = false;
+
+			List<String> numberProperties = new ArrayList<>();
+
+			for (String property : nodeProperties.keySet()) {
+				Class<?> type = nodeProperties.get(property);
+
+				if (type == Integer.class || type == Double.class) {
+					numberProperties.add(property);
+				}
+			}
+
+			valuePropertyBox = new JComboBox<>(
+					numberProperties.toArray(new String[0]));
+			valueTypeBox = new JComboBox<>(new String[] {
+					ValueHighlightCondition.VALUE_TYPE,
+					ValueHighlightCondition.LOG_VALUE_TYPE });
+
+			if (initialHighlightCondition != null) {
+				if (initialHighlightCondition instanceof ValueHighlightCondition) {
+					ValueHighlightCondition condition = (ValueHighlightCondition) initialHighlightCondition;
+
+					valuePropertyBox.setSelectedItem(condition.getProperty());
+					valueTypeBox.setSelectedItem(condition.getType());
+				}
+			}
+
+			JPanel valuePanel = new JPanel();
+
+			valuePanel.setLayout(new FlowLayout());
+			valuePanel.add(new JLabel("Property:"));
+			valuePanel.add(valuePropertyBox);
+			valuePanel.add(new JLabel("Type:"));
+			valuePanel.add(valueTypeBox);
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel bottomPanel = new JPanel();
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(valuePanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				highlightCondition = new ValueHighlightCondition(
+						(String) valuePropertyBox.getSelectedItem(),
+						(String) valueTypeBox.getSelectedItem());
+				successful = true;
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
+
+		public HighlightCondition getHighlightCondition() {
+			return highlightCondition;
+		}
+
+		public boolean isSuccessful() {
+			return successful;
+		}
+	}
+
+	private static interface HighlightCondition {
+
+		public Map<Node, Double> getValues(List<Node> nodes);
+	}
+
+	public static class ValueHighlightCondition implements HighlightCondition {
+
+		public static final String VALUE_TYPE = "Value";
+		public static final String LOG_VALUE_TYPE = "Log Value";
+
+		private String property;
+		private String type;
+
+		public ValueHighlightCondition(String property, String type) {
+			this.property = property;
+			this.type = type;
+		}
+
+		@Override
+		public Map<Node, Double> getValues(List<Node> nodes) {
+			Map<Node, Double> values = new LinkedHashMap<>();
+
+			for (Node node : nodes) {
+				Object value = node.getProperties().get(property);
+
+				if (value instanceof Number) {
+					double doubleValue = ((Number) value).doubleValue();
+
+					if (!Double.isNaN(doubleValue)
+							&& !Double.isInfinite(doubleValue)
+							&& doubleValue >= 0.0) {
+						values.put(node, doubleValue);
+					} else {
+						values.put(node, 0.0);
+					}
+				} else {
+					values.put(node, 0.0);
+				}
+			}
+
+			double max = Collections.max(values.values());
+
+			if (max != 0.0) {
+				for (Node node : nodes) {
+					values.put(node, values.get(node) / max);
+				}
+			}
+
+			if (type.equals(LOG_VALUE_TYPE)) {
+				for (Node node : nodes) {
+					values.put(node, Math.log10(values.get(node) * 9.0 + 1.0));
+				}
+			}
+
+			return values;
+		}
+
+		protected String getProperty() {
+			return property;
+		}
+
+		protected String getType() {
+			return type;
 		}
 	}
 

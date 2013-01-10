@@ -319,6 +319,9 @@ public class CreateWorkflow extends AbstractHandler {
 						" WHERE " + DBKernel.delimitL("Ausgangsprozess") + "=" + fromKey, false);
 				if (rs != null && rs.first()) {
 					do {
+					    SingleNodeContainer p2Container = (SingleNodeContainer)wfm.getNodeContainer(entry.getValue());
+					    FoodProcessNodeModel p2Model = ((FoodProcessNodeModel)p2Container.getNode().getNodeModel());
+					    FoodProcessNodeSettings fns = p2Model.getSetting();
 						int toKey = rs.getInt("Zielprozess");
 						//System.err.println(fromKey + "\t" + toKey);
 						if (toKey > 0 && nodesMap.get(toKey) != null) {

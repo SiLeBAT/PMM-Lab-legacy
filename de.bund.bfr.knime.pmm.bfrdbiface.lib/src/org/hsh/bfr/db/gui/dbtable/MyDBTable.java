@@ -58,6 +58,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
@@ -1789,7 +1791,18 @@ if (myDBPanel1 != null) {
 			    	  MyLogger.handleException(e);
 			              return; 
 			      } 
-			      this.getTable().setValueAt(pasteString, row, column); 	   
+			      if (actualTable.getFieldTypes()[column - 1].startsWith("DATE")) {
+					  SimpleDateFormat dateFormat2 = new SimpleDateFormat(actualTable.getFieldTypes()[column - 1].equals("DATE") ? "yyyy-MM-dd" : "yyyy-MM-dd HH:mm:ss");
+					  try {
+					      this.getTable().setValueAt(dateFormat2.parse(pasteString), row, column); 	   
+					  }
+					  catch (ParseException e) {
+						e.printStackTrace();
+					  }
+			      }
+			      else {
+				      this.getTable().setValueAt(pasteString, row, column); 	   			    	  
+			      }
 			    	int selID = this.getSelectedID();
 					this.myRefresh(row, column);
 					if (this.getSelectedID() != selID) {

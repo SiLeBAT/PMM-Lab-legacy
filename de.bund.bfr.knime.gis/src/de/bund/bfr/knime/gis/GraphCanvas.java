@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -24,8 +26,10 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -48,7 +52,8 @@ import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
-public class GraphCanvas extends JPanel implements ActionListener, ItemListener {
+public class GraphCanvas extends JPanel implements ActionListener,
+		ItemListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -74,9 +79,9 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private static final String[] CONDITIONS = { EQUAL, NOT_EQUAL, GREATER,
 			LESS, VALUE };
 
-	private static final String DEFAULT_LAYOUT = CIRCLE_LAYOUT;
+	private static final String DEFAULT_LAYOUT = FR_LAYOUT;
 	private static final int DEFAULT_NODESIZE = 10;
-	private static final String DEFAULT_MODE = TRANSFORMING_MODE;
+	private static final String DEFAULT_MODE = PICKING_MODE;
 
 	private List<Node> nodes;
 	private List<Edge> edges;
@@ -92,12 +97,15 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 	private JTextField nodeSizeField;
 	private JButton nodeSizeButton;
 	private JComboBox<String> modeBox;
-	private JButton nodePropertiesButton;
-	private JButton edgePropertiesButton;
 	private JComboBox<String> conditionPropertyBox;
 	private JComboBox<String> conditionTypeBox;
 	private JTextField conditionField;
 	private JButton conditionButton;
+
+	private JPopupMenu popup;
+	private JMenuItem nodePropertiesItem;
+	private JMenuItem edgePropertiesItem;
+	private JMenuItem highlightNodesItem;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges,
 			Map<String, Class<?>> nodeProperties,
@@ -119,6 +127,7 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
 
+		createPopupMenu();
 		updateViewer();
 		setLayout(new BorderLayout());
 		add(viewer, BorderLayout.CENTER);
@@ -159,30 +168,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			}
 
 			viewer.setGraphMouse(mouseModel);
-		} else if (e.getSource() == nodePropertiesButton) {
-			List<Map<String, Object>> propertyValues = new ArrayList<>();
-
-			for (Node node : viewer.getPickedVertexState().getPicked()) {
-				propertyValues.add(node.getProperties());
-			}
-
-			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
-					nodeProperties);
-
-			dialog.setLocationRelativeTo(this);
-			dialog.setVisible(true);
-		} else if (e.getSource() == edgePropertiesButton) {
-			List<Map<String, Object>> propertyValues = new ArrayList<>();
-
-			for (Edge edge : viewer.getPickedEdgeState().getPicked()) {
-				propertyValues.add(edge.getProperties());
-			}
-
-			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
-					edgeProperties);
-
-			dialog.setLocationRelativeTo(this);
-			dialog.setVisible(true);
 		} else if (e.getSource() == conditionButton) {
 			String property = (String) conditionPropertyBox.getSelectedItem();
 			String type = (String) conditionTypeBox.getSelectedItem();
@@ -225,6 +210,32 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			viewer.getRenderContext().setVertexFillPaintTransformer(
 					new FillTransformer(viewer, highlightedNodes));
 			viewer.repaint();
+		} else if (e.getSource() == nodePropertiesItem) {
+			List<Map<String, Object>> propertyValues = new ArrayList<>();
+
+			for (Node node : viewer.getPickedVertexState().getPicked()) {
+				propertyValues.add(node.getProperties());
+			}
+
+			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
+					nodeProperties);
+
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+		} else if (e.getSource() == edgePropertiesItem) {
+			List<Map<String, Object>> propertyValues = new ArrayList<>();
+
+			for (Edge edge : viewer.getPickedEdgeState().getPicked()) {
+				propertyValues.add(edge.getProperties());
+			}
+
+			PropertiesDialog dialog = new PropertiesDialog(propertyValues,
+					edgeProperties);
+
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+		} else if (e.getSource() == highlightNodesItem) {
+			// TODO
 		}
 	}
 
@@ -251,6 +262,29 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 
 			fireNodeSelectionChanged();
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON3) {
+			popup.show(e.getComponent(), e.getX(), e.getY());
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 	}
 
 	private void updateViewer() {
@@ -322,7 +356,22 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 							new LinkedHashMap<Node, Double>()));
 			viewer.getRenderContext().setVertexShapeTransformer(
 					new ShapeTransformer(DEFAULT_NODESIZE));
+			viewer.addMouseListener(this);
 		}
+	}
+
+	private void createPopupMenu() {
+		nodePropertiesItem = new JMenuItem("Show Node Properties");
+		nodePropertiesItem.addActionListener(this);
+		edgePropertiesItem = new JMenuItem("Show Edge Properties");
+		edgePropertiesItem.addActionListener(this);
+		highlightNodesItem = new JMenuItem("Highlight Nodes");
+		highlightNodesItem.addActionListener(this);
+
+		popup = new JPopupMenu();
+		popup.add(nodePropertiesItem);
+		popup.add(edgePropertiesItem);
+		popup.add(highlightNodesItem);
 	}
 
 	private JPanel createOptionsPanel() {
@@ -338,10 +387,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		modeBox = new JComboBox<String>(MODES);
 		modeBox.setSelectedItem(DEFAULT_MODE);
 		modeBox.addActionListener(this);
-		nodePropertiesButton = new JButton("Node Properties");
-		nodePropertiesButton.addActionListener(this);
-		edgePropertiesButton = new JButton("Edge Properties");
-		edgePropertiesButton.addActionListener(this);
 		conditionPropertyBox = new JComboBox<String>(nodeProperties.keySet()
 				.toArray(new String[0]));
 		conditionPropertyBox.setSelectedItem(null);
@@ -373,13 +418,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		modePanel.setLayout(new FlowLayout());
 		modePanel.add(modeBox);
 
-		JPanel selectionPanel = new JPanel();
-
-		selectionPanel.setBorder(BorderFactory.createTitledBorder("Selection"));
-		selectionPanel.setLayout(new FlowLayout());
-		selectionPanel.add(nodePropertiesButton);
-		selectionPanel.add(edgePropertiesButton);
-
 		JPanel highlightPanel = new JPanel();
 
 		highlightPanel.setBorder(BorderFactory
@@ -395,24 +433,18 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 		panel1.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		panel1.add(layoutPanel);
 		panel1.add(nodeSizePanel);
+		panel1.add(modePanel);
 
 		JPanel panel2 = new JPanel();
-
 		panel2.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		panel2.add(modePanel);
-		panel2.add(selectionPanel);
 
-		JPanel panel3 = new JPanel();
-
-		panel3.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		panel3.add(highlightPanel);
+		panel2.add(highlightPanel);
 
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.add(panel1);
 		panel.add(panel2);
-		panel.add(panel3);
 
 		return panel;
 	}
@@ -612,7 +644,6 @@ public class GraphCanvas extends JPanel implements ActionListener, ItemListener 
 			public Class<?> getColumnClass(int columnIndex) {
 				return columnTypes.get(columnIndex);
 			}
-
 		}
 	}
 

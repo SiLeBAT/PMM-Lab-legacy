@@ -750,13 +750,154 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return values;
 		}
 
-		protected String getProperty() {
+		public String getProperty() {
 			return property;
 		}
 
-		protected String getType() {
+		public String getType() {
 			return type;
 		}
+	}
+
+	public static interface LogicalHighlightCondition extends
+			HighlightCondition {
+	}
+
+	public static class AndOrHighlightCondition implements
+			LogicalHighlightCondition {
+
+		public static final String AND_TYPE = "And";
+		public static final String OR_TYPE = "Or";
+
+		private String type;
+		private LogicalHighlightCondition condition1;
+		private LogicalHighlightCondition condition2;
+
+		public AndOrHighlightCondition(String type,
+				LogicalHighlightCondition condition1,
+				LogicalHighlightCondition condition2) {
+			this.type = type;
+			this.condition1 = condition1;
+			this.condition2 = condition2;
+		}
+
+		@Override
+		public Map<Node, Double> getValues(List<Node> nodes) {
+			Map<Node, Double> values1 = condition1.getValues(nodes);
+			Map<Node, Double> values2 = condition1.getValues(nodes);
+			Map<Node, Double> values = new LinkedHashMap<>();
+
+			for (Node node : nodes) {
+				if (type.equals(AND_TYPE)) {
+					if (values1.get(node) == 1.0 && values2.get(node) == 1.0) {
+						values.put(node, 1.0);
+					} else {
+						values.put(node, 0.0);
+					}
+				} else if (type.equals(OR_TYPE)) {
+					if (values1.get(node) == 1.0 || values2.get(node) == 1.0) {
+						values.put(node, 1.0);
+					} else {
+						values.put(node, 0.0);
+					}
+				}
+			}
+
+			return values;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public LogicalHighlightCondition getCondition1() {
+			return condition1;
+		}
+
+		public LogicalHighlightCondition getCondition2() {
+			return condition2;
+		}
+
+	}
+
+	public static class SimpleLogicalHighlightCondition implements
+			LogicalHighlightCondition {
+
+		public static final String EQUAL_TYPE = "==";
+		public static final String NOT_EQUAL_TYPE = "!=";
+		public static final String GREATER_TYPE = ">";
+		public static final String LESS_TYPE = "<";
+
+		private String property;
+		private String type;
+		private Object value;
+
+		public SimpleLogicalHighlightCondition(String property, String type,
+				Object value) {
+			this.property = property;
+			this.type = type;
+			this.value = value;
+		}
+
+		@Override
+		public Map<Node, Double> getValues(List<Node> nodes) {
+			Map<Node, Double> values = new LinkedHashMap<>();
+
+			for (Node node : nodes) {
+				Object nodeValue = node.getProperties().get(property);
+
+				if (type.equals(EQUAL_TYPE)) {
+					if (value.equals(nodeValue)) {
+						values.put(node, 1.0);
+					} else {
+						values.put(node, 0.0);
+					}
+				} else if (type.equals(NOT_EQUAL_TYPE)) {
+					if (!value.equals(nodeValue)) {
+						values.put(node, 1.0);
+					} else {
+						values.put(node, 0.0);
+					}
+				} else if (type.equals(GREATER_TYPE)) {
+					if (value instanceof Number && nodeValue instanceof Number) {
+						if (((Number) nodeValue).doubleValue() > ((Number) value)
+								.doubleValue()) {
+							values.put(node, 1.0);
+						} else {
+							values.put(node, 0.0);
+						}
+					} else {
+						values.put(node, 0.0);
+					}
+				} else if (type.equals(LESS_TYPE)) {
+					if (value instanceof Number && nodeValue instanceof Number) {
+						if (((Number) nodeValue).doubleValue() < ((Number) value)
+								.doubleValue()) {
+							values.put(node, 1.0);
+						} else {
+							values.put(node, 0.0);
+						}
+					} else {
+						values.put(node, 0.0);
+					}
+				}
+			}
+
+			return values;
+		}
+
+		public String getProperty() {
+			return property;
+		}
+
+		public String getType() {
+			return type;
+		}
+
+		public Object getValue() {
+			return value;
+		}
+
 	}
 
 }

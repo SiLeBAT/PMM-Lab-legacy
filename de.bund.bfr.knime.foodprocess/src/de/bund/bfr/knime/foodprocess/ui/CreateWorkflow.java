@@ -83,6 +83,8 @@ import de.bund.bfr.knime.foodprocess.FoodProcessNodeSettings;
 import de.bund.bfr.knime.foodprocess.addons.AddonNodeModel;
 import de.bund.bfr.knime.foodprocess.addons.IngredientsNodeFactory;
 import de.bund.bfr.knime.foodprocess.lib.FoodProcessSetting;
+import de.bund.bfr.knime.foodprocess.lib.InPortSetting;
+import de.bund.bfr.knime.foodprocess.lib.OutPortSetting;
 
 public class CreateWorkflow extends AbstractHandler {
 	/**
@@ -259,12 +261,12 @@ public class CreateWorkflow extends AbstractHandler {
 								String zp = rsZ.getString("Zutat_Produkt");
 								Object vp = rsZ.getObject("Vorprozess");
 								Object mat = rsZ.getObject("Matrix");
+							    dbl = getDouble(DBKernel.getValue("DoubleKennzahlen", "ID", rsZ.getInt("Unitmenge")+"", "Wert"));
+								int unit = rsZ.getInt("UnitEinheit");
 								if (zp.equals("Zutat")) {
 									if (mat != null) {
 										if (vp == null) {
 											// new Node: IngredientNode
-										    dbl = getDouble(DBKernel.getValue("DoubleKennzahlen", "ID", rsZ.getInt("Unitmenge")+"", "Wert"));
-											int unit = rsZ.getInt("UnitEinheit");
 										    if (dbl != null && (unit <= 7)) { // ADV-Codes: 1=Kilogramm 2=Gramm 7=Liter 24=Prozent 25=Promille 35=Stück
 										    	if (unit == 1) dbl *= 1000;
 										    	volumeDef.add(dbl); volumeUnitDef.add(unit <= 2 ? "g" : "l");
@@ -276,7 +278,8 @@ public class CreateWorkflow extends AbstractHandler {
 										    }
 										}
 										else {
-											// Inport redefinition
+											// Inport redefinition, hier gelten alle Inports als Rezeptur bzw. Mischverhältnis der Zutaten
+											InPortSetting[] ips = foodProcessSetting.getInPortSetting();
 										}
 									}
 									else if (vp == null) {
@@ -285,6 +288,12 @@ public class CreateWorkflow extends AbstractHandler {
 								}
 								else if (zp.equals("Produkt")) {
 									// Outport redefinition
+									if (unit == 24) {// 24=Prozent
+										OutPortSetting[] ops = foodProcessSetting.getOutPortSetting();
+									}
+									else {
+										System.err.println("ERROR: Unit for Produkt nicht ok..., not %...");
+									}
 								}
 							} while (rsZ.next());	
 						}

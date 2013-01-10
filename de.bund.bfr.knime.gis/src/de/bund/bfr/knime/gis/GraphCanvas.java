@@ -604,11 +604,20 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		private static final long serialVersionUID = 1L;
 
+		private static final String LOGICAL_CONDITION = "Logical Condition";
+		private static final String VALUE_CONDITION = "Value Condition";
+
+		private String conditionType;
+
+		private JComboBox<String> conditionTypeBox;
+		private JPanel conditionPanel;
 		private JButton okButton;
 		private JButton cancelButton;
 
 		private JComboBox<String> valuePropertyBox;
 		private JComboBox<String> valueTypeBox;
+
+		private Map<String, Class<?>> nodeProperties;
 
 		private HighlightCondition highlightCondition;
 		private boolean successful;
@@ -618,9 +627,102 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				HighlightCondition initialHighlightCondition) {
 			super(JOptionPane.getFrameForComponent(parent),
 					"Highlight Condition", true);
+			this.nodeProperties = nodeProperties;
 			highlightCondition = null;
 			successful = false;
 
+			conditionTypeBox = new JComboBox<>(new String[] {
+					LOGICAL_CONDITION, VALUE_CONDITION });
+
+			JPanel conditionTypePanel = new JPanel();
+
+			conditionTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			conditionTypePanel.add(conditionTypeBox);
+
+			if (initialHighlightCondition instanceof LogicalHighlightCondition) {
+				conditionTypeBox.setSelectedItem(LOGICAL_CONDITION);
+				conditionType = LOGICAL_CONDITION;
+				conditionPanel = createLogicalPanel(initialHighlightCondition);
+			} else if (initialHighlightCondition instanceof ValueHighlightCondition) {
+				conditionTypeBox.setSelectedItem(VALUE_CONDITION);
+				conditionType = VALUE_CONDITION;
+				conditionPanel = createValuePanel(initialHighlightCondition);
+			} else {
+				conditionTypeBox.setSelectedItem(LOGICAL_CONDITION);
+				conditionType = LOGICAL_CONDITION;
+				conditionPanel = createLogicalPanel(null);
+			}
+
+			conditionTypeBox.addActionListener(this);
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel bottomPanel = new JPanel();
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(conditionTypePanel, BorderLayout.NORTH);
+			add(conditionPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				if (conditionType.equals(VALUE_CONDITION)) {
+					highlightCondition = new ValueHighlightCondition(
+							(String) valuePropertyBox.getSelectedItem(),
+							(String) valueTypeBox.getSelectedItem());
+				} else if (conditionType.equals(LOGICAL_CONDITION)) {
+					// TODO
+				}
+
+				successful = true;
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			} else if (e.getSource() == conditionTypeBox) {
+				if (!conditionType.equals(conditionTypeBox.getSelectedItem())) {
+					if (conditionTypeBox.getSelectedItem().equals(
+							LOGICAL_CONDITION)) {
+						conditionType = LOGICAL_CONDITION;
+						remove(conditionPanel);
+						conditionPanel = createLogicalPanel(null);
+						add(conditionPanel, BorderLayout.CENTER);
+						pack();
+					} else if (conditionTypeBox.getSelectedItem().equals(
+							VALUE_CONDITION)) {
+						conditionType = VALUE_CONDITION;
+						remove(conditionPanel);
+						conditionPanel = createValuePanel(null);
+						add(conditionPanel, BorderLayout.CENTER);
+						pack();
+					}
+				}
+			}
+		}
+
+		public HighlightCondition getHighlightCondition() {
+			return highlightCondition;
+		}
+
+		public boolean isSuccessful() {
+			return successful;
+		}
+
+		private JPanel createLogicalPanel(HighlightCondition highlightCondition) {
+			// TODO
+			return new JPanel();
+		}
+
+		private JPanel createValuePanel(HighlightCondition highlightCondition) {
 			List<String> numberProperties = new ArrayList<>();
 
 			for (String property : nodeProperties.keySet()) {
@@ -637,60 +739,24 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					ValueHighlightCondition.VALUE_TYPE,
 					ValueHighlightCondition.LOG_VALUE_TYPE });
 
-			if (initialHighlightCondition != null) {
-				if (initialHighlightCondition instanceof ValueHighlightCondition) {
-					ValueHighlightCondition condition = (ValueHighlightCondition) initialHighlightCondition;
+			if (highlightCondition != null) {
+				ValueHighlightCondition condition = (ValueHighlightCondition) highlightCondition;
 
-					valuePropertyBox.setSelectedItem(condition.getProperty());
-					valueTypeBox.setSelectedItem(condition.getType());
-				}
+				valuePropertyBox.setSelectedItem(condition.getProperty());
+				valueTypeBox.setSelectedItem(condition.getType());
 			}
 
 			JPanel valuePanel = new JPanel();
 
-			valuePanel.setLayout(new FlowLayout());
+			valuePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			valuePanel.add(new JLabel("Property:"));
 			valuePanel.add(valuePropertyBox);
 			valuePanel.add(new JLabel("Type:"));
 			valuePanel.add(valueTypeBox);
 
-			okButton = new JButton("OK");
-			okButton.addActionListener(this);
-			cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(this);
-
-			JPanel bottomPanel = new JPanel();
-
-			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			bottomPanel.add(okButton);
-			bottomPanel.add(cancelButton);
-
-			setLayout(new BorderLayout());
-			add(valuePanel, BorderLayout.CENTER);
-			add(bottomPanel, BorderLayout.SOUTH);
-			pack();
+			return valuePanel;
 		}
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == okButton) {
-				highlightCondition = new ValueHighlightCondition(
-						(String) valuePropertyBox.getSelectedItem(),
-						(String) valueTypeBox.getSelectedItem());
-				successful = true;
-				dispose();
-			} else if (e.getSource() == cancelButton) {
-				dispose();
-			}
-		}
-
-		public HighlightCondition getHighlightCondition() {
-			return highlightCondition;
-		}
-
-		public boolean isSuccessful() {
-			return successful;
-		}
 	}
 
 	private static interface HighlightCondition {

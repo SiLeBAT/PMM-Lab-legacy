@@ -475,18 +475,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		private VisualizationViewer<Node, Edge> viewer;
 		private Map<Node, Double> highlightedNodes;
-		private double maxValue;
 
 		public FillTransformer(VisualizationViewer<Node, Edge> viewer,
 				Map<Node, Double> highlightedNodes) {
 			this.viewer = viewer;
 			this.highlightedNodes = highlightedNodes;
-
-			if (!highlightedNodes.isEmpty()) {
-				maxValue = Collections.max(highlightedNodes.values());
-			} else {
-				maxValue = Double.NaN;
-			}
 		}
 
 		@Override
@@ -494,7 +487,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			if (viewer.getPickedVertexState().getPicked().contains(n)) {
 				return Color.GREEN;
 			} else if (highlightedNodes.containsKey(n)) {
-				float alpha = (float) (highlightedNodes.get(n) / maxValue);
+				float alpha = highlightedNodes.get(n).floatValue();
 
 				return new Color(1.0f, 1.0f - alpha, 1.0f - alpha);
 			} else {
@@ -715,21 +708,27 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						.getConditions();
 				SimpleLogicalHighlightCondition newCond = new SimpleLogicalHighlightCondition(
 						nodeProperties.keySet().toArray(new String[0])[0],
-						SimpleLogicalHighlightCondition.EQUAL_TYPE, null);
+						SimpleLogicalHighlightCondition.EQUAL_TYPE, "");
+				boolean added = false;
 				int count = 0;
 
 				for (int i = 0; i < conditions.size(); i++) {
 					for (int j = 0; j < conditions.get(i).size(); j++) {
 						if (index == count) {
 							conditions.get(i).add(j, newCond);
+							added = true;
 							break;
 						}
 
 						count++;
 					}
+
+					if (added) {
+						break;
+					}
 				}
 
-				if (index == count) {
+				if (!added) {
 					conditions.get(conditions.size() - 1).add(newCond);
 				}
 
@@ -742,6 +741,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				int index = logicalRemoveButtons.indexOf(e.getSource());
 				List<List<SimpleLogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
 						.getConditions();
+				boolean removed = false;
 				int count = 0;
 
 				for (int i = 0; i < conditions.size(); i++) {
@@ -753,10 +753,15 @@ public class GraphCanvas extends JPanel implements ActionListener,
 								conditions.remove(i);
 							}
 
+							removed = true;
 							break;
 						}
 
 						count++;
+					}
+
+					if (removed) {
+						break;
 					}
 				}
 
@@ -809,7 +814,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						typeBox.setSelectedItem(cond.getType());
 						valueField.setText(cond.getValue() + "");
 
-						valueField.setPreferredSize(new Dimension(50,
+						valueField.setPreferredSize(new Dimension(100,
 								valueField.getPreferredSize().height));
 						addButton.addActionListener(this);
 						removeButton.addActionListener(this);
@@ -937,30 +942,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				List<SimpleLogicalHighlightCondition> andList = new ArrayList<>();
 
 				for (int i = 0; i < logicalPropertyBoxes.size(); i++) {
-					String property = (String) logicalPropertyBoxes.get(i)
-							.getSelectedItem();
-					String type = (String) logicalTypeBoxes.get(i)
-							.getSelectedItem();
-					String text = logicalValueFields.get(i).getText();
-					Object value = null;
-
-					if (nodeProperties.get(property) == String.class) {
-						value = text;
-					} else if (nodeProperties.get(property) == Integer.class) {
-						try {
-							value = Integer.parseInt(text);
-						} catch (NumberFormatException e) {
-						}
-					} else if (nodeProperties.get(property) == Double.class) {
-						try {
-							value = Double.parseDouble(text);
-						} catch (NumberFormatException e) {
-						}
-					}
-
-					andList.add(new SimpleLogicalHighlightCondition(property,
-							type, value));
-
 					if (i != 0) {
 						String operation = (String) logicalAndOrBoxes
 								.get(i - 1).getSelectedItem();
@@ -970,6 +951,15 @@ public class GraphCanvas extends JPanel implements ActionListener,
 							andList = new ArrayList<>();
 						}
 					}
+
+					String property = (String) logicalPropertyBoxes.get(i)
+							.getSelectedItem();
+					String type = (String) logicalTypeBoxes.get(i)
+							.getSelectedItem();
+					String value = logicalValueFields.get(i).getText();
+
+					andList.add(new SimpleLogicalHighlightCondition(property,
+							type, value));
 				}
 
 				conditions.add(andList);
@@ -1124,13 +1114,20 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		private String property;
 		private String type;
-		private Object value;
+		private String value;
+		private Double doubleValue;
 
 		public SimpleLogicalHighlightCondition(String property, String type,
-				Object value) {
+				String value) {
 			this.property = property;
 			this.type = type;
 			this.value = value;
+
+			try {
+				doubleValue = Double.parseDouble(value);
+			} catch (Exception e) {
+				doubleValue = null;
+			}
 		}
 
 		@Override
@@ -1153,9 +1150,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						values.put(node, 0.0);
 					}
 				} else if (type.equals(GREATER_TYPE)) {
-					if (value instanceof Number && nodeValue instanceof Number) {
-						if (((Number) nodeValue).doubleValue() > ((Number) value)
-								.doubleValue()) {
+					if (doubleValue != null && nodeValue instanceof Number) {
+						if (((Number) nodeValue).doubleValue() > doubleValue) {
 							values.put(node, 1.0);
 						} else {
 							values.put(node, 0.0);
@@ -1164,9 +1160,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						values.put(node, 0.0);
 					}
 				} else if (type.equals(LESS_TYPE)) {
-					if (value instanceof Number && nodeValue instanceof Number) {
-						if (((Number) nodeValue).doubleValue() < ((Number) value)
-								.doubleValue()) {
+					if (doubleValue != null && nodeValue instanceof Number) {
+						if (((Number) nodeValue).doubleValue() < doubleValue) {
 							values.put(node, 1.0);
 						} else {
 							values.put(node, 0.0);

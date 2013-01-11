@@ -4,6 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -617,6 +620,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		private JComboBox<String> valuePropertyBox;
 		private JComboBox<String> valueTypeBox;
 
+		private List<JComboBox<String>> logicalAndOrBoxes;
+		private List<JComboBox<String>> logicalPropertyBoxes;
+		private List<JComboBox<String>> logicalTypeBoxes;
+		private List<JTextField> logicalValueFields;
+		private List<JButton> logicalAddButtons;
+		private List<JButton> logicalRemoveButtons;
+
 		private Map<String, Class<?>> nodeProperties;
 
 		private HighlightCondition highlightCondition;
@@ -639,7 +649,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			conditionTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			conditionTypePanel.add(conditionTypeBox);
 
-			if (initialHighlightCondition instanceof LogicalHighlightCondition) {
+			if (initialHighlightCondition instanceof AndOrHighlightCondition) {
 				conditionTypeBox.setSelectedItem(LOGICAL_CONDITION);
 				conditionType = LOGICAL_CONDITION;
 				conditionPanel = createLogicalPanel(initialHighlightCondition);
@@ -676,14 +686,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
-				if (conditionType.equals(VALUE_CONDITION)) {
-					highlightCondition = new ValueHighlightCondition(
-							(String) valuePropertyBox.getSelectedItem(),
-							(String) valueTypeBox.getSelectedItem());
-				} else if (conditionType.equals(LOGICAL_CONDITION)) {
-					// TODO
-				}
-
+				highlightCondition = createCondition();
 				successful = true;
 				dispose();
 			} else if (e.getSource() == cancelButton) {
@@ -706,6 +709,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						pack();
 					}
 				}
+			} else if (logicalAddButtons.contains(e.getSource())) {
+				// TODO
+			} else if (logicalRemoveButtons.contains(e.getSource())) {
+				// TODO
 			}
 		}
 
@@ -718,8 +725,115 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		private JPanel createLogicalPanel(HighlightCondition highlightCondition) {
-			// TODO
-			return new JPanel();
+			logicalAndOrBoxes = new ArrayList<>();
+			logicalPropertyBoxes = new ArrayList<>();
+			logicalTypeBoxes = new ArrayList<>();
+			logicalValueFields = new ArrayList<>();
+			logicalAddButtons = new ArrayList<>();
+			logicalRemoveButtons = new ArrayList<>();
+
+			JPanel logicalPanel = new JPanel();
+			int row = 0;
+
+			logicalPanel.setLayout(new GridBagLayout());
+
+			if (highlightCondition != null) {
+				AndOrHighlightCondition condition = (AndOrHighlightCondition) highlightCondition;
+
+				for (int i = 0; i < condition.getConditions().size(); i++) {
+					for (int j = 0; j < condition.getConditions().get(i).size(); j++) {
+						SimpleLogicalHighlightCondition cond = condition
+								.getConditions().get(i).get(j);
+
+						JComboBox<String> propertyBox = new JComboBox<>(
+								nodeProperties.keySet().toArray(new String[0]));
+						JComboBox<String> typeBox = new JComboBox<>(
+								SimpleLogicalHighlightCondition.TYPES);
+						JTextField valueField = new JTextField();
+						JButton addButton = new JButton("Add");
+						JButton removeButton = new JButton("Remove");
+
+						propertyBox.setSelectedItem(cond.getProperty());
+						typeBox.setSelectedItem(cond.getType());
+						valueField.setText(cond.getValue() + "");
+
+						valueField.setPreferredSize(new Dimension(50,
+								valueField.getPreferredSize().height));
+						addButton.addActionListener(this);
+						removeButton.addActionListener(this);
+
+						if (row != 0) {
+							JComboBox<String> andOrBox = new JComboBox<>(
+									AndOrHighlightCondition.TYPES);
+
+							if (j == 0) {
+								andOrBox.setSelectedItem(AndOrHighlightCondition.OR_TYPE);
+							} else {
+								andOrBox.setSelectedItem(AndOrHighlightCondition.AND_TYPE);
+							}
+
+							logicalAndOrBoxes.add(andOrBox);
+							logicalPanel.add(andOrBox,
+									createConstraints(0, row));
+						}
+
+						logicalPropertyBoxes.add(propertyBox);
+						logicalTypeBoxes.add(typeBox);
+						logicalValueFields.add(valueField);
+						logicalAddButtons.add(addButton);
+						logicalRemoveButtons.add(removeButton);
+
+						logicalPanel
+								.add(propertyBox, createConstraints(1, row));
+						logicalPanel.add(typeBox, createConstraints(2, row));
+						logicalPanel.add(valueField, createConstraints(3, row));
+						logicalPanel.add(addButton, createConstraints(4, row));
+						logicalPanel.add(removeButton,
+								createConstraints(5, row));
+
+						row++;
+					}
+				}
+
+				JButton addButton = new JButton("Add");
+
+				addButton.addActionListener(this);
+				logicalAddButtons.add(addButton);
+				logicalPanel.add(addButton, createConstraints(4, row));
+			} else {
+				JComboBox<String> propertyBox = new JComboBox<>(nodeProperties
+						.keySet().toArray(new String[0]));
+				JComboBox<String> typeBox = new JComboBox<>(
+						SimpleLogicalHighlightCondition.TYPES);
+				JTextField valueField = new JTextField();
+				JButton addButton = new JButton("Add");
+				JButton removeButton = new JButton("Remove");
+
+				valueField.setPreferredSize(new Dimension(50, valueField
+						.getPreferredSize().height));
+				addButton.addActionListener(this);
+				removeButton.addActionListener(this);
+
+				logicalPropertyBoxes.add(propertyBox);
+				logicalTypeBoxes.add(typeBox);
+				logicalValueFields.add(valueField);
+				logicalAddButtons.add(addButton);
+				logicalRemoveButtons.add(removeButton);
+
+				logicalPanel.add(propertyBox, createConstraints(1, 0));
+				logicalPanel.add(typeBox, createConstraints(2, 0));
+				logicalPanel.add(valueField, createConstraints(3, 0));
+				logicalPanel.add(addButton, createConstraints(4, 0));
+				logicalPanel.add(removeButton, createConstraints(5, 0));
+
+				JButton addButton2 = new JButton("Add");
+
+				addButton2.addActionListener(this);
+				logicalAddButtons.add(addButton2);
+				logicalPanel.add(addButton2, createConstraints(4, 1));
+			}
+
+			return logicalPanel;
 		}
 
 		private JPanel createValuePanel(HighlightCondition highlightCondition) {
@@ -735,9 +849,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 			valuePropertyBox = new JComboBox<>(
 					numberProperties.toArray(new String[0]));
-			valueTypeBox = new JComboBox<>(new String[] {
-					ValueHighlightCondition.VALUE_TYPE,
-					ValueHighlightCondition.LOG_VALUE_TYPE });
+			valueTypeBox = new JComboBox<>(ValueHighlightCondition.TYPES);
 
 			if (highlightCondition != null) {
 				ValueHighlightCondition condition = (ValueHighlightCondition) highlightCondition;
@@ -757,6 +869,62 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return valuePanel;
 		}
 
+		private GridBagConstraints createConstraints(int x, int y) {
+			return new GridBagConstraints(x, y, 1, 1, 0, 0,
+					GridBagConstraints.CENTER, GridBagConstraints.NONE,
+					new Insets(2, 2, 2, 2), 0, 0);
+		}
+
+		private HighlightCondition createCondition() {
+			if (conditionType.equals(VALUE_CONDITION)) {
+				return new ValueHighlightCondition(
+						(String) valuePropertyBox.getSelectedItem(),
+						(String) valueTypeBox.getSelectedItem());
+			} else if (conditionType.equals(LOGICAL_CONDITION)) {
+				List<List<SimpleLogicalHighlightCondition>> conditions = new ArrayList<>();
+				List<SimpleLogicalHighlightCondition> andList = new ArrayList<>();
+
+				for (int i = 0; i < logicalPropertyBoxes.size(); i++) {
+					String property = (String) logicalPropertyBoxes.get(i)
+							.getSelectedItem();
+					String type = (String) logicalTypeBoxes.get(i)
+							.getSelectedItem();
+					String text = logicalValueFields.get(i).getText();
+					Object value = null;
+
+					if (nodeProperties.get(property) == String.class) {
+						value = text;
+					} else if (nodeProperties.get(property) == Integer.class) {
+						try {
+							value = Integer.parseInt(text);
+						} catch (NumberFormatException e) {
+						}
+					} else if (nodeProperties.get(property) == Double.class) {
+						try {
+							value = Double.parseDouble(text);
+						} catch (NumberFormatException e) {
+						}
+					}
+
+					andList.add(new SimpleLogicalHighlightCondition(property,
+							type, value));
+
+					if (i != 0) {
+						String operation = (String) logicalAndOrBoxes
+								.get(i - 1).getSelectedItem();
+
+						if (operation.equals(AndOrHighlightCondition.OR_TYPE)) {
+							conditions.add(andList);
+							andList = new ArrayList<>();
+						}
+					}
+				}
+
+				return new AndOrHighlightCondition(conditions);
+			}
+
+			return null;
+		}
 	}
 
 	private static interface HighlightCondition {
@@ -768,6 +936,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		public static final String VALUE_TYPE = "Value";
 		public static final String LOG_VALUE_TYPE = "Log Value";
+		public static final String[] TYPES = { VALUE_TYPE, LOG_VALUE_TYPE };
 
 		private String property;
 		private String type;
@@ -825,74 +994,79 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
-	public static interface LogicalHighlightCondition extends
-			HighlightCondition {
-	}
-
-	public static class AndOrHighlightCondition implements
-			LogicalHighlightCondition {
+	public static class AndOrHighlightCondition implements HighlightCondition {
 
 		public static final String AND_TYPE = "And";
-		public static final String OR_TYPE = "Or";
+		public static final String OR_TYPE = "And";
+		public static final String[] TYPES = { AND_TYPE, OR_TYPE };
 
-		private String type;
-		private LogicalHighlightCondition condition1;
-		private LogicalHighlightCondition condition2;
+		private List<List<SimpleLogicalHighlightCondition>> conditions;
 
-		public AndOrHighlightCondition(String type,
-				LogicalHighlightCondition condition1,
-				LogicalHighlightCondition condition2) {
-			this.type = type;
-			this.condition1 = condition1;
-			this.condition2 = condition2;
+		public AndOrHighlightCondition(
+				List<List<SimpleLogicalHighlightCondition>> conditions) {
+			this.conditions = conditions;
 		}
 
 		@Override
 		public Map<Node, Double> getValues(List<Node> nodes) {
-			Map<Node, Double> values1 = condition1.getValues(nodes);
-			Map<Node, Double> values2 = condition1.getValues(nodes);
-			Map<Node, Double> values = new LinkedHashMap<>();
+			List<List<Map<Node, Double>>> valuesList = new ArrayList<>();
+
+			for (List<SimpleLogicalHighlightCondition> andLists : conditions) {
+				List<Map<Node, Double>> v = new ArrayList<>();
+
+				for (SimpleLogicalHighlightCondition condition : andLists) {
+					v.add(condition.getValues(nodes));
+				}
+
+				valuesList.add(v);
+			}
+
+			Map<Node, Double> returnValues = new LinkedHashMap<>();
 
 			for (Node node : nodes) {
-				if (type.equals(AND_TYPE)) {
-					if (values1.get(node) == 1.0 && values2.get(node) == 1.0) {
-						values.put(node, 1.0);
-					} else {
-						values.put(node, 0.0);
+				boolean allFalse = true;
+
+				for (List<Map<Node, Double>> andValues : valuesList) {
+					boolean allTrue = true;
+
+					for (Map<Node, Double> values : andValues) {
+						if (values.get(node) != 1.0) {
+							allTrue = false;
+							break;
+						}
 					}
-				} else if (type.equals(OR_TYPE)) {
-					if (values1.get(node) == 1.0 || values2.get(node) == 1.0) {
-						values.put(node, 1.0);
-					} else {
-						values.put(node, 0.0);
+
+					if (allTrue) {
+						allFalse = false;
+						break;
 					}
+				}
+
+				if (allFalse) {
+					returnValues.put(node, 0.0);
+				} else {
+					returnValues.put(node, 1.0);
 				}
 			}
 
-			return values;
+			return returnValues;
 		}
 
-		public String getType() {
-			return type;
-		}
-
-		public LogicalHighlightCondition getCondition1() {
-			return condition1;
-		}
-
-		public LogicalHighlightCondition getCondition2() {
-			return condition2;
+		public List<List<SimpleLogicalHighlightCondition>> getConditions() {
+			return conditions;
 		}
 
 	}
 
 	public static class SimpleLogicalHighlightCondition implements
-			LogicalHighlightCondition {
+			HighlightCondition {
 
 		public static final String EQUAL_TYPE = "==";
 		public static final String NOT_EQUAL_TYPE = "!=";
 		public static final String GREATER_TYPE = ">";
 		public static final String LESS_TYPE = "<";
+		public static final String[] TYPES = { EQUAL_TYPE, NOT_EQUAL_TYPE,
+				GREATER_TYPE, LESS_TYPE };
 
 		private String property;
 		private String type;

@@ -38,6 +38,7 @@ import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
+import java.util.Random;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -83,7 +84,6 @@ import de.bund.bfr.knime.foodprocess.FoodProcessNodeSettings;
 import de.bund.bfr.knime.foodprocess.addons.AddonNodeModel;
 import de.bund.bfr.knime.foodprocess.addons.IngredientsNodeFactory;
 import de.bund.bfr.knime.foodprocess.lib.FoodProcessSetting;
-import de.bund.bfr.knime.foodprocess.lib.InPortSetting;
 import de.bund.bfr.knime.foodprocess.lib.OutPortSetting;
 
 public class CreateWorkflow extends AbstractHandler {
@@ -131,8 +131,12 @@ public class CreateWorkflow extends AbstractHandler {
 	    		
 	    if (wfm.getNodeContainers().size() > 1) {
 	    	// Autolayout workflow
-		    AutoLayoutCommand layoutCommand = new AutoLayoutCommand(wfm, null);
-		    layoutCommand.execute();
+		    //AutoLayoutCommand layoutCommand = new AutoLayoutCommand(wfm, null);
+		    //layoutCommand.execute();
+		    
+		    LayoutManager m_layoutMgr = new LayoutManager(wfm, new Random().nextLong());
+	        m_layoutMgr.doLayout(null);
+
 	    }	
 
 	    // create project
@@ -171,6 +175,8 @@ public class CreateWorkflow extends AbstractHandler {
 		LinkedHashMap<Integer, NodeID> nodesMap = new LinkedHashMap<Integer, NodeID>();
 		LinkedHashMap<Integer, Integer> fromMap = new LinkedHashMap<Integer, Integer>();
 		LinkedHashMap<Integer, Integer> toMap = new LinkedHashMap<Integer, Integer>();
+    	//LinkedHashMap<Integer, LinkedHashMap<Integer, Double>> fractionsIn = new LinkedHashMap<Integer, LinkedHashMap<Integer, Double>>(); 
+    	LinkedHashMap<Integer, LinkedHashMap<Integer, Double>> fractionsOut = new LinkedHashMap<Integer, LinkedHashMap<Integer, Double>>(); 
 
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Prozessdaten") +
 				" WHERE " + DBKernel.delimitL("Workflow") + "=" + processchainID, false);
@@ -267,19 +273,36 @@ public class CreateWorkflow extends AbstractHandler {
 									if (mat != null) {
 										if (vp == null) {
 											// new Node: IngredientNode
-										    if (dbl != null && (unit <= 7)) { // ADV-Codes: 1=Kilogramm 2=Gramm 7=Liter 24=Prozent 25=Promille 35=Stück
-										    	if (unit == 1) dbl *= 1000;
-										    	volumeDef.add(dbl); volumeUnitDef.add(unit <= 2 ? "g" : "l");
-										    	iarr.add((Integer) mat);
-										    	narr.add(""+DBKernel.getValue("Matrices", "ID", mat+"", "Matrixname"));
+										    if (dbl != null) {
+										    	if (unit <= 7) { // ADV-Codes: 1=Kilogramm 2=Gramm 7=Liter 24=Prozent 25=Promille 35=Stück
+											    	if (unit == 1) dbl *= 1000;
+											    	volumeDef.add(dbl); volumeUnitDef.add(unit <= 2 ? "g" : "l");
+											    	iarr.add((Integer) mat);
+											    	narr.add(""+DBKernel.getValue("Matrices", "ID", mat+"", "Matrixname"));
+										    	}
+										    	else if (unit == 24) {
+											    	volumeDef.add(dbl); volumeUnitDef.add("%");
+											    	iarr.add((Integer) mat);
+											    	narr.add(""+DBKernel.getValue("Matrices", "ID", mat+"", "Matrixname"));
+										    	}
+										    	else {
+											    	System.err.println("ERROR: Unit nicht ok...");
+										    	}
 											}
 										    else {
-										    	System.err.println("ERROR: Unitmenge als Zutat null... or Unit nicht ok...");
+										    	System.err.println("ERROR: Unitmenge als Zutat null...");
 										    }
 										}
-										else {
+										else { // erstmal nicht auf Mengenangaben bei der Zutat eingehen, falls Vorprozess vorhanden -
+											// erstmal einfach alles als Input nehmen... sollte auch immer 100% sein!!!
 											// Inport redefinition, hier gelten alle Inports als Rezeptur bzw. Mischverhältnis der Zutaten
-											InPortSetting[] ips = foodProcessSetting.getInPortSetting();
+											/*
+											if (!fractionsIn.containsKey(processID)) {
+												fractionsIn.put(processID, new LinkedHashMap<Integer, Double>());
+											}
+											LinkedHashMap<Integer, Double> lhm = fractionsIn.get(processID);
+											lhm.put(rs.getInt("ID"), dbl);
+											*/
 										}
 									}
 									else if (vp == null) {
@@ -289,7 +312,11 @@ public class CreateWorkflow extends AbstractHandler {
 								else if (zp.equals("Produkt")) {
 									// Outport redefinition
 									if (unit == 24) {// 24=Prozent
-										OutPortSetting[] ops = foodProcessSetting.getOutPortSetting();
+										if (!fractionsOut.containsKey(processID)) {
+											fractionsOut.put(processID, new LinkedHashMap<Integer, Double>());
+										}
+										LinkedHashMap<Integer, Double> lhm = fractionsOut.get(processID);
+										lhm.put(rs.getInt("ID"), dbl);
 									}
 									else {
 										System.err.println("ERROR: Unit for Produkt nicht ok..., not %...");
@@ -297,9 +324,9 @@ public class CreateWorkflow extends AbstractHandler {
 								}
 							} while (rsZ.next());	
 						}
-						if (volumeDef != null) {
+						if (volumeDef != null && volumeDef.size() > 0) {
 							IngredientsNodeFactory inf = new IngredientsNodeFactory();
-							SingleNodeContainer i2nc = createNodeContainer(wfm, null, "Zutats...", "Zutatenliste...", null, inf);
+							SingleNodeContainer i2nc = createNodeContainer(wfm, null, "Zutaten", "Zutatenliste...", null, inf);
 							AddonNodeModel i2Model = ((AddonNodeModel)i2nc.getNodeModel());
 							i2Model.setSetting(volumeDef, volumeUnitDef, iarr, narr, true);
 						    wfm.addConnection(i2nc.getID(), 1, p2nc.getID(), 1);
@@ -319,31 +346,58 @@ public class CreateWorkflow extends AbstractHandler {
 						" WHERE " + DBKernel.delimitL("Ausgangsprozess") + "=" + fromKey, false);
 				if (rs != null && rs.first()) {
 					do {
-					    SingleNodeContainer p2Container = (SingleNodeContainer)wfm.getNodeContainer(entry.getValue());
-					    FoodProcessNodeModel p2Model = ((FoodProcessNodeModel)p2Container.getNode().getNodeModel());
-					    FoodProcessNodeSettings fns = p2Model.getSetting();
 						int toKey = rs.getInt("Zielprozess");
 						//System.err.println(fromKey + "\t" + toKey);
 						if (toKey > 0 && nodesMap.get(toKey) != null) {
-							int fromPort = 1;
+
+						    int fromPort = 1;
 							if (fromMap.containsKey(fromKey)) {
 								fromPort = fromMap.get(fromKey) + 1;
 							}
+							
 							int toPort = 1;
 							if (toMap.containsKey(toKey)) {
 								toPort = toMap.get(toKey) + 1;
 							}
 							
-						    wfm.addConnection(entry.getValue(), fromPort, nodesMap.get(toKey), toPort);
+							NodeID source = entry.getValue();
+							NodeID dest = nodesMap.get(toKey);
+						    wfm.addConnection(source, fromPort, dest, toPort);
 						    
 						    fromMap.put(fromKey, fromPort);
 						    toMap.put(toKey, toPort);
+
+					    	LinkedHashMap<Integer, Double> lhm = fractionsOut.get(fromKey);
+						    if (lhm != null) {
+							    SingleNodeContainer p2Container = (SingleNodeContainer)wfm.getNodeContainer(source);
+							    FoodProcessNodeModel p2Model = ((FoodProcessNodeModel)p2Container.getNode().getNodeModel());
+							    FoodProcessNodeSettings fns = p2Model.getSetting();
+								OutPortSetting[] ops = fns.getFoodProcessSetting().getOutPortSetting();
+						    	double sum = getSum(lhm);
+						    	for (int vp : lhm.keySet()) {
+									ResultSet rsZ = DBKernel.getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Zutatendaten") +
+											" WHERE " + DBKernel.delimitL("Vorprozess") + "=" + vp +
+											" AND " + DBKernel.delimitL("Prozessdaten") + "=" + toKey, false);
+									if (rsZ != null && rsZ.first()) {
+								    	ops[fromPort - 1].setOutFlux(100 * lhm.get(vp) / sum);
+										break;
+									}
+						    	}
+								//InPortSetting[] ips = fns.getFoodProcessSetting().getInPortSetting();
+						    }
 						}
 					} while(rs.next());
 				}
 			}
 		}
 		catch (Exception e) {throwCoreException("Error in fetching process chain data from the internal database", e);}
+	}
+	private double getSum(LinkedHashMap<Integer, Double> lhm) {
+		double sum = 0;
+		for (double dbl : lhm.values()) {
+			sum += dbl;
+		}
+		return sum;
 	}
 	
 	@SuppressWarnings("rawtypes")

@@ -542,6 +542,9 @@ public class FoodProcessNodeModel extends NodeModel {
 	public void setSetting( final FoodProcessNodeSettings settings ) {		
 		this.settings = settings;
 	}
+	public FoodProcessNodeSettings getSetting() {		
+		return settings;
+	}
 
 	/**
      * {@inheritDoc}

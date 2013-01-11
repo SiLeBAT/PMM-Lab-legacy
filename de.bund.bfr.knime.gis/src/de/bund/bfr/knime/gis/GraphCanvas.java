@@ -710,9 +710,61 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					}
 				}
 			} else if (logicalAddButtons.contains(e.getSource())) {
-				// TODO
+				int index = logicalAddButtons.indexOf(e.getSource());
+				List<List<SimpleLogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
+						.getConditions();
+				SimpleLogicalHighlightCondition newCond = new SimpleLogicalHighlightCondition(
+						nodeProperties.keySet().toArray(new String[0])[0],
+						SimpleLogicalHighlightCondition.EQUAL_TYPE, null);
+				int count = 0;
+
+				for (int i = 0; i < conditions.size(); i++) {
+					for (int j = 0; j < conditions.get(i).size(); j++) {
+						if (index == count) {
+							conditions.get(i).add(j, newCond);
+							break;
+						}
+
+						count++;
+					}
+				}
+
+				if (index == count) {
+					conditions.get(conditions.size() - 1).add(newCond);
+				}
+
+				remove(conditionPanel);
+				conditionPanel = createLogicalPanel(new AndOrHighlightCondition(
+						conditions));
+				add(conditionPanel, BorderLayout.CENTER);
+				pack();
 			} else if (logicalRemoveButtons.contains(e.getSource())) {
-				// TODO
+				int index = logicalRemoveButtons.indexOf(e.getSource());
+				List<List<SimpleLogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
+						.getConditions();
+				int count = 0;
+
+				for (int i = 0; i < conditions.size(); i++) {
+					for (int j = 0; j < conditions.get(i).size(); j++) {
+						if (index == count) {
+							conditions.get(i).remove(j);
+
+							if (conditions.get(i).isEmpty()) {
+								conditions.remove(i);
+							}
+
+							break;
+						}
+
+						count++;
+					}
+				}
+
+				remove(conditionPanel);
+				conditionPanel = createLogicalPanel(new AndOrHighlightCondition(
+						conditions));
+				add(conditionPanel, BorderLayout.CENTER);
+				pack();
 			}
 		}
 
@@ -920,6 +972,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					}
 				}
 
+				conditions.add(andList);
+
 				return new AndOrHighlightCondition(conditions);
 			}
 
@@ -997,7 +1051,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	public static class AndOrHighlightCondition implements HighlightCondition {
 
 		public static final String AND_TYPE = "And";
-		public static final String OR_TYPE = "And";
+		public static final String OR_TYPE = "Or";
 		public static final String[] TYPES = { AND_TYPE, OR_TYPE };
 
 		private List<List<SimpleLogicalHighlightCondition>> conditions;
@@ -1087,13 +1141,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				Object nodeValue = node.getProperties().get(property);
 
 				if (type.equals(EQUAL_TYPE)) {
-					if (value.equals(nodeValue)) {
+					if (value != null && value.equals(nodeValue)) {
 						values.put(node, 1.0);
 					} else {
 						values.put(node, 0.0);
 					}
 				} else if (type.equals(NOT_EQUAL_TYPE)) {
-					if (!value.equals(nodeValue)) {
+					if (value != null && !value.equals(nodeValue)) {
 						values.put(node, 1.0);
 					} else {
 						values.put(node, 0.0);

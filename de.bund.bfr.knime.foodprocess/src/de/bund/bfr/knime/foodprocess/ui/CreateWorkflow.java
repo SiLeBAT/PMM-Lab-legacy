@@ -75,7 +75,6 @@ import org.knime.core.node.workflow.SingleNodeContainer;
 import org.knime.core.node.workflow.WorkflowManager;
 import org.knime.core.node.workflow.WorkflowPersistor;
 import org.knime.core.util.VMFileLocker;
-import org.knime.workbench.ui.layout.commands.AutoLayoutCommand;
 import org.knime.workbench.ui.nature.KNIMEProjectNature;
 
 import de.bund.bfr.knime.foodprocess.FoodProcessNodeFactory;

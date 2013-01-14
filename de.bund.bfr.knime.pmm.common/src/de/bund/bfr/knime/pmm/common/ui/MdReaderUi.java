@@ -233,20 +233,20 @@ public class MdReaderUi extends JPanel {
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
 			if (par.equalsIgnoreCase("temperature")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				if (dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
 					return false;
 				}
 			}
 			else if (par.equalsIgnoreCase("ph")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-				if (dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
+				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
 					return false;
 				}
 			}
 			else if (par.equalsIgnoreCase("aw")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-				if (dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
 					return false;
 				}
 			}

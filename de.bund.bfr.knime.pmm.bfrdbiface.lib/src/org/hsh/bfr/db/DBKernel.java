@@ -836,7 +836,7 @@ public class DBKernel {
     		}
     	}
     	else {
-    		MyLogger.handleException(e);
+    		if (!isKNIME) MyLogger.handleException(e);
     	}
     	//LOGGER.log(Level.INFO, dbUsername + " - " + dbPassword + " - " + dbFile, e);
     }

@@ -394,14 +394,15 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			return;
 		}
 		
-		if( ph < PmmConstants.MIN_PH ) {
+		/* if( ph < PmmConstants.MIN_PH ) {
 			setValue(TimeSeriesSchema.ATT_PH, null );
 			return;
 		}
 		
 		if( ph > PmmConstants.MAX_PH ) {
-			throw new PmmException("pH cannot exceed" + PmmConstants.MAX_PH);
-		}
+			setValue(TimeSeriesSchema.ATT_PH, null );
+			return;
+		} */
 		
 		setValue(TimeSeriesSchema.ATT_PH, ph );
 	}

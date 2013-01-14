@@ -395,7 +395,8 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 		
 		if( ph < PmmConstants.MIN_PH ) {
-			throw new PmmException("pH cannot be lower than " + PmmConstants.MIN_PH);
+			setValue(TimeSeriesSchema.ATT_PH, null );
+			return;
 		}
 		
 		if( ph > PmmConstants.MAX_PH ) {

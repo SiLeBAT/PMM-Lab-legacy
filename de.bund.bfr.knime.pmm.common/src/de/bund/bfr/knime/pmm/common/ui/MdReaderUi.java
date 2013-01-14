@@ -232,6 +232,7 @@ public class MdReaderUi extends JPanel {
 		
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
+			if (dbl[0] == null && dbl[1] == null) continue;
 			if (par.equalsIgnoreCase("temperature")) {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {

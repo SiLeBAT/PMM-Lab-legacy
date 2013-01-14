@@ -184,7 +184,7 @@ public class TsReaderUi extends JPanel {
 		final String matrixString,
 		final String agentString,
 		final String literatureString,
-		final HashMap<String, double[]> parameter,
+		final HashMap<String, Double[]> parameter,
 		final KnimeTuple tuple ) throws PmmException {
 			
 		if (matrixString != null && !matrixString.trim().isEmpty()) {
@@ -218,22 +218,23 @@ public class TsReaderUi extends JPanel {
 		}
 		
 		for (String par : parameter.keySet()) {
-			double[] dbl = parameter.get(par);
+			Double[] dbl = parameter.get(par);
+			if (dbl[0] == null && dbl[1] == null) continue;
 			if (par.equalsIgnoreCase("temperature")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				if (temp < dbl[0] || temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+				if (temp == null || temp < dbl[0] || temp > dbl[1]) {
 					return false;
 				}
 			}
 			else if (par.equalsIgnoreCase("ph")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-				if (temp < dbl[0] || temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
+				if (temp == null || temp < dbl[0] || temp > dbl[1]) {
 					return false;
 				}
 			}
 			else if (par.equalsIgnoreCase("aw")) {
-				double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-				if (temp < dbl[0] || temp > dbl[1]) {
+				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				if (temp == null || temp < dbl[0] || temp > dbl[1]) {
 					return false;
 				}
 			}

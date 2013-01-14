@@ -740,7 +740,11 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
 		System.out.println("Fertig");
   	}
   	private void doSpecialThings() {
-  		//DBKernel.importing = true;new MySQLImporter(1000000, true, false, true).doImport("", null, true);DBKernel.importing = false;
+  		/*
+  		DBKernel.dontLog = true;
+  		DBKernel.importing = true;new MySQLImporter(1000000, true, false, true).doImport("", null, true);DBKernel.importing = false;
+  		DBKernel.dontLog = false;
+  		*/
   		//checkAllEntriesIfOthersAlreadyEditedUpdates();
   		
   		/*

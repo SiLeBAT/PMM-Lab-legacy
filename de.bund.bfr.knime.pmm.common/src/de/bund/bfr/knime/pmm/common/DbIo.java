@@ -26,20 +26,22 @@ public class DbIo {
     }
     public static PmmXmlDoc convertStringLists2TSXmlDoc(String t, String l) {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
-		String[] toksT = t.split(",");
-		String[] toksL = l.split(",");
-		if (toksT.length > 0) {
-			int i=0;
-			for (String time : toksT) {
-				try {
-					TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-							time.equals("?") ? null : Double.parseDouble(time),
-									toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]));
-					tsDoc.add(tsx);
+		if (t != null && l != null && !t.isEmpty() && !l.isEmpty()) {
+			String[] toksT = t.split(",");
+			String[] toksL = l.split(",");
+			if (toksT.length > 0) {
+				int i=0;
+				for (String time : toksT) {
+					try {
+						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
+								time.equals("?") ? null : Double.parseDouble(time),
+										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]));
+						tsDoc.add(tsx);
+					}
+					catch (Exception e) {
+					}
+					i++;
 				}
-				catch (Exception e) {
-				}
-				i++;
 			}
 		}
 		return tsDoc;    	

@@ -33,11 +33,18 @@
  ******************************************************************************/
 package de.bund.bfr.knime.foodprocess.lib;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.text.NumberFormat;
 
-import javax.swing.JComboBox;
+import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
+
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
+
+import de.bund.bfr.knime.util.Matrix;
 
 import lombok.Data;
 import lombok.Getter;
@@ -48,11 +55,12 @@ public class OutPortDef {
 	private int n_inports, n_outports;
 
 	@Getter private JFormattedTextField outFlux;
-	@Getter private JComboBox<String> newMatrixDefinition;
+	@Getter private JButton newMatrixDefinition;
 	@Getter private JFormattedTextField[] fromInPort;
 	@Getter private ParametersDef parametersDef;
 
 	private OutPortDef[] outPortDef;
+	private Matrix matrix = null;
 	
 	public OutPortDef( final int n_inports, final int n_outports, final OutPortDef[] outPortDef ) {
 		
@@ -81,9 +89,15 @@ public class OutPortDef {
 		};
 		outFlux.setColumns(5);
 		
-		newMatrixDefinition = new JComboBox<String>( fetchMatrixSuggestion() );
-		newMatrixDefinition.setSelectedIndex( 0 );
-		newMatrixDefinition.setEditable( true );
+		newMatrixDefinition = new JButton("(select matrix)");
+		//newMatrixDefinition.setSelectedIndex( 0 );
+		//newMatrixDefinition.setEditable( true );
+		newMatrixDefinition.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				newMatrixDefinitionActionPerformed(e);
+			}
+		});
 		
 		fromInPort = new JFormattedTextField[ n_inports ];
 		for( i = 0; i < n_inports; i++ ) {
@@ -104,8 +118,9 @@ public class OutPortDef {
 		
 		ops = new OutPortSetting( n_inports );
 		
-		//ops.setMatrix( ( String )newMatrixDefinition.getSelectedItem() );
-		ops.setMatrix((String) newMatrixDefinition.getEditor().getItem());
+		////ops.setMatrix( ( String )newMatrixDefinition.getSelectedItem() );
+		//ops.setMatrix((String) newMatrixDefinition.getEditor().getItem());
+		ops.setMatrix(matrix);
 		
 		val = outFlux.getValue() == null ? null : ((Number)outFlux.getValue()).doubleValue();
 		ops.setOutFlux( val );
@@ -131,7 +146,10 @@ public class OutPortDef {
 		val = ops.getOutFlux();
 		outFlux.setValue( val );
 		
-		newMatrixDefinition.setSelectedItem( ops.getMatrix() );
+		//newMatrixDefinition.setSelectedItem( ops.getMatrix() );
+		matrix = ops.getMatrix();
+		if (matrix != null) newMatrixDefinition.setText(matrix.getName());
+		else newMatrixDefinition.setText("(select matrix)");
 		
 		for( i = 0; i < n_inports; i++ ) {
 			val = ops.getFromInPort()[i];
@@ -140,9 +158,24 @@ public class OutPortDef {
 		
 		parametersDef.setSetting(ops.getParametersSetting());
 	}
-	
-	// TODO: Fetch suggestions from database
-	private String[] fetchMatrixSuggestion() {
-		return new String[] { "Schwein", "Rind", "Lamm", "Pute", "Ente", "Gans", "Hühnchen" };
+	private void newMatrixDefinitionActionPerformed(ActionEvent e) {
+		//System.err.println(e);
+		JButton b = ((JButton) e.getSource());
+		Integer id = (matrix == null ? null : matrix.getId());
+		MyTable myT = DBKernel.myList.getTable("Matrices");
+		Object newVal = DBKernel.myList.openNewWindow(
+				myT,
+				id,
+				(Object) ("Matrix"),
+				null,
+				null,
+				null,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			String mname = ""+DBKernel.getValue("Matrices", "ID", newVal+"", "Matrixname");
+			b.setText(mname);
+			matrix = new Matrix(mname, (Integer) newVal);
+		}
 	}
 }

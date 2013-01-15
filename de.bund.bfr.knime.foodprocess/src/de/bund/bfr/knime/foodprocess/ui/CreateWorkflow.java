@@ -35,6 +35,7 @@ package de.bund.bfr.knime.foodprocess.ui;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map.Entry;
@@ -84,6 +85,7 @@ import de.bund.bfr.knime.foodprocess.addons.AddonNodeModel;
 import de.bund.bfr.knime.foodprocess.addons.IngredientsNodeFactory;
 import de.bund.bfr.knime.foodprocess.lib.FoodProcessSetting;
 import de.bund.bfr.knime.foodprocess.lib.OutPortSetting;
+import de.bund.bfr.knime.util.Matrix;
 
 public class CreateWorkflow extends AbstractHandler {
 	/**
@@ -176,6 +178,7 @@ public class CreateWorkflow extends AbstractHandler {
 		LinkedHashMap<Integer, Integer> toMap = new LinkedHashMap<Integer, Integer>();
     	//LinkedHashMap<Integer, LinkedHashMap<Integer, Double>> fractionsIn = new LinkedHashMap<Integer, LinkedHashMap<Integer, Double>>(); 
     	LinkedHashMap<Integer, LinkedHashMap<Integer, Double>> fractionsOut = new LinkedHashMap<Integer, LinkedHashMap<Integer, Double>>(); 
+    	LinkedHashMap<Integer, LinkedHashMap<Integer, Matrix>> matricesOut = new LinkedHashMap<Integer, LinkedHashMap<Integer, Matrix>>(); 
 
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Prozessdaten") +
 				" WHERE " + DBKernel.delimitL("Workflow") + "=" + processchainID, false);
@@ -310,12 +313,18 @@ public class CreateWorkflow extends AbstractHandler {
 								}
 								else if (zp.equals("Produkt")) {
 									// Outport redefinition
+									if (!matricesOut.containsKey(processID)) {
+										matricesOut.put(processID, new LinkedHashMap<Integer, Matrix>());
+									}
+									LinkedHashMap<Integer, Matrix> lhmm = matricesOut.get(processID);
+									lhmm.put(rsZ.getInt("ID"), new Matrix((Integer) mat));
+									
 									if (unit == 24) {// 24=Prozent
 										if (!fractionsOut.containsKey(processID)) {
 											fractionsOut.put(processID, new LinkedHashMap<Integer, Double>());
 										}
 										LinkedHashMap<Integer, Double> lhm = fractionsOut.get(processID);
-										lhm.put(rs.getInt("ID"), dbl);
+										lhm.put(rsZ.getInt("ID"), dbl);
 									}
 									else {
 										System.err.println("ERROR: Unit for Produkt nicht ok..., not %...");
@@ -341,6 +350,8 @@ public class CreateWorkflow extends AbstractHandler {
 		    // Port 1 is the first normal port
 			for (Entry<Integer, NodeID> entry : nodesMap.entrySet()) {
 				int fromKey = entry.getKey();
+				NodeID source = entry.getValue();
+		    	LinkedHashMap<Integer, Double> lhm = fractionsOut.get(fromKey);
 				rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Prozess_Verbindungen") +
 						" WHERE " + DBKernel.delimitL("Ausgangsprozess") + "=" + fromKey, false);
 				if (rs != null && rs.first()) {
@@ -359,42 +370,56 @@ public class CreateWorkflow extends AbstractHandler {
 								toPort = toMap.get(toKey) + 1;
 							}
 							
-							NodeID source = entry.getValue();
 							NodeID dest = nodesMap.get(toKey);
 						    wfm.addConnection(source, fromPort, dest, toPort);
 						    
 						    fromMap.put(fromKey, fromPort);
 						    toMap.put(toKey, toPort);
 
-					    	LinkedHashMap<Integer, Double> lhm = fractionsOut.get(fromKey);
-						    if (lhm != null) {
-							    SingleNodeContainer p2Container = (SingleNodeContainer)wfm.getNodeContainer(source);
-							    FoodProcessNodeModel p2Model = ((FoodProcessNodeModel)p2Container.getNode().getNodeModel());
-							    FoodProcessNodeSettings fns = p2Model.getSetting();
-								OutPortSetting[] ops = fns.getFoodProcessSetting().getOutPortSetting();
-						    	double sum = getSum(lhm);
-						    	for (int vp : lhm.keySet()) {
-									ResultSet rsZ = DBKernel.getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Zutatendaten") +
-											" WHERE " + DBKernel.delimitL("Vorprozess") + "=" + vp +
-											" AND " + DBKernel.delimitL("Prozessdaten") + "=" + toKey, false);
-									if (rsZ != null && rsZ.first()) {
-								    	ops[fromPort - 1].setOutFlux(100 * lhm.get(vp) / sum);
-										break;
-									}
-						    	}
-								//InPortSetting[] ips = fns.getFoodProcessSetting().getInPortSetting();
-						    }
+						    doLhm((SingleNodeContainer)wfm.getNodeContainer(source), lhm, matricesOut.get(fromKey), fromPort, toKey);
 						}
 					} while(rs.next());
 				}
+			    int fromPort = 1;
+				if (fromMap.containsKey(fromKey)) {
+					fromPort = fromMap.get(fromKey) + 1;
+				}
+			    doLhm((SingleNodeContainer)wfm.getNodeContainer(source), lhm, matricesOut.get(fromKey), fromPort, -1);
 			}
 		}
 		catch (Exception e) {throwCoreException("Error in fetching process chain data from the internal database", e);}
 	}
+	private void doLhm(SingleNodeContainer p2Container, LinkedHashMap<Integer, Double> lhm, LinkedHashMap<Integer, Matrix> lhmm, int fromPort, int toKey) throws SQLException {
+	    if (lhm != null) {
+		    FoodProcessNodeModel p2Model = ((FoodProcessNodeModel)p2Container.getNode().getNodeModel());
+		    FoodProcessNodeSettings fns = p2Model.getSetting();
+			OutPortSetting[] ops = fns.getFoodProcessSetting().getOutPortSetting();
+	    	double sum = getSum(lhm);
+	    	for (int vp : lhm.keySet()) {
+	    		if (toKey > 0) {
+					ResultSet rsZ = DBKernel.getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Zutatendaten") +
+							" WHERE " + DBKernel.delimitL("Vorprozess") + "=" + vp +
+							" AND " + DBKernel.delimitL("Prozessdaten") + "=" + toKey, false);
+					if (rsZ != null && rsZ.first()) {									
+				    	ops[fromPort - 1].setOutFlux(100 * lhm.get(vp) / sum);
+				    	lhm.put(vp, -lhm.get(vp));
+				    	if (lhmm != null && lhmm.containsKey(vp)) ops[fromPort - 1].setMatrix(lhmm.get(vp));
+						break;
+					}
+	    		}
+	    		else if (lhm.get(vp) > 0) {
+			    	ops[fromPort - 1].setOutFlux(100 * lhm.get(vp) / sum);
+			    	if (lhmm != null && lhmm.containsKey(vp)) ops[fromPort - 1].setMatrix(lhmm.get(vp));
+			    	fromPort++;
+	    		}
+	    	}
+			//InPortSetting[] ips = fns.getFoodProcessSetting().getInPortSetting();
+	    }		
+	}
 	private double getSum(LinkedHashMap<Integer, Double> lhm) {
 		double sum = 0;
 		for (double dbl : lhm.values()) {
-			sum += dbl;
+			sum += (dbl > 0 ? dbl : -dbl);
 		}
 		return sum;
 	}

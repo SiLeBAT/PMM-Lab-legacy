@@ -38,6 +38,8 @@ import lombok.Data;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
+import de.bund.bfr.knime.util.Matrix;
+
 @Data
 public class OutPortSetting {
 	
@@ -46,7 +48,7 @@ public class OutPortSetting {
 	private final String PARAM_OUTFLUX = "outFlux";
 	private final String PARAM_FROMINPORT = "fromInPort";
 	
-	private String matrix;
+	private Matrix matrix;
 	private Double outFlux;
 		
 	private Double[] fromInPort;
@@ -89,7 +91,7 @@ public class OutPortSetting {
 		
 		Config c = config.addConfig(PARAM_PARAMETERS);
 		parametersSetting.saveSettings( c );
-		config.addString( PARAM_MATRIX, matrix );
+		config.addInt( PARAM_MATRIX, matrix == null ? 0 : matrix.getId() );
 		if (outFlux != null) {
 			config.addDouble( PARAM_OUTFLUX, outFlux );			
 		}
@@ -106,7 +108,8 @@ public class OutPortSetting {
 		int i;
 		Config c;
 		
-		matrix = config.getString( PARAM_MATRIX );
+		if (config.containsKey(PARAM_MATRIX) && config.getInt(PARAM_MATRIX) > 0) matrix = new Matrix(config.getInt(PARAM_MATRIX));
+		else matrix = null;
 		outFlux = config.containsKey(PARAM_OUTFLUX) ? config.getDouble( PARAM_OUTFLUX ) : null;
 
 		for( i = 0; i < fromInPort.length; i++ ) {

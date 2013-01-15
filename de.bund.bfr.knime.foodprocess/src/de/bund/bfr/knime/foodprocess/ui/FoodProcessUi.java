@@ -61,6 +61,8 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import com.jgoodies.forms.factories.*;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 
 import com.jgoodies.forms.factories.CC;
@@ -73,6 +75,7 @@ import de.bund.bfr.knime.foodprocess.lib.FoodProcessSetting;
 import de.bund.bfr.knime.foodprocess.lib.InPortDef;
 import de.bund.bfr.knime.foodprocess.lib.OutPortDef;
 import de.bund.bfr.knime.foodprocess.lib.ParametersDef;
+import de.bund.bfr.knime.util.Matrix;
 
 /**
  * @author Armin Weiser
@@ -528,27 +531,30 @@ public class FoodProcessUi extends JPanel {
 		// TODO add your code here
 	}
 
+	private void button6ActionPerformed(ActionEvent e) {
+	}
+
 	@SuppressWarnings("unused")
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		panel3 = new JPanel();
 		label1 = new JLabel();
-		comboBox1 = new JComboBox<String>();
+		comboBox1 = new JComboBox();
 		label2 = new JLabel();
 		formattedTextField1 = new JFormattedTextField();
-		comboBox2 = new JComboBox<String>();
-		comboBox3 = new JComboBox<String>();
+		comboBox2 = new JComboBox<>();
+		comboBox3 = new JComboBox<>();
 		label3 = new JLabel();
 		formattedTextField2 = new JFormattedTextField();
-		comboBox4 = new JComboBox<String>();
+		comboBox4 = new JComboBox<>();
 		label4 = new JLabel();
 		formattedTextField3 = new JFormattedTextField();
-		comboBox5 = new JComboBox<String>();
+		comboBox5 = new JComboBox<>();
 		panel1 = new JPanel();
 		label5 = new JLabel();
 		formattedTextField4 = new JFormattedTextField();
 		button1 = new JButton();
-		comboBox6 = new JComboBox<String>();
+		comboBox6 = new JComboBox<>();
 		label6 = new JLabel();
 		formattedTextField5 = new JFormattedTextField();
 		button2 = new JButton();
@@ -558,7 +564,7 @@ public class FoodProcessUi extends JPanel {
 		label8 = new JLabel();
 		formattedTextField7 = new JFormattedTextField();
 		button4 = new JButton();
-		comboBox9 = new JComboBox<String>();
+		comboBox9 = new JComboBox<>();
 		tabbedPane1 = new JTabbedPane();
 		panel4 = new JPanel();
 		label38 = new JLabel();
@@ -569,7 +575,7 @@ public class FoodProcessUi extends JPanel {
 		label12 = new JLabel();
 		label99 = new JLabel();
 		label100 = new JLabel();
-		comboBox39 = new JComboBox<String>();
+		comboBox39 = new JComboBox<>();
 		formattedTextField134 = new JFormattedTextField();
 		button15 = new JButton();
 		formattedTextField135 = new JFormattedTextField();
@@ -579,7 +585,7 @@ public class FoodProcessUi extends JPanel {
 		formattedTextField137 = new JFormattedTextField();
 		button18 = new JButton();
 		label101 = new JLabel();
-		comboBox40 = new JComboBox<String>();
+		comboBox40 = new JComboBox<>();
 		formattedTextField138 = new JFormattedTextField();
 		button19 = new JButton();
 		formattedTextField139 = new JFormattedTextField();
@@ -607,7 +613,7 @@ public class FoodProcessUi extends JPanel {
 		formattedTextField149 = new JFormattedTextField();
 		button70 = new JButton();
 		label104 = new JLabel();
-		comboBox41 = new JComboBox<String>();
+		comboBox41 = new JComboBox<>();
 		formattedTextField150 = new JFormattedTextField();
 		button71 = new JButton();
 		formattedTextField151 = new JFormattedTextField();
@@ -628,15 +634,15 @@ public class FoodProcessUi extends JPanel {
 		formattedTextField76 = new JFormattedTextField();
 		formattedTextField77 = new JFormattedTextField();
 		label19 = new JLabel();
-		comboBox8 = new JComboBox<Object>();
-		comboBox11 = new JComboBox<Object>();
-		comboBox12 = new JComboBox<Object>();
-		comboBox14 = new JComboBox<Object>();
+		button6 = new JButton();
+		button7 = new JButton();
+		button8 = new JButton();
+		button13 = new JButton();
 		checkBox1 = new JCheckBox();
 		label9 = new JLabel();
 		label93 = new JLabel();
 		label94 = new JLabel();
-		comboBox36 = new JComboBox<String>();
+		comboBox36 = new JComboBox<>();
 		formattedTextField94 = new JFormattedTextField();
 		button9 = new JButton();
 		formattedTextField95 = new JFormattedTextField();
@@ -646,7 +652,7 @@ public class FoodProcessUi extends JPanel {
 		formattedTextField97 = new JFormattedTextField();
 		button12 = new JButton();
 		label95 = new JLabel();
-		comboBox37 = new JComboBox<String>();
+		comboBox37 = new JComboBox<>();
 		formattedTextField98 = new JFormattedTextField();
 		button14 = new JButton();
 		formattedTextField102 = new JFormattedTextField();
@@ -674,7 +680,7 @@ public class FoodProcessUi extends JPanel {
 		formattedTextField112 = new JFormattedTextField();
 		button58 = new JButton();
 		label98 = new JLabel();
-		comboBox38 = new JComboBox<String>();
+		comboBox38 = new JComboBox<>();
 		formattedTextField101 = new JFormattedTextField();
 		button47 = new JButton();
 		formattedTextField105 = new JFormattedTextField();
@@ -723,14 +729,14 @@ public class FoodProcessUi extends JPanel {
 			panel3.add(formattedTextField1, CC.xy(3, 3));
 
 			//---- comboBox2 ----
-			comboBox2.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox2.setModel(new DefaultComboBoxModel<>(new String[] {
 				"l",
 				"kg"
 			}));
 			panel3.add(comboBox2, CC.xy(5, 3));
 
 			//---- comboBox3 ----
-			comboBox3.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox3.setModel(new DefaultComboBoxModel<>(new String[] {
 				" ",
 				"s",
 				"min",
@@ -747,7 +753,7 @@ public class FoodProcessUi extends JPanel {
 			panel3.add(formattedTextField2, CC.xy(3, 5));
 
 			//---- comboBox4 ----
-			comboBox4.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox4.setModel(new DefaultComboBoxModel<>(new String[] {
 				"s",
 				"min",
 				"h",
@@ -763,7 +769,7 @@ public class FoodProcessUi extends JPanel {
 			panel3.add(formattedTextField3, CC.xy(3, 7));
 
 			//---- comboBox5 ----
-			comboBox5.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox5.setModel(new DefaultComboBoxModel<>(new String[] {
 				"s",
 				"min",
 				"h",
@@ -796,7 +802,7 @@ public class FoodProcessUi extends JPanel {
 			panel1.add(button1, CC.xy(5, 1));
 
 			//---- comboBox6 ----
-			comboBox6.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox6.setModel(new DefaultComboBoxModel<>(new String[] {
 				"\u00b0C",
 				"\u00b0F",
 				"K"
@@ -840,7 +846,7 @@ public class FoodProcessUi extends JPanel {
 			panel1.add(button4, CC.xy(5, 7));
 
 			//---- comboBox9 ----
-			comboBox9.setModel(new DefaultComboBoxModel<String>(new String[] {
+			comboBox9.setModel(new DefaultComboBoxModel<>(new String[] {
 				"bar",
 				"Pa"
 			}));
@@ -899,7 +905,7 @@ public class FoodProcessUi extends JPanel {
 				panel4.add(label100, CC.xy(1, 7));
 
 				//---- comboBox39 ----
-				comboBox39.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox39.setModel(new DefaultComboBoxModel<>(new String[] {
 					"l",
 					"kg"
 				}));
@@ -930,7 +936,7 @@ public class FoodProcessUi extends JPanel {
 				panel4.add(label101, CC.xy(1, 9));
 
 				//---- comboBox40 ----
-				comboBox40.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox40.setModel(new DefaultComboBoxModel<>(new String[] {
 					"\u00b0C",
 					"\u00b0F",
 					"K"
@@ -1010,7 +1016,7 @@ public class FoodProcessUi extends JPanel {
 				panel4.add(label104, CC.xy(1, 15));
 
 				//---- comboBox41 ----
-				comboBox41.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox41.setModel(new DefaultComboBoxModel<>(new String[] {
 					"bar",
 					"Pa"
 				}));
@@ -1084,21 +1090,45 @@ public class FoodProcessUi extends JPanel {
 				label19.setText("New Matrix Definition");
 				panel2.add(label19, CC.xy(1, 5));
 
-				//---- comboBox8 ----
-				comboBox8.setEditable(true);
-				panel2.add(comboBox8, CC.xywh(5, 5, 3, 1));
+				//---- button6 ----
+				button6.setText("(select matrix)");
+				button6.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button6ActionPerformed(e);
+					}
+				});
+				panel2.add(button6, CC.xywh(5, 5, 3, 1));
 
-				//---- comboBox11 ----
-				comboBox11.setEditable(true);
-				panel2.add(comboBox11, CC.xywh(9, 5, 3, 1));
+				//---- button7 ----
+				button7.setText("(select matrix)");
+				button7.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button6ActionPerformed(e);
+					}
+				});
+				panel2.add(button7, CC.xywh(9, 5, 3, 1));
 
-				//---- comboBox12 ----
-				comboBox12.setEditable(true);
-				panel2.add(comboBox12, CC.xywh(13, 5, 3, 1));
+				//---- button8 ----
+				button8.setText("(select matrix)");
+				button8.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button6ActionPerformed(e);
+					}
+				});
+				panel2.add(button8, CC.xywh(13, 5, 3, 1));
 
-				//---- comboBox14 ----
-				comboBox14.setEditable(true);
-				panel2.add(comboBox14, CC.xywh(17, 5, 3, 1));
+				//---- button13 ----
+				button13.setText("(select matrix)");
+				button13.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						button6ActionPerformed(e);
+					}
+				});
+				panel2.add(button13, CC.xywh(17, 5, 3, 1));
 
 				//---- checkBox1 ----
 				checkBox1.setText("Advanced");
@@ -1131,7 +1161,7 @@ public class FoodProcessUi extends JPanel {
 				panel2.add(label94, CC.xy(1, 11));
 
 				//---- comboBox36 ----
-				comboBox36.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox36.setModel(new DefaultComboBoxModel<>(new String[] {
 					"l",
 					"kg"
 				}));
@@ -1162,7 +1192,7 @@ public class FoodProcessUi extends JPanel {
 				panel2.add(label95, CC.xy(1, 13));
 
 				//---- comboBox37 ----
-				comboBox37.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox37.setModel(new DefaultComboBoxModel<>(new String[] {
 					"\u00b0C",
 					"\u00b0F",
 					"K"
@@ -1242,7 +1272,7 @@ public class FoodProcessUi extends JPanel {
 				panel2.add(label98, CC.xy(1, 19));
 
 				//---- comboBox38 ----
-				comboBox38.setModel(new DefaultComboBoxModel<String>(new String[] {
+				comboBox38.setModel(new DefaultComboBoxModel<>(new String[] {
 					"bar",
 					"Pa"
 				}));
@@ -1320,10 +1350,6 @@ public class FoodProcessUi extends JPanel {
 							"Agent Name", "Out Port 1", "Out Port 2", "Out Port 3", "Out Port 4"
 						}
 					) {
-						/**
-						 * 
-						 */
-						private static final long serialVersionUID = 3886272447206890942L;
 						Class<?>[] columnTypes = new Class<?>[] {
 							String.class, Double.class, Double.class, Double.class, Double.class
 						};
@@ -1363,7 +1389,7 @@ public class FoodProcessUi extends JPanel {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JPanel panel3;
 	private JLabel label1;
-	private JComboBox<String> comboBox1;
+	private JComboBox comboBox1;
 	private JLabel label2;
 	private JFormattedTextField formattedTextField1;
 	private JComboBox<String> comboBox2;
@@ -1458,10 +1484,10 @@ public class FoodProcessUi extends JPanel {
 	private JFormattedTextField formattedTextField76;
 	private JFormattedTextField formattedTextField77;
 	private JLabel label19;
-	private JComboBox<Object> comboBox8;
-	private JComboBox<Object> comboBox11;
-	private JComboBox<Object> comboBox12;
-	private JComboBox<Object> comboBox14;
+	private JButton button6;
+	private JButton button7;
+	private JButton button8;
+	private JButton button13;
 	private JCheckBox checkBox1;
 	private JLabel label9;
 	private JLabel label93;

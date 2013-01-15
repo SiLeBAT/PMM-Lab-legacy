@@ -33,6 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.util;
 
+import org.hsh.bfr.db.DBKernel;
+
 
 /**
  * A matrix is defined by either a string or a string with the corresponding 
@@ -48,6 +50,10 @@ public class Matrix extends NameAndDbId {
 	
 	public Matrix(final String name, final int id) {
 		super(name, id);
+	}
+
+	public Matrix(final int id) {
+		super(""+DBKernel.getValue("Matrices", "ID", id+"", "Matrixname"), id);
 	}
 
 }

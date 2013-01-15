@@ -181,16 +181,20 @@ public class FoodProcessSetting {
 		expertIn = config.getBoolean( PARAM_EXPERT_IN );
 
 		outPortSetting = new OutPortSetting[ n_outports ];
-		for( i = 0; i < n_outports; i++ ) {			
-			c = config.getConfig( OUT_PORT_SETTING+"_"+i );
-			outPortSetting[ i ] = new OutPortSetting( n_inports );
-			outPortSetting[ i ].loadSettings( c );
+		for( i = 0; i < n_outports; i++ ) {		
+			//if (config.containsKey(OUT_PORT_SETTING+"_"+i)) {
+				c = config.getConfig(OUT_PORT_SETTING+"_"+i);
+				outPortSetting[ i ] = new OutPortSetting( n_inports );
+				outPortSetting[ i ].loadSettings( c );				
+			//}
 		}		
-		expertOut = config.getBoolean( PARAM_EXPERT_OUT );
+		if (config.containsKey(PARAM_EXPERT_OUT)) expertOut = config.getBoolean( PARAM_EXPERT_OUT );
 		
 		agentsSetting = new AgentsSetting();
-		c = config.getConfig(PARAM_AGENTS);
-		agentsSetting.loadSettings( c );
+		if (config.containsKey(PARAM_AGENTS)) {
+			c = config.getConfig(PARAM_AGENTS);
+			agentsSetting.loadSettings( c );
+		}
 	}
 
     /** Loads parameters in Dialog.

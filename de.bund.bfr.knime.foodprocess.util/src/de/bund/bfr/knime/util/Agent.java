@@ -33,6 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.util;
 
+import org.hsh.bfr.db.DBKernel;
+
 
 /**
  * A wrapper class for a agent.
@@ -47,5 +49,9 @@ public class Agent extends NameAndDbId {
 	
 	public Agent(final String name, final int id) {
 		super(name, id);
+	}
+
+	public Agent(final int id) {
+		super(""+DBKernel.getValue("Agenzien", "ID", id+"", "Agensname"), id);
 	}
 }

@@ -64,11 +64,15 @@ import de.bund.bfr.knime.pcml.port.PCMLUtil;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.util.Agent;
 import de.bund.bfr.knime.util.Matrix;
+import de.bund.bfr.pcml10.AgentIncredientDocument.AgentIncredient;
+import de.bund.bfr.pcml10.AgentRecipeDocument.AgentRecipe;
 import de.bund.bfr.pcml10.ColumnDocument.Column;
 import de.bund.bfr.pcml10.ColumnListDocument.ColumnList;
 import de.bund.bfr.pcml10.DataTableDocument.DataTable;
 import de.bund.bfr.pcml10.InlineTableDocument.InlineTable;
 import de.bund.bfr.pcml10.InportDocument.Inport;
+import de.bund.bfr.pcml10.MatrixIncredientDocument.MatrixIncredient;
+import de.bund.bfr.pcml10.MatrixRecipeDocument.MatrixRecipe;
 import de.bund.bfr.pcml10.NameAndDatabaseId;
 import de.bund.bfr.pcml10.OutportDocument.Outport;
 import de.bund.bfr.pcml10.OutportRefDocument.OutportRef;
@@ -117,11 +121,11 @@ public class FoodProcessNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(final PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
+		FoodProcessSetting fps = settings.getFoodProcessSetting();
         PortObjectSpec[] outSpecs = new PortObjectSpec[N_PORT_OUT];
         for (int i = 0; i < N_PORT_OUT; i++) {
-            outSpecs[i] = createPCMLSpec(i, inSpecs);
+            outSpecs[i] = createPCMLSpec(i, inSpecs, fps);
         }
-		FoodProcessSetting fps = settings.getFoodProcessSetting();
 		if (fps.getStepWidth() == null || fps.getDuration() == null) {
 			setWarningMessage("step-width and duration are essential parameters for meaningful computations.");			
 		}
@@ -136,23 +140,27 @@ public class FoodProcessNodeModel extends NodeModel {
 
         PCMLDocument pcmlDoc = PCMLUtil.merge(inObjects);
 
+        // 1. Create Ports
         PortObjectSpec[] inSpecs = new PortObjectSpec[N_PORT_IN];
     	PCMLPortObjectSpec[] outSpecs =  new PCMLPortObjectSpec[N_PORT_OUT];
     	for (int i = 0; i < N_PORT_IN; i++) {
     		inSpecs[i] = inObjects[i] == null ? null : inObjects[i].getSpec();
     	}
+		FoodProcessSetting fps = settings.getFoodProcessSetting();
     	for (int i = 0; i < N_PORT_OUT; i++) {
-    		outSpecs[i] = createPCMLSpec(i, inSpecs);
+    		outSpecs[i] = createPCMLSpec(i, inSpecs, fps);
     	}
     	
-        // Create a processNode
+        // 2. Create a processNode
     	PCML pcml = pcmlDoc.getPCML();
         ProcessNode processNode = pcml.getProcessChain().addNewProcessNode();
         String processNodeID = UUID.randomUUID().toString();
         processNode.setId(processNodeID);
         processNode.setType(ProcessNodeType.PROCESSING);
-		FoodProcessSetting fps = settings.getFoodProcessSetting();
-		ParametersSetting ps = fps.getParametersSetting();
+
+        ParametersSetting ps = fps.getParametersSetting();
+		
+		// 3. Fill FoodprocessNode
 		NameAndDatabaseId process = processNode.addNewProcess();
 		process.setName(fps.getProcessName());
 		// parameters of the process
@@ -172,7 +180,7 @@ public class FoodProcessNodeModel extends NodeModel {
 		param.setPH(ps.getPh());
 		param.setPressure(ps.getPressure());
         
-        // Set inports
+        // 4. Set inport Refs
         for (int i = 0; i < inObjects.length; i++) {
         	PortObject inObject = inObjects[i];
             if (null != inObject) {
@@ -184,12 +192,12 @@ public class FoodProcessNodeModel extends NodeModel {
             }
         }
         
-        // calculate the universal time for each ProcessNode relative to this node!
+        // 5. calculate the universal time for each ProcessNode relative to this node!
 		Map<String, ProcessNode> processNodes = createProcessNodeMap(pcmlDoc);		
 		Map<String, ProcessData> processChainData = createProcessChainDataMap(pcmlDoc);		
 		calculateNewTimes(processNodes, processChainData, processNode, 0.0);
         
-		// the process chain data
+		// 6. set the process chain data
 		ProcessChainData pcData = pcml.getProcessChainData();
 		if (pcData == null) pcData = pcml.addNewProcessChainData();
 		ProcessData p1Data = pcData.addNewProcessData();
@@ -219,37 +227,38 @@ public class FoodProcessNodeModel extends NodeModel {
 		QName pressureCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c4");
 		pressure.setName(pressureCol.getLocalPart());
 		// Columns Matrices
-		Map<Matrix, Double> matrices = outSpecs[0].getMatrices();
-		Map<QName, Double> matrixCols = new HashMap<QName, Double>();
 		int index = 5;
-        for (Map.Entry<Matrix, Double> entry : matrices.entrySet()) {
-			Column matrix = columnList.addNewColumn();
-			NameAndDatabaseId nadbid = matrix.addNewMatrix();
-			nadbid.setName(entry.getKey().getName());
-			nadbid.setDbId(entry.getKey().getId());
-			QName matrixCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c" + index);
-			matrix.setName(matrixCol.getLocalPart());
-			matrixCols.put(matrixCol, entry.getValue());
-			index++;
-        }
-		// Columns Agents
-		Map<Agent, Double> agents = outSpecs[0].getAgents();
+		Map<QName, Double> matrixCols = new HashMap<QName, Double>();
 		Map<QName, Double> agentCols = new HashMap<QName, Double>();
-        for (Map.Entry<Agent, Double> entry : agents.entrySet()) {
-			Column agent = columnList.addNewColumn();
-			NameAndDatabaseId nadbid = agent.addNewAgent();
-			nadbid.setName(entry.getKey().getName());
-			nadbid.setDbId(entry.getKey().getId());
-			QName agentCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c" + index);
-			agent.setName(agentCol.getLocalPart());
-			agentCols.put(agentCol, entry.getValue());
-			index++;
-        }
-		
+		for (int i=0;i<outSpecs.length;i++) {
+			Map<Matrix, Double> matrices = outSpecs[i].getMatrices();
+	        for (Map.Entry<Matrix, Double> entry : matrices.entrySet()) {
+				Column matrix = columnList.addNewColumn();
+				NameAndDatabaseId nadbid = matrix.addNewMatrix();
+				nadbid.setName(entry.getKey().getName());
+				nadbid.setDbId(entry.getKey().getId());
+				QName matrixCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c" + index);
+				matrix.setName(matrixCol.getLocalPart());
+				matrixCols.put(matrixCol, entry.getValue());
+				index++;
+	        }
+			// Columns Agents
+			Map<Agent, Double> agents = outSpecs[i].getAgents();
+	        for (Map.Entry<Agent, Double> entry : agents.entrySet()) {
+				Column agent = columnList.addNewColumn();
+				NameAndDatabaseId nadbid = agent.addNewAgent();
+				nadbid.setName(entry.getKey().getName());
+				nadbid.setDbId(entry.getKey().getId());
+				QName agentCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c" + index);
+				agent.setName(agentCol.getLocalPart());
+				agentCols.put(agentCol, entry.getValue());
+				index++;
+	        }
+		}		
         
         InlineTable inlineTable = table.addNewInlineTable();
         
-        // exec Table
+        // 7. exec Table
 		MyChartDialog mcd = new MyChartDialog();
 		if (fps.getStepWidth() != null && fps.getDuration() != null) {
 			XYSeries xy_T = mcd.getSerie(ps.getTemperature(), fps.getStepWidth(), fps.getDuration(), fps.getStepWidth());
@@ -324,8 +333,8 @@ public class FoodProcessNodeModel extends NodeModel {
             Outport outport = PCMLUtil.addOutport(processNode, outSpecs[i]);
             if (outSpecs[i].isUsed()) {
                 outport.setVolume(outSpecs[i].getVolume().toString());
-                /*
-        		Map<Matrix, Double> matrices = outSpecs[0].getMatrices();
+                
+                Map<Matrix, Double> matrices = outSpecs[i].getMatrices();
                 for (Map.Entry<Matrix, Double> entry : matrices.entrySet()) {
             		MatrixRecipe mRecipe = outport.addNewMatrixRecipe();
             		MatrixIncredient mIncredient = mRecipe.addNewMatrixIncredient();
@@ -334,16 +343,16 @@ public class FoodProcessNodeModel extends NodeModel {
             		matrix.setDbId(entry.getKey().getId());  
             		mIncredient.setFraction(entry.getValue());
                 }
-        		Map<Agent, Double> agents = outSpecs[0].getAgents();
+                Map<Agent, Double> agents = outSpecs[i].getAgents();
                 for (Map.Entry<Agent, Double> entry : agents.entrySet()) {
             		AgentRecipe mRecipe = outport.addNewAgentRecipe();
             		AgentIncredient mIncredient = mRecipe.addNewAgentIncredient();
             		NameAndDatabaseId agent = mIncredient.addNewAgent();
             		agent.setName(entry.getKey().getName());
             		agent.setDbId(entry.getKey().getId());  
-            		mIncredient.setQuantity()(entry.getValue());
+            		mIncredient.setQuantity(entry.getValue());
                 }
-                */
+                
             }
             else {
                 outport.setVolume("0.0");
@@ -417,8 +426,7 @@ public class FoodProcessNodeModel extends NodeModel {
     	return result;
     }
 
-    private PCMLPortObjectSpec createPCMLSpec(final int outIndex, final PortObjectSpec[] inSpecs) {
-		FoodProcessSetting fps = settings.getFoodProcessSetting();
+    private PCMLPortObjectSpec createPCMLSpec(final int outIndex, final PortObjectSpec[] inSpecs, final FoodProcessSetting fps) {
 		OutPortSetting[] ops = fps.getOutPortSetting();
 		// erst einmal erhalten alle OutPorts denselben Mix - im Nachgang für jeden OutPORT INDIVIDUELL MACHEN, "Expert mode"
 
@@ -510,6 +518,11 @@ public class FoodProcessNodeModel extends NodeModel {
 			double outFluxSum = 0;
 			for (int i=0;i<N_PORT_OUT;i++) {
 				outFluxSum += ops[i].getOutFlux() == null ? 0 : ops[i].getOutFlux();
+			}
+			// Hmmm... ob das so ok ist??? Hier wird die Mischung einfach ignoriert... aber wie soll sonst mit einer Neudefinition der Matrix am OutPort umgegangen werden?
+			if (ops[outIndex].getMatrix() != null) {
+				newMatrixMix.clear();
+				newMatrixMix.put(ops[outIndex].getMatrix(), 1.0);
 			}
 			outSpec = new PCMLPortObjectSpec(newMatrixMix,
 					newAgentMix,

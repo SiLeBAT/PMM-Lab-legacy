@@ -52,7 +52,8 @@ import org.hsh.bfr.db.imports.InfoBox;
 
 public class MyLogger {
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.S");		
+	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.S");	
+	public static boolean isKNIME = false;
 	
 	static public void setup(String path) {
 	    try {
@@ -69,7 +70,7 @@ public class MyLogger {
 		handleException(e, false);
 	}
 	public static void handleException(Exception e, boolean forceMessage) {
-		if (DBKernel.isKNIME &&
+		if (isKNIME &&
 				(e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 			;
 		}

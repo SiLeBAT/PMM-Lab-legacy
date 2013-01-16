@@ -176,70 +176,75 @@ public class PlausibleAction extends AbstractAction {
 	  	}
 	}
 	private void go4ISM() throws SQLException {
-		DBKernel.sendRequest(
+		if (DBKernel.sendRequest(
 	    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
 	    		"RETURNS INT\n" + 
 	    		"NO SQL\n" +
 	    		"LANGUAGE JAVA\n" +
 	    		"PARAMETER STYLE JAVA\n" +
 	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.Levenshtein.LD'"
-	    		, false);
-		/*
-		DBKernel.sendRequest(
-	    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
-	    		"RETURNS INT\n" + 
-	    		"NO SQL\n" +
-	    		"LANGUAGE JAVA\n" +
-	    		"PARAMETER STYLE JAVA\n" +
-	    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
-	    		, false);
-*/
-		LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
-				"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+	    		, false, true) &&
+	    		DBKernel.sendRequest(
+	    				"GRANT EXECUTE ON FUNCTION LD TO " +
+	    		DBKernel.delimitL("WRITE_ACCESS") + "," + DBKernel.delimitL("SUPER_WRITE_ACCESS"),
+	    		false, true)) {
+			/*
+			DBKernel.sendRequest(
+		    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
+		    		"RETURNS INT\n" + 
+		    		"NO SQL\n" +
+		    		"LANGUAGE JAVA\n" +
+		    		"PARAMETER STYLE JAVA\n" +
+		    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
+		    		, false);
+	*/
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
+					"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 
-		LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
-					"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
+						"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
 
-		LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
-						null, null, null);		
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+							null, null, null);		
 
-		int total = vals1.size() + vals2.size() + vals3.size();
-		if (showAndFilterVals("Station", vals1, 6, 0, total)) {
-			if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
-				showAndFilterVals("Lieferungen", vals3, 0, vals1.size() + vals2.size(), total);
+			int total = vals1.size() + vals2.size() + vals3.size();
+			if (showAndFilterVals("Station", vals1, 6, 0, total)) {
+				if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
+					showAndFilterVals("Lieferungen", vals3, 0, vals1.size() + vals2.size(), total);
+				}
 			}
-		}
-		
-		/*
-		MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
-		TreePath[] tps = mtt.getCheckedPaths();
-		for (TreePath tp : tps) {
-			int idTop = 0;
-			HashSet<Integer> idDowns = new HashSet<Integer>();
-			TreeNode node = (TreeNode) tp.getLastPathComponent();		
-			if (node instanceof MyTreeTableNode) {
-				MyTreeTableNode mttn = (MyTreeTableNode) node;
-				idTop = Integer.parseInt(mttn.getValueAt(0).toString());
-				if (tp.getPathCount() == 3) { // unterste Ebene
-					idDowns.add(idTop);
-					mttn = (MyTreeTableNode) tp.getParentPath().getLastPathComponent();
+			
+			/*
+			MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
+			TreePath[] tps = mtt.getCheckedPaths();
+			for (TreePath tp : tps) {
+				int idTop = 0;
+				HashSet<Integer> idDowns = new HashSet<Integer>();
+				TreeNode node = (TreeNode) tp.getLastPathComponent();		
+				if (node instanceof MyTreeTableNode) {
+					MyTreeTableNode mttn = (MyTreeTableNode) node;
 					idTop = Integer.parseInt(mttn.getValueAt(0).toString());
-				}
-				else if (tp.getPathCount() == 2) { // obere Ebene
-					for (int i=0;i<mtt.getTheModel().getChildCount(node);i++) {
-						mttn = (MyTreeTableNode) mtt.getTheModel().getChild(node, i);
-						idDowns.add(Integer.parseInt(mttn.getValueAt(0).toString()));
+					if (tp.getPathCount() == 3) { // unterste Ebene
+						idDowns.add(idTop);
+						mttn = (MyTreeTableNode) tp.getParentPath().getLastPathComponent();
+						idTop = Integer.parseInt(mttn.getValueAt(0).toString());
 					}
+					else if (tp.getPathCount() == 2) { // obere Ebene
+						for (int i=0;i<mtt.getTheModel().getChildCount(node);i++) {
+							mttn = (MyTreeTableNode) mtt.getTheModel().getChild(node, i);
+							idDowns.add(Integer.parseInt(mttn.getValueAt(0).toString()));
+						}
+					}
+					System.out.print("IdTop=" + idTop + "\tIdDowns=");
+					for (int id : idDowns) {
+						System.out.print(" " + id);
+					}
+					System.out.println();
 				}
-				System.out.print("IdTop=" + idTop + "\tIdDowns=");
-				for (int id : idDowns) {
-					System.out.print(" " + id);
-				}
-				System.out.println();
 			}
+			*/
 		}
-		*/
-		DBKernel.sendRequest("DROP FUNCTION LD", false);
+		DBKernel.sendRequest("DROP FUNCTION LD", false, true);
 	}
 	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn,
 			int lfd, int total) {

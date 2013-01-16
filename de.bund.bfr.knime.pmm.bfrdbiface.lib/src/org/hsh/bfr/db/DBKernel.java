@@ -138,6 +138,8 @@ public class DBKernel {
 	}
 	public static String getTempSAPass(boolean other) {
 		//if (debug) return "";
+		if (isServerConnection && isKrise) return "de6!§5ddy";
+			
 		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
 		else return isKNIME || isKrise ? "" : "de6!§5ddy";
 	}
@@ -1369,9 +1371,18 @@ public class DBKernel {
 	    return ergebnis;
 	  }
   public static boolean sendRequest(final String sql, final boolean suppressWarnings) {
+	  return sendRequest(sql, suppressWarnings, false);
+  }
+  public static boolean sendRequest(final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
     boolean result = false;
+    boolean adminGathered = false;
     try {
     	Connection conn = getDBConnection();
+    	if (fetchAdminInCase && !DBKernel.isAdmin()) {
+    		DBKernel.closeDBConnections(false);
+    		conn = DBKernel.getDefaultAdminConn();
+    		adminGathered = true;
+    	}
       Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
       anfrage.execute(sql);
       result = true;
@@ -1382,6 +1393,15 @@ public class DBKernel {
     			  (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
     	  MyLogger.handleException(e);
       }
+    }
+    if (adminGathered) {
+		DBKernel.closeDBConnections(false);
+		try {
+			DBKernel.getDBConnection();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     return result;
   }

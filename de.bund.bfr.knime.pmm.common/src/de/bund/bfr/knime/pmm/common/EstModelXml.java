@@ -9,8 +9,6 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-
 public class EstModelXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_ESTMODEL = "estmodelxml";
@@ -34,7 +32,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	}
 	public EstModelXml(Element xmlElement) {
 		try {
-			setID(Integer.parseInt(xmlElement.getAttribute("id").getValue()));
+			String strInt = xmlElement.getAttribute("id").getValue();
+			setID(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
 			setName(xmlElement.getAttribute("name").getValue());
 			String strDbl = xmlElement.getAttribute("rms").getValue();
 			setRMS(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
@@ -59,7 +58,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public Double getBIC() {return bic;}
 	public Integer getDOF() {return dof;}
 	
-	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
+	public void setID(Integer id) {this.id = (id == null) ? null : id;} // MathUtilities.getRandomNegativeInt()
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setRMS(Double rms) {this.rms = (rms == null) ? null : rms;}
 	public void setR2(Double r2) {this.r2 = (r2 == null) ? null : r2;}
@@ -70,7 +69,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_ESTMODEL);
-		modelElement.setAttribute("id", id.toString());
+		modelElement.setAttribute("id", (id == null ? "" : id.toString()));
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("rms", "" + (rms == null || Double.isNaN(rms) ? "" : rms));
 		modelElement.setAttribute("r2", "" + (r2 == null || Double.isNaN(r2) ? "" : r2));

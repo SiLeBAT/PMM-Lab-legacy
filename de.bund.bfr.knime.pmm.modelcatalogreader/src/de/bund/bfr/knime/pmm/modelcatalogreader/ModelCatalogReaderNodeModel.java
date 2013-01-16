@@ -59,7 +59,6 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
@@ -168,9 +167,9 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 	    		
-	    		int ri = MathUtilities.getRandomNegativeInt();
+	    		//int ri = MathUtilities.getRandomNegativeInt();
 				PmmXmlDoc emDoc = new PmmXmlDoc();
-				EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null, null);
+				EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
 				emDoc.add(emx);
 				tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
@@ -230,9 +229,9 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 
-	    		int ri = MathUtilities.getRandomNegativeInt();
+	    		//int ri = MathUtilities.getRandomNegativeInt();
 				PmmXmlDoc emDoc = new PmmXmlDoc();
-				EstModelXml emx = new EstModelXml(ri, "EM_" + ri, null, null, null, null, null);
+				EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 

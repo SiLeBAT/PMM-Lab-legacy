@@ -317,7 +317,7 @@ public class CreateWorkflow extends AbstractHandler {
 										matricesOut.put(processID, new LinkedHashMap<Integer, Matrix>());
 									}
 									LinkedHashMap<Integer, Matrix> lhmm = matricesOut.get(processID);
-									lhmm.put(rsZ.getInt("ID"), new Matrix((Integer) mat));
+									if (mat != null) lhmm.put(rsZ.getInt("ID"), new Matrix((Integer) mat));
 									
 									if (unit == 24) {// 24=Prozent
 										if (!fractionsOut.containsKey(processID)) {

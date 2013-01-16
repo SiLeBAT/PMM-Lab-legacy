@@ -22,6 +22,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -51,11 +52,11 @@ public class MdReaderUi extends JPanel {
 		if (params == null || params.size() == 0) {
 			params = new LinkedHashMap<String, DoubleTextField[]>();
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("Temperature", dtf);
+			params.put(AttributeUtilities.ATT_TEMPERATURE, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("pH", dtf);
+			params.put(AttributeUtilities.ATT_PH, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("aw", dtf);
+			params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put("raw", dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
@@ -90,7 +91,9 @@ public class MdReaderUi extends JPanel {
 		int index = 3;
 		for (String par : params.keySet()) {
 			JComponent c;
-			if (par.equalsIgnoreCase("temperature") || par.equalsIgnoreCase("ph") || par.equalsIgnoreCase("aw")) {
+			if (par.equalsIgnoreCase(AttributeUtilities.ATT_TEMPERATURE) ||
+					par.equalsIgnoreCase(AttributeUtilities.ATT_PH) ||
+					par.equalsIgnoreCase(AttributeUtilities.ATT_WATERACTIVITY)) {
 				JTextField textField = new JTextField();
 				textField.setText(par);
 				textField.setEnabled(false);
@@ -233,6 +236,7 @@ public class MdReaderUi extends JPanel {
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
 			if (dbl[0] == null && dbl[1] == null) continue;
+			/*
 			if (par.equalsIgnoreCase("temperature")) {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
@@ -251,7 +255,8 @@ public class MdReaderUi extends JPanel {
 					return false;
 				}
 			}
-			else {
+			*/
+			//else {
 				boolean paramFound = false;
 				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
@@ -271,7 +276,7 @@ public class MdReaderUi extends JPanel {
 	        				}
 	        			}
 	        		}
-	        	}
+	        	//}
 	        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
 			}
 		}
@@ -389,7 +394,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField4 ----
 			textField4.setColumns(20);
-			textField4.setText("Temperature");
+			textField4.setText(AttributeUtilities.ATT_TEMPERATURE);
 			textField4.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField4, CC.xy(1, 3));
 
@@ -403,7 +408,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField5 ----
 			textField5.setColumns(20);
-			textField5.setText("pH");
+			textField5.setText(AttributeUtilities.ATT_PH);
 			textField5.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField5, CC.xy(1, 5));
 			panel4.add(doubleTextField3, CC.xy(3, 5));
@@ -411,7 +416,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField6 ----
 			textField6.setColumns(20);
-			textField6.setText("aw");
+			textField6.setText(AttributeUtilities.ATT_WATERACTIVITY);
 			textField6.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField6, CC.xy(1, 7));
 			panel4.add(doubleTextField5, CC.xy(3, 7));

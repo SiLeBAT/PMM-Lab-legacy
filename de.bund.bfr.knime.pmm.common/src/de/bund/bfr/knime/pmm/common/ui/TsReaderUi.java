@@ -53,6 +53,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TsReaderUi extends JPanel {
@@ -115,11 +116,11 @@ public class TsReaderUi extends JPanel {
 		if (params == null) {
 			params = new LinkedHashMap<String, DoubleTextField[]>();
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("Temperature", dtf);
+			params.put(AttributeUtilities.ATT_TEMPERATURE, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("pH", dtf);
+			params.put(AttributeUtilities.ATT_PH, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("aw", dtf);
+			params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put("param1", dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
@@ -220,6 +221,7 @@ public class TsReaderUi extends JPanel {
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
 			if (dbl[0] == null && dbl[1] == null) continue;
+			/*
 			if (par.equalsIgnoreCase("temperature")) {
 				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
 				if (temp == null || temp < dbl[0] || temp > dbl[1]) {
@@ -238,7 +240,8 @@ public class TsReaderUi extends JPanel {
 					return false;
 				}
 			}
-			else {
+			*/
+			//else {
 				boolean paramFound = false;
 				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
@@ -256,7 +259,7 @@ public class TsReaderUi extends JPanel {
 	        		}
 	        	}
 	        	if (!paramFound) return false;
-			}
+			//}
 		}
 		
 		return true;

@@ -39,6 +39,13 @@ import java.util.List;
 
 public class AttributeUtilities {
 
+	public static final String ATT_TEMPERATURE = "Temperature";
+	public static final String ATT_PH = "pH";
+	public static final String ATT_WATERACTIVITY = "aw";
+	public static final int ATT_TEMPERATURE_ID = -1;
+	public static final int ATT_PH_ID = -2;
+	public static final int ATT_AW_ID = -3;
+
 	private static final String HOURS = "h";
 	private static final String MINUTES = "min";
 	private static final String SECONDS = "sec";

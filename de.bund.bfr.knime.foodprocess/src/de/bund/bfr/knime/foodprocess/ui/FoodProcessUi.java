@@ -61,8 +61,6 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import com.jgoodies.forms.factories.*;
 
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 
 import com.jgoodies.forms.factories.CC;
@@ -75,7 +73,6 @@ import de.bund.bfr.knime.foodprocess.lib.FoodProcessSetting;
 import de.bund.bfr.knime.foodprocess.lib.InPortDef;
 import de.bund.bfr.knime.foodprocess.lib.OutPortDef;
 import de.bund.bfr.knime.foodprocess.lib.ParametersDef;
-import de.bund.bfr.knime.util.Matrix;
 
 /**
  * @author Armin Weiser
@@ -539,7 +536,7 @@ public class FoodProcessUi extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		panel3 = new JPanel();
 		label1 = new JLabel();
-		comboBox1 = new JComboBox();
+		comboBox1 = new JComboBox<String>();
 		label2 = new JLabel();
 		formattedTextField1 = new JFormattedTextField();
 		comboBox2 = new JComboBox<>();
@@ -1350,6 +1347,10 @@ public class FoodProcessUi extends JPanel {
 							"Agent Name", "Out Port 1", "Out Port 2", "Out Port 3", "Out Port 4"
 						}
 					) {
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = -6653762190892968996L;
 						Class<?>[] columnTypes = new Class<?>[] {
 							String.class, Double.class, Double.class, Double.class, Double.class
 						};
@@ -1389,7 +1390,7 @@ public class FoodProcessUi extends JPanel {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JPanel panel3;
 	private JLabel label1;
-	private JComboBox comboBox1;
+	private JComboBox<String> comboBox1;
 	private JLabel label2;
 	private JFormattedTextField formattedTextField1;
 	private JComboBox<String> comboBox2;

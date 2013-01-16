@@ -192,14 +192,17 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return getString( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
+	@Deprecated
 	public Double getTemperature() throws PmmException {
 		return getDouble( TimeSeriesSchema.ATT_TEMPERATURE );
 	}
 	
+	@Deprecated
 	public Double getPh() throws PmmException {
 		return getDouble( TimeSeriesSchema.ATT_PH );
 	}
 	
+	@Deprecated
 	public Double getWaterActivity() throws PmmException {
 		return getDouble( TimeSeriesSchema.ATT_WATERACTIVITY );
 	}
@@ -262,14 +265,17 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return !isNull( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
+	@Deprecated
 	public boolean hasTemperature() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_TEMPERATURE );
 	}
 	
+	@Deprecated
 	public boolean hasPh() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_PH );
 	}
 	
+	@Deprecated
 	public boolean hasWaterActivity() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_WATERACTIVITY );
 	}
@@ -354,6 +360,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setAgentDetail( agentDetail );
 	}
 	
+	@Deprecated
 	public void setTemperature( final Double temperature ) throws PmmException {
 		
 		if( temperature == null ) {
@@ -372,7 +379,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		
 		setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature );
 	}
-	
+	@Deprecated
 	public void setTemperature( final String temperature ) throws PmmException {
 		
 		if( temperature == null ) {
@@ -382,6 +389,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
+	@Deprecated
 	public void setPh(final Double ph) throws PmmException {
 		
 		if( ph == null ) {
@@ -407,6 +415,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue(TimeSeriesSchema.ATT_PH, ph );
 	}
 	
+	@Deprecated
 	public void setWaterActivity( final Double aw ) throws PmmException {
 		
 		if( aw == null ) {
@@ -430,6 +439,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue(TimeSeriesSchema.ATT_WATERACTIVITY, aw );
 	}
 	
+	@Deprecated
 	public void setWaterActivity( final String aw ) throws PmmException {
 		
 		if( aw == null ) {

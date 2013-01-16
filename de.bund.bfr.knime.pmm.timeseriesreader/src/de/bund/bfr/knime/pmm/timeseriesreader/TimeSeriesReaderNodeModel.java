@@ -55,9 +55,11 @@ import org.knime.core.node.config.Config;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.MdReaderUi;
 
@@ -146,7 +148,14 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
     		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,result.getDouble(Bfrdb.ATT_TEMPERATURE),"°C");
+			miscDoc.add(mx);
+			mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,result.getDouble(Bfrdb.ATT_PH),null);
+			miscDoc.add(mx);
+			mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,result.getDouble(Bfrdb.ATT_AW),null);
+			miscDoc.add(mx);
     		tuple.setMisc(miscDoc);
+    		
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		try {tuple.setPh(result.getDouble(Bfrdb.ATT_PH));}
     		catch (PmmException e) {e.printStackTrace();}

@@ -68,7 +68,6 @@ import org.hsh.bfr.db.gui.PlausibleDialog;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
 import org.hsh.bfr.db.imports.InfoBox;
-import org.hsh.bfr.db.imports.MySQLImporter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

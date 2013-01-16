@@ -48,8 +48,11 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_MISC = "Misc";
 	//public static final String ATT_MISCVALUE = "MiscValue";
 	//public static final String ATT_MISCUNIT = "MiscUnit";
+	@Deprecated
 	public static final String ATT_TEMPERATURE = "Temp";
+	@Deprecated
 	public static final String ATT_PH = "pH";
+	@Deprecated
 	public static final String ATT_WATERACTIVITY = "aw";
 	public static final String ATT_AGENTID = "OrganismID";
 	public static final String ATT_AGENTNAME = "OrganismName";

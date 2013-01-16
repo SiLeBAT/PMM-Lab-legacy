@@ -98,10 +98,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem highlightNodesItem;
-	private JMenuItem clearHighlightItem;
+	private JMenuItem clearHighlightNodesItem;
+	private JMenuItem highlightEdgesItem;
+	private JMenuItem clearHighlightEdgesItem;
 
 	private List<NodeSelectionListener> nodeSelectionListeners;
-	private HighlightCondition highlightCondition;
+	private HighlightCondition nodesHighlightCondition;
+	private HighlightCondition edgesHighlightCondition;
 
 	public GraphCanvas(List<Node> nodes, List<Edge> edges,
 			Map<String, Class<?>> nodeProperties,
@@ -122,7 +125,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
-		highlightCondition = null;
+		nodesHighlightCondition = null;
+		edgesHighlightCondition = null;
 
 		createPopupMenu();
 		updateViewer();
@@ -146,7 +150,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		} else if (e.getSource() == nodeSizeButton) {
 			try {
 				viewer.getRenderContext().setVertexShapeTransformer(
-						new ShapeTransformer(Integer.parseInt(nodeSizeField
+						new NodeShapeTransformer(Integer.parseInt(nodeSizeField
 								.getText())));
 				viewer.repaint();
 			} catch (NumberFormatException ex) {
@@ -191,28 +195,65 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			dialog.setVisible(true);
 		} else if (e.getSource() == highlightNodesItem) {
 			HighlightNodesDialog dialog = new HighlightNodesDialog(this,
-					nodeProperties, highlightCondition);
+					nodeProperties, nodesHighlightCondition);
 
 			dialog.setLocationRelativeTo(this);
 			dialog.setVisible(true);
 
 			if (dialog.isSuccessful()) {
-				highlightCondition = dialog.getHighlightCondition();
+				nodesHighlightCondition = dialog.getHighlightCondition();
 
-				Map<Node, Double> highlightedNodes = highlightCondition
-						.getValues(nodes);
+				Map<GraphElement, Double> highlightedElements = nodesHighlightCondition
+						.getValues(new ArrayList<GraphElement>(nodes));
+				Map<Node, Double> highlightedNodes = new LinkedHashMap<>();
+
+				for (GraphElement element : highlightedElements.keySet()) {
+					highlightedNodes.put((Node) element,
+							highlightedElements.get(element));
+				}
 
 				viewer.getRenderContext().setVertexFillPaintTransformer(
-						new FillTransformer(viewer, highlightedNodes));
+						new NodeFillTransformer(viewer, highlightedNodes));
 				viewer.repaint();
 			}
-		} else if (e.getSource() == clearHighlightItem) {
-			highlightCondition = null;
+		} else if (e.getSource() == clearHighlightNodesItem) {
+			nodesHighlightCondition = null;
 
 			Map<Node, Double> highlightedNodes = new LinkedHashMap<>();
 
 			viewer.getRenderContext().setVertexFillPaintTransformer(
-					new FillTransformer(viewer, highlightedNodes));
+					new NodeFillTransformer(viewer, highlightedNodes));
+			viewer.repaint();
+		} else if (e.getSource() == highlightEdgesItem) {
+			HighlightNodesDialog dialog = new HighlightNodesDialog(this,
+					edgeProperties, edgesHighlightCondition);
+
+			dialog.setLocationRelativeTo(this);
+			dialog.setVisible(true);
+
+			if (dialog.isSuccessful()) {
+				edgesHighlightCondition = dialog.getHighlightCondition();
+
+				Map<GraphElement, Double> highlightedElements = edgesHighlightCondition
+						.getValues(new ArrayList<GraphElement>(edges));
+				Map<Edge, Double> highlightedEdges = new LinkedHashMap<>();
+
+				for (GraphElement element : highlightedElements.keySet()) {
+					highlightedEdges.put((Edge) element,
+							highlightedElements.get(element));
+				}
+
+				viewer.getRenderContext().setEdgeDrawPaintTransformer(
+						new EdgeDrawTransformer(viewer, highlightedEdges));
+				viewer.repaint();
+			}
+		} else if (e.getSource() == clearHighlightEdgesItem) {
+			edgesHighlightCondition = null;
+
+			Map<Edge, Double> highlightedEdges = new LinkedHashMap<>();
+
+			viewer.getRenderContext().setEdgeDrawPaintTransformer(
+					new EdgeDrawTransformer(viewer, highlightedEdges));
 			viewer.repaint();
 		}
 	}
@@ -330,10 +371,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
 			viewer.getRenderContext().setVertexFillPaintTransformer(
-					new FillTransformer(viewer,
+					new NodeFillTransformer(viewer,
 							new LinkedHashMap<Node, Double>()));
+			viewer.getRenderContext().setEdgeDrawPaintTransformer(
+					new EdgeDrawTransformer(viewer,
+							new LinkedHashMap<Edge, Double>()));
 			viewer.getRenderContext().setVertexShapeTransformer(
-					new ShapeTransformer(DEFAULT_NODESIZE));
+					new NodeShapeTransformer(DEFAULT_NODESIZE));
 			viewer.addMouseListener(this);
 		}
 	}
@@ -345,14 +389,20 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		edgePropertiesItem.addActionListener(this);
 		highlightNodesItem = new JMenuItem("Highlight Nodes");
 		highlightNodesItem.addActionListener(this);
-		clearHighlightItem = new JMenuItem("Clear Highlights");
-		clearHighlightItem.addActionListener(this);
+		clearHighlightNodesItem = new JMenuItem("Clear Node Highlights");
+		clearHighlightNodesItem.addActionListener(this);
+		highlightEdgesItem = new JMenuItem("Highlight Edges");
+		highlightEdgesItem.addActionListener(this);
+		clearHighlightEdgesItem = new JMenuItem("Clear Edge Highlights");
+		clearHighlightEdgesItem.addActionListener(this);
 
 		popup = new JPopupMenu();
 		popup.add(nodePropertiesItem);
 		popup.add(edgePropertiesItem);
 		popup.add(highlightNodesItem);
-		popup.add(clearHighlightItem);
+		popup.add(clearHighlightNodesItem);
+		popup.add(highlightEdgesItem);
+		popup.add(clearHighlightEdgesItem);
 	}
 
 	private JPanel createOptionsPanel() {
@@ -410,7 +460,12 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
-	public static class Node {
+	public static interface GraphElement {
+
+		public Map<String, Object> getProperties();
+	}
+
+	public static class Node implements GraphElement {
 
 		private String region;
 		private Map<String, Object> properties;
@@ -424,12 +479,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return region;
 		}
 
+		@Override
 		public Map<String, Object> getProperties() {
 			return properties;
 		}
 	}
 
-	public static class Edge {
+	public static class Edge implements GraphElement {
 
 		private Node n1;
 		private Node n2;
@@ -449,16 +505,18 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return n2;
 		}
 
+		@Override
 		public Map<String, Object> getProperties() {
 			return properties;
 		}
 	}
 
-	private static class ShapeTransformer implements Transformer<Node, Shape> {
+	private static class NodeShapeTransformer implements
+			Transformer<Node, Shape> {
 
 		private int size;
 
-		public ShapeTransformer(int size) {
+		public NodeShapeTransformer(int size) {
 			this.size = size;
 		}
 
@@ -471,12 +529,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
-	private static class FillTransformer implements Transformer<Node, Paint> {
+	private static class NodeFillTransformer implements
+			Transformer<Node, Paint> {
 
 		private VisualizationViewer<Node, Edge> viewer;
 		private Map<Node, Double> highlightedNodes;
 
-		public FillTransformer(VisualizationViewer<Node, Edge> viewer,
+		public NodeFillTransformer(VisualizationViewer<Node, Edge> viewer,
 				Map<Node, Double> highlightedNodes) {
 			this.viewer = viewer;
 			this.highlightedNodes = highlightedNodes;
@@ -492,6 +551,33 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				return new Color(1.0f, 1.0f - alpha, 1.0f - alpha);
 			} else {
 				return Color.WHITE;
+			}
+		}
+
+	}
+
+	private static class EdgeDrawTransformer implements
+			Transformer<Edge, Paint> {
+
+		private VisualizationViewer<Node, Edge> viewer;
+		private Map<Edge, Double> highlightedEdges;
+
+		public EdgeDrawTransformer(VisualizationViewer<Node, Edge> viewer,
+				Map<Edge, Double> highlightedEdges) {
+			this.viewer = viewer;
+			this.highlightedEdges = highlightedEdges;
+		}
+
+		@Override
+		public Paint transform(Edge edge) {
+			if (viewer.getPickedEdgeState().getPicked().contains(edge)) {
+				return Color.GREEN;
+			} else if (highlightedEdges.containsKey(edge)) {
+				float alpha = highlightedEdges.get(edge).floatValue();
+
+				return new Color(alpha, 0.0f, 0.0f);
+			} else {
+				return Color.BLACK;
 			}
 		}
 
@@ -704,11 +790,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				}
 			} else if (logicalAddButtons.contains(e.getSource())) {
 				int index = logicalAddButtons.indexOf(e.getSource());
-				List<List<SimpleLogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
+				List<List<LogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
 						.getConditions();
-				SimpleLogicalHighlightCondition newCond = new SimpleLogicalHighlightCondition(
+				LogicalHighlightCondition newCond = new LogicalHighlightCondition(
 						nodeProperties.keySet().toArray(new String[0])[0],
-						SimpleLogicalHighlightCondition.EQUAL_TYPE, "");
+						LogicalHighlightCondition.EQUAL_TYPE, "");
 				boolean added = false;
 				int count = 0;
 
@@ -739,7 +825,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				pack();
 			} else if (logicalRemoveButtons.contains(e.getSource())) {
 				int index = logicalRemoveButtons.indexOf(e.getSource());
-				List<List<SimpleLogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
+				List<List<LogicalHighlightCondition>> conditions = ((AndOrHighlightCondition) createCondition())
 						.getConditions();
 				boolean removed = false;
 				int count = 0;
@@ -799,13 +885,13 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 				for (int i = 0; i < condition.getConditions().size(); i++) {
 					for (int j = 0; j < condition.getConditions().get(i).size(); j++) {
-						SimpleLogicalHighlightCondition cond = condition
+						LogicalHighlightCondition cond = condition
 								.getConditions().get(i).get(j);
 
 						JComboBox<String> propertyBox = new JComboBox<>(
 								nodeProperties.keySet().toArray(new String[0]));
 						JComboBox<String> typeBox = new JComboBox<>(
-								SimpleLogicalHighlightCondition.TYPES);
+								LogicalHighlightCondition.TYPES);
 						JTextField valueField = new JTextField();
 						JButton addButton = new JButton("Add");
 						JButton removeButton = new JButton("Remove");
@@ -861,7 +947,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				JComboBox<String> propertyBox = new JComboBox<>(nodeProperties
 						.keySet().toArray(new String[0]));
 				JComboBox<String> typeBox = new JComboBox<>(
-						SimpleLogicalHighlightCondition.TYPES);
+						LogicalHighlightCondition.TYPES);
 				JTextField valueField = new JTextField();
 				JButton addButton = new JButton("Add");
 				JButton removeButton = new JButton("Remove");
@@ -938,8 +1024,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 						(String) valuePropertyBox.getSelectedItem(),
 						(String) valueTypeBox.getSelectedItem());
 			} else if (conditionType.equals(LOGICAL_CONDITION)) {
-				List<List<SimpleLogicalHighlightCondition>> conditions = new ArrayList<>();
-				List<SimpleLogicalHighlightCondition> andList = new ArrayList<>();
+				List<List<LogicalHighlightCondition>> conditions = new ArrayList<>();
+				List<LogicalHighlightCondition> andList = new ArrayList<>();
 
 				for (int i = 0; i < logicalPropertyBoxes.size(); i++) {
 					if (i != 0) {
@@ -958,8 +1044,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 							.getSelectedItem();
 					String value = logicalValueFields.get(i).getText();
 
-					andList.add(new SimpleLogicalHighlightCondition(property,
-							type, value));
+					andList.add(new LogicalHighlightCondition(property, type,
+							value));
 				}
 
 				conditions.add(andList);
@@ -973,7 +1059,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private static interface HighlightCondition {
 
-		public Map<Node, Double> getValues(List<Node> nodes);
+		public Map<GraphElement, Double> getValues(List<GraphElement> elements);
 	}
 
 	public static class ValueHighlightCondition implements HighlightCondition {
@@ -991,11 +1077,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		@Override
-		public Map<Node, Double> getValues(List<Node> nodes) {
-			Map<Node, Double> values = new LinkedHashMap<>();
+		public Map<GraphElement, Double> getValues(List<GraphElement> elements) {
+			Map<GraphElement, Double> values = new LinkedHashMap<>();
 
-			for (Node node : nodes) {
-				Object value = node.getProperties().get(property);
+			for (GraphElement element : elements) {
+				Object value = element.getProperties().get(property);
 
 				if (value instanceof Number) {
 					double doubleValue = ((Number) value).doubleValue();
@@ -1003,26 +1089,27 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					if (!Double.isNaN(doubleValue)
 							&& !Double.isInfinite(doubleValue)
 							&& doubleValue >= 0.0) {
-						values.put(node, doubleValue);
+						values.put(element, doubleValue);
 					} else {
-						values.put(node, 0.0);
+						values.put(element, 0.0);
 					}
 				} else {
-					values.put(node, 0.0);
+					values.put(element, 0.0);
 				}
 			}
 
 			double max = Collections.max(values.values());
 
 			if (max != 0.0) {
-				for (Node node : nodes) {
-					values.put(node, values.get(node) / max);
+				for (GraphElement element : elements) {
+					values.put(element, values.get(element) / max);
 				}
 			}
 
 			if (type.equals(LOG_VALUE_TYPE)) {
-				for (Node node : nodes) {
-					values.put(node, Math.log10(values.get(node) * 9.0 + 1.0));
+				for (GraphElement element : elements) {
+					values.put(element,
+							Math.log10(values.get(element) * 9.0 + 1.0));
 				}
 			}
 
@@ -1044,37 +1131,37 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		public static final String OR_TYPE = "Or";
 		public static final String[] TYPES = { AND_TYPE, OR_TYPE };
 
-		private List<List<SimpleLogicalHighlightCondition>> conditions;
+		private List<List<LogicalHighlightCondition>> conditions;
 
 		public AndOrHighlightCondition(
-				List<List<SimpleLogicalHighlightCondition>> conditions) {
+				List<List<LogicalHighlightCondition>> conditions) {
 			this.conditions = conditions;
 		}
 
 		@Override
-		public Map<Node, Double> getValues(List<Node> nodes) {
-			List<List<Map<Node, Double>>> valuesList = new ArrayList<>();
+		public Map<GraphElement, Double> getValues(List<GraphElement> elements) {
+			List<List<Map<GraphElement, Double>>> valuesList = new ArrayList<>();
 
-			for (List<SimpleLogicalHighlightCondition> andLists : conditions) {
-				List<Map<Node, Double>> v = new ArrayList<>();
+			for (List<LogicalHighlightCondition> andLists : conditions) {
+				List<Map<GraphElement, Double>> v = new ArrayList<>();
 
-				for (SimpleLogicalHighlightCondition condition : andLists) {
-					v.add(condition.getValues(nodes));
+				for (LogicalHighlightCondition condition : andLists) {
+					v.add(condition.getValues(elements));
 				}
 
 				valuesList.add(v);
 			}
 
-			Map<Node, Double> returnValues = new LinkedHashMap<>();
+			Map<GraphElement, Double> returnValues = new LinkedHashMap<>();
 
-			for (Node node : nodes) {
+			for (GraphElement element : elements) {
 				boolean allFalse = true;
 
-				for (List<Map<Node, Double>> andValues : valuesList) {
+				for (List<Map<GraphElement, Double>> andValues : valuesList) {
 					boolean allTrue = true;
 
-					for (Map<Node, Double> values : andValues) {
-						if (values.get(node) != 1.0) {
+					for (Map<GraphElement, Double> values : andValues) {
+						if (values.get(element) != 1.0) {
 							allTrue = false;
 							break;
 						}
@@ -1087,23 +1174,22 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				}
 
 				if (allFalse) {
-					returnValues.put(node, 0.0);
+					returnValues.put(element, 0.0);
 				} else {
-					returnValues.put(node, 1.0);
+					returnValues.put(element, 1.0);
 				}
 			}
 
 			return returnValues;
 		}
 
-		public List<List<SimpleLogicalHighlightCondition>> getConditions() {
+		public List<List<LogicalHighlightCondition>> getConditions() {
 			return conditions;
 		}
 
 	}
 
-	public static class SimpleLogicalHighlightCondition implements
-			HighlightCondition {
+	public static class LogicalHighlightCondition implements HighlightCondition {
 
 		public static final String EQUAL_TYPE = "==";
 		public static final String NOT_EQUAL_TYPE = "!=";
@@ -1117,7 +1203,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		private String value;
 		private Double doubleValue;
 
-		public SimpleLogicalHighlightCondition(String property, String type,
+		public LogicalHighlightCondition(String property, String type,
 				String value) {
 			this.property = property;
 			this.type = type;
@@ -1131,43 +1217,43 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		@Override
-		public Map<Node, Double> getValues(List<Node> nodes) {
-			Map<Node, Double> values = new LinkedHashMap<>();
+		public Map<GraphElement, Double> getValues(List<GraphElement> elements) {
+			Map<GraphElement, Double> values = new LinkedHashMap<>();
 
-			for (Node node : nodes) {
-				Object nodeValue = node.getProperties().get(property);
+			for (GraphElement element : elements) {
+				Object nodeValue = element.getProperties().get(property);
 
 				if (type.equals(EQUAL_TYPE)) {
 					if (value != null && value.equals(nodeValue)) {
-						values.put(node, 1.0);
+						values.put(element, 1.0);
 					} else {
-						values.put(node, 0.0);
+						values.put(element, 0.0);
 					}
 				} else if (type.equals(NOT_EQUAL_TYPE)) {
 					if (value != null && !value.equals(nodeValue)) {
-						values.put(node, 1.0);
+						values.put(element, 1.0);
 					} else {
-						values.put(node, 0.0);
+						values.put(element, 0.0);
 					}
 				} else if (type.equals(GREATER_TYPE)) {
 					if (doubleValue != null && nodeValue instanceof Number) {
 						if (((Number) nodeValue).doubleValue() > doubleValue) {
-							values.put(node, 1.0);
+							values.put(element, 1.0);
 						} else {
-							values.put(node, 0.0);
+							values.put(element, 0.0);
 						}
 					} else {
-						values.put(node, 0.0);
+						values.put(element, 0.0);
 					}
 				} else if (type.equals(LESS_TYPE)) {
 					if (doubleValue != null && nodeValue instanceof Number) {
 						if (((Number) nodeValue).doubleValue() < doubleValue) {
-							values.put(node, 1.0);
+							values.put(element, 1.0);
 						} else {
-							values.put(node, 0.0);
+							values.put(element, 0.0);
 						}
 					} else {
-						values.put(node, 0.0);
+						values.put(element, 0.0);
 					}
 				}
 			}
@@ -1183,7 +1269,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return type;
 		}
 
-		public Object getValue() {
+		public String getValue() {
 			return value;
 		}
 

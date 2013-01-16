@@ -2,10 +2,12 @@ package de.bund.bfr.knime.gis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Paint;
 import java.awt.Shape;
@@ -43,6 +45,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.collections15.Transformer;
 
+import de.bund.bfr.knime.gis.GraphCanvas.Node;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -56,10 +59,11 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
+import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphCanvas extends JPanel implements ActionListener,
-		ItemListener, MouseListener {
+		ItemListener, MouseListener, GraphMouseListener<Node> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -306,6 +310,25 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	public void mouseExited(MouseEvent e) {
 	}
 
+	@Override
+	public void graphClicked(Node v, MouseEvent me) {
+		if (me.getButton() == MouseEvent.BUTTON2) {
+			SingleNodePropertiesDialog dialog = new SingleNodePropertiesDialog(
+					me.getComponent(), v);
+
+			dialog.setLocation(me.getLocationOnScreen());
+			dialog.setVisible(true);
+		}
+	}
+
+	@Override
+	public void graphPressed(Node v, MouseEvent me) {
+	}
+
+	@Override
+	public void graphReleased(Node v, MouseEvent me) {
+	}
+
 	private void updateViewer() {
 		Graph<Node, Edge> graph = new SparseMultigraph<Node, Edge>();
 		Dimension size = null;
@@ -367,6 +390,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			}
 
 			viewer = new VisualizationViewer<Node, Edge>(layout);
+			viewer.addGraphMouseListener(this);
 			viewer.setPreferredSize(size);
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
@@ -1273,6 +1297,62 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			return value;
 		}
 
+	}
+
+	private static class SingleNodePropertiesDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		public SingleNodePropertiesDialog(Component parent, Node node) {
+			super(JOptionPane.getFrameForComponent(parent), "Properties", true);
+
+			JPanel centerPanel = new JPanel();
+			JPanel leftCenterPanel = new JPanel();
+			JPanel rightCenterPanel = new JPanel();
+
+			leftCenterPanel.setLayout(new GridLayout(node.getProperties()
+					.size(), 1, 5, 5));
+			rightCenterPanel.setLayout(new GridLayout(node.getProperties()
+					.size(), 1, 5, 5));
+
+			for (Map.Entry<String, Object> property : node.getProperties()
+					.entrySet()) {
+				JTextField field = new JTextField();
+
+				if (property.getValue() != null) {
+					field.setText(property.getValue().toString());
+				}
+
+				field.setEditable(false);
+				leftCenterPanel.add(new JLabel(property.getKey() + ":"));
+				rightCenterPanel.add(field);
+			}
+
+			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			centerPanel.setLayout(new BorderLayout(5, 5));
+			centerPanel.add(leftCenterPanel, BorderLayout.WEST);
+			centerPanel.add(rightCenterPanel, BorderLayout.CENTER);
+
+			JButton okButton = new JButton("OK");
+			JPanel bottomPanel = new JPanel();
+
+			okButton.addActionListener(this);
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+
+			setLayout(new BorderLayout());
+			add(centerPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			dispose();
+		}
 	}
 
 }

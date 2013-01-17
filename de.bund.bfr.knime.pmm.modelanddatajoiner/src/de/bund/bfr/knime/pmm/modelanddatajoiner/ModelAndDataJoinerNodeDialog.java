@@ -242,12 +242,11 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		if (joiner != null) {
 			joinerPanel.add(joiner.createPanel(assignments),
 					BorderLayout.CENTER);
+			joinerPanel.revalidate();
 		} else {
 			JOptionPane.showMessageDialog(joinerBox, "Data is not valid for "
 					+ joinType);
 			joinerPanel.add(new JLabel(), BorderLayout.CENTER);
 		}
-
-		joinerPanel.revalidate();
 	}
 }

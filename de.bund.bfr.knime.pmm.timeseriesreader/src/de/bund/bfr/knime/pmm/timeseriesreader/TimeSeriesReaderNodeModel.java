@@ -154,7 +154,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			miscDoc.add(mx);
 			mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,result.getDouble(Bfrdb.ATT_AW),null);
 			miscDoc.add(mx);
-    		tuple.setMisc(miscDoc);
+    		tuple.addMiscs(miscDoc);
     		
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		try {tuple.setPh(result.getDouble(Bfrdb.ATT_PH));}

@@ -59,10 +59,15 @@ public class MMC_TS extends JPanel {
 		try {tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, Integer.parseInt(matrixIDField.getText()));}
 		catch (Exception e) {}
 		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
+		
 		tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
 		tuple.setValue(TimeSeriesSchema.ATT_PH, phField.getValue());
 		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivityField.getValue());
 		
+		tuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),"°C");
+		tuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null);
+		tuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivityField.getValue(),null);
+
 		return tuple;
 	}
 	public void setTS(PmmTimeSeries ts) throws PmmException {

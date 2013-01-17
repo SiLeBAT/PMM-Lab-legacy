@@ -104,6 +104,9 @@ public class PmmXmlDoc {
 	public void add(PmmXmlElementConvertable el) {
 		elementSet.add(el);
 	}
+	public void remove(PmmXmlElementConvertable el) {
+		elementSet.remove(el);
+	}
 	
 	public Document toXmlDocument() {		
 		Document doc = new Document();		

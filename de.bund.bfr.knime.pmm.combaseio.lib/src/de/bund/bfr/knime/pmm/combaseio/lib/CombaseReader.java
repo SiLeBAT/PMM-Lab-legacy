@@ -51,6 +51,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 
 public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	
@@ -155,26 +156,32 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				int pos = token[ 1 ].indexOf( " " );
 				if( !token[ 1 ].endsWith( " °C" ) )
 					throw new PmmException( "Temperature unit must be [°C]" );
-				next.setTemperature( parse( token[ 1 ].substring( 0, pos ) ) );
+				Double value = parse(token[1].substring(0, pos));
+				next.setTemperature(value);
+				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, value, "°C");
 				continue;
 			}
 			
 			// fetch pH
 			if( key.equals( "ph" ) ) {
-				next.setPh( parse( token[ 1 ] ) );
+				Double value = parse(token[1]);
+				next.setPh(value);
+				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value, null);
 				continue;
 			}
 			
 			// fetch water activity
 			if( key.equals( "water activity" ) ) {
-				next.setWaterActivity( parse( token[ 1 ] ) );
+				Double value = parse(token[1]);
+				next.setWaterActivity(value);
+				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_WATERACTIVITY, AttributeUtilities.ATT_WATERACTIVITY, value, null);
 				continue;
 			}
 			
 			// fetch conditions
 			if (key.equals("conditions")) {
 				PmmXmlDoc xml = combase2XML(token[1]);
-				next.setMisc(xml);
+				next.addMiscs(xml);
 				continue;
 			}
 			

@@ -37,6 +37,7 @@ import org.jdom2.Element;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertable {
@@ -192,19 +193,32 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return getString( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
-	@Deprecated
+	public Double getMiscValue(String attribute, Double defaultValue) throws PmmException {
+		PmmXmlDoc miscXmlDoc = getMisc();
+		if (miscXmlDoc != null) {
+			MiscXml mx = null;
+	    	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+	    		if (el instanceof MiscXml) {
+	    			mx = (MiscXml) el;
+	    			if (mx.getName().equalsIgnoreCase(attribute)) {
+	    				return mx.getValue();
+	    			}
+	    		}
+	    	}
+		}
+		return defaultValue;
+	}
+	
 	public Double getTemperature() throws PmmException {
-		return getDouble( TimeSeriesSchema.ATT_TEMPERATURE );
+		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, getDouble( TimeSeriesSchema.ATT_TEMPERATURE )); // return Double.NaN;
 	}
-	
-	@Deprecated
+
 	public Double getPh() throws PmmException {
-		return getDouble( TimeSeriesSchema.ATT_PH );
+		return getMiscValue(AttributeUtilities.ATT_PH, getDouble( TimeSeriesSchema.ATT_PH ));// return Double.NaN;
 	}
 	
-	@Deprecated
 	public Double getWaterActivity() throws PmmException {
-		return getDouble( TimeSeriesSchema.ATT_WATERACTIVITY );
+		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, getDouble( TimeSeriesSchema.ATT_WATERACTIVITY ));// return Double.NaN;
 	}
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -265,19 +279,32 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return !isNull( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
-	@Deprecated
+	public boolean hasValue(String attribute, boolean defaultValue) throws PmmException {
+		PmmXmlDoc miscXmlDoc = getMisc();
+		if (miscXmlDoc != null) {
+			MiscXml mx = null;
+	    	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+	    		if (el instanceof MiscXml) {
+	    			mx = (MiscXml) el;
+	    			if (mx.getName().equalsIgnoreCase(attribute)) {
+	    				return true;
+	    			}
+	    		}
+	    	}
+		}
+		return defaultValue;
+	}
+	
 	public boolean hasTemperature() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_TEMPERATURE );
+		return hasValue(AttributeUtilities.ATT_TEMPERATURE, !isNull( TimeSeriesSchema.ATT_TEMPERATURE ));
 	}
-	
-	@Deprecated
+
 	public boolean hasPh() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_PH );
+		return hasValue(AttributeUtilities.ATT_PH, !isNull( TimeSeriesSchema.ATT_PH ));
 	}
 	
-	@Deprecated
 	public boolean hasWaterActivity() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_WATERACTIVITY );
+		return hasValue(AttributeUtilities.ATT_WATERACTIVITY, !isNull( TimeSeriesSchema.ATT_WATERACTIVITY ));
 	}
 	
 	public boolean hasMisc() throws PmmException {
@@ -324,9 +351,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
 	}
 	
-	public void setMisc(final PmmXmlDoc misc) throws PmmException {
-		setValue(TimeSeriesSchema.ATT_MISC, misc);
-	}
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
 	}
@@ -413,6 +437,54 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		} */
 		
 		setValue(TimeSeriesSchema.ATT_PH, ph );
+	}
+	public void addMisc(int attrID, String attribute, String description, Double value, String unit) throws PmmException {
+		PmmXmlDoc miscXmlDoc = getMisc();
+		if (miscXmlDoc == null) miscXmlDoc = new PmmXmlDoc();
+		MiscXml mx = null;
+		boolean paramFound = false;
+    	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+    		if (el instanceof MiscXml) {
+    			mx = (MiscXml) el;
+    			if (mx.getName().equalsIgnoreCase(attribute)) {
+    				paramFound = true;
+    				break;
+    			}
+    		}
+    	}
+    	if (paramFound) miscXmlDoc.remove(mx);
+    	if (value != null && !value.isInfinite() && !value.isNaN()) {
+    		mx = new MiscXml(attrID,attribute,description,value,unit);
+    		miscXmlDoc.add(mx);    		
+    	}
+    	setValue(TimeSeriesSchema.ATT_MISC, miscXmlDoc);
+	}
+	public void addMiscs(final PmmXmlDoc misc) throws PmmException {
+		PmmXmlDoc miscXmlDoc = getMisc();
+		if (miscXmlDoc == null) {
+			setValue(TimeSeriesSchema.ATT_MISC, misc);			
+		}
+		else {
+			MiscXml mx = null;
+	    	for (PmmXmlElementConvertable add1 : misc.getElementSet()) {
+	    		if (add1 instanceof MiscXml) {
+		    		MiscXml mx2Add = (MiscXml) add1;
+					boolean paramFound = false;
+			    	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+			    		if (el instanceof MiscXml) {
+			    			mx = (MiscXml) el;
+			    			if (mx.getName().equalsIgnoreCase(mx2Add.getName())) {
+			    				paramFound = true;
+			    				break;
+			    			}
+			    		}
+			    	}
+			    	if (paramFound) miscXmlDoc.remove(mx);
+			    	miscXmlDoc.add(add1);    		
+	    		}
+	    	}
+	    	setValue(TimeSeriesSchema.ATT_MISC, miscXmlDoc);
+		}
 	}
 	
 	@Deprecated

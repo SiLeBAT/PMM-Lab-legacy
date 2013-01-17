@@ -57,6 +57,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -124,6 +125,9 @@ public class ManualModelConfNodeModel extends NodeModel {
 			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
 			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
 			tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
+			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
+			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
+			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {      		
         		if (el instanceof ParametricModel) {        		

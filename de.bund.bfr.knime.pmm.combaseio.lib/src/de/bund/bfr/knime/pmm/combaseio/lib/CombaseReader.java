@@ -157,7 +157,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				if( !token[ 1 ].endsWith( " °C" ) )
 					throw new PmmException( "Temperature unit must be [°C]" );
 				Double value = parse(token[1].substring(0, pos));
-				next.setTemperature(value);
+				//next.setTemperature(value);
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, value, "°C");
 				continue;
 			}
@@ -165,7 +165,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			// fetch pH
 			if( key.equals( "ph" ) ) {
 				Double value = parse(token[1]);
-				next.setPh(value);
+				//next.setPh(value);
 				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value, null);
 				continue;
 			}
@@ -173,7 +173,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			// fetch water activity
 			if( key.equals( "water activity" ) ) {
 				Double value = parse(token[1]);
-				next.setWaterActivity(value);
+				//next.setWaterActivity(value);
 				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_WATERACTIVITY, AttributeUtilities.ATT_WATERACTIVITY, value, null);
 				continue;
 			}

@@ -187,9 +187,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,result.getDouble(Bfrdb.ATT_AW),null);
 			miscDoc.add(mx);
     		tuple.setValue( TimeSeriesSchema.ATT_MISC, miscDoc);
-    		tuple.setValue( TimeSeriesSchema.ATT_TEMPERATURE, result.getString( Bfrdb.ATT_TEMPERATURE ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_PH, result.getString( Bfrdb.ATT_PH ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_WATERACTIVITY, result.getString( Bfrdb.ATT_AW ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_TEMPERATURE, result.getString( Bfrdb.ATT_TEMPERATURE ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_PH, result.getString( Bfrdb.ATT_PH ) );
+    		//tuple.setValue( TimeSeriesSchema.ATT_WATERACTIVITY, result.getString( Bfrdb.ATT_AW ) );
     		tuple.setValue( TimeSeriesSchema.ATT_AGENTID, result.getString( Bfrdb.ATT_AGENTID ) );
     		tuple.setValue( TimeSeriesSchema.ATT_AGENTNAME, result.getString( Bfrdb.ATT_AGENTNAME ) );
     		tuple.setValue( TimeSeriesSchema.ATT_AGENTDETAIL, result.getString( Bfrdb.ATT_AGENTDETAIL ) );

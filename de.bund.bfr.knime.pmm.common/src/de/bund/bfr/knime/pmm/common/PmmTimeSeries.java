@@ -101,7 +101,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			if( hasMatrixDetail() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_MATRIXNAME, getMatrixDetail() );
 			}
-			
+			/*
 			if( hasTemperature() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_TEMPERATURE, String.valueOf( getTemperature() ) );
 			}
@@ -113,6 +113,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			if( hasWaterActivity() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_WATERACTIVITY, String.valueOf( getWaterActivity() ) );
 			}
+			*/
 			if( hasMisc() ) {
 				ret.setAttribute(TimeSeriesSchema.ATT_MISC, getMisc().toXmlString());
 			}
@@ -210,15 +211,15 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public Double getTemperature() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, getDouble( TimeSeriesSchema.ATT_TEMPERATURE )); // return Double.NaN;
+		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, null); // return Double.NaN; // getDouble( TimeSeriesSchema.ATT_TEMPERATURE )
 	}
 
 	public Double getPh() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_PH, getDouble( TimeSeriesSchema.ATT_PH ));// return Double.NaN;
+		return getMiscValue(AttributeUtilities.ATT_PH, null);// return Double.NaN; // getDouble( TimeSeriesSchema.ATT_PH )
 	}
 	
 	public Double getWaterActivity() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, getDouble( TimeSeriesSchema.ATT_WATERACTIVITY ));// return Double.NaN;
+		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, null);// return Double.NaN; getDouble( TimeSeriesSchema.ATT_WATERACTIVITY )
 	}
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -296,15 +297,15 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public boolean hasTemperature() throws PmmException {
-		return hasValue(AttributeUtilities.ATT_TEMPERATURE, !isNull( TimeSeriesSchema.ATT_TEMPERATURE ));
+		return hasValue(AttributeUtilities.ATT_TEMPERATURE, false); // !isNull( TimeSeriesSchema.ATT_TEMPERATURE )
 	}
 
 	public boolean hasPh() throws PmmException {
-		return hasValue(AttributeUtilities.ATT_PH, !isNull( TimeSeriesSchema.ATT_PH ));
+		return hasValue(AttributeUtilities.ATT_PH, false); // !isNull( TimeSeriesSchema.ATT_PH )
 	}
 	
 	public boolean hasWaterActivity() throws PmmException {
-		return hasValue(AttributeUtilities.ATT_WATERACTIVITY, !isNull( TimeSeriesSchema.ATT_WATERACTIVITY ));
+		return hasValue(AttributeUtilities.ATT_WATERACTIVITY, false); // !isNull( TimeSeriesSchema.ATT_WATERACTIVITY )
 	}
 	
 	public boolean hasMisc() throws PmmException {

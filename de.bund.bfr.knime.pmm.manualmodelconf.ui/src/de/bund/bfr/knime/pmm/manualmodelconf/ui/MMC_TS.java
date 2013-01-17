@@ -60,9 +60,9 @@ public class MMC_TS extends JPanel {
 		catch (Exception e) {}
 		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
 		
-		tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
-		tuple.setValue(TimeSeriesSchema.ATT_PH, phField.getValue());
-		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivityField.getValue());
+		//tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
+		//tuple.setValue(TimeSeriesSchema.ATT_PH, phField.getValue());
+		//tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivityField.getValue());
 		
 		tuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),"°C");
 		tuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null);
@@ -243,19 +243,19 @@ public class MMC_TS extends JPanel {
 
 		//---- tempLabel ----
 		tempLabel.setText("Temperature:");
-		tempLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":");
+		tempLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":");
 		add(tempLabel, CC.xy(1, 7));
 		add(temperatureField, CC.xywh(3, 7, 5, 1));
 
 		//---- phLabel ----
 		phLabel.setText("pH:");
-		phLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_PH) + ":");
+		phLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_PH) + ":");
 		add(phLabel, CC.xy(1, 9));
 		add(phField, CC.xywh(3, 9, 5, 1));
 
 		//---- awLabel ----
 		awLabel.setText("aw:");
-		awLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":");
+		awLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + ":");
 		add(awLabel, CC.xy(1, 11));
 		add(waterActivityField, CC.xywh(3, 11, 5, 1));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents

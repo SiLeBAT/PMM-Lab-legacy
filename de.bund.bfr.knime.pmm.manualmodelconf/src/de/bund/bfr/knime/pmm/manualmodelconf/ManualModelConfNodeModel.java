@@ -122,9 +122,9 @@ public class ManualModelConfNodeModel extends NodeModel {
 			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
 			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
 			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
-			tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
-			tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
-			tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
+			//tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
+			//tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
+			//tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
 			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
 			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
 			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);

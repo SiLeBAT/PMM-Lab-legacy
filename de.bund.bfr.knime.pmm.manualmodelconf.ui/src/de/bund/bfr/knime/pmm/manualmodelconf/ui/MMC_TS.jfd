@@ -125,7 +125,7 @@ new FormModel {
 				name: "tempLabel"
 				"text": "Temperature:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_TEMPERATURE) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -145,7 +145,7 @@ new FormModel {
 				name: "phLabel"
 				"text": "pH:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_PH) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_PH) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -165,7 +165,7 @@ new FormModel {
 				name: "awLabel"
 				"text": "aw:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1

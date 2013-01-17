@@ -61,7 +61,7 @@ import de.bund.bfr.knime.foodprocess.ui.MyChartDialog;
 import de.bund.bfr.knime.pcml.port.PCMLPortObject;
 import de.bund.bfr.knime.pcml.port.PCMLPortObjectSpec;
 import de.bund.bfr.knime.pcml.port.PCMLUtil;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.util.Agent;
 import de.bund.bfr.knime.util.Matrix;
 import de.bund.bfr.pcml10.AgentIncredientDocument.AgentIncredient;
@@ -208,17 +208,17 @@ public class FoodProcessNodeModel extends NodeModel {
 		ColumnList columnList = table.addNewColumnList();
 		// Column Temperature
 		Column temperature = columnList.addNewColumn();
-		temperature.addNewColumnId().setName(TimeSeriesSchema.ATT_TEMPERATURE);
+		temperature.addNewColumnId().setName(AttributeUtilities.ATT_TEMPERATURE);
 		QName tempCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c1");
 		temperature.setName(tempCol.getLocalPart());
 		// Column pH
 		Column ph = columnList.addNewColumn();
-		ph.addNewColumnId().setName(TimeSeriesSchema.ATT_PH);
+		ph.addNewColumnId().setName(AttributeUtilities.ATT_PH);
 		QName phCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c2");
 		ph.setName(phCol.getLocalPart());
 		// Column aw
 		Column aw = columnList.addNewColumn();
-		aw.addNewColumnId().setName(TimeSeriesSchema.ATT_WATERACTIVITY);
+		aw.addNewColumnId().setName(AttributeUtilities.ATT_WATERACTIVITY);
 		QName awCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c3");
 		aw.setName(awCol.getLocalPart());
 		// Column pressure

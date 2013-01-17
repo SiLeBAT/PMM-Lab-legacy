@@ -54,7 +54,7 @@ import org.knime.core.node.port.PortType;
 import de.bund.bfr.knime.pcml.port.PCMLPortObject;
 import de.bund.bfr.knime.pcml.port.PCMLPortObjectSpec;
 import de.bund.bfr.knime.pcml.port.PCMLUtil;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.pcml10.ColumnDocument.Column;
 import de.bund.bfr.pcml10.ColumnListDocument.ColumnList;
 import de.bund.bfr.pcml10.DataTableDocument.DataTable;
@@ -163,7 +163,7 @@ public class PCMLTestDataNodeModel extends NodeModel {
 		ColumnList columnList = table.addNewColumnList();
 		// Column Temperature
 		Column temperature = columnList.addNewColumn();
-		temperature.addNewColumnId().setName(TimeSeriesSchema.ATT_TEMPERATURE);
+		temperature.addNewColumnId().setName(AttributeUtilities.ATT_TEMPERATURE);
 		QName tempCol = new QName(PCMLUtil.getPCMLNamespace(pcmlDoc), "c1");
 		temperature.setName(tempCol.getLocalPart());
 		// Column Milk

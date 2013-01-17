@@ -260,9 +260,6 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
 		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> temperatureDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> phDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, List<Double>> awDataMap = new LinkedHashMap<String, List<Double>>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
@@ -291,13 +288,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
-					Model2Schema.BIC,
-					"Min " + TimeSeriesSchema.ATT_TEMPERATURE, "Max "
-							+ TimeSeriesSchema.ATT_TEMPERATURE, "Min "
-							+ TimeSeriesSchema.ATT_PH, "Max "
-							+ TimeSeriesSchema.ATT_PH, "Min "
-							+ TimeSeriesSchema.ATT_WATERACTIVITY, "Max "
-							+ TimeSeriesSchema.ATT_WATERACTIVITY));
+					Model2Schema.BIC));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -385,9 +376,6 @@ public class SecondaryModelAndDataViewNodeView extends
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
 
 				if (getNodeModel().isSeiSchema()) {
-					temperatureDataMap.put(id, new ArrayList<Double>());
-					phDataMap.put(id, new ArrayList<Double>());
-					awDataMap.put(id, new ArrayList<Double>());
 					miscDataMaps.put(id,
 							new LinkedHashMap<String, List<Double>>());
 
@@ -406,11 +394,6 @@ public class SecondaryModelAndDataViewNodeView extends
 						.getValue();
 
 				depVarDataMap.get(id).add(depVarValue);
-				temperatureDataMap.get(id).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				phDataMap.get(id).add(row.getDouble(TimeSeriesSchema.ATT_PH));
-				awDataMap.get(id).add(
-						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 
 				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
@@ -477,17 +460,11 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			if (getNodeModel().isSeiSchema()) {
 				List<Double> depVarData = depVarDataMap.get(id);
-				List<Double> temperatures = temperatureDataMap.get(id);
-				List<Double> phs = phDataMap.get(id);
-				List<Double> aws = awDataMap.get(id);
 				Map<String, List<Double>> miscs = miscDataMaps.get(id);
 
 				for (int i = 0; i < depVarData.size(); i++) {
 					if (depVarData.get(i) == null) {
 						depVarData.remove(i);
-						temperatures.remove(i);
-						phs.remove(i);
-						aws.remove(i);
 
 						for (String param : miscParams) {
 							miscs.get(param).remove(i);
@@ -496,42 +473,9 @@ public class SecondaryModelAndDataViewNodeView extends
 				}
 
 				plotable.addValueList(depVarMap.get(id), depVarData);
-				plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,
-						temperatures);
-				plotable.addValueList(TimeSeriesSchema.ATT_PH, phs);
-				plotable.addValueList(TimeSeriesSchema.ATT_WATERACTIVITY, aws);
 
 				for (String param : miscParams) {
 					plotable.addValueList(param, miscs.get(param));
-				}
-
-				List<Double> nonNullTemperatures = new ArrayList<Double>(
-						temperatures);
-				List<Double> nonNullPHs = new ArrayList<Double>(phs);
-				List<Double> nonNullWaterActivites = new ArrayList<Double>(aws);
-
-				nonNullTemperatures.removeAll(Arrays.asList((Double) null));
-				nonNullPHs.removeAll(Arrays.asList((Double) null));
-				nonNullWaterActivites.removeAll(Arrays.asList((Double) null));
-
-				if (!hasArguments) {
-					if (!nonNullTemperatures.isEmpty()) {
-						plotable.getFunctionArguments().put(
-								TimeSeriesSchema.ATT_TEMPERATURE,
-								new ArrayList<Double>(Arrays.asList(0.0)));
-					}
-
-					if (!nonNullPHs.isEmpty()) {
-						plotable.getFunctionArguments().put(
-								TimeSeriesSchema.ATT_PH,
-								new ArrayList<Double>(Arrays.asList(0.0)));
-					}
-
-					if (!nonNullWaterActivites.isEmpty()) {
-						plotable.getFunctionArguments().put(
-								TimeSeriesSchema.ATT_WATERACTIVITY,
-								new ArrayList<Double>(Arrays.asList(0.0)));
-					}
 				}
 
 				if (!plotable.isPlotable()) {
@@ -548,34 +492,6 @@ public class SecondaryModelAndDataViewNodeView extends
 				doubleColumnValues.get(2).add(bicMap.get(id));
 				doubleColumnValues.get(3).add(aicMap.get(id));
 
-				if (!nonNullTemperatures.isEmpty()) {
-					doubleColumnValues.get(4).add(
-							Collections.min(nonNullTemperatures));
-					doubleColumnValues.get(5).add(
-							Collections.max(nonNullTemperatures));
-				} else {
-					doubleColumnValues.get(4).add(null);
-					doubleColumnValues.get(5).add(null);
-				}
-
-				if (!nonNullPHs.isEmpty()) {
-					doubleColumnValues.get(6).add(Collections.min(nonNullPHs));
-					doubleColumnValues.get(7).add(Collections.max(nonNullPHs));
-				} else {
-					doubleColumnValues.get(6).add(null);
-					doubleColumnValues.get(7).add(null);
-				}
-
-				if (!nonNullWaterActivites.isEmpty()) {
-					doubleColumnValues.get(8).add(
-							Collections.min(nonNullWaterActivites));
-					doubleColumnValues.get(9).add(
-							Collections.max(nonNullWaterActivites));
-				} else {
-					doubleColumnValues.get(8).add(null);
-					doubleColumnValues.get(9).add(null);
-				}
-
 				for (int i = 0; i < miscParams.size(); i++) {
 					List<Double> nonNullValues = new ArrayList<Double>(
 							miscs.get(miscParams.get(i)));
@@ -589,13 +505,13 @@ public class SecondaryModelAndDataViewNodeView extends
 									new ArrayList<Double>(Arrays.asList(0.0)));
 						}
 
-						doubleColumnValues.get(2 * i + 10).add(
+						doubleColumnValues.get(2 * i + 4).add(
 								Collections.min(nonNullValues));
-						doubleColumnValues.get(2 * i + 11).add(
+						doubleColumnValues.get(2 * i + 5).add(
 								Collections.max(nonNullValues));
 					} else {
-						doubleColumnValues.get(2 * i + 10).add(null);
-						doubleColumnValues.get(2 * i + 11).add(null);
+						doubleColumnValues.get(2 * i + 4).add(null);
+						doubleColumnValues.get(2 * i + 5).add(null);
 					}
 				}
 

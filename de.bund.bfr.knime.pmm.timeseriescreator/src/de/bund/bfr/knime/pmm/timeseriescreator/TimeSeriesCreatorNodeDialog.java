@@ -160,7 +160,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
 						new String[0]));
 		tempBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.ATT_TEMPERATURE)
+				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
 
 		settingsNamePanel
@@ -176,11 +176,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.LOGC) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
+				.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_PH) + ":"));
+				.getFullName(AttributeUtilities.ATT_PH) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY) + ":"));
+				.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + ":"));
 
 		settingsValuePanel.setBorder(BorderFactory
 				.createEmptyBorder(5, 5, 5, 5));
@@ -340,7 +340,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT));
 		} catch (InvalidSettingsException e) {
 			tempBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
+					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
 		List<String> miscNames;
@@ -620,11 +620,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
 				commentField.setValue(tuple
 						.getString(TimeSeriesSchema.ATT_COMMENT));
-				temperatureField.setValue(tuple
-						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				phField.setValue(tuple.getDouble(TimeSeriesSchema.ATT_PH));
-				waterActivityField.setValue(tuple
-						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 
 				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				int n = removeButtons.size();
@@ -642,9 +637,18 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						value = null;
 					}
 
-					addButtons(0);
-					condNameFields.get(0).setText(name);
-					condValueFields.get(0).setValue(value);
+					if (name.equals(AttributeUtilities.ATT_TEMPERATURE)) {
+						temperatureField.setValue(value);
+					} else if (name.equals(AttributeUtilities.ATT_PH)) {
+						phField.setValue(value);
+					} else if (name
+							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+						waterActivityField.setValue(value);
+					} else {
+						addButtons(0);
+						condNameFields.get(0).setText(name);
+						condValueFields.get(0).setValue(value);
+					}
 				}
 
 				PmmXmlDoc timeSeriesXml = tuple

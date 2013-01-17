@@ -388,14 +388,15 @@ public class CombinedJoiner implements Joiner {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			int estModelID = ((EstModelXml) tuple.getPmmXml(
+			Integer estModelID = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 			String depVar = ((DepXml) tuple.getPmmXml(
 					Model1Schema.ATT_DEPENDENT).get(0)).getName();
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-			if (!ids.add(estModelID + "(" + depVarSec + ")")) {
+			if (estModelID != null
+					&& !ids.add(estModelID + "(" + depVarSec + ")")) {
 				continue;
 			}
 

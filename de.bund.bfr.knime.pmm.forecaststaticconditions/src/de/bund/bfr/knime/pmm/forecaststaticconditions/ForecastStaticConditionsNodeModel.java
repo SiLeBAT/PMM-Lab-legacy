@@ -72,7 +72,6 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -257,11 +256,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			String initialParameter = parameterMap.get(oldID);
 
 			if (initialParameter != null) {
-				Double temp = newTuple
-						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				Double ph = newTuple.getDouble(TimeSeriesSchema.ATT_PH);
-				Double aw = newTuple
-						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = ((CatalogModelXml) newTuple.getPmmXml(
 						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
@@ -282,10 +276,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						constants.put(element.getName(), element.getValue());
 					}
 				}
-
-				constants.put(TimeSeriesSchema.ATT_PH, ph);
-				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
-				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -369,9 +359,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			String initialParameter = parameterMap.get(id);
 
 			if (initialParameter != null) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-				Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				String formula = ((CatalogModelXml) tuple.getPmmXml(
 						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
@@ -387,10 +374,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 					constants.put(element.getName(), element.getValue());
 				}
-
-				constants.put(TimeSeriesSchema.ATT_PH, ph);
-				constants.put(TimeSeriesSchema.ATT_WATERACTIVITY, aw);
-				constants.put(TimeSeriesSchema.ATT_TEMPERATURE, temp);
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -498,9 +481,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 	private void checkData(KnimeTuple tuple) throws PmmException {
 		int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
-		Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-		Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-		Double aw = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 		PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 		List<String> indepVars = new ArrayList<String>();
@@ -515,67 +495,12 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			maxIndepValues.add(element.getMax());
 		}
 
-		if (indepVars.contains(TimeSeriesSchema.ATT_TEMPERATURE)) {
-			int i = indepVars.indexOf(TimeSeriesSchema.ATT_TEMPERATURE);
-			Double min = minIndepValues.get(i);
-			Double max = maxIndepValues.get(i);
-
-			if (temp == null) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE)
-						+ " is not specified in " + condID);
-			} else if ((min != null && temp < min)
-					|| (max != null && temp > max)) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE)
-						+ " in "
-						+ condID + " is out of range");
-			}
-		}
-
-		if (indepVars.contains(TimeSeriesSchema.ATT_PH)) {
-			int i = indepVars.indexOf(TimeSeriesSchema.ATT_PH);
-			Double min = minIndepValues.get(i);
-			Double max = maxIndepValues.get(i);
-
-			if (ph == null) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_PH)
-						+ " is not specified in " + condID);
-			} else if ((min != null && ph < min) || (max != null && ph > max)) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_PH)
-						+ " in "
-						+ condID
-						+ " is out of range");
-			}
-		}
-
-		if (indepVars.contains(TimeSeriesSchema.ATT_WATERACTIVITY)) {
-			int i = indepVars.indexOf(TimeSeriesSchema.ATT_WATERACTIVITY);
-			Double min = minIndepValues.get(i);
-			Double max = maxIndepValues.get(i);
-
-			if (aw == null) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY)
-						+ " is not specified in " + condID);
-			} else if ((min != null && aw < min) || (max != null && aw > max)) {
-				setWarningMessage(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_WATERACTIVITY)
-						+ " in " + condID + " is out of range");
-			}
-		}
-
 		for (int i = 0; i < indepVars.size(); i++) {
 			String indep = indepVars.get(i);
 			Double min = minIndepValues.get(i);
 			Double max = maxIndepValues.get(i);
 
-			if (indep.equals(TimeSeriesSchema.TIME)
-					|| indep.equals(TimeSeriesSchema.ATT_TEMPERATURE)
-					|| indep.equals(TimeSeriesSchema.ATT_PH)
-					|| indep.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
+			if (indep.equals(TimeSeriesSchema.TIME)) {
 				continue;
 			}
 

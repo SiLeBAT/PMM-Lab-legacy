@@ -108,7 +108,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		miscNames = new ArrayList<String>();
 		miscValues = new ArrayList<Double>();
 	}
@@ -124,6 +124,16 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		int id = MathUtilities.getRandomNegativeInt();
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		PmmXmlDoc miscXML = new PmmXmlDoc();
+
+		miscXML.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
+				AttributeUtilities.ATT_TEMPERATURE, "", AttributeUtilities
+						.convertToStandardUnit(
+								AttributeUtilities.ATT_TEMPERATURE,
+								temperature, tempUnit), ""));
+		miscXML.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
+				AttributeUtilities.ATT_PH, "", ph, ""));
+		miscXML.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
+				AttributeUtilities.ATT_WATERACTIVITY, "", waterActivity, ""));
 
 		for (int i = 0; i < miscNames.size(); i++) {
 			miscXML.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
@@ -144,11 +154,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrix);
 		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
-		tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, AttributeUtilities
-				.convertToStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE,
-						temperature, tempUnit));
-		tuple.setValue(TimeSeriesSchema.ATT_PH, ph);
-		tuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
 
@@ -291,7 +296,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		} catch (InvalidSettingsException e) {
 			tempUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		}
 
 		try {

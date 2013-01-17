@@ -381,11 +381,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	private void readDataTable() throws PmmException {
 		Set<String> indepParamSet = new LinkedHashSet<String>();
-		Set<String> depParamSet = new LinkedHashSet<String>();
-
-		indepParamSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
-		indepParamSet.add(TimeSeriesSchema.ATT_PH);
-		indepParamSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
+		Set<String> depParamSet = new LinkedHashSet<String>();		
 
 		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
 				dataTable);

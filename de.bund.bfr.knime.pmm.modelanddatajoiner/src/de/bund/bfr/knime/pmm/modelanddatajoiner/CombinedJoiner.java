@@ -62,7 +62,6 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -364,11 +363,6 @@ public class CombinedJoiner implements Joiner {
 
 	private void readDataTable() throws PmmException {
 		Set<String> secParamSet = new LinkedHashSet<String>();
-
-		secParamSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
-		secParamSet.add(TimeSeriesSchema.ATT_PH);
-		secParamSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
-
 		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
 				dataTable);
 
@@ -376,11 +370,7 @@ public class CombinedJoiner implements Joiner {
 			KnimeTuple tuple = reader.nextElement();
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				secParamSet.add(element.getName());
-			}
+			secParamSet.addAll(CellIO.getNameList(misc));
 		}
 
 		primaryParameters = Arrays.asList(TimeSeriesSchema.LOGC,

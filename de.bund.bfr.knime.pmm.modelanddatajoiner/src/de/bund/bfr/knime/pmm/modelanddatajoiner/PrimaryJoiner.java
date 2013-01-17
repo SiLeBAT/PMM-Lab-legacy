@@ -179,18 +179,11 @@ public class PrimaryJoiner implements Joiner {
 
 		for (int i = 0; i < modelTuples.size(); i++) {
 			KnimeTuple modelTuple = modelTuples.get(i);
-			Double condTemp = null;
-			Double condPH = null;
-			Double condAW = null;
+			PmmXmlDoc condMisc = null;
 
 			if (isEstimated) {
-				KnimeTuple condTuple = conditionTuples.get(i);
-
-				condTemp = condTuple
-						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				condPH = condTuple.getDouble(TimeSeriesSchema.ATT_PH);
-				condAW = condTuple
-						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+				condMisc = conditionTuples.get(i).getPmmXml(
+						TimeSeriesSchema.ATT_MISC);
 			}
 
 			PmmXmlDoc modelXml = modelTuple
@@ -248,22 +241,32 @@ public class PrimaryJoiner implements Joiner {
 				boolean addRow = true;
 
 				if (isEstimated && joinSameConditions) {
-					Double temp = dataTuple
-							.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-					Double ph = dataTuple.getDouble(TimeSeriesSchema.ATT_PH);
-					Double aw = dataTuple
-							.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
+					PmmXmlDoc misc = dataTuple
+							.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-					if (temp != null && !temp.equals(condTemp)) {
-						addRow = false;
-					}
+					for (PmmXmlElementConvertable el : misc.getElementSet()) {
+						MiscXml element = (MiscXml) el;
 
-					if (ph != null && !ph.equals(condPH)) {
-						addRow = false;
-					}
+						if (element.getValue() != null) {
+							boolean sameValue = false;
 
-					if (aw != null && !aw.equals(condAW)) {
-						addRow = false;
+							for (PmmXmlElementConvertable condEl : condMisc
+									.getElementSet()) {
+								MiscXml condElement = (MiscXml) condEl;
+
+								if (element.getName().equals(
+										condElement.getName())
+										&& element.getValue().equals(
+												condElement.getValue())) {
+									sameValue = true;
+								}
+							}
+
+							if (!sameValue) {
+								addRow = false;
+								break;
+							}
+						}
 					}
 				}
 
@@ -382,9 +385,6 @@ public class PrimaryJoiner implements Joiner {
 
 		parameterSet.add(TimeSeriesSchema.TIME);
 		parameterSet.add(TimeSeriesSchema.LOGC);
-		parameterSet.add(TimeSeriesSchema.ATT_TEMPERATURE);
-		parameterSet.add(TimeSeriesSchema.ATT_PH);
-		parameterSet.add(TimeSeriesSchema.ATT_WATERACTIVITY);
 
 		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
 				dataTable);

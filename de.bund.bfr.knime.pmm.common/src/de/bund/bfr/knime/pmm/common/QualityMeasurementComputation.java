@@ -75,17 +75,6 @@ public class QualityMeasurementComputation {
 			for (String var : variableValues.keySet()) {
 				if (var.equals(TimeSeriesSchema.TIME)) {
 					continue;
-				} else if (var.equals(TimeSeriesSchema.ATT_TEMPERATURE)
-						|| var.equals(TimeSeriesSchema.ATT_PH)
-						|| var.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
-					Double value = tuple.getDouble(var);
-
-					if (value == null) {
-						miscMissing = true;
-						break;
-					} else {
-						miscValues.put(var, value);
-					}
 				} else {
 					if (!miscNames.contains(var)) {
 						miscMissing = true;

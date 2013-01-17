@@ -63,14 +63,11 @@ public class XLSReader {
 	private static String[] TIMESERIES_STANDARD_COLUMNS = { ID,
 			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
 			TimeSeriesSchema.ATT_COMMENT, TimeSeriesSchema.TIME,
-			TimeSeriesSchema.LOGC, TimeSeriesSchema.ATT_TEMPERATURE,
-			TimeSeriesSchema.ATT_PH, TimeSeriesSchema.ATT_WATERACTIVITY };
+			TimeSeriesSchema.LOGC };
 
 	private static String[] DVALUE_STANDARD_COLUMNS = { ID,
 			TimeSeriesSchema.ATT_AGENTNAME, TimeSeriesSchema.ATT_MATRIXNAME,
-			TimeSeriesSchema.ATT_COMMENT, DVALUE,
-			TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
-			TimeSeriesSchema.ATT_WATERACTIVITY };
+			TimeSeriesSchema.ATT_COMMENT, DVALUE };
 
 	private XLSReader() {
 	}
@@ -107,12 +104,6 @@ public class XLSReader {
 					.get(TimeSeriesSchema.ATT_MATRIXNAME));
 			Cell commentCell = row.getCell(standardColumns
 					.get(TimeSeriesSchema.ATT_COMMENT));
-			Cell tempCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_TEMPERATURE));
-			Cell phCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_PH));
-			Cell awCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_WATERACTIVITY));
 			Cell timeCell = row.getCell(standardColumns
 					.get(TimeSeriesSchema.TIME));
 			Cell logcCell = row.getCell(standardColumns
@@ -145,42 +136,6 @@ public class XLSReader {
 				if (commentCell != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
 							.toString().trim());
-				}
-
-				if (tempCell != null && !tempCell.toString().trim().isEmpty()) {
-					try {
-						tuple.setValue(
-								TimeSeriesSchema.ATT_TEMPERATURE,
-								Double.parseDouble(tempCell.toString().replace(
-										",", ".")));
-					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.ATT_TEMPERATURE
-								+ " value in row " + (i + 1) + " is not valid");
-					}
-				}
-
-				if (phCell != null && !phCell.toString().trim().isEmpty()) {
-					try {
-						tuple.setValue(
-								TimeSeriesSchema.ATT_PH,
-								Double.parseDouble(phCell.toString().replace(
-										",", ".")));
-					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.ATT_PH
-								+ " value in row " + (i + 1) + " is not valid");
-					}
-				}
-
-				if (awCell != null && !awCell.toString().trim().isEmpty()) {
-					try {
-						tuple.setValue(
-								TimeSeriesSchema.ATT_WATERACTIVITY,
-								Double.parseDouble(awCell.toString().replace(
-										",", ".")));
-					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.ATT_WATERACTIVITY
-								+ " value in row " + (i + 1) + " is not valid");
-					}
 				}
 
 				PmmXmlDoc miscXML = new PmmXmlDoc();
@@ -255,12 +210,6 @@ public class XLSReader {
 					.get(TimeSeriesSchema.ATT_MATRIXNAME));
 			Cell commentCell = row.getCell(standardColumns
 					.get(TimeSeriesSchema.ATT_COMMENT));
-			Cell tempCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_TEMPERATURE));
-			Cell phCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_PH));
-			Cell awCell = row.getCell(standardColumns
-					.get(TimeSeriesSchema.ATT_WATERACTIVITY));
 			Cell dValueCell = row.getCell(standardColumns.get(DVALUE));
 			KnimeTuple tuple = new KnimeTuple(new KnimeSchema(
 					new Model1Schema(), new TimeSeriesSchema()));
@@ -281,42 +230,6 @@ public class XLSReader {
 			if (commentCell != null) {
 				tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
 						.toString().trim());
-			}
-
-			if (tempCell != null && !tempCell.toString().trim().isEmpty()) {
-				try {
-					tuple.setValue(
-							TimeSeriesSchema.ATT_TEMPERATURE,
-							Double.parseDouble(tempCell.toString().replace(",",
-									".")));
-				} catch (NumberFormatException e) {
-					throw new Exception(TimeSeriesSchema.ATT_TEMPERATURE
-							+ " value in row " + (i + 1) + " is not valid");
-				}
-			}
-
-			if (phCell != null && !phCell.toString().trim().isEmpty()) {
-				try {
-					tuple.setValue(
-							TimeSeriesSchema.ATT_PH,
-							Double.parseDouble(phCell.toString().replace(",",
-									".")));
-				} catch (NumberFormatException e) {
-					throw new Exception(TimeSeriesSchema.ATT_PH
-							+ " value in row " + (i + 1) + " is not valid");
-				}
-			}
-
-			if (awCell != null && !awCell.toString().trim().isEmpty()) {
-				try {
-					tuple.setValue(
-							TimeSeriesSchema.ATT_WATERACTIVITY,
-							Double.parseDouble(awCell.toString().replace(",",
-									".")));
-				} catch (NumberFormatException e) {
-					throw new Exception(TimeSeriesSchema.ATT_WATERACTIVITY
-							+ " value in row " + (i + 1) + " is not valid");
-				}
 			}
 
 			PmmXmlDoc miscXML = new PmmXmlDoc();

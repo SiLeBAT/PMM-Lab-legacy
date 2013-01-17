@@ -102,7 +102,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
 						new String[0]));
 		tempBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.ATT_TEMPERATURE)
+				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
 
 		formatPanel.setBorder(BorderFactory.createTitledBorder("File Format"));
@@ -115,9 +115,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				+ AttributeUtilities.getFullName(TimeSeriesSchema.TIME) + ":"));
 		leftUnitsPanel.add(new JLabel("Unit for "
 				+ AttributeUtilities.getFullName(TimeSeriesSchema.LOGC) + ":"));
-		leftUnitsPanel.add(new JLabel("Unit for "
-				+ AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_TEMPERATURE) + ":"));
+		leftUnitsPanel
+				.add(new JLabel(
+						"Unit for "
+								+ AttributeUtilities
+										.getFullName(AttributeUtilities.ATT_TEMPERATURE)
+								+ ":"));
 
 		rightUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		rightUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -183,7 +186,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT));
 		} catch (InvalidSettingsException e) {
 			tempBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE));
+					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
 		updateComboBoxes();

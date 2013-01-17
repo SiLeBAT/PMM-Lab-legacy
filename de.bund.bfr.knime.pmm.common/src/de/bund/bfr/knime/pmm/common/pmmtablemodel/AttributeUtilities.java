@@ -92,11 +92,11 @@ public class AttributeUtilities {
 	}
 
 	public static String getFullName(String attr) {
-		if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+		if (attr.equals(ATT_TEMPERATURE)) {
 			return "Temperature";
-		} else if (attr.equals(TimeSeriesSchema.ATT_PH)) {
+		} else if (attr.equals(ATT_PH)) {
 			return "pH";
-		} else if (attr.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
+		} else if (attr.equals(ATT_WATERACTIVITY)) {
 			return "Water Activity";
 		} else if (attr.equals(TimeSeriesSchema.ATT_AGENTNAME)) {
 			return "Organism";
@@ -139,7 +139,7 @@ public class AttributeUtilities {
 			return Arrays.asList(HOURS, MINUTES, SECONDS, DAYS, WEEKS);
 		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			return Arrays.asList(LOGCFU, LNCFU, CFU);
-		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+		} else if (attr.equals(ATT_TEMPERATURE)) {
 			return Arrays.asList(CELSIUS, FAHRENHEIT);
 		} else {
 			return new ArrayList<String>();
@@ -172,7 +172,7 @@ public class AttributeUtilities {
 			} else if (unit.equals(CFU)) {
 				return Math.log10(value);
 			}
-		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+		} else if (attr.equals(ATT_TEMPERATURE)) {
 			if (unit.equals(CELSIUS)) {
 				return value;
 			} else if (unit.equals(FAHRENHEIT)) {
@@ -188,7 +188,7 @@ public class AttributeUtilities {
 			return HOURS;
 		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
 			return LOGCFU;
-		} else if (attr.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
+		} else if (attr.equals(ATT_TEMPERATURE)) {
 			return CELSIUS;
 		} else {
 			return null;

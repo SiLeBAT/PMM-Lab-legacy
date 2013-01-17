@@ -49,6 +49,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -99,7 +100,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
-				.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 
 		try {
 			timeSeriesSchema = new TimeSeriesSchema();
@@ -167,11 +168,19 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 			}
 
-			Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
+			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			temp = AttributeUtilities.convertToStandardUnit(
-					TimeSeriesSchema.ATT_TEMPERATURE, temp, tempUnit);
-			tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temp);
+			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				if (AttributeUtilities.ATT_TEMPERATURE
+						.equals(element.getName())) {
+					element.setValue(AttributeUtilities.convertToStandardUnit(
+							AttributeUtilities.ATT_TEMPERATURE,
+							element.getValue(), tempUnit));
+				}
+			}
+			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
 			container.addRowToTable(tuple);
 		}
 
@@ -254,7 +263,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		} catch (InvalidSettingsException e) {
 			tempUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.ATT_TEMPERATURE);
+					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		}
 	}
 

@@ -713,9 +713,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
 
 				Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
-				Map<String, List<Double>> temperatureMap = new LinkedHashMap<String, List<Double>>();
-				Map<String, List<Double>> phMap = new LinkedHashMap<String, List<Double>>();
-				Map<String, List<Double>> waterActivityMap = new LinkedHashMap<String, List<Double>>();
 				Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 				Set<String> ids = new LinkedHashSet<String>();
 				List<String> miscParams = getAllMiscParams(inTable);
@@ -734,9 +731,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 					if (ids.add(id)) {
 						depVarMap.put(id, new ArrayList<Double>());
-						temperatureMap.put(id, new ArrayList<Double>());
-						phMap.put(id, new ArrayList<Double>());
-						waterActivityMap.put(id, new ArrayList<Double>());
 						miscMaps.put(id,
 								new LinkedHashMap<String, List<Double>>());
 
@@ -779,13 +773,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 					}
 
 					depVarMap.get(id).add(value);
-					temperatureMap.get(id).add(
-							tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-					phMap.get(id).add(tuple.getDouble(TimeSeriesSchema.ATT_PH));
-					waterActivityMap
-							.get(id)
-							.add(tuple
-									.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 
 					PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
@@ -873,14 +860,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						}
 
 						for (String arg : arguments) {
-							if (arg.equals(TimeSeriesSchema.ATT_TEMPERATURE)) {
-								argumentValues.add(temperatureMap.get(id));
-							} else if (arg.equals(TimeSeriesSchema.ATT_PH)) {
-								argumentValues.add(phMap.get(id));
-							} else if (arg
-									.equals(TimeSeriesSchema.ATT_WATERACTIVITY)) {
-								argumentValues.add(waterActivityMap.get(id));
-							} else if (miscParams.contains(arg)) {
+							if (miscParams.contains(arg)) {
 								argumentValues.add(miscMaps.get(arg).get(id));
 							}
 						}
@@ -1122,21 +1102,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 					List<String> arguments = CellIO.getNameList(indepXml);
 					PmmXmlDoc timeSeriesXml = tuple
 							.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-					int n = timeSeriesXml.getElementSet().size();
-					Double temp = tuple
-							.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-					Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-					Double aw = tuple
-							.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 
 					List<Double> targetValues = new ArrayList<Double>();
 					List<Double> timeList = new ArrayList<Double>();
-					List<Double> tempList = new ArrayList<Double>(
-							Collections.nCopies(n, temp));
-					List<Double> phList = new ArrayList<Double>(
-							Collections.nCopies(n, ph));
-					List<Double> awList = new ArrayList<Double>(
-							Collections.nCopies(n, aw));
 					Map<String, List<Double>> miscLists = new LinkedHashMap<String, List<Double>>();
 					PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
@@ -1173,15 +1141,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 					for (int i = 0; i < arguments.size(); i++) {
 						if (arguments.get(i).equals(TimeSeriesSchema.TIME)) {
 							argumentValuesMap.get(id).get(i).addAll(timeList);
-						} else if (arguments.get(i).equals(
-								TimeSeriesSchema.ATT_TEMPERATURE)) {
-							argumentValuesMap.get(id).get(i).addAll(tempList);
-						} else if (arguments.get(i).equals(
-								TimeSeriesSchema.ATT_PH)) {
-							argumentValuesMap.get(id).get(i).addAll(phList);
-						} else if (arguments.get(i).equals(
-								TimeSeriesSchema.ATT_WATERACTIVITY)) {
-							argumentValuesMap.get(id).get(i).addAll(awList);
 						} else {
 							argumentValuesMap.get(id).get(i)
 									.addAll(miscLists.get(arguments.get(i)));

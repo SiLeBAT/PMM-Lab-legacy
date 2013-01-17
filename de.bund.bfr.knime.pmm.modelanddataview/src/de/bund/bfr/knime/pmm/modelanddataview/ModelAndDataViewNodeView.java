@@ -251,9 +251,7 @@ public class ModelAndDataViewNodeView extends
 					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
 					Model1Schema.BIC, Model1Schema.RMS + "(Data)",
 					Model1Schema.RSQUARED + "(Data)", Model1Schema.AIC
-							+ "(Data)", Model1Schema.BIC + "(Data)",
-					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
-					TimeSeriesSchema.ATT_WATERACTIVITY));
+							+ "(Data)", Model1Schema.BIC + "(Data)"));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -359,11 +357,6 @@ public class ModelAndDataViewNodeView extends
 			}
 
 			if (getNodeModel().isPeiSchema()) {
-				Double temperature = row
-						.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				Double ph = row.getDouble(TimeSeriesSchema.ATT_PH);
-				Double waterActivity = row
-						.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 				PmmXmlDoc timeSeriesXml = row
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
@@ -396,22 +389,6 @@ public class ModelAndDataViewNodeView extends
 					plotable = new Plotable(Plotable.BOTH);
 					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
 					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
-
-					if (temperature != null) {
-						plotable.addValueList(TimeSeriesSchema.ATT_TEMPERATURE,
-								Collections.nCopies(n, temperature));
-					}
-
-					if (ph != null) {
-						plotable.addValueList(TimeSeriesSchema.ATT_PH,
-								Collections.nCopies(n, ph));
-					}
-
-					if (waterActivity != null) {
-						plotable.addValueList(
-								TimeSeriesSchema.ATT_WATERACTIVITY,
-								Collections.nCopies(n, waterActivity));
-					}
 
 					for (PmmXmlElementConvertable el : misc.getElementSet()) {
 						MiscXml element = (MiscXml) el;
@@ -481,12 +458,6 @@ public class ModelAndDataViewNodeView extends
 						((EstModelXml) newEstModelXml.get(0)).getAIC());
 				doubleColumnValues.get(7).add(
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
-				doubleColumnValues.get(8).add(
-						row.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				doubleColumnValues.get(9).add(
-						row.getDouble(TimeSeriesSchema.ATT_PH));
-				doubleColumnValues.get(10).add(
-						row.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENTNAME,
@@ -503,7 +474,7 @@ public class ModelAndDataViewNodeView extends
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 11).add(
+							doubleColumnValues.get(i + 8).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -511,7 +482,7 @@ public class ModelAndDataViewNodeView extends
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 11).add(null);
+						doubleColumnValues.get(i + 8).add(null);
 					}
 				}
 			} else if (getNodeModel().isModel1Schema()) {

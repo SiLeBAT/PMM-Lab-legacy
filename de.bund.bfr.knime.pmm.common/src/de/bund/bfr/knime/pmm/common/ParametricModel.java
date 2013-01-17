@@ -364,12 +364,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		}
 		clonedPM.setCondId(condId);
 
-		clonedPM.setDepXml(new DepXml(depXml.toXmlElement()));
+		if (depXml != null) clonedPM.setDepXml(new DepXml(depXml.toXmlElement()));
 		try {
-			clonedPM.setIndependent(new PmmXmlDoc(independent.toXmlString()));
-			clonedPM.setParameter(new PmmXmlDoc(parameter.toXmlString()));
-			clonedPM.setEstLit(new PmmXmlDoc(estLit.toXmlString()));
-			clonedPM.setMLit(new PmmXmlDoc(modelLit.toXmlString()));
+			if (independent != null) clonedPM.setIndependent(new PmmXmlDoc(independent.toXmlString()));
+			if (parameter != null) clonedPM.setParameter(new PmmXmlDoc(parameter.toXmlString()));
+			if (estLit != null) clonedPM.setEstLit(new PmmXmlDoc(estLit.toXmlString()));
+			if (modelLit != null) clonedPM.setMLit(new PmmXmlDoc(modelLit.toXmlString()));
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -76,9 +76,7 @@ public class TableReader {
 					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
 					Model1Schema.BIC, Model1Schema.RMS + "(Data)",
 					Model1Schema.RSQUARED + "(Data)", Model1Schema.AIC
-							+ "(Data)", Model1Schema.BIC + "(Data)",
-					TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
-					TimeSeriesSchema.ATT_WATERACTIVITY));
+							+ "(Data)", Model1Schema.BIC + "(Data)"));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -293,12 +291,6 @@ public class TableReader {
 						((EstModelXml) newEstModelXml.get(0)).getAIC());
 				doubleColumnValues.get(7).add(
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
-				doubleColumnValues.get(8).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE));
-				doubleColumnValues.get(9).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_PH));
-				doubleColumnValues.get(10).add(
-						tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY));
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENTNAME,
@@ -315,7 +307,7 @@ public class TableReader {
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 11).add(
+							doubleColumnValues.get(i + 8).add(
 									element.getValue());
 							paramFound = true;
 							break;
@@ -323,7 +315,7 @@ public class TableReader {
 					}
 
 					if (!paramFound) {
-						doubleColumnValues.get(i + 11).add(null);
+						doubleColumnValues.get(i + 8).add(null);
 					}
 				}
 			} else {

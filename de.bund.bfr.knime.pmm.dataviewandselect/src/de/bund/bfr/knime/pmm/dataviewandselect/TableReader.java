@@ -54,9 +54,7 @@ public class TableReader {
 		stringColumns = Arrays.asList(TimeSeriesSchema.DATAID);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = new ArrayList<String>(Arrays.asList(
-				TimeSeriesSchema.ATT_TEMPERATURE, TimeSeriesSchema.ATT_PH,
-				TimeSeriesSchema.ATT_WATERACTIVITY));
+		doubleColumns = new ArrayList<String>();
 		doubleColumnValues = new ArrayList<List<Double>>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
@@ -85,11 +83,6 @@ public class TableReader {
 			idSet.add(id);
 			ids.add(id);
 
-			Double temperature = tuple
-					.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-			Double ph = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-			Double waterActivity = tuple
-					.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			List<Double> timeList = new ArrayList<Double>();
@@ -141,9 +134,6 @@ public class TableReader {
 			}
 
 			stringColumnValues.get(0).add(dataName);
-			doubleColumnValues.get(0).add(temperature);
-			doubleColumnValues.get(1).add(ph);
-			doubleColumnValues.get(2).add(waterActivity);
 			infoParameters.add(Arrays.asList(TimeSeriesSchema.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENTNAME,
 					TimeSeriesSchema.ATT_MATRIXNAME,
@@ -162,7 +152,7 @@ public class TableReader {
 					MiscXml element = (MiscXml) el;
 
 					if (miscParams.get(i).equals(element.getName())) {
-						doubleColumnValues.get(i + 3).add(element.getValue());
+						doubleColumnValues.get(i).add(element.getValue());
 						paramFound = true;
 						break;
 					}

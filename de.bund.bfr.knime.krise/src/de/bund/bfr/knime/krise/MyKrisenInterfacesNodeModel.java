@@ -2,6 +2,7 @@ package de.bund.bfr.knime.krise;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -72,6 +73,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private int maxDepth = 2;
 	private String referenzDatum;
 	private SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
+	
+	private Connection conn = null;
 
 	/**
      * Constructor for the node model.
@@ -89,6 +92,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         Bfrdb db = null;
     	if (override) {
 			db = new Bfrdb(filename, login, passwd);
+			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
@@ -329,7 +333,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	return result;
     }
     private boolean checkCase(int stationID) {
-    	boolean result = (DBKernel.getValue("Station", "ID", stationID+"", "FallErfuellt") != null); 
+    	boolean result = (DBKernel.getValue(conn, "Station", "ID", stationID+"", "FallErfuellt") != null); 
 		return result;
     }
     private boolean onlyMissingCells(DataCell[] cells, int startCol) {
@@ -402,8 +406,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	while (rs.next()) {
     		if (rs.getObject("Charge") != null) {
     			String charge = rs.getString("Charge");
-    			String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
-    			Object li = DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
+    			String artikel = DBKernel.getValue(conn,"Chargen", "ID", charge, "Artikel") + "";
+    			Object li = DBKernel.getValue(conn,"Produktkatalog", "ID", artikel, "Station");
     			
 				int diffDays = 0;
     			if (rs.getObject("Lieferdatum") != null) {
@@ -423,8 +427,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		String charge = rs.getObject("Charge") == null ? "" : rs.getString("Charge");
     		lieferdatum += "," + (rs.getObject("Lieferdatum") == null ? "" : rs.getString("Lieferdatum"));
     		zutaten += "," + charge;
-    		String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
-	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
+    		String artikel = DBKernel.getValue(conn,"Chargen", "ID", charge, "Artikel") + "";
+	    	lieferanten += "," + DBKernel.getValue(conn,"Produktkatalog", "ID", artikel, "Station");
 	    	
 	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1, stationenLieferanten, stationenZutaten, stationenDatums);
     	}

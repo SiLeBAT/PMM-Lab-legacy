@@ -976,6 +976,9 @@ public class DBKernel {
 		return result;
   }
   public static Object getValue(final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
+	  return getValue(null, tablename, feldname, feldVal, desiredColumn);
+  }
+  public static Object getValue(Connection conn, final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
 	  	Object result = null;
 		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE " + delimitL(feldname);
 		  if (feldVal == null) {
@@ -983,7 +986,16 @@ public class DBKernel {
 		} else {
 			sql += " = '" + feldVal.replace("'", "''") + "'";
 		}
-			ResultSet rs = getResultSet(sql, true);
+			ResultSet rs = null;
+			if (conn == null) rs = getResultSet(sql, true);
+			else {
+				try {
+					rs = getResultSet(conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY), sql, true);
+				}
+				catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
 			try {
 				if (rs != null && rs.last() && rs.getRow() == 1) {
 					result = rs.getObject(1);

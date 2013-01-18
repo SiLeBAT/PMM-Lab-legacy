@@ -488,21 +488,17 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_144_145(myList); 
 					  		DBKernel.setDBVersion("1.4.5");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-					  		UpdateChecker.check4Updates_145_146(myList); 
-					  		DBKernel.setDBVersion("1.4.6");
-					  	}
 					  	/*
-					  	else if (dbVersion.equals("1.4.2")) {
-					  		UpdateChecker.check4Updates_141_142(myList); 
-					  		DBKernel.setDBVersion("1.4.2");
-					  	}
-					  	*/
 					  	else { // dbVersion == null || dbVersion == unbekannt
 							InfoBox ib = new InfoBox(this, "Deine DB ist zu alt...\nBitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
 							ib.setVisible(true); 
 							mf.dispose();
 							return myList;
+					  	}
+					  	*/
+					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+					  		UpdateChecker.check4Updates_145_146(myList); 
+					  		DBKernel.setDBVersion("1.4.6");
 					  	}
 					  	
 						DBKernel.closeDBConnections(false);

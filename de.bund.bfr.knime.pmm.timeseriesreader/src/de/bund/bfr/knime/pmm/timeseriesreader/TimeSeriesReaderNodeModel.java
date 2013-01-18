@@ -56,7 +56,6 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -155,12 +154,13 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,result.getDouble(Bfrdb.ATT_AW),null);
 			miscDoc.add(mx);
     		tuple.addMiscs(miscDoc);
-    		
+    		/*
     		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
     		try {tuple.setPh(result.getDouble(Bfrdb.ATT_PH));}
     		catch (PmmException e) {e.printStackTrace();}
     		try {tuple.setWaterActivity(result.getDouble(Bfrdb.ATT_AW));}
     		catch (PmmException e) {e.printStackTrace();}
+    		*/
     		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
     		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
     		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );

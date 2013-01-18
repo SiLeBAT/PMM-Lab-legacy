@@ -350,7 +350,8 @@ public class MathUtilities {
 		if (numSample <= 0)
 			return null;
 
-		return numSample * Math.log(rms * rms) + 2 * numParam;
+		// return numSample * Math.log(rms * rms) + 2 * numParam;
+		return numSample*Math.log( rms*rms )+2*( numParam+1 )+2*( numParam+1 )*( numParam+2 )/( numSample-numParam-2 );
 	}
 
 	public static Double bayesCriterion(final int numParam,

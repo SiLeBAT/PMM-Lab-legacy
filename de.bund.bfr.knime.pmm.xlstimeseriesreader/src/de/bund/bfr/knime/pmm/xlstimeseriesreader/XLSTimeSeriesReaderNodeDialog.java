@@ -44,6 +44,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -228,4 +230,22 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 	}
 
+	private void openDBWindow() {
+		Integer id = null; // id, die im DB-Window angezeigt wird
+		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
+		Object newVal = DBKernel.myList.openNewWindow(
+				myT,
+				id,
+				(Object) ("SonstigeParameter"),
+				null,
+				null,
+				null,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			String mname = ""+DBKernel.getValue("SonstigeParameter", "ID", newVal+"", "Parameter"); // "Parameter","Beschreibung"
+			System.err.println(mname);
+		}
+		
+	}
 }

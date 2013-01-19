@@ -33,6 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 import javax.swing.BoxLayout;
@@ -47,6 +49,7 @@ import org.knime.core.node.config.Config;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.MdReaderUi;
@@ -79,7 +82,22 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	dbui = new DbConfigurationUi();
     	panel.add( dbui );
     	
-    	tsui = new MdReaderUi(DBKernel.getItemListMisc());
+    	Bfrdb db;
+    	Connection conn = null;
+    	if( dbui.getOverride() ) {
+			try {
+				db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
+				conn = db.getConnection();
+			}
+			catch (ClassNotFoundException | SQLException e) {
+				e.printStackTrace();
+			}
+		} else {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
+		}
+
+    	tsui = new MdReaderUi(DBKernel.getItemListMisc(conn));
     	panel.add( tsui );
     	
     	addTab("Database connection", panel);

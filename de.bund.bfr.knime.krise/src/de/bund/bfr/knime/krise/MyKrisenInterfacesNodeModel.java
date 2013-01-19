@@ -95,6 +95,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
 		}
 
     	LinkedHashMap<Integer, Integer> compChain = applyCompanyFilter(db);

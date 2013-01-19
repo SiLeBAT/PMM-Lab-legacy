@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 
@@ -109,6 +110,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
+	private Connection conn = null;
+
 	static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	
@@ -153,8 +156,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         db = null;
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
+			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
 		}
     	
     	dbuuid = db.getDBUUID();
@@ -203,10 +208,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		String s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
     			PmmXmlDoc l = new PmmXmlDoc();
-    			Object author = DBKernel.getValue("Literatur", "ID", s, "Erstautor");
-    			Object year = DBKernel.getValue("Literatur", "ID", s, "Jahr");
-    			Object title = DBKernel.getValue("Literatur", "ID", s, "Titel");
-    			Object abstrac = DBKernel.getValue("Literatur", "ID", s, "Abstract");
+    			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
+    			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
+    			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
+    			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
     			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
     					(Integer) (year == null ? null : year),
     					title == null ? null : title.toString(),
@@ -388,10 +393,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
 		for (String id : ids) {
-			Object author = DBKernel.getValue("Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue("Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue("Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue("Literatur", "ID", id, "Abstract");
+			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
 			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
 					(Integer) (year == null ? null : year),
 					title == null ? null : title.toString(),

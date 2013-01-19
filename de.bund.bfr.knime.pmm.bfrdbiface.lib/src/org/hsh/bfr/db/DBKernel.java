@@ -986,16 +986,7 @@ public class DBKernel {
 		} else {
 			sql += " = '" + feldVal.replace("'", "''") + "'";
 		}
-			ResultSet rs = null;
-			if (conn == null) rs = getResultSet(sql, true);
-			else {
-				try {
-					rs = getResultSet(conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY), sql, true);
-				}
-				catch (SQLException e) {
-					e.printStackTrace();
-				}
-			}
+			ResultSet rs = getResultSet(conn, sql, true);
 			try {
 				if (rs != null && rs.last() && rs.getRow() == 1) {
 					result = rs.getObject(1);
@@ -1368,6 +1359,20 @@ public class DBKernel {
 	    }
 	    return ergebnis;
 	  }
+  public static ResultSet getResultSet(final Connection conn, final String sql, final boolean suppressWarnings) {
+		if (conn == null) {
+			return getResultSet(sql, false);
+		}
+		else {
+			try {
+				return getResultSet(conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY), sql, false);
+			}
+			catch (SQLException e) {
+				//e.printStackTrace();
+			}
+		}
+		return null;
+  }
   public static ResultSet getResultSet(final Statement anfrage, final String sql, final boolean suppressWarnings) {
 	    ResultSet ergebnis = null;
 	    try {
@@ -1725,10 +1730,12 @@ public class DBKernel {
 		}
 		return result;
 	}
-    public static String[] getItemListMisc() {
+    public static String[] getItemListMisc(Connection conn) {
     	HashSet<String> hs = new HashSet<String>();
-    	ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter"), false);
     	try {
+    		ResultSet rs = null;
+    		String sql = "SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter");
+    		rs = DBKernel.getResultSet(conn, sql, false);
 			do {
 				hs.add(rs.getString("Parameter"));    		
 			} while (rs.next());
@@ -1738,10 +1745,12 @@ public class DBKernel {
 		}
     	return hs.toArray(new String[]{});
     }
-    public static void mergeIDs(final String tableName, int oldID, int newID) {
-		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
-				" WHERE PKTABLE_NAME = '" + tableName + "'", false);
+    public static void mergeIDs(Connection conn, final String tableName, int oldID, int newID) {
+		ResultSet rs = null;
+		String sql = "SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
+				" WHERE PKTABLE_NAME = '" + tableName + "'";
 		try {
+			rs = DBKernel.getResultSet(conn, sql, false);
 		    if (rs != null && rs.first()) {
 		    	do {
 		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";

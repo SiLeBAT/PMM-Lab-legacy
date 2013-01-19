@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.modelcatalogreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 
 import org.hsh.bfr.db.DBKernel;
@@ -88,6 +89,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	private String modelList;
 	private boolean modelFilterEnabled;
     
+	private Connection conn = null;
+
 	/**
      * Constructor for the node model.
      */
@@ -125,8 +128,10 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
         db = null;
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
+			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
 		}
     		
     	dbuuid = db.getDBUUID();
@@ -261,10 +266,10 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
 		for (String id : ids) {
-			Object author = DBKernel.getValue("Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue("Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue("Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue("Literatur", "ID", id, "Abstract");
+			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
 			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
 					(Integer) (year == null ? null : year),
 					title == null ? null : title.toString(),

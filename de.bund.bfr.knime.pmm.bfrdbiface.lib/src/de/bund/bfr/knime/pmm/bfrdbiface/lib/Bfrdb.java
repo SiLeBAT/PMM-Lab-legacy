@@ -106,7 +106,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_YEAR = "Jahr";
 	public static final String ATT_RECORDID = "ID_CB";
 	public static final String ATT_COMBASEID = "CombaseID";
-	//private static final String ATT_INPUTDATE = "Eingabedatum";
 	public static final String ATT_CONDITIONS = "b_f_details_CB";
 	public static final String ATT_MAX = "max";
 	public static final String ATT_MIN = "min";
@@ -131,6 +130,9 @@ public class Bfrdb extends Hsqldbiface {
 	private static final String REL_VARMAP = "VarParMaps";
 	private static final String ATT_VARMAPFROM = "VarPar";
 	public static final String ATT_VARMAPTO = "VarParMap";
+	private static final String VIEW_CONDITION = "VersuchsbedingungenEinfach";
+	private static final String VIEW_MISCPARAM = "SonstigesEinfach";
+	private static final String VIEW_DATA = "MesswerteEinfach";
 	
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
@@ -491,6 +493,7 @@ public class Bfrdb extends Hsqldbiface {
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=2\n";
 	
+	@Deprecated
 	private static final String queryTimeSeries5 = "SELECT\n"
 		+"\n"
 		+"\""+REL_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
@@ -636,6 +639,85 @@ public class Bfrdb extends Hsqldbiface {
 		+"\n"
 		+")\"DataView\"\n"
 		+"ON \""+REL_CONDITION+"\".\"ID\"=\"DataView\".\""+REL_CONDITION+"\"\n";
+	
+	private static final String queryTimeSeries6 = "SELECT\n"
+			+"\n"
+			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
+			+"    \""+REL_COMBASE+"\".\""+ATT_COMBASEID+"\",\n"
+			+"    \"MiscView\".\""+ATT_MISCID+"\",\n"
+			+"    \"MiscView\".\""+ATT_MISC+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_PH+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AW+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\",\n"
+			+"    \""+REL_AGENT+"\".\""+ATT_AGENTNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\",\n"
+			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
+			+"    \"DataView\".\""+ATT_TIME+"\",\n"
+			+"    \"DataView\".\""+ATT_LOG10N+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
+			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\"Jahr\" )AS "+ATT_LITERATURETEXT+"\n"
+			+"\n"
+			+"FROM \""+VIEW_CONDITION+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_COMBASE+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_AGENT+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_MATRIX+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN(\n"
+			+"\n"
+			+"    SELECT\n"
+			+"\n"
+			+"        \""+ATT_CONDITIONID+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_MISCID+"\" )AS \""+ATT_MISCID+"\",\n"
+			+"\n"
+			+"    GROUP_CONCAT(\n"
+			+"        CONCAT(\n"
+			+"            \""+ATT_DESCRIPTION+"\",\n"
+			+"            CASE\n"
+			+"                WHEN \""+ATT_UNIT+"\" IS NULL\n"
+			+"                THEN ''\n"
+			+"                ELSE CONCAT( '(', \""+ATT_UNIT+"\", ')' )\n"
+			+"            END,\n"
+			+"            CASE\n"
+			+"                WHEN \""+ATT_VALUE+"\" IS NULL\n"
+			+"                THEN ''\n"
+			+"                ELSE CONCAT( ':', \""+ATT_VALUE+"\" )\n"
+			+"            END\n"
+			+"        )\n"
+			+"    )AS \""+ATT_MISC+"\"\n"
+			+"\n"
+			+"    FROM \""+VIEW_MISCPARAM+"\"\n"
+			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+")\"MiscView\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\"MiscView\".\""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+"LEFT JOIN(\n"
+			+"\n"
+			+"    SELECT\n"
+			+"\n"
+			+"        \""+ATT_CONDITIONID+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_TIME+"\" )AS \""+ATT_TIME+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_LOG10N+"\" )AS \""+ATT_LOG10N+"\"\n"
+			+"\n"
+			+"    FROM \""+VIEW_DATA+"\"\n"
+			+"    WHERE NOT( \""+ATT_TIME+"\" IS NULL OR \""+ATT_LOG10N+"\" IS NULL )\n"
+			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+")\"DataView\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\"DataView\".\""+ATT_CONDITIONID+"\"\n";
 	
 	
 	public Bfrdb( final Connection conn ) { super( conn ); }

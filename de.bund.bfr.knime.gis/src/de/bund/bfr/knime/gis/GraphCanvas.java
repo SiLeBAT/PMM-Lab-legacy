@@ -1248,16 +1248,34 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				Object nodeValue = element.getProperties().get(property);
 
 				if (type.equals(EQUAL_TYPE)) {
-					if (value != null && value.equals(nodeValue)) {
-						values.put(element, 1.0);
-					} else {
-						values.put(element, 0.0);
+					if (nodeValue != null && nodeValue instanceof Boolean) {
+						if (value != null && value.equalsIgnoreCase((boolean) nodeValue ? "true" : "false")) {
+							values.put(element, 1.0);
+						} else {
+							values.put(element, 0.0);
+						}
+					}
+					else {
+						if (value != null && value.equals(nodeValue)) {
+							values.put(element, 1.0);
+						} else {
+							values.put(element, 0.0);
+						}
 					}
 				} else if (type.equals(NOT_EQUAL_TYPE)) {
-					if (value != null && !value.equals(nodeValue)) {
-						values.put(element, 1.0);
-					} else {
-						values.put(element, 0.0);
+					if (nodeValue != null && nodeValue instanceof Boolean) {
+						if (value == null || value.equalsIgnoreCase((boolean) nodeValue ? "false" : "true")) {
+							values.put(element, 1.0);
+						} else {
+							values.put(element, 0.0);
+						}
+					}
+					else {
+						if (value != null && !value.equals(nodeValue)) {
+							values.put(element, 1.0);
+						} else {
+							values.put(element, 0.0);
+						}
 					}
 				} else if (type.equals(GREATER_TYPE)) {
 					if (doubleValue != null && nodeValue instanceof Number) {

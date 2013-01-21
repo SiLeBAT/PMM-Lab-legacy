@@ -106,7 +106,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	LinkedHashMap<Integer, Integer> articleChain = applyArticleFilter(db);
     	
     	if (tracingBack) {
-    		HashSet<HashSet<Integer>> tb = makeTracingBack(db, false);
+    		HashSet<HashSet<Integer>> tb = makeTracingBack(db, true);
         	String warningMessage = "";
         	int lfd = -1;
         	for (HashSet<Integer> hsi : tb) {
@@ -726,7 +726,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		HashMap<Integer, Integer> lieferID2StationID = new HashMap<Integer, Integer>(); 
 		HashMap<LinkedHashMap<Integer, Integer>, HashSet<Integer>> chainMap = new HashMap<LinkedHashMap<Integer, Integer>, HashSet<Integer>>(); 
 		int numCasesHavingCommonNode = allChains.size();
-		for (;numCasesHavingCommonNode >= (search4Best ? allChains.size() - 5 : allChains.size());numCasesHavingCommonNode--) {
+		for (;numCasesHavingCommonNode >= (search4Best ? allChains.size() - 4 : allChains.size());numCasesHavingCommonNode--) {
 			CombinatorialIterator ci = new CombinatorialIterator(allChains, numCasesHavingCommonNode);
 			//CombinationIterator ci = new CombinationIterator(allChains, numCasesHavingCommonNode);
 	    	while (ci.hasNext()) {

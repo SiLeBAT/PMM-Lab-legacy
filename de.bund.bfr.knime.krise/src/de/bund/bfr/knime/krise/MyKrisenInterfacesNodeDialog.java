@@ -34,7 +34,7 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 
 	private DbConfigurationUi dbui;
-	private JCheckBox doAnonymize, antiArticle, antiCharge, antiCompany;
+	private JCheckBox doAnonymize, antiArticle, antiCharge, antiCompany, tracingBack;
 	private JTextField company, charge, artikel;
 	private JDateChooser dateFrom, dateTo;
 
@@ -47,6 +47,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	
     	dbui = new DbConfigurationUi();
     	panel.add(dbui);
+    	tracingBack = new JCheckBox(); tracingBack.setText("Do BackTracing?"); panel.add(tracingBack);
     	panel.add(new JLabel("dateFrom:")); dateFrom = new JDateChooser(); panel.add(dateFrom);
     	panel.add(new JLabel("dateTo:")); dateTo = new JDateChooser(); panel.add(dateTo);
     	doAnonymize = new JCheckBox(); doAnonymize.setText("Anonymisieren?"); panel.add(doAnonymize);
@@ -68,6 +69,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 		settings.addString( MyKrisenInterfacesNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( MyKrisenInterfacesNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
+		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_TRACINGBACK, tracingBack.isSelected() );
 		settings.addBoolean( MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE, doAnonymize.isSelected() );
 		settings.addString( MyKrisenInterfacesNodeModel.PARAM_FILTER_COMPANY, company.getText() );
 		settings.addString( MyKrisenInterfacesNodeModel.PARAM_FILTER_CHARGE, charge.getText() );
@@ -93,6 +95,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
 			dbui.setLogin( settings.getString( MyKrisenInterfacesNodeModel.PARAM_LOGIN ) );
 			dbui.setPasswd( settings.getString( MyKrisenInterfacesNodeModel.PARAM_PASSWD ) );
 			dbui.setOverride( settings.getBoolean( MyKrisenInterfacesNodeModel.PARAM_OVERRIDE ) );
+			tracingBack.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_TRACINGBACK));
 			doAnonymize.setSelected(settings.getBoolean(MyKrisenInterfacesNodeModel.PARAM_ANONYMIZE));
 			company.setText(settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILTER_COMPANY ));
 			charge.setText(settings.getString( MyKrisenInterfacesNodeModel.PARAM_FILTER_CHARGE ));

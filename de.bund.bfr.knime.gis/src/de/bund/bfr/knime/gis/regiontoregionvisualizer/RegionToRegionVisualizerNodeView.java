@@ -56,6 +56,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowIterator;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -208,6 +209,8 @@ public class RegionToRegionVisualizerNodeView extends
 				nodeProperties.put(columnSpec.getName(), Integer.class);
 			} else if (columnSpec.getType() == DoubleCell.TYPE) {
 				nodeProperties.put(columnSpec.getName(), Double.class);
+			} else if (columnSpec.getType() == BooleanCell.TYPE) {
+				nodeProperties.put(columnSpec.getName(), Boolean.class);
 			}
 		}
 
@@ -260,6 +263,9 @@ public class RegionToRegionVisualizerNodeView extends
 					} else if (columnSpec.getType() == DoubleCell.TYPE) {
 						properties.put(columnSpec.getName(),
 								((DoubleCell) cell).getDoubleValue());
+					} else if (columnSpec.getType() == BooleanCell.TYPE) {
+						properties.put(columnSpec.getName(),
+								((BooleanCell) cell).getBooleanValue());
 					}
 				}
 

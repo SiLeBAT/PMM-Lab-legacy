@@ -171,6 +171,10 @@ public class MdReaderUi extends JPanel {
 		this.params = params;
 		handleParams();
 	}
+	public void setMiscItems(String[] itemListMisc) {
+		this.itemListMisc = itemListMisc;
+		handleParams();
+	}
 	
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
 		

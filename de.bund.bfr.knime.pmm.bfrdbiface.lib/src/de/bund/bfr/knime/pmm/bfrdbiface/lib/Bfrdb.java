@@ -1845,7 +1845,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private Integer getId4Formula(final String formula) {
-		Integer o = (Integer) DBKernel.getValue("Modellkatalog", "Formel", formula, "ID");
+		Integer o = (Integer) DBKernel.getValue(super.getConnection(), "Modellkatalog", "Formel", formula, "ID");
 		return o;
 	}
 	private boolean isObjectPresent( final String tablename, final int id ) {

@@ -2,14 +2,17 @@ package de.bund.bfr.knime.krise;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Vector;
 
 import org.hsh.bfr.db.DBKernel;
@@ -49,6 +52,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
+	static final String PARAM_TRACINGBACK = "tracingBack";
 	static final String PARAM_ANONYMIZE = "anonymize";
 	static final String PARAM_FILTER_COMPANY = "filter_Company";
 	static final String PARAM_FILTER_CHARGE = "filter_Charge";
@@ -66,12 +70,14 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 	private boolean override;
 	private boolean doAnonymize;
 	private String companyFilter, chargeFilter, artikelFilter;
-	private boolean antiArticle, antiCharge, antiCompany;
+	private boolean antiArticle, antiCharge, antiCompany, tracingBack;
 	private String dateFrom, dateTo;
 	
 	private int maxDepth = 2;
 	private String referenzDatum;
 	private SimpleDateFormat sdfToDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 2012-07-10 00:00:00
+	
+	private Connection conn = null;
 
 	/**
      * Constructor for the node model.
@@ -89,25 +95,42 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
         Bfrdb db = null;
     	if (override) {
 			db = new Bfrdb(filename, login, passwd);
+			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
 		}
 
     	LinkedHashMap<Integer, Integer> compChain = applyCompanyFilter(db);
     	LinkedHashMap<Integer, Integer> chargeChain = applyChargeFilter(db);
     	LinkedHashMap<Integer, Integer> articleChain = applyArticleFilter(db);
-    	HashSet<Integer> tb = makeTracingBack(db);
-    	String warningMessage = "";
-    	for (Integer stationID : tb) {
-        	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Name") + " FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
-        			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
-        			" WHERE " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + stationID);
-        	rs.next();
-    		warningMessage += " " + rs.getString("Name") + " (ID:" + stationID + ")";
-    	}
-    	if (!warningMessage.isEmpty()) {
-    		warningMessage = "Tracing succesful, susceptible Companies:" + warningMessage;
-        	this.setWarningMessage(warningMessage);
+    	
+    	if (tracingBack) {
+    		HashSet<HashSet<Integer>> tb = makeTracingBack(db, true);
+        	String warningMessage = "";
+        	int lfd = -1;
+        	for (HashSet<Integer> hsi : tb) {
+        		lfd++;
+        		if (lfd == 0) { // numCasesHavingCommonNode vs. numAllCases
+        			for (Integer numNodes : hsi) {
+        				warningMessage += " -" + numNodes + "-";
+        			}
+        		}
+        		else {
+                	warningMessage += "\n" + lfd + ". Satz:\n";
+                	for (Integer stationID : hsi) {
+                    	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Name") + " FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+                    			" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse") +
+                    			" WHERE " + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") + "=" + stationID);
+                    	rs.next();
+                		warningMessage += rs.getString("Name") + " (ID:" + stationID + ")\n";
+                	}
+        		}
+        	}
+        	if (!warningMessage.isEmpty()) {
+        		warningMessage = "Tracing successful, susceptible Companies:" + warningMessage;
+            	this.setWarningMessage(warningMessage);
+        	}
     	}
 
     	LinkedHashMap<Integer, String> id2Code = new LinkedHashMap<Integer, String>(); 
@@ -329,7 +352,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	return result;
     }
     private boolean checkCase(int stationID) {
-    	boolean result = (DBKernel.getValue("Station", "ID", stationID+"", "FallErfuellt") != null); 
+    	boolean result = (DBKernel.getValue(conn, "Station", "ID", stationID+"", "FallErfuellt") != null); 
 		return result;
     }
     private boolean onlyMissingCells(DataCell[] cells, int startCol) {
@@ -402,8 +425,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	while (rs.next()) {
     		if (rs.getObject("Charge") != null) {
     			String charge = rs.getString("Charge");
-    			String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
-    			Object li = DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
+    			String artikel = DBKernel.getValue(conn,"Chargen", "ID", charge, "Artikel") + "";
+    			Object li = DBKernel.getValue(conn,"Produktkatalog", "ID", artikel, "Station");
     			
 				int diffDays = 0;
     			if (rs.getObject("Lieferdatum") != null) {
@@ -423,8 +446,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		String charge = rs.getObject("Charge") == null ? "" : rs.getString("Charge");
     		lieferdatum += "," + (rs.getObject("Lieferdatum") == null ? "" : rs.getString("Lieferdatum"));
     		zutaten += "," + charge;
-    		String artikel = DBKernel.getValue("Chargen", "ID", charge, "Artikel") + "";
-	    	lieferanten += "," + DBKernel.getValue("Produktkatalog", "ID", artikel, "Station");
+    		String artikel = DBKernel.getValue(conn,"Chargen", "ID", charge, "Artikel") + "";
+	    	lieferanten += "," + DBKernel.getValue(conn,"Produktkatalog", "ID", artikel, "Station");
 	    	
 	    	if (depth > 0) setVorlieferungen(db, rs.getInt("ID"), false, cells, cellLfd + 3, depth - 1, stationenLieferanten, stationenZutaten, stationenDatums);
     	}
@@ -671,14 +694,16 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	return result;
     }
     @SuppressWarnings("unchecked")
-	private HashSet<Integer> makeTracingBack(Bfrdb db) throws SQLException {
+	private HashSet<HashSet<Integer>> makeTracingBack(Bfrdb db, boolean search4Best) throws SQLException {
+		HashSet<HashSet<Integer>> gemeinsamStationsSet = new HashSet<HashSet<Integer>>();
+
     	ResultSet rs = db.pushQuery("SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "," +
     			DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
     			" FROM " + DBKernel.delimitL("Station") +
     			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
     			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("ID") +
     			" WHERE " + DBKernel.delimitL("FallErfuellt"));
-    	HashSet<LinkedHashMap<Integer, Integer>> chains = new HashSet<LinkedHashMap<Integer, Integer>>();
+    	List<LinkedHashMap<Integer, Integer>> allChains = new ArrayList<LinkedHashMap<Integer, Integer>>();
     	LinkedHashMap<Integer, Integer> chain_ = new LinkedHashMap<Integer, Integer>();
     	int oldStationID = 0;
 		while (rs.next()) {
@@ -686,7 +711,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 			int stationID = rs.getInt("Station.ID");
 			if (lieferID > 0) {
 				if (oldStationID != stationID) {
-					if (chain_.size() > 0) chains.add(chain_);
+					if (chain_.size() > 0) allChains.add(chain_);
 					chain_ = new LinkedHashMap<Integer, Integer>();
 					oldStationID = stationID;
 				}
@@ -694,42 +719,82 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		    	goBackward(db, lieferID, chain_);
 			}
 		}
-		if (chain_.size() > 0) chains.add(chain_);
-		HashSet<Integer> gemeinsamStations = null;
-		for (LinkedHashMap<Integer, Integer> chain : chains) {
-			HashSet<Integer> chainStations = getLieferStations(db, chain);
-			if (gemeinsamStations == null) gemeinsamStations = chainStations;
-			else {
-				HashSet<Integer> gemeinsamStationsClone = (HashSet<Integer>) gemeinsamStations.clone();
-				for (Integer stationID : gemeinsamStationsClone) {
-					if (!chainStations.contains(stationID)) {
-						if (stationID == 626) { // z.B. Kita Wirbelwind, ID = 208
-							//System.err.println("");
-						}
-						gemeinsamStations.remove(stationID);
-					}
-				}
-			}
+		if (chain_.size() > 0) allChains.add(chain_);
+
+		long lfd = 0;
+		long startTime = System.currentTimeMillis();
+		HashMap<Integer, Integer> lieferID2StationID = new HashMap<Integer, Integer>(); 
+		HashMap<LinkedHashMap<Integer, Integer>, HashSet<Integer>> chainMap = new HashMap<LinkedHashMap<Integer, Integer>, HashSet<Integer>>(); 
+		int numCasesHavingCommonNode = allChains.size();
+		for (;numCasesHavingCommonNode >= (search4Best ? allChains.size() - 4 : allChains.size());numCasesHavingCommonNode--) {
+			CombinatorialIterator ci = new CombinatorialIterator(allChains, numCasesHavingCommonNode);
+			//CombinationIterator ci = new CombinationIterator(allChains, numCasesHavingCommonNode);
+	    	while (ci.hasNext()) {
+	    		List<LinkedHashMap<Integer, Integer>> chains2Explore = (List<LinkedHashMap<Integer, Integer>>) ci.next();
+	    		
+	    		if (lfd % 100000 == 0) {
+		    		long ts = ((System.currentTimeMillis() - startTime) / 1000);
+	    			System.err.println(numCasesHavingCommonNode + "\t" + lfd + "\t" + ts);
+	    		}
+	    		
+	    		lfd++; // 15082603
+	    		HashSet<Integer> gemeinsamStations = null;
+        		for (LinkedHashMap<Integer, Integer> chain : chains2Explore) {
+        			HashSet<Integer> chainStations = getLieferStations(db, chain, lieferID2StationID, chainMap);
+        			if (gemeinsamStations == null) gemeinsamStations = chainStations;
+        			else {
+        				HashSet<Integer> gemeinsamStationsClone = (HashSet<Integer>) gemeinsamStations.clone();
+        				for (Integer stationID : gemeinsamStationsClone) {
+        					if (!chainStations.contains(stationID)) {
+        						gemeinsamStations.remove(stationID);
+        					}
+        				}
+        			}
+        		}
+        		if (gemeinsamStations != null && gemeinsamStations.size() > 0) {
+        			gemeinsamStationsSet.add(gemeinsamStations);
+        			//break;
+        		}
+        		
+	    	}
+	    	if (gemeinsamStationsSet.size() > 0) {
+	    		HashSet<Integer> hs = new HashSet<Integer>();
+	    		hs.add(numCasesHavingCommonNode);
+	    		hs.add(allChains.size());
+	    		gemeinsamStationsSet.add(hs);
+	    		break;
+	    	}
 		}
-		return gemeinsamStations;
+		System.err.println("TracingBack - Fin! " + lfd);
+		return gemeinsamStationsSet;
     }
-    private HashSet<Integer> getLieferStations(Bfrdb db, LinkedHashMap<Integer, Integer> chain) throws SQLException {
-    	HashSet<Integer> result = new HashSet<Integer>();
-    	for (Integer lieferID : chain.keySet()) {
-    		String sql = "SELECT " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
-			" FROM " + DBKernel.delimitL("Lieferungen") +
-			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
-			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
-			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + lieferID;
-		
-			ResultSet rs = db.pushQuery(sql);
-			while (rs.next()) {
-				result.add(rs.getInt("Station"));
-			}
+    private HashSet<Integer> getLieferStations(Bfrdb db, LinkedHashMap<Integer, Integer> chain, HashMap<Integer, Integer> lieferID2StationID,
+    		HashMap<LinkedHashMap<Integer, Integer>, HashSet<Integer>> chainMap) throws SQLException {
+    	if (!chainMap.containsKey(chain)) {
+        	HashSet<Integer> result = new HashSet<Integer>();
+        	for (Integer lieferID : chain.keySet()) {
+        		if (!lieferID2StationID.containsKey(lieferID)) {
+            		String sql = "SELECT " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") +
+            				" FROM " + DBKernel.delimitL("Lieferungen") +
+            				" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+            				" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+            				" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+            				" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+            				" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") + "=" + lieferID;
+            			
+            				ResultSet rs = db.pushQuery(sql);
+            				//int lfd=0;
+            				while (rs.next()) {
+            					lieferID2StationID.put(lieferID, rs.getInt("Station"));
+            					//lfd++;
+            					//if (lfd > 1) System.err.println("WWEWE");
+            				}
+        		}
+    			result.add(lieferID2StationID.get(lieferID));
+        	}
+        	chainMap.put(chain, result);
     	}
-    	return result;
+    	return chainMap.get(chain);
     }
     private void goForward(Bfrdb db, int lieferID, LinkedHashMap<Integer, Integer> results) throws SQLException {
 		String sql = "SELECT " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
@@ -789,6 +854,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
+    	settings.addBoolean( PARAM_TRACINGBACK, tracingBack );
     	settings.addBoolean( PARAM_ANONYMIZE, doAnonymize );
     	settings.addString( PARAM_FILTER_COMPANY, companyFilter );
     	settings.addString( PARAM_FILTER_CHARGE, chargeFilter );
@@ -811,6 +877,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
+    	tracingBack = settings.getBoolean( PARAM_TRACINGBACK );
     	doAnonymize = settings.getBoolean( PARAM_ANONYMIZE );
     	companyFilter = settings.getString( PARAM_FILTER_COMPANY );
     	chargeFilter = settings.getString( PARAM_FILTER_CHARGE );

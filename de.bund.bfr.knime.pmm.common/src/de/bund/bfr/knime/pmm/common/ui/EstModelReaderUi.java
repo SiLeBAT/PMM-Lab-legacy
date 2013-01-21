@@ -177,6 +177,9 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public String getMatrixString() { return tsReaderUi.getMatrixString(); }
 	public String getModelList() { return modelReaderUi.getModelList(); }
 	
+	public void setMiscItems(String[] itemListMisc) {
+		tsReaderUi.setMiscItems(itemListMisc);
+	}
 	public double getQualityThresh() throws InvalidSettingsException {
 		
 		if( !qualityField.isValueValid() )

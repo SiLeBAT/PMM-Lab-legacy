@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.timeseriesreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.util.LinkedHashMap;
 
@@ -92,7 +93,9 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 	
 	private LinkedHashMap<String, Double[]> parameter;
     
-    /**
+	private Connection conn = null;
+
+	/**
      * Constructor for the node model.
      */
     protected TimeSeriesReaderNodeModel() {
@@ -128,8 +131,10 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         db = null;
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
+			conn = db.getConnection();
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
 		}
 
     	dbuuid = db.getDBUUID();
@@ -176,10 +181,10 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		String s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
     			PmmXmlDoc l = new PmmXmlDoc();
-    			Object author = DBKernel.getValue("Literatur", "ID", s, "Erstautor");
-    			Object year = DBKernel.getValue("Literatur", "ID", s, "Jahr");
-    			Object title = DBKernel.getValue("Literatur", "ID", s, "Titel");
-    			Object abstrac = DBKernel.getValue("Literatur", "ID", s, "Abstract");
+    			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
+    			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
+    			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
+    			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
     			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
     					(Integer) (year == null ? null : year),
     					title == null ? null : title.toString(),

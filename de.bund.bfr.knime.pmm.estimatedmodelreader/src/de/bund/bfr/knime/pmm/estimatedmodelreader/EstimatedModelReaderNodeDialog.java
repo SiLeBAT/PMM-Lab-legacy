@@ -209,20 +209,14 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	
     	estmodelui.setMiscItems(DBKernel.getItemListMisc(conn));
     	
-    	result = db.selectModel( 1 );
-    	    	
-    	while( result.next() )
-    		estmodelui.addModelPrim(
-				result.getInt( Bfrdb.ATT_MODELID ),
-				result.getString( Bfrdb.ATT_NAME ) );
-    		
-    	result = db.selectModel( 2 );
-    	
-    	while( result.next() )
-    		estmodelui.addModelSec(
-				result.getInt( Bfrdb.ATT_MODELID ),
-				result.getString( Bfrdb.ATT_NAME ) );
-    	
+    	result = db.selectModel(1);    	    	
+    	while (result.next()) {
+    		estmodelui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.hashModelType.get(result.getInt("Klasse")));
+    	}
+    	result = db.selectModel(2);    	
+    	while (result.next()) {
+    		estmodelui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.hashModelType.get(result.getInt("Klasse")));
+    	}
 	}
 }
 

@@ -148,12 +148,12 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		
 	}
 	
-	public void addModelPrim( final int id, final String name ) throws PmmException {
-		modelReaderUi.addModelPrim( id, name );
+	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
+		modelReaderUi.addModelPrim(id, name, modelType);
 	}
 	
-	public void addModelSec( final int id, final String name ) throws PmmException {
-		modelReaderUi.addModelSec( id, name );
+	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
+		modelReaderUi.addModelSec(id, name, modelType);
 	}
 	
 	public void setMatrixString( final String str ) throws InvalidSettingsException {

@@ -2203,27 +2203,29 @@ public class Login extends JFrame {
 		myList.addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}
+	private void fillHashModelTypes() {
+		DBKernel.hashModelType.put(0, "unknown");					
+		DBKernel.hashModelType.put(1, "growth");					
+		DBKernel.hashModelType.put(2, "inactivation");	
+		DBKernel.hashModelType.put(3, "survival");					
+		DBKernel.hashModelType.put(4, "growth/inactivation");	
+		DBKernel.hashModelType.put(5, "inactivation/survival");					
+		DBKernel.hashModelType.put(6, "growth/survival");	
+		DBKernel.hashModelType.put(7, "growth/inactivation/survival");					
+		DBKernel.hashModelType.put(8, "T");	
+		DBKernel.hashModelType.put(9, "pH");	
+		DBKernel.hashModelType.put(10, "aw");	
+		DBKernel.hashModelType.put(11, "T/pH");	
+		DBKernel.hashModelType.put(12, "T/aw");	
+		DBKernel.hashModelType.put(13, "pH/aw");	
+		DBKernel.hashModelType.put(14, "T/pH/aw");	
+	}
 	@SuppressWarnings("unchecked")
 	private void generateStatUpModellTables(final MyList myList, final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten) {
 		LinkedHashMap<Object, String> hashLevel = new LinkedHashMap<Object, String>();
 		hashLevel.put(1, "primary");					
 		hashLevel.put(2, "secondary");	
-		LinkedHashMap<Object, String> hashKlasse = new LinkedHashMap<Object, String>();
-		hashKlasse.put(0, "unknown");					
-		hashKlasse.put(1, "growth");					
-		hashKlasse.put(2, "inactivation");	
-		hashKlasse.put(3, "survival");					
-		hashKlasse.put(4, "growth/inactivation");	
-		hashKlasse.put(5, "inactivation/survival");					
-		hashKlasse.put(6, "growth/survival");	
-		hashKlasse.put(7, "growth/inactivation/survival");					
-		hashKlasse.put(8, "T");	
-		hashKlasse.put(9, "pH");	
-		hashKlasse.put(10, "aw");	
-		hashKlasse.put(11, "T/pH");	
-		hashKlasse.put(12, "T/aw");	
-		hashKlasse.put(13, "pH/aw");	
-		hashKlasse.put(14, "T/pH/aw");	
+		fillHashModelTypes();
 		LinkedHashMap<Object, String> hashTyp = new LinkedHashMap<Object, String>();
 		hashTyp.put(1, "Kovariable");			// independent ?		
 		hashTyp.put(2, "Parameter");	
@@ -2248,7 +2250,7 @@ public class Login extends JFrame {
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,
 				Parametertyp,literatur},
 				null,
-				new LinkedHashMap[]{null,null,hashLevel,hashKlasse,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,hashLevel,DBKernel.hashModelType,null,null,null,null,null,null,
 				null,null},
 				new String[] {null,null,null,null,null,null,null,null,null,null,
 						"ModellkatalogParameter","Modell_Referenz"},

@@ -39,7 +39,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -73,8 +73,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	private HashMap<String, Integer> modelIdPrim;
 	private HashMap<String, Integer> modelIdSec;
-	private LinkedList<JCheckBox> modelBoxSetPrim;
-	private LinkedList<JCheckBox> modelBoxSetSec;
+	private LinkedHashMap<JCheckBox, String> modelBoxSetPrim;
+	private LinkedHashMap<JCheckBox, String> modelBoxSetSec;
 
 	public ModelReaderUi() {
 
@@ -130,45 +130,35 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void clearModelSet() {
 		modelIdPrim = new HashMap<String, Integer>();
 		modelIdSec = new HashMap<String, Integer>();
-		modelBoxSetPrim = new LinkedList<JCheckBox>();
-		modelBoxSetSec = new LinkedList<JCheckBox>();
+		modelBoxSetPrim = new LinkedHashMap<JCheckBox, String>();
+		modelBoxSetSec = new LinkedHashMap<JCheckBox, String>();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent arg0) {
-
 		if (arg0.getSource() == modelNameSwitch) {
-
 			updateModelNameEnabled();
 			return;
 		}
-
 		if (arg0.getSource() == levelBox) {
-
 			updateModelName();
 			return;
 		}
 	}
 
-	public void addModelPrim(final int id, final String name)
-			throws PmmException {
-
-		if (name == null)
-			throw new PmmException("Model name must not be null.");
+	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
+		if (name == null) throw new PmmException("Model name must not be null.");
 
 		modelIdPrim.put(name, id);
-		modelBoxSetPrim.add(new JCheckBox(name));
+		modelBoxSetPrim.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
 		updateModelName();
 	}
 
-	public void addModelSec(final int id, final String name)
-			throws PmmException {
-
-		if (name == null)
-			throw new PmmException("Model name must not be null.");
+	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
+		if (name == null) throw new PmmException("Model name must not be null.");
 
 		modelIdSec.put(name, id);
-		modelBoxSetSec.add(new JCheckBox(name));
+		modelBoxSetSec.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
 		updateModelName();
 	}
 
@@ -189,36 +179,32 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public boolean modelNameEnabled(final String name) {
+		for (JCheckBox box : modelBoxSetPrim.keySet()) {
+			if (box.getText().equals(name)) return true;			
+		}
 
-		for (JCheckBox box : modelBoxSetPrim)
-			if (box.getText().equals(name))
-				return true;
-
-		for (JCheckBox box : modelBoxSetSec)
-			if (box.getText().equals(name))
-				return true;
+		for (JCheckBox box : modelBoxSetSec.keySet()) {
+			if (box.getText().equals(name)) return true;			
+		}
 
 		return false;
 	}
 
 	public void setLevel(int level) throws PmmException {
-
-		if (!(level == 1 || level == 2))
-			throw new PmmException("Level must be in {1, 2}");
+		if (!(level == 1 || level == 2)) throw new PmmException("Level must be in {1, 2}");
 
 		levelBox.setSelectedIndex(level - 1);
 	}
 
 	private void updateModelName() {
-
 		modelPanel.removeAll();
 
-		if (isPrim())
-			for (JCheckBox box : modelBoxSetPrim)
-				modelPanel.add(box);
-		else
-			for (JCheckBox box : modelBoxSetSec)
-				modelPanel.add(box);
+		if (isPrim()) {
+			for (JCheckBox box : modelBoxSetPrim.keySet()) modelPanel.add(box);			
+		}
+		else {
+			for (JCheckBox box : modelBoxSetSec.keySet()) modelPanel.add(box);
+		}
 
 		updateModelNameEnabled();
 
@@ -227,17 +213,12 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	private void updateModelNameEnabled() {
 		if (modelNameSwitch.isSelected()) {
-			for (JCheckBox box : modelBoxSetPrim)
-				box.setEnabled(true);
-			for (JCheckBox box : modelBoxSetSec)
-				box.setEnabled(true);
+			for (JCheckBox box : modelBoxSetPrim.keySet()) box.setEnabled(true);
+			for (JCheckBox box : modelBoxSetSec.keySet()) box.setEnabled(true);
 		} else {
-			for (JCheckBox box : modelBoxSetPrim)
-				box.setEnabled(false);
-			for (JCheckBox box : modelBoxSetSec)
-				box.setEnabled(false);
+			for (JCheckBox box : modelBoxSetPrim.keySet()) box.setEnabled(false);
+			for (JCheckBox box : modelBoxSetSec.keySet()) box.setEnabled(false);
 		}
-
 	}
 
 	public boolean complies(KnimeTuple tuple) throws PmmException {
@@ -262,58 +243,57 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public String getModelList() {
+		String ret = "";
 
-		String ret;
-
-		ret = "";
-
-		for (JCheckBox box : modelBoxSetPrim)
+		for (JCheckBox box : modelBoxSetPrim.keySet()) {
 			if (box.isSelected()) {
-				if (!ret.isEmpty())
-					ret += ",";
+				if (!ret.isEmpty()) ret += ",";
 				ret += modelIdPrim.get(box.getText());
 			}
+		}
 
-		for (JCheckBox box : modelBoxSetSec)
+		for (JCheckBox box : modelBoxSetSec.keySet()) {
 			if (box.isSelected()) {
-				if (!ret.isEmpty())
-					ret += ",";
+				if (!ret.isEmpty()) ret += ",";
 				ret += modelIdSec.get(box.getText());
-			}
-
+			}			
+		}
+		
 		return ret;
 	}
 
 	public void enableModelList(final String idlist) {
+		if (idlist.isEmpty()) return;
 
-		String[] token;
-
-		if (idlist.isEmpty())
-			return;
-
-		token = idlist.split(",");
+		String[] token = idlist.split(",");
 
 		// disable everything
-		for (JCheckBox box : modelBoxSetPrim)
+		for (JCheckBox box : modelBoxSetPrim.keySet()) {
 			box.setSelected(false);
+		}
 
-		for (JCheckBox box : modelBoxSetSec)
+		for (JCheckBox box : modelBoxSetSec.keySet()) {
 			box.setSelected(false);
+		}
 
 		// enable model if appropriate
-		for (JCheckBox box : modelBoxSetPrim)
-			for (String id : token)
+		for (JCheckBox box : modelBoxSetPrim.keySet()) {
+			for (String id : token) {
 				if (Integer.valueOf(id) == modelIdPrim.get(box.getText())) {
 					box.setSelected(true);
 					break;
 				}
+			}
+		}
 
-		for (JCheckBox box : modelBoxSetSec)
-			for (String id : token)
+		for (JCheckBox box : modelBoxSetSec.keySet()) {
+			for (String id : token) {
 				if (Integer.valueOf(id) == modelIdSec.get(box.getText())) {
 					box.setSelected(true);
 					break;
 				}
+			}
+		}
 	}
 
 	@Override

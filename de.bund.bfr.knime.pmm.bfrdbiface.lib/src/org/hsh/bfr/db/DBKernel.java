@@ -123,6 +123,7 @@ public class DBKernel {
 
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
+	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
 	public static String DBVersion = "1.4.6";
 	public static boolean debug = true;

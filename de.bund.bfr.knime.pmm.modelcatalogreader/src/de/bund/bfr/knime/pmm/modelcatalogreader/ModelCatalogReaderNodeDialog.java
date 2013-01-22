@@ -146,20 +146,15 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     	
-    	result = db.selectModel( 1 );
-    	    	
-    	while( result.next() )
-    		filterui.addModelPrim(
-				result.getInt( Bfrdb.ATT_MODELID ),
-				result.getString( Bfrdb.ATT_NAME ) );
-    		
-    	result = db.selectModel( 2 );
-    	
-    	while( result.next() )
-    		filterui.addModelSec(
-				result.getInt( Bfrdb.ATT_MODELID ),
-				result.getString( Bfrdb.ATT_NAME ) );
-    	
+    	result = db.selectModel(1);    	    	
+    	while (result.next()) {
+    		//System.err.println(result.getString(Bfrdb.ATT_NAME) + "\t" + result.getInt("Klasse"));
+    		filterui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.hashModelType.get(result.getInt("Klasse")));
+    	}
+    	result = db.selectModel(2);    	
+    	while (result.next()) {
+    		filterui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.hashModelType.get(result.getInt("Klasse")));
+    	}    	
 	}
 
 	@Override

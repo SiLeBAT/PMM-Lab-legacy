@@ -41,34 +41,15 @@ public class Model1Schema extends KnimeSchema {
 	public static final String ATT_MODELCATALOG = "CatModel";
 	public static final String ATT_ESTMODEL = "EstModel";
 
-	@Deprecated
-	public static final String ATT_FORMULA = "Formula";
-
 	public static final String ATT_DEPENDENT = "Dependent";
-	@Deprecated
-	public static final String ATT_MODELNAME = "ModelName";
-	@Deprecated
-	public static final String ATT_MODELID = "ModelCatalogID";
 
 	public static final String ATT_PARAMETER = "Parameter";
 	public static final String ATT_INDEPENDENT = "Independent";
-
-	@Deprecated
-	public static final String ATT_ESTMODELID = "EstModelID";
-	@Deprecated
-	public static final String ATT_RMS = "RMS";
-	@Deprecated
-	public static final String ATT_RSQUARED = "Rsquared";
 
 	public static final String ATT_MLIT = "M_Literatur";
 	public static final String ATT_EMLIT = "EM_Literatur";
 	public static final String ATT_DATABASEWRITABLE = "DatabaseWritable";
 	public static final String ATT_DBUUID = "M_DB_UID";
-
-	@Deprecated
-	public static final String ATT_AIC = "AIC";
-	@Deprecated
-	public static final String ATT_BIC = "BIC";
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
@@ -81,10 +62,6 @@ public class Model1Schema extends KnimeSchema {
 
 	public Model1Schema() {
 		try {
-			addIntAttribute(ATT_MODELID);
-			addStringAttribute(ATT_MODELNAME);
-			addStringAttribute(ATT_FORMULA);
-
 			addXmlAttribute(ATT_MODELCATALOG);
 
 			addXmlAttribute(ATT_DEPENDENT);
@@ -95,12 +72,6 @@ public class Model1Schema extends KnimeSchema {
 			addXmlAttribute(ATT_ESTMODEL);
 
 			addXmlAttribute(ATT_MLIT);
-
-			addIntAttribute(ATT_ESTMODELID);
-			addDoubleAttribute(ATT_RMS);
-			addDoubleAttribute(ATT_RSQUARED);
-			addDoubleAttribute(ATT_AIC);
-			addDoubleAttribute(ATT_BIC);
 
 			addXmlAttribute(ATT_EMLIT);
 

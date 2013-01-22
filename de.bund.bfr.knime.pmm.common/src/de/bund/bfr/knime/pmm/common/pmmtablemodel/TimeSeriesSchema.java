@@ -44,16 +44,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
-	//public static final String ATT_MISCID = "MiscID";
 	public static final String ATT_MISC = "Misc";
-	//public static final String ATT_MISCVALUE = "MiscValue";
-	//public static final String ATT_MISCUNIT = "MiscUnit";
-	@Deprecated
-	public static final String ATT_TEMPERATURE = "Temp";
-	@Deprecated
-	public static final String ATT_PH = "pH";
-	@Deprecated
-	public static final String ATT_WATERACTIVITY = "aw";
 	public static final String ATT_AGENTID = "OrganismID";
 	public static final String ATT_AGENTNAME = "OrganismName";
 	public static final String ATT_AGENTDETAIL = "OrganismDetail";
@@ -81,9 +72,6 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addIntAttribute( ATT_MATRIXID );
 			addStringAttribute( ATT_MATRIXNAME );
 			addStringAttribute( ATT_MATRIXDETAIL );
-			addDoubleAttribute( ATT_TEMPERATURE );
-			addDoubleAttribute( ATT_WATERACTIVITY );
-			addDoubleAttribute( ATT_PH );
 
 			addXmlAttribute(ATT_TIMESERIES);
 

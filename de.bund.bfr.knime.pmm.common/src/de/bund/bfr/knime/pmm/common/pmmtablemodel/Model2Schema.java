@@ -41,24 +41,10 @@ public class Model2Schema extends KnimeSchema {
 	public static final String ATT_MODELCATALOG = getAttribute(Model1Schema.ATT_MODELCATALOG, 2);
 	public static final String ATT_ESTMODEL = getAttribute(Model1Schema.ATT_ESTMODEL, 2);
 
-	@Deprecated
-	public static final String ATT_FORMULA = getAttribute(Model1Schema.ATT_FORMULA, 2);
 	public static final String ATT_DEPENDENT = getAttribute(Model1Schema.ATT_DEPENDENT, 2);
 
-	@Deprecated
-	public static final String ATT_MODELNAME = getAttribute(Model1Schema.ATT_MODELNAME, 2);
-	@Deprecated
-	public static final String ATT_MODELID = getAttribute(Model1Schema.ATT_MODELID, 2);
 	public static final String ATT_PARAMETER = getAttribute(Model1Schema.ATT_PARAMETER, 2);
 	public static final String ATT_INDEPENDENT = getAttribute(Model1Schema.ATT_INDEPENDENT, 2);
-
-	@Deprecated
-	public static final String ATT_ESTMODELID = getAttribute(Model1Schema.ATT_ESTMODELID, 2);
-
-	@Deprecated
-	public static final String ATT_RMS = getAttribute(Model1Schema.ATT_RMS, 2);
-	@Deprecated
-	public static final String ATT_RSQUARED = getAttribute(Model1Schema.ATT_RSQUARED, 2);
 
 	public static final String ATT_MLIT = getAttribute(Model1Schema.ATT_MLIT, 2);
 	public static final String ATT_EMLIT = getAttribute(Model1Schema.ATT_EMLIT, 2);
@@ -75,19 +61,9 @@ public class Model2Schema extends KnimeSchema {
 	public static final String AIC = "AICSec";
 	public static final String BIC = "BICSec";
 	
-	@Deprecated
-	public static final String ATT_AIC = getAttribute(Model1Schema.ATT_AIC, 2);
-	@Deprecated
-	public static final String ATT_BIC = getAttribute(Model1Schema.ATT_BIC, 2);
-
-
 	public Model2Schema() {
 		
 		try {
-			addIntAttribute( ATT_MODELID );
-			addStringAttribute( ATT_MODELNAME );
-			addStringAttribute( ATT_FORMULA );
-
 			addXmlAttribute( ATT_MODELCATALOG );
 
 			addXmlAttribute( ATT_DEPENDENT );
@@ -99,12 +75,6 @@ public class Model2Schema extends KnimeSchema {
 
 			addXmlAttribute(ATT_MLIT);
 			
-			addIntAttribute( ATT_ESTMODELID );
-			addDoubleAttribute( ATT_RMS );
-			addDoubleAttribute( ATT_RSQUARED );
-			addDoubleAttribute( ATT_AIC );
-			addDoubleAttribute( ATT_BIC );
-
 			addXmlAttribute(ATT_EMLIT);
 			
 			addIntAttribute( ATT_DATABASEWRITABLE );

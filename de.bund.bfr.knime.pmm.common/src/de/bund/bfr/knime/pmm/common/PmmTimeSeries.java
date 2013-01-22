@@ -384,61 +384,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setAgentName( agentName );
 		setAgentDetail( agentDetail );
 	}
-	
-	@Deprecated
-	public void setTemperature( final Double temperature ) throws PmmException {
-		
-		if( temperature == null ) {
-			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
-			return;
-		}
-		
-		if( temperature.isNaN() || temperature.isInfinite() ) {
-			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
-			return;
-		}
-		
-		if( temperature < -273.15 ) {
-			throw new PmmException( "Temperature cannot undergo absolute zero." );
-		}
-		
-		setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature );
-	}
-	@Deprecated
-	public void setTemperature( final String temperature ) throws PmmException {
-		
-		if( temperature == null ) {
-			setValue(TimeSeriesSchema.ATT_TEMPERATURE, null );
-		} else {
-			setTemperature( Double.valueOf( temperature ) );
-		}
-	}
-	
-	@Deprecated
-	public void setPh(final Double ph) throws PmmException {
-		
-		if( ph == null ) {
-			setValue(TimeSeriesSchema.ATT_PH, null );
-			return;
-		}
-		
-		if( ph.isInfinite() || ph.isNaN() ) {
-			setValue(TimeSeriesSchema.ATT_PH, null );
-			return;
-		}
-		
-		/* if( ph < PmmConstants.MIN_PH ) {
-			setValue(TimeSeriesSchema.ATT_PH, null );
-			return;
-		}
-		
-		if( ph > PmmConstants.MAX_PH ) {
-			setValue(TimeSeriesSchema.ATT_PH, null );
-			return;
-		} */
-		
-		setValue(TimeSeriesSchema.ATT_PH, ph );
-	}
+
 	public void addMisc(int attrID, String attribute, String description, Double value, String unit) throws PmmException {
 		PmmXmlDoc miscXmlDoc = getMisc();
 		if (miscXmlDoc == null) miscXmlDoc = new PmmXmlDoc();
@@ -488,39 +434,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 	}
 	
-	@Deprecated
-	public void setWaterActivity( final Double aw ) throws PmmException {
-		
-		if( aw == null ) {
-			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
-			return;
-		}
-			
-		if( aw.isNaN() || aw.isInfinite() ) {
-			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
-			return;
-		}
-				
-		if (aw < PmmConstants.MIN_WATERACTIVITY)  {
-			throw new PmmException( "Water activity connot be lower than " + PmmConstants.MIN_WATERACTIVITY);
-		}
-		
-		if( aw > PmmConstants.MAX_WATERACTIVITY ) {
-			throw new PmmException( "Water activity cannot exceed " + PmmConstants.MAX_WATERACTIVITY );
-		}
-		
-		setValue(TimeSeriesSchema.ATT_WATERACTIVITY, aw );
-	}
-	
-	@Deprecated
-	public void setWaterActivity( final String aw ) throws PmmException {
-		
-		if( aw == null ) {
-			setValue(TimeSeriesSchema.ATT_WATERACTIVITY, null );
-		} else {
-			setWaterActivity( Double.valueOf( aw ) );
-		}
-	}
 	public void setMdData(final PmmXmlDoc MdData) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_TIMESERIES, MdData);
 	}

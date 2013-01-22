@@ -9,7 +9,6 @@ public class CombinationIterator<T> implements Iterable<List<T>>, Iterator<List<
 	
 	private List<T> items;
 	private int choose;
-	private boolean started;
 	private boolean finished;
 	private int[] current;
 	

@@ -86,6 +86,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
 	static final String PARAM_LEVEL = "level";
+	static final String PARAM_MODELCLASS = "modelClass";
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	static final String PARAM_MODELLIST = "modelList";
 
@@ -100,6 +101,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String passwd;
 	private boolean override;
 	private int level;
+	private String modelClass;
 	private boolean modelFilterEnabled;
 	private String modelList;
 	private int qualityMode;
@@ -443,6 +445,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
     	settings.addInt( PARAM_LEVEL, level );
+    	settings.addString(PARAM_MODELCLASS, modelClass);
     	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addInt( PARAM_QUALITYMODE, qualityMode );
@@ -479,6 +482,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
     	level = settings.getInt( PARAM_LEVEL );
+    	modelClass = settings.getString(PARAM_MODELCLASS);
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
     	modelList = settings.getString( PARAM_MODELLIST );
     	qualityMode = settings.getInt( PARAM_QUALITYMODE );

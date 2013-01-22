@@ -174,6 +174,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public String getLiteratureString() { return tsReaderUi.getLiteratureString(); }
 	public LinkedHashMap<String, DoubleTextField[]> getParameter() { return tsReaderUi.getParameter(); }
 	public int getLevel() { return modelReaderUi.getLevel(); }
+	public String getModelClass() { return modelReaderUi.getModelClass(); }
 	public String getMatrixString() { return tsReaderUi.getMatrixString(); }
 	public String getModelList() { return modelReaderUi.getModelList(); }
 	
@@ -202,6 +203,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public boolean isModelFilterEnabled() { return modelReaderUi.isModelFilterEnabled(); }
 	
 	public void setLevel( int level ) throws PmmException { modelReaderUi.setLevel( level ); }
+	public void setModelClass( String modelClass ) throws PmmException { modelReaderUi.setModelClass( modelClass ); }
 	public void setModelFilterEnabled( boolean en ) { modelReaderUi.setModelFilterEnabled( en ); }
 	
 	public void setQualityMode( final int mode ) throws PmmException {

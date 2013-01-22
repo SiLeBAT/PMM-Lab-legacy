@@ -111,6 +111,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_LEVEL, estmodelui.getLevel() );
+		settings.addString( EstimatedModelReaderNodeModel.PARAM_MODELCLASS, estmodelui.getModelClass() );
 		settings.addBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED, estmodelui.isModelFilterEnabled() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_MODELLIST, estmodelui.getModelList() );
 		settings.addInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE, estmodelui.getQualityMode() );
@@ -145,6 +146,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 			dbui.setPasswd( settings.getString( EstimatedModelReaderNodeModel.PARAM_PASSWD ) );
 			dbui.setOverride( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE ) );
 			estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );
+			estmodelui.setModelClass( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELCLASS ) );
 			estmodelui.setModelFilterEnabled( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED ) );
 			estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
 			estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );

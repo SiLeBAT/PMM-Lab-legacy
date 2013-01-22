@@ -86,11 +86,27 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 		Element ret = new Element(ELEMENT_LITERATURE);
 		ret.setAttribute(ATT_AUTHOR, author == null ? "" : author);
 		ret.setAttribute(ATT_YEAR, year == null ? "" : String.valueOf(year));
-		ret.setAttribute(ATT_TITLE, title == null ? "" : title);
-		ret.setAttribute(ATT_ABSTRACT, m_abstract == null ? "" : m_abstract);
+		ret.setAttribute(ATT_TITLE, removeDirt(title));
+		ret.setAttribute(ATT_ABSTRACT, removeDirt(m_abstract));
 		ret.setAttribute(ATT_ID, String.valueOf(id));		
 		return ret;
 	}
+	private String removeDirt(String toClean) {
+		String cleaned = (toClean == null ? "" : toClean);
+		cleaned = cleaned.toString().replace("&amp;", "&"); //.replace("\n", " "); //.replaceAll("[^A-Za-zäöüßÄÖÜ0-9+-.,;': ()°%?&=<>/]", "");
+		cleaned = cleanInvalidXmlChars(cleaned);
+		/*
+		if (toClean != null && !toClean.equals(cleaned)) {
+			System.err.println(toClean);
+			System.err.println(cleaned);
+		}
+		*/
+		return cleaned;
+	}
+    private String cleanInvalidXmlChars(String text) {        
+        String re = "[^^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD]";
+        return text.replaceAll(re, " ");
+    }
 	
 	public String getName() {return name;}
 	public String getAuthor() {return author;}

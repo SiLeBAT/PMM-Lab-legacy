@@ -73,6 +73,7 @@ import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 public class ModelCatalogReaderNodeModel extends NodeModel {
     	
 	static final String PARAM_LEVEL = "level";
+	static final String PARAM_MODELCLASS = "modelClass";
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	static final String PARAM_MODELLIST = "modelList";
 	static final String PARAM_FILENAME = "filename";
@@ -85,6 +86,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	private String login;
 	private String passwd;
 	private int level;
+	private String modelClass;
 	private boolean override;
 	private String modelList;
 	private boolean modelFilterEnabled;
@@ -309,6 +311,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addInt( PARAM_LEVEL, level );
+    	settings.addString(PARAM_MODELCLASS, modelClass);
     	settings.addBoolean( PARAM_OVERRIDE, override );
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
@@ -324,6 +327,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	level = settings.getInt( PARAM_LEVEL );
+    	modelClass = settings.getString(PARAM_MODELCLASS);
     	override = settings.getBoolean( PARAM_OVERRIDE );
     	modelList = settings.getString( PARAM_MODELLIST );
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );

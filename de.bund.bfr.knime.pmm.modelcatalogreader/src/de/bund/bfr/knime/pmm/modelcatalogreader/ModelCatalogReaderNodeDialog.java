@@ -107,6 +107,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 		settings.addString( ModelCatalogReaderNodeModel.PARAM_PASSWD, ui.getPasswd() );
 		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE, ui.isOverride() );
 		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass() );
 		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled() );
 		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.toString() );
 	}
@@ -120,6 +121,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 			ui.setPasswd( settings.getString( ModelCatalogReaderNodeModel.PARAM_PASSWD ) );
 			ui.setOverride( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE ) );
 			filterui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
+			filterui.setModelClass( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELCLASS ) );
 			filterui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
 			filterui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );
 		}

@@ -67,7 +67,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	private static final int LEVEL_SEC = 2;
 
 	private JCheckBox modelNameSwitch;
-	private JComboBox<String> levelBox;
+	private JComboBox<String> levelBox, classBox;
 	private JPanel modelPanel;
 	private JPanel panel;
 
@@ -101,6 +101,13 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		levelBox.addActionListener(this);
 		levelBox.setPreferredSize(new Dimension(50, 32));
 		panel0.add(levelBox);
+
+		panel0.add(new JLabel("Model class   "));
+
+		classBox = new JComboBox<String>(new String[] {"All","growth","inactivation","survival"});
+		classBox.addActionListener(this);
+		classBox.setPreferredSize(new Dimension(50, 32));
+		panel0.add(classBox);
 
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Model"));
@@ -144,6 +151,10 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 			updateModelName();
 			return;
 		}
+		if (arg0.getSource() == classBox) {
+			updateModelName();
+			return;
+		}
 	}
 
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
@@ -164,6 +175,9 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public int getLevel() {
 		return levelBox.getSelectedIndex() + 1;
+	}
+	public String getModelClass() {
+		return classBox.getSelectedItem().toString();
 	}
 
 	public boolean isPrim() {
@@ -195,20 +209,30 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 		levelBox.setSelectedIndex(level - 1);
 	}
+	public void setModelClass(String modelClass) throws PmmException {
+		classBox.setSelectedItem(modelClass);
+	}
 
 	private void updateModelName() {
 		modelPanel.removeAll();
+		modelPanel.setVisible(false);
 
-		if (isPrim()) {
-			for (JCheckBox box : modelBoxSetPrim.keySet()) modelPanel.add(box);			
-		}
-		else {
-			for (JCheckBox box : modelBoxSetSec.keySet()) modelPanel.add(box);
-		}
+		if (isPrim()) addBoxes2Panel(modelBoxSetPrim, modelPanel);
+		else addBoxes2Panel(modelBoxSetSec, modelPanel);
 
 		updateModelNameEnabled();
 
+		modelPanel.setVisible(true);
 		panel.validate();
+	}
+	private void addBoxes2Panel(LinkedHashMap<JCheckBox, String> modelBox, JPanel modelPanel) {
+		for (JCheckBox box : modelBox.keySet()) {
+			Object o = classBox.getSelectedItem();
+			if (o == null || o.toString().equals("All") ||
+					box.getText().toLowerCase().indexOf(" (" + o.toString().toLowerCase() + ")") >= 0) {
+				modelPanel.add(box);			
+			}
+		}
 	}
 
 	private void updateModelNameEnabled() {

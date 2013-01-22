@@ -1263,6 +1263,7 @@ public class Bfrdb extends Hsqldbiface {
 			Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment,
 			PmmXmlDoc lit, PmmTimeSeries ts) {
 			
+		String warnings = "";
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
 			if (!doUpdate && cdai != null) {
@@ -1306,6 +1307,7 @@ public class Bfrdb extends Hsqldbiface {
 				
 				if (agentId == null || agentId <= 0) {
 					ps.setNull( 4, Types.INTEGER );
+					warnings += "Agent not defined (" + agentDetail + ")\n";
 				} else {
 					ps.setInt(4, agentId );
 					try {ts.setAgentId(agentId);} catch (PmmException e) {e.printStackTrace();}
@@ -1317,6 +1319,7 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				if (matrixId == null || matrixId <= 0) {
 					ps.setNull( 6, Types.INTEGER );
+					warnings += "Matrix not defined (" + matrixDetail + ")\n";
 				} else {
 					ps.setInt(6, matrixId );
 					try {ts.setMatrixId(matrixId);} catch (PmmException e) {e.printStackTrace();}
@@ -1370,7 +1373,8 @@ public class Bfrdb extends Hsqldbiface {
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
-			ts.setWarning(handleConditions(resultID, misc, ts));
+			warnings += handleConditions(resultID, misc, ts);
+			ts.setWarning(warnings);
 
 			return resultID;
 		}

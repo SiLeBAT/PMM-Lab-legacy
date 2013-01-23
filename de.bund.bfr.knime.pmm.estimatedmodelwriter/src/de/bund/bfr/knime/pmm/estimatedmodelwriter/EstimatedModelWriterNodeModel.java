@@ -115,8 +115,20 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
     	db.getConnection().setReadOnly(false);
-
-    	int n = inData[ 0 ].getRowCount();
+/*
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (IResource resource : root.members()) {
+		    //resource.getWorkspace().save(true, null);
+			//System.err.println(resource.getName());
+			if (resource.getName().equals("Estimation")) {
+				File dest = new File("/temp/pmmlabfolder");
+				if (dest.exists()) dest.delete();
+				FileUtils.copyDirectory(new File(resource.getLocationURI()), dest, true);
+			}
+		}
+if (true) return null;
+*/
+	    int n = inData[ 0 ].getRowCount();
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());

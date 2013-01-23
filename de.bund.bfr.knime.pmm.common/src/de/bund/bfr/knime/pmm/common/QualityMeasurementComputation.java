@@ -179,11 +179,11 @@ public class QualityMeasurementComputation {
 			if (!usedTargetValues.isEmpty()) {
 				rms = Math.sqrt(rms / usedTargetValues.size());
 
-				double rSquared = MathUtilities.getRSquared(rms,
+				Double rSquared = MathUtilities.getRSquared(rms,
 						usedTargetValues);
-				double aic = MathUtilities.akaikeCriterion(paramXml
+				Double aic = MathUtilities.akaikeCriterion(paramXml
 						.getElementSet().size(), usedTargetValues.size(), rms);
-				double bic = MathUtilities.bayesCriterion(paramXml
+				Double bic = MathUtilities.bayesCriterion(paramXml
 						.getElementSet().size(), usedTargetValues.size(), rms);
 
 				rmsMap.put(id, rms);

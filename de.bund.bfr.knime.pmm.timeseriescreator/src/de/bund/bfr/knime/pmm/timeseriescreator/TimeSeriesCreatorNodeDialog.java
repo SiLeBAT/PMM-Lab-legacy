@@ -37,20 +37,30 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyTable;
@@ -63,7 +73,12 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
@@ -89,6 +104,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private static final int ROW_COUNT = 1000;
 	private static final int DEFAULT_TIMESTEPNUMBER = 10;
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
+
+	private static final String OTHER_PARAMETER = "Other Parameter";
 	private static final String NO_PARAMETER = "None";
 
 	private JPanel panel;
@@ -474,7 +491,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == xlsButton) {
-			// loadFromXLS();
+			loadFromXLS();
 		} else if (event.getSource() == clearButton) {
 			int n = removeButtons.size();
 
@@ -609,104 +626,291 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 	}
 
-	// private void loadFromXLS() {
-	// JFileChooser fileChooser = new JFileChooser();
-	// FileFilter xlsFilter = new FileFilter() {
-	//
-	// @Override
-	// public String getDescription() {
-	// return "Excel Spreadsheat (*.xls)";
-	// }
-	//
-	// @Override
-	// public boolean accept(File f) {
-	// return f.isDirectory()
-	// || f.getName().toLowerCase().endsWith(".xls");
-	// }
-	// };
-	//
-	// fileChooser.setAcceptAllFileFilterUsed(false);
-	// fileChooser.addChoosableFileFilter(xlsFilter);
-	//
-	// if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
-	// try {
-	// Map<String, KnimeTuple> tuples = XLSReader
-	// .getTimeSeriesTuples(fileChooser.getSelectedFile());
-	// Object[] values = tuples.keySet().toArray();
-	// Object selection = JOptionPane.showInputDialog(panel,
-	// "Select Time Series", "Input",
-	// JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
-	// KnimeTuple tuple = tuples.get(selection);
-	//
-	// agentField.setValue(tuple
-	// .getString(TimeSeriesSchema.ATT_AGENTDETAIL));
-	// matrixField.setValue(tuple
-	// .getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
-	// commentField.setValue(tuple
-	// .getString(TimeSeriesSchema.ATT_COMMENT));
-	//
-	// PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-	// int n = removeButtons.size();
-	//
-	// for (int i = 0; i < n; i++) {
-	// removeButtons(0);
-	// }
-	//
-	// for (int i = 0; i < miscXML.getElementSet().size(); i++) {
-	// MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
-	// String name = misc.getName();
-	// Double value = misc.getValue();
-	//
-	// if (value != null && value.isNaN()) {
-	// value = null;
-	// }
-	//
-	// if (name.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-	// temperatureField.setValue(value);
-	// } else if (name.equals(AttributeUtilities.ATT_PH)) {
-	// phField.setValue(value);
-	// } else if (name
-	// .equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-	// waterActivityField.setValue(value);
-	// } else {
-	// addButtons(0);
-	// condNameFields.get(0).setText(name);
-	// condValueFields.get(0).setValue(value);
-	// }
-	// }
-	//
-	// PmmXmlDoc timeSeriesXml = tuple
-	// .getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-	// int count = timeSeriesXml.getElementSet().size();
-	//
-	// if (count > ROW_COUNT) {
-	// JOptionPane.showMessageDialog(panel,
-	// "Number of measured points XLS-file exceeds maximum number of rows ("
-	// + ROW_COUNT + ")", "Warning",
-	// JOptionPane.WARNING_MESSAGE);
-	// }
-	//
-	// for (int i = 0; i < ROW_COUNT; i++) {
-	// Double time = null;
-	// Double logc = null;
-	//
-	// if (i < count) {
-	// time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
-	// logc = ((TimeSeriesXml) timeSeriesXml.get(i))
-	// .getLog10C();
-	// }
-	//
-	// table.setTime(i, time);
-	// table.setLogc(i, logc);
-	// }
-	//
-	// panel.revalidate();
-	// table.repaint();
-	// } catch (Exception e) {
-	// e.printStackTrace();
-	// }
-	// }
-	// }
+	private void loadFromXLS() {
+		JFileChooser fileChooser = new JFileChooser();
+		FileFilter xlsFilter = new FileFilter() {
+
+			@Override
+			public String getDescription() {
+				return "Excel Spreadsheat (*.xls)";
+			}
+
+			@Override
+			public boolean accept(File f) {
+				return f.isDirectory()
+						|| f.getName().toLowerCase().endsWith(".xls");
+			}
+		};
+
+		fileChooser.setAcceptAllFileFilterUsed(false);
+		fileChooser.addChoosableFileFilter(xlsFilter);
+
+		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
+			try {
+				XLSDialog dialog = new XLSDialog(panel,
+						fileChooser.getSelectedFile());
+
+				dialog.setVisible(true);
+
+				if (!dialog.isApproved()) {
+					return;
+				}
+
+				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
+						fileChooser.getSelectedFile(), dialog.getMappings());
+				Object[] values = tuples.keySet().toArray();
+				Object selection = JOptionPane.showInputDialog(panel,
+						"Select Time Series", "Input",
+						JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
+				KnimeTuple tuple = tuples.get(selection);
+
+				agentField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_AGENTDETAIL));
+				matrixField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
+				commentField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_COMMENT));
+
+				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				int n = removeButtons.size();
+
+				for (int i = 0; i < n; i++) {
+					removeButtons(0);
+				}
+
+				for (int i = 0; i < miscXML.getElementSet().size(); i++) {
+					MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
+					int id = misc.getID();
+					String name = misc.getName();
+					Double value = misc.getValue();
+
+					if (value != null && value.isNaN()) {
+						value = null;
+					}
+
+					if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+						temperatureField.setValue(value);
+					} else if (id == AttributeUtilities.ATT_PH_ID) {
+						phField.setValue(value);
+					} else if (id == AttributeUtilities.ATT_AW_ID) {
+						waterActivityField.setValue(value);
+					} else {
+						addButtons(0);
+						condButtons.get(0).setText(name);
+						condIDs.set(0, id);
+						condValueFields.get(0).setValue(value);
+					}
+				}
+
+				PmmXmlDoc timeSeriesXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				int count = timeSeriesXml.getElementSet().size();
+
+				if (count > ROW_COUNT) {
+					JOptionPane.showMessageDialog(panel,
+							"Number of measured points XLS-file exceeds maximum number of rows ("
+									+ ROW_COUNT + ")", "Warning",
+							JOptionPane.WARNING_MESSAGE);
+				}
+
+				for (int i = 0; i < ROW_COUNT; i++) {
+					Double time = null;
+					Double logc = null;
+
+					if (i < count) {
+						time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
+						logc = ((TimeSeriesXml) timeSeriesXml.get(i))
+								.getLog10C();
+					}
+
+					table.setTime(i, time);
+					table.setLogc(i, logc);
+				}
+
+				panel.revalidate();
+				table.repaint();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private class XLSDialog extends JDialog implements ActionListener,
+			ItemListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private boolean approved;
+
+		private Map<String, JComboBox<String>> mappingBoxes;
+		private Map<String, JButton> mappingButtons;
+		private Map<String, MiscXml> mappings;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		public XLSDialog(Component owner, File file) throws Exception {
+			super(JOptionPane.getFrameForComponent(owner), "XLS File", true);
+
+			approved = false;
+
+			mappings = new LinkedHashMap<>();
+			mappingBoxes = new LinkedHashMap<>();
+			mappingButtons = new LinkedHashMap<>();
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			List<String> columnList = XLSReader.getTimeSeriesMiscColumns(file);
+			JPanel northPanel = new JPanel();
+			int row = 0;
+
+			northPanel.setLayout(new GridBagLayout());
+
+			for (String column : columnList) {
+				JComboBox<String> box = new JComboBox<>(new String[] {
+						AttributeUtilities.ATT_TEMPERATURE,
+						AttributeUtilities.ATT_PH,
+						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
+				JButton button = new JButton();
+
+				box.setSelectedItem(OTHER_PARAMETER);
+				button.setEnabled(true);
+				button.setText(NO_PARAMETER);
+
+				box.addItemListener(this);
+				button.addActionListener(this);
+
+				mappings.put(column, null);
+				mappingBoxes.put(column, box);
+				mappingButtons.put(column, button);
+
+				northPanel.add(new JLabel(column + ":"),
+						createConstraints(0, row));
+				northPanel.add(box, createConstraints(1, row));
+				northPanel.add(button, createConstraints(2, row));
+				row++;
+			}
+
+			JPanel bottomPanel = new JPanel();
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(northPanel, BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+
+			setResizable(false);
+			setLocationRelativeTo(owner);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public Map<String, MiscXml> getMappings() {
+			return mappings;
+		}
+
+		@Override
+		public void itemStateChanged(ItemEvent e) {
+			if (e.getStateChange() == ItemEvent.SELECTED) {
+				for (String column : mappingButtons.keySet()) {
+					if (e.getSource() == mappingBoxes.get(column)) {
+						JComboBox<String> box = mappingBoxes.get(column);
+						JButton button = mappingButtons.get(column);
+
+						if (box.getSelectedItem().equals(
+								AttributeUtilities.ATT_TEMPERATURE)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, new MiscXml(
+									AttributeUtilities.ATT_TEMPERATURE_ID,
+									AttributeUtilities.ATT_TEMPERATURE, null,
+									null, null));
+						} else if (box.getSelectedItem().equals(
+								AttributeUtilities.ATT_PH)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column,
+									new MiscXml(AttributeUtilities.ATT_PH_ID,
+											AttributeUtilities.ATT_PH, null,
+											null, null));
+						} else if (box.getSelectedItem().equals(
+								AttributeUtilities.ATT_WATERACTIVITY)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, new MiscXml(
+									AttributeUtilities.ATT_AW_ID,
+									AttributeUtilities.ATT_WATERACTIVITY, null,
+									null, null));
+						} else {
+							button.setEnabled(true);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, null);
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				for (MiscXml misc : mappings.values()) {
+					if (misc == null) {
+						JOptionPane.showMessageDialog(this,
+								"All Columns must be assigned", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						return;
+					}
+				}
+
+				approved = true;
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			} else {
+				for (String column : mappingButtons.keySet()) {
+					if (e.getSource() == mappingButtons.get(column)) {
+						Integer oldID = null;
+
+						if (mappings.get(column) != null) {
+							oldID = mappings.get(column).getID();
+						}
+
+						Integer miscID = openDBWindow(oldID);
+
+						if (miscID != null) {
+							String misc = ""
+									+ DBKernel.getValue("SonstigeParameter",
+											"ID", miscID + "", "Parameter");
+
+							mappingButtons.get(column).setText(misc);
+							mappings.put(column, new MiscXml(miscID, misc,
+									null, null, null));
+							pack();
+						}
+
+						break;
+					}
+				}
+			}
+		}
+
+		private GridBagConstraints createConstraints(int x, int y) {
+			return new GridBagConstraints(x, y, 1, 1, 0, 0,
+					GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+					new Insets(2, 2, 2, 2), 0, 0);
+		}
+	}
 
 	private class TimeStepDialog extends JDialog implements ActionListener,
 			TextListener {

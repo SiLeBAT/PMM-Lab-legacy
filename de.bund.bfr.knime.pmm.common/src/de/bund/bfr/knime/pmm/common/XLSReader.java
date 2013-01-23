@@ -38,8 +38,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -72,8 +74,8 @@ public class XLSReader {
 	private XLSReader() {
 	}
 
-	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file)
-			throws Exception {
+	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file,
+			Map<String, MiscXml> columnMappings) throws Exception {
 		Sheet sheet = getSheet(file);
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> standardColumns = getColumns(sheet,
@@ -140,18 +142,18 @@ public class XLSReader {
 
 				PmmXmlDoc miscXML = new PmmXmlDoc();
 
-				for (String miscName : miscColumns.keySet()) {
-					Cell cell = row.getCell(miscColumns.get(miscName));
-					Double value = null;
+				for (String column : miscColumns.keySet()) {
+					MiscXml misc = columnMappings.get(column);
+					Cell cell = row.getCell(miscColumns.get(column));
 
 					try {
-						value = Double.parseDouble(cell.toString().replace(",",
-								"."));
+						misc.setValue(Double.parseDouble(cell.toString()
+								.replace(",", ".")));
 					} catch (Exception e) {
+						misc.setValue(null);
 					}
 
-					miscXML.add(new MiscXml(MathUtilities
-							.getRandomNegativeInt(), miscName, "", value, ""));
+					miscXML.add(misc);
 				}
 
 				tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
@@ -297,6 +299,21 @@ public class XLSReader {
 		}
 
 		return tuples;
+	}
+
+	public static List<String> getTimeSeriesMiscColumns(File file)
+			throws Exception {
+		Sheet sheet = getSheet(file);
+
+		return new ArrayList<>(getOtherColumns(sheet,
+				TIMESERIES_STANDARD_COLUMNS).keySet());
+	}
+
+	public static List<String> getDValueMiscColumns(File file) throws Exception {
+		Sheet sheet = getSheet(file);
+
+		return new ArrayList<>(getOtherColumns(sheet, DVALUE_STANDARD_COLUMNS)
+				.keySet());
 	}
 
 	private static Sheet getSheet(File file) throws Exception {

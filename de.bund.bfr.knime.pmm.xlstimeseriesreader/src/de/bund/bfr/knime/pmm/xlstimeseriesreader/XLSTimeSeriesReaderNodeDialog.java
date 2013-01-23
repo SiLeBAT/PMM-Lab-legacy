@@ -34,12 +34,22 @@
 package de.bund.bfr.knime.pmm.xlstimeseriesreader;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,9 +64,12 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
+import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 
 /**
  * <code>NodeDialog</code> for the "XLSTimeSeriesReader" Node.
@@ -70,33 +83,32 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel;
  * @author Christian Thoens
  */
 public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
-		ActionListener {
+		ActionListener, ItemListener, FileListener {
+
+	private static final String OTHER_PARAMETER = "Other Parameter";
+	private static final String NO_PARAMETER = "None";
 
 	private FilePanel filePanel;
-	private JComboBox<String> formatBox;
+
 	private JComboBox<String> timeBox;
 	private JComboBox<String> logcBox;
 	private JComboBox<String> tempBox;
+
+	private JPanel columnsPanel;
+	private Map<String, JComboBox<String>> mappingBoxes;
+	private Map<String, JButton> mappingButtons;
+	private Map<String, Integer> mappingIDs;
+	private JLabel noLabel;
 
 	/**
 	 * New pane for configuring the XLSTimeSeriesReader node.
 	 */
 	protected XLSTimeSeriesReaderNodeDialog() {
-		JPanel panel = new JPanel();
-		JPanel mainPanel = new JPanel();
-		JPanel optionsPanel = new JPanel();
-		JPanel formatPanel = new JPanel();
-		JPanel unitsPanel = new JPanel();
-		JPanel leftUnitsPanel = new JPanel();
-		JPanel rightUnitsPanel = new JPanel();
-
 		filePanel = new FilePanel("XLS File", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
-		formatBox = new JComboBox<String>(new String[] {
-				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT,
-				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT });
-		formatBox.addActionListener(this);
+		filePanel.addFileListener(this);
+
 		timeBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
 						new String[0]));
@@ -106,10 +118,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		tempBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
+		noLabel = new JLabel();
+		noLabel.setPreferredSize(new Dimension(100, 50));
+		columnsPanel = new JPanel();
+		columnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
+		columnsPanel.setLayout(new BorderLayout());
+		columnsPanel.add(noLabel, BorderLayout.CENTER);
+		mappingBoxes = new LinkedHashMap<>();
+		mappingButtons = new LinkedHashMap<>();
+		mappingIDs = new LinkedHashMap<>();
 
-		formatPanel.setBorder(BorderFactory.createTitledBorder("File Format"));
-		formatPanel.setLayout(new GridLayout(1, 1));
-		formatPanel.add(formatBox);
+		JPanel leftUnitsPanel = new JPanel();
 
 		leftUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		leftUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -124,24 +143,39 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 										.getFullName(AttributeUtilities.ATT_TEMPERATURE)
 								+ ":"));
 
+		JPanel rightUnitsPanel = new JPanel();
+
 		rightUnitsPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		rightUnitsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		rightUnitsPanel.add(timeBox);
 		rightUnitsPanel.add(logcBox);
 		rightUnitsPanel.add(tempBox);
 
+		JPanel northUnitsPanel = new JPanel();
+
+		northUnitsPanel.setLayout(new BorderLayout());
+		northUnitsPanel.add(leftUnitsPanel, BorderLayout.WEST);
+		northUnitsPanel.add(rightUnitsPanel, BorderLayout.CENTER);
+
+		JPanel unitsPanel = new JPanel();
+
 		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
 		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(leftUnitsPanel, BorderLayout.WEST);
-		unitsPanel.add(rightUnitsPanel, BorderLayout.EAST);
+		unitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
 
-		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.Y_AXIS));
-		optionsPanel.add(formatPanel);
-		optionsPanel.add(unitsPanel);
+		JPanel optionsPanel = new JPanel();
+
+		optionsPanel.setLayout(new BorderLayout());
+		optionsPanel.add(unitsPanel, BorderLayout.WEST);
+		optionsPanel.add(columnsPanel, BorderLayout.CENTER);
+
+		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(filePanel, BorderLayout.NORTH);
 		mainPanel.add(optionsPanel, BorderLayout.WEST);
+
+		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
 		panel.add(mainPanel, BorderLayout.NORTH);
@@ -152,19 +186,23 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
+		Map<String, Integer> mapIDs;
+
 		try {
+			filePanel.removeFileListener(this);
 			filePanel.setFileName(settings
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME));
+			filePanel.addFileListener(this);
 		} catch (InvalidSettingsException e) {
 			filePanel.setFileName(null);
 		}
 
 		try {
-			formatBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILEFORMAT));
+			mapIDs = XLSTimeSeriesReaderNodeModel
+					.getColumnMappingsAsMap(ListUtilities.getStringListFromString(settings
+							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
-			formatBox
-					.setSelectedItem(XLSTimeSeriesReaderNodeModel.DEFAULT_FILEFORMAT);
+			mapIDs = new LinkedHashMap<>();
 		}
 
 		try {
@@ -191,7 +229,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
-		updateComboBoxes();
+		updateMappingButtons(mapIDs);
 	}
 
 	@Override
@@ -201,10 +239,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("");
 		}
 
+		for (Integer id : mappingIDs.values()) {
+			if (id == null) {
+				throw new InvalidSettingsException("");
+			}
+		}
+
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
 				filePanel.getFileName());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILEFORMAT,
-				(String) formatBox.getSelectedItem());
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
+				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+						.getColumnMappingsAsList(mappingIDs)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
@@ -215,37 +260,153 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == formatBox) {
-			updateComboBoxes();
+		for (String column : mappingButtons.keySet()) {
+			if (e.getSource() == mappingButtons.get(column)) {
+				Integer miscID = openDBWindow(mappingIDs.get(column));
+
+				if (miscID != null) {
+					String misc = ""
+							+ DBKernel.getValue("SonstigeParameter", "ID",
+									miscID + "", "Parameter");
+
+					mappingButtons.get(column).setText(misc);
+					mappingIDs.put(column, miscID);
+				}
+
+				break;
+			}
 		}
 	}
 
-	private void updateComboBoxes() {
-		if (formatBox.getSelectedItem().equals(
-				XLSTimeSeriesReaderNodeModel.TIMESERIESFORMAT)) {
-			logcBox.setEnabled(true);
-		} else if (formatBox.getSelectedItem().equals(
-				XLSTimeSeriesReaderNodeModel.DVALUEFORMAT)) {
-			logcBox.setEnabled(false);
+	@Override
+	public void itemStateChanged(ItemEvent e) {
+		if (e.getStateChange() == ItemEvent.SELECTED) {
+			for (String column : mappingButtons.keySet()) {
+				if (e.getSource() == mappingBoxes.get(column)) {
+					JComboBox<String> box = mappingBoxes.get(column);
+					JButton button = mappingButtons.get(column);
+
+					if (box.getSelectedItem().equals(
+							AttributeUtilities.ATT_TEMPERATURE)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column,
+								AttributeUtilities.ATT_TEMPERATURE_ID);
+					} else if (box.getSelectedItem().equals(
+							AttributeUtilities.ATT_PH)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, AttributeUtilities.ATT_PH_ID);
+					} else if (box.getSelectedItem().equals(
+							AttributeUtilities.ATT_WATERACTIVITY)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, AttributeUtilities.ATT_AW_ID);
+					} else {
+						button.setEnabled(true);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, null);
+					}
+
+					break;
+				}
+			}
 		}
 	}
 
-	private void openDBWindow() {
-		Integer id = null; // id, die im DB-Window angezeigt wird
+	@Override
+	public void fileChanged(FilePanel source) {
+		updateMappingButtons(new LinkedHashMap<String, Integer>());
+	}
+
+	private void updateMappingButtons(Map<String, Integer> initialMapIDs) {
+		try {
+			List<String> columnList = XLSReader
+					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
+
+			columnsPanel.removeAll();
+			mappingBoxes.clear();
+			mappingButtons.clear();
+
+			JPanel northPanel = new JPanel();
+			int row = 0;
+
+			northPanel.setLayout(new GridBagLayout());
+
+			for (String column : columnList) {
+				JComboBox<String> box = new JComboBox<>(new String[] {
+						AttributeUtilities.ATT_TEMPERATURE,
+						AttributeUtilities.ATT_PH,
+						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
+				JButton button = new JButton();
+
+				if (initialMapIDs.containsKey(column)) {
+					int miscID = initialMapIDs.get(column);
+
+					if (miscID == AttributeUtilities.ATT_TEMPERATURE_ID) {
+						box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (miscID == AttributeUtilities.ATT_PH_ID) {
+						box.setSelectedItem(AttributeUtilities.ATT_PH);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (miscID == AttributeUtilities.ATT_AW_ID) {
+						box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else {
+						box.setSelectedItem(OTHER_PARAMETER);
+						button.setEnabled(true);
+						button.setText(""
+								+ DBKernel.getValue("SonstigeParameter", "ID",
+										miscID + "", "Parameter"));
+					}
+
+					mappingIDs.put(column, miscID);
+				} else {
+					box.setSelectedItem(OTHER_PARAMETER);
+					button.setEnabled(true);
+					button.setText(NO_PARAMETER);
+					mappingIDs.put(column, null);
+				}
+
+				box.addItemListener(this);
+				button.addActionListener(this);
+				mappingBoxes.put(column, box);
+				mappingButtons.put(column, button);
+
+				northPanel.add(new JLabel(column + ":"),
+						createConstraints(0, row));
+				northPanel.add(box, createConstraints(1, row));
+				northPanel.add(button, createConstraints(2, row));
+				row++;
+			}
+
+			columnsPanel.add(northPanel, BorderLayout.NORTH);
+		} catch (Exception e) {
+			columnsPanel.removeAll();
+			columnsPanel.add(noLabel, BorderLayout.CENTER);
+			mappingButtons.clear();
+		}
+	}
+
+	private Integer openDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
-		Object newVal = DBKernel.myList.openNewWindow(
-				myT,
-				id,
-				(Object) ("SonstigeParameter"),
-				null,
-				null,
-				null,
-				null,
-				true);
-		if (newVal != null && newVal instanceof Integer) {
-			String mname = ""+DBKernel.getValue("SonstigeParameter", "ID", newVal+"", "Parameter"); // "Parameter","Beschreibung"
-			System.err.println(mname);
+		Object newVal = DBKernel.myList.openNewWindow(myT, id,
+				"SonstigeParameter", null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
 		}
-		
 	}
+
+	private GridBagConstraints createConstraints(int x, int y) {
+		return new GridBagConstraints(x, y, 1, 1, 0, 0,
+				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
+				new Insets(2, 2, 2, 2), 0, 0);
+	}
+
 }

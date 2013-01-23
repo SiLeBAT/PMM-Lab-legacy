@@ -42,6 +42,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -606,8 +607,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 			try {
-				Map<String, KnimeTuple> tuples = XLSReader
-						.getTimeSeriesTuples(fileChooser.getSelectedFile());
+				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
+						fileChooser.getSelectedFile(),
+						new LinkedHashMap<String, MiscXml>());
 				Object[] values = tuples.keySet().toArray();
 				Object selection = JOptionPane.showInputDialog(panel,
 						"Select Time Series", "Input",

@@ -36,8 +36,11 @@ package de.bund.bfr.knime.pmm.xlstimeseriesreader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -49,9 +52,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -59,7 +61,6 @@ import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -70,25 +71,19 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
-	static final String TIMESERIESFORMAT = "Data with Time Series";
-	static final String DVALUEFORMAT = "Data with D-values";
-
 	static final String CFGKEY_FILENAME = "FileName";
-	static final String CFGKEY_FILEFORMAT = "FileFormat";
+	static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	static final String CFGKEY_TEMPUNIT = "TempUnit";
 
-	static final String DEFAULT_FILEFORMAT = TIMESERIESFORMAT;
-
 	private String fileName;
-	private String fileFormat;
+	private Map<String, Integer> columnMappings;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
 
 	private KnimeSchema timeSeriesSchema;
-	private KnimeSchema dValueSchema;
 
 	/**
 	 * Constructor for the node model.
@@ -96,19 +91,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected XLSTimeSeriesReaderNodeModel() {
 		super(0, 1);
 		fileName = null;
-		fileFormat = DEFAULT_FILEFORMAT;
+		columnMappings = new LinkedHashMap<>();
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-
-		try {
-			timeSeriesSchema = new TimeSeriesSchema();
-			dValueSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		timeSeriesSchema = new TimeSeriesSchema();
 	}
 
 	/**
@@ -117,56 +105,47 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		List<KnimeTuple> tuples = null;
-		KnimeSchema schema = null;
+		Map<String, MiscXml> mappings = new LinkedHashMap<>();
 
-		if (fileFormat.equals(TIMESERIESFORMAT)) {
-			tuples = new ArrayList<KnimeTuple>(XLSReader.getTimeSeriesTuples(
-					new File(fileName)).values());
-			schema = timeSeriesSchema;
-		} else if (fileFormat.equals(DVALUEFORMAT)) {
-			tuples = new ArrayList<KnimeTuple>(XLSReader.getDValueTuples(
-					new File(fileName)).values());
-			schema = dValueSchema;
+		for (String column : columnMappings.keySet()) {
+			int id = columnMappings.get(column);
+			MiscXml xml = new MiscXml(id, null, null, null, null);
+
+			if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				xml.setName(AttributeUtilities.ATT_TEMPERATURE);
+			} else if (id == AttributeUtilities.ATT_PH_ID) {
+				xml.setName(AttributeUtilities.ATT_PH);
+			} else if (id == AttributeUtilities.ATT_AW_ID) {
+				xml.setName(AttributeUtilities.ATT_WATERACTIVITY);
+			} else {
+				xml.setName(""
+						+ DBKernel.getValue("SonstigeParameter", "ID", id + "",
+								"Parameter"));
+			}
+
+			mappings.put(column, xml);
 		}
 
-		BufferedDataContainer container = exec.createDataContainer(schema
-				.createSpec());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
+				.getTimeSeriesTuples(new File(fileName), mappings).values());
+
+		BufferedDataContainer container = exec
+				.createDataContainer(timeSeriesSchema.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
-			if (fileFormat.equals(TIMESERIESFORMAT)) {
-				PmmXmlDoc timeSeriesXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+			PmmXmlDoc timeSeriesXml = tuple
+					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 
-				for (PmmXmlElementConvertable el : timeSeriesXml
-						.getElementSet()) {
-					TimeSeriesXml element = (TimeSeriesXml) el;
+			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
+				TimeSeriesXml element = (TimeSeriesXml) el;
 
-					element.setTime(AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.TIME, element.getTime(), timeUnit));
-					element.setLog10C(AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.LOGC, element.getLog10C(),
-							logcUnit));
-				}
-
-				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
-			} else if (fileFormat.equals(DVALUEFORMAT)) {
-				PmmXmlDoc paramXml = tuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-
-					if (element.getName().equals(XLSReader.DVALUE)) {
-						element.setValue(AttributeUtilities
-								.convertToStandardUnit(TimeSeriesSchema.TIME,
-										element.getValue(), timeUnit));
-						break;
-					}
-				}
-
-				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
+				element.setTime(AttributeUtilities.convertToStandardUnit(
+						TimeSeriesSchema.TIME, element.getTime(), timeUnit));
+				element.setLog10C(AttributeUtilities.convertToStandardUnit(
+						TimeSeriesSchema.LOGC, element.getLog10C(), logcUnit));
 			}
+
+			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
@@ -180,7 +159,9 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 							element.getValue(), tempUnit));
 				}
 			}
+
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+
 			container.addRowToTable(tuple);
 		}
 
@@ -206,13 +187,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("");
 		}
 
-		if (fileFormat.equals(TIMESERIESFORMAT)) {
-			return new DataTableSpec[] { timeSeriesSchema.createSpec() };
-		} else if (fileFormat.equals(DVALUEFORMAT)) {
-			return new DataTableSpec[] { dValueSchema.createSpec() };
-		} else {
-			throw new InvalidSettingsException("");
-		}
+		return new DataTableSpec[] { timeSeriesSchema.createSpec() };
 	}
 
 	/**
@@ -221,7 +196,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
-		settings.addString(CFGKEY_FILEFORMAT, fileFormat);
+		settings.addString(CFGKEY_COLUMNMAPPINGS, ListUtilities
+				.getStringFromList(getColumnMappingsAsList(columnMappings)));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
@@ -240,9 +216,11 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			fileFormat = settings.getString(CFGKEY_FILEFORMAT);
+			columnMappings = getColumnMappingsAsMap(ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
-			fileFormat = DEFAULT_FILEFORMAT;
+			columnMappings = new LinkedHashMap<>();
 		}
 
 		try {
@@ -291,6 +269,34 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	protected static Map<String, Integer> getColumnMappingsAsMap(
+			List<String> list) {
+		Map<String, Integer> map = new LinkedHashMap<>();
+
+		for (String mapping : list) {
+			String[] toks = mapping.split("=");
+
+			try {
+				map.put(toks[0], Integer.parseInt(toks[1]));
+			} catch (ArrayIndexOutOfBoundsException e) {
+			} catch (NumberFormatException e) {
+			}
+		}
+
+		return map;
+	}
+
+	protected static List<String> getColumnMappingsAsList(
+			Map<String, Integer> map) {
+		List<String> list = new ArrayList<>();
+
+		for (Map.Entry<String, Integer> entry : map.entrySet()) {
+			list.add(entry.getKey() + "=" + entry.getValue());
+		}
+
+		return list;
 	}
 
 }

@@ -40,23 +40,20 @@ import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.filechooser.FileFilter;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -66,12 +63,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.XLSReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
@@ -97,6 +89,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private static final int ROW_COUNT = 1000;
 	private static final int DEFAULT_TIMESTEPNUMBER = 10;
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
+	private static final String NO_PARAMETER = "None";
 
 	private JPanel panel;
 	private JButton clearButton;
@@ -113,7 +106,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> logcBox;
 	private JComboBox<String> tempBox;
 
-	private List<StringTextField> condNameFields;
+	private List<JButton> condButtons;
+	private List<Integer> condIDs;
 	private List<DoubleTextField> condValueFields;
 	private List<JButton> addButtons;
 	private List<JButton> removeButtons;
@@ -128,10 +122,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	 * New pane for configuring the TimeSeriesCreator node.
 	 */
 	protected TimeSeriesCreatorNodeDialog() {
-		condNameFields = new ArrayList<StringTextField>();
-		condValueFields = new ArrayList<DoubleTextField>();
-		addButtons = new ArrayList<JButton>();
-		removeButtons = new ArrayList<JButton>();
+		condButtons = new ArrayList<>();
+		condIDs = new ArrayList<>();
+		condValueFields = new ArrayList<>();
+		addButtons = new ArrayList<>();
+		removeButtons = new ArrayList<>();
 
 		panel = new JPanel();
 		settingsNamePanel = new JPanel();
@@ -344,15 +339,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
-		List<String> miscNames;
+		List<Integer> miscIDs;
 		List<Double> miscValues;
 		int n = removeButtons.size();
 
 		try {
-			miscNames = ListUtilities.getStringListFromString(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCNAMES));
+			miscIDs = ListUtilities.getIntListFromString(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCIDS));
 		} catch (InvalidSettingsException e) {
-			miscNames = new ArrayList<String>();
+			miscIDs = new ArrayList<>();
 		}
 
 		try {
@@ -366,8 +361,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			removeButtons(0);
 		}
 
-		for (int i = 0; i < miscNames.size(); i++) {
-			String name = miscNames.get(i);
+		for (int i = 0; i < miscIDs.size(); i++) {
+			int id = miscIDs.get(i);
 			Double value = miscValues.get(i);
 
 			if (value != null && value.isNaN()) {
@@ -375,7 +370,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 
 			addButtons(0);
-			condNameFields.get(0).setText(name);
+			condButtons.get(0).setText(
+					DBKernel.getValue("SonstigeParameter", "ID", id + "",
+							"Parameter") + "");
+			condIDs.set(0, id);
 			condValueFields.get(0).setValue(value);
 		}
 	}
@@ -395,8 +393,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Invalid Value");
 		}
 
-		for (int i = 0; i < condNameFields.size(); i++) {
-			if (!condNameFields.get(i).isValueValid()) {
+		for (Integer id : condIDs) {
+			if (id == null) {
 				throw new InvalidSettingsException("Invalid Value");
 			}
 		}
@@ -461,16 +459,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 
-		List<String> miscNames = new ArrayList<String>();
 		List<Double> miscValues = new ArrayList<Double>();
 
-		for (int i = 0; i < condNameFields.size(); i++) {
-			miscNames.add(condNameFields.get(i).getValue());
+		for (int i = 0; i < condValueFields.size(); i++) {
 			miscValues.add(condValueFields.get(i).getValue());
 		}
 
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCNAMES,
-				ListUtilities.getStringFromList(miscNames));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCIDS,
+				ListUtilities.getStringFromList(condIDs));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
 				ListUtilities.getStringFromList(miscValues));
 	}
@@ -478,7 +474,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (event.getSource() == xlsButton) {
-			loadFromXLS();
+			// loadFromXLS();
 		} else if (event.getSource() == clearButton) {
 			int n = removeButtons.size();
 
@@ -528,6 +524,18 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		} else if (removeButtons.contains(event.getSource())) {
 			removeButtons(removeButtons.indexOf(event.getSource()));
 			panel.revalidate();
+		} else if (condButtons.contains(event.getSource())) {
+			int i = condButtons.indexOf(event.getSource());
+			Integer miscID = openDBWindow(condIDs.get(i));
+
+			if (miscID != null) {
+				String misc = ""
+						+ DBKernel.getValue("SonstigeParameter", "ID", miscID
+								+ "", "Parameter");
+
+				condButtons.get(i).setText(misc);
+				condIDs.set(i, miscID);
+			}
 		}
 
 	}
@@ -554,19 +562,21 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			int panelIndex = i + 8;
 			JButton addButton = new JButton("+");
 			JButton removeButton = new JButton("-");
-			StringTextField nameField = new StringTextField();
+			JButton button = new JButton(NO_PARAMETER);
 			DoubleTextField valueField = new DoubleTextField(true);
 
 			addButton.addActionListener(this);
 			removeButton.addActionListener(this);
+			button.addActionListener(this);
 
 			addButtons.add(i, addButton);
 			removeButtons.add(i, removeButton);
-			condNameFields.add(i, nameField);
+			condIDs.add(i, null);
+			condButtons.add(i, button);
 			condValueFields.add(i, valueField);
 			addPanel.add(addButton, panelIndex);
 			removePanel.add(removeButton, panelIndex);
-			settingsNamePanel.add(nameField, panelIndex);
+			settingsNamePanel.add(button, panelIndex);
 			settingsValuePanel.add(valueField, panelIndex);
 			settingsUnitPanel.add(new JLabel(), panelIndex);
 		}
@@ -577,7 +587,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		addButtons.remove(i);
 		removeButtons.remove(i);
-		condNameFields.remove(i);
+		condIDs.remove(i);
+		condButtons.remove(i);
 		condValueFields.remove(i);
 		addPanel.remove(panelIndex);
 		removePanel.remove(panelIndex);
@@ -586,105 +597,116 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settingsUnitPanel.remove(panelIndex);
 	}
 
-	private void loadFromXLS() {
-		JFileChooser fileChooser = new JFileChooser();
-		FileFilter xlsFilter = new FileFilter() {
+	private Integer openDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id,
+				"SonstigeParameter", null, null, null, null, true);
 
-			@Override
-			public String getDescription() {
-				return "Excel Spreadsheat (*.xls)";
-			}
-
-			@Override
-			public boolean accept(File f) {
-				return f.isDirectory()
-						|| f.getName().toLowerCase().endsWith(".xls");
-			}
-		};
-
-		fileChooser.setAcceptAllFileFilterUsed(false);
-		fileChooser.addChoosableFileFilter(xlsFilter);
-
-		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
-			try {
-				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
-						fileChooser.getSelectedFile(),
-						new LinkedHashMap<String, MiscXml>());
-				Object[] values = tuples.keySet().toArray();
-				Object selection = JOptionPane.showInputDialog(panel,
-						"Select Time Series", "Input",
-						JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
-				KnimeTuple tuple = tuples.get(selection);
-
-				agentField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_AGENTDETAIL));
-				matrixField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
-				commentField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_COMMENT));
-
-				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				int n = removeButtons.size();
-
-				for (int i = 0; i < n; i++) {
-					removeButtons(0);
-				}
-
-				for (int i = 0; i < miscXML.getElementSet().size(); i++) {
-					MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
-					String name = misc.getName();
-					Double value = misc.getValue();
-
-					if (value != null && value.isNaN()) {
-						value = null;
-					}
-
-					if (name.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-						temperatureField.setValue(value);
-					} else if (name.equals(AttributeUtilities.ATT_PH)) {
-						phField.setValue(value);
-					} else if (name
-							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-						waterActivityField.setValue(value);
-					} else {
-						addButtons(0);
-						condNameFields.get(0).setText(name);
-						condValueFields.get(0).setValue(value);
-					}
-				}
-
-				PmmXmlDoc timeSeriesXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-				int count = timeSeriesXml.getElementSet().size();
-
-				if (count > ROW_COUNT) {
-					JOptionPane.showMessageDialog(panel,
-							"Number of measured points XLS-file exceeds maximum number of rows ("
-									+ ROW_COUNT + ")", "Warning",
-							JOptionPane.WARNING_MESSAGE);
-				}
-
-				for (int i = 0; i < ROW_COUNT; i++) {
-					Double time = null;
-					Double logc = null;
-
-					if (i < count) {
-						time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
-						logc = ((TimeSeriesXml) timeSeriesXml.get(i))
-								.getLog10C();
-					}
-
-					table.setTime(i, time);
-					table.setLogc(i, logc);
-				}
-
-				panel.revalidate();
-				table.repaint();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
 		}
 	}
+
+	// private void loadFromXLS() {
+	// JFileChooser fileChooser = new JFileChooser();
+	// FileFilter xlsFilter = new FileFilter() {
+	//
+	// @Override
+	// public String getDescription() {
+	// return "Excel Spreadsheat (*.xls)";
+	// }
+	//
+	// @Override
+	// public boolean accept(File f) {
+	// return f.isDirectory()
+	// || f.getName().toLowerCase().endsWith(".xls");
+	// }
+	// };
+	//
+	// fileChooser.setAcceptAllFileFilterUsed(false);
+	// fileChooser.addChoosableFileFilter(xlsFilter);
+	//
+	// if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
+	// try {
+	// Map<String, KnimeTuple> tuples = XLSReader
+	// .getTimeSeriesTuples(fileChooser.getSelectedFile());
+	// Object[] values = tuples.keySet().toArray();
+	// Object selection = JOptionPane.showInputDialog(panel,
+	// "Select Time Series", "Input",
+	// JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
+	// KnimeTuple tuple = tuples.get(selection);
+	//
+	// agentField.setValue(tuple
+	// .getString(TimeSeriesSchema.ATT_AGENTDETAIL));
+	// matrixField.setValue(tuple
+	// .getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
+	// commentField.setValue(tuple
+	// .getString(TimeSeriesSchema.ATT_COMMENT));
+	//
+	// PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+	// int n = removeButtons.size();
+	//
+	// for (int i = 0; i < n; i++) {
+	// removeButtons(0);
+	// }
+	//
+	// for (int i = 0; i < miscXML.getElementSet().size(); i++) {
+	// MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
+	// String name = misc.getName();
+	// Double value = misc.getValue();
+	//
+	// if (value != null && value.isNaN()) {
+	// value = null;
+	// }
+	//
+	// if (name.equals(AttributeUtilities.ATT_TEMPERATURE)) {
+	// temperatureField.setValue(value);
+	// } else if (name.equals(AttributeUtilities.ATT_PH)) {
+	// phField.setValue(value);
+	// } else if (name
+	// .equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+	// waterActivityField.setValue(value);
+	// } else {
+	// addButtons(0);
+	// condNameFields.get(0).setText(name);
+	// condValueFields.get(0).setValue(value);
+	// }
+	// }
+	//
+	// PmmXmlDoc timeSeriesXml = tuple
+	// .getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+	// int count = timeSeriesXml.getElementSet().size();
+	//
+	// if (count > ROW_COUNT) {
+	// JOptionPane.showMessageDialog(panel,
+	// "Number of measured points XLS-file exceeds maximum number of rows ("
+	// + ROW_COUNT + ")", "Warning",
+	// JOptionPane.WARNING_MESSAGE);
+	// }
+	//
+	// for (int i = 0; i < ROW_COUNT; i++) {
+	// Double time = null;
+	// Double logc = null;
+	//
+	// if (i < count) {
+	// time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
+	// logc = ((TimeSeriesXml) timeSeriesXml.get(i))
+	// .getLog10C();
+	// }
+	//
+	// table.setTime(i, time);
+	// table.setLogc(i, logc);
+	// }
+	//
+	// panel.revalidate();
+	// table.repaint();
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// }
+	// }
 
 	private class TimeStepDialog extends JDialog implements ActionListener,
 			TextListener {

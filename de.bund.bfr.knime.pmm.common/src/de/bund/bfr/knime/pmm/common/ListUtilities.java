@@ -9,7 +9,7 @@ public class ListUtilities {
 	}
 
 	public static List<String> getStringListFromString(String s) {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 
 		if (!s.isEmpty()) {
 			for (String tok : s.split(";")) {
@@ -24,8 +24,24 @@ public class ListUtilities {
 		return list;
 	}
 
+	public static List<Integer> getIntListFromString(String s) {
+		List<Integer> list = new ArrayList<>();
+
+		if (!s.isEmpty()) {
+			for (String tok : s.split(";")) {
+				try {
+					list.add(Integer.parseInt(tok));
+				} catch (NumberFormatException e) {
+					list.add(null);
+				}
+			}
+		}
+
+		return list;
+	}
+
 	public static List<Double> getDoubleListFromString(String s) {
-		List<Double> list = new ArrayList<Double>();
+		List<Double> list = new ArrayList<>();
 
 		if (!s.isEmpty()) {
 			for (String tok : s.split(";")) {

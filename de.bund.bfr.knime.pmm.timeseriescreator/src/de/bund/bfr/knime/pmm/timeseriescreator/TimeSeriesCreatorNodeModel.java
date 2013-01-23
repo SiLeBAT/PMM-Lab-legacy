@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -73,7 +74,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	static final String CFGKEY_TEMPERATURE = "Temperature";
 	static final String CFGKEY_PH = "ph";
 	static final String CFGKEY_WATERACTIVITY = "WaterActivity";
-	static final String CFGKEY_MISCNAMES = "MiscNames";
+	static final String CFGKEY_MISCIDS = "MiscIDs";
 	static final String CFGKEY_MISCVALUES = "MiscValues";
 	static final String CFGKEY_TIMEVALUES = "TimeValues";
 	static final String CFGKEY_LOGCVALUES = "LogcValue";
@@ -94,7 +95,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
-	private List<String> miscNames;
+	private List<Integer> miscIDs;
 	private List<Double> miscValues;
 
 	/**
@@ -109,7 +110,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		miscNames = new ArrayList<String>();
+		miscIDs = new ArrayList<Integer>();
 		miscValues = new ArrayList<Double>();
 	}
 
@@ -126,18 +127,22 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc miscXML = new PmmXmlDoc();
 
 		miscXML.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
-				AttributeUtilities.ATT_TEMPERATURE, "", AttributeUtilities
+				AttributeUtilities.ATT_TEMPERATURE, null, AttributeUtilities
 						.convertToStandardUnit(
 								AttributeUtilities.ATT_TEMPERATURE,
-								temperature, tempUnit), ""));
+								temperature, tempUnit), null));
 		miscXML.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
-				AttributeUtilities.ATT_PH, "", ph, ""));
+				AttributeUtilities.ATT_PH, null, ph, null));
 		miscXML.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
-				AttributeUtilities.ATT_WATERACTIVITY, "", waterActivity, ""));
+				AttributeUtilities.ATT_WATERACTIVITY, null, waterActivity, null));
 
-		for (int i = 0; i < miscNames.size(); i++) {
-			miscXML.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
-					miscNames.get(i), "", miscValues.get(i), ""));
+		for (int i = 0; i < miscIDs.size(); i++) {
+			String miscName = ""
+					+ DBKernel.getValue("SonstigeParameter", "ID",
+							miscIDs.get(i) + "", "Parameter");
+
+			miscXML.add(new MiscXml(miscIDs.get(i), miscName, null, miscValues
+					.get(i), null));
 		}
 
 		for (int i = 0; i < timeValues.size(); i++) {
@@ -216,8 +221,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
-		settings.addString(CFGKEY_MISCNAMES,
-				ListUtilities.getStringFromList(miscNames));
+		settings.addString(CFGKEY_MISCIDS,
+				ListUtilities.getStringFromList(miscIDs));
 		settings.addString(CFGKEY_MISCVALUES,
 				ListUtilities.getStringFromList(miscValues));
 	}
@@ -300,10 +305,10 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			miscNames = ListUtilities.getStringListFromString(settings
-					.getString(CFGKEY_MISCNAMES));
+			miscIDs = ListUtilities.getIntListFromString(settings
+					.getString(CFGKEY_MISCIDS));
 		} catch (InvalidSettingsException e) {
-			miscNames = new ArrayList<String>();
+			miscIDs = new ArrayList<>();
 		}
 
 		try {

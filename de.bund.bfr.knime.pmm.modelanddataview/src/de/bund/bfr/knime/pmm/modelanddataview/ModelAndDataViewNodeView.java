@@ -135,7 +135,7 @@ public class ModelAndDataViewNodeView extends
 			readTable();
 
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, false);
+					ChartConfigPanel.PARAMETER_FIELDS, true);
 			configPanel.addConfigListener(this);
 			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
@@ -224,6 +224,8 @@ public class ModelAndDataViewNodeView extends
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedID);
@@ -318,6 +320,7 @@ public class ModelAndDataViewNodeView extends
 			ids.add(id);
 
 			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
@@ -332,6 +335,7 @@ public class ModelAndDataViewNodeView extends
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -351,6 +355,15 @@ public class ModelAndDataViewNodeView extends
 				paramValues.add(element.getValue());
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
+
+				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el2 : paramXml.getElementSet()) {
+					cov.put(((ParamXml) el2).getName(), element
+							.getCorrelation(((ParamXml) el2).getOrigName()));
+				}
+
+				covariances.put(element.getName(), cov);
 			}
 
 			if (getNodeModel().isPeiSchema()) {
@@ -429,8 +442,6 @@ public class ModelAndDataViewNodeView extends
 					matrix = row.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
 				}
 
-				PmmXmlDoc estModelXml = row
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
 				PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
 						Model1Schema.ATT_ESTMODEL);
 
@@ -483,9 +494,6 @@ public class ModelAndDataViewNodeView extends
 					}
 				}
 			} else if (getNodeModel().isModel1Schema()) {
-				PmmXmlDoc estModelXml = row
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
-
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
@@ -509,6 +517,9 @@ public class ModelAndDataViewNodeView extends
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);
+			plotable.setCovariances(covariances);
+			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
+					.getDOF());
 
 			if (getNodeModel().isPeiSchema()) {
 				if (!plotable.isPlotable()) {

@@ -349,7 +349,6 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
-			Map<String, Double> parameterErrors = new LinkedHashMap<String, Double>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
@@ -376,7 +375,6 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 							Arrays.asList(element.getValue())));
 				} else {
 					parameters.put(element.getName(), element.getValue());
-					parameterErrors.put(element.getName(), element.getError());
 					paramValues.add(element.getValue());
 					paramMinValues.add(element.getMin());
 					paramMaxValues.add(element.getMax());
@@ -418,7 +416,6 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);
-			plotable.setParameterErrors(parameterErrors);
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
@@ -434,7 +431,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
-				
+
 				if (element.getName().equals(initParam)) {
 					continue;
 				}

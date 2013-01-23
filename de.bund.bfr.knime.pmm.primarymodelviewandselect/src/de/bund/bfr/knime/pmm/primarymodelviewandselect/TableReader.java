@@ -85,7 +85,7 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());			
+			doubleColumnValues.add(new ArrayList<Double>());
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
@@ -141,6 +141,7 @@ public class TableReader {
 			ids.add(id);
 
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) tuple.getPmmXml(
@@ -156,6 +157,7 @@ public class TableReader {
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -177,6 +179,15 @@ public class TableReader {
 				paramValues.add(element.getValue());
 				paramMinValues.add(element.getMin());
 				paramMaxValues.add(element.getMax());
+
+				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el2 : paramXml.getElementSet()) {
+					cov.put(((ParamXml) el2).getName(), element
+							.getCorrelation(((ParamXml) el2).getOrigName()));
+				}
+
+				covariances.put(element.getName(), cov);
 			}
 
 			if (schemaContainsData) {
@@ -262,8 +273,6 @@ public class TableReader {
 					matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
 				}
 
-				PmmXmlDoc estModelXml = tuple
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
 				PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
 						Model1Schema.ATT_ESTMODEL);
 
@@ -322,9 +331,6 @@ public class TableReader {
 					}
 				}
 
-				PmmXmlDoc estModelXml = tuple
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
-
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
@@ -348,6 +354,9 @@ public class TableReader {
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionValue(depVar);
+			plotable.setCovariances(covariances);
+			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
+					.getDOF());
 
 			if (schemaContainsData) {
 				if (!plotable.isPlotable()) {

@@ -67,7 +67,6 @@ public class Plotable {
 	private String functionValue;
 	private Map<String, List<Double>> functionArguments;
 	private Map<String, Double> functionParameters;
-	private Map<String, Double> parameterErrors;
 	private Map<String, Map<String, Double>> covariances;
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
@@ -81,7 +80,6 @@ public class Plotable {
 		minArguments = new LinkedHashMap<String, Double>();
 		maxArguments = new LinkedHashMap<String, Double>();
 		functionParameters = new LinkedHashMap<String, Double>();
-		parameterErrors = new LinkedHashMap<String, Double>();
 		covariances = new LinkedHashMap<String, Map<String, Double>>();
 		samples = new ArrayList<Double>();
 		degreesOfFreedom = null;
@@ -129,14 +127,6 @@ public class Plotable {
 
 	public void setFunctionParameters(Map<String, Double> functionParameters) {
 		this.functionParameters = functionParameters;
-	}
-
-	public Map<String, Double> getParameterErrors() {
-		return parameterErrors;
-	}
-
-	public void setParameterErrors(Map<String, Double> parameterErrors) {
-		this.parameterErrors = parameterErrors;
 	}
 
 	public Map<String, Map<String, Double>> getCovariances() {

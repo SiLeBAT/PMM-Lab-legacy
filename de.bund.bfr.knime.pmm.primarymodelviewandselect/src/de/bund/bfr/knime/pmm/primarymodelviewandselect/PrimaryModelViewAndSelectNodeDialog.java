@@ -372,7 +372,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		paramsX.put(TimeSeriesSchema.TIME, new ArrayList<Double>());
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				false);
+				true);
 		configPanel.setParamsX(paramsX, null, null, null);
 		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
 		configPanel.setUseManualRange(manualRange);
@@ -443,6 +443,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 

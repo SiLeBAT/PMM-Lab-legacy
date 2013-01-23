@@ -482,32 +482,15 @@ public class ChartCreator extends ChartPanel {
 		double[][] points = plotable.getFunctionPoints(paramX, paramY,
 				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
+		double[][] functionErrors = null;
+
+		if (showConfidenceInterval) {
+			functionErrors = plotable.getFunctionErrors(paramX, paramY,
+					transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY);
+		}
 
 		if (points != null) {
-			DefaultXYDataset dataset = new DefaultXYDataset();
-			XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true,
-					false);
-
-			renderer.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-
-			if (addInfoInLegend) {
-				dataset.addSeries(longLegend.get(id), points);
-			} else {
-				dataset.addSeries(shortLegend.get(id), points);
-			}
-
-			if (colors.containsKey(id)) {
-				renderer.setSeriesPaint(0, colors.get(id));
-			} else {
-				renderer.setSeriesPaint(0, defaultColor);
-			}
-
-			if (shapes.containsKey(id)) {
-				renderer.setSeriesShape(0, shapes.get(id));
-			} else {
-				renderer.setSeriesShape(0, defaultShape);
-			}
-
 			int i;
 
 			if (plot.getDataset(0) == null) {
@@ -516,8 +499,74 @@ public class ChartCreator extends ChartPanel {
 				i = plot.getDatasetCount();
 			}
 
-			plot.setDataset(i, dataset);
-			plot.setRenderer(i, renderer);
+			if (functionErrors != null) {
+				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
+				DeviationRenderer functionRenderer = new DeviationRenderer(
+						true, false);
+				YIntervalSeries series;
+				int n = points[0].length;
+
+				if (addInfoInLegend) {
+					series = new YIntervalSeries(longLegend.get(id));
+				} else {
+					series = new YIntervalSeries(shortLegend.get(id));
+				}
+
+				for (int j = 0; j < n; j++) {
+					double error = Double.isNaN(functionErrors[1][j]) ? 0.0
+							: functionErrors[1][j];
+
+					series.add(points[0][j], points[1][j],
+							points[1][j] - error, points[1][j] + error);
+				}
+
+				functionDataset.addSeries(series);
+
+				if (colors.containsKey(id)) {
+					functionRenderer.setSeriesPaint(0, colors.get(id));
+					functionRenderer.setSeriesFillPaint(0, colors.get(id));
+				} else {
+					functionRenderer.setSeriesPaint(0, defaultColor);
+					functionRenderer.setSeriesFillPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					functionRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					functionRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				plot.setDataset(i, functionDataset);
+				plot.setRenderer(i, functionRenderer);
+			} else {
+				DefaultXYDataset functionDataset = new DefaultXYDataset();
+				XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
+						true, false);
+
+				if (addInfoInLegend) {
+					functionDataset.addSeries(longLegend.get(id), points);
+				} else {
+					functionDataset.addSeries(shortLegend.get(id), points);
+				}
+
+				functionRenderer
+						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+
+				if (colors.containsKey(id)) {
+					functionRenderer.setSeriesPaint(0, colors.get(id));
+				} else {
+					functionRenderer.setSeriesPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					functionRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					functionRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				plot.setDataset(i, functionDataset);
+				plot.setRenderer(i, functionRenderer);
+			}
 		}
 	}
 
@@ -664,34 +713,15 @@ public class ChartCreator extends ChartPanel {
 				transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
 		double[][] dataPoints = plotable.getPoints(paramX, paramY, transformY);
+		double[][] functionErrors = null;
+
+		if (showConfidenceInterval) {
+			functionErrors = plotable.getFunctionErrors(paramX, paramY,
+					transformY, minX, maxX, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY);
+		}
 
 		if (modelPoints != null) {
-			DefaultXYDataset modelSet = new DefaultXYDataset();
-			XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
-					true, false);
-
-			modelRenderer
-					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-
-			if (addInfoInLegend) {
-				modelSet.addSeries(longLegend.get(id) + " (Model)", modelPoints);
-			} else {
-				modelSet.addSeries(shortLegend.get(id) + " (Model)",
-						modelPoints);
-			}
-
-			if (colors.containsKey(id)) {
-				modelRenderer.setSeriesPaint(0, colors.get(id));
-			} else {
-				modelRenderer.setSeriesPaint(0, defaultColor);
-			}
-
-			if (shapes.containsKey(id)) {
-				modelRenderer.setSeriesShape(0, shapes.get(id));
-			} else {
-				modelRenderer.setSeriesShape(0, defaultShape);
-			}
-
 			int i;
 
 			if (plot.getDataset(0) == null) {
@@ -700,8 +730,75 @@ public class ChartCreator extends ChartPanel {
 				i = plot.getDatasetCount();
 			}
 
-			plot.setDataset(i, modelSet);
-			plot.setRenderer(i, modelRenderer);
+			if (functionErrors != null) {
+				YIntervalSeriesCollection functionDataset = new YIntervalSeriesCollection();
+				DeviationRenderer functionRenderer = new DeviationRenderer(
+						true, false);
+				YIntervalSeries series;
+				int n = modelPoints[0].length;
+
+				if (addInfoInLegend) {
+					series = new YIntervalSeries(longLegend.get(id));
+				} else {
+					series = new YIntervalSeries(shortLegend.get(id));
+				}
+
+				for (int j = 0; j < n; j++) {
+					double error = Double.isNaN(functionErrors[1][j]) ? 0.0
+							: functionErrors[1][j];
+
+					series.add(modelPoints[0][j], modelPoints[1][j],
+							modelPoints[1][j] - error, modelPoints[1][j]
+									+ error);
+				}
+
+				functionDataset.addSeries(series);
+
+				if (colors.containsKey(id)) {
+					functionRenderer.setSeriesPaint(0, colors.get(id));
+					functionRenderer.setSeriesFillPaint(0, colors.get(id));
+				} else {
+					functionRenderer.setSeriesPaint(0, defaultColor);
+					functionRenderer.setSeriesFillPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					functionRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					functionRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				plot.setDataset(i, functionDataset);
+				plot.setRenderer(i, functionRenderer);
+			} else {
+				DefaultXYDataset functionDataset = new DefaultXYDataset();
+				XYLineAndShapeRenderer functionRenderer = new XYLineAndShapeRenderer(
+						true, false);
+
+				if (addInfoInLegend) {
+					functionDataset.addSeries(longLegend.get(id), modelPoints);
+				} else {
+					functionDataset.addSeries(shortLegend.get(id), modelPoints);
+				}
+
+				functionRenderer
+						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+
+				if (colors.containsKey(id)) {
+					functionRenderer.setSeriesPaint(0, colors.get(id));
+				} else {
+					functionRenderer.setSeriesPaint(0, defaultColor);
+				}
+
+				if (shapes.containsKey(id)) {
+					functionRenderer.setSeriesShape(0, shapes.get(id));
+				} else {
+					functionRenderer.setSeriesShape(0, defaultShape);
+				}
+
+				plot.setDataset(i, functionDataset);
+				plot.setRenderer(i, functionRenderer);
+			}
 		}
 
 		if (dataPoints != null) {

@@ -551,42 +551,33 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		maximumFields = null;
 		fittingPanel.removeAll();
 
+		JComponent panel = null;
+
 		if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.PRIMARY_FITTING)) {
-			if (peiSchema.conforms(input[0])) {
-				readPrimaryTable(input[0]);
-				fittingPanel.add(createPanel());
-			} else {
-				JOptionPane.showMessageDialog(fittingBox,
-						"Data is not valid for "
-								+ ModelEstimationNodeModel.PRIMARY_FITTING);
-				fittingPanel.add(new JLabel());
-			}
+				ModelEstimationNodeModel.PRIMARY_FITTING)
+				&& peiSchema.conforms(input[0])) {
+			readPrimaryTable(input[0]);
+			panel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.SECONDARY_FITTING)) {
-			if (seiSchema.conforms(input[0])) {
-				readSecondaryTable(input[0]);
-				fittingPanel.add(createPanel());
-			} else {
-				JOptionPane.showMessageDialog(fittingBox,
-						"Data is not valid for "
-								+ ModelEstimationNodeModel.SECONDARY_FITTING);
-				fittingPanel.add(new JLabel());
-			}
+				ModelEstimationNodeModel.SECONDARY_FITTING)
+				&& seiSchema.conforms(input[0])) {
+			readSecondaryTable(input[0]);
+			panel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.ONESTEP_FITTING)) {
-			if (seiSchema.conforms(input[0])) {
-				readSecondaryTable(input[0]);
-				fittingPanel.add(createPanel());
-			} else {
-				JOptionPane.showMessageDialog(fittingBox,
-						"Data is not valid for "
-								+ ModelEstimationNodeModel.ONESTEP_FITTING);
-				fittingPanel.add(new JLabel());
-			}
+				ModelEstimationNodeModel.ONESTEP_FITTING)
+				&& seiSchema.conforms(input[0])) {
+			readSecondaryTable(input[0]);
+			panel = createPanel();
 		}
 
-		fittingPanel.revalidate();
+		if (panel != null) {
+			fittingPanel.add(panel);
+			fittingPanel.revalidate();
+		} else {
+			JOptionPane.showMessageDialog(fittingBox, "Data is not valid for "
+					+ fittingBox.getSelectedItem());
+			fittingPanel.add(new JLabel(), BorderLayout.CENTER);
+		}
 	}
 
 	@Override

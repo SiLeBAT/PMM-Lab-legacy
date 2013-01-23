@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.1.0.0.51" Java: "1.6.0_22" encoding: "UTF-8"
+JFDML JFormDesigner: "5.1.0.0.51" Java: "1.7.0_07" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -17,9 +17,9 @@ new FormModel {
 					"value": "Center"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "glue, button, relgap, button"
+					"$columnSpecs": "glue, button, relgap, default, labelcompgap, button"
 					"$rowSpecs": "pref"
-					"$columnGroupIds": "0, 1, 0, 1"
+					"$columnGroupIds": "0, 1, 0, 1, 0, 1"
 				} ) {
 					name: "buttonBar"
 					"border": sfield com.jgoodies.forms.factories.Borders BUTTON_BAR_GAP_BORDER
@@ -43,6 +43,13 @@ new FormModel {
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelButtonActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 4
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "deleteButton"
+						"text": "Delete"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteButtonActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 6
 						"gridY": 1
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {

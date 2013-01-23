@@ -106,7 +106,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
 
 	private static final String OTHER_PARAMETER = "Other Parameter";
-	private static final String NO_PARAMETER = "None";
+	private static final String NO_PARAMETER = "Select Other";
 
 	private JPanel panel;
 	private JButton clearButton;

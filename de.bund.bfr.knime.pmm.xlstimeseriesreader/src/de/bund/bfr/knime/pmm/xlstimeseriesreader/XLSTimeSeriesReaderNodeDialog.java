@@ -86,7 +86,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		ActionListener, ItemListener, FileListener {
 
 	private static final String OTHER_PARAMETER = "Other Parameter";
-	private static final String NO_PARAMETER = "None";
+	private static final String NO_PARAMETER = "Select Other";
 
 	private FilePanel filePanel;
 

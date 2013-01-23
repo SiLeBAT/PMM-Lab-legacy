@@ -1182,7 +1182,7 @@ public class Login extends JFrame {
 				new String[]{"INTEGER","VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER"},
 				new String[]{null,null,null,null,null,null},
 				new MyTable[]{literatur,null,agenzien,null,null,matrix});
-		myList.addTable(ComBaseImport, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1); // 66
+		myList.addTable(ComBaseImport, DBKernel.isKNIME ? MyList.BasisTabellen_LIST : -1); // 66
 		MyTable adressen = new MyTable("Kontakte",
 				new String[]{"Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},

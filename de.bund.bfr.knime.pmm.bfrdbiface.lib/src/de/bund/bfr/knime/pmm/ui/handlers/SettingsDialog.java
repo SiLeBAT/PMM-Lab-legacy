@@ -7,6 +7,7 @@ package de.bund.bfr.knime.pmm.ui.handlers;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
+import java.sql.SQLException;
 
 import javax.swing.*;
 
@@ -16,6 +17,7 @@ import org.hsh.bfr.db.MyLogger;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.resources.Resources;
 
 /**
@@ -54,17 +56,29 @@ public class SettingsDialog extends JDialog {
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
-		String dbt = dbPath.getText().endsWith(System.getProperty("file.separator")) ? dbPath.getText() : dbPath.getText() + System.getProperty("file.separator");
+		String dbt = dbPath.getText();
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
 		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
 		DBKernel.closeDBConnections(false);
-		Connection conn = DBKernel.getLocalConn(true);
-  		DBKernel.myList.getMyDBTable().initConn(conn);
-		DBKernel.myList.getMyDBTable().setTable();
-		//DBKernel.myList.setSelection("Matrices");
-		//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+		
+		try {
+			Bfrdb db = new Bfrdb(dbt, username.getText(), String.valueOf(password.getPassword()));
+			if (!DBKernel.isServerConnection && !dbt.endsWith(System.getProperty("file.separator"))) {
+				dbt += System.getProperty("file.separator");
+				DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
+			}
+			Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
+			//DBKernel.setLocalConn(conn);
+	  		DBKernel.myList.getMyDBTable().initConn(conn);
+			DBKernel.myList.getMyDBTable().setTable();
+			//DBKernel.myList.setSelection("Matrices");
+			//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+		}
+		catch (Exception e1) {
+			e1.printStackTrace();
+		}
 		this.dispose();
 	}
 

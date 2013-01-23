@@ -999,6 +999,9 @@ if (myDBPanel1 != null) {
 					    	if (this.getActualTable().getTablename().equals("ProzessWorkflow")) {
 								endungen = "*.xml";
 							}
+					    	else if (this.getActualTable().getTablename().equals("PMMLabWorkflows")) {
+								endungen = "*.zip";
+							}
 					    	BLOBEditor be = new BLOBEditor(endungen, this, i+1);
 						    c.setCellEditor(be);				    	
 						    if (sorter != null) {

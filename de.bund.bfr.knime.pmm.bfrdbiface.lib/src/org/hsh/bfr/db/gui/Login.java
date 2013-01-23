@@ -138,12 +138,18 @@ public class Login extends JFrame {
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			loadDB();
+			/*
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ModellkatalogParameter") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modell_Referenz") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modellkatalog") + " WHERE " + DBKernel.delimitL("ID") + " >= 47 AND " + DBKernel.delimitL("ID") + " <= 49", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Literatur") + " WHERE " + DBKernel.delimitL("ID") + " <= 239", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+			*/
 			//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
 			/*
 			DBKernel.sendRequest("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA()) +
 					" PASSWORD '" + DBKernel.getTempSAPass() + "' ADMIN", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 			DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
 			*/
 			/*
@@ -232,7 +238,7 @@ public class Login extends JFrame {
 			// Datenbank erstellen
 			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt
 			}
-			else if (!DBKernel.isServerConnection && !DBKernel.isStatUp) { // !DBKernel.isKrise && 
+			else if (!DBKernel.isServerConnection) { // !DBKernel.isKrise && 
 				int dbAlt = DBKernel.isDBVeraltet(this);
 				if (dbAlt == JOptionPane.YES_OPTION) {// UPDATE Funktionalität ist jetzt angesagt
 					doUpdates = true;
@@ -318,7 +324,7 @@ public class Login extends JFrame {
 				else {
 					loadMyTables(myList, myDB);
 					String folder = "/org/hsh/bfr/db/res/"; //"I:/SourceCode/Data/SiLeBAT_DB/InitDB/";
-					if (!DBKernel.isKrise && !DBKernel.isStatUp) {
+					if (!DBKernel.isKrise) {
 						DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Infotabelle") +
 								" (" + DBKernel.delimitL("Parameter") + "," + DBKernel.delimitL("Wert") + ") VALUES ('DBVersion','" + DBKernel.DBVersion + "')", false);
 
@@ -369,15 +375,6 @@ public class Login extends JFrame {
 					    DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"	
 					    
 						DBKernel.setDBVersion(DBKernel.DBVersion);
-					}
-					else if (DBKernel.isStatUp) {
-						new GeneralXLSImporter().doImport(folder + "Basis-Agenzien_new-20111209.xls", mf.getProgressBar(), false);						
-						new GeneralXLSImporter().doImport(folder + "Matrices_BLS-Liste_inkl_FA.xls", mf.getProgressBar(), false);
-						new MyRisImporter().doImport(folder + "risMS.txt", mf.getProgressBar(), false);
-						new GeneralXLSImporter().doImport(folder + "ComBaseImport.xls", mf.getProgressBar(), false);						
-						importEinheiten();
-						importSP();		
-						new MySQLImporter().doImport("", null, false);	
 					}
 
 				    MyLogger.handleMessage("Fertig!");
@@ -499,6 +496,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
 					  		UpdateChecker.check4Updates_145_146(myList); 
 					  		DBKernel.setDBVersion("1.4.6");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
+					  		UpdateChecker.check4Updates_146_147(myList); 
+					  		DBKernel.setDBVersion("1.4.7");
 					  	}
 					  	
 						DBKernel.closeDBConnections(false);
@@ -1181,7 +1182,7 @@ public class Login extends JFrame {
 				new String[]{"INTEGER","VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER"},
 				new String[]{null,null,null,null,null,null},
 				new MyTable[]{literatur,null,agenzien,null,null,matrix});
-		myList.addTable(ComBaseImport, -1); // 66
+		myList.addTable(ComBaseImport, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1); // 66
 		MyTable adressen = new MyTable("Kontakte",
 				new String[]{"Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
@@ -1952,54 +1953,12 @@ public class Login extends JFrame {
 		doLieferkettenTabellen(myList, adressen, agenzien, matrix, h4);
 
 		if (myDB != null) {
-			if (DBKernel.isStatUp) {				
-//				myList.getTable("Kennzahlen").createTable();
-				myList.getTable("DoubleKennzahlen").createTable();
-				myList.getTable("ToxinUrsprung").createTable();
-				myList.getTable("Agenzien").createTable();
-				myList.getTable("Codes_Agenzien").createTable();
-				myList.getTable("Matrices").createTable();
-				myList.getTable("Codes_Matrices").createTable();
-				myList.getTable("ComBaseImport").createTable();
-				myList.getTable("Literatur").createTable();
-				myList.getTable("Einheiten").createTable();
-				myList.getTable("Methodiken").createTable();
-				myList.getTable("Aufbereitungsverfahren").createTable();
-				myList.getTable("Nachweisverfahren").createTable();
-				myList.getTable("Aufbereitungs_Nachweisverfahren").createTable();
-				myList.getTable("Versuchsbedingungen").createTable();
-				myList.getTable("Messwerte").createTable();
-				myList.getTable("SonstigeParameter").createTable();
-				myList.getTable("Versuchsbedingungen_Sonstiges").createTable();
-				myList.getTable("Messwerte_Sonstiges").createTable();
-
-				myList.getTable("Modellkatalog").createTable();
-				myList.getTable("ModellkatalogParameter").createTable();
-				myList.getTable("Modell_Referenz").createTable();
-				myList.getTable("GeschaetzteModelle").createTable();
-				myList.getTable("GeschaetztesModell_Referenz").createTable();
-				myList.getTable("GeschaetzteParameter").createTable();
-				myList.getTable("GeschaetzteParameterCovCor").createTable();
-				myList.getTable("Sekundaermodelle_Primaermodelle").createTable();
-/*
-				DBKernel.sendRequest(
-			    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
-			    		"RETURNS INT\n" + 
-			    		"NO SQL\n" +
-			    		"LANGUAGE JAVA\n" +
-			    		"PARAMETER STYLE JAVA\n" +
-			    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.Levenshtein.LD'"
-			    		, false);
-			    		*/
-			}
-			else {
-				myList.createTables();				
-				if (!DBKernel.isKrise) {
-					fillWithDataAndGrants(myList, myDB);
-				    
-					UpdateChecker.doStatUpGrants();
-					//UpdateChecker.doJansGrants();				
-				}
+			myList.createTables();				
+			if (!DBKernel.isKrise) {
+				fillWithDataAndGrants(myList, myDB);
+			    
+				UpdateChecker.doStatUpGrants();
+				//UpdateChecker.doJansGrants();				
 			}
 		}		
 	}
@@ -2222,6 +2181,23 @@ public class Login extends JFrame {
 	}
 	@SuppressWarnings("unchecked")
 	private void generateStatUpModellTables(final MyList myList, final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten) {
+		MyTable PMMLabWorkflows = new MyTable("PMMLabWorkflows", new String[]{"Workflow"},
+				new String[]{"BLOB(100M)"},
+				new String[]{null},
+				new MyTable[]{null},
+				null,
+				new LinkedHashMap[]{null},
+				null);
+		myList.addTable(PMMLabWorkflows, -1);	
+		MyTable DataSource = new MyTable("DataSource", new String[]{"Table","TableID","SourceDBUUID","SourceID"},
+				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","INTEGER"},
+				new String[]{null,null,null,null},
+				new MyTable[]{null,null,null,null},
+				null,
+				new LinkedHashMap[]{null,null,null,null},
+				null);
+		myList.addTable(DataSource, -1);	
+
 		LinkedHashMap<Object, String> hashLevel = new LinkedHashMap<Object, String>();
 		hashLevel.put(1, "primary");					
 		hashLevel.put(2, "secondary");	
@@ -2240,22 +2216,22 @@ public class Login extends JFrame {
 				new String[]{null});
 		myList.addTable(Parametertyp, -1);
 		MyTable Modellkatalog = new MyTable("Modellkatalog", new String[]{"Name","Notation","Level","Klasse","Typ","Eingabedatum",
-				"eingegeben_von","Beschreibung","Formel","Software",
+				"eingegeben_von","Beschreibung","Formel","Ableitung","Software",
 				"Parameter","Referenzen"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","INTEGER","INTEGER","VARCHAR(255)","DATE",
-				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(511)","VARCHAR(255)",
+				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(511)","INTEGER","VARCHAR(255)",
 				"INTEGER","INTEGER"},
-				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel für das Modell","schreibt den Schaetzknoten vor",
+				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel für das Modell","Ableitung","schreibt den Schaetzknoten vor",
 				"Parameterdefinitionen, die dem Modell zugrunde liegen: abhängige Variable, unabhängige Variable, Parameter","Referenzen, die dem Modell zugrunde liegen"},
-				new MyTable[]{null,null,null,null,null,null,null,null,null,null,
+				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,
 				Parametertyp,literatur},
 				null,
-				new LinkedHashMap[]{null,null,hashLevel,DBKernel.hashModelType,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,hashLevel,DBKernel.hashModelType,null,null,null,null,null,null,null,
 				null,null},
-				new String[] {null,null,null,null,null,null,null,null,null,null,
+				new String[] {null,null,null,null,null,null,null,null,null,null,null,
 						"ModellkatalogParameter","Modell_Referenz"},
 				//new String[] {"not null","not null",null,null,null,"not null",
-				new String[] {null,null,null,null,null,null,
+				new String[] {null,null,null,null,null,null,null,
 				null,null,null,null,
 				null,null});
 		myList.addTable(Modellkatalog, MyList.PMModelle_LIST);		
@@ -2284,22 +2260,22 @@ public class Login extends JFrame {
 		
 		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Versuchsbedingung","Modell",
 				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","BIC","Score",
-				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML"},
+				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML","PMMLabWF"},
 				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
-				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)"},
+				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)","INTEGER"},
 				new String[]{null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schätzung",
-				"Referenzen, aus denen diese Modellschätzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschätzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschätzten Parameter","Gültigkeitsbereiche für Sekundärmodelle",null},
+				"Referenzen, aus denen diese Modellschätzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschätzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschätzten Parameter","Gültigkeitsbereiche für Sekundärmodelle",null,null},
 				new MyTable[]{tenazity_raw_data,Modellkatalog,
 				ModellkatalogParameter,null,null,null,null,null,null,null,
-				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null},
+				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,
-				null,null,null,null,null},
+				null,null,null,null,null,null},
 				new String[] {null,null,
 				null,null,null,null,null,null,null,null,
-				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null},
+				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null},
 				new String[] {null,null,null,"default FALSE",null,null,null,null,null,null,
-				null,null,null,null,null});
+				null,null,null,null,null,null});
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
 		myList.addTable(GeschaetzteModelle, MyList.PMModelle_LIST);		

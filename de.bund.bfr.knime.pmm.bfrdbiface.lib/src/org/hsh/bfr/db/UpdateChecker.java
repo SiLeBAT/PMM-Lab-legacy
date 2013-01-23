@@ -51,6 +51,21 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_146_147(final MyList myList) {
+		myList.getTable("PMMLabWorkflows").createTable();
+		DBKernel.grantDefaults("PMMLabWorkflows");
+		myList.getTable("DataSource").createTable();
+		DBKernel.grantDefaults("DataSource");
+
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
+				" ADD COLUMN " + DBKernel.delimitL("PMMLabWF") + " INTEGER BEFORE " + DBKernel.delimitL("Guetescore"), false))
+			updateChangeLog("GeschaetzteModelle", 16, false);		
+		refreshFKs("GeschaetzteModelle");		
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") +
+				" ADD COLUMN " + DBKernel.delimitL("Ableitung") + " INTEGER BEFORE " + DBKernel.delimitL("Software"), false))
+			updateChangeLog("Modellkatalog", 10, false);		
+		refreshFKs("Modellkatalog");		
+	}
 	public static void check4Updates_145_146(final MyList myList) {
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
 				" ADD COLUMN " + DBKernel.delimitL("Guetescore") + " INTEGER BEFORE " + DBKernel.delimitL("Kommentar"), false))

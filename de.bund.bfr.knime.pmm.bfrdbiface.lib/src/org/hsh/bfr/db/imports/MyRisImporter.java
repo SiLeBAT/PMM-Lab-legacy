@@ -185,7 +185,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 							      }
 							      rs.close();
 	
-							      if (!DBKernel.isStatUp && lastInsertedID > 0) {
+							      if (lastInsertedID > 0) {
 								      // Wir wollen aber dennoch die gesamte RIS Datei abspeichern - zur Sicherheit
 									    DBKernel.insertBLOB("Literatur", "ID", risses.get(bibitem), bibitem.getField("erstautor") + "_" + year + ".ris", lastInsertedID);
 									    numRisses++;

@@ -125,12 +125,11 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.4.6";
+	public static String DBVersion = "1.4.7";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
-	public static boolean isStatUp = false;
 	@SuppressWarnings("unused")
-	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise || DBKernel.isStatUp);
+	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(boolean other) {
 		//if (debug) return "SA";
@@ -351,8 +350,7 @@ public class DBKernel {
       		stmt.execute(sql);
       	}
       }
-      if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle") &&
-    		  !DBKernel.isStatUp) {
+      if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
         stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
         		delimitL(tableName) + " FOR EACH ROW " + " CALL " + delimitL(new MyTrigger().getClass().getName())); // (oneThread ? "QUEUE 0" : "") +    
         stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
@@ -578,7 +576,7 @@ public class DBKernel {
 		if (localConn != null && !localConn.isClosed()) {
 			if (!DBKernel.isServerConnection) {      		
 				try {
-					if (kompakt && !isAdmin() && !DBKernel.isStatUp) { // kompakt ist nur beim Programm schliessen true
+					if (kompakt && !isAdmin()) { // kompakt ist nur beim Programm schliessen true
 						closeDBConnections(false);
 						try {
 							localConn = getDefaultAdminConn();
@@ -588,13 +586,7 @@ public class DBKernel {
 					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
 					MyLogger.handleMessage("vor SHUTDOWN");
     	      	        //stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-					if (DBKernel.isStatUp) {
-						stmt.execute("SHUTDOWN SCRIPT");
-					}
-					else {
-						stmt.execute("SHUTDOWN");
-						//stmt.execute("SHUTDOWN " + (kompakt ? " COMPACT" : "")); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-					}
+					stmt.execute("SHUTDOWN");
 				}
 				catch (SQLException e) {result = false;}
 			}
@@ -1718,6 +1710,10 @@ public class DBKernel {
 					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
 					  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
 					  		DBKernel.setDBVersion("1.4.6");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
+					  		UpdateChecker.check4Updates_146_147(myList); 
+					  		DBKernel.setDBVersion("1.4.7");
 					  	}
 				  	}
 		  		}				

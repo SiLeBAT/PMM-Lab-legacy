@@ -294,12 +294,6 @@ public class SecondaryModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
 			colorCounts = new ArrayList<Integer>();
 
 			for (String param : miscParams) {

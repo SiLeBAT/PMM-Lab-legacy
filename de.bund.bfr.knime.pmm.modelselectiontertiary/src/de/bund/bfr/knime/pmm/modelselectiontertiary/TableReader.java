@@ -88,9 +88,6 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);

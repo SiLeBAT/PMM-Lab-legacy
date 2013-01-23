@@ -56,9 +56,6 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		doubleColumns = new ArrayList<String>();
 		doubleColumnValues = new ArrayList<List<Double>>();
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
 		infoParameters = new ArrayList<List<String>>();
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
@@ -159,7 +156,7 @@ public class TableReader {
 				}
 
 				if (!paramFound) {
-					doubleColumnValues.get(i + 3).add(null);
+					doubleColumnValues.get(i).add(null);
 				}
 			}
 

@@ -282,9 +282,6 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
 					TimeSeriesSchema.DATAID, Model1Schema.RMS,
 					Model1Schema.RSQUARED);

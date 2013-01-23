@@ -503,7 +503,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Agens") + " IS NULL",
-						GuiMessages.getString("Eine Agens sollte angegeben werden!")
+						GuiMessages.getString("Ein Agens sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -532,7 +532,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Nachweisverfahren") + " IS NULL",
-						GuiMessages.getString("Eine Nachweisverfahren sollte angegeben werden!")
+						GuiMessages.getString("Ein Nachweisverfahren sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
@@ -561,7 +561,7 @@ public class PlausibilityChecker {
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +
 						" WHERE " + DBKernel.delimitL("Labor") + " IS NULL",
-						GuiMessages.getString("Eine Labor sollte angegeben werden!")
+						GuiMessages.getString("Ein Labor sollte angegeben werden!")
 						});
 				result.add(new String[]{
 						"SELECT " + idConf + " FROM " + DBKernel.delimitL(tablename) +

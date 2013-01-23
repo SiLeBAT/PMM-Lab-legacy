@@ -1698,7 +1698,7 @@ public class DBKernel {
 					catch (Exception e) {}
 
 				  	String dbVersion = DBKernel.getDBVersion();
-				  	if (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion)) {
+				  	if (isAdmin() && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
 					  	if (DBKernel.getDBVersion() == null) {
 					  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
 					  		DBKernel.setDBVersion("1.4.4");

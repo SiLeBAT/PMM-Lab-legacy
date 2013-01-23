@@ -7,7 +7,6 @@ package de.bund.bfr.knime.pmm.ui.handlers;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.swing.*;
 
@@ -57,6 +56,9 @@ public class SettingsDialog extends JDialog {
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		String dbt = dbPath.getText();
+		if (!DBKernel.isHsqlServer(dbt) && !dbt.endsWith(System.getProperty("file.separator"))) {
+			dbt += System.getProperty("file.separator");
+		}
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
@@ -65,10 +67,6 @@ public class SettingsDialog extends JDialog {
 		
 		try {
 			Bfrdb db = new Bfrdb(dbt, username.getText(), String.valueOf(password.getPassword()));
-			if (!DBKernel.isServerConnection && !dbt.endsWith(System.getProperty("file.separator"))) {
-				dbt += System.getProperty("file.separator");
-				DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
-			}
 			Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
 			//DBKernel.setLocalConn(conn);
 	  		DBKernel.myList.getMyDBTable().initConn(conn);

@@ -210,7 +210,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		levelBox.setSelectedIndex(level - 1);
 	}
 	public void setModelClass(String modelClass) throws PmmException {
-		classBox.setSelectedItem(modelClass);
+		classBox.setSelectedItem(modelClass == null || modelClass.isEmpty() ? "All" : modelClass);
 	}
 
 	private void updateModelName() {
@@ -228,8 +228,14 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	private void addBoxes2Panel(LinkedHashMap<JCheckBox, String> modelBox, JPanel modelPanel) {
 		for (JCheckBox box : modelBox.keySet()) {
 			Object o = classBox.getSelectedItem();
+			int indexKlammer = 0;
+			int indexKeyword = 1;
+			if (box.getText() != null && !box.getText().isEmpty() && o != null) {
+				indexKlammer = box.getText().lastIndexOf(" (");
+				indexKeyword = box.getText().toLowerCase().lastIndexOf(o.toString().toLowerCase());				
+			}
 			if (o == null || o.toString().equals("All") ||
-					box.getText().toLowerCase().indexOf(" (" + o.toString().toLowerCase() + ")") >= 0) {
+					indexKeyword > indexKlammer) {
 				modelPanel.add(box);			
 			}
 		}

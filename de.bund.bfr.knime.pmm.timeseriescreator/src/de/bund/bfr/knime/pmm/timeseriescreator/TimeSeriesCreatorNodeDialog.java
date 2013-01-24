@@ -744,7 +744,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		private Map<String, JComboBox<String>> mappingBoxes;
 		private Map<String, JButton> mappingButtons;
-		private Map<String, MiscXml> mappings;
+		private Map<String, Object> mappings;
 
 		private JButton okButton;
 		private JButton cancelButton;
@@ -771,6 +771,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
+						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
+						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
@@ -813,7 +815,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			return approved;
 		}
 
-		public Map<String, MiscXml> getMappings() {
+		public Map<String, Object> getMappings() {
 			return mappings;
 		}
 
@@ -825,7 +827,26 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						JComboBox<String> box = mappingBoxes.get(column);
 						JButton button = mappingButtons.get(column);
 
-						if (box.getSelectedItem().equals(
+						if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, XLSReader.ID_COLUMN_ID);
+						} else if (box.getSelectedItem().equals(
+								TimeSeriesSchema.ATT_COMMENT)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, XLSReader.COMMENT_COLUMN_ID);
+						} else if (box.getSelectedItem().equals(
+								TimeSeriesSchema.TIME)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, XLSReader.TIME_COLUMN_ID);
+						} else if (box.getSelectedItem().equals(
+								TimeSeriesSchema.LOGC)) {
+							button.setEnabled(false);
+							button.setText(NO_PARAMETER);
+							mappings.put(column, XLSReader.LOGC_COLUMN_ID);
+						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);
 							button.setText(NO_PARAMETER);
@@ -864,8 +885,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
-				for (MiscXml misc : mappings.values()) {
-					if (misc == null) {
+				for (Object value : mappings.values()) {
+					if (value == null) {
 						JOptionPane.showMessageDialog(this,
 								"All Columns must be assigned", "Error",
 								JOptionPane.ERROR_MESSAGE);
@@ -882,8 +903,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					if (e.getSource() == mappingButtons.get(column)) {
 						Integer oldID = null;
 
-						if (mappings.get(column) != null) {
-							oldID = mappings.get(column).getID();
+						if (mappings.get(column) instanceof MiscXml) {
+							oldID = ((MiscXml) mappings.get(column)).getID();
 						}
 
 						Integer miscID = openDBWindow(oldID);

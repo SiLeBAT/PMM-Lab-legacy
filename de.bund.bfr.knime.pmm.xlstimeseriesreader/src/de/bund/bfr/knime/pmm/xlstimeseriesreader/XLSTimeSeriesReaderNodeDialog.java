@@ -286,7 +286,26 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					JComboBox<String> box = mappingBoxes.get(column);
 					JButton button = mappingButtons.get(column);
 
-					if (box.getSelectedItem().equals(
+					if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, XLSReader.ID_COLUMN_ID);
+					} else if (box.getSelectedItem().equals(
+							TimeSeriesSchema.ATT_COMMENT)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, XLSReader.COMMENT_COLUMN_ID);
+					} else if (box.getSelectedItem().equals(
+							TimeSeriesSchema.TIME)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, XLSReader.TIME_COLUMN_ID);
+					} else if (box.getSelectedItem().equals(
+							TimeSeriesSchema.LOGC)) {
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+						mappingIDs.put(column, XLSReader.LOGC_COLUMN_ID);
+					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
@@ -335,23 +354,41 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
+						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
+						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
 				JButton button = new JButton();
 
 				if (initialMapIDs.containsKey(column)) {
-					int miscID = initialMapIDs.get(column);
+					int id = initialMapIDs.get(column);
 
-					if (miscID == AttributeUtilities.ATT_TEMPERATURE_ID) {
+					if (id == XLSReader.ID_COLUMN_ID) {
+						box.setSelectedItem(XLSReader.ID_COLUMN);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (id == XLSReader.COMMENT_COLUMN_ID) {
+						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (id == XLSReader.TIME_COLUMN_ID) {
+						box.setSelectedItem(TimeSeriesSchema.TIME);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (id == XLSReader.LOGC_COLUMN_ID) {
+						box.setSelectedItem(TimeSeriesSchema.LOGC);
+						button.setEnabled(false);
+						button.setText(NO_PARAMETER);
+					} else if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
 						box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (miscID == AttributeUtilities.ATT_PH_ID) {
+					} else if (id == AttributeUtilities.ATT_PH_ID) {
 						box.setSelectedItem(AttributeUtilities.ATT_PH);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (miscID == AttributeUtilities.ATT_AW_ID) {
+					} else if (id == AttributeUtilities.ATT_AW_ID) {
 						box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
@@ -360,10 +397,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						button.setEnabled(true);
 						button.setText(""
 								+ DBKernel.getValue("SonstigeParameter", "ID",
-										miscID + "", "Parameter"));
+										id + "", "Parameter"));
 					}
 
-					mappingIDs.put(column, miscID);
+					mappingIDs.put(column, id);
 				} else {
 					box.setSelectedItem(OTHER_PARAMETER);
 					button.setEnabled(true);

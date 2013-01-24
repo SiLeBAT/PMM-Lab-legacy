@@ -105,25 +105,36 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		Map<String, MiscXml> mappings = new LinkedHashMap<>();
+		Map<String, Object> mappings = new LinkedHashMap<>();
 
 		for (String column : columnMappings.keySet()) {
 			int id = columnMappings.get(column);
-			MiscXml xml = new MiscXml(id, null, null, null, null);
 
-			if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
-				xml.setName(AttributeUtilities.ATT_TEMPERATURE);
+			if (id == XLSReader.ID_COLUMN_ID) {
+				mappings.put(column, id);
+			} else if (id == XLSReader.COMMENT_COLUMN_ID) {
+				mappings.put(column, id);
+			} else if (id == XLSReader.TIME_COLUMN_ID) {
+				mappings.put(column, id);
+			} else if (id == XLSReader.LOGC_COLUMN_ID) {
+				mappings.put(column, id);
+			} else if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				mappings.put(column, new MiscXml((Integer) id,
+						AttributeUtilities.ATT_TEMPERATURE, null, null, null));
 			} else if (id == AttributeUtilities.ATT_PH_ID) {
-				xml.setName(AttributeUtilities.ATT_PH);
+				mappings.put(column, new MiscXml((Integer) id,
+						AttributeUtilities.ATT_PH, null, null, null));
 			} else if (id == AttributeUtilities.ATT_AW_ID) {
-				xml.setName(AttributeUtilities.ATT_WATERACTIVITY);
+				mappings.put(column, new MiscXml((Integer) id,
+						AttributeUtilities.ATT_WATERACTIVITY, null, null, null));
 			} else {
-				xml.setName(""
-						+ DBKernel.getValue("SonstigeParameter", "ID", id + "",
-								"Parameter"));
-			}
+				String name = DBKernel.getValue("SonstigeParameter", "ID", id
+						+ "", "Parameter")
+						+ "";
 
-			mappings.put(column, xml);
+				mappings.put(column, new MiscXml((Integer) id, name, null,
+						null, null));
+			}
 		}
 
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader

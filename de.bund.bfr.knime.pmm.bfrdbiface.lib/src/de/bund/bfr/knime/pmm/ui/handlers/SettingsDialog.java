@@ -56,7 +56,8 @@ public class SettingsDialog extends JDialog {
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		String dbt = dbPath.getText();
-		if (!DBKernel.isHsqlServer(dbt) && !dbt.endsWith(System.getProperty("file.separator"))) {
+		boolean isServer = DBKernel.isHsqlServer(dbt); 
+		if (!isServer && !dbt.endsWith(System.getProperty("file.separator"))) {
 			dbt += System.getProperty("file.separator");
 		}
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
@@ -66,7 +67,7 @@ public class SettingsDialog extends JDialog {
 		DBKernel.closeDBConnections(true);
 		
 		try {
-			Bfrdb db = new Bfrdb(dbt + "DB", username.getText(), String.valueOf(password.getPassword()));
+			Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
 			Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
 			DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
 			if (conn != null) {

@@ -35,7 +35,9 @@ package de.bund.bfr.knime.pmm.combaseio;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
@@ -61,12 +63,13 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 public class CombaseWriterNodeDialog extends NodeDialogPane {
 
 	private FilePanel filePanel;
+	JCheckBox overwrite;
 
 	/**
 	 * New pane for configuring the CombaseWriter node.
 	 */
 	protected CombaseWriterNodeDialog() {
-		filePanel = new FilePanel("Combase File", FilePanel.SAVE_DIALOG);
+		filePanel = new FilePanel("Selected File:", FilePanel.SAVE_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
 
@@ -74,6 +77,10 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 
 		panel.setLayout(new BorderLayout());
 		panel.add(filePanel, BorderLayout.NORTH);
+		
+		overwrite = new JCheckBox("Overwrite OK");
+		overwrite.setHorizontalAlignment(SwingConstants.CENTER);
+		panel.add(overwrite);
 
 		addTab("Options", panel);
 	}
@@ -84,10 +91,14 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 		String fileName;
 
 		try {
-			fileName = settings
-					.getString(CombaseWriterNodeModel.PARAM_FILENAME);
+			fileName = settings.getString(CombaseWriterNodeModel.PARAM_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = CombaseWriterNodeModel.DEFAULT_FILENAME;
+		}
+		try {
+			overwrite.setSelected(settings.getBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE));
+		} catch (InvalidSettingsException e) {
+			overwrite.setSelected(false);
 		}
 
 		filePanel.setFileName(fileName);
@@ -100,7 +111,7 @@ public class CombaseWriterNodeDialog extends NodeDialogPane {
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME,
-				filePanel.getFileName());
+		settings.addString(CombaseWriterNodeModel.PARAM_FILENAME, filePanel.getFileName());
+		settings.addBoolean(CombaseWriterNodeModel.PARAM_OVERWRITE, overwrite.isSelected());
 	}
 }

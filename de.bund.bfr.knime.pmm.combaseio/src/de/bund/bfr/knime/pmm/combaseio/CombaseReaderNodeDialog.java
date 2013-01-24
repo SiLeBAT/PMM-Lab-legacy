@@ -39,6 +39,7 @@ import java.awt.GridLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -74,7 +75,7 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 	 * New pane for configuring the CombaseReader node.
 	 */
 	protected CombaseReaderNodeDialog() {
-		filePanel = new FilePanel("Combase File", FilePanel.OPEN_DIALOG);
+		filePanel = new FilePanel("Selected File:", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
 		eleminationField = new DoubleTextField();

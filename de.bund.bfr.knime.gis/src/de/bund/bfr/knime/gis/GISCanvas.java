@@ -56,8 +56,10 @@ import java.awt.image.RescaleOp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -136,7 +138,8 @@ public class GISCanvas extends JPanel implements ActionListener {
 	}
 
 	public void setHighlightedRegions(List<String> highlightedRegions) {
-		// TODO
+		gisComponent.setHighlightedRegions(highlightedRegions);
+		gisComponent.repaint();
 	}
 
 	@Override
@@ -306,6 +309,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private List<String> edgeProperties;
 		private int borderAlpha;
 		private int edgeAlpha;
+		private List<String> highlightedRegions;
 
 		private boolean transformComputed;
 		private boolean transformedShapesComputed;
@@ -357,6 +361,10 @@ public class GISCanvas extends JPanel implements ActionListener {
 			this.edgeAlpha = edgeAlpha;
 		}
 
+		public void setHighlightedRegions(List<String> highlightedRegions) {
+			this.highlightedRegions = highlightedRegions;
+		}
+
 		public void reset() {
 			transformComputed = false;
 		}
@@ -404,19 +412,20 @@ public class GISCanvas extends JPanel implements ActionListener {
 			 * ------------------------------------------------------------------
 			 */
 
-			// if (highlightedRegions != null) {
-			// for (String id : highlightedRegions) {
-			// List<Polygon> poly = transformedShapes.get(id);
-			//
-			// if (poly != null) {
-			// g.setColor(Color.GREEN);
-			//
-			// for (Polygon part : poly) {
-			// g.fillPolygon(part);
-			// }
-			// }
-			// }
-			// }
+			if (highlightedRegions != null) {
+				Set<String> highlightedSet = new LinkedHashSet<>(
+						highlightedRegions);
+
+				for (Node node : nodes) {
+					if (highlightedSet.contains(node.getId())) {
+						g.setColor(Color.GREEN);
+
+						for (Polygon part : node.getTransformedPolygon()) {
+							g.fillPolygon(part);
+						}
+					}
+				}
+			}
 
 			/*
 			 * ------------------------------------------------------------------

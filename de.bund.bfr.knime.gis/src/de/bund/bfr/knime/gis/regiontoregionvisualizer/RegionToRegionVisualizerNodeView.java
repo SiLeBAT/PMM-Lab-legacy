@@ -114,10 +114,7 @@ public class RegionToRegionVisualizerNodeView extends
 
 			graphCanvas = createGraphCanvas(connectedNodes);
 			graphCanvas.addNodeSelectionListener(this);
-			gisCanvas = createGISCanvas();
-			gisCanvas.setRegionData(createRegionDataMap(idToRegionMap,
-					connectedNodes));
-			gisCanvas.setEdgeData(createEdgeDataMap(idToRegionMap));
+			gisCanvas = createGISCanvas(idToRegionMap, connectedNodes);
 
 			JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 					graphCanvas, gisCanvas);
@@ -317,7 +314,8 @@ public class RegionToRegionVisualizerNodeView extends
 				edges, nodeProperties, edgeProperties);
 	}
 
-	private GISCanvas createGISCanvas() throws IOException {
+	private GISCanvas createGISCanvas(Map<String, String> idToRegionMap,
+			Set<String> connectedNodes) throws IOException {
 		File file = new File(getNodeModel().getFileName());
 
 		if (!file.exists()) {
@@ -327,10 +325,12 @@ public class RegionToRegionVisualizerNodeView extends
 			}
 		}
 
+		/* ------------------------------------------------------------------ */
+
+		Map<String, ShpPolygon> polygonMap = new LinkedHashMap<>();
 		ShapefileReader reader = new ShapefileReader(file);
 		List<DbfFieldDef> fields = reader.getTableHeader()
 				.getFieldDefinitions();
-		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();
 		int idColumnIndex = -1;
 
 		for (int i = 0; i < fields.size(); i++) {
@@ -347,35 +347,31 @@ public class RegionToRegionVisualizerNodeView extends
 				String id = shp.getTableAttributes().getData()
 						.get(idColumnIndex).toString().trim();
 
-				shapes.put(id, (ShpPolygon) shp);
+				polygonMap.put(id, (ShpPolygon) shp);
 			}
 		}
 
-		return new GISCanvas(shapes);
-	}
+		/* ------------------------------------------------------------------ */
 
-	private Map<String, Map<String, Double>> createRegionDataMap(
-			Map<String, String> idToRegionMap, Set<String> connectedNodes) {
-		Map<String, Map<String, Double>> dataMap = new LinkedHashMap<>();
+		Map<String, Map<String, Double>> nodeMap = new LinkedHashMap<>();
+		List<String> nodeProperties = new ArrayList<>();
 		DataTable nodeTable = getNodeModel().getNodeTable();
 		DataTableSpec nodeTableSpec = nodeTable.getDataTableSpec();
-		int idIndex = nodeTable.getDataTableSpec().findColumnIndex(
-				getNodeModel().getNodeIdColumn());
+		int nodeIdIndex = nodeTableSpec.findColumnIndex(getNodeModel()
+				.getNodeIdColumn());
+		RowIterator nodeIt = nodeTable.iterator();
 
 		for (int i = 0; i < nodeTableSpec.getNumColumns(); i++) {
 			if (nodeTableSpec.getColumnSpec(i).getType() == DoubleCell.TYPE
 					|| nodeTableSpec.getColumnSpec(i).getType() == IntCell.TYPE) {
-				dataMap.put(nodeTableSpec.getColumnSpec(i).getName(),
-						new LinkedHashMap<String, Double>());
+				nodeProperties.add(nodeTableSpec.getColumnSpec(i).getName());
 			}
 		}
 
-		RowIterator it = nodeTable.iterator();
+		while (nodeIt.hasNext()) {
+			DataRow row = nodeIt.next();
 
-		while (it.hasNext()) {
-			DataRow row = it.next();
-
-			String id = row.getCell(idIndex).toString().trim();
+			String id = row.getCell(nodeIdIndex).toString().trim();
 
 			if (getNodeModel().isSkipEdgelessNodes()
 					&& !connectedNodes.contains(id)) {
@@ -385,60 +381,126 @@ public class RegionToRegionVisualizerNodeView extends
 			String region = idToRegionMap.get(id);
 
 			if (region != null) {
-				for (String property : dataMap.keySet()) {
+				if (!nodeMap.containsKey(region)) {
+					nodeMap.put(region, new LinkedHashMap<String, Double>());
+
+					for (String property : nodeProperties) {
+						nodeMap.get(region).put(property, 0.0);
+					}
+				}
+
+				for (String property : nodeProperties) {
 					try {
 						int column = nodeTableSpec.findColumnIndex(property);
 						double value = Double.parseDouble(row.getCell(column)
 								.toString().trim());
 
-						if (dataMap.get(property).containsKey(region)) {
-							dataMap.get(property).put(region,
-									dataMap.get(property).get(region) + value);
-						} else {
-							dataMap.get(property).put(region, value);
-						}
+						nodeMap.get(region).put(property,
+								nodeMap.get(region).get(property) + value);
 					} catch (Exception e) {
 					}
 				}
 			}
 		}
 
-		return dataMap;
-	}
+		/* ------------------------------------------------------------------ */
 
-	private Map<GISCanvas.Edge, Double> createEdgeDataMap(
-			Map<String, String> idToRegionMap) {
-		Map<GISCanvas.Edge, Double> dataMap = new LinkedHashMap<GISCanvas.Edge, Double>();
-		int fromIndex = getNodeModel().getEdgeTable().getDataTableSpec()
-				.findColumnIndex(getNodeModel().getEdgeFromColumn());
-		int toIndex = getNodeModel().getEdgeTable().getDataTableSpec()
-				.findColumnIndex(getNodeModel().getEdgeToColumn());
-		RowIterator it = getNodeModel().getEdgeTable().iterator();
+		Map<String, Map<String, Map<String, Double>>> edgeMap = new LinkedHashMap<>();
+		List<String> edgeProperties = new ArrayList<>();
+		DataTable edgeTable = getNodeModel().getEdgeTable();
+		DataTableSpec edgeTableSpec = edgeTable.getDataTableSpec();
+		int fromIndex = edgeTableSpec.findColumnIndex(getNodeModel()
+				.getEdgeFromColumn());
+		int toIndex = edgeTableSpec.findColumnIndex(getNodeModel()
+				.getEdgeToColumn());
+		RowIterator edgeIt = edgeTable.iterator();
 
-		while (it.hasNext()) {
-			DataRow row = it.next();
-
-			try {
-				String from = row.getCell(fromIndex).toString().trim();
-				String to = row.getCell(toIndex).toString().trim();
-				String fromRegion = idToRegionMap.get(from);
-				String toRegion = idToRegionMap.get(to);
-
-				if (fromRegion != null && toRegion != null) {
-					GISCanvas.Edge edge = new GISCanvas.Edge(fromRegion,
-							toRegion);
-
-					if (dataMap.containsKey(edge)) {
-						dataMap.put(edge, null);
-					} else {
-						dataMap.put(edge, null);
-					}
-				}
-			} catch (Exception e) {
+		for (int i = 0; i < edgeTableSpec.getNumColumns(); i++) {
+			if (edgeTableSpec.getColumnSpec(i).getType() == DoubleCell.TYPE
+					|| edgeTableSpec.getColumnSpec(i).getType() == IntCell.TYPE) {
+				edgeProperties.add(edgeTableSpec.getColumnSpec(i).getName());
 			}
 		}
 
-		return dataMap;
+		while (edgeIt.hasNext()) {
+			DataRow row = edgeIt.next();
+
+			String from = row.getCell(fromIndex).toString().trim();
+			String to = row.getCell(toIndex).toString().trim();
+			String fromRegion = idToRegionMap.get(from);
+			String toRegion = idToRegionMap.get(to);
+
+			if (fromRegion != null && toRegion != null) {
+				if (!edgeMap.containsKey(fromRegion)) {
+					edgeMap.put(fromRegion,
+							new LinkedHashMap<String, Map<String, Double>>());
+				}
+
+				if (!edgeMap.get(fromRegion).containsKey(toRegion)) {
+					edgeMap.get(fromRegion).put(toRegion,
+							new LinkedHashMap<String, Double>());
+
+					for (String property : edgeProperties) {
+						edgeMap.get(fromRegion).get(toRegion)
+								.put(property, 0.0);
+					}
+				}
+
+				for (String property : edgeProperties) {
+					try {
+						int column = edgeTableSpec.findColumnIndex(property);
+						double value = Double.parseDouble(row.getCell(column)
+								.toString().trim());
+
+						edgeMap.get(fromRegion)
+								.get(toRegion)
+								.put(property,
+										edgeMap.get(fromRegion).get(toRegion)
+												.get(property)
+												+ value);
+					} catch (Exception e) {
+					}
+				}
+			}
+		}
+
+		/* ------------------------------------------------------------------ */
+
+		Map<String, GISCanvas.Node> nodes = new LinkedHashMap<>();
+
+		for (String id : polygonMap.keySet()) {
+			Map<String, Double> properties = nodeMap.get(id);
+
+			if (properties == null) {
+				properties = new LinkedHashMap<>();
+
+				for (String property : nodeProperties) {
+					properties.put(property, 0.0);
+				}
+			}
+
+			nodes.put(id,
+					new GISCanvas.Node(id, properties, polygonMap.get(id)));
+		}
+
+		/* ------------------------------------------------------------------ */
+
+		List<GISCanvas.Edge> edges = new ArrayList<>();
+
+		for (String from : edgeMap.keySet()) {
+			for (String to : edgeMap.get(from).keySet()) {
+				GISCanvas.Node n1 = nodes.get(from);
+				GISCanvas.Node n2 = nodes.get(to);
+
+				if (n1 != null && n2 != null) {
+					edges.add(new GISCanvas.Edge(n1, n2, edgeMap.get(from).get(
+							to)));
+				}
+			}
+		}
+
+		return new GISCanvas(new ArrayList<GISCanvas.Node>(nodes.values()),
+				edges, nodeProperties, edgeProperties);
 	}
 
 }

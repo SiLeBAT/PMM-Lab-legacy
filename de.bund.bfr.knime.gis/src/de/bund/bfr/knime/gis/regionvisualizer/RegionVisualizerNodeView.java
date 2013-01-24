@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,14 +98,10 @@ public class RegionVisualizerNodeView extends
 	@Override
 	protected void onOpen() {
 		try {
-			GISCanvas gisCanvas = createGISCanvas();
-
-			gisCanvas.setRegionData(createRegionDataMap());
-
 			JPanel panel = new JPanel();
 
 			panel.setLayout(new BorderLayout());
-			panel.add(gisCanvas, BorderLayout.CENTER);
+			panel.add(createGISCanvas(), BorderLayout.CENTER);
 
 			setComponent(panel);
 		} catch (IOException e) {
@@ -122,10 +119,12 @@ public class RegionVisualizerNodeView extends
 			}
 		}
 
+		/* ------------------------------------------------------------------ */
+
+		Map<String, ShpPolygon> polygonMap = new LinkedHashMap<String, ShpPolygon>();
 		ShapefileReader reader = new ShapefileReader(file);
 		List<DbfFieldDef> fields = reader.getTableHeader()
 				.getFieldDefinitions();
-		Map<String, ShpPolygon> shapes = new LinkedHashMap<String, ShpPolygon>();
 		int idColumnIndex = -1;
 
 		for (int i = 0; i < fields.size(); i++) {
@@ -142,29 +141,26 @@ public class RegionVisualizerNodeView extends
 				String id = shp.getTableAttributes().getData()
 						.get(idColumnIndex).toString().trim();
 
-				shapes.put(id, (ShpPolygon) shp);
+				polygonMap.put(id, (ShpPolygon) shp);
 			}
 		}
 
-		return new GISCanvas(shapes);
-	}
+		/* ------------------------------------------------------------------ */
 
-	private Map<String, Map<String, Double>> createRegionDataMap() {
 		Map<String, Map<String, Double>> dataMap = new LinkedHashMap<>();
+		List<String> nodeProperties = new ArrayList<>();
 		DataTable nodeTable = getNodeModel().getTable();
 		DataTableSpec nodeTableSpec = nodeTable.getDataTableSpec();
 		int idIndex = nodeTable.getDataTableSpec().findColumnIndex(
 				getNodeModel().getTableIdColumn());
+		RowIterator it = nodeTable.iterator();
 
 		for (int i = 0; i < nodeTableSpec.getNumColumns(); i++) {
 			if (nodeTableSpec.getColumnSpec(i).getType() == DoubleCell.TYPE
 					|| nodeTableSpec.getColumnSpec(i).getType() == IntCell.TYPE) {
-				dataMap.put(nodeTableSpec.getColumnSpec(i).getName(),
-						new LinkedHashMap<String, Double>());
+				nodeProperties.add(nodeTableSpec.getColumnSpec(i).getName());
 			}
 		}
-
-		RowIterator it = nodeTable.iterator();
 
 		while (it.hasNext()) {
 			DataRow row = it.next();
@@ -172,25 +168,48 @@ public class RegionVisualizerNodeView extends
 			if (!row.getCell(idIndex).isMissing()) {
 				String id = row.getCell(idIndex).toString().trim();
 
-				for (String property : dataMap.keySet()) {
+				if (!dataMap.containsKey(id)) {
+					dataMap.put(id, new LinkedHashMap<String, Double>());
+
+					for (String property : nodeProperties) {
+						dataMap.get(id).put(property, 0.0);
+					}
+				}
+
+				for (String property : nodeProperties) {
 					try {
 						int column = nodeTableSpec.findColumnIndex(property);
 						double value = Double.parseDouble(row.getCell(column)
 								.toString().trim());
 
-						if (dataMap.get(property).containsKey(id)) {
-							dataMap.get(property).put(id,
-									dataMap.get(property).get(id) + value);
-						} else {
-							dataMap.get(property).put(id, value);
-						}
+						dataMap.get(id).put(property,
+								dataMap.get(id).get(property) + value);
 					} catch (Exception e) {
 					}
 				}
 			}
 		}
 
-		return dataMap;
+		/* ------------------------------------------------------------------ */
+
+		List<GISCanvas.Node> nodes = new ArrayList<>();
+
+		for (String id : polygonMap.keySet()) {
+			Map<String, Double> properties = dataMap.get(id);
+
+			if (properties == null) {
+				properties = new LinkedHashMap<>();
+
+				for (String property : nodeProperties) {
+					properties.put(property, 0.0);
+				}
+			}
+
+			nodes.add(new GISCanvas.Node(id, properties, polygonMap.get(id)));
+		}
+
+		return new GISCanvas(nodes, new ArrayList<GISCanvas.Edge>(),
+				nodeProperties, new ArrayList<String>());
 	}
 
 }

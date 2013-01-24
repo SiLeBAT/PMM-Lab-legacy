@@ -60,16 +60,15 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JSlider;
 
 import org.eclipse.stem.gis.shp.ShpPolygon;
@@ -80,118 +79,217 @@ public class GISCanvas extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private static final int DEFAULT_BORDER_ALPHA = 255;
+	private static final int DEFAULT_EDGE_ALPHA = 255;
 
 	private GISComponent gisComponent;
-	private JComboBox<String> propertyBox;
-	private JSlider borderAlphaSlider;
 	private JButton layoutButton;
+	private JSlider borderAlphaSlider;
+	private JButton borderAlphaButton;
+	private JSlider edgeAlphaSlider;
+	private JButton edgeAlphaButton;
 
-	public GISCanvas(Map<String, ShpPolygon> shapes) {
-		gisComponent = new GISComponent(shapes, DEFAULT_BORDER_ALPHA);
-		propertyBox = new JComboBox<>();
-		borderAlphaSlider = new JSlider(0, 255, DEFAULT_BORDER_ALPHA);
-		layoutButton = new JButton("Apply");
+	public GISCanvas(List<Node> nodes, List<Edge> edges,
+			List<String> nodeProperties, List<String> edgeProperties) {
+		gisComponent = new GISComponent(nodes, edges, nodeProperties,
+				edgeProperties, DEFAULT_BORDER_ALPHA, DEFAULT_EDGE_ALPHA);
+		layoutButton = new JButton("Reset");
 		layoutButton.addActionListener(this);
+		borderAlphaSlider = new JSlider(0, 255, DEFAULT_BORDER_ALPHA);
+		borderAlphaButton = new JButton("Apply");
+		borderAlphaButton.addActionListener(this);
+		edgeAlphaSlider = new JSlider(0, 255, DEFAULT_EDGE_ALPHA);
+		edgeAlphaButton = new JButton("Apply");
+		edgeAlphaButton.addActionListener(this);
 
 		JPanel layoutPanel = new JPanel();
 
 		layoutPanel.setBorder(BorderFactory.createTitledBorder("Layout"));
 		layoutPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		layoutPanel.add(new JLabel("Property:"));
-		layoutPanel.add(propertyBox);
-		layoutPanel.add(new JLabel("Border Alpha:"));
-		layoutPanel.add(borderAlphaSlider);
 		layoutPanel.add(layoutButton);
+
+		JPanel borderAlphaPanel = new JPanel();
+
+		borderAlphaPanel.setBorder(BorderFactory
+				.createTitledBorder("Border Alpha"));
+		borderAlphaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		borderAlphaPanel.add(borderAlphaSlider);
+		borderAlphaPanel.add(borderAlphaButton);
+
+		JPanel edgeAlphaPanel = new JPanel();
+
+		edgeAlphaPanel
+				.setBorder(BorderFactory.createTitledBorder("Edge Alpha"));
+		edgeAlphaPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		edgeAlphaPanel.add(edgeAlphaSlider);
+		edgeAlphaPanel.add(edgeAlphaButton);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		optionsPanel.add(layoutPanel);
+		optionsPanel.add(borderAlphaPanel);
+		optionsPanel.add(edgeAlphaPanel);
 
 		setLayout(new BorderLayout());
 		add(gisComponent, BorderLayout.CENTER);
 		add(optionsPanel, BorderLayout.SOUTH);
 	}
 
-	public void setRegionData(Map<String, Map<String, Double>> regionData) {
-		for (String property : regionData.keySet()) {
-			propertyBox.addItem(property);
-		}
-
-		propertyBox.setSelectedIndex(0);
-		gisComponent.setRegionData(regionData);
-		gisComponent.setProperty((String) propertyBox.getSelectedItem());
-	}
-
-	public void setEdgeData(Map<Edge, Double> edgeData) {
-		gisComponent.setEdgeData(edgeData);
-	}
-
 	public void setHighlightedRegions(List<String> highlightedRegions) {
-		gisComponent.setHighlightedRegions(highlightedRegions);
+		// TODO
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == layoutButton) {
-			gisComponent.setProperty((String) propertyBox.getSelectedItem());
-			gisComponent.setBorderAlpha((borderAlphaSlider.getValue()));
+			gisComponent.reset();
+			gisComponent.repaint();
+		} else if (e.getSource() == borderAlphaButton) {
+			gisComponent.setBorderAlpha(borderAlphaSlider.getValue());
+			gisComponent.repaint();
+		} else if (e.getSource() == edgeAlphaButton) {
+			gisComponent.setEdgeAlpha(edgeAlphaSlider.getValue());
 			gisComponent.repaint();
 		}
 	}
 
-	public static class Edge {
+	public static interface GISElement {
 
-		private String from;
-		private String to;
+		public Map<String, Double> getProperties();
+	}
 
-		public Edge(String from, String to) {
-			this.from = from;
-			this.to = to;
+	public static class Node implements GISElement {
+
+		private String id;
+		private Map<String, Double> properties;
+
+		private ShpPolygon polygon;
+		private Point2D.Double center;
+		private Rectangle2D.Double boundingBox;
+
+		private List<Polygon> transformedPolygon;
+		private Point transformedCenter;
+
+		public Node(String id, Map<String, Double> properties,
+				ShpPolygon polygon) {
+			this.id = id;
+			this.properties = properties;
+			this.polygon = polygon;
+			center = GISUtilities.getCenter(polygon);
+			boundingBox = GISUtilities.getBoundingBox(polygon);
 		}
 
-		public String getFrom() {
-			return from;
+		public String getId() {
+			return id;
 		}
 
-		public String getTo() {
-			return to;
+		@Override
+		public Map<String, Double> getProperties() {
+			return properties;
+		}
+
+		public ShpPolygon getPolygon() {
+			return polygon;
+		}
+
+		public Point2D.Double getCenter() {
+			return center;
+		}
+
+		public Rectangle2D.Double getBoundingBox() {
+			return boundingBox;
+		}
+
+		public List<Polygon> getTransformedPolygon() {
+			return transformedPolygon;
+		}
+
+		public Point getTransformedCenter() {
+			return transformedCenter;
+		}
+
+		public void setTransform(double translationX, double translationY,
+				double scaleX, double scaleY) {
+			transformedPolygon = new ArrayList<Polygon>();
+			transformedCenter = new Point();
+
+			for (Part part : polygon.getParts()) {
+				int[] xs = new int[part.getPointCount()];
+				int[] ys = new int[part.getPointCount()];
+
+				for (int i = 0; i < part.getPointCount(); i++) {
+					xs[i] = (int) (part.getXs()[i] * scaleX + translationX);
+					ys[i] = (int) (part.getYs()[i] * scaleY + translationY);
+				}
+
+				transformedPolygon
+						.add(new Polygon(xs, ys, part.getPointCount()));
+			}
+
+			transformedCenter.x = (int) (center.x * scaleX + translationX);
+			transformedCenter.y = (int) (center.y * scaleY + translationY);
+		}
+
+		public boolean containsPoint(Point2D.Double point) {
+			return boundingBox.contains(point)
+					&& GISUtilities.containsPoint(polygon, point);
 		}
 
 		@Override
 		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((from == null) ? 0 : from.hashCode());
-			result = prime * result + ((to == null) ? 0 : to.hashCode());
-			return result;
+			return id.hashCode();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Edge other = (Edge) obj;
-			if (from == null) {
-				if (other.from != null)
-					return false;
-			} else if (!from.equals(other.from))
-				return false;
-			if (to == null) {
-				if (other.to != null)
-					return false;
-			} else if (!to.equals(other.to))
-				return false;
-			return true;
+			if (obj instanceof Node) {
+				return id.equals(((Node) obj).id);
+			}
+
+			return false;
+		}
+	}
+
+	public static class Edge implements GISElement {
+
+		private Node from;
+		private Node to;
+		private Map<String, Double> properties;
+
+		public Edge(Node from, Node to, Map<String, Double> properties) {
+			this.from = from;
+			this.to = to;
+			this.properties = properties;
+		}
+
+		public Node getFrom() {
+			return from;
+		}
+
+		public Node getTo() {
+			return to;
 		}
 
 		@Override
-		public String toString() {
-			return "Edge [from=" + from + ", to=" + to + "]";
+		public Map<String, Double> getProperties() {
+			return properties;
+		}
+
+		@Override
+		public int hashCode() {
+			String s = from + "->" + to;
+
+			return s.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Edge) {
+				return from.equals(((Edge) obj).from)
+						&& to.equals(((Edge) obj).to);
+			}
+
+			return false;
 		}
 	}
 
@@ -202,53 +300,43 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private static final long serialVersionUID = 1L;
 		private static final double ZOOMING_FACTOR = 1.1;
 
-		private Map<String, ShpPolygon> shapes;
-		private Map<String, Point2D.Double> shapeCenters;
-		private Map<String, Rectangle2D.Double> shapeBoundingBoxes;
-		private Map<String, Map<String, Double>> regionData;
-		private Map<Edge, Double> edgeData;
-		private List<String> highlightedRegions;
-		private String property;
+		private List<Node> nodes;
+		private List<Edge> edges;
+		private List<String> nodeProperties;
+		private List<String> edgeProperties;
 		private int borderAlpha;
+		private int edgeAlpha;
 
 		private boolean transformComputed;
+		private boolean transformedShapesComputed;
 		private double scaleX;
 		private double scaleY;
 		private double translationX;
 		private double translationY;
 
-		private boolean transformedShapesComputed;
-		private Map<String, List<Polygon>> transformedShapes;
-		private Map<String, Point> transformedShapeCenters;
-
 		private boolean leftButtonPressed;
 		private int lastX;
 		private int lastY;
-		private String lastContainingPolygon;
-
-		private double gainFactor;
-		private boolean logScale;
+		private Node lastContainingPolygon;
 
 		private JPopupMenu popup;
-		private JCheckBoxMenuItem logScaleItem;
-		private JRadioButtonMenuItem gain01Item;
-		private JRadioButtonMenuItem gain1Item;
-		private JRadioButtonMenuItem gain10Item;
+		private JMenuItem highlightNodesItem;
+		private JMenuItem clearHighlightNodesItem;
+		private JMenuItem highlightEdgesItem;
+		private JMenuItem clearHighlightEdgesItem;
 
-		public GISComponent(Map<String, ShpPolygon> shapes, int borderAlpha) {
-			this.shapes = shapes;
+		private ValueHighlightCondition nodesHighlightCondition;
+		private ValueHighlightCondition edgesHighlightCondition;
+
+		public GISComponent(List<Node> nodes, List<Edge> edges,
+				List<String> nodeProperties, List<String> edgeProperties,
+				int borderAlpha, int edgeAlpha) {
+			this.nodes = nodes;
+			this.edges = edges;
+			this.nodeProperties = nodeProperties;
+			this.edgeProperties = edgeProperties;
 			this.borderAlpha = borderAlpha;
-			shapeCenters = new LinkedHashMap<String, Point2D.Double>();
-			shapeBoundingBoxes = new LinkedHashMap<String, Rectangle2D.Double>();
-
-			for (String id : shapes.keySet()) {
-				shapeCenters.put(id, GISUtilities.getCenter(shapes.get(id)));
-			}
-
-			for (String id : shapes.keySet()) {
-				shapeBoundingBoxes.put(id,
-						GISUtilities.getBoundingBox(shapes.get(id)));
-			}
+			this.edgeAlpha = edgeAlpha;
 
 			transformComputed = false;
 			transformedShapesComputed = false;
@@ -259,31 +347,18 @@ public class GISCanvas extends JPanel implements ActionListener {
 			addMouseMotionListener(this);
 			addMouseWheelListener(this);
 			createPopupMenu();
-
-			gainFactor = 1.0;
-			gain1Item.setSelected(true);
-			logScale = false;
-			logScaleItem.setSelected(false);
-		}
-
-		public void setRegionData(Map<String, Map<String, Double>> regionData) {
-			this.regionData = regionData;
-		}
-
-		public void setEdgeData(Map<Edge, Double> edgeData) {
-			this.edgeData = edgeData;
-		}
-
-		public void setHighlightedRegions(List<String> highlightedRegions) {
-			this.highlightedRegions = highlightedRegions;
-		}
-
-		public void setProperty(String property) {
-			this.property = property;
 		}
 
 		public void setBorderAlpha(int borderAlpha) {
 			this.borderAlpha = borderAlpha;
+		}
+
+		public void setEdgeAlpha(int edgeAlpha) {
+			this.edgeAlpha = edgeAlpha;
+		}
+
+		public void reset() {
+			transformComputed = false;
 		}
 
 		@Override
@@ -303,51 +378,49 @@ public class GISCanvas extends JPanel implements ActionListener {
 			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, getWidth(), getHeight());
 
-			if (property != null) {
-				Map<String, Double> data = regionData.get(property);
-				double max = Collections.max(data.values());
+			/*
+			 * ------------------------------------------------------------------
+			 */
 
-				for (String id : data.keySet()) {
-					List<Polygon> poly = transformedShapes.get(id);
-					Double value = data.get(id);
+			if (nodesHighlightCondition != null) {
+				Map<GISElement, Double> highlightedNodes = nodesHighlightCondition
+						.getValues(new ArrayList<GISElement>(nodes));
 
-					if (poly != null) {
-						value /= max;
-						value *= gainFactor;
-						value = Math.max(0.0, value);
-						value = Math.min(1.0, value);
+				for (GISElement element : highlightedNodes.keySet()) {
+					Node node = (Node) element;
+					float alpha = highlightedNodes.get(element).floatValue();
 
-						if (logScale) {
-							value = Math.log10(value * 9.0 + 1.0);
-						}
+					if (alpha != 0.0f) {
+						g.setColor(new Color(1.0f, 1.0f - alpha, 1.0f - alpha));
 
-						float alpha = value.floatValue();
-
-						if (alpha != 0.0) {
-							g.setColor(new Color(1.0f, 1.0f - alpha,
-									1.0f - alpha));
-
-							for (Polygon part : poly) {
-								g.fillPolygon(part);
-							}
-						}
-					}
-				}
-			}
-
-			if (highlightedRegions != null) {
-				for (String id : highlightedRegions) {
-					List<Polygon> poly = transformedShapes.get(id);
-
-					if (poly != null) {
-						g.setColor(Color.GREEN);
-
-						for (Polygon part : poly) {
+						for (Polygon part : node.getTransformedPolygon()) {
 							g.fillPolygon(part);
 						}
 					}
 				}
 			}
+
+			/*
+			 * ------------------------------------------------------------------
+			 */
+
+			// if (highlightedRegions != null) {
+			// for (String id : highlightedRegions) {
+			// List<Polygon> poly = transformedShapes.get(id);
+			//
+			// if (poly != null) {
+			// g.setColor(Color.GREEN);
+			//
+			// for (Polygon part : poly) {
+			// g.fillPolygon(part);
+			// }
+			// }
+			// }
+			// }
+
+			/*
+			 * ------------------------------------------------------------------
+			 */
 
 			BufferedImage borderImage = new BufferedImage(getWidth(),
 					getHeight(), BufferedImage.TYPE_INT_ARGB);
@@ -355,30 +428,53 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 			borderGraphics.setColor(Color.BLACK);
 
-			for (List<Polygon> poly : transformedShapes.values()) {
-				for (Polygon part : poly) {
+			for (Node node : nodes) {
+				for (Polygon part : node.getTransformedPolygon()) {
 					borderGraphics.drawPolygon(part);
 				}
 			}
 
-			float[] scales = { 1f, 1f, 1f, (float) borderAlpha / 255.0f };
-			float[] offsets = new float[4];
+			float[] borderScales = { 1f, 1f, 1f, (float) borderAlpha / 255.0f };
+			float[] borderOffsets = new float[4];
 
-			((Graphics2D) g).drawImage(borderImage, new RescaleOp(scales,
-					offsets, null), 0, 0);
+			((Graphics2D) g).drawImage(borderImage, new RescaleOp(borderScales,
+					borderOffsets, null), 0, 0);
 
-			if (edgeData != null) {
-				g.setColor(Color.BLACK);
+			/*
+			 * ------------------------------------------------------------------
+			 */
 
-				for (Edge edge : edgeData.keySet()) {
-					Point center1 = transformedShapeCenters.get(edge.getFrom());
-					Point center2 = transformedShapeCenters.get(edge.getTo());
+			BufferedImage edgeImage = new BufferedImage(getWidth(),
+					getHeight(), BufferedImage.TYPE_INT_ARGB);
+			Graphics edgeGraphics = edgeImage.getGraphics();
+			Map<GISElement, Double> highlightedEdges = new LinkedHashMap<>();
 
-					if (center1 != null && center2 != null) {
-						g.drawLine(center1.x, center1.y, center2.x, center2.y);
-					}
-				}
+			if (edgesHighlightCondition != null) {
+				highlightedEdges = edgesHighlightCondition
+						.getValues(new ArrayList<GISElement>(edges));
 			}
+
+			for (Edge edge : edges) {
+				if (highlightedEdges.containsKey(edge)) {
+					float alpha = highlightedEdges.get(edge).floatValue();
+
+					edgeGraphics.setColor(new Color(alpha, 0.0f, 0.0f));
+				} else {
+					edgeGraphics.setColor(Color.BLACK);
+				}
+
+				Point center1 = edge.getFrom().getTransformedCenter();
+				Point center2 = edge.getTo().getTransformedCenter();
+
+				edgeGraphics.drawLine(center1.x, center1.y, center2.x,
+						center2.y);
+			}
+
+			float[] edgeScales = { 1f, 1f, 1f, (float) edgeAlpha / 255.0f };
+			float[] edgeOffsets = new float[4];
+
+			((Graphics2D) g).drawImage(edgeImage, new RescaleOp(edgeScales,
+					edgeOffsets, null), 0, 0);
 		}
 
 		@Override
@@ -403,44 +499,20 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 
 		private void computeTransformedShapes() {
-			transformedShapes = new LinkedHashMap<String, List<Polygon>>();
-			transformedShapeCenters = new LinkedHashMap<String, Point>();
-
-			for (String id : shapes.keySet()) {
-				ShpPolygon poly = shapes.get(id);
-				Point2D.Double center = shapeCenters.get(id);
-				List<Polygon> transPoly = new ArrayList<Polygon>();
-				Point transCenter = new Point();
-
-				for (Part part : poly.getParts()) {
-					int[] xs = new int[part.getPointCount()];
-					int[] ys = new int[part.getPointCount()];
-
-					for (int i = 0; i < part.getPointCount(); i++) {
-						xs[i] = (int) (part.getXs()[i] * scaleX + translationX);
-						ys[i] = (int) (part.getYs()[i] * scaleY + translationY);
-					}
-
-					transPoly.add(new Polygon(xs, ys, part.getPointCount()));
-				}
-
-				transCenter.x = (int) (center.x * scaleX + translationX);
-				transCenter.y = (int) (center.y * scaleY + translationY);
-
-				transformedShapes.put(id, transPoly);
-				transformedShapeCenters.put(id, transCenter);
+			for (Node node : nodes) {
+				node.setTransform(translationX, translationY, scaleX, scaleY);
 			}
 		}
 
 		private Rectangle2D.Double getPolygonsBounds() {
 			Rectangle2D.Double bounds = null;
 
-			for (String id : shapeBoundingBoxes.keySet()) {
+			for (Node node : nodes) {
 				if (bounds == null) {
-					bounds = shapeBoundingBoxes.get(id);
+					bounds = node.getBoundingBox();
 				} else {
-					bounds = (Rectangle2D.Double) bounds
-							.createUnion(shapeBoundingBoxes.get(id));
+					bounds = (Rectangle2D.Double) bounds.createUnion(node
+							.getBoundingBox());
 				}
 			}
 
@@ -476,39 +548,28 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 
 		private void createPopupMenu() {
-			logScaleItem = new JCheckBoxMenuItem("Logarithmic Scaling");
-			logScaleItem.addActionListener(this);
-			gain01Item = new JRadioButtonMenuItem("0.1");
-			gain01Item.addActionListener(this);
-			gain1Item = new JRadioButtonMenuItem("1.0");
-			gain1Item.addActionListener(this);
-			gain10Item = new JRadioButtonMenuItem("10.0");
-			gain10Item.addActionListener(this);
-
-			ButtonGroup gainGroup = new ButtonGroup();
-
-			gainGroup.add(gain01Item);
-			gainGroup.add(gain1Item);
-			gainGroup.add(gain10Item);
-
-			JMenu gainMenu = new JMenu("Gain Factor");
-
-			gainMenu.add(gain01Item);
-			gainMenu.add(gain1Item);
-			gainMenu.add(gain10Item);
+			highlightNodesItem = new JMenuItem("Highlight Nodes");
+			highlightNodesItem.addActionListener(this);
+			clearHighlightNodesItem = new JMenuItem("Clear Node Highlights");
+			clearHighlightNodesItem.addActionListener(this);
+			highlightEdgesItem = new JMenuItem("Highlight Edges");
+			highlightEdgesItem.addActionListener(this);
+			clearHighlightEdgesItem = new JMenuItem("Clear Edge Highlights");
+			clearHighlightEdgesItem.addActionListener(this);
 
 			popup = new JPopupMenu();
-			popup.add(logScaleItem);
-			popup.add(gainMenu);
+			popup.add(highlightNodesItem);
+			popup.add(clearHighlightNodesItem);
+			popup.add(highlightEdgesItem);
+			popup.add(clearHighlightEdgesItem);
 		}
 
-		private String getIdOfContainingPolygon(int x, int y) {
+		private Node getIdOfContainingPolygon(int x, int y) {
 			Point2D.Double p = getInversedPoint(x, y);
 
-			for (String id : shapes.keySet()) {
-				if (shapeBoundingBoxes.get(id).contains(p)
-						&& GISUtilities.containsPoint(shapes.get(id), p)) {
-					return id;
+			for (Node node : nodes) {
+				if (node.containsPoint(p)) {
+					return node;
 				}
 			}
 
@@ -574,47 +635,207 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			String id = getIdOfContainingPolygon(e.getX(), e.getY());
+			Node node = getIdOfContainingPolygon(e.getX(), e.getY());
 
-			if (id == null) {
+			if (node == null) {
 				setToolTipText(null);
-			} else if (!id.equals(lastContainingPolygon)) {
-				Double value = null;
+			} else if (!node.equals(lastContainingPolygon)) {
+				String tooltip = "<html><table border=\"0\">";
 
-				if (property != null) {
-					value = regionData.get(property).get(id);
+				tooltip += "<tr><td>ID</td><td>" + node.getId() + "</td></tr>";
+
+				for (Map.Entry<String, Double> entry : node.getProperties()
+						.entrySet()) {
+					tooltip += "<tr><td>" + entry.getKey() + "</td><td>"
+							+ entry.getValue() + "</td></tr>";
 				}
 
-				String row1 = "<tr><td>ID</td><td>" + id + "</td></tr>";
-				String row2 = "<tr><td>Value</td><td>" + value + "</td></tr>";
+				tooltip += "</table></html>";
 
-				setToolTipText("<html><table border=\"0\">" + row1 + row2
-						+ "</table></html>");
+				setToolTipText(tooltip);
 			}
 
-			lastContainingPolygon = id;
+			lastContainingPolygon = node;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == logScaleItem) {
-				if (logScaleItem.isSelected()) {
-					logScale = true;
-				} else {
-					logScale = false;
-				}
+			if (e.getSource() == highlightNodesItem) {
+				HighlightDialog dialog = new HighlightDialog(this,
+						nodeProperties, nodesHighlightCondition);
 
+				dialog.setLocationRelativeTo(this);
+				dialog.setVisible(true);
+
+				if (dialog.isSuccessful()) {
+					nodesHighlightCondition = dialog.getHighlightCondition();
+					repaint();
+				}
+			} else if (e.getSource() == clearHighlightNodesItem) {
+				nodesHighlightCondition = null;
 				repaint();
-			} else if (e.getSource() == gain01Item) {
-				gainFactor = 0.1;
-				repaint();
-			} else if (e.getSource() == gain1Item) {
-				gainFactor = 1.0;
-				repaint();
-			} else if (e.getSource() == gain10Item) {
-				gainFactor = 10.0;
+			} else if (e.getSource() == highlightEdgesItem) {
+				HighlightDialog dialog = new HighlightDialog(this,
+						edgeProperties, edgesHighlightCondition);
+
+				dialog.setLocationRelativeTo(this);
+				dialog.setVisible(true);
+
+				if (dialog.isSuccessful()) {
+					edgesHighlightCondition = dialog.getHighlightCondition();
+					repaint();
+				}
+			} else if (e.getSource() == clearHighlightEdgesItem) {
+				edgesHighlightCondition = null;
 				repaint();
 			}
+		}
+	}
+
+	public static class ValueHighlightCondition {
+
+		public static final String VALUE_TYPE = "Value";
+		public static final String LOG_VALUE_TYPE = "Log Value";
+		public static final String[] TYPES = { VALUE_TYPE, LOG_VALUE_TYPE };
+
+		private String property;
+		private String type;
+
+		public ValueHighlightCondition(String property, String type) {
+			this.property = property;
+			this.type = type;
+		}
+
+		public Map<GISElement, Double> getValues(List<GISElement> elements) {
+			Map<GISElement, Double> values = new LinkedHashMap<>();
+
+			for (GISElement element : elements) {
+				Double value = element.getProperties().get(property);
+
+				if (value != null && !value.isNaN() && !value.isInfinite()
+						&& value >= 0.0) {
+					values.put(element, value);
+				} else {
+					values.put(element, 0.0);
+				}
+			}
+
+			double max = Collections.max(values.values());
+
+			if (max != 0.0) {
+				for (GISElement element : elements) {
+					values.put(element, values.get(element) / max);
+				}
+			}
+
+			if (type.equals(LOG_VALUE_TYPE)) {
+				for (GISElement element : elements) {
+					values.put(element,
+							Math.log10(values.get(element) * 9.0 + 1.0));
+				}
+			}
+
+			return values;
+		}
+
+		public String getProperty() {
+			return property;
+		}
+
+		public String getType() {
+			return type;
+		}
+	}
+
+	private static class HighlightDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		private JComboBox<String> valuePropertyBox;
+		private JComboBox<String> valueTypeBox;
+
+		private List<String> properties;
+
+		private ValueHighlightCondition highlightCondition;
+		private boolean successful;
+
+		public HighlightDialog(JComponent parent, List<String> properties,
+				ValueHighlightCondition initialHighlightCondition) {
+			super(JOptionPane.getFrameForComponent(parent),
+					"Highlight Condition", true);
+			this.properties = properties;
+			highlightCondition = null;
+			successful = false;
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel bottomPanel = new JPanel();
+
+			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			bottomPanel.add(okButton);
+			bottomPanel.add(cancelButton);
+
+			setLayout(new BorderLayout());
+			add(createValuePanel(initialHighlightCondition),
+					BorderLayout.CENTER);
+			add(bottomPanel, BorderLayout.SOUTH);
+			pack();
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				highlightCondition = createCondition();
+				successful = true;
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				dispose();
+			}
+		}
+
+		public ValueHighlightCondition getHighlightCondition() {
+			return highlightCondition;
+		}
+
+		public boolean isSuccessful() {
+			return successful;
+		}
+
+		private JPanel createValuePanel(
+				ValueHighlightCondition highlightCondition) {
+			valuePropertyBox = new JComboBox<>(
+					properties.toArray(new String[0]));
+			valueTypeBox = new JComboBox<>(ValueHighlightCondition.TYPES);
+
+			if (highlightCondition != null) {
+				ValueHighlightCondition condition = (ValueHighlightCondition) highlightCondition;
+
+				valuePropertyBox.setSelectedItem(condition.getProperty());
+				valueTypeBox.setSelectedItem(condition.getType());
+			}
+
+			JPanel valuePanel = new JPanel();
+
+			valuePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			valuePanel.add(new JLabel("Property:"));
+			valuePanel.add(valuePropertyBox);
+			valuePanel.add(new JLabel("Type:"));
+			valuePanel.add(valueTypeBox);
+
+			return valuePanel;
+		}
+
+		private ValueHighlightCondition createCondition() {
+			return new ValueHighlightCondition(
+					(String) valuePropertyBox.getSelectedItem(),
+					(String) valueTypeBox.getSelectedItem());
 		}
 	}
 

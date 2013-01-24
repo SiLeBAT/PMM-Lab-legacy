@@ -163,12 +163,9 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 				cmDoc.add(cmx);
 				tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
-	    		//tuple.setValue( Model1Schema.ATT_FORMULA, formula );
 	    		PmmXmlDoc depDoc = new PmmXmlDoc();
 	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
 	    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-	    		//tuple.setValue( Model1Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
-	    		//tuple.setValue( Model1Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
 	    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
 	    				null, null));	    		
 	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),

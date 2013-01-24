@@ -129,6 +129,11 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	int i;
         PmmTimeSeries tuple;
         String dbuuid;
+        boolean filterEnabled = false;
+        
+        if (!matrixString.isEmpty() || !agentString.isEmpty() || !literatureString.isEmpty() ||
+        		matrixID > 0 || agentID > 0 || literatureID > 0 ||
+        		parameter.size() > 0) filterEnabled = true;
 
     	// fetch time series
         db = null;
@@ -155,20 +160,23 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
     		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
     		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
-			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,result.getDouble(Bfrdb.ATT_TEMPERATURE),"°C");
-			miscDoc.add(mx);
-			mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,result.getDouble(Bfrdb.ATT_PH),null);
-			miscDoc.add(mx);
-			mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,result.getDouble(Bfrdb.ATT_AW),null);
-			miscDoc.add(mx);
+    		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
+        		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
+    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
+    			miscDoc.add(mx);
+    		}
+    		if (result.getObject(Bfrdb.ATT_PH) != null) {
+    			double dbl = result.getDouble(Bfrdb.ATT_PH);
+    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null);
+    			miscDoc.add(mx);
+    		}
+    		if (result.getObject(Bfrdb.ATT_AW) != null) {
+    			double dbl = result.getDouble(Bfrdb.ATT_AW);
+    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null);
+    			miscDoc.add(mx);
+    		}
     		tuple.addMiscs(miscDoc);
-    		/*
-    		tuple.setTemperature( result.getString( Bfrdb.ATT_TEMPERATURE ) );
-    		try {tuple.setPh(result.getDouble(Bfrdb.ATT_PH));}
-    		catch (PmmException e) {e.printStackTrace();}
-    		try {tuple.setWaterActivity(result.getDouble(Bfrdb.ATT_AW));}
-    		catch (PmmException e) {e.printStackTrace();}
-    		*/
+
     		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
     		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
     		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
@@ -198,7 +206,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			}
     		
     		// add row to data buffer
-    		if( MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple ) ) {
+    		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
     			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     		}
     		

@@ -585,10 +585,9 @@ public class DBKernel {
 					}
 					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
 					MyLogger.handleMessage("vor SHUTDOWN");
-    	      	        //stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
-					stmt.execute("SHUTDOWN");
+    	      	    stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
 				}
-				catch (SQLException e) {result = false;}
+				catch (SQLException e) {result = false;e.printStackTrace();}
 			}
 			MyLogger.handleMessage("vor close");
 			localConn.close();

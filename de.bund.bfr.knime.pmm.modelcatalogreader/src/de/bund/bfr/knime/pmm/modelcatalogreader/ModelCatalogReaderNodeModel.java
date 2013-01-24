@@ -148,47 +148,54 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	
 	    	int i = 0;
 	    	while( result.next() ) {
-	    		
-	    		// initialize row
-	    		tuple = new KnimeTuple( schema );
-	    		
-	    		// fill row
-	    		formula = result.getString( Bfrdb.ATT_FORMULA );
-	    		if( formula != null ) {
-					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
-				}
-	    		
-				PmmXmlDoc cmDoc = new PmmXmlDoc();
-				CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
-				cmDoc.add(cmx);
-				tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
+	    		boolean takeIt = modelFilterEnabled || modelClass.equals("All");
+	    		if (!takeIt) {
+		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
+		    		String mcls = DBKernel.hashModelType.get(cls);
+		    		takeIt = (modelClass.indexOf(mcls) >= 0);
+	    		}
+	    		if (takeIt) {
+		    		// initialize row
+		    		tuple = new KnimeTuple( schema );
+		    		
+		    		// fill row
+		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		if( formula != null ) {
+						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+					}
+		    		
+					PmmXmlDoc cmDoc = new PmmXmlDoc();
+					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+					cmDoc.add(cmx);
+					tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
-	    		PmmXmlDoc depDoc = new PmmXmlDoc();
-	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
-	    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-	    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-	    				null, null));	    		
-	    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
-	    		
-	    		//int ri = MathUtilities.getRandomNegativeInt();
-				PmmXmlDoc emDoc = new PmmXmlDoc();
-				EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
-				emDoc.add(emx);
-				tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
+		    		PmmXmlDoc depDoc = new PmmXmlDoc();
+		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+		    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
+		    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
+		    				null, null));	    		
+		    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
+		    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    		
+		    		//int ri = MathUtilities.getRandomNegativeInt();
+					PmmXmlDoc emDoc = new PmmXmlDoc();
+					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
+					emDoc.add(emx);
+					tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
-				String s = result.getString(Bfrdb.ATT_LITERATUREID);
-	    		if (s != null) {
-					tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
-				}
-				
-	    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
-	    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
-	    		
-	    		// add row to data buffer
-				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
-					buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
-				}
+					String s = result.getString(Bfrdb.ATT_LITERATUREID);
+		    		if (s != null) {
+						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
+					}
+					
+		    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
+		    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
+		    		
+		    		// add row to data buffer
+					if (!modelFilterEnabled || ModelReaderUi.passesFilter(modelList, tuple ) ) {
+						buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+					}
+	    		}
 	    	}
 
     	}
@@ -202,55 +209,63 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	
 	    	int i = 0;
 	    	while( result.next() ) {
+	    		boolean takeIt = modelFilterEnabled || modelClass.equals("All");
+	    		if (!takeIt) {
+		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
+		    		String mcls = DBKernel.hashModelType.get(cls);
+		    		takeIt = (modelClass.indexOf(mcls) >= 0);
+	    		}
+	    		if (takeIt) {
+		    		// initialize row
+		    		tuple = new KnimeTuple( schema );
+		    		
+		    		// fill row
+		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		if( formula != null ) {
+						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+					}
+
+					PmmXmlDoc cmDoc = new PmmXmlDoc();
+					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+					cmDoc.add(cmx);
+					tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
+
+		    		//tuple.setValue( Model2Schema.ATT_FORMULA, formula );
+		    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
+		    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
+		    		PmmXmlDoc depDoc = new PmmXmlDoc();
+		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+		    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
+		    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
+		    		//tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
+		    		//tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
+		    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
+		    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
+		    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
+		    				null, null));	    		
+		    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
+		    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+
+		    		//int ri = MathUtilities.getRandomNegativeInt();
+					PmmXmlDoc emDoc = new PmmXmlDoc();
+					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
+					emDoc.add(emx);
+					tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
+
+					String s = result.getString(Bfrdb.ATT_LITERATUREID);
+		    		if (s != null) {
+						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+					}
+
+		    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
+		    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
+
+		    		// add row to data buffer
+					if( ModelReaderUi.passesFilter( modelList, tuple ) ) {
+						buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+					}
+	    		}
 	    		
-	    		// initialize row
-	    		tuple = new KnimeTuple( schema );
-	    		
-	    		// fill row
-	    		formula = result.getString( Bfrdb.ATT_FORMULA );
-	    		if( formula != null ) {
-					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
-				}
-
-				PmmXmlDoc cmDoc = new PmmXmlDoc();
-				CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
-				cmDoc.add(cmx);
-				tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
-
-	    		//tuple.setValue( Model2Schema.ATT_FORMULA, formula );
-	    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
-	    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
-	    		PmmXmlDoc depDoc = new PmmXmlDoc();
-	    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
-	    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
-	    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
-	    		//tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
-	    		//tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
-	    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
-	    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
-	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-	    				null, null));	    		
-	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-	    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
-
-	    		//int ri = MathUtilities.getRandomNegativeInt();
-				PmmXmlDoc emDoc = new PmmXmlDoc();
-				EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
-				emDoc.add(emx);
-				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
-
-				String s = result.getString(Bfrdb.ATT_LITERATUREID);
-	    		if (s != null) {
-					tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
-				}
-
-	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
-	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
-
-	    		// add row to data buffer
-				if( ModelReaderUi.passesFilter( modelFilterEnabled, modelList, tuple ) ) {
-					buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
-				}
 	    	}
     	}
  

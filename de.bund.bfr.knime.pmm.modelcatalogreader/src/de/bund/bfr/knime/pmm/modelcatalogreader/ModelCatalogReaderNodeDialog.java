@@ -109,7 +109,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel() );
 		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass() );
 		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.toString() );
+		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.getModelList());
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {

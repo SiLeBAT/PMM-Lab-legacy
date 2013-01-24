@@ -63,6 +63,7 @@ public class SecDialog extends JDialog {
 		this.dispose();
 	}
 
+	@SuppressWarnings("deprecation")
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		dialogPane = new JPanel();

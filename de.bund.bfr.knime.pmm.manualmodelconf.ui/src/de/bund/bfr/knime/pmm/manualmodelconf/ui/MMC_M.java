@@ -151,7 +151,20 @@ public class MMC_M extends JPanel {
 			setDblTextVal(r2Field, pm.getRsquared());
 			setDblTextVal(aicField, pm.getAic());
 			setDblTextVal(bicField, pm.getBic());
+			while (referencesTable.getRowCount() > 0) ((DefaultTableModel) referencesTable.getModel()).removeRow(0);		
+			insertRefs(pm.getEstModelLit());
+			insertRefs(pm.getModelLit());
 			insertNselectPMintoBox(pm);
+		}
+	}
+	private void insertRefs(PmmXmlDoc modelLit) {
+		for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
+			if (el instanceof LiteratureItem) {
+				Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
+				LiteratureItem li = (LiteratureItem) el;
+				vli.add(li);
+				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
+			}
 		}
 	}
 	private void setDblTextVal(DoubleTextField tf, Double value) {
@@ -466,6 +479,7 @@ public class MMC_M extends JPanel {
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
 			}
 		}
+		pm.removeEstModelLits();
 		for (int i=0;i<referencesTable.getRowCount();i++) {
 			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
 			pm.addEstModelLit(li);
@@ -565,7 +579,7 @@ public class MMC_M extends JPanel {
 	private void button3ActionPerformed(ActionEvent e) {
 		// Edit
 		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
-		doLit(li.getId());
+		if (li != null) doLit(li.getId());
 	}
 	private void deleteSelLitRow() {
 		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());		

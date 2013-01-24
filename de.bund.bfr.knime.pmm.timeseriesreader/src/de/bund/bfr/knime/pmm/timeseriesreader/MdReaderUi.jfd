@@ -23,7 +23,8 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "agentField"
-					"columns": 20
+					"columns": 10
+					"preferredSize": new java.awt.Dimension( 50, 20 )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
 					"gridY": 1
@@ -63,7 +64,8 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "matrixField"
-					"columns": 20
+					"columns": 10
+					"preferredSize": new java.awt.Dimension( 50, 20 )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
 					"gridY": 1
@@ -103,7 +105,8 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "literatureField"
-					"columns": 20
+					"columns": 10
+					"preferredSize": new java.awt.Dimension( 50, 20 )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
 					"gridY": 1
@@ -160,7 +163,7 @@ new FormModel {
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "textField4"
-					"columns": 20
+					"columns": 10
 					"text": "Temperature"
 					"horizontalAlignment": 4
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {

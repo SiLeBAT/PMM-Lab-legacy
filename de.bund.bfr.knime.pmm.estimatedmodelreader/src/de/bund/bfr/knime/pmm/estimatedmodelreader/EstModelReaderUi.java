@@ -111,7 +111,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		
 		panel.setBorder( BorderFactory.createTitledBorder( "Estimation quality" ) );
 		panel.setLayout( new BorderLayout() );
-		panel.setPreferredSize( new Dimension( 300, 125 ) );
+		panel.setPreferredSize( new Dimension( 550, 125 ) );
 		panel.add( buttonPanel, BorderLayout.NORTH );
 		panel.add( new JLabel( "Quality threshold   " ), BorderLayout.WEST );
 		panel.add( qualityField, BorderLayout.CENTER );
@@ -122,7 +122,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		southPanel.add(panel, BorderLayout.CENTER);
 		southPanel.add(tsReaderUi, BorderLayout.SOUTH);
 		
-		setPreferredSize( new Dimension( 300, 500 ) );
+		setPreferredSize( new Dimension( 550, 500 ) );
 		setLayout(new BorderLayout());
 		add( modelReaderUi, BorderLayout.CENTER );
 		add( southPanel, BorderLayout.SOUTH );		
@@ -248,7 +248,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final String literatureString,
     		int matrixID, int agentID, int literatureID,
     		final LinkedHashMap<String, Double[]> parameter,
-    		final boolean modelFilterEnabled,
+    		boolean modelFilterEnabled,
     		final String modelList,
     		final KnimeTuple tuple )
     throws PmmException {
@@ -258,8 +258,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 				agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple ) )
     			return false;
     	
-    	if( !ModelReaderUi.passesFilter( modelFilterEnabled,
-			modelList, tuple ) )
+    	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple ) )
     		return false;
     		
     		

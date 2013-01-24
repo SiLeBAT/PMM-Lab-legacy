@@ -4,6 +4,7 @@
 
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
+import java.awt.*;
 import java.awt.event.*;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
@@ -116,7 +117,7 @@ public class MdReaderUi extends JPanel {
 				}
 				fillCombo(comboBox);
 				comboBox.setSelectedItem(par);
-				if (!comboBox.getSelectedItem().toString().equals(par)) comboBox.setSelectedItem(null);
+				if (comboBox.getSelectedItem() != null && !comboBox.getSelectedItem().toString().equals(par)) comboBox.setSelectedItem(null);
 			    ItemListener itemListener = new ItemListener() {
 			    	boolean flag = false;
 			        public void itemStateChanged(ItemEvent itemEvent) {
@@ -458,7 +459,8 @@ public class MdReaderUi extends JPanel {
 			panel1.add(label1, CC.xy(1, 1));
 
 			//---- agentField ----
-			agentField.setColumns(20);
+			agentField.setColumns(10);
+			agentField.setPreferredSize(new Dimension(50, 20));
 			panel1.add(agentField, CC.xy(3, 1));
 
 			//---- selectAgensButton ----
@@ -490,7 +492,8 @@ public class MdReaderUi extends JPanel {
 			panel2.add(label2, CC.xy(1, 1));
 
 			//---- matrixField ----
-			matrixField.setColumns(20);
+			matrixField.setColumns(10);
+			matrixField.setPreferredSize(new Dimension(50, 20));
 			panel2.add(matrixField, CC.xy(3, 1));
 
 			//---- selectMatrixButton ----
@@ -522,7 +525,8 @@ public class MdReaderUi extends JPanel {
 			panel3.add(label3, CC.xy(1, 1));
 
 			//---- literatureField ----
-			literatureField.setColumns(20);
+			literatureField.setColumns(10);
+			literatureField.setPreferredSize(new Dimension(50, 20));
 			panel3.add(literatureField, CC.xy(3, 1));
 
 			//---- selectLiteratureButton ----
@@ -565,7 +569,7 @@ public class MdReaderUi extends JPanel {
 			panel4.add(label6, CC.xy(5, 1));
 
 			//---- textField4 ----
-			textField4.setColumns(20);
+			textField4.setColumns(10);
 			textField4.setText("Temperature");
 			textField4.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField4, CC.xy(1, 3));

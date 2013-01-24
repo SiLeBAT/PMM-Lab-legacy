@@ -339,11 +339,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 			modelNameSwitch.doClick();
 	}
 
-	public static boolean passesFilter(final boolean modelFilterEnabled,
-			final String modelList, final KnimeTuple tuple) throws PmmException {
-
-		if (!modelFilterEnabled)
-			return true;
+	public static boolean passesFilter(final String modelList, final KnimeTuple tuple) throws PmmException {
 
 		if (modelList.isEmpty())
 			return false;

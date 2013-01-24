@@ -507,9 +507,6 @@ Done, aber bitte checken: 5, 6, 7, 13, 170
 
 - PlausibilityChecker muss mal wieder angeschaltet werden für DoubleKennzahlen!
 
-- Wie kriege ich z.B. Neuronale Netze in die DB-Struktur?
-- Der Blitz (NULLen) muss noch in MyDBForm eingebaut werden!
-
 + die Leute bitten die Literatur sauber einzutragen
 
 - niederberger Prozessketten teilweise korrigieren.... mehrere Prozessketten unter demselben Workflow...

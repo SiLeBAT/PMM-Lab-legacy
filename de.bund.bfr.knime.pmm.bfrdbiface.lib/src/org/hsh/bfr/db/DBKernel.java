@@ -48,7 +48,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -585,7 +584,7 @@ public class DBKernel {
 					}
 					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
 					MyLogger.handleMessage("vor SHUTDOWN");
-    	      	    stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
+    	      	    if (isAdmin()) stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
 				}
 				catch (SQLException e) {result = false;e.printStackTrace();}
 			}
@@ -720,18 +719,11 @@ public class DBKernel {
   	DBKernel.m_Password = password; 
   	return getDBConnection(HSHDB_PATH, username, password, false);
   }
-  public static void setLocalConn(final Connection conn) { // localConn wird hier von KNIME (Statup) geliefert!
+  public static void setLocalConn(final Connection conn, String path, String username, String password) {
 	  localConn = conn;
-		DatabaseMetaData meta;
-		try {
-			meta = conn.getMetaData();
-			String url = meta.getURL();
-			DBKernel.HSHDB_PATH = url.substring(url.indexOf("jdbc:hsqldb:file:") + "jdbc:hsqldb:file:".length(), url.lastIndexOf(System.getProperty("file.separator")) + 1);
-			DBKernel.m_Username = meta.getUserName(); 
-		}
-		catch (SQLException e) {
-			e.printStackTrace();
-		}
+	  DBKernel.HSHDB_PATH = path;
+	  DBKernel.m_Username = username;
+	  DBKernel.m_Password = password;
   }
   public static Connection getLocalConn(boolean try2Boot) {
 	  try {
@@ -1638,93 +1630,124 @@ public class DBKernel {
 		try {
 			// Create a file object from the URL
 			String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
-			File incFileInternalDBFolder = new File(internalPath);
-			if (!incFileInternalDBFolder.exists()) {
-				incFileInternalDBFolder.mkdirs();
-			}
-			// folder is empty? Create database!
-			if (incFileInternalDBFolder.list().length == 0) {
-				// Get the bundle this class belongs to.
-				Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
-				URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
-				if (incURLfirstDB == null) { // incURLInternalDBFolder == null || 
-					return null;
-				}
-				File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
+			DBKernel.isServerConnection = DBKernel.isHsqlServer(internalPath);
+			if (DBKernel.isServerConnection) {
+			  	HSHDB_PATH = internalPath;
 				try {
-					org.hsqldb.lib.tar.DbBackup.main(new String[]{
-							"--extract",
-							incFilefirstDB.getAbsolutePath(),
-							incFileInternalDBFolder.getAbsolutePath()});
+					//DBKernel.getNewServerConnection(login, pw, filename);		
+					result = DBKernel.getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME",""), 
+							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD",""));
+					//DBKernel.getDBConnection("defad", 
+						//	getTempSAPass(true));
+				}
+				catch (Exception e) {e.printStackTrace();}
+			}
+			else {
+				File incFileInternalDBFolder = new File(internalPath);
+				if (!incFileInternalDBFolder.exists()) {
+					incFileInternalDBFolder.mkdirs();
+				}
+				// folder is empty? Create database!
+				if (incFileInternalDBFolder.list().length == 0) {
+					// Get the bundle this class belongs to.
+					Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
+					URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
+					if (incURLfirstDB == null) { // incURLInternalDBFolder == null || 
+						return null;
+					}
+					File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
+					try {
+						org.hsqldb.lib.tar.DbBackup.main(new String[]{
+								"--extract",
+								incFilefirstDB.getAbsolutePath(),
+								incFileInternalDBFolder.getAbsolutePath()});
+					}
+					catch (Exception e) {
+						throw new IllegalStateException("Creation of internal database not succeeded.", e);
+					}
+				}
+
+				try {
+				  	HSHDB_PATH = internalPath;
+					result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA()),
+							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass()));
+					if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(true)),
+							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(true)));
+					// UpdateChecker
+			  		if (DBKernel.myList == null) {
+					  	String dbVersion = DBKernel.getDBVersion();
+					  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
+						  	boolean isAdmin = DBKernel.isAdmin();
+						  	if (!isAdmin) {
+						  		DBKernel.closeDBConnections(false);
+						  		DBKernel.getDefaultAdminConn();
+						  	}
+						  	
+						  	if (DBKernel.getDBVersion() == null) {
+						  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
+						  		DBKernel.setDBVersion("1.4.4");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.4")) {
+						  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
+						  		DBKernel.setDBVersion("1.4.5");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+						  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
+						  		DBKernel.setDBVersion("1.4.6");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.6")) {
+						  		UpdateChecker.check4Updates_146_147(myList); 
+						  		DBKernel.setDBVersion("1.4.7");
+						  	}
+						  	
+						  	if (!isAdmin) {
+						  		DBKernel.closeDBConnections(false);
+						  		DBKernel.getDBConnection();
+						  	}
+					  	}
+			  		}				
 				}
 				catch (Exception e) {
-					throw new IllegalStateException("Creation of internal database not succeeded.", e);
+					e.printStackTrace();
 				}
 			}
-			try {
-			  	HSHDB_PATH = internalPath;
-				result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA()),
-						DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass()));
-				if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(true)),
-						DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(true)));
-				// UpdateChecker
-		  		if (DBKernel.myList == null) {
-		    	  	Login login = new Login();
-		  	    	MyDBTable myDB = new MyDBTable();
-		  	    	myDB.initConn(result);
-		  	    	MyDBTree myDBTree = new MyDBTree();
-					MyList myList = new MyList(myDB, myDBTree);
-					DBKernel.myList = myList;
-			    	login.loadMyTables(myList, null);
-			    	
-					MainFrame mf = new MainFrame(myList);
-					DBKernel.mainFrame = mf;
-					myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
-					try {
-						boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-						/*
-						int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
-						int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
-						int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-						int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
-						DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
-						DBKernel.mainFrame.setBounds(x, y, w, h);
-						*/
-						DBKernel.mainFrame.pack();
-						DBKernel.mainFrame.setLocationRelativeTo(null);
-						if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-					}
-					catch (Exception e) {}
-
-				  	String dbVersion = DBKernel.getDBVersion();
-				  	if (isAdmin() && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
-					  	if (DBKernel.getDBVersion() == null) {
-					  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
-					  		DBKernel.setDBVersion("1.4.4");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.4")) {
-					  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
-					  		DBKernel.setDBVersion("1.4.5");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-					  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
-					  		DBKernel.setDBVersion("1.4.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
-					  		UpdateChecker.check4Updates_146_147(myList); 
-					  		DBKernel.setDBVersion("1.4.7");
-					  	}
-				  	}
-		  		}				
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
+			
+			createGui(result);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);
 		}
 		return result;
+	}
+	public static void createGui(Connection conn) {
+		if (DBKernel.myList == null && conn != null) {
+    	  	Login login = new Login();
+  	    	MyDBTable myDB = new MyDBTable();
+  	    	myDB.initConn(conn);
+  	    	MyDBTree myDBTree = new MyDBTree();
+			MyList myList = new MyList(myDB, myDBTree);
+			DBKernel.myList = myList;
+	    	login.loadMyTables(myList, null);
+	    	
+			MainFrame mf = new MainFrame(myList);
+			DBKernel.mainFrame = mf;
+			myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+			try {
+				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+				/*
+				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
+				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
+				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+				DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
+				DBKernel.mainFrame.setBounds(x, y, w, h);
+				*/
+				DBKernel.mainFrame.pack();
+				DBKernel.mainFrame.setLocationRelativeTo(null);
+				if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			}
+			catch (Exception e) {}
+		}		
 	}
     public static String[] getItemListMisc(Connection conn) {
     	HashSet<String> hs = new HashSet<String>();

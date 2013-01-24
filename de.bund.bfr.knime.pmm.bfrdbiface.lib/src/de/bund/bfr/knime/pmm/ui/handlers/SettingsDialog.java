@@ -63,16 +63,19 @@ public class SettingsDialog extends JDialog {
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
 		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
-		DBKernel.closeDBConnections(false);
+		DBKernel.closeDBConnections(true);
 		
 		try {
-			Bfrdb db = new Bfrdb(dbt, username.getText(), String.valueOf(password.getPassword()));
+			Bfrdb db = new Bfrdb(dbt + "DB", username.getText(), String.valueOf(password.getPassword()));
 			Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
-			//DBKernel.setLocalConn(conn);
-	  		DBKernel.myList.getMyDBTable().initConn(conn);
-			DBKernel.myList.getMyDBTable().setTable();
-			//DBKernel.myList.setSelection("Matrices");
-			//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+			DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
+			if (conn != null) {
+				DBKernel.createGui(conn);
+		  		DBKernel.myList.getMyDBTable().initConn(conn);
+				DBKernel.myList.getMyDBTable().setTable();
+				//DBKernel.myList.setSelection("Matrices");
+				//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+			}
 		}
 		catch (Exception e1) {
 			e1.printStackTrace();

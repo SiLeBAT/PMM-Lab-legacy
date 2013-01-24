@@ -63,9 +63,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class CombaseWriterNodeModel extends NodeModel {
 	
 	protected static final String PARAM_FILENAME = "filename";
+	protected static final String PARAM_OVERWRITE = "overwrite";
 	protected static final String DEFAULT_FILENAME = "";	
 	
 	private String filename;
+	private boolean overwrite;
 
     /**
      * Constructor for the node model.
@@ -84,22 +86,24 @@ public class CombaseWriterNodeModel extends NodeModel {
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
     	
-    	int n = inData[ 0 ].getRowCount();
-    	
-		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
-		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+    	File f = new File(filename);
+    	if (!f.exists() || overwrite) {
+        	int n = inData[ 0 ].getRowCount();
+        	
+    		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
+    		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
+    		int j = 0;
+    		CombaseWriter cbw = new CombaseWriter(filename);
+    		while (reader.hasMoreElements()) {
+        		exec.setProgress( ( double )j++/n );
+        		
+    			KnimeTuple row = reader.nextElement();
 
-		int j = 0;
-		CombaseWriter cbw = new CombaseWriter(filename);
-		while (reader.hasMoreElements()) {
-    		exec.setProgress( ( double )j++/n );
-    		
-			KnimeTuple row = reader.nextElement();
-
-			PmmTimeSeries ts = new PmmTimeSeries(row);
-			cbw.add( ts );
-		}
-    	cbw.flush();
+    			PmmTimeSeries ts = new PmmTimeSeries(row);
+    			cbw.add( ts );
+    		}
+        	cbw.flush();
+    	}
         return null;
     }
     
@@ -116,6 +120,8 @@ public class CombaseWriterNodeModel extends NodeModel {
     protected DataTableSpec[] configure( final DataTableSpec[] inSpecs ) throws InvalidSettingsException {   	
     	if( filename.isEmpty() )
     		throw new InvalidSettingsException( "Filename must be specified." );
+    	File f = new File(filename);
+    	if (f.exists() && overwrite) this.setWarningMessage("Selected output file exists and will be overwritten!");
     	getInSchema(inSpecs[0]);    	
     	return null;//new DataTableSpec[]{};
     }
@@ -143,6 +149,7 @@ public class CombaseWriterNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	settings.addString(PARAM_FILENAME, filename);    	
+    	settings.addBoolean(PARAM_OVERWRITE, overwrite);
     }
 
     /**
@@ -152,6 +159,7 @@ public class CombaseWriterNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	filename = settings.getString(PARAM_FILENAME);
+    	overwrite = settings.getBoolean(PARAM_OVERWRITE);
     }
 
     /**

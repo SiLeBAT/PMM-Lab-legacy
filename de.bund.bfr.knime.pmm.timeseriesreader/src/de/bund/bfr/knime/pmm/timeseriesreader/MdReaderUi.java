@@ -2,15 +2,18 @@
  * Created by JFormDesigner on Thu Dec 13 22:23:43 CET 2012
  */
 
-package de.bund.bfr.knime.pmm.common.ui;
+package de.bund.bfr.knime.pmm.timeseriesreader;
 
 import java.awt.event.*;
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 
 import com.jgoodies.forms.factories.*;
@@ -24,6 +27,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 /**
  * @author Armin Weiser
@@ -37,12 +41,16 @@ public class MdReaderUi extends JPanel {
 	private LinkedHashMap<String, DoubleTextField[]> params;
 	private String[] itemListMisc;
 	private String deselectedItem = "";
+	
+	private Connection conn;
 
-	public MdReaderUi() {
+	public MdReaderUi(Connection conn) {
 		initComponents();
+		this.conn = conn;
 	}
-	public MdReaderUi(String[] itemListMisc) {
+	public MdReaderUi(Connection conn, String[] itemListMisc) {
 		initComponents();
+		this.conn = conn;
 		this.itemListMisc = itemListMisc;
 		handleParams();
 	}
@@ -58,11 +66,11 @@ public class MdReaderUi extends JPanel {
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("raw", dtf);
+			params.put("other1", dtf); // raw
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("HCl", dtf);
+			params.put("other2", dtf); // HCl
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put("irradiation", dtf);
+			params.put("other3", dtf); // irradiation
 		}
 		
 		panel4.setVisible(false);
@@ -108,6 +116,7 @@ public class MdReaderUi extends JPanel {
 				}
 				fillCombo(comboBox);
 				comboBox.setSelectedItem(par);
+				if (!comboBox.getSelectedItem().toString().equals(par)) comboBox.setSelectedItem(null);
 			    ItemListener itemListener = new ItemListener() {
 			    	boolean flag = false;
 			        public void itemStateChanged(ItemEvent itemEvent) {
@@ -163,6 +172,9 @@ public class MdReaderUi extends JPanel {
 	public String getMatrixString() { return matrixField.getText(); }
 	public String getAgentString() { return agentField.getText(); }
 	public String getLiteratureString() { return literatureField.getText(); }
+	public int getMatrixID() {int id = 0; try {id = Integer.parseInt(matrixIDField.getText());}catch (Exception e1) {} return id;}
+	public int getAgentID() {int id = 0; try {id = Integer.parseInt(agensIDField.getText());}catch (Exception e1) {} return id;}
+	public int getLiteratureID() {int id = 0; try {id = Integer.parseInt(literatureIDField.getText());}catch (Exception e1) {} return id;}
 	
 	public LinkedHashMap<String, DoubleTextField[]> getParameter() {
 		return params;
@@ -176,6 +188,15 @@ public class MdReaderUi extends JPanel {
 		handleParams();
 	}
 	
+	public void setMatrixID( final int id ) throws InvalidSettingsException {
+		matrixIDField.setText(id > 0 ? id+"" : "");
+	}
+	public void setAgensID( final int id ) throws InvalidSettingsException {
+		agensIDField.setText(id > 0 ? id+"" : "");
+	}
+	public void setLiteratureID( final int id ) throws InvalidSettingsException {
+		literatureIDField.setText(id > 0 ? id+"" : "");
+	}
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
 		
 		if( str == null )
@@ -204,23 +225,36 @@ public class MdReaderUi extends JPanel {
 		final String matrixString,
 		final String agentString,
 		final String literatureString,
+		int matrixID, int agentID, int literatureID,
 		final LinkedHashMap<String, Double[]> parameter,
 		final KnimeTuple tuple ) throws PmmException {
 			
-		if (matrixString != null && !matrixString.trim().isEmpty()) {
-			String s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
-			String sd = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
-			if (s == null) s = ""; else s = s.toLowerCase();
-			if (sd == null) sd = ""; else sd = sd.toLowerCase();
-			if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
+		if (matrixID > 0) {
+			int id = tuple.getInt(TimeSeriesSchema.ATT_MATRIXID);
+			if (matrixID != id) return false;
+		}
+		else {
+			if (matrixString != null && !matrixString.trim().isEmpty()) {
+				String s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
+				String sd = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
+				if (s == null) s = ""; else s = s.toLowerCase();
+				if (sd == null) sd = ""; else sd = sd.toLowerCase();
+				if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
+			}
 		}
 		
-		if (agentString != null && !agentString.trim().isEmpty()) {
-			String s = tuple.getString( TimeSeriesSchema.ATT_AGENTNAME );
-			String sd = tuple.getString( TimeSeriesSchema.ATT_AGENTDETAIL );
-			if (s == null) s = ""; else s = s.toLowerCase();
-			if (sd == null) sd = ""; else sd = sd.toLowerCase();
-			if (!s.contains(agentString.toLowerCase()) && !sd.contains(agentString.toLowerCase())) return false;
+		if (agentID > 0) {
+			int id = tuple.getInt(TimeSeriesSchema.ATT_AGENTID);
+			if (agentID != id) return false;
+		}
+		else {
+			if (agentString != null && !agentString.trim().isEmpty()) {
+				String s = tuple.getString( TimeSeriesSchema.ATT_AGENTNAME );
+				String sd = tuple.getString( TimeSeriesSchema.ATT_AGENTDETAIL );
+				if (s == null) s = ""; else s = s.toLowerCase();
+				if (sd == null) sd = ""; else sd = sd.toLowerCase();
+				if (!s.contains(agentString.toLowerCase()) && !sd.contains(agentString.toLowerCase())) return false;
+			}
 		}
 		
 		if (literatureString != null && !literatureString.trim().isEmpty()) {
@@ -228,11 +262,17 @@ public class MdReaderUi extends JPanel {
         	for (PmmXmlElementConvertable el : litXmlDoc.getElementSet()) {
         		if (el instanceof LiteratureItem) {
         			LiteratureItem lit = (LiteratureItem) el;
-        			String s = lit.getAuthor();
-        			String sd = lit.getTitle();
-        			if (s == null) s = ""; else s = s.toLowerCase();
-        			if (sd == null) sd = ""; else sd = sd.toLowerCase();
-        			if (!s.contains(literatureString.toLowerCase()) && !sd.contains(literatureString.toLowerCase())) return false;
+        			if (literatureID > 0) {
+        				int id = lit.getId();
+        				if (literatureID != id) return false;
+        			}
+        			else {
+            			String s = lit.getAuthor();
+            			String sd = lit.getTitle();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (!s.contains(literatureString.toLowerCase()) && !sd.contains(literatureString.toLowerCase())) return false;
+        			}
         		}
         	}
 		}
@@ -287,18 +327,101 @@ public class MdReaderUi extends JPanel {
 		
 		return true;
 	}
+	private void selectMatrixButtonActionPerformed(ActionEvent e) {
+		MyTable mat = DBKernel.myList.getTable("Matrices");
+		Integer matrixID = null;
+		try {matrixID = Integer.parseInt(matrixIDField.getText());}
+		catch (Exception e1) {}
+		Object newVal = DBKernel.myList.openNewWindow(
+				mat,
+				matrixID,
+				(Object) "Matrices",
+				null,
+				1,
+				1,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			Object matrixname = DBKernel.getValue(conn, "Matrices", "ID", newVal.toString(), "Matrixname");
+			matrixField.setText(matrixname+"");
+			matrixIDField.setText(""+newVal);
+		}	
+		else {
+			matrixField.setText("");
+			matrixIDField.setText("");
+		}
+	}
+
+	
+	private void selectAgensButtonActionPerformed(ActionEvent e) {
+		MyTable age = DBKernel.myList.getTable("Agenzien");
+		Integer agensID = null;
+		try {agensID = Integer.parseInt(agensIDField.getText());}
+		catch (Exception e1) {}
+		Object newVal = DBKernel.myList.openNewWindow(
+				age,
+				agensID,
+				(Object) "Agenzien",
+				null,
+				1,
+				1,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			Object agensname = DBKernel.getValue(conn, "Agenzien", "ID", newVal.toString(), "Agensname");
+			agentField.setText(agensname+"");
+			agensIDField.setText(""+newVal);
+		}		
+		else {
+			agentField.setText("");
+			agensIDField.setText("");
+		}
+	}
+
+	private void selectLiteratureButtonActionPerformed(ActionEvent e) {
+		MyTable lit = DBKernel.myList.getTable("Literatur");
+		Integer litID = null;
+		try {litID = Integer.parseInt(literatureIDField.getText());}
+		catch (Exception e1) {}
+		Object newVal = DBKernel.myList.openNewWindow(
+				lit,
+				litID,
+				(Object) "References",
+				null,
+				1,
+				1,
+				null,
+				true);
+		if (newVal != null && newVal instanceof Integer) {
+			Object author = DBKernel.getValue(conn,"Literatur", "ID", newVal.toString(), "Erstautor");
+			Object year = DBKernel.getValue(conn,"Literatur", "ID", newVal.toString(), "Jahr");
+			Object title = DBKernel.getValue(conn,"Literatur", "ID", newVal.toString(), "Titel");
+			literatureField.setText(author+"_"+year+"_"+title);
+			literatureIDField.setText(""+newVal);
+		}		
+		else {
+			literatureField.setText("");
+			literatureIDField.setText("");
+		}
+	}
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		panel1 = new JPanel();
 		label1 = new JLabel();
 		agentField = new JTextField();
+		selectAgensButton = new JButton();
+		agensIDField = new JTextField();
 		panel2 = new JPanel();
 		label2 = new JLabel();
 		matrixField = new JTextField();
+		selectMatrixButton = new JButton();
+		matrixIDField = new JTextField();
 		panel3 = new JPanel();
 		label3 = new JLabel();
 		literatureField = new JTextField();
+		selectLiteratureButton = new JButton();
+		literatureIDField = new JTextField();
 		panel4 = new JPanel();
 		label4 = new JLabel();
 		label5 = new JLabel();
@@ -327,7 +450,7 @@ public class MdReaderUi extends JPanel {
 		{
 			panel1.setBorder(new TitledBorder("Organism"));
 			panel1.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow",
+				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label1 ----
@@ -337,6 +460,21 @@ public class MdReaderUi extends JPanel {
 			//---- agentField ----
 			agentField.setColumns(20);
 			panel1.add(agentField, CC.xy(3, 1));
+
+			//---- selectAgensButton ----
+			selectAgensButton.setText("...");
+			selectAgensButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selectAgensButtonActionPerformed(e);
+				}
+			});
+			panel1.add(selectAgensButton, CC.xy(5, 1));
+
+			//---- agensIDField ----
+			agensIDField.setColumns(1);
+			agensIDField.setVisible(false);
+			panel1.add(agensIDField, CC.xy(7, 1));
 		}
 		add(panel1, CC.xy(1, 1));
 
@@ -344,7 +482,7 @@ public class MdReaderUi extends JPanel {
 		{
 			panel2.setBorder(new TitledBorder("Matrix"));
 			panel2.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow",
+				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label2 ----
@@ -354,6 +492,21 @@ public class MdReaderUi extends JPanel {
 			//---- matrixField ----
 			matrixField.setColumns(20);
 			panel2.add(matrixField, CC.xy(3, 1));
+
+			//---- selectMatrixButton ----
+			selectMatrixButton.setText("...");
+			selectMatrixButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selectMatrixButtonActionPerformed(e);
+				}
+			});
+			panel2.add(selectMatrixButton, CC.xy(5, 1));
+
+			//---- matrixIDField ----
+			matrixIDField.setColumns(1);
+			matrixIDField.setVisible(false);
+			panel2.add(matrixIDField, CC.xy(7, 1));
 		}
 		add(panel2, CC.xy(1, 3));
 
@@ -361,7 +514,7 @@ public class MdReaderUi extends JPanel {
 		{
 			panel3.setBorder(new TitledBorder("Literature"));
 			panel3.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow",
+				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label3 ----
@@ -371,6 +524,21 @@ public class MdReaderUi extends JPanel {
 			//---- literatureField ----
 			literatureField.setColumns(20);
 			panel3.add(literatureField, CC.xy(3, 1));
+
+			//---- selectLiteratureButton ----
+			selectLiteratureButton.setText("...");
+			selectLiteratureButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selectLiteratureButtonActionPerformed(e);
+				}
+			});
+			panel3.add(selectLiteratureButton, CC.xy(5, 1));
+
+			//---- literatureIDField ----
+			literatureIDField.setVisible(false);
+			literatureIDField.setColumns(1);
+			panel3.add(literatureIDField, CC.xy(7, 1));
 		}
 		add(panel3, CC.xy(1, 5));
 
@@ -398,7 +566,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField4 ----
 			textField4.setColumns(20);
-			textField4.setText(AttributeUtilities.ATT_TEMPERATURE);
+			textField4.setText("Temperature");
 			textField4.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField4, CC.xy(1, 3));
 
@@ -412,7 +580,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField5 ----
 			textField5.setColumns(20);
-			textField5.setText(AttributeUtilities.ATT_PH);
+			textField5.setText("pH");
 			textField5.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField5, CC.xy(1, 5));
 			panel4.add(doubleTextField3, CC.xy(3, 5));
@@ -420,7 +588,7 @@ public class MdReaderUi extends JPanel {
 
 			//---- textField6 ----
 			textField6.setColumns(20);
-			textField6.setText(AttributeUtilities.ATT_WATERACTIVITY);
+			textField6.setText("aw");
 			textField6.setHorizontalAlignment(SwingConstants.RIGHT);
 			panel4.add(textField6, CC.xy(1, 7));
 			panel4.add(doubleTextField5, CC.xy(3, 7));
@@ -444,12 +612,18 @@ public class MdReaderUi extends JPanel {
 	private JPanel panel1;
 	private JLabel label1;
 	private JTextField agentField;
+	private JButton selectAgensButton;
+	private JTextField agensIDField;
 	private JPanel panel2;
 	private JLabel label2;
 	private JTextField matrixField;
+	private JButton selectMatrixButton;
+	private JTextField matrixIDField;
 	private JPanel panel3;
 	private JLabel label3;
 	private JTextField literatureField;
+	private JButton selectLiteratureButton;
+	private JTextField literatureIDField;
 	private JPanel panel4;
 	private JLabel label4;
 	private JLabel label5;

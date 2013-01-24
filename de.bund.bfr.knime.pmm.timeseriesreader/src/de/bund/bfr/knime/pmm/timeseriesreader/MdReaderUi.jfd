@@ -9,7 +9,7 @@ new FormModel {
 		} ) {
 			name: "this"
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "80px, labelcompgap, default:grow"
+				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
 				"$rowSpecs": "default"
 			} ) {
 				name: "panel1"
@@ -28,12 +28,28 @@ new FormModel {
 					"gridX": 3
 					"gridY": 1
 				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "selectAgensButton"
+					"text": "..."
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectAgensButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "agensIDField"
+					"columns": 1
+					"visible": false
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
+					"gridY": 1
+				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 1
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "80px, labelcompgap, default:grow"
+				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
 				"$rowSpecs": "default"
 			} ) {
 				name: "panel2"
@@ -52,12 +68,28 @@ new FormModel {
 					"gridX": 3
 					"gridY": 1
 				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "selectMatrixButton"
+					"text": "..."
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectMatrixButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "matrixIDField"
+					"columns": 1
+					"visible": false
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
+					"gridY": 1
+				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 3
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "80px, labelcompgap, default:grow"
+				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
 				"$rowSpecs": "default"
 			} ) {
 				name: "panel3"
@@ -74,6 +106,22 @@ new FormModel {
 					"columns": 20
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JButton" ) {
+					name: "selectLiteratureButton"
+					"text": "..."
+					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectLiteratureButtonActionPerformed", true ) )
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 5
+					"gridY": 1
+				} )
+				add( new FormComponent( "javax.swing.JTextField" ) {
+					name: "literatureIDField"
+					"visible": false
+					"columns": 1
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 7
 					"gridY": 1
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {

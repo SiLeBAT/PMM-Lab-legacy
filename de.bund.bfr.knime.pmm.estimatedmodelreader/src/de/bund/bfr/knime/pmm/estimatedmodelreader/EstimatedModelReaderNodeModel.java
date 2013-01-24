@@ -69,7 +69,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
 
 /**
  * This is the model implementation of EstimatedModelReader.
@@ -85,12 +84,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_OVERRIDE = "override";
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
+	static final String PARAM_LITERATURESTRING = "literatureString";
+	static final String PARAM_MATRIXID = "matrixID";
+	static final String PARAM_AGENTID = "agentID";
+	static final String PARAM_LITERATUREID = "literatureID";
 	static final String PARAM_LEVEL = "level";
 	static final String PARAM_MODELCLASS = "modelClass";
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	static final String PARAM_MODELLIST = "modelList";
 
-	static final String PARAM_LITERATURESTRING = "literatureString";
 	static final String PARAM_PARAMETERS = "parameters";
 	static final String PARAM_PARAMETERNAME = "parameterName";
 	static final String PARAM_PARAMETERMIN = "parameterMin";
@@ -109,6 +111,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String matrixString;
 	private String agentString;
 	private String literatureString;
+	private int matrixID, agentID, literatureID;
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
@@ -380,7 +383,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		if( EstModelReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
-				matrixString, agentString, literatureString, parameter,
+				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
 				modelFilterEnabled, modelList, tuple ) )
 				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
     	}
@@ -453,6 +456,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	settings.addString( PARAM_MATRIXSTRING, matrixString );
     	settings.addString( PARAM_AGENTSTRING, agentString );
     	settings.addString( PARAM_LITERATURESTRING, literatureString );
+    	settings.addInt(PARAM_MATRIXID, matrixID);
+    	settings.addInt(PARAM_AGENTID, agentID);
+    	settings.addInt(PARAM_LITERATUREID, literatureID);
     	
 		Config c = settings.addConfig(PARAM_PARAMETERS);
 		String[] pars = new String[parameter.size()];
@@ -490,6 +496,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	matrixString = settings.getString( PARAM_MATRIXSTRING );
     	agentString = settings.getString( PARAM_AGENTSTRING );
     	literatureString = settings.getString( PARAM_LITERATURESTRING );
+    	matrixID = settings.containsKey(PARAM_MATRIXID) ? settings.getInt(PARAM_MATRIXID) : 0;
+    	agentID = settings.containsKey(PARAM_AGENTID) ? settings.getInt(PARAM_AGENTID) : 0;
+    	literatureID = settings.containsKey(PARAM_LITERATUREID) ? settings.getInt(PARAM_LITERATUREID) : 0;
 
 		Config c = settings.getConfig(PARAM_PARAMETERS);
 		String[] pars = c.getStringArray(PARAM_PARAMETERNAME);

@@ -52,7 +52,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
-import de.bund.bfr.knime.pmm.common.ui.MdReaderUi;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesReader" Node.
@@ -97,7 +96,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 			conn = null;
 		}
 
-    	tsui = new MdReaderUi(DBKernel.getItemListMisc(conn));
+    	tsui = new MdReaderUi(conn, DBKernel.getItemListMisc(conn));
     	panel.add( tsui );
     	
     	addTab("Database connection", panel);
@@ -113,6 +112,9 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, tsui.getMatrixString() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, tsui.getAgentString() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING, tsui.getLiteratureString() );
+    	settings.addInt(TimeSeriesReaderNodeModel.PARAM_MATRIXID, tsui.getMatrixID());
+    	settings.addInt(TimeSeriesReaderNodeModel.PARAM_AGENTID, tsui.getAgentID());
+    	settings.addInt(TimeSeriesReaderNodeModel.PARAM_LITERATUREID, tsui.getLiteratureID());
 		
 		LinkedHashMap<String, DoubleTextField[]> params = tsui.getParameter();
 		Config c = settings.addConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
@@ -143,6 +145,9 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 			tsui.setMatrixString( settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING ) );
 			tsui.setAgentString( settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING ) );
 			tsui.setLiteratureString(settings.getString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING ) );
+			tsui.setMatrixID( settings.getInt( TimeSeriesReaderNodeModel.PARAM_MATRIXID) );
+			tsui.setAgensID( settings.getInt( TimeSeriesReaderNodeModel.PARAM_AGENTID) );
+			tsui.setLiteratureID(settings.getInt( TimeSeriesReaderNodeModel.PARAM_LITERATUREID) );
 			
 			Config c = settings.getConfig(TimeSeriesReaderNodeModel.PARAM_PARAMETERS);
 			String[] pars = c.getStringArray(TimeSeriesReaderNodeModel.PARAM_PARAMETERNAME);

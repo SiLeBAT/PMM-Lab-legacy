@@ -31,13 +31,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.common.ui;
+package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
@@ -55,6 +56,9 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
+import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi;
 
 public class EstModelReaderUi extends JPanel implements ActionListener {
 	
@@ -73,11 +77,11 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
 	
-	public EstModelReaderUi() {
-		this(null);
+	public EstModelReaderUi(Connection conn) {
+		this(conn,null);
 	}
 	
-	public EstModelReaderUi(String[] itemListMisc) {								
+	public EstModelReaderUi(Connection conn, String[] itemListMisc) {								
 		modelReaderUi = new ModelReaderUi();
 		modelReaderUi.addLevelListener( this );
 		qualityButtonNone = new JRadioButton( "Do not filter" );
@@ -90,7 +94,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		qualityField = new DoubleTextField( false );
 		qualityField.setText( "0.8" );
 		qualityField.setEnabled( false );
-		tsReaderUi = new MdReaderUi(itemListMisc);
+		tsReaderUi = new MdReaderUi(conn,itemListMisc);
 						
 		JPanel buttonPanel = new JPanel();
 		ButtonGroup group = new ButtonGroup();	
@@ -242,6 +246,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		final String matrixString,
     		final String agentString,
     		final String literatureString,
+    		int matrixID, int agentID, int literatureID,
     		final LinkedHashMap<String, Double[]> parameter,
     		final boolean modelFilterEnabled,
     		final String modelList,
@@ -250,7 +255,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 
     	if( level == 1 )
     		if( !MdReaderUi.passesFilter( matrixString,
-				agentString, literatureString, parameter, tuple ) )
+				agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple ) )
     			return false;
     	
     	if( !ModelReaderUi.passesFilter( modelFilterEnabled,

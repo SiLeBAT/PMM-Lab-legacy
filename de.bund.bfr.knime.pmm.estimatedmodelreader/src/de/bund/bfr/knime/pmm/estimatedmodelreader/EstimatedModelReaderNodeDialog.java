@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
@@ -56,7 +55,6 @@ import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
-import de.bund.bfr.knime.pmm.common.ui.EstModelReaderUi;
 
 /**
  * <code>NodeDialog</code> for the "EstimatedModelReader" Node.
@@ -75,7 +73,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 	private DbConfigurationUi dbui;
 	private EstModelReaderUi estmodelui;
 
-	private Connection conn = null;
+	private Bfrdb db = null;
     /**
      * New pane for configuring the EstimatedModelReader node.
      */
@@ -85,8 +83,18 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	dbui = new DbConfigurationUi( true );
     	dbui.getApplyButton().addActionListener( this );
     	
-    	
-    	estmodelui = new EstModelReaderUi();
+    	try {
+            // fetch database connection
+        	db = null;
+        	if( dbui.getOverride() ) {
+    			db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
+    		} else {
+    			db = new Bfrdb(DBKernel.getLocalConn(true));
+    		}
+    	}
+    	catch (Exception e) {}
+    	    	
+    	estmodelui = new EstModelReaderUi(db.getConnection());
     	
     	panel.setLayout( new BorderLayout() );
     	panel.add( dbui, BorderLayout.NORTH );    	
@@ -194,24 +202,12 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		
 	}
 	private void updateModelName() throws ClassNotFoundException, SQLException, PmmException {
-        // fetch database connection
-    	Bfrdb db;
-    	ResultSet result;
     	
     	estmodelui.clearModelSet();
 
-        db = null;
-    	if( dbui.getOverride() ) {
-			db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
-			conn = db.getConnection();
-		} else {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
-			conn = null;
-		}
+    	estmodelui.setMiscItems(DBKernel.getItemListMisc(db.getConnection()));
     	
-    	estmodelui.setMiscItems(DBKernel.getItemListMisc(conn));
-    	
-    	result = db.selectModel(1);    	    	
+    	ResultSet result = db.selectModel(1);    	    	
     	while (result.next()) {
     		estmodelui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.hashModelType.get(result.getInt("Klasse")));
     	}

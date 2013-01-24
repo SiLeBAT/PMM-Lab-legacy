@@ -272,7 +272,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			else if (el.getName().equals(ATT_DEP)) {
 				try {
 					PmmXmlDoc dep = new PmmXmlDoc(el.getText());
-					depXml = (DepXml) dep.get(0);
+					if (dep.size() > 0) depXml = (DepXml) dep.get(0);
 				}
 				catch (Exception e) {
 					e.printStackTrace();
@@ -764,11 +764,13 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		element.addContent(independent.toXmlString());
 		modelElement.addContent(element);
 		
-		element = new Element(ATT_DEP);
-		PmmXmlDoc pd = new PmmXmlDoc();
-		pd.add(depXml);
-		element.addContent(pd.toXmlString());
-		modelElement.addContent(element);
+		if (depXml != null) {
+			element = new Element(ATT_DEP);
+			PmmXmlDoc pd = new PmmXmlDoc();
+			pd.add(depXml);
+			element.addContent(pd.toXmlString());
+			modelElement.addContent(element);
+		}
 
 		element = new Element(ATT_MLIT);
 		element.addContent(modelLit.toXmlString());

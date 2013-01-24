@@ -160,7 +160,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
 		if (name == null) throw new PmmException("Model name must not be null.");
 
-		modelIdPrim.put(name, id);
+		modelIdPrim.put(name + " (" + modelType + ")", id);
 		modelBoxSetPrim.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
 		updateModelName();
 	}
@@ -168,7 +168,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	public void addModelSec(final int id, final String name, final String modelType) throws PmmException {
 		if (name == null) throw new PmmException("Model name must not be null.");
 
-		modelIdSec.put(name, id);
+		modelIdSec.put(name + " (" + modelType + ")", id);
 		modelBoxSetSec.put(new JCheckBox(name + " (" + modelType + ")"), modelType);
 		updateModelName();
 	}
@@ -194,11 +194,13 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public boolean modelNameEnabled(final String name) {
 		for (JCheckBox box : modelBoxSetPrim.keySet()) {
-			if (box.getText().equals(name)) return true;			
+			if (box.getText().equals(name)) return true;		
+			if (box.getText().startsWith(name) && box.getText().lastIndexOf(" (") == name.length())  return true;
 		}
 
 		for (JCheckBox box : modelBoxSetSec.keySet()) {
 			if (box.getText().equals(name)) return true;			
+			if (box.getText().startsWith(name) && box.getText().lastIndexOf(" (") == name.length())  return true;
 		}
 
 		return false;

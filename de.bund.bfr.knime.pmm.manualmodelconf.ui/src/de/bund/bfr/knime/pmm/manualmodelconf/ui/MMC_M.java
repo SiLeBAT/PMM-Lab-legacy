@@ -60,12 +60,14 @@ public class MMC_M extends JPanel {
 	private boolean dontTouch = false;
 	
 	private boolean modelNameChangedManually = false;
+	private boolean formulaCreator;
 
 	public MMC_M() {
-		this(null, 1, "");
+		this(null, 1, "", false);
 	}
-	public MMC_M(final Frame parentFrame, final int level, final String paramName) {
+	public MMC_M(final Frame parentFrame, final int level, final String paramName, boolean formulaCreator) {
 		this.m_parentFrame = parentFrame;
+		this.formulaCreator = formulaCreator;
 		initComponents();
 		m_secondaryModels = new HashMap<ParametricModel, HashMap<String, ParametricModel>>();
 		depVarLabel.setText(paramName);
@@ -79,6 +81,24 @@ public class MMC_M extends JPanel {
 			radioButton1.setEnabled(false);
 			radioButton2.setEnabled(false);
 			radioButton3.setEnabled(false);
+		}
+		
+		if (formulaCreator) {
+			label8.setVisible(false);
+			label3.setVisible(false);
+			label4.setVisible(false);
+			label5.setVisible(false);
+			label6.setVisible(false);
+			r2Field.setVisible(false);
+			rmsField.setVisible(false);
+			aicField.setVisible(false);
+			bicField.setVisible(false);
+			table.getColumnModel().getColumn(2).setMinWidth(0);
+			table.getColumnModel().getColumn(2).setMaxWidth(0);
+			table.getColumnModel().getColumn(2).setWidth(0);
+			table.getColumnModel().getColumn(3).setMinWidth(0);
+			table.getColumnModel().getColumn(3).setMaxWidth(0);
+			table.getColumnModel().getColumn(3).setWidth(0);
 		}
 		
 		referencesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -402,7 +422,7 @@ public class MMC_M extends JPanel {
 				secondaryDialog.setModal(true);
 				secondaryDialog.setIconImage(Resources.getInstance().getDefaultIcon());
 				String param = table.getValueAt(row, 0).toString();
-				MMC_M m2 = new MMC_M(null, 2, param);
+				MMC_M m2 = new MMC_M(null, 2, param, formulaCreator);
 				m2.setConnection(m_conn);
 				HashMap<String, ParametricModel> sm = m_secondaryModels.get(table.getPM());
 				m2.setPM(sm.get(param));

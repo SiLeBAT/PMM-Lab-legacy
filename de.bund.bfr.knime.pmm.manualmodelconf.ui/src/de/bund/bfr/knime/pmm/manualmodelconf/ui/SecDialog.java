@@ -69,8 +69,8 @@ public class SecDialog extends JDialog {
 		contentPanel = new JPanel();
 		buttonBar = new JPanel();
 		okButton = new JButton();
-		cancelButton = new JButton();
 		deleteButton = new JButton();
+		cancelButton = new JButton();
 
 		//======== this ========
 		Container contentPane = getContentPane();
@@ -78,7 +78,7 @@ public class SecDialog extends JDialog {
 
 		//======== dialogPane ========
 		{
-			dialogPane.setBorder(Borders.DIALOG);
+			dialogPane.setBorder(Borders.DIALOG_BORDER);
 			dialogPane.setLayout(new BorderLayout());
 
 			//======== contentPanel ========
@@ -91,11 +91,11 @@ public class SecDialog extends JDialog {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
+				buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
 				buttonBar.setLayout(new FormLayout(
-					"$glue, $button, $rgap, default, $lcgap, $button",
+					"$lcgap, default, $glue, $button, $rgap, default, $lcgap, $button",
 					"pref"));
-				((FormLayout)buttonBar.getLayout()).setColumnGroups(new int[][] {{2, 4, 6}});
+				((FormLayout)buttonBar.getLayout()).setColumnGroups(new int[][] {{4, 6, 8}});
 
 				//---- okButton ----
 				okButton.setText("OK");
@@ -108,7 +108,17 @@ public class SecDialog extends JDialog {
 						okButtonActionPerformed(e);
 					}
 				});
-				buttonBar.add(okButton, CC.xy(2, 1));
+				buttonBar.add(okButton, CC.xy(4, 1));
+
+				//---- deleteButton ----
+				deleteButton.setText("Delete");
+				deleteButton.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						deleteButtonActionPerformed(e);
+					}
+				});
+				buttonBar.add(deleteButton, CC.xy(6, 1));
 
 				//---- cancelButton ----
 				cancelButton.setText("Cancel");
@@ -121,17 +131,7 @@ public class SecDialog extends JDialog {
 						cancelButtonActionPerformed(e);
 					}
 				});
-				buttonBar.add(cancelButton, CC.xy(4, 1));
-
-				//---- deleteButton ----
-				deleteButton.setText("Delete");
-				deleteButton.addActionListener(new ActionListener() {
-					@Override
-					public void actionPerformed(ActionEvent e) {
-						deleteButtonActionPerformed(e);
-					}
-				});
-				buttonBar.add(deleteButton, CC.xy(6, 1));
+				buttonBar.add(cancelButton, CC.xy(8, 1));
 			}
 			dialogPane.add(buttonBar, BorderLayout.SOUTH);
 		}
@@ -146,7 +146,7 @@ public class SecDialog extends JDialog {
 	private JPanel contentPanel;
 	private JPanel buttonBar;
 	private JButton okButton;
-	private JButton cancelButton;
 	private JButton deleteButton;
+	private JButton cancelButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

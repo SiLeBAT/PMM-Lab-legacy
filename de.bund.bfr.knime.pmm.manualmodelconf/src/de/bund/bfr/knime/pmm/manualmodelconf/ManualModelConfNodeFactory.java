@@ -84,7 +84,7 @@ public class ManualModelConfNodeFactory
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new ManualModelConfNodeDialog();
+        return new ManualModelConfNodeDialog(false);
     }
 
 }

@@ -10,14 +10,14 @@ import org.knime.core.node.NodeView;
  *
  * @author Armin Weiser
  */
-public class ManualModelEditorNodeFactory extends NodeFactory<ManualModelConfNodeModel> {
+public class ManualFormulaCreatorNodeFactory extends NodeFactory<ManualModelConfNodeModel> {
 
     /**
      * {@inheritDoc}
      */
     @Override
     public ManualModelConfNodeModel createNodeModel() {
-        return new ManualModelConfNodeModel(true, false);
+        return new ManualModelConfNodeModel(false, true);
     }
 
     /**
@@ -50,7 +50,7 @@ public class ManualModelEditorNodeFactory extends NodeFactory<ManualModelConfNod
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new ManualModelConfNodeDialog(false);
+        return new ManualModelConfNodeDialog(true);
     }
 
 }

@@ -18,6 +18,11 @@
    <extension point="org.knime.workbench.repository.nodes">
       <node category-path="/pmmlab/editors" factory-class="de.bund.bfr.knime.pmm.manualmodelconf.ManualModelConfNodeFactory" id="de.bund.bfr.knime.pmm.manualmodelconf.ManualModelConfNodeFactory"/>
    <node category-path="/pmmlab/editors" factory-class="de.bund.bfr.knime.pmm.manualmodelconf.ManualModelEditorNodeFactory" id="de.bund.bfr.knime.pmm.manualmodelconf.ManualModelEditorNodeFactory"/>
+   <node
+         category-path="/pmmlab/editors"
+         factory-class="de.bund.bfr.knime.pmm.manualmodelconf.ManualFormulaCreatorNodeFactory"
+         id="de.bund.bfr.knime.pmm.manualmodelconf.ManualFormulaCreatorNodeFactory">
+   </node>
 </extension>
    
 </plugin>

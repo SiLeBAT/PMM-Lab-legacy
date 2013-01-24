@@ -17,9 +17,9 @@ new FormModel {
 					"value": "Center"
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "glue, button, relgap, default, labelcompgap, button"
+					"$columnSpecs": "labelcompgap, default, glue, button, relgap, default, labelcompgap, button"
 					"$rowSpecs": "pref"
-					"$columnGroupIds": "0, 1, 0, 1, 0, 1"
+					"$columnGroupIds": "0, 0, 0, 1, 0, 1, 0, 1"
 				} ) {
 					name: "buttonBar"
 					"border": sfield com.jgoodies.forms.factories.Borders BUTTON_BAR_GAP_BORDER
@@ -31,8 +31,15 @@ new FormModel {
 						"minimumSize": new java.awt.Dimension( 90, 25 )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "okButtonActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 2
+						"gridX": 4
 						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "deleteButton"
+						"text": "Delete"
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteButtonActionPerformed", true ) )
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 6
 					} )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "cancelButton"
@@ -42,15 +49,7 @@ new FormModel {
 						"maximumSize": new java.awt.Dimension( 90, 25 )
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "cancelButtonActionPerformed", true ) )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 4
-					} )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "deleteButton"
-						"text": "Delete"
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "deleteButtonActionPerformed", true ) )
-					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-						"gridX": 6
-						"gridY": 1
+						"gridX": 8
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "South"

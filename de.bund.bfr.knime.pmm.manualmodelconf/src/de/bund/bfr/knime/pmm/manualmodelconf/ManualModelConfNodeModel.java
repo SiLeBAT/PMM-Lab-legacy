@@ -96,14 +96,17 @@ public class ManualModelConfNodeModel extends NodeModel {
 	
 	private PmmXmlDoc doc = null;
 	
+	private boolean formulaCreator;
+	
 	/**
      * Constructor for the node model.
      */
     protected ManualModelConfNodeModel() {    
-        this(false);        
+        this(false, false);        
     }
-    protected ManualModelConfNodeModel(boolean hasEditFeature) {    
+    protected ManualModelConfNodeModel(boolean hasEditFeature, boolean formulaCreator) {    
         super(hasEditFeature ? 1 : 0, 1);
+        this.formulaCreator = formulaCreator;
     }
 
     /**
@@ -115,19 +118,18 @@ public class ManualModelConfNodeModel extends NodeModel {
     	if (doc != null) {        	
         	KnimeTuple tupleM1 = null;
 			PmmTimeSeries tstuple = new PmmTimeSeries();
-			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail);
-			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail);
-			tstuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agent);
-			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrix);
-			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
-			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
-			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
-			//tstuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperature);
-			//tstuple.setValue(TimeSeriesSchema.ATT_PH, ph);
-			//tstuple.setValue(TimeSeriesSchema.ATT_WATERACTIVITY, waterActivity);
-			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
-			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
-			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);
+        	if (!formulaCreator) {
+    			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail);
+    			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail);
+    			tstuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agent);
+    			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrix);
+    			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
+    			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
+    			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
+    			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
+    			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
+    			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);
+        	}
         	List<KnimeTuple> rowSec = new ArrayList<KnimeTuple>();
         	for (PmmXmlElementConvertable el : doc.getElementSet()) {      		
         		if (el instanceof ParametricModel) {        		
@@ -150,11 +152,14 @@ public class ManualModelConfNodeModel extends NodeModel {
         	}
         	KnimeSchema ks = getSchema();
         	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
+
         	if (tupleM1 != null) {
-            	KnimeSchema ts = new TimeSeriesSchema();
-            	KnimeSchema m1 = new Model1Schema();
-            	KnimeSchema tsm1 = KnimeSchema.merge(ts, m1);
-    			tupleM1 = KnimeTuple.merge(tsm1, tstuple, tupleM1);
+        		if (!formulaCreator) {
+                	KnimeSchema ts = new TimeSeriesSchema();
+                	KnimeSchema m1 = new Model1Schema();
+                	KnimeSchema tsm1 = KnimeSchema.merge(ts, m1);
+        			tupleM1 = KnimeTuple.merge(tsm1, tstuple, tupleM1);
+        		}
             	if (rowSec.size() > 0) {
             		for (int i=0;i<rowSec.size();i++) {
                 		buf.addRowToTable(new DefaultRow(String.valueOf(i), KnimeTuple.merge(ks, tupleM1, rowSec.get(i))));    		
@@ -163,11 +168,6 @@ public class ManualModelConfNodeModel extends NodeModel {
             	else { // nur TSM1 generieren
             		buf.addRowToTable(new DefaultRow(String.valueOf( 0 ), tupleM1));
             	}
-            	/*
-            	BufferedDataContainer buf2 = exec.createDataContainer( createXmlSpec() );
-            	buf2.addRowToTable( new DefaultRow( "0", new DataCell[] { new StringCell( xmlString ) } ) );
-            	buf2.close();
-            	*/
         	}
         	else if (rowSec.size() == 1) {
             	//KnimeTuple emptyTupleM1 = new KnimeTuple(new Model1Schema());
@@ -175,8 +175,9 @@ public class ManualModelConfNodeModel extends NodeModel {
             	buf.addRowToTable(new DefaultRow(String.valueOf(0), rowSec.get(0)));    		
         	}
         	else {
-            	buf.addRowToTable(new DefaultRow(String.valueOf(0), tstuple));    		
+        		if (!formulaCreator) buf.addRowToTable(new DefaultRow(String.valueOf(0), tstuple));    		
         	}
+
         	buf.close();
             return new BufferedDataTable[]{ buf.getTable()};
     	}
@@ -235,16 +236,19 @@ public class ManualModelConfNodeModel extends NodeModel {
 			boolean hp = hasPrimary();
 			boolean hs = hasSecondary();
 			if (hp && hs) {
-	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), KnimeSchema.merge(new Model1Schema(), new Model2Schema()));
+				if (formulaCreator) ks = KnimeSchema.merge(new Model1Schema(), new Model2Schema());
+				else ks = KnimeSchema.merge(new TimeSeriesSchema(), KnimeSchema.merge(new Model1Schema(), new Model2Schema()));
 			}
 	    	else if (hp) {
-	    		ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+	    		if (formulaCreator) ks = new Model1Schema();
+	    		else ks = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
 	    	}	
 	    	else if (hs) {
 	    		ks = new Model2Schema();
 	    	}	
 	    	else {
-	    		ks = new TimeSeriesSchema();
+	    		if (formulaCreator) ks = null;
+	    		else ks = new TimeSeriesSchema();
 	    	}	
 		}
 		catch (PmmException e) {
@@ -264,43 +268,44 @@ public class ManualModelConfNodeModel extends NodeModel {
     		//System.err.println(xmlStr);
 			settings.addString(PARAM_XMLSTRING, xmlStr);
 		}
-    	
-    	// TimeSeries
-		if (agent != null) {
-			settings.addString(CFGKEY_AGENT, agent);
-		}
-		if (agentID != null) {
-			settings.addInt(CFGKEY_AGENTID, agentID);
-		}
-		if (agentDetail != null) {
-			settings.addString(CFGKEY_AGENTDETAIL, agentDetail);
-		}
+    	if (!formulaCreator) {
+        	// TimeSeries
+    		if (agent != null) {
+    			settings.addString(CFGKEY_AGENT, agent);
+    		}
+    		if (agentID != null) {
+    			settings.addInt(CFGKEY_AGENTID, agentID);
+    		}
+    		if (agentDetail != null) {
+    			settings.addString(CFGKEY_AGENTDETAIL, agentDetail);
+    		}
 
-		if (matrix != null) {
-			settings.addString(CFGKEY_MATRIX, matrix);
-		}
-		if (matrixID != null) {
-			settings.addInt(CFGKEY_MATRIXID, matrixID);
-		}
-		if (matrixDetail != null) {
-			settings.addString(CFGKEY_MATRIXDETAIL, matrixDetail);
-		}
+    		if (matrix != null) {
+    			settings.addString(CFGKEY_MATRIX, matrix);
+    		}
+    		if (matrixID != null) {
+    			settings.addInt(CFGKEY_MATRIXID, matrixID);
+    		}
+    		if (matrixDetail != null) {
+    			settings.addString(CFGKEY_MATRIXDETAIL, matrixDetail);
+    		}
 
-		if (comment != null) {
-			settings.addString(CFGKEY_COMMENT, comment);
-		}
+    		if (comment != null) {
+    			settings.addString(CFGKEY_COMMENT, comment);
+    		}
 
-		if (temperature != null) {
-			settings.addDouble(CFGKEY_TEMPERATURE, temperature);
-		}
+    		if (temperature != null) {
+    			settings.addDouble(CFGKEY_TEMPERATURE, temperature);
+    		}
 
-		if (ph != null) {
-			settings.addDouble(CFGKEY_PH, ph);
-		}
+    		if (ph != null) {
+    			settings.addDouble(CFGKEY_PH, ph);
+    		}
 
-		if (waterActivity != null) {
-			settings.addDouble(CFGKEY_AW, waterActivity);
-		}
+    		if (waterActivity != null) {
+    			settings.addDouble(CFGKEY_AW, waterActivity);
+    		}
+    	}
     }
 
     /**
@@ -321,74 +326,75 @@ public class ManualModelConfNodeModel extends NodeModel {
 			e1.printStackTrace();
     		throw new InvalidSettingsException("Invalid model parameters");
 		}
-    	
-    	// TimeSeries
-		try {
-			agent = settings.getString(CFGKEY_AGENT);
-		}
-		catch (InvalidSettingsException e) {
-			agent = null;
-		}
-		try {
-			agentID = settings.getInt(CFGKEY_AGENTID);
-		}
-		catch (InvalidSettingsException e) {
-			agentID = null;
-		}
-		try {
-			agentDetail = settings.getString(CFGKEY_AGENTDETAIL);
-		}
-		catch (InvalidSettingsException e) {
-			agentDetail = null;
-		}
+    	if (!formulaCreator) {
+        	// TimeSeries
+    		try {
+    			agent = settings.getString(CFGKEY_AGENT);
+    		}
+    		catch (InvalidSettingsException e) {
+    			agent = null;
+    		}
+    		try {
+    			agentID = settings.getInt(CFGKEY_AGENTID);
+    		}
+    		catch (InvalidSettingsException e) {
+    			agentID = null;
+    		}
+    		try {
+    			agentDetail = settings.getString(CFGKEY_AGENTDETAIL);
+    		}
+    		catch (InvalidSettingsException e) {
+    			agentDetail = null;
+    		}
 
-		try {
-			matrix = settings.getString(CFGKEY_MATRIX);
-		}
-		catch (InvalidSettingsException e) {
-			matrix = null;
-		}
-		try {
-			matrixID = settings.getInt(CFGKEY_MATRIXID);
-		}
-		catch (InvalidSettingsException e) {
-			matrixID = null;
-		}
-		try {
-			matrixDetail = settings.getString(CFGKEY_MATRIXDETAIL);
-		}
-		catch (InvalidSettingsException e) {
-			matrixDetail = null;
-		}
+    		try {
+    			matrix = settings.getString(CFGKEY_MATRIX);
+    		}
+    		catch (InvalidSettingsException e) {
+    			matrix = null;
+    		}
+    		try {
+    			matrixID = settings.getInt(CFGKEY_MATRIXID);
+    		}
+    		catch (InvalidSettingsException e) {
+    			matrixID = null;
+    		}
+    		try {
+    			matrixDetail = settings.getString(CFGKEY_MATRIXDETAIL);
+    		}
+    		catch (InvalidSettingsException e) {
+    			matrixDetail = null;
+    		}
 
 
-		try {
-			comment = settings.getString(CFGKEY_COMMENT);
-		}
-		catch (InvalidSettingsException e) {
-			comment = null;
-		}
+    		try {
+    			comment = settings.getString(CFGKEY_COMMENT);
+    		}
+    		catch (InvalidSettingsException e) {
+    			comment = null;
+    		}
 
-		try {
-			temperature = settings.getDouble(CFGKEY_TEMPERATURE);
-		}
-		catch (InvalidSettingsException e) {
-			temperature = null;
-		}
+    		try {
+    			temperature = settings.getDouble(CFGKEY_TEMPERATURE);
+    		}
+    		catch (InvalidSettingsException e) {
+    			temperature = null;
+    		}
 
-		try {
-			ph = settings.getDouble(CFGKEY_PH);
-		}
-		catch (InvalidSettingsException e) {
-			ph = null;
-		}
+    		try {
+    			ph = settings.getDouble(CFGKEY_PH);
+    		}
+    		catch (InvalidSettingsException e) {
+    			ph = null;
+    		}
 
-		try {
-			waterActivity = settings.getDouble(CFGKEY_AW);
-		}
-		catch (InvalidSettingsException e) {
-			waterActivity = null;
-		}
+    		try {
+    			waterActivity = settings.getDouble(CFGKEY_AW);
+    		}
+    		catch (InvalidSettingsException e) {
+    			waterActivity = null;
+    		}
+    	}
     }
 
     /**

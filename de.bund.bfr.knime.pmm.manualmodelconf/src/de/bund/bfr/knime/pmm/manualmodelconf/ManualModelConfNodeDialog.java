@@ -76,17 +76,19 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 	private MMC_M m_mmcm;
 	private MMC_TS m_mmcts;
 
-    /**
+	/**
      * New pane for configuring the ManualModelConf node.
      */
-    protected ManualModelConfNodeDialog() {
+    protected ManualModelConfNodeDialog(boolean formulaCreator) {
     	try {    
-    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "");
+    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", formulaCreator);
     		m_mmcm.setConnection(DBKernel.getLocalConn(true));
     		this.addTab("Model Definition", m_mmcm);    	
     		
     		m_mmcts = new MMC_TS();
-    		this.addTab("Microbial Data", m_mmcts);    
+    		if (!formulaCreator) {
+        		this.addTab("Microbial Data", m_mmcts);        			
+    		}
     		
     	}
     	catch( Exception e ) {

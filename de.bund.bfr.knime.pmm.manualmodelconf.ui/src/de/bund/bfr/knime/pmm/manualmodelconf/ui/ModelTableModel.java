@@ -55,7 +55,9 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 public class ModelTableModel extends JTable {
@@ -97,6 +99,24 @@ public class ModelTableModel extends JTable {
 	}
 	public boolean hasChanged() {
 		return hasChanged;
+	}
+	public boolean isEstimated() {
+		if (thePM.getRsquared() != null && !Double.isNaN(thePM.getRsquared()) ||
+				thePM.getRms() != null && !Double.isNaN(thePM.getRms()) ||
+				thePM.getAic() != null && !Double.isNaN(thePM.getAic()) ||
+				thePM.getBic() != null && !Double.isNaN(thePM.getBic()))
+			return true;
+		for (PmmXmlElementConvertable el : thePM.getParameter().getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getError() != null && !Double.isNaN(px.getError()) ||
+						px.getValue() != null && !Double.isNaN(px.getValue())) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 	public void clearTable() {
 		thePM = new ParametricModel("", "", null, 1);

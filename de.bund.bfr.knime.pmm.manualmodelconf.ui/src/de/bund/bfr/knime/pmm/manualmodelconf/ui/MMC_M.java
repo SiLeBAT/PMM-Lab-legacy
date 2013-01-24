@@ -482,26 +482,9 @@ public class MMC_M extends JPanel {
 		pm.removeEstModelLits();
 		for (int i=0;i<referencesTable.getRowCount();i++) {
 			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
-			pm.addEstModelLit(li);
+			if (formulaCreator || !table.isEstimated()) pm.addModelLit(li);
+			else pm.addEstModelLit(li);
 		}
-		/*
-		// add literature items
-			for (Map.Entry<Integer, String> entry : possLiterature.entrySet()) {
-			    Integer key = entry.getKey();
-			    String value = entry.getValue();
-				ParametricModel pmc = modelCatalog.get(modelNameBox.getSelectedItem());
-				List<Integer> li = modLitMat.get(pmc.getModelId());
-			    if (li != null && li.contains(key)) {
-					int q = value.indexOf( " et al. " );
-					
-					if (hasParamValues && getLevel() == 1) {
-						pm.addEstModelLit(value.substring( 0, q ), Integer.valueOf( value.substring( q+8 ) ), key);
-					} else {
-						pm.addModelLit(value.substring( 0, q ), Integer.valueOf( value.substring( q+8 ) ), key);
-					}
-			    }
-			}
-		*/
 		doc.add(pm);
 		
 		if (radioButton3.isSelected()) {

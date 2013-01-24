@@ -153,63 +153,65 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
     	i = 0;
     	while (result.next()) {
-    		// initialize row
-    		tuple = new PmmTimeSeries();
-    		
-    		// fill row
-    		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
-    		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
-    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
-    		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
-        		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
-    			miscDoc.add(mx);
-    		}
-    		if (result.getObject(Bfrdb.ATT_PH) != null) {
-    			double dbl = result.getDouble(Bfrdb.ATT_PH);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null);
-    			miscDoc.add(mx);
-    		}
-    		if (result.getObject(Bfrdb.ATT_AW) != null) {
-    			double dbl = result.getDouble(Bfrdb.ATT_AW);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null);
-    			miscDoc.add(mx);
-    		}
-    		tuple.addMiscs(miscDoc);
-
-    		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
-    		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
-    		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
-    		tuple.setMatrixId( result.getInt( Bfrdb.ATT_MATRIXID ) );
-    		tuple.setMatrixName( result.getString( Bfrdb.ATT_MATRIXNAME ) );
-    		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
-    		tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
-    		tuple.setMdData(tsDoc);
-    		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
-    		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
-    		
-    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
-    		if (s != null) {
-    			PmmXmlDoc l = new PmmXmlDoc();
-    			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
-    			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
-    			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
-    			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
-    			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-    					(Integer) (year == null ? null : year),
-    					title == null ? null : title.toString(),
-    					abstrac == null ? null : abstrac.toString(),
-    					Integer.valueOf(s)); 
-    			l.add(li);
-				tuple.setLiterature(l);
-			}
-    		
-    		// add row to data buffer
-    		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
-    			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
-    		}
-    		
+
+    		if (tsDoc.size() > 0) {
+        		// initialize row
+        		tuple = new PmmTimeSeries();
+        		
+        		// fill row
+        		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
+        		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
+        		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+        		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
+            		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
+        			miscDoc.add(mx);
+        		}
+        		if (result.getObject(Bfrdb.ATT_PH) != null) {
+        			double dbl = result.getDouble(Bfrdb.ATT_PH);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null);
+        			miscDoc.add(mx);
+        		}
+        		if (result.getObject(Bfrdb.ATT_AW) != null) {
+        			double dbl = result.getDouble(Bfrdb.ATT_AW);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null);
+        			miscDoc.add(mx);
+        		}
+        		tuple.addMiscs(miscDoc);
+
+        		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
+        		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
+        		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
+        		tuple.setMatrixId( result.getInt( Bfrdb.ATT_MATRIXID ) );
+        		tuple.setMatrixName( result.getString( Bfrdb.ATT_MATRIXNAME ) );
+        		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
+        		//tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
+        		tuple.setMdData(tsDoc);
+        		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
+        		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
+        		
+        		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+        		if (s != null) {
+        			PmmXmlDoc l = new PmmXmlDoc();
+        			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
+        			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
+        			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
+        			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
+        			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+        					(Integer) (year == null ? null : year),
+        					title == null ? null : title.toString(),
+        					abstrac == null ? null : abstrac.toString(),
+        					Integer.valueOf(s)); 
+        			l.add(li);
+    				tuple.setLiterature(l);
+    			}
+        		
+        		// add row to data buffer
+        		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
+        			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+        		}    			
+    		}    		
     	}
     	
     	// close data buffer

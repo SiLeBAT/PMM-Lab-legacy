@@ -1637,8 +1637,7 @@ public class DBKernel {
 					//DBKernel.getNewServerConnection(login, pw, filename);		
 					result = DBKernel.getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME",""), 
 							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD",""));
-					//DBKernel.getDBConnection("defad", 
-						//	getTempSAPass(true));
+					createGui(result);
 				}
 				catch (Exception e) {e.printStackTrace();}
 			}
@@ -1673,46 +1672,44 @@ public class DBKernel {
 							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass()));
 					if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(true)),
 							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(true)));
+
+					createGui(result);
 					// UpdateChecker
-			  		if (DBKernel.myList == null) {
-					  	String dbVersion = DBKernel.getDBVersion();
-					  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
-						  	boolean isAdmin = DBKernel.isAdmin();
-						  	if (!isAdmin) {
-						  		DBKernel.closeDBConnections(false);
-						  		DBKernel.getDefaultAdminConn();
-						  	}
-						  	
-						  	if (DBKernel.getDBVersion() == null) {
-						  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
-						  		DBKernel.setDBVersion("1.4.4");
-						  	}
-						  	if (DBKernel.getDBVersion().equals("1.4.4")) {
-						  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
-						  		DBKernel.setDBVersion("1.4.5");
-						  	}
-						  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-						  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
-						  		DBKernel.setDBVersion("1.4.6");
-						  	}
-						  	if (DBKernel.getDBVersion().equals("1.4.6")) {
-						  		UpdateChecker.check4Updates_146_147(myList); 
-						  		DBKernel.setDBVersion("1.4.7");
-						  	}
-						  	
-						  	if (!isAdmin) {
-						  		DBKernel.closeDBConnections(false);
-						  		DBKernel.getDBConnection();
-						  	}
+				  	String dbVersion = DBKernel.getDBVersion();
+				  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
+					  	boolean isAdmin = DBKernel.isAdmin();
+					  	if (!isAdmin) {
+					  		DBKernel.closeDBConnections(false);
+					  		DBKernel.getDefaultAdminConn();
+					  	}
+					  	
+					  	if (DBKernel.getDBVersion() == null) {
+					  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.4");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.4")) {
+					  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.5");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+					  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
+					  		DBKernel.setDBVersion("1.4.6");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
+					  		UpdateChecker.check4Updates_146_147(myList); 
+					  		DBKernel.setDBVersion("1.4.7");
+					  	}
+					  	
+					  	if (!isAdmin) {
+					  		DBKernel.closeDBConnections(false);
+					  		DBKernel.getDBConnection();
 					  	}
 			  		}				
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
-			}
-			
-			createGui(result);
+			}			
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);

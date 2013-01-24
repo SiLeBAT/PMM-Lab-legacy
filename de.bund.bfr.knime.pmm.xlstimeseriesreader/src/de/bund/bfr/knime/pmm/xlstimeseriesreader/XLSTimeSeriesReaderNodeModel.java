@@ -71,17 +71,24 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
-	static final String CFGKEY_FILENAME = "FileName";
-	static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
-	static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	static final String CFGKEY_LOGCUNIT = "LogcUnit";
-	static final String CFGKEY_TEMPUNIT = "TempUnit";
+	protected static final String CFGKEY_FILENAME = "FileName";
+	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
+	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
+	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
+	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
+	protected static final String CFGKEY_AGENTID = "AgentID";
+	protected static final String CFGKEY_MATRIXID = "MatrixID";
+
+	protected static final int DEFAULT_AGENTID = -1;
+	protected static final int DEFAULT_MATRIXID = -1;
 
 	private String fileName;
 	private Map<String, Integer> columnMappings;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
+	private int agentID;
+	private int matrixID;
 
 	private KnimeSchema timeSeriesSchema;
 
@@ -96,6 +103,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
+		agentID = DEFAULT_AGENTID;
+		matrixID = DEFAULT_MATRIXID;
 		timeSeriesSchema = new TimeSeriesSchema();
 	}
 
@@ -139,6 +148,18 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
 				.getTimeSeriesTuples(new File(fileName), mappings).values());
+
+		String agentName = DBKernel.getValue("Agenzien", "ID", agentID + "",
+				"Agensname") + "";
+		String matrixName = DBKernel.getValue("Matrices", "ID", matrixID + "",
+				"Matrixname") + "";
+
+		for (KnimeTuple tuple : tuples) {
+			tuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
+			tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agentName);
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrixName);
+		}
 
 		BufferedDataContainer container = exec
 				.createDataContainer(timeSeriesSchema.createSpec());
@@ -212,6 +233,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
+		settings.addInt(CFGKEY_AGENTID, agentID);
+		settings.addInt(CFGKEY_MATRIXID, matrixID);
 	}
 
 	/**
@@ -253,6 +276,18 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		} catch (InvalidSettingsException e) {
 			tempUnit = AttributeUtilities
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
+		}
+
+		try {
+			agentID = settings.getInt(CFGKEY_AGENTID);
+		} catch (InvalidSettingsException e) {
+			agentID = DEFAULT_AGENTID;
+		}
+
+		try {
+			matrixID = settings.getInt(CFGKEY_MATRIXID);
+		} catch (InvalidSettingsException e) {
+			matrixID = DEFAULT_MATRIXID;
 		}
 	}
 

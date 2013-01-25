@@ -133,12 +133,13 @@ public class Login extends JFrame {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			loadDB();
 			/*
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ModellkatalogParameter") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modell_Referenz") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modellkatalog") + " WHERE " + DBKernel.delimitL("ID") + " >= 47 AND " + DBKernel.delimitL("ID") + " <= 49", false);
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Literatur") + " WHERE " + DBKernel.delimitL("ID") + " <= 239", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 			*/
 			//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
 			/*
@@ -386,40 +387,6 @@ public class Login extends JFrame {
 					  		DBKernel.getDefaultAdminConn();
 					  	}
 					  	String dbVersion = DBKernel.getDBVersion();
-					  	/*
-					  	if (dbVersion.equals("1.2.7")) {
-					  		//UpdateChecker.check4Updates_127_128();
-					  		DBKernel.setDBVersion("1.2.8");
-					  	}
-					  	else if (dbVersion.equals("1.2.8")) {
-					  		//UpdateChecker.check4Updates_128_129(myList); 
-					  		DBKernel.setDBVersion("1.2.9");
-					  	}					  	
-					  	else if (dbVersion.equals("1.2.9")) {
-					  		//UpdateChecker.check4Updates_129_130(myList); 
-					  		DBKernel.setDBVersion("1.3.0");
-					  	}
-					  	else if (dbVersion.equals("1.3.0")) {
-					  		//UpdateChecker.check4Updates_130_131(myList); 
-					  		DBKernel.setDBVersion("1.3.1");
-					  	}
-					  	else if (dbVersion.equals("1.3.1")) {
-					  		//UpdateChecker.check4Updates_131_132(myList); 
-					  		DBKernel.setDBVersion("1.3.2");
-					  	}
-					  	else if (dbVersion.equals("1.3.2")) {
-					  		//UpdateChecker.check4Updates_132_133(myList); 
-					  		DBKernel.setDBVersion("1.3.3");
-					  	}
-					  	else if (dbVersion.equals("1.3.3")) {
-					  		//UpdateChecker.check4Updates_133_134(myList); 
-					  		DBKernel.setDBVersion("1.3.4");
-					  	}
-					  	else if (dbVersion.equals("1.3.4")) {
-					  		//UpdateChecker.check4Updates_134_135(myList); 
-					  		DBKernel.setDBVersion("1.3.5");
-					  	}
-					  	else */
 					  	if (dbVersion.equals("1.3.5")) {
 					  		UpdateChecker.check4Updates_135_136(myList); 
 					  		DBKernel.setDBVersion("1.3.6");
@@ -476,6 +443,10 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_146_147(myList); 
 					  		DBKernel.setDBVersion("1.4.7");
 					  	}
+					  	if (DBKernel.getDBVersion().equals("1.4.7")) {
+					  		UpdateChecker.check4Updates_147_148(myList); 
+					  		DBKernel.setDBVersion("1.4.8");
+					  	}					  	
 					  	
 						DBKernel.closeDBConnections(false);
 					}
@@ -1847,13 +1818,13 @@ public class Login extends JFrame {
 				new String[]{null,null,null,null,null});
 		myList.addTable(Prozessdaten_Sonstiges, -1);
 		MyTable Prozessdaten_Messwerte = new MyTable("Prozessdaten_Messwerte",
-				new String[]{"Prozessdaten","Agens","Zeit","ZeitEinheit","Konzentration","Einheit","Konzentration_GKZ","Einheit_GKZ"},
-				new String[]{"INTEGER","INTEGER","DOUBLE","VARCHAR(50)","DOUBLE","INTEGER","DOUBLE","INTEGER"},
-				new String[]{null,null,"Zeitpunkt der Messung relativ zum Prozessschritt,\nd.h. falls die Messung z.B. gleich zu Beginn des Prozessschrittes gemacht wird,\ndann ist hier 0 einzutragen!\nUnabhängig davon wie lange der gesamte Prozess schon läuft!",null,"Konzentration des Agens","Konzentration - Einheit","Gesamtkeimzahl","Gesamtkeimzahl-Einheit"},
-				new MyTable[]{prozessdaten,agenzien,newDoubleTable,null,newDoubleTable,Konzentrationseinheiten,newDoubleTable,Konzentrationseinheiten},
+				new String[]{"Prozessdaten","ExperimentID","Agens","Zeit","ZeitEinheit","Konzentration","Einheit","Konzentration_GKZ","Einheit_GKZ"},
+				new String[]{"INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(50)","DOUBLE","INTEGER","DOUBLE","INTEGER"},
+				new String[]{null,null,null,"Zeitpunkt der Messung relativ zum Prozessschritt,\nd.h. falls die Messung z.B. gleich zu Beginn des Prozessschrittes gemacht wird,\ndann ist hier 0 einzutragen!\nUnabhängig davon wie lange der gesamte Prozess schon läuft!",null,"Konzentration des Agens","Konzentration - Einheit","Gesamtkeimzahl","Gesamtkeimzahl-Einheit"},
+				new MyTable[]{prozessdaten,null,agenzien,newDoubleTable,null,newDoubleTable,Konzentrationseinheiten,newDoubleTable,Konzentrationseinheiten},
 				null,
-				new LinkedHashMap[]{null,null,null,hashZeit,null,null,null,null},
-				new String[]{null,null,null,null,null,null,null,null});
+				new LinkedHashMap[]{null,null,null,null,hashZeit,null,null,null,null},
+				new String[]{null,null,null,null,null,null,null,null,null});
 		myList.addTable(Prozessdaten_Messwerte, -1);
 		MyTable Prozessdaten_Kosten = new MyTable("Prozessdaten_Kosten",
 				new String[]{"Prozessdaten","Kostenkatalog","Menge"},

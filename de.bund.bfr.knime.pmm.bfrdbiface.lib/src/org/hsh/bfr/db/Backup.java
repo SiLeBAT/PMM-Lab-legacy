@@ -290,11 +290,13 @@ public class Backup extends FileFilter {
     java.io.File f = new java.io.File(path);
     String fileKennung = "DB.";
     java.io.File[] files = f.listFiles();
-    for (int i=0;i<files.length;i++) {
-      if (files[i].isFile() && files[i].getName().startsWith(fileKennung)) { //  && !files[i].getName().endsWith(".properties")
-        System.gc();
-        files[i].delete();
-      }
+    if (files != null) {
+        for (int i=0;i<files.length;i++) {
+            if (files[i].isFile() && files[i].getName().startsWith(fileKennung)) { //  && !files[i].getName().endsWith(".properties")
+              System.gc();
+              files[i].delete();
+            }
+          }
     }
   }
 

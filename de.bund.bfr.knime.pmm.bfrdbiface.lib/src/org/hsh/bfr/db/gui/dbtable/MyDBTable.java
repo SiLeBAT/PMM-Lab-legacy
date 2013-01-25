@@ -487,7 +487,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			int id = this.getSelectedID();
 			int numForeignCounts = DBKernel.getUsagecountOfID(tablename, id);
 			if (numForeignCounts > 0) {
-    			InfoBox ib = new InfoBox("numForeignCounts=" + numForeignCounts + " for Table " + tablename + ", ID " + id, true, new Dimension(700, 150), null, true);
+    			InfoBox ib = new InfoBox("Please delete referencing data sets first.\n" + "numForeignCounts=" + numForeignCounts + " for Table " + tablename + ", ID " + id, true, new Dimension(700, 150), null, true);
     			ib.setVisible(true);    				    			
 			}
 			else {

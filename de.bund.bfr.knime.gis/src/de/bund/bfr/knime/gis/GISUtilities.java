@@ -49,39 +49,39 @@ public class GISUtilities {
 		Point2D.Double center = null;
 
 		for (Part part : poly.getParts()) {
-			double[] x;
-			double[] y;
-			int npoints;
+			int n;
+			double[] xs;
+			double[] ys;			
 
 			if (part.getXs()[0] == part.getXs()[part.getPointCount() - 1]
 					&& part.getYs()[0] == part.getYs()[part.getPointCount() - 1]) {
-				npoints = part.getPointCount();
-				x = part.getXs();
-				y = part.getYs();
+				n = part.getPointCount();
+				xs = part.getXs();
+				ys = part.getYs();
 			} else {
-				npoints = part.getPointCount() + 1;
-				x = new double[npoints];
-				y = new double[npoints];
+				n = part.getPointCount() + 1;
+				xs = new double[n];
+				ys = new double[n];
 
 				for (int i = 0; i < part.getPointCount(); i++) {
-					x[i] = part.getXs()[i];
-					y[i] = part.getYs()[i];
+					xs[i] = part.getXs()[i];
+					ys[i] = part.getYs()[i];
 				}
 
-				x[npoints - 1] = x[0];
-				y[npoints - 1] = y[0];
+				xs[n - 1] = xs[0];
+				ys[n - 1] = ys[0];
 			}
 
 			double area = 0.0;
 			double cx = 0.0;
 			double cy = 0.0;
 
-			for (int i = 0; i < npoints - 1; i++) {
-				double mem = x[i] * y[i + 1] - x[i + 1] * y[i];
+			for (int i = 0; i < n - 1; i++) {
+				double mem = xs[i] * ys[i + 1] - xs[i + 1] * ys[i];
 
 				area += mem;
-				cx += (x[i] + x[i + 1]) * mem;
-				cy += (y[i] + y[i + 1]) * mem;
+				cx += (xs[i] + xs[i + 1]) * mem;
+				cy += (ys[i] + ys[i + 1]) * mem;
 			}
 
 			area /= 2.0;
@@ -121,17 +121,36 @@ public class GISUtilities {
 
 	public static boolean containsPoint(ShpPolygon poly, Point2D.Double point) {
 		for (Part part : poly.getParts()) {
-			int n = part.getPointCount();
-			double[] xs = part.getXs();
-			double[] ys = part.getYs();
 			double x = point.x;
 			double y = point.y;
+			int n;
+			double[] xs;
+			double[] ys;
+
+			if (part.getXs()[0] == part.getXs()[part.getPointCount() - 1]
+					&& part.getYs()[0] == part.getYs()[part.getPointCount() - 1]) {
+				n = part.getPointCount();
+				xs = part.getXs();
+				ys = part.getYs();
+			} else {
+				n = part.getPointCount() + 1;
+				xs = new double[n];
+				ys = new double[n];				
+
+				for (int i = 0; i < part.getPointCount(); i++) {
+					xs[i] = part.getXs()[i];
+					ys[i] = part.getYs()[i];
+				}
+
+				xs[n - 1] = xs[0];
+				ys[n - 1] = ys[0];
+			}
 
 			int hits = 0;
-			double x1 = xs[n - 1];
-			double y1 = ys[n - 1];
+			double x1 = xs[0];
+			double y1 = ys[0];
 
-			for (int i = 0; i < n; i++) {
+			for (int i = 1; i < n; i++) {
 				double x2 = xs[i];
 				double y2 = ys[i];
 

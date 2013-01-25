@@ -159,8 +159,16 @@ public class GISCanvas extends JPanel implements ActionListener {
 		add(optionsPanel, BorderLayout.SOUTH);
 	}
 
-	public void setHighlightedRegions(List<String> highlightedRegions) {
-		gisComponent.setHighlightedRegions(highlightedRegions);
+	public List<Node> getNodes() {
+		return gisComponent.getNodes();
+	}
+
+	public List<Edge> getEdges() {
+		return gisComponent.getEdges();
+	}
+
+	public void setSelectedNodes(Set<Node> selectedNodes) {
+		gisComponent.setSelectedNodes(selectedNodes);
 		gisComponent.repaint();
 	}
 
@@ -334,7 +342,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private int borderAlpha;
 		private int edgeAlpha;
 		private String mode;
-		private List<String> highlightedRegions;
+		private Set<Node> selectedNodes;
 
 		private boolean transformComputed;
 		private boolean transformedShapesComputed;
@@ -367,6 +375,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 			this.borderAlpha = borderAlpha;
 			this.edgeAlpha = edgeAlpha;
 			this.mode = mode;
+			selectedNodes = new LinkedHashSet<>();
 
 			transformComputed = false;
 			transformedShapesComputed = false;
@@ -378,6 +387,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 			addMouseWheelListener(this);
 			createPopupMenu();
 			updateCursor();
+		}
+
+		public List<Node> getNodes() {
+			return nodes;
+		}
+
+		public List<Edge> getEdges() {
+			return edges;
 		}
 
 		public void setBorderAlpha(int borderAlpha) {
@@ -393,8 +410,8 @@ public class GISCanvas extends JPanel implements ActionListener {
 			updateCursor();
 		}
 
-		public void setHighlightedRegions(List<String> highlightedRegions) {
-			this.highlightedRegions = highlightedRegions;
+		public void setSelectedNodes(Set<Node> selectedNodes) {
+			this.selectedNodes = selectedNodes;
 		}
 
 		public void reset() {
@@ -444,17 +461,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 			 * ------------------------------------------------------------------
 			 */
 
-			if (highlightedRegions != null) {
-				Set<String> highlightedSet = new LinkedHashSet<>(
-						highlightedRegions);
+			if (selectedNodes != null) {
+				for (Node node : selectedNodes) {
+					g.setColor(Color.GREEN);
 
-				for (Node node : nodes) {
-					if (highlightedSet.contains(node.getId())) {
-						g.setColor(Color.GREEN);
-
-						for (Polygon part : node.getTransformedPolygon()) {
-							g.fillPolygon(part);
-						}
+					for (Polygon part : node.getTransformedPolygon()) {
+						g.fillPolygon(part);
 					}
 				}
 			}
@@ -613,7 +625,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 			}
 		}
 
-		private Node getIdOfContainingPolygon(int x, int y) {
+		private Node getContainingNode(int x, int y) {
 			Point2D.Double p = getInversedPoint(x, y);
 
 			for (Node node : nodes) {
@@ -644,6 +656,19 @@ public class GISCanvas extends JPanel implements ActionListener {
 				leftButtonPressed = true;
 				lastX = e.getX();
 				lastY = e.getY();
+
+				if (mode.equals(PICKING_MODE)) {
+					Node node = getContainingNode(e.getX(), e.getY());
+
+					if (node != null) {
+						if (!e.isShiftDown()) {
+							selectedNodes.clear();
+						}
+
+						selectedNodes.add(node);
+						repaint();
+					}
+				}
 			}
 		}
 
@@ -684,7 +709,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			Node node = getIdOfContainingPolygon(e.getX(), e.getY());
+			Node node = getContainingNode(e.getX(), e.getY());
 
 			if (node == null) {
 				setToolTipText(null);
@@ -741,7 +766,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 	}
 
-	public static class ValueHighlightCondition {
+	private static class ValueHighlightCondition {
 
 		public static final String VALUE_TYPE = "Value";
 		public static final String LOG_VALUE_TYPE = "Log Value";

@@ -535,6 +535,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
+	public static interface NodeSelectionListener {
+
+		public void selectionChanged(Set<Node> selectedNodes);
+	}
+
 	private static class NodeShapeTransformer implements
 			Transformer<Node, Shape> {
 
@@ -605,11 +610,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			}
 		}
 
-	}
-
-	public static interface NodeSelectionListener {
-
-		public void selectionChanged(Set<Node> selectedNodes);
 	}
 
 	private static class PropertiesDialog extends JFrame implements
@@ -1086,7 +1086,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		public Map<GraphElement, Double> getValues(List<GraphElement> elements);
 	}
 
-	public static class ValueHighlightCondition implements HighlightCondition {
+	private static class ValueHighlightCondition implements HighlightCondition {
 
 		public static final String VALUE_TYPE = "Value";
 		public static final String LOG_VALUE_TYPE = "Log Value";
@@ -1149,7 +1149,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
-	public static class AndOrHighlightCondition implements HighlightCondition {
+	private static class AndOrHighlightCondition implements HighlightCondition {
 
 		public static final String AND_TYPE = "And";
 		public static final String OR_TYPE = "Or";
@@ -1213,7 +1213,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	}
 
-	public static class LogicalHighlightCondition implements HighlightCondition {
+	private static class LogicalHighlightCondition implements
+			HighlightCondition {
 
 		public static final String EQUAL_TYPE = "==";
 		public static final String NOT_EQUAL_TYPE = "!=";
@@ -1249,13 +1250,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 				if (type.equals(EQUAL_TYPE)) {
 					if (nodeValue != null && nodeValue instanceof Boolean) {
-						if (value != null && value.equalsIgnoreCase((boolean) nodeValue ? "true" : "false")) {
+						if (value != null
+								&& value.equalsIgnoreCase((boolean) nodeValue ? "true"
+										: "false")) {
 							values.put(element, 1.0);
 						} else {
 							values.put(element, 0.0);
 						}
-					}
-					else {
+					} else {
 						if (value != null && value.equals(nodeValue)) {
 							values.put(element, 1.0);
 						} else {
@@ -1264,13 +1266,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					}
 				} else if (type.equals(NOT_EQUAL_TYPE)) {
 					if (nodeValue != null && nodeValue instanceof Boolean) {
-						if (value == null || value.equalsIgnoreCase((boolean) nodeValue ? "false" : "true")) {
+						if (value == null
+								|| value.equalsIgnoreCase((boolean) nodeValue ? "false"
+										: "true")) {
 							values.put(element, 1.0);
 						} else {
 							values.put(element, 0.0);
 						}
-					}
-					else {
+					} else {
 						if (value != null && !value.equals(nodeValue)) {
 							values.put(element, 1.0);
 						} else {

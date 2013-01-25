@@ -128,13 +128,23 @@ public class RegionToRegionVisualizerNodeView extends
 
 	@Override
 	public void selectionChanged(Set<GraphCanvas.Node> selectedNodes) {
-		List<String> regions = new ArrayList<String>();
+		Set<GISCanvas.Node> selectedGisNodes = new LinkedHashSet<>();
+		Map<String, GISCanvas.Node> gisNodesByRegion = new LinkedHashMap<>();
 
-		for (GraphCanvas.Node node : selectedNodes) {
-			regions.add(node.getRegion());
+		for (GISCanvas.Node gisNode : gisCanvas.getNodes()) {
+			gisNodesByRegion.put(gisNode.getId(), gisNode);
 		}
 
-		gisCanvas.setHighlightedRegions(regions);
+		for (GraphCanvas.Node graphNode : selectedNodes) {
+			GISCanvas.Node gisNode = gisNodesByRegion
+					.get(graphNode.getRegion());
+
+			if (gisNode != null) {
+				selectedGisNodes.add(gisNode);
+			}
+		}
+
+		gisCanvas.setSelectedNodes(selectedGisNodes);
 		gisCanvas.repaint();
 	}
 

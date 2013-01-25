@@ -35,6 +35,7 @@ package de.bund.bfr.knime.gis;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -80,8 +81,13 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private static final String TRANSFORMING_MODE = "Transforming";
+	private static final String PICKING_MODE = "Picking";
+	private static final String[] MODES = { TRANSFORMING_MODE, PICKING_MODE };
+
 	private static final int DEFAULT_BORDER_ALPHA = 255;
 	private static final int DEFAULT_EDGE_ALPHA = 255;
+	private static final String DEFAULT_MODE = PICKING_MODE;
 
 	private GISComponent gisComponent;
 	private JButton layoutButton;
@@ -89,19 +95,28 @@ public class GISCanvas extends JPanel implements ActionListener {
 	private JButton borderAlphaButton;
 	private JSlider edgeAlphaSlider;
 	private JButton edgeAlphaButton;
+	private JComboBox<String> modeBox;
 
 	public GISCanvas(List<Node> nodes, List<Edge> edges,
 			List<String> nodeProperties, List<String> edgeProperties) {
 		gisComponent = new GISComponent(nodes, edges, nodeProperties,
-				edgeProperties, DEFAULT_BORDER_ALPHA, DEFAULT_EDGE_ALPHA);
+				edgeProperties, DEFAULT_BORDER_ALPHA, DEFAULT_EDGE_ALPHA,
+				DEFAULT_MODE);
 		layoutButton = new JButton("Reset");
 		layoutButton.addActionListener(this);
 		borderAlphaSlider = new JSlider(0, 255, DEFAULT_BORDER_ALPHA);
+		borderAlphaSlider.setPreferredSize(new Dimension(100, borderAlphaSlider
+				.getPreferredSize().height));
 		borderAlphaButton = new JButton("Apply");
 		borderAlphaButton.addActionListener(this);
 		edgeAlphaSlider = new JSlider(0, 255, DEFAULT_EDGE_ALPHA);
+		edgeAlphaSlider.setPreferredSize(new Dimension(100, edgeAlphaSlider
+				.getPreferredSize().height));
 		edgeAlphaButton = new JButton("Apply");
 		edgeAlphaButton.addActionListener(this);
+		modeBox = new JComboBox<String>(MODES);
+		modeBox.setSelectedItem(DEFAULT_MODE);
+		modeBox.addActionListener(this);
 
 		JPanel layoutPanel = new JPanel();
 
@@ -125,12 +140,19 @@ public class GISCanvas extends JPanel implements ActionListener {
 		edgeAlphaPanel.add(edgeAlphaSlider);
 		edgeAlphaPanel.add(edgeAlphaButton);
 
+		JPanel modePanel = new JPanel();
+
+		modePanel.setBorder(BorderFactory.createTitledBorder("Editing Mode"));
+		modePanel.setLayout(new FlowLayout());
+		modePanel.add(modeBox);
+
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		optionsPanel.add(layoutPanel);
 		optionsPanel.add(borderAlphaPanel);
 		optionsPanel.add(edgeAlphaPanel);
+		optionsPanel.add(modePanel);
 
 		setLayout(new BorderLayout());
 		add(gisComponent, BorderLayout.CENTER);
@@ -153,6 +175,8 @@ public class GISCanvas extends JPanel implements ActionListener {
 		} else if (e.getSource() == edgeAlphaButton) {
 			gisComponent.setEdgeAlpha(edgeAlphaSlider.getValue());
 			gisComponent.repaint();
+		} else if (e.getSource() == modeBox) {
+			gisComponent.setMode((String) modeBox.getSelectedItem());
 		}
 	}
 
@@ -309,6 +333,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private List<String> edgeProperties;
 		private int borderAlpha;
 		private int edgeAlpha;
+		private String mode;
 		private List<String> highlightedRegions;
 
 		private boolean transformComputed;
@@ -334,13 +359,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		public GISComponent(List<Node> nodes, List<Edge> edges,
 				List<String> nodeProperties, List<String> edgeProperties,
-				int borderAlpha, int edgeAlpha) {
+				int borderAlpha, int edgeAlpha, String mode) {
 			this.nodes = nodes;
 			this.edges = edges;
 			this.nodeProperties = nodeProperties;
 			this.edgeProperties = edgeProperties;
 			this.borderAlpha = borderAlpha;
 			this.edgeAlpha = edgeAlpha;
+			this.mode = mode;
 
 			transformComputed = false;
 			transformedShapesComputed = false;
@@ -351,6 +377,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 			addMouseMotionListener(this);
 			addMouseWheelListener(this);
 			createPopupMenu();
+			updateCursor();
 		}
 
 		public void setBorderAlpha(int borderAlpha) {
@@ -359,6 +386,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		public void setEdgeAlpha(int edgeAlpha) {
 			this.edgeAlpha = edgeAlpha;
+		}
+
+		public void setMode(String mode) {
+			this.mode = mode;
+			updateCursor();
 		}
 
 		public void setHighlightedRegions(List<String> highlightedRegions) {
@@ -573,6 +605,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 			popup.add(clearHighlightEdgesItem);
 		}
 
+		private void updateCursor() {
+			if (mode.equals(TRANSFORMING_MODE)) {
+				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			} else if (mode.equals(PICKING_MODE)) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+		}
+
 		private Node getIdOfContainingPolygon(int x, int y) {
 			Point2D.Double p = getInversedPoint(x, y);
 
@@ -626,7 +666,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			if (leftButtonPressed) {
+			if (leftButtonPressed && mode.equals(TRANSFORMING_MODE)) {
 				int diffX = e.getX() - lastX;
 				int diffY = e.getY() - lastY;
 

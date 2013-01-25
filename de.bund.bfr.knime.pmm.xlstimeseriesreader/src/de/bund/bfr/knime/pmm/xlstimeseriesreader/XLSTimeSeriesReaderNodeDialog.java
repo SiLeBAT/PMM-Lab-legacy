@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.xlstimeseriesreader;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -43,6 +44,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +54,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 
 import org.hsh.bfr.db.DBKernel;
@@ -99,6 +103,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private Integer agentID;
 	private Integer matrixID;
 
+	private JButton addLiteratureButton;
+	private JButton removeLiteratureButton;
+	private JList<String> literatureList;
+	private List<Integer> literatureIDs;
+	private List<String> literatureData;
+
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> mappingBoxes;
 	private Map<String, JButton> mappingButtons;
@@ -123,10 +133,18 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		tempBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
+
 		agentButton = new JButton(SELECT);
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
 		matrixButton.addActionListener(this);
+
+		addLiteratureButton = new JButton("Add");
+		addLiteratureButton.addActionListener(this);
+		removeLiteratureButton = new JButton("Remove");
+		removeLiteratureButton.addActionListener(this);
+		literatureList = new JList<>();
+
 		noLabel = new JLabel();
 		noLabel.setPreferredSize(new Dimension(100, 50));
 		columnsPanel = new JPanel();
@@ -160,33 +178,53 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
 		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
+		unitsPanel.add(northUnitsPanel, BorderLayout.WEST);
 
-		JPanel northMatrixAgentPanel = new JPanel();
+		JPanel northInfoPanel = new JPanel();
 
-		northMatrixAgentPanel.setLayout(new GridBagLayout());
-		northMatrixAgentPanel.add(
+		northInfoPanel.setLayout(new GridBagLayout());
+		northInfoPanel.add(
 				new JLabel(AttributeUtilities
 						.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"),
 				createConstraints(0, 0));
-		northMatrixAgentPanel.add(agentButton, createConstraints(1, 0));
-		northMatrixAgentPanel.add(
+		northInfoPanel.add(agentButton, createConstraints(1, 0));
+		northInfoPanel.add(
 				new JLabel(AttributeUtilities
 						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"),
 				createConstraints(0, 1));
-		northMatrixAgentPanel.add(matrixButton, createConstraints(1, 1));
+		northInfoPanel.add(matrixButton, createConstraints(1, 1));
 
-		JPanel matrixAgentPanel = new JPanel();
+		JPanel infoPanel = new JPanel();
 
-		matrixAgentPanel.setBorder(BorderFactory.createTitledBorder("Info"));
-		matrixAgentPanel.setLayout(new BorderLayout());
-		matrixAgentPanel.add(northMatrixAgentPanel, BorderLayout.NORTH);
+		infoPanel.setBorder(BorderFactory.createTitledBorder("Info"));
+		infoPanel.setLayout(new BorderLayout());
+		infoPanel.add(northInfoPanel, BorderLayout.NORTH);
+
+		JPanel unitInfoPanel = new JPanel();
+
+		unitInfoPanel.setLayout(new BorderLayout());
+		unitInfoPanel.add(unitsPanel, BorderLayout.NORTH);
+		unitInfoPanel.add(infoPanel, BorderLayout.CENTER);
+
+		JPanel northLiteraturePanel = new JPanel();
+
+		northLiteraturePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		northLiteraturePanel.add(addLiteratureButton);
+		northLiteraturePanel.add(removeLiteratureButton);
+
+		JPanel literaturePanel = new JPanel();
+
+		literaturePanel.setBorder(BorderFactory
+				.createTitledBorder("Literature"));
+		literaturePanel.setLayout(new BorderLayout());
+		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
+		literaturePanel.add(literatureList, BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new BorderLayout());
-		optionsPanel.add(unitsPanel, BorderLayout.WEST);
-		optionsPanel.add(matrixAgentPanel, BorderLayout.CENTER);
+		optionsPanel.add(unitInfoPanel, BorderLayout.WEST);
+		optionsPanel.add(literaturePanel, BorderLayout.CENTER);
 		optionsPanel.add(columnsPanel, BorderLayout.EAST);
 
 		JPanel mainPanel = new JPanel();
@@ -285,6 +323,27 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			matrixID = null;
 		}
 
+		try {
+			literatureIDs = ListUtilities
+					.getIntListFromString(settings
+							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS));
+			literatureData = new ArrayList<>();
+
+			for (int id : literatureIDs) {
+				String author = DBKernel.getValue("Literatur", "ID", id + "",
+						"Erstautor") + "";
+				String year = DBKernel.getValue("Literatur", "ID", id + "",
+						"Jahr") + "";
+
+				literatureData.add(author + "-" + year);
+			}
+
+			literatureList.setListData(literatureData.toArray(new String[0]));
+		} catch (InvalidSettingsException e) {
+			literatureIDs = new ArrayList<>();
+			literatureList.setListData(new String[0]);
+		}
+
 		updateMappingButtons(mapIDs);
 	}
 
@@ -318,6 +377,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				(String) tempBox.getSelectedItem());
 		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID, matrixID);
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS,
+				ListUtilities.getStringFromList(literatureIDs));
 	}
 
 	@Override
@@ -343,6 +404,34 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 				matrixID = newMatrixID;
 				matrixButton.setText(matrix);
+			}
+		} else if (e.getSource() == addLiteratureButton) {
+			Integer id = openLiteratureDBWindow(null);
+
+			if (id != null && !literatureIDs.contains(id)) {
+				String author = DBKernel.getValue("Literatur", "ID", id + "",
+						"Erstautor") + "";
+				String year = DBKernel.getValue("Literatur", "ID", id + "",
+						"Jahr") + "";
+
+				literatureIDs.add(id);
+				literatureData.add(author + "-" + year);
+				literatureList.setListData(literatureData
+						.toArray(new String[0]));
+			}
+		} else if (e.getSource() == removeLiteratureButton) {
+			if (literatureList.getSelectedIndices().length > 0) {
+				int[] indices = literatureList.getSelectedIndices();
+
+				Arrays.sort(indices);
+
+				for (int i = indices.length - 1; i >= 0; i--) {
+					literatureIDs.remove(i);
+					literatureData.remove(i);
+				}
+
+				literatureList.setListData(literatureData
+						.toArray(new String[0]));
 			}
 		} else {
 			for (String column : mappingButtons.keySet()) {
@@ -541,6 +630,18 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private Integer openMatrixDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("Matrices");
 		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Matrices",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+
+	private Integer openLiteratureDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Literatur");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Literatur",
 				null, null, null, null, true);
 
 		if (newVal instanceof Integer) {

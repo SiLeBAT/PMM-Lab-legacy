@@ -53,6 +53,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -78,6 +79,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 	protected static final String CFGKEY_AGENTID = "AgentID";
 	protected static final String CFGKEY_MATRIXID = "MatrixID";
+	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
 	protected static final int DEFAULT_AGENTID = -1;
 	protected static final int DEFAULT_MATRIXID = -1;
@@ -89,6 +91,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	private String tempUnit;
 	private int agentID;
 	private int matrixID;
+	private List<Integer> literatureIDs;
 
 	private KnimeSchema timeSeriesSchema;
 
@@ -105,6 +108,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		agentID = DEFAULT_AGENTID;
 		matrixID = DEFAULT_MATRIXID;
+		literatureIDs = new ArrayList<>();
 		timeSeriesSchema = new TimeSeriesSchema();
 	}
 
@@ -159,6 +163,26 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agentName);
 			tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
 			tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrixName);
+		}
+
+		PmmXmlDoc literatureXML = new PmmXmlDoc();
+
+		for (int id : literatureIDs) {
+			String author = DBKernel.getValue("Literatur", "ID", id + "",
+					"Erstautor") + "";
+			String year = DBKernel.getValue("Literatur", "ID", id + "", "Jahr")
+					+ "";
+			String title = DBKernel.getValue("Literatur", "ID", id + "",
+					"Titel") + "";
+			String mAbstract = DBKernel.getValue("Literatur", "ID", id + "",
+					"Abstract") + "";
+
+			literatureXML.add(new LiteratureItem(author,
+					Integer.parseInt(year), title, mAbstract, id));
+		}
+
+		for (KnimeTuple tuple : tuples) {
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
 		}
 
 		BufferedDataContainer container = exec
@@ -235,6 +259,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
+		settings.addString(CFGKEY_LITERATUREIDS,
+				ListUtilities.getStringFromList(literatureIDs));
 	}
 
 	/**
@@ -288,6 +314,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			matrixID = settings.getInt(CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
 			matrixID = DEFAULT_MATRIXID;
+		}
+
+		try {
+			literatureIDs = ListUtilities.getIntListFromString(settings
+					.getString(CFGKEY_LITERATUREIDS));
+		} catch (InvalidSettingsException e) {
+			literatureIDs = new ArrayList<>();
 		}
 	}
 

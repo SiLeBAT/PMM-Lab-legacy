@@ -1378,10 +1378,19 @@ public class DBKernel {
 	  return sendRequest(sql, suppressWarnings, false);
   }
   public static boolean sendRequest(final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	try {
+		Connection conn = getDBConnection();
+		return sendRequest(conn, sql, suppressWarnings, fetchAdminInCase);
+	}
+	catch (Exception e) {
+		e.printStackTrace();
+	}
+	return false;
+  }
+  public static boolean sendRequest(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
     boolean result = false;
     boolean adminGathered = false;
     try {
-    	Connection conn = getDBConnection();
     	if (fetchAdminInCase && !DBKernel.isAdmin()) {
     		DBKernel.closeDBConnections(false);
     		conn = DBKernel.getDefaultAdminConn();

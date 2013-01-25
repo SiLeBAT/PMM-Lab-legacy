@@ -82,14 +82,16 @@ public class Hsqldbiface {
 		}		
 	}
 	private void createUser(String path, String login, String pw) throws Exception {
-		Connection lconn = DBKernel.getDefaultAdminConn(path, false);
-		if (DBKernel.countUsers(lconn, false) == 0) {
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Users") +
+		conn = DBKernel.getDefaultAdminConn(path, false);
+		if (DBKernel.countUsers(conn, false) == 0) {
+			conn.setReadOnly(false);
+			pushUpdate("INSERT INTO " + DBKernel.delimitL("Users") +
 					"(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht") +
-					") VALUES ('" + login + "', " + Users.SUPER_WRITE_ACCESS + ")", false);
-			DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(login) + " SET PASSWORD '" + pw + "';", false);
+					") VALUES ('" + login + "', " + Users.SUPER_WRITE_ACCESS + ")");
+			pushUpdate("ALTER USER " + DBKernel.delimitL(login) + " SET PASSWORD '" + pw + "';");
+			conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 		}
-		lconn.close();
+		conn.close();
 	}
 	public Connection getConnection() {
 		return conn;

@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.bfrdbiface.lib;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.ResultSet;
@@ -40,7 +41,9 @@ import java.sql.Statement;
 import java.sql.SQLWarning;
 import java.util.UUID;
 
+import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.Users;
 
 public class Hsqldbiface {
 	
@@ -60,21 +63,33 @@ public class Hsqldbiface {
 		}
 		else {
 			try {
+				String path = filename.endsWith(System.getProperty("file.separator") + "DB") ? filename.substring(0, filename.length() - 2) : filename;
+				if (!DBKernel.DBFilesDa(path)) {
+					File temp = DBKernel.getCopyOfInternalDB();
+					if (!Backup.doRestore(path, null, temp, true, false)) {
+						
+					}
+				}
 				conn = DBKernel.getNewLocalConnection(login, pw, filename);
+				if (conn == null) {
+					createUser(path, login, pw);
+					conn = DBKernel.getNewLocalConnection(login, pw, filename);
+				}
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-			/*
-			Class.forName( "org.hsqldb.jdbc.JDBCDriver" );
-			// Class.forName( "org.sqlite.JDBC" );
-			
-			conn = DriverManager.getConnection(
-					"jdbc:hsqldb:file:"
-					// "jdbc:sqlite:"
-					+filename+";shutdown=true", login, pw );		
-					*/	
 		}		
+	}
+	private void createUser(String path, String login, String pw) throws Exception {
+		Connection lconn = DBKernel.getDefaultAdminConn(path, false);
+		if (DBKernel.countUsers(lconn, false) == 0) {
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Users") +
+					"(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht") +
+					") VALUES ('" + login + "', " + Users.SUPER_WRITE_ACCESS + ")", false);
+			DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(login) + " SET PASSWORD '" + pw + "';", false);
+		}
+		lconn.close();
 	}
 	public Connection getConnection() {
 		return conn;

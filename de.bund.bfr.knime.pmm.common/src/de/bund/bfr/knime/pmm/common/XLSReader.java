@@ -57,11 +57,6 @@ public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
 
-	public static int ID_COLUMN_ID = -1000;
-	public static int COMMENT_COLUMN_ID = -1001;
-	public static int TIME_COLUMN_ID = -1002;
-	public static int LOGC_COLUMN_ID = -1003;
-
 	private XLSReader() {
 	}
 
@@ -81,13 +76,13 @@ public class XLSReader {
 
 			if (mapping instanceof MiscXml) {
 				miscColumns.put(column, columns.get(column));
-			} else if (mapping.equals(ID_COLUMN_ID)) {
+			} else if (mapping.equals(ID_COLUMN)) {
 				idColumn = columns.get(column);
-			} else if (mapping.equals(COMMENT_COLUMN_ID)) {
+			} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
 				commentColumn = columns.get(column);
-			} else if (mapping.equals(TIME_COLUMN_ID)) {
+			} else if (mapping.equals(TimeSeriesSchema.TIME)) {
 				timeColumn = columns.get(column);
-			} else if (mapping.equals(LOGC_COLUMN_ID)) {
+			} else if (mapping.equals(TimeSeriesSchema.LOGC)) {
 				logcColumn = columns.get(column);
 			}
 		}

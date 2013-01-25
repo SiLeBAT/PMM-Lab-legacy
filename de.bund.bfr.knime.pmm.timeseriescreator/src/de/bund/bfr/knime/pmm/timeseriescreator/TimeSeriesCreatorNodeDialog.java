@@ -830,22 +830,22 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
 							button.setEnabled(false);
 							button.setText(NO_PARAMETER);
-							mappings.put(column, XLSReader.ID_COLUMN_ID);
+							mappings.put(column, XLSReader.ID_COLUMN);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.ATT_COMMENT)) {
 							button.setEnabled(false);
 							button.setText(NO_PARAMETER);
-							mappings.put(column, XLSReader.COMMENT_COLUMN_ID);
+							mappings.put(column, TimeSeriesSchema.ATT_COMMENT);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.TIME)) {
 							button.setEnabled(false);
 							button.setText(NO_PARAMETER);
-							mappings.put(column, XLSReader.TIME_COLUMN_ID);
+							mappings.put(column, TimeSeriesSchema.TIME);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.LOGC)) {
 							button.setEnabled(false);
 							button.setText(NO_PARAMETER);
-							mappings.put(column, XLSReader.LOGC_COLUMN_ID);
+							mappings.put(column, TimeSeriesSchema.LOGC);
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);

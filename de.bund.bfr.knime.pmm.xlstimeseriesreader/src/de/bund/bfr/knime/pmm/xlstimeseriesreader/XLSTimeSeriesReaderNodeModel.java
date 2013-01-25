@@ -85,7 +85,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final int DEFAULT_MATRIXID = -1;
 
 	private String fileName;
-	private Map<String, Integer> columnMappings;
+	private Map<String, String> columnMappings;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
@@ -121,32 +121,32 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		Map<String, Object> mappings = new LinkedHashMap<>();
 
 		for (String column : columnMappings.keySet()) {
-			int id = columnMappings.get(column);
+			String id = columnMappings.get(column);
 
-			if (id == XLSReader.ID_COLUMN_ID) {
+			if (id.equals(XLSReader.ID_COLUMN)) {
 				mappings.put(column, id);
-			} else if (id == XLSReader.COMMENT_COLUMN_ID) {
+			} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 				mappings.put(column, id);
-			} else if (id == XLSReader.TIME_COLUMN_ID) {
+			} else if (id.equals(TimeSeriesSchema.TIME)) {
 				mappings.put(column, id);
-			} else if (id == XLSReader.LOGC_COLUMN_ID) {
+			} else if (id.equals(TimeSeriesSchema.LOGC)) {
 				mappings.put(column, id);
-			} else if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
-				mappings.put(column, new MiscXml((Integer) id,
+			} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID + "")) {
+				mappings.put(column, new MiscXml(
+						AttributeUtilities.ATT_TEMPERATURE_ID,
 						AttributeUtilities.ATT_TEMPERATURE, null, null, null));
-			} else if (id == AttributeUtilities.ATT_PH_ID) {
-				mappings.put(column, new MiscXml((Integer) id,
+			} else if (id.equals(AttributeUtilities.ATT_PH_ID + "")) {
+				mappings.put(column, new MiscXml(AttributeUtilities.ATT_PH_ID,
 						AttributeUtilities.ATT_PH, null, null, null));
-			} else if (id == AttributeUtilities.ATT_AW_ID) {
-				mappings.put(column, new MiscXml((Integer) id,
+			} else if (id.equals(AttributeUtilities.ATT_AW_ID + "")) {
+				mappings.put(column, new MiscXml(AttributeUtilities.ATT_AW_ID,
 						AttributeUtilities.ATT_WATERACTIVITY, null, null, null));
 			} else {
-				String name = DBKernel.getValue("SonstigeParameter", "ID", id
-						+ "", "Parameter")
-						+ "";
+				String name = DBKernel.getValue("SonstigeParameter", "ID", id,
+						"Parameter") + "";
 
-				mappings.put(column, new MiscXml((Integer) id, name, null,
-						null, null));
+				mappings.put(column, new MiscXml(Integer.parseInt(id), name,
+						null, null, null));
 			}
 		}
 
@@ -350,17 +350,16 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static Map<String, Integer> getColumnMappingsAsMap(
+	protected static Map<String, String> getColumnMappingsAsMap(
 			List<String> list) {
-		Map<String, Integer> map = new LinkedHashMap<>();
+		Map<String, String> map = new LinkedHashMap<>();
 
 		for (String mapping : list) {
 			String[] toks = mapping.split("=");
 
 			try {
-				map.put(toks[0], Integer.parseInt(toks[1]));
+				map.put(toks[0], toks[1]);
 			} catch (ArrayIndexOutOfBoundsException e) {
-			} catch (NumberFormatException e) {
 			}
 		}
 
@@ -368,10 +367,10 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	}
 
 	protected static List<String> getColumnMappingsAsList(
-			Map<String, Integer> map) {
+			Map<String, String> map) {
 		List<String> list = new ArrayList<>();
 
-		for (Map.Entry<String, Integer> entry : map.entrySet()) {
+		for (Map.Entry<String, String> entry : map.entrySet()) {
 			list.add(entry.getKey() + "=" + entry.getValue());
 		}
 

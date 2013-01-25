@@ -112,7 +112,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> mappingBoxes;
 	private Map<String, JButton> mappingButtons;
-	private Map<String, Integer> mappingIDs;
+	private Map<String, String> mappingIDs;
 	private JLabel noLabel;
 
 	/**
@@ -244,7 +244,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
-		Map<String, Integer> mapIDs;
+		Map<String, String> mapIDs;
 
 		try {
 			filePanel.removeFileListener(this);
@@ -354,7 +354,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("");
 		}
 
-		for (Integer id : mappingIDs.values()) {
+		for (String id : mappingIDs.values()) {
 			if (id == null) {
 				throw new InvalidSettingsException("");
 			}
@@ -436,12 +436,19 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		} else {
 			for (String column : mappingButtons.keySet()) {
 				if (e.getSource() == mappingButtons.get(column)) {
-					Integer miscID = openMiscDBWindow(mappingIDs.get(column));
+					Integer intID = null;
+
+					try {
+						intID = Integer.parseInt(mappingIDs.get(column));
+					} catch (NumberFormatException ex) {
+					}
+
+					String miscID = openMiscDBWindow(intID) + "";
 
 					if (miscID != null) {
 						String misc = ""
 								+ DBKernel.getValue("SonstigeParameter", "ID",
-										miscID + "", "Parameter");
+										miscID, "Parameter");
 
 						mappingButtons.get(column).setText(misc);
 						mappingIDs.put(column, miscID);
@@ -464,38 +471,40 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, XLSReader.ID_COLUMN_ID);
+						mappingIDs.put(column, XLSReader.ID_COLUMN);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.ATT_COMMENT)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, XLSReader.COMMENT_COLUMN_ID);
+						mappingIDs.put(column, TimeSeriesSchema.ATT_COMMENT);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.TIME)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, XLSReader.TIME_COLUMN_ID);
+						mappingIDs.put(column, TimeSeriesSchema.TIME);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.LOGC)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, XLSReader.LOGC_COLUMN_ID);
+						mappingIDs.put(column, TimeSeriesSchema.LOGC);
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
 						mappingIDs.put(column,
-								AttributeUtilities.ATT_TEMPERATURE_ID);
+								AttributeUtilities.ATT_TEMPERATURE_ID + "");
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_PH)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, AttributeUtilities.ATT_PH_ID);
+						mappingIDs.put(column, AttributeUtilities.ATT_PH_ID
+								+ "");
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_WATERACTIVITY)) {
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-						mappingIDs.put(column, AttributeUtilities.ATT_AW_ID);
+						mappingIDs.put(column, AttributeUtilities.ATT_AW_ID
+								+ "");
 					} else {
 						button.setEnabled(true);
 						button.setText(NO_PARAMETER);
@@ -510,10 +519,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void fileChanged(FilePanel source) {
-		updateMappingButtons(new LinkedHashMap<String, Integer>());
+		updateMappingButtons(new LinkedHashMap<String, String>());
 	}
 
-	private void updateMappingButtons(Map<String, Integer> initialMapIDs) {
+	private void updateMappingButtons(Map<String, String> initialMapIDs) {
 		try {
 			List<String> columnList = XLSReader
 					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
@@ -537,42 +546,42 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				JButton button = new JButton();
 
 				if (initialMapIDs.containsKey(column)) {
-					int id = initialMapIDs.get(column);
+					String id = initialMapIDs.get(column);
 
-					if (id == XLSReader.ID_COLUMN_ID) {
+					if (id.equals(XLSReader.ID_COLUMN)) {
 						box.setSelectedItem(XLSReader.ID_COLUMN);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == XLSReader.COMMENT_COLUMN_ID) {
+					} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == XLSReader.TIME_COLUMN_ID) {
+					} else if (id.equals(TimeSeriesSchema.TIME)) {
 						box.setSelectedItem(TimeSeriesSchema.TIME);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == XLSReader.LOGC_COLUMN_ID) {
+					} else if (id.equals(TimeSeriesSchema.LOGC)) {
 						box.setSelectedItem(TimeSeriesSchema.LOGC);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID
+							+ "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == AttributeUtilities.ATT_PH_ID) {
+					} else if (id.equals(AttributeUtilities.ATT_PH_ID + "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_PH);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
-					} else if (id == AttributeUtilities.ATT_AW_ID) {
+					} else if (id.equals(AttributeUtilities.ATT_AW_ID + "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
 						button.setEnabled(false);
 						button.setText(NO_PARAMETER);
 					} else {
 						box.setSelectedItem(OTHER_PARAMETER);
 						button.setEnabled(true);
-						button.setText(""
-								+ DBKernel.getValue("SonstigeParameter", "ID",
-										id + "", "Parameter"));
+						button.setText(DBKernel.getValue("SonstigeParameter",
+								"ID", id, "Parameter") + "");
 					}
 
 					mappingIDs.put(column, id);

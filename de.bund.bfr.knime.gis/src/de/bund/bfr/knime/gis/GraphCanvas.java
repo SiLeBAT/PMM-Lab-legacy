@@ -147,6 +147,24 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		nodeSelectionListeners.remove(listener);
 	}
 
+	public List<Node> getNodes() {
+		return nodes;
+	}
+
+	public List<Edge> getEdges() {
+		return edges;
+	}
+
+	public void setSelectedNodes(Set<Node> selectedNodes) {
+		for (Node node : nodes) {
+			if (selectedNodes.contains(node)) {
+				viewer.getPickedVertexState().pick(node, true);
+			} else {
+				viewer.getPickedVertexState().pick(node, false);
+			}
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == layoutButton) {
@@ -480,7 +498,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private void fireNodeSelectionChanged() {
 		for (NodeSelectionListener listener : nodeSelectionListeners) {
-			listener.selectionChanged(viewer.getPickedVertexState().getPicked());
+			listener.graphSelectionChanged(viewer.getPickedVertexState()
+					.getPicked());
 		}
 	}
 
@@ -491,10 +510,12 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	public static class Node implements GraphElement {
 
+		private String id;
 		private String region;
 		private Map<String, Object> properties;
 
-		public Node(String region, Map<String, Object> properties) {
+		public Node(String id, String region, Map<String, Object> properties) {
+			this.id = id;
 			this.region = region;
 			this.properties = properties;
 		}
@@ -507,15 +528,31 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		public Map<String, Object> getProperties() {
 			return properties;
 		}
+
+		@Override
+		public int hashCode() {
+			return id.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Node) {
+				return id.equals(((Node) obj).id);
+			}
+
+			return false;
+		}
 	}
 
 	public static class Edge implements GraphElement {
 
+		private String id;
 		private Node n1;
 		private Node n2;
 		private Map<String, Object> properties;
 
-		public Edge(Node n1, Node n2, Map<String, Object> properties) {
+		public Edge(String id, Node n1, Node n2, Map<String, Object> properties) {
+			this.id = id;
 			this.n1 = n1;
 			this.n2 = n2;
 			this.properties = properties;
@@ -533,11 +570,25 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		public Map<String, Object> getProperties() {
 			return properties;
 		}
+
+		@Override
+		public int hashCode() {
+			return id.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof Edge) {
+				return id.equals(((Edge) obj).id);
+			}
+
+			return false;
+		}
 	}
 
 	public static interface NodeSelectionListener {
 
-		public void selectionChanged(Set<Node> selectedNodes);
+		public void graphSelectionChanged(Set<Node> selectedNodes);
 	}
 
 	private static class NodeShapeTransformer implements

@@ -159,6 +159,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 		add(optionsPanel, BorderLayout.SOUTH);
 	}
 
+	public void addNodeSelectionListener(NodeSelectionListener listener) {
+		gisComponent.addNodeSelectionListener(listener);
+	}
+
+	public void removeNodeSelectionListener(NodeSelectionListener listener) {
+		gisComponent.removeNodeSelectionListener(listener);
+	}
+
 	public List<Node> getNodes() {
 		return gisComponent.getNodes();
 	}
@@ -186,6 +194,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 		} else if (e.getSource() == modeBox) {
 			gisComponent.setMode((String) modeBox.getSelectedItem());
 		}
+	}
+
+	public static interface NodeSelectionListener {
+
+		public void gisSelectionChanged(Set<Node> selectedNodes);
 	}
 
 	public static interface GISElement {
@@ -287,11 +300,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 	public static class Edge implements GISElement {
 
+		private String id;
 		private Node from;
 		private Node to;
 		private Map<String, Double> properties;
 
-		public Edge(Node from, Node to, Map<String, Double> properties) {
+		public Edge(String id, Node from, Node to,
+				Map<String, Double> properties) {
+			this.id = id;
 			this.from = from;
 			this.to = to;
 			this.properties = properties;
@@ -312,16 +328,13 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		@Override
 		public int hashCode() {
-			String s = from + "->" + to;
-
-			return s.hashCode();
+			return id.hashCode();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof Edge) {
-				return from.equals(((Edge) obj).from)
-						&& to.equals(((Edge) obj).to);
+				return id.equals(((Edge) obj).id);
 			}
 
 			return false;
@@ -342,7 +355,9 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private int borderAlpha;
 		private int edgeAlpha;
 		private String mode;
+
 		private Set<Node> selectedNodes;
+		private List<NodeSelectionListener> nodeSelectionListeners;
 
 		private boolean transformComputed;
 		private boolean transformedShapesComputed;
@@ -375,7 +390,9 @@ public class GISCanvas extends JPanel implements ActionListener {
 			this.borderAlpha = borderAlpha;
 			this.edgeAlpha = edgeAlpha;
 			this.mode = mode;
+
 			selectedNodes = new LinkedHashSet<>();
+			nodeSelectionListeners = new ArrayList<>();
 
 			transformComputed = false;
 			transformedShapesComputed = false;
@@ -387,6 +404,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 			addMouseWheelListener(this);
 			createPopupMenu();
 			updateCursor();
+		}
+
+		public void addNodeSelectionListener(NodeSelectionListener listener) {
+			nodeSelectionListeners.add(listener);
+		}
+
+		public void removeNodeSelectionListener(NodeSelectionListener listener) {
+			nodeSelectionListeners.remove(listener);
 		}
 
 		public List<Node> getNodes() {
@@ -412,6 +437,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		public void setSelectedNodes(Set<Node> selectedNodes) {
 			this.selectedNodes = selectedNodes;
+			fireNodeSelectionChanged();
 		}
 
 		public void reset() {
@@ -637,6 +663,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 			return null;
 		}
 
+		private void fireNodeSelectionChanged() {
+			for (NodeSelectionListener listener : nodeSelectionListeners) {
+				listener.gisSelectionChanged(selectedNodes);
+			}
+		}
+
 		@Override
 		public void mouseWheelMoved(MouseWheelEvent e) {
 			if (e.getWheelRotation() > 0) {
@@ -667,6 +699,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 						selectedNodes.add(node);
 						repaint();
+						fireNodeSelectionChanged();
 					}
 				}
 			}

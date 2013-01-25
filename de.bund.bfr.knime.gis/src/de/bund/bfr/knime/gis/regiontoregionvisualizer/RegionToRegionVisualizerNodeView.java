@@ -73,7 +73,7 @@ import de.bund.bfr.knime.gis.GraphCanvas;
  */
 public class RegionToRegionVisualizerNodeView extends
 		NodeView<RegionToRegionVisualizerNodeModel> implements
-		GraphCanvas.NodeSelectionListener {
+		GraphCanvas.NodeSelectionListener, GISCanvas.NodeSelectionListener {
 
 	private GraphCanvas graphCanvas;
 	private GISCanvas gisCanvas;
@@ -115,6 +115,7 @@ public class RegionToRegionVisualizerNodeView extends
 			graphCanvas = createGraphCanvas(connectedNodes);
 			graphCanvas.addNodeSelectionListener(this);
 			gisCanvas = createGISCanvas(idToRegionMap, connectedNodes);
+			gisCanvas.addNodeSelectionListener(this);
 
 			JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 					graphCanvas, gisCanvas);
@@ -127,7 +128,7 @@ public class RegionToRegionVisualizerNodeView extends
 	}
 
 	@Override
-	public void selectionChanged(Set<GraphCanvas.Node> selectedNodes) {
+	public void graphSelectionChanged(Set<GraphCanvas.Node> selectedNodes) {
 		Set<GISCanvas.Node> selectedGisNodes = new LinkedHashSet<>();
 		Map<String, GISCanvas.Node> gisNodesByRegion = new LinkedHashMap<>();
 
@@ -144,8 +145,39 @@ public class RegionToRegionVisualizerNodeView extends
 			}
 		}
 
+		gisCanvas.removeNodeSelectionListener(this);
 		gisCanvas.setSelectedNodes(selectedGisNodes);
+		gisCanvas.addNodeSelectionListener(this);
 		gisCanvas.repaint();
+	}
+
+	@Override
+	public void gisSelectionChanged(Set<GISCanvas.Node> selectedNodes) {
+		Set<GraphCanvas.Node> selectedGraphNodes = new LinkedHashSet<>();
+		Map<String, List<GraphCanvas.Node>> graphNodesByRegion = new LinkedHashMap<>();
+
+		for (GraphCanvas.Node graphNode : graphCanvas.getNodes()) {
+			if (!graphNodesByRegion.containsKey(graphNode.getRegion())) {
+				graphNodesByRegion.put(graphNode.getRegion(),
+						new ArrayList<GraphCanvas.Node>());
+			}
+
+			graphNodesByRegion.get(graphNode.getRegion()).add(graphNode);
+		}
+
+		for (GISCanvas.Node gisNode : selectedNodes) {
+			List<GraphCanvas.Node> graphNodes = graphNodesByRegion.get(gisNode
+					.getId());
+
+			if (graphNodes != null) {
+				selectedGraphNodes.addAll(graphNodes);
+			}
+		}
+
+		graphCanvas.removeNodeSelectionListener(this);
+		graphCanvas.setSelectedNodes(selectedGraphNodes);
+		graphCanvas.addNodeSelectionListener(this);
+		graphCanvas.repaint();
 	}
 
 	private Map<String, String> getIdToRegionMap() {
@@ -239,6 +271,7 @@ public class RegionToRegionVisualizerNodeView extends
 
 		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<>();
 		RowIterator nodeIt = getNodeModel().getNodeTable().iterator();
+		int nodeID = 0;
 
 		while (nodeIt.hasNext()) {
 			try {
@@ -276,13 +309,16 @@ public class RegionToRegionVisualizerNodeView extends
 					}
 				}
 
-				nodes.put(id, new GraphCanvas.Node(region, properties));
+				nodes.put(id, new GraphCanvas.Node(nodeID + "", region,
+						properties));
+				nodeID++;
 			} catch (Exception e) {
 			}
 		}
 
 		List<GraphCanvas.Edge> edges = new ArrayList<GraphCanvas.Edge>();
 		RowIterator edgeIt = getNodeModel().getEdgeTable().iterator();
+		int edgeID = 0;
 
 		while (edgeIt.hasNext()) {
 			try {
@@ -314,7 +350,9 @@ public class RegionToRegionVisualizerNodeView extends
 				}
 
 				if (node1 != null && node2 != null) {
-					edges.add(new GraphCanvas.Edge(node1, node2, properties));
+					edges.add(new GraphCanvas.Edge(edgeID + "", node1, node2,
+							properties));
+					edgeID++;
 				}
 			} catch (Exception e) {
 			}
@@ -496,6 +534,7 @@ public class RegionToRegionVisualizerNodeView extends
 		/* ------------------------------------------------------------------ */
 
 		List<GISCanvas.Edge> edges = new ArrayList<>();
+		int edgeID = 0;
 
 		for (String from : edgeMap.keySet()) {
 			for (String to : edgeMap.get(from).keySet()) {
@@ -503,8 +542,9 @@ public class RegionToRegionVisualizerNodeView extends
 				GISCanvas.Node n2 = nodes.get(to);
 
 				if (n1 != null && n2 != null) {
-					edges.add(new GISCanvas.Edge(n1, n2, edgeMap.get(from).get(
-							to)));
+					edges.add(new GISCanvas.Edge(edgeID + "", n1, n2, edgeMap
+							.get(from).get(to)));
+					edgeID++;
 				}
 			}
 		}

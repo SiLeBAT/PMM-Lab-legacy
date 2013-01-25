@@ -180,6 +180,9 @@ public class Backup extends FileFilter {
 	  }	  
   }
   public static boolean doRestore(final MyDBTable myDB, final File scriptFile, final boolean silent) {
+	  return doRestore(DBKernel.HSHDB_PATH, myDB, scriptFile, silent, true);
+  }
+  public static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
 	  boolean result = true;
   	if (scriptFile != null && scriptFile.exists()) {
   		if (!silent) {
@@ -195,7 +198,7 @@ public class Backup extends FileFilter {
 			
 			// Also los!
 			String answerErr = "";
-			if (DBKernel.DBFilesDa()) {
+			if (DBKernel.DBFilesDa(path)) {
 		    	boolean isAdmin = DBKernel.isAdmin();
 		    	if (!isAdmin) {
 			    	if (myDB != null) {
@@ -209,12 +212,12 @@ public class Backup extends FileFilter {
 		    	DBKernel.closeDBConnections(false);	    		
 				System.gc();
 			}
-			deleteOldFiles();
+			deleteOldFiles(path);
 			System.gc();
 			//org.hsqldb.lib.tar.DbBackup dbb = new org.hsqldb.lib.tar.DbBackup(scriptFile, DBKernel.HSHDB_PATH + "DB");
 			try {
 				org.hsqldb.lib.tar.DbBackup.main(new String[]{
-						"--extract", scriptFile.getAbsolutePath(), DBKernel.HSHDB_PATH});
+						"--extract", scriptFile.getAbsolutePath(), path});
 			}
 			catch (Exception e) {
 				answerErr += e.getMessage();
@@ -223,7 +226,7 @@ public class Backup extends FileFilter {
 			System.gc();
 			
 			try {
-				if (!DBKernel.isKNIME) {
+				if (doReconnect && !DBKernel.isKNIME) {
 					Connection conn = getDBConnectionYOrCreateUser();
 					if (conn != null) {
 						myDB.initConn(conn);
@@ -236,7 +239,7 @@ public class Backup extends FileFilter {
 				if (!silent && answerErr.length() == 0) {
 					JOptionPane.showMessageDialog(DBKernel.mainFrame, GuiMessages.getString("Fertig!"), //  + (DBKernel.isKNIME ? "\nDas Fenster schliesst sich jetzt, bitte neu öffnen!" : "")
 							"Restore", JOptionPane.INFORMATION_MESSAGE);
-					if (!DBKernel.isKNIME) {
+					if (myDB != null && !DBKernel.isKNIME) {
 						myDB.myRefresh();
 					}
 				}
@@ -256,7 +259,7 @@ public class Backup extends FileFilter {
 			}
       System.gc();
   	}
-  	if (DBKernel.isKNIME) {
+  	if (doReconnect && DBKernel.isKNIME) {
   		DBKernel.mainFrame.dispose();
 		DBKernel.openDBGUI();
   	}
@@ -283,8 +286,8 @@ public class Backup extends FileFilter {
 	  catch (Exception e) {e.printStackTrace();}
 	  return conn;
   }
-  private static void deleteOldFiles() {
-    java.io.File f = new java.io.File(DBKernel.HSHDB_PATH);
+  private static void deleteOldFiles(String path) {
+    java.io.File f = new java.io.File(path);
     String fileKennung = "DB.";
     java.io.File[] files = f.listFiles();
     for (int i=0;i<files.length;i++) {

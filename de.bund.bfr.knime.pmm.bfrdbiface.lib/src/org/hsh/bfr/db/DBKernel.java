@@ -37,9 +37,12 @@
 package org.hsh.bfr.db;
 
 import java.awt.Dimension;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -1423,8 +1426,11 @@ public class DBKernel {
   	return tableName.equals("Matrices") || tableName.equals("Methoden") || tableName.equals("Agenzien") || tableName.equals("Methodiken");
   }
 	public static int countUsers(boolean adminsOnly) {
+		return countUsers(localConn, adminsOnly);
+	}
+	public static int countUsers(Connection conn, boolean adminsOnly) {
 		int result = -1;
-		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + delimitL("Users") +
+		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") +
 				" WHERE " + (adminsOnly ? delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " : "") + delimitL("Username") + " IS NOT NULL", true);
 		try {
 			if (rs != null && rs.first()) {
@@ -1480,10 +1486,13 @@ public class DBKernel {
 		}
 	}
 	public static boolean DBFilesDa() {
+		return DBFilesDa(DBKernel.HSHDB_PATH);
+	}
+	public static boolean DBFilesDa(String path) {
 		boolean result = false;
-	    File f = new File(DBKernel.HSHDB_PATH + "DB.script");
+	    File f = new File(path + "DB.script");
 	    if (!f.exists()) {
-			f = new File(DBKernel.HSHDB_PATH + "DB.data");
+			f = new File(path + "DB.data");
 		}
 	    result = f.exists();
 	    return result;
@@ -1799,4 +1808,31 @@ public class DBKernel {
 	    catch (Exception e) {MyLogger.handleException(e);}		
 		return result;
 	}
+    public static File getCopyOfInternalDB() {
+		File temp = null;
+		try {
+			temp = File.createTempFile("firstDB",".tar.gz");
+			InputStream in = DBKernel.class.getResourceAsStream("/org/hsh/bfr/db/res/firstDB.tar.gz");
+			BufferedInputStream bufIn = new BufferedInputStream(in);
+			BufferedOutputStream bufOut = null;
+			try {
+				bufOut = new BufferedOutputStream(new FileOutputStream(temp));
+			}
+			catch (FileNotFoundException e1) {MyLogger.handleException(e1);}
+
+			byte[] inByte = new byte[4096];
+			int count = -1;
+			try {while ((count = bufIn.read(inByte))!=-1) {bufOut.write(inByte, 0, count);}}
+			catch (IOException e) {MyLogger.handleException(e);}
+
+			try {bufOut.close();}
+			catch (IOException e) {MyLogger.handleException(e);}
+			try {bufIn.close();}
+			catch (IOException e) {MyLogger.handleException(e);}    	
+		}
+		catch (IOException e2) {
+			e2.printStackTrace();
+		}		
+		return temp;
+    }
 }

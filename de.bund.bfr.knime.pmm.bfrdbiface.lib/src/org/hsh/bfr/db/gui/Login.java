@@ -49,13 +49,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.ResourceBundle;
@@ -291,26 +285,7 @@ public class Login extends JFrame {
 			if (noDBThere) {
 				DBKernel.importing = true;
 				if (!DBKernel.debug || !DBKernel.createNewFirstDB) { // das komplette neu erstellen der DB sollte abgelöst werden durch "UPDATE"-Funktionalität (Änderungen einbauen in die vorhandene DB...)
-					File temp = File.createTempFile("firstDB",".tar.gz");
-
-					InputStream in = getClass().getResourceAsStream("/org/hsh/bfr/db/res/firstDB.tar.gz");
-					BufferedInputStream bufIn = new BufferedInputStream(in);
-					BufferedOutputStream bufOut = null;
-					try {
-						bufOut = new BufferedOutputStream(new FileOutputStream(temp));
-					}
-					catch (FileNotFoundException e1) {MyLogger.handleException(e1);}
-
-					byte[] inByte = new byte[4096];
-					int count = -1;
-					try {while ((count = bufIn.read(inByte))!=-1) {bufOut.write(inByte, 0, count);}}
-					catch (IOException e) {MyLogger.handleException(e);}
-
-					try {bufOut.close();}
-					catch (IOException e) {MyLogger.handleException(e);}
-					try {bufIn.close();}
-					catch (IOException e) {MyLogger.handleException(e);}
-					
+					File temp = DBKernel.getCopyOfInternalDB();
 					if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 						passwordField1.setBackground(Color.RED);
 						passwordField2.setBackground(Color.WHITE);

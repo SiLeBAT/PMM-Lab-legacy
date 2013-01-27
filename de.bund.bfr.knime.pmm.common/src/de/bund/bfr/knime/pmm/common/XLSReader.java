@@ -72,18 +72,20 @@ public class XLSReader {
 		Integer logcColumn = null;
 
 		for (String column : columns.keySet()) {
-			Object mapping = columnMappings.get(column);
+			if (columnMappings.containsKey(column)) {
+				Object mapping = columnMappings.get(column);
 
-			if (mapping instanceof MiscXml) {
-				miscColumns.put(column, columns.get(column));
-			} else if (mapping.equals(ID_COLUMN)) {
-				idColumn = columns.get(column);
-			} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
-				commentColumn = columns.get(column);
-			} else if (mapping.equals(TimeSeriesSchema.TIME)) {
-				timeColumn = columns.get(column);
-			} else if (mapping.equals(TimeSeriesSchema.LOGC)) {
-				logcColumn = columns.get(column);
+				if (mapping instanceof MiscXml) {
+					miscColumns.put(column, columns.get(column));
+				} else if (mapping.equals(ID_COLUMN)) {
+					idColumn = columns.get(column);
+				} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
+					commentColumn = columns.get(column);
+				} else if (mapping.equals(TimeSeriesSchema.TIME)) {
+					timeColumn = columns.get(column);
+				} else if (mapping.equals(TimeSeriesSchema.LOGC)) {
+					logcColumn = columns.get(column);
+				}
 			}
 		}
 

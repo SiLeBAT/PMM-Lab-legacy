@@ -38,6 +38,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -51,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -88,8 +90,8 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		ActionListener, ItemListener, FileListener {
 
-	private static final String OTHER_PARAMETER = "Other Parameter";
-	private static final String NO_PARAMETER = "Select Other";
+	private static final String OTHER_PARAMETER = "Select Other";
+	private static final String NO_PARAMETER = "Do Not Use";
 	private static final String SELECT = "Select";
 
 	private FilePanel filePanel;
@@ -178,33 +180,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
 		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(northUnitsPanel, BorderLayout.WEST);
-
-		JPanel northInfoPanel = new JPanel();
-
-		northInfoPanel.setLayout(new GridBagLayout());
-		northInfoPanel.add(
-				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"),
-				createConstraints(0, 0));
-		northInfoPanel.add(agentButton, createConstraints(1, 0));
-		northInfoPanel.add(
-				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"),
-				createConstraints(0, 1));
-		northInfoPanel.add(matrixButton, createConstraints(1, 1));
-
-		JPanel infoPanel = new JPanel();
-
-		infoPanel.setBorder(BorderFactory.createTitledBorder("Info"));
-		infoPanel.setLayout(new BorderLayout());
-		infoPanel.add(northInfoPanel, BorderLayout.NORTH);
-
-		JPanel unitInfoPanel = new JPanel();
-
-		unitInfoPanel.setLayout(new BorderLayout());
-		unitInfoPanel.add(unitsPanel, BorderLayout.NORTH);
-		unitInfoPanel.add(infoPanel, BorderLayout.CENTER);
+		unitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -220,12 +196,53 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
 		literaturePanel.add(literatureList, BorderLayout.CENTER);
 
+		JPanel northAgentPanel = new JPanel();
+
+		northAgentPanel.setLayout(new GridBagLayout());
+		northAgentPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"),
+				createConstraints(0, 0));
+		northAgentPanel.add(agentButton, createConstraints(1, 0));
+
+		JPanel agentPanel = new JPanel();
+
+		agentPanel.setBorder(BorderFactory
+				.createTitledBorder(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_AGENTNAME)));
+		agentPanel.setLayout(new BorderLayout());
+		agentPanel.add(northAgentPanel, BorderLayout.NORTH);
+
+		JPanel northMatrixPanel = new JPanel();
+
+		northMatrixPanel.setLayout(new GridBagLayout());
+		northMatrixPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"),
+				createConstraints(0, 0));
+		northMatrixPanel.add(matrixButton, createConstraints(1, 0));
+
+		JPanel matrixPanel = new JPanel();
+
+		matrixPanel.setBorder(BorderFactory
+				.createTitledBorder(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME)));
+		matrixPanel.setLayout(new BorderLayout());
+		matrixPanel.add(northMatrixPanel, BorderLayout.NORTH);
+
+		JPanel agentMatrixPanel = new JPanel();
+
+		agentMatrixPanel.setLayout(new GridLayout(2, 1));
+		agentMatrixPanel.add(agentPanel);
+		agentMatrixPanel.add(matrixPanel);
+
 		JPanel optionsPanel = new JPanel();
 
-		optionsPanel.setLayout(new BorderLayout());
-		optionsPanel.add(unitInfoPanel, BorderLayout.WEST);
-		optionsPanel.add(literaturePanel, BorderLayout.CENTER);
-		optionsPanel.add(columnsPanel, BorderLayout.EAST);
+		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
+		optionsPanel.add(unitsPanel);
+		optionsPanel.add(literaturePanel);
+		optionsPanel.add(agentMatrixPanel);
+		optionsPanel.add(columnsPanel);
 
 		JPanel mainPanel = new JPanel();
 
@@ -354,9 +371,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("");
 		}
 
-		for (String id : mappingIDs.values()) {
-			if (id == null) {
-				throw new InvalidSettingsException("");
+		Map<String, String> nonNullMappingIDs = new LinkedHashMap<>();
+
+		for (String column : mappingIDs.keySet()) {
+			if (mappingIDs.get(column) == null) {
+				if (!mappingBoxes.get(column).getSelectedItem()
+						.equals(NO_PARAMETER)) {
+					throw new InvalidSettingsException("");
+				}
+			} else {
+				nonNullMappingIDs.put(column, mappingIDs.get(column));
 			}
 		}
 
@@ -368,7 +392,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				filePanel.getFileName());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
 				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
-						.getColumnMappingsAsList(mappingIDs)));
+						.getColumnMappingsAsList(nonNullMappingIDs)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
@@ -470,44 +494,48 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 					if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, XLSReader.ID_COLUMN);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.ATT_COMMENT)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, TimeSeriesSchema.ATT_COMMENT);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.TIME)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, TimeSeriesSchema.TIME);
 					} else if (box.getSelectedItem().equals(
 							TimeSeriesSchema.LOGC)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, TimeSeriesSchema.LOGC);
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column,
 								AttributeUtilities.ATT_TEMPERATURE_ID + "");
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_PH)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, AttributeUtilities.ATT_PH_ID
 								+ "");
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_WATERACTIVITY)) {
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, AttributeUtilities.ATT_AW_ID
 								+ "");
-					} else {
+					} else if (box.getSelectedItem().equals(OTHER_PARAMETER)) {
 						button.setEnabled(true);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
+						mappingIDs.put(column, null);
+					} else if (box.getSelectedItem().equals(NO_PARAMETER)) {
+						button.setEnabled(false);
+						button.setText(OTHER_PARAMETER);
 						mappingIDs.put(column, null);
 					}
 
@@ -542,7 +570,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
-						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
+						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
+						NO_PARAMETER });
 				JButton button = new JButton();
 
 				if (initialMapIDs.containsKey(column)) {
@@ -551,32 +580,32 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					if (id.equals(XLSReader.ID_COLUMN)) {
 						box.setSelectedItem(XLSReader.ID_COLUMN);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(TimeSeriesSchema.TIME)) {
 						box.setSelectedItem(TimeSeriesSchema.TIME);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(TimeSeriesSchema.LOGC)) {
 						box.setSelectedItem(TimeSeriesSchema.LOGC);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID
 							+ "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_PH_ID + "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_PH);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_AW_ID + "")) {
 						box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
 						button.setEnabled(false);
-						button.setText(NO_PARAMETER);
+						button.setText(OTHER_PARAMETER);
 					} else {
 						box.setSelectedItem(OTHER_PARAMETER);
 						button.setEnabled(true);
@@ -586,9 +615,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 					mappingIDs.put(column, id);
 				} else {
-					box.setSelectedItem(OTHER_PARAMETER);
-					button.setEnabled(true);
-					button.setText(NO_PARAMETER);
+					box.setSelectedItem(NO_PARAMETER);
+					button.setEnabled(false);
+					button.setText(OTHER_PARAMETER);
 					mappingIDs.put(column, null);
 				}
 

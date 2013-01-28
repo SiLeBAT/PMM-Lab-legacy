@@ -113,13 +113,14 @@ public class DbIo {
 
     public static LinkedHashMap<String, String> getVarParMap(String varparStr) {
     	LinkedHashMap<String, String> ret = new LinkedHashMap<String, String>();
-		String[] t1 = varparStr.split(",");
+    	if (varparStr != null) {
+    		String[] t1 = varparStr.split(",");
 
-		for (String map : t1) {
-			String[] t2 = map.split("=");
-			if (t2.length == 2) ret.put(t2[0], t2[1]);
-		}
-
+    		for (String map : t1) {
+    			String[] t2 = map.split("=");
+    			if (t2.length == 2) ret.put(t2[0], t2[1]);
+    		}
+    	}
 		return ret;    	
     }
 }

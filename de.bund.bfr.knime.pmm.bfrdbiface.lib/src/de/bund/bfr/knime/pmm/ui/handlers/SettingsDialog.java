@@ -22,13 +22,12 @@ import de.bund.bfr.knime.pmm.common.resources.Resources;
 /**
  * @author Armin Weiser
  */
-public class SettingsDialog extends JDialog {
+public class SettingsDialog extends JFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 8433737081879655528L;
-	public SettingsDialog(Frame owner) {
-		super(owner);
+	public SettingsDialog() {
 		initComponents();
 		this.setIconImage(Resources.getInstance().getDefaultIcon());
 		fillFields();
@@ -60,28 +59,35 @@ public class SettingsDialog extends JDialog {
 		if (!isServer && !dbt.endsWith(System.getProperty("file.separator"))) {
 			dbt += System.getProperty("file.separator");
 		}
-		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
-		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
-		DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
-		DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
-		DBKernel.closeDBConnections(true);
-		
-		try {
-			Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
-			Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
-			DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
-			if (conn != null) {
-				DBKernel.createGui(conn);
-		  		DBKernel.myList.getMyDBTable().initConn(conn);
-				DBKernel.myList.getMyDBTable().setTable();
-				//DBKernel.myList.setSelection("Matrices");
-				//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+		if (hasChanged(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected())) {
+			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PATH", dbt);
+			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
+			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
+			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
+			DBKernel.closeDBConnections(true);
+			
+			try {
+				Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
+				Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
+				DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
+				if (conn != null) {
+					DBKernel.createGui(conn);
+			  		DBKernel.myList.getMyDBTable().initConn(conn);
+					DBKernel.myList.getMyDBTable().setTable();
+					//DBKernel.myList.setSelection("Matrices");
+					//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+				}
+			}
+			catch (Exception e1) {
+				e1.printStackTrace();
 			}
 		}
-		catch (Exception e1) {
-			e1.printStackTrace();
-		}
 		this.dispose();
+	}
+	private boolean hasChanged(String dbt, String username, String password, boolean isRO) {
+		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "").equals(username)
+				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password)
+				|| DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {

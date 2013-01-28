@@ -83,12 +83,12 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		clearModelSet();
 
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(300, 180));
+		setPreferredSize(new Dimension(300, 200));
 
 		panel = new JPanel();
 		panel.setBorder(BorderFactory.createTitledBorder("Level"));
 		panel.setLayout(new BorderLayout());
-		panel.setPreferredSize(new Dimension(250, 50));
+		panel.setPreferredSize(new Dimension(250, 45));
 		add(panel, BorderLayout.NORTH);
 
 		panel0 = new JPanel();
@@ -99,14 +99,14 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 		levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_SEC });
 		levelBox.addActionListener(this);
-		levelBox.setPreferredSize(new Dimension(50, 32));
+		levelBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(levelBox);
 
 		panel0.add(new JLabel("Model class   "));
 
 		classBox = new JComboBox<String>(new String[] {"All","growth","inactivation","survival"});
 		classBox.addActionListener(this);
-		classBox.setPreferredSize(new Dimension(50, 32));
+		classBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(classBox);
 
 		panel = new JPanel();

@@ -42,12 +42,17 @@ import java.sql.Connection;
 import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -98,20 +103,23 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 						
 		JPanel buttonPanel = new JPanel();
 		ButtonGroup group = new ButtonGroup();	
+
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.LINE_AXIS));
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
+		buttonPanel.add(qualityButtonNone);
+		buttonPanel.add(Box.createHorizontalGlue());		
+		buttonPanel.add(qualityButtonRms);		
+		buttonPanel.add(Box.createHorizontalGlue());		
+		buttonPanel.add(qualityButtonR2);
 		
-		buttonPanel.setLayout( new GridLayout( 0, 1 ) );
-		buttonPanel.add( qualityButtonNone );
-		buttonPanel.add( qualityButtonRms );		
-		buttonPanel.add( qualityButtonR2 );
-		group.add( qualityButtonNone );		
-		group.add( qualityButtonRms );
-		group.add( qualityButtonR2 );		
+		group.add(qualityButtonNone);		
+		group.add(qualityButtonRms);
+		group.add(qualityButtonR2);		
 		
-		JPanel panel = new JPanel();
-		
+		JPanel panel = new JPanel();		
 		panel.setBorder( BorderFactory.createTitledBorder( "Estimation quality" ) );
 		panel.setLayout( new BorderLayout() );
-		panel.setPreferredSize( new Dimension( 550, 125 ) );
+		panel.setPreferredSize(new Dimension(550, 75));
 		panel.add( buttonPanel, BorderLayout.NORTH );
 		panel.add( new JLabel( "Quality threshold   " ), BorderLayout.WEST );
 		panel.add( qualityField, BorderLayout.CENTER );
@@ -119,37 +127,44 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		JPanel southPanel = new JPanel();
 		
 		southPanel.setLayout(new BorderLayout());
-		southPanel.add(panel, BorderLayout.CENTER);
-		southPanel.add(tsReaderUi, BorderLayout.SOUTH);
+		southPanel.add(panel, BorderLayout.NORTH);
+		southPanel.add(tsReaderUi, BorderLayout.CENTER);
+		JButton doFilter = new JButton("ApplyAndShowFilterResults");
+		doFilter.addActionListener(this);
+		southPanel.add(doFilter, BorderLayout.SOUTH);
 		
-		setPreferredSize( new Dimension( 550, 500 ) );
+		setPreferredSize(new Dimension(550, 600));
 		setLayout(new BorderLayout());
-		add( modelReaderUi, BorderLayout.CENTER );
-		add( southPanel, BorderLayout.SOUTH );		
+		add(modelReaderUi, BorderLayout.CENTER);
+		add(southPanel, BorderLayout.SOUTH);		
 		
 		updateTsReaderUi();
 	}
 	
 	@Override
 	public void actionPerformed( ActionEvent arg0 ) {
-
-		if( arg0.getSource() instanceof JRadioButton ) {
-			
-			if( qualityButtonNone.isSelected() )
-				qualityField.setEnabled( false );
-			else
-				qualityField.setEnabled( true );
-			
-			return;
-		}
-		
-		if( arg0.getSource() instanceof JComboBox ) {
-			
-			updateTsReaderUi();
-			
-			return;
-		}
-		
+		Object src = arg0.getSource();
+		if (src instanceof JRadioButton) {			
+			if (qualityButtonNone.isSelected()) qualityField.setEnabled(false);
+			else qualityField.setEnabled(true);
+		}		
+		else if (src instanceof JComboBox) {			
+			updateTsReaderUi();			
+		}		
+		else if (src instanceof JButton) { // doFilter
+			MyTable gm = DBKernel.myList.getTable("GeschaetzteModelle");
+			Integer gmID = null;
+			// MyIDFilter mf = new MyIDFilter(filterIDs);
+			DBKernel.myList.openNewWindow(
+					gm,
+					gmID,
+					(Object) "GeschaetzteModelle",
+					null,
+					1,
+					1,
+					null,
+					true);
+		}		
 	}
 	
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {

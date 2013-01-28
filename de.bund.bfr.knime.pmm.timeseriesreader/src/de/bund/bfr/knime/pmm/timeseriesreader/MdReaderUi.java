@@ -423,6 +423,7 @@ public class MdReaderUi extends JPanel {
 		literatureField = new JTextField();
 		selectLiteratureButton = new JButton();
 		literatureIDField = new JTextField();
+		scrollPane1 = new JScrollPane();
 		panel4 = new JPanel();
 		label4 = new JLabel();
 		label5 = new JLabel();
@@ -445,17 +446,17 @@ public class MdReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"3*(default, $lgap), default"));
+			"4*(default, $lgap), default"));
 
 		//======== panel1 ========
 		{
-			panel1.setBorder(new TitledBorder("Organism"));
+			panel1.setBorder(new TitledBorder(""));
 			panel1.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label1 ----
-			label1.setText("Name");
+			label1.setText("Organism");
 			panel1.add(label1, CC.xy(1, 1));
 
 			//---- agentField ----
@@ -482,13 +483,13 @@ public class MdReaderUi extends JPanel {
 
 		//======== panel2 ========
 		{
-			panel2.setBorder(new TitledBorder("Matrix"));
+			panel2.setBorder(new TitledBorder(""));
 			panel2.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label2 ----
-			label2.setText("Name");
+			label2.setText("Matrix");
 			panel2.add(label2, CC.xy(1, 1));
 
 			//---- matrixField ----
@@ -515,13 +516,14 @@ public class MdReaderUi extends JPanel {
 
 		//======== panel3 ========
 		{
-			panel3.setBorder(new TitledBorder("Literature"));
+			panel3.setBorder(new TitledBorder(""));
 			panel3.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"default"));
 
 			//---- label3 ----
-			label3.setText("Author/Title");
+			label3.setText("Literature");
+			label3.setToolTipText("Author/Title");
 			panel3.add(label3, CC.xy(1, 1));
 
 			//---- literatureField ----
@@ -546,69 +548,76 @@ public class MdReaderUi extends JPanel {
 		}
 		add(panel3, CC.xy(1, 5));
 
-		//======== panel4 ========
+		//======== scrollPane1 ========
 		{
-			panel4.setBorder(new TitledBorder("Parameters"));
-			panel4.setLayout(new FormLayout(
-				"default:grow, 2*($lcgap, default)",
-				"5*(default, $lgap), default"));
+			scrollPane1.setPreferredSize(new Dimension(282, 130));
 
-			//---- label4 ----
-			label4.setText("Name");
-			label4.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label4, CC.xy(1, 1));
+			//======== panel4 ========
+			{
+				panel4.setBorder(new TitledBorder("Parameters"));
+				panel4.setPreferredSize(new Dimension(280, 175));
+				panel4.setLayout(new FormLayout(
+					"default:grow, 2*($lcgap, default)",
+					"5*(default, $lgap), default"));
 
-			//---- label5 ----
-			label5.setText("Min");
-			label5.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label5, CC.xy(3, 1));
+				//---- label4 ----
+				label4.setText("Name");
+				label4.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label4, CC.xy(1, 1));
 
-			//---- label6 ----
-			label6.setText("Max");
-			label6.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label6, CC.xy(5, 1));
+				//---- label5 ----
+				label5.setText("Min");
+				label5.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label5, CC.xy(3, 1));
 
-			//---- textField4 ----
-			textField4.setColumns(10);
-			textField4.setText("Temperature");
-			textField4.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField4, CC.xy(1, 3));
+				//---- label6 ----
+				label6.setText("Max");
+				label6.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label6, CC.xy(5, 1));
 
-			//---- doubleTextField1 ----
-			doubleTextField1.setColumns(5);
-			panel4.add(doubleTextField1, CC.xy(3, 3));
+				//---- textField4 ----
+				textField4.setColumns(10);
+				textField4.setText("Temperature");
+				textField4.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField4, CC.xy(1, 3));
 
-			//---- doubleTextField2 ----
-			doubleTextField2.setColumns(5);
-			panel4.add(doubleTextField2, CC.xy(5, 3));
+				//---- doubleTextField1 ----
+				doubleTextField1.setColumns(5);
+				panel4.add(doubleTextField1, CC.xy(3, 3));
 
-			//---- textField5 ----
-			textField5.setColumns(20);
-			textField5.setText("pH");
-			textField5.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField5, CC.xy(1, 5));
-			panel4.add(doubleTextField3, CC.xy(3, 5));
-			panel4.add(doubleTextField4, CC.xy(5, 5));
+				//---- doubleTextField2 ----
+				doubleTextField2.setColumns(5);
+				panel4.add(doubleTextField2, CC.xy(5, 3));
 
-			//---- textField6 ----
-			textField6.setColumns(20);
-			textField6.setText("aw");
-			textField6.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField6, CC.xy(1, 7));
-			panel4.add(doubleTextField5, CC.xy(3, 7));
-			panel4.add(doubleTextField6, CC.xy(5, 7));
+				//---- textField5 ----
+				textField5.setColumns(20);
+				textField5.setText("pH");
+				textField5.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField5, CC.xy(1, 5));
+				panel4.add(doubleTextField3, CC.xy(3, 5));
+				panel4.add(doubleTextField4, CC.xy(5, 5));
 
-			//---- textField7 ----
-			textField7.setColumns(20);
-			textField7.setText("param1");
-			textField7.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField7, CC.xy(1, 9));
-			panel4.add(doubleTextField7, CC.xy(3, 9));
-			panel4.add(doubleTextField8, CC.xy(5, 9));
-			panel4.add(doubleTextField9, CC.xy(3, 11));
-			panel4.add(doubleTextField10, CC.xy(5, 11));
+				//---- textField6 ----
+				textField6.setColumns(20);
+				textField6.setText("aw");
+				textField6.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField6, CC.xy(1, 7));
+				panel4.add(doubleTextField5, CC.xy(3, 7));
+				panel4.add(doubleTextField6, CC.xy(5, 7));
+
+				//---- textField7 ----
+				textField7.setColumns(20);
+				textField7.setText("param1");
+				textField7.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField7, CC.xy(1, 9));
+				panel4.add(doubleTextField7, CC.xy(3, 9));
+				panel4.add(doubleTextField8, CC.xy(5, 9));
+				panel4.add(doubleTextField9, CC.xy(3, 11));
+				panel4.add(doubleTextField10, CC.xy(5, 11));
+			}
+			scrollPane1.setViewportView(panel4);
 		}
-		add(panel4, CC.xy(1, 7));
+		add(scrollPane1, CC.xy(1, 7));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
@@ -628,6 +637,7 @@ public class MdReaderUi extends JPanel {
 	private JTextField literatureField;
 	private JButton selectLiteratureButton;
 	private JTextField literatureIDField;
+	private JScrollPane scrollPane1;
 	private JPanel panel4;
 	private JLabel label4;
 	private JLabel label5;

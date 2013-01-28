@@ -91,6 +91,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private Map<String, Class<?>> edgeProperties;
 	private Map<Node, List<Edge>> connectingEdges;
 	private VisualizationViewer<Node, Edge> viewer;
+	private boolean isManualSelection;
 
 	private JComboBox<String> layoutBox;
 	private JButton layoutButton;
@@ -118,6 +119,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		this.nodeProperties = nodeProperties;
 		this.edgeProperties = edgeProperties;
 		connectingEdges = new LinkedHashMap<>();
+		isManualSelection = true;
 
 		for (Node node : nodes) {
 			connectingEdges.put(node, new ArrayList<Edge>());
@@ -156,6 +158,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	}
 
 	public void setSelectedNodes(Set<Node> selectedNodes) {
+		isManualSelection = false;
+
 		for (Node node : nodes) {
 			if (selectedNodes.contains(node)) {
 				viewer.getPickedVertexState().pick(node, true);
@@ -163,6 +167,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				viewer.getPickedVertexState().pick(node, false);
 			}
 		}
+
+		isManualSelection = true;
 	}
 
 	@Override
@@ -285,7 +291,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		if (e.getItem() instanceof Node) {
 			Node node = (Node) e.getItem();
 
-			if (e.getStateChange() == ItemEvent.SELECTED) {
+			if (e.getStateChange() == ItemEvent.SELECTED && isManualSelection) {
 				for (Edge edge : connectingEdges.get(node)) {
 					Node otherNode = null;
 
@@ -510,12 +516,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	public static class Node implements GraphElement {
 
-		private String id;
 		private String region;
 		private Map<String, Object> properties;
 
-		public Node(String id, String region, Map<String, Object> properties) {
-			this.id = id;
+		public Node(String region, Map<String, Object> properties) {
 			this.region = region;
 			this.properties = properties;
 		}
@@ -528,31 +532,15 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		public Map<String, Object> getProperties() {
 			return properties;
 		}
-
-		@Override
-		public int hashCode() {
-			return id.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Node) {
-				return id.equals(((Node) obj).id);
-			}
-
-			return false;
-		}
 	}
 
 	public static class Edge implements GraphElement {
 
-		private String id;
 		private Node n1;
 		private Node n2;
 		private Map<String, Object> properties;
 
-		public Edge(String id, Node n1, Node n2, Map<String, Object> properties) {
-			this.id = id;
+		public Edge(Node n1, Node n2, Map<String, Object> properties) {
 			this.n1 = n1;
 			this.n2 = n2;
 			this.properties = properties;
@@ -569,20 +557,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		@Override
 		public Map<String, Object> getProperties() {
 			return properties;
-		}
-
-		@Override
-		public int hashCode() {
-			return id.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Edge) {
-				return id.equals(((Edge) obj).id);
-			}
-
-			return false;
 		}
 	}
 

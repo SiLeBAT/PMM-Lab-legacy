@@ -282,32 +282,15 @@ public class GISCanvas extends JPanel implements ActionListener {
 			return boundingBox.contains(point)
 					&& GISUtilities.containsPoint(polygon, point);
 		}
-
-		@Override
-		public int hashCode() {
-			return id.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Node) {
-				return id.equals(((Node) obj).id);
-			}
-
-			return false;
-		}
 	}
 
 	public static class Edge implements GISElement {
 
-		private String id;
 		private Node from;
 		private Node to;
 		private Map<String, Double> properties;
 
-		public Edge(String id, Node from, Node to,
-				Map<String, Double> properties) {
-			this.id = id;
+		public Edge(Node from, Node to, Map<String, Double> properties) {
 			this.from = from;
 			this.to = to;
 			this.properties = properties;
@@ -324,20 +307,6 @@ public class GISCanvas extends JPanel implements ActionListener {
 		@Override
 		public Map<String, Double> getProperties() {
 			return properties;
-		}
-
-		@Override
-		public int hashCode() {
-			return id.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof Edge) {
-				return id.equals(((Edge) obj).id);
-			}
-
-			return false;
 		}
 	}
 

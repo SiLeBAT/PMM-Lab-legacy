@@ -79,7 +79,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	panel.setLayout( new BoxLayout( panel, BoxLayout.Y_AXIS ) );    	
     	
     	dbui = new DbConfigurationUi();
-    	panel.add( dbui );
+    	//panel.add( dbui );
     	
     	Bfrdb db;
     	Connection conn = null;
@@ -97,9 +97,10 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 		}
 
     	tsui = new MdReaderUi(conn, DBKernel.getItemListMisc(conn));
-    	panel.add( tsui );
+    	panel.add(tsui);
     	
-    	addTab("Database connection", panel);
+    	addTab("Database connection", dbui);
+    	addTab("MD Filter", panel);
     }
         
 	@Override

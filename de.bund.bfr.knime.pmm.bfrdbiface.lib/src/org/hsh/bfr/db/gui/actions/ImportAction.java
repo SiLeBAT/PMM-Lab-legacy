@@ -73,8 +73,10 @@ public class ImportAction extends AbstractAction {
 	  JFileChooser fc = new JFileChooser(lastOutDir);
 //	  if (!DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());	  
 	  fc.addChoosableFileFilter(new MyProzessXMLImporter());
-	  fc.addChoosableFileFilter(new MyRisImporter());
+	  MyRisImporter myRis = new MyRisImporter();
+	  fc.addChoosableFileFilter(myRis);
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter());
+	  fc.setFileFilter(myRis);
 	  //if (DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  

@@ -281,49 +281,27 @@ public class MdReaderUi extends JPanel {
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
 			if (dbl[0] == null && dbl[1] == null) continue;
-			/*
-			if (par.equalsIgnoreCase("temperature")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
+			boolean paramFound = false;
+			PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+        		if (el instanceof MiscXml) {
+        			MiscXml mx = (MiscXml) el;
+        			if (mx.getName().equalsIgnoreCase(par)) {
+        				if (mx.getValue() == null) {
+        					paramFound = true;
+        					break;
+        				}
+        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
+        					return false;
+        				}
+        				else {
+        					paramFound = true;
+        					break;
+        				}
+        			}
+        		}
 			}
-			else if (par.equalsIgnoreCase("ph")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
-			}
-			else if (par.equalsIgnoreCase("aw")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
-			}
-			*/
-			//else {
-				boolean paramFound = false;
-				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
-	        		if (el instanceof MiscXml) {
-	        			MiscXml mx = (MiscXml) el;
-	        			if (mx.getName().toLowerCase().equals(par)) {
-	        				if (mx.getValue() == null) {
-	        					paramFound = true;
-	        					break;
-	        				}
-	        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
-	        					return false;
-	        				}
-	        				else {
-	        					paramFound = true;
-	        					break;
-	        				}
-	        			}
-	        		}
-	        	//}
-	        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
-			}
+        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
 		}
 		
 		return true;

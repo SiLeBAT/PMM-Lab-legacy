@@ -413,12 +413,10 @@ public class MdReaderUi extends JPanel {
 		agentField = new JTextField();
 		selectAgensButton = new JButton();
 		agensIDField = new JTextField();
-		panel2 = new JPanel();
 		label2 = new JLabel();
 		matrixField = new JTextField();
 		selectMatrixButton = new JButton();
 		matrixIDField = new JTextField();
-		panel3 = new JPanel();
 		label3 = new JLabel();
 		literatureField = new JTextField();
 		selectLiteratureButton = new JButton();
@@ -446,14 +444,14 @@ public class MdReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"4*(default, $lgap), default"));
+			"2*(default, $lgap), default"));
 
 		//======== panel1 ========
 		{
-			panel1.setBorder(new TitledBorder(""));
+			panel1.setBorder(new TitledBorder("MD Filter"));
 			panel1.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
+				"2*(default, $lgap), default"));
 
 			//---- label1 ----
 			label1.setText("Organism");
@@ -478,24 +476,15 @@ public class MdReaderUi extends JPanel {
 			agensIDField.setColumns(1);
 			agensIDField.setVisible(false);
 			panel1.add(agensIDField, CC.xy(7, 1));
-		}
-		add(panel1, CC.xy(1, 1));
-
-		//======== panel2 ========
-		{
-			panel2.setBorder(new TitledBorder(""));
-			panel2.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
 
 			//---- label2 ----
 			label2.setText("Matrix");
-			panel2.add(label2, CC.xy(1, 1));
+			panel1.add(label2, CC.xy(1, 3));
 
 			//---- matrixField ----
 			matrixField.setColumns(10);
 			matrixField.setPreferredSize(new Dimension(50, 20));
-			panel2.add(matrixField, CC.xy(3, 1));
+			panel1.add(matrixField, CC.xy(3, 3));
 
 			//---- selectMatrixButton ----
 			selectMatrixButton.setText("...");
@@ -505,31 +494,22 @@ public class MdReaderUi extends JPanel {
 					selectMatrixButtonActionPerformed(e);
 				}
 			});
-			panel2.add(selectMatrixButton, CC.xy(5, 1));
+			panel1.add(selectMatrixButton, CC.xy(5, 3));
 
 			//---- matrixIDField ----
 			matrixIDField.setColumns(1);
 			matrixIDField.setVisible(false);
-			panel2.add(matrixIDField, CC.xy(7, 1));
-		}
-		add(panel2, CC.xy(1, 3));
-
-		//======== panel3 ========
-		{
-			panel3.setBorder(new TitledBorder(""));
-			panel3.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
+			panel1.add(matrixIDField, CC.xy(7, 3));
 
 			//---- label3 ----
 			label3.setText("Literature");
 			label3.setToolTipText("Author/Title");
-			panel3.add(label3, CC.xy(1, 1));
+			panel1.add(label3, CC.xy(1, 5));
 
 			//---- literatureField ----
 			literatureField.setColumns(10);
 			literatureField.setPreferredSize(new Dimension(50, 20));
-			panel3.add(literatureField, CC.xy(3, 1));
+			panel1.add(literatureField, CC.xy(3, 5));
 
 			//---- selectLiteratureButton ----
 			selectLiteratureButton.setText("...");
@@ -539,14 +519,14 @@ public class MdReaderUi extends JPanel {
 					selectLiteratureButtonActionPerformed(e);
 				}
 			});
-			panel3.add(selectLiteratureButton, CC.xy(5, 1));
+			panel1.add(selectLiteratureButton, CC.xy(5, 5));
 
 			//---- literatureIDField ----
-			literatureIDField.setVisible(false);
 			literatureIDField.setColumns(1);
-			panel3.add(literatureIDField, CC.xy(7, 1));
+			literatureIDField.setVisible(false);
+			panel1.add(literatureIDField, CC.xy(7, 5));
 		}
-		add(panel3, CC.xy(1, 5));
+		add(panel1, CC.xy(1, 1));
 
 		//======== scrollPane1 ========
 		{
@@ -555,7 +535,8 @@ public class MdReaderUi extends JPanel {
 			//======== panel4 ========
 			{
 				panel4.setBorder(new TitledBorder("Parameters"));
-				panel4.setPreferredSize(new Dimension(280, 175));
+				panel4.setPreferredSize(new Dimension(280, 185));
+				panel4.setMinimumSize(new Dimension(85, 175));
 				panel4.setLayout(new FormLayout(
 					"default:grow, 2*($lcgap, default)",
 					"5*(default, $lgap), default"));
@@ -617,7 +598,7 @@ public class MdReaderUi extends JPanel {
 			}
 			scrollPane1.setViewportView(panel4);
 		}
-		add(scrollPane1, CC.xy(1, 7));
+		add(scrollPane1, CC.xy(1, 3));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
@@ -627,12 +608,10 @@ public class MdReaderUi extends JPanel {
 	private JTextField agentField;
 	private JButton selectAgensButton;
 	private JTextField agensIDField;
-	private JPanel panel2;
 	private JLabel label2;
 	private JTextField matrixField;
 	private JButton selectMatrixButton;
 	private JTextField matrixIDField;
-	private JPanel panel3;
 	private JLabel label3;
 	private JTextField literatureField;
 	private JButton selectLiteratureButton;

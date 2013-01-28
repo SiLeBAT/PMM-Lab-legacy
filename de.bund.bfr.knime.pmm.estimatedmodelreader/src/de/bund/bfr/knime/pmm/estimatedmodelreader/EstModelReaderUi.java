@@ -35,7 +35,6 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -133,7 +132,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		doFilter.addActionListener(this);
 		southPanel.add(doFilter, BorderLayout.SOUTH);
 		
-		setPreferredSize(new Dimension(550, 600));
+		setPreferredSize(new Dimension(550, 500));
 		setLayout(new BorderLayout());
 		add(modelReaderUi, BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);		

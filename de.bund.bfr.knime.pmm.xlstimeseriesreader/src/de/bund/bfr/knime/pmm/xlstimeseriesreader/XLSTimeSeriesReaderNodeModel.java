@@ -74,6 +74,10 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_FILENAME = "FileName";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
+	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
+	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
+	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
+	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
@@ -81,11 +85,17 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRIXID = "MatrixID";
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
+	protected static final String DEFAULT_AGENTCOLUMN = null;
+	protected static final String DEFAULT_MATRIXCOLUMN = null;
 	protected static final int DEFAULT_AGENTID = -1;
 	protected static final int DEFAULT_MATRIXID = -1;
 
 	private String fileName;
 	private Map<String, String> columnMappings;
+	private String agentColumn;
+	private Map<String, String> agentMappings;
+	private String matrixColumn;
+	private Map<String, String> matrixMappings;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
@@ -102,6 +112,10 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		super(0, 1);
 		fileName = null;
 		columnMappings = new LinkedHashMap<>();
+		agentColumn = DEFAULT_AGENTCOLUMN;
+		agentMappings = new LinkedHashMap<>();
+		matrixColumn = DEFAULT_MATRIXCOLUMN;
+		matrixMappings = new LinkedHashMap<>();
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
@@ -253,7 +267,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addString(CFGKEY_COLUMNMAPPINGS, ListUtilities
-				.getStringFromList(getColumnMappingsAsList(columnMappings)));
+				.getStringFromList(getMappingsAsList(columnMappings)));
+		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
+		settings.addString(CFGKEY_AGENTMAPPINGS, ListUtilities
+				.getStringFromList(getMappingsAsList(agentMappings)));
+		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
+		settings.addString(CFGKEY_MATRIXMAPPINGS, ListUtilities
+				.getStringFromList(getMappingsAsList(matrixMappings)));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
@@ -276,11 +296,39 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			columnMappings = getColumnMappingsAsMap(ListUtilities
+			columnMappings = getMappingsAsMap(ListUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
+		}
+
+		try {
+			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
+		} catch (InvalidSettingsException e) {
+			agentColumn = DEFAULT_AGENTCOLUMN;
+		}
+
+		try {
+			agentMappings = getMappingsAsMap(ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_AGENTMAPPINGS)));
+		} catch (InvalidSettingsException e) {
+			agentMappings = new LinkedHashMap<>();
+		}
+
+		try {
+			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
+		} catch (InvalidSettingsException e) {
+			matrixColumn = DEFAULT_MATRIXCOLUMN;
+		}
+
+		try {
+			matrixMappings = getMappingsAsMap(ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_MATRIXMAPPINGS)));
+		} catch (InvalidSettingsException e) {
+			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
@@ -350,8 +398,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static Map<String, String> getColumnMappingsAsMap(
-			List<String> list) {
+	protected static Map<String, String> getMappingsAsMap(List<String> list) {
 		Map<String, String> map = new LinkedHashMap<>();
 
 		for (String mapping : list) {
@@ -366,8 +413,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		return map;
 	}
 
-	protected static List<String> getColumnMappingsAsList(
-			Map<String, String> map) {
+	protected static List<String> getMappingsAsList(Map<String, String> map) {
 		List<String> list = new ArrayList<>();
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {

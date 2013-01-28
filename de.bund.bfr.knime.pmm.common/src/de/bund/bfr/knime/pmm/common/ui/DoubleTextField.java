@@ -105,8 +105,9 @@ public class DoubleTextField extends JTextField implements DocumentListener,
 		} else {
 			setText("");
 		}
-		
+
 		formatText();
+		setCaretPosition(0);
 	}
 
 	@Override

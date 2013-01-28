@@ -39,6 +39,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,8 +50,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.table.TableModel;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 

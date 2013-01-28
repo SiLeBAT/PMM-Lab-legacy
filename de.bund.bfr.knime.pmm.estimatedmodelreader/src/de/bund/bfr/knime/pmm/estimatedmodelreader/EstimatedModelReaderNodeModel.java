@@ -377,15 +377,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
     		}
     		
-    		// add row to data buffer
-    		
-    		// TODO: update filter
-    		
-    		if( EstModelReaderUi.passesFilter(
+    		if (EstModelReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-				modelFilterEnabled, modelList, tuple ) )
-				buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+				modelFilterEnabled, modelList, tuple))
+				buf.addRowToTable(new DefaultRow(String.valueOf( i++), tuple));
     	}
     	
     	// close data buffer

@@ -51,6 +51,21 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_148_149(final MyList myList) {
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/create_view_set.sql", null, false);
+		DBKernel.grantDefaults("SelectModelView");
+		DBKernel.grantDefaults("EstSeiView");
+		DBKernel.grantDefaults("EstPeiView");
+		DBKernel.grantDefaults("EstModelSecView");
+		DBKernel.grantDefaults("EstModelPrimView");
+		DBKernel.grantDefaults("MicrobialDataView");
+		DBKernel.grantDefaults("VersuchsbedingungenEinfach");
+		DBKernel.grantDefaults("MesswerteEinfach");
+		DBKernel.grantDefaults("DoubleKennzahlenEinfach");
+		DBKernel.grantDefaults("SonstigesEinfach");
+		//GRANT SELECT, INSERT, UPDATE ON TABLE "SelectModelView" TO "WRITE_ACCESS";				
+		//GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "SelectModelView" TO "SUPER_WRITE_ACCESS";				
+	}
 	public static void check4Updates_147_148(final MyList myList) {
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Prozessdaten_Messwerte") +
 				" ADD COLUMN " + DBKernel.delimitL("ExperimentID") + " INTEGER BEFORE " + DBKernel.delimitL("Agens"), false))

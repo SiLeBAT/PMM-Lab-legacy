@@ -132,6 +132,7 @@ public class Login extends JFrame {
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			loadDB();
+			//UpdateChecker.check4Updates_148_149(null);
 			/*
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
@@ -446,6 +447,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.4.7")) {
 					  		UpdateChecker.check4Updates_147_148(myList); 
 					  		DBKernel.setDBVersion("1.4.8");
+					  	}					  	
+					  	if (DBKernel.getDBVersion().equals("1.4.8")) {
+					  		UpdateChecker.check4Updates_148_149(myList);
+					  		DBKernel.setDBVersion("1.4.9");
 					  	}					  	
 					  	
 						DBKernel.closeDBConnections(false);

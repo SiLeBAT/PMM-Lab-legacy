@@ -480,6 +480,7 @@ public class MMC_M extends JPanel {
 			}
 		}
 		pm.removeEstModelLits();
+		pm.removeModelLits();
 		for (int i=0;i<referencesTable.getRowCount();i++) {
 			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
 			if (formulaCreator || !table.isEstimated()) pm.addModelLit(li);
@@ -591,8 +592,8 @@ public class MMC_M extends JPanel {
 			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
 			vli.add(li);
 			if (litID != null) {
-				int selRow = referencesTable.getSelectedRow();
 				deleteSelLitRow();
+				int selRow = referencesTable.getSelectedRow();
 				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, vli);
 			}
 			else {

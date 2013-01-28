@@ -40,8 +40,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -295,6 +297,24 @@ public class XLSReader {
 		Sheet sheet = getSheet(file);
 
 		return new ArrayList<>(getColumns(sheet).keySet());
+	}
+
+	public static Set<String> getValuesInColumn(File file, String column)
+			throws Exception {
+		Set<String> valueSet = new LinkedHashSet<>();
+		Sheet sheet = getSheet(file);
+		Map<String, Integer> columns = getColumns(sheet);
+		int columnId = columns.get(column);
+
+		for (int i = 1; i < sheet.getLastRowNum(); i++) {
+			Cell cell = sheet.getRow(i).getCell(columnId);
+
+			if (cell != null && !cell.toString().trim().isEmpty()) {
+				valueSet.add(cell.toString().trim());
+			}
+		}
+
+		return valueSet;
 	}
 
 	// public static List<String> getDValueMiscColumns(File file) throws

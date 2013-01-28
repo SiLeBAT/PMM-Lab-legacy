@@ -46,7 +46,7 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	
     	
     	dbui = new DbConfigurationUi();
-    	panel.add(dbui);
+    	//panel.add(dbui);
     	tracingBack = new JCheckBox(); tracingBack.setText("Do BackTracing?"); panel.add(tracingBack);
     	panel.add(new JLabel("dateFrom:")); dateFrom = new JDateChooser(); panel.add(dateFrom);
     	panel.add(new JLabel("dateTo:")); dateTo = new JDateChooser(); panel.add(dateTo);
@@ -58,7 +58,8 @@ public class MyKrisenInterfacesNodeDialog extends NodeDialogPane {
     	artikel = new JTextField(); panel.add(new JLabel("Artikel:")); panel.add(artikel);
     	antiArticle = new JCheckBox(); antiArticle.setText("Anti Artikel?"); panel.add(antiArticle);
     	
-    	addTab("Database connection", panel);
+    	addTab("Krisen Filter", panel);
+    	addTab("Database connection", dbui);
     }
 	
 	@Override

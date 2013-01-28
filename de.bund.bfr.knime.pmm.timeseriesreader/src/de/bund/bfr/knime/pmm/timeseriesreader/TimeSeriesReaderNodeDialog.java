@@ -99,8 +99,8 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	tsui = new MdReaderUi(conn, DBKernel.getItemListMisc(conn));
     	panel.add(tsui);
     	
-    	addTab("Database connection", dbui);
     	addTab("MD Filter", panel);
+    	addTab("Database connection", dbui);
     }
         
 	@Override

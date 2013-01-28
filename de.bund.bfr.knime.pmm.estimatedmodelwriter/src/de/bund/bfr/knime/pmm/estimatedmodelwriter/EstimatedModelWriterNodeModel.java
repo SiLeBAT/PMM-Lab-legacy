@@ -594,7 +594,7 @@ if (true) return null;
     	inSchema = new Model1Schema();
     	try {
     		if (inSchema.conforms(inSpec)) {
-    			result = KnimeSchema.merge(result, inSchema);
+    			result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
     			hasM1 = true;
     		}	
     	}
@@ -604,7 +604,7 @@ if (true) return null;
     	try {
     		if (inSchema.conforms(inSpec)) {
     			if (hasM1) {
-					result = KnimeSchema.merge(result, inSchema);
+					result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
 				}
     		}	
     	}

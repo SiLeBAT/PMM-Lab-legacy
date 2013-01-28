@@ -134,36 +134,27 @@ public class KnimeSchema {
 	}
 	
 	public boolean conforms( DataTableSpec tspec ) throws PmmException {
+		if (tspec == null) return false;
 		
-		int i, n;
-		boolean present;
-		DataColumnSpec cspec;
-		
-		if( tspec == null )
-			return false;
-		
-		n = tspec.getNumColumns();
-		for( KnimeAttribute col : attributeSet ) {
+		int n = tspec.getNumColumns();
+		for (KnimeAttribute col : attributeSet) {
 			
-			present = false;
-			for( i = 0; i < n; i++ ) {
+			boolean present = false;
+			for (int i = 0; i < n; i++) {				
+				DataColumnSpec cspec = tspec.getColumnSpec(i);
 				
-				cspec = tspec.getColumnSpec( i );
-				
-				if( col.isInt() && cspec.getType() != IntCell.TYPE )
+				if (col.isInt() && cspec.getType() != IntCell.TYPE)
 					continue;
-				if( col.isDouble() && cspec.getType() != DoubleCell.TYPE )
+				if (col.isDouble() && cspec.getType() != DoubleCell.TYPE)
 					continue;
 				
-				if( col.getName().equals( cspec.getName() ) )
+				if (col.getName().equals(cspec.getName())) {
 					present = true;
-				
-			}
-			
-			if( !present )
-				return false;
-		}
-		
+					break;
+				}				
+			}			
+			if (!present) return false;
+		}		
 		return true;
 	}
 	

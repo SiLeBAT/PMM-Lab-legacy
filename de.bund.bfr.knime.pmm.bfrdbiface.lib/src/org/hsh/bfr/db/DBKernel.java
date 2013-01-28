@@ -134,12 +134,12 @@ public class DBKernel {
 	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(boolean other) {
-		if (debug) return "defad";
+		//if (debug) return "SA";
 		if (other) return isKNIME || isKrise ? "defad": "SA";		
 		else return isKNIME || isKrise ? "SA" : "defad";		
 	}
 	public static String getTempSAPass(boolean other) {
-		if (debug) return "de6!§5ddy";
+		//if (debug) return "";
 		if (isServerConnection && isKrise) return "de6!§5ddy";
 			
 		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";

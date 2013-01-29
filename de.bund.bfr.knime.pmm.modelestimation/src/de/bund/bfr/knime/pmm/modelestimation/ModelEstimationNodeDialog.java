@@ -42,10 +42,8 @@ import java.awt.event.ActionListener;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -320,35 +318,41 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) throws PmmException {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				new Model1Schema(), table);
-		Set<String> parameterSet = new LinkedHashSet<String>();
-		Map<String, Double> minValueMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> maxValueMap = new LinkedHashMap<String, Double>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-			for (PmmXmlElementConvertable el : params.getElementSet()) {
-				ParamXml element = (ParamXml) el;
-
-				parameterSet.add(element.getName());
-				minValueMap.put(element.getName(), element.getMin());
-				maxValueMap.put(element.getName(), element.getMax());
-			}
-		}
-
 		modelNames = new LinkedHashMap<String, String>();
 		parameters = new LinkedHashMap<String, List<String>>();
 		minValues = new LinkedHashMap<String, Map<String, Double>>();
 		maxValues = new LinkedHashMap<String, Map<String, Double>>();
-		modelNames.put(ModelEstimationNodeModel.PRIMARY,
-				ModelEstimationNodeModel.PRIMARY);
-		parameters.put(ModelEstimationNodeModel.PRIMARY, new ArrayList<String>(
-				parameterSet));
-		minValues.put(ModelEstimationNodeModel.PRIMARY, minValueMap);
-		maxValues.put(ModelEstimationNodeModel.PRIMARY, maxValueMap);
+
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new Model1Schema(), table);
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String id = ModelEstimationNodeModel.PRIMARY
+					+ ((CatalogModelXml) modelXml.get(0)).getID();
+
+			if (!modelNames.containsKey(id)) {
+				PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+				List<String> paramNames = new ArrayList<String>();
+				Map<String, Double> min = new LinkedHashMap<String, Double>();
+				Map<String, Double> max = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					paramNames.add(element.getName());
+					min.put(element.getName(), element.getMin());
+					max.put(element.getName(), element.getMax());
+				}
+
+				modelNames.put(id,
+						((CatalogModelXml) modelXml.get(0)).getName());
+				parameters.put(id, paramNames);
+				minValues.put(id, min);
+				maxValues.put(id, max);
+			}
+		}
 	}
 
 	private void readSecondaryTable(BufferedDataTable table)
@@ -361,7 +365,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model2Schema.ATT_MODELCATALOG);
-			String id = ((CatalogModelXml) modelXml.get(0)).getID() + "";
+			String id = ModelEstimationNodeModel.SECONDARY
+					+ ((CatalogModelXml) modelXml.get(0)).getID();
 
 			if (!modelNames.containsKey(id)) {
 				PmmXmlDoc params = tuple.getPmmXml(Model2Schema.ATT_PARAMETER);
@@ -393,16 +398,16 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		minimumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
 		maximumFields = new LinkedHashMap<String, Map<String, DoubleTextField>>();
 
-		if (parameters.size() == 1
-				&& parameters.containsKey(ModelEstimationNodeModel.PRIMARY)) {
+		rangePanel.setLayout(new BoxLayout(rangePanel, BoxLayout.Y_AXIS));
+
+		for (String id : modelNames.keySet()) {
+			JPanel modelPanel = new JPanel();
 			JPanel leftPanel = new JPanel();
 			JPanel rightPanel = new JPanel();
-			List<String> params = parameters
-					.get(ModelEstimationNodeModel.PRIMARY);
+			List<String> params = parameters.get(id);
 			Map<String, DoubleTextField> minFields = new LinkedHashMap<String, DoubleTextField>();
 			Map<String, DoubleTextField> maxFields = new LinkedHashMap<String, DoubleTextField>();
-			Map<String, Point2D.Double> guesses = guessMap
-					.get(ModelEstimationNodeModel.PRIMARY);
+			Map<String, Point2D.Double> guesses = guessMap.get(id);
 
 			leftPanel.setLayout(new GridLayout(params.size(), 1));
 			rightPanel.setLayout(new GridLayout(params.size(), 1));
@@ -433,10 +438,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 						maxField.setValue(range.y);
 					}
 				} else {
-					minField.setValue(minValues.get(
-							ModelEstimationNodeModel.PRIMARY).get(param));
-					maxField.setValue(maxValues.get(
-							ModelEstimationNodeModel.PRIMARY).get(param));
+					minField.setValue(minValues.get(id).get(param));
+					maxField.setValue(maxValues.get(id).get(param));
 				}
 
 				labelPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -453,82 +456,16 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 				rightPanel.add(minMaxPanel);
 			}
 
-			minimumFields.put(ModelEstimationNodeModel.PRIMARY, minFields);
-			maximumFields.put(ModelEstimationNodeModel.PRIMARY, maxFields);
+			minimumFields.put(id, minFields);
+			maximumFields.put(id, maxFields);
 
-			rangePanel.setLayout(new BorderLayout());
-			rangePanel.add(leftPanel, BorderLayout.WEST);
-			rangePanel.add(rightPanel, BorderLayout.EAST);
-		} else {
-			rangePanel.setLayout(new BoxLayout(rangePanel, BoxLayout.Y_AXIS));
+			modelPanel.setBorder(BorderFactory.createTitledBorder(modelNames
+					.get(id)));
+			modelPanel.setLayout(new BorderLayout());
+			modelPanel.add(leftPanel, BorderLayout.WEST);
+			modelPanel.add(rightPanel, BorderLayout.EAST);
 
-			for (String id : modelNames.keySet()) {
-				JPanel modelPanel = new JPanel();
-				JPanel leftPanel = new JPanel();
-				JPanel rightPanel = new JPanel();
-				List<String> params = parameters.get(id);
-				Map<String, DoubleTextField> minFields = new LinkedHashMap<String, DoubleTextField>();
-				Map<String, DoubleTextField> maxFields = new LinkedHashMap<String, DoubleTextField>();
-				Map<String, Point2D.Double> guesses = guessMap.get(id);
-
-				leftPanel.setLayout(new GridLayout(params.size(), 1));
-				rightPanel.setLayout(new GridLayout(params.size(), 1));
-
-				if (guesses == null) {
-					guesses = new LinkedHashMap<String, Point2D.Double>();
-				}
-
-				for (String param : params) {
-					JPanel labelPanel = new JPanel();
-					JPanel minMaxPanel = new JPanel();
-					DoubleTextField minField = new DoubleTextField(true);
-					DoubleTextField maxField = new DoubleTextField(true);
-
-					minField.setPreferredSize(new Dimension(100, minField
-							.getPreferredSize().height));
-					maxField.setPreferredSize(new Dimension(100, maxField
-							.getPreferredSize().height));
-
-					if (guesses.containsKey(param)) {
-						Point2D.Double range = guesses.get(param);
-
-						if (!Double.isNaN(range.x)) {
-							minField.setValue(range.x);
-						}
-
-						if (!Double.isNaN(range.y)) {
-							maxField.setValue(range.y);
-						}
-					} else {
-						minField.setValue(minValues.get(id).get(param));
-						maxField.setValue(maxValues.get(id).get(param));
-					}
-
-					labelPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-					labelPanel.add(new JLabel(param + ":"));
-
-					minMaxPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-					minMaxPanel.add(minField);
-					minMaxPanel.add(new JLabel("to"));
-					minMaxPanel.add(maxField);
-
-					minFields.put(param, minField);
-					maxFields.put(param, maxField);
-					leftPanel.add(labelPanel);
-					rightPanel.add(minMaxPanel);
-				}
-
-				minimumFields.put(id, minFields);
-				maximumFields.put(id, maxFields);
-
-				modelPanel.setBorder(BorderFactory
-						.createTitledBorder(modelNames.get(id)));
-				modelPanel.setLayout(new BorderLayout());
-				modelPanel.add(leftPanel, BorderLayout.WEST);
-				modelPanel.add(rightPanel, BorderLayout.EAST);
-
-				rangePanel.add(modelPanel);
-			}
+			rangePanel.add(modelPanel);
 		}
 
 		panel.setLayout(new BorderLayout());

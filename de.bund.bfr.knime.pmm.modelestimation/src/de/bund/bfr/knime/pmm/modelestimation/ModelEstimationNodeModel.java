@@ -89,6 +89,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class ModelEstimationNodeModel extends NodeModel {
 
 	static final String PRIMARY = "Primary";
+	static final String SECONDARY = "Secondary";
 
 	static final String NO_FITTING = "";
 	static final String PRIMARY_FITTING = "Primary Fitting";
@@ -408,14 +409,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Thread.sleep(100);
 			}
 
-			Map<String, Point2D.Double> guesses = parameterGuesses.get(PRIMARY);
-
-			if (guesses == null) {
-				guesses = new LinkedHashMap<String, Point2D.Double>();
-			}
-
 			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
-					guesses, runningThreads, finishedThreads));
+					parameterGuesses, runningThreads, finishedThreads));
 
 			runningThreads.incrementAndGet();
 			thread.start();
@@ -517,16 +512,16 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class PrimaryEstimationThread implements Runnable {
 
 		private KnimeTuple tuple;
-		private Map<String, Point2D.Double> guesses;
+		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 
 		private AtomicInteger runningThreads;
 		private AtomicInteger finishedThreads;
 
 		public PrimaryEstimationThread(KnimeTuple tuple,
-				Map<String, Point2D.Double> guesses,
+				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				AtomicInteger runningThreads, AtomicInteger finishedThreads) {
 			this.tuple = tuple;
-			this.guesses = guesses;
+			this.parameterGuesses = parameterGuesses;
 			this.runningThreads = runningThreads;
 			this.finishedThreads = finishedThreads;
 		}
@@ -534,8 +529,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 		@Override
 		public void run() {
 			try {
-				String formula = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
+				PmmXmlDoc modelXml = tuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+				String modelID = ((CatalogModelXml) modelXml.get(0)).getID()
+						+ "";
+				String formula = ((CatalogModelXml) modelXml.get(0))
+						.getFormula();
 				PmmXmlDoc paramXml = tuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				List<String> parameters = new ArrayList<String>();
@@ -564,7 +563,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 					minParameterValues.add(element.getMin());
 					maxParameterValues.add(element.getMax());
 
-					if (guesses.containsKey(element.getName())) {
+					Map<String, Point2D.Double> guesses = parameterGuesses
+							.get(PRIMARY + modelID);
+
+					if (guesses != null
+							&& guesses.containsKey(element.getName())) {
 						Point2D.Double guess = guesses.get(element.getName());
 
 						if (!Double.isNaN(guess.x)) {
@@ -824,7 +827,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						String modelID = ((CatalogModelXml) modelXml.get(0))
 								.getID() + "";
 						Map<String, Point2D.Double> modelGuesses = parameterGuesses
-								.get(modelID);
+								.get(SECONDARY + modelID);
 
 						if (modelGuesses == null) {
 							modelGuesses = new LinkedHashMap<String, Point2D.Double>();
@@ -1016,8 +1019,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 				for (KnimeTuple tuple : seiTuples) {
 					PmmXmlDoc params = tuple
 							.getPmmXml(Model1Schema.ATT_PARAMETER);
+					String primID = ((CatalogModelXml) tuple.getPmmXml(
+							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+							+ "";
 					Map<String, Point2D.Double> primaryGuesses = parameterGuesses
-							.get(PRIMARY);
+							.get(PRIMARY + primID);
 
 					if (primaryGuesses == null) {
 						primaryGuesses = new LinkedHashMap<String, Point2D.Double>();
@@ -1053,7 +1059,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					PmmXmlDoc secParams = tuple
 							.getPmmXml(Model2Schema.ATT_PARAMETER);
 					Map<String, Point2D.Double> secGuesses = parameterGuesses
-							.get(secID);
+							.get(SECONDARY + secID);
 
 					if (secGuesses == null) {
 						secGuesses = new LinkedHashMap<String, Point2D.Double>();

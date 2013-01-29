@@ -57,7 +57,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
@@ -1851,5 +1853,135 @@ public class DBKernel {
 			e2.printStackTrace();
 		}		
 		return temp;
+    }
+    public static void convertEHEC2NewDB(String whichDB) {
+    	System.err.println(whichDB + ":");
+    	try {
+        	Connection oldDB = getConnection("C:/Users/Armin/Desktop/krise/EHEC/old/" + whichDB + "/DB", "defad", "de6!§5ddy");
+        	Connection newDB = getConnection("C:/Users/Armin/Desktop/krise/EHEC/" + whichDB + "/DB", "SA", "");
+        	if (oldDB != null && newDB != null) {
+	    		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Kontakte"), false, false);
+        		ResultSet rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Kontakte"), false);
+        		if (rs != null && rs.first()) {
+        			do {
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Kontakte") + " VALUES (" + rs.getInt("ID") + "," +
+        	    		getDBString(rs.getString("Name")) + "," + getDBString(rs.getString("Straße")) + "," + getDBString(rs.getString("Hausnummer")) + "," +
+        	    		getDBString(rs.getString("Postfach")) + "," + getDBString(rs.getString("PLZ")) + "," + getDBString(rs.getString("Ort")) + "," +
+        	    		getDBString(rs.getString("Bundesland")) + "," + getDBString(rs.getString("Land")) + "," + getDBString(rs.getString("Ansprechpartner")) + "," +
+        	    		getDBString(rs.getString("Telefon")) + "," + getDBString(rs.getString("Fax")) + "," + getDBString(rs.getString("E-Mail")) + "," +
+        	    		getDBString(rs.getString("Web-Site")) + "," + getDBString(rs.getString("Kommentar")) + ")", false, false);
+        			} while (rs.next());
+        		}
+
+	    		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Station"), false, false);    				
+        		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Produzent"), false);
+        		if (rs != null && rs.first()) {
+        			do {
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Station") + " (" + DBKernel.delimitL("ID") + "," +
+        	    			DBKernel.delimitL("Kontaktadresse") + "," + DBKernel.delimitL("Betriebsnummer") + "," + DBKernel.delimitL("Kommentar") +
+        	    			") VALUES (" + rs.getInt("ID") + "," +
+        	    			rs.getInt("Kontaktadresse") + "," + getDBString(rs.getString("Betriebsnummer")) + "," +
+        	    			getDBString(rs.getString("Kommentar")) + ")", false, false);
+        			} while (rs.next());
+        		}
+
+	    		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Produktkatalog"), false, false);    				
+        		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Produzent_Artikel"), false);
+        		if (rs != null && rs.first()) {
+        			do {
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Produktkatalog") + " (" + DBKernel.delimitL("ID") + "," +
+            	    			DBKernel.delimitL("Station") + "," + DBKernel.delimitL("Artikelnummer") + "," + DBKernel.delimitL("Bezeichnung") +
+            	    			") VALUES (" + rs.getInt("ID") + "," +
+            	    			rs.getInt("Produzent") + "," + getDBString(rs.getString("Artikelnummer")) + "," +
+            	    			getDBString(rs.getString("Bezeichnung")) + ")", false, false);
+        			} while (rs.next());
+        		}
+
+        	    DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Chargen"), false, false);    				
+        		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Lieferungen"), false, false);    				
+        		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Artikel_Lieferung"), false);
+        		if (rs != null && rs.first()) {
+        			do {
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + DBKernel.delimitL("ID") + "," +
+            	    			DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
+            	    			") VALUES (" + rs.getInt("ID") + "," +
+            	    			rs.getInt("Artikel") + "," + getDBString(rs.getString("ChargenNr")) + "," + getDatum(rs.getString("MHD")) + ")", false, false);
+
+        	    		Integer empf = rs.getInt("Empfänger");
+        	    		//if (empf == 0) System.err.println(rs.getInt("ID") + "\t" + empf);
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Lieferungen") + " (" + DBKernel.delimitL("ID") + "," +
+            	    			DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("#Units1") +
+            	    			 "," + DBKernel.delimitL("BezUnits1") + "," + DBKernel.delimitL("#Units2") +
+            	    			 "," + DBKernel.delimitL("BezUnits2") + "," + DBKernel.delimitL("Unitmenge") +
+            	    			 "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("Empfänger") +
+            	    			") VALUES (" + rs.getInt("ID") + "," +
+            	    			rs.getInt("ID") + "," + getDatum(rs.getString("Lieferdatum")) + "," + getDouble(rs.getString("#Units1")) + "," +
+            	    			getDBString(rs.getString("BezUnits1")) + "," + getDouble(rs.getString("#Units2")) + "," + getDBString(rs.getString("BezUnits2")) + "," +
+            	    			getDouble(rs.getString("Unitmenge")) + "," + getDBString(rs.getString("UnitEinheit")) + "," +
+            	    			(empf == 0 ? "NULL" : empf) + ")", false, false);
+        			} while (rs.next());
+        		}
+
+	    		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("ChargenVerbindungen"), false, false);    				
+        		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Lieferung_Lieferungen"), false);
+        		if (rs != null && rs.first()) {
+        			do {
+        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("ChargenVerbindungen") + " (" +
+            	    			DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("Produkt") +
+            	    			") VALUES (" + rs.getInt("Vorprodukt") + "," + rs.getInt("Artikel_Lieferung") + ")", false, false);
+        			} while (rs.next());
+        		}
+        	}
+    	}
+    	catch (Exception e) {e.printStackTrace();}
+    }
+	private static String getDBString(String strVal) {
+		if (strVal == null || strVal.isEmpty()) return "NULL";
+		else return "'" + strVal + "'";
+	}
+	private static Double getDouble(String strVal) {
+		Double val = null;
+		try {
+			val = Double.valueOf(strVal);						
+		}
+		catch (Exception e) {}
+		return val;
+	}
+	private static String getDatum(String strVal) { 
+	    SimpleDateFormat outFormat = new SimpleDateFormat("yyyy-MM-dd"); //  HH:mm:ss
+	    if (!strVal.isEmpty()) {
+			if (strVal.equals("to germinate before Dec 2013")) strVal = "30.11.2013";
+			else if (strVal.equals("January2011.")) strVal = "01/2011";
+			else if (strVal.equals("23.05.")) strVal = "23.05.2011";
+			else if (strVal.trim().equals("zwischen 14.05.2011 und 19.05.2011")) strVal = "14.05.2011";
+			Date parsedUtilDate = parseDate(strVal, "dd.MM.yyyy");
+			if (parsedUtilDate == null) {
+				parsedUtilDate = parseDate(strVal, "MM/yyyy");
+				//if (parsedUtilDate != null) System.err.println(strVal + "->" + outFormat.format(parsedUtilDate));
+			}
+			if (parsedUtilDate == null) parsedUtilDate = parseDate(strVal, "yyyy");
+			if (parsedUtilDate != null) return "'" + outFormat.format(parsedUtilDate) + "'";
+		    System.err.println(strVal);
+	    }
+		return "NULL";
+	}
+	private static Date parseDate(String strVal, String format) {
+		DateFormat inFormat = new SimpleDateFormat(format);
+		try {
+			Date parsedUtilDate = inFormat.parse(strVal);
+			return parsedUtilDate;
+		}
+		catch (ParseException e1) {}
+		return null;
+	}
+    private static Connection getConnection(String dbFile,String dbUsername,String dbPassword) {
+        Connection result = null;
+        try {
+            Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
+            String connStr = "jdbc:hsqldb:file:" + dbFile;
+        	result = DriverManager.getConnection(connStr,dbUsername, dbPassword);  
+        }
+    	catch (Exception e) {e.printStackTrace();}
+        return result;
     }
 }

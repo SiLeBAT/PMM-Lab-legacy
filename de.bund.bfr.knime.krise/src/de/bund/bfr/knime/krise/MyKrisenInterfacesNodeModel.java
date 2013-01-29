@@ -900,6 +900,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
+    	//DBKernel.convertEHEC2NewDB("Samen"); DBKernel.convertEHEC2NewDB("Cluster");
         return new DataTableSpec[]{getSpec33Nodes(), getSpec33Links(), getSpecBurow(), null};
     }
 

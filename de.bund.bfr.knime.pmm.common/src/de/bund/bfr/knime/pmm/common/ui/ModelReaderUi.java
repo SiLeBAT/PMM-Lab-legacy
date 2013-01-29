@@ -255,7 +255,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public boolean complies(KnimeTuple tuple) throws PmmException {
 
-		if (isModelFilterEnabled()) {
+		if( isModelFilterEnabled() ) {
 			PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, tuple.getSchema().conforms(new Model1Schema()) ? 1 : 2));
 			if (x != null) {
 				for (PmmXmlElementConvertable el : x.getElementSet()) {
@@ -267,6 +267,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 				}
 			}
 		}
+		else
+			return true;
 		/*
 			if (modelNameEnabled(tuple.getString(Model1Schema.ATT_MODELNAME)))
 				return true;

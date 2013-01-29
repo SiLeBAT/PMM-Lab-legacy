@@ -54,11 +54,13 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -207,6 +209,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			miscDoc.add(mx);
     		}
     		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
+
+    		PmmXmlDoc matDoc = new PmmXmlDoc(); 
+			MatrixXml mx = new MatrixXml(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL));
+			matDoc.add(mx);
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
+    		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
+			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
+			agtDoc.add(ax);
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
 
     		tuple.setValue(TimeSeriesSchema.ATT_AGENTID, result.getString( Bfrdb.ATT_AGENTID));
     		tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, result.getString( Bfrdb.ATT_AGENTNAME));

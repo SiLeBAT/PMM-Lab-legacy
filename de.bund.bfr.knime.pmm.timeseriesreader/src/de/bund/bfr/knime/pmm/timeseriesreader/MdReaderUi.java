@@ -20,7 +20,9 @@ import org.knime.core.node.InvalidSettingsException;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -230,32 +232,44 @@ public class MdReaderUi extends JPanel {
 		final LinkedHashMap<String, Double[]> parameter,
 		final KnimeTuple tuple ) throws PmmException {
 			
-		if (matrixID > 0) {
-			int id = tuple.getInt(TimeSeriesSchema.ATT_MATRIXID);
-			if (matrixID != id) return false;
+		if (matrixString != null && !matrixString.trim().isEmpty()) {
+			PmmXmlDoc max = tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+        	for (PmmXmlElementConvertable el : max.getElementSet()) {
+        		if (el instanceof MatrixXml) {
+        			MatrixXml mx = (MatrixXml) el;
+        			if (matrixID > 0) {
+        				int id = mx.getID();
+        				if (matrixID != id) return false;
+        			}
+        			else {
+            			String s = mx.getName();
+            			String sd = mx.getDetail();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
+        			}
+        		}
+        	}
 		}
-		else {
-			if (matrixString != null && !matrixString.trim().isEmpty()) {
-				String s = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME);
-				String sd = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
-				if (s == null) s = ""; else s = s.toLowerCase();
-				if (sd == null) sd = ""; else sd = sd.toLowerCase();
-				if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
-			}
-		}
-		
-		if (agentID > 0) {
-			int id = tuple.getInt(TimeSeriesSchema.ATT_AGENTID);
-			if (agentID != id) return false;
-		}
-		else {
-			if (agentString != null && !agentString.trim().isEmpty()) {
-				String s = tuple.getString( TimeSeriesSchema.ATT_AGENTNAME );
-				String sd = tuple.getString( TimeSeriesSchema.ATT_AGENTDETAIL );
-				if (s == null) s = ""; else s = s.toLowerCase();
-				if (sd == null) sd = ""; else sd = sd.toLowerCase();
-				if (!s.contains(agentString.toLowerCase()) && !sd.contains(agentString.toLowerCase())) return false;
-			}
+
+		if (agentString != null && !agentString.trim().isEmpty()) {
+			PmmXmlDoc agx = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+        	for (PmmXmlElementConvertable el : agx.getElementSet()) {
+        		if (el instanceof AgentXml) {
+        			AgentXml ax = (AgentXml) el;
+        			if (agentID > 0) {
+        				int id = ax.getID();
+        				if (agentID != id) return false;
+        			}
+        			else {
+            			String s = ax.getName();
+            			String sd = ax.getDetail();
+            			if (s == null) s = ""; else s = s.toLowerCase();
+            			if (sd == null) sd = ""; else sd = sd.toLowerCase();
+            			if (!s.contains(agentString.toLowerCase()) && !sd.contains(agentString.toLowerCase())) return false;
+        			}
+        		}
+        	}
 		}
 		
 		if (literatureString != null && !literatureString.trim().isEmpty()) {

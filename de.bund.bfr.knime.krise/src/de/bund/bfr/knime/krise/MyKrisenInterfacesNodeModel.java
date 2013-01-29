@@ -113,7 +113,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	LinkedHashMap<Integer, Integer> articleChain = applyArticleFilter(db);
     	
     	if (tracingBack) {
-    		int objectType = ARTIKEL; // STATION CHARGE LIEFERUNG
+    		int objectType = STATION; // STATION ARTIKEL CHARGE LIEFERUNG
     		stage = "";
     		HashSet<HashSet<Integer>> tb = makeTracingBack(db, true, objectType);
         	String warningMessage = stage;
@@ -751,44 +751,46 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
 		long startTime = System.currentTimeMillis();
 		HashMap<Integer, Integer> lieferID2ObjectID = new HashMap<Integer, Integer>(); 
 		int numCasesHavingCommonNode = allChains.size();
-		for (;numCasesHavingCommonNode >= (search4Best ? allChains.size() - 4 : allChains.size());numCasesHavingCommonNode--) {
-			CombinatorialIterator<LinkedHashMap<Integer, Integer>> ci = new CombinatorialIterator<LinkedHashMap<Integer, Integer>>(allChains, numCasesHavingCommonNode);
-			//CombinationIterator ci = new CombinationIterator(allChains, numCasesHavingCommonNode);
-	    	while (ci.hasNext()) {
-	    		List<LinkedHashMap<Integer, Integer>> chains2Explore = (List<LinkedHashMap<Integer, Integer>>) ci.next();
-	    		
-	    		if (lfd % 100000 == 0) {
-		    		long ts = ((System.currentTimeMillis() - startTime) / 1000);
-	    			System.err.println(numCasesHavingCommonNode + "\t" + lfd + "\t" + ts);
-	    		}	    		
-	    		lfd++;
-	    		HashSet<Integer> caseIDs = new HashSet<Integer>();
-	    		HashSet<Integer> gemeinsamObjects = null; // Objects z.B. : STATION = 0, ARTIKEL = 1, CHARGE = 2, LIEFERUNG = 3
+		if (numCasesHavingCommonNode > 0) {
+			for (;numCasesHavingCommonNode >= (search4Best ? allChains.size() - 4 : allChains.size());numCasesHavingCommonNode--) {
+				CombinatorialIterator<LinkedHashMap<Integer, Integer>> ci = new CombinatorialIterator<LinkedHashMap<Integer, Integer>>(allChains, numCasesHavingCommonNode);
+				//CombinationIterator ci = new CombinationIterator(allChains, numCasesHavingCommonNode);
+		    	while (ci.hasNext()) {
+		    		List<LinkedHashMap<Integer, Integer>> chains2Explore = (List<LinkedHashMap<Integer, Integer>>) ci.next();
+		    		
+		    		if (lfd % 100000 == 0) {
+			    		long ts = ((System.currentTimeMillis() - startTime) / 1000);
+		    			System.err.println(numCasesHavingCommonNode + "\t" + lfd + "\t" + ts);
+		    		}	    		
+		    		lfd++;
+		    		HashSet<Integer> caseIDs = new HashSet<Integer>();
+		    		HashSet<Integer> gemeinsamObjects = null; // Objects z.B. : STATION = 0, ARTIKEL = 1, CHARGE = 2, LIEFERUNG = 3
 
-        		for (LinkedHashMap<Integer, Integer> chain : chains2Explore) {
-        			int caseID = chain.entrySet().iterator().next().getValue();
-        			caseIDs.add(caseID);
-        			if (caseID == 200) {
-        				System.err.print("");
-        			}
-	        		gemeinsamObjects = calcCommonLieferObjects(db, chain, lieferID2ObjectID, gemeinsamObjects, objectType, false);
-        			if (gemeinsamObjects.size() == 0) break;
-        		}
+	        		for (LinkedHashMap<Integer, Integer> chain : chains2Explore) {
+	        			int caseID = chain.entrySet().iterator().next().getValue();
+	        			caseIDs.add(caseID);
+	        			if (caseID == 200) {
+	        				System.err.print("");
+	        			}
+		        		gemeinsamObjects = calcCommonLieferObjects(db, chain, lieferID2ObjectID, gemeinsamObjects, objectType, false);
+	        			if (gemeinsamObjects.size() == 0) break;
+	        		}
 
-        		if (gemeinsamObjects != null && gemeinsamObjects.size() > 0) {
-        			HashSet<Integer> diff = getDiff(allChains, caseIDs);
-        			for (Integer id : diff) {
-        				if (stage.isEmpty()) stage = "\tExceptions: " + id;
-        				else stage += "," + id;
-        			}
-        			gemeinsamStationsSet.add(gemeinsamObjects);
-        			//break;
-        		}
-	    	}
-	    	if (gemeinsamStationsSet.size() > 0) {
-	    		stage = "\t(" + numCasesHavingCommonNode + " / " + allChains.size() + ")" + stage;
-	    		break;
-	    	}
+	        		if (gemeinsamObjects != null && gemeinsamObjects.size() > 0) {
+	        			HashSet<Integer> diff = getDiff(allChains, caseIDs);
+	        			for (Integer id : diff) {
+	        				if (stage.isEmpty()) stage = "\tExceptions: " + id;
+	        				else stage += "," + id;
+	        			}
+	        			gemeinsamStationsSet.add(gemeinsamObjects);
+	        			//break;
+	        		}
+		    	}
+		    	if (gemeinsamStationsSet.size() > 0) {
+		    		stage = "\t(" + numCasesHavingCommonNode + " / " + allChains.size() + ")" + stage;
+		    		break;
+		    	}
+			}			
 		}
 		System.err.println("TracingBack - Fin! " + lfd + stage);
 		return gemeinsamStationsSet;
@@ -900,6 +902,8 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     @Override
     protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
             throws InvalidSettingsException {
+    	//DBKernel.convertEHEC2NewDB("Samen");
+    	//DBKernel.convertEHEC2NewDB("Cluster");
         return new DataTableSpec[]{getSpec33Nodes(), getSpec33Links(), getSpecBurow(), null};
     }
 

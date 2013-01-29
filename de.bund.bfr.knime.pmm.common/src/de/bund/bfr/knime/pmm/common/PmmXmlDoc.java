@@ -99,6 +99,12 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(EstModelXml.ELEMENT_ESTMODEL)) {
 				elementSet.add(new EstModelXml(el));
 			}	
+			else if (el.getName().equals(AgentXml.ELEMENT_AGENT)) {
+				elementSet.add(new AgentXml(el));
+			}	
+			else if (el.getName().equals(MatrixXml.ELEMENT_MATRIX)) {
+				elementSet.add(new MatrixXml(el));
+			}	
 		}					
 	}
 	public void add(PmmXmlElementConvertable el) {

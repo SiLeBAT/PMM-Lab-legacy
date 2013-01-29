@@ -5,18 +5,18 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow"
-			"$rowSpecs": "default, linegap, default, linegap, default, linegap, default"
+			"$rowSpecs": "default, linegap, default, linegap, default"
 		} ) {
 			name: "this"
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
-				"$rowSpecs": "default"
+				"$rowSpecs": "default, linegap, default, linegap, default"
 			} ) {
 				name: "panel1"
-				"border": new javax.swing.border.TitledBorder( "Organism" )
+				"border": new javax.swing.border.TitledBorder( "MD Filter" )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "label1"
-					"text": "Name"
+					"text": "Organism"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1
 					"gridY": 1
@@ -45,22 +45,11 @@ new FormModel {
 					"gridX": 7
 					"gridY": 1
 				} )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 1
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
-				"$rowSpecs": "default"
-			} ) {
-				name: "panel2"
-				"border": new javax.swing.border.TitledBorder( "Matrix" )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "label2"
-					"text": "Name"
+					"text": "Matrix"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 1
+					"gridY": 3
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "matrixField"
@@ -68,7 +57,7 @@ new FormModel {
 					"preferredSize": new java.awt.Dimension( 50, 20 )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
-					"gridY": 1
+					"gridY": 3
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "selectMatrixButton"
@@ -76,7 +65,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectMatrixButtonActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
-					"gridY": 1
+					"gridY": 3
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "matrixIDField"
@@ -84,24 +73,14 @@ new FormModel {
 					"visible": false
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 7
-					"gridY": 1
+					"gridY": 3
 				} )
-			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
-				"gridY": 3
-			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "80px, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default"
-				"$rowSpecs": "default"
-			} ) {
-				name: "panel3"
-				"border": new javax.swing.border.TitledBorder( "Literature" )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "label3"
-					"text": "Author/Title"
+					"text": "Literature"
+					"toolTipText": "Author/Title"
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 1
+					"gridY": 5
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "literatureField"
@@ -109,7 +88,7 @@ new FormModel {
 					"preferredSize": new java.awt.Dimension( 50, 20 )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 3
-					"gridY": 1
+					"gridY": 5
 				} )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "selectLiteratureButton"
@@ -117,178 +96,184 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectLiteratureButtonActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 5
-					"gridY": 1
+					"gridY": 5
 				} )
 				add( new FormComponent( "javax.swing.JTextField" ) {
 					name: "literatureIDField"
-					"visible": false
 					"columns": 1
+					"visible": false
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 7
-					"gridY": 1
+					"gridY": 5
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 5
+				"gridY": 1
 			} )
-			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-				"$columnSpecs": "default:grow, labelcompgap, default, labelcompgap, default"
-				"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
-			} ) {
-				name: "panel4"
-				"border": new javax.swing.border.TitledBorder( "Parameters" )
-				add( new FormComponent( "javax.swing.JLabel" ) {
-					name: "label4"
-					"text": "Name"
-					"horizontalAlignment": 0
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 1
-				} )
-				add( new FormComponent( "javax.swing.JLabel" ) {
-					name: "label5"
-					"text": "Min"
-					"horizontalAlignment": 0
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 1
-				} )
-				add( new FormComponent( "javax.swing.JLabel" ) {
-					name: "label6"
-					"text": "Max"
-					"horizontalAlignment": 0
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 1
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField4"
-					"columns": 10
-					"text": "Temperature"
-					"horizontalAlignment": 4
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 3
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField1"
-					"columns": 5
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 3
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField2"
-					"columns": 5
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 3
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField5"
-					"columns": 20
-					"text": "pH"
-					"horizontalAlignment": 4
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridY": 5
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField3"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 5
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField4"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 5
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField6"
-					"columns": 20
-					"text": "aw"
-					"horizontalAlignment": 4
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridY": 7
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField5"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 7
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField6"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 7
-				} )
-				add( new FormComponent( "javax.swing.JTextField" ) {
-					name: "textField7"
-					"columns": 20
-					"text": "param1"
-					"horizontalAlignment": 4
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridY": 9
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField7"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 9
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField8"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 9
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField9"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 3
-					"gridY": 11
-				} )
-				add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
-					name: "doubleTextField10"
-					auxiliary() {
-						"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
-					}
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 5
-					"gridY": 11
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane1"
+				"preferredSize": new java.awt.Dimension( 282, 130 )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
+					"$columnSpecs": "default:grow, labelcompgap, default, labelcompgap, default"
+					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
+				} ) {
+					name: "panel4"
+					"border": new javax.swing.border.TitledBorder( "Parameters" )
+					"preferredSize": new java.awt.Dimension( 280, 185 )
+					"minimumSize": new java.awt.Dimension( 85, 175 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label4"
+						"text": "Name"
+						"horizontalAlignment": 0
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 1
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label5"
+						"text": "Min"
+						"horizontalAlignment": 0
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label6"
+						"text": "Max"
+						"horizontalAlignment": 0
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textField4"
+						"columns": 10
+						"text": "Temperature"
+						"horizontalAlignment": 4
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 1
+						"gridY": 3
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField1"
+						"columns": 5
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 3
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField2"
+						"columns": 5
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 3
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textField5"
+						"columns": 20
+						"text": "pH"
+						"horizontalAlignment": 4
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridY": 5
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField3"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 5
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField4"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 5
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textField6"
+						"columns": 20
+						"text": "aw"
+						"horizontalAlignment": 4
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridY": 7
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField5"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 7
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField6"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 7
+					} )
+					add( new FormComponent( "javax.swing.JTextField" ) {
+						name: "textField7"
+						"columns": 20
+						"text": "param1"
+						"horizontalAlignment": 4
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridY": 9
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField7"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 9
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField8"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 9
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField9"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 11
+					} )
+					add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
+						name: "doubleTextField10"
+						auxiliary() {
+							"JavaCodeGenerator.customCreateCode": "new ${field_type}(true);"
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 5
+						"gridY": 11
+					} )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 7
+				"gridY": 3
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

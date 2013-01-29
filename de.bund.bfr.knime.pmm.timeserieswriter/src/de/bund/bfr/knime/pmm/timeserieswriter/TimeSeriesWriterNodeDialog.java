@@ -56,32 +56,32 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
  */
 public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
 	
-	private DbConfigurationUi ui;
+	private DbConfigurationUi dbui;
 
     /**
      * New pane for configuring the TimeSeriesWriter node.
      */
     protected TimeSeriesWriterNodeDialog() {
-    	ui = new DbConfigurationUi();    	
-    	addTab( "Database connection", ui );
+    	dbui = new DbConfigurationUi();    	
+    	addTab("Database connection", dbui);
 
     }
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		settings.addString( TimeSeriesWriterNodeModel.PARAM_FILENAME, ui.getFilename() );
-		settings.addString( TimeSeriesWriterNodeModel.PARAM_LOGIN, ui.getLogin() );
-		settings.addString( TimeSeriesWriterNodeModel.PARAM_PASSWD, ui.getPasswd() );
-		settings.addBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE, ui.isOverride() );		
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_FILENAME, dbui.getFilename() );
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_LOGIN, dbui.getLogin() );
+		settings.addString( TimeSeriesWriterNodeModel.PARAM_PASSWD, dbui.getPasswd() );
+		settings.addBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );		
 	}
 	
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		try {
-			ui.setFilename( settings.getString( TimeSeriesWriterNodeModel.PARAM_FILENAME ) );
-			ui.setLogin( settings.getString( TimeSeriesWriterNodeModel.PARAM_LOGIN ) );
-			ui.setPasswd( settings.getString( TimeSeriesWriterNodeModel.PARAM_PASSWD ) );
-			ui.setOverride( settings.getBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE ) );
+			dbui.setFilename( settings.getString( TimeSeriesWriterNodeModel.PARAM_FILENAME ) );
+			dbui.setLogin( settings.getString( TimeSeriesWriterNodeModel.PARAM_LOGIN ) );
+			dbui.setPasswd( settings.getString( TimeSeriesWriterNodeModel.PARAM_PASSWD ) );
+			dbui.setOverride( settings.getBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE ) );
 		}
 		catch( InvalidSettingsException ex ) {	
 			ex.printStackTrace( System.err );

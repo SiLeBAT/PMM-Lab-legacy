@@ -68,7 +68,7 @@ import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	// private JComboBox levelBox;
-	private DbConfigurationUi ui;
+	private DbConfigurationUi dbui;
 	private ModelReaderUi filterui;
 	
     /**
@@ -80,15 +80,16 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     protected ModelCatalogReaderNodeDialog() {    	
     	JPanel panel = new JPanel();
     	    	
-    	ui = new DbConfigurationUi( true );    	    	
-    	ui.getApplyButton().addActionListener( this );    	
+    	dbui = new DbConfigurationUi( true );    	    	
+    	dbui.getApplyButton().addActionListener( this );    	
     	filterui = new ModelReaderUi();
     	
-    	panel.setLayout( new BorderLayout() );
-    	panel.add( ui, BorderLayout.NORTH );
-    	panel.add( filterui, BorderLayout.CENTER );
+    	panel.setLayout(new BorderLayout());
+    	//panel.add(dbui, BorderLayout.NORTH);
+    	panel.add(filterui, BorderLayout.CENTER);
     	
-    	addTab( "Database connection", panel );
+    	addTab("MC Filter", panel);
+    	addTab("Database connection", dbui);
     	
     	try {
     		updateModelName();
@@ -102,28 +103,28 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_FILENAME, ui.getFilename() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_LOGIN, ui.getLogin() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_PASSWD, ui.getPasswd() );
-		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE, ui.isOverride() );
-		settings.addInt( ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass() );
-		settings.addBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled() );
-		settings.addString( ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.getModelList());
+		settings.addString(ModelCatalogReaderNodeModel.PARAM_FILENAME, dbui.getFilename());
+		settings.addString(ModelCatalogReaderNodeModel.PARAM_LOGIN, dbui.getLogin());
+		settings.addString(ModelCatalogReaderNodeModel.PARAM_PASSWD, dbui.getPasswd());
+		settings.addBoolean(ModelCatalogReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride());
+		settings.addInt(ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel());
+		settings.addString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass());
+		settings.addBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled());
+		settings.addString(ModelCatalogReaderNodeModel.PARAM_MODELLIST, filterui.getModelList());
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		
 		try {
 			
-			ui.setFilename( settings.getString( ModelCatalogReaderNodeModel.PARAM_FILENAME ) );
-			ui.setLogin( settings.getString( ModelCatalogReaderNodeModel.PARAM_LOGIN ) );
-			ui.setPasswd( settings.getString( ModelCatalogReaderNodeModel.PARAM_PASSWD ) );
-			ui.setOverride( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_OVERRIDE ) );
-			filterui.setLevel( settings.getInt( ModelCatalogReaderNodeModel.PARAM_LEVEL ) );
-			filterui.setModelClass( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELCLASS ) );
-			filterui.setModelFilterEnabled( settings.getBoolean( ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED ) );
-			filterui.enableModelList( settings.getString( ModelCatalogReaderNodeModel.PARAM_MODELLIST ) );
+			dbui.setFilename(settings.getString(ModelCatalogReaderNodeModel.PARAM_FILENAME));
+			dbui.setLogin(settings.getString(ModelCatalogReaderNodeModel.PARAM_LOGIN));
+			dbui.setPasswd(settings.getString(ModelCatalogReaderNodeModel.PARAM_PASSWD));
+			dbui.setOverride(settings.getBoolean(ModelCatalogReaderNodeModel.PARAM_OVERRIDE));
+			filterui.setLevel(settings.getInt(ModelCatalogReaderNodeModel.PARAM_LEVEL));
+			filterui.setModelClass(settings.getString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS));
+			filterui.setModelFilterEnabled(settings.getBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED));
+			filterui.enableModelList(settings.getString(ModelCatalogReaderNodeModel.PARAM_MODELLIST));
 		}
 		catch( InvalidSettingsException e ) {
 			e.printStackTrace( System.err );
@@ -142,8 +143,8 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	filterui.clearModelSet();
 
         db = null;
-    	if( ui.getOverride() ) {
-			db = new Bfrdb( ui.getFilename(), ui.getLogin(), ui.getPasswd() );
+    	if (dbui.getOverride()) {
+			db = new Bfrdb(dbui.getFilename(), dbui.getLogin(), dbui.getPasswd());
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}

@@ -581,12 +581,14 @@ if (true) return null;
     }
     private KnimeSchema getInSchema(final DataTableSpec inSpec) throws InvalidSettingsException {
     	KnimeSchema result = null;
-    	String errorMsg = "Unexpected format - it is not possible to save secondary models without defined primary models"; // "Expected format: TS and (M1 or M1 and M2)";
     	KnimeSchema inSchema = new TimeSeriesSchema();
     	try {
     		if (inSchema.conforms(inSpec)) {
     			result = inSchema;
    			}
+    		else {
+    			throw new InvalidSettingsException("Unexpected format - it is not possible to save fitted models without microbial data information");
+    		}
     	}
     	catch (PmmException e) {
     	}
@@ -594,7 +596,7 @@ if (true) return null;
     	inSchema = new Model1Schema();
     	try {
     		if (inSchema.conforms(inSpec)) {
-    			result = KnimeSchema.merge(result, inSchema);
+    			result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
     			hasM1 = true;
     		}	
     	}
@@ -604,14 +606,14 @@ if (true) return null;
     	try {
     		if (inSchema.conforms(inSpec)) {
     			if (hasM1) {
-					result = KnimeSchema.merge(result, inSchema);
+					result = (result == null ? inSchema : KnimeSchema.merge(result, inSchema));
 				}
     		}	
     	}
     	catch (PmmException e) {
     	}
     	if (!hasM1) {
-    		throw new InvalidSettingsException(errorMsg);
+    		throw new InvalidSettingsException("Unexpected format - it is not possible to save secondary models without defined primary models");
     	}
     	return result;
     }

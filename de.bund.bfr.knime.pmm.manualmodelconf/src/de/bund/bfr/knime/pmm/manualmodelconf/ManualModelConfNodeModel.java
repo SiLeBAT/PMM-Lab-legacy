@@ -228,7 +228,7 @@ public class ManualModelConfNodeModel extends NodeModel {
     	if (doc == null) {
 			throw new InvalidSettingsException("No Settings available");
 		}
-        return new DataTableSpec[] { getSchema().createSpec() }; // , createXmlSpec() 
+        return new DataTableSpec[] {getSchema().createSpec()}; // , createXmlSpec() 
     }
     private KnimeSchema getSchema() {
     	KnimeSchema ks = null;

@@ -55,35 +55,35 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
  */
 public class EstimatedModelWriterNodeDialog extends NodeDialogPane {
 
-	private DbConfigurationUi ui;
+	private DbConfigurationUi dbui;
 
     /**
      * New pane for configuring the EstimatedModelWriter node.
      */
     protected EstimatedModelWriterNodeDialog() {
     	
-    	ui = new DbConfigurationUi();    	
-    	addTab( "Database connection", ui );
+    	dbui = new DbConfigurationUi();    	
+    	addTab("Database connection", dbui);
     }
     
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
 		
-		settings.addString( EstimatedModelWriterNodeModel.PARAM_FILENAME, ui.getFilename() );
-		settings.addString( EstimatedModelWriterNodeModel.PARAM_LOGIN, ui.getLogin() );
-		settings.addString( EstimatedModelWriterNodeModel.PARAM_PASSWD, ui.getPasswd() );
-		settings.addBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE, ui.isOverride() );
+		settings.addString( EstimatedModelWriterNodeModel.PARAM_FILENAME, dbui.getFilename() );
+		settings.addString( EstimatedModelWriterNodeModel.PARAM_LOGIN, dbui.getLogin() );
+		settings.addString( EstimatedModelWriterNodeModel.PARAM_PASSWD, dbui.getPasswd() );
+		settings.addBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		
 		try {
 			
-			ui.setFilename( settings.getString( EstimatedModelWriterNodeModel.PARAM_FILENAME ) );
-			ui.setLogin( settings.getString( EstimatedModelWriterNodeModel.PARAM_LOGIN ) );
-			ui.setPasswd( settings.getString( EstimatedModelWriterNodeModel.PARAM_PASSWD ) );
-			ui.setOverride( settings.getBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE ) );
+			dbui.setFilename( settings.getString( EstimatedModelWriterNodeModel.PARAM_FILENAME ) );
+			dbui.setLogin( settings.getString( EstimatedModelWriterNodeModel.PARAM_LOGIN ) );
+			dbui.setPasswd( settings.getString( EstimatedModelWriterNodeModel.PARAM_PASSWD ) );
+			dbui.setOverride( settings.getBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE ) );
 		}
 		catch( InvalidSettingsException ex ) {
 			

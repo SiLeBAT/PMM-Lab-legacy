@@ -271,7 +271,6 @@ public class RegionToRegionVisualizerNodeView extends
 
 		Map<String, GraphCanvas.Node> nodes = new LinkedHashMap<>();
 		RowIterator nodeIt = getNodeModel().getNodeTable().iterator();
-		int nodeID = 0;
 
 		while (nodeIt.hasNext()) {
 			try {
@@ -309,16 +308,13 @@ public class RegionToRegionVisualizerNodeView extends
 					}
 				}
 
-				nodes.put(id, new GraphCanvas.Node(nodeID + "", region,
-						properties));
-				nodeID++;
+				nodes.put(id, new GraphCanvas.Node(region, properties));
 			} catch (Exception e) {
 			}
 		}
 
 		List<GraphCanvas.Edge> edges = new ArrayList<GraphCanvas.Edge>();
 		RowIterator edgeIt = getNodeModel().getEdgeTable().iterator();
-		int edgeID = 0;
 
 		while (edgeIt.hasNext()) {
 			try {
@@ -350,9 +346,7 @@ public class RegionToRegionVisualizerNodeView extends
 				}
 
 				if (node1 != null && node2 != null) {
-					edges.add(new GraphCanvas.Edge(edgeID + "", node1, node2,
-							properties));
-					edgeID++;
+					edges.add(new GraphCanvas.Edge(node1, node2, properties));
 				}
 			} catch (Exception e) {
 			}
@@ -534,7 +528,6 @@ public class RegionToRegionVisualizerNodeView extends
 		/* ------------------------------------------------------------------ */
 
 		List<GISCanvas.Edge> edges = new ArrayList<>();
-		int edgeID = 0;
 
 		for (String from : edgeMap.keySet()) {
 			for (String to : edgeMap.get(from).keySet()) {
@@ -542,9 +535,8 @@ public class RegionToRegionVisualizerNodeView extends
 				GISCanvas.Node n2 = nodes.get(to);
 
 				if (n1 != null && n2 != null) {
-					edges.add(new GISCanvas.Edge(edgeID + "", n1, n2, edgeMap
-							.get(from).get(to)));
-					edgeID++;
+					edges.add(new GISCanvas.Edge(n1, n2, edgeMap.get(from).get(
+							to)));
 				}
 			}
 		}

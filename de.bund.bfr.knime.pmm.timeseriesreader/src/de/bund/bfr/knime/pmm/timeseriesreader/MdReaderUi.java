@@ -236,8 +236,8 @@ public class MdReaderUi extends JPanel {
 		}
 		else {
 			if (matrixString != null && !matrixString.trim().isEmpty()) {
-				String s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
-				String sd = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
+				String s = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME);
+				String sd = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
 				if (s == null) s = ""; else s = s.toLowerCase();
 				if (sd == null) sd = ""; else sd = sd.toLowerCase();
 				if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;
@@ -281,49 +281,27 @@ public class MdReaderUi extends JPanel {
 		for (String par : parameter.keySet()) {
 			Double[] dbl = parameter.get(par);
 			if (dbl[0] == null && dbl[1] == null) continue;
-			/*
-			if (par.equalsIgnoreCase("temperature")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_TEMPERATURE);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
+			boolean paramFound = false;
+			PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+        		if (el instanceof MiscXml) {
+        			MiscXml mx = (MiscXml) el;
+        			if (mx.getName().equalsIgnoreCase(par)) {
+        				if (mx.getValue() == null) {
+        					paramFound = true;
+        					break;
+        				}
+        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
+        					return false;
+        				}
+        				else {
+        					paramFound = true;
+        					break;
+        				}
+        			}
+        		}
 			}
-			else if (par.equalsIgnoreCase("ph")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_PH);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
-			}
-			else if (par.equalsIgnoreCase("aw")) {
-				Double temp = tuple.getDouble(TimeSeriesSchema.ATT_WATERACTIVITY);
-				if (temp == null || dbl[0] != null && temp < dbl[0] || dbl[1] != null && temp > dbl[1]) {
-					return false;
-				}
-			}
-			*/
-			//else {
-				boolean paramFound = false;
-				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
-	        		if (el instanceof MiscXml) {
-	        			MiscXml mx = (MiscXml) el;
-	        			if (mx.getName().toLowerCase().equals(par)) {
-	        				if (mx.getValue() == null) {
-	        					paramFound = true;
-	        					break;
-	        				}
-	        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
-	        					return false;
-	        				}
-	        				else {
-	        					paramFound = true;
-	        					break;
-	        				}
-	        			}
-	        		}
-	        	//}
-	        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
-			}
+        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
 		}
 		
 		return true;
@@ -413,16 +391,15 @@ public class MdReaderUi extends JPanel {
 		agentField = new JTextField();
 		selectAgensButton = new JButton();
 		agensIDField = new JTextField();
-		panel2 = new JPanel();
 		label2 = new JLabel();
 		matrixField = new JTextField();
 		selectMatrixButton = new JButton();
 		matrixIDField = new JTextField();
-		panel3 = new JPanel();
 		label3 = new JLabel();
 		literatureField = new JTextField();
 		selectLiteratureButton = new JButton();
 		literatureIDField = new JTextField();
+		scrollPane1 = new JScrollPane();
 		panel4 = new JPanel();
 		label4 = new JLabel();
 		label5 = new JLabel();
@@ -445,17 +422,17 @@ public class MdReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"3*(default, $lgap), default"));
+			"2*(default, $lgap), default"));
 
 		//======== panel1 ========
 		{
-			panel1.setBorder(new TitledBorder("Organism"));
+			panel1.setBorder(new TitledBorder("MD Filter"));
 			panel1.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
+				"2*(default, $lgap), default"));
 
 			//---- label1 ----
-			label1.setText("Name");
+			label1.setText("Organism");
 			panel1.add(label1, CC.xy(1, 1));
 
 			//---- agentField ----
@@ -477,24 +454,15 @@ public class MdReaderUi extends JPanel {
 			agensIDField.setColumns(1);
 			agensIDField.setVisible(false);
 			panel1.add(agensIDField, CC.xy(7, 1));
-		}
-		add(panel1, CC.xy(1, 1));
-
-		//======== panel2 ========
-		{
-			panel2.setBorder(new TitledBorder("Matrix"));
-			panel2.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
 
 			//---- label2 ----
-			label2.setText("Name");
-			panel2.add(label2, CC.xy(1, 1));
+			label2.setText("Matrix");
+			panel1.add(label2, CC.xy(1, 3));
 
 			//---- matrixField ----
 			matrixField.setColumns(10);
 			matrixField.setPreferredSize(new Dimension(50, 20));
-			panel2.add(matrixField, CC.xy(3, 1));
+			panel1.add(matrixField, CC.xy(3, 3));
 
 			//---- selectMatrixButton ----
 			selectMatrixButton.setText("...");
@@ -504,30 +472,22 @@ public class MdReaderUi extends JPanel {
 					selectMatrixButtonActionPerformed(e);
 				}
 			});
-			panel2.add(selectMatrixButton, CC.xy(5, 1));
+			panel1.add(selectMatrixButton, CC.xy(5, 3));
 
 			//---- matrixIDField ----
 			matrixIDField.setColumns(1);
 			matrixIDField.setVisible(false);
-			panel2.add(matrixIDField, CC.xy(7, 1));
-		}
-		add(panel2, CC.xy(1, 3));
-
-		//======== panel3 ========
-		{
-			panel3.setBorder(new TitledBorder("Literature"));
-			panel3.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"default"));
+			panel1.add(matrixIDField, CC.xy(7, 3));
 
 			//---- label3 ----
-			label3.setText("Author/Title");
-			panel3.add(label3, CC.xy(1, 1));
+			label3.setText("Literature");
+			label3.setToolTipText("Author/Title");
+			panel1.add(label3, CC.xy(1, 5));
 
 			//---- literatureField ----
 			literatureField.setColumns(10);
 			literatureField.setPreferredSize(new Dimension(50, 20));
-			panel3.add(literatureField, CC.xy(3, 1));
+			panel1.add(literatureField, CC.xy(3, 5));
 
 			//---- selectLiteratureButton ----
 			selectLiteratureButton.setText("...");
@@ -537,78 +497,86 @@ public class MdReaderUi extends JPanel {
 					selectLiteratureButtonActionPerformed(e);
 				}
 			});
-			panel3.add(selectLiteratureButton, CC.xy(5, 1));
+			panel1.add(selectLiteratureButton, CC.xy(5, 5));
 
 			//---- literatureIDField ----
-			literatureIDField.setVisible(false);
 			literatureIDField.setColumns(1);
-			panel3.add(literatureIDField, CC.xy(7, 1));
+			literatureIDField.setVisible(false);
+			panel1.add(literatureIDField, CC.xy(7, 5));
 		}
-		add(panel3, CC.xy(1, 5));
+		add(panel1, CC.xy(1, 1));
 
-		//======== panel4 ========
+		//======== scrollPane1 ========
 		{
-			panel4.setBorder(new TitledBorder("Parameters"));
-			panel4.setLayout(new FormLayout(
-				"default:grow, 2*($lcgap, default)",
-				"5*(default, $lgap), default"));
+			scrollPane1.setPreferredSize(new Dimension(282, 130));
 
-			//---- label4 ----
-			label4.setText("Name");
-			label4.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label4, CC.xy(1, 1));
+			//======== panel4 ========
+			{
+				panel4.setBorder(new TitledBorder("Parameters"));
+				panel4.setPreferredSize(new Dimension(280, 185));
+				panel4.setMinimumSize(new Dimension(85, 175));
+				panel4.setLayout(new FormLayout(
+					"default:grow, 2*($lcgap, default)",
+					"5*(default, $lgap), default"));
 
-			//---- label5 ----
-			label5.setText("Min");
-			label5.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label5, CC.xy(3, 1));
+				//---- label4 ----
+				label4.setText("Name");
+				label4.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label4, CC.xy(1, 1));
 
-			//---- label6 ----
-			label6.setText("Max");
-			label6.setHorizontalAlignment(SwingConstants.CENTER);
-			panel4.add(label6, CC.xy(5, 1));
+				//---- label5 ----
+				label5.setText("Min");
+				label5.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label5, CC.xy(3, 1));
 
-			//---- textField4 ----
-			textField4.setColumns(10);
-			textField4.setText("Temperature");
-			textField4.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField4, CC.xy(1, 3));
+				//---- label6 ----
+				label6.setText("Max");
+				label6.setHorizontalAlignment(SwingConstants.CENTER);
+				panel4.add(label6, CC.xy(5, 1));
 
-			//---- doubleTextField1 ----
-			doubleTextField1.setColumns(5);
-			panel4.add(doubleTextField1, CC.xy(3, 3));
+				//---- textField4 ----
+				textField4.setColumns(10);
+				textField4.setText("Temperature");
+				textField4.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField4, CC.xy(1, 3));
 
-			//---- doubleTextField2 ----
-			doubleTextField2.setColumns(5);
-			panel4.add(doubleTextField2, CC.xy(5, 3));
+				//---- doubleTextField1 ----
+				doubleTextField1.setColumns(5);
+				panel4.add(doubleTextField1, CC.xy(3, 3));
 
-			//---- textField5 ----
-			textField5.setColumns(20);
-			textField5.setText("pH");
-			textField5.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField5, CC.xy(1, 5));
-			panel4.add(doubleTextField3, CC.xy(3, 5));
-			panel4.add(doubleTextField4, CC.xy(5, 5));
+				//---- doubleTextField2 ----
+				doubleTextField2.setColumns(5);
+				panel4.add(doubleTextField2, CC.xy(5, 3));
 
-			//---- textField6 ----
-			textField6.setColumns(20);
-			textField6.setText("aw");
-			textField6.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField6, CC.xy(1, 7));
-			panel4.add(doubleTextField5, CC.xy(3, 7));
-			panel4.add(doubleTextField6, CC.xy(5, 7));
+				//---- textField5 ----
+				textField5.setColumns(20);
+				textField5.setText("pH");
+				textField5.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField5, CC.xy(1, 5));
+				panel4.add(doubleTextField3, CC.xy(3, 5));
+				panel4.add(doubleTextField4, CC.xy(5, 5));
 
-			//---- textField7 ----
-			textField7.setColumns(20);
-			textField7.setText("param1");
-			textField7.setHorizontalAlignment(SwingConstants.RIGHT);
-			panel4.add(textField7, CC.xy(1, 9));
-			panel4.add(doubleTextField7, CC.xy(3, 9));
-			panel4.add(doubleTextField8, CC.xy(5, 9));
-			panel4.add(doubleTextField9, CC.xy(3, 11));
-			panel4.add(doubleTextField10, CC.xy(5, 11));
+				//---- textField6 ----
+				textField6.setColumns(20);
+				textField6.setText("aw");
+				textField6.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField6, CC.xy(1, 7));
+				panel4.add(doubleTextField5, CC.xy(3, 7));
+				panel4.add(doubleTextField6, CC.xy(5, 7));
+
+				//---- textField7 ----
+				textField7.setColumns(20);
+				textField7.setText("param1");
+				textField7.setHorizontalAlignment(SwingConstants.RIGHT);
+				panel4.add(textField7, CC.xy(1, 9));
+				panel4.add(doubleTextField7, CC.xy(3, 9));
+				panel4.add(doubleTextField8, CC.xy(5, 9));
+				panel4.add(doubleTextField9, CC.xy(3, 11));
+				panel4.add(doubleTextField10, CC.xy(5, 11));
+			}
+			scrollPane1.setViewportView(panel4);
 		}
-		add(panel4, CC.xy(1, 7));
+		add(scrollPane1, CC.xy(1, 3));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
@@ -618,16 +586,15 @@ public class MdReaderUi extends JPanel {
 	private JTextField agentField;
 	private JButton selectAgensButton;
 	private JTextField agensIDField;
-	private JPanel panel2;
 	private JLabel label2;
 	private JTextField matrixField;
 	private JButton selectMatrixButton;
 	private JTextField matrixIDField;
-	private JPanel panel3;
 	private JLabel label3;
 	private JTextField literatureField;
 	private JButton selectLiteratureButton;
 	private JTextField literatureIDField;
+	private JScrollPane scrollPane1;
 	private JPanel panel4;
 	private JLabel label4;
 	private JLabel label5;

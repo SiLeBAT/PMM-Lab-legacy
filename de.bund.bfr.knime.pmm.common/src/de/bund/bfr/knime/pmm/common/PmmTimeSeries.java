@@ -396,7 +396,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     	if (mx == null) mx = new MatrixXml(id, name, detail);
     	matrixXmlDoc = new PmmXmlDoc();
     	matrixXmlDoc.add(mx);    		
-    	setValue(TimeSeriesSchema.ATT_AGENT, matrixXmlDoc);		
+    	setValue(TimeSeriesSchema.ATT_MATRIX, matrixXmlDoc);		
 	}
 	
 	public void setAgentName( final String agentName ) throws PmmException {

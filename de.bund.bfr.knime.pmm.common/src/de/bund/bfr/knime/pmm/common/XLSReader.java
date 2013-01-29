@@ -63,7 +63,9 @@ public class XLSReader {
 	}
 
 	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file,
-			Map<String, Object> columnMappings) throws Exception {
+			Map<String, Object> columnMappings, String agentColumnName,
+			Map<String, AgentXml> agentMappings, String matrixColumnName,
+			Map<String, MatrixXml> matrixMappings) throws Exception {
 		Sheet sheet = getSheet(file);
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> columns = getColumns(sheet);
@@ -72,6 +74,16 @@ public class XLSReader {
 		Integer commentColumn = null;
 		Integer timeColumn = null;
 		Integer logcColumn = null;
+		Integer agentColumn = null;
+		Integer matrixColumn = null;
+
+		if (agentColumnName != null) {
+			agentColumn = columns.get(agentColumnName);
+		}
+
+		if (matrixColumnName != null) {
+			matrixColumn = columns.get(matrixColumnName);
+		}
 
 		for (String column : columns.keySet()) {
 			if (columnMappings.containsKey(column)) {
@@ -111,6 +123,16 @@ public class XLSReader {
 			Cell commentCell = row.getCell(commentColumn);
 			Cell timeCell = row.getCell(timeColumn);
 			Cell logcCell = row.getCell(logcColumn);
+			Cell agentCell = null;
+			Cell matrixCell = null;
+
+			if (agentColumn != null) {
+				agentCell = row.getCell(agentColumn);
+			}
+
+			if (matrixColumn != null) {
+				matrixCell = row.getCell(matrixColumn);
+			}
 
 			if (idCell != null && !idCell.toString().trim().isEmpty()
 					&& !idCell.toString().trim().equals(id)) {
@@ -129,6 +151,30 @@ public class XLSReader {
 				if (commentCell != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
 							.toString().trim());
+				}
+
+				if (agentCell != null) {
+					AgentXml agent = agentMappings.get(agentCell.toString()
+							.trim());
+
+					if (agent != null) {
+						PmmXmlDoc agentXml = new PmmXmlDoc();
+
+						agentXml.add(agent);
+						tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+					}
+				}
+
+				if (matrixCell != null) {
+					MatrixXml matrix = matrixMappings.get(matrixCell.toString()
+							.trim());
+
+					if (matrix != null) {
+						PmmXmlDoc matrixXml = new PmmXmlDoc();
+
+						matrixXml.add(matrix);
+						tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
+					}
 				}
 
 				PmmXmlDoc miscXML = new PmmXmlDoc();

@@ -659,7 +659,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				}
 
 				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
-						fileChooser.getSelectedFile(), dialog.getMappings());
+						fileChooser.getSelectedFile(), dialog.getMappings(),
+						null, null, null, null);
 				Object[] values = tuples.keySet().toArray();
 				Object selection = JOptionPane.showInputDialog(panel,
 						"Select Time Series", "Input",

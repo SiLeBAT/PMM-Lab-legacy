@@ -117,8 +117,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private Map<String, JButton> agentButtons;
 
 	private JPanel matrixPanel;
+	private JComboBox<String> matrixBox;
 	private JButton matrixButton;
+	private String matrixColumn;
 	private int matrixID;
+	private Map<String, String> matrixMappings;
+	private Map<String, JButton> matrixButtons;
 
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> columnBoxes;
@@ -168,6 +172,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						.getFullName(TimeSeriesSchema.ATT_MATRIX)));
 		matrixPanel.setLayout(new BorderLayout());
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
+		matrixButtons = new LinkedHashMap<>();
+		matrixMappings = new LinkedHashMap<>();
 		columnsPanel = new JPanel();
 		columnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
 		columnsPanel.setLayout(new BorderLayout());
@@ -310,10 +316,25 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
+			matrixColumn = settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN);
+		} catch (InvalidSettingsException e) {
+			matrixColumn = XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXCOLUMN;
+		}
+
+		try {
 			matrixID = settings
 					.getInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
 			matrixID = XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXID;
+		}
+
+		try {
+			matrixMappings = XLSTimeSeriesReaderNodeModel
+					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
+		} catch (InvalidSettingsException e) {
+			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
@@ -372,7 +393,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
 						.getMappingsAsList(agentMappings)));
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN,
+				matrixColumn);
 		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID, matrixID);
+		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
+				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+						.getMappingsAsList(matrixMappings)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS,
 				ListUtilities.getStringFromList(literatureIDs));
 	}
@@ -453,6 +479,29 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				}
 			}
 
+			for (String value : matrixButtons.keySet()) {
+				if (e.getSource() == matrixButtons.get(value)) {
+					Integer id = null;
+
+					try {
+						id = Integer.parseInt(matrixMappings.get(value));
+					} catch (NumberFormatException ex) {
+					}
+
+					String newID = openMatrixDBWindow(id) + "";
+
+					if (newID != null) {
+						String matrix = DBKernel.getValue("Matrices", "ID",
+								newID, "Matrixname") + "";
+
+						matrixButtons.get(value).setText(matrix);
+						matrixMappings.put(value, newID);
+					}
+
+					break;
+				}
+			}
+
 			for (String column : columnButtons.keySet()) {
 				if (e.getSource() == columnButtons.get(column)) {
 					Integer intID = null;
@@ -491,6 +540,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			} else {
 				agentColumn = (String) agentBox.getSelectedItem();
 				updateAgentPanel();
+			}
+		} else if (e.getSource() == matrixBox) {
+			if (matrixBox.getSelectedItem().equals(NO_COLUMN)) {
+				matrixColumn = null;
+			} else {
+				matrixColumn = (String) matrixBox.getSelectedItem();
+				updateMatrixPanel();
 			}
 		} else {
 			for (String column : columnBoxes.keySet()) {
@@ -632,8 +688,24 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateMatrixPanel() {
+		matrixBox = new JComboBox<>(new String[] { NO_COLUMN });
 		matrixButton = new JButton(SELECT);
-		matrixButton.addActionListener(this);
+
+		try {
+			List<String> columnList = XLSReader
+					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
+
+			for (String column : columnList) {
+				matrixBox.addItem(column);
+			}
+		} catch (Exception e) {
+		}
+
+		if (matrixColumn != XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXCOLUMN) {
+			matrixBox.setSelectedItem(matrixColumn);
+		} else {
+			matrixBox.setSelectedItem(NO_COLUMN);
+		}
 
 		if (matrixID != XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXID) {
 			matrixButton.setText(""
@@ -643,14 +715,46 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			matrixButton.setText(SELECT);
 		}
 
+		matrixBox.addItemListener(this);
+		matrixButton.addActionListener(this);
+
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(
-				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
-				createConstraints(0, 0));
-		northPanel.add(matrixButton, createConstraints(1, 0));
+		northPanel.add(new JLabel("Column:"), createConstraints(0, 0));
+		northPanel.add(matrixBox, createConstraints(1, 0));
+
+		if (matrixBox.getSelectedItem().equals(NO_COLUMN)) {
+			northPanel.add(matrixButton, createConstraints(1, 1));
+		} else {
+			int row = 1;
+			String column = (String) matrixBox.getSelectedItem();
+
+			try {
+				Set<String> values = XLSReader.getValuesInColumn(new File(
+						filePanel.getFileName()), column);
+
+				for (String value : values) {
+					JButton button = new JButton();
+
+					if (matrixMappings.containsKey(value)) {
+						button.setText(DBKernel.getValue("Matrices", "ID",
+								matrixMappings.get(value), "Matrixname") + "");
+					} else {
+						button.setText(SELECT);
+					}
+
+					button.addActionListener(this);
+					matrixButtons.put(value, button);
+
+					northPanel.add(new JLabel(value + ":"),
+							createConstraints(0, row));
+					northPanel.add(button, createConstraints(1, row));
+					row++;
+				}
+			} catch (Exception e) {
+			}
+		}
 
 		matrixPanel.removeAll();
 		matrixPanel.add(northPanel, BorderLayout.NORTH);

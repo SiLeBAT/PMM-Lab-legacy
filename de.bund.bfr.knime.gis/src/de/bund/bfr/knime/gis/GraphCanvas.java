@@ -42,10 +42,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 import org.apache.commons.collections15.Transformer;
 
-import de.bund.bfr.knime.gis.GraphCanvas.Node;
 import edu.uci.ics.jung.algorithms.layout.CircleLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout;
 import edu.uci.ics.jung.algorithms.layout.FRLayout2;
@@ -59,11 +60,10 @@ import edu.uci.ics.jung.graph.SparseMultigraph;
 import edu.uci.ics.jung.visualization.Layer;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
 import edu.uci.ics.jung.visualization.control.DefaultModalGraphMouse;
-import edu.uci.ics.jung.visualization.control.GraphMouseListener;
 import edu.uci.ics.jung.visualization.control.ModalGraphMouse.Mode;
 
 public class GraphCanvas extends JPanel implements ActionListener,
-		ItemListener, MouseListener, GraphMouseListener<Node> {
+		ItemListener, MouseListener {
 
 	private static final long serialVersionUID = 1L;
 
@@ -313,6 +313,26 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		if (e.getButton() == MouseEvent.BUTTON2) {
+			Node node = viewer.getPickSupport().getVertex(
+					viewer.getGraphLayout(), e.getX(), e.getY());
+			Edge edge = viewer.getPickSupport().getEdge(
+					viewer.getGraphLayout(), e.getX(), e.getY());
+
+			if (node != null) {
+				SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+						e.getComponent(), node);
+
+				dialog.setLocation(e.getLocationOnScreen());
+				dialog.setVisible(true);
+			} else if (edge != null) {
+				SingleElementPropertiesDialog dialog = new SingleElementPropertiesDialog(
+						e.getComponent(), edge);
+
+				dialog.setLocation(e.getLocationOnScreen());
+				dialog.setVisible(true);
+			}
+		}
 	}
 
 	@Override
@@ -332,25 +352,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-	}
-
-	@Override
-	public void graphClicked(Node v, MouseEvent me) {
-		if (me.getButton() == MouseEvent.BUTTON2) {
-			SingleNodePropertiesDialog dialog = new SingleNodePropertiesDialog(
-					me.getComponent(), v);
-
-			dialog.setLocation(me.getLocationOnScreen());
-			dialog.setVisible(true);
-		}
-	}
-
-	@Override
-	public void graphPressed(Node v, MouseEvent me) {
-	}
-
-	@Override
-	public void graphReleased(Node v, MouseEvent me) {
 	}
 
 	private void updateViewer() {
@@ -414,7 +415,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			}
 
 			viewer = new VisualizationViewer<Node, Edge>(layout);
-			viewer.addGraphMouseListener(this);
 			viewer.setPreferredSize(size);
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
@@ -642,6 +642,9 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		private static final long serialVersionUID = 1L;
 
+		private JTable table;
+		private JScrollPane scrollPane;
+
 		public PropertiesDialog(List<Map<String, Object>> propertyValues,
 				Map<String, Class<?>> properties) {
 			super("Properties");
@@ -664,10 +667,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				columnValueTuples.add(tuple);
 			}
 
-			JTable table = new JTable(new PropertiesTableModel(columnNames,
+			table = new JTable(new PropertiesTableModel(columnNames,
 					columnTypes, columnValueTuples));
-
 			table.setAutoCreateRowSorter(true);
+			scrollPane = new JScrollPane(table);
 
 			JButton okButton = new JButton("OK");
 			JPanel bottomPanel = new JPanel();
@@ -677,14 +680,51 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			bottomPanel.add(okButton);
 
 			setLayout(new BorderLayout());
-			add(new JScrollPane(table), BorderLayout.CENTER);
+			add(scrollPane, BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
+			packColumns();
 			pack();
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			dispose();
+		}
+
+		private void packColumns() {
+			int tableWidth = 0;
+
+			for (int c = 0; c < table.getColumnCount(); c++) {
+				TableColumn col = table.getColumnModel().getColumn(c);
+
+				if (col.getPreferredWidth() == 0) {
+					continue;
+				}
+
+				TableCellRenderer renderer = col.getHeaderRenderer();
+				Component comp = table
+						.getTableHeader()
+						.getDefaultRenderer()
+						.getTableCellRendererComponent(table,
+								col.getHeaderValue(), false, false, 0, 0);
+				int width = comp.getPreferredSize().width;
+
+				for (int r = 0; r < table.getRowCount(); r++) {
+					renderer = table.getCellRenderer(r, c);
+					comp = renderer.getTableCellRendererComponent(table,
+							table.getValueAt(r, c), false, false, r, c);
+					width = Math.max(width, comp.getPreferredSize().width);
+				}
+
+				width += 5;
+				col.setPreferredWidth(width);
+				tableWidth += width;
+			}
+
+			tableWidth += 10;
+
+			scrollPane.setPreferredSize(new Dimension(tableWidth, scrollPane
+					.getPreferredSize().height));
 		}
 
 		private class PropertiesTableModel extends AbstractTableModel {
@@ -1345,24 +1385,25 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	}
 
-	private static class SingleNodePropertiesDialog extends JDialog implements
-			ActionListener {
+	private static class SingleElementPropertiesDialog extends JDialog
+			implements ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
-		public SingleNodePropertiesDialog(Component parent, Node node) {
+		public SingleElementPropertiesDialog(Component parent,
+				GraphElement element) {
 			super(JOptionPane.getFrameForComponent(parent), "Properties", true);
 
 			JPanel centerPanel = new JPanel();
 			JPanel leftCenterPanel = new JPanel();
 			JPanel rightCenterPanel = new JPanel();
 
-			leftCenterPanel.setLayout(new GridLayout(node.getProperties()
+			leftCenterPanel.setLayout(new GridLayout(element.getProperties()
 					.size(), 1, 5, 5));
-			rightCenterPanel.setLayout(new GridLayout(node.getProperties()
+			rightCenterPanel.setLayout(new GridLayout(element.getProperties()
 					.size(), 1, 5, 5));
 
-			for (Map.Entry<String, Object> property : node.getProperties()
+			for (Map.Entry<String, Object> property : element.getProperties()
 					.entrySet()) {
 				JTextField field = new JTextField();
 

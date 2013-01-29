@@ -114,7 +114,13 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 				ret.setAttribute( TimeSeriesSchema.ATT_WATERACTIVITY, String.valueOf( getWaterActivity() ) );
 			}
 			*/
-			if( hasMisc() ) {
+			if (hasMatrix()) {
+				ret.setAttribute(TimeSeriesSchema.ATT_MATRIX, getMatrix().toXmlString());
+			}
+			if (hasAgent()) {
+				ret.setAttribute(TimeSeriesSchema.ATT_AGENT, getAgent().toXmlString());
+			}
+			if (hasMisc()) {
 				ret.setAttribute(TimeSeriesSchema.ATT_MISC, getMisc().toXmlString());
 			}
 			/* if( !isNaN( maximumRate ) )
@@ -224,6 +230,12 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);
 	}
+	public PmmXmlDoc getMatrix() throws PmmException {
+		return getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+	}
+	public PmmXmlDoc getAgent() throws PmmException {
+		return getPmmXml(TimeSeriesSchema.ATT_AGENT);
+	}
 	public PmmXmlDoc getLiterature() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_LITMD);
 	}
@@ -309,7 +321,13 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public boolean hasMisc() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_MISC );
+		return !isNull(TimeSeriesSchema.ATT_MISC);
+	}
+	public boolean hasMatrix() throws PmmException {
+		return !isNull(TimeSeriesSchema.ATT_MATRIX);
+	}
+	public boolean hasAgent() throws PmmException {
+		return !isNull(TimeSeriesSchema.ATT_AGENT);
 	}
 	
 	public boolean hasCondId() throws PmmException {
@@ -344,42 +362,80 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setValue( TimeSeriesSchema.ATT_COMBASEID, combaseId );
 	}
 	
-	public void setAgentName( final String agentName ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_AGENTNAME, agentName );
+	private void setAgentAttribute(Integer id, String name, String detail) throws PmmException {
+		PmmXmlDoc agentXmlDoc = getAgent();
+		if (agentXmlDoc == null) agentXmlDoc = new PmmXmlDoc();
+		AgentXml ax = null;
+    	for (PmmXmlElementConvertable el : agentXmlDoc.getElementSet()) {
+    		if (el instanceof AgentXml) {
+    			ax = (AgentXml) el;
+    			if (id != null) ax.setID(id);
+    			if (name != null) ax.setName(name);
+    			if (detail != null) ax.setDetail(detail);
+    			break;
+    		}
+    	}
+    	agentXmlDoc = new PmmXmlDoc();
+   		agentXmlDoc.add(ax);    		
+    	setValue(TimeSeriesSchema.ATT_AGENT, agentXmlDoc);		
+	}
+	private void setMatrixAttribute(Integer id, String name, String detail) throws PmmException {
+		PmmXmlDoc matrixXmlDoc = getMatrix();
+		if (matrixXmlDoc == null) matrixXmlDoc = new PmmXmlDoc();
+		MatrixXml mx = null;
+    	for (PmmXmlElementConvertable el : matrixXmlDoc.getElementSet()) {
+    		if (el instanceof MatrixXml) {
+    			mx = (MatrixXml) el;
+    			if (id != null) mx.setID(id);
+    			if (name != null) mx.setName(name);
+    			if (detail != null) mx.setDetail(detail);
+    			break;
+    		}
+    	}
+    	matrixXmlDoc = new PmmXmlDoc();
+    	matrixXmlDoc.add(mx);    		
+    	setValue(TimeSeriesSchema.ATT_AGENT, matrixXmlDoc);		
 	}
 	
+	public void setAgentName( final String agentName ) throws PmmException {
+		setValue( TimeSeriesSchema.ATT_AGENTNAME, agentName );		
+		setAgentAttribute(null, agentName, null);
+	}
 	public void setMatrixName( final String matrixName ) throws PmmException {
 		setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
+		setMatrixAttribute(null, matrixName, null);
 	}
 	
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
+		setAgentAttribute(null, null, agentDetail);
 	}
 	public void setMatrixDetail( final String matrixDetail ) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail );
+		setMatrixAttribute(null, null, matrixDetail);
 	}
 	
 	public void setAgentId( final Integer agentId ) throws PmmException {
 		setValue( TimeSeriesSchema.ATT_AGENTID, agentId );
+		setAgentAttribute(agentId, null, null);
 	}
 	
 	public void setMatrixId( final Integer matrixId ) throws PmmException {
 		setValue( TimeSeriesSchema.ATT_MATRIXID, matrixId );
+		setMatrixAttribute(matrixId, null, null);
 	}
 	
 	public void setComment( final String comment ) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_COMMENT, comment );
 	}
 	
-	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail )
-	throws PmmException {
+	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail ) throws PmmException {
 		setMatrixId( matrixId );
 		setMatrixName( matrixName );
 		setMatrixDetail( matrixDetail );
 	}
 	
-	public void setAgent( final int agentId, final String agentName, final String agentDetail )
-	throws PmmException {
+	public void setAgent( final int agentId, final String agentName, final String agentDetail ) throws PmmException {
 		setAgentId( agentId );
 		setAgentName( agentName );
 		setAgentDetail( agentDetail );

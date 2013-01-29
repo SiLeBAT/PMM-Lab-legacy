@@ -15,9 +15,13 @@ import org.hsh.bfr.db.MyTable;
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.*;
@@ -49,6 +53,22 @@ public class MMC_TS extends JPanel {
 		}
 
 		PmmTimeSeries tuple = new PmmTimeSeries();
+
+		int agentID = MathUtilities.getRandomNegativeInt();
+		int matrixID = MathUtilities.getRandomNegativeInt();
+		try {agentID = Integer.parseInt(agensIDField.getText());}
+		catch (Exception e) {}
+		try {matrixID = Integer.parseInt(matrixIDField.getText());}
+		catch (Exception e) {}
+		
+		PmmXmlDoc matDoc = new PmmXmlDoc(); 
+		MatrixXml mx = new MatrixXml(matrixID, matrixField.getText(), matrixDetailField.getText());
+		matDoc.add(mx);
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
+		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
+		AgentXml ax = new AgentXml(agentID, agentField.getText(), agensDetailField.getText());
+		agtDoc.add(ax);
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
 
 		tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agentField.getText());
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrixField.getText());

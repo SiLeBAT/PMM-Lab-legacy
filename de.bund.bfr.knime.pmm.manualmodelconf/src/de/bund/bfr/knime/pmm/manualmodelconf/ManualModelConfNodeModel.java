@@ -50,6 +50,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -119,6 +121,16 @@ public class ManualModelConfNodeModel extends NodeModel {
         	KnimeTuple tupleM1 = null;
 			PmmTimeSeries tstuple = new PmmTimeSeries();
         	if (!formulaCreator) {
+        		
+        		PmmXmlDoc matDoc = new PmmXmlDoc(); 
+				MatrixXml mx = new MatrixXml(matrixID, matrix, matrixDetail);
+				matDoc.add(mx);
+        		tstuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
+        		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
+				AgentXml ax = new AgentXml(agentID, agent, agentDetail);
+				agtDoc.add(ax);
+        		tstuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
+        		
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail);
     			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail);
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agent);

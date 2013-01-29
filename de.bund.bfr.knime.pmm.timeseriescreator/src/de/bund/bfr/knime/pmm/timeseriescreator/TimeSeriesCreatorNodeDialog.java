@@ -72,7 +72,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -180,9 +182,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		settingsNamePanel.setLayout(new GridLayout(-1, 1, 5, 5));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":"));
+				.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"));
+				.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"));
 		settingsNamePanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
 		settingsNamePanel.add(new JLabel(AttributeUtilities
 				.getFullName(TimeSeriesSchema.TIME) + ":"));
@@ -664,10 +666,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
 				KnimeTuple tuple = tuples.get(selection);
 
-				agentField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_AGENTDETAIL));
-				matrixField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_MATRIXDETAIL));
+				agentField.setValue(((AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
+				matrixField.setValue(((MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
 				commentField.setValue(tuple
 						.getString(TimeSeriesSchema.ATT_COMMENT));
 

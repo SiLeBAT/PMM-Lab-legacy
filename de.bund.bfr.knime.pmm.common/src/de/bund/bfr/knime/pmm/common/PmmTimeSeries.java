@@ -375,6 +375,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     			break;
     		}
     	}
+    	if (ax == null) ax = new AgentXml(id, name, detail);
     	agentXmlDoc = new PmmXmlDoc();
    		agentXmlDoc.add(ax);    		
     	setValue(TimeSeriesSchema.ATT_AGENT, agentXmlDoc);		
@@ -392,9 +393,10 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     			break;
     		}
     	}
+    	if (mx == null) mx = new MatrixXml(id, name, detail);
     	matrixXmlDoc = new PmmXmlDoc();
     	matrixXmlDoc.add(mx);    		
-    	setValue(TimeSeriesSchema.ATT_AGENT, matrixXmlDoc);		
+    	setValue(TimeSeriesSchema.ATT_MATRIX, matrixXmlDoc);		
 	}
 	
 	public void setAgentName( final String agentName ) throws PmmException {

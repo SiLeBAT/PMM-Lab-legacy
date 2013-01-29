@@ -1918,14 +1918,16 @@ public class DBKernel {
         				String chargenNr = rs.getString("ChargenNr");
         				String mhd = rs.getString("MHD");
         				int lieferID = rs.getInt("ID");
+        				int artikelID = rs.getInt("Artikel");
         				int chargenID = lieferID;
-        				if (chargeLieferung.containsKey(chargenNr + "_" + mhd)) chargenID = chargeLieferung.get(chargenNr + "_" + mhd);
+        				String hashKey = artikelID + "_" + chargenNr + "_" + mhd;
+        				if (chargeLieferung.containsKey(hashKey)) chargenID = chargeLieferung.get(hashKey);
         				else {
-        					if (chargenNr != null && !chargenNr.replace(",", "").trim().isEmpty()) chargeLieferung.put(chargenNr + "_" + mhd, lieferID);
+        					if (chargenNr != null && !chargenNr.replace(",", "").trim().isEmpty()) chargeLieferung.put(hashKey, lieferID);
             	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + DBKernel.delimitL("ID") + "," +
                 	    			DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
                 	    			") VALUES (" + lieferID + "," +
-                	    			rs.getInt("Artikel") + "," + getDBString(chargenNr) + "," + getDatum(mhd) + ")", false, false);
+                	    			artikelID + "," + getDBString(chargenNr) + "," + getDatum(mhd) + ")", false, false);
         				}
         				chargeLieferungID.put(lieferID, chargenID);
 

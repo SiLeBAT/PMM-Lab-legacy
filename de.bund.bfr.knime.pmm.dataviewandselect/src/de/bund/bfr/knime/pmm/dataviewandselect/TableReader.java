@@ -11,6 +11,8 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -113,27 +115,28 @@ public class TableReader {
 				dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 			}
 
-			if (tuple.getString(TimeSeriesSchema.ATT_AGENTNAME) != null) {
-				agent = tuple.getString(TimeSeriesSchema.ATT_AGENTNAME) + " ("
-						+ tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL)
-						+ ")";
+			PmmXmlDoc agentXml = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+			String agentName = ((AgentXml) agentXml.get(0)).getName();
+			String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
+			PmmXmlDoc matrixXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+			String matrixName = ((MatrixXml) matrixXml.get(0)).getName();
+			String matrixDetail = ((MatrixXml) matrixXml.get(0)).getDetail();
+
+			if (agentName != null) {
+				agent = agentName + " (" + agentDetail + ")";
 			} else {
-				agent = tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL);
+				agent = agentDetail;
 			}
 
-			if (tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME) != null) {
-				matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME)
-						+ " ("
-						+ tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL)
-						+ ")";
+			if (matrixName != null) {
+				matrix = matrixName + " (" + matrixDetail + ")";
 			} else {
-				matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
+				matrix = matrixDetail;
 			}
 
 			stringColumnValues.get(0).add(dataName);
 			infoParameters.add(Arrays.asList(TimeSeriesSchema.DATAPOINTS,
-					TimeSeriesSchema.ATT_AGENTNAME,
-					TimeSeriesSchema.ATT_MATRIXNAME,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
 					TimeSeriesSchema.ATT_COMMENT));
 			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
 					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));

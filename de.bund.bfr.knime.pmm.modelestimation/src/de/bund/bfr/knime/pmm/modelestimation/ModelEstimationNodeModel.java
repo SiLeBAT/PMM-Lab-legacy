@@ -104,7 +104,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
 
 	static final String DEFAULT_FITTINGTYPE = NO_FITTING;
-	static final int DEFAULT_ENFORCELIMITS = 0;
+	static final int DEFAULT_ENFORCELIMITS = 1;
 	static final int DEFAULT_NPARAMETERSPACE = 10000;
 	static final int DEFAULT_NLEVENBERG = 10;
 	static final int DEFAULT_STOPWHENSUCCESSFUL = 1;

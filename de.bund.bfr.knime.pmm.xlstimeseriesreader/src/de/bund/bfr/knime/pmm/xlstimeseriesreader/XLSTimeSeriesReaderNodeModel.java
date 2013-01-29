@@ -52,8 +52,10 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -171,12 +173,15 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				"Agensname") + "";
 		String matrixName = DBKernel.getValue("Matrices", "ID", matrixID + "",
 				"Matrixname") + "";
+		PmmXmlDoc agentXml = new PmmXmlDoc();
+		PmmXmlDoc matrixXml = new PmmXmlDoc();
+
+		agentXml.add(new AgentXml(agentID, agentName, null));
+		matrixXml.add(new MatrixXml(matrixID, matrixName, null));
 
 		for (KnimeTuple tuple : tuples) {
-			tuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
-			tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agentName);
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrixName);
+			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 		}
 
 		PmmXmlDoc literatureXML = new PmmXmlDoc();

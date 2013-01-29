@@ -136,6 +136,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
 		limitsBox = new JCheckBox("Enforce Limits");
 		fittingPanel = new JPanel();
+		fittingPanel
+				.setBorder(BorderFactory
+						.createTitledBorder("Optional Start Values for Fitting Procedure"));
 		fittingPanel.setLayout(new BorderLayout());
 
 		fittingTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -437,13 +440,24 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 					if (!Double.isNaN(range.y)) {
 						maxField.setValue(range.y);
 					}
+				}
+
+				Double min = minValues.get(id).get(param);
+				Double max = maxValues.get(id).get(param);
+				String rangeString;
+
+				if (min != null && max != null) {
+					rangeString = " (" + min + " to " + max + "):";
+				} else if (min != null) {
+					rangeString = " (" + min + " to ):";
+				} else if (max != null) {
+					rangeString = " ( to " + max + "):";
 				} else {
-					minField.setValue(minValues.get(id).get(param));
-					maxField.setValue(maxValues.get(id).get(param));
+					rangeString = ":";
 				}
 
 				labelPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-				labelPanel.add(new JLabel(param + ":"));
+				labelPanel.add(new JLabel(param + rangeString));
 
 				minMaxPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 				minMaxPanel.add(minField);

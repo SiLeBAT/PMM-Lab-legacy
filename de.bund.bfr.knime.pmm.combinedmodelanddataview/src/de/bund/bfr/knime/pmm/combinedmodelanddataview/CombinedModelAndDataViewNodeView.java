@@ -52,10 +52,12 @@ import javax.swing.JSplitPane;
 import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -409,28 +411,31 @@ public class CombinedModelAndDataViewNodeView extends
 				String agent;
 				String matrix;
 
+				PmmXmlDoc agentXml = row.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+				String agentName = ((AgentXml) agentXml.get(0)).getName();
+				String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
+				PmmXmlDoc matrixXml = row
+						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+				String matrixName = ((MatrixXml) matrixXml.get(0)).getName();
+				String matrixDetail = ((MatrixXml) matrixXml.get(0))
+						.getDetail();
+
 				if (row.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
 					dataName = row.getString(TimeSeriesSchema.ATT_COMBASEID);
 				} else {
 					dataName = "" + row.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				if (row.getString(TimeSeriesSchema.ATT_AGENTNAME) != null) {
-					agent = row.getString(TimeSeriesSchema.ATT_AGENTNAME)
-							+ " ("
-							+ row.getString(TimeSeriesSchema.ATT_AGENTDETAIL)
-							+ ")";
+				if (agentName != null) {
+					agent = agentName + " (" + agentDetail + ")";
 				} else {
-					agent = row.getString(TimeSeriesSchema.ATT_AGENTDETAIL);
+					agent = agentDetail;
 				}
 
-				if (row.getString(TimeSeriesSchema.ATT_MATRIXNAME) != null) {
-					matrix = row.getString(TimeSeriesSchema.ATT_MATRIXNAME)
-							+ " ("
-							+ row.getString(TimeSeriesSchema.ATT_MATRIXDETAIL)
-							+ ")";
+				if (matrixName != null) {
+					matrix = matrixName + " (" + matrixDetail + ")";
 				} else {
-					matrix = row.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
+					matrix = matrixDetail;
 				}
 
 				PmmXmlDoc estModelXml = row
@@ -461,8 +466,8 @@ public class CombinedModelAndDataViewNodeView extends
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
-						TimeSeriesSchema.ATT_AGENTNAME,
-						TimeSeriesSchema.ATT_MATRIXNAME,
+						TimeSeriesSchema.ATT_AGENT,
+						TimeSeriesSchema.ATT_MATRIX,
 						TimeSeriesSchema.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(formula,
 						dataPoints, agent, matrix,

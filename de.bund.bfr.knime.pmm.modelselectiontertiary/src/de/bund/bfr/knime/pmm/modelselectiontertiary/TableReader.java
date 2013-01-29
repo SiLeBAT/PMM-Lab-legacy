@@ -11,11 +11,13 @@ import java.util.Set;
 
 import org.knime.core.node.BufferedDataTable;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -243,28 +245,32 @@ public class TableReader {
 				String agent;
 				String matrix;
 
+				PmmXmlDoc agentXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+				String agentName = ((AgentXml) agentXml.get(0)).getName();
+				String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
+				PmmXmlDoc matrixXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+				String matrixName = ((MatrixXml) matrixXml.get(0)).getName();
+				String matrixDetail = ((MatrixXml) matrixXml.get(0))
+						.getDetail();
+
 				if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
 					dataName = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 				} else {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				if (tuple.getString(TimeSeriesSchema.ATT_AGENTNAME) != null) {
-					agent = tuple.getString(TimeSeriesSchema.ATT_AGENTNAME)
-							+ " ("
-							+ tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL)
-							+ ")";
+				if (agentName != null) {
+					agent = agentName + " (" + agentDetail + ")";
 				} else {
-					agent = tuple.getString(TimeSeriesSchema.ATT_AGENTDETAIL);
+					agent = agentDetail;
 				}
 
-				if (tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME) != null) {
-					matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME)
-							+ " ("
-							+ tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL)
-							+ ")";
+				if (matrixName != null) {
+					matrix = matrixName + " (" + matrixDetail + ")";
 				} else {
-					matrix = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
+					matrix = matrixDetail;
 				}
 
 				PmmXmlDoc estModelXml = tuple
@@ -295,8 +301,8 @@ public class TableReader {
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
-						TimeSeriesSchema.ATT_AGENTNAME,
-						TimeSeriesSchema.ATT_MATRIXNAME,
+						TimeSeriesSchema.ATT_AGENT,
+						TimeSeriesSchema.ATT_MATRIX,
 						TimeSeriesSchema.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(formula,
 						dataPoints, agent, matrix,

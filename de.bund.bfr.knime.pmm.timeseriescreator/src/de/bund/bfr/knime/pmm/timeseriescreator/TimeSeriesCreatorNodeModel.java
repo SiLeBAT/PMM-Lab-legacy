@@ -50,7 +50,9 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -125,6 +127,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		int id = MathUtilities.getRandomNegativeInt();
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		PmmXmlDoc miscXML = new PmmXmlDoc();
+		PmmXmlDoc agentXml = new PmmXmlDoc();
+		PmmXmlDoc matrixXml = new PmmXmlDoc();
 
 		miscXML.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 				AttributeUtilities.ATT_TEMPERATURE, null, AttributeUtilities
@@ -135,6 +139,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 				AttributeUtilities.ATT_PH, null, ph, null));
 		miscXML.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 				AttributeUtilities.ATT_WATERACTIVITY, null, waterActivity, null));
+		agentXml.add(new AgentXml(null, null, agent));
+		matrixXml.add(new MatrixXml(null, null, matrix));
 
 		for (int i = 0; i < miscIDs.size(); i++) {
 			String miscName = ""
@@ -156,8 +162,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		KnimeTuple tuple = new KnimeTuple(schema);
 
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
-		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agent);
-		tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrix);
+		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);

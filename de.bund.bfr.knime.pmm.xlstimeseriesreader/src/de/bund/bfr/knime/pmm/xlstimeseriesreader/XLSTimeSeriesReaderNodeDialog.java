@@ -157,7 +157,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENTNAME)));
+						.getFullName(TimeSeriesSchema.ATT_AGENT)));
 		agentPanel.setLayout(new BorderLayout());
 		agentPanel.add(noLabel, BorderLayout.CENTER);
 		agentButtons = new LinkedHashMap<>();
@@ -165,7 +165,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		matrixPanel = new JPanel();
 		matrixPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME)));
+						.getFullName(TimeSeriesSchema.ATT_MATRIX)));
 		matrixPanel.setLayout(new BorderLayout());
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
 		columnsPanel = new JPanel();
@@ -648,7 +648,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northPanel.setLayout(new GridBagLayout());
 		northPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":"),
+						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 0));
 		northPanel.add(matrixButton, createConstraints(1, 0));
 

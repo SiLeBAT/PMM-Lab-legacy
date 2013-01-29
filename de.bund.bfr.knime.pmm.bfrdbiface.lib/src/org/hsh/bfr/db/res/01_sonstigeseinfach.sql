@@ -1,5 +1,7 @@
 DROP VIEW IF EXISTS "SeiView";
 DROP VIEW IF EXISTS "PeiView";
+DROP VIEW IF EXISTS "EstSeiView";
+DROP VIEW IF EXISTS "EstPeiView";
 DROP VIEW IF EXISTS "MicrobialDataView";
 DROP VIEW IF EXISTS "SonstigesEinfach";
 

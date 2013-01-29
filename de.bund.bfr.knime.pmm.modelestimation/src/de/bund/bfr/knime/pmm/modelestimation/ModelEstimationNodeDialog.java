@@ -449,9 +449,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 				if (min != null && max != null) {
 					rangeString = " (" + min + " to " + max + "):";
 				} else if (min != null) {
-					rangeString = " (" + min + "to ):";
+					rangeString = " (" + min + " to ):";
 				} else if (max != null) {
-					rangeString = " ( to" + max + "):";
+					rangeString = " ( to " + max + "):";
 				} else {
 					rangeString = ":";
 				}

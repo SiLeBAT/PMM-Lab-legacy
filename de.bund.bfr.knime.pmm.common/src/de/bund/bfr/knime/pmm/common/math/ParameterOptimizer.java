@@ -79,8 +79,8 @@ public class ParameterOptimizer {
 	private List<Double> parameterValues;
 	private double rms;
 	private double rSquare;
-	private double aic;
-	private double bic;
+	private Double aic;
+	private Double bic;
 	private List<Double> parameterStandardErrors;
 	private List<Double> parameterTValues;
 	private List<Double> parameterPValues;
@@ -312,11 +312,11 @@ public class ParameterOptimizer {
 		return rSquare;
 	}
 
-	public double getAIC() {
+	public Double getAIC() {
 		return aic;
 	}
 
-	public double getBIC() {
+	public Double getBIC() {
 		return bic;
 	}
 

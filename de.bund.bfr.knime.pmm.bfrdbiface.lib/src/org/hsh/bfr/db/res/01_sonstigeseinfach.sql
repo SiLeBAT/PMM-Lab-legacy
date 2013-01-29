@@ -1,3 +1,6 @@
+DROP VIEW IF EXISTS "SeiView";
+DROP VIEW IF EXISTS "PeiView";
+DROP VIEW IF EXISTS "MicrobialDataView";
 DROP VIEW IF EXISTS "SonstigesEinfach";
 
 CREATE VIEW "SonstigesEinfach" AS

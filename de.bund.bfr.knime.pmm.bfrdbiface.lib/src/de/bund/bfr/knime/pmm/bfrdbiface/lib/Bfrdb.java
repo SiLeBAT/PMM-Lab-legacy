@@ -138,6 +138,7 @@ public class Bfrdb extends Hsqldbiface {
 	public static final int PARAMTYPE_PARAM = 2;
 	public static final int PARAMTYPE_DEP = 3;
 	
+	@Deprecated
 	private static final String queryEstModelPrim3 = "SELECT\n"
 		+"    \""+ATT_FORMULA+"\",\n"
 		+"    \""+ATT_DEP+"\",\n"
@@ -316,6 +317,7 @@ public class Bfrdb extends Hsqldbiface {
 		+"\n"
 		+"WHERE \""+ATT_LEVEL+"\"=1\n";
 	
+	@Deprecated
 	private static final String queryEstModelSec3 = "SELECT\n"
 		+"    \""+ATT_FORMULA+"\" AS \""+ATT_FORMULA+"2\",\n"
 		+"    \""+ATT_DEP+"\" AS \""+ATT_DEP+"2\",\n"
@@ -734,13 +736,13 @@ public class Bfrdb extends Hsqldbiface {
 	public static String queryEstPei() throws SQLException {		
 		String q;
 		
-		q = "WITH \"Em1View\" AS( "+queryEstModelPrim3+" ), "
+		q = /* "WITH \"Em1View\" AS( "+queryEstModelPrim3+" ), "
 		+"\"Em2View\" AS( "+queryEstModelSec3+" ), "
-		+"\"TsView\" AS( "+queryTimeSeries5+" )"
-		+"SELECT * "
-		+"FROM \"TsView\" "
-		+"RIGHT JOIN \"Em1View\" "
-		+"ON \"Em1View\".\""+ATT_CONDITIONID+"\"=\"TsView\".\""+ATT_CONDITIONID+"\"";
+		+"\"TsView\" AS( "+queryTimeSeries5+" )" */
+		"SELECT * "
+		+"FROM ( "+queryTimeSeries6+" )\"TsView\" "
+		+"RIGHT JOIN \"EstModelPrimView\" "
+		+"ON \"EstModelPrimView\".\""+ATT_CONDITIONID+"\"=\"TsView\".\""+ATT_CONDITIONID+"\"";
 
 		return q;		
 	}
@@ -751,12 +753,12 @@ public class Bfrdb extends Hsqldbiface {
 		q = queryEstPei();
 		
 		q += " JOIN \"Sekundaermodelle_Primaermodelle\" "
-			+"ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesPrimaermodell\"=\"Em1View\".\"GeschaetztesModell\""
+			+"ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesPrimaermodell\"=\"EstModelPrimView\".\"GeschaetztesModell\""
 			
-			+" JOIN \"Em2View\" "
-			+"ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesSekundaermodell\"=\"Em2View\".\"GeschaetztesModell2\"";
+			+" JOIN \"EstModelSecView\" "
+			+"ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesSekundaermodell\"=\"EstModelSecView\".\"GeschaetztesModell2\"";
 		
-		q += " ORDER BY " + DBKernel.delimitL("Em2View") + "." + DBKernel.delimitL("GeschaetztesModell2") + " ASC";
+		q += " ORDER BY " + DBKernel.delimitL("EstModelSecView") + "." + DBKernel.delimitL("GeschaetztesModell2") + " ASC";
 
 		return q;
 	}
@@ -855,14 +857,14 @@ public class Bfrdb extends Hsqldbiface {
 		} else {
 			q = queryEstSei();
 		}		
-		//System.out.println( q );
+		System.out.println( q );
 		PreparedStatement ps = conn.prepareStatement( q );
 		return ps.executeQuery();
 	}
 	
 	public ResultSet selectTs() throws SQLException {	
 		//System.err.println(queryTimeSeries5);
-		return pushQuery( queryTimeSeries5 );
+		return pushQuery( queryTimeSeries6 );
 	}
 	
 	public ResultSet selectRelatedLiterature( final String modelName ) throws SQLException {

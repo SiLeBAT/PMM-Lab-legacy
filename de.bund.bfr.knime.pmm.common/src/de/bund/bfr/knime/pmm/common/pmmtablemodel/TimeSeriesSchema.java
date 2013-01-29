@@ -45,12 +45,21 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
 	public static final String ATT_MISC = "Misc";
+	@Deprecated
 	public static final String ATT_AGENTID = "OrganismID";
+	@Deprecated
 	public static final String ATT_AGENTNAME = "OrganismName";
+	@Deprecated
 	public static final String ATT_AGENTDETAIL = "OrganismDetail";
+	@Deprecated
 	public static final String ATT_MATRIXID = "MatrixID";
+	@Deprecated
 	public static final String ATT_MATRIXNAME = "MatrixName";
+	@Deprecated
 	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
+
+	public static final String ATT_AGENT = "Organism";
+	public static final String ATT_MATRIX = "Matrix";
 
 	public static final String ATT_TIMESERIES = "MD_Data";
 	public static final String ATT_COMMENT = "Comment";
@@ -64,8 +73,10 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public TimeSeriesSchema() {
 
 		try {
-			addIntAttribute( ATT_CONDID );
-			addStringAttribute( ATT_COMBASEID );
+			addIntAttribute(ATT_CONDID);
+			addStringAttribute(ATT_COMBASEID);
+			addXmlAttribute(ATT_AGENT);
+			addXmlAttribute(ATT_MATRIX);
 			addIntAttribute( ATT_AGENTID );
 			addStringAttribute( ATT_AGENTNAME );
 			addStringAttribute( ATT_AGENTDETAIL );
@@ -75,13 +86,13 @@ public class TimeSeriesSchema extends KnimeSchema {
 
 			addXmlAttribute(ATT_TIMESERIES);
 
-			addXmlAttribute( ATT_MISC );
+			addXmlAttribute(ATT_MISC);
 
-			addStringAttribute( ATT_COMMENT );
+			addStringAttribute(ATT_COMMENT);
 
 			addXmlAttribute(ATT_LITMD);
 			
-			addStringAttribute( ATT_DBUUID );
+			addStringAttribute(ATT_DBUUID);
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace( System.err );

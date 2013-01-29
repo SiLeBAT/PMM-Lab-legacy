@@ -32,12 +32,14 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -99,6 +101,42 @@ public class XML2TableNodeModel extends NodeModel {
                     				List<String> list = MiscXml.getElements();
                     				for (String element : list) {
                         				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, MiscXml.getDataType(element)).createSpec());                    					
+                    				}
+        		                	break;
+                    			}
+                    		}
+                    		else if (el instanceof AgentXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				AgentXml ax = (AgentXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+ax.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+ax.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+ax.getName()+"_"+sarr[j], AgentXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = AgentXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, AgentXml.getDataType(element)).createSpec());                    					
+                    				}
+        		                	break;
+                    			}
+                    		}
+                    		else if (el instanceof MatrixXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				MatrixXml mx = (MatrixXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+mx.getName()+"_"+sarr[j], MatrixXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = MatrixXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, MatrixXml.getDataType(element)).createSpec());                    					
                     				}
         		                	break;
                     			}
@@ -290,6 +328,20 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("description", mx.getDescription() == null ? CellIO.createMissingCell() : new StringCell(mx.getDescription()));
 		                			addCells.put("value", mx.getValue() == null ? CellIO.createMissingCell() : new DoubleCell(mx.getValue()));
 		                			addCells.put("unit", mx.getUnit() == null ? CellIO.createMissingCell() : new StringCell(mx.getUnit()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof AgentXml) {
+		                			AgentXml ax = (AgentXml) el;
+		                			addCells.put("id", ax.getID() == null ? CellIO.createMissingCell() : new IntCell(ax.getID())); 
+		                			addCells.put("name", ax.getName() == null ? CellIO.createMissingCell() : new StringCell(ax.getName())); 
+		                			addCells.put("detail", ax.getDetail() == null ? CellIO.createMissingCell() : new StringCell(ax.getDetail()));
+		                			v.add(addCells);
+		                		}
+		                		else if (el instanceof MatrixXml) {
+		                			MatrixXml mx = (MatrixXml) el;
+		                			addCells.put("id", mx.getID() == null ? CellIO.createMissingCell() : new IntCell(mx.getID())); 
+		                			addCells.put("name", mx.getName() == null ? CellIO.createMissingCell() : new StringCell(mx.getName())); 
+		                			addCells.put("detail", mx.getDetail() == null ? CellIO.createMissingCell() : new StringCell(mx.getDetail()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof ParamXml) {

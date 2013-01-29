@@ -334,15 +334,29 @@ public class CellIO {
 		for (PmmXmlElementConvertable element : xml.getElementSet()) {
 			if (element instanceof MiscXml) {
 				names.add(((MiscXml) element).getName());
-			} else if (element instanceof ParamXml) {
+			}
+			else if (element instanceof AgentXml) {
+				names.add(((AgentXml) element).getName());
+			}
+			else if (element instanceof MatrixXml) {
+				names.add(((MatrixXml) element).getName());
+			}
+			else if (element instanceof TimeSeriesXml) {
+				names.add(((TimeSeriesXml) element).getName());
+			}
+			else if (element instanceof ParamXml) {
 				names.add(((ParamXml) element).getName());
-			} else if (element instanceof EstModelXml) {
+			}
+			else if (element instanceof EstModelXml) {
 				names.add(((EstModelXml) element).getName());
-			} else if (element instanceof CatalogModelXml) {
+			}
+			else if (element instanceof CatalogModelXml) {
 				names.add(((CatalogModelXml) element).getName());
-			} else if (element instanceof IndepXml) {
+			}
+			else if (element instanceof IndepXml) {
 				names.add(((IndepXml) element).getName());
-			} else {
+			}
+			else {
 				throw new RuntimeException();
 			}
 		}

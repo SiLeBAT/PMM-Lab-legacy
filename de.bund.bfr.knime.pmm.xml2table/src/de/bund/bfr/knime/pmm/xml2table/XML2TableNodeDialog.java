@@ -16,10 +16,12 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.ColumnFilter;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -80,6 +82,12 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
         List<String> list = null;
 		if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_MISC)) {
 			list = MiscXml.getElements();
+		}
+		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_AGENT)) {
+			list = AgentXml.getElements();
+		}
+		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_MATRIX)) {
+			list = MatrixXml.getElements();
 		}
 		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_TIMESERIES)) {
 			list = TimeSeriesXml.getElements();

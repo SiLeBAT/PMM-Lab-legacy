@@ -236,8 +236,8 @@ public class MdReaderUi extends JPanel {
 		}
 		else {
 			if (matrixString != null && !matrixString.trim().isEmpty()) {
-				String s = tuple.getString( TimeSeriesSchema.ATT_MATRIXNAME );
-				String sd = tuple.getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
+				String s = tuple.getString(TimeSeriesSchema.ATT_MATRIXNAME);
+				String sd = tuple.getString(TimeSeriesSchema.ATT_MATRIXDETAIL);
 				if (s == null) s = ""; else s = s.toLowerCase();
 				if (sd == null) sd = ""; else sd = sd.toLowerCase();
 				if (!s.contains(matrixString.toLowerCase()) && !sd.contains(matrixString.toLowerCase())) return false;

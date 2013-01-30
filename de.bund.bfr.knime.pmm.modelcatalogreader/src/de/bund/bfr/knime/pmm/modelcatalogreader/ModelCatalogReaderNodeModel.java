@@ -147,8 +147,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     		buf = exec.createDataContainer( schema.createSpec() );
     	
 	    	int i = 0;
-	    	while( result.next() ) {
-	    		boolean takeIt = modelFilterEnabled || modelClass.equals("All");
+	    	while (result.next()) {
+	    		boolean takeIt = modelFilterEnabled || modelClass == null || modelClass.equals("All");
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
 		    		String mcls = DBKernel.hashModelType.get(cls);

@@ -138,14 +138,21 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		for (int miscID : miscValues.keySet()) {
-			String miscName = ""
-					+ DBKernel.getValue("SonstigeParameter", "ID", miscID + "",
-							"Parameter");
+			String miscName = null;
 			Double value = miscValues.get(miscID);
 
 			if (miscID == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				miscName = AttributeUtilities.ATT_TEMPERATURE;
 				value = AttributeUtilities.convertToStandardUnit(
 						AttributeUtilities.ATT_TEMPERATURE, value, tempUnit);
+			} else if (miscID == AttributeUtilities.ATT_PH_ID) {
+				miscName = AttributeUtilities.ATT_PH;
+			} else if (miscID == AttributeUtilities.ATT_AW_ID) {
+				miscName = AttributeUtilities.ATT_WATERACTIVITY;
+			} else {
+				miscName = DBKernel.getValue("SonstigeParameter", "ID", miscID
+						+ "", "Parameter")
+						+ "";
 			}
 
 			miscXML.add(new MiscXml(miscID, miscName, null, miscValues

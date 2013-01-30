@@ -133,11 +133,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private List<JButton> addButtons;
 	private List<JButton> removeButtons;
 
-	private JPanel settingsNamePanel;
-	private JPanel settingsValuePanel;
-	private JPanel settingsUnitPanel;
-	private JPanel addPanel;
-	private JPanel removePanel;
+	private JPanel settingsPanel;
+	private int settingsPanelRows;
 
 	/**
 	 * New pane for configuring the TimeSeriesCreator node.
@@ -150,11 +147,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		removeButtons = new ArrayList<>();
 
 		panel = new JPanel();
-		settingsNamePanel = new JPanel();
-		settingsValuePanel = new JPanel();
-		settingsUnitPanel = new JPanel();
-		addPanel = new JPanel();
-		removePanel = new JPanel();
+		settingsPanel = new JPanel();
+		settingsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		settingsPanel.setLayout(new GridBagLayout());
 		xlsButton = new JButton("Read from XLS file");
 		xlsButton.addActionListener(this);
 		stepsButton = new JButton("Set equidistant time steps");
@@ -167,11 +162,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		matrixButton.addActionListener(this);
 		commentField = new StringTextField(true);
 		temperatureField = new DoubleTextField(true);
+		temperatureField.setPreferredSize(new Dimension(100, temperatureField
+				.getPreferredSize().height));
 		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH,
 				true);
+		phField.setPreferredSize(new Dimension(100,
+				phField.getPreferredSize().height));
 		waterActivityField = new DoubleTextField(
 				PmmConstants.MIN_WATERACTIVITY, PmmConstants.MAX_WATERACTIVITY,
 				true);
+		waterActivityField.setPreferredSize(new Dimension(100,
+				waterActivityField.getPreferredSize().height));
 		timeBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
 						new String[0]));
@@ -182,78 +183,51 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
 
-		settingsNamePanel
-				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		settingsNamePanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"));
-		settingsNamePanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.TIME) + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(TimeSeriesSchema.LOGC) + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(AttributeUtilities.ATT_PH) + ":"));
-		settingsNamePanel.add(new JLabel(AttributeUtilities
-				.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + ":"));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"),
+				createConstraints(0, 0));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
+				createConstraints(0, 1));
+		settingsPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"),
+				createConstraints(0, 2));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.TIME) + ":"),
+				createConstraints(0, 3));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.LOGC) + ":"),
+				createConstraints(0, 4));
+		settingsPanel
+				.add(new JLabel(AttributeUtilities
+						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
+						createConstraints(0, 5));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(AttributeUtilities.ATT_PH) + ":"),
+				createConstraints(0, 6));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(AttributeUtilities.ATT_WATERACTIVITY)
+						+ ":"), createConstraints(0, 7));
 
-		settingsValuePanel.setBorder(BorderFactory
-				.createEmptyBorder(5, 5, 5, 5));
-		settingsValuePanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		settingsValuePanel.add(agentButton);
-		settingsValuePanel.add(matrixButton);
-		settingsValuePanel.add(commentField);
-		addEmptyLabel(settingsValuePanel, 2);
-		settingsValuePanel.add(temperatureField);
-		settingsValuePanel.add(phField);
-		settingsValuePanel.add(waterActivityField);
+		settingsPanel.add(agentButton, createConstraints(1, 0));
+		settingsPanel.add(matrixButton, createConstraints(1, 1));
+		settingsPanel.add(commentField, createConstraints(1, 2));
+		settingsPanel.add(temperatureField, createConstraints(1, 5));
+		settingsPanel.add(phField, createConstraints(1, 6));
+		settingsPanel.add(waterActivityField, createConstraints(1, 7));
 
-		settingsUnitPanel
-				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		settingsUnitPanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		addEmptyLabel(settingsUnitPanel, 3);
-		settingsUnitPanel.add(timeBox);
-		settingsUnitPanel.add(logcBox);
-		settingsUnitPanel.add(tempBox);
-		addEmptyLabel(settingsUnitPanel, 2);
+		settingsPanel.add(timeBox, createConstraints(2, 3));
+		settingsPanel.add(logcBox, createConstraints(2, 4));
+		settingsPanel.add(tempBox, createConstraints(2, 5));
 
-		addPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		addPanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		addEmptyLabel(addPanel, 8);
-
-		removePanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		removePanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		addEmptyLabel(removePanel, 8);
+		settingsPanelRows = 8;
 
 		addButtons(0);
-
-		JPanel panel4 = new JPanel();
-
-		panel4.setLayout(new GridLayout(1, 2));
-		panel4.add(addPanel);
-		panel4.add(removePanel);
-
-		JPanel panel3 = new JPanel();
-
-		panel3.setLayout(new BorderLayout());
-		panel3.add(settingsUnitPanel, BorderLayout.CENTER);
-		panel3.add(panel4, BorderLayout.EAST);
-
-		JPanel panel2 = new JPanel();
-
-		panel2.setLayout(new BorderLayout());
-		panel2.add(settingsValuePanel, BorderLayout.CENTER);
-		panel2.add(panel3, BorderLayout.EAST);
-
-		JPanel panel1 = new JPanel();
-
-		panel1.setLayout(new BorderLayout());
-		panel1.add(settingsNamePanel, BorderLayout.WEST);
-		panel1.add(panel2, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();
 
@@ -262,9 +236,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		buttonPanel.add(stepsButton);
 		buttonPanel.add(clearButton);
 
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new BorderLayout());
+		northPanel.add(settingsPanel, BorderLayout.WEST);
+
 		table = new TimeSeriesTable(ROW_COUNT, true, true);
 		panel.setLayout(new BorderLayout());
-		panel.add(panel1, BorderLayout.NORTH);
+		panel.add(northPanel, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table), BorderLayout.CENTER);
 		panel.add(buttonPanel, BorderLayout.SOUTH);
 		addTab("Options", panel);
@@ -566,12 +545,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 	}
 
-	private void addEmptyLabel(JPanel panel, int n) {
-		for (int i = 0; i < n; i++) {
-			panel.add(new JLabel());
-		}
-	}
-
 	private void addButtons(int i) {
 		if (addButtons.isEmpty()) {
 			JButton addButton = new JButton("+");
@@ -579,13 +552,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			addButton.addActionListener(this);
 
 			addButtons.add(0, addButton);
-			addEmptyLabel(settingsNamePanel, 1);
-			addEmptyLabel(settingsValuePanel, 1);
-			addEmptyLabel(settingsUnitPanel, 1);
-			addPanel.add(addButton);
-			addEmptyLabel(removePanel, 1);
+			settingsPanel.add(addButton,
+					createConstraints(3, settingsPanelRows));
 		} else {
-			int panelIndex = i + 8;
 			JButton addButton = new JButton("+");
 			JButton removeButton = new JButton("-");
 			JButton button = new JButton(OTHER_PARAMETER);
@@ -594,33 +563,61 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			addButton.addActionListener(this);
 			removeButton.addActionListener(this);
 			button.addActionListener(this);
+			valueField.setPreferredSize(new Dimension(100, valueField
+					.getPreferredSize().height));
+
+			for (JButton c : addButtons) {
+				settingsPanel.remove(c);
+			}
+
+			for (JButton c : removeButtons) {
+				settingsPanel.remove(c);
+			}
+
+			for (JButton c : condButtons) {
+				settingsPanel.remove(c);
+			}
+
+			for (DoubleTextField c : condValueFields) {
+				settingsPanel.remove(c);
+			}
 
 			addButtons.add(i, addButton);
 			removeButtons.add(i, removeButton);
 			condIDs.add(i, null);
 			condButtons.add(i, button);
 			condValueFields.add(i, valueField);
-			addPanel.add(addButton, panelIndex);
-			removePanel.add(removeButton, panelIndex);
-			settingsNamePanel.add(button, panelIndex);
-			settingsValuePanel.add(valueField, panelIndex);
-			settingsUnitPanel.add(new JLabel(), panelIndex);
+
+			for (int j = 0; j < addButtons.size(); j++) {
+				settingsPanel.add(addButtons.get(j),
+						createConstraints(3, settingsPanelRows + j));
+			}
+
+			for (int j = 0; j < removeButtons.size(); j++) {
+				settingsPanel.add(removeButtons.get(j),
+						createConstraints(4, settingsPanelRows + j));
+			}
+
+			for (int j = 0; j < condButtons.size(); j++) {
+				settingsPanel.add(condButtons.get(j),
+						createConstraints(0, settingsPanelRows + j));
+			}
+
+			for (int j = 0; j < condValueFields.size(); j++) {
+				settingsPanel.add(condValueFields.get(j),
+						createConstraints(1, settingsPanelRows + j));
+			}
+
+			settingsPanel.revalidate();
 		}
 	}
 
 	private void removeButtons(int i) {
-		int panelIndex = i + 8;
-
-		addButtons.remove(i);
-		removeButtons.remove(i);
+		settingsPanel.remove(addButtons.remove(i));
+		settingsPanel.remove(removeButtons.remove(i));
 		condIDs.remove(i);
-		condButtons.remove(i);
-		condValueFields.remove(i);
-		addPanel.remove(panelIndex);
-		removePanel.remove(panelIndex);
-		settingsNamePanel.remove(panelIndex);
-		settingsValuePanel.remove(panelIndex);
-		settingsUnitPanel.remove(panelIndex);
+		settingsPanel.remove(condButtons.remove(i));
+		settingsPanel.remove(condValueFields.remove(i));
 	}
 
 	private Integer openMiscDBWindow(Integer id) {
@@ -712,6 +709,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					removeButtons(0);
 				}
 
+				temperatureField.setValue(null);
+				phField.setValue(null);
+				waterActivityField.setValue(null);
+
 				for (int i = 0; i < miscXML.getElementSet().size(); i++) {
 					MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
 					int id = misc.getID();
@@ -769,6 +770,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 	}
 
+	private static GridBagConstraints createConstraints(int x, int y) {
+		return new GridBagConstraints(x, y, 1, 1, 0, 0,
+				GridBagConstraints.LINE_START, GridBagConstraints.BOTH,
+				new Insets(3, 3, 3, 3), 0, 0);
+	}
+
 	private class XLSDialog extends JDialog implements ActionListener,
 			ItemListener {
 
@@ -819,7 +826,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				box.addItemListener(this);
 				button.addActionListener(this);
-				
+
 				mappingBoxes.put(column, box);
 				mappingButtons.put(column, button);
 
@@ -963,12 +970,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					}
 				}
 			}
-		}
-
-		private GridBagConstraints createConstraints(int x, int y) {
-			return new GridBagConstraints(x, y, 1, 1, 0, 0,
-					GridBagConstraints.LINE_START, GridBagConstraints.NONE,
-					new Insets(2, 2, 2, 2), 0, 0);
 		}
 	}
 

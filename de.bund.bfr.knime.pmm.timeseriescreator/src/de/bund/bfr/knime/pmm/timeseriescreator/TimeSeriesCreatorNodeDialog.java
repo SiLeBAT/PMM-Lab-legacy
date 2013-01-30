@@ -73,9 +73,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
-import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -110,14 +108,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 	private static final String OTHER_PARAMETER = "Other Parameter";
 	private static final String NO_PARAMETER = "Select Other";
+	private static final String SELECT = "Select";
 
 	private JPanel panel;
 	private JButton clearButton;
 	private JButton stepsButton;
 	private JButton xlsButton;
 	private TimeSeriesTable table;
-	private StringTextField agentField;
-	private StringTextField matrixField;
+	private int agentID;
+	private JButton agentButton;
+	private int matrixID;
+	private JButton matrixButton;
 	private StringTextField commentField;
 	private DoubleTextField temperatureField;
 	private DoubleTextField phField;
@@ -160,8 +161,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
-		agentField = new StringTextField(true);
-		matrixField = new StringTextField(true);
+		agentButton = new JButton(SELECT);
+		agentButton.addActionListener(this);
+		matrixButton = new JButton(SELECT);
+		matrixButton.addActionListener(this);
 		commentField = new StringTextField(true);
 		temperatureField = new DoubleTextField(true);
 		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH,
@@ -201,8 +204,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settingsValuePanel.setBorder(BorderFactory
 				.createEmptyBorder(5, 5, 5, 5));
 		settingsValuePanel.setLayout(new GridLayout(-1, 1, 5, 5));
-		settingsValuePanel.add(agentField);
-		settingsValuePanel.add(matrixField);
+		settingsValuePanel.add(agentButton);
+		settingsValuePanel.add(matrixButton);
 		settingsValuePanel.add(commentField);
 		addEmptyLabel(settingsValuePanel, 2);
 		settingsValuePanel.add(temperatureField);
@@ -271,14 +274,29 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			agentField.setValue(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT));
+			agentID = settings
+					.getInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID);
+
+			if (agentID != TimeSeriesCreatorNodeModel.DEFAULT_AGENTID) {
+				String agentName = DBKernel.getValue("Agenzien", "ID", agentID
+						+ "", "Agensname")
+						+ "";
+
+				agentButton.setText(agentName);
+			}
 		} catch (InvalidSettingsException e) {
 		}
 
 		try {
-			matrixField.setValue(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX));
+			matrixID = settings
+					.getInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID);
+
+			if (matrixID != TimeSeriesCreatorNodeModel.DEFAULT_AGENTID) {
+				String matrixName = DBKernel.getValue("Matrices", "ID",
+						matrixID + "", "Matrixname") + "";
+
+				matrixButton.setText(matrixName);
+			}
 		} catch (InvalidSettingsException e) {
 		}
 
@@ -396,16 +414,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		if (agentField.getValue() != null) {
-			settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT,
-					agentField.getValue());
-		}
-
-		if (matrixField.getValue() != null) {
-			settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX,
-					matrixField.getValue());
-		}
-
 		if (commentField.getValue() != null) {
 			settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_COMMENT,
 					commentField.getValue());
@@ -430,6 +438,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
+		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID, agentID);
+		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
 				ListUtilities.getStringFromList(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
@@ -471,8 +481,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		} else if (event.getSource() == clearButton) {
 			int n = removeButtons.size();
 
-			agentField.setValue(null);
-			matrixField.setValue(null);
+			agentButton.setText(SELECT);
+			agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
+			matrixButton.setText(SELECT);
+			matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
 			commentField.setValue(null);
 			temperatureField.setValue(null);
 			phField.setValue(null);
@@ -511,6 +523,28 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				table.repaint();
 			}
+		} else if (event.getSource() == agentButton) {
+			Integer newAgentID = openAgentDBWindow(agentID);
+
+			if (newAgentID != null) {
+				String agent = ""
+						+ DBKernel.getValue("Agenzien", "ID", newAgentID + "",
+								"Agensname");
+
+				agentID = newAgentID;
+				agentButton.setText(agent);
+			}
+		} else if (event.getSource() == matrixButton) {
+			Integer newMatrixID = openMatrixDBWindow(matrixID);
+
+			if (newMatrixID != null) {
+				String matrix = ""
+						+ DBKernel.getValue("Matrices", "ID", newMatrixID + "",
+								"Matrixname");
+
+				matrixID = newMatrixID;
+				matrixButton.setText(matrix);
+			}
 		} else if (addButtons.contains(event.getSource())) {
 			addButtons(addButtons.indexOf(event.getSource()));
 			panel.revalidate();
@@ -519,7 +553,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			panel.revalidate();
 		} else if (condButtons.contains(event.getSource())) {
 			int i = condButtons.indexOf(event.getSource());
-			Integer miscID = openDBWindow(condIDs.get(i));
+			Integer miscID = openMiscDBWindow(condIDs.get(i));
 
 			if (miscID != null) {
 				String misc = ""
@@ -530,7 +564,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				condIDs.set(i, miscID);
 			}
 		}
-
 	}
 
 	private void addEmptyLabel(JPanel panel, int n) {
@@ -590,10 +623,34 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settingsUnitPanel.remove(panelIndex);
 	}
 
-	private Integer openDBWindow(Integer id) {
+	private Integer openMiscDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
 		Object newVal = DBKernel.myList.openNewWindow(myT, id,
 				"SonstigeParameter", null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+	
+	private Integer openAgentDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Agenzien");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Agenzien",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+
+	private Integer openMatrixDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Matrices");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Matrices",
+				null, null, null, null, true);
 
 		if (newVal instanceof Integer) {
 			return (Integer) newVal;
@@ -641,10 +698,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						JOptionPane.QUESTION_MESSAGE, null, values, values[0]);
 				KnimeTuple tuple = tuples.get(selection);
 
-				agentField.setValue(((AgentXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
-				matrixField.setValue(((MatrixXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
+				agentButton.setText(SELECT);
+				agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
+				matrixButton.setText(SELECT);
+				matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
 				commentField.setValue(tuple
 						.getString(TimeSeriesSchema.ATT_COMMENT));
 
@@ -884,7 +941,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							oldID = ((MiscXml) mappings.get(column)).getID();
 						}
 
-						Integer miscID = openDBWindow(oldID);
+						Integer miscID = openMiscDBWindow(oldID);
 
 						if (miscID != null) {
 							String misc = ""

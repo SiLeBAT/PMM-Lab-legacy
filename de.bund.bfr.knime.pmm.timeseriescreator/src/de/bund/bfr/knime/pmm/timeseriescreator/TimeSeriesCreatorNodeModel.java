@@ -73,19 +73,22 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class TimeSeriesCreatorNodeModel extends NodeModel {
 
-	static final String CFGKEY_AGENT = "Agent";
-	static final String CFGKEY_MATRIX = "Matrix";
-	static final String CFGKEY_COMMENT = "Comment";
-	static final String CFGKEY_MISCVALUES = "MiscValues";
-	static final String CFGKEY_TIMESERIES = "TimeSeries";
-	static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	static final String CFGKEY_LOGCUNIT = "LogcUnit";
-	static final String CFGKEY_TEMPUNIT = "TempUnit";
+	protected static final String CFGKEY_AGENTID = "AgentID";
+	protected static final String CFGKEY_MATRIXID = "MatrixID";
+	protected static final String CFGKEY_COMMENT = "Comment";
+	protected static final String CFGKEY_MISCVALUES = "MiscValues";
+	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
+	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
+	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
+	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
+
+	protected static final int DEFAULT_AGENTID = -1;
+	protected static final int DEFAULT_MATRIXID = -1;
 
 	private KnimeSchema schema;
 
-	private String agent;
-	private String matrix;
+	private int agentID;
+	private int matrixID;
 	private String comment;
 	private List<Point2D.Double> timeSeries;
 	private String timeUnit;
@@ -99,12 +102,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
 		schema = new TimeSeriesSchema();
-		timeSeries = new ArrayList<>();
-		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		miscValues = new LinkedHashMap<>();
 	}
 
 	/**
@@ -121,8 +118,24 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc agentXml = new PmmXmlDoc();
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-		agentXml.add(new AgentXml(null, null, agent));
-		matrixXml.add(new MatrixXml(null, null, matrix));
+		if (agentID != DEFAULT_AGENTID) {
+			String agentName = DBKernel.getValue("Agenzien", "ID",
+					agentID + "", "Agensname") + "";
+
+			agentXml.add(new AgentXml(agentID, agentName, null));
+		} else {
+			agentXml.add(new AgentXml(null, null, null));
+		}
+
+		if (matrixID != DEFAULT_MATRIXID) {
+			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
+					+ "", "Matrixname")
+					+ "";
+
+			matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+		} else {
+			matrixXml.add(new MatrixXml(null, null, null));
+		}
 
 		for (int miscID : miscValues.keySet()) {
 			String miscName = ""
@@ -184,18 +197,9 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		if (agent != null) {
-			settings.addString(CFGKEY_AGENT, agent);
-		}
-
-		if (matrix != null) {
-			settings.addString(CFGKEY_MATRIX, matrix);
-		}
-
-		if (comment != null) {
-			settings.addString(CFGKEY_COMMENT, comment);
-		}
-
+		settings.addInt(CFGKEY_AGENTID, agentID);
+		settings.addInt(CFGKEY_MATRIXID, matrixID);
+		settings.addString(CFGKEY_COMMENT, comment);
 		settings.addString(CFGKEY_TIMESERIES,
 				ListUtilities.getStringFromList(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
@@ -212,21 +216,21 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			agent = settings.getString(CFGKEY_AGENT);
+			agentID = settings.getInt(CFGKEY_AGENTID);
 		} catch (InvalidSettingsException e) {
-			agent = null;
+			agentID = DEFAULT_AGENTID;
 		}
 
 		try {
-			matrix = settings.getString(CFGKEY_MATRIX);
+			matrixID = settings.getInt(CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
-			matrix = null;
+			matrixID = DEFAULT_MATRIXID;
 		}
 
 		try {
 			comment = settings.getString(CFGKEY_COMMENT);
 		} catch (InvalidSettingsException e) {
-			comment = null;
+			comment = "";
 		}
 
 		try {

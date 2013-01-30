@@ -34,7 +34,9 @@
 package de.bund.bfr.knime.pmm.common.ui;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.util.Locale;
 
 public class FormattedDoubleTextField extends DoubleTextField {
 
@@ -60,7 +62,8 @@ public class FormattedDoubleTextField extends DoubleTextField {
 	@Override
 	protected void formatText() {
 		if (getValue() != null) {
-			NumberFormat format = new DecimalFormat("0.####");
+			NumberFormat format = new DecimalFormat("0.####",
+					new DecimalFormatSymbols(Locale.US));
 
 			setText(format.format(getValue()));
 		}

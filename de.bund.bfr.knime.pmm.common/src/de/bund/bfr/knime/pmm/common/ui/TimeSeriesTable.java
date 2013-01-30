@@ -13,10 +13,12 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.EventObject;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JComponent;
@@ -73,7 +75,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public void setTimeColumnName(String timeColumnName) {
 		getColumn(this.timeColumnName).setHeaderValue(timeColumnName);
-		this.timeColumnName = timeColumnName;		
+		this.timeColumnName = timeColumnName;
 	}
 
 	public String getLogcColumnName() {
@@ -81,8 +83,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public void setLogcColumnName(String logcColumnName) {
-		getColumn(this.logcColumnName).setHeaderValue(logcColumnName); 
-		this.logcColumnName = logcColumnName;		
+		getColumn(this.logcColumnName).setHeaderValue(logcColumnName);
+		this.logcColumnName = logcColumnName;
 	}
 
 	public TableColumn getTimeColumn() {
@@ -263,7 +265,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		@Override
 		protected void setValue(Object value) {
 			if (value != null) {
-				NumberFormat format = new DecimalFormat("0.####");
+				NumberFormat format = new DecimalFormat("0.####",
+						new DecimalFormatSymbols(Locale.US));
 
 				setText(format.format((Double) value));
 			} else {

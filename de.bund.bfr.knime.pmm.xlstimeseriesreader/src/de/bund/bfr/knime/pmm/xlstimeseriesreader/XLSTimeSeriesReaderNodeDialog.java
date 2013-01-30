@@ -59,6 +59,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyTable;
@@ -219,7 +220,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				.createTitledBorder("Literature"));
 		literaturePanel.setLayout(new BorderLayout());
 		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
-		literaturePanel.add(literatureList, BorderLayout.CENTER);
+		literaturePanel.add(new JScrollPane(literatureList),
+				BorderLayout.CENTER);
 
 		JPanel agentMatrixPanel = new JPanel();
 

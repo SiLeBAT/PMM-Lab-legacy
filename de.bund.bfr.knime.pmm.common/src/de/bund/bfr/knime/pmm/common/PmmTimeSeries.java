@@ -94,13 +94,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			
 			// TODO: add id and detail
 			
-			if( hasAgentDetail() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_AGENTNAME, getAgentDetail() );
-			}
-			
-			if( hasMatrixDetail() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_MATRIXNAME, getMatrixDetail() );
-			}
 			/*
 			if( hasTemperature() ) {
 				ret.setAttribute( TimeSeriesSchema.ATT_TEMPERATURE, String.valueOf( getTemperature() ) );
@@ -193,13 +186,45 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public String getAgentName() throws PmmException {
-		return getString( TimeSeriesSchema.ATT_AGENTNAME );
+		return (String) getAgentAttribute(false, true, false);
+//		return getString( TimeSeriesSchema.ATT_AGENTNAME );
 	}
 	
 	public String getMatrixName() throws PmmException {
-		return getString( TimeSeriesSchema.ATT_MATRIXNAME );
+		return (String) getMatrixAttribute(false, true, false);
+		//return getString( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
+	private Object getMatrixAttribute(boolean id, boolean name, boolean detail) throws PmmException {
+		PmmXmlDoc matrixXmlDoc = getMatrix();
+		if (matrixXmlDoc == null) matrixXmlDoc = new PmmXmlDoc();
+		MatrixXml mx = null;
+    	for (PmmXmlElementConvertable el : matrixXmlDoc.getElementSet()) {
+    		if (el instanceof MatrixXml) {
+    			mx = (MatrixXml) el;
+    			if (id) return mx.getID();
+    			if (name) return mx.getName();
+    			if (detail) return mx.getDetail();
+    			break;
+    		}
+    	}
+       	return null;
+	}
+	private Object getAgentAttribute(boolean id, boolean name, boolean detail) throws PmmException {
+		PmmXmlDoc agentXmlDoc = getAgent();
+		if (agentXmlDoc == null) agentXmlDoc = new PmmXmlDoc();
+		AgentXml ax = null;
+    	for (PmmXmlElementConvertable el : agentXmlDoc.getElementSet()) {
+    		if (el instanceof AgentXml) {
+    			ax = (AgentXml) el;
+    			if (id) return ax.getID();
+    			if (name) return ax.getName();
+    			if (detail) return ax.getDetail();
+    			break;
+    		}
+    	}
+    	return null;
+	}
 	public Double getMiscValue(String attribute, Double defaultValue) throws PmmException {
 		PmmXmlDoc miscXmlDoc = getMisc();
 		if (miscXmlDoc != null) {
@@ -252,19 +277,23 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public Integer getAgentId() throws PmmException {
-		return getInt( TimeSeriesSchema.ATT_AGENTID );
+		return (Integer) getAgentAttribute(true, false, false);
+		//return getInt( TimeSeriesSchema.ATT_AGENTID );
 	}
 	
 	public Integer getMatrixId() throws PmmException {
-		return getInt( TimeSeriesSchema.ATT_MATRIXID );
+		return (Integer) getMatrixAttribute(true, false, false);
+		//return getInt( TimeSeriesSchema.ATT_MATRIXID );
 	}
 	
 	public String getAgentDetail() throws PmmException {
-		return getString( TimeSeriesSchema.ATT_AGENTDETAIL );
+		return (String) getAgentAttribute(false, false, true);
+		//return getString( TimeSeriesSchema.ATT_AGENTDETAIL );
 	}
 	
 	public String getMatrixDetail() throws PmmException {
-		return getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
+		return (String) getMatrixAttribute(false, false, true);
+		//return getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
 	}
 	
 	public String getComment() throws PmmException {
@@ -282,14 +311,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public boolean hasCombaseId() throws PmmException {
 		return !isNull( TimeSeriesSchema.ATT_COMBASEID );
-	}
-	
-	public boolean hasAgentName() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_AGENTNAME );
-	}
-	
-	public boolean hasMatrixName() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
 	public boolean hasValue(String attribute, boolean defaultValue) throws PmmException {
@@ -332,22 +353,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public boolean hasCondId() throws PmmException {
 		return getInt( TimeSeriesSchema.ATT_CONDID ) >= 0;
-	}
-	
-	public boolean hasAgentId() throws PmmException {
-		return getInt( TimeSeriesSchema.ATT_AGENTID ) >= 0;
-	}
-	
-	public boolean hasMatrixId() throws PmmException {
-		return getInt( TimeSeriesSchema.ATT_MATRIXID ) >= 0;
-	}
-	
-	public boolean hasMatrixDetail() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_MATRIXDETAIL );
-	}
-	
-	public boolean hasAgentDetail() throws PmmException {
-		return !isNull( TimeSeriesSchema.ATT_AGENTDETAIL );
 	}
 	
 	public boolean hasComment() throws PmmException {
@@ -400,30 +405,30 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setAgentName( final String agentName ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_AGENTNAME, agentName );		
+		//setValue( TimeSeriesSchema.ATT_AGENTNAME, agentName );		
 		setAgentAttribute(null, agentName, null);
 	}
 	public void setMatrixName( final String matrixName ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
+		//setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
 		setMatrixAttribute(null, matrixName, null);
 	}
 	
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
-		setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
+		//setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
 		setAgentAttribute(null, null, agentDetail);
 	}
 	public void setMatrixDetail( final String matrixDetail ) throws PmmException {
-		setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail );
+		//setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail );
 		setMatrixAttribute(null, null, matrixDetail);
 	}
 	
 	public void setAgentId( final Integer agentId ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_AGENTID, agentId );
+		//setValue( TimeSeriesSchema.ATT_AGENTID, agentId );
 		setAgentAttribute(agentId, null, null);
 	}
 	
 	public void setMatrixId( final Integer matrixId ) throws PmmException {
-		setValue( TimeSeriesSchema.ATT_MATRIXID, matrixId );
+		//setValue( TimeSeriesSchema.ATT_MATRIXID, matrixId );
 		setMatrixAttribute(matrixId, null, null);
 	}
 	

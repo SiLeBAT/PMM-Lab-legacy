@@ -130,13 +130,14 @@ public class ManualModelConfNodeModel extends NodeModel {
 				AgentXml ax = new AgentXml(agentID, agent, agentDetail);
 				agtDoc.add(ax);
         		tstuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
-        		
+        		/*
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail);
     			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail);
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agent);
     			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrix);
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
     			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
+    			*/
     			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
     			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
     			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);

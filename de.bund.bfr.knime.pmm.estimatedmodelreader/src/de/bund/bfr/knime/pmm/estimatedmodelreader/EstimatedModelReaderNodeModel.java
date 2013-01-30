@@ -218,13 +218,14 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
 			agtDoc.add(ax);
 			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
-
+/*
     		tuple.setValue(TimeSeriesSchema.ATT_AGENTID, result.getString( Bfrdb.ATT_AGENTID));
     		tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, result.getString( Bfrdb.ATT_AGENTNAME));
     		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, result.getString( Bfrdb.ATT_AGENTDETAIL));
     		tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, result.getString( Bfrdb.ATT_MATRIXID));
     		tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, result.getString( Bfrdb.ATT_MATRIXNAME));
     		tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, result.getString( Bfrdb.ATT_MATRIXDETAIL));
+    		*/
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));

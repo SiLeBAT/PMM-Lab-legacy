@@ -144,9 +144,11 @@ public class MergeDBs {
 	// Unbedingt Beispiel einfügen!!!!
 	private void doFinalizingThings(final Statement anfrage) {
 	}
+	/*
 	private void go4It(final String dbPath, final String datumAb) {
 		go4It(dbPath, datumAb, null, null);
 	}
+	*/
 	private void go4It(final String dbPath, final String datumAb, String username, String password) {
 		System.out.println(dbPath);
 		untersuchteDB = dbPath;

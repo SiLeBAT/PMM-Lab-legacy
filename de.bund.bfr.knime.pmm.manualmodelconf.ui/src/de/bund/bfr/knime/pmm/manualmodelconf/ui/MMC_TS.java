@@ -69,7 +69,7 @@ public class MMC_TS extends JPanel {
 		AgentXml ax = new AgentXml(agentID, agentField.getText(), agensDetailField.getText());
 		agtDoc.add(ax);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
-
+/*
 		tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, agentField.getText());
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, matrixField.getText());
 		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agensDetailField.getText());
@@ -78,6 +78,7 @@ public class MMC_TS extends JPanel {
 		catch (Exception e) {}
 		try {tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, Integer.parseInt(matrixIDField.getText()));}
 		catch (Exception e) {}
+		*/
 		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
 		
 		//tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
@@ -201,7 +202,7 @@ public class MMC_TS extends JPanel {
 
 		//---- agentLabel ----
 		agentLabel.setText("Agent:");
-		agentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + ":");
+		agentLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_AGENTNAME) + ":");
 		add(agentLabel, CC.xy(1, 1));
 
 		//---- agentField ----
@@ -229,7 +230,7 @@ public class MMC_TS extends JPanel {
 
 		//---- matrixLabel ----
 		matrixLabel.setText("Matrix:");
-		matrixLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + ":");
+		matrixLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_MATRIXNAME) + ":");
 		add(matrixLabel, CC.xy(1, 3));
 
 		//---- matrixField ----

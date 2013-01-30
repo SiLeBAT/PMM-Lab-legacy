@@ -78,11 +78,11 @@ public class CombaseWriter {
 				buf.append( "\"RecordID\"\t\""+candidate.getCombaseId()+"\"\n" );
 			}
 			
-			if( candidate.hasAgentDetail() ) {
+			if( candidate.hasAgent() ) {
 				buf.append( "\"Organism\"\t\""+candidate.getAgentDetail()+"\"\n" );
 			}
 			
-			if( candidate.hasMatrixDetail() ) {
+			if( candidate.hasMatrix() ) {
 				buf.append( "\"Environment\"\t\""+candidate.getMatrixDetail()+"\"\n" );
 			}
 			

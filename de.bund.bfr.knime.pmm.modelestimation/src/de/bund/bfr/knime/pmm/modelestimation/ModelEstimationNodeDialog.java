@@ -79,6 +79,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.IntTextField;
+import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
 
 /**
  * <code>NodeDialog</code> for the "ModelEstimation" Node.
@@ -112,6 +113,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	private JPanel fittingPanel;
 	private JButton modelRangeButton;
 	private JButton rangeButton;
+	private JButton clearButton;
 	private Map<String, Map<String, DoubleTextField>> minimumFields;
 	private Map<String, Map<String, DoubleTextField>> maximumFields;
 
@@ -427,6 +429,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 				JPanel minMaxPanel = new JPanel();
 				DoubleTextField minField = new DoubleTextField(true);
 				DoubleTextField maxField = new DoubleTextField(true);
+				Double min = minValues.get(id).get(param);
+				Double max = maxValues.get(id).get(param);
 
 				minField.setPreferredSize(new Dimension(100, minField
 						.getPreferredSize().height));
@@ -443,10 +447,11 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 					if (!Double.isNaN(range.y)) {
 						maxField.setValue(range.y);
 					}
+				} else {
+					minField.setValue(min);
+					maxField.setValue(max);
 				}
 
-				Double min = minValues.get(id).get(param);
-				Double max = maxValues.get(id).get(param);
 				String rangeString;
 
 				if (min != null && max != null) {
@@ -529,14 +534,17 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			modelRangeButton.addActionListener(this);
 			rangeButton = new JButton("Fill Empty Fields");
 			rangeButton.addActionListener(this);
+			clearButton = new JButton("Clear");
+			clearButton.addActionListener(this);
 
 			JPanel buttonPanel = new JPanel();
 
 			buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 			buttonPanel.add(modelRangeButton);
 			buttonPanel.add(rangeButton);
+			buttonPanel.add(clearButton);
 
-			fittingPanel.add(buttonPanel, BorderLayout.NORTH);
+			fittingPanel.add(new SpacePanel(buttonPanel), BorderLayout.NORTH);
 			fittingPanel.add(panel, BorderLayout.CENTER);
 			fittingPanel.revalidate();
 		} else {
@@ -573,6 +581,13 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 						minimumFields.get(id).get(param).setValue(-1000000.0);
 						maximumFields.get(id).get(param).setValue(1000000.0);
 					}
+				}
+			}
+		} else if (e.getSource() == clearButton) {
+			for (String id : parameters.keySet()) {
+				for (String param : parameters.get(id)) {
+					minimumFields.get(id).get(param).setValue(null);
+					maximumFields.get(id).get(param).setValue(null);
 				}
 			}
 		}

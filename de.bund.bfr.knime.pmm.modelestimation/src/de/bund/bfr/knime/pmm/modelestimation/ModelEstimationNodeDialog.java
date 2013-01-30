@@ -47,6 +47,7 @@ import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -109,6 +110,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	private Map<String, Map<String, Double>> maxValues;
 
 	private JPanel fittingPanel;
+	private JButton modelRangeButton;
+	private JButton rangeButton;
 	private Map<String, Map<String, DoubleTextField>> minimumFields;
 	private Map<String, Map<String, DoubleTextField>> maximumFields;
 
@@ -522,7 +525,19 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (panel != null) {
-			fittingPanel.add(panel);
+			modelRangeButton = new JButton("Use Range from Model Definition");
+			modelRangeButton.addActionListener(this);
+			rangeButton = new JButton("Fill Empty Fields");
+			rangeButton.addActionListener(this);
+
+			JPanel buttonPanel = new JPanel();
+
+			buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			buttonPanel.add(modelRangeButton);
+			buttonPanel.add(rangeButton);
+
+			fittingPanel.add(buttonPanel, BorderLayout.NORTH);
+			fittingPanel.add(panel, BorderLayout.CENTER);
 			fittingPanel.revalidate();
 		} else {
 			JOptionPane.showMessageDialog(fittingBox, "Data is not valid for "
@@ -533,10 +548,33 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		try {
-			initGUI();
-		} catch (PmmException e1) {
-			e1.printStackTrace();
+		if (e.getSource() == fittingBox) {
+			try {
+				initGUI();
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		} else if (e.getSource() == modelRangeButton) {
+			for (String id : parameters.keySet()) {
+				for (String param : parameters.get(id)) {
+					minimumFields.get(id).get(param)
+							.setValue(minValues.get(id).get(param));
+					maximumFields.get(id).get(param)
+							.setValue(maxValues.get(id).get(param));
+				}
+			}
+		} else if (e.getSource() == rangeButton) {
+			for (String id : parameters.keySet()) {
+				for (String param : parameters.get(id)) {
+					Double min = minimumFields.get(id).get(param).getValue();
+					Double max = maximumFields.get(id).get(param).getValue();
+
+					if (min == null && max == null) {
+						minimumFields.get(id).get(param).setValue(-1000000.0);
+						maximumFields.get(id).get(param).setValue(1000000.0);
+					}
+				}
+			}
 		}
 	}
 }

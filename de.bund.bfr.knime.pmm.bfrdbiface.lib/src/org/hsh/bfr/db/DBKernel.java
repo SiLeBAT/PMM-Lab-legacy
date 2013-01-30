@@ -741,7 +741,7 @@ public class DBKernel {
 	  return localConn;
   }
   // newConn wird nur von MergeDBs benötigt
-  private static Connection getDBConnection(final String dbFile, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
+  public static Connection getDBConnection(final String dbFile, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 	  if (newConn) {
 		  return getNewConnection(theUsername, thePassword, dbFile);
 	  }

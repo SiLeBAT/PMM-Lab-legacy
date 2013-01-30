@@ -77,7 +77,7 @@ public class MergeDBs {
 	private boolean isWese = false;
 	private boolean isHammerl = false;
 	private boolean isBoehnlein = false;
-	private String DBVersion = "1.4.4"; // im Code mitunter als "oldVersion" angewendet...
+	private String DBVersion = "1.5.0"; // im Code mitunter als "oldVersion" angewendet...
 	
 	/*
 	 * 
@@ -102,16 +102,16 @@ public class MergeDBs {
 		}
 	    int retVal = JOptionPane.showConfirmDialog(DBKernel.mainFrame, "Sicher?",
 	    		"DBs zusammenf黨ren?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-		if (retVal == JOptionPane.YES_OPTION && DBKernel.getTempSA().equals("defad")) {
+		if (retVal == JOptionPane.YES_OPTION && DBKernel.isAdmin()) {//DBKernel.getTempSA().equals("defad")
 			try {
 				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
 				usedTs = new Hashtable<MyTable, MyTable>();
 				usedIDs = new Hashtable<String, String>();
 				checkIfOthersAlreadyEditedUpdates = new HashMap<String, Integer>();
-				String folder = "Q:/BfR/DBs/";
-				String dateFrom = "2012-07-10 00:00:00"; // 20120403
-				//String dateFrom = "2012-08-22 12:00:00"; // Lars
+				//String folder = "Q:/BfR/DBs/";
+				//String dateFrom = "2012-07-10 00:00:00"; // 20120403
+				String dateFrom = "2012-08-22 12:00:00"; // Lars
 				//folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/144_lars/";
 
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
@@ -120,8 +120,10 @@ public class MergeDBs {
 				//isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				//isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
+				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
+				go4It("C:/Users/Armin/Desktop/DB5/", dateFrom, "SA", "");
 
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
 					DBKernel.doMNs(e.nextElement());
@@ -143,36 +145,21 @@ public class MergeDBs {
 	private void doFinalizingThings(final Statement anfrage) {
 	}
 	private void go4It(final String dbPath, final String datumAb) {
+		go4It(dbPath, datumAb, null, null);
+	}
+	private void go4It(final String dbPath, final String datumAb, String username, String password) {
 		System.out.println(dbPath);
 		untersuchteDB = dbPath;
 		boolean dl = DBKernel.dontLog;
 		DBKernel.dontLog = true;
 		try {
-			Connection conn = DBKernel.getDefaultAdminConn(dbPath, true);
+			Connection conn = null;
+			if (username != null && username != password) conn = DBKernel.getDBConnection(dbPath, username, password, true);
+			else conn = DBKernel.getDefaultAdminConn(dbPath, true);
 		    Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		    checkeDoppeltVergebeneDKZs(anfrage);
-		    if (DBVersion.equals("1.3.9")) {
-				//System.err.println("ok, hier ist die TriggerScheisse passiert, wo wegen Statup (data-in-motion) der Trigger abgeschaltet worden ist");
-				// bei den gesch鋞zten Modellen d黵fte das nicht passiert sein, oder???? Checken nicht vergessen!!!
-				//  || tablename.equals("Literatur") && tID >= 587)
-		    	lastInsertedID.put("Literatur", 586);
-		    	go4Probleme(DBVersion, anfrage, "Literatur", 587, false); // sicherheitshalber, denn: Dieser Fehler kann aber auch 黚ersehen werden, wenn es kein Update gibt, sonder nur ein INSERT, z.B. beim ris-Importer!
-		    	lastInsertedID.put("GeschaetzteModelle", 0);
-		    	lastInsertedID.put("GeschaetzteParameter", 0);
-		    	lastInsertedID.put("GeschaetztesModell_Referenz", 0);
-		    	lastInsertedID.put("GeschaetzteParameterCovCor", 0);
-		    	lastInsertedID.put("Sekundaermodelle_Primaermodelle", 0);
-		    }
-		    //go4Probleme(DBVersion, anfrage, "Literatur", 587, true);
 		    System.out.println("go4ChangeLog");
 		    go4ChangeLog(anfrage, datumAb);
-		    /*
-		    go4Probleme(DBVersion, anfrage, "GeschaetzteModelle", 0, false);
-		    go4Probleme(DBVersion, anfrage, "GeschaetzteParameter", 0, false);
-		    go4Probleme(DBVersion, anfrage, "GeschaetztesModell_Referenz", 0, false);
-		    go4Probleme(DBVersion, anfrage, "GeschaetzteParameterCovCor", 0, false);
-		    go4Probleme(DBVersion, anfrage, "Sekundaermodelle_Primaermodelle", 0, false);
-		    */
 		    System.out.println("go4Dateispeicher");
 			go4Dateispeicher(anfrage, datumAb);
 		    System.out.println("doFinalizingThings");
@@ -202,30 +189,19 @@ public class MergeDBs {
 		    	}
 		    	else if (alteintraege.length == 1) {
 		    		if (getID(anfrage, tablename, "ID", ""+tID) == null) {
-						if (tablename.equals("Versuchsbedingungen") && (tID >= 1847 && tID <= 2264 && isBoehnlein && DBVersion.equals("1.4.2"))) {
-							// hat B鰄nlein gel鰏cht, nicht gut....
-							System.err.println("Versuchsbedingungen von B鰄nlein gel鰏cht, nicht ok... " + tID);
-						}
-						else {
-			    			Integer cid = convertID(tablename, tID, true);
-			    			String sql = "DELETE FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + "=" + cid;			    	
-				    		DBKernel.sendRequest(sql, false);
-					    	if (!tablename.equals("Kennzahlen")) {
-					    		String tt= "";
-					    		if (isMertens && DBVersion.equals("1.3.7")) {
-					    			// in der MERTENS DB 1.3.6/7 ist  irgendwas faul... lieber nicht in ChangeLog nachschauen, sonst Absturz...
-					    		}
-					    		else {
-									LinkedHashMap<Integer, Vector<String>> v = DBKernel.getUsersFromChangeLog(anfrage, tablename, tID, null, true);
-								  	for (Map.Entry<Integer, Vector<String>> entry : v.entrySet()) {
-										for (String entr : entry.getValue()) {
-											tt += entry.getKey() + "\t" + entr + "\n"; 
-										}
-								  	}			
-						    	}			    			
-					    		System.err.println("not Kennzahlen, ist das auch kein Versehen? " + sql + "\t" + tID + "\n" + tt);
-				    		}
-						}
+		    			Integer cid = convertID(tablename, tID, true);
+		    			String sql = "DELETE FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + "=" + cid;	
+			    		DBKernel.sendRequest(sql, false);
+				    	if (!tablename.equals("Kennzahlen")) {
+				    		String tt= "";
+							LinkedHashMap<Integer, Vector<String>> v = DBKernel.getUsersFromChangeLog(anfrage, tablename, tID, null, true);
+						  	for (Map.Entry<Integer, Vector<String>> entry : v.entrySet()) {
+								for (String entr : entry.getValue()) {
+									tt += entry.getKey() + "\t" + entr + "\n"; 
+								}
+						  	}			
+				    		System.err.println("not Kennzahlen, ist das auch kein Versehen? " + sql + "\t" + tID + "\n" + tt);
+			    		}
 		    			return true;
 		    		}
 		    		ResultSet rs = getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + "=" + tID, false);
@@ -258,46 +234,13 @@ public class MergeDBs {
 							idConverter.put(tablename + "_" + tID, lastID);			
 							idConverterReverse.put(tablename + "_" + lastID, tID);			
 							checkUsedIDs(tablename, lastID);
-							/*
-				    		if (tablename.equals("Literatur")) { // 174864 175072 //  && (cid == 583 || cid == 584 || cid == 585)
-				    			System.err.println("WEb\t" + tID + "\t" + lastID);
-				    		}
-				    		*/				    		
 						} 
+						else {
+							MyLogger.handleMessage("INSERT failed... " + ps);
+						}
 		    		}
 	    		}
 				else { // UPDATE
-						if (isMertens && tablename.equals("Nachweisverfahren") &&
-								(tID == 180 || tID == 181 || tID == 182) &&
-								(ts.getTime() == 1326881481188L || ts.getTime() == 1326881855383L || ts.getTime() == 1326883213735L)) { // hier gab es einen Konflikt mit Hammerl, die beide dieselben leeren Datens鋞ze benutzt haben!!!
-							Integer neueID = insertNewEmptyDatensatz(tablename, tID);
-							System.err.println("isMertens\t" + ts + "\t" + ts.getTime() + "\t" + tID + "\t" + neueID);
-							System.err.println("Alteintrag: " + eintragAlt2String(eintragAlt));
-						}
-						if (DBVersion.equals("1.4.2")) {
-							if (tablename.equals("SonstigeParameter") && tID == 121
-									&& (ts.getTime() == 1333629019339L && isBoehnlein ||
-									ts.getTime() == 1334221337693L && isWese ||
-									ts.getTime() == 1334159961219L && isMertens)) { // hier gab es einen Konflikt mit einem leeren Datensatz von Wese, b鰄nlein und mertens und wese haben diesen leeren Datensatz benutzt!!!
-								Integer neueID = insertNewEmptyDatensatz(tablename, tID);
-								System.err.println("insertNewEmptyDatensatz\t" + ts + "\t" + ts.getTime() + "\t" + tID + "\t" + neueID);
-								System.err.println("Alteintrag: " + eintragAlt2String(eintragAlt));
-							}
-							/*
-							if (tablename.equals("Einheiten") && tID == 92
-									&& (ts.getTime() == 1334144911590L && isBoehnlein ||
-											ts.getTime() == 1334652660305L && isWese ||
-											ts.getTime() == 1337007884664L && isMertens)) {
-								Integer neueID = insertNewEmptyDatensatz(tablename, tID);
-								System.err.println("insertNewEmptyDatensatz\t" + ts + "\t" + ts.getTime() + "\t" + tID + "\t" + neueID);
-								System.err.println("Alteintrag: " + eintragAlt2String(eintragAlt));
-							}
-							*/
-						}
-						if (isMertens && DBVersion.equals("1.3.9") && tablename.equals("Einheiten") && tID == 88 && eintragAlt[1] == null) {
-							insertNewEmptyDatensatz(tablename, tID);						
-						}
-						
 		    			Integer cid = convertID(tablename, tID, true);
 						if (checkIfOthersAlreadyEditedUpdates(anfrage, tablename, tID, false)) {
 					  		//System.err.println("vorher nachher:"); 
@@ -319,9 +262,6 @@ public class MergeDBs {
 							} else {
 								insertNewEmptyDatensatz(tablename, tID);
 							}
-						}
-						if (isMertens && DBVersion.equals("1.3.7") && tablename.equals("Kontakte") && tID == 129 && DBKernel.getValue(tablename, "ID", ""+tID, "ID") == null) {
-							insertNewEmptyDatensatz(tablename, tID);
 						}
 						cid = convertID(tablename, tID, true);
 						if (DBKernel.getValue(tablename, "ID", ""+cid, "ID") == null) {
@@ -657,95 +597,97 @@ public class MergeDBs {
 			if (rs != null && rs.first()) {
 				do {
 					String tablename = rs.getString("Tabelle");
-					Integer tID = rs.getInt("TabellenID");
-					Integer clID = rs.getInt("ID");
-					Timestamp ts = rs.getTimestamp("Zeitstempel");
-					/*
-					if (isMertens && DBVersion.equals("1.3.7") && tablename.equals("Literatur")) {
-			    		Object o = rs.getObject("Alteintrag");
-			    		System.out.println(clID + "\t" + ts + "\t" + rs.getString("Username") + "\t" + tablename + "\t" + tID + "\t" + o);
-					}
-					*/
-					// Ausnahmen, aber mal schauen. In jedem Fall auf Agenzien und Matrices achten!
-					// die anderen d黵ften noch keine Daten enthalten...
-					MyTable myT = DBKernel.myList.getTable(tablename);
-					if (myT == null
-							|| tablename.equals("Matrices")
-							|| tablename.equals("Verpackungsmaterial")
-							|| tablename.equals("Agenzien")
-							|| tablename.equals("Methoden")
-							|| tablename.equals("MatrixEigenschaften") // gibts ja gar nicht mehr, oder?
-						//	|| tablename.equals("Prozess_Workflow")
-						//	|| tablename.equals("Zutatendaten")
-							|| tablename.equals("Krankheitsbilder")
-							|| tablename.equals("Literatur") && tID <= 239
-						//	|| tablename.equals("ComBaseImport")
-							|| isHammerl && tablename.equals("Aufbereitungs_Nachweisverfahren") && tID == 24 && DBVersion.equals("1.4.2") // Hammerl hatte nicht die zuletzt gemergte DB eingespielt... ausserdem ohnehin keine relevante 膎derung
-							|| isBoehnlein && tablename.equals("Einheiten") && tID == 88 && DBVersion.equals("1.3.9")
-						//	|| tablename.equals("SonstigeParameter")
-							|| (tablename.equals("Versuchsbedingungen") &&	tID == 926 && isFalenski)
-							|| (tablename.equals("Versuchsbedingungen") && (tID < 4 || (tID >= 1847 && tID <= 2264 && !(isBoehnlein && DBVersion.equals("1.4.2"))))) // das sind Combase Eintr鋑e, da sollte nix ge鋘dert werden... B鰄nlein hat aber rumgfummelt und G黷escore vergeben und Agensdetail eingetragen
-							|| (tablename.equals("Messwerte") && (tID < 19 || tID >= 11249 && tID <= 12244)) // das sind Combase Eintr鋑e, da sollte nix ge鋘dert werden...
-							|| (isWese && tablename.equals("Kontakte") && tID == 129 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht l鰏chen, der leere Datensatz wird von Mertens benutzt beim Merge von 1.3.6 nach 1.3.7
-							|| (isWese && tablename.equals("Versuchsbedingungen") && tID == 1107 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht 鋘dern, versehentlich editiert von Wese
-							) {
-						MyLogger.handleMessage("not merged: " + untersuchteDB + "\t" + tablename + "\t" + tID);
-					}
-					else {
-						if (!usedTs.containsKey(myT)) {
-							usedTs.put(myT, myT);
+					if (!DBVersion.equals("1.5.0") || tablename.equals("Modellkatalog") || tablename.equals("ModellkatalogParameter") ||
+							tablename.equals("Modell_Referenz") || tablename.equals("Literatur")) {
+						Integer tID = rs.getInt("TabellenID");
+						Integer clID = rs.getInt("ID");
+						Timestamp ts = rs.getTimestamp("Zeitstempel");
+						/*
+						if (isMertens && DBVersion.equals("1.3.7") && tablename.equals("Literatur")) {
+				    		Object o = rs.getObject("Alteintrag");
+				    		System.out.println(clID + "\t" + ts + "\t" + rs.getString("Username") + "\t" + tablename + "\t" + tID + "\t" + o);
 						}
-					    sql = "SELECT ARRAY_AGG(" + DBKernel.delimitL("Alteintrag") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)," +
-					    "ARRAY_AGG(" + DBKernel.delimitL("Zeitstempel") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)," + 
-					    "ARRAY_AGG(" + DBKernel.delimitL("Username") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)" + 
-					    " FROM " + DBKernel.delimitL("ChangeLog") +
-					    	" WHERE " + DBKernel.delimitL("TabellenID") + " = " + tID +
-					    	" AND " + DBKernel.delimitL("Tabelle") + " = '" + tablename + "'" +
-					    	//" AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" + // Das hier ist irgendwie bl鰀... da gibts tats鋍hlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht 鰂ter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
-					    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'" + // mit den IDs das kann nicht klappen f黵 bereits zusammengef黨rte DB-Eintr鋑e! Stichwort: Konflikt! Der Konflikt w黵de aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
-					    	" GROUP BY " + DBKernel.delimitL("Tabelle") + "," + DBKernel.delimitL("TabellenID");
-					    ResultSet rs2 = getResultSet(anfrage, sql, false);
-					    if (rs2 != null && rs2.first()) {
-						    Array a = rs2.getArray(1);
-						    if (a != null) {
-							    Object[] alteintraege = (Object[])a.getArray();
-							    if (!doAlteintraege(alteintraege, tablename, tID, myT, anfrage, ts)) {
-							    	MyLogger.handleMessage("doAlteintraege: Wasn nu los???");
+						*/
+						// Ausnahmen, aber mal schauen. In jedem Fall auf Agenzien und Matrices achten!
+						// die anderen d黵ften noch keine Daten enthalten...
+						MyTable myT = DBKernel.myList.getTable(tablename);
+						if (myT == null
+								|| tablename.equals("Matrices")
+								|| tablename.equals("Verpackungsmaterial")
+								|| tablename.equals("Agenzien")
+								|| tablename.equals("Methoden")
+								|| tablename.equals("MatrixEigenschaften") // gibts ja gar nicht mehr, oder?
+							//	|| tablename.equals("Prozess_Workflow")
+							//	|| tablename.equals("Zutatendaten")
+								|| tablename.equals("Krankheitsbilder")
+								|| tablename.equals("Literatur") && tID <= 239
+							//	|| tablename.equals("ComBaseImport")
+								|| isHammerl && tablename.equals("Aufbereitungs_Nachweisverfahren") && tID == 24 && DBVersion.equals("1.4.2") // Hammerl hatte nicht die zuletzt gemergte DB eingespielt... ausserdem ohnehin keine relevante 膎derung
+								|| isBoehnlein && tablename.equals("Einheiten") && tID == 88 && DBVersion.equals("1.3.9")
+							//	|| tablename.equals("SonstigeParameter")
+								|| (tablename.equals("Versuchsbedingungen") &&	tID == 926 && isFalenski)
+								|| (tablename.equals("Versuchsbedingungen") && (tID < 4 || (tID >= 1847 && tID <= 2264 && !(isBoehnlein && DBVersion.equals("1.4.2"))))) // das sind Combase Eintr鋑e, da sollte nix ge鋘dert werden... B鰄nlein hat aber rumgfummelt und G黷escore vergeben und Agensdetail eingetragen
+								|| (tablename.equals("Messwerte") && (tID < 19 || tID >= 11249 && tID <= 12244)) // das sind Combase Eintr鋑e, da sollte nix ge鋘dert werden...
+								|| (isWese && tablename.equals("Kontakte") && tID == 129 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht l鰏chen, der leere Datensatz wird von Mertens benutzt beim Merge von 1.3.6 nach 1.3.7
+								|| (isWese && tablename.equals("Versuchsbedingungen") && tID == 1107 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht 鋘dern, versehentlich editiert von Wese
+								) {
+							MyLogger.handleMessage("not merged: " + untersuchteDB + "\t" + tablename + "\t" + tID);
+						}
+						else {
+							if (!usedTs.containsKey(myT)) {
+								usedTs.put(myT, myT);
+							}
+						    sql = "SELECT ARRAY_AGG(" + DBKernel.delimitL("Alteintrag") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)," +
+						    "ARRAY_AGG(" + DBKernel.delimitL("Zeitstempel") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)," + 
+						    "ARRAY_AGG(" + DBKernel.delimitL("Username") + " ORDER BY " + DBKernel.delimitL("Zeitstempel") + " ASC)" + 
+						    " FROM " + DBKernel.delimitL("ChangeLog") +
+						    	" WHERE " + DBKernel.delimitL("TabellenID") + " = " + tID +
+						    	" AND " + DBKernel.delimitL("Tabelle") + " = '" + tablename + "'" +
+						    	//" AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" + // Das hier ist irgendwie bl鰀... da gibts tats鋍hlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht 鰂ter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
+						    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'" + // mit den IDs das kann nicht klappen f黵 bereits zusammengef黨rte DB-Eintr鋑e! Stichwort: Konflikt! Der Konflikt w黵de aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
+						    	" GROUP BY " + DBKernel.delimitL("Tabelle") + "," + DBKernel.delimitL("TabellenID");
+						    ResultSet rs2 = getResultSet(anfrage, sql, false);
+						    if (rs2 != null && rs2.first()) {
+							    Array a = rs2.getArray(1);
+							    if (a != null) {
+								    Object[] alteintraege = (Object[])a.getArray();
+								    if (!doAlteintraege(alteintraege, tablename, tID, myT, anfrage, ts)) {
+								    	MyLogger.handleMessage("doAlteintraege: Wasn nu los???");
+								    }
+							    }
+							    else {
+							    	MyLogger.handleMessage("Keine Eintr鋑e f黵 a?!?");					    	
 							    }
 						    }
 						    else {
-						    	MyLogger.handleMessage("Keine Eintr鋑e f黵 a?!?");					    	
+						    	MyLogger.handleMessage("Keine Eintr鋑e?!?");
 						    }
-					    }
-					    else {
-					    	MyLogger.handleMessage("Keine Eintr鋑e?!?");
-					    }
 
-					    	PreparedStatement ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("ChangeLog") +
-						      		" (" + DBKernel.delimitL("ID") + ", " + DBKernel.delimitL("Zeitstempel") + ", " + DBKernel.delimitL("Username") + ", " +
-						      		DBKernel.delimitL("Tabelle") + ", " + DBKernel.delimitL("TabellenID") + ", " +
-						      		DBKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + DBKernel.delimitL("ChangeLogSEQ") + ", ?,?,?,?,?)");
-						    	ps.setTimestamp(1, ts);
-						    	ps.setString(2, rs.getString("Username"));
-						    	ps.setString(3, tablename);
-						    	ps.setInt(4, convertID(tablename, tID, false));
-						    	if (tablename.equals("SonstigeParameter") && tID == 121) {
-									System.err.println("ps.setInt(4,\t" + tablename + "\t" + tID + "\t" + convertID(tablename, tID, false));
-								}
-						    	
-					    		Object[] modO = doFields(null, myT, (Object[]) rs.getObject("Alteintrag"));
+						    	PreparedStatement ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("ChangeLog") +
+							      		" (" + DBKernel.delimitL("ID") + ", " + DBKernel.delimitL("Zeitstempel") + ", " + DBKernel.delimitL("Username") + ", " +
+							      		DBKernel.delimitL("Tabelle") + ", " + DBKernel.delimitL("TabellenID") + ", " +
+							      		DBKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + DBKernel.delimitL("ChangeLogSEQ") + ", ?,?,?,?,?)");
+							    	ps.setTimestamp(1, ts);
+							    	ps.setString(2, rs.getString("Username"));
+							    	ps.setString(3, tablename);
+							    	ps.setInt(4, convertID(tablename, tID, false));
+							    	if (tablename.equals("SonstigeParameter") && tID == 121) {
+										System.err.println("ps.setInt(4,\t" + tablename + "\t" + tID + "\t" + convertID(tablename, tID, false));
+									}
+							    	
+						    		Object[] modO = doFields(null, myT, (Object[]) rs.getObject("Alteintrag"));
 
-						    	if (modO == null) {
-									ps.setNull(5, java.sql.Types.OTHER);
-								} else {
-									ps.setObject(5, modO);
-								}
-						    	ps.execute();		
-								if (ps.getUpdateCount() != 1) {
-									System.err.println("H�2�2滗h, was los huier?" + ps.getUpdateCount());
-								}
-					}
-									    	
+							    	if (modO == null) {
+										ps.setNull(5, java.sql.Types.OTHER);
+									} else {
+										ps.setObject(5, modO);
+									}
+							    	ps.execute();		
+									if (ps.getUpdateCount() != 1) {
+										System.err.println("H�2�2滗h, was los huier?" + ps.getUpdateCount());
+									}
+						}						
+					}								    	
 				} while (rs.next());
 			}		
 	    }
@@ -809,34 +751,6 @@ public class MergeDBs {
 			}
 		}
     	System.err.println("checkeDoppeltVergebeneDKZs - Fin");
-    }
-    private void go4Probleme(final String theDBVersion, final Statement anfrage, final String tablename, final int idAb, final boolean insertEmpty) {
-		if (theDBVersion.equals("1.3.9")) {
-			// bei den gesch鋞zten Modellen d黵fte das nicht passiert sein, oder???? Checken nicht vergessen!!!
-			//  || tablename.equals("Literatur") && tID >= 587)
-			ResultSet rs = DBKernel.getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + " >= " + idAb, false);
-			try {
-			    if (rs != null && rs.first()) {
-			    	do {
-						//System.err.println("ok, hier ist die TriggerScheisse passiert, wo wegen Statup (data-in-motion) der Trigger abgeschaltet worden ist: " + rs.getObject("ID"));
-				    	if (rs.getObject("ID") != null) {
-					    	if (insertEmpty) {
-					    		insertNewEmptyDatensatz(tablename, rs.getInt("ID"));		
-					    	}
-					    	else {
-								Object[] eintragNeu = new Object[rs.getMetaData().getColumnCount()]; 
-								for (int i=0;i<eintragNeu.length;i++) {
-									eintragNeu[i] = rs.getObject(i+1);
-								}			
-								insertRowDeNovo(tablename, eintragNeu, rs.getInt("ID"));
-					    	}
-				    	}
-			    	} while(rs.next());
-			    	rs.close();
-			    }
-			}
-			catch (Exception e) {e.printStackTrace();}
-		}
     }
     private void insertRowDeNovo(final String tablename, final Object[] eintragNeu, final Integer tID) {
     	MyTable myT = DBKernel.myList.getTable(tablename);

@@ -48,6 +48,7 @@ import java.awt.event.ItemListener;
 import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -115,6 +117,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JButton stepsButton;
 	private JButton xlsButton;
 	private TimeSeriesTable table;
+	private JButton addLiteratureButton;
+	private JButton removeLiteratureButton;
+	private JList<String> literatureList;
+	private List<Integer> literatureIDs;
+	private List<String> literatureData;
 	private int agentID;
 	private JButton agentButton;
 	private int matrixID;
@@ -156,6 +163,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
 		clearButton.addActionListener(this);
+		addLiteratureButton = new JButton("+");
+		addLiteratureButton.addActionListener(this);
+		removeLiteratureButton = new JButton("-");
+		removeLiteratureButton.addActionListener(this);
+		literatureList = new JList<>();
 		agentButton = new JButton(SELECT);
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
@@ -185,47 +197,58 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"),
+						.getFullName(TimeSeriesSchema.ATT_LITMD) + ":"),
 				createConstraints(0, 0));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
-				createConstraints(0, 1));
-		settingsPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"),
+						.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"),
 				createConstraints(0, 2));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.TIME) + ":"),
+						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 3));
+		settingsPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"),
+				createConstraints(0, 4));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getFullName(TimeSeriesSchema.TIME) + ":"),
+				createConstraints(0, 5));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getFullName(TimeSeriesSchema.LOGC) + ":"),
-				createConstraints(0, 4));
+				createConstraints(0, 6));
 		settingsPanel
 				.add(new JLabel(AttributeUtilities
 						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-						createConstraints(0, 5));
+						createConstraints(0, 7));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getFullName(AttributeUtilities.ATT_PH) + ":"),
-				createConstraints(0, 6));
+				createConstraints(0, 8));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getFullName(AttributeUtilities.ATT_WATERACTIVITY)
-						+ ":"), createConstraints(0, 7));
+						+ ":"), createConstraints(0, 9));
 
-		settingsPanel.add(agentButton, createConstraints(1, 0));
-		settingsPanel.add(matrixButton, createConstraints(1, 1));
-		settingsPanel.add(commentField, createConstraints(1, 2));
-		settingsPanel.add(temperatureField, createConstraints(1, 5));
-		settingsPanel.add(phField, createConstraints(1, 6));
-		settingsPanel.add(waterActivityField, createConstraints(1, 7));
+		settingsPanel.add(new JScrollPane(literatureList),
+				new GridBagConstraints(1, 0, 2, 2, 0, 2,
+						GridBagConstraints.LINE_START, GridBagConstraints.BOTH,
+						new Insets(3, 3, 3, 3), 0, 0));
+		settingsPanel.add(agentButton, createConstraints(1, 2));
+		settingsPanel.add(matrixButton, createConstraints(1, 3));
+		settingsPanel.add(commentField, createConstraints(1, 4));
+		settingsPanel.add(temperatureField, createConstraints(1, 7));
+		settingsPanel.add(phField, createConstraints(1, 8));
+		settingsPanel.add(waterActivityField, createConstraints(1, 9));
 
-		settingsPanel.add(timeBox, createConstraints(2, 3));
-		settingsPanel.add(logcBox, createConstraints(2, 4));
-		settingsPanel.add(tempBox, createConstraints(2, 5));
+		settingsPanel.add(timeBox, createConstraints(2, 5));
+		settingsPanel.add(logcBox, createConstraints(2, 6));
+		settingsPanel.add(tempBox, createConstraints(2, 7));
 
-		settingsPanelRows = 8;
+		settingsPanel.add(addLiteratureButton, createConstraints(3, 0));
+		settingsPanel.add(removeLiteratureButton, createConstraints(4, 0));
+
+		settingsPanelRows = 10;
 
 		addButtons(0);
 
@@ -252,6 +275,27 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
+		try {
+			literatureIDs = ListUtilities
+					.getIntListFromString(settings
+							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS));
+			literatureData = new ArrayList<>();
+
+			for (int id : literatureIDs) {
+				String author = DBKernel.getValue("Literatur", "ID", id + "",
+						"Erstautor") + "";
+				String year = DBKernel.getValue("Literatur", "ID", id + "",
+						"Jahr") + "";
+
+				literatureData.add(author + "-" + year);
+			}
+
+			literatureList.setListData(literatureData.toArray(new String[0]));
+		} catch (InvalidSettingsException e) {
+			literatureIDs = new ArrayList<>();
+			literatureList.setListData(new String[0]);
+		}
+
 		try {
 			agentID = settings
 					.getInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID);
@@ -417,6 +461,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS,
+				ListUtilities.getStringFromList(literatureIDs));
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
@@ -501,6 +547,34 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				}
 
 				table.repaint();
+			}
+		} else if (event.getSource() == addLiteratureButton) {
+			Integer id = openLiteratureDBWindow(null);
+
+			if (id != null && !literatureIDs.contains(id)) {
+				String author = DBKernel.getValue("Literatur", "ID", id + "",
+						"Erstautor") + "";
+				String year = DBKernel.getValue("Literatur", "ID", id + "",
+						"Jahr") + "";
+
+				literatureIDs.add(id);
+				literatureData.add(author + "-" + year);
+				literatureList.setListData(literatureData
+						.toArray(new String[0]));
+			}
+		} else if (event.getSource() == removeLiteratureButton) {
+			if (literatureList.getSelectedIndices().length > 0) {
+				int[] indices = literatureList.getSelectedIndices();
+
+				Arrays.sort(indices);
+
+				for (int i = indices.length - 1; i >= 0; i--) {
+					literatureIDs.remove(i);
+					literatureData.remove(i);
+				}
+
+				literatureList.setListData(literatureData
+						.toArray(new String[0]));
 			}
 		} else if (event.getSource() == agentButton) {
 			Integer newAgentID = openAgentDBWindow(agentID);
@@ -618,6 +692,18 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		condIDs.remove(i);
 		settingsPanel.remove(condButtons.remove(i));
 		settingsPanel.remove(condValueFields.remove(i));
+	}
+
+	private Integer openLiteratureDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Literatur");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Literatur",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
 	}
 
 	private Integer openMiscDBWindow(Integer id) {

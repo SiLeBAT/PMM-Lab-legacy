@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow"
-			"$rowSpecs": "default, linegap, default, linegap, default"
+			"$rowSpecs": "default, linegap, default"
 		} ) {
 			name: "this"
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
@@ -14,6 +14,7 @@ new FormModel {
 			} ) {
 				name: "panel1"
 				"border": new javax.swing.border.TitledBorder( "MD Filter" )
+				"minimumSize": new java.awt.Dimension( 78, 102 )
 				add( new FormComponent( "javax.swing.JLabel" ) {
 					name: "label1"
 					"text": "Organism"
@@ -119,8 +120,8 @@ new FormModel {
 				} ) {
 					name: "panel4"
 					"border": new javax.swing.border.TitledBorder( "Parameters" )
-					"preferredSize": new java.awt.Dimension( 280, 185 )
-					"minimumSize": new java.awt.Dimension( 85, 175 )
+					"preferredSize": new java.awt.Dimension( 80, 185 )
+					"minimumSize": new java.awt.Dimension( 40, 175 )
 					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "label4"
 						"text": "Name"
@@ -150,6 +151,7 @@ new FormModel {
 						"columns": 10
 						"text": "Temperature"
 						"horizontalAlignment": 4
+						"preferredSize": new java.awt.Dimension( 30, 20 )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 1
 						"gridY": 3
@@ -179,6 +181,7 @@ new FormModel {
 						"columns": 20
 						"text": "pH"
 						"horizontalAlignment": 4
+						"preferredSize": new java.awt.Dimension( 30, 20 )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridY": 5
 					} )
@@ -205,6 +208,7 @@ new FormModel {
 						"columns": 20
 						"text": "aw"
 						"horizontalAlignment": 4
+						"preferredSize": new java.awt.Dimension( 30, 20 )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridY": 7
 					} )
@@ -231,6 +235,7 @@ new FormModel {
 						"columns": 20
 						"text": "param1"
 						"horizontalAlignment": 4
+						"preferredSize": new java.awt.Dimension( 30, 20 )
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridY": 9
 					} )
@@ -277,7 +282,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 400, 300 )
+			"size": new java.awt.Dimension( 455, 270 )
 		} )
 	}
 }

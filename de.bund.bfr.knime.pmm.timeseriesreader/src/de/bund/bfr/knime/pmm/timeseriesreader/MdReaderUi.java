@@ -83,6 +83,7 @@ public class MdReaderUi extends JPanel {
 		panel4.setLayout(new FormLayout(
 			"default:grow, 2*($lcgap, default)",
 			params.size() + "*(default, $lgap), default"));
+		panel4.setPreferredSize(new Dimension(80, 185));
 
 		//---- label4 ----
 		label4.setText("Name");
@@ -146,6 +147,8 @@ public class MdReaderUi extends JPanel {
 			    comboBox.addItemListener(itemListener);
 				c = comboBox;
 			}
+		    c.setMinimumSize(new Dimension(30, 20));
+		    c.setPreferredSize(new Dimension(30, 20));
 			panel4.add(c, CC.xy(1, index));
 
 			dtf = params.get(par);
@@ -436,11 +439,12 @@ public class MdReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"2*(default, $lgap), default"));
+			"default, $lgap, default"));
 
 		//======== panel1 ========
 		{
 			panel1.setBorder(new TitledBorder("MD Filter"));
+			panel1.setMinimumSize(new Dimension(78, 102));
 			panel1.setLayout(new FormLayout(
 				"80px, $lcgap, default:grow, 2*($lcgap, default)",
 				"2*(default, $lgap), default"));
@@ -527,8 +531,8 @@ public class MdReaderUi extends JPanel {
 			//======== panel4 ========
 			{
 				panel4.setBorder(new TitledBorder("Parameters"));
-				panel4.setPreferredSize(new Dimension(280, 185));
-				panel4.setMinimumSize(new Dimension(85, 175));
+				panel4.setPreferredSize(new Dimension(80, 185));
+				panel4.setMinimumSize(new Dimension(40, 175));
 				panel4.setLayout(new FormLayout(
 					"default:grow, 2*($lcgap, default)",
 					"5*(default, $lgap), default"));
@@ -552,6 +556,7 @@ public class MdReaderUi extends JPanel {
 				textField4.setColumns(10);
 				textField4.setText("Temperature");
 				textField4.setHorizontalAlignment(SwingConstants.RIGHT);
+				textField4.setPreferredSize(new Dimension(30, 20));
 				panel4.add(textField4, CC.xy(1, 3));
 
 				//---- doubleTextField1 ----
@@ -566,6 +571,7 @@ public class MdReaderUi extends JPanel {
 				textField5.setColumns(20);
 				textField5.setText("pH");
 				textField5.setHorizontalAlignment(SwingConstants.RIGHT);
+				textField5.setPreferredSize(new Dimension(30, 20));
 				panel4.add(textField5, CC.xy(1, 5));
 				panel4.add(doubleTextField3, CC.xy(3, 5));
 				panel4.add(doubleTextField4, CC.xy(5, 5));
@@ -574,6 +580,7 @@ public class MdReaderUi extends JPanel {
 				textField6.setColumns(20);
 				textField6.setText("aw");
 				textField6.setHorizontalAlignment(SwingConstants.RIGHT);
+				textField6.setPreferredSize(new Dimension(30, 20));
 				panel4.add(textField6, CC.xy(1, 7));
 				panel4.add(doubleTextField5, CC.xy(3, 7));
 				panel4.add(doubleTextField6, CC.xy(5, 7));
@@ -582,6 +589,7 @@ public class MdReaderUi extends JPanel {
 				textField7.setColumns(20);
 				textField7.setText("param1");
 				textField7.setHorizontalAlignment(SwingConstants.RIGHT);
+				textField7.setPreferredSize(new Dimension(30, 20));
 				panel4.add(textField7, CC.xy(1, 9));
 				panel4.add(doubleTextField7, CC.xy(3, 9));
 				panel4.add(doubleTextField8, CC.xy(5, 9));

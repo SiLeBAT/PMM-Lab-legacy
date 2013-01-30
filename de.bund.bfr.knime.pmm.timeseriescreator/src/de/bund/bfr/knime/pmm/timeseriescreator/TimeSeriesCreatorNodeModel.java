@@ -36,7 +36,9 @@ package de.bund.bfr.knime.pmm.timeseriescreator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -73,10 +75,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	static final String CFGKEY_AGENT = "Agent";
 	static final String CFGKEY_MATRIX = "Matrix";
 	static final String CFGKEY_COMMENT = "Comment";
-	static final String CFGKEY_TEMPERATURE = "Temperature";
-	static final String CFGKEY_PH = "ph";
-	static final String CFGKEY_WATERACTIVITY = "WaterActivity";
-	static final String CFGKEY_MISCIDS = "MiscIDs";
 	static final String CFGKEY_MISCVALUES = "MiscValues";
 	static final String CFGKEY_TIMEVALUES = "TimeValues";
 	static final String CFGKEY_LOGCVALUES = "LogcValue";
@@ -89,16 +87,12 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	private String agent;
 	private String matrix;
 	private String comment;
-	private Double temperature;
-	private Double ph;
-	private Double waterActivity;
 	private List<Double> timeValues;
 	private List<Double> logcValues;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
-	private List<Integer> miscIDs;
-	private List<Double> miscValues;
+	private Map<Integer, Double> miscValues;
 
 	/**
 	 * Constructor for the node model.
@@ -112,8 +106,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		miscIDs = new ArrayList<Integer>();
-		miscValues = new ArrayList<Double>();
+		miscValues = new LinkedHashMap<>();
 	}
 
 	/**
@@ -129,26 +122,23 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc miscXML = new PmmXmlDoc();
 		PmmXmlDoc agentXml = new PmmXmlDoc();
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
-
-		miscXML.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
-				AttributeUtilities.ATT_TEMPERATURE, null, AttributeUtilities
-						.convertToStandardUnit(
-								AttributeUtilities.ATT_TEMPERATURE,
-								temperature, tempUnit), null));
-		miscXML.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
-				AttributeUtilities.ATT_PH, null, ph, null));
-		miscXML.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
-				AttributeUtilities.ATT_WATERACTIVITY, null, waterActivity, null));
+		
 		agentXml.add(new AgentXml(null, null, agent));
 		matrixXml.add(new MatrixXml(null, null, matrix));
 
-		for (int i = 0; i < miscIDs.size(); i++) {
+		for (int miscID : miscValues.keySet()) {
 			String miscName = ""
-					+ DBKernel.getValue("SonstigeParameter", "ID",
-							miscIDs.get(i) + "", "Parameter");
+					+ DBKernel.getValue("SonstigeParameter", "ID", miscID + "",
+							"Parameter");
+			Double value = miscValues.get(miscID);
 
-			miscXML.add(new MiscXml(miscIDs.get(i), miscName, null, miscValues
-					.get(i), null));
+			if (miscID == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				value = AttributeUtilities.convertToStandardUnit(
+						AttributeUtilities.ATT_TEMPERATURE, value, tempUnit);
+			}
+
+			miscXML.add(new MiscXml(miscID, miscName, null, miscValues
+					.get(miscID), null));
 		}
 
 		for (int i = 0; i < timeValues.size(); i++) {
@@ -206,19 +196,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 		if (comment != null) {
 			settings.addString(CFGKEY_COMMENT, comment);
-		}
-
-		if (temperature != null) {
-			settings.addDouble(CFGKEY_TEMPERATURE, temperature);
-		}
-
-		if (ph != null) {
-			settings.addDouble(CFGKEY_PH, ph);
-		}
-
-		if (waterActivity != null) {
-			settings.addDouble(CFGKEY_WATERACTIVITY, waterActivity);
-		}
+		}		
 
 		settings.addString(CFGKEY_TIMEVALUES,
 				ListUtilities.getStringFromList(timeValues));
@@ -227,10 +205,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
-		settings.addString(CFGKEY_MISCIDS,
-				ListUtilities.getStringFromList(miscIDs));
 		settings.addString(CFGKEY_MISCVALUES,
-				ListUtilities.getStringFromList(miscValues));
+				ListUtilities.getStringFromList(getMiscList(miscValues)));
 	}
 
 	/**
@@ -255,25 +231,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			comment = settings.getString(CFGKEY_COMMENT);
 		} catch (InvalidSettingsException e) {
 			comment = null;
-		}
-
-		try {
-			temperature = settings.getDouble(CFGKEY_TEMPERATURE);
-		} catch (InvalidSettingsException e) {
-			temperature = null;
-		}
-
-		try {
-			ph = settings.getDouble(CFGKEY_PH);
-		} catch (InvalidSettingsException e) {
-			ph = null;
-		}
-
-		try {
-			waterActivity = settings.getDouble(CFGKEY_WATERACTIVITY);
-		} catch (InvalidSettingsException e) {
-			waterActivity = null;
-		}
+		}		
 
 		try {
 			timeValues = ListUtilities.getDoubleListFromString(settings
@@ -311,17 +269,11 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			miscIDs = ListUtilities.getIntListFromString(settings
-					.getString(CFGKEY_MISCIDS));
+			miscValues = getMiscMap(ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_MISCVALUES)));
 		} catch (InvalidSettingsException e) {
-			miscIDs = new ArrayList<>();
-		}
-
-		try {
-			miscValues = ListUtilities.getDoubleListFromString(settings
-					.getString(CFGKEY_MISCVALUES));
-		} catch (InvalidSettingsException e) {
-			miscValues = new ArrayList<Double>();
+			miscValues = new LinkedHashMap<>();
 		}
 	}
 
@@ -349,6 +301,34 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	protected static Map<Integer, Double> getMiscMap(List<String> miscList) {
+		Map<Integer, Double> miscMap = new LinkedHashMap<>();
+
+		for (String miscString : miscList) {
+			String[] toks = miscString.split("=");
+
+			try {
+				miscMap.put(Integer.parseInt(toks[0]),
+						Double.parseDouble(toks[1]));
+			} catch (Exception e) {
+			}
+		}
+
+		return miscMap;
+	}
+
+	protected static List<String> getMiscList(Map<Integer, Double> miscMap) {
+		List<String> miscList = new ArrayList<>();
+
+		for (Map.Entry<Integer, Double> entry : miscMap.entrySet()) {
+			if (entry.getKey() != null && entry.getValue() != null) {
+				miscList.add(entry.getKey() + "=" + entry.getValue());
+			}
+		}
+
+		return miscList;
 	}
 
 }

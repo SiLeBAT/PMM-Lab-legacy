@@ -288,25 +288,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			temperatureField.setValue(settings
-					.getDouble(TimeSeriesCreatorNodeModel.CFGKEY_TEMPERATURE));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			phField.setValue(settings
-					.getDouble(TimeSeriesCreatorNodeModel.CFGKEY_PH));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
-			waterActivityField
-					.setValue(settings
-							.getDouble(TimeSeriesCreatorNodeModel.CFGKEY_WATERACTIVITY));
-		} catch (InvalidSettingsException e) {
-		}
-
-		try {
 			List<Double> timeValues = ListUtilities
 					.getDoubleListFromString(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEVALUES));
@@ -358,42 +339,42 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
-		List<Integer> miscIDs;
-		List<Double> miscValues;
+		Map<Integer, Double> miscValues;
 		int n = removeButtons.size();
 
 		try {
-			miscIDs = ListUtilities.getIntListFromString(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCIDS));
+			miscValues = TimeSeriesCreatorNodeModel
+					.getMiscMap(ListUtilities.getStringListFromString(settings
+							.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES)));
 		} catch (InvalidSettingsException e) {
-			miscIDs = new ArrayList<>();
-		}
-
-		try {
-			miscValues = ListUtilities.getDoubleListFromString(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES));
-		} catch (InvalidSettingsException e) {
-			miscValues = new ArrayList<Double>();
+			miscValues = new LinkedHashMap<>();
 		}
 
 		for (int i = 0; i < n; i++) {
 			removeButtons(0);
 		}
 
-		for (int i = 0; i < miscIDs.size(); i++) {
-			int id = miscIDs.get(i);
-			Double value = miscValues.get(i);
+		for (int id : miscValues.keySet()) {
+			Double value = miscValues.get(id);
 
 			if (value != null && value.isNaN()) {
 				value = null;
 			}
 
-			addButtons(0);
-			condButtons.get(0).setText(
-					DBKernel.getValue("SonstigeParameter", "ID", id + "",
-							"Parameter") + "");
-			condIDs.set(0, id);
-			condValueFields.get(0).setValue(value);
+			if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				temperatureField.setValue(value);
+			} else if (id == AttributeUtilities.ATT_PH_ID) {
+				phField.setValue(value);
+			} else if (id == AttributeUtilities.ATT_AW_ID) {
+				waterActivityField.setValue(value);
+			} else {
+				addButtons(0);
+				condButtons.get(0).setText(
+						DBKernel.getValue("SonstigeParameter", "ID", id + "",
+								"Parameter") + "");
+				condIDs.set(0, id);
+				condValueFields.get(0).setValue(value);
+			}
 		}
 	}
 
@@ -439,21 +420,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					commentField.getValue());
 		}
 
-		if (temperatureField.getValue() != null) {
-			settings.addDouble(TimeSeriesCreatorNodeModel.CFGKEY_TEMPERATURE,
-					temperatureField.getValue());
-		}
-
-		if (phField.getValue() != null) {
-			settings.addDouble(TimeSeriesCreatorNodeModel.CFGKEY_PH,
-					phField.getValue());
-		}
-
-		if (waterActivityField.getValue() != null) {
-			settings.addDouble(TimeSeriesCreatorNodeModel.CFGKEY_WATERACTIVITY,
-					waterActivityField.getValue());
-		}
-
 		List<Double> timeList = new ArrayList<Double>();
 		List<Double> logcList = new ArrayList<Double>();
 
@@ -478,16 +444,21 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 
-		List<Double> miscValues = new ArrayList<Double>();
+		Map<Integer, Double> miscValues = new LinkedHashMap<>();
 
-		for (int i = 0; i < condValueFields.size(); i++) {
-			miscValues.add(condValueFields.get(i).getValue());
+		miscValues.put(AttributeUtilities.ATT_TEMPERATURE_ID,
+				temperatureField.getValue());
+		miscValues.put(AttributeUtilities.ATT_PH_ID, phField.getValue());
+		miscValues.put(AttributeUtilities.ATT_AW_ID,
+				waterActivityField.getValue());
+
+		for (int i = 0; i < condIDs.size(); i++) {
+			miscValues.put(condIDs.get(i), condValueFields.get(i).getValue());
 		}
 
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCIDS,
-				ListUtilities.getStringFromList(condIDs));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
-				ListUtilities.getStringFromList(miscValues));
+				ListUtilities.getStringFromList(TimeSeriesCreatorNodeModel
+						.getMiscList(miscValues)));
 	}
 
 	@Override

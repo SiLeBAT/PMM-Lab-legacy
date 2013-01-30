@@ -107,7 +107,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private static final double DEFAULT_TIMESTEPSIZE = 1.0;
 
 	private static final String OTHER_PARAMETER = "Other Parameter";
-	private static final String NO_PARAMETER = "Select Other";
+	private static final String NO_PARAMETER = "Do Not Use";
 	private static final String SELECT = "Select";
 
 	private JPanel panel;
@@ -588,7 +588,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			int panelIndex = i + 8;
 			JButton addButton = new JButton("+");
 			JButton removeButton = new JButton("-");
-			JButton button = new JButton(NO_PARAMETER);
+			JButton button = new JButton(OTHER_PARAMETER);
 			DoubleTextField valueField = new DoubleTextField(true);
 
 			addButton.addActionListener(this);
@@ -634,7 +634,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			return null;
 		}
 	}
-	
+
 	private Integer openAgentDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("Agenzien");
 		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Agenzien",
@@ -809,17 +809,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
-						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER });
+						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
+						NO_PARAMETER });
 				JButton button = new JButton();
 
-				box.setSelectedItem(OTHER_PARAMETER);
-				button.setEnabled(true);
-				button.setText(NO_PARAMETER);
+				box.setSelectedItem(NO_PARAMETER);
+				button.setEnabled(false);
+				button.setText(OTHER_PARAMETER);
 
 				box.addItemListener(this);
 				button.addActionListener(this);
-
-				mappings.put(column, null);
+				
 				mappingBoxes.put(column, box);
 				mappingButtons.put(column, button);
 
@@ -863,27 +863,27 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 						if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, XLSReader.ID_COLUMN);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.ATT_COMMENT)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, TimeSeriesSchema.ATT_COMMENT);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.TIME)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, TimeSeriesSchema.TIME);
 						} else if (box.getSelectedItem().equals(
 								TimeSeriesSchema.LOGC)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, TimeSeriesSchema.LOGC);
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
@@ -891,7 +891,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column,
 									new MiscXml(AttributeUtilities.ATT_PH_ID,
 											AttributeUtilities.ATT_PH, null,
@@ -899,15 +899,20 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
 									AttributeUtilities.ATT_WATERACTIVITY, null,
 									null, null));
-						} else {
+						} else if (box.getSelectedItem()
+								.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
-							button.setText(NO_PARAMETER);
+							button.setText(OTHER_PARAMETER);
 							mappings.put(column, null);
+						} else if (box.getSelectedItem().equals(NO_PARAMETER)) {
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+							mappings.remove(column);
 						}
 
 						break;

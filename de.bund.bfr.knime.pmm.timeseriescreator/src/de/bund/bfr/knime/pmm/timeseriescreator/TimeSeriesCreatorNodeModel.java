@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriescreator;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -76,8 +77,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	static final String CFGKEY_MATRIX = "Matrix";
 	static final String CFGKEY_COMMENT = "Comment";
 	static final String CFGKEY_MISCVALUES = "MiscValues";
-	static final String CFGKEY_TIMEVALUES = "TimeValues";
-	static final String CFGKEY_LOGCVALUES = "LogcValue";
+	static final String CFGKEY_TIMESERIES = "TimeSeries";
 	static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	static final String CFGKEY_TEMPUNIT = "TempUnit";
@@ -87,8 +87,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	private String agent;
 	private String matrix;
 	private String comment;
-	private List<Double> timeValues;
-	private List<Double> logcValues;
+	private List<Point2D.Double> timeSeries;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
@@ -100,8 +99,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
 		schema = new TimeSeriesSchema();
-		timeValues = new ArrayList<Double>();
-		logcValues = new ArrayList<Double>();
+		timeSeries = new ArrayList<>();
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
@@ -122,7 +120,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc miscXML = new PmmXmlDoc();
 		PmmXmlDoc agentXml = new PmmXmlDoc();
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
-		
+
 		agentXml.add(new AgentXml(null, null, agent));
 		matrixXml.add(new MatrixXml(null, null, matrix));
 
@@ -141,12 +139,12 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 					.get(miscID), null));
 		}
 
-		for (int i = 0; i < timeValues.size(); i++) {
-			timeSeriesXml.add(new TimeSeriesXml(null, AttributeUtilities
-					.convertToStandardUnit(TimeSeriesSchema.TIME,
-							timeValues.get(i), timeUnit), AttributeUtilities
-					.convertToStandardUnit(TimeSeriesSchema.LOGC,
-							logcValues.get(i), logcUnit)));
+		for (Point2D.Double p : timeSeries) {
+			timeSeriesXml.add(new TimeSeriesXml(null,
+					AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.TIME, p.x, timeUnit),
+					AttributeUtilities.convertToStandardUnit(
+							TimeSeriesSchema.LOGC, p.y, logcUnit)));
 		}
 
 		KnimeTuple tuple = new KnimeTuple(schema);
@@ -196,12 +194,10 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 		if (comment != null) {
 			settings.addString(CFGKEY_COMMENT, comment);
-		}		
+		}
 
-		settings.addString(CFGKEY_TIMEVALUES,
-				ListUtilities.getStringFromList(timeValues));
-		settings.addString(CFGKEY_LOGCVALUES,
-				ListUtilities.getStringFromList(logcValues));
+		settings.addString(CFGKEY_TIMESERIES,
+				ListUtilities.getStringFromList(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
@@ -231,20 +227,13 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			comment = settings.getString(CFGKEY_COMMENT);
 		} catch (InvalidSettingsException e) {
 			comment = null;
-		}		
-
-		try {
-			timeValues = ListUtilities.getDoubleListFromString(settings
-					.getString(CFGKEY_TIMEVALUES));
-		} catch (InvalidSettingsException e) {
-			timeValues = new ArrayList<Double>();
 		}
 
 		try {
-			logcValues = ListUtilities.getDoubleListFromString(settings
-					.getString(CFGKEY_LOGCVALUES));
+			timeSeries = ListUtilities.getPointDoubleListFromString(settings
+					.getString(CFGKEY_TIMESERIES));
 		} catch (InvalidSettingsException e) {
-			logcValues = new ArrayList<Double>();
+			timeSeries = new ArrayList<>();
 		}
 
 		try {

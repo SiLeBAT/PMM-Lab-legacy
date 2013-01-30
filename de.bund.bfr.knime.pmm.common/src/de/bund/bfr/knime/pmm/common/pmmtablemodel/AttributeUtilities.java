@@ -150,7 +150,7 @@ public class AttributeUtilities {
 
 	public static Double convertToStandardUnit(String attr, Double value,
 			String unit) {
-		if (value == null) {
+		if (value == null || value.isNaN()) {
 			return null;
 		}
 

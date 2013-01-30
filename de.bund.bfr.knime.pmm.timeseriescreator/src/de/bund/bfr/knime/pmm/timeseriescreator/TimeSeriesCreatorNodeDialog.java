@@ -45,6 +45,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -288,27 +289,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			List<Double> timeValues = ListUtilities
-					.getDoubleListFromString(settings
-							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEVALUES));
+			List<Point2D.Double> timeSeries = ListUtilities
+					.getPointDoubleListFromString(settings
+							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES));
 
-			for (int i = 0; i < timeValues.size(); i++) {
-				if (!Double.isNaN(timeValues.get(i))) {
-					table.setTime(i, timeValues.get(i));
+			for (int i = 0; i < timeSeries.size(); i++) {
+				if (!Double.isNaN(timeSeries.get(i).x)) {
+					table.setTime(i, timeSeries.get(i).x);
 				}
-			}
-		} catch (InvalidSettingsException e) {
-		} catch (NullPointerException e) {
-		}
 
-		try {
-			List<Double> logcValues = ListUtilities
-					.getDoubleListFromString(settings
-							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCVALUES));
-
-			for (int i = 0; i < logcValues.size(); i++) {
-				if (!Double.isNaN(logcValues.get(i))) {
-					table.setLogc(i, logcValues.get(i));
+				if (!Double.isNaN(timeSeries.get(i).y)) {
+					table.setLogc(i, timeSeries.get(i).y);
 				}
 			}
 		} catch (InvalidSettingsException e) {
@@ -420,23 +411,27 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					commentField.getValue());
 		}
 
-		List<Double> timeList = new ArrayList<Double>();
-		List<Double> logcList = new ArrayList<Double>();
+		List<Point2D.Double> timeSeries = new ArrayList<>();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
 			Double time = table.getTime(i);
 			Double logc = table.getLogc(i);
 
 			if (time != null || logc != null) {
-				timeList.add(time);
-				logcList.add(logc);
+				if (time == null) {
+					time = Double.NaN;
+				}
+
+				if (logc == null) {
+					logc = Double.NaN;
+				}
+
+				timeSeries.add(new Point2D.Double(time, logc));
 			}
 		}
 
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEVALUES,
-				ListUtilities.getStringFromList(timeList));
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCVALUES,
-				ListUtilities.getStringFromList(logcList));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
+				ListUtilities.getStringFromList(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
@@ -446,13 +441,21 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		Map<Integer, Double> miscValues = new LinkedHashMap<>();
 
-		miscValues.put(AttributeUtilities.ATT_TEMPERATURE_ID,
-				temperatureField.getValue());
-		miscValues.put(AttributeUtilities.ATT_PH_ID, phField.getValue());
-		miscValues.put(AttributeUtilities.ATT_AW_ID,
-				waterActivityField.getValue());
+		if (temperatureField.getValue() != null) {
+			miscValues.put(AttributeUtilities.ATT_TEMPERATURE_ID,
+					temperatureField.getValue());
+		}
 
-		for (int i = 0; i < condIDs.size(); i++) {
+		if (phField.getValue() != null) {
+			miscValues.put(AttributeUtilities.ATT_PH_ID, phField.getValue());
+		}
+
+		if (waterActivityField.getValue() != null) {
+			miscValues.put(AttributeUtilities.ATT_AW_ID,
+					waterActivityField.getValue());
+		}
+
+		for (int i = condIDs.size() - 1; i >= 0; i--) {
 			miscValues.put(condIDs.get(i), condValueFields.get(i).getValue());
 		}
 

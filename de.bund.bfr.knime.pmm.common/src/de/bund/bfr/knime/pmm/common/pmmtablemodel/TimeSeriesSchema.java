@@ -45,18 +45,6 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_CONDID = "CondID";
 	public static final String ATT_COMBASEID = "CombaseID";
 	public static final String ATT_MISC = "Misc";
-	@Deprecated
-	public static final String ATT_AGENTID = "OrganismID";
-	@Deprecated
-	public static final String ATT_AGENTNAME = "OrganismName";
-	@Deprecated
-	public static final String ATT_AGENTDETAIL = "OrganismDetail";
-	@Deprecated
-	public static final String ATT_MATRIXID = "MatrixID";
-	@Deprecated
-	public static final String ATT_MATRIXNAME = "MatrixName";
-	@Deprecated
-	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
 
 	public static final String ATT_AGENT = "Organism";
 	public static final String ATT_MATRIX = "Matrix";
@@ -77,12 +65,6 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addStringAttribute(ATT_COMBASEID);
 			addXmlAttribute(ATT_AGENT);
 			addXmlAttribute(ATT_MATRIX);
-			addIntAttribute( ATT_AGENTID );
-			addStringAttribute( ATT_AGENTNAME );
-			addStringAttribute( ATT_AGENTDETAIL );
-			addIntAttribute( ATT_MATRIXID );
-			addStringAttribute( ATT_MATRIXNAME );
-			addStringAttribute( ATT_MATRIXDETAIL );
 
 			addXmlAttribute(ATT_TIMESERIES);
 

@@ -49,7 +49,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -127,8 +129,8 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 				ts = alreadyInsertedTs.get(rowTsID);
 			}
 			else {
-				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENTID,
-						TimeSeriesSchema.ATT_MATRIXID, TimeSeriesSchema.ATT_LITMD};
+				String[] attrs = new String[] {TimeSeriesSchema.ATT_CONDID, TimeSeriesSchema.ATT_MISC, TimeSeriesSchema.ATT_AGENT,
+						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 
 				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
@@ -184,6 +186,36 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
                 		else {
                 			if (before) mxDB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
                 			else foreignDbIds.put(key, mxDB.getID()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+    				else if (el instanceof MatrixXml) {
+    					MatrixXml matx = (MatrixXml) el;
+    					MatrixXml matxDB = ((MatrixXml) fromToXmlDB.get(i));
+    					Integer key = matx.getID();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) matxDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                			else if (foreignDbIds.get(key) != matxDB.getID()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+                			}
+                		}
+                		else {
+                			if (before) matxDB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                			else foreignDbIds.put(key, matxDB.getID()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+    				else if (el instanceof AgentXml) {
+    					AgentXml ax = (AgentXml) el;
+    					AgentXml axDB = ((AgentXml) fromToXmlDB.get(i));
+    					Integer key = ax.getID();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) axDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                			else if (foreignDbIds.get(key) != axDB.getID()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+                			}
+                		}
+                		else {
+                			if (before) axDB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                			else foreignDbIds.put(key, axDB.getID()); //schemaTuple.getIntList(attr).get(i));
                 		}
     				}
     				else if (el instanceof LiteratureItem) {

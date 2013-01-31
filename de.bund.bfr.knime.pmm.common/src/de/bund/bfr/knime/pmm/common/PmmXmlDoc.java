@@ -133,6 +133,7 @@ public class PmmXmlDoc {
 	
 	public int size() {return elementSet.size();}
 	public PmmXmlElementConvertable get(int i) {return elementSet.get(i);}
+	public void set(int i, PmmXmlElementConvertable el) {elementSet.set(i, el);}
 	
 	public List<PmmXmlElementConvertable> getElementSet() {return elementSet;}
 	

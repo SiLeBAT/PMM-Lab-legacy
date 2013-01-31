@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.common;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,11 @@ import org.knime.core.data.def.StringCell;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.xml.sax.SAXException;
+
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 
 public class CellIO {
 
@@ -366,5 +372,224 @@ public class CellIO {
 
 		return names;
 	}
+	public static void setMIDs(boolean before, String attr, String dbTablename, HashMap<Integer, Integer> foreignDbIdsTable,
+    		KnimeTuple row, ParametricModel pm) throws PmmException {
+    	if (dbTablename.equals("Literatur")) {
+        	PmmXmlDoc lili = row.getPmmXml(attr);
+    		if (lili != null) {
+    			PmmXmlDoc fromToXmlDB = attr.startsWith(Model1Schema.ATT_EMLIT) ? pm.getEstModelLit() : pm.getModelLit();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : lili.getElementSet()) {
+    				if (el instanceof LiteratureItem) {
+    					LiteratureItem li = (LiteratureItem) el;
+    					LiteratureItem liDB = ((LiteratureItem) fromToXmlDB.get(i));
+    					Integer key = li.getId();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) {
+		        				liDB.setId(foreignDbIdsTable.get(key));
+                				fromToXmlDB.set(i, liDB);
+		        			}
+		        			else if (foreignDbIdsTable.get(key) != liDB.getId()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) {
+		        				liDB.setId(MathUtilities.getRandomNegativeInt());
+                				fromToXmlDB.set(i, liDB);
+		        			}
+		        			else foreignDbIdsTable.put(key, liDB.getId());
+		        		}
+    				}
+            		i++;
+    			}
+    			if (attr.startsWith(Model1Schema.ATT_EMLIT)) pm.setEstLit(fromToXmlDB);
+    			else pm.setMLit(fromToXmlDB);
+    		}
+    	}
+    	else if (attr.startsWith(Model1Schema.ATT_MODELCATALOG)) { // Modellkatalog
+        	PmmXmlDoc modelCat = row.getPmmXml(attr);
+    		if (modelCat != null) {
+    			PmmXmlDoc fromToXmlDB = pm.getCatModel();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : modelCat.getElementSet()) {
+    				if (el instanceof CatalogModelXml) {
+    					CatalogModelXml cmx = (CatalogModelXml) el;
+    					CatalogModelXml cmxDB = ((CatalogModelXml) fromToXmlDB.get(i));
+    					Integer key = cmx.getID();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) {
+		        				pm.setModelId(foreignDbIdsTable.get(key));
+		        				cmxDB.setID(foreignDbIdsTable.get(key));
+                				fromToXmlDB.set(i, cmxDB);
+		        			}
+		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) {
+		        				int rn = MathUtilities.getRandomNegativeInt();
+		        				pm.setModelId(rn);
+		        				cmxDB.setID(rn);
+                				fromToXmlDB.set(i, cmxDB);
+		        			}
+		        			else foreignDbIdsTable.put(key, cmxDB.getID());
+		        		}
+    				}
+            		i++;
+    			}
+    		}
+    	}
+    	else if (attr.startsWith(Model1Schema.ATT_ESTMODEL)) { // GeschaetzteModelle
+        	PmmXmlDoc estModel = row.getPmmXml(attr);
+    		if (estModel != null) {
+    			PmmXmlDoc fromToXmlDB = pm.getEstModel();
+        		int i=0;
+    			for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+    				if (el instanceof EstModelXml) {
+    					EstModelXml emx = (EstModelXml) el;
+    					EstModelXml emxDB = ((EstModelXml) fromToXmlDB.get(i));
+    					Integer key = emx.getID();
+		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
+		        			if (before) {
+		        				pm.setEstModelId(foreignDbIdsTable.get(key));
+		        				emxDB.setID(foreignDbIdsTable.get(key));
+                				fromToXmlDB.set(i, emxDB);
+		        			}
+		        			else if (foreignDbIdsTable.get(key) != emxDB.getID()) {
+		        				System.err.println("checkIDs ... shouldn't happen");
+		        			}
+		        		}
+		        		else {
+		        			if (before) {
+		        				int rn = MathUtilities.getRandomNegativeInt();
+		        				pm.setEstModelId(rn);
+		        				emxDB.setID(rn);
+                				fromToXmlDB.set(i, emxDB);
+		        			}
+		        			else foreignDbIdsTable.put(key, emxDB.getID());
+		        		}
+    				}
+            		i++;
+    			}
+    		}
+    	}
+    }
+	public static void setTsIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds,
+			KnimeTuple row, KnimeTuple schemaTuple) throws PmmException {
+    	int type = schemaTuple.getSchema().getType(row.getIndex(attr));
+    	if (type == KnimeAttribute.TYPE_XML) {
+    		PmmXmlDoc x = row.getPmmXml(attr);
+    		if (x != null) {
+    			PmmXmlDoc fromToXmlDB = schemaTuple.getPmmXml(attr);
+        		//if (before) schemaTuple.setCell(attr, CellIO.createMissingCell());
+        		int i=0;
+    			for (PmmXmlElementConvertable el : x.getElementSet()) {
+    				if (el instanceof MiscXml) {
+    					MiscXml mx = (MiscXml) el;
+    					MiscXml mx2DB = ((MiscXml) fromToXmlDB.get(i));
+    					Integer key = mx.getID();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) {
+                				mx2DB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                				fromToXmlDB.set(i, mx2DB);
+                			}
+                			else if (foreignDbIds.get(key).intValue() != mx2DB.getID()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MiscXml");
+                			}
+                		}
+                		else {
+                			if (before) {
+                				mx2DB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                				fromToXmlDB.set(i, mx2DB);
+                			}
+                			else foreignDbIds.put(key, mx2DB.getID()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+    				else if (el instanceof MatrixXml) {
+    					MatrixXml matx = (MatrixXml) el;
+    					MatrixXml matxDB = ((MatrixXml) fromToXmlDB.get(i));
+    					Integer key = matx.getID();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) {
+                				matxDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                				fromToXmlDB.set(i, matxDB);
+                			}
+                			else if (foreignDbIds.get(key).intValue() != matxDB.getID()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MatrixXml");
+                			}
+                		}
+                		else {
+                			if (before) {
+                				matxDB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                				fromToXmlDB.set(i, matxDB);
+                			}
+                			else foreignDbIds.put(key, matxDB.getID()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+    				else if (el instanceof AgentXml) {
+    					AgentXml ax = (AgentXml) el;
+    					AgentXml axDB = ((AgentXml) fromToXmlDB.get(i));
+    					Integer key = ax.getID();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) {
+                				axDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                				fromToXmlDB.set(i, ax);
+                			}
+                			else if (foreignDbIds.get(key).intValue() != axDB.getID()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...AgentXml");
+                			}
+                		}
+                		else {
+                			if (before) {
+                				axDB.setID(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                				fromToXmlDB.set(i, ax);
+                			}
+                			else foreignDbIds.put(key, axDB.getID()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+    				else if (el instanceof LiteratureItem) {
+    					LiteratureItem li = (LiteratureItem) el;
+    					LiteratureItem liDB = ((LiteratureItem) fromToXmlDB.get(i));
+    					Integer key = li.getId();
+                		if (key != null && foreignDbIds.containsKey(key)) {
+                			if (before) {
+                				liDB.setId(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
+                				fromToXmlDB.set(i, liDB);
+                			}
+                			else if (foreignDbIds.get(key).intValue() != liDB.getId()) {
+                				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...LiteratureItem");
+                			}
+                		}
+                		else {
+                			if (before) {
+                				liDB.setId(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
+                				fromToXmlDB.set(i, liDB);
+                			}
+                			else foreignDbIds.put(key, liDB.getId()); //schemaTuple.getIntList(attr).get(i));
+                		}
+    				}
+            		i++;
+    			}
+    			schemaTuple.setValue(attr, fromToXmlDB);
+    		}
+    	}
+    	else {
+        	Integer key = row.getInt(attr);
+        	if (key != null) {
+        		if (foreignDbIds.containsKey(key)) {
+        			if (before) schemaTuple.setValue(attr, foreignDbIds.get(key));
+        			else if (foreignDbIds.get(key) != schemaTuple.getInt(attr)) {
+        				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+        			}
+        		}
+        		else {
+        			if (before) schemaTuple.setValue(attr, MathUtilities.getRandomNegativeInt());
+        			else foreignDbIds.put(key, schemaTuple.getInt(attr));
+        		}
+        	}
+    	}
+    }
 
 }

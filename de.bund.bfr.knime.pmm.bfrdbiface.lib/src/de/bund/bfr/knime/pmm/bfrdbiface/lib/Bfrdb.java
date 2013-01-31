@@ -46,6 +46,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyLogger;
 
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
@@ -1106,7 +1107,7 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public void insertEm2(final Integer secID, final List<Integer> primIDs) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Sekundaermodelle_Primaermodelle\"(\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\")VALUES(?,?)");
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Sekundaermodelle_Primaermodelle\" (\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\")VALUES(?,?)");
 			for (Integer id : primIDs) {
 				if (id != null && id >= 0) {
 					ps.setInt( 1, id);
@@ -1123,18 +1124,7 @@ public class Bfrdb extends Hsqldbiface {
 
 		Double rms = pm.getRms();
 		Double r2 = pm.getRsquared();
-		//if (!Double.isNaN(rms)) {
-		/*
-			LinkedList<String> paramNameSet = new LinkedList<String>();
-			paramNameSet.addAll(pm.getParamNameSet());
-			int numParams = paramNameSet.size();
-			double[] valueSet = new double[numParams];
-			double[] paramErrSet = new double[numParams];
-			for (int i = 0; i < numParams; i++) {
-				valueSet[ i ] = pm.getParamValue( paramNameSet.get(i) );
-				paramErrSet[ i ] = pm.getParamError(paramNameSet.get(i));
-			}		
-			*/
+
 			estModelId = pm.getEstModelId();
 			int condId = pm.getCondId();
 			int modelId = pm.getModelId();
@@ -1142,11 +1132,7 @@ public class Bfrdb extends Hsqldbiface {
 			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
 			int responseId = queryParamId(modelId, pm.getDepXml().getOrigName(), PARAMTYPE_DEP);
 			if (!pm.getDepXml().getOrigName().equals(pm.getDepXml().getName())) hmi.put(pm.getDepXml().getName(), responseId);
-			/*
-			if (hm != null && hm.get(pm.getDepVar()) != null) {
-				hmi.put(hm.get(pm.getDepVar()), responseId);
-			}
-			*/
+
 			if (responseId < 0) {
 				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + pm.getDepVar());
 			}
@@ -1170,18 +1156,7 @@ public class Bfrdb extends Hsqldbiface {
 					insertEstParam(estModelId, paramId, px.getValue(), px.getError());
 				}
 			}
-			/*
-			for (int i = 0; i < numParams; i++ ) {			
-				int paramId = queryParamId(modelId, paramNameSet.get(i), PARAMTYPE_PARAM);
-				if (paramId < 0) {
-					System.err.println("paramId < 0... " + paramNameSet.get(i) + "\t" + paramNameSet.get(i));
-				}
-				if (hm != null && hm.get(paramNameSet.get(i)) != null) {
-					hmi.put(hm.get(paramNameSet.get(i)), paramId);
-				}
-				insertEstParam(estModelId, paramId, valueSet[i], paramErrSet[i]);
-			}
-			*/
+
 			insertModLit(estModelId, pm.getEstModelLit(), true, pm);
 			
 			deleteFrom("GueltigkeitsBereiche", "GeschaetztesModell", estModelId);
@@ -1198,20 +1173,7 @@ public class Bfrdb extends Hsqldbiface {
 					}
 				}
 			}
-			/*
-			for (String name : pm.getIndepVarSet()) {
-				int indepId = queryParamId(modelId, name, PARAMTYPE_INDEP);
-				if (indepId >= 0) {
-					insertMinMaxIndep(estModelId, indepId, pm.getIndepMin(name), pm.getIndepMax(name));					
-					if (hm != null && hm.get(name) != null) {
-						hmi.put(hm.get(name), indepId);
-					}
-				}
-				else {
-					System.err.println("insertEm:\t" + name + "\t" + modelId + "\t" + name);
-				}
-			}
-			*/
+
 			// insert mapping of parameters and variables of this estimation
 			deleteFrom("VarParMaps", "GeschaetztesModell", estModelId);			
 			for (String newName : hmi.keySet()) {
@@ -1222,11 +1184,11 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertVarParMaps(final int estModelId, final int paramId, final String newVarPar) {
 		try {
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"VarParMaps\"(\"GeschaetztesModell\", \"VarPar\", \"VarParMap\") VALUES (?,?,?)");
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"VarParMaps\" (\"GeschaetztesModell\", \"VarPar\", \"VarParMap\") VALUES (?,?,?)");
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
 			if (newVarPar == null) {
-				ps.setNull(3, java.sql.Types.VARCHAR);
+				ps.setNull(3, Types.VARCHAR);
 			} else {
 				ps.setString(3, newVarPar);
 			}
@@ -1239,16 +1201,16 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertMinMaxIndep(final int estModelId, final int paramId, final Double min, final Double max) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\"(\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"GueltigkeitsBereiche\" (\"GeschaetztesModell\", \"Parameter\", \"Gueltig_von\", \"Gueltig_bis\")VALUES(?,?,?,?)");
 			ps.setInt( 1, estModelId);
 			ps.setInt( 2, paramId);
 			if (min == null) {
-				ps.setNull(3, java.sql.Types.DOUBLE);
+				ps.setNull(3, Types.DOUBLE);
 			} else {
 				ps.setDouble( 3, min);
 			}
 			if (max == null) {
-				ps.setNull(4, java.sql.Types.DOUBLE);
+				ps.setNull(4, Types.DOUBLE);
 			} else {
 				ps.setDouble( 4, max);
 			}
@@ -1266,6 +1228,7 @@ public class Bfrdb extends Hsqldbiface {
 			PmmXmlDoc lit, PmmTimeSeries ts) {
 			
 		String warnings = "";
+		
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
 			Integer cdai = combaseDataAlreadyIn(combaseId);
 			if (!doUpdate && cdai != null) {
@@ -1286,7 +1249,7 @@ public class Bfrdb extends Hsqldbiface {
 				if (doUpdate) {
 					ps = conn.prepareStatement( "UPDATE \"Versuchsbedingungen\" SET \""+ATT_TEMPERATURE+"\"=?, \""+ATT_PH+"\"=?, \""+ATT_AW+"\"=?, \""+ATT_AGENTID+"\"=?, \"AgensDetail\"=?, \""+ATT_MATRIXID+"\"=?, \"MatrixDetail\"=?, \"b_f_details_CB\"=?, \"Kommentar\"=?, \"Referenz\"=? WHERE \"ID\"=?" );
 				} else {
-					ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen\" ( \""+ATT_TEMPERATURE+"\", \""+ATT_PH+"\", \""+ATT_AW+"\", \""+ATT_AGENTID+"\", \"AgensDetail\", \""+ATT_MATRIXID+"\", \"MatrixDetail\", \"b_f_details_CB\", \"Kommentar\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+					ps = conn.prepareStatement( "INSERT INTO \"Versuchsbedingungen\" (\""+ATT_TEMPERATURE+"\", \""+ATT_PH+"\", \""+ATT_AW+"\", \""+ATT_AGENTID+"\", \"AgensDetail\", \""+ATT_MATRIXID+"\", \"MatrixDetail\", \"b_f_details_CB\", \"Kommentar\", \"Referenz\" ) VALUES( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 				}
 				
 				if( tempId >= 0 ) {
@@ -1309,7 +1272,7 @@ public class Bfrdb extends Hsqldbiface {
 				
 				if (agentId == null || agentId <= 0) {
 					ps.setNull( 4, Types.INTEGER );
-					warnings += "Agent not defined (" + agentDetail + ")\n";
+						warnings += "Agent not defined (" + agentDetail + ")\n";						
 				} else {
 					ps.setInt(4, agentId );
 					try {ts.setAgentId(agentId);} catch (PmmException e) {e.printStackTrace();}
@@ -1321,7 +1284,7 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				if (matrixId == null || matrixId <= 0) {
 					ps.setNull( 6, Types.INTEGER );
-					warnings += "Matrix not defined (" + matrixDetail + ")\n";
+						warnings += "Matrix not defined (" + matrixDetail + ")\n";
 				} else {
 					ps.setInt(6, matrixId );
 					try {ts.setMatrixId(matrixId);} catch (PmmException e) {e.printStackTrace();}
@@ -1340,10 +1303,12 @@ public class Bfrdb extends Hsqldbiface {
 				*/
 				ps.setNull(8, Types.VARCHAR);
 				if( comment == null ) {
-					ps.setNull( 9, Types.VARCHAR );
+					ps.setNull(9, Types.VARCHAR);
 				} else {
-					ps.setString( 9, comment );
+					ps.setString(9, comment);
 				}
+				
+				insertLiteratureInCase(lit);
 				List<PmmXmlElementConvertable> l = lit.getElementSet();
 				if (l.size() > 0) {
 					LiteratureItem li = (LiteratureItem) l.get(0);
@@ -1353,16 +1318,16 @@ public class Bfrdb extends Hsqldbiface {
 					ps.setNull(10, Types.INTEGER);					
 				}
 				if (doUpdate) {
-					ps.setInt( 11, condId );
+					ps.setInt(11, condId);
 					
 					ps.executeUpdate();
 					resultID = condId;
 				}
 				else {
-					if( ps.executeUpdate() > 0 ) {
+					if (ps.executeUpdate() > 0) {
 						ResultSet result = ps.getGeneratedKeys();
 						result.next();
-						resultID = result.getInt( 1 );
+						resultID = result.getInt(1);
 						
 						result.close();
 					}
@@ -1375,7 +1340,8 @@ public class Bfrdb extends Hsqldbiface {
 			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
-			warnings += handleConditions(resultID, misc, ts);
+			String hcWarnings = handleConditions(resultID, misc, ts);
+				warnings += hcWarnings;
 			ts.setWarning(warnings);
 
 			return resultID;
@@ -1423,8 +1389,8 @@ public class Bfrdb extends Hsqldbiface {
     						ps.setInt(1, condId);
     						ps.setInt(2, paramID);
     						if (mx.getValue() == null || Double.isNaN(mx.getValue())) {
-    							ps.setNull(3, java.sql.Types.DOUBLE);
-    							ps.setNull(4, java.sql.Types.INTEGER);
+    							ps.setNull(3, Types.DOUBLE);
+    							ps.setNull(4, Types.INTEGER);
     							ps.setBoolean(5, true);
     						}
     						else {
@@ -1432,7 +1398,7 @@ public class Bfrdb extends Hsqldbiface {
     							ps.setDouble(3, did);							
     							Integer eid = getID("Einheiten", "Einheit", mx.getUnit());
     							if (eid == null) {
-    								ps.setNull(4, java.sql.Types.INTEGER);
+    								ps.setNull(4, Types.INTEGER);
     							} else {
     								ps.setInt(4, eid);
     							}
@@ -1451,6 +1417,63 @@ public class Bfrdb extends Hsqldbiface {
         	}
 		}
 		return result;
+	}
+	private void insertLiteratureInCase(PmmXmlDoc lit) {
+		try {
+			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\") VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			int i=0;
+			for (PmmXmlElementConvertable el : lit.getElementSet()) {
+				if (el instanceof LiteratureItem) {
+					LiteratureItem li = (LiteratureItem) el;
+					if (li.getId() <= 0) {
+						if (li.getAuthor() == null) psm.setNull(1, Types.VARCHAR);
+						else psm.setString(1, li.getAuthor());
+						if (li.getYear() == null) psm.setNull(2, Types.INTEGER);
+						else psm.setInt(2, li.getYear());
+						if (li.getTitle() == null) psm.setNull(3, Types.VARCHAR);
+						else psm.setString(3, li.getTitle());
+						if (li.getAbstract() == null) psm.setNull(4, Types.VARCHAR);						
+						else psm.setString(4, li.getAbstract());
+						int newID = 0;
+						try {
+							if (psm.executeUpdate() > 0) {
+								ResultSet result = psm.getGeneratedKeys();
+								result.next();
+								newID = result.getInt(1);
+								result.close();
+							}
+						}
+						catch (Exception e) {
+							if (e.getMessage().startsWith("integrity constraint violation: unique")) {
+								String sql = "";
+								try {
+									sql = "SELECT \"ID\" FROM \"Literatur\" WHERE \"Erstautor\" = '" + li.getAuthor().replace("'", "''") +
+											"' AND \"Jahr\" = " + li.getYear() + " AND \"Titel\" = '" + li.getTitle().replace("'", "''") + "'";
+									ResultSet result = getResultSet(sql, false);
+									if(result != null && result.first()) {
+										newID = result.getInt(1);
+										result.close();
+									}
+								}
+								catch(SQLException ex) {
+									ex.printStackTrace();
+								}
+							}
+						}
+						if (newID > 0) {
+							li.setId(newID);
+							lit.set(i, li);
+						}		
+						else {
+							MyLogger.handleMessage("insertLiteratureInCase failed... " + psm);
+						}
+					}
+				}
+				i++;
+			}
+			psm.close();
+		}
+		catch(SQLException ex) {ex.printStackTrace();}
 	}
 		
 	private void deleteFrom(String tablename, String fieldname, int id) {
@@ -1479,14 +1502,16 @@ public class Bfrdb extends Hsqldbiface {
 		PmmXmlDoc lit = ts.getLiterature();
 		PmmXmlDoc mdData = ts.getTimeSeries();		
 		
-		int tempId = insertDouble( temp );
-		int phId = insertDouble( ph );
-		int awId = insertDouble( aw );
+		int tempId = insertDouble(temp);
+		int phId = insertDouble(ph);
+		int awId = insertDouble(aw);
 
 		condId = insertCondition(condId, tempId, phId, awId, organism, environment, combaseId,
 				matrixId, agentId, agentDetail, matrixDetail, misc, comment,
 				lit, ts);
 			
+		ts.setLiterature(lit);
+		ts.setMisc(misc);
 		ts.setCondId(condId);
 		if( condId == null || condId < 0 ) {
 			return null;
@@ -1533,7 +1558,7 @@ public class Bfrdb extends Hsqldbiface {
 			Date date = new Date( System.currentTimeMillis() );		
 			
 			try {				
-				PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Modellkatalog\" ( \"Name\", \"Level\", \"Eingabedatum\", \"Formel\", \"Notation\", \"Klasse\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
+				PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Modellkatalog\" (\"Name\", \"Level\", \"Eingabedatum\", \"Formel\", \"Notation\", \"Klasse\") VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );
 				ps.setString( 1, m.getModelName() + "_" + (-modelId) );
 				ps.setInt( 2, m.getLevel() );
 				ps.setDate( 3, date );
@@ -1573,12 +1598,7 @@ public class Bfrdb extends Hsqldbiface {
 				paramIdSet.add(paramId);
 			}
 		}
-		/*
-		for (String name : indepVar) {
-			paramId = insertParam(modelId, name, PARAMTYPE_INDEP, m.getParamMin(name), m.getParamMax(name));
-			paramIdSet.add(paramId);
-		}
-		*/
+
 		// insert parameters
 		for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
 			if (el instanceof ParamXml) {
@@ -1587,12 +1607,7 @@ public class Bfrdb extends Hsqldbiface {
 				paramIdSet.add(paramId);
 			}
 		}
-		/*
-		for (String name : paramNameSet) {			
-			paramId = insertParam(modelId, name, PARAMTYPE_PARAM, m.getParamMin(name), m.getParamMax(name));
-			paramIdSet.add(paramId);
-		}
-		*/
+
 		insertModLit(modelId, m.getModelLit(), false, m);
 		
 		// delete dangling parameters
@@ -1607,24 +1622,24 @@ public class Bfrdb extends Hsqldbiface {
 			PreparedStatement ps = conn.prepareStatement("DELETE FROM " + (estimatedModels ? "\"GeschaetztesModell_Referenz\" WHERE \"GeschaetztesModell\"" : "\"Modell_Referenz\"WHERE \"Modell\"") + " = " + modelId);
 			ps.executeUpdate();
 			ps.close();
-			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Modell_Referenz\"(\"Modell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
-			PreparedStatement psgm = conn.prepareStatement("INSERT INTO \"GeschaetztesModell_Referenz\"(\"GeschaetztesModell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Modell_Referenz\" (\"Modell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement psgm = conn.prepareStatement("INSERT INTO \"GeschaetztesModell_Referenz\" (\"GeschaetztesModell\", \"Literatur\") VALUES (?,?)", Statement.RETURN_GENERATED_KEYS);
+			insertLiteratureInCase(modelLit);
+			if (estimatedModels) m.setEstLit(modelLit);
+			else m.setMLit(modelLit);
 			for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getId() >= 0) { // neue Literatur evtl. später hinzufügen, aber Achtung: DB Gleichheit checken!!!
-						// Ausserdem: hier die neu insertierten IDs updaten im ParametricModel!!!!!
+					if (li.getId() >= 0) {
 						if (!estimatedModels) {
 							psm.setInt(1, modelId);
 							psm.setInt(2, li.getId());
 							psm.executeUpdate();
-							//m.addModelLit(lid); nach einem realiseirten INSERT: überprüfen, ob korrekt
 						}
 						else {
 							psgm.setInt(1, modelId);
 							psgm.setInt(2, li.getId());
 							psgm.executeUpdate();
-							//m.addEstModelLit(lid); nach einem realiseirten INSERT: überprüfen, ob korrekt
 						}
 					}
 				}
@@ -1636,7 +1651,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertCondComb(final Integer resultID, final String combaseId) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"ImportedCombaseData\"(\"CombaseID\", \"Versuchsbedingung\")VALUES(?,?)" );
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"ImportedCombaseData\" (\"CombaseID\", \"Versuchsbedingung\")VALUES(?,?)" );
 			ps.setString( 1, combaseId );
 			ps.setInt( 2, resultID);
 			ps.executeUpdate();			
@@ -1666,7 +1681,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		doubleId = -1;
 		try {
-			psInsertDouble = conn.prepareStatement( "INSERT INTO \""+REL_DOUBLE+"\"( \""+ATT_VALUE+"\", \""+ATT_VALUETYPE+"\" )VALUES( ?, 1 )", Statement.RETURN_GENERATED_KEYS );
+			psInsertDouble = conn.prepareStatement( "INSERT INTO \"DoubleKennzahlen\" (\""+ATT_VALUE+"\", \""+ATT_VALUETYPE+"\" )VALUES( ?, 1 )", Statement.RETURN_GENERATED_KEYS );
 			if( value == null || Double.isNaN( value ) || Double.isInfinite( value ) ) {
 				// psInsertDouble.setNull( 1, Types.DOUBLE );
 				return -1;
@@ -1778,7 +1793,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		try {
 			
-			ps = conn.prepareStatement( "INSERT INTO \""+REL_DATA+"\"( \""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \""+ATT_LOG10NUNIT+"\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
+			ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \""+ATT_LOG10NUNIT+"\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
 			ps.setInt( 1, condId );
 			if (timeId >= 0) {
 				ps.setInt(2, timeId);
@@ -1817,12 +1832,12 @@ public class Bfrdb extends Hsqldbiface {
 			ps.setString( 2, paramName );
 			ps.setInt( 3, paramType );
 			if (min == null || paramType != PARAMTYPE_PARAM) {
-				ps.setNull(4, java.sql.Types.DOUBLE);
+				ps.setNull(4, Types.DOUBLE);
 			} else {
 				ps.setDouble(4, min);
 			}
 			if (max == null || paramType != PARAMTYPE_PARAM) {
-				ps.setNull(5, java.sql.Types.DOUBLE);
+				ps.setNull(5, Types.DOUBLE);
 			} else {
 				ps.setDouble(5, max);
 			}
@@ -1984,7 +1999,7 @@ public class Bfrdb extends Hsqldbiface {
 		int ret = -1;
 		try {
 			
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" ( \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
 			if( condId > 0 ) {
 				ps.setInt( 1, condId );
 			} else {
@@ -2012,9 +2027,9 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setDouble(6, bic);
 			}
 			if (responseId > 0) {
-				ps.setInt( 7, responseId );
+				ps.setInt(7, responseId);
 			} else {
-				ps.setNull( 7, Types.INTEGER );
+				ps.setNull(7, Types.INTEGER);
 			}
 
 			ps.executeUpdate();

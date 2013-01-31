@@ -172,6 +172,9 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public void setLiterature(PmmXmlDoc li) throws PmmException {
 		setValue(TimeSeriesSchema.ATT_LITMD, li);
 	}
+	public void setMisc(PmmXmlDoc misc) throws PmmException {
+		setValue(TimeSeriesSchema.ATT_MISC, misc);
+	}
 	
 	public boolean isEmpty() throws PmmException {
 		return isNull(TimeSeriesSchema.ATT_TIMESERIES); // TimeSeriesSchema.ATT_TIME

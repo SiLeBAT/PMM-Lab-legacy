@@ -378,11 +378,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		return clonedPM;
 	}
 	
-	public void setRsquared( final Double r2 ) throws PmmException {				
+	public void setRsquared(final Double r2) throws PmmException {				
 		if (r2 == null) this.rsquared = Double.NaN;
 		else {
 			if( r2 > 1 ) {
-				throw new PmmException( "Rsquared must not exceed 1." );
+				throw new PmmException("Rsquared must not exceed 1: " + r2);
 			}		
 			rsquared = r2;
 		}

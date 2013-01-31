@@ -146,9 +146,13 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 			for (int i = 0; i < row.getLastCellNum(); i++) {
 				Cell cell = row.getCell(i);
 
-				if (cell != null && !cell.toString().trim().isEmpty()) {
-					String name = cell.toString().trim();
+				if (cell == null) {
+					continue;
+				}
 
+				String name = cell.toString().trim().replace("\u00A0", "");
+
+				if (!name.isEmpty()) {
 					columns.put(name, i);
 					columnSpecs.add(new DataColumnSpecCreator(name,
 							StringCell.TYPE).createSpec());

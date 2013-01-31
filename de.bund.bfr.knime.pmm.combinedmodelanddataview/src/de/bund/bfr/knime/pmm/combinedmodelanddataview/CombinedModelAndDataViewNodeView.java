@@ -366,34 +366,35 @@ public class CombinedModelAndDataViewNodeView extends
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 				int n = Math.max(1, timeSeriesXml.getElementSet().size());
 
-				plotable = new Plotable(Plotable.BOTH);
+				// if (!timeSeriesXml.getElementSet().isEmpty()) {
+				List<Double> timeList = new ArrayList<Double>();
+				List<Double> logcList = new ArrayList<Double>();
 
-				if (!timeSeriesXml.getElementSet().isEmpty()) {
-					List<Double> timeList = new ArrayList<Double>();
-					List<Double> logcList = new ArrayList<Double>();
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+					double time = Double.NaN;
+					double logc = Double.NaN;
 
-					for (PmmXmlElementConvertable el : timeSeriesXml
-							.getElementSet()) {
-						TimeSeriesXml element = (TimeSeriesXml) el;
-						double time = Double.NaN;
-						double logc = Double.NaN;
-
-						if (element.getTime() != null) {
-							time = element.getTime();
-						}
-
-						if (element.getLog10C() != null) {
-							logc = element.getLog10C();
-						}
-
-						timeList.add(element.getTime());
-						logcList.add(element.getLog10C());
-						dataPoints.add(new Point2D.Double(time, logc));
+					if (element.getTime() != null) {
+						time = element.getTime();
 					}
 
-					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+					if (element.getLog10C() != null) {
+						logc = element.getLog10C();
+					}
+
+					timeList.add(element.getTime());
+					logcList.add(element.getLog10C());
+					dataPoints.add(new Point2D.Double(time, logc));
 				}
+
+				plotable = new Plotable(Plotable.BOTH);
+				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+				// } else {
+				// plotable = new Plotable(Plotable.FUNCTION);
+				// }
 
 				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 

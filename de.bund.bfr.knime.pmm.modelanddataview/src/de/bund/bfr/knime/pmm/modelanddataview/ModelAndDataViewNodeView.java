@@ -374,47 +374,47 @@ public class ModelAndDataViewNodeView extends
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-				if (!timeSeriesXml.getElementSet().isEmpty()) {
-					List<Double> timeList = new ArrayList<Double>();
-					List<Double> logcList = new ArrayList<Double>();
-					int n = timeSeriesXml.getElementSet().size();
+				// if (!timeSeriesXml.getElementSet().isEmpty()) {
+				List<Double> timeList = new ArrayList<Double>();
+				List<Double> logcList = new ArrayList<Double>();
+				int n = timeSeriesXml.getElementSet().size();
 
-					for (PmmXmlElementConvertable el : timeSeriesXml
-							.getElementSet()) {
-						TimeSeriesXml element = (TimeSeriesXml) el;
-						double time = Double.NaN;
-						double logc = Double.NaN;
+				for (PmmXmlElementConvertable el : timeSeriesXml
+						.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+					double time = Double.NaN;
+					double logc = Double.NaN;
 
-						if (element.getTime() != null) {
-							time = element.getTime();
-						}
-
-						if (element.getLog10C() != null) {
-							logc = element.getLog10C();
-						}
-
-						timeList.add(element.getTime());
-						logcList.add(element.getLog10C());
-						dataPoints.add(new Point2D.Double(time, logc));
+					if (element.getTime() != null) {
+						time = element.getTime();
 					}
 
-					plotable = new Plotable(Plotable.BOTH);
-					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
-
-					for (PmmXmlElementConvertable el : misc.getElementSet()) {
-						MiscXml element = (MiscXml) el;
-
-						if (element.getValue() != null) {
-							plotable.addValueList(
-									element.getName(),
-									new ArrayList<Double>(Collections.nCopies(
-											n, element.getValue())));
-						}
+					if (element.getLog10C() != null) {
+						logc = element.getLog10C();
 					}
-				} else {
-					plotable = new Plotable(Plotable.FUNCTION);
+
+					timeList.add(element.getTime());
+					logcList.add(element.getLog10C());
+					dataPoints.add(new Point2D.Double(time, logc));
 				}
+
+				plotable = new Plotable(Plotable.BOTH);
+				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					if (element.getValue() != null) {
+						plotable.addValueList(
+								element.getName(),
+								new ArrayList<Double>(Collections.nCopies(n,
+										element.getValue())));
+					}
+				}
+				// } else {
+				// plotable = new Plotable(Plotable.FUNCTION);
+				// }
 
 				String dataName;
 				String agent;

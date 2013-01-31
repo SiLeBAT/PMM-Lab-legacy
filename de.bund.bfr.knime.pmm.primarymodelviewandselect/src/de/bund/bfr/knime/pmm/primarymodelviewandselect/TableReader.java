@@ -239,13 +239,13 @@ public class TableReader {
 					dataPoints.add(new Point2D.Double(time, logc));
 				}
 
-				if (!timeList.isEmpty() && !logcList.isEmpty()) {
-					plotable = new Plotable(Plotable.BOTH);
-					plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-					plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
-				} else {
-					plotable = new Plotable(Plotable.FUNCTION);
-				}
+				// if (!timeList.isEmpty() && !logcList.isEmpty()) {
+				plotable = new Plotable(Plotable.BOTH);
+				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
+				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+				// } else {
+				// plotable = new Plotable(Plotable.FUNCTION);
+				// }
 
 				String dataName;
 				String agent;

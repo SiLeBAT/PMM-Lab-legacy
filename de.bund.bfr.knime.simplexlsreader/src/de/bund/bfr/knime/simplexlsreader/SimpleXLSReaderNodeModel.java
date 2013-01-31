@@ -1,9 +1,7 @@
 package de.bund.bfr.knime.simplexlsreader;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -72,11 +70,8 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		InputStream inputStream = new FileInputStream(fileName.getStringValue());
-		Workbook wb = WorkbookFactory.create(inputStream);
-
-		inputStream.close();
-
+		Workbook wb = WorkbookFactory
+				.create(new File(fileName.getStringValue()));
 		Sheet sheet = wb.getSheetAt(sheetIndex.getIntValue());
 		BufferedDataContainer container = exec.createDataContainer(spec);
 
@@ -131,12 +126,8 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		try {
-			InputStream inputStream = new FileInputStream(
-					fileName.getStringValue());
-			Workbook wb = WorkbookFactory.create(inputStream);
-
-			inputStream.close();
-
+			Workbook wb = WorkbookFactory.create(new File(fileName
+					.getStringValue()));
 			Sheet sheet = wb.getSheetAt(sheetIndex.getIntValue());
 			Row row = sheet.getRow(titleRowIndex.getIntValue());
 			List<DataColumnSpec> columnSpecs = new ArrayList<>();

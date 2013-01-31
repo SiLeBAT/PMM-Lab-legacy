@@ -8,7 +8,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/poi-3.9-20121203.jar" sourcepath="lib/src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-examples-3.9-20121203.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-excelant-3.9-20121203.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.9-20121203.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-3.9-20121203.jar" sourcepath="lib/src.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-ooxml-schemas-3.9-20121203.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/poi-scratchpad-3.9-20121203.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>

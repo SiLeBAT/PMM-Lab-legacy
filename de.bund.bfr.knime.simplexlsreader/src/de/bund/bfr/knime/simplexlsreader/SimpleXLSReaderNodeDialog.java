@@ -4,6 +4,8 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentNumberEdit;
+import org.knime.core.node.defaultnodesettings.SettingsModelInteger;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -29,8 +31,14 @@ public class SimpleXLSReaderNodeDialog extends DefaultNodeSettingsPane {
 		super();
 
 		addDialogComponent(new DialogComponentFileChooser(
-				new SettingsModelString(SimpleXLSReaderNodeModel.CFGKEY_FILENAME,
-						SimpleXLSReaderNodeModel.DEFAULT_FILENAME), FILE_HISTORY,
-				JFileChooser.OPEN_DIALOG, "xls"));
+				new SettingsModelString(
+						SimpleXLSReaderNodeModel.CFGKEY_FILENAME,
+						SimpleXLSReaderNodeModel.DEFAULT_FILENAME),
+				FILE_HISTORY, JFileChooser.OPEN_DIALOG, "xls"));
+		addDialogComponent(new DialogComponentNumberEdit(
+				new SettingsModelInteger(
+						SimpleXLSReaderNodeModel.CFGKEY_SHEETINDEX,
+						SimpleXLSReaderNodeModel.DEFAULT_SHEETINDEX),
+				"Sheet Index"));
 	}
 }

@@ -94,8 +94,8 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 				String columnName = spec.getColumnNames()[j];
 				Cell xlsCell = xlsRow.getCell(columns.get(columnName));
 
-				if (xlsCell != null && !xlsCell.toString().trim().isEmpty()) {
-					cells[j] = new StringCell(xlsCell.toString().trim());
+				if (xlsCell != null && !trim(xlsCell.toString()).isEmpty()) {
+					cells[j] = new StringCell(trim(xlsCell.toString()));
 					isEmpty = false;
 				} else {
 					cells[j] = new StringCell("");
@@ -150,7 +150,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 					continue;
 				}
 
-				String name = cell.toString().trim().replace("\u00A0", "");
+				String name = trim(cell.toString());
 
 				if (!name.isEmpty()) {
 					columns.put(name, i);
@@ -218,6 +218,10 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private String trim(String s) {
+		return s.replace("\u00A0", "").trim();
 	}
 
 }

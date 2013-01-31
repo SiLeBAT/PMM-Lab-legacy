@@ -43,14 +43,18 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_FILENAME = "FileName";
 	protected static final String CFGKEY_SHEETINDEX = "SheetIndex";
+	protected static final String CFGKEY_TITLEROWINDEX = "TitleRowIndex";
 
 	protected static final String DEFAULT_FILENAME = "";
 	protected static final int DEFAULT_SHEETINDEX = 0;
+	protected static final int DEFAULT_TITLEROWINDEX = 0;
 
 	private SettingsModelString fileName = new SettingsModelString(
 			CFGKEY_FILENAME, DEFAULT_FILENAME);
 	private SettingsModelInteger sheetIndex = new SettingsModelInteger(
 			CFGKEY_SHEETINDEX, DEFAULT_SHEETINDEX);
+	private SettingsModelInteger titleRowIndex = new SettingsModelInteger(
+			CFGKEY_TITLEROWINDEX, DEFAULT_TITLEROWINDEX);
 
 	private DataTableSpec spec;
 	private Map<String, Integer> columns;
@@ -76,7 +80,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 		Sheet sheet = wb.getSheetAt(sheetIndex.getIntValue());
 		BufferedDataContainer container = exec.createDataContainer(spec);
 
-		for (int i = 1; i < sheet.getLastRowNum(); i++) {
+		for (int i = titleRowIndex.getIntValue() + 1; i < sheet.getLastRowNum(); i++) {
 			Row xlsRow = sheet.getRow(i);
 
 			if (xlsRow == null) {
@@ -134,7 +138,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 			inputStream.close();
 
 			Sheet sheet = wb.getSheetAt(sheetIndex.getIntValue());
-			Row row = sheet.getRow(0);
+			Row row = sheet.getRow(titleRowIndex.getIntValue());
 			List<DataColumnSpec> columnSpecs = new ArrayList<>();
 
 			columns = new LinkedHashMap<>();
@@ -151,7 +155,8 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 				}
 			}
 
-			spec = new DataTableSpec(columnSpecs.toArray(new DataColumnSpec[0]));
+			spec = new DataTableSpec(sheet.getSheetName(),
+					columnSpecs.toArray(new DataColumnSpec[0]));
 
 			return new DataTableSpec[] { spec };
 		} catch (InvalidFormatException e) {
@@ -168,6 +173,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		fileName.saveSettingsTo(settings);
 		sheetIndex.saveSettingsTo(settings);
+		titleRowIndex.saveSettingsTo(settings);
 	}
 
 	/**
@@ -178,6 +184,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fileName.loadSettingsFrom(settings);
 		sheetIndex.loadSettingsFrom(settings);
+		titleRowIndex.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -188,6 +195,7 @@ public class SimpleXLSReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fileName.validateSettings(settings);
 		sheetIndex.validateSettings(settings);
+		titleRowIndex.validateSettings(settings);
 	}
 
 	/**

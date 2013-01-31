@@ -40,5 +40,10 @@ public class SimpleXLSReaderNodeDialog extends DefaultNodeSettingsPane {
 						SimpleXLSReaderNodeModel.CFGKEY_SHEETINDEX,
 						SimpleXLSReaderNodeModel.DEFAULT_SHEETINDEX),
 				"Sheet Index"));
+		addDialogComponent(new DialogComponentNumberEdit(
+				new SettingsModelInteger(
+						SimpleXLSReaderNodeModel.CFGKEY_TITLEROWINDEX,
+						SimpleXLSReaderNodeModel.DEFAULT_TITLEROWINDEX),
+				"Title Row Index"));
 	}
 }

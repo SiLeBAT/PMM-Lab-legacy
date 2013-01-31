@@ -311,8 +311,17 @@ public class CombinedModelAndDataViewNodeView extends
 
 		for (int nr = 0; nr < combinedTuples.size(); nr++) {
 			KnimeTuple row = combinedTuples.get(nr);
-			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)
-					.get(0)).getID() + "";
+			Integer catID = ((CatalogModelXml) row.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			Integer estID = ((EstModelXml) row.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+			String id = "";
+
+			if (estID != null) {
+				id += estID;
+			} else {
+				id += catID;
+			}
 
 			if (getNodeModel().isSeiSchema()) {
 				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";

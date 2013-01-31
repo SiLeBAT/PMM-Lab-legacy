@@ -125,9 +125,17 @@ public class TableReader {
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple tuple = tuples.get(nr);
-			String id = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID()
-					+ "";
+			Integer catID = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			Integer estID = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+			String id = "";
+
+			if (estID != null) {
+				id += estID;
+			} else {
+				id += catID;
+			}
 
 			if (schemaContainsData) {
 				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";

@@ -308,14 +308,24 @@ public class ModelAndDataViewNodeView extends
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple row = tuples.get(nr);
-			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)
-					.get(0)).getID() + "";
+			Integer catID = ((CatalogModelXml) row.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			Integer estID = ((EstModelXml) row.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+			String id = "";
+			
+			if (estID != null) {
+				id += estID;
+			} else {
+				id += catID;
+			}
 
 			if (getNodeModel().isPeiSchema()) {
 				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			if (!idSet.add(id)) {
+				System.out.println(id);
 				continue;
 			}
 

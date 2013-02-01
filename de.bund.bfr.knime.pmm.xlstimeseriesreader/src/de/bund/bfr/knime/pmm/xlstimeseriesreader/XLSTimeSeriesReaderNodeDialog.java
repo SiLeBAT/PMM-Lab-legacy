@@ -38,7 +38,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -179,7 +178,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		matrixButtons = new LinkedHashMap<>();
 		matrixMappings = new LinkedHashMap<>();
 		columnsPanel = new JPanel();
-		columnsPanel.setBorder(BorderFactory.createTitledBorder("Columns"));
+		columnsPanel.setBorder(BorderFactory
+				.createTitledBorder("XLS Column assignments"));
 		columnsPanel.setLayout(new BorderLayout());
 		columnsPanel.add(noLabel, BorderLayout.CENTER);
 		columnBoxes = new LinkedHashMap<>();
@@ -205,11 +205,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northUnitsPanel.add(logcBox, createConstraints(1, 1));
 		northUnitsPanel.add(tempBox, createConstraints(1, 2));
 
+		JPanel westUnitsPanel = new JPanel();
+
+		westUnitsPanel.setLayout(new BorderLayout());
+		westUnitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
+
 		JPanel unitsPanel = new JPanel();
 
 		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
 		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
+		unitsPanel.add(westUnitsPanel, BorderLayout.WEST);
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -217,34 +222,40 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northLiteraturePanel.add(addLiteratureButton);
 		northLiteraturePanel.add(removeLiteratureButton);
 
+		JPanel westLiteraturePanel = new JPanel();
+
+		westLiteraturePanel.setLayout(new BorderLayout());
+		westLiteraturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
+		westLiteraturePanel.add(new JScrollPane(literatureList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+
 		JPanel literaturePanel = new JPanel();
 
 		literaturePanel.setBorder(BorderFactory
 				.createTitledBorder("Literature"));
 		literaturePanel.setLayout(new BorderLayout());
-		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
-		literaturePanel.add(new JScrollPane(literatureList),
-				BorderLayout.CENTER);
+		literaturePanel.add(westLiteraturePanel, BorderLayout.WEST);
 
-		JPanel agentMatrixPanel = new JPanel();
+		JPanel unitsLiteraturePanel = new JPanel();
 
-		agentMatrixPanel.setLayout(new GridLayout(2, 1));
-		agentMatrixPanel.add(agentPanel);
-		agentMatrixPanel.add(matrixPanel);
+		unitsLiteraturePanel.setLayout(new BorderLayout());
+		unitsLiteraturePanel.add(unitsPanel, BorderLayout.NORTH);
+		unitsLiteraturePanel.add(literaturePanel, BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		optionsPanel.add(unitsPanel);
-		optionsPanel.add(literaturePanel);
-		optionsPanel.add(agentMatrixPanel);
+		optionsPanel.add(unitsLiteraturePanel);
+		optionsPanel.add(agentPanel);
+		optionsPanel.add(matrixPanel);
 		optionsPanel.add(columnsPanel);
 
 		JPanel mainPanel = new JPanel();
 
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.add(filePanel, BorderLayout.NORTH);
-		mainPanel.add(optionsPanel, BorderLayout.WEST);
+		mainPanel.add(optionsPanel, BorderLayout.CENTER);
 
 		JPanel panel = new JPanel();
 
@@ -740,8 +751,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(northPanel, BorderLayout.NORTH);
+
 		agentPanel.removeAll();
-		agentPanel.add(northPanel, BorderLayout.NORTH);
+		agentPanel.add(new JScrollPane(panel,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 	}
 
 	private void updateMatrixPanel() {
@@ -807,8 +825,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(northPanel, BorderLayout.NORTH);
+
 		matrixPanel.removeAll();
-		matrixPanel.add(northPanel, BorderLayout.NORTH);
+		matrixPanel.add(new JScrollPane(panel,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 	}
 
 	private void updateColumnsPanel() {
@@ -887,8 +912,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				row++;
 			}
 
+			JPanel panel = new JPanel();
+
+			panel.setLayout(new BorderLayout());
+			panel.add(northPanel, BorderLayout.NORTH);
+
 			columnsPanel.removeAll();
-			columnsPanel.add(northPanel, BorderLayout.NORTH);
+			columnsPanel.add(new JScrollPane(panel,
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+					BorderLayout.CENTER);
 		} else {
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);

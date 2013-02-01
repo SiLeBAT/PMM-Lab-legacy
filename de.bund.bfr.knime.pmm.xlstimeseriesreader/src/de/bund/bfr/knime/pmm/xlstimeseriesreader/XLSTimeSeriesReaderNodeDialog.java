@@ -48,6 +48,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -98,6 +99,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private static final String SELECT = "Select";
 
 	private FilePanel filePanel;
+	private List<String> fileColumnList;
 
 	private JComboBox<String> timeBox;
 	private JComboBox<String> logcBox;
@@ -140,6 +142,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
 		filePanel.addFileListener(this);
+		fileColumnList = new ArrayList<>();
 
 		timeBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
@@ -264,6 +267,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
+			fileColumnList = XLSReader.getTimeSeriesMiscColumns(new File(
+					filePanel.getFileName()));
+		} catch (Exception e) {
+			fileColumnList = new ArrayList<>();
+		}
+
+		try {
 			columnMappings = XLSTimeSeriesReaderNodeModel
 					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
 							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
@@ -369,13 +379,55 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		if (filePanel.getFileName() == null) {
-			throw new InvalidSettingsException("");
+			throw new InvalidSettingsException("No file is specfied");
 		}
 
+		if (fileColumnList.isEmpty()) {
+			throw new InvalidSettingsException("Specified file is invalid");
+		}
+
+		boolean idColumnMissing = true;
+		Set<String> assignments = new LinkedHashSet<>();
+
 		for (String column : columnMappings.keySet()) {
-			if (columnMappings.get(column) == null) {
-				throw new InvalidSettingsException("");
+			String assignment = columnMappings.get(column);
+
+			if (assignment == null) {
+				throw new InvalidSettingsException("Column \"" + column
+						+ "\" has no assignment");
+			} else if (columnMappings.get(column).equals(XLSReader.ID_COLUMN)) {
+				idColumnMissing = false;
 			}
+
+			if (!assignments.add(assignment)) {
+				String name = null;
+
+				try {
+					int id = Integer.parseInt(assignment);
+
+					if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+						name = AttributeUtilities.ATT_TEMPERATURE;
+					} else if (id == AttributeUtilities.ATT_PH_ID) {
+						name = AttributeUtilities.ATT_PH;
+					} else if (id == AttributeUtilities.ATT_AW_ID) {
+						name = AttributeUtilities.ATT_WATERACTIVITY;
+					} else {
+						name = DBKernel.getValue("SonstigeParameter", "ID", id
+								+ "", "Parameter")
+								+ "";
+					}
+				} catch (NumberFormatException e) {
+					name = assignment;
+				}
+
+				throw new InvalidSettingsException("\"" + name
+						+ "\" can only be assigned once");
+			}
+		}
+
+		if (idColumnMissing) {
+			throw new InvalidSettingsException("\"" + XLSReader.ID_COLUMN
+					+ "\" is unassigned");
 		}
 
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
@@ -612,22 +664,25 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void fileChanged(FilePanel source) {
+		try {
+			fileColumnList = XLSReader.getTimeSeriesMiscColumns(new File(
+					filePanel.getFileName()));
+		} catch (Exception e) {
+			fileColumnList = new ArrayList<>();
+		}
+
 		columnMappings.clear();
 		updateColumnsPanel();
+		updateAgentPanel();
+		updateMatrixPanel();
 	}
 
 	private void updateAgentPanel() {
 		agentBox = new JComboBox<>(new String[] { NO_COLUMN });
 		agentButton = new JButton(SELECT);
 
-		try {
-			List<String> columnList = XLSReader
-					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
-
-			for (String column : columnList) {
-				agentBox.addItem(column);
-			}
-		} catch (Exception e) {
+		for (String column : fileColumnList) {
+			agentBox.addItem(column);
 		}
 
 		if (agentColumn != XLSTimeSeriesReaderNodeModel.DEFAULT_AGENTCOLUMN) {
@@ -693,14 +748,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		matrixBox = new JComboBox<>(new String[] { NO_COLUMN });
 		matrixButton = new JButton(SELECT);
 
-		try {
-			List<String> columnList = XLSReader
-					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
-
-			for (String column : columnList) {
-				matrixBox.addItem(column);
-			}
-		} catch (Exception e) {
+		for (String column : fileColumnList) {
+			matrixBox.addItem(column);
 		}
 
 		if (matrixColumn != XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXCOLUMN) {
@@ -763,10 +812,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateColumnsPanel() {
-		try {
-			List<String> columnList = XLSReader
-					.getTimeSeriesMiscColumns(new File(filePanel.getFileName()));
-
+		if (!fileColumnList.isEmpty()) {
 			columnBoxes.clear();
 			columnButtons.clear();
 
@@ -775,7 +821,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			northPanel.setLayout(new GridBagLayout());
 
-			for (String column : columnList) {
+			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
 						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
@@ -843,7 +889,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			columnsPanel.removeAll();
 			columnsPanel.add(northPanel, BorderLayout.NORTH);
-		} catch (Exception e) {
+		} else {
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);
 			columnButtons.clear();

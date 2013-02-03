@@ -138,7 +138,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     		
     	dbuuid = db.getDBUUID();
     	
-    	if( level == 1 ) {
+    	if (level == 1) {
     		
     		result = db.selectModel(1);
     		
@@ -152,7 +152,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
 		    		String mcls = DBKernel.hashModelType.get(cls);
-		    		takeIt = (modelClass.indexOf(mcls) >= 0);
+		    		//takeIt = (modelClass.indexOf(mcls) >= 0);
+		    		takeIt = (mcls.indexOf(modelClass) >= 0);
 	    		}
 	    		if (takeIt) {
 		    		// initialize row
@@ -192,8 +193,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
 		    		
 		    		// add row to data buffer
-					if (!modelFilterEnabled || ModelReaderUi.passesFilter(modelList, tuple ) ) {
-						buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+					if (!modelFilterEnabled || ModelReaderUi.passesFilter(modelList, tuple)) {
+						buf.addRowToTable(new DefaultRow(String.valueOf( i++ ), tuple));
 					}
 	    		}
 	    	}
@@ -261,8 +262,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
 
 		    		// add row to data buffer
-					if( ModelReaderUi.passesFilter( modelList, tuple ) ) {
-						buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
+					if (!modelFilterEnabled || ModelReaderUi.passesFilter( modelList, tuple)) {
+						buf.addRowToTable(new DefaultRow( String.valueOf( i++ ), tuple));
 					}
 	    		}
 	    		

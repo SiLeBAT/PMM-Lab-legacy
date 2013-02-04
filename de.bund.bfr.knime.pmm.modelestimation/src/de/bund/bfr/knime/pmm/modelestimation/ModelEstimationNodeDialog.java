@@ -548,8 +548,12 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			fittingPanel.add(panel, BorderLayout.CENTER);
 			fittingPanel.revalidate();
 		} else {
-			JOptionPane.showMessageDialog(fittingBox, "Data is not valid for "
-					+ fittingBox.getSelectedItem());
+			if (fittingBox.isValid()) {
+				JOptionPane
+						.showMessageDialog(fittingBox, "Data is not valid for "
+								+ fittingBox.getSelectedItem());
+			}
+
 			fittingPanel.add(new JLabel(), BorderLayout.CENTER);
 		}
 	}

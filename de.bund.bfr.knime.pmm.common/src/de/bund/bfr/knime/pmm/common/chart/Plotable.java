@@ -687,6 +687,10 @@ public class Plotable {
 			return Math.exp(value);
 		} else if (transform.equals(ChartConstants.EXP10_TRANSFORM)) {
 			return Math.pow(10.0, value);
+		} else if (transform.equals(ChartConstants.DIVX_TRANSFORM)) {
+			return 1 / value;
+		} else if (transform.equals(ChartConstants.DIVX2_TRANSFORM)) {
+			return 1 / value / value;
 		}
 
 		return Double.NaN;

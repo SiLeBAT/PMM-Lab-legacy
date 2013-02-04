@@ -51,6 +51,9 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -59,6 +62,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -167,6 +171,27 @@ public class ManualModelConfNodeModel extends NodeModel {
         	BufferedDataContainer buf = exec.createDataContainer(ks.createSpec());
 
         	if (tupleM1 != null) {
+        		// Set primary variable names to TimeSeriesSchema.TIME and TimeSeriesSchema.LOGC
+        		PmmXmlDoc modelXml = tupleM1.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+        		String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
+        		PmmXmlDoc depVar = tupleM1.getPmmXml(Model1Schema.ATT_DEPENDENT);
+        		PmmXmlDoc indepVar = tupleM1.getPmmXml(Model1Schema.ATT_INDEPENDENT);        		
+        		
+        		if (depVar.size() == 1) {
+        			formula = MathUtilities.replaceVariable(formula, ((DepXml) depVar.get(0)).getName(), TimeSeriesSchema.LOGC);
+        			((DepXml) depVar.get(0)).setName(TimeSeriesSchema.LOGC);        			
+        		}
+        		
+        		if (indepVar.size() == 1) {
+        			formula = MathUtilities.replaceVariable(formula, ((IndepXml) indepVar.get(0)).getName(), TimeSeriesSchema.TIME);
+        			((IndepXml) indepVar.get(0)).setName(TimeSeriesSchema.TIME);
+        		}
+        		
+        		((CatalogModelXml) modelXml.get(0)).setFormula(formula);
+        		tupleM1.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+        		tupleM1.setValue(Model1Schema.ATT_DEPENDENT, depVar);
+        		tupleM1.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
+        		
         		if (!formulaCreator) {
                 	KnimeSchema ts = new TimeSeriesSchema();
                 	KnimeSchema m1 = new Model1Schema();

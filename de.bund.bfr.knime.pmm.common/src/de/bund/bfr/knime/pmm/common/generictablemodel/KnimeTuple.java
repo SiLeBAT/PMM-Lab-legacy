@@ -42,9 +42,11 @@ import org.knime.core.data.DataCell;
 import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
+import org.knime.core.data.xml.XMLBlobCell;
 import org.knime.core.data.xml.XMLCell;
 
 import de.bund.bfr.knime.pmm.common.CellIO;
@@ -99,7 +101,7 @@ public class KnimeTuple implements DataRow {
 					break;
 					
 				case KnimeAttribute.TYPE_XML :
-					if( !( cell[ i ] instanceof XMLCell ) )
+					if( !( cell[ i ] instanceof StringValue ) )
 						throw new PmmException( "Expected attribute '"
 								+schema.getName( i )+"' to be XMLCell." );
 					break;
@@ -108,11 +110,8 @@ public class KnimeTuple implements DataRow {
 					if( !( cell[ i ] instanceof StringCell ) )
 						throw new PmmException( "Expected attribute '"
 								+schema.getName( i )+"' to be StringCell." );
-			}
-		}
-		
-			
-
+			}			
+		}		
 	}
 
 	public KnimeTuple(final KnimeSchema commonSchema, final KnimeTuple set1,
@@ -344,8 +343,12 @@ public class KnimeTuple implements DataRow {
 
 	private PmmXmlDoc getPmmXml(final int i) throws PmmException {
 		switch (schema.getType(i)) {
+		
 			case KnimeAttribute.TYPE_XML:
-				return CellIO.getPmmXml(cell[i]);
+				
+				if( cell[ i ] instanceof StringValue )
+					return CellIO.getPmmXml( ( StringValue )cell[i] );
+				
 			default:
 				throw new PmmException(
 				"Type cannot be cast to XML.");

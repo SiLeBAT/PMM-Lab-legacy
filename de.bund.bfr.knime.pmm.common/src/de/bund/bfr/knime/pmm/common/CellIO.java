@@ -46,6 +46,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
+import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -82,15 +83,18 @@ public class CellIO {
 		return ((IntCell) cell).getIntValue();
 	}
 
-	public static PmmXmlDoc getPmmXml(DataCell cell) {
-		if (cell.isMissing() || !(cell instanceof XMLCell)) {
-			return new PmmXmlDoc();
-		}
-		XMLCell xml = (XMLCell) cell;
+	public static PmmXmlDoc getPmmXml( StringValue cell ) {
 
+		if( !( cell instanceof DataCell ) )
+			return new PmmXmlDoc();
+		
+		if( ( ( DataCell )cell ).isMissing() )
+			return new PmmXmlDoc();
+		
 		try {
-			return new PmmXmlDoc(xml.getStringValue());
-		} catch (Exception e) {
+			return new PmmXmlDoc( cell.getStringValue() );
+		}
+		catch( Exception e ) {
 			return new PmmXmlDoc();
 		}
 	}

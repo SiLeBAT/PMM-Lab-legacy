@@ -169,7 +169,8 @@ public class ChartCreator extends ChartPanel {
 							}
 						}
 					}
-				} else if (plotable.getType() == Plotable.DATASET) {
+				} else if (plotable.getType() == Plotable.DATASET
+						|| plotable.getType() == Plotable.DATASET_STRICT) {
 					double[][] points = plotable.getPoints(paramX, paramY,
 							transformY);
 
@@ -252,6 +253,16 @@ public class ChartCreator extends ChartPanel {
 				plotDataSet(plot, plotable, id, colorAndShapeCreator
 						.getColorList().get(index), colorAndShapeCreator
 						.getShapeList().get(index));
+				index++;
+			}
+		}
+
+		for (String id : idsToPaint) {
+			Plotable plotable = plotables.get(id);
+
+			if (plotable != null
+					&& plotable.getType() == Plotable.DATASET_STRICT) {
+				plotDataSetStrict(plot, plotable, id);
 				index++;
 			}
 		}
@@ -474,6 +485,62 @@ public class ChartCreator extends ChartPanel {
 
 			plot.setDataset(i, dataset);
 			plot.setRenderer(i, renderer);
+		}
+	}
+
+	private void plotDataSetStrict(XYPlot plot, Plotable plotable, String id) {
+		List<Color> colorList = colorLists.get(id);
+		List<Shape> shapeList = shapeLists.get(id);
+		int index = 0;
+
+		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
+			String addLegend = "";
+
+			for (String arg : choiceMap.keySet()) {
+				if (!arg.equals(paramX)) {
+					addLegend += " ("
+							+ arg
+							+ "="
+							+ plotable.getFunctionArguments().get(arg)
+									.get(choiceMap.get(arg)) + ")";
+				}
+			}
+
+			double[][] dataPoints = plotable.getPoints(paramX, paramY,
+					transformY, choiceMap);
+
+			if (dataPoints != null) {
+				DefaultXYDataset dataSet = new DefaultXYDataset();
+				XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
+						drawLines, true);
+
+				dataRenderer
+						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+
+				if (addInfoInLegend) {
+					dataSet.addSeries(longLegend.get(id) + addLegend
+							+ " (Data)", dataPoints);
+				} else {
+					dataSet.addSeries(shortLegend.get(id) + addLegend
+							+ " (Data)", dataPoints);
+				}
+
+				dataRenderer.setSeriesPaint(0, colorList.get(index));
+				dataRenderer.setSeriesShape(0, shapeList.get(index));
+
+				int i;
+
+				if (plot.getDataset(0) == null) {
+					i = 0;
+				} else {
+					i = plot.getDatasetCount();
+				}
+
+				plot.setDataset(i, dataSet);
+				plot.setRenderer(i, dataRenderer);
+			}
+
+			index++;
 		}
 	}
 

@@ -56,10 +56,11 @@ public class Plotable {
 	private static final int FUNCTION_STEPS = 1000;
 
 	public static final int DATASET = 0;
-	public static final int FUNCTION = 1;
-	public static final int BOTH = 2;
-	public static final int BOTH_STRICT = 3;
-	public static final int FUNCTION_SAMPLE = 4;
+	public static final int DATASET_STRICT = 1;
+	public static final int FUNCTION = 2;
+	public static final int BOTH = 3;
+	public static final int BOTH_STRICT = 4;
+	public static final int FUNCTION_SAMPLE = 5;
 
 	private int type;
 	private Map<String, List<Double>> valueLists;
@@ -185,7 +186,7 @@ public class Plotable {
 		List<Boolean> usedPoints = new ArrayList<Boolean>(Collections.nCopies(
 				xList.size(), true));
 
-		if (type == BOTH_STRICT) {
+		if (type == BOTH_STRICT || type == DATASET_STRICT) {
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(paramX) && valueLists.containsKey(arg)) {
 					Double fixedValue = functionArguments.get(arg).get(
@@ -537,7 +538,7 @@ public class Plotable {
 			List<String> paramsX = new ArrayList<String>(valueLists.keySet());
 			List<String> paramsY = new ArrayList<String>();
 
-			if (type == DATASET) {
+			if (type == DATASET || type == DATASET_STRICT) {
 				paramsY = paramsX;
 			} else if (type == BOTH || type == BOTH_STRICT) {
 				if (functionValue != null) {

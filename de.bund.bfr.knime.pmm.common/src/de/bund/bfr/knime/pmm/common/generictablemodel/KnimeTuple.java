@@ -343,11 +343,11 @@ public class KnimeTuple implements DataRow {
 
 	private PmmXmlDoc getPmmXml(final int i) throws PmmException {
 		switch (schema.getType(i)) {
-		
+			
 			case KnimeAttribute.TYPE_XML:
 				
-				if( cell[ i ] instanceof StringValue )
-					return CellIO.getPmmXml( ( StringValue )cell[i] );
+				if( cell[ i ] instanceof StringValue || cell[ i ].isMissing())
+					return CellIO.getPmmXml( cell[i] );
 				
 			default:
 				throw new PmmException(

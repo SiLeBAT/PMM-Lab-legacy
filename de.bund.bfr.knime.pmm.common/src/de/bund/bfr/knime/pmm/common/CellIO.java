@@ -83,7 +83,7 @@ public class CellIO {
 		return ((IntCell) cell).getIntValue();
 	}
 
-	public static PmmXmlDoc getPmmXml( StringValue cell ) {
+	public static PmmXmlDoc getPmmXml( DataCell cell ) {
 
 		if( !( cell instanceof DataCell ) )
 			return new PmmXmlDoc();
@@ -92,7 +92,7 @@ public class CellIO {
 			return new PmmXmlDoc();
 		
 		try {
-			return new PmmXmlDoc( cell.getStringValue() );
+			return new PmmXmlDoc( ((StringValue) cell).getStringValue() );
 		}
 		catch( Exception e ) {
 			return new PmmXmlDoc();

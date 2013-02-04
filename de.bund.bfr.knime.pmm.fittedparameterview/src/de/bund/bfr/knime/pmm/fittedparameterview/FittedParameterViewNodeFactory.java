@@ -76,7 +76,7 @@ public class FittedParameterViewNodeFactory extends
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**

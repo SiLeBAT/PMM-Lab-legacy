@@ -33,7 +33,38 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.fittedparameterview;
 
+import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.JButton;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import org.knime.core.data.DataTable;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.DataAwareNodeDialogPane;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+
+import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeDialog</code> for the "FittedParameterView" Node.
@@ -46,11 +77,124 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
  * 
  * @author Christian Thoens
  */
-public class FittedParameterViewNodeDialog extends DefaultNodeSettingsPane {
+public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
+		implements ActionListener {
+
+	private List<String> allConditions;
+	private List<String> usedConditions;
+
+	private JPanel panel;
+	private JList<String> conditionList;
+	private JButton addButton;
+	private JButton removeButton;
 
 	/**
 	 * New pane for configuring the FittedParameterView node.
 	 */
 	protected FittedParameterViewNodeDialog() {
+		conditionList = new JList<>();
+		addButton = new JButton("Add");
+		addButton.addActionListener(this);
+		removeButton = new JButton("Remove");
+		removeButton.addActionListener(this);
+
+		JPanel buttonPanel = new JPanel();
+
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		buttonPanel.add(addButton);
+		buttonPanel.add(removeButton);
+
+		panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		panel.add(buttonPanel, BorderLayout.NORTH);
+		panel.add(new JScrollPane(conditionList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER));
+
+		addTab("Options", panel);
 	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			BufferedDataTable[] input) throws NotConfigurableException {
+		try {
+			allConditions = getAllMiscParams(input[0]);
+		} catch (PmmException e1) {
+			e1.printStackTrace();
+		}
+
+		try {
+			List<String> conditions = ListUtilities
+					.getStringListFromString(settings
+							.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS));
+			usedConditions = new ArrayList<>();
+
+			for (String cond : conditions) {
+				if (allConditions.contains(cond)) {
+					usedConditions.add(cond);
+				}
+			}
+
+			conditionList.setListData(usedConditions.toArray(new String[0]));
+		} catch (InvalidSettingsException e) {
+			conditionList.setListData(new String[0]);
+		}
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (usedConditions.isEmpty()) {
+			throw new InvalidSettingsException(
+					"List of conditions cannot be empty");
+		}
+
+		settings.addString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS,
+				ListUtilities.getStringFromList(usedConditions));
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == addButton) {
+			Object selection = JOptionPane.showInputDialog(panel,
+					"Select Time Series", "Input",
+					JOptionPane.QUESTION_MESSAGE, null,
+					allConditions.toArray(), allConditions.get(0));
+
+			if (selection != null && !usedConditions.contains(selection)) {
+				usedConditions.add((String) selection);
+				conditionList
+						.setListData(usedConditions.toArray(new String[0]));
+			}
+		} else if (e.getSource() == removeButton) {
+			List<String> selectedConditions = conditionList
+					.getSelectedValuesList();
+
+			if (!selectedConditions.isEmpty()) {
+				usedConditions.removeAll(selectedConditions);
+				conditionList
+						.setListData(usedConditions.toArray(new String[0]));
+			}
+		}
+	}
+
+	private List<String> getAllMiscParams(DataTable table) throws PmmException {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				new TimeSeriesSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
+	}
+
 }

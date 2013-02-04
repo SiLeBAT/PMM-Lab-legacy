@@ -305,7 +305,7 @@ public class FittedParameterViewNodeView extends
 			Plotable plotable = new Plotable(Plotable.DATASET_STRICT);
 			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
 
-			for (String param : miscParams) {
+			for (String param : getNodeModel().getUsedConditions()) {
 				arguments.put(param, new ArrayList<Double>(Arrays.asList(0.0)));
 			}
 

@@ -42,6 +42,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -105,6 +106,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		buttonPanel.add(removeButton);
 
 		panel = new JPanel();
+		panel.setBorder(BorderFactory
+				.createTitledBorder("Conditions to use (for x-axis)"));
 		panel.setLayout(new BorderLayout());
 		panel.add(buttonPanel, BorderLayout.NORTH);
 		panel.add(new JScrollPane(conditionList,
@@ -157,9 +160,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addButton) {
 			Object selection = JOptionPane.showInputDialog(panel,
-					"Select Time Series", "Input",
-					JOptionPane.QUESTION_MESSAGE, null,
-					allConditions.toArray(), allConditions.get(0));
+					"Select Condition", "Input", JOptionPane.QUESTION_MESSAGE,
+					null, allConditions.toArray(), allConditions.get(0));
 
 			if (selection != null && !usedConditions.contains(selection)) {
 				usedConditions.add((String) selection);

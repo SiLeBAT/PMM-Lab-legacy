@@ -270,6 +270,32 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable.getColumn(SelectTableModel.SHAPE).getCellEditor()
 				.addCellEditorListener(this);
 
+		if (!visibleColumns.contains(SelectTableModel.COLOR)) {
+			selectTable.getColumn(SelectTableModel.COLOR).setMinWidth(0);
+			selectTable.getColumn(SelectTableModel.COLOR).setMaxWidth(0);
+			selectTable.getColumn(SelectTableModel.COLOR).setPreferredWidth(0);
+		} else {
+			selectTable.getColumn(SelectTableModel.COLOR).setMinWidth(
+					MIN_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.COLOR).setMaxWidth(
+					MAX_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.COLOR).setPreferredWidth(
+					PREFERRED_COLUMN_WIDTH);
+		}
+
+		if (!visibleColumns.contains(SelectTableModel.SHAPE)) {
+			selectTable.getColumn(SelectTableModel.SHAPE).setMinWidth(0);
+			selectTable.getColumn(SelectTableModel.SHAPE).setMaxWidth(0);
+			selectTable.getColumn(SelectTableModel.SHAPE).setPreferredWidth(0);
+		} else {
+			selectTable.getColumn(SelectTableModel.SHAPE).setMinWidth(
+					MIN_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.SHAPE).setMaxWidth(
+					MAX_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.SHAPE).setPreferredWidth(
+					PREFERRED_COLUMN_WIDTH);
+		}
+
 		for (String column : doubleColumns) {
 			if (!visibleColumns.contains(column)) {
 				selectTable.getColumn(column).setMinWidth(0);
@@ -489,7 +515,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<String> columnNames = new ArrayList<String>();
 			List<Boolean> isVisible = new ArrayList<Boolean>();
 
-			for (int i = 4; i < selectTable.getColumnCount(); i++) {
+			for (int i = 2; i < selectTable.getColumnCount(); i++) {
 				String columnName = selectTable.getColumnName(i);
 				TableColumn column = selectTable.getColumn(columnName);
 				boolean selected = column.getMaxWidth() != 0;

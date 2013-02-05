@@ -257,12 +257,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		mainPanel.add(filePanel, BorderLayout.NORTH);
 		mainPanel.add(optionsPanel, BorderLayout.CENTER);
 
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		panel.add(mainPanel, BorderLayout.NORTH);
-
-		addTab("Options", panel);
+		addTab("Options", mainPanel);
 	}
 
 	@Override

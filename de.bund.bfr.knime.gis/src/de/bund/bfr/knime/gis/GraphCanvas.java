@@ -91,7 +91,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private Map<String, Class<?>> edgeProperties;
 	private Map<Node, List<Edge>> connectingEdges;
 	private VisualizationViewer<Node, Edge> viewer;
-	private boolean isManualSelection;
 
 	private JComboBox<String> layoutBox;
 	private JButton layoutButton;
@@ -100,6 +99,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private JComboBox<String> modeBox;
 
 	private JPopupMenu popup;
+	private JMenuItem selectConnectingItem;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem highlightNodesItem;
@@ -107,7 +107,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private JMenuItem highlightEdgesItem;
 	private JMenuItem clearHighlightEdgesItem;
 
-	private List<NodeSelectionListener> nodeSelectionListeners;
+	private List<GraphSelectionListener> selectionListeners;
 	private HighlightCondition nodesHighlightCondition;
 	private HighlightCondition edgesHighlightCondition;
 
@@ -119,18 +119,17 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		this.nodeProperties = nodeProperties;
 		this.edgeProperties = edgeProperties;
 		connectingEdges = new LinkedHashMap<>();
-		isManualSelection = true;
 
 		for (Node node : nodes) {
 			connectingEdges.put(node, new ArrayList<Edge>());
 		}
 
 		for (Edge edge : edges) {
-			connectingEdges.get(edge.getN1()).add(edge);
-			connectingEdges.get(edge.getN2()).add(edge);
+			connectingEdges.get(edge.getFrom()).add(edge);
+			connectingEdges.get(edge.getTo()).add(edge);
 		}
 
-		nodeSelectionListeners = new ArrayList<NodeSelectionListener>();
+		selectionListeners = new ArrayList<GraphSelectionListener>();
 		nodesHighlightCondition = null;
 		edgesHighlightCondition = null;
 
@@ -141,12 +140,12 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		add(createOptionsPanel(), BorderLayout.SOUTH);
 	}
 
-	public void addNodeSelectionListener(NodeSelectionListener listener) {
-		nodeSelectionListeners.add(listener);
+	public void addSelectionListener(GraphSelectionListener listener) {
+		selectionListeners.add(listener);
 	}
 
-	public void removeNodeSelectionListener(NodeSelectionListener listener) {
-		nodeSelectionListeners.remove(listener);
+	public void removeSelectionListener(GraphSelectionListener listener) {
+		selectionListeners.remove(listener);
 	}
 
 	public List<Node> getNodes() {
@@ -158,8 +157,6 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	}
 
 	public void setSelectedNodes(Set<Node> selectedNodes) {
-		isManualSelection = false;
-
 		for (Node node : nodes) {
 			if (selectedNodes.contains(node)) {
 				viewer.getPickedVertexState().pick(node, true);
@@ -167,8 +164,16 @@ public class GraphCanvas extends JPanel implements ActionListener,
 				viewer.getPickedVertexState().pick(node, false);
 			}
 		}
+	}
 
-		isManualSelection = true;
+	public void setSelectedEdges(Set<Edge> selectedEdges) {
+		for (Edge edge : edges) {
+			if (selectedEdges.contains(edge)) {
+				viewer.getPickedEdgeState().pick(edge, true);
+			} else {
+				viewer.getPickedEdgeState().pick(edge, false);
+			}
+		}
 	}
 
 	@Override
@@ -197,6 +202,22 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			}
 
 			viewer.setGraphMouse(mouseModel);
+		} else if (e.getSource() == selectConnectingItem) {
+			for (Node node : viewer.getPickedVertexState().getPicked()) {
+				for (Edge edge : connectingEdges.get(node)) {
+					Node otherNode = null;
+
+					if (edge.getFrom() == node) {
+						otherNode = edge.getTo();
+					} else if (edge.getTo() == node) {
+						otherNode = edge.getFrom();
+					}
+
+					if (viewer.getPickedVertexState().isPicked(otherNode)) {
+						viewer.getPickedEdgeState().pick(edge, true);
+					}
+				}
+			}
 		} else if (e.getSource() == nodePropertiesItem) {
 			List<Map<String, Object>> propertyValues = new ArrayList<>();
 
@@ -289,25 +310,9 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	@Override
 	public void itemStateChanged(ItemEvent e) {
 		if (e.getItem() instanceof Node) {
-			Node node = (Node) e.getItem();
-
-			if (e.getStateChange() == ItemEvent.SELECTED && isManualSelection) {
-				for (Edge edge : connectingEdges.get(node)) {
-					Node otherNode = null;
-
-					if (edge.getN1() == node) {
-						otherNode = edge.getN2();
-					} else if (edge.getN2() == node) {
-						otherNode = edge.getN1();
-					}
-
-					if (viewer.getPickedVertexState().isPicked(otherNode)) {
-						viewer.getPickedEdgeState().pick(edge, true);
-					}
-				}
-			}
-
 			fireNodeSelectionChanged();
+		} else if (e.getItem() instanceof Edge) {
+			fireEdgeSelectionChanged();
 		}
 	}
 
@@ -365,7 +370,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 
 		for (Edge edge : edges) {
-			graph.addEdge(edge, edge.getN1(), edge.getN2());
+			graph.addEdge(edge, edge.getFrom(), edge.getTo());
 		}
 
 		if (viewer != null) {
@@ -418,6 +423,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 			viewer.setPreferredSize(size);
 			viewer.setGraphMouse(mouseModel);
 			viewer.getPickedVertexState().addItemListener(this);
+			viewer.getPickedEdgeState().addItemListener(this);
 			viewer.getRenderContext().setVertexFillPaintTransformer(
 					new NodeFillTransformer(viewer,
 							new LinkedHashMap<Node, Double>()));
@@ -431,6 +437,8 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	}
 
 	private void createPopupMenu() {
+		selectConnectingItem = new JMenuItem("Select Connecting Edges");
+		selectConnectingItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Node Properties");
 		nodePropertiesItem.addActionListener(this);
 		edgePropertiesItem = new JMenuItem("Show Edge Properties");
@@ -445,6 +453,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		clearHighlightEdgesItem.addActionListener(this);
 
 		popup = new JPopupMenu();
+		popup.add(selectConnectingItem);
 		popup.add(nodePropertiesItem);
 		popup.add(edgePropertiesItem);
 		popup.add(highlightNodesItem);
@@ -503,8 +512,15 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	}
 
 	private void fireNodeSelectionChanged() {
-		for (NodeSelectionListener listener : nodeSelectionListeners) {
-			listener.graphSelectionChanged(viewer.getPickedVertexState()
+		for (GraphSelectionListener listener : selectionListeners) {
+			listener.graphNodeSelectionChanged(viewer.getPickedVertexState()
+					.getPicked());
+		}
+	}
+
+	private void fireEdgeSelectionChanged() {
+		for (GraphSelectionListener listener : selectionListeners) {
+			listener.graphEdgeSelectionChanged(viewer.getPickedEdgeState()
 					.getPicked());
 		}
 	}
@@ -536,22 +552,22 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	public static class Edge implements GraphElement {
 
-		private Node n1;
-		private Node n2;
+		private Node from;
+		private Node to;
 		private Map<String, Object> properties;
 
-		public Edge(Node n1, Node n2, Map<String, Object> properties) {
-			this.n1 = n1;
-			this.n2 = n2;
+		public Edge(Node from, Node to, Map<String, Object> properties) {
+			this.from = from;
+			this.to = to;
 			this.properties = properties;
 		}
 
-		public Node getN1() {
-			return n1;
+		public Node getFrom() {
+			return from;
 		}
 
-		public Node getN2() {
-			return n2;
+		public Node getTo() {
+			return to;
 		}
 
 		@Override
@@ -560,9 +576,11 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		}
 	}
 
-	public static interface NodeSelectionListener {
+	public static interface GraphSelectionListener {
 
-		public void graphSelectionChanged(Set<Node> selectedNodes);
+		public void graphNodeSelectionChanged(Set<Node> selectedNodes);
+
+		public void graphEdgeSelectionChanged(Set<Edge> selectedEdges);
 	}
 
 	private static class NodeShapeTransformer implements
@@ -598,7 +616,7 @@ public class GraphCanvas extends JPanel implements ActionListener,
 		@Override
 		public Paint transform(Node n) {
 			if (viewer.getPickedVertexState().getPicked().contains(n)) {
-				return Color.GREEN;
+				return Color.BLUE;
 			} else if (highlightedNodes.containsKey(n)) {
 				float alpha = highlightedNodes.get(n).floatValue();
 

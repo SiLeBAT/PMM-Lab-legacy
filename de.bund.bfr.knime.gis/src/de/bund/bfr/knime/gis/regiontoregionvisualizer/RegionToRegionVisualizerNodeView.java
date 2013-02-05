@@ -73,7 +73,7 @@ import de.bund.bfr.knime.gis.GraphCanvas;
  */
 public class RegionToRegionVisualizerNodeView extends
 		NodeView<RegionToRegionVisualizerNodeModel> implements
-		GraphCanvas.NodeSelectionListener, GISCanvas.NodeSelectionListener {
+		GraphCanvas.GraphSelectionListener, GISCanvas.GISSelectionListener {
 
 	private GraphCanvas graphCanvas;
 	private GISCanvas gisCanvas;
@@ -113,9 +113,9 @@ public class RegionToRegionVisualizerNodeView extends
 			Set<String> connectedNodes = getIdsOfConnectedNodes();
 
 			graphCanvas = createGraphCanvas(connectedNodes);
-			graphCanvas.addNodeSelectionListener(this);
+			graphCanvas.addSelectionListener(this);
 			gisCanvas = createGISCanvas(idToRegionMap, connectedNodes);
-			gisCanvas.addNodeSelectionListener(this);
+			gisCanvas.addSelectionListener(this);
 
 			JSplitPane panel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 					graphCanvas, gisCanvas);
@@ -128,7 +128,7 @@ public class RegionToRegionVisualizerNodeView extends
 	}
 
 	@Override
-	public void graphSelectionChanged(Set<GraphCanvas.Node> selectedNodes) {
+	public void graphNodeSelectionChanged(Set<GraphCanvas.Node> selectedNodes) {
 		Set<GISCanvas.Node> selectedGisNodes = new LinkedHashSet<>();
 		Map<String, GISCanvas.Node> gisNodesByRegion = new LinkedHashMap<>();
 
@@ -145,14 +145,51 @@ public class RegionToRegionVisualizerNodeView extends
 			}
 		}
 
-		gisCanvas.removeNodeSelectionListener(this);
+		gisCanvas.removeSelectionListener(this);
 		gisCanvas.setSelectedNodes(selectedGisNodes);
-		gisCanvas.addNodeSelectionListener(this);
+		gisCanvas.addSelectionListener(this);
 		gisCanvas.repaint();
 	}
 
 	@Override
-	public void gisSelectionChanged(Set<GISCanvas.Node> selectedNodes) {
+	public void graphEdgeSelectionChanged(Set<GraphCanvas.Edge> selectedEdges) {
+		Set<GISCanvas.Edge> selectedGisEdges = new LinkedHashSet<>();
+		Map<String, Map<String, GISCanvas.Edge>> gisEdgesByRegion = new LinkedHashMap<>();
+
+		for (GISCanvas.Edge gisEdge : gisCanvas.getEdges()) {
+			GISCanvas.Node from = gisEdge.getFrom();
+			GISCanvas.Node to = gisEdge.getTo();
+
+			if (!gisEdgesByRegion.containsKey(from.getId())) {
+				gisEdgesByRegion.put(from.getId(),
+						new LinkedHashMap<String, GISCanvas.Edge>());
+			}
+
+			gisEdgesByRegion.get(from.getId()).put(to.getId(), gisEdge);
+		}
+
+		for (GraphCanvas.Edge graphEdge : selectedEdges) {
+			GraphCanvas.Node from = graphEdge.getFrom();
+			GraphCanvas.Node to = graphEdge.getTo();
+
+			if (gisEdgesByRegion.containsKey(from.getRegion())) {
+				GISCanvas.Edge gisEdge = gisEdgesByRegion.get(from.getRegion())
+						.get(to.getRegion());
+
+				if (gisEdge != null) {
+					selectedGisEdges.add(gisEdge);
+				}
+			}
+		}
+
+		gisCanvas.removeSelectionListener(this);
+		gisCanvas.setSelectedEdges(selectedGisEdges);
+		gisCanvas.addSelectionListener(this);
+		gisCanvas.repaint();
+	}
+
+	@Override
+	public void gisNodeSelectionChanged(Set<GISCanvas.Node> selectedNodes) {
 		Set<GraphCanvas.Node> selectedGraphNodes = new LinkedHashSet<>();
 		Map<String, List<GraphCanvas.Node>> graphNodesByRegion = new LinkedHashMap<>();
 
@@ -174,10 +211,15 @@ public class RegionToRegionVisualizerNodeView extends
 			}
 		}
 
-		graphCanvas.removeNodeSelectionListener(this);
+		graphCanvas.removeSelectionListener(this);
 		graphCanvas.setSelectedNodes(selectedGraphNodes);
-		graphCanvas.addNodeSelectionListener(this);
+		graphCanvas.addSelectionListener(this);
 		graphCanvas.repaint();
+	}
+
+	@Override
+	public void gisEdgeSelectionChanged(Set<GISCanvas.Edge> selectedNodes) {
+		// TODO Auto-generated method stub
 	}
 
 	private Map<String, String> getIdToRegionMap() {

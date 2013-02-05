@@ -159,12 +159,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 		add(optionsPanel, BorderLayout.SOUTH);
 	}
 
-	public void addNodeSelectionListener(NodeSelectionListener listener) {
-		gisComponent.addNodeSelectionListener(listener);
+	public void addSelectionListener(GISSelectionListener listener) {
+		gisComponent.addSelectionListener(listener);
 	}
 
-	public void removeNodeSelectionListener(NodeSelectionListener listener) {
-		gisComponent.removeNodeSelectionListener(listener);
+	public void removeSelectionListener(GISSelectionListener listener) {
+		gisComponent.removeSelectionListener(listener);
 	}
 
 	public List<Node> getNodes() {
@@ -177,7 +177,10 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 	public void setSelectedNodes(Set<Node> selectedNodes) {
 		gisComponent.setSelectedNodes(selectedNodes);
-		gisComponent.repaint();
+	}
+
+	public void setSelectedEdges(Set<Edge> selectedEdges) {
+		gisComponent.setSelectedEdges(selectedEdges);
 	}
 
 	@Override
@@ -196,9 +199,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 	}
 
-	public static interface NodeSelectionListener {
+	public static interface GISSelectionListener {
 
-		public void gisSelectionChanged(Set<Node> selectedNodes);
+		public void gisNodeSelectionChanged(Set<Node> selectedNodes);
+
+		public void gisEdgeSelectionChanged(Set<Edge> selectedNodes);
 	}
 
 	public static interface GISElement {
@@ -326,7 +331,8 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private String mode;
 
 		private Set<Node> selectedNodes;
-		private List<NodeSelectionListener> nodeSelectionListeners;
+		private Set<Edge> selectedEdges;
+		private List<GISSelectionListener> selectionListeners;
 
 		private boolean transformComputed;
 		private boolean transformedShapesComputed;
@@ -361,7 +367,8 @@ public class GISCanvas extends JPanel implements ActionListener {
 			this.mode = mode;
 
 			selectedNodes = new LinkedHashSet<>();
-			nodeSelectionListeners = new ArrayList<>();
+			selectedEdges = new LinkedHashSet<>();
+			selectionListeners = new ArrayList<>();
 
 			transformComputed = false;
 			transformedShapesComputed = false;
@@ -375,12 +382,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 			updateCursor();
 		}
 
-		public void addNodeSelectionListener(NodeSelectionListener listener) {
-			nodeSelectionListeners.add(listener);
+		public void addSelectionListener(GISSelectionListener listener) {
+			selectionListeners.add(listener);
 		}
 
-		public void removeNodeSelectionListener(NodeSelectionListener listener) {
-			nodeSelectionListeners.remove(listener);
+		public void removeSelectionListener(GISSelectionListener listener) {
+			selectionListeners.remove(listener);
 		}
 
 		public List<Node> getNodes() {
@@ -407,6 +414,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 		public void setSelectedNodes(Set<Node> selectedNodes) {
 			this.selectedNodes = selectedNodes;
 			fireNodeSelectionChanged();
+		}
+
+		public void setSelectedEdges(Set<Edge> selectedEdges) {
+			this.selectedEdges = selectedEdges;
+			fireEdgeSelectionChanged();
 		}
 
 		public void reset() {
@@ -456,13 +468,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 			 * ------------------------------------------------------------------
 			 */
 
-			if (selectedNodes != null) {
-				for (Node node : selectedNodes) {
-					g.setColor(Color.GREEN);
+			for (Node node : selectedNodes) {
+				g.setColor(Color.BLUE);
 
-					for (Polygon part : node.getTransformedPolygon()) {
-						g.fillPolygon(part);
-					}
+				for (Polygon part : node.getTransformedPolygon()) {
+					g.fillPolygon(part);
 				}
 			}
 
@@ -503,7 +513,9 @@ public class GISCanvas extends JPanel implements ActionListener {
 			}
 
 			for (Edge edge : edges) {
-				if (highlightedEdges.containsKey(edge)) {
+				if (selectedEdges.contains(edge)) {
+					edgeGraphics.setColor(Color.GREEN);
+				} else if (highlightedEdges.containsKey(edge)) {
 					float alpha = highlightedEdges.get(edge).floatValue();
 
 					edgeGraphics.setColor(new Color(alpha, 0.0f, 0.0f));
@@ -633,8 +645,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 
 		private void fireNodeSelectionChanged() {
-			for (NodeSelectionListener listener : nodeSelectionListeners) {
-				listener.gisSelectionChanged(selectedNodes);
+			for (GISSelectionListener listener : selectionListeners) {
+				listener.gisNodeSelectionChanged(selectedNodes);
+			}
+		}
+
+		private void fireEdgeSelectionChanged() {
+			for (GISSelectionListener listener : selectionListeners) {
+				listener.gisEdgeSelectionChanged(selectedEdges);
 			}
 		}
 

@@ -890,7 +890,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(this);
 
-			List<String> columnList = XLSReader.getTimeSeriesMiscColumns(file);
+			List<String> columnList = XLSReader.getColumns(file);
 			JPanel northPanel = new JPanel();
 			int row = 0;
 

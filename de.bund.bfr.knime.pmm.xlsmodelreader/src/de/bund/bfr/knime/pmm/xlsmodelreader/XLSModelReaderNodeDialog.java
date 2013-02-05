@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.xlstimeseriesreader;
+package de.bund.bfr.knime.pmm.xlsmodelreader;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -79,7 +79,7 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 
 /**
- * <code>NodeDialog</code> for the "XLSTimeSeriesReader" Node.
+ * <code>NodeDialog</code> for the "XLSModelReader" Node.
  * 
  * 
  * This node dialog derives from {@link DefaultNodeSettingsPane} which allows
@@ -89,7 +89,7 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
  * 
  * @author Christian Thoens
  */
-public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
+public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		ActionListener, ItemListener, FileListener {
 
 	private static final String NO_COLUMN = "No Column";
@@ -134,9 +134,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private JLabel noLabel;
 
 	/**
-	 * New pane for configuring the XLSTimeSeriesReader node.
+	 * New pane for configuring the XLSModelReader node.
 	 */
-	protected XLSTimeSeriesReaderNodeDialog() {
+	protected XLSModelReaderNodeDialog() {
 		filePanel = new FilePanel("XLS File", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
@@ -266,30 +266,30 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		try {
 			filePanel.removeFileListener(this);
 			filePanel.setFileName(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME));
+					.getString(XLSModelReaderNodeModel.CFGKEY_FILENAME));
 			filePanel.addFileListener(this);
 		} catch (InvalidSettingsException e) {
 			filePanel.setFileName(null);
 		}
 
 		try {
-			fileColumnList = XLSReader.getColumns(new File(
-					filePanel.getFileName()));
+			fileColumnList = XLSReader.getColumns(new File(filePanel
+					.getFileName()));
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
 		}
 
 		try {
-			columnMappings = XLSTimeSeriesReaderNodeModel
+			columnMappings = XLSModelReaderNodeModel
 					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
+							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
 
 		try {
 			timeBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT));
+					.getString(XLSModelReaderNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
 			timeBox.setSelectedItem(AttributeUtilities
 					.getStandardUnit(TimeSeriesSchema.TIME));
@@ -297,7 +297,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			logcBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT));
+					.getString(XLSModelReaderNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
 			logcBox.setSelectedItem(AttributeUtilities
 					.getStandardUnit(TimeSeriesSchema.LOGC));
@@ -305,7 +305,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			tempBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT));
+					.getString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT));
 		} catch (InvalidSettingsException e) {
 			tempBox.setSelectedItem(AttributeUtilities
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
@@ -313,52 +313,49 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			agentColumn = settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN);
+					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN);
 		} catch (InvalidSettingsException e) {
-			agentColumn = XLSTimeSeriesReaderNodeModel.DEFAULT_AGENTCOLUMN;
+			agentColumn = XLSModelReaderNodeModel.DEFAULT_AGENTCOLUMN;
 		}
 
 		try {
-			agentID = settings
-					.getInt(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTID);
+			agentID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_AGENTID);
 		} catch (InvalidSettingsException e) {
-			agentID = XLSTimeSeriesReaderNodeModel.DEFAULT_AGENTID;
+			agentID = XLSModelReaderNodeModel.DEFAULT_AGENTID;
 		}
 
 		try {
-			agentMappings = XLSTimeSeriesReaderNodeModel
+			agentMappings = XLSModelReaderNodeModel
 					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS)));
+							.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
 		}
 
 		try {
 			matrixColumn = settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN);
+					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN);
 		} catch (InvalidSettingsException e) {
-			matrixColumn = XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXCOLUMN;
+			matrixColumn = XLSModelReaderNodeModel.DEFAULT_MATRIXCOLUMN;
 		}
 
 		try {
-			matrixID = settings
-					.getInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID);
+			matrixID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
-			matrixID = XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXID;
+			matrixID = XLSModelReaderNodeModel.DEFAULT_MATRIXID;
 		}
 
 		try {
-			matrixMappings = XLSTimeSeriesReaderNodeModel
+			matrixMappings = XLSModelReaderNodeModel
 					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
+							.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literatureIDs = ListUtilities
-					.getIntListFromString(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS));
+			literatureIDs = ListUtilities.getIntListFromString(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
 
 			for (int id : literatureIDs) {
@@ -392,7 +389,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Specified file is invalid");
 		}
 
-		boolean idColumnMissing = true;
 		Set<String> assignments = new LinkedHashSet<>();
 
 		for (String column : columnMappings.keySet()) {
@@ -401,8 +397,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			if (assignment == null) {
 				throw new InvalidSettingsException("Column \"" + column
 						+ "\" has no assignment");
-			} else if (columnMappings.get(column).equals(XLSReader.ID_COLUMN)) {
-				idColumnMissing = false;
 			}
 
 			if (!assignments.add(assignment)) {
@@ -431,35 +425,30 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		if (idColumnMissing) {
-			throw new InvalidSettingsException("\"" + XLSReader.ID_COLUMN
-					+ "\" is unassigned");
-		}
-
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_FILENAME,
 				filePanel.getFileName());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
+				ListUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(columnMappings)));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_LOGCUNIT,
 				(String) logcBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
 				agentColumn);
-		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTID, agentID);
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+		settings.addInt(XLSModelReaderNodeModel.CFGKEY_AGENTID, agentID);
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
+				ListUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(agentMappings)));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
-		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID, matrixID);
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID, matrixID);
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
+				ListUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(matrixMappings)));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS,
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS,
 				ListUtilities.getStringFromList(literatureIDs));
 	}
 
@@ -614,26 +603,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					JComboBox<String> box = columnBoxes.get(column);
 					JButton button = columnButtons.get(column);
 
-					if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, XLSReader.ID_COLUMN);
-					} else if (box.getSelectedItem().equals(
+					if (box.getSelectedItem().equals(
 							TimeSeriesSchema.ATT_COMMENT)) {
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 						columnMappings
 								.put(column, TimeSeriesSchema.ATT_COMMENT);
-					} else if (box.getSelectedItem().equals(
-							TimeSeriesSchema.TIME)) {
+					} else if (box.getSelectedItem().equals(XLSReader.DVALUE)) {
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, TimeSeriesSchema.TIME);
-					} else if (box.getSelectedItem().equals(
-							TimeSeriesSchema.LOGC)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, TimeSeriesSchema.LOGC);
+						columnMappings.put(column, XLSReader.DVALUE);
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
@@ -671,8 +650,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void fileChanged(FilePanel source) {
 		try {
-			fileColumnList = XLSReader.getColumns(new File(
-					filePanel.getFileName()));
+			fileColumnList = XLSReader.getColumns(new File(filePanel
+					.getFileName()));
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
 		}
@@ -691,13 +670,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			agentBox.addItem(column);
 		}
 
-		if (agentColumn != XLSTimeSeriesReaderNodeModel.DEFAULT_AGENTCOLUMN) {
+		if (agentColumn != XLSModelReaderNodeModel.DEFAULT_AGENTCOLUMN) {
 			agentBox.setSelectedItem(agentColumn);
 		} else {
 			agentBox.setSelectedItem(NO_COLUMN);
 		}
 
-		if (agentID != XLSTimeSeriesReaderNodeModel.DEFAULT_AGENTID) {
+		if (agentID != XLSModelReaderNodeModel.DEFAULT_AGENTID) {
 			agentButton.setText(""
 					+ DBKernel.getValue("Agenzien", "ID", agentID + "",
 							"Agensname"));
@@ -765,13 +744,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			matrixBox.addItem(column);
 		}
 
-		if (matrixColumn != XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXCOLUMN) {
+		if (matrixColumn != XLSModelReaderNodeModel.DEFAULT_MATRIXCOLUMN) {
 			matrixBox.setSelectedItem(matrixColumn);
 		} else {
 			matrixBox.setSelectedItem(NO_COLUMN);
 		}
 
-		if (matrixID != XLSTimeSeriesReaderNodeModel.DEFAULT_MATRIXID) {
+		if (matrixID != XLSModelReaderNodeModel.DEFAULT_MATRIXID) {
 			matrixButton.setText(""
 					+ DBKernel.getValue("Matrices", "ID", matrixID + "",
 							"Matrixname"));
@@ -843,8 +822,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
-						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
+						TimeSeriesSchema.ATT_COMMENT, XLSReader.DVALUE,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -854,20 +832,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				if (columnMappings.containsKey(column)) {
 					String id = columnMappings.get(column);
 
-					if (id.equals(XLSReader.ID_COLUMN)) {
-						box.setSelectedItem(XLSReader.ID_COLUMN);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
+					if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.TIME)) {
-						box.setSelectedItem(TimeSeriesSchema.TIME);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.LOGC)) {
-						box.setSelectedItem(TimeSeriesSchema.LOGC);
+					} else if (id.equals(XLSReader.DVALUE)) {
+						box.setSelectedItem(XLSReader.DVALUE);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID
@@ -977,5 +947,4 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
 	}
-
 }

@@ -157,24 +157,24 @@ public class RegionToRegionVisualizerNodeView extends
 		Map<String, Map<String, GISCanvas.Edge>> gisEdgesByRegion = new LinkedHashMap<>();
 
 		for (GISCanvas.Edge gisEdge : gisCanvas.getEdges()) {
-			GISCanvas.Node from = gisEdge.getFrom();
-			GISCanvas.Node to = gisEdge.getTo();
+			String fromRegion = gisEdge.getFrom().getId();
+			String toRegion = gisEdge.getTo().getId();
 
-			if (!gisEdgesByRegion.containsKey(from.getId())) {
-				gisEdgesByRegion.put(from.getId(),
+			if (!gisEdgesByRegion.containsKey(fromRegion)) {
+				gisEdgesByRegion.put(fromRegion,
 						new LinkedHashMap<String, GISCanvas.Edge>());
 			}
 
-			gisEdgesByRegion.get(from.getId()).put(to.getId(), gisEdge);
+			gisEdgesByRegion.get(fromRegion).put(toRegion, gisEdge);
 		}
 
 		for (GraphCanvas.Edge graphEdge : selectedEdges) {
-			GraphCanvas.Node from = graphEdge.getFrom();
-			GraphCanvas.Node to = graphEdge.getTo();
+			String fromRegion = graphEdge.getFrom().getRegion();
+			String toRegion = graphEdge.getTo().getRegion();
 
-			if (gisEdgesByRegion.containsKey(from.getRegion())) {
-				GISCanvas.Edge gisEdge = gisEdgesByRegion.get(from.getRegion())
-						.get(to.getRegion());
+			if (gisEdgesByRegion.containsKey(fromRegion)) {
+				GISCanvas.Edge gisEdge = gisEdgesByRegion.get(fromRegion).get(
+						toRegion);
 
 				if (gisEdge != null) {
 					selectedGisEdges.add(gisEdge);
@@ -218,8 +218,45 @@ public class RegionToRegionVisualizerNodeView extends
 	}
 
 	@Override
-	public void gisEdgeSelectionChanged(Set<GISCanvas.Edge> selectedNodes) {
-		// TODO Auto-generated method stub
+	public void gisEdgeSelectionChanged(Set<GISCanvas.Edge> selectedEdges) {
+		Set<GraphCanvas.Edge> selectedGraphEdges = new LinkedHashSet<>();
+		Map<String, Map<String, List<GraphCanvas.Edge>>> graphEdgesByRegion = new LinkedHashMap<>();
+
+		for (GraphCanvas.Edge graphEdge : graphCanvas.getEdges()) {
+			String fromRegion = graphEdge.getFrom().getRegion();
+			String toRegion = graphEdge.getTo().getRegion();
+
+			if (!graphEdgesByRegion.containsKey(fromRegion)) {
+				graphEdgesByRegion.put(fromRegion,
+						new LinkedHashMap<String, List<GraphCanvas.Edge>>());
+			}
+
+			if (!graphEdgesByRegion.get(fromRegion).containsKey(toRegion)) {
+				graphEdgesByRegion.get(fromRegion).put(toRegion,
+						new ArrayList<GraphCanvas.Edge>());
+			}
+
+			graphEdgesByRegion.get(fromRegion).get(toRegion).add(graphEdge);
+		}
+
+		for (GISCanvas.Edge gisEdge : selectedEdges) {
+			String fromRegion = gisEdge.getFrom().getId();
+			String toRegion = gisEdge.getTo().getId();
+
+			if (graphEdgesByRegion.containsKey(fromRegion)) {
+				List<GraphCanvas.Edge> graphEdges = graphEdgesByRegion.get(
+						fromRegion).get(toRegion);
+
+				if (graphEdges != null) {
+					selectedGraphEdges.addAll(graphEdges);
+				}
+			}
+		}
+
+		graphCanvas.removeSelectionListener(this);
+		graphCanvas.setSelectedEdges(selectedGraphEdges);
+		graphCanvas.addSelectionListener(this);
+		graphCanvas.repaint();
 	}
 
 	private Map<String, String> getIdToRegionMap() {

@@ -82,12 +82,14 @@ public class GISCanvas extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private static final String TRANSFORMING_MODE = "Transforming";
-	private static final String PICKING_MODE = "Picking";
-	private static final String[] MODES = { TRANSFORMING_MODE, PICKING_MODE };
+	private static final String NODE_PICKING_MODE = "Node Picking";
+	private static final String EDGE_PICKING_MODE = "Edge Picking";
+	private static final String[] MODES = { TRANSFORMING_MODE,
+			NODE_PICKING_MODE, EDGE_PICKING_MODE };
 
 	private static final int DEFAULT_BORDER_ALPHA = 255;
 	private static final int DEFAULT_EDGE_ALPHA = 255;
-	private static final String DEFAULT_MODE = PICKING_MODE;
+	private static final String DEFAULT_MODE = NODE_PICKING_MODE;
 
 	private GISComponent gisComponent;
 	private JButton layoutButton;
@@ -203,7 +205,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		public void gisNodeSelectionChanged(Set<Node> selectedNodes);
 
-		public void gisEdgeSelectionChanged(Set<Edge> selectedNodes);
+		public void gisEdgeSelectionChanged(Set<Edge> selectedEdges);
 	}
 
 	public static interface GISElement {
@@ -627,7 +629,9 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private void updateCursor() {
 			if (mode.equals(TRANSFORMING_MODE)) {
 				setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			} else if (mode.equals(PICKING_MODE)) {
+			} else if (mode.equals(NODE_PICKING_MODE)) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			} else if (mode.equals(EDGE_PICKING_MODE)) {
 				setCursor(new Cursor(Cursor.HAND_CURSOR));
 			}
 		}
@@ -642,6 +646,40 @@ public class GISCanvas extends JPanel implements ActionListener {
 			}
 
 			return null;
+		}
+
+		private Edge getContainingEdge(int x, int y) {
+			Point2D.Double p = getInversedPoint(x, y);
+			Edge bestEdge = null;
+			double bestDistance = Double.MAX_VALUE;
+
+			for (Edge edge : edges) {
+				Point2D.Double p1 = edge.getFrom().getCenter();
+				Point2D.Double p2 = edge.getTo().getCenter();
+
+				double vx = p2.x - p1.x;
+				double vy = p2.y - p1.y;
+				double norm = Math.sqrt(vx * vx + vy * vy);
+				double v0x = vx / norm;
+				double v0y = vy / norm;
+				double test = ((p.x - p1.x) * v0x + (p.y - p1.y) * v0y) / norm;
+
+				if (test < 0 || test > 1) {
+					continue;
+				}
+
+				double nx0 = -v0y;
+				double ny0 = v0x;
+				double d = nx0 * p1.x + ny0 * p1.y;
+				double distance = Math.abs(nx0 * p.x + ny0 * p.y - d);
+
+				if (distance < bestDistance) {
+					bestDistance = distance;
+					bestEdge = edge;
+				}
+			}
+
+			return bestEdge;
 		}
 
 		private void fireNodeSelectionChanged() {
@@ -676,7 +714,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 				lastX = e.getX();
 				lastY = e.getY();
 
-				if (mode.equals(PICKING_MODE)) {
+				if (mode.equals(NODE_PICKING_MODE)) {
 					Node node = getContainingNode(e.getX(), e.getY());
 
 					if (node != null) {
@@ -687,6 +725,18 @@ public class GISCanvas extends JPanel implements ActionListener {
 						selectedNodes.add(node);
 						repaint();
 						fireNodeSelectionChanged();
+					}
+				} else if (mode.equals(EDGE_PICKING_MODE)) {
+					Edge edge = getContainingEdge(e.getX(), e.getY());
+
+					if (edge != null) {
+						if (!e.isShiftDown()) {
+							selectedEdges.clear();
+						}
+
+						selectedEdges.add(edge);
+						repaint();
+						fireEdgeSelectionChanged();
 					}
 				}
 			}

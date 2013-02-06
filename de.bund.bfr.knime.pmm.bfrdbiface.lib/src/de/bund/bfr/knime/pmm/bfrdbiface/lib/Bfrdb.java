@@ -64,6 +64,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
 public class Bfrdb extends Hsqldbiface {
 	
@@ -1630,6 +1631,77 @@ public class Bfrdb extends Hsqldbiface {
 					
 		    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
 		    		tuple.setValue( Model1Schema.ATT_DBUUID, getDBUUID() );
+				}
+				
+			}
+		}
+		
+		return tuple;
+	}
+	
+	public KnimeTuple getSecModelById( int id )throws SQLException {
+		
+		KnimeTuple tuple;
+		PmmXmlDoc doc;
+		String formula;
+		
+		tuple = null;
+		try( PreparedStatement stat = conn.prepareStatement(
+			queryModelView
+			+" WHERE \""+ATT_LEVEL+"\"=2 AND \""+ATT_MODELID+"\"=?" ) ) {
+			
+			stat.setInt( 1, id );
+			try( ResultSet result = stat.executeQuery() ) {
+				
+				if( result.next() ) {
+					
+		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		if( formula != null )
+						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+
+					
+					tuple = new KnimeTuple( new Model2Schema() );
+					
+					doc = new PmmXmlDoc();
+					doc.add(
+						new CatalogModelXml(
+							result.getInt( Bfrdb.ATT_MODELID ),
+							result.getString( Bfrdb.ATT_NAME ),
+							formula) );
+					tuple.setValue( Model2Schema.ATT_MODELCATALOG, doc );
+					
+		    		doc = new PmmXmlDoc();
+		    		doc.add( new DepXml( result.getString( Bfrdb.ATT_DEP ) ) );
+		    		tuple.setValue( Model2Schema.ATT_DEPENDENT, doc );
+		    		
+		    		tuple.setValue(
+	    				Model2Schema.ATT_INDEPENDENT,
+	    				DbIo.convertArrays2IndepXmlDoc(
+    						null,
+    						result.getArray( Bfrdb.ATT_INDEP ),
+		    				null,
+		    				null ) );
+		    		
+		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
+	    				DbIo.convertArrays2ParamXmlDoc(
+    						null,
+    						result.getArray( Bfrdb.ATT_PARAMNAME ),
+		    				null,
+		    				null,
+		    				result.getArray( Bfrdb.ATT_MINVALUE ),
+		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
+		    		
+					doc = new PmmXmlDoc();
+					doc.add( new EstModelXml(
+						null, null, null, null, null, null, null ) );
+					tuple.setValue(Model2Schema.ATT_ESTMODEL, doc);
+					
+					String s = result.getString( Bfrdb.ATT_LITERATUREID );
+		    		if (s != null)
+						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(  s ) );
+					
+		    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
+		    		tuple.setValue( Model2Schema.ATT_DBUUID, getDBUUID() );
 				}
 				
 			}

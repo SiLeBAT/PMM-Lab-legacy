@@ -1577,7 +1577,7 @@ public class Bfrdb extends Hsqldbiface {
 		tuple = null;
 		try( PreparedStatement stat = conn.prepareStatement(
 			queryModelView
-			+" WHERE \""+ATT_LEVEL+"\"=1 AND \""+ATT_MODELID+"\"=?" ) ) {
+			+" WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" ) ) {
 			
 			stat.setInt( 1, id );
 			try( ResultSet result = stat.executeQuery() ) {
@@ -1645,10 +1645,14 @@ public class Bfrdb extends Hsqldbiface {
 		PmmXmlDoc doc;
 		String formula;
 		
+
+		
 		tuple = null;
 		try( PreparedStatement stat = conn.prepareStatement(
 			queryModelView
-			+" WHERE \""+ATT_LEVEL+"\"=2 AND \""+ATT_MODELID+"\"=?" ) ) {
+			+" WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" ) ) {
+			
+			
 			
 			stat.setInt( 1, id );
 			try( ResultSet result = stat.executeQuery() ) {

@@ -762,9 +762,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(northPanel, BorderLayout.NORTH);
 
 		agentPanel.removeAll();
-		agentPanel.add(new JScrollPane(panel,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		agentPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
 	}
 
 	private void updateMatrixPanel() {
@@ -835,9 +833,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		panel.add(northPanel, BorderLayout.NORTH);
 
 		matrixPanel.removeAll();
-		matrixPanel.add(new JScrollPane(panel,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		matrixPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
 	}
 
 	private void updateColumnsPanel() {
@@ -913,10 +909,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			panel.add(northPanel, BorderLayout.NORTH);
 
 			columnsPanel.removeAll();
-			columnsPanel.add(new JScrollPane(panel,
-					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-					BorderLayout.CENTER);
+			columnsPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
 		} else {
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);

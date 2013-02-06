@@ -107,19 +107,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	 */
 	protected XLSTimeSeriesReaderNodeModel() {
 		super(0, 1);
-		fileName = null;
-		columnMappings = new LinkedHashMap<>();
-		agentColumn = null;
-		agentMappings = new LinkedHashMap<>();
-		matrixColumn = null;
-		matrixMappings = new LinkedHashMap<>();
-		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		agentID = -1;
-		matrixID = -1;
-		literatureIDs = new ArrayList<>();
 		timeSeriesSchema = new TimeSeriesSchema();
 	}
 

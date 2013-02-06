@@ -89,11 +89,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRIXID = "MatrixID";
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
-	protected static final String DEFAULT_AGENTCOLUMN = null;
-	protected static final String DEFAULT_MATRIXCOLUMN = null;
-	protected static final int DEFAULT_AGENTID = -1;
-	protected static final int DEFAULT_MATRIXID = -1;
-
 	private String fileName;
 	private Map<String, String> columnMappings;
 	private String agentColumn;
@@ -114,19 +109,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 */
 	protected XLSModelReaderNodeModel() {
 		super(0, 1);
-		fileName = null;
-		columnMappings = new LinkedHashMap<>();
-		agentColumn = DEFAULT_AGENTCOLUMN;
-		agentMappings = new LinkedHashMap<>();
-		matrixColumn = DEFAULT_MATRIXCOLUMN;
-		matrixMappings = new LinkedHashMap<>();
-		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		agentID = DEFAULT_AGENTID;
-		matrixID = DEFAULT_MATRIXID;
-		literatureIDs = new ArrayList<>();
 
 		try {
 			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
@@ -196,11 +178,17 @@ public class XLSModelReaderNodeModel extends NodeModel {
 						aMappings, matrixColumn, mMappings).values());
 
 		if (agentColumn == null) {
-			String agentName = DBKernel.getValue("Agenzien", "ID",
-					agentID + "", "Agensname") + "";
 			PmmXmlDoc agentXml = new PmmXmlDoc();
 
-			agentXml.add(new AgentXml(agentID, agentName, null));
+			if (agentID != -1) {
+				String agentName = DBKernel.getValue("Agenzien", "ID", agentID
+						+ "", "Agensname")
+						+ "";
+
+				agentXml.add(new AgentXml(agentID, agentName, null));
+			} else {
+				agentXml.add(new AgentXml(null, null, null));
+			}
 
 			for (KnimeTuple tuple : tuples) {
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
@@ -208,12 +196,16 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		}
 
 		if (matrixColumn == null) {
-			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
-					+ "", "Matrixname")
-					+ "";
 			PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-			matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+			if (matrixID != -1) {
+				String matrixName = DBKernel.getValue("Matrices", "ID",
+						matrixID + "", "Matrixname") + "";
+
+				matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+			} else {
+				matrixXml.add(new MatrixXml(null, null, null));
+			}
 
 			for (KnimeTuple tuple : tuples) {
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
@@ -347,7 +339,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		try {
 			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
 		} catch (InvalidSettingsException e) {
-			agentColumn = DEFAULT_AGENTCOLUMN;
+			agentColumn = null;
 		}
 
 		try {
@@ -361,7 +353,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		try {
 			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		} catch (InvalidSettingsException e) {
-			matrixColumn = DEFAULT_MATRIXCOLUMN;
+			matrixColumn = null;
 		}
 
 		try {
@@ -396,13 +388,13 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		try {
 			agentID = settings.getInt(CFGKEY_AGENTID);
 		} catch (InvalidSettingsException e) {
-			agentID = DEFAULT_AGENTID;
+			agentID = -1;
 		}
 
 		try {
 			matrixID = settings.getInt(CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
-			matrixID = DEFAULT_MATRIXID;
+			matrixID = -1;
 		}
 
 		try {

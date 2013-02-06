@@ -214,7 +214,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
 		    		String mcls = DBKernel.hashModelType.get(cls);
-		    		takeIt = (modelClass.indexOf(mcls) >= 0);
+		    		//takeIt = (modelClass.indexOf(mcls) >= 0);
+		    		takeIt = (mcls.indexOf(modelClass) >= 0);
 	    		}
 	    		if (takeIt) {
 		    		// initialize row

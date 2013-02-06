@@ -50,14 +50,24 @@ public class Hsqldbiface {
 	protected Connection conn;
 	private String uuid = null;
 	
-	public Hsqldbiface( Connection conn ) { this.conn = conn; }
+	public Hsqldbiface( Connection conn ) {
+	
+		if( conn == null )
+			throw new NullPointerException( "Connection must not be null." );
+		
+		this.conn = conn;
+		
+	}
 	
 	public Hsqldbiface( String filename, String login, String pw ) throws ClassNotFoundException, SQLException {
 		
 		DBKernel.isServerConnection = DBKernel.isHsqlServer(filename);
 		if (DBKernel.isServerConnection) {
 			try {
-				conn = DBKernel.getNewServerConnection(login, pw, filename);				
+				conn = DBKernel.getNewServerConnection(login, pw, filename);	
+				
+				if( conn == null )
+					throw new NullPointerException( "Did not get a connection from DBKernel.getNewServerConnection()." );
 			}
 			catch (Exception e) {throw new SQLException(e.getMessage());}
 		}
@@ -75,13 +85,19 @@ public class Hsqldbiface {
 					createUser(path, login, pw);
 					conn = DBKernel.getNewLocalConnection(login, pw, filename);
 				}
+				
+				if( conn == null )
+					throw new NullPointerException( "Did not get a connection from DBKernel.getNewLocalConnection." );
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 			}
-		}		
+		}	
 	}
 	private void createUser(String path, String login, String pw) throws Exception {
+		
+		Connection conn;
+		
 		conn = DBKernel.getDefaultAdminConn(path, false);
 		if (DBKernel.countUsers(conn, false) == 0) {
 			conn.setReadOnly(false);

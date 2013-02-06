@@ -161,7 +161,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		
         		// fill row
         		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
-        		tuple.setCombaseId( result.getString( Bfrdb.ATT_COMBASEID ) );
+        		tuple.setCombaseId( result.getString( "CombaseID" ) );
         		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);

@@ -286,6 +286,18 @@ public class KnimeTuple implements DataRow {
 						"Some cells are not allowed for XML Types");
 		}
 	}
+	
+	protected void setCell(final int i, final XMLBlobCell c) throws PmmException {
+		switch (schema.getType(i)) {
+			case KnimeAttribute.TYPE_XML:
+				cell[i] = c;
+				break;
+	
+			default:
+				throw new PmmException(
+						"Some cells are not allowed for XML Types");
+		}
+	}
 
 	protected void setCell(final int i, final DataCell c) throws PmmException {
 
@@ -297,6 +309,8 @@ public class KnimeTuple implements DataRow {
 			setCell(i, (StringCell) c);
 		else if (c instanceof XMLCell)
 			setCell(i, (XMLCell) c);
+		else if (c instanceof XMLBlobCell)
+			setCell(i, (XMLBlobCell) c);
 		else if (c.isMissing())
 			cell[i] = CellIO.createMissingCell();
 		else

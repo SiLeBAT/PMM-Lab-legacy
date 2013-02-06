@@ -50,7 +50,6 @@ import org.knime.core.data.StringValue;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
-import org.knime.core.data.xml.XMLCell;
 import org.knime.core.data.xml.XMLCellFactory;
 import org.xml.sax.SAXException;
 

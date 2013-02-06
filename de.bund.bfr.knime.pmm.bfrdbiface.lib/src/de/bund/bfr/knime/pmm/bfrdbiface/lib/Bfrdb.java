@@ -1573,6 +1573,7 @@ public class Bfrdb extends Hsqldbiface {
 		PmmXmlDoc doc;
 		String formula;
 		
+		tuple = null;
 		try( PreparedStatement stat = conn.prepareStatement(
 			queryModelView
 			+" WHERE \""+ATT_LEVEL+"\"=1 AND \""+ATT_MODELID+"\"=?" ) ) {
@@ -1634,7 +1635,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 		}
 		
-		return null;
+		return tuple;
 	}
 	
 	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {

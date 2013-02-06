@@ -139,11 +139,11 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		nLevenbergField.setPreferredSize(new Dimension(100, nLevenbergField
 				.getPreferredSize().height));
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
-		limitsBox = new JCheckBox("Enforce Limits");
+		limitsBox = new JCheckBox("Enforce limits of Formula Definition");
 		fittingPanel = new JPanel();
 		fittingPanel
 				.setBorder(BorderFactory
-						.createTitledBorder("Optional Start Values for Fitting Procedure"));
+						.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
 		fittingPanel.setLayout(new BorderLayout());
 
 		fittingTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -530,7 +530,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (panel != null) {
-			modelRangeButton = new JButton("Use Range from Model Definition");
+			modelRangeButton = new JButton("Use Range from Formula Definition");
 			modelRangeButton.addActionListener(this);
 			rangeButton = new JButton("Fill Empty Fields");
 			rangeButton.addActionListener(this);

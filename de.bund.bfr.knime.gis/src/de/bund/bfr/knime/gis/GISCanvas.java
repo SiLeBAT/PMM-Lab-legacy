@@ -72,6 +72,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 
 import org.eclipse.stem.gis.shp.ShpPolygon;
@@ -328,6 +329,7 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private List<Edge> edges;
 		private List<String> nodeProperties;
 		private List<String> edgeProperties;
+		private Map<Node, List<Edge>> connectingEdges;
 		private int borderAlpha;
 		private int edgeAlpha;
 		private String mode;
@@ -349,6 +351,11 @@ public class GISCanvas extends JPanel implements ActionListener {
 		private Node lastContainingPolygon;
 
 		private JPopupMenu popup;
+		private JMenuItem selectConnectingItem;
+		private JMenuItem selectHighlightedNodesItem;
+		private JMenuItem selectHighlightedEdgesItem;
+		private JMenuItem clearSelectNodesItem;
+		private JMenuItem clearSelectEdgesItem;
 		private JMenuItem highlightNodesItem;
 		private JMenuItem clearHighlightNodesItem;
 		private JMenuItem highlightEdgesItem;
@@ -367,6 +374,16 @@ public class GISCanvas extends JPanel implements ActionListener {
 			this.borderAlpha = borderAlpha;
 			this.edgeAlpha = edgeAlpha;
 			this.mode = mode;
+			connectingEdges = new LinkedHashMap<>();
+
+			for (Node node : nodes) {
+				connectingEdges.put(node, new ArrayList<Edge>());
+			}
+
+			for (Edge edge : edges) {
+				connectingEdges.get(edge.getFrom()).add(edge);
+				connectingEdges.get(edge.getTo()).add(edge);
+			}
 
 			selectedNodes = new LinkedHashSet<>();
 			selectedEdges = new LinkedHashSet<>();
@@ -610,6 +627,18 @@ public class GISCanvas extends JPanel implements ActionListener {
 		}
 
 		private void createPopupMenu() {
+			selectConnectingItem = new JMenuItem("Select Connecting Edges");
+			selectConnectingItem.addActionListener(this);
+			selectHighlightedNodesItem = new JMenuItem(
+					"Select Highlighted Nodes");
+			selectHighlightedNodesItem.addActionListener(this);
+			selectHighlightedEdgesItem = new JMenuItem(
+					"Select Highlighted Edges");
+			selectHighlightedEdgesItem.addActionListener(this);
+			clearSelectNodesItem = new JMenuItem("Clear Node Selection");
+			clearSelectNodesItem.addActionListener(this);
+			clearSelectEdgesItem = new JMenuItem("Clear Edge Selection");
+			clearSelectEdgesItem.addActionListener(this);
 			highlightNodesItem = new JMenuItem("Highlight Nodes");
 			highlightNodesItem.addActionListener(this);
 			clearHighlightNodesItem = new JMenuItem("Clear Node Highlights");
@@ -620,6 +649,12 @@ public class GISCanvas extends JPanel implements ActionListener {
 			clearHighlightEdgesItem.addActionListener(this);
 
 			popup = new JPopupMenu();
+			popup.add(selectConnectingItem);
+			popup.add(selectHighlightedNodesItem);
+			popup.add(selectHighlightedEdgesItem);
+			popup.add(clearSelectNodesItem);
+			popup.add(clearSelectEdgesItem);
+			popup.add(new JSeparator());
 			popup.add(highlightNodesItem);
 			popup.add(clearHighlightNodesItem);
 			popup.add(highlightEdgesItem);
@@ -804,7 +839,66 @@ public class GISCanvas extends JPanel implements ActionListener {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == highlightNodesItem) {
+			if (e.getSource() == selectConnectingItem) {
+				Set<Edge> connections = new LinkedHashSet<>();
+
+				for (Node node : selectedNodes) {
+					for (Edge edge : connectingEdges.get(node)) {
+						Node otherNode = null;
+
+						if (edge.getFrom() == node) {
+							otherNode = edge.getTo();
+						} else if (edge.getTo() == node) {
+							otherNode = edge.getFrom();
+						}
+
+						if (selectedNodes.contains(otherNode)) {
+							connections.add(edge);
+						}
+					}
+				}
+
+				setSelectedEdges(connections);
+				repaint();
+			} else if (e.getSource() == selectHighlightedNodesItem) {
+				Set<Node> highlightedSet = new LinkedHashSet<>();
+
+				if (nodesHighlightCondition != null) {
+					Map<GISElement, Double> highlightedMap = nodesHighlightCondition
+							.getValues(new ArrayList<GISElement>(nodes));
+
+					for (GISElement node : highlightedMap.keySet()) {
+						if (highlightedMap.get(node) > 0.0) {
+							highlightedSet.add((Node) node);
+						}
+					}
+				}
+
+				setSelectedNodes(highlightedSet);
+				repaint();
+			} else if (e.getSource() == selectHighlightedEdgesItem) {
+				Set<Edge> highlightedSet = new LinkedHashSet<>();
+
+				if (edgesHighlightCondition != null) {
+					Map<GISElement, Double> highlightedMap = edgesHighlightCondition
+							.getValues(new ArrayList<GISElement>(edges));
+
+					for (GISElement edge : highlightedMap.keySet()) {
+						if (highlightedMap.get(edge) > 0.0) {
+							highlightedSet.add((Edge) edge);
+						}
+					}
+				}
+
+				setSelectedEdges(highlightedSet);
+				repaint();
+			} else if (e.getSource() == clearSelectNodesItem) {
+				setSelectedNodes(new LinkedHashSet<Node>());
+				repaint();
+			} else if (e.getSource() == clearSelectEdgesItem) {
+				setSelectedEdges(new LinkedHashSet<Edge>());
+				repaint();
+			} else if (e.getSource() == highlightNodesItem) {
 				HighlightDialog dialog = new HighlightDialog(this,
 						nodeProperties, nodesHighlightCondition);
 

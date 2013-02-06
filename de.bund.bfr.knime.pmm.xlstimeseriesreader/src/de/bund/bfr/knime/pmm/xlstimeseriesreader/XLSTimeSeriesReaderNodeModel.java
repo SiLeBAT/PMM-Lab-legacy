@@ -87,11 +87,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRIXID = "MatrixID";
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
-	protected static final String DEFAULT_AGENTCOLUMN = null;
-	protected static final String DEFAULT_MATRIXCOLUMN = null;
-	protected static final int DEFAULT_AGENTID = -1;
-	protected static final int DEFAULT_MATRIXID = -1;
-
 	private String fileName;
 	private Map<String, String> columnMappings;
 	private String agentColumn;
@@ -114,16 +109,16 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		super(0, 1);
 		fileName = null;
 		columnMappings = new LinkedHashMap<>();
-		agentColumn = DEFAULT_AGENTCOLUMN;
+		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
-		matrixColumn = DEFAULT_MATRIXCOLUMN;
+		matrixColumn = null;
 		matrixMappings = new LinkedHashMap<>();
 		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		agentID = DEFAULT_AGENTID;
-		matrixID = DEFAULT_MATRIXID;
+		agentID = -1;
+		matrixID = -1;
 		literatureIDs = new ArrayList<>();
 		timeSeriesSchema = new TimeSeriesSchema();
 	}
@@ -345,7 +340,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		try {
 			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
 		} catch (InvalidSettingsException e) {
-			agentColumn = DEFAULT_AGENTCOLUMN;
+			agentColumn = null;
 		}
 
 		try {
@@ -359,7 +354,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		try {
 			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		} catch (InvalidSettingsException e) {
-			matrixColumn = DEFAULT_MATRIXCOLUMN;
+			matrixColumn = null;
 		}
 
 		try {
@@ -394,13 +389,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		try {
 			agentID = settings.getInt(CFGKEY_AGENTID);
 		} catch (InvalidSettingsException e) {
-			agentID = DEFAULT_AGENTID;
+			agentID = -1;
 		}
 
 		try {
 			matrixID = settings.getInt(CFGKEY_MATRIXID);
 		} catch (InvalidSettingsException e) {
-			matrixID = DEFAULT_MATRIXID;
+			matrixID = -1;
 		}
 
 		try {

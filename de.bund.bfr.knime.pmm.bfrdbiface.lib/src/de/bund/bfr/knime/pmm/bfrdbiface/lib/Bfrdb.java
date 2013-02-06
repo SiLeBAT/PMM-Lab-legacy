@@ -48,6 +48,10 @@ import java.util.List;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DbIo;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -58,6 +62,8 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 
 public class Bfrdb extends Hsqldbiface {
 	
@@ -231,23 +237,22 @@ public class Bfrdb extends Hsqldbiface {
 			+"LEFT JOIN \""+REL_DOUBLE+"Einfach\"\n"
 			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"Einfach\".\"ID\"\n";
 	
-	private static final String queryModelView = "WITH \"ModelView\" AS(\n"
-			+"SELECT\n"
+	private static final String queryModelView = "SELECT\n"
 			+"\n"
-			+"\""+ATT_FORMULA+"\",\n"
+			+"\""+REL_MODEL+"\".\""+ATT_FORMULA+"\",\n"
+			+"\""+REL_MODEL+"\".\"ID\" AS \""+ATT_MODELID+"\",\n"
 			+"\"P\".\""+ATT_PARAMNAME+"\",\n"
 			+"\"D\".\""+ATT_PARAMNAME+"\" AS \""+ATT_DEP+"\",\n"
 			+"\"I\".\""+ATT_PARAMNAME+"\" AS \""+ATT_INDEP+"\",\n"
 			+"\""+REL_MODEL+"\".\""+ATT_NAME+"\",\n"
-			+"\""+REL_MODEL+"\".\"ID\" AS \""+ATT_MODELID+"\",\n"
 			+"\""+ATT_MINVALUE+"\",\n"
 			+"\""+ATT_MAXVALUE+"\",\n"
 			+"\""+ATT_MININDEP+"\",\n"
 			+"\""+ATT_MAXINDEP+"\",\n"
 			+"\""+ATT_LITERATUREID+"\",\n"
 			+"\""+ATT_LITERATURETEXT+"\",\n"
-			+"\""+ATT_LEVEL+"\",\n"
-			+"\"Klasse\"\n"
+			+"\""+REL_MODEL+"\".\""+ATT_LEVEL+"\",\n"
+			+"\""+REL_MODEL+"\".\"Klasse\"\n"
 			+"\n"
 			+"FROM \""+REL_MODEL+"\"\n"
 			+"\n"
@@ -289,10 +294,8 @@ public class Bfrdb extends Hsqldbiface {
 			+"    FROM \""+REL_PARAM+"\"\n"
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=2\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"P\"\n"
-			+"ON \""+REL_MODEL+"\".\"ID\"=\"P\".\""+ATT_MODELID+"\"\n"
-			+")\n"
-			+"\n"
-			+"SELECT * FROM \"ModelView\"\n";
+			+"ON \""+REL_MODEL+"\".\"ID\"=\"P\".\""+ATT_MODELID+"\"\n";
+	
 	
 	private static final String queryPei = "WITH \""+REL_DOUBLE+"Einfach\" AS(\n"
 			+"\n"
@@ -1562,6 +1565,78 @@ public class Bfrdb extends Hsqldbiface {
 		return ps.executeQuery();
 	}
 	
+	
+	
+	public KnimeTuple getPrimModelById( int id )throws SQLException {
+		
+		KnimeTuple tuple;
+		PmmXmlDoc doc;
+		String formula;
+		
+		try( PreparedStatement stat = conn.prepareStatement(
+			queryModelView
+			+" WHERE \""+ATT_LEVEL+"\"=1 AND \""+ATT_MODELID+"\"=?" ) ) {
+			
+			stat.setInt( 1, id );
+			try( ResultSet result = stat.executeQuery() ) {
+				
+				if( result.next() ) {
+					
+		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		if( formula != null )
+						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+
+					
+					tuple = new KnimeTuple( new Model1Schema() );
+					
+					doc = new PmmXmlDoc();
+					doc.add(
+						new CatalogModelXml(
+							result.getInt( Bfrdb.ATT_MODELID ),
+							result.getString( Bfrdb.ATT_NAME ),
+							formula) );
+					tuple.setValue( Model1Schema.ATT_MODELCATALOG, doc );
+					
+		    		doc = new PmmXmlDoc();
+		    		doc.add( new DepXml( result.getString( Bfrdb.ATT_DEP ) ) );
+		    		tuple.setValue( Model1Schema.ATT_DEPENDENT, doc );
+		    		
+		    		tuple.setValue(
+	    				Model1Schema.ATT_INDEPENDENT,
+	    				DbIo.convertArrays2IndepXmlDoc(
+    						null,
+    						result.getArray( Bfrdb.ATT_INDEP ),
+		    				null,
+		    				null ) );
+		    		
+		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
+	    				DbIo.convertArrays2ParamXmlDoc(
+    						null,
+    						result.getArray( Bfrdb.ATT_PARAMNAME ),
+		    				null,
+		    				null,
+		    				result.getArray( Bfrdb.ATT_MINVALUE ),
+		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
+		    		
+					doc = new PmmXmlDoc();
+					doc.add( new EstModelXml(
+						null, null, null, null, null, null, null ) );
+					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
+					
+					String s = result.getString( Bfrdb.ATT_LITERATUREID );
+		    		if (s != null)
+						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(  s ) );
+					
+		    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
+		    		tuple.setValue( Model1Schema.ATT_DBUUID, getDBUUID() );
+				}
+				
+			}
+		}
+		
+		return null;
+	}
+	
 	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {
 		
 		String q;
@@ -2780,4 +2855,23 @@ public class Bfrdb extends Hsqldbiface {
 			// ex.printStackTrace();
 		}
 	}
+	
+    private PmmXmlDoc getLiterature( String s ) {
+		PmmXmlDoc l = new PmmXmlDoc();
+		String [] ids = s.split(",");
+		for (String id : ids) {
+			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
+			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+					(Integer) (year == null ? null : year),
+					title == null ? null : title.toString(),
+					abstrac == null ? null : abstrac.toString(),
+					Integer.valueOf(id)); 
+			l.add(li);
+		}    
+		return l;
+    }
+
 }

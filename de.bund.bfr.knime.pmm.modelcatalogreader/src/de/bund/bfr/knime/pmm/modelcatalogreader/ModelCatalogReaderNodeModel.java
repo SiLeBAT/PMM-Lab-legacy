@@ -278,6 +278,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 
         return new BufferedDataTable[]{ buf.getTable() };
     }
+    
     private PmmXmlDoc getLiterature(String s) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");

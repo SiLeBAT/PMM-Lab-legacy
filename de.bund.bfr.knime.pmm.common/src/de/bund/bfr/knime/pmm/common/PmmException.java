@@ -33,7 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-public class PmmException extends Exception {
+public class PmmException extends RuntimeException {
 
 	private static final long serialVersionUID = 20120801;
 

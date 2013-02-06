@@ -453,6 +453,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					+ "\" is unassigned");
 		}
 
+		int agentID = this.agentID;
+		int matrixID = this.matrixID;
+
+		if (!agentColumn.equals(OTHER_PARAMETER)) {
+			agentID = -1;
+		}
+
+		if (!matrixColumn.equals(OTHER_PARAMETER)) {
+			matrixID = -1;
+		}
+
 		String agentColumn = this.agentColumn;
 		String matrixColumn = this.matrixColumn;
 

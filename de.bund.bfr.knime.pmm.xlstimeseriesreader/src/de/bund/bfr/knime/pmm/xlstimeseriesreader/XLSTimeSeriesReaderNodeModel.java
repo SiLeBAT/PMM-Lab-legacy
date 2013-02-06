@@ -189,11 +189,17 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				.values());
 
 		if (agentColumn == null) {
-			String agentName = DBKernel.getValue("Agenzien", "ID",
-					agentID + "", "Agensname") + "";
 			PmmXmlDoc agentXml = new PmmXmlDoc();
 
-			agentXml.add(new AgentXml(agentID, agentName, null));
+			if (agentID != -1) {
+				String agentName = DBKernel.getValue("Agenzien", "ID", agentID
+						+ "", "Agensname")
+						+ "";
+
+				agentXml.add(new AgentXml(agentID, agentName, null));
+			} else {
+				agentXml.add(new AgentXml(null, null, null));
+			}
 
 			for (KnimeTuple tuple : tuples) {
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
@@ -201,12 +207,16 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		if (matrixColumn == null) {
-			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
-					+ "", "Matrixname")
-					+ "";
 			PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-			matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+			if (matrixID != -1) {
+				String matrixName = DBKernel.getValue("Matrices", "ID",
+						matrixID + "", "Matrixname") + "";
+
+				matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+			} else {
+				matrixXml.add(new MatrixXml(null, null, null));
+			}
 
 			for (KnimeTuple tuple : tuples) {
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);

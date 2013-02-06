@@ -214,7 +214,6 @@ public class RegionToRegionVisualizerNodeView extends
 		graphCanvas.removeSelectionListener(this);
 		graphCanvas.setSelectedNodes(selectedGraphNodes);
 		graphCanvas.addSelectionListener(this);
-		graphCanvas.repaint();
 	}
 
 	@Override
@@ -256,7 +255,6 @@ public class RegionToRegionVisualizerNodeView extends
 		graphCanvas.removeSelectionListener(this);
 		graphCanvas.setSelectedEdges(selectedGraphEdges);
 		graphCanvas.addSelectionListener(this);
-		graphCanvas.repaint();
 	}
 
 	private Map<String, String> getIdToRegionMap() {

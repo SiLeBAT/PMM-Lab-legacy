@@ -22,6 +22,7 @@ import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
@@ -100,6 +102,10 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 	private JPopupMenu popup;
 	private JMenuItem selectConnectingItem;
+	private JMenuItem selectHighlightedNodesItem;
+	private JMenuItem selectHighlightedEdgesItem;
+	private JMenuItem clearSelectNodesItem;
+	private JMenuItem clearSelectEdgesItem;
 	private JMenuItem nodePropertiesItem;
 	private JMenuItem edgePropertiesItem;
 	private JMenuItem highlightNodesItem;
@@ -218,6 +224,40 @@ public class GraphCanvas extends JPanel implements ActionListener,
 					}
 				}
 			}
+		} else if (e.getSource() == selectHighlightedNodesItem) {
+			Set<Node> highlightedSet = new LinkedHashSet<>();
+
+			if (nodesHighlightCondition != null) {
+				Map<GraphElement, Double> highlightedMap = nodesHighlightCondition
+						.getValues(new ArrayList<GraphElement>(nodes));
+
+				for (GraphElement node : highlightedMap.keySet()) {
+					if (highlightedMap.get(node) > 0.0) {
+						highlightedSet.add((Node) node);
+					}
+				}
+			}
+
+			setSelectedNodes(highlightedSet);
+		} else if (e.getSource() == selectHighlightedEdgesItem) {
+			Set<Edge> highlightedSet = new LinkedHashSet<>();
+
+			if (edgesHighlightCondition != null) {
+				Map<GraphElement, Double> highlightedMap = edgesHighlightCondition
+						.getValues(new ArrayList<GraphElement>(edges));
+
+				for (GraphElement edge : highlightedMap.keySet()) {
+					if (highlightedMap.get(edge) > 0.0) {
+						highlightedSet.add((Edge) edge);
+					}
+				}
+			}
+
+			setSelectedEdges(highlightedSet);
+		} else if (e.getSource() == clearSelectNodesItem) {
+			setSelectedNodes(new LinkedHashSet<Node>());
+		} else if (e.getSource() == clearSelectEdgesItem) {
+			setSelectedEdges(new LinkedHashSet<Edge>());
 		} else if (e.getSource() == nodePropertiesItem) {
 			List<Map<String, Object>> propertyValues = new ArrayList<>();
 
@@ -439,6 +479,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 	private void createPopupMenu() {
 		selectConnectingItem = new JMenuItem("Select Connecting Edges");
 		selectConnectingItem.addActionListener(this);
+		selectHighlightedNodesItem = new JMenuItem("Select Highlighted Nodes");
+		selectHighlightedNodesItem.addActionListener(this);
+		selectHighlightedEdgesItem = new JMenuItem("Select Highlighted Edges");
+		selectHighlightedEdgesItem.addActionListener(this);
+		clearSelectNodesItem = new JMenuItem("Clear Node Selection");
+		clearSelectNodesItem.addActionListener(this);
+		clearSelectEdgesItem = new JMenuItem("Clear Edge Selection");
+		clearSelectEdgesItem.addActionListener(this);
 		nodePropertiesItem = new JMenuItem("Show Node Properties");
 		nodePropertiesItem.addActionListener(this);
 		edgePropertiesItem = new JMenuItem("Show Edge Properties");
@@ -454,8 +502,14 @@ public class GraphCanvas extends JPanel implements ActionListener,
 
 		popup = new JPopupMenu();
 		popup.add(selectConnectingItem);
+		popup.add(selectHighlightedNodesItem);
+		popup.add(selectHighlightedEdgesItem);
+		popup.add(clearSelectNodesItem);
+		popup.add(clearSelectEdgesItem);
+		popup.add(new JSeparator());
 		popup.add(nodePropertiesItem);
 		popup.add(edgePropertiesItem);
+		popup.add(new JSeparator());
 		popup.add(highlightNodesItem);
 		popup.add(clearHighlightNodesItem);
 		popup.add(highlightEdgesItem);

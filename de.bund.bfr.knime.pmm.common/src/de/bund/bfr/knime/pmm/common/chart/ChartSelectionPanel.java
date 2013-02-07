@@ -465,7 +465,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	public List<String> getVisibleColumns() {
 		List<String> visibleColumns = new ArrayList<String>();
 
-		for (int i = 4; i < selectTable.getColumnCount(); i++) {
+		for (int i = 2; i < selectTable.getColumnCount(); i++) {
 			String columnName = selectTable.getColumnName(i);
 
 			if (selectTable.getColumn(columnName).getMaxWidth() != 0) {

@@ -52,18 +52,22 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -83,8 +87,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
 	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
-	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 	protected static final String CFGKEY_MODELID = "ModelID";
 	protected static final String CFGKEY_AGENTID = "AgentID";
@@ -98,8 +100,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	private Map<String, String> agentMappings;
 	private String matrixColumn;
 	private Map<String, String> matrixMappings;
-	private String timeUnit;
-	private String logcUnit;
 	private String tempUnit;
 	private int modelID;
 	private int agentID;
@@ -135,8 +135,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			String id = columnMappings.get(column);
 
 			if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
-				cMappings.put(column, id);
-			} else if (id.equals(XLSReader.DVALUE)) {
 				cMappings.put(column, id);
 			} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID + "")) {
 				cMappings.put(column, new MiscXml(
@@ -177,9 +175,36 @@ public class XLSModelReaderNodeModel extends NodeModel {
 					matrixName, null));
 		}
 
+		Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+		KnimeTuple modelTuple = db.getPrimModelById(modelID);
+		PmmXmlDoc modelXml = modelTuple
+				.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
+		PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
+		PmmXmlDoc indepVar = modelTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+		if (depVar.size() == 1) {
+			formula = MathUtilities.replaceVariable(formula,
+					((DepXml) depVar.get(0)).getName(), TimeSeriesSchema.LOGC);
+			((DepXml) depVar.get(0)).setName(TimeSeriesSchema.LOGC);
+		}
+
+		if (indepVar.size() == 1) {
+			formula = MathUtilities.replaceVariable(formula,
+					((IndepXml) indepVar.get(0)).getName(),
+					TimeSeriesSchema.TIME);
+			((IndepXml) indepVar.get(0)).setName(TimeSeriesSchema.TIME);
+		}
+
+		((CatalogModelXml) modelXml.get(0)).setFormula(formula);
+		modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+		modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
+		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
+
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
 				.getDValueTuples(new File(fileName), cMappings, agentColumn,
-						aMappings, matrixColumn, mMappings).values());
+						aMappings, matrixColumn, mMappings, modelTuple,
+						modelMappings).values());
 
 		if (agentColumn == null) {
 			PmmXmlDoc agentXml = new PmmXmlDoc();
@@ -249,24 +274,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 				}
 			}
 
-			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-				ParamXml element = (ParamXml) el;
-				Double value = element.getValue();
-
-				if (element.getName().equals(XLSReader.DVALUE) && value != null) {
-					double factor = AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.TIME, 1.0, timeUnit)
-							/ AttributeUtilities.convertToStandardUnit(
-									TimeSeriesSchema.LOGC, 1.0, logcUnit);
-
-					element.setValue(factor * value);
-				}
-			}
-
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
 
 			container.addRowToTable(tuple);
@@ -314,8 +322,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
 		settings.addString(CFGKEY_MATRIXMAPPINGS, ListUtilities
 				.getStringFromList(getMappingsAsList(matrixMappings)));
-		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
-		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
@@ -383,20 +389,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 							.getString(CFGKEY_MATRIXMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
-		} catch (InvalidSettingsException e) {
-			timeUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.TIME);
-		}
-
-		try {
-			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		} catch (InvalidSettingsException e) {
-			logcUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.LOGC);
 		}
 
 		try {

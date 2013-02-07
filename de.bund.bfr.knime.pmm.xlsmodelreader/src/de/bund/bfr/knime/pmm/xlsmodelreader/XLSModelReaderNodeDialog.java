@@ -105,8 +105,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private FilePanel filePanel;
 	private List<String> fileColumnList;
 
-	private JComboBox<String> timeBox;
-	private JComboBox<String> logcBox;
 	private JComboBox<String> tempBox;
 
 	private JButton addLiteratureButton;
@@ -154,12 +152,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		filePanel.addFileListener(this);
 		fileColumnList = new ArrayList<>();
 
-		timeBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
-						new String[0]));
-		logcBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
-						new String[0]));
 		tempBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
 				.toArray(new String[0]));
@@ -211,21 +203,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		JPanel northUnitsPanel = new JPanel();
 
 		northUnitsPanel.setLayout(new GridBagLayout());
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.TIME) + ":"),
-				createConstraints(0, 0));
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.LOGC) + ":"),
-				createConstraints(0, 1));
 		northUnitsPanel
 				.add(new JLabel(AttributeUtilities
 						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-						createConstraints(0, 2));
-		northUnitsPanel.add(timeBox, createConstraints(1, 0));
-		northUnitsPanel.add(logcBox, createConstraints(1, 1));
-		northUnitsPanel.add(tempBox, createConstraints(1, 2));
+						createConstraints(0, 0));
+		northUnitsPanel.add(tempBox, createConstraints(1, 0));
 
 		JPanel westUnitsPanel = new JPanel();
 
@@ -322,22 +304,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			timeBox.setSelectedItem(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_TIMEUNIT));
-		} catch (InvalidSettingsException e) {
-			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.TIME));
-		}
-
-		try {
-			logcBox.setSelectedItem(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_LOGCUNIT));
-		} catch (InvalidSettingsException e) {
-			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.LOGC));
 		}
 
 		try {
@@ -519,10 +485,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
 				ListUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(columnMappings)));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_TIMEUNIT,
-				(String) timeBox.getSelectedItem());
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_LOGCUNIT,
-				(String) logcBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
@@ -705,10 +667,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						button.setText(OTHER_PARAMETER);
 						columnMappings
 								.put(column, TimeSeriesSchema.ATT_COMMENT);
-					} else if (box.getSelectedItem().equals(XLSReader.DVALUE)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, XLSReader.DVALUE);
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
@@ -968,7 +926,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						TimeSeriesSchema.ATT_COMMENT, XLSReader.DVALUE,
+						TimeSeriesSchema.ATT_COMMENT,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -980,10 +938,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 					if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(XLSReader.DVALUE)) {
-						box.setSelectedItem(XLSReader.DVALUE);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID

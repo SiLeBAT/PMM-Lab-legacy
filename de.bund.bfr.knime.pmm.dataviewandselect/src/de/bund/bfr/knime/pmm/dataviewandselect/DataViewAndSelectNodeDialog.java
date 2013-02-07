@@ -123,13 +123,15 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			colors = DataViewAndSelectNodeModel.readColors(settings);
+			colors = CollectionUtilities.getColorMapFromString(settings
+					.getString(DataViewAndSelectNodeModel.CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
-			shapes = DataViewAndSelectNodeModel.readShapes(settings);
+			shapes = CollectionUtilities.getShapeMapFromString(settings
+					.getString(DataViewAndSelectNodeModel.CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 			shapes = new LinkedHashMap<String, Shape>();
 		}
@@ -208,8 +210,9 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = CollectionUtilities.getStringListFromString(settings
-					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+			visibleColumns = CollectionUtilities
+					.getStringListFromString(settings
+							.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
 			visibleColumns = CollectionUtilities
 					.getStringListFromString(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
@@ -236,13 +239,15 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		settings.addString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
+				CollectionUtilities.getStringFromList(selectionPanel
+						.getSelectedIDs()));
 		settings.addString(
-				DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				CollectionUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
-		DataViewAndSelectNodeModel.writeColors(selectionPanel.getColors(),
-				settings);
-		DataViewAndSelectNodeModel.writeShapes(selectionPanel.getShapes(),
-				settings);
+				DataViewAndSelectNodeModel.CFG_COLORS,
+				CollectionUtilities.getStringFromMap(selectionPanel.getColors()));
+		settings.addString(
+				DataViewAndSelectNodeModel.CFG_SHAPES,
+				CollectionUtilities.getStringFromMap(selectionPanel.getShapes()));
 		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
 				CollectionUtilities.getStringFromList(selectionPanel
 						.getVisibleColumns()));

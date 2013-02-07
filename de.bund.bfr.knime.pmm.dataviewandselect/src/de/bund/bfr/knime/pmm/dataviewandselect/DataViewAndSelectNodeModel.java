@@ -64,9 +64,8 @@ import org.knime.core.node.port.image.ImagePortObjectSpec;
 import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
-import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -133,22 +132,6 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
 				BufferedDataTable.TYPE, ImagePortObject.TYPE });
 		schema = new TimeSeriesSchema();
-		selectedIDs = new ArrayList<String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		selectAllIDs = DEFAULT_SELECTALLIDS;
-		manualRange = DEFAULT_MANUALRANGE;
-		minX = DEFAULT_MINX;
-		maxX = DEFAULT_MAXX;
-		minY = DEFAULT_MINY;
-		maxY = DEFAULT_MAXY;
-		drawLines = DEFAULT_DRAWLINES;
-		showLegend = DEFAULT_SHOWLEGEND;
-		addLegendInfo = DEFAULT_ADDLEGENDINFO;
-		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		transformY = DEFAULT_TRANSFORMY;
-		visibleColumns = CollectionUtilities
-				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 	}
 
 	@Override
@@ -184,9 +167,8 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 
 		container.close();
 
-		ChartCreator creator = new ChartCreator(
-				reader.getPlotables(), reader.getShortLegend(),
-				reader.getLongLegend());
+		ChartCreator creator = new ChartCreator(reader.getPlotables(),
+				reader.getShortLegend(), reader.getLongLegend());
 
 		creator.setParamX(TimeSeriesSchema.TIME);
 		creator.setParamY(TimeSeriesSchema.LOGC);
@@ -240,8 +222,10 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_SELECTEDIDS,
 				CollectionUtilities.getStringFromList(selectedIDs));
-		writeColors(colors, settings);
-		writeShapes(shapes, settings);
+		settings.addString(CFG_COLORS,
+				CollectionUtilities.getStringFromMap(colors));
+		settings.addString(CFG_SHAPES,
+				CollectionUtilities.getStringFromMap(shapes));
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
 		settings.addInt(CFG_MANUALRANGE, manualRange);
 		settings.addDouble(CFG_MINX, minX);
@@ -271,13 +255,15 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		}
 
 		try {
-			colors = readColors(settings);
+			colors = CollectionUtilities.getColorMapFromString(settings
+					.getString(CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
-			shapes = readShapes(settings);
+			shapes = CollectionUtilities.getShapeMapFromString(settings
+					.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 			shapes = new LinkedHashMap<String, Shape>();
 		}
@@ -349,8 +335,9 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		}
 
 		try {
-			visibleColumns = CollectionUtilities.getStringListFromString(settings
-					.getString(CFG_VISIBLECOLUMNS));
+			visibleColumns = CollectionUtilities
+					.getStringListFromString(settings
+							.getString(CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
 			visibleColumns = CollectionUtilities
 					.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
@@ -381,89 +368,6 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static Map<String, Color> readColors(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		String colorString = settings.getString(CFG_COLORS);
-		Map<String, Color> colors = new LinkedHashMap<String, Color>();
-
-		if (!colorString.isEmpty()) {
-
-			for (String assignment : colorString.split(",")) {
-				String[] sides = assignment.split(":");
-				String id = sides[0];
-				Color color = Color.decode(sides[1]);
-
-				colors.put(id, color);
-			}
-		}
-
-		return colors;
-	}
-
-	protected static void writeColors(Map<String, Color> colors,
-			NodeSettingsWO settings) {
-		StringBuilder colorString = new StringBuilder();
-
-		for (String id : colors.keySet()) {
-			Color color = colors.get(id);
-
-			colorString.append(id);
-			colorString.append(":");
-			colorString.append("#");
-			colorString
-					.append(Integer.toHexString(color.getRGB()).substring(2));
-			colorString.append(",");
-		}
-
-		if (colorString.length() > 0) {
-			colorString.deleteCharAt(colorString.length() - 1);
-		}
-
-		settings.addString(CFG_COLORS, colorString.toString());
-	}
-
-	protected static Map<String, Shape> readShapes(NodeSettingsRO settings)
-			throws InvalidSettingsException {
-		String shapeString = settings.getString(CFG_SHAPES);
-		Map<String, Shape> shapes = new LinkedHashMap<String, Shape>();
-		Map<String, Shape> shapeMap = (new ColorAndShapeCreator(0))
-				.getShapeByNameMap();
-
-		if (!shapeString.isEmpty()) {
-			for (String assignment : shapeString.split(",")) {
-				String[] sides = assignment.split(":");
-				String id = sides[0];
-				String shapeName = sides[1];
-
-				shapes.put(id, shapeMap.get(shapeName));
-			}
-		}
-
-		return shapes;
-	}
-
-	protected static void writeShapes(Map<String, Shape> shapes,
-			NodeSettingsWO settings) {
-		StringBuilder shapeString = new StringBuilder();
-		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
-				.getNameByShapeMap();
-
-		for (String id : shapes.keySet()) {
-			Shape shape = shapes.get(id);
-
-			shapeString.append(id);
-			shapeString.append(":");
-			shapeString.append(shapeMap.get(shape));
-			shapeString.append(",");
-		}
-
-		if (shapeString.length() > 0) {
-			shapeString.deleteCharAt(shapeString.length() - 1);
-		}
-
-		settings.addString(CFG_SHAPES, shapeString.toString());
 	}
 
 }

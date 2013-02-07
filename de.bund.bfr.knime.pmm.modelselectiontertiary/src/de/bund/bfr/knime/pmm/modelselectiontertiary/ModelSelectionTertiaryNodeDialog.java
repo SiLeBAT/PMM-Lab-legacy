@@ -149,13 +149,15 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			colors = ModelSelectionTertiaryNodeModel.readColors(settings);
+			colors = CollectionUtilities.getColorMapFromString(settings
+					.getString(ModelSelectionTertiaryNodeModel.CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
-			shapes = ModelSelectionTertiaryNodeModel.readShapes(settings);
+			shapes = CollectionUtilities.getShapeMapFromString(settings
+					.getString(ModelSelectionTertiaryNodeModel.CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 			shapes = new LinkedHashMap<String, Shape>();
 		}
@@ -285,13 +287,15 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		settings.addString(ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS,
+				CollectionUtilities.getStringFromList(selectionPanel
+						.getSelectedIDs()));
 		settings.addString(
-				ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS,
-				CollectionUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
-		ModelSelectionTertiaryNodeModel.writeColors(selectionPanel.getColors(),
-				settings);
-		ModelSelectionTertiaryNodeModel.writeShapes(selectionPanel.getShapes(),
-				settings);
+				ModelSelectionTertiaryNodeModel.CFG_COLORS,
+				CollectionUtilities.getStringFromMap(selectionPanel.getColors()));
+		settings.addString(
+				ModelSelectionTertiaryNodeModel.CFG_SHAPES,
+				CollectionUtilities.getStringFromMap(selectionPanel.getShapes()));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS,
 				CollectionUtilities.getStringFromList(selectionPanel
 						.getVisibleColumns()));

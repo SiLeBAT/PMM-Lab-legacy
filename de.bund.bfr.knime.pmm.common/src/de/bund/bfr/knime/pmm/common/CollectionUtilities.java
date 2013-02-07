@@ -1,10 +1,14 @@
 package de.bund.bfr.knime.pmm.common;
 
+import java.awt.Color;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
 
 public class CollectionUtilities {
 
@@ -137,8 +141,42 @@ public class CollectionUtilities {
 		return map;
 	}
 
+	public static Map<String, Color> getColorMapFromString(String s) {
+		Map<String, Color> map = new LinkedHashMap<>();
+
+		for (String mapping : getStringListFromString(s)) {
+			String[] toks = mapping.split(MAP_DIVIDER);
+
+			try {
+				map.put(toks[0], Color.decode(toks[1]));
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+		}
+
+		return map;
+	}
+
+	public static Map<String, Shape> getShapeMapFromString(String s) {
+		Map<String, Shape> map = new LinkedHashMap<>();
+		Map<String, Shape> shapeMap = (new ColorAndShapeCreator(0))
+				.getShapeByNameMap();
+
+		for (String mapping : getStringListFromString(s)) {
+			String[] toks = mapping.split(MAP_DIVIDER);
+
+			try {
+				map.put(toks[0], shapeMap.get(toks[1]));
+			} catch (ArrayIndexOutOfBoundsException e) {
+			}
+		}
+
+		return map;
+	}
+
 	public static String getStringFromMap(Map<?, ?> map) {
 		List<String> list = new ArrayList<>();
+		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
+				.getNameByShapeMap();
 
 		for (Map.Entry<?, ?> entry : map.entrySet()) {
 			String key = MISSING_VALUE;
@@ -149,7 +187,17 @@ public class CollectionUtilities {
 			}
 
 			if (entry.getValue() != null) {
-				value = entry.getValue() + "";
+				Object o = entry.getValue();
+
+				if (o instanceof Color) {
+					value = "#"
+							+ Integer.toHexString(((Color) o).getRGB())
+									.substring(2);
+				} else if (o instanceof Shape) {
+					value = shapeMap.get((Shape) o);
+				} else {
+					value = o + "";
+				}
 			}
 
 			list.add(key + MAP_DIVIDER + value);

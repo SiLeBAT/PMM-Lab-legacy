@@ -71,9 +71,15 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
@@ -94,6 +100,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private static final String DO_NOT_USE = "Do Not Use";
 	private static final String OTHER_PARAMETER = "Select Other";
+	private static final String SELECT = "Select";
 
 	private FilePanel filePanel;
 	private List<String> fileColumnList;
@@ -107,6 +114,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JList<String> literatureList;
 	private List<Integer> literatureIDs;
 	private List<String> literatureData;
+
+	private JPanel modelPanel;
+	private JButton modelButton;
+	private Map<String, String> modelMappings;
+	private Map<String, JComboBox<String>> modelBoxes;
+	private int modelID;
 
 	private JPanel agentPanel;
 	private JComboBox<String> agentBox;
@@ -159,6 +172,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		noLabel = new JLabel();
 		noLabel.setPreferredSize(new Dimension(100, 50));
+
+		modelPanel = new JPanel();
+		modelPanel.setBorder(BorderFactory
+				.createTitledBorder(Model1Schema.MODEL));
+		modelPanel.setLayout(new BorderLayout());
+		modelPanel.add(noLabel, BorderLayout.CENTER);
+		modelBoxes = new LinkedHashMap<>();
+		modelMappings = new LinkedHashMap<>();
+
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
@@ -167,6 +189,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		agentPanel.add(noLabel, BorderLayout.CENTER);
 		agentButtons = new LinkedHashMap<>();
 		agentMappings = new LinkedHashMap<>();
+
 		matrixPanel = new JPanel();
 		matrixPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
@@ -175,6 +198,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
 		matrixButtons = new LinkedHashMap<>();
 		matrixMappings = new LinkedHashMap<>();
+
 		columnsPanel = new JPanel();
 		columnsPanel.setBorder(BorderFactory
 				.createTitledBorder("XLS Column assignments"));
@@ -245,6 +269,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
 		optionsPanel.add(unitsLiteraturePanel);
+		optionsPanel.add(modelPanel);
 		optionsPanel.add(agentPanel);
 		optionsPanel.add(matrixPanel);
 		optionsPanel.add(columnsPanel);
@@ -275,6 +300,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					.getFileName()));
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
+		}
+
+		try {
+			modelID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_MODELID);
+		} catch (InvalidSettingsException e) {
+			modelID = -1;
+		}
+
+		try {
+			modelMappings = XLSModelReaderNodeModel
+					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+							.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS)));
+		} catch (InvalidSettingsException e) {
+			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {
@@ -379,6 +418,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			literatureList.setListData(new String[0]);
 		}
 
+		updateModelPanel();
 		updateAgentPanel();
 		updateMatrixPanel();
 		updateColumnsPanel();
@@ -393,6 +433,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		if (fileColumnList.isEmpty()) {
 			throw new InvalidSettingsException("Specified file is invalid");
+		}
+
+		if (modelID == -1) {
+			throw new InvalidSettingsException("No model is specified");
 		}
 
 		if (agentBox.getSelectedItem().equals(OTHER_PARAMETER) && agentID == -1) {
@@ -468,6 +512,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_FILENAME,
 				filePanel.getFileName());
+		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
+				ListUtilities.getStringFromList(XLSModelReaderNodeModel
+						.getMappingsAsList(modelMappings)));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
 				ListUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(columnMappings)));
@@ -495,7 +543,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == agentButton) {
+		if (e.getSource() == modelButton) {
+			Integer newModelID = openModelDBWindow(modelID);
+
+			if (newModelID != null) {
+				modelID = newModelID;
+				updateModelPanel();
+			}
+		} else if (e.getSource() == agentButton) {
 			Integer newAgentID = openAgentDBWindow(agentID);
 
 			if (newAgentID != null) {
@@ -631,6 +686,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			matrixColumn = (String) matrixBox.getSelectedItem();
 			updateMatrixPanel();
 		} else {
+			for (String param : modelBoxes.keySet()) {
+				if (e.getSource() == modelBoxes.get(param)) {
+					JComboBox<String> box = modelBoxes.get(param);
+
+					modelMappings.put(param, (String) box.getSelectedItem());
+				}
+			}
+
 			for (String column : columnBoxes.keySet()) {
 				if (e.getSource() == columnBoxes.get(column)) {
 					JComboBox<String> box = columnBoxes.get(column);
@@ -693,6 +756,63 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		updateColumnsPanel();
 		updateAgentPanel();
 		updateMatrixPanel();
+	}
+
+	private void updateModelPanel() {
+		modelButton = new JButton(SELECT);
+		modelButton.addActionListener(this);
+
+		if (modelID != -1) {
+			modelButton.setText(""
+					+ DBKernel.getValue("Modellkatalog", "ID", modelID + "",
+							"Notation"));
+		} else {
+			modelButton.setText(SELECT);
+		}
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new GridBagLayout());
+		northPanel.add(new JLabel("Model:"), createConstraints(0, 0));
+		northPanel.add(modelButton, createConstraints(1, 0));
+
+		if (modelID != -1) {
+			int row = 1;
+			Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+
+			try {
+				KnimeTuple model = db.getPrimModelById(modelID);
+				PmmXmlDoc paramXml = model
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+					ParamXml element = (ParamXml) el;
+					JComboBox<String> box = new JComboBox<>(
+							fileColumnList.toArray(new String[0]));
+
+					if (modelMappings.containsKey(element.getName())) {
+						box.setSelectedItem(modelMappings.get(element.getName()));
+					}
+
+					box.addItemListener(this);
+					modelBoxes.put(element.getName(), box);
+
+					northPanel.add(new JLabel(element.getName() + ":"),
+							createConstraints(0, row));
+					northPanel.add(box, createConstraints(1, row));
+					row++;
+				}
+			} catch (Exception e) {
+			}
+		}
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(northPanel, BorderLayout.NORTH);
+
+		modelPanel.removeAll();
+		modelPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
 	}
 
 	private void updateAgentPanel() {
@@ -914,6 +1034,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);
 			columnButtons.clear();
+		}
+	}
+
+	private Integer openModelDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Modellkatalog");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Modellkatalog",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
 		}
 	}
 

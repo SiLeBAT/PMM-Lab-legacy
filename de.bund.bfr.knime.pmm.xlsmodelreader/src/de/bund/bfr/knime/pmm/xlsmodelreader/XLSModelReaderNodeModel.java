@@ -77,6 +77,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSModelReaderNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_FILENAME = "FileName";
+	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
@@ -85,11 +86,13 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
+	protected static final String CFGKEY_MODELID = "ModelID";
 	protected static final String CFGKEY_AGENTID = "AgentID";
 	protected static final String CFGKEY_MATRIXID = "MatrixID";
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
 	private String fileName;
+	private Map<String, String> modelMappings;
 	private Map<String, String> columnMappings;
 	private String agentColumn;
 	private Map<String, String> agentMappings;
@@ -98,6 +101,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
+	private int modelID;
 	private int agentID;
 	private int matrixID;
 	private List<Integer> literatureIDs;
@@ -299,6 +303,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
+		settings.addInt(CFGKEY_MODELID, modelID);
+		settings.addString(CFGKEY_MODELMAPPINGS, ListUtilities
+				.getStringFromList(getMappingsAsList(modelMappings)));
 		settings.addString(CFGKEY_COLUMNMAPPINGS, ListUtilities
 				.getStringFromList(getMappingsAsList(columnMappings)));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
@@ -326,6 +333,20 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			fileName = settings.getString(CFGKEY_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = null;
+		}
+
+		try {
+			modelID = settings.getInt(CFGKEY_MODELID);
+		} catch (InvalidSettingsException e) {
+			modelID = -1;
+		}
+
+		try {
+			modelMappings = getMappingsAsMap(ListUtilities
+					.getStringListFromString(settings
+							.getString(CFGKEY_MODELMAPPINGS)));
+		} catch (InvalidSettingsException e) {
+			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {

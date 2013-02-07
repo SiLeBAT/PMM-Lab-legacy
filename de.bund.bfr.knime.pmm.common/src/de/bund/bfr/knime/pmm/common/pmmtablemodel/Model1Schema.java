@@ -53,6 +53,7 @@ public class Model1Schema extends KnimeSchema {
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
+	public static final String MODEL = "Primary Model";
 	public static final String MODELNAME = "ModelName";
 	public static final String FORMULA = "Formula";
 	public static final String RMS = "RMS";

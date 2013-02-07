@@ -312,16 +312,16 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addInt(CFGKEY_MODELID, modelID);
-		settings.addString(CFGKEY_MODELMAPPINGS, CollectionUtilities
-				.getStringFromList(getMappingsAsList(modelMappings)));
-		settings.addString(CFGKEY_COLUMNMAPPINGS, CollectionUtilities
-				.getStringFromList(getMappingsAsList(columnMappings)));
+		settings.addString(CFGKEY_MODELMAPPINGS,
+				CollectionUtilities.getStringFromMap(modelMappings));
+		settings.addString(CFGKEY_COLUMNMAPPINGS,
+				CollectionUtilities.getStringFromMap(columnMappings));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
-		settings.addString(CFGKEY_AGENTMAPPINGS, CollectionUtilities
-				.getStringFromList(getMappingsAsList(agentMappings)));
+		settings.addString(CFGKEY_AGENTMAPPINGS,
+				CollectionUtilities.getStringFromMap(agentMappings));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
-		settings.addString(CFGKEY_MATRIXMAPPINGS, CollectionUtilities
-				.getStringFromList(getMappingsAsList(matrixMappings)));
+		settings.addString(CFGKEY_MATRIXMAPPINGS,
+				CollectionUtilities.getStringFromMap(matrixMappings));
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
@@ -348,17 +348,16 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			modelMappings = getMappingsAsMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_MODELMAPPINGS)));
+			modelMappings = CollectionUtilities.getStringMapFromString(settings
+					.getString(CFGKEY_MODELMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			columnMappings = getMappingsAsMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_COLUMNMAPPINGS)));
+			columnMappings = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(CFGKEY_COLUMNMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
@@ -370,9 +369,8 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			agentMappings = getMappingsAsMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_AGENTMAPPINGS)));
+			agentMappings = CollectionUtilities.getStringMapFromString(settings
+					.getString(CFGKEY_AGENTMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
 		}
@@ -384,9 +382,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			matrixMappings = getMappingsAsMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_MATRIXMAPPINGS)));
+			matrixMappings = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(CFGKEY_MATRIXMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
@@ -442,31 +440,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static Map<String, String> getMappingsAsMap(List<String> list) {
-		Map<String, String> map = new LinkedHashMap<>();
-
-		for (String mapping : list) {
-			String[] toks = mapping.split("=");
-
-			try {
-				map.put(toks[0], toks[1]);
-			} catch (ArrayIndexOutOfBoundsException e) {
-			}
-		}
-
-		return map;
-	}
-
-	protected static List<String> getMappingsAsList(Map<String, String> map) {
-		List<String> list = new ArrayList<>();
-
-		for (Map.Entry<String, String> entry : map.entrySet()) {
-			list.add(entry.getKey() + "=" + entry.getValue());
-		}
-
-		return list;
 	}
 
 }

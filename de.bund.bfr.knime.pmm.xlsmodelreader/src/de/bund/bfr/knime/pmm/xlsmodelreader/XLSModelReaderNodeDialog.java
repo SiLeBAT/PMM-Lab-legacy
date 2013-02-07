@@ -291,17 +291,16 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			modelMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS)));
+			modelMappings = CollectionUtilities.getStringMapFromString(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			columnMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
+			columnMappings = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
@@ -332,9 +331,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS)));
+			agentMappings = CollectionUtilities.getStringMapFromString(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
 		}
@@ -357,9 +355,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
+			matrixMappings = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
@@ -480,25 +478,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				filePanel.getFileName());
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
-				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
-						.getMappingsAsList(modelMappings)));
+				CollectionUtilities.getStringFromMap(modelMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
-						.getMappingsAsList(columnMappings)));
+				CollectionUtilities.getStringFromMap(columnMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
 				agentColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
-						.getMappingsAsList(agentMappings)));
+				CollectionUtilities.getStringFromMap(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
-						.getMappingsAsList(matrixMappings)));
+				CollectionUtilities.getStringFromMap(matrixMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS,
 				CollectionUtilities.getStringFromList(literatureIDs));
 	}

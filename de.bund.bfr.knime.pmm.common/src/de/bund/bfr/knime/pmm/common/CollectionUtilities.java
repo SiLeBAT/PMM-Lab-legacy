@@ -137,7 +137,7 @@ public class CollectionUtilities {
 		return map;
 	}
 
-	public static String getMappingsAsList(Map<?, ?> map) {
+	public static String getStringFromMap(Map<?, ?> map) {
 		List<String> list = new ArrayList<>();
 
 		for (Map.Entry<?, ?> entry : map.entrySet()) {

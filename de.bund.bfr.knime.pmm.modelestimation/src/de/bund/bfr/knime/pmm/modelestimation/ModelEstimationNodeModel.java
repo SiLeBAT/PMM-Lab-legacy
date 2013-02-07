@@ -60,10 +60,10 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -120,19 +120,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private int nParameterSpace;
 	private int nLevenberg;
 	private int stopWhenSuccessful;
-	private List<String> parameterGuesses;
+	private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ModelEstimationNodeModel() {
 		super(1, 1);
-		fittingType = DEFAULT_FITTINGTYPE;
-		enforceLimits = DEFAULT_ENFORCELIMITS;
-		nParameterSpace = DEFAULT_NPARAMETERSPACE;
-		nLevenberg = DEFAULT_NLEVENBERG;
-		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
-		parameterGuesses = new ArrayList<String>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -154,14 +148,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataTable outTable = null;
 
 		if (fittingType.equals(PRIMARY_FITTING)) {
-			outTable = doPrimaryEstimation(table, exec,
-					getGuessMap(parameterGuesses));
+			outTable = doPrimaryEstimation(table, exec);
 		} else if (fittingType.equals(SECONDARY_FITTING)) {
-			outTable = doSecondaryEstimation(table, exec,
-					getGuessMap(parameterGuesses));
+			outTable = doSecondaryEstimation(table, exec);
 		} else if (fittingType.equals(ONESTEP_FITTING)) {
-			outTable = doOneStepEstimation(table, exec,
-					getGuessMap(parameterGuesses));
+			outTable = doOneStepEstimation(table, exec);
 		}
 
 		return new BufferedDataTable[] { outTable };
@@ -226,7 +217,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
 		settings.addString(CFGKEY_PARAMETERGUESSES,
-				CollectionUtilities.getStringFromList(parameterGuesses));
+				CollectionUtilities.getStringFromPointMapMap(parameterGuesses));
 	}
 
 	/**
@@ -266,10 +257,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 		}
 
 		try {
-			parameterGuesses = CollectionUtilities.getStringListFromString(settings
-					.getString(CFGKEY_PARAMETERGUESSES));
+			parameterGuesses = CollectionUtilities
+					.getPointMapMapFromString(settings
+							.getString(CFGKEY_PARAMETERGUESSES));
 		} catch (InvalidSettingsException e) {
-			parameterGuesses = new ArrayList<String>();
+			parameterGuesses = new LinkedHashMap<>();
 		}
 	}
 
@@ -299,91 +291,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	protected static Map<String, Map<String, Point2D.Double>> getGuessMap(
-			List<String> guesses) {
-		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, Point2D.Double>>();
-
-		for (String modelGuesses : guesses) {
-			String[] modelElements = modelGuesses.split(":");
-
-			if (modelElements.length == 2) {
-				String modelName = modelElements[0];
-				Map<String, Point2D.Double> modelMap = new LinkedHashMap<String, Point2D.Double>();
-
-				for (String guess : modelElements[1].split(",")) {
-					String[] elements = guess.split("=");
-
-					if (elements.length == 2) {
-						String paramName = elements[0];
-						String[] range = elements[1].split("~");
-						double min = Double.NaN;
-						double max = Double.NaN;
-
-						if (range.length == 2) {
-							try {
-								min = Double.parseDouble(range[0]);
-							} catch (NumberFormatException e) {
-							}
-
-							try {
-								max = Double.parseDouble(range[1]);
-							} catch (NumberFormatException e) {
-							}
-						}
-
-						modelMap.put(paramName, new Point2D.Double(min, max));
-					}
-				}
-
-				guessMap.put(modelName, modelMap);
-			}
-		}
-
-		return guessMap;
-	}
-
-	protected static List<String> guessMapToList(
-			Map<String, Map<String, Point2D.Double>> map) {
-		List<String> list = new ArrayList<String>();
-
-		for (String modelName : map.keySet()) {
-			Map<String, Point2D.Double> modelMap = map.get(modelName);
-			StringBuilder modelString = new StringBuilder(modelName + ":");
-
-			for (String paramName : modelMap.keySet()) {
-				Point2D.Double range = modelMap.get(paramName);
-				String rangeString = "";
-
-				if (!Double.isNaN(range.x)) {
-					rangeString += range.x + "~";
-				} else {
-					rangeString += "?~";
-				}
-
-				if (!Double.isNaN(range.y)) {
-					rangeString += range.y;
-				} else {
-					rangeString += "?";
-				}
-
-				modelString.append(paramName + "=" + rangeString + ",");
-			}
-
-			if (modelString.charAt(modelString.length() - 1) == ',') {
-				modelString.deleteCharAt(modelString.length() - 1);
-			}
-
-			list.add(modelString.toString());
-		}
-
-		return list;
-	}
-
 	private BufferedDataTable doPrimaryEstimation(BufferedDataTable table,
-			ExecutionContext exec,
-			Map<String, Map<String, Point2D.Double>> parameterGuesses)
-			throws PmmException, CanceledExecutionException,
-			InterruptedException {
+			ExecutionContext exec) throws PmmException,
+			CanceledExecutionException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
@@ -410,7 +320,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 			}
 
 			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
-					parameterGuesses, runningThreads, finishedThreads));
+					runningThreads, finishedThreads));
 
 			runningThreads.incrementAndGet();
 			thread.start();
@@ -438,14 +348,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable doSecondaryEstimation(BufferedDataTable table,
-			ExecutionContext exec,
-			Map<String, Map<String, Point2D.Double>> parameterGuesses)
-			throws CanceledExecutionException, InterruptedException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new SecondaryEstimationThread(table,
-				parameterGuesses, container, progress));
+				container, progress));
 
 		thread.start();
 
@@ -464,14 +373,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable doOneStepEstimation(BufferedDataTable table,
-			ExecutionContext exec,
-			Map<String, Map<String, Point2D.Double>> parameterGuesses)
-			throws CanceledExecutionException, InterruptedException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new OneStepEstimationThread(table,
-				parameterGuesses, container, progress));
+				container, progress));
 
 		thread.start();
 
@@ -512,16 +420,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class PrimaryEstimationThread implements Runnable {
 
 		private KnimeTuple tuple;
-		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 
 		private AtomicInteger runningThreads;
 		private AtomicInteger finishedThreads;
 
 		public PrimaryEstimationThread(KnimeTuple tuple,
-				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				AtomicInteger runningThreads, AtomicInteger finishedThreads) {
 			this.tuple = tuple;
-			this.parameterGuesses = parameterGuesses;
 			this.runningThreads = runningThreads;
 			this.finishedThreads = finishedThreads;
 		}
@@ -694,15 +599,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class SecondaryEstimationThread implements Runnable {
 
 		private BufferedDataTable inTable;
-		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 		private BufferedDataContainer container;
 		private AtomicInteger progress;
 
 		public SecondaryEstimationThread(BufferedDataTable inTable,
-				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
-			this.parameterGuesses = parameterGuesses;
 			this.container = container;
 			this.progress = progress;
 		}
@@ -991,16 +893,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private class OneStepEstimationThread implements Runnable {
 
 		private BufferedDataTable inTable;
-		private Map<String, Map<String, Point2D.Double>> parameterGuesses;
 
 		private BufferedDataContainer container;
 		private AtomicInteger progress;
 
 		public OneStepEstimationThread(BufferedDataTable inTable,
-				Map<String, Map<String, Point2D.Double>> parameterGuesses,
 				BufferedDataContainer container, AtomicInteger progress) {
 			this.inTable = inTable;
-			this.parameterGuesses = parameterGuesses;
 			this.container = container;
 			this.progress = progress;
 		}

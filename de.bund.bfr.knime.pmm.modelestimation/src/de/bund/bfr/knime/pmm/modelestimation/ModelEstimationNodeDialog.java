@@ -192,7 +192,6 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		int nLevenberg;
 		int stopWhenSuccessful;
 		int enforceLimits;
-		List<String> parameterGuesses;
 
 		try {
 			fittingType = settings
@@ -230,11 +229,11 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			parameterGuesses = CollectionUtilities
-					.getStringListFromString(settings
+			guessMap = CollectionUtilities
+					.getPointMapMapFromString(settings
 							.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES));
 		} catch (InvalidSettingsException e) {
-			parameterGuesses = new ArrayList<String>();
+			guessMap = new LinkedHashMap<>();
 		}
 
 		if (fittingType.equals(ModelEstimationNodeModel.NO_FITTING)) {
@@ -259,7 +258,6 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		nLevenbergField.setValue(nLevenberg);
 		stopWhenSuccessBox.setSelected(stopWhenSuccessful == 1);
 		limitsBox.setSelected(enforceLimits == 1);
-		guessMap = ModelEstimationNodeModel.getGuessMap(parameterGuesses);
 
 		try {
 			initGUI();
@@ -321,8 +319,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES,
-				CollectionUtilities.getStringFromList(ModelEstimationNodeModel
-						.guessMapToList(guessMap)));
+				CollectionUtilities.getStringFromPointMapMap(guessMap));
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) throws PmmException {

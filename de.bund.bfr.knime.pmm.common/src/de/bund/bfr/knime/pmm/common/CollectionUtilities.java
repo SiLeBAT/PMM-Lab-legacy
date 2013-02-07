@@ -13,7 +13,9 @@ import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
 public class CollectionUtilities {
 
 	public static final String LIST_DIVIDER = ";";
-	public static final String MAP_DIVIDER = "=";
+	public static final String LISTLIST_DIVIDER = ",";
+	public static final String MAP_DIVIDER = ":";
+	public static final String MAPMAP_DIVIDER = "=";
 	public static final String POINT_DIVIDER = "/";
 	public static final String MISSING_VALUE = "?";
 
@@ -204,6 +206,86 @@ public class CollectionUtilities {
 		}
 
 		return getStringFromList(list);
+	}
+
+	public static Map<String, Map<String, Point2D.Double>> getPointMapMapFromString(
+			String s) {
+		Map<String, Map<String, Point2D.Double>> map1 = new LinkedHashMap<>();
+
+		for (String mapping1 : CollectionUtilities.getStringListFromString(s)) {
+			String[] mapToks1 = mapping1.split(MAP_DIVIDER);
+
+			if (mapToks1.length != 2) {
+				continue;
+			}
+
+			String mapKey1 = mapToks1[0];
+			Map<String, Point2D.Double> map2 = new LinkedHashMap<>();
+
+			for (String mapping2 : mapToks1[1].split(LISTLIST_DIVIDER)) {
+				String[] mapToks2 = mapping2.split(MAPMAP_DIVIDER);
+
+				if (mapToks2.length != 2) {
+					continue;
+				}
+
+				String mapKey2 = mapToks2[0];
+				String[] toks = mapToks2[1].split(POINT_DIVIDER);
+				double x = Double.NaN;
+				double y = Double.NaN;
+
+				try {
+					x = Double.parseDouble(toks[0]);
+				} catch (Exception e) {
+				}
+
+				try {
+					y = Double.parseDouble(toks[1]);
+				} catch (Exception e) {
+				}
+
+				map2.put(mapKey2, new Point2D.Double(x, y));
+			}
+
+			map1.put(mapKey1, map2);
+		}
+
+		return map1;
+	}
+
+	public static String getStringFromPointMapMap(
+			Map<String, Map<String, Point2D.Double>> map1) {
+		List<String> list = new ArrayList<String>();
+
+		for (String mapKey1 : map1.keySet()) {
+			Map<String, Point2D.Double> map2 = map1.get(mapKey1);
+			StringBuilder map2String = new StringBuilder(mapKey1 + MAP_DIVIDER);
+
+			for (String paramName : map2.keySet()) {
+				Point2D.Double p = map2.get(paramName);
+				String x = MISSING_VALUE;
+				String y = MISSING_VALUE;
+
+				if (!Double.isNaN(p.x) && !Double.isInfinite(p.x)) {
+					x = p.x + "";
+				}
+
+				if (!Double.isNaN(p.y) && !Double.isInfinite(p.y)) {
+					y = p.y + "";
+				}
+
+				map2String.append(paramName + MAPMAP_DIVIDER + x
+						+ POINT_DIVIDER + y + LISTLIST_DIVIDER);
+			}
+
+			if (map2String.charAt(map2String.length() - 1) == ',') {
+				map2String.deleteCharAt(map2String.length() - 1);
+			}
+
+			list.add(map2String.toString());
+		}
+
+		return CollectionUtilities.getStringFromList(list);
 	}
 
 }

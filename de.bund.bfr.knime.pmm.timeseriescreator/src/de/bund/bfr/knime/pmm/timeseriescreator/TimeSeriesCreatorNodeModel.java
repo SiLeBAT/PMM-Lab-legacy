@@ -54,7 +54,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -224,17 +224,17 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_LITERATUREIDS,
-				ListUtilities.getStringFromList(literatureIDs));
+				CollectionUtilities.getStringFromList(literatureIDs));
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
 		settings.addString(CFGKEY_COMMENT, comment);
 		settings.addString(CFGKEY_TIMESERIES,
-				ListUtilities.getStringFromList(timeSeries));
+				CollectionUtilities.getStringFromList(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_MISCVALUES,
-				ListUtilities.getStringFromList(getMiscList(miscValues)));
+				CollectionUtilities.getStringFromList(getMiscList(miscValues)));
 	}
 
 	/**
@@ -244,7 +244,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			literatureIDs = ListUtilities.getIntListFromString(settings
+			literatureIDs = CollectionUtilities.getIntListFromString(settings
 					.getString(CFGKEY_LITERATUREIDS));
 		} catch (InvalidSettingsException e) {
 			literatureIDs = new ArrayList<>();
@@ -269,7 +269,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			timeSeries = ListUtilities.getPointDoubleListFromString(settings
+			timeSeries = CollectionUtilities.getPointDoubleListFromString(settings
 					.getString(CFGKEY_TIMESERIES));
 		} catch (InvalidSettingsException e) {
 			timeSeries = new ArrayList<>();
@@ -297,7 +297,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			miscValues = getMiscMap(ListUtilities
+			miscValues = getMiscMap(CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_MISCVALUES)));
 		} catch (InvalidSettingsException e) {

@@ -56,7 +56,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -116,7 +116,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		List<String> visibleColumns;
 
 		try {
-			selectedIDs = ListUtilities.getStringListFromString(settings
+			selectedIDs = CollectionUtilities.getStringListFromString(settings
 					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
@@ -208,10 +208,10 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = ListUtilities.getStringListFromString(settings
+			visibleColumns = CollectionUtilities.getStringListFromString(settings
 					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
 		}
 
@@ -238,13 +238,13 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			throws InvalidSettingsException {
 		settings.addString(
 				DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				ListUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
+				CollectionUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
 		DataViewAndSelectNodeModel.writeColors(selectionPanel.getColors(),
 				settings);
 		DataViewAndSelectNodeModel.writeShapes(selectionPanel.getShapes(),
 				settings);
 		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				ListUtilities.getStringFromList(selectionPanel
+				CollectionUtilities.getStringFromList(selectionPanel
 						.getVisibleColumns()));
 
 		settings.addInt(DataViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);

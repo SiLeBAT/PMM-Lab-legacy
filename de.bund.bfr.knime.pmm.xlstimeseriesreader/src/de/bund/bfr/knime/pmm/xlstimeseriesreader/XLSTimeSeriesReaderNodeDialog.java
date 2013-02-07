@@ -71,7 +71,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -279,7 +279,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			columnMappings = XLSTimeSeriesReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
@@ -329,7 +329,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			agentMappings = XLSTimeSeriesReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
@@ -355,14 +355,14 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			matrixMappings = XLSTimeSeriesReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literatureIDs = ListUtilities
+			literatureIDs = CollectionUtilities
 					.getIntListFromString(settings
 							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
@@ -480,7 +480,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
 				filePanel.getFileName());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
 						.getMappingsAsList(columnMappings)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
@@ -492,16 +492,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				agentColumn);
 		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
 						.getMappingsAsList(agentMappings)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
 		settings.addInt(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				ListUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSTimeSeriesReaderNodeModel
 						.getMappingsAsList(matrixMappings)));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATUREIDS,
-				ListUtilities.getStringFromList(literatureIDs));
+				CollectionUtilities.getStringFromList(literatureIDs));
 	}
 
 	@Override

@@ -50,7 +50,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -128,7 +128,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_USEDCONDITIONS,
-				ListUtilities.getStringFromList(usedConditions));
+				CollectionUtilities.getStringFromList(usedConditions));
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			usedConditions = ListUtilities.getStringListFromString(settings
+			usedConditions = CollectionUtilities.getStringListFromString(settings
 					.getString(CFG_USEDCONDITIONS));
 		} catch (InvalidSettingsException e) {
 			usedConditions = new ArrayList<>();

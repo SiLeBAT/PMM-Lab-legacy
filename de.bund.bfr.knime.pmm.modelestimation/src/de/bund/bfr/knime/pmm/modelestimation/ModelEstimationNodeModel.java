@@ -63,7 +63,7 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -226,7 +226,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
 		settings.addString(CFGKEY_PARAMETERGUESSES,
-				ListUtilities.getStringFromList(parameterGuesses));
+				CollectionUtilities.getStringFromList(parameterGuesses));
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		}
 
 		try {
-			parameterGuesses = ListUtilities.getStringListFromString(settings
+			parameterGuesses = CollectionUtilities.getStringListFromString(settings
 					.getString(CFGKEY_PARAMETERGUESSES));
 		} catch (InvalidSettingsException e) {
 			parameterGuesses = new ArrayList<String>();

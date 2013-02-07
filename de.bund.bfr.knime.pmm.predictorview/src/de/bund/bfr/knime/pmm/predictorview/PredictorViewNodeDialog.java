@@ -58,7 +58,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -112,7 +112,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 
 		try {
 			concentrationParameters = PredictorViewNodeModel
-					.toParameterMap(ListUtilities.getStringListFromString(settings
+					.toParameterMap(CollectionUtilities.getStringListFromString(settings
 							.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
@@ -144,7 +144,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 
 		settings.addString(
 				PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				ListUtilities.getStringFromList(PredictorViewNodeModel
+				CollectionUtilities.getStringFromList(PredictorViewNodeModel
 						.toParameterList(parameterMap)));
 	}
 

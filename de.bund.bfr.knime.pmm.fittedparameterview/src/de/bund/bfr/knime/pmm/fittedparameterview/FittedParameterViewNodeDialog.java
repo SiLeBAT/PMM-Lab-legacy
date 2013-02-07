@@ -58,7 +58,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -127,7 +127,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			List<String> conditions = ListUtilities
+			List<String> conditions = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS));
 			usedConditions = new ArrayList<>();
@@ -153,7 +153,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS,
-				ListUtilities.getStringFromList(usedConditions));
+				CollectionUtilities.getStringFromList(usedConditions));
 	}
 
 	@Override

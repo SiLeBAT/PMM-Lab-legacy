@@ -56,7 +56,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -141,7 +141,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		String fittedFilter;
 
 		try {
-			selectedIDs = ListUtilities
+			selectedIDs = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
@@ -234,11 +234,11 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(ModelSelectionTertiaryNodeModel.DEFAULT_VISIBLECOLUMNS);
 		}
 
@@ -287,13 +287,13 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			throws InvalidSettingsException {
 		settings.addString(
 				ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS,
-				ListUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
+				CollectionUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
 		ModelSelectionTertiaryNodeModel.writeColors(selectionPanel.getColors(),
 				settings);
 		ModelSelectionTertiaryNodeModel.writeShapes(selectionPanel.getShapes(),
 				settings);
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS,
-				ListUtilities.getStringFromList(selectionPanel
+				CollectionUtilities.getStringFromList(selectionPanel
 						.getVisibleColumns()));
 
 		settings.addInt(ModelSelectionTertiaryNodeModel.CFG_SELECTALLIDS, 0);

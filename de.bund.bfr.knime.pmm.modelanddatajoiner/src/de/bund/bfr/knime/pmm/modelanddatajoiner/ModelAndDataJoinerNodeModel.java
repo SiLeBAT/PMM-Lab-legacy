@@ -48,7 +48,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -187,7 +187,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_JOINTYPE, joinType);
 		settings.addString(CFGKEY_ASSIGNMENTS,
-				ListUtilities.getStringFromList(assignments));
+				CollectionUtilities.getStringFromList(assignments));
 		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
 	}
 
@@ -204,7 +204,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 		}
 
 		try {
-			assignments = ListUtilities.getStringListFromString(settings
+			assignments = CollectionUtilities.getStringListFromString(settings
 					.getString(CFGKEY_ASSIGNMENTS));
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();

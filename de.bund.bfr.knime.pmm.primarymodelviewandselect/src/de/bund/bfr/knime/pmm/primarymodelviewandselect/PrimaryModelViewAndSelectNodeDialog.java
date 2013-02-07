@@ -56,7 +56,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
@@ -139,7 +139,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		String fittedFilter;
 
 		try {
-			selectedIDs = ListUtilities
+			selectedIDs = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
@@ -236,11 +236,11 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(PrimaryModelViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
 		}
 
@@ -289,14 +289,14 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			throws InvalidSettingsException {
 		settings.addString(
 				PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				ListUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
+				CollectionUtilities.getStringFromList(selectionPanel.getSelectedIDs()));
 		PrimaryModelViewAndSelectNodeModel.writeColors(
 				selectionPanel.getColors(), settings);
 		PrimaryModelViewAndSelectNodeModel.writeShapes(
 				selectionPanel.getShapes(), settings);
 		settings.addString(
 				PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				ListUtilities.getStringFromList(selectionPanel
+				CollectionUtilities.getStringFromList(selectionPanel
 						.getVisibleColumns()));
 
 		settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);

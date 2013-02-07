@@ -72,7 +72,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -292,7 +292,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			modelMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
@@ -300,7 +300,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			columnMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
@@ -333,7 +333,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			agentMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
@@ -358,14 +358,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			matrixMappings = XLSModelReaderNodeModel
-					.getMappingsAsMap(ListUtilities.getStringListFromString(settings
+					.getMappingsAsMap(CollectionUtilities.getStringListFromString(settings
 							.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS)));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literatureIDs = ListUtilities.getIntListFromString(settings
+			literatureIDs = CollectionUtilities.getIntListFromString(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
 
@@ -480,10 +480,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				filePanel.getFileName());
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
-				ListUtilities.getStringFromList(XLSModelReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(modelMappings)));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				ListUtilities.getStringFromList(XLSModelReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(columnMappings)));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
@@ -491,16 +491,16 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				agentColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				ListUtilities.getStringFromList(XLSModelReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(agentMappings)));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				ListUtilities.getStringFromList(XLSModelReaderNodeModel
+				CollectionUtilities.getStringFromList(XLSModelReaderNodeModel
 						.getMappingsAsList(matrixMappings)));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS,
-				ListUtilities.getStringFromList(literatureIDs));
+				CollectionUtilities.getStringFromList(literatureIDs));
 	}
 
 	@Override

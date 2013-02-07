@@ -60,7 +60,7 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -171,7 +171,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				ListUtilities.getStringFromList(concentrationParameters));
+				CollectionUtilities.getStringFromList(concentrationParameters));
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		try {
-			concentrationParameters = ListUtilities
+			concentrationParameters = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {

@@ -52,7 +52,7 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -143,7 +143,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				ListUtilities.getStringFromList(concentrationParameters));
+				CollectionUtilities.getStringFromList(concentrationParameters));
 	}
 
 	/**
@@ -153,7 +153,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			concentrationParameters = ListUtilities
+			concentrationParameters = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {

@@ -53,7 +53,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -297,13 +297,13 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
-		settings.addString(CFGKEY_COLUMNMAPPINGS, ListUtilities
+		settings.addString(CFGKEY_COLUMNMAPPINGS, CollectionUtilities
 				.getStringFromList(getMappingsAsList(columnMappings)));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
-		settings.addString(CFGKEY_AGENTMAPPINGS, ListUtilities
+		settings.addString(CFGKEY_AGENTMAPPINGS, CollectionUtilities
 				.getStringFromList(getMappingsAsList(agentMappings)));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
-		settings.addString(CFGKEY_MATRIXMAPPINGS, ListUtilities
+		settings.addString(CFGKEY_MATRIXMAPPINGS, CollectionUtilities
 				.getStringFromList(getMappingsAsList(matrixMappings)));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
@@ -311,7 +311,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
 		settings.addString(CFGKEY_LITERATUREIDS,
-				ListUtilities.getStringFromList(literatureIDs));
+				CollectionUtilities.getStringFromList(literatureIDs));
 	}
 
 	/**
@@ -327,7 +327,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			columnMappings = getMappingsAsMap(ListUtilities
+			columnMappings = getMappingsAsMap(CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_COLUMNMAPPINGS)));
 		} catch (InvalidSettingsException e) {
@@ -341,7 +341,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			agentMappings = getMappingsAsMap(ListUtilities
+			agentMappings = getMappingsAsMap(CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_AGENTMAPPINGS)));
 		} catch (InvalidSettingsException e) {
@@ -355,7 +355,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			matrixMappings = getMappingsAsMap(ListUtilities
+			matrixMappings = getMappingsAsMap(CollectionUtilities
 					.getStringListFromString(settings
 							.getString(CFGKEY_MATRIXMAPPINGS)));
 		} catch (InvalidSettingsException e) {
@@ -396,7 +396,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		try {
-			literatureIDs = ListUtilities.getIntListFromString(settings
+			literatureIDs = CollectionUtilities.getIntListFromString(settings
 					.getString(CFGKEY_LITERATUREIDS));
 		} catch (InvalidSettingsException e) {
 			literatureIDs = new ArrayList<>();

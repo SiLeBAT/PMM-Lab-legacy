@@ -59,7 +59,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -123,7 +123,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		try {
 			concentrationParameters = ForecastStaticConditionsNodeModel
-					.toParameterMap(ListUtilities.getStringListFromString(settings
+					.toParameterMap(CollectionUtilities.getStringListFromString(settings
 							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
@@ -164,7 +164,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				ListUtilities
+				CollectionUtilities
 						.getStringFromList(ForecastStaticConditionsNodeModel
 								.toParameterList(parameterMap)));
 	}

@@ -66,7 +66,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -230,7 +230,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			parameterGuesses = ListUtilities
+			parameterGuesses = CollectionUtilities
 					.getStringListFromString(settings
 							.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES));
 		} catch (InvalidSettingsException e) {
@@ -321,7 +321,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES,
-				ListUtilities.getStringFromList(ModelEstimationNodeModel
+				CollectionUtilities.getStringFromList(ModelEstimationNodeModel
 						.guessMapToList(guessMap)));
 	}
 

@@ -61,7 +61,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -159,7 +159,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		showLegend = DEFAULT_SHOWLEGEND;
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		visibleColumns = ListUtilities
+		visibleColumns = CollectionUtilities
 				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 		transformY = DEFAULT_TRANSFORMY;
 		modelFilter = DEFAULT_MODELFILTER;
@@ -272,7 +272,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_SELECTEDIDS,
-				ListUtilities.getStringFromList(selectedIDs));
+				CollectionUtilities.getStringFromList(selectedIDs));
 		writeColors(colors, settings);
 		writeShapes(shapes, settings);
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
@@ -287,7 +287,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				ListUtilities.getStringFromList(visibleColumns));
+				CollectionUtilities.getStringFromList(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
@@ -300,7 +300,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			selectedIDs = ListUtilities.getStringListFromString(settings
+			selectedIDs = CollectionUtilities.getStringListFromString(settings
 					.getString(CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
@@ -385,10 +385,10 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		}
 
 		try {
-			visibleColumns = ListUtilities.getStringListFromString(settings
+			visibleColumns = CollectionUtilities.getStringListFromString(settings
 					.getString(CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 		}
 

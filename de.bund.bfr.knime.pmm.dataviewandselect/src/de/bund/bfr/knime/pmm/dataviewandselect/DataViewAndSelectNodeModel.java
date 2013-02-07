@@ -61,7 +61,7 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -147,7 +147,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
 		transformY = DEFAULT_TRANSFORMY;
-		visibleColumns = ListUtilities
+		visibleColumns = CollectionUtilities
 				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 	}
 
@@ -239,7 +239,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_SELECTEDIDS,
-				ListUtilities.getStringFromList(selectedIDs));
+				CollectionUtilities.getStringFromList(selectedIDs));
 		writeColors(colors, settings);
 		writeShapes(shapes, settings);
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
@@ -254,7 +254,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				ListUtilities.getStringFromList(visibleColumns));
+				CollectionUtilities.getStringFromList(visibleColumns));
 	}
 
 	/**
@@ -264,7 +264,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		try {
-			selectedIDs = ListUtilities.getStringListFromString(settings
+			selectedIDs = CollectionUtilities.getStringListFromString(settings
 					.getString(CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
@@ -349,10 +349,10 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		}
 
 		try {
-			visibleColumns = ListUtilities.getStringListFromString(settings
+			visibleColumns = CollectionUtilities.getStringListFromString(settings
 					.getString(CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = ListUtilities
+			visibleColumns = CollectionUtilities
 					.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
 		}
 	}

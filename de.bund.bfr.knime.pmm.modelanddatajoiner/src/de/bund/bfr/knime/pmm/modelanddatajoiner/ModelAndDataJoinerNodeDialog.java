@@ -54,7 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -124,7 +124,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			assignments = ListUtilities.getStringListFromString(settings
+			assignments = CollectionUtilities.getStringListFromString(settings
 					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS));
 		} catch (InvalidSettingsException e) {
 			assignments = new ArrayList<String>();
@@ -177,7 +177,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_JOINTYPE,
 				joinType);
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
-				ListUtilities.getStringFromList(joiner.getAssignments()));
+				CollectionUtilities.getStringFromList(joiner.getAssignments()));
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
 			if (((PrimaryJoiner) joiner).isJoinSameConditions()) {

@@ -75,7 +75,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.ListUtilities;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -276,7 +276,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			literatureIDs = ListUtilities
+			literatureIDs = CollectionUtilities
 					.getIntListFromString(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
@@ -330,7 +330,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			List<Point2D.Double> timeSeries = ListUtilities
+			List<Point2D.Double> timeSeries = CollectionUtilities
 					.getPointDoubleListFromString(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES));
 
@@ -376,7 +376,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		try {
 			miscValues = TimeSeriesCreatorNodeModel
-					.getMiscMap(ListUtilities.getStringListFromString(settings
+					.getMiscMap(CollectionUtilities.getStringListFromString(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES)));
 		} catch (InvalidSettingsException e) {
 			miscValues = new LinkedHashMap<>();
@@ -462,11 +462,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS,
-				ListUtilities.getStringFromList(literatureIDs));
+				CollectionUtilities.getStringFromList(literatureIDs));
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
-				ListUtilities.getStringFromList(timeSeries));
+				CollectionUtilities.getStringFromList(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
@@ -495,7 +495,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
-				ListUtilities.getStringFromList(TimeSeriesCreatorNodeModel
+				CollectionUtilities.getStringFromList(TimeSeriesCreatorNodeModel
 						.getMiscList(miscValues)));
 	}
 

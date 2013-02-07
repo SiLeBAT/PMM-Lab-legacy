@@ -90,7 +90,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	static final double DEFAULT_CONCENTRATION = 3.0;
 
 	private double concentration;
-	private List<String> concentrationParameters;
+	private Map<String, String> concentrationParameters;
 
 	private KnimeSchema peiSchema;
 	private KnimeSchema seiSchema;
@@ -101,8 +101,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	 */
 	protected ForecastStaticConditionsNodeModel() {
 		super(1, 1);
-		concentration = DEFAULT_CONCENTRATION;
-		concentrationParameters = new ArrayList<String>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -171,7 +169,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromList(concentrationParameters));
+				CollectionUtilities.getStringFromMap(concentrationParameters));
 	}
 
 	/**
@@ -188,10 +186,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 		try {
 			concentrationParameters = CollectionUtilities
-					.getStringListFromString(settings
+					.getStringMapFromString(settings
 							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new ArrayList<String>();
+			concentrationParameters = new LinkedHashMap<>();
 		}
 	}
 
@@ -230,9 +228,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			tuples.add(reader.nextElement());
 		}
 
-		Map<String, String> parameterMap = toParameterMap(concentrationParameters);
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, schema, true, parameterMap);
+				.combine(tuples, schema, true, concentrationParameters);
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
@@ -253,7 +250,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 			PmmXmlDoc timeSeriesXml = newTuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			String initialParameter = parameterMap.get(oldID);
+			String initialParameter = concentrationParameters.get(oldID);
 
 			if (initialParameter != null) {
 				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -344,7 +341,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			tuples.add(reader.nextElement());
 		}
 
-		Map<String, String> parameterMap = toParameterMap(concentrationParameters);
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		int index = 0;
@@ -356,7 +352,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			String initialParameter = parameterMap.get(id);
+			String initialParameter = concentrationParameters.get(id);
 
 			if (initialParameter != null) {
 				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -522,40 +518,5 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				setWarningMessage(indep + " in " + condID + " is out of range");
 			}
 		}
-	}
-
-	protected static Map<String, String> toParameterMap(List<String> parameters) {
-		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
-
-		for (String p : parameters) {
-			String[] toks = p.split(":");
-			String modelID = toks[0];
-			String param = toks[1];
-
-			if (param.equals("?")) {
-				param = null;
-			}
-
-			parameterMap.put(modelID, param);
-		}
-
-		return parameterMap;
-	}
-
-	protected static List<String> toParameterList(
-			Map<String, String> parameterMap) {
-		List<String> parameters = new ArrayList<String>();
-
-		for (String modelID : parameterMap.keySet()) {
-			String param = parameterMap.get(modelID);
-
-			if (param == null) {
-				param = "?";
-			}
-
-			parameters.add(modelID + ":" + param);
-		}
-
-		return parameters;
 	}
 }

@@ -122,9 +122,9 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		}
 
 		try {
-			concentrationParameters = ForecastStaticConditionsNodeModel
-					.toParameterMap(CollectionUtilities.getStringListFromString(settings
-							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
+			concentrationParameters = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
@@ -164,9 +164,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities
-						.getStringFromList(ForecastStaticConditionsNodeModel
-								.toParameterList(parameterMap)));
+				CollectionUtilities.getStringFromMap(parameterMap));
 	}
 
 	private void readTable(BufferedDataTable table) throws PmmException {

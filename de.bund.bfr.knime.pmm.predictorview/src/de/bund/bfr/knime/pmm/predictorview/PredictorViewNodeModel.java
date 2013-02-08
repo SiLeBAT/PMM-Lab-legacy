@@ -35,9 +35,7 @@ package de.bund.bfr.knime.pmm.predictorview;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.knime.core.data.DataTable;
@@ -75,14 +73,14 @@ public class PredictorViewNodeModel extends NodeModel {
 	private KnimeSchema model1Schema;
 	private KnimeSchema model12Schema;
 
-	private List<String> concentrationParameters;
+	private Map<String, String> concentrationParameters;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected PredictorViewNodeModel() {
 		super(1, 0);
-		concentrationParameters = new ArrayList<String>();
+		concentrationParameters = new LinkedHashMap<>();
 
 		try {
 			model1Schema = new Model1Schema();
@@ -143,7 +141,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromList(concentrationParameters));
+				CollectionUtilities.getStringFromMap(concentrationParameters));
 	}
 
 	/**
@@ -154,10 +152,10 @@ public class PredictorViewNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		try {
 			concentrationParameters = CollectionUtilities
-					.getStringListFromString(settings
+					.getStringMapFromString(settings
 							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new ArrayList<String>();
+			concentrationParameters = new LinkedHashMap<>();
 		}
 	}
 
@@ -212,7 +210,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	}
 
 	protected Map<String, String> getConcentrationParameters() {
-		return toParameterMap(concentrationParameters);
+		return concentrationParameters;
 	}
 
 	protected boolean isModel1Schema() {
@@ -221,41 +219,6 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	protected boolean isModel12Schema() {
 		return schema == model12Schema;
-	}
-
-	protected static Map<String, String> toParameterMap(List<String> parameters) {
-		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
-
-		for (String p : parameters) {
-			String[] toks = p.split(":");
-			String modelID = toks[0];
-			String param = toks[1];
-
-			if (param.equals("?")) {
-				param = null;
-			}
-
-			parameterMap.put(modelID, param);
-		}
-
-		return parameterMap;
-	}
-
-	protected static List<String> toParameterList(
-			Map<String, String> parameterMap) {
-		List<String> parameters = new ArrayList<String>();
-
-		for (String modelID : parameterMap.keySet()) {
-			String param = parameterMap.get(modelID);
-
-			if (param == null) {
-				param = "?";
-			}
-
-			parameters.add(modelID + ":" + param);
-		}
-
-		return parameters;
 	}
 
 }

@@ -111,9 +111,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 		Map<String, String> concentrationParameters;
 
 		try {
-			concentrationParameters = PredictorViewNodeModel
-					.toParameterMap(CollectionUtilities.getStringListFromString(settings
-							.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS)));
+			concentrationParameters = CollectionUtilities
+					.getStringMapFromString(settings
+							.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
@@ -144,8 +144,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 
 		settings.addString(
 				PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromList(PredictorViewNodeModel
-						.toParameterList(parameterMap)));
+				CollectionUtilities.getStringFromMap(parameterMap));
 	}
 
 	private void readTable(BufferedDataTable table) throws PmmException {

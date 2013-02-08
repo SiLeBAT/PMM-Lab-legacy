@@ -143,6 +143,21 @@ public class CollectionUtilities {
 		return map;
 	}
 
+	public static Map<Integer, Double> getIntDoubleMapFromString(String s) {
+		Map<Integer, Double> map = new LinkedHashMap<>();
+
+		for (String mapping : getStringListFromString(s)) {
+			String[] toks = mapping.split(MAP_DIVIDER);
+
+			try {
+				map.put(Integer.parseInt(toks[0]), Double.parseDouble(toks[1]));
+			} catch (Exception e) {
+			}
+		}
+
+		return map;
+	}
+
 	public static Map<String, Color> getColorMapFromString(String s) {
 		Map<String, Color> map = new LinkedHashMap<>();
 
@@ -175,7 +190,7 @@ public class CollectionUtilities {
 		return map;
 	}
 
-	public static String getStringFromMap(Map<String, ?> map) {
+	public static String getStringFromMap(Map<?, ?> map) {
 		List<String> list = new ArrayList<>();
 		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
 				.getNameByShapeMap();

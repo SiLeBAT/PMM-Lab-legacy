@@ -234,7 +234,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_MISCVALUES,
-				CollectionUtilities.getStringFromList(getMiscList(miscValues)));
+				CollectionUtilities.getStringFromMap(miscValues));
 	}
 
 	/**
@@ -269,8 +269,9 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			timeSeries = CollectionUtilities.getPointDoubleListFromString(settings
-					.getString(CFGKEY_TIMESERIES));
+			timeSeries = CollectionUtilities
+					.getPointDoubleListFromString(settings
+							.getString(CFGKEY_TIMESERIES));
 		} catch (InvalidSettingsException e) {
 			timeSeries = new ArrayList<>();
 		}
@@ -297,9 +298,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		try {
-			miscValues = getMiscMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_MISCVALUES)));
+			miscValues = CollectionUtilities.getIntDoubleMapFromString(settings
+					.getString(CFGKEY_MISCVALUES));
 		} catch (InvalidSettingsException e) {
 			miscValues = new LinkedHashMap<>();
 		}
@@ -329,34 +329,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static Map<Integer, Double> getMiscMap(List<String> miscList) {
-		Map<Integer, Double> miscMap = new LinkedHashMap<>();
-
-		for (String miscString : miscList) {
-			String[] toks = miscString.split("=");
-
-			try {
-				miscMap.put(Integer.parseInt(toks[0]),
-						Double.parseDouble(toks[1]));
-			} catch (Exception e) {
-			}
-		}
-
-		return miscMap;
-	}
-
-	protected static List<String> getMiscList(Map<Integer, Double> miscMap) {
-		List<String> miscList = new ArrayList<>();
-
-		for (Map.Entry<Integer, Double> entry : miscMap.entrySet()) {
-			if (entry.getKey() != null && entry.getValue() != null) {
-				miscList.add(entry.getKey() + "=" + entry.getValue());
-			}
-		}
-
-		return miscList;
 	}
 
 }

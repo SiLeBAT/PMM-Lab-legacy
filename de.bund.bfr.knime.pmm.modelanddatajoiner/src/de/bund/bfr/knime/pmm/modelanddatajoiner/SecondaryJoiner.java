@@ -86,8 +86,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
 
-	private List<String> usedModels;
-	private List<Map<String, String>> replacements;
+	private Map<String, List<Map<String, String>>> assignmentsMap;
 
 	private List<String> models;
 	private Map<String, String> modelNames;
@@ -138,10 +137,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			List<JButton> modelAddButtons = new ArrayList<JButton>();
 			List<JButton> modelRemoveButtons = new ArrayList<JButton>();
 
-			for (int i = 0; i < usedModels.size(); i++) {
-				if (usedModels.get(i).equals(modelID)) {
-					modelAssignments.add(replacements.get(i));
-				}
+			if (assignmentsMap.containsKey(modelID)) {
+				modelAssignments = assignmentsMap.get(modelID);
 			}
 
 			JPanel modelPanel = new JPanel();
@@ -232,16 +229,18 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		List<String> assignments = new ArrayList<String>();
 
-		for (int i = 0; i < usedModels.size(); i++) {
-			String assign = usedModels.get(i) + ":";
+		for (String model : assignmentsMap.keySet()) {
+			for (Map<String, String> assign : assignmentsMap.get(model)) {
+				String s = model + ":";
 
-			for (String var : replacements.get(i).keySet()) {
-				String param = replacements.get(i).get(var);
+				for (String var : assign.keySet()) {
+					String param = assign.get(var);
 
-				assign += var + "=" + param + ",";
+					s += var + "=" + param + ",";
+				}
+
+				assignments.add(s.substring(0, s.length() - 1));
 			}
-
-			assignments.add(assign.substring(0, assign.length() - 1));
 		}
 
 		return CollectionUtilities.getStringFromList(assignments);
@@ -256,87 +255,88 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		getReplacementsFromNodeAssignments(assignments);
 
-		if (replacements.isEmpty()) {
-			replacements.add(new LinkedHashMap<String, String>());
-		}
+		for (String model : assignmentsMap.keySet()) {
+			for (Map<String, String> replace : assignmentsMap.get(model)) {
+				KnimeRelationReader modelReader = new KnimeRelationReader(
+						modelSchema, modelTable);
 
-		for (int i = 0; i < usedModels.size(); i++) {
-			KnimeRelationReader modelReader = new KnimeRelationReader(
-					modelSchema, modelTable);
+				while (modelReader.hasMoreElements()) {
+					KnimeTuple modelRow = modelReader.nextElement();
+					PmmXmlDoc modelXmlSec = modelRow
+							.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+					String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
+							.getID() + "";
+					String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
+							.getFormula();
+					PmmXmlDoc depVarSec = modelRow
+							.getPmmXml(Model2Schema.ATT_DEPENDENT);
+					String depVarSecName = ((DepXml) depVarSec.get(0))
+							.getName();
+					PmmXmlDoc indepVarsSec = modelRow
+							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
+					KnimeRelationReader peiReader = new KnimeRelationReader(
+							dataSchema, dataTable);
+					boolean allVarsReplaced = true;
 
-			while (modelReader.hasMoreElements()) {
-				KnimeTuple modelRow = modelReader.nextElement();
-				PmmXmlDoc modelXmlSec = modelRow
-						.getPmmXml(Model2Schema.ATT_MODELCATALOG);
-				String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
-						.getID() + "";
-				String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
-						.getFormula();
-				PmmXmlDoc depVarSec = modelRow
-						.getPmmXml(Model2Schema.ATT_DEPENDENT);
-				String depVarSecName = ((DepXml) depVarSec.get(0)).getName();
-				PmmXmlDoc indepVarsSec = modelRow
-						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
-				PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-				KnimeRelationReader peiReader = new KnimeRelationReader(
-						dataSchema, dataTable);
-				Map<String, String> replace = replacements.get(i);
-				boolean allVarsReplaced = true;
-
-				if (replace.containsKey(depVarSecName)) {
-					depVarSecName = replace.get(depVarSecName);
-					((DepXml) depVarSec.get(0)).setName(depVarSecName);
-				} else {
-					allVarsReplaced = false;
-				}
-
-				for (String var : replace.keySet()) {
-					String newVar = replace.get(var);
-
-					formulaSec = MathUtilities.replaceVariable(formulaSec, var,
-							newVar);
-				}
-
-				((CatalogModelXml) modelXmlSec.get(0)).setFormula(formulaSec);
-
-				for (PmmXmlElementConvertable el : indepVarsSec.getElementSet()) {
-					IndepXml iv = (IndepXml) el;
-
-					if (replace.containsKey(iv.getName())) {
-						iv.setName(replace.get(iv.getName()));
-						newIndepVarsSec.add(iv);
+					if (replace.containsKey(depVarSecName)) {
+						depVarSecName = replace.get(depVarSecName);
+						((DepXml) depVarSec.get(0)).setName(depVarSecName);
 					} else {
 						allVarsReplaced = false;
-						break;
 					}
-				}
 
-				if (!allVarsReplaced) {
-					continue;
-				}
+					for (String var : replace.keySet()) {
+						String newVar = replace.get(var);
 
-				while (peiReader.hasMoreElements()) {
-					KnimeTuple peiRow = peiReader.nextElement();
-					PmmXmlDoc params = peiRow
-							.getPmmXml(Model1Schema.ATT_PARAMETER);
+						formulaSec = MathUtilities.replaceVariable(formulaSec,
+								var, newVar);
+					}
 
-					if (!usedModels.get(i).equals(modelIDSec)
-							|| !CellIO.getNameList(params).contains(
-									depVarSecName)) {
+					((CatalogModelXml) modelXmlSec.get(0))
+							.setFormula(formulaSec);
+
+					for (PmmXmlElementConvertable el : indepVarsSec
+							.getElementSet()) {
+						IndepXml iv = (IndepXml) el;
+
+						if (replace.containsKey(iv.getName())) {
+							iv.setName(replace.get(iv.getName()));
+							newIndepVarsSec.add(iv);
+						} else {
+							allVarsReplaced = false;
+							break;
+						}
+					}
+
+					if (!allVarsReplaced) {
 						continue;
 					}
 
-					KnimeTuple seiRow = new KnimeTuple(seiSchema, modelRow,
-							peiRow);
+					while (peiReader.hasMoreElements()) {
+						KnimeTuple peiRow = peiReader.nextElement();
+						PmmXmlDoc params = peiRow
+								.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-					seiRow.setValue(Model2Schema.ATT_MODELCATALOG, modelXmlSec);
-					seiRow.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
-					seiRow.setValue(Model2Schema.ATT_INDEPENDENT,
-							newIndepVarsSec);
-					seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
-							Model2Schema.NOTWRITABLE);
+						if (!model.equals(modelIDSec)
+								|| !CellIO.getNameList(params).contains(
+										depVarSecName)) {
+							continue;
+						}
 
-					buf.addRowToTable(seiRow);
+						KnimeTuple seiRow = new KnimeTuple(seiSchema, modelRow,
+								peiRow);
+
+						seiRow.setValue(Model2Schema.ATT_MODELCATALOG,
+								modelXmlSec);
+						seiRow.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
+						seiRow.setValue(Model2Schema.ATT_INDEPENDENT,
+								newIndepVarsSec);
+						seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
+								Model2Schema.NOTWRITABLE);
+
+						buf.addRowToTable(seiRow);
+					}
 				}
 			}
 		}
@@ -403,29 +403,30 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void getReplacementsFromFrame() {
-		usedModels = new ArrayList<String>();
-		replacements = new ArrayList<Map<String, String>>();
+		assignmentsMap = new LinkedHashMap<>();
 
 		for (String model : comboBoxes.keySet()) {
+			List<Map<String, String>> modelAssignments = new ArrayList<>();
+
 			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
 					.get(model)) {
-				Map<String, String> modelAssignments = new LinkedHashMap<String, String>();
+				Map<String, String> assignment = new LinkedHashMap<String, String>();
 
 				for (String var : modelBoxes.keySet()) {
 					JComboBox<String> box = modelBoxes.get(var);
 
-					modelAssignments.put(var, (String) box.getSelectedItem());
+					assignment.put(var, (String) box.getSelectedItem());
 				}
 
-				usedModels.add(model);
-				replacements.add(modelAssignments);
+				modelAssignments.add(assignment);
 			}
+
+			assignmentsMap.put(model, modelAssignments);
 		}
 	}
 
 	private void getReplacementsFromNodeAssignments(String assignments) {
-		usedModels = new ArrayList<String>();
-		replacements = new ArrayList<Map<String, String>>();
+		assignmentsMap = new LinkedHashMap<>();
 
 		for (String s : CollectionUtilities
 				.getStringListFromString(assignments)) {
@@ -446,8 +447,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					}
 				}
 
-				usedModels.add(model);
-				replacements.add(modelReplacements);
+				if (!assignmentsMap.containsKey(model)) {
+					assignmentsMap.put(model,
+							new ArrayList<Map<String, String>>());
+				}
+
+				assignmentsMap.get(model).add(modelReplacements);
 			}
 		}
 	}

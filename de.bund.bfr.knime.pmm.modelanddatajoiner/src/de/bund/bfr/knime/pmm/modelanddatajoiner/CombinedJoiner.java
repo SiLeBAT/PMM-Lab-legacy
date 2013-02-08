@@ -108,7 +108,8 @@ public class CombinedJoiner implements Joiner {
 
 	@Override
 	public JComponent createPanel(String assignments) {
-		Map<String, Map<String, String>> replacements = getAssignmentsMap(assignments);
+		Map<String, Map<String, String>> assignmentsMap = CollectionUtilities
+				.getMapMapFromString(assignments);
 
 		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
 				primaryVariables.size());
@@ -130,9 +131,9 @@ public class CombinedJoiner implements Joiner {
 			JComboBox<String> box = new JComboBox<String>(
 					primaryParameters.toArray(new String[0]));
 
-			if (replacements.containsKey(PRIMARY)
-					&& replacements.get(PRIMARY).containsKey(var)) {
-				box.setSelectedItem(replacements.get(PRIMARY).get(var));
+			if (assignmentsMap.containsKey(PRIMARY)
+					&& assignmentsMap.get(PRIMARY).containsKey(var)) {
+				box.setSelectedItem(assignmentsMap.get(PRIMARY).get(var));
 			} else {
 				box.setSelectedItem(null);
 			}
@@ -156,9 +157,9 @@ public class CombinedJoiner implements Joiner {
 				JComboBox<String> box = new JComboBox<String>(
 						secondaryParameters.toArray(new String[0]));
 
-				if (replacements.containsKey(depVarSec)
-						&& replacements.get(depVarSec).containsKey(var)) {
-					box.setSelectedItem(replacements.get(depVarSec).get(var));
+				if (assignmentsMap.containsKey(depVarSec)
+						&& assignmentsMap.get(depVarSec).containsKey(var)) {
+					box.setSelectedItem(assignmentsMap.get(depVarSec).get(var));
 				} else {
 					box.setSelectedItem(null);
 				}
@@ -179,48 +180,37 @@ public class CombinedJoiner implements Joiner {
 
 	@Override
 	public String getAssignments() {
-		List<String> assignments = new ArrayList<String>();
-		StringBuilder primaryAssignments = new StringBuilder();
+		Map<String, Map<String, String>> assignmentsMap = new LinkedHashMap<>();
+		Map<String, String> primaryAssignments = new LinkedHashMap<>();
 
 		for (int i = 0; i < primaryVariables.size(); i++) {
 			String replacement = (String) primaryVariableBoxes.get(i)
 					.getSelectedItem();
 
 			if (!replacement.equals("")) {
-				primaryAssignments.append(primaryVariables.get(i) + "="
-						+ replacement + ",");
+				primaryAssignments.put(primaryVariables.get(i), replacement);
 			}
 		}
 
-		if (primaryAssignments.length() > 0) {
-			primaryAssignments.deleteCharAt(primaryAssignments.length() - 1);
-		}
-
-		assignments.add(PRIMARY + ":" + primaryAssignments.toString());
+		assignmentsMap.put(PRIMARY, primaryAssignments);
 
 		for (String depVarSec : secondaryVariables.keySet()) {
-			StringBuilder secondaryAssignments = new StringBuilder();
+			Map<String, String> secondaryAssignments = new LinkedHashMap<>();
 
 			for (int i = 0; i < secondaryVariables.get(depVarSec).size(); i++) {
 				String replacement = (String) secondaryVariableBoxes
 						.get(depVarSec).get(i).getSelectedItem();
 
 				if (!replacement.equals("")) {
-					secondaryAssignments.append(secondaryVariables.get(
-							depVarSec).get(i)
-							+ "=" + replacement + ",");
+					secondaryAssignments.put(secondaryVariables.get(depVarSec)
+							.get(i), replacement);
 				}
 			}
 
-			if (secondaryAssignments.length() > 0) {
-				secondaryAssignments
-						.deleteCharAt(secondaryAssignments.length() - 1);
-			}
-
-			assignments.add(depVarSec + ":" + secondaryAssignments.toString());
+			assignmentsMap.put(depVarSec, secondaryAssignments);
 		}
 
-		return CollectionUtilities.getStringFromList(assignments);
+		return CollectionUtilities.getStringFromMapMap(assignmentsMap);
 	}
 
 	@Override
@@ -229,7 +219,8 @@ public class CombinedJoiner implements Joiner {
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(seiSchema
 				.createSpec());
-		Map<String, Map<String, String>> replacements = getAssignmentsMap(assignments);
+		Map<String, Map<String, String>> replacements = CollectionUtilities
+				.getMapMapFromString(assignments);
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 
@@ -414,36 +405,4 @@ public class CombinedJoiner implements Joiner {
 		primaryVariables = new ArrayList<String>(primaryVarSet);
 	}
 
-	private Map<String, Map<String, String>> getAssignmentsMap(
-			String assignments) {
-		Map<String, Map<String, String>> assignmentsMap = new LinkedHashMap<String, Map<String, String>>();
-
-		for (String s : CollectionUtilities
-				.getStringListFromString(assignments)) {
-			if (s.contains(":")) {
-				String[] elements = s.split(":");
-
-				if (elements.length == 2) {
-					String model = elements[0];
-					String assigns = elements[1];
-					Map<String, String> modelMap = new LinkedHashMap<String, String>();
-
-					for (String assign : assigns.split(",")) {
-						String[] assignElements = assign.split("=");
-
-						modelMap.put(assignElements[0], assignElements[1]);
-					}
-
-					assignmentsMap.put(model, modelMap);
-				} else if (elements.length == 1) {
-					String model = elements[0];
-					Map<String, String> modelMap = new LinkedHashMap<String, String>();
-
-					assignmentsMap.put(model, modelMap);
-				}
-			}
-		}
-
-		return assignmentsMap;
-	}
 }

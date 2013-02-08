@@ -81,6 +81,9 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	protected ModelAndDataJoinerNodeModel() {
 		super(2, 1);
+		joinType = DEFAULT_JOINTYPE;
+		assignments = "";
+		joinSameConditions = DEFAULT_JOINSAMECONDITIONS;
 	}
 
 	/**
@@ -190,23 +193,9 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			joinType = settings.getString(CFGKEY_JOINTYPE);
-		} catch (InvalidSettingsException e) {
-			joinType = DEFAULT_JOINTYPE;
-		}
-
-		try {
-			assignments = settings.getString(CFGKEY_ASSIGNMENTS);
-		} catch (InvalidSettingsException e) {
-			assignments = "";
-		}
-
-		try {
-			joinSameConditions = settings.getInt(CFGKEY_JOINSAMECONDITIONS);
-		} catch (InvalidSettingsException e) {
-			joinSameConditions = DEFAULT_JOINSAMECONDITIONS;
-		}
+		joinType = settings.getString(CFGKEY_JOINTYPE);
+		assignments = settings.getString(CFGKEY_ASSIGNMENTS);
+		joinSameConditions = settings.getInt(CFGKEY_JOINSAMECONDITIONS);
 	}
 
 	/**

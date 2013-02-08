@@ -25,7 +25,7 @@ public class CollectionUtilities {
 	public static List<String> getStringListFromString(String s) {
 		List<String> list = new ArrayList<>();
 
-		if (!s.isEmpty()) {
+		if (s != null && !s.isEmpty()) {
 			for (String tok : s.split(LIST_DIVIDER)) {
 				if (tok.equals(MISSING_VALUE)) {
 					list.add(null);
@@ -41,7 +41,7 @@ public class CollectionUtilities {
 	public static List<Integer> getIntListFromString(String s) {
 		List<Integer> list = new ArrayList<>();
 
-		if (!s.isEmpty()) {
+		if (s != null && !s.isEmpty()) {
 			for (String tok : s.split(LIST_DIVIDER)) {
 				try {
 					list.add(Integer.parseInt(tok));
@@ -57,7 +57,7 @@ public class CollectionUtilities {
 	public static List<Double> getDoubleListFromString(String s) {
 		List<Double> list = new ArrayList<>();
 
-		if (!s.isEmpty()) {
+		if (s != null && !s.isEmpty()) {
 			for (String tok : s.split(LIST_DIVIDER)) {
 				try {
 					list.add(Double.parseDouble(tok));
@@ -73,7 +73,7 @@ public class CollectionUtilities {
 	public static List<Point2D.Double> getPointDoubleListFromString(String s) {
 		List<Point2D.Double> list = new ArrayList<>();
 
-		if (!s.isEmpty()) {
+		if (s != null && !s.isEmpty()) {
 			for (String tok : s.split(LIST_DIVIDER)) {
 				String[] toks = tok.split(POINT_DIVIDER);
 				double x = Double.NaN;
@@ -175,7 +175,7 @@ public class CollectionUtilities {
 		return map;
 	}
 
-	public static String getStringFromMap(Map<?, ?> map) {
+	public static String getStringFromMap(Map<String, ?> map) {
 		List<String> list = new ArrayList<>();
 		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
 				.getNameByShapeMap();
@@ -286,6 +286,64 @@ public class CollectionUtilities {
 		}
 
 		return CollectionUtilities.getStringFromList(list);
+	}
+
+	public static String getStringFromMapMap(
+			Map<String, Map<String, String>> map1) {
+		List<String> list = new ArrayList<String>();
+
+		for (String mapKey1 : map1.keySet()) {
+			Map<String, String> map2 = map1.get(mapKey1);
+			StringBuilder map2String = new StringBuilder(mapKey1 + MAP_DIVIDER);
+
+			for (String mapKey2 : map2.keySet()) {
+				String s = map2.get(mapKey2);
+
+				if (s == null) {
+					map2String.append(mapKey2 + MAPMAP_DIVIDER + MISSING_VALUE
+							+ LISTLIST_DIVIDER);
+				} else {
+					map2String.append(mapKey2 + MAPMAP_DIVIDER + s
+							+ LISTLIST_DIVIDER);
+				}
+			}
+
+			if (map2String.charAt(map2String.length() - 1) == ',') {
+				map2String.deleteCharAt(map2String.length() - 1);
+			}
+
+			list.add(map2String.toString());
+		}
+
+		return CollectionUtilities.getStringFromList(list);
+	}
+
+	public static Map<String, Map<String, String>> getMapMapFromString(String s) {
+		Map<String, Map<String, String>> map1 = new LinkedHashMap<>();
+
+		for (String mapping1 : CollectionUtilities.getStringListFromString(s)) {
+			String[] mapToks1 = mapping1.split(MAP_DIVIDER);
+
+			if (mapToks1.length != 2) {
+				continue;
+			}
+
+			String mapKey1 = mapToks1[0];
+			Map<String, String> map2 = new LinkedHashMap<>();
+
+			for (String mapping2 : mapToks1[1].split(LISTLIST_DIVIDER)) {
+				String[] mapToks2 = mapping2.split(MAPMAP_DIVIDER);
+
+				try {
+					map2.put(mapToks2[0], mapToks2[1]);
+				} catch (ArrayIndexOutOfBoundsException e) {
+				}
+			}
+
+			map1.put(mapKey1, map2);
+		}
+
+		return map1;
 	}
 
 }

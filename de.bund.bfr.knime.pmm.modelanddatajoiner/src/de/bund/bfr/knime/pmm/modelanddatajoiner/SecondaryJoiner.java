@@ -129,7 +129,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		removeButtons = new LinkedHashMap<String, List<JButton>>();
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-		getReplacementsFromNodeAssignments(assignments);
+		assignmentsMap = CollectionUtilities
+				.getMapListMapFromString(assignments);
 
 		for (String modelID : models) {
 			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
@@ -225,25 +226,28 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	@Override
 	public String getAssignments() {
-		getReplacementsFromFrame();
+		Map<String, List<Map<String, String>>> assignmentsMap = new LinkedHashMap<>();
 
-		List<String> assignments = new ArrayList<String>();
+		for (String model : comboBoxes.keySet()) {
+			List<Map<String, String>> modelAssignments = new ArrayList<>();
 
-		for (String model : assignmentsMap.keySet()) {
-			for (Map<String, String> assign : assignmentsMap.get(model)) {
-				String s = model + ":";
+			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
+					.get(model)) {
+				Map<String, String> assignment = new LinkedHashMap<String, String>();
 
-				for (String var : assign.keySet()) {
-					String param = assign.get(var);
+				for (String var : modelBoxes.keySet()) {
+					JComboBox<String> box = modelBoxes.get(var);
 
-					s += var + "=" + param + ",";
+					assignment.put(var, (String) box.getSelectedItem());
 				}
 
-				assignments.add(s.substring(0, s.length() - 1));
+				modelAssignments.add(assignment);
 			}
+
+			assignmentsMap.put(model, modelAssignments);
 		}
 
-		return CollectionUtilities.getStringFromList(assignments);
+		return CollectionUtilities.getStringFromMapListMap(assignmentsMap);
 	}
 
 	@Override
@@ -253,7 +257,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		BufferedDataContainer buf = exec.createDataContainer(seiSchema
 				.createSpec());
 
-		getReplacementsFromNodeAssignments(assignments);
+		assignmentsMap = CollectionUtilities
+				.getMapListMapFromString(assignments);
 
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
@@ -400,61 +405,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		independentParameters = new ArrayList<String>(indepParamSet);
 		dependentParameters = new ArrayList<String>(depParamSet);
-	}
-
-	private void getReplacementsFromFrame() {
-		assignmentsMap = new LinkedHashMap<>();
-
-		for (String model : comboBoxes.keySet()) {
-			List<Map<String, String>> modelAssignments = new ArrayList<>();
-
-			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
-					.get(model)) {
-				Map<String, String> assignment = new LinkedHashMap<String, String>();
-
-				for (String var : modelBoxes.keySet()) {
-					JComboBox<String> box = modelBoxes.get(var);
-
-					assignment.put(var, (String) box.getSelectedItem());
-				}
-
-				modelAssignments.add(assignment);
-			}
-
-			assignmentsMap.put(model, modelAssignments);
-		}
-	}
-
-	private void getReplacementsFromNodeAssignments(String assignments) {
-		assignmentsMap = new LinkedHashMap<>();
-
-		for (String s : CollectionUtilities
-				.getStringListFromString(assignments)) {
-			String[] toks = s.split(":");
-
-			if (toks.length == 2) {
-				String model = toks[0].trim();
-				Map<String, String> modelReplacements = new LinkedHashMap<String, String>();
-
-				for (String assignment : toks[1].split(",")) {
-					String[] elements = assignment.split("=");
-
-					if (elements.length == 2) {
-						String variable = elements[0].trim();
-						String parameter = elements[1].trim();
-
-						modelReplacements.put(variable, parameter);
-					}
-				}
-
-				if (!assignmentsMap.containsKey(model)) {
-					assignmentsMap.put(model,
-							new ArrayList<Map<String, String>>());
-				}
-
-				assignmentsMap.get(model).add(modelReplacements);
-			}
-		}
 	}
 
 	private void addOrRemoveButtonPressed(JButton button) {

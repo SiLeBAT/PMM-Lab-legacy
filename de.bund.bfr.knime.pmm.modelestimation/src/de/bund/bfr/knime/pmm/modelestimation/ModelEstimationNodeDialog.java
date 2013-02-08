@@ -66,11 +66,11 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -229,8 +229,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			guessMap = CollectionUtilities
-					.getPointMapMapFromString(settings
+			guessMap = XmlConverter
+					.xmlToPointDoubleMapMap(settings
 							.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES));
 		} catch (InvalidSettingsException e) {
 			guessMap = new LinkedHashMap<>();
@@ -319,7 +319,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES,
-				CollectionUtilities.getStringFromPointMapMap(guessMap));
+				XmlConverter.mapToXml(guessMap));
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) throws PmmException {

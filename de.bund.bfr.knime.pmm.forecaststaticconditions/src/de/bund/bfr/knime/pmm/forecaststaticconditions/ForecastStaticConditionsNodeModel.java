@@ -60,7 +60,6 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -68,6 +67,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -171,7 +171,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromMap(concentrationParameters));
+				XmlConverter.mapToXml(concentrationParameters));
 	}
 
 	/**
@@ -181,9 +181,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		concentration = settings.getDouble(CFGKEY_CONCENTRATION);
-		concentrationParameters = CollectionUtilities
-				.getStringMapFromString(settings
-						.getString(CFGKEY_CONCENTRATIONPARAMETERS));
+		concentrationParameters = XmlConverter.xmlToStringMap(settings
+				.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 	}
 
 	/**

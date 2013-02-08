@@ -63,12 +63,12 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -129,8 +129,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		removeButtons = new LinkedHashMap<String, List<JButton>>();
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-		assignmentsMap = CollectionUtilities
-				.getMapListMapFromString(assignments);
+		assignmentsMap = XmlConverter.xmlToStringMapListMap(assignments);
 
 		for (String modelID : models) {
 			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
@@ -247,7 +246,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			assignmentsMap.put(model, modelAssignments);
 		}
 
-		return CollectionUtilities.getStringFromMapListMap(assignmentsMap);
+		return XmlConverter.mapToXml(assignmentsMap);
 	}
 
 	@Override
@@ -257,8 +256,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		BufferedDataContainer buf = exec.createDataContainer(seiSchema
 				.createSpec());
 
-		assignmentsMap = CollectionUtilities
-				.getMapListMapFromString(assignments);
+		assignmentsMap = XmlConverter.xmlToStringMapListMap(assignments);
 
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {

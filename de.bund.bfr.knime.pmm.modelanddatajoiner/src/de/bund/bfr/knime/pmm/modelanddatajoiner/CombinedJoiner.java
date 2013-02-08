@@ -59,13 +59,13 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -108,8 +108,8 @@ public class CombinedJoiner implements Joiner {
 
 	@Override
 	public JComponent createPanel(String assignments) {
-		Map<String, Map<String, String>> assignmentsMap = CollectionUtilities
-				.getMapMapFromString(assignments);
+		Map<String, Map<String, String>> assignmentsMap = XmlConverter
+				.xmlToStringMapMap(assignments);
 
 		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
 				primaryVariables.size());
@@ -210,7 +210,7 @@ public class CombinedJoiner implements Joiner {
 			assignmentsMap.put(depVarSec, secondaryAssignments);
 		}
 
-		return CollectionUtilities.getStringFromMapMap(assignmentsMap);
+		return XmlConverter.mapToXml(assignmentsMap);
 	}
 
 	@Override
@@ -219,8 +219,8 @@ public class CombinedJoiner implements Joiner {
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(seiSchema
 				.createSpec());
-		Map<String, Map<String, String>> replacements = CollectionUtilities
-				.getMapMapFromString(assignments);
+		Map<String, Map<String, String>> replacements = XmlConverter
+				.xmlToStringMapMap(assignments);
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 

@@ -60,7 +60,6 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
@@ -71,6 +70,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -223,7 +223,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
 		settings.addString(CFGKEY_PARAMETERGUESSES,
-				CollectionUtilities.getStringFromPointMapMap(parameterGuesses));
+				XmlConverter.mapToXml(parameterGuesses));
 	}
 
 	/**
@@ -237,9 +237,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 		nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
 		nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
 		stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
-		parameterGuesses = CollectionUtilities
-				.getPointMapMapFromString(settings
-						.getString(CFGKEY_PARAMETERGUESSES));
+		parameterGuesses = XmlConverter.xmlToPointDoubleMapMap(settings
+				.getString(CFGKEY_PARAMETERGUESSES));
 	}
 
 	/**

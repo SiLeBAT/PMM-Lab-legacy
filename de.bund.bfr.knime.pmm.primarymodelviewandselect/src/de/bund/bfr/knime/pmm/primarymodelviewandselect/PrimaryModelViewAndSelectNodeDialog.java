@@ -56,10 +56,10 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
@@ -139,22 +139,22 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		String fittedFilter;
 
 		try {
-			selectedIDs = CollectionUtilities
-					.getStringListFromString(settings
+			selectedIDs = XmlConverter
+					.xmlToStringList(settings
 							.getString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
 
 		try {
-			colors = CollectionUtilities.getColorMapFromString(settings
+			colors = XmlConverter.xmlToColorMap(settings
 					.getString(PrimaryModelViewAndSelectNodeModel.CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
-			shapes = CollectionUtilities.getShapeMapFromString(settings
+			shapes = XmlConverter.xmlToShapeMap(settings
 					.getString(PrimaryModelViewAndSelectNodeModel.CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 			shapes = new LinkedHashMap<String, Shape>();
@@ -238,12 +238,12 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(settings
+			visibleColumns = XmlConverter
+					.xmlToStringList(settings
 							.getString(PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(PrimaryModelViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
+			visibleColumns = XmlConverter
+					.xmlToStringList(PrimaryModelViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
 		}
 
 		try {
@@ -290,18 +290,14 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				CollectionUtilities.getStringFromList(selectionPanel
-						.getSelectedIDs()));
-		settings.addString(
-				PrimaryModelViewAndSelectNodeModel.CFG_COLORS,
-				CollectionUtilities.getStringFromMap(selectionPanel.getColors()));
-		settings.addString(
-				PrimaryModelViewAndSelectNodeModel.CFG_SHAPES,
-				CollectionUtilities.getStringFromMap(selectionPanel.getShapes()));
+				XmlConverter.listToXml(selectionPanel.getSelectedIDs()));
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_COLORS,
+				XmlConverter.colorMapToXml(selectionPanel.getColors()));
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_SHAPES,
+				XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
 		settings.addString(
 				PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				CollectionUtilities.getStringFromList(selectionPanel
-						.getVisibleColumns()));
+				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
 
 		settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 

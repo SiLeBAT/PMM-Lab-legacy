@@ -59,9 +59,9 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -122,8 +122,8 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		}
 
 		try {
-			concentrationParameters = CollectionUtilities
-					.getStringMapFromString(settings
+			concentrationParameters = XmlConverter
+					.xmlToStringMap(settings
 							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS));
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
@@ -164,7 +164,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromMap(parameterMap));
+				XmlConverter.mapToXml(parameterMap));
 	}
 
 	private void readTable(BufferedDataTable table) throws PmmException {

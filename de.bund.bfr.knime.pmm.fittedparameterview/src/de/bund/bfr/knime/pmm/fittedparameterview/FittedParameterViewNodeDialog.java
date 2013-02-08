@@ -58,11 +58,11 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -127,8 +127,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			List<String> conditions = CollectionUtilities
-					.getStringListFromString(settings
+			List<String> conditions = XmlConverter
+					.xmlToStringList(settings
 							.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS));
 			usedConditions = new ArrayList<>();
 
@@ -153,7 +153,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS,
-				CollectionUtilities.getStringFromList(usedConditions));
+				XmlConverter.listToXml(usedConditions));
 	}
 
 	@Override

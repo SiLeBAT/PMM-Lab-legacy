@@ -56,8 +56,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
@@ -116,21 +116,21 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		List<String> visibleColumns;
 
 		try {
-			selectedIDs = CollectionUtilities.getStringListFromString(settings
+			selectedIDs = XmlConverter.xmlToStringList(settings
 					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS));
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
 
 		try {
-			colors = CollectionUtilities.getColorMapFromString(settings
+			colors = XmlConverter.xmlToColorMap(settings
 					.getString(DataViewAndSelectNodeModel.CFG_COLORS));
 		} catch (InvalidSettingsException e) {
 			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
-			shapes = CollectionUtilities.getShapeMapFromString(settings
+			shapes = XmlConverter.xmlToShapeMap(settings
 					.getString(DataViewAndSelectNodeModel.CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
 			shapes = new LinkedHashMap<String, Shape>();
@@ -210,12 +210,11 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(settings
-							.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+			visibleColumns = XmlConverter.xmlToStringList(settings
+					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
+			visibleColumns = XmlConverter
+					.xmlToStringList(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
 		}
 
 		try {
@@ -240,17 +239,13 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		settings.addString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				CollectionUtilities.getStringFromList(selectionPanel
-						.getSelectedIDs()));
-		settings.addString(
-				DataViewAndSelectNodeModel.CFG_COLORS,
-				CollectionUtilities.getStringFromMap(selectionPanel.getColors()));
-		settings.addString(
-				DataViewAndSelectNodeModel.CFG_SHAPES,
-				CollectionUtilities.getStringFromMap(selectionPanel.getShapes()));
+				XmlConverter.listToXml(selectionPanel.getSelectedIDs()));
+		settings.addString(DataViewAndSelectNodeModel.CFG_COLORS,
+				XmlConverter.colorMapToXml(selectionPanel.getColors()));
+		settings.addString(DataViewAndSelectNodeModel.CFG_SHAPES,
+				XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
 		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				CollectionUtilities.getStringFromList(selectionPanel
-						.getVisibleColumns()));
+				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
 
 		settings.addInt(DataViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 

@@ -72,11 +72,11 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -291,16 +291,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			modelMappings = CollectionUtilities.getStringMapFromString(settings
+			modelMappings = XmlConverter.xmlToStringMap(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			columnMappings = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
+			columnMappings = XmlConverter.xmlToStringMap(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
@@ -331,7 +330,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentMappings = CollectionUtilities.getStringMapFromString(settings
+			agentMappings = XmlConverter.xmlToStringMap(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
@@ -355,15 +354,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixMappings = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
+			matrixMappings = XmlConverter.xmlToStringMap(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literatureIDs = CollectionUtilities.getIntListFromString(settings
+			literatureIDs = XmlConverter.xmlToIntList(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
 
@@ -478,23 +476,23 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				filePanel.getFileName());
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
-				CollectionUtilities.getStringFromMap(modelMappings));
+				XmlConverter.mapToXml(modelMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				CollectionUtilities.getStringFromMap(columnMappings));
+				XmlConverter.mapToXml(columnMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
 				agentColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				CollectionUtilities.getStringFromMap(agentMappings));
+				XmlConverter.mapToXml(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				CollectionUtilities.getStringFromMap(matrixMappings));
+				XmlConverter.mapToXml(matrixMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS,
-				CollectionUtilities.getStringFromList(literatureIDs));
+				XmlConverter.listToXml(literatureIDs));
 	}
 
 	@Override

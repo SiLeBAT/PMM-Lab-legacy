@@ -75,12 +75,12 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -276,8 +276,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			literatureIDs = CollectionUtilities
-					.getIntListFromString(settings
+			literatureIDs = XmlConverter
+					.xmlToIntList(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS));
 			literatureData = new ArrayList<>();
 
@@ -330,8 +330,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			List<Point2D.Double> timeSeries = CollectionUtilities
-					.getPointDoubleListFromString(settings
+			List<Point2D.Double> timeSeries = XmlConverter
+					.xmlToPointDoubleList(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES));
 
 			for (int i = 0; i < timeSeries.size(); i++) {
@@ -375,7 +375,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		int n = removeButtons.size();
 
 		try {
-			miscValues = CollectionUtilities.getIntDoubleMapFromString(settings
+			miscValues = XmlConverter.xmlToIntDoubleMap(settings
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES));
 		} catch (InvalidSettingsException e) {
 			miscValues = new LinkedHashMap<>();
@@ -461,11 +461,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS,
-				CollectionUtilities.getStringFromList(literatureIDs));
+				XmlConverter.listToXml(literatureIDs));
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
-				CollectionUtilities.getStringFromList(timeSeries));
+				XmlConverter.listToXml(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
@@ -494,7 +494,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
-				CollectionUtilities.getStringFromMap(miscValues));
+				XmlConverter.mapToXml(miscValues));
 	}
 
 	@Override

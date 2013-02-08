@@ -58,7 +58,6 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
@@ -66,6 +65,7 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -114,8 +114,8 @@ public class PrimaryJoiner implements Joiner {
 		JPanel parameterPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		Map<String, String> replacements = CollectionUtilities
-				.getStringMapFromString(assignments);
+		Map<String, String> replacements = XmlConverter
+				.xmlToStringMap(assignments);
 
 		panel.setLayout(new BorderLayout());
 		parameterPanel.setLayout(new BorderLayout());
@@ -169,7 +169,7 @@ public class PrimaryJoiner implements Joiner {
 			}
 		}
 
-		return CollectionUtilities.getStringFromMap(assignmentsMap);
+		return XmlConverter.mapToXml(assignmentsMap);
 	}
 
 	@Override
@@ -178,8 +178,8 @@ public class PrimaryJoiner implements Joiner {
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
-		Map<String, String> replacements = CollectionUtilities
-				.getStringMapFromString(assignments);
+		Map<String, String> replacements = XmlConverter
+				.xmlToStringMap(assignments);
 		int rowCount = modelTuples.size() * dataTable.getRowCount();
 		int index = 0;
 

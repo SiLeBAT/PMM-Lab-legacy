@@ -57,7 +57,6 @@ import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -65,6 +64,7 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -326,20 +326,20 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addInt(CFGKEY_MODELID, modelID);
 		settings.addString(CFGKEY_MODELMAPPINGS,
-				CollectionUtilities.getStringFromMap(modelMappings));
+				XmlConverter.mapToXml(modelMappings));
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
-				CollectionUtilities.getStringFromMap(columnMappings));
+				XmlConverter.mapToXml(columnMappings));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
 		settings.addString(CFGKEY_AGENTMAPPINGS,
-				CollectionUtilities.getStringFromMap(agentMappings));
+				XmlConverter.mapToXml(agentMappings));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
 		settings.addString(CFGKEY_MATRIXMAPPINGS,
-				CollectionUtilities.getStringFromMap(matrixMappings));
+				XmlConverter.mapToXml(matrixMappings));
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
 		settings.addString(CFGKEY_LITERATUREIDS,
-				CollectionUtilities.getStringFromList(literatureIDs));
+				XmlConverter.listToXml(literatureIDs));
 	}
 
 	/**
@@ -350,20 +350,20 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fileName = settings.getString(CFGKEY_FILENAME);
 		modelID = settings.getInt(CFGKEY_MODELID);
-		modelMappings = CollectionUtilities.getStringMapFromString(settings
+		modelMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_MODELMAPPINGS));
-		columnMappings = CollectionUtilities.getStringMapFromString(settings
+		columnMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_COLUMNMAPPINGS));
 		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
-		agentMappings = CollectionUtilities.getStringMapFromString(settings
+		agentMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_AGENTMAPPINGS));
 		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
-		matrixMappings = CollectionUtilities.getStringMapFromString(settings
+		matrixMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_MATRIXMAPPINGS));
 		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		agentID = settings.getInt(CFGKEY_AGENTID);
 		matrixID = settings.getInt(CFGKEY_MATRIXID);
-		literatureIDs = CollectionUtilities.getIntListFromString(settings
+		literatureIDs = XmlConverter.xmlToIntList(settings
 				.getString(CFGKEY_LITERATUREIDS));
 	}
 

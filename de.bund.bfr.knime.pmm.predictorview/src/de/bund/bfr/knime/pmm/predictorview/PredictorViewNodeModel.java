@@ -50,8 +50,8 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -141,7 +141,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				CollectionUtilities.getStringFromMap(concentrationParameters));
+				XmlConverter.mapToXml(concentrationParameters));
 	}
 
 	/**
@@ -150,9 +150,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		concentrationParameters = CollectionUtilities
-				.getStringMapFromString(settings
-						.getString(CFGKEY_CONCENTRATIONPARAMETERS));
+		concentrationParameters = XmlConverter.xmlToStringMap(settings
+				.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 	}
 
 	/**

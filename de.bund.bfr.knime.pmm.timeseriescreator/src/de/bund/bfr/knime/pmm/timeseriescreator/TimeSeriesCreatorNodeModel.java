@@ -54,12 +54,12 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -234,17 +234,16 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_LITERATUREIDS,
-				CollectionUtilities.getStringFromList(literatureIDs));
+				XmlConverter.listToXml(literatureIDs));
 		settings.addInt(CFGKEY_AGENTID, agentID);
 		settings.addInt(CFGKEY_MATRIXID, matrixID);
 		settings.addString(CFGKEY_COMMENT, comment);
 		settings.addString(CFGKEY_TIMESERIES,
-				CollectionUtilities.getStringFromList(timeSeries));
+				XmlConverter.listToXml(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
-		settings.addString(CFGKEY_MISCVALUES,
-				CollectionUtilities.getStringFromMap(miscValues));
+		settings.addString(CFGKEY_MISCVALUES, XmlConverter.mapToXml(miscValues));
 	}
 
 	/**
@@ -253,17 +252,17 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		literatureIDs = CollectionUtilities.getIntListFromString(settings
+		literatureIDs = XmlConverter.xmlToIntList(settings
 				.getString(CFGKEY_LITERATUREIDS));
 		agentID = settings.getInt(CFGKEY_AGENTID);
 		matrixID = settings.getInt(CFGKEY_MATRIXID);
 		comment = settings.getString(CFGKEY_COMMENT);
-		timeSeries = CollectionUtilities.getPointDoubleListFromString(settings
+		timeSeries = XmlConverter.xmlToPointDoubleList(settings
 				.getString(CFGKEY_TIMESERIES));
 		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
 		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
-		miscValues = CollectionUtilities.getIntDoubleMapFromString(settings
+		miscValues = XmlConverter.xmlToIntDoubleMap(settings
 				.getString(CFGKEY_MISCVALUES));
 	}
 

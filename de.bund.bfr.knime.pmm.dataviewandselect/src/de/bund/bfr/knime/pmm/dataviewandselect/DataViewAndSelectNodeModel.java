@@ -61,8 +61,8 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -145,8 +145,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
 		transformY = DEFAULT_TRANSFORMY;
-		visibleColumns = CollectionUtilities
-				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
+		visibleColumns = XmlConverter.xmlToStringList(DEFAULT_VISIBLECOLUMNS);
 		schema = new TimeSeriesSchema();
 	}
 
@@ -236,12 +235,9 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDIDS,
-				CollectionUtilities.getStringFromList(selectedIDs));
-		settings.addString(CFG_COLORS,
-				CollectionUtilities.getStringFromMap(colors));
-		settings.addString(CFG_SHAPES,
-				CollectionUtilities.getStringFromMap(shapes));
+		settings.addString(CFG_SELECTEDIDS, XmlConverter.listToXml(selectedIDs));
+		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
+		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
 		settings.addInt(CFG_MANUALRANGE, manualRange);
 		settings.addDouble(CFG_MINX, minX);
@@ -254,7 +250,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				CollectionUtilities.getStringFromList(visibleColumns));
+				XmlConverter.listToXml(visibleColumns));
 	}
 
 	/**
@@ -263,12 +259,10 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		selectedIDs = CollectionUtilities.getStringListFromString(settings
+		selectedIDs = XmlConverter.xmlToStringList(settings
 				.getString(CFG_SELECTEDIDS));
-		colors = CollectionUtilities.getColorMapFromString(settings
-				.getString(CFG_COLORS));
-		shapes = CollectionUtilities.getShapeMapFromString(settings
-				.getString(CFG_SHAPES));
+		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
+		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		selectAllIDs = settings.getInt(CFG_SELECTALLIDS);
 		manualRange = settings.getInt(CFG_MANUALRANGE);
 		minX = settings.getDouble(CFG_MINX);
@@ -280,7 +274,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
 		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
 		transformY = settings.getString(CFG_TRANSFORMY);
-		visibleColumns = CollectionUtilities.getStringListFromString(settings
+		visibleColumns = XmlConverter.xmlToStringList(settings
 				.getString(CFG_VISIBLECOLUMNS));
 	}
 

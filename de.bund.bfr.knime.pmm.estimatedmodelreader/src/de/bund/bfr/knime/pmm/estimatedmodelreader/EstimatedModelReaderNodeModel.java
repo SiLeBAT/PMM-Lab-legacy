@@ -157,7 +157,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	KnimeTuple tuple;
     	KnimeSchema schema;
     	String dbuuid;
-    	String formula;
+    	String formula, s;
+    	Double rms, r2, aic, bic;
     	
         // fetch database connection
         db = null;
@@ -230,7 +231,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
     		
-    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+    		s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
     			PmmXmlDoc l = new PmmXmlDoc();
     			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
@@ -250,6 +251,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m1
     		formula = result.getString( Bfrdb.ATT_FORMULA );
+    		if( formula != null ) {
+				formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+			}
+
     		// Time=t,Log10C=LOG10N
     		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO ));
 
@@ -277,7 +282,32 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
-			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS), result.getDouble(Bfrdb.ATT_RSQUARED), result.getDouble("AIC"), result.getDouble("BIC"), null);
+			
+			s = result.getString( Bfrdb.ATT_RMS );
+			if( s == null )
+				rms = null;
+			else
+				rms = Double.valueOf( s );
+			
+			s = result.getString( Bfrdb.ATT_RSQUARED );
+			if( s == null )
+				r2 = null;
+			else
+				r2 = Double.valueOf( s );
+			
+			s = result.getString( "AIC" );
+			if( s == null )
+				aic = null;
+			else
+				aic = Double.valueOf( s );
+			
+			s = result.getString( "BIC" );
+			if( s == null )
+				bic = null;
+			else
+				bic = Double.valueOf( s );
+			
+			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, rms, r2, aic, bic, null);
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
@@ -298,9 +328,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// fill m2
     		if (level == 2) {
         		formula = result.getString( Bfrdb.ATT_FORMULA+"2" );
+	    		if( formula != null ) {
+					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+				}
         		varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO+"2" ));
         		for( String to : varMap.keySet() )	{
         			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
+
         		}
 
     			cmDoc = new PmmXmlDoc();

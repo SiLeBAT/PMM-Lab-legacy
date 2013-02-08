@@ -143,6 +143,21 @@ public class CollectionUtilities {
 		return map;
 	}
 
+	public static Map<Integer, Double> getIntDoubleMapFromString(String s) {
+		Map<Integer, Double> map = new LinkedHashMap<>();
+
+		for (String mapping : getStringListFromString(s)) {
+			String[] toks = mapping.split(MAP_DIVIDER);
+
+			try {
+				map.put(Integer.parseInt(toks[0]), Double.parseDouble(toks[1]));
+			} catch (Exception e) {
+			}
+		}
+
+		return map;
+	}
+
 	public static Map<String, Color> getColorMapFromString(String s) {
 		Map<String, Color> map = new LinkedHashMap<>();
 
@@ -175,7 +190,7 @@ public class CollectionUtilities {
 		return map;
 	}
 
-	public static String getStringFromMap(Map<String, ?> map) {
+	public static String getStringFromMap(Map<?, ?> map) {
 		List<String> list = new ArrayList<>();
 		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
 				.getNameByShapeMap();
@@ -278,8 +293,10 @@ public class CollectionUtilities {
 						+ POINT_DIVIDER + y + LISTLIST_DIVIDER);
 			}
 
-			if (map2String.charAt(map2String.length() - 1) == ',') {
-				map2String.deleteCharAt(map2String.length() - 1);
+			if (map2String.toString().endsWith(LISTLIST_DIVIDER)) {
+				map2String.delete(
+						map2String.length() - LISTLIST_DIVIDER.length(),
+						map2String.length());
 			}
 
 			list.add(map2String.toString());
@@ -308,8 +325,10 @@ public class CollectionUtilities {
 				}
 			}
 
-			if (map2String.charAt(map2String.length() - 1) == ',') {
-				map2String.deleteCharAt(map2String.length() - 1);
+			if (map2String.toString().endsWith(LISTLIST_DIVIDER)) {
+				map2String.delete(
+						map2String.length() - LISTLIST_DIVIDER.length(),
+						map2String.length());
 			}
 
 			list.add(map2String.toString());
@@ -344,6 +363,64 @@ public class CollectionUtilities {
 		}
 
 		return map1;
+	}
+
+	public static String getStringFromMapListMap(
+			Map<String, List<Map<String, String>>> map1) {
+		List<String> list = new ArrayList<String>();
+
+		for (String key1 : map1.keySet()) {
+			for (Map<String, String> assign : map1.get(key1)) {
+				StringBuilder s = new StringBuilder(key1 + MAP_DIVIDER);
+
+				for (String key2 : assign.keySet()) {
+					String value2 = assign.get(key2);
+
+					s.append(key2 + MAPMAP_DIVIDER + value2 + LISTLIST_DIVIDER);
+				}
+
+				if (s.toString().endsWith(LISTLIST_DIVIDER)) {
+					s.delete(s.length() - LISTLIST_DIVIDER.length(), s.length());
+				}
+
+				list.add(s.toString());
+			}
+		}
+
+		return CollectionUtilities.getStringFromList(list);
+	}
+
+	public static Map<String, List<Map<String, String>>> getMapListMapFromString(
+			String s1) {
+		Map<String, List<Map<String, String>>> map = new LinkedHashMap<>();
+
+		for (String s : CollectionUtilities.getStringListFromString(s1)) {
+			String[] toks = s.split(":");
+
+			if (toks.length == 2) {
+				String model = toks[0].trim();
+				Map<String, String> modelReplacements = new LinkedHashMap<String, String>();
+
+				for (String assignment : toks[1].split(",")) {
+					String[] elements = assignment.split("=");
+
+					if (elements.length == 2) {
+						String variable = elements[0].trim();
+						String parameter = elements[1].trim();
+
+						modelReplacements.put(variable, parameter);
+					}
+				}
+
+				if (!map.containsKey(model)) {
+					map.put(model, new ArrayList<Map<String, String>>());
+				}
+
+				map.get(model).add(modelReplacements);
+			}
+		}
+
+		return map;
 	}
 
 }

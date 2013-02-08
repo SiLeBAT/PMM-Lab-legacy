@@ -104,6 +104,16 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	 */
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
+		literatureIDs = new ArrayList<>();
+		agentID = DEFAULT_AGENTID;
+		matrixID = DEFAULT_MATRIXID;
+		comment = "";
+		timeSeries = new ArrayList<>();
+		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
+		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
+		tempUnit = AttributeUtilities
+				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
+		miscValues = new LinkedHashMap<>();
 		schema = new TimeSeriesSchema();
 	}
 
@@ -234,7 +244,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_MISCVALUES,
-				CollectionUtilities.getStringFromList(getMiscList(miscValues)));
+				CollectionUtilities.getStringFromMap(miscValues));
 	}
 
 	/**
@@ -243,66 +253,18 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			literatureIDs = CollectionUtilities.getIntListFromString(settings
-					.getString(CFGKEY_LITERATUREIDS));
-		} catch (InvalidSettingsException e) {
-			literatureIDs = new ArrayList<>();
-		}
-
-		try {
-			agentID = settings.getInt(CFGKEY_AGENTID);
-		} catch (InvalidSettingsException e) {
-			agentID = DEFAULT_AGENTID;
-		}
-
-		try {
-			matrixID = settings.getInt(CFGKEY_MATRIXID);
-		} catch (InvalidSettingsException e) {
-			matrixID = DEFAULT_MATRIXID;
-		}
-
-		try {
-			comment = settings.getString(CFGKEY_COMMENT);
-		} catch (InvalidSettingsException e) {
-			comment = "";
-		}
-
-		try {
-			timeSeries = CollectionUtilities.getPointDoubleListFromString(settings
-					.getString(CFGKEY_TIMESERIES));
-		} catch (InvalidSettingsException e) {
-			timeSeries = new ArrayList<>();
-		}
-
-		try {
-			timeUnit = settings.getString(CFGKEY_TIMEUNIT);
-		} catch (InvalidSettingsException e) {
-			timeUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.TIME);
-		}
-
-		try {
-			logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		} catch (InvalidSettingsException e) {
-			logcUnit = AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.LOGC);
-		}
-
-		try {
-			tempUnit = settings.getString(CFGKEY_TEMPUNIT);
-		} catch (InvalidSettingsException e) {
-			tempUnit = AttributeUtilities
-					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		}
-
-		try {
-			miscValues = getMiscMap(CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFGKEY_MISCVALUES)));
-		} catch (InvalidSettingsException e) {
-			miscValues = new LinkedHashMap<>();
-		}
+		literatureIDs = CollectionUtilities.getIntListFromString(settings
+				.getString(CFGKEY_LITERATUREIDS));
+		agentID = settings.getInt(CFGKEY_AGENTID);
+		matrixID = settings.getInt(CFGKEY_MATRIXID);
+		comment = settings.getString(CFGKEY_COMMENT);
+		timeSeries = CollectionUtilities.getPointDoubleListFromString(settings
+				.getString(CFGKEY_TIMESERIES));
+		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
+		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
+		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
+		miscValues = CollectionUtilities.getIntDoubleMapFromString(settings
+				.getString(CFGKEY_MISCVALUES));
 	}
 
 	/**
@@ -329,34 +291,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
-	}
-
-	protected static Map<Integer, Double> getMiscMap(List<String> miscList) {
-		Map<Integer, Double> miscMap = new LinkedHashMap<>();
-
-		for (String miscString : miscList) {
-			String[] toks = miscString.split("=");
-
-			try {
-				miscMap.put(Integer.parseInt(toks[0]),
-						Double.parseDouble(toks[1]));
-			} catch (Exception e) {
-			}
-		}
-
-		return miscMap;
-	}
-
-	protected static List<String> getMiscList(Map<Integer, Double> miscMap) {
-		List<String> miscList = new ArrayList<>();
-
-		for (Map.Entry<Integer, Double> entry : miscMap.entrySet()) {
-			if (entry.getKey() != null && entry.getValue() != null) {
-				miscList.add(entry.getKey() + "=" + entry.getValue());
-			}
-		}
-
-		return miscList;
 	}
 
 }

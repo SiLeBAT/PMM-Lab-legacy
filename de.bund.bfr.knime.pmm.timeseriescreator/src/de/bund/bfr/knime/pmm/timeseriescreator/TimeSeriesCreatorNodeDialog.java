@@ -375,9 +375,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		int n = removeButtons.size();
 
 		try {
-			miscValues = TimeSeriesCreatorNodeModel
-					.getMiscMap(CollectionUtilities.getStringListFromString(settings
-							.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES)));
+			miscValues = CollectionUtilities.getIntDoubleMapFromString(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES));
 		} catch (InvalidSettingsException e) {
 			miscValues = new LinkedHashMap<>();
 		}
@@ -495,8 +494,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
-				CollectionUtilities.getStringFromList(TimeSeriesCreatorNodeModel
-						.getMiscList(miscValues)));
+				CollectionUtilities.getStringFromMap(miscValues));
 	}
 
 	@Override

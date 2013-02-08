@@ -101,6 +101,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	 */
 	protected ForecastStaticConditionsNodeModel() {
 		super(1, 1);
+		concentration = DEFAULT_CONCENTRATION;
+		concentrationParameters = new LinkedHashMap<>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -178,19 +180,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			concentration = settings.getDouble(CFGKEY_CONCENTRATION);
-		} catch (InvalidSettingsException e) {
-			concentration = DEFAULT_CONCENTRATION;
-		}
-
-		try {
-			concentrationParameters = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
-		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<>();
-		}
+		concentration = settings.getDouble(CFGKEY_CONCENTRATION);
+		concentrationParameters = CollectionUtilities
+				.getStringMapFromString(settings
+						.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 	}
 
 	/**

@@ -78,6 +78,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	 */
 	protected FittedParameterViewNodeModel() {
 		super(1, 0);
+		usedConditions = new ArrayList<>();
 
 		try {
 			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
@@ -137,12 +138,8 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			usedConditions = CollectionUtilities.getStringListFromString(settings
-					.getString(CFG_USEDCONDITIONS));
-		} catch (InvalidSettingsException e) {
-			usedConditions = new ArrayList<>();
-		}
+		usedConditions = CollectionUtilities.getStringListFromString(settings
+				.getString(CFG_USEDCONDITIONS));
 	}
 
 	/**

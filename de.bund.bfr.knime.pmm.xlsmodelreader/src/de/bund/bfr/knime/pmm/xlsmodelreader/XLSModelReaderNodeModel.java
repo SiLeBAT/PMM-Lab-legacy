@@ -113,6 +113,19 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	 */
 	protected XLSModelReaderNodeModel() {
 		super(0, 1);
+		fileName = null;
+		modelID = -1;
+		modelMappings = new LinkedHashMap<>();
+		columnMappings = new LinkedHashMap<>();
+		agentColumn = null;
+		agentMappings = new LinkedHashMap<>();
+		matrixColumn = null;
+		matrixMappings = new LinkedHashMap<>();
+		tempUnit = AttributeUtilities
+				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
+		agentID = -1;
+		matrixID = -1;
+		literatureIDs = new ArrayList<>();
 
 		try {
 			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
@@ -335,85 +348,23 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			fileName = settings.getString(CFGKEY_FILENAME);
-		} catch (InvalidSettingsException e) {
-			fileName = null;
-		}
-
-		try {
-			modelID = settings.getInt(CFGKEY_MODELID);
-		} catch (InvalidSettingsException e) {
-			modelID = -1;
-		}
-
-		try {
-			modelMappings = CollectionUtilities.getStringMapFromString(settings
-					.getString(CFGKEY_MODELMAPPINGS));
-		} catch (InvalidSettingsException e) {
-			modelMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			columnMappings = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(CFGKEY_COLUMNMAPPINGS));
-		} catch (InvalidSettingsException e) {
-			columnMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
-		} catch (InvalidSettingsException e) {
-			agentColumn = null;
-		}
-
-		try {
-			agentMappings = CollectionUtilities.getStringMapFromString(settings
-					.getString(CFGKEY_AGENTMAPPINGS));
-		} catch (InvalidSettingsException e) {
-			agentMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
-		} catch (InvalidSettingsException e) {
-			matrixColumn = null;
-		}
-
-		try {
-			matrixMappings = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(CFGKEY_MATRIXMAPPINGS));
-		} catch (InvalidSettingsException e) {
-			matrixMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			tempUnit = settings.getString(CFGKEY_TEMPUNIT);
-		} catch (InvalidSettingsException e) {
-			tempUnit = AttributeUtilities
-					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		}
-
-		try {
-			agentID = settings.getInt(CFGKEY_AGENTID);
-		} catch (InvalidSettingsException e) {
-			agentID = -1;
-		}
-
-		try {
-			matrixID = settings.getInt(CFGKEY_MATRIXID);
-		} catch (InvalidSettingsException e) {
-			matrixID = -1;
-		}
-
-		try {
-			literatureIDs = CollectionUtilities.getIntListFromString(settings
-					.getString(CFGKEY_LITERATUREIDS));
-		} catch (InvalidSettingsException e) {
-			literatureIDs = new ArrayList<>();
-		}
+		fileName = settings.getString(CFGKEY_FILENAME);
+		modelID = settings.getInt(CFGKEY_MODELID);
+		modelMappings = CollectionUtilities.getStringMapFromString(settings
+				.getString(CFGKEY_MODELMAPPINGS));
+		columnMappings = CollectionUtilities.getStringMapFromString(settings
+				.getString(CFGKEY_COLUMNMAPPINGS));
+		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
+		agentMappings = CollectionUtilities.getStringMapFromString(settings
+				.getString(CFGKEY_AGENTMAPPINGS));
+		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
+		matrixMappings = CollectionUtilities.getStringMapFromString(settings
+				.getString(CFGKEY_MATRIXMAPPINGS));
+		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
+		agentID = settings.getInt(CFGKEY_AGENTID);
+		matrixID = settings.getInt(CFGKEY_MATRIXID);
+		literatureIDs = CollectionUtilities.getIntListFromString(settings
+				.getString(CFGKEY_LITERATUREIDS));
 	}
 
 	/**

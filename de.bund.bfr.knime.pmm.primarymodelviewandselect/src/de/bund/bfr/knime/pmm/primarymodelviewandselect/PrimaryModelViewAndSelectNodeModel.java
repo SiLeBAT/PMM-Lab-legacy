@@ -144,7 +144,26 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	 */
 	protected PrimaryModelViewAndSelectNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
-				BufferedDataTable.TYPE, ImagePortObject.TYPE });		
+				BufferedDataTable.TYPE, ImagePortObject.TYPE });
+		selectedIDs = new ArrayList<String>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
+		selectAllIDs = DEFAULT_SELECTALLIDS;
+		manualRange = DEFAULT_MANUALRANGE;
+		minX = DEFAULT_MINX;
+		maxX = DEFAULT_MAXX;
+		minY = DEFAULT_MINY;
+		maxY = DEFAULT_MAXY;
+		drawLines = DEFAULT_DRAWLINES;
+		showLegend = DEFAULT_SHOWLEGEND;
+		addLegendInfo = DEFAULT_ADDLEGENDINFO;
+		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		transformY = DEFAULT_TRANSFORMY;
+		visibleColumns = CollectionUtilities
+				.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
+		modelFilter = DEFAULT_MODELFILTER;
+		dataFilter = DEFAULT_DATAFILTER;
+		fittedFilter = DEFAULT_FITTEDFILTER;
 
 		try {
 			model1Schema = new Model1Schema();
@@ -281,119 +300,28 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			selectedIDs = CollectionUtilities.getStringListFromString(settings
-					.getString(CFG_SELECTEDIDS));
-		} catch (InvalidSettingsException e) {
-			selectedIDs = new ArrayList<String>();
-		}
-
-		try {
-			colors = CollectionUtilities.getColorMapFromString(settings
-					.getString(CFG_COLORS));
-		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<String, Color>();
-		}
-
-		try {
-			shapes = CollectionUtilities.getShapeMapFromString(settings
-					.getString(CFG_SHAPES));
-		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<String, Shape>();
-		}
-
-		try {
-			selectAllIDs = settings.getInt(CFG_SELECTALLIDS);
-		} catch (InvalidSettingsException e) {
-			selectAllIDs = DEFAULT_SELECTALLIDS;
-		}
-
-		try {
-			manualRange = settings.getInt(CFG_MANUALRANGE);
-		} catch (InvalidSettingsException e) {
-			manualRange = DEFAULT_MANUALRANGE;
-		}
-
-		try {
-			minX = settings.getDouble(CFG_MINX);
-		} catch (InvalidSettingsException e) {
-			minX = DEFAULT_MINX;
-		}
-
-		try {
-			maxX = settings.getDouble(CFG_MAXX);
-		} catch (InvalidSettingsException e) {
-			maxX = DEFAULT_MAXX;
-		}
-
-		try {
-			minY = settings.getDouble(CFG_MINY);
-		} catch (InvalidSettingsException e) {
-			minY = DEFAULT_MINY;
-		}
-
-		try {
-			maxY = settings.getDouble(CFG_MAXY);
-		} catch (InvalidSettingsException e) {
-			maxY = DEFAULT_MAXY;
-		}
-
-		try {
-			drawLines = settings.getInt(CFG_DRAWLINES);
-		} catch (InvalidSettingsException e) {
-			drawLines = DEFAULT_DRAWLINES;
-		}
-
-		try {
-			showLegend = settings.getInt(CFG_SHOWLEGEND);
-		} catch (InvalidSettingsException e) {
-			showLegend = DEFAULT_SHOWLEGEND;
-		}
-
-		try {
-			addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
-		} catch (InvalidSettingsException e) {
-			addLegendInfo = DEFAULT_ADDLEGENDINFO;
-		}
-
-		try {
-			displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
-		} catch (InvalidSettingsException e) {
-			displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		}
-
-		try {
-			transformY = settings.getString(CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {
-			transformY = DEFAULT_TRANSFORMY;
-		}
-
-		try {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(settings
-							.getString(CFG_VISIBLECOLUMNS));
-		} catch (InvalidSettingsException e) {
-			visibleColumns = CollectionUtilities
-					.getStringListFromString(DEFAULT_VISIBLECOLUMNS);
-		}
-
-		try {
-			modelFilter = settings.getString(CFG_MODELFILTER);
-		} catch (InvalidSettingsException e) {
-			modelFilter = DEFAULT_MODELFILTER;
-		}
-
-		try {
-			dataFilter = settings.getString(CFG_DATAFILTER);
-		} catch (InvalidSettingsException e) {
-			dataFilter = DEFAULT_DATAFILTER;
-		}
-
-		try {
-			fittedFilter = settings.getString(CFG_FITTEDFILTER);
-		} catch (InvalidSettingsException e) {
-			fittedFilter = DEFAULT_FITTEDFILTER;
-		}
+		selectedIDs = CollectionUtilities.getStringListFromString(settings
+				.getString(CFG_SELECTEDIDS));
+		colors = CollectionUtilities.getColorMapFromString(settings
+				.getString(CFG_COLORS));
+		shapes = CollectionUtilities.getShapeMapFromString(settings
+				.getString(CFG_SHAPES));
+		selectAllIDs = settings.getInt(CFG_SELECTALLIDS);
+		manualRange = settings.getInt(CFG_MANUALRANGE);
+		minX = settings.getDouble(CFG_MINX);
+		maxX = settings.getDouble(CFG_MAXX);
+		minY = settings.getDouble(CFG_MINY);
+		maxY = settings.getDouble(CFG_MAXY);
+		drawLines = settings.getInt(CFG_DRAWLINES);
+		showLegend = settings.getInt(CFG_SHOWLEGEND);
+		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
+		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
+		transformY = settings.getString(CFG_TRANSFORMY);
+		visibleColumns = CollectionUtilities.getStringListFromString(settings
+				.getString(CFG_VISIBLECOLUMNS));
+		modelFilter = settings.getString(CFG_MODELFILTER);
+		dataFilter = settings.getString(CFG_DATAFILTER);
+		fittedFilter = settings.getString(CFG_FITTEDFILTER);
 	}
 
 	/**

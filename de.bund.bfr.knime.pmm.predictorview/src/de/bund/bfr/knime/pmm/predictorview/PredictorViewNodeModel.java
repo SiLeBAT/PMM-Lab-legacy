@@ -150,13 +150,9 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			concentrationParameters = CollectionUtilities
-					.getStringMapFromString(settings
-							.getString(CFGKEY_CONCENTRATIONPARAMETERS));
-		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<>();
-		}
+		concentrationParameters = CollectionUtilities
+				.getStringMapFromString(settings
+						.getString(CFGKEY_CONCENTRATIONPARAMETERS));
 	}
 
 	/**

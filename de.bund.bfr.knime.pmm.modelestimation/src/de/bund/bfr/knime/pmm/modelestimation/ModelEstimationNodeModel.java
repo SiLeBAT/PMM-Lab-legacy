@@ -127,6 +127,12 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	protected ModelEstimationNodeModel() {
 		super(1, 1);
+		fittingType = DEFAULT_FITTINGTYPE;
+		enforceLimits = DEFAULT_ENFORCELIMITS;
+		nParameterSpace = DEFAULT_NPARAMETERSPACE;
+		nLevenberg = DEFAULT_NLEVENBERG;
+		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
+		parameterGuesses = new LinkedHashMap<>();
 
 		try {
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -226,43 +232,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		try {
-			fittingType = settings.getString(CFGKEY_FITTINGTYPE);
-		} catch (InvalidSettingsException e) {
-			fittingType = DEFAULT_FITTINGTYPE;
-		}
-
-		try {
-			enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
-		} catch (InvalidSettingsException e) {
-			enforceLimits = DEFAULT_ENFORCELIMITS;
-		}
-
-		try {
-			nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
-		} catch (InvalidSettingsException e) {
-			nParameterSpace = DEFAULT_NPARAMETERSPACE;
-		}
-
-		try {
-			nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
-		} catch (InvalidSettingsException e) {
-			nLevenberg = DEFAULT_NLEVENBERG;
-		}
-
-		try {
-			stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
-		} catch (InvalidSettingsException e) {
-			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
-		}
-
-		try {
-			parameterGuesses = CollectionUtilities
-					.getPointMapMapFromString(settings
-							.getString(CFGKEY_PARAMETERGUESSES));
-		} catch (InvalidSettingsException e) {
-			parameterGuesses = new LinkedHashMap<>();
-		}
+		fittingType = settings.getString(CFGKEY_FITTINGTYPE);
+		enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
+		nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
+		nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
+		stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
+		parameterGuesses = CollectionUtilities
+				.getPointMapMapFromString(settings
+						.getString(CFGKEY_PARAMETERGUESSES));
 	}
 
 	/**

@@ -190,7 +190,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		    		
     		// fill ts
     		tuple.setValue(TimeSeriesSchema.ATT_CONDID, result.getInt(Bfrdb.ATT_CONDITIONID));
-    		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString(Bfrdb.ATT_COMBASEID));
+    		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString( "CombaseID" ));
     		
     		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
     		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {

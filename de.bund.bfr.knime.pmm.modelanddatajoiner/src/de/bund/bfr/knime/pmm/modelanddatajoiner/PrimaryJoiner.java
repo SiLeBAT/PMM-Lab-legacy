@@ -114,7 +114,8 @@ public class PrimaryJoiner implements Joiner {
 		JPanel parameterPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		Map<String, String> replacements = getAssignmentsMap(assignments);
+		Map<String, String> replacements = CollectionUtilities
+				.getStringMapFromString(assignments);
 
 		panel.setLayout(new BorderLayout());
 		parameterPanel.setLayout(new BorderLayout());
@@ -158,14 +159,17 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public String getAssignments() {
-		Map<String, String> replacements = getReplacementsFromFrame();
-		List<String> assignments = new ArrayList<String>();
+		Map<String, String> assignmentsMap = new LinkedHashMap<String, String>();
 
-		for (String var : replacements.keySet()) {
-			assignments.add(var + "=" + replacements.get(var));
+		for (int i = 0; i < variables.size(); i++) {
+			String assignment = (String) variableBoxes.get(i).getSelectedItem();
+
+			if (!assignment.equals("")) {
+				assignmentsMap.put(variables.get(i), assignment);
+			}
 		}
 
-		return CollectionUtilities.getStringFromList(assignments);
+		return CollectionUtilities.getStringFromMap(assignmentsMap);
 	}
 
 	@Override
@@ -174,7 +178,8 @@ public class PrimaryJoiner implements Joiner {
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
-		Map<String, String> replacements = getAssignmentsMap(assignments);
+		Map<String, String> replacements = CollectionUtilities
+				.getStringMapFromString(assignments);
 		int rowCount = modelTuples.size() * dataTable.getRowCount();
 		int index = 0;
 
@@ -204,10 +209,13 @@ public class PrimaryJoiner implements Joiner {
 				allVarsReplaced = false;
 			}
 
-			for (String var : replacements.keySet()) {
-				String newVar = replacements.get(var);
+			for (String var : variables) {
+				if (replacements.containsKey(var)) {
+					String newVar = replacements.get(var);
 
-				formula = MathUtilities.replaceVariable(formula, var, newVar);
+					formula = MathUtilities.replaceVariable(formula, var,
+							newVar);
+				}
 			}
 
 			for (PmmXmlElementConvertable el : indepVar.getElementSet()) {
@@ -403,46 +411,6 @@ public class PrimaryJoiner implements Joiner {
 		}
 
 		parameters = new ArrayList<String>(parameterSet);
-	}
-
-	private Map<String, String> getReplacementsFromFrame() {
-		Map<String, String> replacements = new LinkedHashMap<String, String>();
-
-		for (int i = 0; i < variables.size(); i++) {
-			String replacement = (String) variableBoxes.get(i)
-					.getSelectedItem();
-
-			if (!replacement.equals("")) {
-				replacements.put(variables.get(i), replacement);
-			}
-		}
-
-		return replacements;
-	}
-
-	private Map<String, String> getAssignmentsMap(String assignments) {
-		Map<String, String> replacements = new LinkedHashMap<String, String>();
-		Map<String, String> assignmentsMap = new LinkedHashMap<String, String>();
-
-		for (String s : CollectionUtilities
-				.getStringListFromString(assignments)) {
-			String[] elements = s.split("=");
-
-			if (elements.length == 2) {
-				String variable = elements[0].trim();
-				String parameter = elements[1].trim();
-
-				assignmentsMap.put(variable, parameter);
-			}
-		}
-
-		for (String var : variables) {
-			if (assignmentsMap.containsKey(var)) {
-				replacements.put(var, assignmentsMap.get(var));
-			}
-		}
-
-		return replacements;
 	}
 
 }

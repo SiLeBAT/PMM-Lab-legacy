@@ -63,6 +63,7 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -118,7 +119,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	@Override
-	public JComponent createPanel(List<String> assignments) {
+	public JComponent createPanel(String assignments) {
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
 
@@ -225,7 +226,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		return new JScrollPane(panel);
 	}
 
-	public List<String> getAssignments() {
+	@Override
+	public String getAssignments() {
 		getReplacementsFromFrame();
 
 		List<String> assignments = new ArrayList<String>();
@@ -242,10 +244,11 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			assignments.add(assign.substring(0, assign.length() - 1));
 		}
 
-		return assignments;
+		return CollectionUtilities.getStringFromList(assignments);
 	}
 
-	public BufferedDataTable getOutputTable(List<String> assignments,
+	@Override
+	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws InvalidSettingsException,
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer buf = exec.createDataContainer(seiSchema
@@ -381,7 +384,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	private void readDataTable() throws PmmException {
 		Set<String> indepParamSet = new LinkedHashSet<String>();
-		Set<String> depParamSet = new LinkedHashSet<String>();		
+		Set<String> depParamSet = new LinkedHashSet<String>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
 				dataTable);
@@ -420,11 +423,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		}
 	}
 
-	private void getReplacementsFromNodeAssignments(List<String> assignments) {
+	private void getReplacementsFromNodeAssignments(String assignments) {
 		usedModels = new ArrayList<String>();
 		replacements = new ArrayList<Map<String, String>>();
 
-		for (String s : assignments) {
+		for (String s : CollectionUtilities
+				.getStringListFromString(assignments)) {
 			String[] toks = s.split(":");
 
 			if (toks.length == 2) {

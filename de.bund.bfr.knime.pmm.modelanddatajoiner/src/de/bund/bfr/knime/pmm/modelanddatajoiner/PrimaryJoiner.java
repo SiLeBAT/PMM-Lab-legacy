@@ -58,6 +58,7 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
@@ -108,7 +109,7 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	@Override
-	public JComponent createPanel(List<String> assignments) {
+	public JComponent createPanel(String assignments) {
 		JPanel panel = new JPanel();
 		JPanel parameterPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
@@ -156,7 +157,7 @@ public class PrimaryJoiner implements Joiner {
 	}
 
 	@Override
-	public List<String> getAssignments() {
+	public String getAssignments() {
 		Map<String, String> replacements = getReplacementsFromFrame();
 		List<String> assignments = new ArrayList<String>();
 
@@ -164,11 +165,11 @@ public class PrimaryJoiner implements Joiner {
 			assignments.add(var + "=" + replacements.get(var));
 		}
 
-		return assignments;
+		return CollectionUtilities.getStringFromList(assignments);
 	}
 
 	@Override
-	public BufferedDataTable getOutputTable(List<String> assignments,
+	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws InvalidSettingsException,
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
@@ -419,11 +420,12 @@ public class PrimaryJoiner implements Joiner {
 		return replacements;
 	}
 
-	private Map<String, String> getAssignmentsMap(List<String> assignments) {
+	private Map<String, String> getAssignmentsMap(String assignments) {
 		Map<String, String> replacements = new LinkedHashMap<String, String>();
 		Map<String, String> assignmentsMap = new LinkedHashMap<String, String>();
 
-		for (String s : assignments) {
+		for (String s : CollectionUtilities
+				.getStringListFromString(assignments)) {
 			String[] elements = s.split("=");
 
 			if (elements.length == 2) {

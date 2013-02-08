@@ -59,6 +59,7 @@ import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
@@ -106,7 +107,7 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	@Override
-	public JComponent createPanel(List<String> assignments) {
+	public JComponent createPanel(String assignments) {
 		Map<String, Map<String, String>> replacements = getAssignmentsMap(assignments);
 
 		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
@@ -177,7 +178,7 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	@Override
-	public List<String> getAssignments() {
+	public String getAssignments() {
 		List<String> assignments = new ArrayList<String>();
 		StringBuilder primaryAssignments = new StringBuilder();
 
@@ -219,11 +220,11 @@ public class CombinedJoiner implements Joiner {
 			assignments.add(depVarSec + ":" + secondaryAssignments.toString());
 		}
 
-		return assignments;
+		return CollectionUtilities.getStringFromList(assignments);
 	}
 
 	@Override
-	public BufferedDataTable getOutputTable(List<String> assignments,
+	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws InvalidSettingsException,
 			CanceledExecutionException, PmmException, InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(seiSchema
@@ -414,10 +415,11 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	private Map<String, Map<String, String>> getAssignmentsMap(
-			List<String> assignments) {
+			String assignments) {
 		Map<String, Map<String, String>> assignmentsMap = new LinkedHashMap<String, Map<String, String>>();
 
-		for (String s : assignments) {
+		for (String s : CollectionUtilities
+				.getStringListFromString(assignments)) {
 			if (s.contains(":")) {
 				String[] elements = s.split(":");
 

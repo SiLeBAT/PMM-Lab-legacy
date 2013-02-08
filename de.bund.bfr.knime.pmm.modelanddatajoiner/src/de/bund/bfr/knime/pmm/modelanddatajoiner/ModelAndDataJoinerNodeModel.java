@@ -35,8 +35,6 @@ package de.bund.bfr.knime.pmm.modelanddatajoiner;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
@@ -48,7 +46,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.CollectionUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -76,7 +73,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	static final int DEFAULT_JOINSAMECONDITIONS = 0;
 
 	private String joinType;
-	private List<String> assignments;
+	private String assignments;
 	private int joinSameConditions;
 
 	/**
@@ -84,9 +81,6 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	protected ModelAndDataJoinerNodeModel() {
 		super(2, 1);
-		joinType = DEFAULT_JOINTYPE;
-		assignments = new ArrayList<String>();
-		joinSameConditions = DEFAULT_JOINSAMECONDITIONS;
 	}
 
 	/**
@@ -186,8 +180,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_JOINTYPE, joinType);
-		settings.addString(CFGKEY_ASSIGNMENTS,
-				CollectionUtilities.getStringFromList(assignments));
+		settings.addString(CFGKEY_ASSIGNMENTS, assignments);
 		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
 	}
 
@@ -204,10 +197,9 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 		}
 
 		try {
-			assignments = CollectionUtilities.getStringListFromString(settings
-					.getString(CFGKEY_ASSIGNMENTS));
+			assignments = settings.getString(CFGKEY_ASSIGNMENTS);
 		} catch (InvalidSettingsException e) {
-			assignments = new ArrayList<String>();
+			assignments = "";
 		}
 
 		try {

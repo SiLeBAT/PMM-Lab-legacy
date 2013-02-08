@@ -33,8 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.modelanddatajoiner;
 
-import java.util.List;
-
 import javax.swing.JComponent;
 
 import org.knime.core.node.BufferedDataTable;
@@ -46,11 +44,11 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 
 public interface Joiner {
 
-	public JComponent createPanel(List<String> assignments);
+	public JComponent createPanel(String assignments);
 
-	public List<String> getAssignments();
+	public String getAssignments();
 
-	public BufferedDataTable getOutputTable(List<String> assignments,
+	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws InvalidSettingsException,
 			CanceledExecutionException, PmmException, InterruptedException;
 

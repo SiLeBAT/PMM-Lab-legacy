@@ -250,6 +250,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m1
     		formula = result.getString( Bfrdb.ATT_FORMULA );
+    		if( formula != null ) {
+				formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+			}
+
     		// Time=t,Log10C=LOG10N
     		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO ));
 
@@ -298,9 +302,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// fill m2
     		if (level == 2) {
         		formula = result.getString( Bfrdb.ATT_FORMULA+"2" );
+	    		if( formula != null ) {
+					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+				}
         		varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO+"2" ));
         		for( String to : varMap.keySet() )	{
         			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
+
         		}
 
     			cmDoc = new PmmXmlDoc();

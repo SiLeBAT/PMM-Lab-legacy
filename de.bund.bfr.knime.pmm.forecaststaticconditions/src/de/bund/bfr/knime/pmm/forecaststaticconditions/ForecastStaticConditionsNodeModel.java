@@ -72,6 +72,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -276,7 +277,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					constants.put(TimeSeriesSchema.TIME, element.getTime());
+					constants.put(AttributeUtilities.TIME, element.getTime());
 					element.setLog10C(computeLogc(formula, constants));
 				}
 			} else {
@@ -373,7 +374,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					constants.put(TimeSeriesSchema.TIME, element.getTime());
+					constants.put(AttributeUtilities.TIME, element.getTime());
 					element.setLog10C(computeLogc(formula, constants));
 				}
 			} else {
@@ -415,7 +416,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		try {
-			Node f = parser.parse(formula.replaceAll(TimeSeriesSchema.LOGC
+			Node f = parser.parse(formula.replaceAll(AttributeUtilities.LOGC
 					+ "=", ""));
 			double value = (Double) parser.evaluate(f);
 
@@ -488,7 +489,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			Double min = minIndepValues.get(i);
 			Double max = maxIndepValues.get(i);
 
-			if (indep.equals(TimeSeriesSchema.TIME)) {
+			if (indep.equals(AttributeUtilities.TIME)) {
 				continue;
 			}
 

@@ -186,10 +186,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		waterActivityField.setPreferredSize(new Dimension(100,
 				waterActivityField.getPreferredSize().height));
 		timeBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
+				.getUnitsForAttribute(AttributeUtilities.TIME).toArray(
 						new String[0]));
 		logcBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
+				.getUnitsForAttribute(AttributeUtilities.LOGC).toArray(
 						new String[0]));
 		tempBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
@@ -211,11 +211,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				createConstraints(0, 4));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.TIME) + ":"),
+						.getFullName(AttributeUtilities.TIME) + ":"),
 				createConstraints(0, 5));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.LOGC) + ":"),
+						.getFullName(AttributeUtilities.LOGC) + ":"),
 				createConstraints(0, 6));
 		settingsPanel
 				.add(new JLabel(AttributeUtilities
@@ -352,7 +352,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
 			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.TIME));
+					.getStandardUnit(AttributeUtilities.TIME));
 		}
 
 		try {
@@ -360,7 +360,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
 			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.LOGC));
+					.getStandardUnit(AttributeUtilities.LOGC));
 		}
 
 		try {
@@ -903,7 +903,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
-						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
+						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -968,15 +968,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, TimeSeriesSchema.ATT_COMMENT);
 						} else if (box.getSelectedItem().equals(
-								TimeSeriesSchema.TIME)) {
+								AttributeUtilities.TIME)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, TimeSeriesSchema.TIME);
+							mappings.put(column, AttributeUtilities.TIME);
 						} else if (box.getSelectedItem().equals(
-								TimeSeriesSchema.LOGC)) {
+								AttributeUtilities.LOGC)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, TimeSeriesSchema.LOGC);
+							mappings.put(column, AttributeUtilities.LOGC);
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);

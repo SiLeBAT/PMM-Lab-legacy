@@ -70,6 +70,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -392,8 +393,8 @@ public class PrimaryJoiner implements Joiner {
 	private void readDataTable() throws PmmException {
 		Set<String> parameterSet = new LinkedHashSet<String>();
 
-		parameterSet.add(TimeSeriesSchema.TIME);
-		parameterSet.add(TimeSeriesSchema.LOGC);
+		parameterSet.add(AttributeUtilities.TIME);
+		parameterSet.add(AttributeUtilities.LOGC);
 
 		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
 				dataTable);

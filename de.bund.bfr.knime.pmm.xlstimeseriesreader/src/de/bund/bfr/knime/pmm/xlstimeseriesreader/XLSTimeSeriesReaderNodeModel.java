@@ -116,8 +116,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		agentMappings = new LinkedHashMap<>();
 		matrixColumn = null;
 		matrixMappings = new LinkedHashMap<>();
-		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
+		timeUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.TIME);
+		logcUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		agentID = -1;
@@ -143,9 +143,9 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				cMappings.put(column, id);
 			} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
 				cMappings.put(column, id);
-			} else if (id.equals(TimeSeriesSchema.TIME)) {
+			} else if (id.equals(AttributeUtilities.TIME)) {
 				cMappings.put(column, id);
-			} else if (id.equals(TimeSeriesSchema.LOGC)) {
+			} else if (id.equals(AttributeUtilities.LOGC)) {
 				cMappings.put(column, id);
 			} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID + "")) {
 				cMappings.put(column, new MiscXml(
@@ -257,9 +257,9 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
 				element.setTime(AttributeUtilities.convertToStandardUnit(
-						TimeSeriesSchema.TIME, element.getTime(), timeUnit));
+						AttributeUtilities.TIME, element.getTime(), timeUnit));
 				element.setLog10C(AttributeUtilities.convertToStandardUnit(
-						TimeSeriesSchema.LOGC, element.getLog10C(), logcUnit));
+						AttributeUtilities.LOGC, element.getLog10C(), logcUnit));
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);

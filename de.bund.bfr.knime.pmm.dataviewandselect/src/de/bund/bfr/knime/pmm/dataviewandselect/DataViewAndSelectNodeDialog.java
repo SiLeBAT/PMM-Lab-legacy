@@ -62,6 +62,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -302,12 +303,12 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			String transformY, List<String> visibleColumns) {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
-		paramsX.put(TimeSeriesSchema.TIME, new ArrayList<Double>());
+		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
 		configPanel.setParamsX(paramsX, null, null, null);
-		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
+		configPanel.setParamsY(Arrays.asList(AttributeUtilities.LOGC));
 		configPanel.setUseManualRange(manualRange);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);

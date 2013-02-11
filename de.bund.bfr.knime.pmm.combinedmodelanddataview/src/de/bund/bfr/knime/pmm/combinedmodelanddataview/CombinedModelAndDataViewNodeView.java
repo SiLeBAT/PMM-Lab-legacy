@@ -66,8 +66,8 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
@@ -75,6 +75,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -265,7 +266,7 @@ public class CombinedModelAndDataViewNodeView extends
 		if (getNodeModel().isSeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					TimeSeriesSchema.DATAID, ChartConstants.IS_FITTED);
+					AttributeUtilities.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -285,7 +286,7 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					TimeSeriesSchema.DATAID, Model1Schema.RMS,
+					AttributeUtilities.DATAID, Model1Schema.RMS,
 					Model1Schema.RSQUARED);
 
 			for (String param : miscParams) {
@@ -399,8 +400,8 @@ public class CombinedModelAndDataViewNodeView extends
 				}
 
 				plotable = new Plotable(Plotable.BOTH);
-				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.TIME, timeList);
+				plotable.addValueList(AttributeUtilities.LOGC, logcList);
 				// } else {
 				// plotable = new Plotable(Plotable.FUNCTION);
 				// }
@@ -475,7 +476,7 @@ public class CombinedModelAndDataViewNodeView extends
 				doubleColumnValues.get(7).add(
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
 				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
+						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,
 						TimeSeriesSchema.ATT_MATRIX,
 						TimeSeriesSchema.ATT_COMMENT));

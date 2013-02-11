@@ -31,6 +31,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -69,7 +70,7 @@ public class TableReader {
 		if (schemaContainsData) {
 			miscParams = getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					TimeSeriesSchema.DATAID, ChartConstants.IS_FITTED);
+					AttributeUtilities.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -174,7 +175,7 @@ public class TableReader {
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
 
-				if (element.getName().equals(TimeSeriesSchema.TIME)) {
+				if (element.getName().equals(AttributeUtilities.TIME)) {
 					variables.put(element.getName(), new ArrayList<Double>(
 							Arrays.asList(0.0)));
 					varMin.put(element.getName(), element.getMin());
@@ -211,7 +212,7 @@ public class TableReader {
 				}
 
 				for (int i = 0; i < indepVars.size(); i++) {
-					if (!indepVars.get(i).equals(TimeSeriesSchema.TIME)) {
+					if (!indepVars.get(i).equals(AttributeUtilities.TIME)) {
 						if (miscValues.containsKey(indepVars.get(i))) {
 							parameters.put(indepVars.get(i),
 									miscValues.get(indepVars.get(i)));
@@ -246,8 +247,8 @@ public class TableReader {
 
 				// if (!timeList.isEmpty() && !logcList.isEmpty()) {
 				plotable = new Plotable(Plotable.BOTH);
-				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.TIME, timeList);
+				plotable.addValueList(AttributeUtilities.LOGC, logcList);
 				// } else {
 				// plotable = new Plotable(Plotable.FUNCTION);
 				// }
@@ -309,7 +310,7 @@ public class TableReader {
 				doubleColumnValues.get(7).add(
 						((EstModelXml) newEstModelXml.get(0)).getBIC());
 				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.FORMULA, TimeSeriesSchema.DATAPOINTS,
+						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,
 						TimeSeriesSchema.ATT_MATRIX,
 						TimeSeriesSchema.ATT_COMMENT));
@@ -337,7 +338,7 @@ public class TableReader {
 				}
 			} else {
 				for (int i = 0; i < indepVars.size(); i++) {
-					if (!indepVars.get(i).equals(TimeSeriesSchema.TIME)) {
+					if (!indepVars.get(i).equals(AttributeUtilities.TIME)) {
 						parameters.put(indepVars.get(i), 0.0);
 					}
 				}

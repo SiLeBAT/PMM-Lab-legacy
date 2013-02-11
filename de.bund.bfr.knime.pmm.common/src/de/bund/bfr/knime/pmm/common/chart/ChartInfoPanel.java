@@ -53,7 +53,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
@@ -169,7 +169,7 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 
 		public TimeSeriesDialog(List<Point2D.Double> timeSeries) {
 			super(JOptionPane.getFrameForComponent(ChartInfoPanel.this),
-					TimeSeriesSchema.DATAPOINTS, true);
+					AttributeUtilities.DATAPOINTS, true);
 
 			JButton okButton = new JButton("OK");
 			JPanel bottomPanel = new JPanel();

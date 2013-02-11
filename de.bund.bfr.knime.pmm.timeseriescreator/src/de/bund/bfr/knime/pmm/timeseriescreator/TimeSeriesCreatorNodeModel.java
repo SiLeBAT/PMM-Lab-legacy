@@ -109,8 +109,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		matrixID = DEFAULT_MATRIXID;
 		comment = "";
 		timeSeries = new ArrayList<>();
-		timeUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(TimeSeriesSchema.LOGC);
+		timeUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.TIME);
+		logcUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		miscValues = new LinkedHashMap<>();
@@ -188,11 +188,11 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		}
 
 		for (Point2D.Double p : timeSeries) {
-			timeSeriesXml.add(new TimeSeriesXml(null,
-					AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.TIME, p.x, timeUnit),
-					AttributeUtilities.convertToStandardUnit(
-							TimeSeriesSchema.LOGC, p.y, logcUnit)));
+			timeSeriesXml.add(new TimeSeriesXml(null, AttributeUtilities
+					.convertToStandardUnit(AttributeUtilities.TIME, p.x,
+							timeUnit), AttributeUtilities
+					.convertToStandardUnit(AttributeUtilities.LOGC, p.y,
+							logcUnit)));
 		}
 
 		KnimeTuple tuple = new KnimeTuple(schema);

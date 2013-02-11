@@ -202,7 +202,7 @@ public class MMC_TS extends JPanel {
 
 		//---- agentLabel ----
 		agentLabel.setText("Agent:");
-		agentLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_AGENTNAME) + ":");
+		agentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENT) + ":");
 		add(agentLabel, CC.xy(1, 1));
 
 		//---- agentField ----
@@ -230,7 +230,7 @@ public class MMC_TS extends JPanel {
 
 		//---- matrixLabel ----
 		matrixLabel.setText("Matrix:");
-		matrixLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_MATRIXNAME) + ":");
+		matrixLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":");
 		add(matrixLabel, CC.xy(1, 3));
 
 		//---- matrixField ----

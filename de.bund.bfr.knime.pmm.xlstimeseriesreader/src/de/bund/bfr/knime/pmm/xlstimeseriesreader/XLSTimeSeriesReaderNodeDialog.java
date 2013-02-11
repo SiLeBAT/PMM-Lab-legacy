@@ -149,10 +149,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		fileColumnList = new ArrayList<>();
 
 		timeBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.TIME).toArray(
+				.getUnitsForAttribute(AttributeUtilities.TIME).toArray(
 						new String[0]));
 		logcBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(TimeSeriesSchema.LOGC).toArray(
+				.getUnitsForAttribute(AttributeUtilities.LOGC).toArray(
 						new String[0]));
 		tempBox = new JComboBox<String>(AttributeUtilities
 				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
@@ -196,11 +196,11 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northUnitsPanel.setLayout(new GridBagLayout());
 		northUnitsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.TIME) + ":"),
+						.getFullName(AttributeUtilities.TIME) + ":"),
 				createConstraints(0, 0));
 		northUnitsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.LOGC) + ":"),
+						.getFullName(AttributeUtilities.LOGC) + ":"),
 				createConstraints(0, 1));
 		northUnitsPanel
 				.add(new JLabel(AttributeUtilities
@@ -331,7 +331,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
 			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.TIME));
+					.getStandardUnit(AttributeUtilities.TIME));
 		}
 
 		try {
@@ -339,7 +339,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
 			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(TimeSeriesSchema.LOGC));
+					.getStandardUnit(AttributeUtilities.LOGC));
 		}
 
 		try {
@@ -716,15 +716,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnMappings
 								.put(column, TimeSeriesSchema.ATT_COMMENT);
 					} else if (box.getSelectedItem().equals(
-							TimeSeriesSchema.TIME)) {
+							AttributeUtilities.TIME)) {
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, TimeSeriesSchema.TIME);
+						columnMappings.put(column, AttributeUtilities.TIME);
 					} else if (box.getSelectedItem().equals(
-							TimeSeriesSchema.LOGC)) {
+							AttributeUtilities.LOGC)) {
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-						columnMappings.put(column, TimeSeriesSchema.LOGC);
+						columnMappings.put(column, AttributeUtilities.LOGC);
 					} else if (box.getSelectedItem().equals(
 							AttributeUtilities.ATT_TEMPERATURE)) {
 						button.setEnabled(false);
@@ -949,7 +949,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
-						TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
+						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -967,12 +967,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.TIME)) {
-						box.setSelectedItem(TimeSeriesSchema.TIME);
+					} else if (id.equals(AttributeUtilities.TIME)) {
+						box.setSelectedItem(AttributeUtilities.TIME);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.LOGC)) {
-						box.setSelectedItem(TimeSeriesSchema.LOGC);
+					} else if (id.equals(AttributeUtilities.LOGC)) {
+						box.setSelectedItem(AttributeUtilities.LOGC);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID

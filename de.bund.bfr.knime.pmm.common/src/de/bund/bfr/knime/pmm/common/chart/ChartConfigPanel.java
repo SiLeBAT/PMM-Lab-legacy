@@ -58,7 +58,7 @@ import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
@@ -450,8 +450,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			if (!parameters.isEmpty()) {
 				if (parameters.containsKey(lastParamX)) {
 					xBox.setSelectedItem(lastParamX);
-				} else if (parameters.containsKey(TimeSeriesSchema.TIME)) {
-					xBox.setSelectedItem(TimeSeriesSchema.TIME);
+				} else if (parameters.containsKey(AttributeUtilities.TIME)) {
+					xBox.setSelectedItem(AttributeUtilities.TIME);
 				} else {
 					xBox.setSelectedIndex(0);
 				}

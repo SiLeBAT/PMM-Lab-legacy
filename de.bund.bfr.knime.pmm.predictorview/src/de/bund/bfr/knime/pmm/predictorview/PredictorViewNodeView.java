@@ -72,7 +72,6 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeView</code> for the "PredictorView" Node.
@@ -146,9 +145,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					infoParameterValues);
 			samplePanel = new ChartSamplePanel();
 			samplePanel.setTimeColumnName(AttributeUtilities
-					.getFullNameWithUnit(TimeSeriesSchema.TIME));
+					.getFullNameWithUnit(AttributeUtilities.TIME));
 			samplePanel.setLogcColumnName(AttributeUtilities
-					.getFullNameWithUnit(TimeSeriesSchema.LOGC));
+					.getFullNameWithUnit(AttributeUtilities.LOGC));
 			samplePanel.addEditListener(this);
 
 			JPanel upperRightPanel = new JPanel();
@@ -223,7 +222,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			}
 
 			configPanel.setParamsX(variables, plotable.getMinArguments(),
-					plotable.getMaxArguments(), TimeSeriesSchema.TIME);
+					plotable.getMaxArguments(), AttributeUtilities.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
@@ -232,7 +231,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			chartCreator.setTransformY(configPanel.getTransformY());
 
 			double[][] samplePoints = plotable.getFunctionSamplePoints(
-					TimeSeriesSchema.TIME, TimeSeriesSchema.LOGC,
+					AttributeUtilities.TIME, AttributeUtilities.LOGC,
 					configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY);
@@ -247,7 +246,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		}
 
 		samplePanel.setLogcColumnName(AttributeUtilities.getFullNameWithUnit(
-				TimeSeriesSchema.LOGC, configPanel.getTransformY()));
+				AttributeUtilities.LOGC, configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

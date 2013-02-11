@@ -76,6 +76,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.math.ParameterOptimizer;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -427,7 +428,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<Double> targetValues = new ArrayList<Double>();
 				List<Double> timeValues = new ArrayList<Double>();
-				List<String> arguments = Arrays.asList(TimeSeriesSchema.TIME);
+				List<String> arguments = Arrays.asList(AttributeUtilities.TIME);
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
@@ -1020,7 +1021,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					targetValuesMap.get(id).addAll(targetValues);
 
 					for (int i = 0; i < arguments.size(); i++) {
-						if (arguments.get(i).equals(TimeSeriesSchema.TIME)) {
+						if (arguments.get(i).equals(AttributeUtilities.TIME)) {
 							argumentValuesMap.get(id).get(i).addAll(timeList);
 						} else {
 							argumentValuesMap.get(id).get(i)

@@ -54,6 +54,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -98,9 +99,9 @@ public class XLSReader {
 					idColumn = columns.get(column);
 				} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
-				} else if (mapping.equals(TimeSeriesSchema.TIME)) {
+				} else if (mapping.equals(AttributeUtilities.TIME)) {
 					timeColumn = columns.get(column);
-				} else if (mapping.equals(TimeSeriesSchema.LOGC)) {
+				} else if (mapping.equals(AttributeUtilities.LOGC)) {
 					logcColumn = columns.get(column);
 				}
 			}
@@ -208,7 +209,7 @@ public class XLSReader {
 						time = Double.parseDouble(timeCell.toString().replace(
 								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.TIME
+						throw new Exception(AttributeUtilities.TIME
 								+ " value in row " + (i + 1) + " is not valid");
 					}
 				}
@@ -218,7 +219,7 @@ public class XLSReader {
 						logc = Double.parseDouble(logcCell.toString().replace(
 								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(TimeSeriesSchema.LOGC
+						throw new Exception(AttributeUtilities.LOGC
 								+ " value in row " + (i + 1) + " is not valid");
 					}
 				}

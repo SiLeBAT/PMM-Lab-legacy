@@ -57,7 +57,7 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.ExecutionContext;
 
 import de.bund.bfr.knime.pcml.port.PCMLUtil;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.util.Agent;
 import de.bund.bfr.knime.util.Matrix;
 import de.bund.bfr.knime.util.NameAndDbId;
@@ -164,7 +164,7 @@ public class PCMLDataTable {
 	private DataTableSpec createOutSpec(final Map<NameAndDbId, Integer> columns) {
 		LinkedHashMap<String, DataColumnSpec> colSpecs = new LinkedHashMap<String, DataColumnSpec>();
 		// the time
-		colSpecs.put(TimeSeriesSchema.TIME, new DataColumnSpecCreator(TimeSeriesSchema.TIME, DoubleCell.TYPE).createSpec());
+		colSpecs.put(AttributeUtilities.TIME, new DataColumnSpecCreator(AttributeUtilities.TIME, DoubleCell.TYPE).createSpec());
 		// the process name
 		colSpecs.put("process", new DataColumnSpecCreator("process", StringCell.TYPE).createSpec());
 		// the process id

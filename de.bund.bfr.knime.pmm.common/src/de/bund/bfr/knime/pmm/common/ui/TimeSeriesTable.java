@@ -31,7 +31,6 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TimeSeriesTable extends JTable implements ActionListener {
 
@@ -52,8 +51,10 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public TimeSeriesTable(int rowCount, boolean timeEditable,
 			boolean logcEditable) {
-		timeColumnName = AttributeUtilities.getFullName(TimeSeriesSchema.TIME);
-		logcColumnName = AttributeUtilities.getFullName(TimeSeriesSchema.LOGC);
+		timeColumnName = AttributeUtilities
+				.getFullName(AttributeUtilities.TIME);
+		logcColumnName = AttributeUtilities
+				.getFullName(AttributeUtilities.LOGC);
 		setModel(new TimeSeriesTableModel(rowCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
 		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));

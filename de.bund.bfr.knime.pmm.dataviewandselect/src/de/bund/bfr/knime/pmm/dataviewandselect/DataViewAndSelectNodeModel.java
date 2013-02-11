@@ -68,6 +68,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -105,7 +106,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final int DEFAULT_ADDLEGENDINFO = 0;
 	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	static final String DEFAULT_VISIBLECOLUMNS = TimeSeriesSchema.DATAID;
+	static final String DEFAULT_VISIBLECOLUMNS = AttributeUtilities.DATAID;
 
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
@@ -185,8 +186,8 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 
-		creator.setParamX(TimeSeriesSchema.TIME);
-		creator.setParamY(TimeSeriesSchema.LOGC);
+		creator.setParamX(AttributeUtilities.TIME);
+		creator.setParamY(AttributeUtilities.LOGC);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.setColors(colors);
 		creator.setShapes(shapes);

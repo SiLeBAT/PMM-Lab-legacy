@@ -13,6 +13,7 @@ import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -73,7 +74,7 @@ public class QualityMeasurementComputation {
 			boolean miscMissing = false;
 
 			for (String var : variableValues.keySet()) {
-				if (var.equals(TimeSeriesSchema.TIME)) {
+				if (var.equals(AttributeUtilities.TIME)) {
 					continue;
 				} else {
 					if (!miscNames.contains(var)) {
@@ -105,11 +106,11 @@ public class QualityMeasurementComputation {
 
 				if (element.getTime() != null && element.getLog10C() != null) {
 					targetValues.add(element.getLog10C());
-					variableValues.get(TimeSeriesSchema.TIME).add(
+					variableValues.get(AttributeUtilities.TIME).add(
 							element.getTime());
 
 					for (String var : variableValues.keySet()) {
-						if (!var.equals(TimeSeriesSchema.TIME)) {
+						if (!var.equals(AttributeUtilities.TIME)) {
 							variableValues.get(var).add(miscValues.get(var));
 						}
 					}

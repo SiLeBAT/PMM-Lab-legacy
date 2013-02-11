@@ -200,16 +200,18 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		PmmXmlDoc indepVar = modelTuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 
 		if (depVar.size() == 1) {
-			formula = MathUtilities.replaceVariable(formula,
-					((DepXml) depVar.get(0)).getName(), TimeSeriesSchema.LOGC);
-			((DepXml) depVar.get(0)).setName(TimeSeriesSchema.LOGC);
+			formula = MathUtilities
+					.replaceVariable(formula,
+							((DepXml) depVar.get(0)).getName(),
+							AttributeUtilities.LOGC);
+			((DepXml) depVar.get(0)).setName(AttributeUtilities.LOGC);
 		}
 
 		if (indepVar.size() == 1) {
 			formula = MathUtilities.replaceVariable(formula,
 					((IndepXml) indepVar.get(0)).getName(),
-					TimeSeriesSchema.TIME);
-			((IndepXml) indepVar.get(0)).setName(TimeSeriesSchema.TIME);
+					AttributeUtilities.TIME);
+			((IndepXml) indepVar.get(0)).setName(AttributeUtilities.TIME);
 		}
 
 		((CatalogModelXml) modelXml.get(0)).setFormula(formula);

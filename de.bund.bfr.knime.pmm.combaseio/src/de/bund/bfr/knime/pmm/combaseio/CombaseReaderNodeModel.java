@@ -52,7 +52,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.combaseio.lib.CombaseReader;
-
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -64,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -140,12 +140,12 @@ public class CombaseReaderNodeModel extends NodeModel {
     			PmmXmlDoc indepXML = new PmmXmlDoc();
     			
     			modelTuple = new KnimeTuple( commonSchema );
-    			indepXML.add(new IndepXml(TimeSeriesSchema.TIME, null, null));
+    			indepXML.add(new IndepXml(AttributeUtilities.TIME, null, null));
     			
     			modelTuple = KnimeTuple.merge( commonSchema, modelTuple, candidate );
     			
     			PmmXmlDoc cmDoc = new PmmXmlDoc();
-    			CatalogModelXml cmx = new CatalogModelXml(MathUtilities.getRandomNegativeInt(), "D-Value", TimeSeriesSchema.LOGC+"=LogC0+mumax*"+TimeSeriesSchema.TIME);
+    			CatalogModelXml cmx = new CatalogModelXml(MathUtilities.getRandomNegativeInt(), "D-Value", AttributeUtilities.LOGC+"=LogC0+mumax*"+AttributeUtilities.TIME);
     			cmDoc.add(cmx);
     			modelTuple.setValue( Model1Schema.ATT_MODELCATALOG, cmDoc);
     			
@@ -170,7 +170,7 @@ public class CombaseReaderNodeModel extends NodeModel {
     			//modelTuple.setValue( Model1Schema.ATT_VALUE, start+","+candidate.getMaximumRate() );
     			modelTuple.setValue( Model1Schema.ATT_INDEPENDENT, indepXML );
     			paramDoc = new PmmXmlDoc();
-				DepXml dx = new DepXml(TimeSeriesSchema.LOGC);
+				DepXml dx = new DepXml(AttributeUtilities.LOGC);
 				paramDoc.add(dx);
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
     			//modelTuple.setValue(Model1Schema.ATT_DEPVAR, TimeSeriesSchema.LOGC);

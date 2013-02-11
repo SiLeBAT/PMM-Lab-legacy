@@ -61,7 +61,6 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class ChartCreator extends ChartPanel {
 
@@ -213,16 +212,16 @@ public class ChartCreator extends ChartPanel {
 			usedMaxX = 100.0;
 		}
 
-		if (paramX.equals(TimeSeriesSchema.TIME)
-				|| paramX.equals(TimeSeriesSchema.LOGC)) {
+		if (paramX.equals(AttributeUtilities.TIME)
+				|| paramX.equals(AttributeUtilities.LOGC)) {
 			usedMinX = Math.min(usedMinX, 0.0);
 			xAxis.setAutoRangeIncludesZero(true);
 		} else {
 			xAxis.setAutoRangeIncludesZero(false);
 		}
 
-		if (paramY.equals(TimeSeriesSchema.TIME)
-				|| paramY.equals(TimeSeriesSchema.LOGC)) {
+		if (paramY.equals(AttributeUtilities.TIME)
+				|| paramY.equals(AttributeUtilities.LOGC)) {
 			yAxis.setAutoRangeIncludesZero(true);
 		} else {
 			yAxis.setAutoRangeIncludesZero(false);

@@ -40,12 +40,15 @@ import java.util.List;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 
 public class AttributeUtilities {
+	
+	public static final String DATAID = "DataID";
+	public static final String DATAPOINTS = "Data Points";
 
+	public static final String TIME = "Time";
+	public static final String LOGC = "Log10C";
 	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_WATERACTIVITY = "aw";
-	public static final String ATT_MATRIXNAME = "MatrixName";
-	public static final String ATT_AGENTNAME = "OrganismName";
 	public static final int ATT_TEMPERATURE_ID = -1;
 	public static final int ATT_PH_ID = -2;
 	public static final int ATT_AW_ID = -3;
@@ -102,11 +105,7 @@ public class AttributeUtilities {
 			return "pH";
 		} else if (attr.equals(ATT_WATERACTIVITY)) {
 			return "Water Activity";
-		} else if (attr.equals(ATT_AGENTNAME)) {
-			return "Organism";
-		} else if (attr.equals(ATT_MATRIXNAME)) {
-			return "Matrix";
-		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
+		} else if (attr.equals(LOGC)) {
 			return "Concentration";
 		} else {
 			return attr;
@@ -145,9 +144,9 @@ public class AttributeUtilities {
 	}
 
 	public static List<String> getUnitsForAttribute(String attr) {
-		if (attr.equals(TimeSeriesSchema.TIME)) {
+		if (attr.equals(TIME)) {
 			return Arrays.asList(HOURS, MINUTES, SECONDS, DAYS, WEEKS);
-		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
+		} else if (attr.equals(LOGC)) {
 			return Arrays.asList(LOGCFU, LNCFU, CFU);
 		} else if (attr.equals(ATT_TEMPERATURE)) {
 			return Arrays.asList(CELSIUS, FAHRENHEIT);
@@ -162,7 +161,7 @@ public class AttributeUtilities {
 			return null;
 		}
 
-		if (attr.equals(TimeSeriesSchema.TIME)) {
+		if (attr.equals(TIME)) {
 			if (unit.equals(HOURS)) {
 				return value;
 			} else if (unit.equals(MINUTES)) {
@@ -174,7 +173,7 @@ public class AttributeUtilities {
 			} else if (unit.equals(WEEKS)) {
 				return value * 168.0;
 			}
-		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
+		} else if (attr.equals(LOGC)) {
 			if (unit.equals(LOGCFU)) {
 				return value;
 			} else if (unit.equals(LNCFU)) {
@@ -194,9 +193,9 @@ public class AttributeUtilities {
 	}
 
 	public static String getStandardUnit(String attr) {
-		if (attr.equals(TimeSeriesSchema.TIME)) {
+		if (attr.equals(TIME)) {
 			return HOURS;
-		} else if (attr.equals(TimeSeriesSchema.LOGC)) {
+		} else if (attr.equals(LOGC)) {
 			return LOGCFU;
 		} else if (attr.equals(ATT_TEMPERATURE)) {
 			return CELSIUS;

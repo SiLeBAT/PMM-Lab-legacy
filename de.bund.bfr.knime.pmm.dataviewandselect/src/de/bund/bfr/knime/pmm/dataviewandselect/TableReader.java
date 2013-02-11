@@ -22,6 +22,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TableReader {
@@ -53,7 +54,7 @@ public class TableReader {
 		allTuples = new ArrayList<KnimeTuple>();
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
-		stringColumns = Arrays.asList(TimeSeriesSchema.DATAID);
+		stringColumns = Arrays.asList(AttributeUtilities.DATAID);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		doubleColumns = new ArrayList<String>();
@@ -135,7 +136,7 @@ public class TableReader {
 			}
 
 			stringColumnValues.get(0).add(dataName);
-			infoParameters.add(Arrays.asList(TimeSeriesSchema.DATAPOINTS,
+			infoParameters.add(Arrays.asList(AttributeUtilities.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
 					TimeSeriesSchema.ATT_COMMENT));
 			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
@@ -166,8 +167,8 @@ public class TableReader {
 			Plotable plotable = new Plotable(Plotable.DATASET);
 
 			if (!timeList.isEmpty() && !logcList.isEmpty()) {
-				plotable.addValueList(TimeSeriesSchema.TIME, timeList);
-				plotable.addValueList(TimeSeriesSchema.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.TIME, timeList);
+				plotable.addValueList(AttributeUtilities.LOGC, logcList);
 			}
 
 			plotables.put(id, plotable);

@@ -64,6 +64,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -346,7 +347,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_MODELFILTER,
 				selectionPanel.getFilter(Model1Schema.MODELNAME));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_DATAFILTER,
-				selectionPanel.getFilter(TimeSeriesSchema.DATAID));
+				selectionPanel.getFilter(AttributeUtilities.DATAID));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_FITTEDFILTER,
 				selectionPanel.getFilter(ChartConstants.IS_FITTED));
 	}
@@ -360,12 +361,12 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			String dataFilter, String fittedFilter) {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
-		paramsX.put(TimeSeriesSchema.TIME, new ArrayList<Double>());
+		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
 		configPanel.setParamsX(paramsX, null, null, null);
-		configPanel.setParamsY(Arrays.asList(TimeSeriesSchema.LOGC));
+		configPanel.setParamsY(Arrays.asList(AttributeUtilities.LOGC));
 		configPanel.setUseManualRange(manualRange);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
@@ -384,7 +385,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
-		selectionPanel.setFilter(TimeSeriesSchema.DATAID, dataFilter);
+		selectionPanel.setFilter(AttributeUtilities.DATAID, dataFilter);
 		selectionPanel.setFilter(ChartConstants.IS_FITTED, fittedFilter);
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),

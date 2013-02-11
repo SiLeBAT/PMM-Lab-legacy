@@ -81,6 +81,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSModelReaderNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_FILENAME = "FileName";
+	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
@@ -94,6 +95,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
 	private String fileName;
+	private String sheetName;
 	private Map<String, String> modelMappings;
 	private Map<String, String> columnMappings;
 	private String agentColumn;
@@ -114,6 +116,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected XLSModelReaderNodeModel() {
 		super(0, 1);
 		fileName = null;
+		sheetName = null;
 		modelID = -1;
 		modelMappings = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
@@ -215,9 +218,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
-				.getDValueTuples(new File(fileName), cMappings, agentColumn,
-						aMappings, matrixColumn, mMappings, modelTuple,
-						modelMappings).values());
+				.getDValueTuples(new File(fileName), sheetName, cMappings,
+						agentColumn, aMappings, matrixColumn, mMappings,
+						modelTuple, modelMappings).values());
 
 		if (agentColumn == null) {
 			PmmXmlDoc agentXml = new PmmXmlDoc();
@@ -324,6 +327,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
+		settings.addString(CFGKEY_SHEETNAME, sheetName);
 		settings.addInt(CFGKEY_MODELID, modelID);
 		settings.addString(CFGKEY_MODELMAPPINGS,
 				XmlConverter.mapToXml(modelMappings));
@@ -349,6 +353,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		fileName = settings.getString(CFGKEY_FILENAME);
+		sheetName = settings.getString(CFGKEY_SHEETNAME);
 		modelID = settings.getInt(CFGKEY_MODELID);
 		modelMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_MODELMAPPINGS));

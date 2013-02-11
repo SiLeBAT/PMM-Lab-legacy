@@ -65,12 +65,13 @@ public class XLSReader {
 	}
 
 	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file,
-			Map<String, Object> columnMappings, String agentColumnName,
-			Map<String, AgentXml> agentMappings, String matrixColumnName,
-			Map<String, MatrixXml> matrixMappings) throws Exception {
-		Sheet sheet = getSheet(file);
+			String sheet, Map<String, Object> columnMappings,
+			String agentColumnName, Map<String, AgentXml> agentMappings,
+			String matrixColumnName, Map<String, MatrixXml> matrixMappings)
+			throws Exception {
+		Sheet s = getWorkbook(file).getSheet(sheet);
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, Integer> columns = getColumns(sheet);
+		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
 		Integer idColumn = null;
 		Integer commentColumn = null;
@@ -110,7 +111,7 @@ public class XLSReader {
 		String id = null;
 
 		for (int i = 1;; i++) {
-			if (isEndOfFile(sheet, i)) {
+			if (isEndOfFile(s, i)) {
 				if (tuple != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
 							timeSeriesXml);
@@ -120,7 +121,7 @@ public class XLSReader {
 				break;
 			}
 
-			Row row = sheet.getRow(i);
+			Row row = s.getRow(i);
 			Cell idCell = row.getCell(idColumn);
 			Cell commentCell = row.getCell(commentColumn);
 			Cell timeCell = row.getCell(timeColumn);
@@ -230,13 +231,14 @@ public class XLSReader {
 	}
 
 	public static Map<String, KnimeTuple> getDValueTuples(File file,
-			Map<String, Object> columnMappings, String agentColumnName,
-			Map<String, AgentXml> agentMappings, String matrixColumnName,
-			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
-			Map<String, String> modelMappings) throws Exception {
-		Sheet sheet = getSheet(file);
+			String sheet, Map<String, Object> columnMappings,
+			String agentColumnName, Map<String, AgentXml> agentMappings,
+			String matrixColumnName, Map<String, MatrixXml> matrixMappings,
+			KnimeTuple modelTuple, Map<String, String> modelMappings)
+			throws Exception {
+		Sheet s = getWorkbook(file).getSheet(sheet);
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, Integer> columns = getColumns(sheet);
+		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
 		Integer commentColumn = null;
 		Integer agentColumn = null;
@@ -263,12 +265,12 @@ public class XLSReader {
 		}
 
 		for (int i = 1;; i++) {
-			if (isEndOfFile(sheet, i)) {
+			if (isEndOfFile(s, i)) {
 				break;
 			}
 
 			KnimeTuple dataTuple = new KnimeTuple(new TimeSeriesSchema());
-			Row row = sheet.getRow(i);
+			Row row = s.getRow(i);
 			Cell commentCell = row.getCell(commentColumn);
 			Cell agentCell = null;
 			Cell matrixCell = null;
@@ -358,21 +360,32 @@ public class XLSReader {
 		return tuples;
 	}
 
-	public static List<String> getColumns(File file) throws Exception {
-		Sheet sheet = getSheet(file);
+	public static List<String> getSheets(File file) throws Exception {
+		List<String> sheets = new ArrayList<>();
+		Workbook workbook = getWorkbook(file);
 
-		return new ArrayList<>(getColumns(sheet).keySet());
+		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+			sheets.add(workbook.getSheetName(i));
+		}
+
+		return sheets;
 	}
 
-	public static Set<String> getValuesInColumn(File file, String column)
+	public static List<String> getColumns(File file, String sheet)
 			throws Exception {
+		return new ArrayList<>(getColumns(getWorkbook(file).getSheet(sheet))
+				.keySet());
+	}
+
+	public static Set<String> getValuesInColumn(File file, String sheet,
+			String column) throws Exception {
 		Set<String> valueSet = new LinkedHashSet<>();
-		Sheet sheet = getSheet(file);
-		Map<String, Integer> columns = getColumns(sheet);
+		Sheet s = getWorkbook(file).getSheet(sheet);
+		Map<String, Integer> columns = getColumns(s);
 		int columnId = columns.get(column);
 
-		for (int i = 1; i < sheet.getLastRowNum(); i++) {
-			Cell cell = sheet.getRow(i).getCell(columnId);
+		for (int i = 1; i < s.getLastRowNum(); i++) {
+			Cell cell = s.getRow(i).getCell(columnId);
 
 			if (cell != null && !cell.toString().trim().isEmpty()) {
 				valueSet.add(cell.toString().trim());
@@ -382,7 +395,7 @@ public class XLSReader {
 		return valueSet;
 	}
 
-	private static Sheet getSheet(File file) throws Exception {
+	private static Workbook getWorkbook(File file) throws Exception {
 		InputStream inputStream = null;
 
 		if (file.exists()) {
@@ -397,9 +410,7 @@ public class XLSReader {
 			}
 		}
 
-		Workbook wb = WorkbookFactory.create(inputStream);
-
-		return wb.getSheetAt(0);
+		return WorkbookFactory.create(inputStream);
 	}
 
 	private static Map<String, Integer> getColumns(Sheet sheet) {

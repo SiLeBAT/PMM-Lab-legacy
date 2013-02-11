@@ -75,6 +75,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_FILENAME = "FileName";
+	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
@@ -88,6 +89,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
 
 	private String fileName;
+	private String sheetName;
 	private Map<String, String> columnMappings;
 	private String agentColumn;
 	private Map<String, String> agentMappings;
@@ -108,6 +110,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected XLSTimeSeriesReaderNodeModel() {
 		super(0, 1);
 		fileName = null;
+		sheetName = null;
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
@@ -184,7 +187,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
-				.getTimeSeriesTuples(new File(fileName), cMappings,
+				.getTimeSeriesTuples(new File(fileName), sheetName, cMappings,
 						agentColumn, aMappings, matrixColumn, mMappings)
 				.values());
 
@@ -310,6 +313,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
+		settings.addString(CFGKEY_SHEETNAME, sheetName);
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.mapToXml(columnMappings));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
@@ -334,6 +338,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		fileName = settings.getString(CFGKEY_FILENAME);
+		sheetName = settings.getString(CFGKEY_SHEETNAME);
 		columnMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_COLUMNMAPPINGS));
 		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);

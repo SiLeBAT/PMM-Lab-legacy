@@ -102,7 +102,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private static final String OTHER_PARAMETER = "Select Other";
 	private static final String SELECT = "Select";
 
+	private JPanel mainPanel;
+
 	private FilePanel filePanel;
+	private JComboBox<String> sheetBox;
+	private List<String> fileSheetList;
 	private List<String> fileColumnList;
 
 	private JComboBox<String> tempBox;
@@ -150,6 +154,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
 		filePanel.addFileListener(this);
+		sheetBox = new JComboBox<>();
+		sheetBox.addItemListener(this);
+		fileSheetList = new ArrayList<>();
 		fileColumnList = new ArrayList<>();
 
 		tempBox = new JComboBox<String>(AttributeUtilities
@@ -256,10 +263,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		optionsPanel.add(matrixPanel);
 		optionsPanel.add(columnsPanel);
 
-		JPanel mainPanel = new JPanel();
+		JPanel sheetPanel = new JPanel();
 
+		sheetPanel.setBorder(BorderFactory.createTitledBorder("Sheet"));
+		sheetPanel.setLayout(new BorderLayout());
+		sheetPanel.add(sheetBox, BorderLayout.NORTH);
+
+		JPanel fileSheetPanel = new JPanel();
+
+		fileSheetPanel.setLayout(new BorderLayout());
+		fileSheetPanel.add(filePanel, BorderLayout.CENTER);
+		fileSheetPanel.add(sheetPanel, BorderLayout.EAST);
+
+		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
-		mainPanel.add(filePanel, BorderLayout.NORTH);
+		mainPanel.add(fileSheetPanel, BorderLayout.NORTH);
 		mainPanel.add(optionsPanel, BorderLayout.CENTER);
 
 		addTab("Options", mainPanel);
@@ -278,8 +296,31 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			fileColumnList = XLSReader.getColumns(new File(filePanel
+			fileSheetList = XLSReader.getSheets(new File(filePanel
 					.getFileName()));
+		} catch (Exception e) {
+			fileSheetList = new ArrayList<>();
+		}
+
+		try {
+			sheetBox.removeItemListener(this);
+			sheetBox.removeAllItems();
+
+			for (String sheet : fileSheetList) {
+				sheetBox.addItem(sheet);
+			}
+
+			sheetBox.setSelectedItem(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_SHEETNAME));
+			sheetBox.addItemListener(this);
+		} catch (InvalidSettingsException e) {
+			sheetBox.removeAllItems();
+		}
+
+		try {
+			fileColumnList = XLSReader.getColumns(
+					new File(filePanel.getFileName()),
+					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
 		}
@@ -393,6 +434,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("No file is specfied");
 		}
 
+		if (sheetBox.getSelectedItem() == null) {
+			throw new InvalidSettingsException("No sheet is selected");
+		}
+
 		if (fileColumnList.isEmpty()) {
 			throw new InvalidSettingsException("Specified file is invalid");
 		}
@@ -474,6 +519,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_FILENAME,
 				filePanel.getFileName());
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_SHEETNAME,
+				(String) sheetBox.getSelectedItem());
 		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
 				XmlConverter.mapToXml(modelMappings));
@@ -633,7 +680,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			return;
 		}
 
-		if (e.getSource() == agentBox) {
+		if (e.getSource() == sheetBox) {
+			try {
+				fileColumnList = XLSReader.getColumns(
+						new File(filePanel.getFileName()),
+						(String) sheetBox.getSelectedItem());
+			} catch (Exception ex) {
+				fileColumnList = new ArrayList<>();
+			}
+
+			columnMappings.clear();
+			updateColumnsPanel();
+			updateAgentPanel();
+			updateMatrixPanel();
+			mainPanel.revalidate();
+		} else if (e.getSource() == agentBox) {
 			agentColumn = (String) agentBox.getSelectedItem();
 			updateAgentPanel();
 		} else if (e.getSource() == matrixBox) {
@@ -696,8 +757,26 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void fileChanged(FilePanel source) {
 		try {
-			fileColumnList = XLSReader.getColumns(new File(filePanel
+			fileSheetList = XLSReader.getSheets(new File(filePanel
 					.getFileName()));
+		} catch (Exception e) {
+			fileSheetList = new ArrayList<>();
+		}
+
+		sheetBox.removeItemListener(this);
+		sheetBox.removeAllItems();
+
+		for (String sheet : fileSheetList) {
+			sheetBox.addItem(sheet);
+		}
+
+		sheetBox.setSelectedIndex(0);
+		sheetBox.addItemListener(this);
+
+		try {
+			fileColumnList = XLSReader.getColumns(
+					new File(filePanel.getFileName()),
+					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
 			fileColumnList = new ArrayList<>();
 		}
@@ -706,6 +785,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		updateColumnsPanel();
 		updateAgentPanel();
 		updateMatrixPanel();
+		mainPanel.revalidate();
 	}
 
 	private void updateModelPanel() {
@@ -802,7 +882,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				Set<String> values = XLSReader.getValuesInColumn(new File(
-						filePanel.getFileName()), column);
+						filePanel.getFileName()), (String) sheetBox
+						.getSelectedItem(), column);
 
 				for (String value : values) {
 					JButton button = new JButton();
@@ -873,7 +954,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			try {
 				Set<String> values = XLSReader.getValuesInColumn(new File(
-						filePanel.getFileName()), column);
+						filePanel.getFileName()), (String) sheetBox
+						.getSelectedItem(), column);
 
 				for (String value : values) {
 					JButton button = new JButton();

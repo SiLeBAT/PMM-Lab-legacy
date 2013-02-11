@@ -148,7 +148,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 		JFileChooser fileChooser;
 
 		try {
-			fileChooser = new JFileChooser(new File(field.getText()));
+			fileChooser = new JFileChooser(new File(field.getValue()));
 		} catch (Exception ex) {
 			fileChooser = new JFileChooser();
 		}
@@ -161,7 +161,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 
 		if (dialogType == OPEN_DIALOG) {
 			if (fileChooser.showOpenDialog(button) == JFileChooser.APPROVE_OPTION) {
-				field.setText(fileChooser.getSelectedFile().getAbsolutePath());
+				field.setValue(fileChooser.getSelectedFile().getAbsolutePath());
 			}
 		} else if (dialogType == SAVE_DIALOG) {
 			if (fileChooser.showSaveDialog(button) == JFileChooser.APPROVE_OPTION) {
@@ -172,7 +172,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 					fileName += ".csv";
 				}
 
-				field.setText(fileName);
+				field.setValue(fileName);
 			}
 		}
 	}

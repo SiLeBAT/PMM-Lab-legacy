@@ -78,13 +78,18 @@ public class StringTextField extends JTextField implements DocumentListener {
 	public String getValue() {
 		return value;
 	}
-	
+
 	public void setValue(String value) {
+		getDocument().removeDocumentListener(this);
+
 		if (value != null) {
 			setText(value);
 		} else {
 			setText("");
 		}
+
+		getDocument().addDocumentListener(this);
+		textChanged();
 	}
 
 	@Override

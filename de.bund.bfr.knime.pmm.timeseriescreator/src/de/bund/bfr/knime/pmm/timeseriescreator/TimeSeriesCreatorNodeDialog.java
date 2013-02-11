@@ -761,8 +761,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 			try {
+				Object[] sheets = XLSReader.getSheets(
+						fileChooser.getSelectedFile()).toArray();
+				Object sheet = JOptionPane.showInputDialog(panel,
+						"Select Sheet", "Input", JOptionPane.QUESTION_MESSAGE,
+						null, sheets, sheets[0]);
 				XLSDialog dialog = new XLSDialog(panel,
-						fileChooser.getSelectedFile());
+						fileChooser.getSelectedFile(), (String) sheet);
 
 				dialog.setVisible(true);
 
@@ -771,8 +776,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				}
 
 				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
-						fileChooser.getSelectedFile(), dialog.getMappings(),
-						null, null, null, null);
+						fileChooser.getSelectedFile(), (String) sheet,
+						dialog.getMappings(), null, null, null, null);
 				Object[] values = tuples.keySet().toArray();
 				Object selection = JOptionPane.showInputDialog(panel,
 						"Select Time Series", "Input",
@@ -874,7 +879,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		private JButton okButton;
 		private JButton cancelButton;
 
-		public XLSDialog(Component owner, File file) throws Exception {
+		public XLSDialog(Component owner, File file, String sheet)
+				throws Exception {
 			super(JOptionPane.getFrameForComponent(owner), "XLS File", true);
 
 			approved = false;
@@ -888,7 +894,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(this);
 
-			List<String> columnList = XLSReader.getColumns(file);
+			List<String> columnList = XLSReader.getColumns(file, sheet);
 			JPanel northPanel = new JPanel();
 			int row = 0;
 

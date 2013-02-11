@@ -371,8 +371,16 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					variables.put(element.getName(), new ArrayList<Double>());
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
-					plotable.addValueList(element.getName(), new ArrayList<>(
-							Arrays.asList(element.getValue())));
+
+					if (element.getValue() != null) {
+						plotable.addValueList(
+								element.getName(),
+								new ArrayList<>(Arrays.asList(element
+										.getValue())));
+					} else {
+						plotable.addValueList(element.getName(),
+								new ArrayList<Double>());
+					}
 				} else {
 					parameters.put(element.getName(), element.getValue());
 					paramValues.add(element.getValue());

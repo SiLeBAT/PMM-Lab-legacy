@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+
 public class AttributeUtilities {
 
 	public static final String ATT_TEMPERATURE = "Temperature";
@@ -112,7 +114,11 @@ public class AttributeUtilities {
 	}
 
 	public static String getFullName(String attr, String transform) {
-		return transform + "(" + getFullName(attr) + ")";
+		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
+			return getFullName(attr);
+		} else {
+			return transform + "(" + getFullName(attr) + ")";
+		}
 	}
 
 	public static String getFullNameWithUnit(String attr) {
@@ -128,7 +134,9 @@ public class AttributeUtilities {
 	public static String getFullNameWithUnit(String attr, String transform) {
 		String unit = getStandardUnit(attr);
 
-		if (unit != null) {
+		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
+			return getFullNameWithUnit(attr);
+		} else if (unit != null) {
 			return getFullName(attr, transform) + " [" + transform + "(" + unit
 					+ ")]";
 		} else {

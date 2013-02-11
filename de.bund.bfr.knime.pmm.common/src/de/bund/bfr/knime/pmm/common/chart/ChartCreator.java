@@ -123,14 +123,8 @@ public class ChartCreator extends ChartPanel {
 					new XYPlot(), showLegend);
 		}
 
-		String labelY;
-
-		if (transformY.equals(ChartConstants.NO_TRANSFORM)) {
-			labelY = AttributeUtilities.getFullNameWithUnit(paramY);
-		} else {
-			labelY = AttributeUtilities.getFullNameWithUnit(paramY, transformY);
-		}
-
+		String labelY = AttributeUtilities.getFullNameWithUnit(paramY,
+				transformY);
 		NumberAxis xAxis = new NumberAxis(
 				AttributeUtilities.getFullNameWithUnit(paramX));
 		NumberAxis yAxis = new NumberAxis(labelY);

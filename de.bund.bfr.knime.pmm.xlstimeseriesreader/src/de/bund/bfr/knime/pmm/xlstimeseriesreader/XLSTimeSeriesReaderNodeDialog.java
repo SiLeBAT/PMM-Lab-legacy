@@ -169,7 +169,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENT)));
+						.getName(TimeSeriesSchema.ATT_AGENT)));
 		agentPanel.setLayout(new BorderLayout());
 		agentPanel.add(noLabel, BorderLayout.CENTER);
 		agentButtons = new LinkedHashMap<>();
@@ -177,7 +177,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		matrixPanel = new JPanel();
 		matrixPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIX)));
+						.getName(TimeSeriesSchema.ATT_MATRIX)));
 		matrixPanel.setLayout(new BorderLayout());
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
 		matrixButtons = new LinkedHashMap<>();
@@ -196,15 +196,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northUnitsPanel.setLayout(new GridBagLayout());
 		northUnitsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.TIME) + ":"),
+						.getName(AttributeUtilities.TIME) + ":"),
 				createConstraints(0, 0));
 		northUnitsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.LOGC) + ":"),
+						.getName(AttributeUtilities.LOGC) + ":"),
 				createConstraints(0, 1));
 		northUnitsPanel
 				.add(new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
+						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
 						createConstraints(0, 2));
 		northUnitsPanel.add(timeBox, createConstraints(1, 0));
 		northUnitsPanel.add(logcBox, createConstraints(1, 1));

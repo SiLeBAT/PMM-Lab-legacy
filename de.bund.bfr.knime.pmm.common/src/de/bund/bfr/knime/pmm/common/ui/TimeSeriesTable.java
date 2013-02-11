@@ -52,9 +52,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	public TimeSeriesTable(int rowCount, boolean timeEditable,
 			boolean logcEditable) {
 		timeColumnName = AttributeUtilities
-				.getFullName(AttributeUtilities.TIME);
+				.getName(AttributeUtilities.TIME);
 		logcColumnName = AttributeUtilities
-				.getFullName(AttributeUtilities.LOGC);
+				.getName(AttributeUtilities.LOGC);
 		setModel(new TimeSeriesTableModel(rowCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
 		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));

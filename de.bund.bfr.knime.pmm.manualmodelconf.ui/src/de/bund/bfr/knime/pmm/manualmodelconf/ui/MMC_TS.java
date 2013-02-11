@@ -202,7 +202,7 @@ public class MMC_TS extends JPanel {
 
 		//---- agentLabel ----
 		agentLabel.setText("Agent:");
-		agentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENT) + ":");
+		agentLabel.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_AGENT) + ":");
 		add(agentLabel, CC.xy(1, 1));
 
 		//---- agentField ----
@@ -230,7 +230,7 @@ public class MMC_TS extends JPanel {
 
 		//---- matrixLabel ----
 		matrixLabel.setText("Matrix:");
-		matrixLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":");
+		matrixLabel.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_MATRIX) + ":");
 		add(matrixLabel, CC.xy(1, 3));
 
 		//---- matrixField ----
@@ -258,25 +258,25 @@ public class MMC_TS extends JPanel {
 
 		//---- commentLabel ----
 		commentLabel.setText(":");
-		commentLabel.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_COMMENT) + ":");
+		commentLabel.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_COMMENT) + ":");
 		add(commentLabel, CC.xy(1, 5));
 		add(commentField, CC.xywh(3, 5, 5, 1));
 
 		//---- tempLabel ----
 		tempLabel.setText("Temperature:");
-		tempLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":");
+		tempLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_TEMPERATURE) + ":");
 		add(tempLabel, CC.xy(1, 7));
 		add(temperatureField, CC.xywh(3, 7, 5, 1));
 
 		//---- phLabel ----
 		phLabel.setText("pH:");
-		phLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_PH) + ":");
+		phLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_PH) + ":");
 		add(phLabel, CC.xy(1, 9));
 		add(phField, CC.xywh(3, 9, 5, 1));
 
 		//---- awLabel ----
 		awLabel.setText("aw:");
-		awLabel.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + ":");
+		awLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_WATERACTIVITY) + ":");
 		add(awLabel, CC.xy(1, 11));
 		add(waterActivityField, CC.xywh(3, 11, 5, 1));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents

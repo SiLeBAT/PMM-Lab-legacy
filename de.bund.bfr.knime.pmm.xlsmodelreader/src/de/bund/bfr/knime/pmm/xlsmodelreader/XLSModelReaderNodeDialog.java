@@ -183,7 +183,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		agentPanel = new JPanel();
 		agentPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENT)));
+						.getName(TimeSeriesSchema.ATT_AGENT)));
 		agentPanel.setLayout(new BorderLayout());
 		agentPanel.add(noLabel, BorderLayout.CENTER);
 		agentButtons = new LinkedHashMap<>();
@@ -192,7 +192,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		matrixPanel = new JPanel();
 		matrixPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIX)));
+						.getName(TimeSeriesSchema.ATT_MATRIX)));
 		matrixPanel.setLayout(new BorderLayout());
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
 		matrixButtons = new LinkedHashMap<>();
@@ -212,7 +212,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northUnitsPanel.setLayout(new GridBagLayout());
 		northUnitsPanel
 				.add(new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
+						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
 						createConstraints(0, 0));
 		northUnitsPanel.add(tempBox, createConstraints(1, 0));
 

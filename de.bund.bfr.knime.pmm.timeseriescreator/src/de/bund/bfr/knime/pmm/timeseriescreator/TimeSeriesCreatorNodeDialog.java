@@ -197,37 +197,37 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_LITMD) + ":"),
+						.getName(TimeSeriesSchema.ATT_LITMD) + ":"),
 				createConstraints(0, 0));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_AGENT) + ":"),
+						.getName(TimeSeriesSchema.ATT_AGENT) + ":"),
 				createConstraints(0, 2));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(TimeSeriesSchema.ATT_MATRIX) + ":"),
+						.getName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 3));
 		settingsPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"),
 				createConstraints(0, 4));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.TIME) + ":"),
+						.getName(AttributeUtilities.TIME) + ":"),
 				createConstraints(0, 5));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.LOGC) + ":"),
+						.getName(AttributeUtilities.LOGC) + ":"),
 				createConstraints(0, 6));
 		settingsPanel
 				.add(new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
+						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
 						createConstraints(0, 7));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.ATT_PH) + ":"),
+						.getName(AttributeUtilities.ATT_PH) + ":"),
 				createConstraints(0, 8));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getFullName(AttributeUtilities.ATT_WATERACTIVITY)
+						.getName(AttributeUtilities.ATT_WATERACTIVITY)
 						+ ":"), createConstraints(0, 9));
 
 		settingsPanel.add(new JScrollPane(literatureList),

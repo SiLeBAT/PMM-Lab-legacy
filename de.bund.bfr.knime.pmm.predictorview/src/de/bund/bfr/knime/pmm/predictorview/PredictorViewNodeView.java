@@ -145,9 +145,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					infoParameterValues);
 			samplePanel = new ChartSamplePanel();
 			samplePanel.setTimeColumnName(AttributeUtilities
-					.getFullNameWithUnit(AttributeUtilities.TIME));
+					.getNameWithUnit(AttributeUtilities.TIME, null));
 			samplePanel.setLogcColumnName(AttributeUtilities
-					.getFullNameWithUnit(AttributeUtilities.LOGC));
+					.getNameWithUnit(AttributeUtilities.LOGC, null));
 			samplePanel.addEditListener(this);
 
 			JPanel upperRightPanel = new JPanel();
@@ -245,7 +245,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			chartCreator.setTransformY(null);
 		}
 
-		samplePanel.setLogcColumnName(AttributeUtilities.getFullNameWithUnit(
+		samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
 				AttributeUtilities.LOGC, configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());

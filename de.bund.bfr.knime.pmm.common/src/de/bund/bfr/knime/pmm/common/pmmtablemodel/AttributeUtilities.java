@@ -40,7 +40,7 @@ import java.util.List;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 
 public class AttributeUtilities {
-	
+
 	public static final String DATAID = "DataID";
 	public static final String DATAPOINTS = "Data Points";
 
@@ -70,35 +70,6 @@ public class AttributeUtilities {
 	}
 
 	public static String getName(String attr) {
-		return attr;
-	}
-
-	public static String getName(String attr, String transform) {
-		return transform + "(" + attr + ")";
-	}
-
-	public static String getNameWithUnit(String attr) {
-		String unit = getStandardUnit(attr);
-
-		if (unit != null) {
-			return getName(attr) + " [" + unit + "]";
-		} else {
-			return getName(attr);
-		}
-	}
-
-	public static String getNameWithUnit(String attr, String transform) {
-		String unit = getStandardUnit(attr);
-
-		if (unit != null) {
-			return getName(attr, transform) + " [" + transform + "(" + unit
-					+ ")]";
-		} else {
-			return getName(attr, transform);
-		}
-	}
-
-	public static String getFullName(String attr) {
 		if (attr.equals(ATT_TEMPERATURE)) {
 			return "Temperature";
 		} else if (attr.equals(ATT_PH)) {
@@ -112,34 +83,39 @@ public class AttributeUtilities {
 		}
 	}
 
-	public static String getFullName(String attr, String transform) {
+	public static String getName(String attr, String transform) {
 		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
-			return getFullName(attr);
+			return getName(attr);
 		} else {
-			return transform + "(" + getFullName(attr) + ")";
+			return transform + "(" + getName(attr) + ")";
 		}
 	}
 
-	public static String getFullNameWithUnit(String attr) {
-		String unit = getStandardUnit(attr);
+	public static String getNameWithUnit(String attr, String unit) {
+		if (unit == null) {
+			unit = getStandardUnit(attr);
+		}
 
 		if (unit != null) {
-			return getFullName(attr) + " [" + unit + "]";
+			return getName(attr) + " [" + unit + "]";
 		} else {
-			return getFullName(attr);
+			return getName(attr);
 		}
 	}
 
-	public static String getFullNameWithUnit(String attr, String transform) {
-		String unit = getStandardUnit(attr);
+	public static String getNameWithUnit(String attr, String unit,
+			String transform) {
+		if (unit == null) {
+			unit = getStandardUnit(attr);
+		}
 
-		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
-			return getFullNameWithUnit(attr);
+		if (transform == null || transform.equals(ChartConstants.NO_TRANSFORM)) {
+			return getNameWithUnit(attr, unit);
 		} else if (unit != null) {
-			return getFullName(attr, transform) + " [" + transform + "(" + unit
+			return getName(attr, transform) + " [" + transform + "(" + unit
 					+ ")]";
 		} else {
-			return getFullName(attr, transform);
+			return getName(attr, transform);
 		}
 	}
 
@@ -153,6 +129,12 @@ public class AttributeUtilities {
 		} else {
 			return new ArrayList<String>();
 		}
+	}
+
+	public static Double convert(String attr, Double value, String fromUnit,
+			String toUnit) {
+		return convertFromStandardUnit(attr,
+				convertToStandardUnit(attr, value, fromUnit), toUnit);
 	}
 
 	public static Double convertToStandardUnit(String attr, Double value,
@@ -186,6 +168,43 @@ public class AttributeUtilities {
 				return value;
 			} else if (unit.equals(FAHRENHEIT)) {
 				return (value - 32.0) * 5.0 / 9.0;
+			}
+		}
+
+		return null;
+	}
+
+	public static Double convertFromStandardUnit(String attr, Double value,
+			String unit) {
+		if (value == null || value.isNaN()) {
+			return null;
+		}
+
+		if (attr.equals(TIME)) {
+			if (unit.equals(HOURS)) {
+				return value;
+			} else if (unit.equals(MINUTES)) {
+				return value * 60.0;
+			} else if (unit.equals(SECONDS)) {
+				return value * 3600.0;
+			} else if (unit.equals(DAYS)) {
+				return value / 24.0;
+			} else if (unit.equals(WEEKS)) {
+				return value / 168.0;
+			}
+		} else if (attr.equals(LOGC)) {
+			if (unit.equals(LOGCFU)) {
+				return value;
+			} else if (unit.equals(LNCFU)) {
+				return Math.log(Math.pow(value, 10.0));
+			} else if (unit.equals(CFU)) {
+				return Math.pow(value, 10.0);
+			}
+		} else if (attr.equals(ATT_TEMPERATURE)) {
+			if (unit.equals(CELSIUS)) {
+				return value;
+			} else if (unit.equals(FAHRENHEIT)) {
+				return value * 9.0 / 5.0 + 32.0;
 			}
 		}
 

@@ -122,10 +122,10 @@ public class ChartCreator extends ChartPanel {
 					new XYPlot(), showLegend);
 		}
 
-		String labelY = AttributeUtilities.getFullNameWithUnit(paramY,
+		String labelY = AttributeUtilities.getNameWithUnit(paramY, null,
 				transformY);
 		NumberAxis xAxis = new NumberAxis(
-				AttributeUtilities.getFullNameWithUnit(paramX));
+				AttributeUtilities.getNameWithUnit(paramX, null));
 		NumberAxis yAxis = new NumberAxis(labelY);
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		double usedMinX = Double.POSITIVE_INFINITY;

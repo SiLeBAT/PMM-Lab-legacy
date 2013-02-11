@@ -26,11 +26,11 @@ public class XmlConverter {
 	}
 
 	public static String colorMapToXml(Map<String, Color> map) {
-		return new XStream().toXML(colorMapToStringMap(map));
+		return mapToXml(colorMapToStringMap(map));
 	}
 
 	public static String shapeMapToXml(Map<String, Shape> map) {
-		return new XStream().toXML(shapeMapToStringMap(map));
+		return mapToXml(shapeMapToStringMap(map));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,24 +78,12 @@ public class XmlConverter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Map<String, Color> xmlToColorMap(String xml) {
-		try {
-			return stringMapToColorMap((Map<String, String>) new XStream()
-					.fromXML(xml));
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
+		return stringMapToColorMap(xmlToStringMap(xml));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static Map<String, Shape> xmlToShapeMap(String xml) {
-		try {
-			return stringMapToShapeMap((Map<String, String>) new XStream()
-					.fromXML(xml));
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
+		return stringMapToShapeMap(xmlToStringMap(xml));
 	}
 
 	@SuppressWarnings("unchecked")

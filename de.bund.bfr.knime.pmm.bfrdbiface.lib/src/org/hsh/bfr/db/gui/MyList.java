@@ -175,7 +175,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[Tenazitaet_LIST]); //
 		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[PMModelle_LIST]); //
 		    if (!DBKernel.isKNIME && !DBKernel.getUsername().equals("burchardi")) root.add(children[Krankheitsbilder_LIST]);
-		    root.add(children[Prozessdaten_LIST]); // if (!DBKernel.isKNIME) 
+		    if (!DBKernel.isKNIME) root.add(children[Prozessdaten_LIST]);
 		    if (!DBKernel.isKNIME && !DBKernel.getUsername().equals("burchardi")) root.add(children[Nachweissysteme_LIST]);
 		    //root.add(children[Modell_LIST]);
 		    if (DBKernel.isKrise) {

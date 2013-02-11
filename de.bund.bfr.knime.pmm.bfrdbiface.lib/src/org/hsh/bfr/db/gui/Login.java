@@ -1001,7 +1001,7 @@ public class Login extends JFrame {
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[][]{{"Erstautor","Jahr","Titel"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,hashFreigabe,null,lt,null});
-		myList.addTable(literatur, DBKernel.isKrise ? -1 : 66);
+		myList.addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.BasisTabellen_LIST : 66));
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
 		wt.put(new Integer(1), "Einzelwert");

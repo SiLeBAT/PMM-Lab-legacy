@@ -493,6 +493,7 @@ public class CellIO {
     					MiscXml mx = (MiscXml) el;
     					MiscXml mx2DB = ((MiscXml) fromToXmlDB.get(i));
     					Integer key = mx.getID();
+    					if (key != null && key <= -1 && key >= -3) continue; // ATT_TEMPERATURE_ID, ATT_PH_ID or ATT_AW_ID
                 		if (key != null && foreignDbIds.containsKey(key)) {
                 			if (before) {
                 				mx2DB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));

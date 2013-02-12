@@ -63,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
@@ -216,6 +217,75 @@ public class Bfrdb extends Hsqldbiface {
 			+")\"DataView\"\n"
 			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\"DataView\".\""+ATT_CONDITIONID+"\"\n"
 			+"\n"
+			+"WHERE \""+ATT_TIME+"\" IS NOT NULL\n";
+	
+	private static final String queryTimeSeries8 = "SELECT\n"
+			+"\n"
+			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
+			+"    \""+REL_COMBASE+"\".\"CombaseID\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_PH+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AW+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\",\n"
+			+"    \""+REL_AGENT+"\".\""+ATT_AGENTNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\",\n"
+			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
+			+"    \"DataView\".\""+ATT_TIME+"\",\n"
+			+"    \"DataView\".\""+ATT_LOG10N+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
+			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\""+ATT_YEAR+"\" )AS \""+ATT_LITERATURETEXT+"\",\n"
+		    +"    \"SonstigeParameter\".\"ID\" AS \"SonstigesID\",\n"
+		    +"    \"SonstigeParameter\".\"Parameter\",\n"
+		    +"    \"SonstigeParameter\".\"Beschreibung\",\n"
+		    +"    \"Einheiten\".\"Einheit\",\n"
+		    +"    \"DoubleKennzahlenEinfach\".\"Wert\"\n"
+			+"\n"
+			+"FROM \""+VIEW_CONDITION+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_COMBASE+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_AGENT+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_MATRIX+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
+			+"\n"
+			+"\n"
+			+"LEFT JOIN(\n"
+			+"\n"
+			+"    SELECT\n"
+			+"\n"
+			+"        \""+ATT_CONDITIONID+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_TIME+"\" )AS \""+ATT_TIME+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_LOG10N+"\" )AS \""+ATT_LOG10N+"\"\n"
+			+"\n"
+			+"    FROM \""+VIEW_DATA+"\"\n"
+			+"    WHERE NOT( \""+ATT_TIME+"\" IS NULL OR \""+ATT_LOG10N+"\" IS NULL )\n"
+			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+")\"DataView\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\"DataView\".\""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+"\n"
+			+"LEFT JOIN \""+ATT_CONDITION_MISCPARAM+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"=\""+VIEW_CONDITION+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_UNIT+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_UNIT+"\"=\""+REL_UNIT+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_MISCPARAM+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_DOUBLE+"Einfach\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"Einfach\".\"ID\"\n"
+
 			+"WHERE \""+ATT_TIME+"\" IS NOT NULL\n";
 	
 	private static final String queryXmlDoc = "SELECT\n"
@@ -752,12 +822,10 @@ public class Bfrdb extends Hsqldbiface {
 		return tuple;
 	}
 	
-	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {
-		
-		String q;
+	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {		
 		PmmXmlDoc miscDoc = new PmmXmlDoc();
 		
-		q = queryXmlDoc+" WHERE \""+REL_CONDITION+"\"="+tsID;
+		String q = queryXmlDoc+" WHERE \""+REL_CONDITION+"\"="+tsID;
 		// System.out.println( q );
 		PreparedStatement ps = conn.prepareStatement( q );
 		ResultSet rs = ps.executeQuery();
@@ -765,6 +833,19 @@ public class Bfrdb extends Hsqldbiface {
 			MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),rs.getString("Einheit"));
 			miscDoc.add(mx);
 		}
+		return miscDoc;
+	}
+	public PmmXmlDoc getMiscXmlDoc(ResultSet rs) throws SQLException {		
+		int condID = rs.getInt(Bfrdb.ATT_CONDITIONID);
+		PmmXmlDoc miscDoc = new PmmXmlDoc();
+		
+		do {
+			if (rs.getObject("SonstigesID") != null) {
+				MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),rs.getString("Einheit"));
+				miscDoc.add(mx);				
+			}
+		} while (rs.next() && condID == rs.getInt(Bfrdb.ATT_CONDITIONID));
+		rs.previous();
 		return miscDoc;
 	}
 	public ResultSet selectEstModel( final int level ) throws SQLException {
@@ -779,23 +860,18 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	public ResultSet selectTs() throws SQLException {	
-		return pushQuery( queryTimeSeries7 );
+		return pushQuery(queryTimeSeries7, false); // queryTimeSeries8 und true
 	}
 	
 	public ResultSet selectRelatedLiterature( final String modelName ) throws SQLException {
-		
-		
-		String q;
-		PreparedStatement psSelectRelLit;
-		
-		q = "SELECT \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", \""+ATT_LITERATUREID
+		String q = "SELECT \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", \""+ATT_LITERATUREID
 		+"\".\""+ATT_YEAR+"\" FROM \""+REL_MODEL+"\" JOIN \""+REL_MODEL_LITERATURE
 		+"\" ON \""+REL_MODEL+"\".\"ID\"=\""+REL_MODEL_LITERATURE
 		+"\".\""+ATT_MODELID+"\" JOIN \""+ATT_LITERATUREID+"\" ON \""
 		+ATT_LITERATUREID+"\".\"ID\"=\""+REL_MODEL_LITERATURE+"\".\""
 		+ATT_LITERATUREID+"\" WHERE \""+ATT_NAME+"\"=?";
 		
-		psSelectRelLit = conn.prepareStatement( q );
+		PreparedStatement psSelectRelLit = conn.prepareStatement(q);
 		
 		psSelectRelLit.setString( 1, modelName );
 		
@@ -1251,61 +1327,65 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		if (condId != null && condId >= 0 && misc != null) {
         	for (PmmXmlElementConvertable el : misc.getElementSet()) {
-        		if (el instanceof MiscXml) {		
+        		if (el instanceof MiscXml) {
         			MiscXml mx = (MiscXml) el;
 					String n = mx.getName();
-					String d = mx.getDescription();
-					if (n == null || n.isEmpty()) n = d;
-					if (d == null || d.isEmpty()) d = n;
-    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
-    				if (paramID == null) {
-						try {
-							if (n != null && d != null && !n.isEmpty() && !d.isEmpty()) {
-								ps = conn.prepareStatement("INSERT INTO \"SonstigeParameter\" (\"Parameter\", \"Beschreibung\") VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
-								ps.setString(1, n);
-								ps.setString(2, d.toLowerCase());
-								if (ps.executeUpdate() > 0) {
-									ResultSet rs = ps.getGeneratedKeys();
-									rs.next();
-									paramID = rs.getInt(1);
-									rs.close();
+					if (!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
+							!n.equals(AttributeUtilities.ATT_PH) &&
+							!n.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+						String d = mx.getDescription();
+						if (n == null || n.isEmpty()) n = d;
+						if (d == null || d.isEmpty()) d = n;
+	    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
+	    				if (paramID == null) {
+							try {
+								if (n != null && d != null && !n.isEmpty() && !d.isEmpty()) {
+									ps = conn.prepareStatement("INSERT INTO \"SonstigeParameter\" (\"Parameter\", \"Beschreibung\") VALUES (?, ?)", Statement.RETURN_GENERATED_KEYS);
+									ps.setString(1, n);
+									ps.setString(2, d.toLowerCase());
+									if (ps.executeUpdate() > 0) {
+										ResultSet rs = ps.getGeneratedKeys();
+										rs.next();
+										paramID = rs.getInt(1);
+										rs.close();
+									}
+									ps.close();
 								}
-								ps.close();
 							}
-						}
-						catch(SQLException ex) {ex.printStackTrace();}
-    				}
-    				if (paramID != null) {
-    					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
-    					try {
-    						ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
-    						ps.setInt(1, condId);
-    						ps.setInt(2, paramID);
-    						if (mx.getValue() == null || Double.isNaN(mx.getValue())) {
-    							ps.setNull(3, Types.DOUBLE);
-    							ps.setNull(4, Types.INTEGER);
-    							ps.setBoolean(5, true);
-    						}
-    						else {
-    							int did = insertDouble(mx.getValue());
-    							ps.setDouble(3, did);							
-    							Integer eid = getID("Einheiten", "Einheit", mx.getUnit());
-    							if (eid == null) {
-    								ps.setNull(4, Types.INTEGER);
-    							} else {
-    								ps.setInt(4, eid);
-    							}
-    							ps.setBoolean(5, false);
-    						}
-    						ps.executeUpdate();
-    						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
-    					}
-    					catch (Exception e) {e.printStackTrace();}
-    				}
-    				else {
-    					//System.err.println("handleConditions, paramID not known:\t" + val + "\t" + after);
-    					result += "Insert of Misc failed:\t" + mx.getName() + "\t" + mx.getDescription() + "\n";
-    				}
+							catch(SQLException ex) {ex.printStackTrace();}
+	    				}
+	    				if (paramID != null) {
+	    					//System.err.println("handleConditions:\t" + after + "\t" + dbl + "\t" + unit + "\t" + paramID + "\t" + (condIDs == null ? condIDs : condIDs.get(i)));
+	    					try {
+	    						ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
+	    						ps.setInt(1, condId);
+	    						ps.setInt(2, paramID);
+	    						if (mx.getValue() == null || Double.isNaN(mx.getValue())) {
+	    							ps.setNull(3, Types.DOUBLE);
+	    							ps.setNull(4, Types.INTEGER);
+	    							ps.setBoolean(5, true);
+	    						}
+	    						else {
+	    							int did = insertDouble(mx.getValue());
+	    							ps.setDouble(3, did);							
+	    							Integer eid = getID("Einheiten", "Einheit", mx.getUnit());
+	    							if (eid == null) {
+	    								ps.setNull(4, Types.INTEGER);
+	    							} else {
+	    								ps.setInt(4, eid);
+	    							}
+	    							ps.setBoolean(5, false);
+	    						}
+	    						ps.executeUpdate();
+	    						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
+	    					}
+	    					catch (Exception e) {e.printStackTrace();}
+	    				}
+	    				else {
+	    					//System.err.println("handleConditions, paramID not known:\t" + val + "\t" + after);
+	    					result += "Insert of Misc failed:\t" + mx.getName() + "\t" + mx.getDescription() + "\n";
+	    				}
+					}
         		}
         	}
 		}

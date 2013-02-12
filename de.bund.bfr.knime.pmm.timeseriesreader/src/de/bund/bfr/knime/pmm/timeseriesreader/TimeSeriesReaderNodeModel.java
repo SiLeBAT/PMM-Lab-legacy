@@ -122,13 +122,6 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     @Override
     protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
             final ExecutionContext exec ) throws Exception {
-    	
-    	ResultSet result;
-    	Bfrdb db;
-    	BufferedDataContainer buf;
-    	int i;
-        PmmTimeSeries tuple;
-        String dbuuid;
         boolean filterEnabled = false;
         
         if (!matrixString.isEmpty() || !agentString.isEmpty() || !literatureString.isEmpty() ||
@@ -136,7 +129,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		parameter.size() > 0) filterEnabled = true;
 
     	// fetch time series
-        db = null;
+        Bfrdb db = null;
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 			conn = db.getConnection();
@@ -145,24 +138,26 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			conn = null;
 		}
 
-    	dbuuid = db.getDBUUID();
+    	String dbuuid = db.getDBUUID();
     
-    	result = db.selectTs();
+    	ResultSet result = db.selectTs();
     	
     	// initialize data buffer
-    	buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
-    	i = 0;
+    	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
+    	int i = 0;
     	while (result.next()) {
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
 
     		if (tsDoc.size() > 0) {
         		// initialize row
-        		tuple = new PmmTimeSeries();
+    			PmmTimeSeries tuple = new PmmTimeSeries();
         		
         		// fill row
-        		tuple.setCondId( result.getInt( Bfrdb.ATT_CONDITIONID ) );
-        		tuple.setCombaseId( result.getString( "CombaseID" ) );
-        		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+    			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
+        		tuple.setCondId(condID);
+        		tuple.setCombaseId(result.getString("CombaseID"));
+
+    	    	PmmXmlDoc miscDoc = db.getMiscXmlDoc(condID); // condID result
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
         			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
@@ -180,7 +175,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		}
         		tuple.addMiscs(miscDoc);
 
-        		tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
+
+    	    	tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
         		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
         		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
         		tuple.setMatrixId( result.getInt( Bfrdb.ATT_MATRIXID ) );
@@ -191,7 +187,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
         		
-        		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+    	    	String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
         			PmmXmlDoc l = new PmmXmlDoc();
         			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");

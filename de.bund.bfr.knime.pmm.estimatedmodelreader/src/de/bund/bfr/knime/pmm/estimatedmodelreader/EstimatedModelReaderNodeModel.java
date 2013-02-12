@@ -190,10 +190,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple = new KnimeTuple(schema);
     		    		
     		// fill ts
-    		tuple.setValue(TimeSeriesSchema.ATT_CONDID, result.getInt(Bfrdb.ATT_CONDITIONID));
-    		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString( "CombaseID" ));
+			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
+    		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+    		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));
     		
-    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(result.getInt(Bfrdb.ATT_CONDITIONID));
+    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(condID);  // condID result
     		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
         		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
     			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");

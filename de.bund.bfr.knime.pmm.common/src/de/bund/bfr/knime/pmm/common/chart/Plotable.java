@@ -50,6 +50,7 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 
 public class Plotable {
 
@@ -170,12 +171,14 @@ public class Plotable {
 		this.degreesOfFreedom = degreesOfFreedom;
 	}
 
-	public double[][] getPoints(String paramX, String paramY, String transformY) {
-		return getPoints(paramX, paramY, transformY, getStandardChoice());
+	public double[][] getPoints(String paramX, String paramY, String unitX,
+			String unitY, String transformY) {
+		return getPoints(paramX, paramY, unitX, unitY, transformY,
+				getStandardChoice());
 	}
 
-	public double[][] getPoints(String paramX, String paramY,
-			String transformY, Map<String, Integer> choice) {
+	public double[][] getPoints(String paramX, String paramY, String unitX,
+			String unitY, String transformY, Map<String, Integer> choice) {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
 
@@ -209,7 +212,14 @@ public class Plotable {
 			Double x = xList.get(i);
 			Double y = yList.get(i);
 
+			if (x != null) {
+				x = AttributeUtilities
+						.convertFromStandardUnit(paramX, x, unitX);
+			}
+
 			if (y != null) {
+				y = AttributeUtilities
+						.convertFromStandardUnit(paramY, y, unitY);
 				y = transformDouble(y, transformY);
 			}
 
@@ -221,8 +231,7 @@ public class Plotable {
 		Collections.sort(points, new Comparator<Point2D.Double>() {
 
 			@Override
-			public int compare(java.awt.geom.Point2D.Double p1,
-					java.awt.geom.Point2D.Double p2) {
+			public int compare(Point2D.Double p1, Point2D.Double p2) {
 				return Double.compare(p1.x, p2.x);
 			}
 		});
@@ -238,15 +247,15 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY) {
-		return getFunctionPoints(paramX, paramY, transformY, minX, maxX, minY,
-				maxY, getStandardChoice());
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY) {
+		return getFunctionPoints(paramX, paramY, unitX, unitY, transformY,
+				minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY, Map<String, Integer> choice) {
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY, Map<String, Integer> choice) {
 		if (function == null) {
 			return null;
 		}
@@ -287,17 +296,20 @@ public class Plotable {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, x);
+			parser.setVarValue(paramX,
+					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
 
 			try {
 				Object number = parser.evaluate(f);
-				double y;
+				Double y;
 
 				if (number instanceof Double) {
 					y = (Double) number;
+					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
+							unitY);
 					y = transformDouble(y, transformY);
 
-					if (y < minY || y > maxY || Double.isInfinite(y)) {
+					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
 					}
 				} else {
@@ -317,15 +329,15 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY) {
-		return getFunctionErrors(paramX, paramY, transformY, minX, maxX, minY,
-				maxY, getStandardChoice());
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY) {
+		return getFunctionErrors(paramX, paramY, unitX, unitY, transformY,
+				minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY, Map<String, Integer> choice) {
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY, Map<String, Integer> choice) {
 		if (function == null) {
 			return null;
 		}
@@ -379,10 +391,11 @@ public class Plotable {
 			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, x);
+			parser.setVarValue(paramX,
+					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
 
 			try {
-				double y = 0.0;
+				Double y = 0.0;
 				boolean failed = false;
 				List<String> paramList = new ArrayList<String>(
 						functionParameters.keySet());
@@ -427,8 +440,15 @@ public class Plotable {
 
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
+							unitY);
 					y = transformDouble(y, transformY);
-					points[1][n] = y;
+
+					if (y != null) {
+						points[1][n] = y;
+					} else {
+						points[1][n] = Double.NaN;
+					}
 				} else {
 					points[1][n] = Double.NaN;
 				}
@@ -443,15 +463,15 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY) {
-		return getFunctionSamplePoints(paramX, paramY, transformY, minX, maxX,
-				minY, maxY, getStandardChoice());
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY) {
+		return getFunctionSamplePoints(paramX, paramY, unitX, unitY,
+				transformY, minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
-			String transformY, double minX, double maxX, double minY,
-			double maxY, Map<String, Integer> choice) {
+			String unitX, String unitY, String transformY, double minX,
+			double maxX, double minY, double maxY, Map<String, Integer> choice) {
 		if (function == null || samples.isEmpty()) {
 			return null;
 		}
@@ -496,17 +516,20 @@ public class Plotable {
 				points[1][i] = Double.NaN;
 			}
 
-			parser.setVarValue(paramX, x);
+			parser.setVarValue(paramX,
+					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
 
 			try {
 				Object number = parser.evaluate(f);
-				double y;
+				Double y;
 
 				if (number instanceof Double) {
 					y = (Double) number;
+					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
+							unitY);
 					y = transformDouble(y, transformY);
 
-					if (y < minY || y > maxY || Double.isInfinite(y)) {
+					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
 					}
 				} else {
@@ -675,7 +698,7 @@ public class Plotable {
 		return value != null && !value.isNaN() && !value.isInfinite();
 	}
 
-	private double transformDouble(double value, String transform) {
+	private Double transformDouble(Double value, String transform) {
 		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
 			return value;
 		} else if (transform.equals(ChartConstants.SQRT_TRANSFORM)) {
@@ -694,7 +717,7 @@ public class Plotable {
 			return 1 / value / value;
 		}
 
-		return Double.NaN;
+		return null;
 	}
 
 }

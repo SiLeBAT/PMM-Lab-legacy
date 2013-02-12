@@ -145,9 +145,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					infoParameterValues);
 			samplePanel = new ChartSamplePanel();
 			samplePanel.setTimeColumnName(AttributeUtilities
-					.getNameWithUnit(AttributeUtilities.TIME, null));
+					.getName(AttributeUtilities.TIME));
 			samplePanel.setLogcColumnName(AttributeUtilities
-					.getNameWithUnit(AttributeUtilities.LOGC, null));
+					.getName(AttributeUtilities.LOGC));
 			samplePanel.addEditListener(this);
 
 			JPanel upperRightPanel = new JPanel();
@@ -228,10 +228,13 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
+			chartCreator.setUnitX(configPanel.getUnitX());
+			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 
 			double[][] samplePoints = plotable.getFunctionSamplePoints(
 					AttributeUtilities.TIME, AttributeUtilities.LOGC,
+					configPanel.getUnitX(), configPanel.getUnitY(),
 					configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY);
@@ -242,11 +245,16 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
+			chartCreator.setUnitX(null);
+			chartCreator.setUnitY(null);
 			chartCreator.setTransformY(null);
 		}
 
+		samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
+				AttributeUtilities.TIME, configPanel.getUnitX()));
 		samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
-				AttributeUtilities.LOGC, configPanel.getTransformY()));
+				AttributeUtilities.LOGC, configPanel.getUnitY(),
+				configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

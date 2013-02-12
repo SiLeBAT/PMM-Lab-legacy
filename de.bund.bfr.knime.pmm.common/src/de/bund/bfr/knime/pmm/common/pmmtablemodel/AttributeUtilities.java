@@ -53,18 +53,18 @@ public class AttributeUtilities {
 	public static final int ATT_PH_ID = -2;
 	public static final int ATT_AW_ID = -3;
 
-	private static final String HOURS = "h";
-	private static final String MINUTES = "min";
-	private static final String SECONDS = "sec";
-	private static final String DAYS = "days";
-	private static final String WEEKS = "weeks";
+	public static final String HOURS = "h";
+	public static final String MINUTES = "min";
+	public static final String SECONDS = "sec";
+	public static final String DAYS = "days";
+	public static final String WEEKS = "weeks";
 
-	private static final String LOGCFU = "log cfu/g";
-	private static final String LNCFU = "ln cfu/g";
-	private static final String CFU = "cfu/g";
+	public static final String LOGCFU = "log cfu/g";
+	public static final String LNCFU = "ln cfu/g";
+	public static final String CFU = "cfu/g";
 
-	private static final String CELSIUS = "°C";
-	private static final String FAHRENHEIT = "°F";
+	public static final String CELSIUS = "°C";
+	public static final String FAHRENHEIT = "°F";
 
 	private AttributeUtilities() {
 	}
@@ -120,6 +120,10 @@ public class AttributeUtilities {
 	}
 
 	public static List<String> getUnitsForAttribute(String attr) {
+		if (attr == null) {
+			return new ArrayList<>();
+		}
+
 		if (attr.equals(TIME)) {
 			return Arrays.asList(HOURS, MINUTES, SECONDS, DAYS, WEEKS);
 		} else if (attr.equals(LOGC)) {
@@ -141,6 +145,10 @@ public class AttributeUtilities {
 			String unit) {
 		if (value == null || value.isNaN()) {
 			return null;
+		}
+
+		if (unit == null) {
+			return value;
 		}
 
 		if (attr.equals(TIME)) {
@@ -178,6 +186,10 @@ public class AttributeUtilities {
 			String unit) {
 		if (value == null || value.isNaN()) {
 			return null;
+		}
+
+		if (unit == null) {
+			return value;
 		}
 
 		if (attr.equals(TIME)) {

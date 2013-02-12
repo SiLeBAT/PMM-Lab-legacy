@@ -76,6 +76,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public void setTimeColumnName(String timeColumnName) {
 		getColumn(this.timeColumnName).setHeaderValue(timeColumnName);
+		getTableHeader().repaint();
 		this.timeColumnName = timeColumnName;
 	}
 
@@ -85,6 +86,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public void setLogcColumnName(String logcColumnName) {
 		getColumn(this.logcColumnName).setHeaderValue(logcColumnName);
+		getTableHeader().repaint();
 		this.logcColumnName = logcColumnName;
 	}
 

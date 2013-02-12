@@ -93,6 +93,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final String CFG_SHOWLEGEND = "ShowLegend";
 	static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
 	static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	static final String CFG_UNITX = "UnitX";
+	static final String CFG_UNITY = "UnitY";
 	static final String CFG_TRANSFORMY = "TransformY";
 	static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	static final String CFG_MODELFILTER = "ModelFilter";
@@ -109,6 +111,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final int DEFAULT_SHOWLEGEND = 1;
 	static final int DEFAULT_ADDLEGENDINFO = 0;
 	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
+	static final String DEFAULT_UNITX = AttributeUtilities.HOURS;
+	static final String DEFAULT_UNITY = AttributeUtilities.LOGCFU;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	static final String DEFAULT_VISIBLECOLUMNS = Model1Schema.MODELNAME + ","
 			+ AttributeUtilities.DATAID + "," + Model1Schema.RMS + ","
@@ -130,6 +134,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private String unitX;
+	private String unitY;
 	private String transformY;
 	private List<String> visibleColumns;
 	private String modelFilter;
@@ -159,6 +165,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		showLegend = DEFAULT_SHOWLEGEND;
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		unitX = DEFAULT_UNITX;
+		unitY = DEFAULT_UNITY;
 		transformY = DEFAULT_TRANSFORMY;
 		visibleColumns = XmlConverter.xmlToStringList(DEFAULT_VISIBLECOLUMNS);
 		modelFilter = DEFAULT_MODELFILTER;
@@ -226,6 +234,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		creator.setDrawLines(drawLines == 1);
 		creator.setShowLegend(showLegend == 1);
 		creator.setAddInfoInLegend(addLegendInfo == 1);
+		creator.setUnitX(unitX);
+		creator.setUnitY(unitY);
 		creator.setTransformY(transformY);
 
 		return new PortObject[] {
@@ -283,6 +293,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		settings.addInt(CFG_SHOWLEGEND, showLegend);
 		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addString(CFG_UNITX, unitX);
+		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.listToXml(visibleColumns));
@@ -311,6 +323,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		showLegend = settings.getInt(CFG_SHOWLEGEND);
 		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
 		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
+		unitX = settings.getString(CFG_UNITX);
+		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
 		visibleColumns = XmlConverter.xmlToStringList(settings
 				.getString(CFG_VISIBLECOLUMNS));

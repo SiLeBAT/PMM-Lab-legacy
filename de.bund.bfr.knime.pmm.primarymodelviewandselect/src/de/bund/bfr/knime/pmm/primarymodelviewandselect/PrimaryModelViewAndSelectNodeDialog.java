@@ -133,6 +133,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		int showLegend;
 		int addLegendInfo;
 		int displayHighlighted;
+		String unitX;
+		String unitY;
 		String transformY;
 		List<String> visibleColumns;
 		String modelFilter;
@@ -232,6 +234,20 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		}
 
 		try {
+			unitX = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_UNITX);
+		} catch (InvalidSettingsException e) {
+			unitX = PrimaryModelViewAndSelectNodeModel.DEFAULT_UNITX;
+		}
+
+		try {
+			unitY = settings
+					.getString(PrimaryModelViewAndSelectNodeModel.CFG_UNITY);
+		} catch (InvalidSettingsException e) {
+			unitY = PrimaryModelViewAndSelectNodeModel.DEFAULT_UNITY;
+		}
+
+		try {
 			transformY = settings
 					.getString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY);
 		} catch (InvalidSettingsException e) {
@@ -283,8 +299,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
 				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, transformY, visibleColumns,
-				modelFilter, dataFilter, fittedFilter));
+				displayHighlighted == 1, unitX, unitY, transformY,
+				visibleColumns, modelFilter, dataFilter, fittedFilter));
 	}
 
 	@Override
@@ -351,6 +367,10 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 					0);
 		}
 
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_UNITX,
+				configPanel.getUnitX());
+		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_UNITY,
+				configPanel.getUnitY());
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_TRANSFORMY,
 				configPanel.getTransformY());
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_MODELFILTER,
@@ -365,9 +385,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			Map<String, Color> colors, Map<String, Shape> shapes,
 			boolean manualRange, double minX, double maxX, double minY,
 			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted,
-			String transformY, List<String> visibleColumns, String modelFilter,
-			String dataFilter, String fittedFilter) {
+			boolean addLegendInfo, boolean displayHighlighted, String unitX,
+			String unitY, String transformY, List<String> visibleColumns,
+			String modelFilter, String dataFilter, String fittedFilter) {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
@@ -385,6 +405,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		configPanel.setShowLegend(showLegend);
 		configPanel.setAddInfoInLegend(addLegendInfo);
 		configPanel.setDisplayFocusedRow(displayHighlighted);
+		configPanel.setUnitX(unitX);
+		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
@@ -435,6 +457,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	private void createChart() {
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
+		chartCreator.setUnitX(configPanel.getUnitX());
+		chartCreator.setUnitY(configPanel.getUnitY());
 		chartCreator.setTransformY(configPanel.getTransformY());
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());

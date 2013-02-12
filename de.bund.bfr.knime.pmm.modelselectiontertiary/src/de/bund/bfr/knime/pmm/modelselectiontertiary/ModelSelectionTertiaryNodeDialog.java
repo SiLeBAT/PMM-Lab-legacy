@@ -135,6 +135,8 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		int showLegend;
 		int addLegendInfo;
 		int displayHighlighted;
+		String unitX;
+		String unitY;
 		String transformY;
 		List<String> visibleColumns;
 		String modelFilter;
@@ -230,6 +232,20 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
+			unitX = settings
+					.getString(ModelSelectionTertiaryNodeModel.CFG_UNITX);
+		} catch (InvalidSettingsException e) {
+			unitX = ModelSelectionTertiaryNodeModel.DEFAULT_UNITX;
+		}
+
+		try {
+			unitY = settings
+					.getString(ModelSelectionTertiaryNodeModel.CFG_UNITY);
+		} catch (InvalidSettingsException e) {
+			unitY = ModelSelectionTertiaryNodeModel.DEFAULT_UNITY;
+		}
+
+		try {
 			transformY = settings
 					.getString(ModelSelectionTertiaryNodeModel.CFG_TRANSFORMY);
 		} catch (InvalidSettingsException e) {
@@ -281,8 +297,8 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
 				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, transformY, visibleColumns,
-				modelFilter, dataFilter, fittedFilter));
+				displayHighlighted == 1, unitX, unitY, transformY,
+				visibleColumns, modelFilter, dataFilter, fittedFilter));
 	}
 
 	@Override
@@ -342,6 +358,10 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 					ModelSelectionTertiaryNodeModel.CFG_DISPLAYHIGHLIGHTED, 0);
 		}
 
+		settings.addString(ModelSelectionTertiaryNodeModel.CFG_UNITX,
+				configPanel.getUnitX());
+		settings.addString(ModelSelectionTertiaryNodeModel.CFG_UNITY,
+				configPanel.getUnitY());
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_TRANSFORMY,
 				configPanel.getTransformY());
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_MODELFILTER,
@@ -356,9 +376,9 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			Map<String, Color> colors, Map<String, Shape> shapes,
 			boolean manualRange, double minX, double maxX, double minY,
 			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted,
-			String transformY, List<String> visibleColumns, String modelFilter,
-			String dataFilter, String fittedFilter) {
+			boolean addLegendInfo, boolean displayHighlighted, String unitX,
+			String unitY, String transformY, List<String> visibleColumns,
+			String modelFilter, String dataFilter, String fittedFilter) {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
@@ -376,6 +396,8 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(showLegend);
 		configPanel.setAddInfoInLegend(addLegendInfo);
 		configPanel.setDisplayFocusedRow(displayHighlighted);
+		configPanel.setUnitX(unitX);
+		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
@@ -426,6 +448,8 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	private void createChart() {
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
+		chartCreator.setUnitX(configPanel.getUnitX());
+		chartCreator.setUnitY(configPanel.getUnitY());
 		chartCreator.setTransformY(configPanel.getTransformY());
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());

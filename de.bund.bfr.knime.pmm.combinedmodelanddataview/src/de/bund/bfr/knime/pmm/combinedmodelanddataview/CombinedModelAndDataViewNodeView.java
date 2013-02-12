@@ -212,12 +212,16 @@ public class CombinedModelAndDataViewNodeView extends
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
+			chartCreator.setUnitX(configPanel.getUnitX());
+			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
+			chartCreator.setUnitX(null);
+			chartCreator.setUnitY(null);
 			chartCreator.setTransformY(null);
 		}
 

@@ -94,11 +94,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private JComboBox<String> xBox;
 	private JComboBox<String> yBox;
+	private JComboBox<String> xUnitBox;
+	private JComboBox<String> yUnitBox;
 	private JComboBox<String> yTransBox;
-	private Map<String, List<Double>> parameters;
-	private Map<String, List<Boolean>> selectedValues;
-	private Map<String, Double> minParamValues;
-	private Map<String, Double> maxParamValues;
+	private Map<String, List<Double>> parametersX;
+	private List<String> parametersY;
+	private Map<String, List<Boolean>> selectedValuesX;
+	private Map<String, Double> minParamValuesX;
+	private Map<String, Double> maxParamValuesX;
 
 	private JPanel parameterValuesPanel;
 	private List<JButton> parameterButtons;
@@ -111,7 +114,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval) {
 		this.type = type;
 		listeners = new ArrayList<ConfigListener>();
-		setLayout(new GridLayout(3, 1));
+		setLayout(new GridLayout(4, 1));
 
 		JPanel displayOptionsPanel = new JPanel();
 
@@ -194,12 +197,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xBox.addActionListener(this);
 		yBox = new JComboBox<String>();
 		yBox.addActionListener(this);
+		xUnitBox = new JComboBox<String>();
+		xUnitBox.addActionListener(this);
+		yUnitBox = new JComboBox<String>();
+		yUnitBox.addActionListener(this);
 		yTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
 		yTransBox.addActionListener(this);
-
-		parameterValuesPanel = new JPanel();
-		parameterFields = new ArrayList<DoubleTextField>();
-		parameterButtons = new ArrayList<JButton>();
 
 		parametersPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		parametersPanel.setBorder(BorderFactory
@@ -208,10 +211,20 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parametersPanel.add(xBox);
 		parametersPanel.add(new JLabel("Y:"));
 		parametersPanel.add(yBox);
+		parametersPanel.add(new JLabel("X Unit:"));
+		parametersPanel.add(xUnitBox);
+		parametersPanel.add(new JLabel("Y Unit:"));
+		parametersPanel.add(yUnitBox);
 		parametersPanel.add(new JLabel("Y Transform:"));
 		parametersPanel.add(yTransBox);
-		parametersPanel.add(parameterValuesPanel);
 		add(new SpacePanel(parametersPanel));
+
+		parameterValuesPanel = new JPanel();
+		parameterValuesPanel.setBorder(BorderFactory
+				.createTitledBorder("Parameter Values"));
+		parameterFields = new ArrayList<DoubleTextField>();
+		parameterButtons = new ArrayList<JButton>();
+		add(new SpacePanel(parameterValuesPanel));
 
 		lastParamX = null;
 	}
@@ -346,6 +359,22 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		return (String) yBox.getSelectedItem();
 	}
 
+	public String getUnitX() {
+		return (String) xUnitBox.getSelectedItem();
+	}
+
+	public void setUnitX(String unitX) {
+		xUnitBox.setSelectedItem(unitX);
+	}
+
+	public String getUnitY() {
+		return (String) yUnitBox.getSelectedItem();
+	}
+
+	public void setUnitY(String unitY) {
+		yUnitBox.setSelectedItem(unitY);
+	}
+
 	public String getTransformY() {
 		return (String) yTransBox.getSelectedItem();
 	}
@@ -377,9 +406,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				}
 			}
 		} else if (type == PARAMETER_BOXES) {
-			for (String param : parameters.keySet()) {
-				List<Double> values = parameters.get(param);
-				List<Boolean> selected = selectedValues.get(param);
+			for (String param : parametersX.keySet()) {
+				List<Double> values = parametersX.get(param);
+				List<Boolean> selected = selectedValuesX.get(param);
 				List<Double> newValues = new ArrayList<Double>();
 
 				for (int j = 0; j < values.size(); j++) {
@@ -415,25 +444,25 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			maxParamValues = new LinkedHashMap<String, Double>();
 		}
 
-		if (this.parameters == null
-				|| parameters.size() != this.parameters.size()) {
+		if (this.parametersX == null
+				|| parameters.size() != this.parametersX.size()) {
 			parametersChanged = true;
 		} else {
 			for (String param : parameters.keySet()) {
-				if (!this.parameters.containsKey(param)) {
+				if (!this.parametersX.containsKey(param)) {
 					parametersChanged = true;
 					break;
 				} else if (!parameters.get(param).equals(
-						this.parameters.get(param))) {
+						this.parametersX.get(param))) {
 					parametersChanged = true;
 					break;
 				}
 			}
 		}
 
-		this.parameters = parameters;
-		this.minParamValues = minParamValues;
-		this.maxParamValues = maxParamValues;
+		this.parametersX = parameters;
+		this.minParamValuesX = minParamValues;
+		this.maxParamValuesX = maxParamValues;
 
 		if (parametersChanged) {
 			xBox.removeActionListener(this);
@@ -461,7 +490,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 			xBox.addActionListener(this);
 
-			selectedValues = new LinkedHashMap<String, List<Boolean>>();
+			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
 
 			for (String param : parameters.keySet()) {
 				List<Double> values = parameters.get(param);
@@ -471,38 +500,73 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 							Collections.nCopies(values.size(), false));
 
 					selected.set(0, true);
-					selectedValues.put(param, selected);
+					selectedValuesX.put(param, selected);
 				} else {
-					selectedValues.put(param, null);
+					selectedValuesX.put(param, null);
 				}
 			}
 
 			updateParametersPanel();
+			updateXUnitBox();
 		}
 	}
 
 	public void setParamsY(List<String> paramsY) {
-		yBox.removeActionListener(this);
-		yBox.removeAllItems();
-
 		if (paramsY == null) {
 			paramsY = new ArrayList<String>();
 		}
 
-		for (String param : paramsY) {
-			yBox.addItem(param);
-		}
+		if (!paramsY.equals(parametersY)) {
+			parametersY = paramsY;
+			yBox.removeActionListener(this);
+			yBox.removeAllItems();
 
-		if (!paramsY.isEmpty()) {
-			if (yBox.getItemAt(0).equals(xBox.getSelectedItem())
-					&& yBox.getItemCount() >= 2) {
-				yBox.setSelectedIndex(1);
-			} else {
-				yBox.setSelectedIndex(0);
+			for (String param : paramsY) {
+				yBox.addItem(param);
 			}
+
+			if (!paramsY.isEmpty()) {
+				if (yBox.getItemAt(0).equals(xBox.getSelectedItem())
+						&& yBox.getItemCount() >= 2) {
+					yBox.setSelectedIndex(1);
+				} else {
+					yBox.setSelectedIndex(0);
+				}
+			}
+
+			yBox.addActionListener(this);
+			updateYUnitBox();
+		}
+	}
+
+	private void updateXUnitBox() {
+		List<String> units = AttributeUtilities
+				.getUnitsForAttribute((String) xBox.getSelectedItem());
+
+		xUnitBox.removeAllItems();
+
+		for (String unit : units) {
+			xUnitBox.addItem(unit);
 		}
 
-		yBox.addActionListener(this);
+		if (!units.isEmpty()) {
+			xUnitBox.setSelectedIndex(0);
+		}
+	}
+
+	private void updateYUnitBox() {
+		List<String> units = AttributeUtilities
+				.getUnitsForAttribute((String) yBox.getSelectedItem());
+
+		yUnitBox.removeAllItems();
+
+		for (String unit : units) {
+			yUnitBox.addItem(unit);
+		}
+
+		if (!units.isEmpty()) {
+			yUnitBox.setSelectedIndex(0);
+		}
 	}
 
 	private void updateParametersPanel() {
@@ -521,7 +585,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterFields.clear();
 		parameterButtons.clear();
 
-		for (String param : parameters.keySet()) {
+		for (String param : parametersX.keySet()) {
 			if (param.equals(xBox.getSelectedItem())) {
 				continue;
 			}
@@ -531,8 +595,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				DoubleTextField input = new DoubleTextField();
 				double value = 0.0;
 
-				if (!parameters.get(param).isEmpty()) {
-					value = parameters.get(param).get(0);
+				if (!parametersX.get(param).isEmpty()) {
+					value = parametersX.get(param).get(0);
 				}
 
 				selectButton.addActionListener(this);
@@ -592,8 +656,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				DoubleTextField field = parameterFields.get(parameterButtons
 						.indexOf(button));
 				String param = button.getText().replace(":", "");
-				Double min = minParamValues.get(param);
-				Double max = maxParamValues.get(param);
+				Double min = minParamValuesX.get(param);
+				Double max = maxParamValuesX.get(param);
 
 				if (min != null && max != null) {
 					double value = field.getValue() != null ? field.getValue()
@@ -617,12 +681,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				JButton button = (JButton) e.getSource();
 				String param = button.getText().replace(" Values", "");
 				SelectDialog dialog = new SelectDialog(param,
-						parameters.get(param), selectedValues.get(param));
+						parametersX.get(param), selectedValuesX.get(param));
 
 				dialog.setVisible(true);
 
 				if (dialog.isApproved()) {
-					selectedValues.put(param, dialog.getSelected());
+					selectedValuesX.put(param, dialog.getSelected());
 				}
 			}
 		}

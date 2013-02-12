@@ -222,6 +222,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
+			chartCreator.setUnitX(configPanel.getUnitX());
+			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsXValues());
 		} else {
@@ -229,6 +231,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			configPanel.setParamsY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
+			chartCreator.setUnitX(null);
+			chartCreator.setUnitY(null);
 			chartCreator.setTransformY(null);
 		}
 

@@ -1330,12 +1330,13 @@ public class Bfrdb extends Hsqldbiface {
         		if (el instanceof MiscXml) {
         			MiscXml mx = (MiscXml) el;
 					String n = mx.getName();
-					if (!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
+					String d = mx.getDescription();
+					if (n == null || n.isEmpty()) n = d;
+					if (d == null || d.isEmpty()) d = n;
+					if (n == null ||
+							!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
 							!n.equals(AttributeUtilities.ATT_PH) &&
 							!n.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-						String d = mx.getDescription();
-						if (n == null || n.isEmpty()) n = d;
-						if (d == null || d.isEmpty()) d = n;
 	    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
 	    				if (paramID == null) {
 							try {

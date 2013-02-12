@@ -210,9 +210,6 @@ public class TableReader {
 						if (miscValues.containsKey(indepVars.get(i))) {
 							parameters.put(indepVars.get(i),
 									miscValues.get(indepVars.get(i)));
-						} else {
-							parameters.put(indepVars.get(i),
-									tuple.getDouble(indepVars.get(i)));
 						}
 					}
 				}

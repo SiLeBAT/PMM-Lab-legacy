@@ -59,9 +59,9 @@ public class AttributeUtilities {
 	public static final String DAYS = "days";
 	public static final String WEEKS = "weeks";
 
-	public static final String LOGCFU = "log cfu/g";
-	public static final String LNCFU = "ln cfu/g";
-	public static final String CFU = "cfu/g";
+	public static final String LOGCFU = "log10(...)";
+	public static final String LNCFU = "ln(...)";
+	public static final String CFU = "...";
 
 	public static final String CELSIUS = "°C";
 	public static final String FAHRENHEIT = "°F";

@@ -241,7 +241,7 @@ public class Bfrdb extends Hsqldbiface {
 		    +"    \"SonstigeParameter\".\"Parameter\",\n"
 		    +"    \"SonstigeParameter\".\"Beschreibung\",\n"
 		    +"    \"Einheiten\".\"Einheit\",\n"
-		    +"    \"DoubleKennzahlenEinfach\".\"Wert\"\n"
+		    +"    \"DoubleKennzahlenEinfach\".\"Wert\" AS \"SonstigesWert\"\n"
 			+"\n"
 			+"FROM \""+VIEW_CONDITION+"\"\n"
 			+"\n"
@@ -287,6 +287,55 @@ public class Bfrdb extends Hsqldbiface {
 			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"Einfach\".\"ID\"\n"
 
 			+"WHERE \""+ATT_TIME+"\" IS NOT NULL\n";
+	
+	private static final String queryTimeSeries8SinDataView = "SELECT\n"
+			+"\n"
+			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
+			+"    \""+REL_COMBASE+"\".\"CombaseID\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_PH+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AW+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\",\n"
+			+"    \""+REL_AGENT+"\".\""+ATT_AGENTNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\",\n"
+			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
+			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
+			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\""+ATT_YEAR+"\" )AS \""+ATT_LITERATURETEXT+"\",\n"
+		    +"    \"SonstigeParameter\".\"ID\" AS \"SonstigesID\",\n"
+		    +"    \"SonstigeParameter\".\"Parameter\",\n"
+		    +"    \"SonstigeParameter\".\"Beschreibung\",\n"
+		    +"    \"Einheiten\".\"Einheit\",\n"
+		    +"    \"DoubleKennzahlenEinfach\".\"Wert\" AS \"SonstigesWert\"\n"
+			+"\n"
+			+"FROM \""+VIEW_CONDITION+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_COMBASE+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_AGENT+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_MATRIX+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
+			+"\n"
+			+"\n"
+			+"LEFT JOIN \""+ATT_CONDITION_MISCPARAM+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"=\""+VIEW_CONDITION+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_UNIT+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_UNIT+"\"=\""+REL_UNIT+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_MISCPARAM+"\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
+			+"\n"
+			+"LEFT JOIN \""+REL_DOUBLE+"Einfach\"\n"
+			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"Einfach\".\"ID\"\n";
 	
 	private static final String queryXmlDoc = "SELECT\n"
 			+"\n"
@@ -648,6 +697,93 @@ public class Bfrdb extends Hsqldbiface {
 			+"ORDER BY \"EstModelSecView\".\""+ATT_ESTMODELID+"2\" ASC\n";	
 	
 	
+	private static final String queryPei2 = "SELECT\n"
+			+"\n"
+			+"    \"MicrobialDataView\".\""+ATT_CONDITIONID+"\",\n"
+			+"    \"MicrobialDataView\".\"CombaseID\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_PH+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_AW+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_AGENTID+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_AGENTNAME+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_MATRIXID+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_MATRIXNAME+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_MATRIXDETAIL+"\",    \n"
+			+"    \"DataView\".\""+ATT_TIME+"\",\n"
+			+"    \"DataView\".\""+ATT_LOG10N+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_COMMENT+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_LITERATUREID+"\",\n"
+			+"    \"MicrobialDataView\".\""+ATT_LITERATURETEXT+"\",\n"
+		    +"    \"MicrobialDataView\".\"SonstigesID\",\n"
+		    +"    \"MicrobialDataView\".\"Parameter\",\n"
+		    +"    \"MicrobialDataView\".\"Beschreibung\",\n"
+		    +"    \"MicrobialDataView\".\"Einheit\",\n"
+		    +"    \"MicrobialDataView\".\"SonstigesWert\",\n"
+
+		    +"    \"EstModelPrimView\".\""+ATT_FORMULA+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_DEP+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_INDEP+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_PARAMNAME+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_VALUE+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_NAME+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_MODELID+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_ESTMODELID+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_RMS+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_RSQUARED+"\",\n"
+			+"    \"EstModelPrimView\".\"AIC\",\n"
+			+"    \"EstModelPrimView\".\"BIC\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_MIN+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_MAX+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_MININDEP+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_MAXINDEP+"\",\n"
+			+"    \"EstModelPrimView\".\"LitMID\",\n"
+			+"    \"EstModelPrimView\".\"LitM\",\n"
+			+"    \"EstModelPrimView\".\"LitEmID\",\n"
+			+"    \"EstModelPrimView\".\"LitEm\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_STANDARDERROR+"\",\n"
+			+"    \"EstModelPrimView\".\""+ATT_VARMAPTO+"\"\n"
+			+"\n"
+			+"FROM(\n"
+			+"\n"
+			+queryTimeSeries8SinDataView
+			+"\n"
+			+")\"MicrobialDataView\"\n"
+			+"\n"
+			+"RIGHT JOIN \"EstModelPrimView\"\n"
+			+"ON \"EstModelPrimView\".\""+ATT_CONDITIONID+"\"=\"MicrobialDataView\".\""+ATT_CONDITIONID+"\"\n"
+	
+			+"LEFT JOIN(\n"
+			+"\n"
+			+"    SELECT\n"
+			+"\n"
+			+"        \""+ATT_CONDITIONID+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_TIME+"\" )AS \""+ATT_TIME+"\",\n"
+			+"        GROUP_CONCAT( \""+ATT_LOG10N+"\" )AS \""+ATT_LOG10N+"\"\n"
+			+"\n"
+			+"    FROM \""+VIEW_DATA+"\"\n"
+			+"    WHERE NOT( \""+ATT_TIME+"\" IS NULL OR \""+ATT_LOG10N+"\" IS NULL )\n"
+			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
+			+"\n"
+			+")\"DataView\"\n"
+			+"ON \"EstModelPrimView\".\""+ATT_CONDITIONID+"\"=\"DataView\".\""+ATT_CONDITIONID+"\"\n";
+	
+	private static final String querySei2 = "SELECT *\n"
+			+"\n"
+			+"FROM(\n"
+			+"\n"
+			+queryPei2
+			+"\n"
+			+")\"PeiView\"\n"
+			+"\n"
+			+"    JOIN \"Sekundaermodelle_Primaermodelle\"\n"
+			+"    ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesPrimaermodell\"=\"PeiView\".\""+ATT_ESTMODELID+"\"\n"
+			+"\n"
+			+"    JOIN \"EstModelSecView\"\n"
+			+"    ON \"Sekundaermodelle_Primaermodelle\".\"GeschaetztesSekundaermodell\"=\"EstModelSecView\".\""+ATT_ESTMODELID+"2\"\n"
+			+"\n"
+			+"ORDER BY \"EstModelSecView\".\""+ATT_ESTMODELID+"2\" ASC\n";	
+	
 	public static final int PARAMTYPE_INDEP = 1;
 	public static final int PARAMTYPE_PARAM = 2;
 	public static final int PARAMTYPE_DEP = 3;
@@ -841,26 +977,27 @@ public class Bfrdb extends Hsqldbiface {
 		
 		do {
 			if (rs.getObject("SonstigesID") != null) {
-				MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),rs.getString("Einheit"));
+				MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("SonstigesWert"),rs.getString("Einheit"));
 				miscDoc.add(mx);				
 			}
 		} while (rs.next() && condID == rs.getInt(Bfrdb.ATT_CONDITIONID));
 		rs.previous();
 		return miscDoc;
 	}
-	public ResultSet selectEstModel( final int level ) throws SQLException {
+	public ResultSet selectEstModel(final int level, boolean inclBackwardResultSets) throws SQLException {
 		String q;
-		if( level == 1 ) {
-			q = queryPei;
+		if (level == 1) {
+			q = inclBackwardResultSets ? queryPei2 : queryPei;
 		} else {
-			q = querySei;
+			q = inclBackwardResultSets ? querySei2 : querySei;
 		}		
-		PreparedStatement ps = conn.prepareStatement( q );
+		//System.err.println(q);
+		PreparedStatement ps = inclBackwardResultSets ? conn.prepareStatement(q, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY) : conn.prepareStatement(q);
 		return ps.executeQuery();
 	}
 	
-	public ResultSet selectTs() throws SQLException {	
-		return pushQuery(queryTimeSeries7, false); // queryTimeSeries8 und true
+	public ResultSet selectTs(boolean inclBackwardResultSets) throws SQLException {	
+		return pushQuery(inclBackwardResultSets ? queryTimeSeries8 : queryTimeSeries7, inclBackwardResultSets);
 	}
 	
 	public ResultSet selectRelatedLiterature( final String modelName ) throws SQLException {

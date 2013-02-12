@@ -51,6 +51,16 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_150_151(final MyList myList) {		
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitEmView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitMView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_VarParMapView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView.sql", null, false);		
+	}
 	public static void check4Updates_149_150(final MyList myList) {
 		
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/01_sonstigeseinfach.sql", null, false);

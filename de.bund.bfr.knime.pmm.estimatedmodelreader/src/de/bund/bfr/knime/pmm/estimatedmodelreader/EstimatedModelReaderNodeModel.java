@@ -149,20 +149,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
      */
     @Override
     protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
-            final ExecutionContext exec )throws Exception {
-
-    	ResultSet result;
-    	Bfrdb db;
-    	BufferedDataContainer buf;
-    	KnimeTuple tuple;
-    	KnimeSchema schema;
-    	String dbuuid;
-    	String formula, s;
-    	Double rms, r2, aic, bic;
-    	
+            final ExecutionContext exec )throws Exception {    	
         // fetch database connection
-        db = null;
-    	if( override ) {
+    	Bfrdb db = null;
+    	if (override) {
 			db = new Bfrdb( filename, login, passwd );
 			conn = db.getConnection();
 		} else {
@@ -170,31 +160,30 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			conn = null;
 		}
     	
-    	dbuuid = db.getDBUUID();
+    	String dbuuid = db.getDBUUID();
     	
-		schema = createSchema();
+    	KnimeSchema schema = createSchema();
 		    	
-    	if (level == 1) {
-			result = db.selectEstModel(1);
-		} else {
-			result = db.selectEstModel(2);
-		}
-    	
+    	boolean inclBackwardResultSets = true;
+    	ResultSet result = (level == 1 ? db.selectEstModel(1, inclBackwardResultSets) : db.selectEstModel(2, inclBackwardResultSets));
+   	
     	// initialize data buffer
-    	buf = exec.createDataContainer(schema.createSpec());
+    	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
     	
     	int i = 0;
     	while (result.next()) {
     		
     		// initialize row
-    		tuple = new KnimeTuple(schema);
+    		KnimeTuple tuple = new KnimeTuple(schema);
     		    		
     		// fill ts
 			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
     		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
     		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));
     		
-    		PmmXmlDoc miscDoc = db.getMiscXmlDoc(condID);  // condID result
+    		PmmXmlDoc miscDoc = null;
+    		if (inclBackwardResultSets) miscDoc = db.getMiscXmlDoc(result);
+    		else miscDoc = db.getMiscXmlDoc(condID);
     		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
         		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
     			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
@@ -232,7 +221,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
     		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
     		
-    		s = result.getString(Bfrdb.ATT_LITERATUREID);
+    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
     			PmmXmlDoc l = new PmmXmlDoc();
     			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
@@ -251,7 +240,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
     		
     		// fill m1
-    		formula = result.getString( Bfrdb.ATT_FORMULA );
+    		String formula = result.getString(Bfrdb.ATT_FORMULA);
     		if( formula != null ) {
 				formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 			}
@@ -284,6 +273,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
 			
+	    	Double rms, r2, aic, bic;
 			s = result.getString( Bfrdb.ATT_RMS );
 			if( s == null )
 				rms = null;

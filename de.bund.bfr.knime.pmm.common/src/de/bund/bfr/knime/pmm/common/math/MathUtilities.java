@@ -190,9 +190,8 @@ public class MathUtilities {
 			for (int i = 1; i < newFormular.length() - var.length(); i++) {
 				boolean matches = newFormular.substring(i, i + var.length())
 						.equals(var);
-				boolean start = !Character.isLetterOrDigit(newFormular
-						.charAt(i - 1));
-				boolean end = !Character.isLetterOrDigit(newFormular.charAt(i
+				boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
+				boolean end = !isVariableCharacter(newFormular.charAt(i
 						+ var.length()));
 
 				if (matches && start && end) {
@@ -386,4 +385,9 @@ public class MathUtilities {
 
 		return 1.0 - dist.probability(-Math.abs(tValue), Math.abs(tValue));
 	}
+
+	private static boolean isVariableCharacter(char ch) {
+		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
+	}
+
 }

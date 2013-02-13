@@ -267,6 +267,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 						}
 					}
 					catch (Exception e) {e.printStackTrace();}
+				} else {
+					dbl = 1.0;
 				}
 				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
 				String description = val.trim().replaceAll(" +", " ");

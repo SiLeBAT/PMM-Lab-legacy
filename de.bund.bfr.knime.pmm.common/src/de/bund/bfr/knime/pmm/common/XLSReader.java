@@ -61,6 +61,10 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
+	public static String AGENT_DETAILS_COLUMN = TimeSeriesSchema.ATT_AGENT
+			+ " Details";
+	public static String MATRIX_DETAILS_COLUMN = TimeSeriesSchema.ATT_MATRIX
+			+ " Details";
 
 	private XLSReader() {
 	}
@@ -78,6 +82,8 @@ public class XLSReader {
 		Integer commentColumn = null;
 		Integer timeColumn = null;
 		Integer logcColumn = null;
+		Integer agentDetailsColumn = null;
+		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
 		Integer matrixColumn = null;
 
@@ -103,6 +109,10 @@ public class XLSReader {
 					timeColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.LOGC)) {
 					logcColumn = columns.get(column);
+				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
+					agentDetailsColumn = columns.get(column);
+				} else if (mapping.equals(MATRIX_DETAILS_COLUMN)) {
+					matrixDetailsColumn = columns.get(column);
 				}
 			}
 		}
@@ -123,12 +133,38 @@ public class XLSReader {
 			}
 
 			Row row = s.getRow(i);
-			Cell idCell = row.getCell(idColumn);
-			Cell commentCell = row.getCell(commentColumn);
-			Cell timeCell = row.getCell(timeColumn);
-			Cell logcCell = row.getCell(logcColumn);
+			Cell idCell = null;
+			Cell commentCell = null;
+			Cell timeCell = null;
+			Cell logcCell = null;
+			Cell agentDetailsCell = null;
+			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
 			Cell matrixCell = null;
+
+			if (idColumn != null) {
+				idCell = row.getCell(idColumn);
+			}
+
+			if (commentColumn != null) {
+				commentCell = row.getCell(commentColumn);
+			}
+
+			if (timeColumn != null) {
+				timeCell = row.getCell(timeColumn);
+			}
+
+			if (logcColumn != null) {
+				logcCell = row.getCell(logcColumn);
+			}
+
+			if (agentDetailsColumn != null) {
+				agentDetailsCell = row.getCell(agentDetailsColumn);
+			}
+
+			if (matrixDetailsColumn != null) {
+				matrixDetailsCell = row.getCell(matrixDetailsColumn);
+			}
 
 			if (agentColumn != null) {
 				agentCell = row.getCell(agentColumn);
@@ -157,29 +193,36 @@ public class XLSReader {
 							.toString().trim());
 				}
 
-				if (agentCell != null) {
-					AgentXml agent = agentMappings.get(agentCell.toString()
-							.trim());
+				PmmXmlDoc agentXml = new PmmXmlDoc();
+				PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-					if (agent != null) {
-						PmmXmlDoc agentXml = new PmmXmlDoc();
-
-						agentXml.add(agent);
-						tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
-					}
+				if (agentCell != null
+						&& agentMappings.get(agentCell.toString().trim()) != null) {
+					agentXml.add(agentMappings.get(agentCell.toString().trim()));
+				} else {
+					agentXml.add(new AgentXml(null, null, null));
 				}
 
-				if (matrixCell != null) {
-					MatrixXml matrix = matrixMappings.get(matrixCell.toString()
-							.trim());
-
-					if (matrix != null) {
-						PmmXmlDoc matrixXml = new PmmXmlDoc();
-
-						matrixXml.add(matrix);
-						tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
-					}
+				if (matrixCell != null
+						&& matrixMappings.get(matrixCell.toString().trim()) != null) {
+					matrixXml.add(matrixMappings.get(matrixCell.toString()
+							.trim()));
+				} else {
+					matrixXml.add(new MatrixXml(null, null, null));
 				}
+
+				if (agentDetailsCell != null) {
+					((AgentXml) agentXml.get(0)).setDetail(agentDetailsCell
+							.toString().trim());
+				}
+
+				if (matrixDetailsCell != null) {
+					((MatrixXml) matrixXml.get(0)).setDetail(matrixDetailsCell
+							.toString().trim());
+				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 
 				PmmXmlDoc miscXML = new PmmXmlDoc();
 
@@ -242,6 +285,8 @@ public class XLSReader {
 		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
 		Integer commentColumn = null;
+		Integer agentDetailsColumn = null;
+		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
 		Integer matrixColumn = null;
 
@@ -261,6 +306,10 @@ public class XLSReader {
 					miscColumns.put(column, columns.get(column));
 				} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
+				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
+					agentDetailsColumn = columns.get(column);
+				} else if (mapping.equals(MATRIX_DETAILS_COLUMN)) {
+					matrixDetailsColumn = columns.get(column);
 				}
 			}
 		}
@@ -272,9 +321,23 @@ public class XLSReader {
 
 			KnimeTuple dataTuple = new KnimeTuple(new TimeSeriesSchema());
 			Row row = s.getRow(i);
-			Cell commentCell = row.getCell(commentColumn);
+			Cell commentCell = null;
+			Cell agentDetailsCell = null;
+			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
 			Cell matrixCell = null;
+
+			if (commentColumn != null) {
+				commentCell = row.getCell(commentColumn);
+			}
+
+			if (agentDetailsColumn != null) {
+				agentDetailsCell = row.getCell(agentDetailsColumn);
+			}
+
+			if (matrixDetailsColumn != null) {
+				matrixDetailsCell = row.getCell(matrixDetailsColumn);
+			}
 
 			if (agentColumn != null) {
 				agentCell = row.getCell(agentColumn);
@@ -292,28 +355,35 @@ public class XLSReader {
 						.toString().trim());
 			}
 
-			if (agentCell != null) {
-				AgentXml agent = agentMappings.get(agentCell.toString().trim());
+			PmmXmlDoc agentXml = new PmmXmlDoc();
+			PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-				if (agent != null) {
-					PmmXmlDoc agentXml = new PmmXmlDoc();
-
-					agentXml.add(agent);
-					dataTuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
-				}
+			if (agentCell != null
+					&& agentMappings.get(agentCell.toString().trim()) != null) {
+				agentXml.add(agentMappings.get(agentCell.toString().trim()));
+			} else {
+				agentXml.add(new AgentXml(null, null, null));
 			}
 
-			if (matrixCell != null) {
-				MatrixXml matrix = matrixMappings.get(matrixCell.toString()
-						.trim());
-
-				if (matrix != null) {
-					PmmXmlDoc matrixXml = new PmmXmlDoc();
-
-					matrixXml.add(matrix);
-					dataTuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
-				}
+			if (matrixCell != null
+					&& matrixMappings.get(matrixCell.toString().trim()) != null) {
+				matrixXml.add(matrixMappings.get(matrixCell.toString().trim()));
+			} else {
+				matrixXml.add(new MatrixXml(null, null, null));
 			}
+
+			if (agentDetailsCell != null) {
+				((AgentXml) agentXml.get(0)).setDetail(agentDetailsCell
+						.toString().trim());
+			}
+
+			if (matrixDetailsCell != null) {
+				((MatrixXml) matrixXml.get(0)).setDetail(matrixDetailsCell
+						.toString().trim());
+			}
+
+			dataTuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+			dataTuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 
 			PmmXmlDoc miscXML = new PmmXmlDoc();
 

@@ -210,10 +210,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		JPanel northUnitsPanel = new JPanel();
 
 		northUnitsPanel.setLayout(new GridBagLayout());
-		northUnitsPanel
-				.add(new JLabel(AttributeUtilities
+		northUnitsPanel.add(
+				new JLabel(AttributeUtilities
 						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-						createConstraints(0, 0));
+				createConstraints(0, 0));
 		northUnitsPanel.add(tempBox, createConstraints(1, 0));
 
 		JPanel westUnitsPanel = new JPanel();
@@ -711,43 +711,31 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnBoxes.keySet()) {
 				if (e.getSource() == columnBoxes.get(column)) {
-					JComboBox<String> box = columnBoxes.get(column);
-					JButton button = columnButtons.get(column);
+					String selected = (String) columnBoxes.get(column)
+							.getSelectedItem();
 
-					if (box.getSelectedItem().equals(
-							TimeSeriesSchema.ATT_COMMENT)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-						columnMappings
-								.put(column, TimeSeriesSchema.ATT_COMMENT);
-					} else if (box.getSelectedItem().equals(
-							AttributeUtilities.ATT_TEMPERATURE)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
+					if (selected.equals(TimeSeriesSchema.ATT_COMMENT)
+							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
+							|| selected.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
+						columnMappings.put(column, selected);
+					} else if (selected
+							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
 						columnMappings.put(column,
 								AttributeUtilities.ATT_TEMPERATURE_ID + "");
-					} else if (box.getSelectedItem().equals(
-							AttributeUtilities.ATT_PH)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
+					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, AttributeUtilities.ATT_PH_ID
 								+ "");
-					} else if (box.getSelectedItem().equals(
-							AttributeUtilities.ATT_WATERACTIVITY)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
+					} else if (selected
+							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, AttributeUtilities.ATT_AW_ID
 								+ "");
-					} else if (box.getSelectedItem().equals(OTHER_PARAMETER)) {
-						button.setEnabled(true);
-						button.setText(OTHER_PARAMETER);
+					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
-					} else if (box.getSelectedItem().equals(DO_NOT_USE)) {
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
+					} else if (selected.equals(DO_NOT_USE)) {
 						columnMappings.remove(column);
 					}
 
+					updateColumnsPanel();
 					break;
 				}
 			}
@@ -1001,6 +989,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						TimeSeriesSchema.ATT_COMMENT,
+						XLSReader.AGENT_DETAILS_COLUMN,
+						XLSReader.MATRIX_DETAILS_COLUMN,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -1010,8 +1000,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				if (columnMappings.containsKey(column)) {
 					String id = columnMappings.get(column);
 
-					if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
-						box.setSelectedItem(TimeSeriesSchema.ATT_COMMENT);
+					if (id == null) {
+						box.setSelectedItem(OTHER_PARAMETER);
+						button.setEnabled(true);
+						button.setText(OTHER_PARAMETER);
+					} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)
+							|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
+							|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
+						box.setSelectedItem(id);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID

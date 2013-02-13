@@ -139,13 +139,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		for (String column : columnMappings.keySet()) {
 			String id = columnMappings.get(column);
 
-			if (id.equals(XLSReader.ID_COLUMN)) {
-				cMappings.put(column, id);
-			} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)) {
-				cMappings.put(column, id);
-			} else if (id.equals(AttributeUtilities.TIME)) {
-				cMappings.put(column, id);
-			} else if (id.equals(AttributeUtilities.LOGC)) {
+			if (id.equals(XLSReader.ID_COLUMN)
+					|| id.equals(TimeSeriesSchema.ATT_COMMENT)
+					|| id.equals(AttributeUtilities.TIME)
+					|| id.equals(AttributeUtilities.LOGC)
+					|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
+					|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
 				cMappings.put(column, id);
 			} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID + "")) {
 				cMappings.put(column, new MiscXml(
@@ -191,37 +190,31 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 						agentColumn, aMappings, matrixColumn, mMappings)
 				.values());
 
-		if (agentColumn == null) {
-			PmmXmlDoc agentXml = new PmmXmlDoc();
-
-			if (agentID != -1) {
-				String agentName = DBKernel.getValue("Agenzien", "ID", agentID
-						+ "", "Agensname")
-						+ "";
-
-				agentXml.add(new AgentXml(agentID, agentName, null));
-			} else {
-				agentXml.add(new AgentXml(null, null, null));
-			}
+		if (agentColumn == null && agentID != -1) {
+			String agentName = DBKernel.getValue("Agenzien", "ID",
+					agentID + "", "Agensname") + "";
 
 			for (KnimeTuple tuple : tuples) {
+				PmmXmlDoc agentXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+
+				((AgentXml) agentXml.get(0)).setID(agentID);
+				((AgentXml) agentXml.get(0)).setName(agentName);
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			}
 		}
 
-		if (matrixColumn == null) {
-			PmmXmlDoc matrixXml = new PmmXmlDoc();
-
-			if (matrixID != -1) {
-				String matrixName = DBKernel.getValue("Matrices", "ID",
-						matrixID + "", "Matrixname") + "";
-
-				matrixXml.add(new MatrixXml(matrixID, matrixName, null));
-			} else {
-				matrixXml.add(new MatrixXml(null, null, null));
-			}
+		if (matrixColumn == null && matrixID != -1) {
+			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
+					+ "", "Matrixname")
+					+ "";
 
 			for (KnimeTuple tuple : tuples) {
+				PmmXmlDoc matrixXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+
+				((MatrixXml) matrixXml.get(0)).setID(matrixID);
+				((MatrixXml) matrixXml.get(0)).setName(matrixName);
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 			}
 		}

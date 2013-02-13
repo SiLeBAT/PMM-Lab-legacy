@@ -165,7 +165,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     	int rowNumber = 0;
     	while (rs.next()) {
     		int stationID = rs.getInt("Station.ID");
-    		if (!antiArticle || !checkCase(stationID) || !checkCompanyReceivedArticle(stationID, articleChain)) {
+    		if (!antiArticle || !checkCompanyReceivedArticle(stationID, articleChain) || !checkCase(stationID)) {
         		String bl = getBL(rs.getString("Bundesland"));
         		String company  = (rs.getObject("Name") == null || doAnonymize) ? bl + rowNumber : rs.getString("Name");
         		id2Code.put(stationID, company);
@@ -210,7 +210,7 @@ public class MyKrisenInterfacesNodeModel extends NodeModel {
     		int lieferID = rs.getInt("Lieferungen.ID");
     		if ((companyFilter.trim().isEmpty() || compChain.containsKey(lieferID)) &&
     				(chargeFilter.trim().isEmpty() || chargeChain.containsKey(lieferID)) &&
-    				(antiArticle || artikelFilter.trim().isEmpty() || articleChain.containsKey(lieferID))) {
+    				(artikelFilter.trim().isEmpty() || !antiArticle && articleChain.containsKey(lieferID) || antiArticle && !articleChain.containsKey(lieferID))) {
         		int id1 = rs.getInt("Produktkatalog.Station");
         		int id2 = rs.getInt("Lieferungen.Empfänger");
         		if (id2Code.containsKey(id1) && id2Code.containsKey(id2)) {

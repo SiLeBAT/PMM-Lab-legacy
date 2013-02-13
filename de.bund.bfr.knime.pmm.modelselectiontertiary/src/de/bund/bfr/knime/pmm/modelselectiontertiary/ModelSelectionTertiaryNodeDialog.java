@@ -91,6 +91,28 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	private ChartConfigPanel configPanel;
 	private ChartInfoPanel infoPanel;
 
+	private List<String> selectedIDs;
+	private Map<String, Color> colors;
+	private Map<String, Shape> shapes;
+	private int selectAllIDs;
+	private int manualRange;
+	private double minX;
+	private double maxX;
+	private double minY;
+	private double maxY;
+	private int drawLines;
+	private int showLegend;
+	private int addLegendInfo;
+	private int displayHighlighted;
+	private String unitX;
+	private String unitY;
+	private String transformY;
+	private int standardVisibleColumns;
+	private List<String> visibleColumns;
+	private String modelFilter;
+	private String dataFilter;
+	private String fittedFilter;
+
 	/**
 	 * New pane for configuring the ModelSelectionTertiary node.
 	 */
@@ -122,27 +144,6 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		} catch (PmmException e) {
 		}
 
-		List<String> selectedIDs;
-		Map<String, Color> colors;
-		Map<String, Shape> shapes;
-		int selectAllIDS;
-		int manualRange;
-		double minX;
-		double maxX;
-		double minY;
-		double maxY;
-		int drawLines;
-		int showLegend;
-		int addLegendInfo;
-		int displayHighlighted;
-		String unitX;
-		String unitY;
-		String transformY;
-		List<String> visibleColumns;
-		String modelFilter;
-		String dataFilter;
-		String fittedFilter;
-
 		try {
 			selectedIDs = XmlConverter
 					.xmlToStringList(settings
@@ -166,10 +167,10 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			selectAllIDS = settings
+			selectAllIDs = settings
 					.getInt(ModelSelectionTertiaryNodeModel.CFG_SELECTALLIDS);
 		} catch (InvalidSettingsException e) {
-			selectAllIDS = ModelSelectionTertiaryNodeModel.DEFAULT_SELECTALLIDS;
+			selectAllIDs = ModelSelectionTertiaryNodeModel.DEFAULT_SELECTALLIDS;
 		}
 
 		try {
@@ -253,12 +254,18 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
+			standardVisibleColumns = settings
+					.getInt(ModelSelectionTertiaryNodeModel.CFG_STANDARDVISIBLECOLUMNS);
+		} catch (InvalidSettingsException e) {
+			standardVisibleColumns = ModelSelectionTertiaryNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
+		}
+
+		try {
 			visibleColumns = XmlConverter
 					.xmlToStringList(settings
 							.getString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = XmlConverter
-					.xmlToStringList(ModelSelectionTertiaryNodeModel.DEFAULT_VISIBLECOLUMNS);
+			visibleColumns = new ArrayList<>();
 		}
 
 		try {
@@ -289,10 +296,6 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			e.printStackTrace();
 		}
 
-		if (selectAllIDS == 1) {
-			selectedIDs = reader.getIds();
-		}
-
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
@@ -310,6 +313,8 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_SHAPES,
 				XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
+		settings.addInt(
+				ModelSelectionTertiaryNodeModel.CFG_STANDARDVISIBLECOLUMNS, 0);
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS,
 				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
 
@@ -382,6 +387,14 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
+
+		if (selectAllIDs == 1) {
+			selectedIDs = reader.getIds();
+		}
+
+		if (standardVisibleColumns == 1) {
+			visibleColumns = reader.getStandardVisibleColumns();
+		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);

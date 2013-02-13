@@ -96,6 +96,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final String CFG_UNITX = "UnitX";
 	static final String CFG_UNITY = "UnitY";
 	static final String CFG_TRANSFORMY = "TransformY";
+	static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	static final String CFG_MODELFILTER = "ModelFilter";
 	static final String CFG_DATAFILTER = "DataFilter";
@@ -114,9 +115,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	static final String DEFAULT_UNITX = AttributeUtilities.HOURS;
 	static final String DEFAULT_UNITY = AttributeUtilities.LOGCFU;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	static final String DEFAULT_VISIBLECOLUMNS = Model1Schema.MODELNAME + ","
-			+ AttributeUtilities.DATAID + "," + Model1Schema.RMS + ","
-			+ Model1Schema.RSQUARED;
+	static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
 	static final String DEFAULT_MODELFILTER = "";
 	static final String DEFAULT_DATAFILTER = "";
 	static final String DEFAULT_FITTEDFILTER = "";
@@ -137,6 +136,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	private String unitX;
 	private String unitY;
 	private String transformY;
+	private int standardVisibleColumns;
 	private List<String> visibleColumns;
 	private String modelFilter;
 	private String dataFilter;
@@ -168,7 +168,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		unitX = DEFAULT_UNITX;
 		unitY = DEFAULT_UNITY;
 		transformY = DEFAULT_TRANSFORMY;
-		visibleColumns = XmlConverter.xmlToStringList(DEFAULT_VISIBLECOLUMNS);
+		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
+		visibleColumns = new ArrayList<>();
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
 		fittedFilter = DEFAULT_FITTEDFILTER;
@@ -296,6 +297,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
+		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.listToXml(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
@@ -326,6 +328,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		unitX = settings.getString(CFG_UNITX);
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
+		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
 		visibleColumns = XmlConverter.xmlToStringList(settings
 				.getString(CFG_VISIBLECOLUMNS));
 		modelFilter = settings.getString(CFG_MODELFILTER);

@@ -95,6 +95,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final String CFG_UNITX = "UnitX";
 	static final String CFG_UNITY = "UnitY";
 	static final String CFG_TRANSFORMY = "TransformY";
+	static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 
 	static final int DEFAULT_SELECTALLIDS = 0;
@@ -110,7 +111,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final String DEFAULT_UNITX = AttributeUtilities.HOURS;
 	static final String DEFAULT_UNITY = AttributeUtilities.LOGCFU;
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	static final String DEFAULT_VISIBLECOLUMNS = AttributeUtilities.DATAID;
+	static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
 
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
@@ -128,6 +129,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	private String unitX;
 	private String unitY;
 	private String transformY;
+	private int standardVisibleColumns;
 	private List<String> visibleColumns;
 
 	private KnimeSchema schema;
@@ -154,7 +156,8 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		unitX = DEFAULT_UNITX;
 		unitY = DEFAULT_UNITY;
 		transformY = DEFAULT_TRANSFORMY;
-		visibleColumns = XmlConverter.xmlToStringList(DEFAULT_VISIBLECOLUMNS);
+		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
+		visibleColumns = new ArrayList<>();
 		schema = new TimeSeriesSchema();
 	}
 
@@ -262,6 +265,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
+		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.listToXml(visibleColumns));
 	}
@@ -289,6 +293,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		unitX = settings.getString(CFG_UNITX);
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
+		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
 		visibleColumns = XmlConverter.xmlToStringList(settings
 				.getString(CFG_VISIBLECOLUMNS));
 	}

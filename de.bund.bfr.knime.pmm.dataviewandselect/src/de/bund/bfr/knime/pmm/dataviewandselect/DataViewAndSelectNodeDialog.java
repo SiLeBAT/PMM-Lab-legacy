@@ -87,6 +87,25 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	private ChartConfigPanel configPanel;
 	private ChartInfoPanel infoPanel;
 
+	private List<String> selectedIDs;
+	private Map<String, Color> colors;
+	private Map<String, Shape> shapes;
+	private int selectAllIDs;
+	private int manualRange;
+	private double minX;
+	private double maxX;
+	private double minY;
+	private double maxY;
+	private int drawLines;
+	private int showLegend;
+	private int addLegendInfo;
+	private int displayHighlighted;
+	private String unitX;
+	private String unitY;
+	private String transformY;
+	private int standardVisibleColumns;
+	private List<String> visibleColumns;
+
 	/**
 	 * New pane for configuring the DataViewAndSelect node.
 	 */
@@ -100,24 +119,6 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		List<String> selectedIDs;
-		Map<String, Color> colors;
-		Map<String, Shape> shapes;
-		int selectAllIDS;
-		int manualRange;
-		double minX;
-		double maxX;
-		double minY;
-		double maxY;
-		int drawLines;
-		int showLegend;
-		int addLegendInfo;
-		int displayHighlighted;
-		String unitX;
-		String unitY;
-		String transformY;
-		List<String> visibleColumns;
-
 		try {
 			selectedIDs = XmlConverter.xmlToStringList(settings
 					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS));
@@ -140,10 +141,10 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			selectAllIDS = settings
+			selectAllIDs = settings
 					.getInt(DataViewAndSelectNodeModel.CFG_SELECTALLIDS);
 		} catch (InvalidSettingsException e) {
-			selectAllIDS = DataViewAndSelectNodeModel.DEFAULT_SELECTALLIDS;
+			selectAllIDs = DataViewAndSelectNodeModel.DEFAULT_SELECTALLIDS;
 		}
 
 		try {
@@ -225,11 +226,17 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
+			standardVisibleColumns = settings
+					.getInt(DataViewAndSelectNodeModel.CFG_STANDARDVISIBLECOLUMNS);
+		} catch (InvalidSettingsException e) {
+			standardVisibleColumns = DataViewAndSelectNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
+		}
+
+		try {
 			visibleColumns = XmlConverter.xmlToStringList(settings
 					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
 		} catch (InvalidSettingsException e) {
-			visibleColumns = XmlConverter
-					.xmlToStringList(DataViewAndSelectNodeModel.DEFAULT_VISIBLECOLUMNS);
+			visibleColumns = new ArrayList<>();
 		}
 
 		try {
@@ -239,16 +246,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			e.printStackTrace();
 		}
 
-		if (selectAllIDS == 1) {
-			selectedIDs = reader.getIds();
-		}
-
 		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
-				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
-				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, unitX, unitY, transformY,
-				visibleColumns));
+		((JPanel) getTab("Options")).add(createMainComponent());
 	}
 
 	@Override
@@ -260,6 +259,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(DataViewAndSelectNodeModel.CFG_SHAPES,
 				XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
+		settings.addInt(DataViewAndSelectNodeModel.CFG_STANDARDVISIBLECOLUMNS,
+				0);
 		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
 				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
 
@@ -314,29 +315,32 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 				configPanel.getTransformY());
 	}
 
-	private JComponent createMainComponent(List<String> selectedIDs,
-			Map<String, Color> colors, Map<String, Shape> shapes,
-			boolean manualRange, double minX, double maxX, double minY,
-			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted, String unitX,
-			String unitY, String transformY, List<String> visibleColumns) {
+	private JComponent createMainComponent() {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
+
+		if (selectAllIDs == 1) {
+			selectedIDs = reader.getIds();
+		}
+
+		if (standardVisibleColumns == 1) {
+			visibleColumns = reader.getStandardVisibleColumns();
+		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
 		configPanel.setParamsX(paramsX, null, null, null);
 		configPanel.setParamsY(Arrays.asList(AttributeUtilities.LOGC));
-		configPanel.setUseManualRange(manualRange);
+		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
 		configPanel.setMinY(minY);
 		configPanel.setMaxY(maxY);
-		configPanel.setDrawLines(drawLines);
-		configPanel.setShowLegend(showLegend);
-		configPanel.setAddInfoInLegend(addLegendInfo);
-		configPanel.setDisplayFocusedRow(displayHighlighted);
+		configPanel.setDrawLines(drawLines == 1);
+		configPanel.setShowLegend(showLegend == 1);
+		configPanel.setAddInfoInLegend(addLegendInfo == 1);
+		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
 		configPanel.setUnitX(unitX);
 		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);

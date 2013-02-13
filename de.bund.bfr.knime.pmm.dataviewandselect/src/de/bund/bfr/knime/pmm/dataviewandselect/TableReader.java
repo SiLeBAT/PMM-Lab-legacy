@@ -36,6 +36,7 @@ public class TableReader {
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<String> standardVisibleColumns;
 
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
@@ -63,10 +64,13 @@ public class TableReader {
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+		standardVisibleColumns = new ArrayList<>(
+				Arrays.asList(AttributeUtilities.DATAID));
 
 		for (String param : miscParams) {
 			doubleColumns.add(param);
 			doubleColumnValues.add(new ArrayList<Double>());
+			standardVisibleColumns.add(param);
 		}
 
 		while (reader.hasMoreElements()) {
@@ -201,6 +205,10 @@ public class TableReader {
 
 	public List<List<Double>> getDoubleColumnValues() {
 		return doubleColumnValues;
+	}
+
+	public List<String> getStandardVisibleColumns() {
+		return standardVisibleColumns;
 	}
 
 	public List<List<String>> getInfoParameters() {

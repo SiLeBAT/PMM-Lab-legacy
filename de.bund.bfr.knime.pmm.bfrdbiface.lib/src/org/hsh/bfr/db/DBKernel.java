@@ -130,7 +130,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.5.1";
+	public static String DBVersion = "1.5.2";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	@SuppressWarnings("unused")
@@ -978,8 +978,11 @@ public class DBKernel {
 		}
 			ResultSet rs = getResultSet(conn, sql, true);
 			try {
-				if (rs != null && rs.last() && rs.getRow() == 1) {
+				if (rs != null && rs.last()) { //  && rs.getRow() == 1
 					result = rs.getObject(1);
+					if (rs.getRow() > 1) {
+						System.err.println("Fuck, geht das so (getValue)??? Unbedingt checken!!!...rs.getRow()\t" + rs.getRow() + "\t" + tablename + "\t" + feldname + "\t" + feldVal);
+					}
 				}
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
@@ -1735,6 +1738,10 @@ public class DBKernel {
 					  	if (DBKernel.getDBVersion().equals("1.5.0")) {
 					  		UpdateChecker.check4Updates_150_151(myList); 
 					  		DBKernel.setDBVersion("1.5.1");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.1")) {
+					  		UpdateChecker.check4Updates_151_152(myList); 
+					  		DBKernel.setDBVersion("1.5.2");
 					  	}
 					  	
 					  	if (!isAdmin) {

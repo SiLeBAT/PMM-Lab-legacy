@@ -111,7 +111,7 @@ public class MergeDBs {
 				checkIfOthersAlreadyEditedUpdates = new HashMap<String, Integer>();
 				//String folder = "Q:/BfR/DBs/";
 				//String dateFrom = "2012-07-10 00:00:00"; // 20120403
-				String dateFrom = "2012-08-22 12:00:00"; // Lars
+				String dateFrom = "2012-08-22 12:00:00";
 				//folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/144_lars/";
 
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
@@ -123,7 +123,7 @@ public class MergeDBs {
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
-				go4It("C:/Users/Armin/Desktop/DB5/", dateFrom, "SA", "");
+				go4It("C:/Dokumente und Einstellungen/Weiser/Desktop/DB5/", dateFrom, "SA", "");
 
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
 					DBKernel.doMNs(e.nextElement());

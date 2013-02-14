@@ -46,6 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.hsh.bfr.db.DBKernel;
+
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -57,7 +59,10 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	
 	private BufferedReader reader;
 	private PmmTimeSeries next;
+	private HashMap<String, Integer> newAgentIDs = new HashMap<String, Integer>();
+	private HashMap<String, Integer> newMatrixIDs = new HashMap<String, Integer>();
 	private HashMap<String, Integer> newIDs = new HashMap<String, Integer>();
+	private HashMap<String, String> newParams = new HashMap<String, String>();
 	
 	public CombaseReader(final String filename) throws FileNotFoundException, IOException, Exception {
 		InputStreamReader isr = null;
@@ -117,13 +122,11 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			}
 			
 			// split up token
-			String[] token = line.split( "\t" );
+			String[] token = line.split("\t");
 						
-			if (token.length < 2)
-				continue;
+			if (token.length < 2) continue;
 			
-			if (token[0].isEmpty())
-				continue;
+			if (token[0].isEmpty()) continue;
 
 			for (int i = 0; i < token.length; i++) {
 				//token[i] = token[i].replaceAll("[^a-zA-Z0-9° \\.\\(\\)_/\\+\\-\\*,:]", "");
@@ -140,22 +143,23 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			}
 			
 			// fetch organism
-			if( key.equals( "organism" ) ) {
-				next.setAgentDetail( token[ 1 ] );
+			if (key.equals("organism")) {
+				//next.setAgentDetail( token[ 1 ] );
+				setAgent(next, token[1]);
 				continue;
 			}
 			
 			// fetch environment
-			if( key.equals( "environment" ) ) {
-				next.setMatrixDetail( token[ 1 ] );
+			if (key.equals("environment")) {
+				//next.setMatrixDetail(token[1]);
+				setMatrix(next, token[1]);
 				continue;
 			}
 			
 			// fetch temperature
-			if( key.equals( "temperature" ) ) {				
-				int pos = token[ 1 ].indexOf( " " );
-				if( !token[ 1 ].endsWith( " °C" ) )
-					throw new PmmException( "Temperature unit must be [°C]" );
+			if (key.equals("temperature")) {				
+				int pos = token[ 1 ].indexOf(" ");
+				if (!token[1].endsWith(" °C")) throw new PmmException( "Temperature unit must be [°C]" );
 				Double value = parse(token[1].substring(0, pos));
 				//next.setTemperature(value);
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, value, "°C");
@@ -192,33 +196,23 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				
 			
 			if (key.startsWith("time") && token[ 1 ].equals( "logc")) {
-				
 				if (!key.endsWith("(h)")) throw new Exception("Time unit must be [h].");
-				
-				while (true) {					
-					line = reader.readLine();
-					
-					if (line == null) return;
-					
-					if (line.replaceAll( "\\t\"", "" ).isEmpty()) break;
-					
-					token = line.split("\t");
-					
+				while(true) {					
+					line = reader.readLine();					
+					if (line == null) return;					
+					if (line.replaceAll( "\\t\"", "" ).isEmpty()) break;					
+					token = line.split("\t");					
 					for (int i = 0; i < token.length; i++) {
 						token[i] = token[i].replaceAll("[^a-zA-Z0-9° \\.\\(\\)/,]", "");
-					}
-					
+					}					
 					if (token.length < 2) {
 						break;
 					}
-
 					double t = parse(token[0]);
-					double logc = parse(token[ 1 ]);
-					
+					double logc = parse(token[ 1 ]);					
 					if (Double.isNaN(t) || Double.isNaN(logc)) {
 						continue;
-					}
-					
+					}					
 					next.add(t, logc);
 				}
 				break;
@@ -272,12 +266,64 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				}
 				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
 				String description = val.trim().replaceAll(" +", " ");
-				if (!newIDs.containsKey(description)) newIDs.put(description, MathUtilities.getRandomNegativeInt());
-				MiscXml mx = new MiscXml(newIDs.get(description), getCombaseName(description), description, dbl, unit);
+				MiscXml mx = getMiscXml(description, dbl, unit);
+				//new MiscXml(newIDs.get(description), getCombaseName(description), description, dbl, unit);
 				result.add(mx);
 			}
 		}
 		return result;
+	}
+	private void setMatrix(PmmTimeSeries next, String matrixname) {
+		Integer id = null;
+		String matrixdetail = null;
+		int index = matrixname.indexOf("("); 
+		if (index > 0) {
+			matrixdetail = matrixname.substring(index).trim();
+			matrixname = matrixname.substring(0, index).trim();
+		}
+		if (!newMatrixIDs.containsKey(matrixname)) {
+			id = DBKernel.getID("Matrices", "Matrixname", matrixname);
+			if (id == null)  {
+				System.err.println(matrixname + "... unknown Matrix ID...");
+				id = MathUtilities.getRandomNegativeInt();
+			}
+			newMatrixIDs.put(matrixname, id);
+		}
+		else id = newMatrixIDs.get(matrixname);
+		matrixdetail = id < 0 ? matrixname + " (" + matrixdetail + ")" : matrixdetail;
+		next.setMatrix(id, id < 0 ? null : matrixname, matrixdetail);
+	}
+	private void setAgent(PmmTimeSeries next, String agentsname) {
+		Integer id = null;
+		if (!newAgentIDs.containsKey(agentsname)) {
+			id = DBKernel.getID("Agenzien", "Agensname", agentsname);
+			if (id == null)  {
+				System.err.println(agentsname + "... unknown Agens ID...");
+				id = MathUtilities.getRandomNegativeInt();
+			}
+			newAgentIDs.put(agentsname, id);
+		}
+		else id = newAgentIDs.get(agentsname);
+		next.setAgent(id, id < 0 ? null : agentsname, id < 0 ? agentsname : null);
+	}
+	private MiscXml getMiscXml(String description, Double dbl, String unit) {
+		if (!newIDs.containsKey(description)) {
+			Integer id = DBKernel.getID("SonstigeParameter", "Beschreibung", description.toLowerCase());
+			if (id == null)  {
+				System.err.println(description + "... unknown Misc ID...");
+				id = MathUtilities.getRandomNegativeInt();
+			}
+			newIDs.put(description, id);
+		}
+		if (!newParams.containsKey(description)) {
+			Object param = DBKernel.getValue("SonstigeParameter", "Beschreibung", description.toLowerCase(), "Parameter");
+			if (param == null)  {
+				System.err.println(description + "... unknown Misc parameter...");
+				param = getCombaseName(description);
+			}
+			newParams.put(description, param.toString());
+		}
+		return new MiscXml(newIDs.get(description), newParams.get(description), description, dbl, unit);
 	}
 	private String getCombaseName(String description) {
 		String result = "";
@@ -329,7 +375,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
     	else if (des.equals("in presence of diacetic acid (possibly as salt)")) result = "diacetic_acid";
     	else if (des.equals("in presence of betaine")) result = "betaine";
     	else System.err.println(description);
-		return result;
+    	
+    	return result;
 	}
 	private List<String> condSplit(final String misc) {
 		if (misc == null) {

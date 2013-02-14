@@ -95,6 +95,10 @@ public class MyDBTreeModel implements TreeModel {
 	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
 
 	  	knownCodeSysteme.put("Methodiken_BfR", new int[]{2,4,6}); // 
+	  	
+	  	knownCodeSysteme.put("Matrices_Combase", new int[]{2,4,6}); // 
+	  	knownCodeSysteme.put("Agenzien_Combase", new int[]{2,4,6}); // 
+	  	
 	  	setTable(myT);
   }
 

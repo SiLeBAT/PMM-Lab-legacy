@@ -328,8 +328,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
-		visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-				Model1Schema.RMS, Model1Schema.RSQUARED);
+		visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
 
 		for (KnimeTuple row : tuples) {
 			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)

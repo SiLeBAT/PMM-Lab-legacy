@@ -69,11 +69,11 @@ public class TableReader {
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		standardVisibleColumns = new ArrayList<>(Arrays.asList(
-				Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 
 		if (schemaContainsData) {
 			miscParams = getAllMiscParams(table);
+			standardVisibleColumns = new ArrayList<>(Arrays.asList(
+					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
@@ -101,6 +101,8 @@ public class TableReader {
 				standardVisibleColumns.add(param);
 			}
 		} else {
+			standardVisibleColumns = new ArrayList<>(
+					Arrays.asList(Model1Schema.MODELNAME));
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();

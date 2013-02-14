@@ -284,9 +284,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = Arrays
-				.asList(Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME,
-						Model2Schema.RMS, Model2Schema.RSQUARED);
+		visibleColumns = new ArrayList<>(Arrays.asList(
+				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME));
 
 		if (getNodeModel().isSeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
@@ -305,6 +304,8 @@ public class SecondaryModelAndDataViewNodeView extends
 				doubleColumns.add("Max " + param);
 				doubleColumnValues.add(new ArrayList<Double>());
 				doubleColumnValues.add(new ArrayList<Double>());
+				visibleColumns.add("Min " + param);
+				visibleColumns.add("Max " + param);
 			}
 		} else if (getNodeModel().isModel2Schema()) {
 			doubleColumns = Arrays.asList(Model2Schema.RMS,

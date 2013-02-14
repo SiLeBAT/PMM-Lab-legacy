@@ -270,13 +270,13 @@ public class ModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, Model1Schema.RMS,
-					Model1Schema.RSQUARED);
+			visibleColumns = new ArrayList<>(Arrays.asList(
+					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
 				doubleColumnValues.add(new ArrayList<Double>());
+				visibleColumns.add(param);
 			}
 		} else if (getNodeModel().isModel1Schema()) {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
@@ -291,8 +291,7 @@ public class ModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.RMS, Model1Schema.RSQUARED);
+			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
 		}
 
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()

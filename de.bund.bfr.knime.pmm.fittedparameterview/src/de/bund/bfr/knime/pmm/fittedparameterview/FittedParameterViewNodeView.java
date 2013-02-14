@@ -243,7 +243,8 @@ public class FittedParameterViewNodeView extends
 		filterableStringColumns = new ArrayList<>();
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
+		visibleColumns = new ArrayList<>(
+				Arrays.asList(Model1Schema.ATT_PARAMETER));
 
 		miscParams = getAllMiscParams(getNodeModel().getTable());
 		doubleColumns = new ArrayList<>();
@@ -255,6 +256,8 @@ public class FittedParameterViewNodeView extends
 			doubleColumns.add("Max " + param);
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns.add("Min " + param);
+			visibleColumns.add("Max " + param);
 		}
 
 		while (reader.hasMoreElements()) {

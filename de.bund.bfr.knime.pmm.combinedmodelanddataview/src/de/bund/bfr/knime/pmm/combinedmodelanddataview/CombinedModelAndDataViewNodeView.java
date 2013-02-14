@@ -265,7 +265,6 @@ public class CombinedModelAndDataViewNodeView extends
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		visibleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED);
 
 		if (getNodeModel().isSeiSchema()) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
@@ -289,13 +288,13 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, Model1Schema.RMS,
-					Model1Schema.RSQUARED);
+			visibleColumns = new ArrayList<>(Arrays.asList(
+					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
 				doubleColumnValues.add(new ArrayList<Double>());
+				visibleColumns.add(param);
 			}
 		} else if (getNodeModel().isModel12Schema()) {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
@@ -310,8 +309,7 @@ public class CombinedModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			visibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.RMS, Model1Schema.RSQUARED);
+			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
 		}
 
 		for (int nr = 0; nr < combinedTuples.size(); nr++) {

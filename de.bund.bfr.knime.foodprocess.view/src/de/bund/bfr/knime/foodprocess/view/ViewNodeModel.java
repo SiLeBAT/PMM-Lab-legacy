@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.foodprocess.view;
 
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.container.DataContainer;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.StringCell;
 import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -125,10 +127,11 @@ public class ViewNodeModel extends NodeModel {
 
 	protected JFreeChart createChart() {
 		List<XYDataset> dataSets = new ArrayList<>();
+		DataTableSpec spec = table.getDataTableSpec();
+		int timeIndex = spec.findColumnIndex(AttributeUtilities.TIME);
+		int processIndex = spec.findColumnIndex("process");
 
 		for (String param : usedParameters) {
-			DataTableSpec spec = table.getDataTableSpec();
-			int timeIndex = spec.findColumnIndex(AttributeUtilities.TIME);
 			int paramIndex = spec.findColumnIndex(param);
 			List<Double> timeList = new ArrayList<>();
 			List<Double> paramList = new ArrayList<>();
@@ -157,8 +160,35 @@ public class ViewNodeModel extends NodeModel {
 			dataSets.add(dataSet);
 		}
 
-		XYPlot plot = new XYPlot(null, new NumberAxis(AttributeUtilities.TIME),
-				null, null);
+		List<Point2D.Double> ranges = new ArrayList<>();
+		String process = null;
+		double processStart = Double.NaN;
+		double time = Double.NaN;
+
+		for (DataRow row : table) {
+			DataCell timeCell = row.getCell(timeIndex);
+			DataCell processCell = row.getCell(processIndex);
+
+			if (!timeCell.isMissing() && !processCell.isMissing()) {
+				String p = ((StringCell) processCell).getStringValue();
+
+				time = ((DoubleCell) timeCell).getDoubleValue();
+
+				if (!p.equals(process)) {
+					if (process != null) {
+						ranges.add(new Point2D.Double(processStart, time));
+					}
+
+					process = p;
+					processStart = time;
+				}
+			}
+		}
+
+		ranges.add(new Point2D.Double(processStart, time));
+
+		XYPlot plot = new XYPlot(null, new MyAxis(AttributeUtilities.TIME,
+				ranges), null, null);
 
 		for (int i = 0; i < dataSets.size(); i++) {
 			plot.setDataset(i, dataSets.get(i));

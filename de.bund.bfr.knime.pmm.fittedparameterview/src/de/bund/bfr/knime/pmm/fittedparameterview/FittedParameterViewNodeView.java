@@ -326,6 +326,23 @@ public class FittedParameterViewNodeView extends
 				plotable.addValueList(param, miscs.get(param));
 			}
 
+			for (int i = 0; i < miscParams.size(); i++) {
+				List<Double> nonNullValues = new ArrayList<Double>(
+						miscs.get(miscParams.get(i)));
+
+				nonNullValues.removeAll(Arrays.asList((Double) null));
+
+				if (!nonNullValues.isEmpty()) {
+					doubleColumnValues.get(2 * i).add(
+							Collections.min(nonNullValues));
+					doubleColumnValues.get(2 * i + 1).add(
+							Collections.max(nonNullValues));
+				} else {
+					doubleColumnValues.get(2 * i).add(null);
+					doubleColumnValues.get(2 * i + 1).add(null);
+				}
+			}
+
 			colorCounts.add(plotable.getNumberOfCombinations());
 			plotables.put(id, plotable);
 		}

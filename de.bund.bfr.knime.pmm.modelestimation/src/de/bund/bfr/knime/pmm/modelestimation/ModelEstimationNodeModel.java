@@ -634,11 +634,11 @@ public class ModelEstimationNodeModel extends NodeModel {
 						String depVarSec = ((DepXml) tuple.getPmmXml(
 								Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-						if (element.getValue() == null) {
-							valueMissing = true;
-						}
-
 						if (element.getName().equals(depVarSec)) {
+							if (element.getValue() == null) {
+								valueMissing = true;
+							}
+							
 							value = element.getValue();
 							minValue = element.getMin();
 							maxValue = element.getMax();

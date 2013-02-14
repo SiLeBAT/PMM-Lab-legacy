@@ -543,6 +543,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		List<String> units = AttributeUtilities
 				.getUnitsForAttribute((String) xBox.getSelectedItem());
 
+		xUnitBox.removeActionListener(this);
 		xUnitBox.removeAllItems();
 
 		for (String unit : units) {
@@ -552,12 +553,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		if (!units.isEmpty()) {
 			xUnitBox.setSelectedIndex(0);
 		}
+
+		xUnitBox.addActionListener(this);
 	}
 
 	private void updateYUnitBox() {
 		List<String> units = AttributeUtilities
 				.getUnitsForAttribute((String) yBox.getSelectedItem());
 
+		yUnitBox.removeActionListener(this);
 		yUnitBox.removeAllItems();
 
 		for (String unit : units) {
@@ -567,6 +571,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		if (!units.isEmpty()) {
 			yUnitBox.setSelectedIndex(0);
 		}
+
+		yUnitBox.addActionListener(this);
 	}
 
 	private void updateParametersPanel() {
@@ -649,6 +655,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		} else if (e.getSource() == xBox) {
 			lastParamX = (String) xBox.getSelectedItem();
+			updateXUnitBox();
 			updateParametersPanel();
 		} else if (parameterButtons.contains(e.getSource())) {
 			if (type == PARAMETER_FIELDS) {

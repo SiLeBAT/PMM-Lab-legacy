@@ -61,6 +61,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -259,16 +260,20 @@ public class SecondaryModelAndDataViewNodeView extends
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
-		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
-		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
-		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
-		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
-		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
+		Map<String, String> formulaMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
+		Map<String, String> depVarMap = new LinkedHashMap<>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
+		Map<String, Double> rmsMap = new LinkedHashMap<>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
+		Map<String, Double> aicMap = new LinkedHashMap<>();
+		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Double> rmsDataMap = new LinkedHashMap<>();
+		Map<String, Double> rSquaredDataMap = new LinkedHashMap<>();
+		Map<String, Double> aicDataMap = new LinkedHashMap<>();
+		Map<String, Double> bicDataMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
@@ -291,8 +296,14 @@ public class SecondaryModelAndDataViewNodeView extends
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
-					Model2Schema.BIC));
+					Model2Schema.BIC, Model2Schema.RMS + "(Data)",
+					Model2Schema.RSQUARED + "(Data)", Model2Schema.AIC
+							+ "(Data)", Model2Schema.BIC + "(Data)"));
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -317,23 +328,35 @@ public class SecondaryModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
 
+		List<KnimeTuple> tuples = new ArrayList<>();
+
 		while (reader.hasMoreElements()) {
-			KnimeTuple row = reader.nextElement();
-			String id = ((DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT)
+			tuples.add(reader.nextElement());
+		}
+
+		List<KnimeTuple> newTuples = null;
+
+		if (getNodeModel().isSeiSchema()) {
+			newTuples = QualityMeasurementComputation.computeSecondary(tuples);
+		}
+
+		for (int nr = 0; nr < tuples.size(); nr++) {
+			KnimeTuple tuple = tuples.get(nr);
+			String id = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
 					.get(0)).getName();
 
 			if (!idSet.contains(id)) {
-				PmmXmlDoc modelXmlSec = row
+				PmmXmlDoc modelXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_MODELCATALOG);
-				PmmXmlDoc estModelXmlSec = row
+				PmmXmlDoc estModelXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_ESTMODEL);
 				String modelNameSec = ((CatalogModelXml) modelXmlSec.get(0))
 						.getName();
 				String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
 						.getFormula();
-				String depVarSec = ((DepXml) row.getPmmXml(
+				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
-				PmmXmlDoc paramXmlSec = row
+				PmmXmlDoc paramXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
 				List<String> infoParams = new ArrayList<String>(Arrays.asList(
 						Model2Schema.MODELNAME, Model2Schema.FORMULA));
@@ -364,8 +387,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				formulaMap.put(id, formulaSec);
 				depVarMap.put(id, depVarSec);
-				indepVarMap
-						.put(id, row.getPmmXml(Model2Schema.ATT_INDEPENDENT));
+				indepVarMap.put(id,
+						tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
 				depVarDataMap.put(id, new ArrayList<Double>());
 				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRMS());
@@ -373,6 +396,18 @@ public class SecondaryModelAndDataViewNodeView extends
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
 				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAIC());
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
+
+				PmmXmlDoc newEstModelXmlSec = newTuples.get(nr).getPmmXml(
+						Model2Schema.ATT_ESTMODEL);
+
+				rmsDataMap.put(id,
+						((EstModelXml) newEstModelXmlSec.get(0)).getRMS());
+				rSquaredDataMap.put(id,
+						((EstModelXml) newEstModelXmlSec.get(0)).getR2());
+				aicDataMap.put(id,
+						((EstModelXml) newEstModelXmlSec.get(0)).getAIC());
+				bicDataMap.put(id,
+						((EstModelXml) newEstModelXmlSec.get(0)).getBIC());
 
 				if (getNodeModel().isSeiSchema()) {
 					miscDataMaps.put(id,
@@ -386,7 +421,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			}
 
 			if (getNodeModel().isSeiSchema()) {
-				PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+				PmmXmlDoc paramXml = tuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				String depVar = depVarMap.get(id);
 				int depVarIndex = CellIO.getNameList(paramXml).indexOf(depVar);
 				Double depVarValue = ((ParamXml) paramXml.get(depVarIndex))
@@ -394,7 +430,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				depVarDataMap.get(id).add(depVarValue);
 
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 				for (String param : miscParams) {
 					Double paramValue = null;
@@ -490,6 +526,10 @@ public class SecondaryModelAndDataViewNodeView extends
 				doubleColumnValues.get(1).add(rSquaredMap.get(id));
 				doubleColumnValues.get(2).add(bicMap.get(id));
 				doubleColumnValues.get(3).add(aicMap.get(id));
+				doubleColumnValues.get(4).add(rmsDataMap.get(id));
+				doubleColumnValues.get(5).add(rSquaredDataMap.get(id));
+				doubleColumnValues.get(6).add(bicDataMap.get(id));
+				doubleColumnValues.get(7).add(aicDataMap.get(id));
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					List<Double> nonNullValues = new ArrayList<Double>(
@@ -504,13 +544,13 @@ public class SecondaryModelAndDataViewNodeView extends
 									new ArrayList<Double>(Arrays.asList(0.0)));
 						}
 
-						doubleColumnValues.get(2 * i + 4).add(
+						doubleColumnValues.get(2 * i + 8).add(
 								Collections.min(nonNullValues));
-						doubleColumnValues.get(2 * i + 5).add(
+						doubleColumnValues.get(2 * i + 9).add(
 								Collections.max(nonNullValues));
 					} else {
-						doubleColumnValues.get(2 * i + 4).add(null);
-						doubleColumnValues.get(2 * i + 5).add(null);
+						doubleColumnValues.get(2 * i + 8).add(null);
+						doubleColumnValues.get(2 * i + 9).add(null);
 					}
 				}
 

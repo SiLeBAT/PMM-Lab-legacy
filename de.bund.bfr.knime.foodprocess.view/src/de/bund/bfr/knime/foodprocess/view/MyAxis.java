@@ -1,13 +1,15 @@
 package de.bund.bfr.knime.foodprocess.view;
 
 import java.awt.BasicStroke;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.ui.RectangleEdge;
@@ -18,9 +20,9 @@ public class MyAxis extends NumberAxis {
 
 	private static final long serialVersionUID = 1L;
 
-	private List<Point2D.Double> ranges;
+	private LinkedHashMap<Point2D.Double, String> ranges;
 
-	public MyAxis(String label, List<Point2D.Double> ranges) {
+	public MyAxis(String label, LinkedHashMap<Point2D.Double, String> ranges) {
 		super(label);
 		this.ranges = ranges;
 	}
@@ -51,10 +53,13 @@ public class MyAxis extends NumberAxis {
 		ColorAndShapeCreator colorCreator = new ColorAndShapeCreator(
 				ranges.size());
 
-		for (int i = 0; i < ranges.size(); i++) {
+	    g2.setFont(new Font("TimesRoman", Font.PLAIN, 8));
+	    FontMetrics fm = g2.getFontMetrics();	    
+	    int i = 0;
+		for (Point2D.Double range : ranges.keySet()) {
 			Line2D rangeLine = null;
-			float xx1 = (float) valueToJava2D(ranges.get(i).x, dataArea, edge);
-			float xx2 = (float) valueToJava2D(ranges.get(i).y, dataArea, edge);
+			float xx1 = (float) valueToJava2D(range.x, dataArea, edge);
+			float xx2 = (float) valueToJava2D(range.y, dataArea, edge);
 
 			if (edge == RectangleEdge.TOP) {
 				rangeLine = new Line2D.Double(xx1, cursor, xx2, cursor);
@@ -69,6 +74,10 @@ public class MyAxis extends NumberAxis {
 			g2.setPaint(colorCreator.getColorList().get(i));
 			g2.setStroke(new BasicStroke(4.0f));
 			g2.draw(rangeLine);
+			String process = ranges.get(range);
+		    Rectangle2D r = fm.getStringBounds(process, g2);
+			g2.drawString(process, (float) ((xx2+xx1)/2 - r.getWidth() / 2), (float)cursor - (i%2 == 0 ? 5 : 15));
+			i++;
 		}
 
 		/* ------------------------------------------------------------------ */

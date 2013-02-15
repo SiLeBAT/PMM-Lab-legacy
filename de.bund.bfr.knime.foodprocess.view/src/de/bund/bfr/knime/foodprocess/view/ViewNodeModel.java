@@ -4,6 +4,7 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.jfree.chart.JFreeChart;
@@ -160,7 +161,7 @@ public class ViewNodeModel extends NodeModel {
 			dataSets.add(dataSet);
 		}
 
-		List<Point2D.Double> ranges = new ArrayList<>();
+		LinkedHashMap<Point2D.Double, String> ranges = new LinkedHashMap<Point2D.Double, String>();
 		String process = null;
 		double processStart = Double.NaN;
 		double time = Double.NaN;
@@ -176,7 +177,7 @@ public class ViewNodeModel extends NodeModel {
 
 				if (!p.equals(process)) {
 					if (process != null) {
-						ranges.add(new Point2D.Double(processStart, time));
+						ranges.put(new Point2D.Double(processStart, time), process);
 					}
 
 					process = p;
@@ -185,7 +186,7 @@ public class ViewNodeModel extends NodeModel {
 			}
 		}
 
-		ranges.add(new Point2D.Double(processStart, time));
+		ranges.put(new Point2D.Double(processStart, time), process);
 
 		XYPlot plot = new XYPlot(null, new MyAxis(AttributeUtilities.TIME,
 				ranges), null, null);

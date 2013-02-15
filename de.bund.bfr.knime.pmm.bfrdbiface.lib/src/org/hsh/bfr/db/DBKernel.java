@@ -1701,6 +1701,8 @@ public class DBKernel {
 					// UpdateChecker
 				  	String dbVersion = DBKernel.getDBVersion();
 				  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
+						boolean dl = MainKernel.dontLog;
+						MainKernel.dontLog = true;
 					  	boolean isAdmin = DBKernel.isAdmin();
 					  	if (!isAdmin) {
 					  		DBKernel.closeDBConnections(false);
@@ -1739,16 +1741,19 @@ public class DBKernel {
 					  		UpdateChecker.check4Updates_150_151(myList); 
 					  		DBKernel.setDBVersion("1.5.1");
 					  	}
-					  	/*
 					  	if (DBKernel.getDBVersion().equals("1.5.1")) {
 					  		UpdateChecker.check4Updates_151_152(myList); 
 					  		DBKernel.setDBVersion("1.5.2");
 					  	}
-					  	*/
+					  	
 					  	if (!isAdmin) {
 					  		DBKernel.closeDBConnections(false);
 					  		DBKernel.getDBConnection();
+					  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+					  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+					  		}
 					  	}
+					  	MainKernel.dontLog = dl;
 			  		}				
 				}
 				catch (Exception e) {

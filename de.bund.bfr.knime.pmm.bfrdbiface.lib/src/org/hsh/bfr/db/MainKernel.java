@@ -55,6 +55,7 @@ import org.hsqldb.server.Server;
 public class MainKernel {
 
 	public static long triggerFired = System.currentTimeMillis();
+	public static boolean dontLog = false;
 	private static boolean isServer = false;
 	private static Server s = null;
 	private static String dbFolder = "/opt/data/HSQLDB/data/";

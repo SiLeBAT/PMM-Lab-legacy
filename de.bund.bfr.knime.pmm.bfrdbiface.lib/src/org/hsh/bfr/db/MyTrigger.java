@@ -117,15 +117,17 @@ public void fire(final int triggerType, final String triggerName, final String t
 	            		changeUser(rowBefore, rowAfter);          			
 	          		}
 	          	}
-	
-	          	if (MainKernel.isServer() || DBKernel.isKNIME || DBKernel.getLocalConn(false) == null) {
-	          		//DBKernel.importing = true; // nur, damit nicht unnötig sone kacke wie undo gemacht wird in insertIntoChangeLog...
-	          		MainKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter);
-	          		//System.out.println("isserver");
-	          	}
-	          	else {
-	          		//System.out.println("isnotserver");
-	          		DBKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter);
+
+	          	if (!MainKernel.dontLog) {
+		          	if (MainKernel.isServer() || DBKernel.isKNIME || DBKernel.getLocalConn(false) == null) {
+		          		//DBKernel.importing = true; // nur, damit nicht unnötig sone kacke wie undo gemacht wird in insertIntoChangeLog...
+		          		MainKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter);
+		          		//System.out.println("isserver");
+		          	}
+		          	else {
+		          		//System.out.println("isnotserver");
+		          		DBKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter);
+		          	}	          		
 	          	}
 	          	
         	}

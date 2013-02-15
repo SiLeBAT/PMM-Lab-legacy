@@ -50,7 +50,9 @@ public class SQLScriptImporter implements MyImporter {
     		        scanner = new Scanner(is).useDelimiter(delimiter);
         		    while(scanner.hasNext()) {
         		        String rawStatement = scanner.next();
-        		        if (rawStatement.trim().length() > 0) DBKernel.sendRequest(rawStatement + delimiter, false);
+        		        if (rawStatement.trim().length() > 0) {
+        		        	DBKernel.sendRequest(rawStatement + delimiter, false);
+        		        }
         		    }
 
 	        		if (progress != null) {

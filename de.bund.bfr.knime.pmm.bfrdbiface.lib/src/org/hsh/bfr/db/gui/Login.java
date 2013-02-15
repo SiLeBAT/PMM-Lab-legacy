@@ -456,6 +456,7 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_149_150(myList); 
 					  		DBKernel.setDBVersion("1.5.0");
 					  	}
+					  	
 					  	if (DBKernel.getDBVersion().equals("1.5.0")) {
 					  		UpdateChecker.check4Updates_150_151(myList); 
 					  		DBKernel.setDBVersion("1.5.1");
@@ -472,6 +473,7 @@ public class Login extends JFrame {
 					loadDB();		
 					return myList;
 				}
+				/*
 				else if (DBKernel.isKrise) {
 					boolean doAnonymize = false;
 					DBKernel.sendRequest("CREATE USER SA PASSWORD '' ADMIN", true);
@@ -501,6 +503,7 @@ public class Login extends JFrame {
 						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produzent") + " SET " + DBKernel.delimitL("Betriebsnummer") + " = ''", false);
 					}
 				}
+				*/
 			}
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
 			if (!myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien

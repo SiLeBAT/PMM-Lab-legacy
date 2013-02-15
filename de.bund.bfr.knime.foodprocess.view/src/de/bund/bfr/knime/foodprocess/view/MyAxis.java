@@ -53,7 +53,7 @@ public class MyAxis extends NumberAxis {
 		ColorAndShapeCreator colorCreator = new ColorAndShapeCreator(
 				ranges.size());
 
-	    g2.setFont(new Font("TimesRoman", Font.PLAIN, 8));
+	    g2.setFont(new Font("Comic Sans MS", Font.BOLD, 8));
 	    FontMetrics fm = g2.getFontMetrics();	    
 	    int i = 0;
 		for (Point2D.Double range : ranges.keySet()) {

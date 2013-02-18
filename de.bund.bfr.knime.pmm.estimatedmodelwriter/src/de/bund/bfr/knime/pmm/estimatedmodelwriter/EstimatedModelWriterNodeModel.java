@@ -35,6 +35,8 @@ package de.bund.bfr.knime.pmm.estimatedmodelwriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -113,7 +115,8 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
-    	db.getConnection().setReadOnly(false);
+    	Connection conn = db.getConnection();
+    	conn.setReadOnly(false);
 /*
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		for (IResource resource : root.members()) {
@@ -163,9 +166,9 @@ if (true) return null;
 						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
-				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
+				checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
 				newTsID = db.insertTs(ts);				
-				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
+				checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
 				
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
@@ -233,9 +236,9 @@ if (true) return null;
 						String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						db.insertM(ppm);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						alreadyInsertedModel.put(rowMcID, ppm);
 					}
@@ -264,9 +267,9 @@ if (true) return null;
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODEL, Model1Schema.ATT_EMLIT};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-						checkIDs(true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						newPrimEstID = db.insertEm(ppm);
-						checkIDs(false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
 				    		//ppm.setEstModelId(newPrimEstID);
@@ -337,9 +340,9 @@ if (true) return null;
 								String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
-								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 					    		db.insertM(spm);
-								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								alreadyInsertedModel.put(rowMcID, spm);
 							}
@@ -367,9 +370,9 @@ if (true) return null;
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-								checkIDs(true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								db.insertEm(spm);
-								checkIDs(false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 							}
 
@@ -403,13 +406,13 @@ if (true) return null;
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
-    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }
 
     // Modelle
-    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -418,13 +421,15 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
+				if (before) getKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
+				if (!before) setKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
     }
     
     // TimeSeries
-    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
+    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -433,9 +438,41 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
+				if (before) getKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
+				if (!before) setKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
+    }
+    private void getKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+		  String sql = "SELECT " + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceID") +
+				  " FROM " + DBKernel.delimitL("DataSource") + " WHERE ";
+		  sql += DBKernel.delimitL("Table") + "=" + "'" + tablename + "' AND";
+		  sql += DBKernel.delimitL("SourceDBUUID") + "=" + "'" + rowuuid + "';";
+
+		  ResultSet rs = DBKernel.getResultSet(conn, sql, true);
+		  try {
+			  if (rs != null && rs.first()) {
+				  do {
+					  if (rs.getObject("SourceID") != null && rs.getObject("TableID") != null) {
+						  foreignDbIds.put(rs.getInt("SourceID"), rs.getInt("TableID"));						  
+					  }
+				  } while(rs.next());
+			  }
+		  }
+		  catch (Exception e) {MyLogger.handleException(e);}
+    }
+    private void setKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+    	for (Integer sID : foreignDbIds.keySet()) {
+			Object id = DBKernel.getValue(conn, "DataSource", new String[] {"Table","SourceDBUUID", "SourceID"}, new String[] {tablename, rowuuid, sID+""}, "TableID");
+    		if (id == null) {
+    			String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") +
+    					" (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," +
+    					DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") +
+    					") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
+    			DBKernel.sendRequest(sql, false);
+    		}
+    	}
     }
 
     /**

@@ -969,13 +969,22 @@ public class DBKernel {
 	  return getValue(null, tablename, feldname, feldVal, desiredColumn);
   }
   public static Object getValue(Connection conn, final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
+	  return getValue(conn, tablename, new String[] {feldname}, new String[] {feldVal}, desiredColumn);
+  }
+  public static Object getValue(Connection conn, final String tablename, final String[] feldname, final String[] feldVal, final String desiredColumn) {
 	  	Object result = null;
-		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE " + delimitL(feldname);
-		  if (feldVal == null) {
-			sql += " IS NULL";
-		} else {
-			sql += " = '" + feldVal.replace("'", "''") + "'";
-		}
+		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE ";
+		  for (int i=0;i<feldname.length;i++) {
+			  if (i < feldVal.length) {
+				  if (!sql.trim().endsWith("WHERE")) sql += " AND ";
+				  	sql += delimitL(feldname[i]);			  				  
+					  if (feldVal[i] == null) {
+							sql += " IS NULL";
+						} else {
+							sql += " = '" + feldVal[i].replace("'", "''") + "'";
+						}
+			  }
+		  }
 			ResultSet rs = getResultSet(conn, sql, true);
 			try {
 				if (rs != null && rs.last()) { //  && rs.getRow() == 1

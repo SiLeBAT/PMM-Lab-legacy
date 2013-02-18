@@ -35,11 +35,14 @@ package de.bund.bfr.knime.pmm.modelcatalogwriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyLogger;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
@@ -52,8 +55,8 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -61,7 +64,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 
@@ -108,7 +110,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
-    	db.getConnection().setReadOnly(false);
+    	Connection conn = db.getConnection();
+    	conn.setReadOnly(false);
     	
     	int n = inData[ 0 ].getRowCount();
     	
@@ -159,9 +162,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 					
-					checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 					db.insertM(pm);
-					checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 				}
 			}
 			if (model2Conform) {
@@ -199,20 +202,20 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 			    		db.insertM(pm);
-						checkIDs(false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 		    		//}
 	    		}
 			}
 		}
     	
-    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }
 
-    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -221,60 +224,39 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				setIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
+				if (before) getKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
+				if (!before) setKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
     }
-    private void setIDs(boolean before, String attr, String dbTablename, HashMap<Integer, Integer> foreignDbIdsTable,
-    		KnimeTuple row, ParametricModel pm) throws PmmException {
-    	if (dbTablename.equals("Literatur")) {
-        	PmmXmlDoc lili = row.getPmmXml(attr);
-    		if (lili != null) {
-    			PmmXmlDoc fromToXmlDB = pm.getModelLit();
-        		int i=0;
-    			for (PmmXmlElementConvertable el : lili.getElementSet()) {
-    				if (el instanceof LiteratureItem) {
-    					LiteratureItem li = (LiteratureItem) el;
-    					LiteratureItem liDB = ((LiteratureItem) fromToXmlDB.get(i));
-    					Integer key = li.getId();
-		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
-		        			if (before) liDB.setId(foreignDbIdsTable.get(key));
-		        			else if (foreignDbIdsTable.get(key) != liDB.getId()) {
-		        				System.err.println("checkIDs ... shouldn't happen");
-		        			}
-		        		}
-		        		else {
-		        			if (before) liDB.setId(MathUtilities.getRandomNegativeInt());
-		        			else foreignDbIdsTable.put(key, liDB.getId());
-		        		}
-    				}
-            		i++;
-    			}
-    		}
-    	}
-    	else { // Modellkatalog
-        	PmmXmlDoc modelCat = row.getPmmXml(attr);
-    		if (modelCat != null) {
-    			PmmXmlDoc fromToXmlDB = pm.getCatModel();
-        		int i=0;
-    			for (PmmXmlElementConvertable el : modelCat.getElementSet()) {
-    				if (el instanceof CatalogModelXml) {
-    					CatalogModelXml cmx = (CatalogModelXml) el;
-    					CatalogModelXml cmxDB = ((CatalogModelXml) fromToXmlDB.get(i));
-    					Integer key = cmx.getID();
-		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
-		        			if (before) cmxDB.setID(foreignDbIdsTable.get(key));
-		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
-		        				System.err.println("checkIDs ... shouldn't happen");
-		        			}
-		        		}
-		        		else {
-		        			if (before) cmxDB.setID(MathUtilities.getRandomNegativeInt());
-		        			else foreignDbIdsTable.put(key, cmxDB.getID());
-		        		}
-    				}
-            		i++;
-    			}
+    private void getKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+		  String sql = "SELECT " + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceID") +
+				  " FROM " + DBKernel.delimitL("DataSource") + " WHERE ";
+		  sql += DBKernel.delimitL("Table") + "=" + "'" + tablename + "' AND";
+		  sql += DBKernel.delimitL("SourceDBUUID") + "=" + "'" + rowuuid + "';";
+
+		  ResultSet rs = DBKernel.getResultSet(conn, sql, true);
+		  try {
+			  if (rs != null && rs.first()) {
+				  do {
+					  if (rs.getObject("SourceID") != null && rs.getObject("TableID") != null) {
+						  foreignDbIds.put(rs.getInt("SourceID"), rs.getInt("TableID"));						  
+					  }
+				  } while(rs.next());
+			  }
+		  }
+		  catch (Exception e) {MyLogger.handleException(e);}
+    }
+    private void setKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+    	for (Integer sID : foreignDbIds.keySet()) {
+			Object id = DBKernel.getValue(conn, "DataSource", new String[] {"Table","SourceDBUUID", "SourceID"}, new String[] {tablename, rowuuid, sID+""}, "TableID");
+    		if (id == null) {
+    			String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") +
+    					" (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," +
+    					DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") +
+    					") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
+    			DBKernel.sendRequest(sql, false);
     		}
     	}
     }

@@ -203,7 +203,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
 			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (getNodeModel().getContainsData() == 1) {
+				if (getNodeModel().getContainsData() == 1
+						&& plotable.getValueList(var) != null) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 
@@ -337,7 +338,11 @@ public class SecondaryModelAndDataViewNodeView extends
 		List<KnimeTuple> newTuples = null;
 
 		if (getNodeModel().getContainsData() == 1) {
-			newTuples = QualityMeasurementComputation.computeSecondary(tuples);
+			try {
+				newTuples = QualityMeasurementComputation
+						.computeSecondary(tuples);
+			} catch (Exception e) {
+			}
 		}
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
@@ -398,17 +403,20 @@ public class SecondaryModelAndDataViewNodeView extends
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
 
 				if (getNodeModel().getContainsData() == 1) {
-					PmmXmlDoc newEstModelXmlSec = newTuples.get(nr).getPmmXml(
-							Model2Schema.ATT_ESTMODEL);
+					if (newTuples != null) {
+						PmmXmlDoc newEstModelXmlSec = newTuples.get(nr)
+								.getPmmXml(Model2Schema.ATT_ESTMODEL);
 
-					rmsDataMap.put(id,
-							((EstModelXml) newEstModelXmlSec.get(0)).getRMS());
-					rSquaredDataMap.put(id,
-							((EstModelXml) newEstModelXmlSec.get(0)).getR2());
-					aicDataMap.put(id,
-							((EstModelXml) newEstModelXmlSec.get(0)).getAIC());
-					bicDataMap.put(id,
-							((EstModelXml) newEstModelXmlSec.get(0)).getBIC());
+						rmsDataMap.put(id, ((EstModelXml) newEstModelXmlSec
+								.get(0)).getRMS());
+						rSquaredDataMap.put(id,
+								((EstModelXml) newEstModelXmlSec.get(0))
+										.getR2());
+						aicDataMap.put(id, ((EstModelXml) newEstModelXmlSec
+								.get(0)).getAIC());
+						bicDataMap.put(id, ((EstModelXml) newEstModelXmlSec
+								.get(0)).getBIC());
+					}
 
 					miscDataMaps.put(id,
 							new LinkedHashMap<String, List<Double>>());

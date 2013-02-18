@@ -417,6 +417,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 					}
 				}
 
+				if (newValues.isEmpty()) {
+					newValues.add(0.0);
+				}
+
 				valueLists.put(param, newValues);
 			}
 		}

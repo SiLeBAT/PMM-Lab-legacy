@@ -77,7 +77,7 @@ public class CombinedModelAndDataViewNodeFactory extends
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**

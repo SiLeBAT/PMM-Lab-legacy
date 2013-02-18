@@ -422,6 +422,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	return outSpec;
     }
 
+    private KnimeSchema createSchema() throws PmmException {    	
+    	KnimeSchema schema;
+		schema = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+    	
+    	if (level == 2) {
+			schema = KnimeSchema.merge(schema, new Model2Schema());
+		}
+    	return schema;
+    }
     /**
      * {@inheritDoc}
      */
@@ -522,19 +531,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     protected void saveInternals( final File internDir,
             final ExecutionMonitor exec )throws IOException,
             CanceledExecutionException {}
-    
-    private KnimeSchema createSchema() throws PmmException {
-    	
-    	KnimeSchema schema;
-		schema = KnimeSchema.merge( new TimeSeriesSchema(), new Model1Schema() );
-    	
-    	if( level == 2 ) {
-			schema = KnimeSchema.merge( schema, new Model2Schema() );
-		}
-    	
-
-    	return schema;
-    }
-    
+        
 }
 

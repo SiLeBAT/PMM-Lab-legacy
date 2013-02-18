@@ -66,6 +66,11 @@ public class DbIo {
 							if (tu != null && tu[i] != null) {
 								if (tu[i].toString().equalsIgnoreCase("Sekunde")) vad = vad / 3600;
 								else if (tu[i].toString().equalsIgnoreCase("Minute")) vad = vad / 60;
+								else if (tu[i].toString().equalsIgnoreCase("Stunde")) ;
+								else if (tu[i].toString().equalsIgnoreCase("Tag")) vad = vad * 24;
+								else if (tu[i].toString().equalsIgnoreCase("Woche")) vad = vad * 24 * 7;
+								else if (tu[i].toString().equalsIgnoreCase("Monat")) vad = vad * 24 * 30;
+								else if (tu[i].toString().equalsIgnoreCase("Jahr")) vad = vad * 24 * 365;
 								else System.err.println("convertArrays2ParamXmlDoc - Unconsidered Time Unit used... Please Check!!!! ->" + tu[i]);
 							}
 							if (cu != null && cu[i] != null) {

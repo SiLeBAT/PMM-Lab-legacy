@@ -1433,6 +1433,36 @@ public class DBKernel {
     }
     return result;
   }
+  public static Integer sendRequestGetAffectedRowNumber(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	    Integer result = null;
+	    boolean adminGathered = false;
+	    try {
+	    	if (fetchAdminInCase && !DBKernel.isAdmin()) {
+	    		DBKernel.closeDBConnections(false);
+	    		conn = DBKernel.getDefaultAdminConn();
+	    		adminGathered = true;
+	    	}
+	      Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	      result = anfrage.executeUpdate(sql);
+	    }
+	    catch (Exception e) {
+	      if (!suppressWarnings) {
+	    	  if (!DBKernel.isKNIME ||
+	    			  (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+	    	  MyLogger.handleException(e);
+	      }
+	    }
+	    if (adminGathered) {
+			DBKernel.closeDBConnections(false);
+			try {
+				DBKernel.getDBConnection();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+	    }
+	    return result;
+	  }
   public static String sendRequestGetErr(final String sql) {
     String result = "";
     try {

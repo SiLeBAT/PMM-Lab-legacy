@@ -129,7 +129,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		}
 if (true) return null;
 */
-	    int n = inData[ 0 ].getRowCount();
+	    int n = inData[0].getRowCount();
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		boolean model2Conform = inSchema.conforms(new Model2Schema());

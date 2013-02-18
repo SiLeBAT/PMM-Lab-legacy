@@ -62,18 +62,24 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
-	static final String CFG_FILENAME = "SecondaryModelAndDataView.zip";
+	protected static final String CFG_FILENAME = "SecondaryModelAndDataView.zip";
+
+	protected static final String CFG_CONTAINSDATA = "ContainsData";
+	protected static final int DEFAULT_CONTAINSDATA = 1;
 
 	private DataTable table;
 	private KnimeSchema seiSchema;
 	private KnimeSchema model2Schema;
 	private KnimeSchema schema;
 
+	private int containsData;
+
 	/**
 	 * Constructor for the node model.
 	 */
 	protected SecondaryModelAndDataViewNodeModel() {
 		super(1, 0);
+		containsData = DEFAULT_CONTAINSDATA;
 
 		try {
 			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
@@ -111,8 +117,16 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		try {
 			if (seiSchema.conforms(inSpecs[0])) {
 				schema = seiSchema;
+
+				if (containsData == 0) {
+					schema = model2Schema;
+				}
 			} else if (model2Schema.conforms(inSpecs[0])) {
 				schema = model2Schema;
+
+				if (containsData == 1) {
+					containsData = 0;
+				}
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
@@ -128,7 +142,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {		
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addInt(CFG_CONTAINSDATA, containsData);
 	}
 
 	/**
@@ -136,7 +151,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {		
+			throws InvalidSettingsException {
+		containsData = settings.getInt(CFG_CONTAINSDATA);
 	}
 
 	/**
@@ -144,7 +160,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {	
+			throws InvalidSettingsException {
 	}
 
 	/**
@@ -189,12 +205,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		return schema;
 	}
 
-	protected boolean isSeiSchema() {
-		return schema == seiSchema;
-	}
-
-	protected boolean isModel2Schema() {
-		return schema == model2Schema;
-	}
+	protected int getContainsData() {
+		return containsData;
+	}	
 
 }

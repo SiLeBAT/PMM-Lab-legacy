@@ -137,14 +137,14 @@ public class SecondaryModelAndDataViewNodeView extends
 		try {
 			readTable();
 
-			if (getNodeModel().isSeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				configPanel = new ChartConfigPanel(
 						ChartConfigPanel.PARAMETER_BOXES, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
 						stringColumns, stringColumnValues, doubleColumns,
 						doubleColumnValues, visibleColumns,
 						filterableStringColumns, colorCounts);
-			} else if (getNodeModel().isModel2Schema()) {
+			} else {
 				configPanel = new ChartConfigPanel(
 						ChartConfigPanel.PARAMETER_FIELDS, false);
 				selectionPanel = new ChartSelectionPanel(ids, true,
@@ -203,7 +203,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
 			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (getNodeModel().isSeiSchema()) {
+				if (getNodeModel().getContainsData() == 1) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 
@@ -213,7 +213,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 					Collections.sort(valuesList);
 					variables.put(var, valuesList);
-				} else if (getNodeModel().isModel2Schema()) {
+				} else {
 					variables.put(var, new ArrayList<Double>());
 				}
 			}
@@ -237,10 +237,10 @@ public class SecondaryModelAndDataViewNodeView extends
 			chartCreator.setTransformY(null);
 		}
 
-		if (getNodeModel().isSeiSchema()) {
+		if (getNodeModel().getContainsData() == 1) {
 			chartCreator.setColorLists(selectionPanel.getColorLists());
 			chartCreator.setShapeLists(selectionPanel.getShapeLists());
-		} else if (getNodeModel().isModel2Schema()) {
+		} else {
 			chartCreator.setColors(selectionPanel.getColors());
 			chartCreator.setShapes(selectionPanel.getShapes());
 		}
@@ -292,7 +292,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		visibleColumns = new ArrayList<>(Arrays.asList(
 				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME));
 
-		if (getNodeModel().isSeiSchema()) {
+		if (getNodeModel().getContainsData() == 1) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
@@ -318,7 +318,7 @@ public class SecondaryModelAndDataViewNodeView extends
 				visibleColumns.add("Min " + param);
 				visibleColumns.add("Max " + param);
 			}
-		} else if (getNodeModel().isModel2Schema()) {
+		} else {
 			doubleColumns = Arrays.asList(Model2Schema.RMS,
 					Model2Schema.RSQUARED, Model2Schema.AIC, Model2Schema.BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
@@ -336,7 +336,7 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		List<KnimeTuple> newTuples = null;
 
-		if (getNodeModel().isSeiSchema()) {
+		if (getNodeModel().getContainsData() == 1) {
 			newTuples = QualityMeasurementComputation.computeSecondary(tuples);
 		}
 
@@ -397,19 +397,19 @@ public class SecondaryModelAndDataViewNodeView extends
 				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAIC());
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
 
-				PmmXmlDoc newEstModelXmlSec = newTuples.get(nr).getPmmXml(
-						Model2Schema.ATT_ESTMODEL);
+				if (getNodeModel().getContainsData() == 1) {
+					PmmXmlDoc newEstModelXmlSec = newTuples.get(nr).getPmmXml(
+							Model2Schema.ATT_ESTMODEL);
 
-				rmsDataMap.put(id,
-						((EstModelXml) newEstModelXmlSec.get(0)).getRMS());
-				rSquaredDataMap.put(id,
-						((EstModelXml) newEstModelXmlSec.get(0)).getR2());
-				aicDataMap.put(id,
-						((EstModelXml) newEstModelXmlSec.get(0)).getAIC());
-				bicDataMap.put(id,
-						((EstModelXml) newEstModelXmlSec.get(0)).getBIC());
+					rmsDataMap.put(id,
+							((EstModelXml) newEstModelXmlSec.get(0)).getRMS());
+					rSquaredDataMap.put(id,
+							((EstModelXml) newEstModelXmlSec.get(0)).getR2());
+					aicDataMap.put(id,
+							((EstModelXml) newEstModelXmlSec.get(0)).getAIC());
+					bicDataMap.put(id,
+							((EstModelXml) newEstModelXmlSec.get(0)).getBIC());
 
-				if (getNodeModel().isSeiSchema()) {
 					miscDataMaps.put(id,
 							new LinkedHashMap<String, List<Double>>());
 
@@ -420,7 +420,7 @@ public class SecondaryModelAndDataViewNodeView extends
 				}
 			}
 
-			if (getNodeModel().isSeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				PmmXmlDoc paramXml = tuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				String depVar = depVarMap.get(id);
@@ -461,9 +461,9 @@ public class SecondaryModelAndDataViewNodeView extends
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 
-			if (getNodeModel().isSeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				plotable = new Plotable(Plotable.BOTH_STRICT);
-			} else if (getNodeModel().isModel2Schema()) {
+			} else {
 				plotable = new Plotable(Plotable.FUNCTION);
 			}
 
@@ -493,7 +493,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
 
-			if (getNodeModel().isSeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				List<Double> depVarData = depVarDataMap.get(id);
 				Map<String, List<Double>> miscs = miscDataMaps.get(id);
 
@@ -555,7 +555,7 @@ public class SecondaryModelAndDataViewNodeView extends
 				}
 
 				colorCounts.add(plotable.getNumberOfCombinations());
-			} else if (getNodeModel().isModel2Schema()) {
+			} else {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,

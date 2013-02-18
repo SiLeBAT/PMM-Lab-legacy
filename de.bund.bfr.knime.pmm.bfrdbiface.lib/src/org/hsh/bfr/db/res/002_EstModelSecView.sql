@@ -8,6 +8,8 @@ SELECT
     "Independent" AS "Independent2",
     "Parametername" AS "Parametername2",
     "Wert" AS "Wert2",
+    "ZeitEinheit" AS "ZeitEinheit2",
+    "KonzEinheit" AS "KonzEinheit2",
     "Name" AS "Name2",
     "Modellkatalog"."ID" AS "Modell2",
     "GeschaetzteModelle"."ID" AS "GeschaetztesModell2",

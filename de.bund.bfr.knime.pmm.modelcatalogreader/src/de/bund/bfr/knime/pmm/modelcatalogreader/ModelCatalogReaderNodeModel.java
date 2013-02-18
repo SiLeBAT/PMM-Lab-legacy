@@ -176,7 +176,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
 		    				null, null));	    		
 		    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    				null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 		    		
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -246,7 +246,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
 		    				null, null));	    		
 		    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    				null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();

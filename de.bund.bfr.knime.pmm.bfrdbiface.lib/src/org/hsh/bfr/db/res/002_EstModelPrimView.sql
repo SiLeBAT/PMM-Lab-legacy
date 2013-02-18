@@ -9,6 +9,8 @@ SELECT
     "Independent",
     "Parametername",
     "Wert",
+    "ZeitEinheit",
+    "KonzEinheit",
     "Name",
     "Modellkatalog"."ID" AS "Modell",
     "GeschaetzteModelle"."ID" AS "GeschaetztesModell",

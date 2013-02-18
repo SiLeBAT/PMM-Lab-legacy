@@ -465,6 +465,10 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_151_152(myList); 
 					  		DBKernel.setDBVersion("1.5.2");
 					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.2")) {
+					  		UpdateChecker.check4Updates_152_153(myList); 
+					  		DBKernel.setDBVersion("1.5.3");
+					  	}
 					  	
 						DBKernel.closeDBConnections(false);
 					}
@@ -1911,6 +1915,15 @@ public class Login extends JFrame {
 				new String[]{null,null,null});
 		myList.addTable(Zutatendaten_Kosten, -1);
 		
+
+		MyTable LinkedTestConditions = new MyTable("LinkedTestConditions", new String[]{"CondID","LinkedCondID"},
+				new String[]{"INTEGER","INTEGER"},
+				new String[]{null,null},
+				new MyTable[]{null,null},
+				null,
+				new LinkedHashMap[]{null,null},
+				null);
+		myList.addTable(LinkedTestConditions, -1);	
 
 		generateStatUpModellTables(myList, literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten);
 

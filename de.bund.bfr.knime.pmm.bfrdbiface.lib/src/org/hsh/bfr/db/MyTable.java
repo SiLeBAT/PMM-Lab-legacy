@@ -148,6 +148,7 @@ public class MyTable {
 		 || tableName.equals("GueltigkeitsBereiche")
 		 || tableName.equals("Kostenkatalog") || tableName.equals("Kostenkatalogpreise")
 		 || tableName.equals("Prozessdaten_Kosten") || tableName.equals("Zutatendaten_Kosten")
+		 || tableName.equals("LinkedTestConditions")
 		 // StatUp
 		  || tableName.equals("Modellkatalog")
 		  // Jans Tabellen

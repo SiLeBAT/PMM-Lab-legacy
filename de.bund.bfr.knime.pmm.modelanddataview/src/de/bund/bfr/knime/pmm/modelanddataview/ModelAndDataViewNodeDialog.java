@@ -33,7 +33,23 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.modelanddataview;
 
+import java.awt.FlowLayout;
+
+import javax.swing.JCheckBox;
+import javax.swing.JPanel;
+
+import org.knime.core.data.DataTableSpec;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeDialogPane;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+
+import de.bund.bfr.knime.pmm.common.PmmException;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeDialog</code> for the "ModelAndDataView" Node.
@@ -46,11 +62,57 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
  * 
  * @author Christian Thoens
  */
-public class ModelAndDataViewNodeDialog extends DefaultNodeSettingsPane {
+public class ModelAndDataViewNodeDialog extends NodeDialogPane {
+
+	private JCheckBox containsDataBox;
+
+	private DataTableSpec spec;
+	private KnimeSchema seiSchema;
 
 	/**
 	 * New pane for configuring the ModelAndDataView node.
 	 */
-	protected ModelAndDataViewNodeDialog() {		
+	protected ModelAndDataViewNodeDialog() {
+		try {
+			seiSchema = new KnimeSchema(new Model1Schema(),
+					new TimeSeriesSchema());
+		} catch (PmmException e) {
+			e.printStackTrace();
+		}
+
+		containsDataBox = new JCheckBox("Display Data Points");
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		panel.add(containsDataBox);
+
+		addTab("Options", panel);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			DataTableSpec[] specs) throws NotConfigurableException {
+		spec = specs[0];
+
+		try {
+			containsDataBox.setSelected(settings
+					.getInt(ModelAndDataViewNodeModel.CFG_CONTAINSDATA) == 1);
+		} catch (InvalidSettingsException e) {
+		}
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (containsDataBox.isSelected()) {
+			if (!seiSchema.conforms(spec)) {
+				throw new InvalidSettingsException("No Data available in Table");
+			}
+
+			settings.addInt(ModelAndDataViewNodeModel.CFG_CONTAINSDATA, 1);
+		} else {
+			settings.addInt(ModelAndDataViewNodeModel.CFG_CONTAINSDATA, 0);
+		}
 	}
 }

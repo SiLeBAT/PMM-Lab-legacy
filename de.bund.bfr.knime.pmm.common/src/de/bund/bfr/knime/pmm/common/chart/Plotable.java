@@ -319,7 +319,8 @@ public class Plotable {
 				points[0][j] = x;
 				points[1][j] = y;
 			} catch (ParseException e) {
-				e.printStackTrace();
+				points[0][j] = x;
+				points[1][j] = Double.NaN;
 			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}

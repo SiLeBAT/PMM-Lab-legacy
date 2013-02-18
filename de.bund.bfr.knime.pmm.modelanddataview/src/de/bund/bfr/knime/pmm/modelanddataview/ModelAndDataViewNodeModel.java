@@ -61,18 +61,25 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelAndDataViewNodeModel extends NodeModel {
 
-	static final String CFG_FILENAME = "DataView.zip";	
+	protected static final String CFG_FILENAME = "DataView.zip";
+
+	protected static final String CFG_CONTAINSDATA = "ContainsData";
+	protected static final int DEFAULT_CONTAINSDATA = 1;
 
 	private DataTable table;
 	private KnimeSchema model1Schema;
 	private KnimeSchema peiSchema;
 	private KnimeSchema schema;
 
+	private int containsData;
+
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ModelAndDataViewNodeModel() {
 		super(1, 0);
+		containsData = DEFAULT_CONTAINSDATA;
+
 		try {
 			model1Schema = new Model1Schema();
 			peiSchema = new KnimeSchema(new Model1Schema(),
@@ -109,8 +116,16 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 		try {
 			if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
 				schema = peiSchema;
+
+				if (containsData == 0) {
+					schema = model1Schema;
+				}
 			} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
 				schema = model1Schema;
+
+				if (containsData == 1) {
+					containsData = 0;
+				}
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
@@ -126,7 +141,8 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	protected void saveSettingsTo(final NodeSettingsWO settings) {		
+	protected void saveSettingsTo(final NodeSettingsWO settings) {
+		settings.addInt(CFG_CONTAINSDATA, containsData);
 	}
 
 	/**
@@ -134,7 +150,8 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
-			throws InvalidSettingsException {		
+			throws InvalidSettingsException {
+		containsData = settings.getInt(CFG_CONTAINSDATA);
 	}
 
 	/**
@@ -142,7 +159,7 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void validateSettings(final NodeSettingsRO settings)
-			throws InvalidSettingsException {		
+			throws InvalidSettingsException {
 	}
 
 	/**
@@ -187,11 +204,7 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 		return schema;
 	}
 
-	protected boolean isModel1Schema() {
-		return schema == model1Schema;
-	}
-
-	protected boolean isPeiSchema() {
-		return schema == peiSchema;
+	protected int getContainsData() {
+		return containsData;
 	}
 }

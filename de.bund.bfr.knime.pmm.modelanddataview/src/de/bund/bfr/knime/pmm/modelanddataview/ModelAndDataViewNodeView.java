@@ -248,7 +248,7 @@ public class ModelAndDataViewNodeView extends
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 
-		if (getNodeModel().isPeiSchema()) {
+		if (getNodeModel().getContainsData() == 1) {
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.IS_FITTED);
@@ -278,7 +278,7 @@ public class ModelAndDataViewNodeView extends
 				doubleColumnValues.add(new ArrayList<Double>());
 				visibleColumns.add(param);
 			}
-		} else if (getNodeModel().isModel1Schema()) {
+		} else {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.IS_FITTED);
 			stringColumnValues = new ArrayList<List<String>>();
@@ -304,7 +304,7 @@ public class ModelAndDataViewNodeView extends
 
 		List<KnimeTuple> newTuples = null;
 
-		if (getNodeModel().isPeiSchema()) {
+		if (getNodeModel().getContainsData() == 1) {
 			newTuples = QualityMeasurementComputation.computePrimary(tuples);
 		}
 
@@ -324,7 +324,7 @@ public class ModelAndDataViewNodeView extends
 				id += catID;
 			}
 
-			if (getNodeModel().isPeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
@@ -382,13 +382,11 @@ public class ModelAndDataViewNodeView extends
 				covariances.put(element.getName(), cov);
 			}
 
-			if (getNodeModel().isPeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				PmmXmlDoc timeSeriesXml = row
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
 				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-				// if (!timeSeriesXml.getElementSet().isEmpty()) {
 				List<Double> timeList = new ArrayList<Double>();
 				List<Double> logcList = new ArrayList<Double>();
 				int n = timeSeriesXml.getElementSet().size();
@@ -426,9 +424,6 @@ public class ModelAndDataViewNodeView extends
 										element.getValue())));
 					}
 				}
-				// } else {
-				// plotable = new Plotable(Plotable.FUNCTION);
-				// }
 
 				String dataName;
 				String agent;
@@ -512,7 +507,7 @@ public class ModelAndDataViewNodeView extends
 						doubleColumnValues.get(i + 8).add(null);
 					}
 				}
-			} else if (getNodeModel().isModel1Schema()) {
+			} else {
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
@@ -540,7 +535,7 @@ public class ModelAndDataViewNodeView extends
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
 
-			if (getNodeModel().isPeiSchema()) {
+			if (getNodeModel().getContainsData() == 1) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,
@@ -549,7 +544,7 @@ public class ModelAndDataViewNodeView extends
 				} else {
 					stringColumnValues.get(2).add(ChartConstants.YES);
 				}
-			} else if (getNodeModel().isModel1Schema()) {
+			} else {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(1).add(ChartConstants.NO);
 				} else if (!MathUtilities.areValuesInRange(paramValues,

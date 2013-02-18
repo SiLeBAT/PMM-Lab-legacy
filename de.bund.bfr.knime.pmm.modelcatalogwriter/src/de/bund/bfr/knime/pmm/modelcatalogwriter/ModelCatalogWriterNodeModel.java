@@ -36,13 +36,11 @@ package de.bund.bfr.knime.pmm.modelcatalogwriter;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyLogger;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;

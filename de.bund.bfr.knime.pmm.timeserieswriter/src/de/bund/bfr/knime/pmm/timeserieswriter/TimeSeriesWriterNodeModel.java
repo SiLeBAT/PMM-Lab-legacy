@@ -36,11 +36,9 @@ package de.bund.bfr.knime.pmm.timeserieswriter;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.util.HashMap;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyLogger;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;

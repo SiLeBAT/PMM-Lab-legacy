@@ -2065,4 +2065,34 @@ public class DBKernel {
     	catch (Exception e) {e.printStackTrace();}
         return result;
     }
+    public static void getKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+		  String sql = "SELECT " + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceID") +
+				  " FROM " + DBKernel.delimitL("DataSource") + " WHERE ";
+		  sql += DBKernel.delimitL("Table") + "=" + "'" + tablename + "' AND";
+		  sql += DBKernel.delimitL("SourceDBUUID") + "=" + "'" + rowuuid + "';";
+
+		  ResultSet rs = DBKernel.getResultSet(conn, sql, true);
+		  try {
+			  if (rs != null && rs.first()) {
+				  do {
+					  if (rs.getObject("SourceID") != null && rs.getObject("TableID") != null) {
+						  foreignDbIds.put(rs.getInt("SourceID"), rs.getInt("TableID"));						  
+					  }
+				  } while(rs.next());
+			  }
+		  }
+		  catch (Exception e) {MyLogger.handleException(e);}
+    }
+    public static void setKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+    	for (Integer sID : foreignDbIds.keySet()) {
+			Object id = DBKernel.getValue(conn, "DataSource", new String[] {"Table","SourceDBUUID", "SourceID"}, new String[] {tablename, rowuuid, sID+""}, "TableID");
+    		if (id == null) {
+    			String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") +
+    					" (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," +
+    					DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") +
+    					") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
+    			DBKernel.sendRequest(conn, sql, false, false);
+    		}
+    	}
+    }
 }

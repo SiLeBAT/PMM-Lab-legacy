@@ -421,9 +421,9 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (before) getKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
-				if (!before) setKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
     }
@@ -438,41 +438,11 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (before) getKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
-				if (!before) setKnownIDs(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
-    }
-    private void getKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
-		  String sql = "SELECT " + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceID") +
-				  " FROM " + DBKernel.delimitL("DataSource") + " WHERE ";
-		  sql += DBKernel.delimitL("Table") + "=" + "'" + tablename + "' AND";
-		  sql += DBKernel.delimitL("SourceDBUUID") + "=" + "'" + rowuuid + "';";
-
-		  ResultSet rs = DBKernel.getResultSet(conn, sql, true);
-		  try {
-			  if (rs != null && rs.first()) {
-				  do {
-					  if (rs.getObject("SourceID") != null && rs.getObject("TableID") != null) {
-						  foreignDbIds.put(rs.getInt("SourceID"), rs.getInt("TableID"));						  
-					  }
-				  } while(rs.next());
-			  }
-		  }
-		  catch (Exception e) {MyLogger.handleException(e);}
-    }
-    private void setKnownIDs(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
-    	for (Integer sID : foreignDbIds.keySet()) {
-			Object id = DBKernel.getValue(conn, "DataSource", new String[] {"Table","SourceDBUUID", "SourceID"}, new String[] {tablename, rowuuid, sID+""}, "TableID");
-    		if (id == null) {
-    			String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") +
-    					" (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," +
-    					DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") +
-    					") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
-    			DBKernel.sendRequest(sql, false);
-    		}
-    	}
     }
 
     /**

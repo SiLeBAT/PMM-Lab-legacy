@@ -118,7 +118,7 @@ public class SettingsDialog extends JFrame {
 
 		//======== dialogPane ========
 		{
-			dialogPane.setBorder(Borders.DIALOG);
+			dialogPane.setBorder(Borders.DIALOG); // DIALOG_BORDER
 			dialogPane.setLayout(new BorderLayout());
 
 			//======== contentPanel ========

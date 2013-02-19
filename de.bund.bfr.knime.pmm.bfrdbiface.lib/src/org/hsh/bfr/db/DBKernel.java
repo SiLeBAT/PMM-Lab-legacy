@@ -137,16 +137,26 @@ public class DBKernel {
 	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(boolean other) {
-		//if (debug) return "SA";
-		if (other) return isKNIME || isKrise ? "defad": "SA";		
-		else return isKNIME || isKrise ? "SA" : "defad";		
+		String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
+		if (sa.equals("00")) {
+			//if (debug) return "SA";
+			if (other) sa = isKNIME || isKrise ? "defad": "SA";		
+			else sa = isKNIME || isKrise ? "SA" : "defad";
+		}
+		
+		return sa;
 	}
 	public static String getTempSAPass(boolean other) {
-		//if (debug) return "";
-		if (isServerConnection && isKrise) return "de6!§5ddy";
-			
-		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
-		else return isKNIME || isKrise ? "" : "de6!§5ddy";
+		String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+		if (pass.equals("00")) {
+			//if (debug) return "";
+			if (isServerConnection && isKrise) return "de6!§5ddy";
+				
+			if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
+			else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
+		}
+		
+		return pass;
 	}
 	public static String getTempSA() {
 		return getTempSA(false);
@@ -157,6 +167,58 @@ public class DBKernel {
 	public static String getLanguage() {
 		return isKrise || !isKNIME ? "de" : "en";
 	}
+	  public static boolean saveUP2PrefsTEMP() {
+		  return saveUP2PrefsTEMP(false);
+	  }
+	  public static boolean saveUP2PrefsTEMP(boolean onlyCheck) {
+		  boolean result = false;
+			String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
+			String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+			if (onlyCheck || sa.equals("00") || pass.equals("00")) {
+		  		DBKernel.closeDBConnections(false);
+		  		
+		  		try {
+			  		sa = getTempSA();
+			  		pass = getTempSAPass();
+			  		Connection conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+			  		if (!onlyCheck) {
+				  		if (conn == null) {
+				  			sa = getTempSA(true);
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+				  		if (conn == null) {
+				  			pass = getTempSAPass(true);
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+				  		if (conn == null) {
+				  			sa = getTempSA(true);
+				  			pass = getTempSAPass();
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+			  		}
+			  		if (conn == null) System.err.println("save Pass to Prefs failed...");
+			  		else {
+			  			if (!onlyCheck) {
+							DBKernel.prefs.put("DBADMINUSER" + HSHDB_PATH, sa);
+							DBKernel.prefs.put("DBADMINPASS" + HSHDB_PATH, pass);			  				
+			  			}
+						result = true;
+						//System.err.println("pass combi is: " + sa + "\t" + pass);
+			  		}
+		  		}
+		  		catch(Exception e) {}
+				
+		  		try {
+			  		DBKernel.closeDBConnections(false);
+			  		DBKernel.getDBConnection();
+			  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+			  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+			  		}				
+		  		}
+		  		catch(Exception e) {}
+			}
+			return result;
+	  }
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
 	}
@@ -1801,12 +1863,13 @@ public class DBKernel {
 					  		}
 					  	}
 					  	MainKernel.dontLog = dl;
-			  		}				
+			  		}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
-			}			
+			}
+		  	DBKernel.saveUP2PrefsTEMP();
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);

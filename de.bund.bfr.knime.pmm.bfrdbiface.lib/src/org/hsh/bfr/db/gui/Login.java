@@ -131,7 +131,11 @@ public class Login extends JFrame {
 		  }
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			loadDB();
+			MyList myList = loadDB();
+		  	if (myList != null) {
+		  		DBKernel.saveUP2PrefsTEMP();
+		  	}
+
 			//UpdateChecker.check4Updates_148_149(null);
 			/*
 		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
@@ -202,7 +206,7 @@ public class Login extends JFrame {
 							passwordField3.setBackground(Color.WHITE);
 							passwordField1.requestFocus();																				
 						}
-						return myList;
+						return null;
 					}
 					else {
 						changePasswort(myDB, username, password);
@@ -241,7 +245,7 @@ public class Login extends JFrame {
 				}
 				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
-					return myList;
+					return null;
 				}
 			}
 			
@@ -254,7 +258,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
 						passwordField2.requestFocus();
-						return myList;
+						return null;
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						changePasswort(myDB, username, newPassword);
@@ -264,7 +268,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
-						return myList;
+						return null;
 					}
 				}
 				else {
@@ -272,7 +276,7 @@ public class Login extends JFrame {
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
 					passwordField2.requestFocus();
-					return myList;
+					return null;
 				}
 			}
 			
@@ -293,7 +297,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.WHITE);
 						passwordField1.requestFocus();					
-						return myList;
+						return null;
 					}
 
 					loadMyTables(myList, null);

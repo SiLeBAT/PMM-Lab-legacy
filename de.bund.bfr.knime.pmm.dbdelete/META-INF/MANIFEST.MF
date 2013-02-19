@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DatabaseDelete-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.dbdelete; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.v20130219
 Bundle-ClassPath: databasedelete.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.dbdelete.DatabaseDeleteNodePlugin
-Bundle-Vendor: Armin A. Weiser
+Bundle-Vendor: BfR
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,

@@ -134,12 +134,14 @@ public class Login extends JFrame {
 			MyList myList = loadDB();
 		  	if (myList != null) {
 		  		DBKernel.saveUP2PrefsTEMP();
+		  		/*
+			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+			  	*/
 		  	}
 
 			//UpdateChecker.check4Updates_148_149(null);
 			/*
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ModellkatalogParameter") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modell_Referenz") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);

@@ -1027,6 +1027,18 @@ public class DBKernel {
 		catch (Exception e) {MyLogger.handleException(e);}
 		return result;
   }
+  public static Integer getLastID(final String tablename) {
+	  Integer result = null;
+	  String sql = "SELECT MAX(" + delimitL("ID") + ") FROM " + delimitL(tablename);
+		ResultSet rs = getResultSet(sql, true);
+		try {
+			if (rs != null && rs.last()) {
+				result = rs.getInt(1);
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}
+		return result;
+  }
   public static Object getValue(final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
 	  return getValue(null, tablename, feldname, feldVal, desiredColumn);
   }

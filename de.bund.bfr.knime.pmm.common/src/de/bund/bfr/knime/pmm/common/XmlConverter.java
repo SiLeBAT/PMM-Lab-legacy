@@ -106,6 +106,17 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<Integer, Map<String, Double>> xmlToIntDoubleMapMap(
+			String xml) {
+		try {
+			return (Map<Integer, Map<String, Double>>) new XStream()
+					.fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Map<String, Point2D.Double>> xmlToPointDoubleMapMap(
 			String xml) {
 		try {

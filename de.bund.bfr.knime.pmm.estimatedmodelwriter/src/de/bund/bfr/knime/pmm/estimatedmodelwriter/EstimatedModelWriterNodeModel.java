@@ -172,8 +172,9 @@ if (true) return null;
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
 				
-				if (ts.getWarning() != null && !ts.getWarning().trim().isEmpty()) {
-					warnings += ts.getWarning() + "\n";
+				String text = ts.getWarning();
+				if (text != null && !text.trim().isEmpty()) {
+					if (warnings.indexOf(text) < 0)	warnings += text + "\n";
 				}
 			}
 			

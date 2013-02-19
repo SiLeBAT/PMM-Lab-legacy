@@ -39,8 +39,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JList;
@@ -50,6 +52,7 @@ import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -170,7 +173,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			tableModel.addCondition(name, conditions.get(id));
 		}
-		
+
 		conditionsTable.setModel(tableModel);
 	}
 
@@ -191,7 +194,58 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		if (e.getSource() == addButton) {
+			Integer id = openMiscDBWindow(null);
+
+			if (id != null && !conditionsByID.containsKey(id)) {
+				String name = DBKernel.getValue("SonstigeParameter", "ID", id
+						+ "", "Parameter")
+						+ "";
+
+				conditionsByID.put(id, name);
+				conditionsList.setListData(conditionsByID.values().toArray(
+						new String[0]));
+				((ConditionsTableModel) conditionsTable.getModel())
+						.addCondition(name, new LinkedHashMap<String, Double>());
+				conditionsTable.repaint();
+			}
+		} else if (e.getSource() == removeButton) {
+			Set<String> removeSet = new LinkedHashSet<>(
+					conditionsList.getSelectedValuesList());
+			Set<Integer> idRemoveSet = new LinkedHashSet<>();
+
+			for (int id : conditionsByID.keySet()) {
+				if (removeSet.contains(conditionsByID.get(id))) {
+					idRemoveSet.add(id);
+				}
+			}
+
+			for (int id : idRemoveSet) {
+				conditionsByID.remove(id);
+			}
+
+			conditionsList.setListData(conditionsByID.values().toArray(
+					new String[0]));
+
+			for (String name : removeSet) {
+				((ConditionsTableModel) conditionsTable.getModel())
+						.removeCondition(name);
+			}
+
+			conditionsTable.repaint();
+		}
+	}
+
+	private Integer openMiscDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id,
+				"SonstigeParameter", null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
 	}
 
 	private static class ConditionsTableModel extends AbstractTableModel {
@@ -217,6 +271,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			conditions.add(condition);
 			conditionsValues.add(valueList);
+			fireTableStructureChanged();
+		}
+
+		public void removeCondition(String condition) {
+			int i = conditions.indexOf(condition);
+
+			if (i != -1) {
+				conditions.remove(i);
+				conditionsValues.remove(i);
+			}
+			
+			fireTableStructureChanged();
 		}
 
 		public Map<String, Map<String, Double>> getValueMap() {
@@ -281,6 +347,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			conditionsValues.get(columnIndex - 1)
 					.set(rowIndex, (Double) aValue);
+			fireTableDataChanged();
 		}
 
 	}

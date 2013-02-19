@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: MicrobialDataEdit-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.microbialdataedit; singleton:=true
-Bundle-Version: 1.0.0
+Bundle-Version: 1.0.0.v20130220
 Bundle-ClassPath: microbialdataedit.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.microbialdataedit.MicrobialDataEditNodePlugin
-Bundle-Vendor: Christian Thoens
+Bundle-Vendor: BfR
 Require-Bundle: org.eclipse.core.runtime,
  org.knime.workbench.core,
  org.knime.workbench.repository,

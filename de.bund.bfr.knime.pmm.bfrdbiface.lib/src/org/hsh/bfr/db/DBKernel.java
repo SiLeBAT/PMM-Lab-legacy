@@ -1781,8 +1781,9 @@ public class DBKernel {
 			else {
 				File incFileInternalDBFolder = new File(internalPath);
 				if (!incFileInternalDBFolder.exists()) {
-					incFileInternalDBFolder.mkdirs();
+					if (!incFileInternalDBFolder.mkdirs()) return null;
 				}
+				if (incFileInternalDBFolder.list() == null) return null;
 				// folder is empty? Create database!
 				if (incFileInternalDBFolder.list().length == 0) {
 					// Get the bundle this class belongs to.

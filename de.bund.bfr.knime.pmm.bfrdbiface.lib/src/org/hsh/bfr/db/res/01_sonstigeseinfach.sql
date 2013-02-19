@@ -1,5 +1,7 @@
 DROP VIEW IF EXISTS "SeiView";
 DROP VIEW IF EXISTS "PeiView";
+DROP VIEW IF EXISTS "EstSeiView";
+DROP VIEW IF EXISTS "EstPeiView";
 DROP VIEW IF EXISTS "MicrobialDataView";
 DROP VIEW IF EXISTS "SonstigesEinfach";
 
@@ -9,10 +11,10 @@ SELECT
 
     "Versuchsbedingungen_Sonstiges"."Versuchsbedingungen" AS "Versuchsbedingung",
     "SonstigeParameter"."ID" AS "SonstigesID",
-    "SonstigeParameter"."Parameter",
+
     "SonstigeParameter"."Beschreibung",
     "Einheiten"."Einheit",
-    "DoubleKennzahlenEinfach"."Wert"
+    "DoubleKennzahlen"."Wert"
 
 FROM "Versuchsbedingungen_Sonstiges"
 
@@ -22,7 +24,7 @@ ON "Versuchsbedingungen_Sonstiges"."Einheit"="Einheiten"."ID"
 JOIN "SonstigeParameter"
 ON "Versuchsbedingungen_Sonstiges"."SonstigeParameter"="SonstigeParameter"."ID"
 
-LEFT JOIN "DoubleKennzahlenEinfach"
-ON "Versuchsbedingungen_Sonstiges"."Wert"="DoubleKennzahlenEinfach"."ID";
+LEFT JOIN "DoubleKennzahlen"
+ON "Versuchsbedingungen_Sonstiges"."Wert"="DoubleKennzahlen"."ID";
 
 GRANT SELECT ON TABLE "SonstigesEinfach" TO "PUBLIC";

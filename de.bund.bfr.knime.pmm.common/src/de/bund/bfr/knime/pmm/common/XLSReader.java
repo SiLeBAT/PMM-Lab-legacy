@@ -75,6 +75,11 @@ public class XLSReader {
 			String matrixColumnName, Map<String, MatrixXml> matrixMappings)
 			throws Exception {
 		Sheet s = getWorkbook(file).getSheet(sheet);
+
+		if (s == null) {
+			throw new Exception("Sheet not found");
+		}
+
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
@@ -281,6 +286,11 @@ public class XLSReader {
 			KnimeTuple modelTuple, Map<String, String> modelMappings)
 			throws Exception {
 		Sheet s = getWorkbook(file).getSheet(sheet);
+
+		if (s == null) {
+			throw new Exception("Sheet not found");
+		}
+
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> columns = getColumns(s);
 		Map<String, Integer> miscColumns = new LinkedHashMap<>();
@@ -444,14 +454,24 @@ public class XLSReader {
 
 	public static List<String> getColumns(File file, String sheet)
 			throws Exception {
-		return new ArrayList<>(getColumns(getWorkbook(file).getSheet(sheet))
-				.keySet());
+		Sheet s = getWorkbook(file).getSheet(sheet);
+
+		if (s == null) {
+			throw new Exception("Sheet not found");
+		}
+
+		return new ArrayList<>(getColumns(s).keySet());
 	}
 
 	public static Set<String> getValuesInColumn(File file, String sheet,
 			String column) throws Exception {
 		Set<String> valueSet = new LinkedHashSet<>();
 		Sheet s = getWorkbook(file).getSheet(sheet);
+
+		if (s == null) {
+			throw new Exception("Sheet not found");
+		}
+
 		Map<String, Integer> columns = getColumns(s);
 		int columnId = columns.get(column);
 

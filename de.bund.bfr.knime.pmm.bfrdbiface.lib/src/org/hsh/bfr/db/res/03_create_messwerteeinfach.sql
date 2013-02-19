@@ -52,7 +52,7 @@ SELECT
         THEN CASE
             WHEN "K"."Wert" <= 1
             THEN 0
-            ELSE LOG10( "C"."Wert" )
+            ELSE LOG10( "K"."Wert" )
         END
         ELSE NULL
     END AS "Konzentration",
@@ -64,7 +64,8 @@ SELECT
     "R"."Wert" AS "CO2",
     "S"."Wert" AS "Luftfeuchtigkeit",
     "Messwerte"."Sonstiges",
-    "Messwerte"."Kommentar"
+    "Messwerte"."Kommentar",
+    "Messwerte"."Delta"
 
 FROM "Messwerte"
 
@@ -94,7 +95,5 @@ ON "Messwerte"."CO2"="R"."ID"
 
 LEFT JOIN "DoubleKennzahlenEinfach" AS "S"
 ON "Messwerte"."Luftfeuchtigkeit"="S"."ID"
-
-WHERE "Delta" IS NULL OR NOT "Delta";
 
 GRANT SELECT ON TABLE "MesswerteEinfach" TO "PUBLIC";

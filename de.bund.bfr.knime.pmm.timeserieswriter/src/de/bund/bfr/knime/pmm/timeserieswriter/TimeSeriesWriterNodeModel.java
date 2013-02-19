@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.timeserieswriter;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.util.HashMap;
 
 import org.hsh.bfr.db.DBKernel;
@@ -99,9 +100,10 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
-    	db.getConnection().setReadOnly(false);
+    	Connection conn = db.getConnection();
+    	conn.setReadOnly(false);
     	
-    	int n = inData[ 0 ].getRowCount();
+    	int n = inData[0].getRowCount();
     	
 		KnimeSchema inSchema = getInSchema(inData[0].getDataTableSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(inSchema, inData[0]);
@@ -126,9 +128,9 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 
-				checkIDs(true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
+				checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
 				db.insertTs(ts);				
-				checkIDs(false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
+				checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
 				
 				alreadyInsertedTs.put(rowTsID, ts);
 				
@@ -142,11 +144,11 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
-    	db.getConnection().setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;
     }
-    private void checkIDs(boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
+    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
@@ -155,7 +157,9 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
     }

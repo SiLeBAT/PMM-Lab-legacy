@@ -131,11 +131,17 @@ public class Login extends JFrame {
 		  }
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			loadDB();
+			MyList myList = loadDB();
+		  	if (myList != null) {
+		  		DBKernel.saveUP2PrefsTEMP();
+		  		/*
+			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+			  	*/
+		  	}
+
 			//UpdateChecker.check4Updates_148_149(null);
 			/*
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ModellkatalogParameter") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modell_Referenz") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
@@ -202,7 +208,7 @@ public class Login extends JFrame {
 							passwordField3.setBackground(Color.WHITE);
 							passwordField1.requestFocus();																				
 						}
-						return myList;
+						return null;
 					}
 					else {
 						changePasswort(myDB, username, password);
@@ -241,7 +247,7 @@ public class Login extends JFrame {
 				}
 				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
-					return myList;
+					return null;
 				}
 			}
 			
@@ -254,7 +260,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
 						passwordField2.requestFocus();
-						return myList;
+						return null;
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						changePasswort(myDB, username, newPassword);
@@ -264,7 +270,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
-						return myList;
+						return null;
 					}
 				}
 				else {
@@ -272,7 +278,7 @@ public class Login extends JFrame {
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
 					passwordField2.requestFocus();
-					return myList;
+					return null;
 				}
 			}
 			
@@ -293,7 +299,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.WHITE);
 						passwordField1.requestFocus();					
-						return myList;
+						return null;
 					}
 
 					loadMyTables(myList, null);
@@ -468,6 +474,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.5.2")) {
 					  		UpdateChecker.check4Updates_152_153(myList); 
 					  		DBKernel.setDBVersion("1.5.3");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.3")) {
+					  		UpdateChecker.check4Updates_153_154(myList); 
+					  		DBKernel.setDBVersion("1.5.4");
 					  	}
 					  	
 						DBKernel.closeDBConnections(false);

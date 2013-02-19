@@ -13,6 +13,8 @@ CREATE VIEW "ParamView" AS
             END
         )AS "Parametername",
         ARRAY_AGG( "Wert" )AS "Wert",
+        ARRAY_AGG( "ZeitEinheit" )AS "ZeitEinheit",
+        ARRAY_AGG( "Konz_Einheit" )AS "KonzEinheit",
         ARRAY_AGG( "min" )AS "min",
         ARRAY_AGG( "max" )AS "max",
         ARRAY_AGG( "StandardError" )AS "StandardError"

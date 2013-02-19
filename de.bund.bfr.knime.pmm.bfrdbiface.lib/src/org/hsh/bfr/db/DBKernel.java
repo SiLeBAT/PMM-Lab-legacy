@@ -130,23 +130,33 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.5.3";
+	public static String DBVersion = "1.5.4";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	@SuppressWarnings("unused")
 	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(boolean other) {
-		//if (debug) return "SA";
-		if (other) return isKNIME || isKrise ? "defad": "SA";		
-		else return isKNIME || isKrise ? "SA" : "defad";		
+		String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
+		if (sa.equals("00")) {
+			//if (debug) return "SA";
+			if (other) sa = isKNIME || isKrise ? "defad": "SA";		
+			else sa = isKNIME || isKrise ? "SA" : "defad";
+		}
+		
+		return sa;
 	}
 	public static String getTempSAPass(boolean other) {
-		//if (debug) return "";
-		if (isServerConnection && isKrise) return "de6!§5ddy";
-			
-		if (other) return isKNIME || isKrise ? "de6!§5ddy" : "";
-		else return isKNIME || isKrise ? "" : "de6!§5ddy";
+		String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+		if (pass.equals("00")) {
+			//if (debug) return "";
+			if (isServerConnection && isKrise) return "de6!§5ddy";
+				
+			if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
+			else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
+		}
+		
+		return pass;
 	}
 	public static String getTempSA() {
 		return getTempSA(false);
@@ -157,6 +167,58 @@ public class DBKernel {
 	public static String getLanguage() {
 		return isKrise || !isKNIME ? "de" : "en";
 	}
+	  public static boolean saveUP2PrefsTEMP() {
+		  return saveUP2PrefsTEMP(false);
+	  }
+	  public static boolean saveUP2PrefsTEMP(boolean onlyCheck) {
+		  boolean result = false;
+			String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
+			String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+			if (onlyCheck || sa.equals("00") || pass.equals("00")) {
+		  		DBKernel.closeDBConnections(false);
+		  		
+		  		try {
+			  		sa = getTempSA();
+			  		pass = getTempSAPass();
+			  		Connection conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+			  		if (!onlyCheck) {
+				  		if (conn == null) {
+				  			sa = getTempSA(true);
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+				  		if (conn == null) {
+				  			pass = getTempSAPass(true);
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+				  		if (conn == null) {
+				  			sa = getTempSA(true);
+				  			pass = getTempSAPass();
+				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  		}
+			  		}
+			  		if (conn == null) System.err.println("save Pass to Prefs failed...");
+			  		else {
+			  			if (!onlyCheck) {
+							DBKernel.prefs.put("DBADMINUSER" + HSHDB_PATH, sa);
+							DBKernel.prefs.put("DBADMINPASS" + HSHDB_PATH, pass);			  				
+			  			}
+						result = true;
+						//System.err.println("pass combi is: " + sa + "\t" + pass);
+			  		}
+		  		}
+		  		catch(Exception e) {}
+				
+		  		try {
+			  		DBKernel.closeDBConnections(false);
+			  		DBKernel.getDBConnection();
+			  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+			  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+			  		}				
+		  		}
+		  		catch(Exception e) {}
+			}
+			return result;
+	  }
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
 	}
@@ -965,17 +1027,38 @@ public class DBKernel {
 		catch (Exception e) {MyLogger.handleException(e);}
 		return result;
   }
+  public static Integer getLastID(final String tablename) {
+	  Integer result = null;
+	  String sql = "SELECT MAX(" + delimitL("ID") + ") FROM " + delimitL(tablename);
+		ResultSet rs = getResultSet(sql, true);
+		try {
+			if (rs != null && rs.last()) {
+				result = rs.getInt(1);
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}
+		return result;
+  }
   public static Object getValue(final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
 	  return getValue(null, tablename, feldname, feldVal, desiredColumn);
   }
   public static Object getValue(Connection conn, final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
+	  return getValue(conn, tablename, new String[] {feldname}, new String[] {feldVal}, desiredColumn);
+  }
+  public static Object getValue(Connection conn, final String tablename, final String[] feldname, final String[] feldVal, final String desiredColumn) {
 	  	Object result = null;
-		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE " + delimitL(feldname);
-		  if (feldVal == null) {
-			sql += " IS NULL";
-		} else {
-			sql += " = '" + feldVal.replace("'", "''") + "'";
-		}
+		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE ";
+		  for (int i=0;i<feldname.length;i++) {
+			  if (i < feldVal.length) {
+				  if (!sql.trim().endsWith("WHERE")) sql += " AND ";
+				  	sql += delimitL(feldname[i]);			  				  
+					  if (feldVal[i] == null) {
+							sql += " IS NULL";
+						} else {
+							sql += " = '" + feldVal[i].replace("'", "''") + "'";
+						}
+			  }
+		  }
 			ResultSet rs = getResultSet(conn, sql, true);
 			try {
 				if (rs != null && rs.last()) { //  && rs.getRow() == 1
@@ -1424,6 +1507,36 @@ public class DBKernel {
     }
     return result;
   }
+  public static Integer sendRequestGetAffectedRowNumber(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	    Integer result = null;
+	    boolean adminGathered = false;
+	    try {
+	    	if (fetchAdminInCase && !DBKernel.isAdmin()) {
+	    		DBKernel.closeDBConnections(false);
+	    		conn = DBKernel.getDefaultAdminConn();
+	    		adminGathered = true;
+	    	}
+	      Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+	      result = anfrage.executeUpdate(sql);
+	    }
+	    catch (Exception e) {
+	      if (!suppressWarnings) {
+	    	  if (!DBKernel.isKNIME ||
+	    			  (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+	    	  MyLogger.handleException(e);
+	      }
+	    }
+	    if (adminGathered) {
+			DBKernel.closeDBConnections(false);
+			try {
+				DBKernel.getDBConnection();
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+	    }
+	    return result;
+	  }
   public static String sendRequestGetErr(final String sql) {
     String result = "";
     try {
@@ -1749,6 +1862,10 @@ public class DBKernel {
 					  		UpdateChecker.check4Updates_152_153(myList); 
 					  		DBKernel.setDBVersion("1.5.3");
 					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.3")) {
+					  		UpdateChecker.check4Updates_153_154(myList); 
+					  		DBKernel.setDBVersion("1.5.4");
+					  	}
 					  	
 					  	if (!isAdmin) {
 					  		DBKernel.closeDBConnections(false);
@@ -1758,12 +1875,13 @@ public class DBKernel {
 					  		}
 					  	}
 					  	MainKernel.dontLog = dl;
-			  		}				
+			  		}
 				}
 				catch (Exception e) {
 					e.printStackTrace();
 				}
-			}			
+			}
+		  	DBKernel.saveUP2PrefsTEMP();
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);
@@ -2055,5 +2173,35 @@ public class DBKernel {
         }
     	catch (Exception e) {e.printStackTrace();}
         return result;
+    }
+    public static void getKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+		  String sql = "SELECT " + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceID") +
+				  " FROM " + DBKernel.delimitL("DataSource") + " WHERE ";
+		  sql += DBKernel.delimitL("Table") + "=" + "'" + tablename + "' AND";
+		  sql += DBKernel.delimitL("SourceDBUUID") + "=" + "'" + rowuuid + "';";
+
+		  ResultSet rs = DBKernel.getResultSet(conn, sql, true);
+		  try {
+			  if (rs != null && rs.first()) {
+				  do {
+					  if (rs.getObject("SourceID") != null && rs.getObject("TableID") != null) {
+						  foreignDbIds.put(rs.getInt("SourceID"), rs.getInt("TableID"));						  
+					  }
+				  } while(rs.next());
+			  }
+		  }
+		  catch (Exception e) {MyLogger.handleException(e);}
+    }
+    public static void setKnownIDs4PMM(Connection conn, HashMap<Integer, Integer> foreignDbIds, String tablename, String rowuuid) {
+    	for (Integer sID : foreignDbIds.keySet()) {
+			Object id = DBKernel.getValue(conn, "DataSource", new String[] {"Table","SourceDBUUID", "SourceID"}, new String[] {tablename, rowuuid, sID+""}, "TableID");
+    		if (id == null) {
+    			String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") +
+    					" (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," +
+    					DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") +
+    					") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
+    			DBKernel.sendRequest(conn, sql, false, false);
+    		}
+    	}
     }
 }

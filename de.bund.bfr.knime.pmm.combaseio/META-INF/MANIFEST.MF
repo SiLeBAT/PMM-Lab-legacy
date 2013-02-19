@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CombaseReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.combaseio;singleton:=true
-Bundle-Version: 1.0.0.v20121110
+Bundle-Version: 1.0.0.v20130219
 Bundle-ClassPath: combasereader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.combaseio.CombaseReaderNodePlugin
 Bundle-Vendor: BfR

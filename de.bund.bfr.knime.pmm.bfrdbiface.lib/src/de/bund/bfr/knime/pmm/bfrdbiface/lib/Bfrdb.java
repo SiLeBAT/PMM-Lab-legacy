@@ -726,6 +726,8 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\""+ATT_INDEP+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_PARAMNAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_VALUE+"\",\n"
+			+"    \"EstModelPrimView\".\"ZeitEinheit\",\n"
+			+"    \"EstModelPrimView\".\"KonzEinheit\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_NAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MODELID+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_ESTMODELID+"\",\n"
@@ -860,6 +862,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
+		    				null,null,
 		    				null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
@@ -869,7 +872,7 @@ public class Bfrdb extends Hsqldbiface {
 						null, null, null, null, null, null, null ) );
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
 					
-					String s = result.getString( Bfrdb.ATT_LITERATUREID );
+					String s = result.getString(Bfrdb.ATT_LITERATUREID);
 		    		if (s != null)
 						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(  s ) );
 					
@@ -935,6 +938,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
+		    				null,null,
 		    				null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	

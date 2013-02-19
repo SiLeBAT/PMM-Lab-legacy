@@ -67,6 +67,7 @@ import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.actions.BackupAction;
 import org.hsh.bfr.db.gui.actions.BlobAction;
 import org.hsh.bfr.db.gui.actions.ChangeLogAction;
+import org.hsh.bfr.db.gui.actions.ChangeMasterAction;
 import org.hsh.bfr.db.gui.actions.ExportAction;
 import org.hsh.bfr.db.gui.actions.FindAction;
 import org.hsh.bfr.db.gui.actions.FocusLeft;
@@ -163,6 +164,9 @@ public class MainFrame extends JFrame {
     InfoAction ia = new InfoAction(button9.getName(), button9.getIcon(), button9.getToolTipText());
     actionMap.put("F11", ia);
     button9.setAction(ia);
+    inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F12, InputEvent.CTRL_DOWN_MASK), "F12");
+    ChangeMasterAction cma = new ChangeMasterAction("Change Master", null, "Change Master");
+    actionMap.put("F12", cma);
   }
 
 	public JProgressBar getProgressBar() {
@@ -183,7 +187,7 @@ public class MainFrame extends JFrame {
 	public void setVisible(final boolean doVisible) {
 		boolean isAdmin = DBKernel.isAdmin();
 		boolean isRO = false; 
-		try {isRO = DBKernel.getDBConnection().isReadOnly();}
+		try {if (DBKernel.getDBConnection() != null) isRO = DBKernel.getDBConnection().isReadOnly();}
 		catch (Exception e) {MyLogger.handleException(e);}
 		boolean isEnabable = isAdmin && !isRO;
 		button8.getAction().setEnabled(true);

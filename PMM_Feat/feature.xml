@@ -2,7 +2,7 @@
 <feature
       id="de.bund.bfr.knime.pmm.base"
       label="PMM Nodes"
-      version="1.0.1.v20121110"
+      version="1.0.1.v20130219"
       provider-name="BfR">
 
    <description url="http://www.example.com/description">
@@ -14,11 +14,11 @@
    </copyright>
 
    <license>
-      PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR),
+      PMM-Lab © 2013, Federal Institute for Risk Assessment (BfR),
 Germany
 PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within
 the KNIME software plattform (http://www.knime.org.).
-PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR),
+PMM-Lab © 2013, Federal Institute for Risk Assessment (BfR),
 Germany
 Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de
 Developers and contributors to the PMM-Lab project are 
@@ -57,18 +57,6 @@ CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
    </license>
-
-   <includes
-         id="org.knime.features.ext.jep"
-         version="0.0.0"/>
-
-   <includes
-         id="org.knime.features.ext.poi"
-         version="0.0.0"/>
-
-   <includes
-         id="com.knime.features.reporting.runtime"
-         version="0.0.0"/>
 
    <plugin
          id="de.bund.bfr.knime.pmm.bfrdbiface.lib"
@@ -222,6 +210,24 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="de.bund.bfr.knime.pmm.modelselectiontertiary"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.dbdelete"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.fittedparameterview"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="de.bund.bfr.knime.pmm.xlsmodelreader"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

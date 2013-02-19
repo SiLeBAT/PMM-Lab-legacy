@@ -46,12 +46,15 @@ public class DbIo {
 		}
 		return tsDoc;    	
     }
-    public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array value, Array error, Array min, Array max) {
+    public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
+    		Array value, Array timeUnit, Array concUnit, Array error, Array min, Array max) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
 				Object[] na = (Object[])name.getArray();
 				Object[] va = (value == null) ? null : (Object[])value.getArray();
+				Object[] tu = (timeUnit == null) ? null : (Object[])timeUnit.getArray();
+				Object[] cu = (concUnit == null) ? null : (Object[])concUnit.getArray();
 				Object[] er = (error == null) ? null : (Object[])error.getArray();
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
@@ -59,6 +62,21 @@ public class DbIo {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
 						Double vad = (va == null || va[i] == null) ? Double.NaN : Double.parseDouble(va[i].toString());
+						if (!Double.isNaN(vad)) {
+							if (tu != null && tu[i] != null) {
+								if (tu[i].toString().equalsIgnoreCase("Sekunde")) vad = vad / 3600;
+								else if (tu[i].toString().equalsIgnoreCase("Minute")) vad = vad / 60;
+								else if (tu[i].toString().equalsIgnoreCase("Stunde")) ;
+								else if (tu[i].toString().equalsIgnoreCase("Tag")) vad = vad * 24;
+								else if (tu[i].toString().equalsIgnoreCase("Woche")) vad = vad * 24 * 7;
+								else if (tu[i].toString().equalsIgnoreCase("Monat")) vad = vad * 24 * 30;
+								else if (tu[i].toString().equalsIgnoreCase("Jahr")) vad = vad * 24 * 365;
+								else System.err.println("convertArrays2ParamXmlDoc - Unconsidered Time Unit used... Please Check!!!! ->" + tu[i]);
+							}
+							if (cu != null && cu[i] != null) {
+								System.err.println("convertArrays2ParamXmlDoc - Unconsidered concentration Unit used... Please Check!!!! ->" + cu[i]);
+							}
+						}
 						Double erd = (er == null || er[i] == null) ? Double.NaN : Double.parseDouble(er[i].toString());
 						Double mid = (mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());

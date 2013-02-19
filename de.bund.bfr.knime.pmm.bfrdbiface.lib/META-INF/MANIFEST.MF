@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: DB-Library
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.bfrdbiface.lib;singleton:=true
-Bundle-Version: 1.0.0.v20121110
+Bundle-Version: 1.0.0.v20130219
 Bundle-Activator: de.bund.bfr.knime.pmm.bfrdbiface.lib.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -21,6 +21,5 @@ Bundle-ClassPath: .,
  libs/mysql-connector-java-5.1.20-bin.jar,
  libs/quicktable2swing11.jar,
  icons/,
- libs/jcalendar.jar,
- libs/swingx.jar
+ libs/jcalendar.jar
 Bundle-Vendor: BfR

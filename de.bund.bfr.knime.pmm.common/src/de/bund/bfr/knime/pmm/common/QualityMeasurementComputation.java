@@ -358,8 +358,7 @@ public class QualityMeasurementComputation {
 
 				try {
 					value = parser.evaluate(function);
-				} catch (ParseException e) {
-					e.printStackTrace();
+				} catch (ParseException e) {					
 				}
 
 				if (value instanceof Double && !((Double) value).isNaN()

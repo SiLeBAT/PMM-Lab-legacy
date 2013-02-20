@@ -44,7 +44,7 @@ public class ChangeMasterPass extends JDialog {
 			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false, true)) {
 				DBKernel.prefs.put("DBADMINPASS" + DBKernel.HSHDB_PATH, newPass);
 			}
-			boolean success = DBKernel.saveUP2PrefsTEMP(true);
+			boolean success = DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH, true);
 			if (success) ibText = "Password successfully changed!";
 			else ibText = "Couldn't change password...";
 			InfoBox ib = new InfoBox(this, ibText, true, new Dimension(300, 200), null, true);

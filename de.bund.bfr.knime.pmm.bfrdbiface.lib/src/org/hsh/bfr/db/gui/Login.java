@@ -112,9 +112,8 @@ public class Login extends JFrame {
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);
 		textField2.setText(lastDBPath);
-		DBKernel.HSHDB_PATH = textField2.getText();
-		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA())) {
-			passwordField1.setText(DBKernel.getTempSAPass());
+		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA(lastDBPath))) {
+			passwordField1.setText(DBKernel.getTempSAPass(lastDBPath));
 			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
 		}
 	}
@@ -133,7 +132,7 @@ public class Login extends JFrame {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			MyList myList = loadDB();
 		  	if (myList != null) {
-		  		DBKernel.saveUP2PrefsTEMP();
+		  		DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 		  		/*
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
@@ -2416,7 +2415,7 @@ public class Login extends JFrame {
     		, false);
 */
     try {
-	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA()) + " PASSWORD '" + DBKernel.getTempSAPass() + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
+	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)) + " PASSWORD '" + DBKernel.getTempSAPass(DBKernel.HSHDB_PATH) + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
     }
     catch (Exception e) {MyLogger.handleException(e);}
   }

@@ -136,8 +136,8 @@ public class DBKernel {
 	@SuppressWarnings("unused")
 	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
-	public static String getTempSA(boolean other) {
-		String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
+	public static String getTempSA(String dbPath, boolean other) {
+		String sa = DBKernel.prefs.get("DBADMINUSER" + dbPath,"00");
 		if (sa.equals("00")) {
 			//if (debug) return "SA";
 			if (other) sa = isKNIME || isKrise ? "defad": "SA";		
@@ -146,8 +146,8 @@ public class DBKernel {
 		
 		return sa;
 	}
-	public static String getTempSAPass(boolean other) {
-		String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+	public static String getTempSAPass(String dbPath, boolean other) {
+		String pass = DBKernel.prefs.get("DBADMINPASS" + dbPath,"00");
 		if (pass.equals("00")) {
 			//if (debug) return "";
 			if (isServerConnection && isKrise) return "de6!§5ddy";
@@ -158,49 +158,53 @@ public class DBKernel {
 		
 		return pass;
 	}
-	public static String getTempSA() {
-		return getTempSA(false);
+	public static String getTempSA(String dbPath) {
+		return getTempSA(dbPath, false);
 	}
-	public static String getTempSAPass() {
-		return getTempSAPass(false);
+	public static String getTempSAPass(String dbPath) {
+		return getTempSAPass(dbPath, false);
 	}
 	public static String getLanguage() {
 		return isKrise || !isKNIME ? "de" : "en";
 	}
-	  public static boolean saveUP2PrefsTEMP() {
-		  return saveUP2PrefsTEMP(false);
+	  public static boolean saveUP2PrefsTEMP(String dbPath) {
+		  return saveUP2PrefsTEMP(dbPath, false);
 	  }
-	  public static boolean saveUP2PrefsTEMP(boolean onlyCheck) {
+	  public static boolean saveUP2PrefsTEMP(String dbPath, boolean onlyCheck) {
 		  boolean result = false;
-			String sa = DBKernel.prefs.get("DBADMINUSER" + HSHDB_PATH,"00");
-			String pass = DBKernel.prefs.get("DBADMINPASS" + HSHDB_PATH,"00");
+			String sa = DBKernel.prefs.get("DBADMINUSER" + dbPath,"00");
+			String pass = DBKernel.prefs.get("DBADMINPASS" + dbPath,"00");
 			if (onlyCheck || sa.equals("00") || pass.equals("00")) {
 		  		DBKernel.closeDBConnections(false);
 		  		
 		  		try {
-			  		sa = getTempSA();
-			  		pass = getTempSAPass();
-			  		Connection conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+			  		sa = getTempSA(dbPath);
+			  		pass = getTempSAPass(dbPath);
+			  		Connection conn = getDBConnection(dbPath, sa, pass, false);
+			  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 			  		if (!onlyCheck) {
 				  		if (conn == null) {
-				  			sa = getTempSA(true);
-				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  			sa = getTempSA(dbPath, true);
+				  			conn = getDBConnection(dbPath, sa, pass, false);
+					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 				  		if (conn == null) {
-				  			pass = getTempSAPass(true);
-				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  			pass = getTempSAPass(dbPath, true);
+				  			conn = getDBConnection(dbPath, sa, pass, false);
+					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 				  		if (conn == null) {
-				  			sa = getTempSA(true);
-				  			pass = getTempSAPass();
-				  			conn = getDBConnection(HSHDB_PATH, sa, pass, false);
+				  			sa = getTempSA(dbPath, true);
+				  			pass = getTempSAPass(dbPath);
+				  			conn = getDBConnection(dbPath, sa, pass, false);
+					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 			  		}
 			  		if (conn == null) System.err.println("save Pass to Prefs failed...");
 			  		else {
 			  			if (!onlyCheck) {
-							DBKernel.prefs.put("DBADMINUSER" + HSHDB_PATH, sa);
-							DBKernel.prefs.put("DBADMINPASS" + HSHDB_PATH, pass);			  				
+							DBKernel.prefs.put("DBADMINUSER" + dbPath, sa);
+							DBKernel.prefs.put("DBADMINPASS" + dbPath, pass);			  				
 			  			}
 						result = true;
 						//System.err.println("pass combi is: " + sa + "\t" + pass);
@@ -814,8 +818,8 @@ public class DBKernel {
   }
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
-	  Connection result = getDBConnection(dbPath, getTempSA(), getTempSAPass(), newConn);
-	  if (result == null) result = getDBConnection(dbPath, getTempSA(true), getTempSAPass(true), newConn);
+	  Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
+	  if (result == null) result = getDBConnection(dbPath, getTempSA(dbPath, true), getTempSAPass(dbPath, true), newConn);
 	  return result;
   }
   public static Connection getDefaultAdminConn() throws Exception {
@@ -1439,7 +1443,7 @@ public class DBKernel {
 		}
 		else {
 			try {
-				return getResultSet(conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY), sql, false);
+				return getResultSet(conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY), sql, suppressWarnings);
 			}
 			catch (SQLException e) {
 				//e.printStackTrace();
@@ -1584,18 +1588,23 @@ public class DBKernel {
 		}
 		return result;
 	}
-	public static boolean isAdmin() { // nur der Admin kann überhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen für Adminrechte, das kann auch defad sein
+	public static boolean isAdmin() {
 		String un = getUsername();
-		if (un.equals(getTempSA())) {
-			return true;
+		return isAdmin(null, un);
+	}
+	public static boolean isAdmin(Connection conn, String un) { // nur der Admin kann überhaupt die Users Tabelle abfragen, daher ist ein Wert <> -1 ein Zeichen für Adminrechte, das kann auch defad sein
+		if (conn == null) {
+			if (un.equals(getTempSA(HSHDB_PATH))) {
+				return true;
+			}
 		}
 		boolean result = false;
-		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + delimitL("Users") +
+		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") +
 				" WHERE " + delimitL("Zugriffsrecht") + " = " + Users.ADMIN +
 				" AND " + delimitL("Username") + " = '" + un + "'", true);
 		try {
 			if (rs != null && rs.first()) {
-				result = (rs.getInt(1) > 0);
+				result = (rs.getInt(1) > (conn == null ? 0 : -1));
 			}
 		}
 		catch (Exception e) {
@@ -1804,10 +1813,10 @@ public class DBKernel {
 
 				try {
 				  	HSHDB_PATH = internalPath;
-					result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA()),
-							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass()));
-					if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(true)),
-							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(true)));
+					result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(HSHDB_PATH)),
+							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH)));
+					if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(HSHDB_PATH, true)),
+							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH, true)));
 
 					createGui(result);
 					// UpdateChecker
@@ -1884,7 +1893,7 @@ public class DBKernel {
 					e.printStackTrace();
 				}
 			}
-		  	DBKernel.saveUP2PrefsTEMP();
+		  	DBKernel.saveUP2PrefsTEMP(HSHDB_PATH);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);

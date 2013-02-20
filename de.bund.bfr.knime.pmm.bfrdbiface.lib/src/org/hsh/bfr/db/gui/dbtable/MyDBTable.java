@@ -341,7 +341,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			} ttt = System.currentTimeMillis();
 			if (!bigbigTable) {
 				if (sorterModel != null) {
-					sorterModel.initArray();
+					//sorterModel.initArray();
 				}
 			}
 			if (DBKernel.debug) {
@@ -648,6 +648,15 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			    		if (mnTable[i].equals("INT") && myT.getForeignFields()[i] != null) { // z.B. Messwerte auch kopieren
 			    			String fTablename = myT.getForeignFields()[i].getTablename();
 			    			String tname = fTablename.startsWith("Codes_") ? "Basis" : tablename;
+			    			MyTable[] ffTs = myT.getForeignFields()[i].getForeignFields();
+			    			int ii=0;
+			    			for (MyTable myFT : ffTs) {
+			    				if (myFT != null && myFT.getTablename().equals(tablename)) {
+			    					tname = myT.getForeignFields()[i].getFieldNames()[ii];
+			    					break;
+			    				}
+			    				ii++;
+			    			}
 				    		ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") +
 				    				" FROM " + DBKernel.delimitL(fTablename) +
 						    		" WHERE " + DBKernel.delimitL(tname) + "=" + oldID +

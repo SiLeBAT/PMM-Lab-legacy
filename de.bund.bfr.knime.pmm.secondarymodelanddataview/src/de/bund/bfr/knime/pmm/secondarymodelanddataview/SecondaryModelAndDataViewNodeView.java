@@ -271,11 +271,12 @@ public class SecondaryModelAndDataViewNodeView extends
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Double> bicMap = new LinkedHashMap<>();
-		Map<String, Double> rmsDataMap = new LinkedHashMap<>();
-		Map<String, Double> rSquaredDataMap = new LinkedHashMap<>();
-		Map<String, Double> aicDataMap = new LinkedHashMap<>();
-		Map<String, Double> bicDataMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
+		List<KnimeTuple> tuples = new ArrayList<>();
+
+		while (reader.hasMoreElements()) {
+			tuples.add(reader.nextElement());
+		}
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -294,12 +295,15 @@ public class SecondaryModelAndDataViewNodeView extends
 				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME));
 
 		if (getNodeModel().getContainsData() == 1) {
+			try {
+				tuples = QualityMeasurementComputation.computeSecondary(tuples);
+			} catch (Exception e) {
+			}
+
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
-					Model2Schema.BIC, Model2Schema.RMS + "(Data)",
-					Model2Schema.RSQUARED + "(Data)", Model2Schema.AIC
-							+ "(Data)", Model2Schema.BIC + "(Data)"));
+					Model2Schema.BIC));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -329,24 +333,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
 
-		List<KnimeTuple> tuples = new ArrayList<>();
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
-		}
-
-		List<KnimeTuple> newTuples = null;
-
-		if (getNodeModel().getContainsData() == 1) {
-			try {
-				newTuples = QualityMeasurementComputation
-						.computeSecondary(tuples);
-			} catch (Exception e) {
-			}
-		}
-
-		for (int nr = 0; nr < tuples.size(); nr++) {
-			KnimeTuple tuple = tuples.get(nr);
+		for (KnimeTuple tuple : tuples) {
 			String id = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
 					.get(0)).getName();
 
@@ -403,21 +390,6 @@ public class SecondaryModelAndDataViewNodeView extends
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
 
 				if (getNodeModel().getContainsData() == 1) {
-					if (newTuples != null) {
-						PmmXmlDoc newEstModelXmlSec = newTuples.get(nr)
-								.getPmmXml(Model2Schema.ATT_ESTMODEL);
-
-						rmsDataMap.put(id, ((EstModelXml) newEstModelXmlSec
-								.get(0)).getRMS());
-						rSquaredDataMap.put(id,
-								((EstModelXml) newEstModelXmlSec.get(0))
-										.getR2());
-						aicDataMap.put(id, ((EstModelXml) newEstModelXmlSec
-								.get(0)).getAIC());
-						bicDataMap.put(id, ((EstModelXml) newEstModelXmlSec
-								.get(0)).getBIC());
-					}
-
 					miscDataMaps.put(id,
 							new LinkedHashMap<String, List<Double>>());
 
@@ -494,7 +466,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
-			
+
 			doubleColumnValues.get(0).add(rmsMap.get(id));
 			doubleColumnValues.get(1).add(rSquaredMap.get(id));
 			doubleColumnValues.get(2).add(bicMap.get(id));
@@ -520,11 +492,6 @@ public class SecondaryModelAndDataViewNodeView extends
 					plotable.addValueList(param, miscs.get(param));
 				}
 
-				doubleColumnValues.get(4).add(rmsDataMap.get(id));
-				doubleColumnValues.get(5).add(rSquaredDataMap.get(id));
-				doubleColumnValues.get(6).add(bicDataMap.get(id));
-				doubleColumnValues.get(7).add(aicDataMap.get(id));
-
 				for (int i = 0; i < miscParams.size(); i++) {
 					List<Double> nonNullValues = new ArrayList<Double>(
 							miscs.get(miscParams.get(i)));
@@ -538,13 +505,13 @@ public class SecondaryModelAndDataViewNodeView extends
 									new ArrayList<Double>(Arrays.asList(0.0)));
 						}
 
-						doubleColumnValues.get(2 * i + 8).add(
+						doubleColumnValues.get(2 * i + 4).add(
 								Collections.min(nonNullValues));
-						doubleColumnValues.get(2 * i + 9).add(
+						doubleColumnValues.get(2 * i + 5).add(
 								Collections.max(nonNullValues));
 					} else {
-						doubleColumnValues.get(2 * i + 8).add(null);
-						doubleColumnValues.get(2 * i + 9).add(null);
+						doubleColumnValues.get(2 * i + 4).add(null);
+						doubleColumnValues.get(2 * i + 5).add(null);
 					}
 				}
 
@@ -554,7 +521,7 @@ public class SecondaryModelAndDataViewNodeView extends
 					plotable.getFunctionArguments().put("No argument",
 							new ArrayList<Double>(Arrays.asList(0.0)));
 				}
-			}			
+			}
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(2).add(ChartConstants.FAILED);

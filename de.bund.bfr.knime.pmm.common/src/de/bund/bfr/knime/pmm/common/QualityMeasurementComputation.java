@@ -23,8 +23,8 @@ public class QualityMeasurementComputation {
 	private QualityMeasurementComputation() {
 	}
 
-	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples)
-			throws PmmException {
+	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples,
+			boolean perDataSet) throws PmmException {
 		Map<String, KnimeTuple> tupleMap = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Set<Integer>> usedCondIDs = new LinkedHashMap<String, Set<Integer>>();
 		Map<String, List<Double>> targetValueMap = new LinkedHashMap<String, List<Double>>();
@@ -40,7 +40,8 @@ public class QualityMeasurementComputation {
 					Model1Schema.ATT_ESTMODEL).get(0)).getID()
 					+ "";
 
-			if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
+			if (perDataSet
+					|| tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
 				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
@@ -207,7 +208,8 @@ public class QualityMeasurementComputation {
 						Model1Schema.ATT_ESTMODEL).get(0)).getID()
 						+ "";
 
-				if (tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
+				if (perDataSet
+						|| tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT).size() <= 1) {
 					id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 				}
 
@@ -358,7 +360,7 @@ public class QualityMeasurementComputation {
 
 				try {
 					value = parser.evaluate(function);
-				} catch (ParseException e) {					
+				} catch (ParseException e) {
 				}
 
 				if (value instanceof Double && !((Double) value).isNaN()

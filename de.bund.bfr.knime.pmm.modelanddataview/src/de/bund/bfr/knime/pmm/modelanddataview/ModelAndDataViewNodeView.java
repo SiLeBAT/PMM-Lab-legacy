@@ -240,6 +240,14 @@ public class ModelAndDataViewNodeView extends
 
 	private void readTable() throws PmmException {
 		List<String> miscParams = null;
+		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
+				.getSchema(), getNodeModel().getTable());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> newTuples = null;
+
+		while (reader.hasMoreElements()) {
+			tuples.add(reader.nextElement());
+		}
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -249,6 +257,18 @@ public class ModelAndDataViewNodeView extends
 		longLegend = new LinkedHashMap<String, String>();
 
 		if (getNodeModel().getContainsData() == 1) {
+			try {
+				tuples = QualityMeasurementComputation.computePrimary(tuples,
+						false);
+			} catch (Exception e) {
+			}
+
+			try {
+				newTuples = QualityMeasurementComputation.computePrimary(
+						tuples, true);
+			} catch (Exception e) {
+			}
+
 			miscParams = getAllMiscParams(getNodeModel().getTable());
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
@@ -258,9 +278,9 @@ public class ModelAndDataViewNodeView extends
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
-					Model1Schema.BIC, Model1Schema.RMS + "(Data)",
-					Model1Schema.RSQUARED + "(Data)", Model1Schema.AIC
-							+ "(Data)", Model1Schema.BIC + "(Data)"));
+					Model1Schema.BIC, Model1Schema.RMS + " (Local)",
+					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
+							+ " (Local)", Model1Schema.BIC + " (Local)"));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -292,20 +312,6 @@ public class ModelAndDataViewNodeView extends
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
-		}
-
-		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
-				.getSchema(), getNodeModel().getTable());
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
-		}
-
-		List<KnimeTuple> newTuples = null;
-
-		if (getNodeModel().getContainsData() == 1) {
-			newTuples = QualityMeasurementComputation.computePrimary(tuples);
 		}
 
 		Set<String> idSet = new LinkedHashSet<String>();
@@ -450,9 +456,6 @@ public class ModelAndDataViewNodeView extends
 					matrix = matrixDetail;
 				}
 
-				PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
-						Model1Schema.ATT_ESTMODEL);
-
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
@@ -466,14 +469,26 @@ public class ModelAndDataViewNodeView extends
 						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
 						((EstModelXml) estModelXml.get(0)).getBIC());
-				doubleColumnValues.get(4).add(
-						((EstModelXml) newEstModelXml.get(0)).getRMS());
-				doubleColumnValues.get(5).add(
-						((EstModelXml) newEstModelXml.get(0)).getR2());
-				doubleColumnValues.get(6).add(
-						((EstModelXml) newEstModelXml.get(0)).getAIC());
-				doubleColumnValues.get(7).add(
-						((EstModelXml) newEstModelXml.get(0)).getBIC());
+
+				if (newTuples != null) {
+					PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
+							Model1Schema.ATT_ESTMODEL);
+
+					doubleColumnValues.get(4).add(
+							((EstModelXml) newEstModelXml.get(0)).getRMS());
+					doubleColumnValues.get(5).add(
+							((EstModelXml) newEstModelXml.get(0)).getR2());
+					doubleColumnValues.get(6).add(
+							((EstModelXml) newEstModelXml.get(0)).getAIC());
+					doubleColumnValues.get(7).add(
+							((EstModelXml) newEstModelXml.get(0)).getBIC());
+				} else {
+					doubleColumnValues.get(4).add(null);
+					doubleColumnValues.get(5).add(null);
+					doubleColumnValues.get(6).add(null);
+					doubleColumnValues.get(7).add(null);
+				}
+
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,

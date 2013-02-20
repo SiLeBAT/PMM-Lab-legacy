@@ -60,6 +60,17 @@ public class TableReader {
 	public TableReader(BufferedDataTable table, KnimeSchema schema,
 			boolean schemaContainsData) throws PmmException {
 		List<String> miscParams = null;
+		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> newTuples = null;
+		Set<String> idSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			tuples.add(reader.nextElement());
+		}
+
+		tupleCombinations = ModelCombiner.combine(tuples, schema, false, null);
+		tuples = new ArrayList<>(tupleCombinations.keySet());
 
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
@@ -71,6 +82,18 @@ public class TableReader {
 		longLegend = new LinkedHashMap<String, String>();
 
 		if (schemaContainsData) {
+			try {
+				tuples = QualityMeasurementComputation.computePrimary(tuples,
+						false);
+			} catch (Exception e) {
+			}
+
+			try {
+				newTuples = QualityMeasurementComputation.computePrimary(
+						tuples, true);
+			} catch (Exception e) {
+			}
+
 			miscParams = getAllMiscParams(table);
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
@@ -82,9 +105,9 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
-					Model1Schema.BIC, Model1Schema.RMS + "(Data)",
-					Model1Schema.RSQUARED + "(Data)", Model1Schema.AIC
-							+ "(Data)", Model1Schema.BIC + "(Data)"));
+					Model1Schema.BIC, Model1Schema.RMS + " (Local)",
+					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
+							+ " (Local)", Model1Schema.BIC + " (Local)"));
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -116,24 +139,6 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 		}
-
-		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
-		}
-
-		tupleCombinations = ModelCombiner.combine(tuples, schema, false, null);
-		tuples = new ArrayList<>(tupleCombinations.keySet());
-
-		List<KnimeTuple> newTuples = null;
-
-		if (schemaContainsData) {
-			newTuples = QualityMeasurementComputation.computePrimary(tuples);
-		}
-
-		Set<String> idSet = new LinkedHashSet<String>();
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple tuple = tuples.get(nr);
@@ -287,8 +292,6 @@ public class TableReader {
 
 				PmmXmlDoc estModelXml = tuple
 						.getPmmXml(Model1Schema.ATT_ESTMODEL);
-				PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
-						Model1Schema.ATT_ESTMODEL);
 
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
@@ -303,14 +306,26 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
 						((EstModelXml) estModelXml.get(0)).getBIC());
-				doubleColumnValues.get(4).add(
-						((EstModelXml) newEstModelXml.get(0)).getRMS());
-				doubleColumnValues.get(5).add(
-						((EstModelXml) newEstModelXml.get(0)).getR2());
-				doubleColumnValues.get(6).add(
-						((EstModelXml) newEstModelXml.get(0)).getAIC());
-				doubleColumnValues.get(7).add(
-						((EstModelXml) newEstModelXml.get(0)).getBIC());
+
+				if (newTuples != null) {
+					PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
+							Model1Schema.ATT_ESTMODEL);
+
+					doubleColumnValues.get(4).add(
+							((EstModelXml) newEstModelXml.get(0)).getRMS());
+					doubleColumnValues.get(5).add(
+							((EstModelXml) newEstModelXml.get(0)).getR2());
+					doubleColumnValues.get(6).add(
+							((EstModelXml) newEstModelXml.get(0)).getAIC());
+					doubleColumnValues.get(7).add(
+							((EstModelXml) newEstModelXml.get(0)).getBIC());
+				} else {
+					doubleColumnValues.get(4).add(null);
+					doubleColumnValues.get(5).add(null);
+					doubleColumnValues.get(6).add(null);
+					doubleColumnValues.get(7).add(null);
+				}
+
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,

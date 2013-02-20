@@ -1109,10 +1109,8 @@ public class DBKernel {
 		return null;
 	}
     String foreignTable = theTable.getTablename();
-    if (DBKernel.debug) {
-		System.err.println(foreignTable + "\t" + (System.currentTimeMillis() / 1000));
-	}
-  	if (forceUpdate && filledHashtables.containsKey(foreignTable)) {
+    //if (DBKernel.debug) System.err.println(foreignTable + "\t" + (System.currentTimeMillis() / 1000));
+ 	if (forceUpdate && filledHashtables.containsKey(foreignTable)) {
 		filledHashtables.remove(foreignTable);
 	}
     if (filledHashtables.containsKey(foreignTable)) {

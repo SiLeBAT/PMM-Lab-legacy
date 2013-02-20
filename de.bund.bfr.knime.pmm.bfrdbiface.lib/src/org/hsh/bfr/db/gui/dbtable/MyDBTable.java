@@ -300,9 +300,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				}
 			}
 		}
-		if (DBKernel.debug) {
-			System.out.println(myT.getMetadata() + "\n" + where + order);
-		}
+		//if (DBKernel.debug) System.out.println(myT.getMetadata() + "\n" + where + order);
 		if (actualTable.getForeignFields() != null) {
 			hashBox = new LinkedHashMap[actualTable.getForeignFields().length];
 		} else {hashBox = null;}
@@ -314,17 +312,13 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 		this.setSelectSql(myT.getSelectSQL() + " " + where + order);
 		this.setCellPropertiesModel(cpm);
-		long ttt = System.currentTimeMillis();
+		//long ttt = System.currentTimeMillis();
 		try {
 			this.createColumnModelFromQuery();
-			if (DBKernel.debug) {
-				System.out.println("createColumnModelFromQuery: " + (System.currentTimeMillis() - ttt));
-			} ttt = System.currentTimeMillis();
+			//if (DBKernel.debug) {System.out.println("createColumnModelFromQuery: " + (System.currentTimeMillis() - ttt));ttt = System.currentTimeMillis();} 
 			if (!myT.isReadOnly() && !this.getConnection().isReadOnly()) {this.setEditable(true);} //  && where.trim().length() == 0
 			prepareColumns();
-			if (DBKernel.debug) {
-				System.out.println("prepareColumns: " + (System.currentTimeMillis() - ttt));
-			} ttt = System.currentTimeMillis();
+			//if (DBKernel.debug) {System.out.println("prepareColumns: " + (System.currentTimeMillis() - ttt)); }
 			if (myT.isReadOnly() || this.getConnection().isReadOnly()) {this.setEditable(false);} //  || where.trim().length() > 0
 			this.addDatabaseChangeListener(new MyDataChangeListener(this));
 		    this.addDBTableErrorListener(dberrlis);
@@ -336,17 +330,13 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			//this.getTable().getTableHeader().addMouseListener(new ColumnFitAdapter());
 			//this.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 			this.refresh();
-			if (DBKernel.debug) {
-				System.out.println("refresh: " + (System.currentTimeMillis() - ttt));
-			} ttt = System.currentTimeMillis();
+			//if (DBKernel.debug) {System.out.println("refresh: " + (System.currentTimeMillis() - ttt));ttt = System.currentTimeMillis();}
 			if (!bigbigTable) {
 				if (sorterModel != null) {
 					//sorterModel.initArray();
 				}
 			}
-			if (DBKernel.debug) {
-				System.out.println("sorterModel: " + (System.currentTimeMillis() - ttt));
-			} ttt = System.currentTimeMillis();
+			//if (DBKernel.debug) {System.out.println("sorterModel: " + (System.currentTimeMillis() - ttt)); ttt = System.currentTimeMillis();}
 			//AutoFitTableColumns.autoResizeTable(this.getTable(), true, false);
 			//this.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 			/*
@@ -386,9 +376,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			}
 		}
 		if (!bigbigTable) {actualTable.restoreProperties(this); syncTableRowHeights();}			
-		if (DBKernel.debug) {
-			System.out.println("syncTableRowHeights: " + (System.currentTimeMillis() - ttt));
-		}
+		//if (DBKernel.debug) {System.out.println("syncTableRowHeights: " + (System.currentTimeMillis() - ttt));}
 		if (DBKernel.mainFrame != null) {
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
@@ -1309,7 +1297,7 @@ if (myDBPanel1 != null) {
 
 				MyTable[] foreignFields = actualTable.getForeignFields();
 				if (foreignFields != null) {
-					long ttt = System.currentTimeMillis();
+					//long ttt = System.currentTimeMillis();
 					DBKernel.refreshHashTables();
 					for (int i=0; i<foreignFields.length; i++) {
 						if (foreignFields[i] != null) {
@@ -1331,14 +1319,10 @@ if (myDBPanel1 != null) {
 							else {
 								tcm.getColumn(i+1).setHeaderRenderer(new MyTableHeaderCellRenderer(this, Color.LIGHT_GRAY, (fieldComments[i] == null ? actualTable.getFieldNames()[i] : fieldComments[i])));	//  + "\n<rechte Maustaste oder Ctrl+Enter>"							
 							}
-							if (DBKernel.debug) {
-								System.out.println("foreignFields (" + foreignFields[i].getTablename() + "): " + (System.currentTimeMillis() - ttt));
-							} ttt = System.currentTimeMillis();
+							//if (DBKernel.debug) {System.out.println("foreignFields (" + foreignFields[i].getTablename() + "): " + (System.currentTimeMillis() - ttt));ttt = System.currentTimeMillis();} 
 						}
 					}
-					if (DBKernel.debug) {
-						System.out.println("foreignFields (Teilmenge von prepareColymns): " + (System.currentTimeMillis() - ttt));
-					}
+					//if (DBKernel.debug) {System.out.println("foreignFields (Teilmenge von prepareColymns): " + (System.currentTimeMillis() - ttt));}
 				}			
 			}						
 		}		

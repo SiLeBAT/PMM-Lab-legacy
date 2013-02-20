@@ -37,8 +37,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -54,6 +56,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -109,8 +112,17 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			}
 
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			Set<Integer> usedMiscIDs = new LinkedHashSet<>();
+
+			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+				usedMiscIDs.add(((MiscXml) el).getID());
+			}
 
 			for (int miscID : addedConditions.keySet()) {
+				if (usedMiscIDs.contains(miscID)) {
+					continue;
+				}
+
 				if (!namesByID.containsKey(miscID)) {
 					namesByID.put(
 							miscID,

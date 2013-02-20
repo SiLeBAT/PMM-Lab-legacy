@@ -44,8 +44,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -61,6 +63,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -85,6 +90,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	private Map<Integer, String> conditionsByID;
 	private JList<String> conditionsList;
 	private JTable conditionsTable;
+	private Set<Integer> usedMiscIDs;
 
 	/**
 	 * New pane for configuring the MicrobialDataEdit node.
@@ -97,6 +103,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		conditionsByID = new LinkedHashMap<>();
 		conditionsList = new JList<>();
 		conditionsTable = new JTable();
+		usedMiscIDs = new LinkedHashSet<>();
 
 		JPanel buttonPanel = new JPanel();
 
@@ -106,6 +113,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		JPanel listPanel = new JPanel();
 
+		listPanel.setBorder(BorderFactory
+				.createTitledBorder("Conditions to Add"));
 		listPanel.setLayout(new BorderLayout());
 		listPanel.add(buttonPanel, BorderLayout.NORTH);
 		listPanel.add(new JScrollPane(conditionsList,
@@ -135,6 +144,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			KnimeTuple tuple = reader.nextElement();
 			String combaseID = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 			int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
+			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			String id;
 
 			if (combaseID != null) {
@@ -144,6 +154,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			}
 
 			ids.add(id);
+
+			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+				usedMiscIDs.add(((MiscXml) el).getID());
+			}
 		}
 
 		try {
@@ -152,6 +166,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 							.getString(MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONS));
 		} catch (InvalidSettingsException e) {
 			conditions = new LinkedHashMap<>();
+		}
+
+		for (int id : usedMiscIDs) {
+			conditions.remove(id);
 		}
 
 		conditionsByID = new LinkedHashMap<>();
@@ -202,12 +220,19 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						+ "", "Parameter")
 						+ "";
 
-				conditionsByID.put(id, name);
-				conditionsList.setListData(conditionsByID.values().toArray(
-						new String[0]));
-				((ConditionsTableModel) conditionsTable.getModel())
-						.addCondition(name, new LinkedHashMap<String, Double>());
-				conditionsTable.repaint();
+				if (!usedMiscIDs.contains(id)) {
+					conditionsByID.put(id, name);
+					conditionsList.setListData(conditionsByID.values().toArray(
+							new String[0]));
+					((ConditionsTableModel) conditionsTable.getModel())
+							.addCondition(name,
+									new LinkedHashMap<String, Double>());
+					conditionsTable.repaint();
+				} else {
+					JOptionPane.showMessageDialog(addButton,
+							"Data already contains " + name, "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		} else if (e.getSource() == removeButton) {
 			Set<String> removeSet = new LinkedHashSet<>(
@@ -281,7 +306,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				conditions.remove(i);
 				conditionsValues.remove(i);
 			}
-			
+
 			fireTableStructureChanged();
 		}
 

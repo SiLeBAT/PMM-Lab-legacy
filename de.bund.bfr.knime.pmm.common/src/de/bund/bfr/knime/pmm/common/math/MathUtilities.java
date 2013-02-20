@@ -276,25 +276,6 @@ public class MathUtilities {
 		return values;
 	}
 
-	public static boolean areValuesInRange(List<Double> values,
-			List<Double> minValues, List<Double> maxValues) {
-		for (int i = 0; i < values.size(); i++) {
-			if (values.get(i) != null) {
-				if (minValues.get(i) != null
-						&& values.get(i) < minValues.get(i)) {
-					return false;
-				}
-
-				if (maxValues.get(i) != null
-						&& values.get(i) > maxValues.get(i)) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
 	private static class ZeroDiffRule implements DiffRulesI {
 
 		private String name;

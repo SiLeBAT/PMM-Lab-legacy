@@ -101,7 +101,6 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private JComponent optionsPanel;
 
 	private JScrollPane tableScrollPane;
-	private ShapeRenderer checkBoxRenderer;
 	private JButton selectAllButton;
 	private JButton unselectAllButton;
 	private JButton invertSelectionButton;
@@ -235,14 +234,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable
 				.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 		selectTable.setRowSorter(new SelectTableRowSorter(model, null));
-		checkBoxRenderer = new ShapeRenderer();
 		selectTable.getColumn(SelectTableModel.ID).setMinWidth(0);
 		selectTable.getColumn(SelectTableModel.ID).setMaxWidth(0);
 		selectTable.getColumn(SelectTableModel.ID).setPreferredWidth(0);
 		selectTable.getColumn(SelectTableModel.SELECTED).setCellEditor(
 				new CheckBoxEditor());
 		selectTable.getColumn(SelectTableModel.SELECTED).setCellRenderer(
-				checkBoxRenderer);
+				new CheckBoxRenderer());
 		selectTable.getColumn(SelectTableModel.SELECTED).getCellEditor()
 				.addCellEditorListener(this);
 
@@ -1008,59 +1006,6 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 	}
 
-	private class ShapeRenderer extends JCheckBox implements TableCellRenderer {
-
-		private static final long serialVersionUID = -8337460338388283099L;
-
-		public ShapeRenderer() {
-			super();
-			setHorizontalAlignment(JLabel.CENTER);
-			setBorderPainted(true);
-		}
-
-		@Override
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			int fittedColumn = -1;
-
-			for (int i = 0; i < table.getColumnCount(); i++) {
-				if (table.getColumnName(i).equals(ChartConstants.IS_FITTED)) {
-					fittedColumn = i;
-					break;
-				}
-			}
-
-			if (isSelected) {
-				setForeground(table.getSelectionForeground());
-				super.setBackground(table.getSelectionBackground());
-			} else if (fittedColumn != -1
-					&& table.getValueAt(row, fittedColumn).equals(
-							ChartConstants.NO)) {
-				setForeground(Color.RED);
-				setBackground(Color.RED);
-			} else if (fittedColumn != -1
-					&& table.getValueAt(row, fittedColumn).equals(
-							ChartConstants.WARNING)) {
-				setForeground(Color.YELLOW);
-				setBackground(Color.YELLOW);
-			} else {
-				setForeground(table.getForeground());
-				setBackground(table.getBackground());
-			}
-
-			setSelected((value != null && ((Boolean) value).booleanValue()));
-
-			if (hasFocus) {
-				setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
-			} else {
-				setBorder(new EmptyBorder(1, 1, 1, 1));
-			}
-
-			return this;
-		}
-	}
-
 	private class ColorListRenderer extends JComponent implements
 			TableCellRenderer {
 
@@ -1121,6 +1066,70 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			super(new JCheckBox());
 			((JCheckBox) getComponent())
 					.setHorizontalAlignment(JCheckBox.CENTER);
+		}
+	}
+
+	private class CheckBoxRenderer extends JCheckBox implements
+			TableCellRenderer {
+
+		private static final long serialVersionUID = -8337460338388283099L;
+
+		public CheckBoxRenderer() {
+			super();
+			setHorizontalAlignment(JLabel.CENTER);
+			setBorderPainted(true);
+		}
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			int statusColumn = -1;
+
+			for (int i = 0; i < table.getColumnCount(); i++) {
+				if (table.getColumnName(i).equals(ChartConstants.STATUS)) {
+					statusColumn = i;
+					break;
+				}
+			}
+
+			if (isSelected) {
+				setForeground(table.getSelectionForeground());
+				setBackground(table.getSelectionBackground());
+			} else if (statusColumn != -1) {
+				String statusValue = (String) table.getValueAt(row,
+						statusColumn);
+
+				if (statusValue.equals(ChartConstants.OK)) {
+					setForeground(table.getForeground());
+					setBackground(table.getBackground());
+				} else if (statusValue.equals(ChartConstants.FAILED)) {
+					setForeground(Color.RED);
+					setBackground(Color.RED);
+				} else if (statusValue.equals(ChartConstants.OUT_OF_LIMITS)) {
+					setForeground(Color.YELLOW);
+					setBackground(Color.YELLOW);
+				} else if (statusValue.equals(ChartConstants.NO_COVARIANCE)) {
+					setForeground(Color.YELLOW);
+					setBackground(Color.YELLOW);
+				} else if (statusValue.equals(ChartConstants.NOT_SIGNIFICANT)) {
+					setForeground(Color.YELLOW);
+					setBackground(Color.YELLOW);
+				}
+			} else {
+				setForeground(table.getForeground());
+				setBackground(table.getBackground());
+			}
+
+			setSelected((value != null && ((Boolean) value).booleanValue()));
+
+			if (hasFocus) {
+				setBorder(UIManager.getBorder("Table.focusCellHighlightBorder"));
+			} else {
+				setBorder(new EmptyBorder(1, 1, 1, 1));
+			}
+
+			return this;
 		}
 	}
 

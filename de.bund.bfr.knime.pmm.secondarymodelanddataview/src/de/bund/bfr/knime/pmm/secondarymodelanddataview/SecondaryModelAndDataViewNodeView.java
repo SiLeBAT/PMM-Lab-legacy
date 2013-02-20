@@ -58,19 +58,19 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -284,8 +284,8 @@ public class SecondaryModelAndDataViewNodeView extends
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, ChartConstants.IS_FITTED);
-		filterableStringColumns = Arrays.asList(ChartConstants.IS_FITTED);
+				Model2Schema.MODELNAME, ChartConstants.STATUS);
+		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -463,9 +463,6 @@ public class SecondaryModelAndDataViewNodeView extends
 			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
-			List<Double> paramValues = new ArrayList<Double>();
-			List<Double> minParamValues = new ArrayList<Double>();
-			List<Double> maxParamValues = new ArrayList<Double>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 
@@ -489,9 +486,6 @@ public class SecondaryModelAndDataViewNodeView extends
 				ParamXml element = (ParamXml) el;
 
 				constants.put(element.getName(), element.getValue());
-				paramValues.add(element.getValue());
-				minParamValues.add(element.getMin());
-				maxParamValues.add(element.getMax());
 			}
 
 			plotable.setFunction(formulaMap.get(id));
@@ -500,6 +494,11 @@ public class SecondaryModelAndDataViewNodeView extends
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
+			
+			doubleColumnValues.get(0).add(rmsMap.get(id));
+			doubleColumnValues.get(1).add(rSquaredMap.get(id));
+			doubleColumnValues.get(2).add(bicMap.get(id));
+			doubleColumnValues.get(3).add(aicMap.get(id));
 
 			if (getNodeModel().getContainsData() == 1) {
 				List<Double> depVarData = depVarDataMap.get(id);
@@ -521,19 +520,6 @@ public class SecondaryModelAndDataViewNodeView extends
 					plotable.addValueList(param, miscs.get(param));
 				}
 
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						minParamValues, maxParamValues)) {
-					stringColumnValues.get(2).add(ChartConstants.WARNING);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.YES);
-				}
-
-				doubleColumnValues.get(0).add(rmsMap.get(id));
-				doubleColumnValues.get(1).add(rSquaredMap.get(id));
-				doubleColumnValues.get(2).add(bicMap.get(id));
-				doubleColumnValues.get(3).add(aicMap.get(id));
 				doubleColumnValues.get(4).add(rmsDataMap.get(id));
 				doubleColumnValues.get(5).add(rSquaredDataMap.get(id));
 				doubleColumnValues.get(6).add(bicDataMap.get(id));
@@ -564,24 +550,21 @@ public class SecondaryModelAndDataViewNodeView extends
 
 				colorCounts.add(plotable.getNumberOfCombinations());
 			} else {
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						minParamValues, maxParamValues)) {
-					stringColumnValues.get(2).add(ChartConstants.WARNING);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.YES);
-				}
-
-				doubleColumnValues.get(0).add(rmsMap.get(id));
-				doubleColumnValues.get(1).add(rSquaredMap.get(id));
-				doubleColumnValues.get(2).add(bicMap.get(id));
-				doubleColumnValues.get(3).add(aicMap.get(id));
-
 				if (!hasArguments) {
 					plotable.getFunctionArguments().put("No argument",
 							new ArrayList<Double>(Arrays.asList(0.0)));
 				}
+			}			
+
+			if (!plotable.isPlotable()) {
+				stringColumnValues.get(2).add(ChartConstants.FAILED);
+			} else if (ParamXmlUtilities.isOutOfRange(paramMap.get(id))) {
+				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+			} else if (ParamXmlUtilities.covarianceMatrixMissing(paramMap
+					.get(id))) {
+				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+			} else {
+				stringColumnValues.get(2).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

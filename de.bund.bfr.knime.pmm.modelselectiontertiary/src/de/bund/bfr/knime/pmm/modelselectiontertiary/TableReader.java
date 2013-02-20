@@ -21,6 +21,7 @@ import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -31,7 +32,6 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -75,7 +75,7 @@ public class TableReader {
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, ChartConstants.IS_FITTED);
+					AttributeUtilities.DATAID, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -104,7 +104,7 @@ public class TableReader {
 			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(Model1Schema.MODELNAME));
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.IS_FITTED);
+					ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -374,21 +374,23 @@ public class TableReader {
 
 			if (schemaContainsData) {
 				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						paramMinValues, paramMaxValues)) {
-					stringColumnValues.get(2).add(ChartConstants.WARNING);
+					stringColumnValues.get(2).add(ChartConstants.FAILED);
+				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+					stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 				} else {
-					stringColumnValues.get(2).add(ChartConstants.YES);
+					stringColumnValues.get(2).add(ChartConstants.OK);
 				}
 			} else {
 				if (!plotable.isPlotable()) {
-					stringColumnValues.get(1).add(ChartConstants.NO);
-				} else if (!MathUtilities.areValuesInRange(paramValues,
-						paramMinValues, paramMaxValues)) {
-					stringColumnValues.get(1).add(ChartConstants.WARNING);
+					stringColumnValues.get(1).add(ChartConstants.FAILED);
+				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+					stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
+				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+					stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
 				} else {
-					stringColumnValues.get(1).add(ChartConstants.YES);
+					stringColumnValues.get(1).add(ChartConstants.OK);
 				}
 			}
 

@@ -374,7 +374,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_DATAFILTER,
 				selectionPanel.getFilter(AttributeUtilities.DATAID));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_FITTEDFILTER,
-				selectionPanel.getFilter(ChartConstants.IS_FITTED));
+				selectionPanel.getFilter(ChartConstants.STATUS));
 	}
 
 	private JComponent createMainComponent(List<String> selectedIDs,
@@ -421,7 +421,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
 		selectionPanel.setFilter(AttributeUtilities.DATAID, dataFilter);
-		selectionPanel.setFilter(ChartConstants.IS_FITTED, fittedFilter);
+		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());

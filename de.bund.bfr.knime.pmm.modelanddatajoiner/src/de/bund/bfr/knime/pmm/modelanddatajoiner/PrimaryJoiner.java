@@ -54,7 +54,6 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
@@ -62,7 +61,6 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -96,8 +94,7 @@ public class PrimaryJoiner implements Joiner {
 	private List<KnimeTuple> conditionTuples;
 
 	public PrimaryJoiner(BufferedDataTable modelTable,
-			BufferedDataTable dataTable, boolean joinSameConditions)
-			throws PmmException {
+			BufferedDataTable dataTable, boolean joinSameConditions) {
 		this.modelTable = modelTable;
 		this.dataTable = dataTable;
 		this.joinSameConditions = joinSameConditions;
@@ -175,8 +172,7 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws InvalidSettingsException,
-			CanceledExecutionException, PmmException, InterruptedException {
+			ExecutionContext exec) throws CanceledExecutionException {
 		BufferedDataContainer container = exec.createDataContainer(peiSchema
 				.createSpec());
 		Map<String, String> replacements = XmlConverter
@@ -317,7 +313,7 @@ public class PrimaryJoiner implements Joiner {
 		}
 	}
 
-	private void readModelTable() throws PmmException {
+	private void readModelTable() {
 		Set<Integer> ids = new LinkedHashSet<Integer>();
 		Set<Integer> estIDs = new LinkedHashSet<Integer>();
 
@@ -390,7 +386,7 @@ public class PrimaryJoiner implements Joiner {
 		variables = new ArrayList<String>(variableSet);
 	}
 
-	private void readDataTable() throws PmmException {
+	private void readDataTable() {
 		Set<String> parameterSet = new LinkedHashSet<String>();
 
 		parameterSet.add(AttributeUtilities.TIME);

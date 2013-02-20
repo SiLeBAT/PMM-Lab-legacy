@@ -54,8 +54,7 @@ public class ModelCombiner {
 
 	public static Map<KnimeTuple, List<KnimeTuple>> combine(
 			List<KnimeTuple> tuples, KnimeSchema schema,
-			boolean discardPrimaryParams, Map<String, String> doNotReplace)
-			throws PmmException {
+			boolean discardPrimaryParams, Map<String, String> doNotReplace) {
 		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
 				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
 		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),

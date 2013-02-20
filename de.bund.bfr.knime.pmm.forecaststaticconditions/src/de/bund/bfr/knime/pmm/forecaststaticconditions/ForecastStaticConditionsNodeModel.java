@@ -63,7 +63,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -104,15 +103,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		super(1, 1);
 		concentration = DEFAULT_CONCENTRATION;
 		concentrationParameters = new LinkedHashMap<>();
-
-		try {
-			peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
+		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
+				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -145,24 +138,19 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (seiSchema.conforms(inSpecs[0])) {
-				schema = seiSchema;
-			} else if (peiSchema.conforms(inSpecs[0])) {
-				schema = peiSchema;
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			if (concentrationParameters.isEmpty()) {
-				throw new InvalidSettingsException("Node has to be configured");
-			}
-
-			return new DataTableSpec[] { schema.createSpec() };
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		if (seiSchema.conforms(inSpecs[0])) {
+			schema = seiSchema;
+		} else if (peiSchema.conforms(inSpecs[0])) {
+			schema = peiSchema;
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		if (concentrationParameters.isEmpty()) {
+			throw new InvalidSettingsException("Node has to be configured");
+		}
+
+		return new DataTableSpec[] { schema.createSpec() };
 	}
 
 	/**
@@ -427,7 +415,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	}
 
 	private void checkPrimaryModel(KnimeTuple tuple, String initialParameter,
-			boolean outputEstID) throws PmmException {
+			boolean outputEstID) {
 		String modelName = ((CatalogModelXml) tuple.getPmmXml(
 				Model1Schema.ATT_MODELCATALOG).get(0)).getName();
 		Integer estID = ((EstModelXml) tuple.getPmmXml(
@@ -450,8 +438,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 	}
 
-	private void checkSecondaryModels(List<KnimeTuple> tuples)
-			throws PmmException {
+	private void checkSecondaryModels(List<KnimeTuple> tuples) {
 		for (KnimeTuple tuple : tuples) {
 			String depVar = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
@@ -468,7 +455,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 	}
 
-	private void checkData(KnimeTuple tuple) throws PmmException {
+	private void checkData(KnimeTuple tuple) {
 		int condID = tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 		PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);

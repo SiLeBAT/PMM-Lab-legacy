@@ -67,7 +67,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -237,18 +236,14 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (fittingType.equals(ModelEstimationNodeModel.NO_FITTING)) {
-			try {
-				KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-						new Model1Schema(), new Model2Schema()),
-						new TimeSeriesSchema());
+			KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
+					new Model1Schema(), new Model2Schema()),
+					new TimeSeriesSchema());
 
-				if (seiSchema.conforms(input[0])) {
-					fittingType = ModelEstimationNodeModel.SECONDARY_FITTING;
-				} else {
-					fittingType = ModelEstimationNodeModel.PRIMARY_FITTING;
-				}
-			} catch (PmmException e) {
-				e.printStackTrace();
+			if (seiSchema.conforms(input[0])) {
+				fittingType = ModelEstimationNodeModel.SECONDARY_FITTING;
+			} else {
+				fittingType = ModelEstimationNodeModel.PRIMARY_FITTING;
 			}
 		}
 
@@ -258,12 +253,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		nLevenbergField.setValue(nLevenberg);
 		stopWhenSuccessBox.setSelected(stopWhenSuccessful == 1);
 		limitsBox.setSelected(enforceLimits == 1);
-
-		try {
-			initGUI();
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		initGUI();
 	}
 
 	@Override
@@ -322,7 +312,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 				XmlConverter.mapToXml(guessMap));
 	}
 
-	private void readPrimaryTable(BufferedDataTable table) throws PmmException {
+	private void readPrimaryTable(BufferedDataTable table) {
 		modelNames = new LinkedHashMap<String, String>();
 		parameters = new LinkedHashMap<String, List<String>>();
 		minValues = new LinkedHashMap<String, Map<String, Double>>();
@@ -360,8 +350,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private void readSecondaryTable(BufferedDataTable table)
-			throws PmmException {
+	private void readSecondaryTable(BufferedDataTable table) {
 		readPrimaryTable(table);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
@@ -493,7 +482,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		return new JScrollPane(panel);
 	}
 
-	private void initGUI() throws PmmException {
+	private void initGUI() {
 		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
 				new TimeSeriesSchema());
 		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
@@ -558,11 +547,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fittingBox) {
-			try {
-				initGUI();
-			} catch (PmmException e1) {
-				e1.printStackTrace();
-			}
+			initGUI();
 		} else if (e.getSource() == modelRangeButton) {
 			for (String id : parameters.keySet()) {
 				for (String param : parameters.get(id)) {

@@ -58,7 +58,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
@@ -130,58 +129,53 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 	 */
 	@Override
 	protected void onOpen() {
-		try {
-			readTable();
+		readTable();
 
-			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, true);
-			configPanel.addConfigListener(this);
-			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
-					stringColumnValues, doubleColumns, doubleColumnValues,
-					visibleColumns, stringColumns);
-			selectionPanel.addSelectionListener(this);
-			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
-			infoPanel = new ChartInfoPanel(ids, infoParameters,
-					infoParameterValues);
-			samplePanel = new ChartSamplePanel();
-			samplePanel.setTimeColumnName(AttributeUtilities
-					.getName(AttributeUtilities.TIME));
-			samplePanel.setLogcColumnName(AttributeUtilities
-					.getName(AttributeUtilities.LOGC));
-			samplePanel.addEditListener(this);
+		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
+				true);
+		configPanel.addConfigListener(this);
+		selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
+				stringColumnValues, doubleColumns, doubleColumnValues,
+				visibleColumns, stringColumns);
+		selectionPanel.addSelectionListener(this);
+		chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
+		infoPanel = new ChartInfoPanel(ids, infoParameters, infoParameterValues);
+		samplePanel = new ChartSamplePanel();
+		samplePanel.setTimeColumnName(AttributeUtilities
+				.getName(AttributeUtilities.TIME));
+		samplePanel.setLogcColumnName(AttributeUtilities
+				.getName(AttributeUtilities.LOGC));
+		samplePanel.addEditListener(this);
 
-			JPanel upperRightPanel = new JPanel();
+		JPanel upperRightPanel = new JPanel();
 
-			upperRightPanel.setLayout(new GridLayout(2, 1));
-			upperRightPanel.add(selectionPanel);
-			upperRightPanel.add(samplePanel);
+		upperRightPanel.setLayout(new GridLayout(2, 1));
+		upperRightPanel.add(selectionPanel);
+		upperRightPanel.add(samplePanel);
 
-			JSplitPane upperSplitPane = new JSplitPane(
-					JSplitPane.HORIZONTAL_SPLIT, chartCreator, upperRightPanel);
-			JPanel bottomPanel = new JPanel();
+		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				chartCreator, upperRightPanel);
+		JPanel bottomPanel = new JPanel();
 
-			upperSplitPane.setResizeWeight(1.0);
-			bottomPanel.setLayout(new BorderLayout());
-			bottomPanel.add(configPanel, BorderLayout.WEST);
-			bottomPanel.add(infoPanel, BorderLayout.CENTER);
-			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
+		upperSplitPane.setResizeWeight(1.0);
+		bottomPanel.setLayout(new BorderLayout());
+		bottomPanel.add(configPanel, BorderLayout.WEST);
+		bottomPanel.add(infoPanel, BorderLayout.CENTER);
+		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
 
-			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-					upperSplitPane, bottomPanel);
-			Dimension preferredSize = splitPane.getPreferredSize();
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperSplitPane, bottomPanel);
+		Dimension preferredSize = splitPane.getPreferredSize();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-			preferredSize.width = Math.min(preferredSize.width,
-					(int) (screenSize.width * 0.9));
-			preferredSize.height = Math.min(preferredSize.height,
-					(int) (screenSize.height * 0.9));
+		preferredSize.width = Math.min(preferredSize.width,
+				(int) (screenSize.width * 0.9));
+		preferredSize.height = Math.min(preferredSize.height,
+				(int) (screenSize.height * 0.9));
 
-			splitPane.setResizeWeight(1.0);
-			splitPane.setPreferredSize(preferredSize);
-			setComponent(splitPane);
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		splitPane.setResizeWeight(1.0);
+		splitPane.setPreferredSize(preferredSize);
+		setComponent(splitPane);
 	}
 
 	private void createChart() {
@@ -270,7 +264,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		chartCreator.createChart(selectedID);
 	}
 
-	private void readTable() throws PmmException {
+	private void readTable() {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());

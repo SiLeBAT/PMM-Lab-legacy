@@ -58,7 +58,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -97,12 +96,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
-
-		try {
-			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	@Override
@@ -118,12 +112,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
 
-		try {
-			readTable(input[0]);
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
-
+		readTable(input[0]);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createPanel(concentrationParameters));
 	}
@@ -147,7 +136,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane {
 				XmlConverter.mapToXml(parameterMap));
 	}
 
-	private void readTable(BufferedDataTable table) throws PmmException {
+	private void readTable(BufferedDataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 

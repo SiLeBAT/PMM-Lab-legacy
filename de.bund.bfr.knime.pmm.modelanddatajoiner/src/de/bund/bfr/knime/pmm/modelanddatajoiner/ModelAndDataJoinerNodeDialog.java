@@ -52,7 +52,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -135,33 +134,24 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
-			try {
-				KnimeSchema model2Schema = new Model2Schema();
-				KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-						new Model2Schema());
-				KnimeSchema dataSchema = new TimeSeriesSchema();
-				KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-						new TimeSeriesSchema());
+			KnimeSchema model2Schema = new Model2Schema();
+			KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
+					new Model2Schema());
+			KnimeSchema dataSchema = new TimeSeriesSchema();
+			KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
+					new TimeSeriesSchema());
 
-				if (model2Schema.conforms(input[0])
-						&& peiSchema.conforms(input[1])) {
-					joinType = ModelAndDataJoinerNodeModel.SECONDARY_JOIN;
-				} else if (model12Schema.conforms(input[0])
-						&& dataSchema.conforms(input[1])) {
-					joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
-				} else {
-					joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
-				}
-			} catch (PmmException e) {
-				e.printStackTrace();
+			if (model2Schema.conforms(input[0]) && peiSchema.conforms(input[1])) {
+				joinType = ModelAndDataJoinerNodeModel.SECONDARY_JOIN;
+			} else if (model12Schema.conforms(input[0])
+					&& dataSchema.conforms(input[1])) {
+				joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
+			} else {
+				joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
 			}
 		}
 
-		try {
-			initGUI();
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		initGUI();
 	}
 
 	@Override
@@ -195,15 +185,11 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		try {
-			joinType = (String) joinerBox.getSelectedItem();
-			initGUI();
-		} catch (PmmException e1) {
-			e1.printStackTrace();
-		}
+		joinType = (String) joinerBox.getSelectedItem();
+		initGUI();
 	}
 
-	private void initGUI() throws PmmException {
+	private void initGUI() {
 		KnimeSchema model1Schema = new Model1Schema();
 		KnimeSchema model2Schema = new Model2Schema();
 		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),

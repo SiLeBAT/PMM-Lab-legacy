@@ -50,7 +50,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -81,14 +80,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected PredictorViewNodeModel() {
 		super(1, 0);
 		concentrationParameters = new LinkedHashMap<>();
-
-		try {
-			model1Schema = new Model1Schema();
-			model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		model1Schema = new Model1Schema();
+		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
 	}
 
 	/**
@@ -115,24 +108,19 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (model12Schema.conforms(inSpecs[0])) {
-				schema = model12Schema;
-			} else if (model1Schema.conforms(inSpecs[0])) {
-				schema = model1Schema;
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			if (concentrationParameters.isEmpty()) {
-				throw new InvalidSettingsException("Node has to be configured");
-			}
-
-			return new DataTableSpec[] {};
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		if (model12Schema.conforms(inSpecs[0])) {
+			schema = model12Schema;
+		} else if (model1Schema.conforms(inSpecs[0])) {
+			schema = model1Schema;
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		if (concentrationParameters.isEmpty()) {
+			throw new InvalidSettingsException("Node has to be configured");
+		}
+
+		return new DataTableSpec[] {};
 	}
 
 	/**
@@ -173,14 +161,10 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		try {
-			if (model12Schema.conforms(table.getDataTableSpec())) {
-				schema = model12Schema;
-			} else if (model1Schema.conforms(table.getDataTableSpec())) {
-				schema = model1Schema;
-			}
-		} catch (PmmException e) {
-			e.printStackTrace();
+		if (model12Schema.conforms(table.getDataTableSpec())) {
+			schema = model12Schema;
+		} else if (model1Schema.conforms(table.getDataTableSpec())) {
+			schema = model1Schema;
 		}
 	}
 

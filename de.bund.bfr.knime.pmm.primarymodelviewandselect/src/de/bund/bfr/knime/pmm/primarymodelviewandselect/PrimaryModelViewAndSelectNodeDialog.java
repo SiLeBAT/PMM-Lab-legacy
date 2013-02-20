@@ -56,7 +56,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -126,20 +125,14 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		KnimeSchema schema = null;
-		KnimeSchema model1Schema = null;
-		KnimeSchema peiSchema = null;
+		KnimeSchema model1Schema = new Model1Schema();
+		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
+				new TimeSeriesSchema());
 
-		try {
-			model1Schema = new Model1Schema();
-			peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-
-			if (peiSchema.conforms(input[0].getSpec())) {
-				schema = peiSchema;
-			} else if (model1Schema.conforms(input[0].getSpec())) {
-				schema = model1Schema;
-			}
-		} catch (PmmException e) {
+		if (peiSchema.conforms(input[0].getSpec())) {
+			schema = peiSchema;
+		} else if (model1Schema.conforms(input[0].getSpec())) {
+			schema = model1Schema;
 		}
 
 		try {
@@ -291,13 +284,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			fittedFilter = PrimaryModelViewAndSelectNodeModel.DEFAULT_FITTEDFILTER;
 		}
 
-		try {
-			reader = new TableReader(input[0], schema, schema == peiSchema);
-		} catch (PmmException e) {
-			reader = null;
-			e.printStackTrace();
-		}
-
+		reader = new TableReader(input[0], schema, schema == peiSchema);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}

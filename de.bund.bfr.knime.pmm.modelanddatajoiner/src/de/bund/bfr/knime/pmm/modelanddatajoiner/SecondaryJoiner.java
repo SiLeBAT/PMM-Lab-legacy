@@ -59,13 +59,11 @@ import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -105,7 +103,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	private boolean isValid;
 
 	public SecondaryJoiner(BufferedDataTable modelTable,
-			BufferedDataTable dataTable) throws PmmException {
+			BufferedDataTable dataTable) {
 		this.modelTable = modelTable;
 		this.dataTable = dataTable;
 
@@ -251,8 +249,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws InvalidSettingsException,
-			CanceledExecutionException, PmmException, InterruptedException {
+			ExecutionContext exec) throws CanceledExecutionException {
 		BufferedDataContainer buf = exec.createDataContainer(seiSchema
 				.createSpec());
 
@@ -353,7 +350,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		return isValid;
 	}
 
-	private void readModelTable() throws PmmException {
+	private void readModelTable() {
 		models = new ArrayList<String>();
 		modelNames = new LinkedHashMap<String, String>();
 		modelFormulas = new LinkedHashMap<String, String>();
@@ -385,7 +382,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		}
 	}
 
-	private void readDataTable() throws PmmException {
+	private void readDataTable() {
 		Set<String> indepParamSet = new LinkedHashSet<String>();
 		Set<String> depParamSet = new LinkedHashSet<String>();
 

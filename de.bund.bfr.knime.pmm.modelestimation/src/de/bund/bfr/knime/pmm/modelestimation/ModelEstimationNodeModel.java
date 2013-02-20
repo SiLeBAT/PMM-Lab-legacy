@@ -66,7 +66,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -134,15 +133,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
 		parameterGuesses = new LinkedHashMap<>();
-
-		try {
-			peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
+		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
+				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -178,39 +171,34 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			KnimeSchema outSchema = null;
+		KnimeSchema outSchema = null;
 
-			if (fittingType.equals(NO_FITTING)) {
-				throw new InvalidSettingsException("Node has to be configured!");
-			} else if (fittingType.equals(PRIMARY_FITTING)) {
-				if (peiSchema.conforms(inSpecs[0])) {
-					schema = peiSchema;
-					outSchema = peiSchema;
-				} else {
-					throw new InvalidSettingsException("Wrong input!");
-				}
-			} else if (fittingType.equals(SECONDARY_FITTING)) {
-				if (seiSchema.conforms(inSpecs[0])) {
-					schema = seiSchema;
-					outSchema = seiSchema;
-				} else {
-					throw new InvalidSettingsException("Wrong input!");
-				}
-			} else if (fittingType.equals(ONESTEP_FITTING)) {
-				if (seiSchema.conforms(inSpecs[0])) {
-					schema = seiSchema;
-					outSchema = peiSchema;
-				} else {
-					throw new InvalidSettingsException("Wrong input!");
-				}
+		if (fittingType.equals(NO_FITTING)) {
+			throw new InvalidSettingsException("Node has to be configured!");
+		} else if (fittingType.equals(PRIMARY_FITTING)) {
+			if (peiSchema.conforms(inSpecs[0])) {
+				schema = peiSchema;
+				outSchema = peiSchema;
+			} else {
+				throw new InvalidSettingsException("Wrong input!");
 			}
-
-			return new DataTableSpec[] { outSchema.createSpec() };
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		} else if (fittingType.equals(SECONDARY_FITTING)) {
+			if (seiSchema.conforms(inSpecs[0])) {
+				schema = seiSchema;
+				outSchema = seiSchema;
+			} else {
+				throw new InvalidSettingsException("Wrong input!");
+			}
+		} else if (fittingType.equals(ONESTEP_FITTING)) {
+			if (seiSchema.conforms(inSpecs[0])) {
+				schema = seiSchema;
+				outSchema = peiSchema;
+			} else {
+				throw new InvalidSettingsException("Wrong input!");
+			}
 		}
+
+		return new DataTableSpec[] { outSchema.createSpec() };
 	}
 
 	/**
@@ -269,8 +257,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 	}
 
 	private BufferedDataTable doPrimaryEstimation(BufferedDataTable table,
-			ExecutionContext exec) throws PmmException,
-			CanceledExecutionException, InterruptedException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			InterruptedException {
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
@@ -374,8 +362,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		return container.getTable();
 	}
 
-	private List<String> getAllMiscParams(BufferedDataTable table)
-			throws PmmException {
+	private List<String> getAllMiscParams(BufferedDataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new TimeSeriesSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();
@@ -565,8 +552,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
 				runningThreads.decrementAndGet();
 				finishedThreads.incrementAndGet();
-			} catch (PmmException e) {
-				e.printStackTrace();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -638,7 +623,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 							if (element.getValue() == null) {
 								valueMissing = true;
 							}
-							
+
 							value = element.getValue();
 							minValue = element.getMin();
 							maxValue = element.getMax();
@@ -859,8 +844,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				}
 
 				container.close();
-			} catch (PmmException e) {
-				e.printStackTrace();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -1183,8 +1166,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 				}
 
 				container.close();
-			} catch (PmmException e) {
-				e.printStackTrace();
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

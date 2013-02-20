@@ -56,7 +56,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -127,21 +126,15 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		KnimeSchema schema = null;
-		KnimeSchema model12Schema = null;
-		KnimeSchema seiSchema = null;
+		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
+				new Model2Schema());
+		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
+				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
 
-		try {
-			model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
-
-			if (seiSchema.conforms(input[0].getSpec())) {
-				schema = seiSchema;
-			} else if (model12Schema.conforms(input[0].getSpec())) {
-				schema = model12Schema;
-			}
-		} catch (PmmException e) {
+		if (seiSchema.conforms(input[0].getSpec())) {
+			schema = seiSchema;
+		} else if (model12Schema.conforms(input[0].getSpec())) {
+			schema = model12Schema;
 		}
 
 		try {
@@ -289,13 +282,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			fittedFilter = ModelSelectionTertiaryNodeModel.DEFAULT_FITTEDFILTER;
 		}
 
-		try {
-			reader = new TableReader(input[0], schema, schema == seiSchema);
-		} catch (PmmException e) {
-			reader = null;
-			e.printStackTrace();
-		}
-
+		reader = new TableReader(input[0], schema, schema == seiSchema);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,

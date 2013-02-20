@@ -48,7 +48,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -80,15 +79,9 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	protected CombinedModelAndDataViewNodeModel() {
 		super(1, 0);
 		containsData = DEFAULT_CONTAINSDATA;
-
-		try {
-			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
-			model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
+				new Model2Schema()), new TimeSeriesSchema());
+		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
 	}
 
 	/**
@@ -115,28 +108,23 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (seiSchema.conforms(inSpecs[0])) {
-				schema = seiSchema;
+		if (seiSchema.conforms(inSpecs[0])) {
+			schema = seiSchema;
 
-				if (containsData == 0) {
-					schema = model12Schema;
-				}
-			} else if (model12Schema.conforms(inSpecs[0])) {
+			if (containsData == 0) {
 				schema = model12Schema;
-
-				if (containsData == 1) {
-					containsData = 0;
-				}
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
 			}
+		} else if (model12Schema.conforms(inSpecs[0])) {
+			schema = model12Schema;
 
-			return new DataTableSpec[] {};
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+			if (containsData == 1) {
+				containsData = 0;
+			}
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		return new DataTableSpec[] {};
 	}
 
 	/**
@@ -175,14 +163,10 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		try {
-			if (seiSchema.conforms(table.getDataTableSpec())) {
-				schema = seiSchema;
-			} else if (model12Schema.conforms(table.getDataTableSpec())) {
-				schema = model12Schema;
-			}
-		} catch (PmmException e) {
-			e.printStackTrace();
+		if (seiSchema.conforms(table.getDataTableSpec())) {
+			schema = seiSchema;
+		} else if (model12Schema.conforms(table.getDataTableSpec())) {
+			schema = model12Schema;
 		}
 	}
 

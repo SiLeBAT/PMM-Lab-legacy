@@ -61,7 +61,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -173,14 +172,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
 		fittedFilter = DEFAULT_FITTEDFILTER;
-
-		try {
-			model1Schema = new Model1Schema();
-			peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		model1Schema = new Model1Schema();
+		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**
@@ -259,21 +252,16 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = peiSchema;
-			} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = model1Schema;
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			return new PortObjectSpec[] { schema.createSpec(),
-					new ImagePortObjectSpec(PNGImageContent.TYPE) };
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = peiSchema;
+		} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = model1Schema;
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		return new PortObjectSpec[] { schema.createSpec(),
+				new ImagePortObjectSpec(PNGImageContent.TYPE) };
 	}
 
 	/**

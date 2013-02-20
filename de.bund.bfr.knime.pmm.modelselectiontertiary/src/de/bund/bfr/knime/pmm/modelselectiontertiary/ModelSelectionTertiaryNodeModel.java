@@ -61,7 +61,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -174,15 +173,9 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
 		fittedFilter = DEFAULT_FITTEDFILTER;
-
-		try {
-			model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-			seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-					new Model2Schema()), new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
+		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
+				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -266,21 +259,16 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (seiSchema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = seiSchema;
-			} else if (model12Schema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = model12Schema;
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			return new PortObjectSpec[] { schema.createSpec(),
-					new ImagePortObjectSpec(PNGImageContent.TYPE) };
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		if (seiSchema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = seiSchema;
+		} else if (model12Schema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = model12Schema;
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		return new PortObjectSpec[] { schema.createSpec(),
+				new ImagePortObjectSpec(PNGImageContent.TYPE) };
 	}
 
 	/**

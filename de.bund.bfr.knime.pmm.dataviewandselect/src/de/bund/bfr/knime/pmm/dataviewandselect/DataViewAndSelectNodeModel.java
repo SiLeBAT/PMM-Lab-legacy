@@ -61,7 +61,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -231,17 +230,12 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (!schema.conforms((DataTableSpec) inSpecs[0])) {
-				throw new InvalidSettingsException("Wrong input!");
-			}
-
-			return new PortObjectSpec[] { schema.createSpec(),
-					new ImagePortObjectSpec(PNGImageContent.TYPE) };
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+		if (!schema.conforms((DataTableSpec) inSpecs[0])) {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		return new PortObjectSpec[] { schema.createSpec(),
+				new ImagePortObjectSpec(PNGImageContent.TYPE) };
 	}
 
 	/**

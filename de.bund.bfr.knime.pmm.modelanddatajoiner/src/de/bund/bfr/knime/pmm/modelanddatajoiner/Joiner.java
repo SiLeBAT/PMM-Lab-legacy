@@ -38,9 +38,6 @@ import javax.swing.JComponent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
-import org.knime.core.node.InvalidSettingsException;
-
-import de.bund.bfr.knime.pmm.common.PmmException;
 
 public interface Joiner {
 
@@ -49,8 +46,7 @@ public interface Joiner {
 	public String getAssignments();
 
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws InvalidSettingsException,
-			CanceledExecutionException, PmmException, InterruptedException;
+			ExecutionContext exec) throws CanceledExecutionException;
 
 	public boolean isValid();
 }

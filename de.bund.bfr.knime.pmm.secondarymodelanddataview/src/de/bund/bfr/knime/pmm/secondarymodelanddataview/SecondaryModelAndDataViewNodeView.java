@@ -59,7 +59,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
@@ -134,57 +133,50 @@ public class SecondaryModelAndDataViewNodeView extends
 	 */
 	@Override
 	protected void onOpen() {
-		try {
-			readTable();
+		readTable();
 
-			if (getNodeModel().getContainsData() == 1) {
-				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_BOXES, false);
-				selectionPanel = new ChartSelectionPanel(ids, true,
-						stringColumns, stringColumnValues, doubleColumns,
-						doubleColumnValues, visibleColumns,
-						filterableStringColumns, colorCounts);
-			} else {
-				configPanel = new ChartConfigPanel(
-						ChartConfigPanel.PARAMETER_FIELDS, false);
-				selectionPanel = new ChartSelectionPanel(ids, true,
-						stringColumns, stringColumnValues, doubleColumns,
-						doubleColumnValues, visibleColumns,
-						filterableStringColumns);
-			}
-
-			configPanel.addConfigListener(this);
-			selectionPanel.addSelectionListener(this);
-			chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
-			infoPanel = new ChartInfoPanel(ids, infoParameters,
-					infoParameterValues);
-
-			JSplitPane upperSplitPane = new JSplitPane(
-					JSplitPane.HORIZONTAL_SPLIT, chartCreator, selectionPanel);
-			JPanel bottomPanel = new JPanel();
-
-			upperSplitPane.setResizeWeight(1.0);
-			bottomPanel.setLayout(new BorderLayout());
-			bottomPanel.add(configPanel, BorderLayout.WEST);
-			bottomPanel.add(infoPanel, BorderLayout.CENTER);
-			bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
-
-			JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-					upperSplitPane, bottomPanel);
-			Dimension preferredSize = splitPane.getPreferredSize();
-			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-			preferredSize.width = Math.min(preferredSize.width,
-					(int) (screenSize.width * 0.9));
-			preferredSize.height = Math.min(preferredSize.height,
-					(int) (screenSize.height * 0.9));
-
-			splitPane.setResizeWeight(1.0);
-			splitPane.setPreferredSize(preferredSize);
-			setComponent(splitPane);
-		} catch (PmmException e) {
-			e.printStackTrace();
+		if (getNodeModel().getContainsData() == 1) {
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_BOXES, false);
+			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
+					stringColumnValues, doubleColumns, doubleColumnValues,
+					visibleColumns, filterableStringColumns, colorCounts);
+		} else {
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_FIELDS, false);
+			selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
+					stringColumnValues, doubleColumns, doubleColumnValues,
+					visibleColumns, filterableStringColumns);
 		}
+
+		configPanel.addConfigListener(this);
+		selectionPanel.addSelectionListener(this);
+		chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
+		infoPanel = new ChartInfoPanel(ids, infoParameters, infoParameterValues);
+
+		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				chartCreator, selectionPanel);
+		JPanel bottomPanel = new JPanel();
+
+		upperSplitPane.setResizeWeight(1.0);
+		bottomPanel.setLayout(new BorderLayout());
+		bottomPanel.add(configPanel, BorderLayout.WEST);
+		bottomPanel.add(infoPanel, BorderLayout.CENTER);
+		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
+
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperSplitPane, bottomPanel);
+		Dimension preferredSize = splitPane.getPreferredSize();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		preferredSize.width = Math.min(preferredSize.width,
+				(int) (screenSize.width * 0.9));
+		preferredSize.height = Math.min(preferredSize.height,
+				(int) (screenSize.height * 0.9));
+
+		splitPane.setResizeWeight(1.0);
+		splitPane.setPreferredSize(preferredSize);
+		setComponent(splitPane);
 	}
 
 	private void createChart() {
@@ -257,7 +249,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		chartCreator.createChart(selectedID);
 	}
 
-	private void readTable() throws PmmException {
+	private void readTable() {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
@@ -538,7 +530,7 @@ public class SecondaryModelAndDataViewNodeView extends
 		}
 	}
 
-	private List<String> getAllMiscParams(DataTable table) throws PmmException {
+	private List<String> getAllMiscParams(DataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new TimeSeriesSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();

@@ -60,7 +60,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
@@ -129,12 +128,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		agentID = -1;
 		matrixID = -1;
 		literatureIDs = new ArrayList<>();
-
-		try {
-			schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**

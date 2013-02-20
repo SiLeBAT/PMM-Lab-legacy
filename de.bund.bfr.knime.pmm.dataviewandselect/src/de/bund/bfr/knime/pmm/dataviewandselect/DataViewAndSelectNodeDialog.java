@@ -56,7 +56,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -239,12 +238,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			visibleColumns = new ArrayList<>();
 		}
 
-		try {
-			reader = new TableReader(input[0], new TimeSeriesSchema());
-		} catch (PmmException e) {
-			reader = null;
-			e.printStackTrace();
-		}
+		reader = new TableReader(input[0], new TimeSeriesSchema());
 
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());

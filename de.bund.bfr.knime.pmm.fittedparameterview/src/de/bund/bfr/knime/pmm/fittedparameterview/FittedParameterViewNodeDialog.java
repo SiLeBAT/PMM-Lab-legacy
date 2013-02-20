@@ -59,7 +59,6 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -120,11 +119,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		try {
-			allConditions = getAllMiscParams(input[0]);
-		} catch (PmmException e1) {
-			e1.printStackTrace();
-		}
+		allConditions = getAllMiscParams(input[0]);
 
 		try {
 			List<String> conditions = XmlConverter
@@ -180,7 +175,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private List<String> getAllMiscParams(DataTable table) throws PmmException {
+	private List<String> getAllMiscParams(DataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new TimeSeriesSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();

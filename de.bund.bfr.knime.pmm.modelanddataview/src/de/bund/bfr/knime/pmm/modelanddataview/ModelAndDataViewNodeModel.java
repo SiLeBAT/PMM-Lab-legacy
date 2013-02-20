@@ -48,7 +48,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -79,14 +78,8 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	protected ModelAndDataViewNodeModel() {
 		super(1, 0);
 		containsData = DEFAULT_CONTAINSDATA;
-
-		try {
-			model1Schema = new Model1Schema();
-			peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
+		model1Schema = new Model1Schema();
+		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**
@@ -113,28 +106,23 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		try {
-			if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
-				schema = peiSchema;
+		if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = peiSchema;
 
-				if (containsData == 0) {
-					schema = model1Schema;
-				}
-			} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
+			if (containsData == 0) {
 				schema = model1Schema;
-
-				if (containsData == 1) {
-					containsData = 0;
-				}
-			} else {
-				throw new InvalidSettingsException("Wrong input!");
 			}
+		} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
+			schema = model1Schema;
 
-			return new DataTableSpec[] {};
-		} catch (PmmException e) {
-			e.printStackTrace();
-			return null;
+			if (containsData == 1) {
+				containsData = 0;
+			}
+		} else {
+			throw new InvalidSettingsException("Wrong input!");
 		}
+
+		return new DataTableSpec[] {};
 	}
 
 	/**
@@ -173,14 +161,10 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		try {
-			if (peiSchema.conforms(table.getDataTableSpec())) {
-				schema = peiSchema;
-			} else if (model1Schema.conforms(table.getDataTableSpec())) {
-				schema = model1Schema;
-			}
-		} catch (PmmException e) {
-			e.printStackTrace();
+		if (peiSchema.conforms(table.getDataTableSpec())) {
+			schema = peiSchema;
+		} else if (model1Schema.conforms(table.getDataTableSpec())) {
+			schema = model1Schema;
 		}
 	}
 

@@ -14,7 +14,6 @@ import org.knime.core.node.BufferedDataTable;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -45,8 +44,7 @@ public class TableReader {
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	public TableReader(BufferedDataTable table, KnimeSchema schema)
-			throws PmmException {
+	public TableReader(BufferedDataTable table, KnimeSchema schema) {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<String> miscParams = getAllMiscParams(table);
@@ -231,8 +229,7 @@ public class TableReader {
 		return longLegend;
 	}
 
-	private List<String> getAllMiscParams(BufferedDataTable table)
-			throws PmmException {
+	private List<String> getAllMiscParams(BufferedDataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				new TimeSeriesSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();

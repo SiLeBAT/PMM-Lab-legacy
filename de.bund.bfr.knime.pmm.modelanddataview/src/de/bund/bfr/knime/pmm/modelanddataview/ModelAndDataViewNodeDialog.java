@@ -46,7 +46,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
@@ -73,13 +72,7 @@ public class ModelAndDataViewNodeDialog extends NodeDialogPane {
 	 * New pane for configuring the ModelAndDataView node.
 	 */
 	protected ModelAndDataViewNodeDialog() {
-		try {
-			seiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-		} catch (PmmException e) {
-			e.printStackTrace();
-		}
-
+		seiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 		containsDataBox = new JCheckBox("Display Data Points");
 
 		JPanel panel = new JPanel();

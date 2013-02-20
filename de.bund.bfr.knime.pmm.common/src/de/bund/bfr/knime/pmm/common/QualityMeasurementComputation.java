@@ -24,7 +24,7 @@ public class QualityMeasurementComputation {
 	}
 
 	public static List<KnimeTuple> computePrimary(List<KnimeTuple> tuples,
-			boolean perDataSet) throws PmmException {
+			boolean perDataSet) {
 		Map<String, KnimeTuple> tupleMap = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Set<Integer>> usedCondIDs = new LinkedHashMap<String, Set<Integer>>();
 		Map<String, List<Double>> targetValueMap = new LinkedHashMap<String, List<Double>>();
@@ -233,8 +233,7 @@ public class QualityMeasurementComputation {
 		return newTuples;
 	}
 
-	public static List<KnimeTuple> computeSecondary(List<KnimeTuple> tuples)
-			throws PmmException {
+	public static List<KnimeTuple> computeSecondary(List<KnimeTuple> tuples) {
 		Set<String> idSet = new LinkedHashSet<>();
 		Map<String, String> formulaMap = new LinkedHashMap<>();
 		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
@@ -415,8 +414,7 @@ public class QualityMeasurementComputation {
 		return newTuples;
 	}
 
-	private static List<String> getAllMiscParams(List<KnimeTuple> tuples)
-			throws PmmException {
+	private static List<String> getAllMiscParams(List<KnimeTuple> tuples) {
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		for (KnimeTuple tuple : tuples) {

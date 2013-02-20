@@ -8,7 +8,7 @@
                 <attribute name="Main-Class" value="org.eclipse.jdt.internal.jarinjarloader.JarRsrcLoader"/>
                 <attribute name="Rsrc-Main-Class" value="org.hsh.bfr.db.StartApp"/>
                 <attribute name="Class-Path" value="."/>
-                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jsoup-1.6.1.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.8-20120326.jar hsqldb.jar poi-scratchpad-3.8-20120326.jar mysql-connector-java-5.1.20-bin.jar jcommon-1.0.17.jar jcm1.0-config.jar jfreechart-1.0.14.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar swingx.jar"/>
+                <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jsoup-1.6.1.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.8-20120326.jar hsqldb.jar poi-scratchpad-3.8-20120326.jar mysql-connector-java-5.1.20-bin.jar jcommon-1.0.17.jar jcm1.0-config.jar jfreechart-1.0.14.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
             <fileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\bin">
@@ -30,7 +30,6 @@
             <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jfreechart-1.0.14.jar"/>
             <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="MyJabRef-2.6.jar"/>
             <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jgoodies-common-1.4.0.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="swingx.jar"/>
         	
             <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib/src" includes="org/hsh/bfr/db/res/exclude/firstDB_defad.tar.gz" fullpath="org/hsh/bfr/db/res/firstDB.tar.gz"/>
         </jar>

@@ -112,8 +112,8 @@ public class Login extends JFrame {
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);
 		textField2.setText(lastDBPath);
-		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA()))
-		 {
+		DBKernel.HSHDB_PATH = textField2.getText();
+		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA())) {
 			passwordField1.setText(DBKernel.getTempSAPass());
 			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
 		}

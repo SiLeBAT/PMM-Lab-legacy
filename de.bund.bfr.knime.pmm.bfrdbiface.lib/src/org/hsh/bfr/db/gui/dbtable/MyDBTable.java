@@ -1364,7 +1364,7 @@ if (myDBPanel1 != null) {
 		checkUnsavedStuff(true);
 	}
 	public void checkUnsavedStuff(final boolean saveProps) {
-		if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
+		//if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
 		// eigentlich würde es genügen, wenn man nur this.save() ausführt. this.save() hat selbst eine Routine, die checkt, ob was geändert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
 		if (this.getEditingColumn() >= 0 && this.getEditingRow() >= 0) {
 			this.save();

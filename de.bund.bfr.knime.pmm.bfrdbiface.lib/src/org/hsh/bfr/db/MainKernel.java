@@ -58,27 +58,19 @@ public class MainKernel {
 	public static boolean dontLog = false;
 	private static boolean isServer = false;
 	private static Server s = null;
+	
 	private static String dbFolder = "/opt/data/HSQLDB/data/";
 	private static String bkpFolder = "/opt/data/HSQLDB/backup/";
 	private static String logFolder = "/var/log/BfR_Server/";
+	/*
+	private static String dbFolder = "C:/Dokumente und Einstellungen/Weiser/Desktop/";
+	private static String bkpFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
+	private static String logFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
+	*/
 	private static String[][] dbDefs = new String[][] {
-		// 192.168.211.251 vm-lenski-lx
-//		{"silebat135","135","defad","de6!§5ddy"},
-//		{"silebat136","136","defad","de6!§5ddy"},
-//		{"silebat136_CB","136_CB","SA",""},
-//		{"statupknime","SU_120110","SA",""},
-//		{"statupknime4Alex","SU_120110_bkp4falenski","SA",""},
-//		{"buschulte_137","buschulte_137","defad","de6!§5ddy"},
-//		{"bios_139","bios_139","defad","de6!§5ddy"},
-//		{"bios_140","bios_140","defad","de6!§5ddy"},
-//		{"bios_141","bios_141","defad","de6!§5ddy"},
-//		{"bios_142","bios_142","defad","de6!§5ddy"},
-//		{"bios_143","bios_143","defad","de6!§5ddy"},
 		{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_146","silebat_146","defad","de6!§5ddy"},
-		//{"statup_knime_trigger","aktuell_statup_knime","SA",""},
-		
-		};
+		{"silebat_146","silebat_146","defad","de6!§5ddy"}
+	};
 	
 	public static void main(final String[] args) { // Servervariante
 		isServer = true;

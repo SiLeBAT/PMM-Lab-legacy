@@ -1439,7 +1439,7 @@ public class DBKernel {
 	  }
   public static ResultSet getResultSet(final Connection conn, final String sql, final boolean suppressWarnings) {
 		if (conn == null) {
-			return getResultSet(sql, false);
+			return getResultSet(sql, suppressWarnings);
 		}
 		else {
 			try {

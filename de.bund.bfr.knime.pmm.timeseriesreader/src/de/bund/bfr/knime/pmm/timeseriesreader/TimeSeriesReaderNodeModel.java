@@ -140,8 +140,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 
     	String dbuuid = db.getDBUUID();
     
-    	boolean inclBackwardResultSets = true;
-    	ResultSet result = db.selectTs(inclBackwardResultSets);
+    	ResultSet result = db.selectTs();
     	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
@@ -159,8 +158,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		tuple.setCombaseId(result.getString("CombaseID"));
 
         		PmmXmlDoc miscDoc = null;
-        		if (inclBackwardResultSets) miscDoc = db.getMiscXmlDoc(result);
-        		else miscDoc = db.getMiscXmlDoc(condID);
+        		miscDoc = db.getMiscXmlDoc(result);
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
         			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");

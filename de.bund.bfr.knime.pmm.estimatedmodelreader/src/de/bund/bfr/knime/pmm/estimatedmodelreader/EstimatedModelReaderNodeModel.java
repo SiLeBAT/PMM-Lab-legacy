@@ -164,8 +164,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	
     	KnimeSchema schema = createSchema();
 		    	
-    	boolean inclBackwardResultSets = true;
-    	ResultSet result = (level == 1 ? db.selectEstModel(1, inclBackwardResultSets) : db.selectEstModel(2, inclBackwardResultSets));
+    	ResultSet result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
    	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
@@ -182,8 +181,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));
     		
     		PmmXmlDoc miscDoc = null;
-    		if (inclBackwardResultSets) miscDoc = db.getMiscXmlDoc(result);
-    		else miscDoc = db.getMiscXmlDoc(condID);
+    		miscDoc = db.getMiscXmlDoc(result);
     		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
         		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
     			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");

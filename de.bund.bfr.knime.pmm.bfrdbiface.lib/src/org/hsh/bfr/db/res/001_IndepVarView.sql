@@ -20,17 +20,17 @@ CREATE VIEW "IndepVarView" AS
     LEFT JOIN "GeschaetzteModelle"
     ON "Modellkatalog"."ID"="GeschaetzteModelle"."Modell"
 
-     LEFT JOIN "GueltigkeitsBereiche"
-    ON "GeschaetzteModelle"."ID"="GueltigkeitsBereiche"."GeschaetztesModell"
-
     LEFT JOIN "ModellkatalogParameter"
     ON "ModellkatalogParameter"."Modell"="Modellkatalog"."ID"
+
+    LEFT JOIN "GueltigkeitsBereiche"
+    ON "ModellkatalogParameter"."ID"="GueltigkeitsBereiche"."Parameter" AND "GeschaetzteModelle"."ID"="GueltigkeitsBereiche"."GeschaetztesModell"
 
     LEFT JOIN "VarParMaps"
     ON "VarParMaps"."VarPar"="ModellkatalogParameter"."ID" AND "VarParMaps"."GeschaetztesModell"="GeschaetzteModelle"."ID"
 
     WHERE "Parametertyp"=1 AND "GeschaetzteModelle"."ID" IS NOT NULL
-   GROUP BY "GeschaetzteModelle"."ID";
+    GROUP BY "GeschaetzteModelle"."ID";
 
 
 GRANT SELECT ON TABLE "IndepVarView" TO "PUBLIC";				

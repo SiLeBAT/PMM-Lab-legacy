@@ -48,10 +48,14 @@ public class EstModelXml implements PmmXmlElementConvertable {
 			setBIC(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strInt = xmlElement.getAttribute("dof").getValue();
 			setDOF(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
-			strInt = xmlElement.getAttribute("qualityScore").getValue();
-			setQualityScore(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
-			String strBool = xmlElement.getAttribute("checked").getValue();
-			setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));
+			if (xmlElement.getAttribute("qualityScore") != null) {
+				strInt = xmlElement.getAttribute("qualityScore").getValue();
+				setQualityScore(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));				
+			}
+			if (xmlElement.getAttribute("checked") != null) {
+				String strBool = xmlElement.getAttribute("checked").getValue();
+				setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

@@ -33,11 +33,17 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			setTime(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("log10c").getValue();
 			setLog10C(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			setComment(xmlElement.getAttribute("comment").getValue());
-			String strInt = xmlElement.getAttribute("qualityScore").getValue();
-			setQualityScore(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
-			String strBool = xmlElement.getAttribute("checked").getValue();
-			setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));
+			if (xmlElement.getAttribute("comment") != null) {
+				setComment(xmlElement.getAttribute("comment").getValue());				
+			}
+			if (xmlElement.getAttribute("qualityScore") != null) {
+				String strInt = xmlElement.getAttribute("qualityScore").getValue();
+				setQualityScore(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));				
+			}
+			if (xmlElement.getAttribute("checked") != null) {
+				String strBool = xmlElement.getAttribute("checked").getValue();
+				setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();

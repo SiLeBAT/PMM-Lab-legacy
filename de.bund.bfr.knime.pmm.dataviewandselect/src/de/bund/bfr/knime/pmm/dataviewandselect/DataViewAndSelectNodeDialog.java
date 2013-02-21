@@ -62,7 +62,6 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeDialog</code> for the "DataViewAndSelect" Node.
@@ -238,7 +237,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			visibleColumns = new ArrayList<>();
 		}
 
-		reader = new TableReader(input[0], new TimeSeriesSchema());
+		reader = new TableReader(input[0]);
 
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());

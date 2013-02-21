@@ -52,8 +52,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of PredictorView.
@@ -69,8 +68,6 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	private DataTable table;
 	private KnimeSchema schema;
-	private KnimeSchema model1Schema;
-	private KnimeSchema model12Schema;
 
 	private Map<String, String> concentrationParameters;
 
@@ -80,8 +77,6 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected PredictorViewNodeModel() {
 		super(1, 0);
 		concentrationParameters = new LinkedHashMap<>();
-		model1Schema = new Model1Schema();
-		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
 	}
 
 	/**
@@ -108,10 +103,10 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (model12Schema.conforms(inSpecs[0])) {
-			schema = model12Schema;
-		} else if (model1Schema.conforms(inSpecs[0])) {
-			schema = model1Schema;
+		if (SchemaFactory.createM12Schema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM12Schema();
+		} else if (SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM1Schema();
 		} else {
 			throw new InvalidSettingsException("Wrong input!");
 		}
@@ -161,10 +156,10 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		if (model12Schema.conforms(table.getDataTableSpec())) {
-			schema = model12Schema;
-		} else if (model1Schema.conforms(table.getDataTableSpec())) {
-			schema = model1Schema;
+		if (SchemaFactory.createM12Schema().conforms(table)) {
+			schema = SchemaFactory.createM12Schema();
+		} else if (SchemaFactory.createM1Schema().conforms(table)) {
+			schema = SchemaFactory.createM1Schema();
 		}
 	}
 
@@ -190,14 +185,6 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	protected Map<String, String> getConcentrationParameters() {
 		return concentrationParameters;
-	}
-
-	protected boolean isModel1Schema() {
-		return schema == model1Schema;
-	}
-
-	protected boolean isModel12Schema() {
-		return schema == model12Schema;
 	}
 
 }

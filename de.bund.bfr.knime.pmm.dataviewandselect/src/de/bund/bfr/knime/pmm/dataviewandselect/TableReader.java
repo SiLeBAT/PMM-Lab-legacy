@@ -19,9 +19,9 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TableReader {
@@ -44,9 +44,10 @@ public class TableReader {
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	public TableReader(BufferedDataTable table, KnimeSchema schema) {
+	public TableReader(BufferedDataTable table) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), table);
 		List<String> miscParams = getAllMiscParams(table);
 
 		allIds = new ArrayList<String>();

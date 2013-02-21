@@ -60,6 +60,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -89,7 +90,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), inData[0]);
+				SchemaFactory.createDataSchema(), inData[0]);
 		List<KnimeTuple> tuples = new ArrayList<>();
 
 		while (reader.hasMoreElements()) {
@@ -157,7 +158,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (!new TimeSeriesSchema().conforms(inSpecs[0])) {
+		if (!SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input");
 		}
 

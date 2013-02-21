@@ -62,11 +62,9 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "ModelSelectionTertiary" Node.
@@ -125,16 +123,12 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		KnimeSchema schema = null;
-		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-				new Model2Schema());
-		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
+		boolean schemaContainsData;
 
-		if (seiSchema.conforms(input[0].getSpec())) {
-			schema = seiSchema;
-		} else if (model12Schema.conforms(input[0].getSpec())) {
-			schema = model12Schema;
+		if (SchemaFactory.createDataSchema().conforms(input[0])) {
+			schemaContainsData = true;
+		} else {
+			schemaContainsData = false;
 		}
 
 		try {
@@ -282,7 +276,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 			fittedFilter = ModelSelectionTertiaryNodeModel.DEFAULT_FITTEDFILTER;
 		}
 
-		reader = new TableReader(input[0], schema, schema == seiSchema);
+		reader = new TableReader(input[0], schemaContainsData);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
 				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,

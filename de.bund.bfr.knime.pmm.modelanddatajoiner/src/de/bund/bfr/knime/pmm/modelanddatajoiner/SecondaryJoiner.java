@@ -68,18 +68,14 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class SecondaryJoiner implements Joiner, ActionListener {
-
-	private KnimeSchema modelSchema;
-	private KnimeSchema dataSchema;
-	private KnimeSchema seiSchema;
 
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
@@ -107,10 +103,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		this.modelTable = modelTable;
 		this.dataTable = dataTable;
 
-		modelSchema = new Model2Schema();
-		dataSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
 		readModelTable();
 		readDataTable();
 	}
@@ -250,15 +242,15 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws CanceledExecutionException {
-		BufferedDataContainer buf = exec.createDataContainer(seiSchema
-				.createSpec());
+		BufferedDataContainer buf = exec.createDataContainer(SchemaFactory
+				.createM12DataSchema().createSpec());
 
 		assignmentsMap = XmlConverter.xmlToStringMapListMap(assignments);
 
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
 				KnimeRelationReader modelReader = new KnimeRelationReader(
-						modelSchema, modelTable);
+						SchemaFactory.createM2Schema(), modelTable);
 
 				while (modelReader.hasMoreElements()) {
 					KnimeTuple modelRow = modelReader.nextElement();
@@ -276,7 +268,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
 					KnimeRelationReader peiReader = new KnimeRelationReader(
-							dataSchema, dataTable);
+							SchemaFactory.createM1DataSchema(), dataTable);
 					boolean allVarsReplaced = true;
 
 					if (replace.containsKey(depVarSecName)) {
@@ -324,7 +316,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							continue;
 						}
 
-						KnimeTuple seiRow = new KnimeTuple(seiSchema, modelRow,
+						KnimeTuple seiRow = new KnimeTuple(
+								SchemaFactory.createM12DataSchema(), modelRow,
 								peiRow);
 
 						seiRow.setValue(Model2Schema.ATT_MODELCATALOG,
@@ -357,8 +350,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		dependentVariables = new LinkedHashMap<String, String>();
 		independentVariables = new LinkedHashMap<String, List<String>>();
 
-		KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
-				modelTable);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM2Schema(), modelTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
@@ -386,8 +379,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		Set<String> indepParamSet = new LinkedHashSet<String>();
 		Set<String> depParamSet = new LinkedHashSet<String>();
 
-		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
-				dataTable);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM1DataSchema(), dataTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();

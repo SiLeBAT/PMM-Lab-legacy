@@ -52,10 +52,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "ModelAndDataJoiner" Node.
@@ -134,17 +131,11 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
-			KnimeSchema model2Schema = new Model2Schema();
-			KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-					new Model2Schema());
-			KnimeSchema dataSchema = new TimeSeriesSchema();
-			KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-					new TimeSeriesSchema());
-
-			if (model2Schema.conforms(input[0]) && peiSchema.conforms(input[1])) {
+			if (SchemaFactory.createM2Schema().conforms(input[0])
+					&& SchemaFactory.createM1DataSchema().conforms(input[1])) {
 				joinType = ModelAndDataJoinerNodeModel.SECONDARY_JOIN;
-			} else if (model12Schema.conforms(input[0])
-					&& dataSchema.conforms(input[1])) {
+			} else if (SchemaFactory.createM12Schema().conforms(input[0])
+					&& SchemaFactory.createDataSchema().conforms(input[1])) {
 				joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
 			} else {
 				joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
@@ -190,32 +181,25 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void initGUI() {
-		KnimeSchema model1Schema = new Model1Schema();
-		KnimeSchema model2Schema = new Model2Schema();
-		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-				new Model2Schema());
-		KnimeSchema dataSchema = new TimeSeriesSchema();
-		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-				new TimeSeriesSchema());
-
 		joinerBox.removeActionListener(this);
 		joinerBox.setSelectedItem(joinType);
 		joinerBox.addActionListener(this);
 		joiner = null;
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
-			if (model1Schema.conforms(input[0])
-					&& dataSchema.conforms(input[1])) {
+			if (SchemaFactory.createM1Schema().conforms(input[0])
+					&& SchemaFactory.createDataSchema().conforms(input[1])) {
 				joiner = new PrimaryJoiner(input[0], input[1],
 						joinSameConditions == 1);
 			}
 		} else if (joinType.equals(ModelAndDataJoinerNodeModel.SECONDARY_JOIN)) {
-			if (model2Schema.conforms(input[0]) && peiSchema.conforms(input[1])) {
+			if (SchemaFactory.createM2Schema().conforms(input[0])
+					&& SchemaFactory.createM1DataSchema().conforms(input[1])) {
 				joiner = new SecondaryJoiner(input[0], input[1]);
 			}
 		} else if (joinType.equals(ModelAndDataJoinerNodeModel.COMBINED_JOIN)) {
-			if (model12Schema.conforms(input[0])
-					&& dataSchema.conforms(input[1])) {
+			if (SchemaFactory.createM12Schema().conforms(input[0])
+					&& SchemaFactory.createDataSchema().conforms(input[1])) {
 				joiner = new CombinedJoiner(input[0], input[1]);
 			}
 		}

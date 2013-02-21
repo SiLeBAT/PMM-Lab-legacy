@@ -45,6 +45,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class ModelCombiner {
@@ -53,24 +54,14 @@ public class ModelCombiner {
 	}
 
 	public static Map<KnimeTuple, List<KnimeTuple>> combine(
-			List<KnimeTuple> tuples, KnimeSchema schema,
+			List<KnimeTuple> tuples, boolean containsData,
 			boolean discardPrimaryParams, Map<String, String> doNotReplace) {
-		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
-		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-				new TimeSeriesSchema());
-		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-				new Model2Schema());
-		KnimeSchema model1Schema = new Model1Schema();
-		KnimeSchema inSchema = null;
 		KnimeSchema outSchema = null;
 
-		if (seiSchema.conforms(schema.createSpec())) {
-			inSchema = seiSchema;
-			outSchema = peiSchema;
-		} else if (model12Schema.conforms(schema.createSpec())) {
-			inSchema = model12Schema;
-			outSchema = model1Schema;
+		if (containsData) {
+			outSchema = SchemaFactory.createM1DataSchema();
+		} else {
+			outSchema = SchemaFactory.createM1Schema();
 		}
 
 		if (doNotReplace == null) {
@@ -86,7 +77,7 @@ public class ModelCombiner {
 					Model1Schema.ATT_ESTMODEL).get(0)).getID()
 					+ "";
 
-			if (inSchema == seiSchema) {
+			if (containsData) {
 				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 

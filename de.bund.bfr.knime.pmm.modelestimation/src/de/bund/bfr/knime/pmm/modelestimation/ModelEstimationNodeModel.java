@@ -78,6 +78,7 @@ import de.bund.bfr.knime.pmm.common.math.ParameterOptimizer;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -111,9 +112,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	private static final int MAX_THREADS = 8;
 
-	private KnimeSchema peiSchema;
-	private KnimeSchema seiSchema;
 	private KnimeSchema schema;
+	private KnimeSchema outSchema;
 
 	private String fittingType;
 	private int enforceLimits;
@@ -133,9 +133,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
 		parameterGuesses = new LinkedHashMap<>();
-		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -171,28 +168,26 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		KnimeSchema outSchema = null;
-
 		if (fittingType.equals(NO_FITTING)) {
 			throw new InvalidSettingsException("Node has to be configured!");
 		} else if (fittingType.equals(PRIMARY_FITTING)) {
-			if (peiSchema.conforms(inSpecs[0])) {
-				schema = peiSchema;
-				outSchema = peiSchema;
+			if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
+				schema = SchemaFactory.createM1DataSchema();
+				outSchema = SchemaFactory.createM1DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (fittingType.equals(SECONDARY_FITTING)) {
-			if (seiSchema.conforms(inSpecs[0])) {
-				schema = seiSchema;
-				outSchema = seiSchema;
+			if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
+				schema = SchemaFactory.createM12DataSchema();
+				outSchema = SchemaFactory.createM12DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (fittingType.equals(ONESTEP_FITTING)) {
-			if (seiSchema.conforms(inSpecs[0])) {
-				schema = seiSchema;
-				outSchema = peiSchema;
+			if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
+				schema = SchemaFactory.createM12DataSchema();
+				outSchema = SchemaFactory.createM1DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
@@ -259,7 +254,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private BufferedDataTable doPrimaryEstimation(BufferedDataTable table,
 			ExecutionContext exec) throws CanceledExecutionException,
 			InterruptedException {
-		BufferedDataContainer container = exec.createDataContainer(schema
+		BufferedDataContainer container = exec.createDataContainer(outSchema
 				.createSpec());
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		int n = table.getRowCount();
@@ -315,7 +310,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private BufferedDataTable doSecondaryEstimation(BufferedDataTable table,
 			ExecutionContext exec) throws CanceledExecutionException,
 			InterruptedException {
-		BufferedDataContainer container = exec.createDataContainer(schema
+		BufferedDataContainer container = exec.createDataContainer(outSchema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new SecondaryEstimationThread(table,
@@ -340,7 +335,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private BufferedDataTable doOneStepEstimation(BufferedDataTable table,
 			ExecutionContext exec) throws CanceledExecutionException,
 			InterruptedException {
-		BufferedDataContainer container = exec.createDataContainer(peiSchema
+		BufferedDataContainer container = exec.createDataContainer(outSchema
 				.createSpec());
 		AtomicInteger progress = new AtomicInteger(Float.floatToIntBits(0.0f));
 		Thread thread = new Thread(new OneStepEstimationThread(table,
@@ -364,7 +359,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	private List<String> getAllMiscParams(BufferedDataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), table);
+				SchemaFactory.createDataSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		while (reader.hasMoreElements()) {
@@ -954,7 +949,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				}
 
 				List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
-						ModelCombiner.combine(seiTuples, seiSchema, true,
+						ModelCombiner.combine(seiTuples, true, true,
 								new LinkedHashMap<String, String>()).keySet());
 				Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 				Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();

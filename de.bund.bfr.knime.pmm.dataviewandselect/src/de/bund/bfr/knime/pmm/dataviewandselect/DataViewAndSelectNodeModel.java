@@ -65,10 +65,9 @@ import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of DataViewAndSelect.
@@ -131,8 +130,6 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	private int standardVisibleColumns;
 	private List<String> visibleColumns;
 
-	private KnimeSchema schema;
-
 	/**
 	 * Constructor for the node model.
 	 */
@@ -157,14 +154,13 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		transformY = DEFAULT_TRANSFORMY;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		visibleColumns = new ArrayList<>();
-		schema = new TimeSeriesSchema();
 	}
 
 	@Override
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
-		TableReader reader = new TableReader(table, schema);
+		TableReader reader = new TableReader(table);
 		List<String> ids;
 
 		if (selectAllIDs == 1) {
@@ -173,8 +169,9 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 			ids = selectedIDs;
 		}
 
-		BufferedDataContainer container = exec.createDataContainer(schema
-				.createSpec());
+		BufferedDataContainer container = exec
+				.createDataContainer(SchemaFactory.createDataSchema()
+						.createSpec());
 		Set<String> idSet = new LinkedHashSet<String>(ids);
 		int index = 0;
 
@@ -230,11 +227,13 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (!schema.conforms((DataTableSpec) inSpecs[0])) {
+		if (!SchemaFactory.createDataSchema().conforms(
+				(DataTableSpec) inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		return new PortObjectSpec[] { schema.createSpec(),
+		return new PortObjectSpec[] {
+				SchemaFactory.createDataSchema().createSpec(),
 				new ImagePortObjectSpec(PNGImageContent.TYPE) };
 	}
 

@@ -60,10 +60,10 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -86,8 +86,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 	protected static final int DEFAULT_AGENTID = -1;
 	protected static final int DEFAULT_MATRIXID = -1;
-
-	private KnimeSchema schema;
 
 	private List<Integer> literatureIDs;
 	private int agentID;
@@ -114,7 +112,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		miscValues = new LinkedHashMap<>();
-		schema = new TimeSeriesSchema();
 	}
 
 	/**
@@ -123,8 +120,9 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		BufferedDataContainer container = exec.createDataContainer(schema
-				.createSpec());
+		BufferedDataContainer container = exec
+				.createDataContainer(SchemaFactory.createDataSchema()
+						.createSpec());
 		int id = MathUtilities.getRandomNegativeInt();
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 		PmmXmlDoc miscXML = new PmmXmlDoc();
@@ -195,7 +193,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 							logcUnit)));
 		}
 
-		KnimeTuple tuple = new KnimeTuple(schema);
+		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
@@ -225,7 +223,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		return new DataTableSpec[] { schema.createSpec() };
+		return new DataTableSpec[] { SchemaFactory.createDataSchema()
+				.createSpec() };
 	}
 
 	/**

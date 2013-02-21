@@ -63,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -221,8 +222,8 @@ public class FittedParameterViewNodeView extends
 
 	private void readTable() {
 		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
-				.getSchema(), getNodeModel().getTable());
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM1DataSchema(), getNodeModel().getTable());
 		Map<String, List<Double>> paramDataMap = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
 		List<String> miscParams = null;

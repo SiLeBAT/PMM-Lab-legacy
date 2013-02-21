@@ -75,6 +75,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.IntTextField;
@@ -236,11 +237,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		if (fittingType.equals(ModelEstimationNodeModel.NO_FITTING)) {
-			KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-					new Model1Schema(), new Model2Schema()),
-					new TimeSeriesSchema());
-
-			if (seiSchema.conforms(input[0])) {
+			if (SchemaFactory.createM12DataSchema().conforms(input[0])) {
 				fittingType = ModelEstimationNodeModel.SECONDARY_FITTING;
 			} else {
 				fittingType = ModelEstimationNodeModel.PRIMARY_FITTING;
@@ -319,7 +316,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		maxValues = new LinkedHashMap<String, Map<String, Double>>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new Model1Schema(), table);
+				SchemaFactory.createM1Schema(), table);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
@@ -354,7 +351,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		readPrimaryTable(table);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new Model2Schema(), table);
+				SchemaFactory.createM2Schema(), table);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();

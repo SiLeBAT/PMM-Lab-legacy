@@ -65,18 +65,14 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class PrimaryJoiner implements Joiner {
-
-	private KnimeSchema modelSchema;
-	private KnimeSchema dataSchema;
-	private KnimeSchema peiSchema;
 
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
@@ -99,9 +95,6 @@ public class PrimaryJoiner implements Joiner {
 		this.dataTable = dataTable;
 		this.joinSameConditions = joinSameConditions;
 
-		modelSchema = new Model1Schema();
-		dataSchema = new TimeSeriesSchema();
-		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 		readModelTable();
 		readDataTable();
 	}
@@ -173,8 +166,9 @@ public class PrimaryJoiner implements Joiner {
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws CanceledExecutionException {
-		BufferedDataContainer container = exec.createDataContainer(peiSchema
-				.createSpec());
+		BufferedDataContainer container = exec
+				.createDataContainer(SchemaFactory.createM1DataSchema()
+						.createSpec());
 		Map<String, String> replacements = XmlConverter
 				.xmlToStringMap(assignments);
 		int rowCount = modelTuples.size() * dataTable.getRowCount();
@@ -239,8 +233,8 @@ public class PrimaryJoiner implements Joiner {
 			modelTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
 
-			KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
-					dataTable);
+			KnimeRelationReader reader = new KnimeRelationReader(
+					SchemaFactory.createDataSchema(), dataTable);
 
 			while (reader.hasMoreElements()) {
 				KnimeTuple dataTuple = reader.nextElement();
@@ -277,7 +271,8 @@ public class PrimaryJoiner implements Joiner {
 				}
 
 				if (addRow) {
-					KnimeTuple tuple = new KnimeTuple(peiSchema, modelTuple,
+					KnimeTuple tuple = new KnimeTuple(
+							SchemaFactory.createM1DataSchema(), modelTuple,
 							dataTuple);
 
 					container.addRowToTable(tuple);
@@ -320,16 +315,18 @@ public class PrimaryJoiner implements Joiner {
 		modelTuples = new ArrayList<KnimeTuple>();
 		conditionTuples = new ArrayList<KnimeTuple>();
 
-		if (peiSchema.conforms(modelTable)) {
-			KnimeRelationReader reader = new KnimeRelationReader(peiSchema,
-					modelTable);
+		if (SchemaFactory.createM12Schema().conforms(modelTable)) {
+			KnimeRelationReader reader = new KnimeRelationReader(
+					SchemaFactory.createM1DataSchema(), modelTable);
 
 			while (reader.hasMoreElements()) {
 				KnimeTuple tuple = reader.nextElement();
-				KnimeTuple modelTuple = new KnimeTuple(modelSchema,
-						peiSchema.createSpec(), tuple);
-				KnimeTuple condTuple = new KnimeTuple(dataSchema,
-						peiSchema.createSpec(), tuple);
+				KnimeTuple modelTuple = new KnimeTuple(
+						SchemaFactory.createM1Schema(), SchemaFactory
+								.createM1DataSchema().createSpec(), tuple);
+				KnimeTuple condTuple = new KnimeTuple(
+						SchemaFactory.createDataSchema(), SchemaFactory
+								.createM1DataSchema().createSpec(), tuple);
 				int id = ((CatalogModelXml) modelTuple.getPmmXml(
 						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 				Integer estID = ((EstModelXml) modelTuple.getPmmXml(
@@ -350,8 +347,8 @@ public class PrimaryJoiner implements Joiner {
 
 			isEstimated = true;
 		} else {
-			KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
-					modelTable);
+			KnimeRelationReader reader = new KnimeRelationReader(
+					SchemaFactory.createM1Schema(), modelTable);
 
 			while (reader.hasMoreElements()) {
 				KnimeTuple modelRow = reader.nextElement();
@@ -392,8 +389,8 @@ public class PrimaryJoiner implements Joiner {
 		parameterSet.add(AttributeUtilities.TIME);
 		parameterSet.add(AttributeUtilities.LOGC);
 
-		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
-				dataTable);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), dataTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();

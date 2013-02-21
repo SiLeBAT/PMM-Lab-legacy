@@ -49,9 +49,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of CombinedModelAndDataView.
@@ -67,8 +65,6 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	protected static final int DEFAULT_CONTAINSDATA = 1;
 
 	private DataTable table;
-	private KnimeSchema seiSchema;
-	private KnimeSchema model12Schema;
 	private KnimeSchema schema;
 
 	private int containsData;
@@ -79,9 +75,6 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	protected CombinedModelAndDataViewNodeModel() {
 		super(1, 0);
 		containsData = DEFAULT_CONTAINSDATA;
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
-		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
 	}
 
 	/**
@@ -108,14 +101,10 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (seiSchema.conforms(inSpecs[0])) {
-			schema = seiSchema;
-
-			if (containsData == 0) {
-				schema = model12Schema;
-			}
-		} else if (model12Schema.conforms(inSpecs[0])) {
-			schema = model12Schema;
+		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM12Schema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM12Schema();
 
 			if (containsData == 1) {
 				containsData = 0;
@@ -163,10 +152,12 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		if (seiSchema.conforms(table.getDataTableSpec())) {
-			schema = seiSchema;
-		} else if (model12Schema.conforms(table.getDataTableSpec())) {
-			schema = model12Schema;
+		if (SchemaFactory.createM12DataSchema().conforms(
+				table.getDataTableSpec())) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM12Schema().conforms(
+				table.getDataTableSpec())) {
+			schema = SchemaFactory.createM12Schema();
 		}
 	}
 

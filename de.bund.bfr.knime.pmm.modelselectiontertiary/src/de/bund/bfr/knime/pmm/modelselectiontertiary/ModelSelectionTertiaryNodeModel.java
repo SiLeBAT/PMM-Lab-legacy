@@ -68,9 +68,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of ModelSelectionTertiary.
@@ -142,8 +140,6 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	private String dataFilter;
 	private String fittedFilter;
 
-	private KnimeSchema model12Schema;
-	private KnimeSchema seiSchema;
 	private KnimeSchema schema;
 
 	/**
@@ -173,9 +169,6 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
 		fittedFilter = DEFAULT_FITTEDFILTER;
-		model12Schema = new KnimeSchema(new Model1Schema(), new Model2Schema());
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -185,7 +178,8 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
-		TableReader reader = new TableReader(table, schema, schema == seiSchema);
+		TableReader reader = new TableReader(table,
+				SchemaFactory.isM12DataSchema(schema));
 		List<String> ids;
 
 		if (selectAllIDs == 1) {
@@ -259,10 +253,12 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (seiSchema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = seiSchema;
-		} else if (model12Schema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = model12Schema;
+		if (SchemaFactory.createM12DataSchema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM12Schema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM12Schema();
 		} else {
 			throw new InvalidSettingsException("Wrong input!");
 		}

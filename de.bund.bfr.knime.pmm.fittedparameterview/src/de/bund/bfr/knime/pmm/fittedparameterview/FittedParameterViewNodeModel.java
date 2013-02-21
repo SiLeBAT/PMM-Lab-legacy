@@ -51,9 +51,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of FittedParameterView.
@@ -70,7 +68,6 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	private List<String> usedConditions;
 
 	private DataTable table;
-	private KnimeSchema schema;
 
 	/**
 	 * Constructor for the node model.
@@ -78,7 +75,6 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	protected FittedParameterViewNodeModel() {
 		super(1, 0);
 		usedConditions = new ArrayList<>();
-		schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**
@@ -105,7 +101,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (!schema.conforms(inSpecs[0])) {
+		if (!SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
@@ -165,10 +161,6 @@ public class FittedParameterViewNodeModel extends NodeModel {
 
 	protected DataTable getTable() {
 		return table;
-	}
-
-	protected KnimeSchema getSchema() {
-		return schema;
 	}
 
 	protected List<String> getUsedConditions() {

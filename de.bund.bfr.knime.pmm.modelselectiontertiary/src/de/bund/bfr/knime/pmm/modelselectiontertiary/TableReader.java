@@ -29,10 +29,10 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TableReader {
@@ -56,19 +56,27 @@ public class TableReader {
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	public TableReader(BufferedDataTable table, KnimeSchema schema,
-			boolean schemaContainsData) {
+	public TableReader(BufferedDataTable table, boolean schemaContainsData) {
 		List<String> miscParams = null;
-		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 		List<KnimeTuple> newTuples = null;
 		Set<String> idSet = new LinkedHashSet<String>();
+		KnimeRelationReader reader = null;
+
+		if (schemaContainsData) {
+			reader = new KnimeRelationReader(
+					SchemaFactory.createM12DataSchema(), table);
+		} else {
+			reader = new KnimeRelationReader(SchemaFactory.createM12Schema(),
+					table);
+		}
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
 		}
 
-		tupleCombinations = ModelCombiner.combine(tuples, schema, false, null);
+		tupleCombinations = ModelCombiner.combine(tuples, schemaContainsData,
+				false, null);
 		tuples = new ArrayList<>(tupleCombinations.keySet());
 
 		allIds = new ArrayList<String>();

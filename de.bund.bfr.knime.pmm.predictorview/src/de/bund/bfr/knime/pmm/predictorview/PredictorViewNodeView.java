@@ -71,6 +71,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeView</code> for the "PredictorView" Node.
@@ -277,10 +278,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		Map<String, String> initParams = getNodeModel()
 				.getConcentrationParameters();
 
-		if (getNodeModel().isModel12Schema()) {
+		if (SchemaFactory.isM12Schema(getNodeModel().getSchema())) {
 			Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-					.combine(tuples, getNodeModel().getSchema(), false,
-							initParams);
+					.combine(tuples, false, false, initParams);
 
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 

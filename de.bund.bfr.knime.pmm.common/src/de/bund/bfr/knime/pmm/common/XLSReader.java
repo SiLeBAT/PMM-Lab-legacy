@@ -51,11 +51,11 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class XLSReader {
@@ -188,7 +188,7 @@ public class XLSReader {
 				}
 
 				id = idCell.toString().trim();
-				tuple = new KnimeTuple(new TimeSeriesSchema());
+				tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 						MathUtilities.getRandomNegativeInt());
 				timeSeriesXml = new PmmXmlDoc();
@@ -329,7 +329,8 @@ public class XLSReader {
 				break;
 			}
 
-			KnimeTuple dataTuple = new KnimeTuple(new TimeSeriesSchema());
+			KnimeTuple dataTuple = new KnimeTuple(
+					SchemaFactory.createDataSchema());
 			Row row = s.getRow(i);
 			Cell commentCell = null;
 			Cell agentDetailsCell = null;
@@ -431,9 +432,8 @@ public class XLSReader {
 
 			modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 
-			KnimeTuple tuple = new KnimeTuple(new KnimeSchema(
-					new Model1Schema(), new TimeSeriesSchema()), dataTuple,
-					modelTuple);
+			KnimeTuple tuple = new KnimeTuple(
+					SchemaFactory.createM1DataSchema(), modelTuple, dataTuple);
 
 			tuples.put((i + 1) + "", tuple);
 		}

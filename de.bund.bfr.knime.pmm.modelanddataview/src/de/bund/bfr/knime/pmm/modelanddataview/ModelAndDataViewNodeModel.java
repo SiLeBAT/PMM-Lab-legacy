@@ -49,8 +49,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of ModelAndDataView.
@@ -66,8 +65,6 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	protected static final int DEFAULT_CONTAINSDATA = 1;
 
 	private DataTable table;
-	private KnimeSchema model1Schema;
-	private KnimeSchema peiSchema;
 	private KnimeSchema schema;
 
 	private int containsData;
@@ -78,8 +75,6 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	protected ModelAndDataViewNodeModel() {
 		super(1, 0);
 		containsData = DEFAULT_CONTAINSDATA;
-		model1Schema = new Model1Schema();
-		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**
@@ -106,14 +101,10 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = peiSchema;
-
-			if (containsData == 0) {
-				schema = model1Schema;
-			}
-		} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = model1Schema;
+		if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM1DataSchema();
+		} else if (SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM1Schema();
 
 			if (containsData == 1) {
 				containsData = 0;
@@ -161,10 +152,10 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		if (peiSchema.conforms(table.getDataTableSpec())) {
-			schema = peiSchema;
-		} else if (model1Schema.conforms(table.getDataTableSpec())) {
-			schema = model1Schema;
+		if (SchemaFactory.createM1DataSchema().conforms(table)) {
+			schema = SchemaFactory.createM1DataSchema();
+		} else if (SchemaFactory.createM1Schema().conforms(table)) {
+			schema = SchemaFactory.createM1Schema();
 		}
 	}
 

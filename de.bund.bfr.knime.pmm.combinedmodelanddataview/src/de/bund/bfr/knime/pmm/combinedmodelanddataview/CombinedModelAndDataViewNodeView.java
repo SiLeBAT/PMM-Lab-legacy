@@ -245,7 +245,7 @@ public class CombinedModelAndDataViewNodeView extends
 		}
 
 		tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
-				getNodeModel().getSchema(), false, null).keySet());
+				getNodeModel().getContainsData() == 1, false, null).keySet());
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();

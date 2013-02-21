@@ -69,6 +69,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -136,7 +137,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), input[0]);
+				SchemaFactory.createDataSchema(), input[0]);
 		List<String> ids = new ArrayList<>();
 		Map<Integer, Map<String, Double>> conditions;
 

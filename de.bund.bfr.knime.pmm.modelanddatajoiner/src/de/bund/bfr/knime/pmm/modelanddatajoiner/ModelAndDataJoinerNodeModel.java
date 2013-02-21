@@ -47,9 +47,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of ModelAndDataJoiner.
@@ -119,45 +117,36 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		KnimeSchema model1Schema = new Model1Schema();
-		KnimeSchema model2Schema = new Model2Schema();
-		KnimeSchema model12Schema = new KnimeSchema(new Model1Schema(),
-				new Model2Schema());
-		KnimeSchema dataSchema = new TimeSeriesSchema();
-		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-				new TimeSeriesSchema());
-		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
 		KnimeSchema outSchema = null;
 
 		if (joinType.equals(NO_JOIN)) {
 			throw new InvalidSettingsException("Node has to be configured!");
 		} else if (joinType.equals(PRIMARY_JOIN)) {
-			if (model1Schema.conforms(inSpecs[0])
-					&& dataSchema.conforms(inSpecs[1])) {
-				outSchema = peiSchema;
-			} else if (model1Schema.conforms(inSpecs[1])
-					&& dataSchema.conforms(inSpecs[0])) {
+			if (SchemaFactory.createM1Schema().conforms(inSpecs[0])
+					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
+				outSchema = SchemaFactory.createM1DataSchema();
+			} else if (SchemaFactory.createM1Schema().conforms(inSpecs[1])
+					&& SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (joinType.equals(SECONDARY_JOIN)) {
-			if (model2Schema.conforms(inSpecs[0])
-					&& peiSchema.conforms(inSpecs[1])) {
-				outSchema = seiSchema;
-			} else if (model2Schema.conforms(inSpecs[1])
-					&& peiSchema.conforms(inSpecs[0])) {
+			if (SchemaFactory.createM2Schema().conforms(inSpecs[0])
+					&& SchemaFactory.createM1DataSchema().conforms(inSpecs[1])) {
+				outSchema = SchemaFactory.createM12DataSchema();
+			} else if (SchemaFactory.createM2Schema().conforms(inSpecs[1])
+					&& SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (joinType.equals(COMBINED_JOIN)) {
-			if (model12Schema.conforms(inSpecs[0])
-					&& dataSchema.conforms(inSpecs[1])) {
-				outSchema = seiSchema;
-			} else if (model12Schema.conforms(inSpecs[1])
-					&& dataSchema.conforms(inSpecs[0])) {
+			if (SchemaFactory.createM12Schema().conforms(inSpecs[0])
+					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
+				outSchema = SchemaFactory.createM12DataSchema();
+			} else if (SchemaFactory.createM12Schema().conforms(inSpecs[1])
+					&& SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");

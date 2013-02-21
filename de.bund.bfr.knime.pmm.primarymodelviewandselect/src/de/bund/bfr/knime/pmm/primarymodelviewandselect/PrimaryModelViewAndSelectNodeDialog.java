@@ -62,10 +62,9 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "PrimaryModelViewAndSelect" Node.
@@ -124,15 +123,12 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		KnimeSchema schema = null;
-		KnimeSchema model1Schema = new Model1Schema();
-		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-				new TimeSeriesSchema());
+		boolean schemaContainsData;
 
-		if (peiSchema.conforms(input[0].getSpec())) {
-			schema = peiSchema;
-		} else if (model1Schema.conforms(input[0].getSpec())) {
-			schema = model1Schema;
+		if (SchemaFactory.createDataSchema().conforms(input[0])) {
+			schemaContainsData = true;
+		} else {
+			schemaContainsData = false;
 		}
 
 		try {
@@ -284,7 +280,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 			fittedFilter = PrimaryModelViewAndSelectNodeModel.DEFAULT_FITTEDFILTER;
 		}
 
-		reader = new TableReader(input[0], schema, schema == peiSchema);
+		reader = new TableReader(input[0], schemaContainsData);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
 	}

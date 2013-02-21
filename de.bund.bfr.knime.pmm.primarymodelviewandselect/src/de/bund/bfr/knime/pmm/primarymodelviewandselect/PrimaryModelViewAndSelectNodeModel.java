@@ -68,8 +68,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * This is the model implementation of ModelViewAndSelect.
@@ -141,8 +140,6 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	private String dataFilter;
 	private String fittedFilter;
 
-	private KnimeSchema model1Schema;
-	private KnimeSchema peiSchema;
 	private KnimeSchema schema;
 
 	/**
@@ -172,8 +169,6 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 		modelFilter = DEFAULT_MODELFILTER;
 		dataFilter = DEFAULT_DATAFILTER;
 		fittedFilter = DEFAULT_FITTEDFILTER;
-		model1Schema = new Model1Schema();
-		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	/**
@@ -183,7 +178,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		BufferedDataTable table = (BufferedDataTable) inObjects[0];
-		TableReader reader = new TableReader(table, schema, schema == peiSchema);
+		TableReader reader = new TableReader(table,
+				SchemaFactory.isM1DataSchema(schema));
 		List<String> ids;
 
 		if (selectAllIDs == 1) {
@@ -252,10 +248,12 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected PortObjectSpec[] configure(PortObjectSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (peiSchema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = peiSchema;
-		} else if (model1Schema.conforms((DataTableSpec) inSpecs[0])) {
-			schema = model1Schema;
+		if (SchemaFactory.createM1DataSchema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM1DataSchema();
+		} else if (SchemaFactory.createM1Schema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM1Schema();
 		} else {
 			throw new InvalidSettingsException("Wrong input!");
 		}

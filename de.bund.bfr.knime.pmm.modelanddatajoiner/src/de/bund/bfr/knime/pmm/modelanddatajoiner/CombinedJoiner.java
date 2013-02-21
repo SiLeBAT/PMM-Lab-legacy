@@ -65,21 +65,17 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class CombinedJoiner implements Joiner {
 
 	private static final String PRIMARY = "Primary";
-
-	private KnimeSchema modelSchema;
-	private KnimeSchema dataSchema;
-	private KnimeSchema seiSchema;
 
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
@@ -97,10 +93,6 @@ public class CombinedJoiner implements Joiner {
 		this.modelTable = modelTable;
 		this.dataTable = dataTable;
 
-		modelSchema = new KnimeSchema(new Model1Schema(), new Model2Schema());
-		dataSchema = new TimeSeriesSchema();
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
 		readDataTable();
 		readModelTable();
 	}
@@ -215,8 +207,9 @@ public class CombinedJoiner implements Joiner {
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
 			ExecutionContext exec) throws CanceledExecutionException {
-		BufferedDataContainer container = exec.createDataContainer(seiSchema
-				.createSpec());
+		BufferedDataContainer container = exec
+				.createDataContainer(SchemaFactory.createM12DataSchema()
+						.createSpec());
 		Map<String, Map<String, String>> replacements = XmlConverter
 				.xmlToStringMapMap(assignments);
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
@@ -228,8 +221,8 @@ public class CombinedJoiner implements Joiner {
 			return container.getTable();
 		}
 
-		KnimeRelationReader modelReader = new KnimeRelationReader(modelSchema,
-				modelTable);
+		KnimeRelationReader modelReader = new KnimeRelationReader(
+				SchemaFactory.createM12Schema(), modelTable);
 		Set<String> ids = new LinkedHashSet<String>();
 
 		while (modelReader.hasMoreElements()) {
@@ -327,11 +320,12 @@ public class CombinedJoiner implements Joiner {
 					Model1Schema.NOTWRITABLE);
 
 			KnimeRelationReader dataReader = new KnimeRelationReader(
-					dataSchema, dataTable);
+					SchemaFactory.createDataSchema(), dataTable);
 
 			while (dataReader.hasMoreElements()) {
 				KnimeTuple dataTuple = dataReader.nextElement();
-				KnimeTuple tuple = new KnimeTuple(seiSchema, modelTuple,
+				KnimeTuple tuple = new KnimeTuple(
+						SchemaFactory.createM12DataSchema(), modelTuple,
 						dataTuple);
 
 				container.addRowToTable(tuple);
@@ -353,8 +347,8 @@ public class CombinedJoiner implements Joiner {
 
 	private void readDataTable() {
 		Set<String> secParamSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(dataSchema,
-				dataTable);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), dataTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
@@ -369,8 +363,8 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	private void readModelTable() {
-		KnimeRelationReader reader = new KnimeRelationReader(modelSchema,
-				modelTable);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM12Schema(), modelTable);
 		Set<String> ids = new LinkedHashSet<String>();
 		Set<String> primaryVarSet = new LinkedHashSet<String>();
 

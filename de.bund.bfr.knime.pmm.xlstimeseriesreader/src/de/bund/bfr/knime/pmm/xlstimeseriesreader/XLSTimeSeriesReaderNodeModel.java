@@ -61,9 +61,9 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -102,8 +102,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	private int matrixID;
 	private List<Integer> literatureIDs;
 
-	private KnimeSchema timeSeriesSchema;
-
 	/**
 	 * Constructor for the node model.
 	 */
@@ -123,7 +121,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		agentID = -1;
 		matrixID = -1;
 		literatureIDs = new ArrayList<>();
-		timeSeriesSchema = new TimeSeriesSchema();
 	}
 
 	/**
@@ -240,7 +237,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		}
 
 		BufferedDataContainer container = exec
-				.createDataContainer(timeSeriesSchema.createSpec());
+				.createDataContainer(SchemaFactory.createDataSchema()
+						.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc timeSeriesXml = tuple
@@ -297,7 +295,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("");
 		}
 
-		return new DataTableSpec[] { timeSeriesSchema.createSpec() };
+		return new DataTableSpec[] { SchemaFactory.createDataSchema()
+				.createSpec() };
 	}
 
 	/**

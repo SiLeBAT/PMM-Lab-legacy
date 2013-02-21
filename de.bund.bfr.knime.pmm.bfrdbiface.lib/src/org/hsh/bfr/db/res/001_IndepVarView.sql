@@ -15,13 +15,10 @@ CREATE VIEW "IndepVarView" AS
         ARRAY_AGG( "Gueltig_von" )AS "minIndep",
         ARRAY_AGG( "Gueltig_bis" )AS "maxIndep"
 
-    FROM "Modellkatalog"
-
-    LEFT JOIN "GeschaetzteModelle"
-    ON "Modellkatalog"."ID"="GeschaetzteModelle"."Modell"
+    FROM "GeschaetzteModelle"
 
     LEFT JOIN "ModellkatalogParameter"
-    ON "ModellkatalogParameter"."Modell"="Modellkatalog"."ID"
+    ON "ModellkatalogParameter"."Modell"="GeschaetzteModelle"."Modell"
 
     LEFT JOIN "GueltigkeitsBereiche"
     ON "ModellkatalogParameter"."ID"="GueltigkeitsBereiche"."Parameter" AND "GeschaetzteModelle"."ID"="GueltigkeitsBereiche"."GeschaetztesModell"

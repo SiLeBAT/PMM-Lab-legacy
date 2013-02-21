@@ -138,7 +138,7 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String VIEW_DATA = "MesswerteEinfach";
 	public static final String VIEW_MISCPARAM = "SonstigesEinfach";
 
-	private static final String queryTimeSeries8SinDataView = "SELECT\n"
+	private static final String queryTimeSeries9SinDataView = "SELECT\n"
 			+"\n"
 			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
 			+"    \""+REL_COMBASE+"\".\"CombaseID\",\n"
@@ -154,11 +154,11 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
 			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
 			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\""+ATT_YEAR+"\" )AS \""+ATT_LITERATURETEXT+"\",\n"
-		    +"    \"SonstigeParameter\".\"ID\" AS \"SonstigesID\",\n"
-		    +"    \"SonstigeParameter\".\"Parameter\",\n"
-		    +"    \"SonstigeParameter\".\"Beschreibung\",\n"
-		    +"    \"Einheiten\".\"Einheit\",\n"
-		    +"    \"DoubleKennzahlenEinfach\".\"Wert\" AS \"SonstigesWert\"\n"
+		    +"    \"SonstigesEinfach\".\"SonstigesID\",\n"
+		    +"    \"SonstigesEinfach\".\"Parameter\",\n"
+		    +"    \"SonstigesEinfach\".\"Beschreibung\",\n"
+		    +"    \"SonstigesEinfach\".\"Einheit\",\n"
+		    +"    \"SonstigesEinfach\".\"Wert\" AS \"SonstigesWert\"\n"
 			+"\n"
 			+"FROM \""+VIEW_CONDITION+"\"\n"
 			+"\n"
@@ -174,18 +174,8 @@ public class Bfrdb extends Hsqldbiface {
 			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
 			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
 			+"\n"
-			+"\n"
-			+"LEFT JOIN \""+ATT_CONDITION_MISCPARAM+"\"\n"
-			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_CONDITION+"\"=\""+VIEW_CONDITION+"\".\"ID\"\n"
-			+"\n"
-			+"LEFT JOIN \""+REL_UNIT+"\"\n"
-			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_UNIT+"\"=\""+REL_UNIT+"\".\"ID\"\n"
-			+"\n"
-			+"LEFT JOIN \""+REL_MISCPARAM+"\"\n"
-			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+REL_MISCPARAM+"\"=\""+REL_MISCPARAM+"\".\"ID\"\n"
-			+"\n"
-			+"LEFT JOIN \""+REL_DOUBLE+"Einfach\"\n"
-			+"ON \""+ATT_CONDITION_MISCPARAM+"\".\""+ATT_VALUE+"\"=\""+REL_DOUBLE+"Einfach\".\"ID\"\n";
+			+"LEFT JOIN \""+VIEW_MISCPARAM+"\"\n"
+			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+VIEW_MISCPARAM+"\".\""+ATT_CONDITIONID+"\"\n";
 	
 	private static final String queryTimeSeries9 = "SELECT\n"
 			+"\n"
@@ -417,7 +407,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"\n"
 			+"FROM(\n"
 			+"\n"
-			+queryTimeSeries8SinDataView
+			+queryTimeSeries9SinDataView
 			+"\n"
 			+")\"MicrobialDataView\"\n"
 			+"\n"
@@ -665,8 +655,7 @@ public class Bfrdb extends Hsqldbiface {
 			q = querySei2;
 		}		
 		//System.err.println(q);
-		//System.err.println(queryPei2);
-		//System.err.println(queryTimeSeries9);
+		System.err.println(queryPei2);
 		PreparedStatement ps = conn.prepareStatement(q, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		return ps.executeQuery();
 	}

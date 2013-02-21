@@ -1412,7 +1412,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null},
 				new String[]{null,null});
-		myList.addTable(Konzentrationseinheiten, -1);
+		myList.addTable(Konzentrationseinheiten, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)"},
 				new String[]{null,null},

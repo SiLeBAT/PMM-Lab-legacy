@@ -655,7 +655,6 @@ public class Bfrdb extends Hsqldbiface {
 			q = querySei2;
 		}		
 		//System.err.println(q);
-		System.err.println(queryPei2);
 		PreparedStatement ps = conn.prepareStatement(q, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		return ps.executeQuery();
 	}

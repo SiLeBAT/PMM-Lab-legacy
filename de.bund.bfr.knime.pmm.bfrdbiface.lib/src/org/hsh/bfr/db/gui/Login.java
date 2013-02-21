@@ -1936,7 +1936,7 @@ public class Login extends JFrame {
 				null,
 				new LinkedHashMap[]{null,null},
 				null);
-		myList.addTable(LinkedTestConditions, -1);	
+		myList.addTable(LinkedTestConditions, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 
 		generateStatUpModellTables(myList, literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten);
 

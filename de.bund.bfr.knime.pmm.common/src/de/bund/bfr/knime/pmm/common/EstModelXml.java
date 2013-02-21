@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.jdom2.Element;
 import org.knime.core.data.DataType;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
@@ -20,6 +21,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private Double aic = null;
 	private Double bic = null;
 	private Integer dof = null;
+	private Integer qualityScore = null;
+	private Boolean checked = null;
 	
 	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof) {
 		setID(id);
@@ -43,8 +46,12 @@ public class EstModelXml implements PmmXmlElementConvertable {
 			setAIC(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("bic").getValue();
 			setBIC(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("dof").getValue();
-			setDOF(strDbl.trim().isEmpty() ? null : Integer.parseInt(strDbl));
+			strInt = xmlElement.getAttribute("dof").getValue();
+			setDOF(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
+			strInt = xmlElement.getAttribute("qualityScore").getValue();
+			setQualityScore(strInt.trim().isEmpty() ? null : Integer.parseInt(strInt));
+			String strBool = xmlElement.getAttribute("checked").getValue();
+			setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -57,6 +64,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public Double getAIC() {return aic;}
 	public Double getBIC() {return bic;}
 	public Integer getDOF() {return dof;}
+	public Integer getQualityScore() {return qualityScore;}
+	public Boolean getChecked() {return checked;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? null : id;} // MathUtilities.getRandomNegativeInt()
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
@@ -65,6 +74,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public void setAIC(Double aic) {this.aic = (aic == null) ? null : aic;}
 	public void setBIC(Double bic) {this.bic = (bic == null) ? null : bic;}
 	public void setDOF(Integer dof) {this.dof = dof;}
+	public void setQualityScore(Integer qualityScore) {this.qualityScore = qualityScore;}
+	public void setChecked(Boolean checked) {this.checked = checked;}
 
 	@Override
 	public Element toXmlElement() {
@@ -76,6 +87,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("aic", "" + (aic == null || Double.isNaN(aic) ? "" : aic));
 		modelElement.setAttribute("bic", "" + (bic == null || Double.isNaN(bic) ? "" : bic));
 		modelElement.setAttribute("dof", "" + (dof == null ? "" : dof));
+		modelElement.setAttribute("qualityScore", "" + (qualityScore == null ? "" : qualityScore));
+		modelElement.setAttribute("checked", "" + (checked == null ? "" : checked));
 		return modelElement;
 	}
 
@@ -88,6 +101,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
         list.add("AIC");
         list.add("BIC");
         list.add("DOF");
+        list.add("QualityScore");
+        list.add("Checked");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -111,6 +126,12 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("dof")) {
 			return IntCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("qualityscore")) {
+			return IntCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("checked")) {
+			return BooleanCell.TYPE;
 		}
 		return null;
 	}

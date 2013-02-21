@@ -18,6 +18,8 @@ SELECT
     "Rsquared",
     "AIC",
     "BIC",
+    "GeschaetzteModelle"."Guetescore" AS "Guetescore",
+    "GeschaetzteModelle"."Geprueft" AS "Geprueft",
     "min",
     "max",
     "minIndep",

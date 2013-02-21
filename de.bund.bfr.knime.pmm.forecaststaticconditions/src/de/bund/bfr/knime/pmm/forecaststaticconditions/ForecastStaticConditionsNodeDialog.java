@@ -62,10 +62,9 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 /**
@@ -83,7 +82,6 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 	private static final String NO_PARAM = "\"Skip Prediction\"";
 
-	private KnimeSchema schema;
 	private List<String> ids;
 	private Map<String, String> modelNames;
 	private Map<String, String> formulas;
@@ -99,7 +97,6 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
-		schema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 	}
 
 	@Override
@@ -157,7 +154,8 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 	}
 
 	private void readTable(BufferedDataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM1DataSchema(), table);
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 
 		while (reader.hasMoreElements()) {

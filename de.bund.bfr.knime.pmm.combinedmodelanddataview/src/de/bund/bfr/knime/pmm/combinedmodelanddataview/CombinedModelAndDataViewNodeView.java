@@ -76,6 +76,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -574,7 +575,7 @@ public class CombinedModelAndDataViewNodeView extends
 
 	private List<String> getAllMiscParams(DataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), table);
+				SchemaFactory.createDataSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		while (reader.hasMoreElements()) {

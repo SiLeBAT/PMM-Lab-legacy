@@ -46,9 +46,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "ModelAndDataView" Node.
@@ -66,13 +64,11 @@ public class ModelAndDataViewNodeDialog extends NodeDialogPane {
 	private JCheckBox containsDataBox;
 
 	private DataTableSpec spec;
-	private KnimeSchema seiSchema;
 
 	/**
 	 * New pane for configuring the ModelAndDataView node.
 	 */
 	protected ModelAndDataViewNodeDialog() {
-		seiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
 		containsDataBox = new JCheckBox("Display Data Points");
 
 		JPanel panel = new JPanel();
@@ -99,7 +95,7 @@ public class ModelAndDataViewNodeDialog extends NodeDialogPane {
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		if (containsDataBox.isSelected()) {
-			if (!seiSchema.conforms(spec)) {
+			if (!SchemaFactory.createDataSchema().conforms(spec)) {
 				throw new InvalidSettingsException("No Data available in Table");
 			}
 

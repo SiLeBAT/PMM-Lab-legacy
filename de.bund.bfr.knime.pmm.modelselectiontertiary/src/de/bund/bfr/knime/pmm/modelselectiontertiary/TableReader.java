@@ -493,7 +493,7 @@ public class TableReader {
 
 	private List<String> getAllMiscParams(BufferedDataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), table);
+				SchemaFactory.createDataSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		while (reader.hasMoreElements()) {

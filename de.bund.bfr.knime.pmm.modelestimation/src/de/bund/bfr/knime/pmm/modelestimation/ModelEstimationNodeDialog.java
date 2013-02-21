@@ -71,12 +71,10 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
@@ -480,11 +478,6 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void initGUI() {
-		KnimeSchema peiSchema = new KnimeSchema(new Model1Schema(),
-				new TimeSeriesSchema());
-		KnimeSchema seiSchema = new KnimeSchema(new KnimeSchema(
-				new Model1Schema(), new Model2Schema()), new TimeSeriesSchema());
-
 		modelNames = null;
 		parameters = null;
 		minValues = null;
@@ -497,17 +490,17 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 		if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.PRIMARY_FITTING)
-				&& peiSchema.conforms(input[0])) {
+				&& SchemaFactory.createM1DataSchema().conforms(input[0])) {
 			readPrimaryTable(input[0]);
 			panel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.SECONDARY_FITTING)
-				&& seiSchema.conforms(input[0])) {
+				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
 			panel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.ONESTEP_FITTING)
-				&& seiSchema.conforms(input[0])) {
+				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
 			panel = createPanel();
 		}

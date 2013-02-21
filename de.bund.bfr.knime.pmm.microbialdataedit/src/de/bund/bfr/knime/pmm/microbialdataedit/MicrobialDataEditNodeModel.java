@@ -98,7 +98,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		}
 
 		BufferedDataContainer container = exec
-				.createDataContainer(new TimeSeriesSchema().createSpec());
+				.createDataContainer(SchemaFactory.createDataSchema()
+						.createSpec());
 		Map<Integer, String> namesByID = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
@@ -162,7 +163,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input");
 		}
 
-		return new DataTableSpec[] { new TimeSeriesSchema().createSpec() };
+		return new DataTableSpec[] { SchemaFactory.createDataSchema()
+				.createSpec() };
 	}
 
 	/**

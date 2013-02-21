@@ -345,7 +345,7 @@ public class FittedParameterViewNodeView extends
 
 	private List<String> getAllMiscParams(DataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
-				new TimeSeriesSchema(), table);
+				SchemaFactory.createDataSchema(), table);
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		while (reader.hasMoreElements()) {

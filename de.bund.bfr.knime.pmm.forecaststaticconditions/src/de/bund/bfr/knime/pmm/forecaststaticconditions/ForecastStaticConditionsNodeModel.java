@@ -74,6 +74,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -92,8 +93,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	private double concentration;
 	private Map<String, String> concentrationParameters;
 
-	private KnimeSchema peiSchema;
-	private KnimeSchema seiSchema;
 	private KnimeSchema schema;
 
 	/**
@@ -103,9 +102,6 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		super(1, 1);
 		concentration = DEFAULT_CONCENTRATION;
 		concentrationParameters = new LinkedHashMap<>();
-		peiSchema = new KnimeSchema(new Model1Schema(), new TimeSeriesSchema());
-		seiSchema = new KnimeSchema(new KnimeSchema(new Model1Schema(),
-				new Model2Schema()), new TimeSeriesSchema());
 	}
 
 	/**
@@ -116,9 +112,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		BufferedDataTable output = null;
 
-		if (schema == seiSchema) {
+		if (SchemaFactory.isM12DataSchema(schema)) {
 			output = performSecondaryForecast(inData[0], exec);
-		} else if (schema == peiSchema) {
+		} else if (SchemaFactory.isM1DataSchema(schema)) {
 			output = performPrimaryForecast(inData[0], exec);
 		}
 
@@ -138,10 +134,10 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (seiSchema.conforms(inSpecs[0])) {
-			schema = seiSchema;
-		} else if (peiSchema.conforms(inSpecs[0])) {
-			schema = peiSchema;
+		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM1DataSchema();
 		} else {
 			throw new InvalidSettingsException("Wrong input!");
 		}
@@ -210,8 +206,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, schema == seiSchema, true,
-						concentrationParameters);
+				.combine(tuples, true, true, concentrationParameters);
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());

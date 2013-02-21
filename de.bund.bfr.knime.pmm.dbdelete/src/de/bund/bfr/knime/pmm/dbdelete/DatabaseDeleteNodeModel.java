@@ -3,8 +3,10 @@ package de.bund.bfr.knime.pmm.dbdelete;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyLogger;
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.DataColumnSpecCreator;
@@ -117,21 +119,39 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 									break;
 								}
 							}
-							Integer rowEstMID = emx.getID();
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("VarParMaps") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GueltigkeitsBereiche") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameter") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
-							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteModelle") + " WHERE " + DBKernel.delimitL("ID") + "=" + rowEstMID, false, false);
+							numDBSuccesses += deleteID(conn, emx.getID());
 						}
 					}
 				}					
 			}
 			catch (PmmException e) {e.printStackTrace();}
 		}    	
+		return numDBSuccesses;
+    }
+    private int deleteID(Connection conn, Object rowEstMID) {
+    	int numDBSuccesses = 0;
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("VarParMaps") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GueltigkeitsBereiche") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameter") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		String sql = "SELECT " + DBKernel.delimitL("GeschaetztesSekundaermodell") + " FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") +
+				" WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + rowEstMID;
+		ResultSet rs = DBKernel.getResultSet(conn, sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				do {
+					Object o = rs.getObject("GeschaetztesSekundaermodell");
+					if (o != null) {
+						numDBSuccesses += deleteID(conn, o);
+					}
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteModelle") + " WHERE " + DBKernel.delimitL("ID") + "=" + rowEstMID, false, false);
 		return numDBSuccesses;
     }
 

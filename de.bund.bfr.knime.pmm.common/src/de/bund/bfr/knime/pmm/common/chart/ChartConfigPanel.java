@@ -222,6 +222,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setBorder(BorderFactory
 				.createTitledBorder("Parameter Values"));
+		parameterValuesPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		parameterFields = new ArrayList<DoubleTextField>();
 		parameterButtons = new ArrayList<JButton>();
 		add(new SpacePanel(parameterValuesPanel));

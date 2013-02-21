@@ -103,8 +103,12 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (SchemaFactory.createM12Schema().conforms(inSpecs[0])) {
+		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM12Schema().conforms(inSpecs[0])) {
 			schema = SchemaFactory.createM12Schema();
+		} else if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
+			schema = SchemaFactory.createM1DataSchema();
 		} else if (SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
 			schema = SchemaFactory.createM1Schema();
 		} else {
@@ -156,8 +160,12 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		table = DataContainer.readFromZip(f);
 
-		if (SchemaFactory.createM12Schema().conforms(table)) {
+		if (SchemaFactory.createM12DataSchema().conforms(table)) {
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM12Schema().conforms(table)) {
 			schema = SchemaFactory.createM12Schema();
+		} else if (SchemaFactory.createM1DataSchema().conforms(table)) {
+			schema = SchemaFactory.createM1DataSchema();
 		} else if (SchemaFactory.createM1Schema().conforms(table)) {
 			schema = SchemaFactory.createM1Schema();
 		}

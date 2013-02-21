@@ -49,12 +49,14 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
+import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
@@ -72,6 +74,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeView</code> for the "PredictorView" Node.
@@ -270,6 +273,13 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
 				.getSchema(), getNodeModel().getTable());
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		boolean containsData = SchemaFactory.isM1DataSchema(getNodeModel()
+				.getSchema())
+				|| SchemaFactory.isM12DataSchema(getNodeModel().getSchema());
+		boolean isTertiaryModel = SchemaFactory.isM12Schema(getNodeModel()
+				.getSchema())
+				|| SchemaFactory.isM12DataSchema(getNodeModel().getSchema());
+		List<String> miscParams = null;
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -278,9 +288,9 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		Map<String, String> initParams = getNodeModel()
 				.getConcentrationParameters();
 
-		if (SchemaFactory.isM12Schema(getNodeModel().getSchema())) {
+		if (isTertiaryModel) {
 			Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-					.combine(tuples, false, false, initParams);
+					.combine(tuples, containsData, false, initParams);
 
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 
@@ -309,24 +319,54 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		visibleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED);
-		stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-				ChartConstants.STATUS);
-		stringColumnValues = new ArrayList<List<String>>();
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED,
-				Model1Schema.AIC, Model1Schema.BIC);
-		doubleColumnValues = new ArrayList<List<Double>>();
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		doubleColumnValues.add(new ArrayList<Double>());
-		visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
+
+		if (containsData) {
+			miscParams = getAllMiscParams(getNodeModel().getTable());
+			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					AttributeUtilities.DATAID, ChartConstants.STATUS);
+			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			doubleColumns = new ArrayList<String>(Arrays.asList(
+					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
+					Model1Schema.BIC));
+			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = new ArrayList<>(Arrays.asList(
+					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
+
+			for (String param : miscParams) {
+				doubleColumns.add(param);
+				doubleColumnValues.add(new ArrayList<Double>());
+				visibleColumns.add(param);
+			}
+		} else {
+			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
+			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			doubleColumns = Arrays.asList(Model1Schema.RMS,
+					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
+			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
+			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
+		}
 
 		for (KnimeTuple row : tuples) {
 			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)
 					.get(0)).getID() + "";
+
+			if (containsData) {
+				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+			}
 
 			if (!idSet.add(id)) {
 				continue;
@@ -422,14 +462,63 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
 
-			if (!plotable.isPlotable()) {
-				stringColumnValues.get(1).add(ChartConstants.FAILED);
-			} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
-			} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
+			if (containsData) {
+				String dataName;
+
+				if (row.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
+					dataName = row.getString(TimeSeriesSchema.ATT_COMBASEID);
+				} else {
+					dataName = "" + row.getInt(TimeSeriesSchema.ATT_CONDID);
+				}
+
+				stringColumnValues.get(1).add(dataName);
+
+				for (int i = 0; i < miscParams.size(); i++) {
+					boolean paramFound = false;
+
+					for (PmmXmlElementConvertable el : row.getPmmXml(
+							TimeSeriesSchema.ATT_MISC).getElementSet()) {
+						MiscXml element = (MiscXml) el;
+
+						if (miscParams.get(i).equals(element.getName())) {
+							doubleColumnValues.get(i + 4).add(
+									element.getValue());
+
+							if (element.getValue() != null
+									&& !element.getValue().isNaN()) {
+								plotable.addValueList(element.getName(),
+										Arrays.asList(element.getValue()));
+							}
+
+							paramFound = true;
+							break;
+						}
+					}
+
+					if (!paramFound) {
+						doubleColumnValues.get(i + 4).add(null);
+					}
+				}
+
+				if (!plotable.isPlotable()) {
+					stringColumnValues.get(2).add(ChartConstants.FAILED);
+				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+					stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				} else {
+					stringColumnValues.get(2).add(ChartConstants.OK);
+				}
 			} else {
-				stringColumnValues.get(1).add(ChartConstants.OK);
+				if (!plotable.isPlotable()) {
+					stringColumnValues.get(1).add(ChartConstants.FAILED);
+				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+					stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
+				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+					stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
+				} else {
+					stringColumnValues.get(1).add(ChartConstants.OK);
+				}
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -453,6 +542,25 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			infoParameters.add(infoParams);
 			infoParameterValues.add(infoValues);
 		}
+	}
+
+	private List<String> getAllMiscParams(DataTable table) {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), table);
+		Set<String> paramSet = new LinkedHashSet<String>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				paramSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(paramSet);
 	}
 
 	@Override

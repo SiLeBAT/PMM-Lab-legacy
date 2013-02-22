@@ -432,6 +432,13 @@ public class XLSReader {
 
 			modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 
+			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+			((EstModelXml) estXml.get(0)).setID(MathUtilities
+					.getRandomNegativeInt());
+
+			modelTuple.setValue(Model1Schema.ATT_ESTMODEL, estXml);
+
 			KnimeTuple tuple = new KnimeTuple(
 					SchemaFactory.createM1DataSchema(), modelTuple, dataTuple);
 

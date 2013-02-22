@@ -510,11 +510,12 @@ public class Plotable {
 		}
 
 		for (int i = 0; i < samples.size(); i++) {
-			double x = samples.get(i);
+			Double x = samples.get(i);
 
-			if (x < minX || x > maxX) {
+			if (x == null || x < minX || x > maxX) {
 				points[0][i] = Double.NaN;
 				points[1][i] = Double.NaN;
+				continue;
 			}
 
 			parser.setVarValue(paramX,

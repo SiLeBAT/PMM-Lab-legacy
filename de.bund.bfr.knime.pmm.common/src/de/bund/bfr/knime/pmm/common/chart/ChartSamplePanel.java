@@ -125,9 +125,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		List<Double> timeList = new ArrayList<Double>();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
-			if (table.getTime(i) != null) {
-				timeList.add(table.getTime(i));
-			}
+			timeList.add(table.getTime(i));
 		}
 
 		return timeList;
@@ -138,7 +136,9 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 		if (points != null && points.length == 2) {
 			for (int i = 0; i < points[0].length; i++) {
-				logcValues.put(points[0][i], points[1][i]);
+				if (!Double.isNaN(points[0][i]) && !Double.isNaN(points[1][i])) {
+					logcValues.put(points[0][i], points[1][i]);
+				}
 			}
 		}
 
@@ -147,6 +147,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 			if (logc != null) {
 				table.setLogc(i, logc);
+			} else {
+				table.setLogc(i, null);
 			}
 		}
 

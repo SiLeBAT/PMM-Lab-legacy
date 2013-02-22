@@ -20,7 +20,6 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
@@ -31,6 +30,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -95,7 +95,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(table);
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
@@ -387,9 +387,9 @@ public class TableReader {
 			if (schemaContainsData) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.FAILED);
-				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+				} else if (PmmUtilities.isOutOfRange(paramXml)) {
 					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
 					stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 				} else {
 					stringColumnValues.get(2).add(ChartConstants.OK);
@@ -397,9 +397,9 @@ public class TableReader {
 			} else {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(1).add(ChartConstants.FAILED);
-				} else if (ParamXmlUtilities.isOutOfRange(paramXml)) {
+				} else if (PmmUtilities.isOutOfRange(paramXml)) {
 					stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (ParamXmlUtilities.covarianceMatrixMissing(paramXml)) {
+				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
 					stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
 				} else {
 					stringColumnValues.get(1).add(ChartConstants.OK);
@@ -475,25 +475,6 @@ public class TableReader {
 
 	public Map<String, String> getLongLegend() {
 		return longLegend;
-	}
-
-	private List<String> getAllMiscParams(BufferedDataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
 	}
 
 }

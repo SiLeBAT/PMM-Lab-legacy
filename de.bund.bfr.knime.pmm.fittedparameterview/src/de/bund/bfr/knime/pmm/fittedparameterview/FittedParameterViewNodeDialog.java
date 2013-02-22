@@ -38,9 +38,7 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -49,7 +47,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -58,14 +55,8 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 
 /**
  * <code>NodeDialog</code> for the "FittedParameterView" Node.
@@ -120,7 +111,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		allConditions = getAllMiscParams(input[0]);
+		allConditions = PmmUtilities.getAllMiscParams(input[0]);
 
 		try {
 			List<String> conditions = XmlConverter
@@ -174,25 +165,6 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 						.setListData(usedConditions.toArray(new String[0]));
 			}
 		}
-	}
-
-	private List<String> getAllMiscParams(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
 	}
 
 }

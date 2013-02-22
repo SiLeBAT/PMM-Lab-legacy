@@ -48,7 +48,6 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -63,6 +62,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -241,7 +241,7 @@ public class FittedParameterViewNodeView extends
 		visibleColumns = new ArrayList<>(
 				Arrays.asList(Model1Schema.ATT_PARAMETER));
 
-		miscParams = getAllMiscParams(getNodeModel().getTable());
+		miscParams = PmmUtilities.getAllMiscParams(getNodeModel().getTable());
 		doubleColumns = new ArrayList<>();
 		doubleColumnValues = new ArrayList<>();
 		colorCounts = new ArrayList<Integer>();
@@ -341,25 +341,6 @@ public class FittedParameterViewNodeView extends
 			colorCounts.add(plotable.getNumberOfCombinations());
 			plotables.put(id, plotable);
 		}
-	}
-
-	private List<String> getAllMiscParams(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
 	}
 
 	@Override

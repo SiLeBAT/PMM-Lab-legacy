@@ -16,6 +16,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class QualityMeasurementComputation {
@@ -245,7 +246,7 @@ public class QualityMeasurementComputation {
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Double> bicMap = new LinkedHashMap<>();
-		List<String> miscParams = getAllMiscParams(tuples);
+		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
 
 		for (KnimeTuple tuple : tuples) {
 			String id = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
@@ -412,22 +413,6 @@ public class QualityMeasurementComputation {
 		}
 
 		return newTuples;
-	}
-
-	private static List<String> getAllMiscParams(List<KnimeTuple> tuples) {
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		for (KnimeTuple tuple : tuples) {
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
 	}
 
 }

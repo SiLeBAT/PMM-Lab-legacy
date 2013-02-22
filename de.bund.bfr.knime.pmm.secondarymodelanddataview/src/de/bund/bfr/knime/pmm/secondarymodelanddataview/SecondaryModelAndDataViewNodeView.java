@@ -48,7 +48,6 @@ import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
-import org.knime.core.data.DataTable;
 import org.knime.core.node.NodeView;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -58,7 +57,6 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.ParamXmlUtilities;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
@@ -72,7 +70,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
@@ -293,7 +291,8 @@ public class SecondaryModelAndDataViewNodeView extends
 			} catch (Exception e) {
 			}
 
-			miscParams = getAllMiscParams(getNodeModel().getTable());
+			miscParams = PmmUtilities.getAllMiscParams(getNodeModel()
+					.getTable());
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
 					Model2Schema.BIC));
@@ -518,10 +517,9 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(2).add(ChartConstants.FAILED);
-			} else if (ParamXmlUtilities.isOutOfRange(paramMap.get(id))) {
+			} else if (PmmUtilities.isOutOfRange(paramMap.get(id))) {
 				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
-			} else if (ParamXmlUtilities.covarianceMatrixMissing(paramMap
-					.get(id))) {
+			} else if (PmmUtilities.covarianceMatrixMissing(paramMap.get(id))) {
 				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 			} else {
 				stringColumnValues.get(2).add(ChartConstants.OK);
@@ -529,25 +527,6 @@ public class SecondaryModelAndDataViewNodeView extends
 
 			plotables.put(id, plotable);
 		}
-	}
-
-	private List<String> getAllMiscParams(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
 	}
 
 	@Override

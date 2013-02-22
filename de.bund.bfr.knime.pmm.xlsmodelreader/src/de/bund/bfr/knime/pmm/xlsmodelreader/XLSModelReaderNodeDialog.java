@@ -705,7 +705,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				if (e.getSource() == modelBoxes.get(param)) {
 					JComboBox<String> box = modelBoxes.get(param);
 
-					modelMappings.put(param, (String) box.getSelectedItem());
+					if (!box.getSelectedItem().equals(DO_NOT_USE)) {
+						modelMappings
+								.put(param, (String) box.getSelectedItem());
+					} else {
+						modelMappings.put(param, null);
+					}
 				}
 			}
 
@@ -802,14 +807,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				KnimeTuple model = db.getPrimModelById(modelID);
 				PmmXmlDoc paramXml = model
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
+				List<String> options = new ArrayList<>();
+
+				options.add(DO_NOT_USE);
+				options.addAll(fileColumnList);
 
 				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 					ParamXml element = (ParamXml) el;
 					JComboBox<String> box = new JComboBox<>(
-							fileColumnList.toArray(new String[0]));
+							options.toArray(new String[0]));
 
-					if (modelMappings.containsKey(element.getName())) {
+					if (modelMappings.get(element.getName()) != null) {
 						box.setSelectedItem(modelMappings.get(element.getName()));
+					} else {
+						box.setSelectedItem(DO_NOT_USE);
 					}
 
 					box.addItemListener(this);

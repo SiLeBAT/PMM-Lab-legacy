@@ -420,13 +420,18 @@ public class XLSReader {
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 				String columnName = modelMappings.get(element.getName());
-				int column = columns.get(columnName);
 
-				try {
-					element.setValue(Double.parseDouble(row.getCell(column)
-							.toString()));
-				} catch (Exception e) {
-					e.printStackTrace();
+				if (columnName != null) {
+					int column = columns.get(columnName);
+
+					try {
+						element.setValue(Double.parseDouble(row.getCell(column)
+								.toString()));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					element.setValue(null);
 				}
 			}
 

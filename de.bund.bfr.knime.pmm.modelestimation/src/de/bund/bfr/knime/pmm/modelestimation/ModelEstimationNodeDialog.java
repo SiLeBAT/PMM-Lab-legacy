@@ -98,17 +98,21 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	private Map<String, Map<String, Point2D.Double>> guessMap;
 
 	private JComboBox<String> fittingBox;
-	private IntTextField nParamSpaceField;
-	private IntTextField nLevenbergField;
-	private JCheckBox stopWhenSuccessBox;
 	private JCheckBox limitsBox;
+	private JCheckBox expertBox;
 
 	private Map<String, String> modelNames;
 	private Map<String, List<String>> parameters;
 	private Map<String, Map<String, Double>> minValues;
 	private Map<String, Map<String, Double>> maxValues;
 
+	private JPanel panel;
+	private JPanel expertSettingsPanel;
 	private JPanel fittingPanel;
+
+	private IntTextField nParamSpaceField;
+	private IntTextField nLevenbergField;
+	private JCheckBox stopWhenSuccessBox;
 	private JButton modelRangeButton;
 	private JButton rangeButton;
 	private JButton clearButton;
@@ -119,17 +123,13 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	 * New pane for configuring the ModelEstimation node.
 	 */
 	protected ModelEstimationNodeDialog() {
-		JPanel panel = new JPanel();
-		JPanel upperPanel = new JPanel();
-		JPanel fittingTypePanel = new JPanel();
-		JPanel regressionPanel = new JPanel();
-		JPanel leftRegressionPanel = new JPanel();
-		JPanel rightRegressionPanel = new JPanel();
-
 		fittingBox = new JComboBox<String>(new String[] {
 				ModelEstimationNodeModel.PRIMARY_FITTING,
 				ModelEstimationNodeModel.SECONDARY_FITTING,
 				ModelEstimationNodeModel.ONESTEP_FITTING });
+		limitsBox = new JCheckBox("Enforce limits of Formula Definition");
+		expertBox = new JCheckBox("Expert Settings");
+		expertBox.addActionListener(this);
 		nParamSpaceField = new IntTextField(0, 1000000);
 		nParamSpaceField.setPreferredSize(new Dimension(100, nParamSpaceField
 				.getPreferredSize().height));
@@ -137,33 +137,43 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		nLevenbergField.setPreferredSize(new Dimension(100, nLevenbergField
 				.getPreferredSize().height));
 		stopWhenSuccessBox = new JCheckBox("Stop When Regression Successful");
-		limitsBox = new JCheckBox("Enforce limits of Formula Definition");
-		fittingPanel = new JPanel();
-		fittingPanel
-				.setBorder(BorderFactory
-						.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
-		fittingPanel.setLayout(new BorderLayout());
+
+		JPanel fittingTypePanel = new JPanel();
 
 		fittingTypePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		fittingTypePanel.add(fittingBox);
 
+		JPanel limitsPanel = new JPanel();
+
+		limitsPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		limitsPanel.add(limitsBox);
+
+		JPanel expertPanel = new JPanel();
+
+		expertPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+		expertPanel.add(expertBox);
+
+		JPanel leftRegressionPanel = new JPanel();
+
 		leftRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
 				5));
-		leftRegressionPanel.setLayout(new GridLayout(4, 1, 5, 5));
+		leftRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		leftRegressionPanel.add(new JLabel(
 				"Maximal Evaluations to Find Start Values"));
 		leftRegressionPanel.add(new JLabel(
 				"Maximal Executions of the Levenberg Algorithm"));
 		leftRegressionPanel.add(stopWhenSuccessBox);
-		leftRegressionPanel.add(limitsBox);
+
+		JPanel rightRegressionPanel = new JPanel();
 
 		rightRegressionPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5,
 				5));
-		rightRegressionPanel.setLayout(new GridLayout(4, 1, 5, 5));
+		rightRegressionPanel.setLayout(new GridLayout(3, 1, 5, 5));
 		rightRegressionPanel.add(nParamSpaceField);
 		rightRegressionPanel.add(nLevenbergField);
 		rightRegressionPanel.add(new JLabel());
-		rightRegressionPanel.add(new JLabel());
+
+		JPanel regressionPanel = new JPanel();
 
 		regressionPanel.setBorder(new TitledBorder(
 				"Nonlinear Regression Parameters"));
@@ -171,13 +181,27 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		regressionPanel.add(leftRegressionPanel, BorderLayout.WEST);
 		regressionPanel.add(rightRegressionPanel, BorderLayout.EAST);
 
-		upperPanel.setLayout(new BorderLayout());
-		upperPanel.add(fittingTypePanel, BorderLayout.NORTH);
-		upperPanel.add(regressionPanel, BorderLayout.CENTER);
+		JPanel upperPanel = new JPanel();
 
+		upperPanel.setLayout(new BoxLayout(upperPanel, BoxLayout.Y_AXIS));
+		upperPanel.add(fittingTypePanel);
+		upperPanel.add(limitsPanel);
+		upperPanel.add(expertPanel);
+
+		fittingPanel = new JPanel();
+		fittingPanel
+				.setBorder(BorderFactory
+						.createTitledBorder("Specific Start Values for Fitting Procedure - Optional"));
+		fittingPanel.setLayout(new BorderLayout());
+		expertSettingsPanel = new JPanel();
+		expertSettingsPanel.setLayout(new BorderLayout());
+		expertSettingsPanel.add(regressionPanel, BorderLayout.NORTH);
+		expertSettingsPanel.add(fittingPanel, BorderLayout.CENTER);
+		panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		panel.add(upperPanel, BorderLayout.NORTH);
-		panel.add(fittingPanel, BorderLayout.CENTER);
+		panel.add(expertSettingsPanel, BorderLayout.CENTER);
+
 		addTab("Options", panel);
 	}
 
@@ -186,10 +210,11 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		this.input = input;
 
 		String fittingType;
+		int enforceLimits;
+		int expertSettings;
 		int nParameterSpace;
 		int nLevenberg;
 		int stopWhenSuccessful;
-		int enforceLimits;
 
 		try {
 			fittingType = settings
@@ -203,6 +228,13 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 					.getInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS);
 		} catch (InvalidSettingsException e) {
 			enforceLimits = ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS;
+		}
+
+		try {
+			expertSettings = settings
+					.getInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS);
+		} catch (InvalidSettingsException e) {
+			expertSettings = ModelEstimationNodeModel.DEFAULT_EXPERTSETTINGS;
 		}
 
 		try {
@@ -244,10 +276,11 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 		fittingBox.setSelectedItem(fittingType);
 		fittingBox.addActionListener(this);
+		limitsBox.setSelected(enforceLimits == 1);
+		expertBox.setSelected(expertSettings == 1);
 		nParamSpaceField.setValue(nParameterSpace);
 		nLevenbergField.setValue(nLevenberg);
 		stopWhenSuccessBox.setSelected(stopWhenSuccessful == 1);
-		limitsBox.setSelected(enforceLimits == 1);
 		initGUI();
 	}
 
@@ -270,6 +303,12 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
 		} else {
 			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 0);
+		}
+
+		if (expertBox.isSelected()) {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS, 1);
+		} else {
+			settings.addInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS, 0);
 		}
 
 		if (stopWhenSuccessBox.isSelected()) {
@@ -486,26 +525,26 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		maximumFields = null;
 		fittingPanel.removeAll();
 
-		JComponent panel = null;
+		JComponent fittingValuesPanel = null;
 
 		if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.PRIMARY_FITTING)
 				&& SchemaFactory.createM1DataSchema().conforms(input[0])) {
 			readPrimaryTable(input[0]);
-			panel = createPanel();
+			fittingValuesPanel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.SECONDARY_FITTING)
 				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
-			panel = createPanel();
+			fittingValuesPanel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
 				ModelEstimationNodeModel.ONESTEP_FITTING)
 				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
-			panel = createPanel();
+			fittingValuesPanel = createPanel();
 		}
 
-		if (panel != null) {
+		if (fittingValuesPanel != null) {
 			modelRangeButton = new JButton("Use Range from Formula Definition");
 			modelRangeButton.addActionListener(this);
 			rangeButton = new JButton("Fill Empty Fields");
@@ -521,7 +560,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			buttonPanel.add(clearButton);
 
 			fittingPanel.add(new SpacePanel(buttonPanel), BorderLayout.NORTH);
-			fittingPanel.add(panel, BorderLayout.CENTER);
+			fittingPanel.add(fittingValuesPanel, BorderLayout.CENTER);
 			fittingPanel.revalidate();
 		} else {
 			if (fittingBox.isValid()) {
@@ -532,12 +571,28 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 			fittingPanel.add(new JLabel(), BorderLayout.CENTER);
 		}
+
+		Dimension preferredSize = panel.getPreferredSize();
+
+		if (expertBox.isSelected()) {
+			expertSettingsPanel.setVisible(true);
+		} else {
+			expertSettingsPanel.setVisible(false);
+		}
+
+		panel.setPreferredSize(preferredSize);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == fittingBox) {
 			initGUI();
+		} else if (e.getSource() == expertBox) {
+			if (expertBox.isSelected()) {
+				expertSettingsPanel.setVisible(true);
+			} else {
+				expertSettingsPanel.setVisible(false);
+			}
 		} else if (e.getSource() == modelRangeButton) {
 			for (String id : parameters.keySet()) {
 				for (String param : parameters.get(id)) {

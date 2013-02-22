@@ -99,6 +99,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	static final String CFGKEY_FITTINGTYPE = "FittingType";
 	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
+	static final String CFGKEY_EXPERTSETTINGS = "ExpertSettings";
 	static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
 	static final String CFGKEY_NLEVENBERG = "NLevenberg";
 	static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
@@ -106,6 +107,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	static final String DEFAULT_FITTINGTYPE = NO_FITTING;
 	static final int DEFAULT_ENFORCELIMITS = 0;
+	static final int DEFAULT_EXPERTSETTINGS = 0;
 	static final int DEFAULT_NPARAMETERSPACE = 10000;
 	static final int DEFAULT_NLEVENBERG = 10;
 	static final int DEFAULT_STOPWHENSUCCESSFUL = 0;
@@ -117,10 +119,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 	private String fittingType;
 	private int enforceLimits;
+	private int expertSettings;
 	private int nParameterSpace;
 	private int nLevenberg;
 	private int stopWhenSuccessful;
 	private Map<String, Map<String, Point2D.Double>> parameterGuesses;
+
+	private Map<String, Map<String, Point2D.Double>> parameterLimits;
 
 	/**
 	 * Constructor for the node model.
@@ -129,6 +134,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		super(1, 1);
 		fittingType = DEFAULT_FITTINGTYPE;
 		enforceLimits = DEFAULT_ENFORCELIMITS;
+		expertSettings = DEFAULT_EXPERTSETTINGS;
 		nParameterSpace = DEFAULT_NPARAMETERSPACE;
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
@@ -145,10 +151,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataTable outTable = null;
 
 		if (fittingType.equals(PRIMARY_FITTING)) {
+			readPrimaryTable(table);
 			outTable = doPrimaryEstimation(table, exec);
 		} else if (fittingType.equals(SECONDARY_FITTING)) {
+			readSecondaryTable(table);
 			outTable = doSecondaryEstimation(table, exec);
 		} else if (fittingType.equals(ONESTEP_FITTING)) {
+			readSecondaryTable(table);
 			outTable = doOneStepEstimation(table, exec);
 		}
 
@@ -203,6 +212,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FITTINGTYPE, fittingType);
 		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
+		settings.addInt(CFGKEY_EXPERTSETTINGS, expertSettings);
 		settings.addInt(CFGKEY_NPARAMETERSPACE, nParameterSpace);
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
@@ -218,6 +228,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fittingType = settings.getString(CFGKEY_FITTINGTYPE);
 		enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
+		expertSettings = settings.getInt(CFGKEY_EXPERTSETTINGS);
 		nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
 		nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
 		stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
@@ -249,6 +260,80 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected void saveInternals(final File internDir,
 			final ExecutionMonitor exec) throws IOException,
 			CanceledExecutionException {
+	}
+
+	private void readPrimaryTable(BufferedDataTable table) {
+		parameterLimits = new LinkedHashMap<>();
+
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM1Schema(), table);
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			String id = ModelEstimationNodeModel.PRIMARY
+					+ ((CatalogModelXml) tuple.getPmmXml(
+							Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+
+			if (!parameterLimits.containsKey(id)) {
+				Map<String, Point2D.Double> limits = new LinkedHashMap<>();
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model1Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml element = (ParamXml) el;
+					double min = Double.NaN;
+					double max = Double.NaN;
+
+					if (element.getMin() != null) {
+						min = element.getMin();
+					}
+
+					if (element.getMax() != null) {
+						max = element.getMax();
+					}
+
+					limits.put(element.getName(), new Point2D.Double(min, max));
+				}
+
+				parameterLimits.put(id, limits);
+			}
+		}
+	}
+
+	private void readSecondaryTable(BufferedDataTable table) {
+		readPrimaryTable(table);
+
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM2Schema(), table);
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			String id = ModelEstimationNodeModel.SECONDARY
+					+ ((CatalogModelXml) tuple.getPmmXml(
+							Model2Schema.ATT_MODELCATALOG).get(0)).getID();
+
+			if (!parameterLimits.containsKey(id)) {
+				Map<String, Point2D.Double> limits = new LinkedHashMap<>();
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model2Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml element = (ParamXml) el;
+					double min = Double.NaN;
+					double max = Double.NaN;
+
+					if (element.getMin() != null) {
+						min = element.getMin();
+					}
+
+					if (element.getMax() != null) {
+						max = element.getMax();
+					}
+
+					limits.put(element.getName(), new Point2D.Double(min, max));
+				}
+
+				parameterLimits.put(id, limits);
+			}
+		}
 	}
 
 	private BufferedDataTable doPrimaryEstimation(BufferedDataTable table,
@@ -427,8 +512,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 					minParameterValues.add(element.getMin());
 					maxParameterValues.add(element.getMax());
 
-					Map<String, Point2D.Double> guesses = parameterGuesses
-							.get(PRIMARY + modelID);
+					Map<String, Point2D.Double> guesses;
+
+					if (expertSettings == 1) {
+						guesses = parameterGuesses.get(PRIMARY + modelID);
+					} else {
+						guesses = parameterLimits.get(PRIMARY + modelID);
+					}
 
 					if (guesses != null
 							&& guesses.containsKey(element.getName())) {
@@ -492,8 +582,17 @@ public class ModelEstimationNodeModel extends NodeModel {
 							minParameterValues, maxParameterValues,
 							minGuessValues, maxGuessValues, targetValues,
 							arguments, argumentValues, enforceLimits == 1);
-					optimizer.optimize(new AtomicInteger(), nParameterSpace,
-							nLevenberg, stopWhenSuccessful == 1);
+
+					if (expertSettings == 1) {
+						optimizer.optimize(new AtomicInteger(),
+								nParameterSpace, nLevenberg,
+								stopWhenSuccessful == 1);
+					} else {
+						optimizer.optimize(new AtomicInteger(),
+								DEFAULT_NPARAMETERSPACE, DEFAULT_NLEVENBERG,
+								DEFAULT_STOPWHENSUCCESSFUL == 1);
+					}
+
 					successful = optimizer.isSuccessful();
 				}
 
@@ -685,8 +784,15 @@ public class ModelEstimationNodeModel extends NodeModel {
 						List<List<Double>> argumentValues = new ArrayList<List<Double>>();
 						String modelID = ((CatalogModelXml) modelXml.get(0))
 								.getID() + "";
-						Map<String, Point2D.Double> modelGuesses = parameterGuesses
-								.get(SECONDARY + modelID);
+						Map<String, Point2D.Double> modelGuesses;
+
+						if (expertSettings == 1) {
+							modelGuesses = parameterGuesses.get(SECONDARY
+									+ modelID);
+						} else {
+							modelGuesses = parameterLimits.get(SECONDARY
+									+ modelID);
+						}
 
 						if (modelGuesses == null) {
 							modelGuesses = new LinkedHashMap<String, Point2D.Double>();
@@ -766,8 +872,17 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress, nParameterSpace,
-									nLevenberg, stopWhenSuccessful == 1);
+
+							if (expertSettings == 1) {
+								optimizer.optimize(progress, nParameterSpace,
+										nLevenberg, stopWhenSuccessful == 1);
+							} else {
+								optimizer.optimize(progress,
+										DEFAULT_NPARAMETERSPACE,
+										DEFAULT_NLEVENBERG,
+										DEFAULT_STOPWHENSUCCESSFUL == 1);
+							}
+
 							successful = optimizer.isSuccessful();
 						}
 
@@ -876,8 +991,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 					String primID = ((CatalogModelXml) tuple.getPmmXml(
 							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
 							+ "";
-					Map<String, Point2D.Double> primaryGuesses = parameterGuesses
-							.get(PRIMARY + primID);
+					Map<String, Point2D.Double> primaryGuesses;
+
+					if (expertSettings == 1) {
+						primaryGuesses = parameterGuesses.get(PRIMARY + primID);
+					} else {
+						primaryGuesses = parameterLimits.get(PRIMARY + primID);
+					}
 
 					if (primaryGuesses == null) {
 						primaryGuesses = new LinkedHashMap<String, Point2D.Double>();
@@ -912,8 +1032,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 							+ "";
 					PmmXmlDoc secParams = tuple
 							.getPmmXml(Model2Schema.ATT_PARAMETER);
-					Map<String, Point2D.Double> secGuesses = parameterGuesses
-							.get(SECONDARY + secID);
+					Map<String, Point2D.Double> secGuesses;
+
+					if (expertSettings == 1) {
+						secGuesses = parameterGuesses.get(SECONDARY + secID);
+					} else {
+						secGuesses = parameterLimits.get(SECONDARY + secID);
+					}
 
 					if (secGuesses == null) {
 						secGuesses = new LinkedHashMap<String, Point2D.Double>();
@@ -1088,8 +1213,17 @@ public class ModelEstimationNodeModel extends NodeModel {
 									maxParameterValues, minGuessValues,
 									maxGuessValues, targetValues, arguments,
 									argumentValues, enforceLimits == 1);
-							optimizer.optimize(progress, nParameterSpace,
-									nLevenberg, stopWhenSuccessful == 1);
+
+							if (expertSettings == 1) {
+								optimizer.optimize(progress, nParameterSpace,
+										nLevenberg, stopWhenSuccessful == 1);
+							} else {
+								optimizer.optimize(progress,
+										DEFAULT_NPARAMETERSPACE,
+										DEFAULT_NLEVENBERG,
+										DEFAULT_STOPWHENSUCCESSFUL == 1);
+							}
+
 							successful = optimizer.isSuccessful();
 						}
 

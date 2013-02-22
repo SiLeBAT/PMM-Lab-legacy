@@ -1056,7 +1056,7 @@ if (myDBPanel1 != null) {
 						else {
 						*/
 							//c.setType(Types.LONGVARCHAR);
-							c.setUserCellEditor(new MyTextareaEditor(this));							
+							c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), actualTable.getFieldNames()[i]));							
 						//}
 						c.setUserCellRenderer(new MyTextareaRenderer());
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
@@ -1261,7 +1261,7 @@ if (myDBPanel1 != null) {
 				      c.setReadOnly(false); // Kommentar
 				      c.setPreferredWidth(150);
 							//c.setType(Types.LONGVARCHAR); // Kommentar
-				      c.setUserCellEditor(new MyTextareaEditor(this)); c.setUserCellRenderer(new MyTextareaRenderer());
+				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), "Kommentar")); c.setUserCellRenderer(new MyTextareaRenderer());
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, null));
 				      //if (actualTable.getHideKommentar()) c.setVisible(false);
 					    if (sorter != null) {

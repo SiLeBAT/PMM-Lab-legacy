@@ -23,8 +23,12 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private Integer dof = null;
 	private Integer qualityScore = null;
 	private Boolean checked = null;
+	private String dbuuid = null;
 	
 	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof) {
+		this(id, name, rms, r2, aic, bic, dof, null);
+	}
+	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof, String dbuuid) {
 		setID(id);
 		setName(name);
 		setRMS(rms);
@@ -32,6 +36,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		setAIC(aic);
 		setBIC(bic);
 		setDOF(dof);
+		setDbuuid(dbuuid);
 	}
 	public EstModelXml(Element xmlElement) {
 		try {
@@ -56,6 +61,9 @@ public class EstModelXml implements PmmXmlElementConvertable {
 				String strBool = xmlElement.getAttribute("checked").getValue();
 				setChecked(strBool.trim().isEmpty() ? null : Boolean.parseBoolean(strBool));				
 			}
+			if (xmlElement.getAttribute("dbuuid") != null) {
+				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -70,6 +78,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public Integer getDOF() {return dof;}
 	public Integer getQualityScore() {return qualityScore;}
 	public Boolean getChecked() {return checked;}
+	public String getDbuuid() {return dbuuid;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? null : id;} // MathUtilities.getRandomNegativeInt()
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
@@ -80,6 +89,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	public void setDOF(Integer dof) {this.dof = dof;}
 	public void setQualityScore(Integer qualityScore) {this.qualityScore = qualityScore;}
 	public void setChecked(Boolean checked) {this.checked = checked;}
+	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
 	public Element toXmlElement() {
@@ -93,6 +103,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("dof", "" + (dof == null ? "" : dof));
 		modelElement.setAttribute("qualityScore", "" + (qualityScore == null ? "" : qualityScore));
 		modelElement.setAttribute("checked", "" + (checked == null ? "" : checked));
+		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return modelElement;
 	}
 
@@ -107,6 +118,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
         list.add("DOF");
         list.add("QualityScore");
         list.add("Checked");
+        list.add("Dbuuid");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -136,6 +148,9 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("checked")) {
 			return BooleanCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dbuuid")) {
+			return StringCell.TYPE;
 		}
 		return null;
 	}

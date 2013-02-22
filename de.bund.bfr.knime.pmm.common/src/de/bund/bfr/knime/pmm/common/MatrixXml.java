@@ -17,20 +17,28 @@ public class MatrixXml implements PmmXmlElementConvertable {
 	private Integer id;
 	private String name = null;
 	private String detail = null;
+	private String dbuuid = null;
 	
+	public MatrixXml(Integer id, String name, String detail) {
+		this(id, name, detail, null);
+	}
 	public MatrixXml() {
 		id = MathUtilities.getRandomNegativeInt();
 	}
-	public MatrixXml(Integer id, String name, String detail) {
+	public MatrixXml(Integer id, String name, String detail, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDetail(detail);
+		setDbuuid(dbuuid);
 	}
 	public MatrixXml(Element xmlElement) {
 		try {
 			setID(Integer.parseInt(xmlElement.getAttribute("id").getValue()));
 			setName(xmlElement.getAttribute("name").getValue());
 			setDetail(xmlElement.getAttribute("detail").getValue());
+			if (xmlElement.getAttribute("dbuuid") != null) {
+				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -40,10 +48,12 @@ public class MatrixXml implements PmmXmlElementConvertable {
 	public Integer getID() {return id;}
 	public String getName() {return name;}
 	public String getDetail() {return detail;}
+	public String getDbuuid() {return dbuuid;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDetail(String detail) {this.detail = (detail == null) ? "" : detail;}
+	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
 	public Element toXmlElement() {
@@ -51,6 +61,7 @@ public class MatrixXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("id", id.toString());
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("detail", detail);
+		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return modelElement;
 	}
 
@@ -59,6 +70,7 @@ public class MatrixXml implements PmmXmlElementConvertable {
         list.add("ID");
         list.add("Name");
         list.add("Detail");
+        list.add("Dbuuid");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -69,6 +81,9 @@ public class MatrixXml implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("detail")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dbuuid")) {
 			return StringCell.TYPE;
 		}
 		return null;

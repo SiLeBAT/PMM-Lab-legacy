@@ -210,9 +210,11 @@ public class ChartCreator extends ChartPanel {
 						usedMaxX = Math.max(usedMaxX, maxArg);
 					}
 
-					for (double x : plotable.getSamples()) {
-						usedMinX = Math.min(usedMinX, x);
-						usedMaxX = Math.max(usedMaxX, x);
+					for (Double x : plotable.getSamples()) {
+						if (x != null) {
+							usedMinX = Math.min(usedMinX, x);
+							usedMaxX = Math.max(usedMaxX, x);
+						}
 					}
 				}
 			}

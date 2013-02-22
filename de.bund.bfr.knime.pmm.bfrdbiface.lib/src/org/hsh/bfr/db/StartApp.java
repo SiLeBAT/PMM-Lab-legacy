@@ -94,8 +94,10 @@ public class StartApp {
     	  	myT = DBKernel.myList.getTable("Modellkatalog"); DBKernel.doMNs(myT);
     	  	myT = DBKernel.myList.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
 
+    	  	DBKernel.myList.getMyDBTable().setTable();
+
     	  	DBKernel.mainFrame.toFront();	    
-    	  	DBKernel.mainFrame.setVisible(true);	
+    	  	DBKernel.mainFrame.setVisible(true);
 	  	}
 	  	/*
 	  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);

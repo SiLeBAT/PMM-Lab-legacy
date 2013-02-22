@@ -367,7 +367,7 @@ public class MathUtilities {
 		return 1.0 - dist.probability(-Math.abs(tValue), Math.abs(tValue));
 	}
 
-	private static boolean isVariableCharacter(char ch) {
+	public static boolean isVariableCharacter(char ch) {
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
 	}
 

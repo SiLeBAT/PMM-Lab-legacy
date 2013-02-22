@@ -59,18 +59,23 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	private String title;
 	private String m_abstract;
 	private Integer year;
+	private String dbuuid = null;
 	
-	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id) {
+	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id, String dbuuid) {
 		this.author = author;
 		this.title = title;
 		this.m_abstract = m_abstract;
 		this.year = year;
 		this.id = id;
+		this.dbuuid = dbuuid;
 		setName();
 	}
 	
+	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id) {
+		this(author, year, title, m_abstract, id, null);
+	}
 	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract) {
-		this(author, year, title, m_abstract, MathUtilities.getRandomNegativeInt());
+		this(author, year, title, m_abstract, MathUtilities.getRandomNegativeInt(), null);
 	}
 	
 	public LiteratureItem(final Element el) {
@@ -78,7 +83,8 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 			el.getAttributeValue(ATT_YEAR).isEmpty() ? null : Integer.valueOf(el.getAttributeValue(ATT_YEAR)),
 			el.getAttributeValue(ATT_TITLE).isEmpty() ? null : el.getAttributeValue(ATT_TITLE),
 			el.getAttributeValue(ATT_ABSTRACT).isEmpty() ? null : el.getAttributeValue(ATT_ABSTRACT),
-			Integer.valueOf(el.getAttributeValue(ATT_ID)));
+			Integer.valueOf(el.getAttributeValue(ATT_ID)),
+			el.getAttribute("dbuuid") == null ? null : el.getAttribute("dbuuid").getValue());
 	}
 	
 	@Override
@@ -89,6 +95,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 		ret.setAttribute(ATT_TITLE, removeDirt(title));
 		ret.setAttribute(ATT_ABSTRACT, removeDirt(m_abstract));
 		ret.setAttribute(ATT_ID, String.valueOf(id));		
+		ret.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return ret;
 	}
 	private String removeDirt(String toClean) {
@@ -114,6 +121,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	public String getAbstract() {return m_abstract;}
 	public Integer getYear() {return year;}
 	public Integer getId() {return id;}
+	public String getDbuuid() {return dbuuid;}
 
 	public void setAuthor(String author) {this.author = (author == null) ? "" : author;}
 	public void setTitle(String title) {this.title = title;}
@@ -122,6 +130,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	public void setId(Integer id) {this.id = id;}
 	public void setName(String name) {this.name = name;}
 	public void setName() {name = author+"_"+year+"_"+title;}
+	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
 	public String toString() {setName(); return name;}
@@ -133,6 +142,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
         list.add("Year");
         list.add("Title");
         list.add("Abstract");
+        list.add("Dbuuid");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -149,6 +159,9 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("abstract")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dbuuid")) {
 			return StringCell.TYPE;
 		}
 		return null;

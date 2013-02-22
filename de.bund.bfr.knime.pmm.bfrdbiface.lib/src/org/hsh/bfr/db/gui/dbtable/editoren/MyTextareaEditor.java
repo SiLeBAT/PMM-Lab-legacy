@@ -36,6 +36,7 @@
  */
 package org.hsh.bfr.db.gui.dbtable.editoren;
 
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -47,6 +48,9 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.imports.InfoBox;
+
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
 
 import quick.dbtable.CellComponent;
@@ -64,9 +68,11 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
 	//private MyDBTable myDB = null;
 	private JScrollPane myScroller = null;
 	private ActionListener listener = null;
+	private boolean isMiscParam = false;
   
-	public MyTextareaEditor(MyDBTable myDB) {
+	public MyTextareaEditor(MyDBTable myDB, String tableName, String columnName) {
 		//this.myDB = myDB;
+		isMiscParam = tableName.equals("SonstigeParameter") && columnName.equals("Parameter");
 		this.setLineWrap(true);
 		this.setWrapStyleWord(true);
 		myScroller = new JScrollPane(this);
@@ -80,7 +86,8 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
   }
 
   public Object getValue() {
-  	return this.getText();
+	  String result = this.getText();
+  	return result;
   }
 
   public JComponent getComponent() {
@@ -144,6 +151,10 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
     //printIt("Released", keyEvent);
   }
   public void keyTyped(KeyEvent keyEvent) {
-  	//printIt("keyTyped", keyEvent);
+	  if (isMiscParam && !MathUtilities.isVariableCharacter(keyEvent.getKeyChar())) {
+	    	keyEvent.consume();
+	    	InfoBox ib = new InfoBox("character not allowed...", true, new Dimension(250, 100), null, true);
+	    	ib.setVisible(true);
+	    }
   }
 }

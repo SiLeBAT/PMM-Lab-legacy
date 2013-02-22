@@ -36,9 +36,12 @@ package de.bund.bfr.knime.pmm.combaseio;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -64,10 +67,12 @@ import de.bund.bfr.knime.pmm.common.ui.FilePanel;
  * 
  * @author Jorgen Brandt
  */
-public class CombaseReaderNodeDialog extends NodeDialogPane {
+public class CombaseReaderNodeDialog extends NodeDialogPane implements
+		ActionListener {
 
 	private FilePanel filePanel;
-	private DoubleTextField eleminationField;
+	private JCheckBox startValueBox;
+	private DoubleTextField eliminationField;
 	private DoubleTextField growthField;
 
 	/**
@@ -77,8 +82,10 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 		filePanel = new FilePanel("Selected File:", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".csv", "Combase File (*.csv)");
-		eleminationField = new DoubleTextField();
-		eleminationField.setPreferredSize(new Dimension(100, eleminationField
+		startValueBox = new JCheckBox("Use Start Values");
+		startValueBox.addActionListener(this);
+		eliminationField = new DoubleTextField();
+		eliminationField.setPreferredSize(new Dimension(100, eliminationField
 				.getPreferredSize().height));
 		growthField = new DoubleTextField();
 		growthField.setPreferredSize(new Dimension(100, growthField
@@ -87,7 +94,8 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 		JPanel leftOptionsPanel = new JPanel();
 
 		leftOptionsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		leftOptionsPanel.setLayout(new GridLayout(2, 1, 5, 5));
+		leftOptionsPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		leftOptionsPanel.add(startValueBox);
 		leftOptionsPanel.add(new JLabel("Start value for elimination:"));
 		leftOptionsPanel.add(new JLabel("Start value for growth:"));
 
@@ -95,8 +103,9 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 
 		rightOptionsPanel
 				.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-		rightOptionsPanel.setLayout(new GridLayout(2, 1, 5, 5));
-		rightOptionsPanel.add(eleminationField);
+		rightOptionsPanel.setLayout(new GridLayout(3, 1, 5, 5));
+		rightOptionsPanel.add(new JLabel());
+		rightOptionsPanel.add(eliminationField);
 		rightOptionsPanel.add(growthField);
 
 		JPanel optionsPanel = new JPanel();
@@ -126,6 +135,7 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			DataTableSpec[] specs) throws NotConfigurableException {
 		String fileName;
+		int useStartValue;
 		double startElim;
 		double startGrow;
 
@@ -134,6 +144,13 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 					.getString(CombaseReaderNodeModel.PARAM_FILENAME);
 		} catch (InvalidSettingsException e) {
 			fileName = CombaseReaderNodeModel.DEFAULT_FILENAME;
+		}
+
+		try {
+			useStartValue = settings
+					.getInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE);
+		} catch (InvalidSettingsException e) {
+			useStartValue = CombaseReaderNodeModel.DEFAULT_USESTARTVALUE;
 		}
 
 		try {
@@ -151,24 +168,68 @@ public class CombaseReaderNodeDialog extends NodeDialogPane {
 		}
 
 		filePanel.setFileName(fileName);
-		eleminationField.setValue(startElim);
+		startValueBox.setSelected(useStartValue == 1);
+		eliminationField.setValue(startElim);
 		growthField.setValue(startGrow);
+
+		if (startValueBox.isSelected()) {
+			eliminationField.setEnabled(true);
+			growthField.setEnabled(true);
+		} else {
+			eliminationField.setEnabled(false);
+			growthField.setEnabled(false);
+		}
 	}
 
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		if (!filePanel.isFileNameValid() || !eleminationField.isValueValid()
-				|| !growthField.isValueValid()) {
+		if (!filePanel.isFileNameValid()) {
 			throw new InvalidSettingsException("");
 		}
 
 		settings.addString(CombaseReaderNodeModel.PARAM_FILENAME,
 				filePanel.getFileName());
-		settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM,
-				eleminationField.getValue());
-		settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW,
-				growthField.getValue());
+
+		if (startValueBox.isSelected()) {
+			if (!eliminationField.isValueValid() || !growthField.isValueValid()) {
+				throw new InvalidSettingsException("");
+			}
+
+			settings.addInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE, 1);
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM,
+					eliminationField.getValue());
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW,
+					growthField.getValue());
+		} else {
+			Double elim = eliminationField.getValue();
+			Double grow = growthField.getValue();
+
+			if (elim == null) {
+				elim = Double.NaN;
+			}
+
+			if (grow == null) {
+				grow = Double.NaN;
+			}
+
+			settings.addInt(CombaseReaderNodeModel.PARAM_USESTARTVALUE, 0);
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTELIM, elim);
+			settings.addDouble(CombaseReaderNodeModel.PARAM_STARTGROW, grow);
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == startValueBox) {
+			if (startValueBox.isSelected()) {
+				eliminationField.setEnabled(true);
+				growthField.setEnabled(true);
+			} else {
+				eliminationField.setEnabled(false);
+				growthField.setEnabled(false);
+			}
+		}
 	}
 
 }

@@ -420,17 +420,29 @@ public class XLSReader {
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 				String columnName = modelMappings.get(element.getName());
-				int column = columns.get(columnName);
 
-				try {
-					element.setValue(Double.parseDouble(row.getCell(column)
-							.toString()));
-				} catch (Exception e) {
-					e.printStackTrace();
+				if (columnName != null) {
+					int column = columns.get(columnName);
+
+					try {
+						element.setValue(Double.parseDouble(row.getCell(column)
+								.toString()));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					element.setValue(null);
 				}
 			}
 
 			modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
+
+			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+			((EstModelXml) estXml.get(0)).setID(MathUtilities
+					.getRandomNegativeInt());
+
+			modelTuple.setValue(Model1Schema.ATT_ESTMODEL, estXml);
 
 			KnimeTuple tuple = new KnimeTuple(
 					SchemaFactory.createM1DataSchema(), modelTuple, dataTuple);

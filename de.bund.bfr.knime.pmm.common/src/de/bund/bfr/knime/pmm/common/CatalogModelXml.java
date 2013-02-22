@@ -17,17 +17,25 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 	private Integer id;
 	private String name = null;
 	private String formula = null;
+	private String dbuuid = null;
 	
 	public CatalogModelXml(Integer id, String name, String formula) {
+		this(id, name, formula, null);
+	}
+	public CatalogModelXml(Integer id, String name, String formula, String dbuuid) {
 		setID(id);
 		setName(name);
 		setFormula(formula);
+		setDbuuid(dbuuid);
 	}
 	public CatalogModelXml(Element xmlElement) {
 		try {
 			setID(Integer.parseInt(xmlElement.getAttribute("id").getValue()));
 			setName(xmlElement.getAttribute("name").getValue());
 			setFormula(xmlElement.getAttribute("formula").getValue());
+			if (xmlElement.getAttribute("dbuuid") != null) {
+				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -36,10 +44,12 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 	public Integer getID() {return id;}
 	public String getName() {return name;}
 	public String getFormula() {return formula;}
+	public String getDbuuid() {return dbuuid;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setFormula(String formula) {this.formula = (formula == null) ? null : formula;}
+	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
 	public Element toXmlElement() {
@@ -47,6 +57,7 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("id", id.toString());
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("formula", formula);
+		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return modelElement;
 	}
 
@@ -55,6 +66,7 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
         list.add("ID");
         list.add("Name");
         list.add("Formula");
+        list.add("Dbuuid");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -65,6 +77,9 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("formula")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dbuuid")) {
 			return StringCell.TYPE;
 		}
 		return null;

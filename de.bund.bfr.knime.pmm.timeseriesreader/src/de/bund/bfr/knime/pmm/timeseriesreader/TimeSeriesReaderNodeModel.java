@@ -56,6 +56,7 @@ import org.knime.core.node.config.Config;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -176,6 +177,14 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		}
         		tuple.addMiscs(miscDoc);
 
+        		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+        		Boolean checked = null;
+        		Integer qualityScore = null;
+    			if (result.getObject("Geprueft") != null) checked = result.getBoolean("Geprueft");
+    			if (result.getObject("Guetescore") != null) qualityScore = result.getInt("Guetescore");
+        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
+        		mdInfoDoc.add(mdix);
+        		tuple.setMdInfo(mdInfoDoc);
 
     	    	tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
         		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
@@ -185,7 +194,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
         		//tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
         		tuple.setMdData(tsDoc);
-        		tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
+        		//tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
         		
     	    	String s = result.getString(Bfrdb.ATT_LITERATUREID);

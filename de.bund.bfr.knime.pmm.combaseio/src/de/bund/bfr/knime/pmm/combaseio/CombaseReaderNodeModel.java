@@ -56,6 +56,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -203,8 +204,12 @@ public class CombaseReaderNodeModel extends NodeModel {
 				// MathUtilities.getRandomNegativeInt() );
 				// modelTuple.setValue( Model1Schema.ATT_MININDEP, "?" );
 				// modelTuple.setValue( Model1Schema.ATT_MAXINDEP, "?" );
-				modelTuple.setValue(TimeSeriesSchema.ATT_COMMENT,
-						COMMENT_CLAUSE);
+				//modelTuple.setValue(TimeSeriesSchema.ATT_COMMENT, COMMENT_CLAUSE);
+        		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+        		ri = MathUtilities.getRandomNegativeInt();
+        		MdInfoXml mdix = new MdInfoXml(ri, "i"+ri, COMMENT_CLAUSE, null, null);
+        		mdInfoDoc.add(mdix);
+        		modelTuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 
 				doc = new PmmXmlDoc();
 

@@ -22,6 +22,7 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -91,6 +92,9 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
 		}
 		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_TIMESERIES)) {
 			list = TimeSeriesXml.getElements();
+		}
+		else if (m_col.getStringValue().equals(TimeSeriesSchema.ATT_MDINFO)) {
+			list = MdInfoXml.getElements();
 		}
 		else if (m_col.getStringValue().startsWith(Model1Schema.ATT_PARAMETER)) {
 			list = ParamXml.getElements();

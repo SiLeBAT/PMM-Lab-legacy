@@ -17,6 +17,7 @@ import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -79,7 +80,12 @@ public class MMC_TS extends JPanel {
 		try {tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, Integer.parseInt(matrixIDField.getText()));}
 		catch (Exception e) {}
 		*/
-		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
+		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentField.getText());
+		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+		int ri = MathUtilities.getRandomNegativeInt();
+		MdInfoXml mdix = new MdInfoXml(ri, "i"+ri, commentField.getText(), null, null);
+		mdInfoDoc.add(mdix);
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 		
 		//tuple.setValue(TimeSeriesSchema.ATT_TEMPERATURE, temperatureField.getValue());
 		//tuple.setValue(TimeSeriesSchema.ATT_PH, phField.getValue());
@@ -258,7 +264,7 @@ public class MMC_TS extends JPanel {
 
 		//---- commentLabel ----
 		commentLabel.setText(":");
-		commentLabel.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_COMMENT) + ":");
+		commentLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_COMMENT) + ":");
 		add(commentLabel, CC.xy(1, 5));
 		add(commentField, CC.xywh(3, 5, 5, 1));
 

@@ -55,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -142,7 +143,12 @@ public class ManualModelConfNodeModel extends NodeModel {
     			tstuple.setValue(TimeSeriesSchema.ATT_AGENTID, agentID);
     			tstuple.setValue(TimeSeriesSchema.ATT_MATRIXID, matrixID);
     			*/
-    			tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
+    			//tstuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
+    			PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+    			int ri = MathUtilities.getRandomNegativeInt();
+    			MdInfoXml mdix = new MdInfoXml(ri, "i"+ri, comment, null, null);
+    			mdInfoDoc.add(mdix);
+    			tstuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
     			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
     			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
     			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);

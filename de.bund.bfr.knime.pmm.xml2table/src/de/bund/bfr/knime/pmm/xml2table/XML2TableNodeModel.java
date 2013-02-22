@@ -14,6 +14,7 @@ import org.knime.core.data.DataRow;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.RowIterator;
 import org.knime.core.data.RowKey;
+import org.knime.core.data.def.BooleanCell;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
@@ -40,6 +41,7 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -213,6 +215,24 @@ public class XML2TableNodeModel extends NodeModel {
     		                        break;
                     			}
                     		}
+                    		else if (el instanceof MdInfoXml) {
+                    			String[] sarr = m_xmlsel.getStringArrayValue();
+                    			if (sarr != null && sarr.length > 0) {
+                    				MdInfoXml mdix = (MdInfoXml) el;
+                    				for (int j=0;j<sarr.length;j++) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+mdix.getName()+"_"+sarr[j]))
+                    						addColSpecs.put(selColumn+"_"+mdix.getName()+"_"+sarr[j],
+                    								new DataColumnSpecCreator(selColumn+"_"+mdix.getName()+"_"+sarr[j], MdInfoXml.getDataType(sarr[j])).createSpec());                				                					
+                    				}
+                    			}
+                    			else {
+                    				List<String> list = MdInfoXml.getElements();
+                    				for (String element : list) {
+                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, MdInfoXml.getDataType(element)).createSpec());                    					
+                    				}
+    		                        break;
+                    			}
+                    		}
                     		else if (el instanceof LiteratureItem) {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
@@ -328,6 +348,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("description", mx.getDescription() == null ? CellIO.createMissingCell() : new StringCell(mx.getDescription()));
 		                			addCells.put("value", mx.getValue() == null ? CellIO.createMissingCell() : new DoubleCell(mx.getValue()));
 		                			addCells.put("unit", mx.getUnit() == null ? CellIO.createMissingCell() : new StringCell(mx.getUnit()));
+		                			addCells.put("dbuuid", mx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(mx.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof AgentXml) {
@@ -335,6 +356,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("id", ax.getID() == null ? CellIO.createMissingCell() : new IntCell(ax.getID())); 
 		                			addCells.put("name", ax.getName() == null ? CellIO.createMissingCell() : new StringCell(ax.getName())); 
 		                			addCells.put("detail", ax.getDetail() == null ? CellIO.createMissingCell() : new StringCell(ax.getDetail()));
+		                			addCells.put("dbuuid", ax.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(ax.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof MatrixXml) {
@@ -342,6 +364,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("id", mx.getID() == null ? CellIO.createMissingCell() : new IntCell(mx.getID())); 
 		                			addCells.put("name", mx.getName() == null ? CellIO.createMissingCell() : new StringCell(mx.getName())); 
 		                			addCells.put("detail", mx.getDetail() == null ? CellIO.createMissingCell() : new StringCell(mx.getDetail()));
+		                			addCells.put("dbuuid", mx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(mx.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof ParamXml) {
@@ -377,6 +400,15 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("log10c", tsx.getLog10C() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getLog10C()));
 		                			v.add(addCells);
 		                		}
+		                		else if (el instanceof MdInfoXml) {
+		                			MdInfoXml mdix = (MdInfoXml) el;
+		                			addCells.put("id", mdix.getID() == null ? CellIO.createMissingCell() : new IntCell(mdix.getID()));
+		                			addCells.put("name", mdix.getName() == null ? CellIO.createMissingCell() : new StringCell(mdix.getName())); 
+		                			addCells.put("comment", mdix.getComment() == null ? CellIO.createMissingCell() : new StringCell(mdix.getComment()));
+		                			addCells.put("qualityscore", mdix.getQualityScore() == null ? CellIO.createMissingCell() : new IntCell(mdix.getQualityScore()));
+		                			addCells.put("checked", mdix.getChecked() == null ? CellIO.createMissingCell() : (mdix.getChecked() ? BooleanCell.TRUE : BooleanCell.FALSE));
+		                			v.add(addCells);
+		                		}
 		                		else if (el instanceof LiteratureItem) {
 		                			LiteratureItem li = (LiteratureItem) el;
 		                			addCells.put("id", li.getId() == null ? CellIO.createMissingCell() : new IntCell(li.getId()));
@@ -384,6 +416,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("year", li.getYear() == null ? CellIO.createMissingCell() : new IntCell(li.getYear()));
 		                			addCells.put("title", li.getTitle() == null ? CellIO.createMissingCell() : new StringCell(li.getTitle()));
 		                			addCells.put("abstract", li.getAbstract() == null ? CellIO.createMissingCell() : new StringCell(li.getAbstract()));
+		                			addCells.put("dbuuid", li.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(li.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof CatalogModelXml) {
@@ -391,6 +424,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("id", cmx.getID() == null ? CellIO.createMissingCell() : new IntCell(cmx.getID()));
 		                			addCells.put("name", cmx.getName() == null ? CellIO.createMissingCell() : new StringCell(cmx.getName())); 
 		                			addCells.put("formula", cmx.getFormula() == null ? CellIO.createMissingCell() : new StringCell(cmx.getFormula()));
+		                			addCells.put("dbuuid", cmx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(cmx.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof EstModelXml) {
@@ -401,6 +435,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("r2", emx.getR2() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getR2()));
 		                			addCells.put("aic", emx.getAIC() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getAIC()));
 		                			addCells.put("bic", emx.getBIC() == null ? CellIO.createMissingCell() : new DoubleCell(emx.getBIC()));
+		                			addCells.put("dbuuid", emx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(emx.getDbuuid()));
 		                			v.add(addCells);
 		                		}
 		                	}

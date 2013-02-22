@@ -353,6 +353,9 @@ public class CellIO {
 			else if (element instanceof TimeSeriesXml) {
 				names.add(((TimeSeriesXml) element).getName());
 			}
+			else if (element instanceof MdInfoXml) {
+				names.add(((MdInfoXml) element).getName());
+			}
 			else if (element instanceof ParamXml) {
 				names.add(((ParamXml) element).getName());
 			}

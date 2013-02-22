@@ -184,7 +184,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		matrixMappings = new LinkedHashMap<>();
 		columnsPanel = new JPanel();
 		columnsPanel.setBorder(BorderFactory
-				.createTitledBorder("XLS Column assignments"));
+				.createTitledBorder("XLS Column -> PMM-Lab assignments"));
 		columnsPanel.setLayout(new BorderLayout());
 		columnsPanel.add(noLabel, BorderLayout.CENTER);
 		columnBoxes = new LinkedHashMap<>();
@@ -792,7 +792,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(new JLabel("Column:"), createConstraints(0, 0));
+		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(agentBox, createConstraints(1, 0));
 
 		if (agentBox.getSelectedItem().equals(DO_NOT_USE)) {
@@ -864,7 +864,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		JPanel northPanel = new JPanel();
 
 		northPanel.setLayout(new GridBagLayout());
-		northPanel.add(new JLabel("Column:"), createConstraints(0, 0));
+		northPanel.add(new JLabel("XLS Column:"), createConstraints(0, 0));
 		northPanel.add(matrixBox, createConstraints(1, 0));
 
 		if (matrixBox.getSelectedItem().equals(DO_NOT_USE)) {

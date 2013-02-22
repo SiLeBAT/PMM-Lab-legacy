@@ -20,6 +20,5 @@ Bundle-ClassPath: .,
  libs/MyJabRef-2.6.jar,
  libs/mysql-connector-java-5.1.20-bin.jar,
  libs/quicktable2swing11.jar,
- icons/,
  libs/jcalendar.jar
 Bundle-Vendor: BfR

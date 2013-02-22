@@ -48,7 +48,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
@@ -61,20 +60,13 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	protected static final String CFG_FILENAME = "SecondaryModelAndDataView.zip";
 
-	protected static final String CFG_CONTAINSDATA = "ContainsData";
-	protected static final int DEFAULT_CONTAINSDATA = 1;
-
 	private DataTable table;
-	private KnimeSchema schema;
-
-	private int containsData;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected SecondaryModelAndDataViewNodeModel() {
 		super(1, 0);
-		containsData = DEFAULT_CONTAINSDATA;
 	}
 
 	/**
@@ -101,15 +93,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM12DataSchema();
-		} else if (SchemaFactory.createM2Schema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM2Schema();
-
-			if (containsData == 1) {
-				containsData = 0;
-			}
-		} else {
+		if (!SchemaFactory.createM2Schema().conforms(inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
@@ -121,7 +105,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addInt(CFG_CONTAINSDATA, containsData);
 	}
 
 	/**
@@ -130,7 +113,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		containsData = settings.getInt(CFG_CONTAINSDATA);
 	}
 
 	/**
@@ -151,12 +133,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		File f = new File(internDir, CFG_FILENAME);
 
 		table = DataContainer.readFromZip(f);
-
-		if (SchemaFactory.createM12DataSchema().conforms(table)) {
-			schema = SchemaFactory.createM12DataSchema();
-		} else if (SchemaFactory.createM2Schema().conforms(table)) {
-			schema = SchemaFactory.createM2Schema();
-		}
 	}
 
 	/**
@@ -173,14 +149,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	protected DataTable getTable() {
 		return table;
-	}
-
-	protected KnimeSchema getSchema() {
-		return schema;
-	}
-
-	protected int getContainsData() {
-		return containsData;
 	}
 
 }

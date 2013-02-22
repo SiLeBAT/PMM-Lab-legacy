@@ -90,6 +90,9 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(TimeSeriesXml.ELEMENT_TIMESERIES)) {
 				elementSet.add(new TimeSeriesXml(el));
 			}	
+			else if (el.getName().equals(MdInfoXml.ELEMENT_MDINFO)) {
+				elementSet.add(new MdInfoXml(el));
+			}	
 			else if (el.getName().equals(LiteratureItem.ELEMENT_LITERATURE)) {
 				elementSet.add(new LiteratureItem(el));
 			}	

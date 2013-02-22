@@ -78,6 +78,7 @@ import de.bund.bfr.knime.pmm.common.math.ParameterOptimizer;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -442,25 +443,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 		return container.getTable();
 	}
 
-	private List<String> getAllMiscParams(BufferedDataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
-		}
-
-		return new ArrayList<String>(paramSet);
-	}
-
 	private class PrimaryEstimationThread implements Runnable {
 
 		private KnimeTuple tuple;
@@ -676,7 +658,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
 				Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 				Set<String> ids = new LinkedHashSet<String>();
-				List<String> miscParams = getAllMiscParams(inTable);
+				List<String> miscParams = PmmUtilities.getAllMiscParams(inTable);
 
 				for (String param : miscParams) {
 					miscMaps.put(param,

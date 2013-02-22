@@ -9,7 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/MyJabRef-2.6.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/mysql-connector-java-5.1.20-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/quicktable2swing11.jar"/>
-	<classpathentry exported="true" kind="lib" path="icons" sourcepath="icons"/>
 	<classpathentry exported="true" kind="lib" path="libs/jcalendar.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

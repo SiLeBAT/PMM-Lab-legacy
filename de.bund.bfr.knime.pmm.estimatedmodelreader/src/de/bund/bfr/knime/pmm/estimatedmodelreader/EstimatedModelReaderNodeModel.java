@@ -61,6 +61,7 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -217,7 +218,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		*/
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
     		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
-    		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
+    		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
+    		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+    		Boolean checked = null;
+    		Integer qualityScore = null;
+			if (result.getObject("MDGeprueft") != null) checked = result.getBoolean("MDGeprueft");
+			if (result.getObject("MDGuetescore") != null) qualityScore = result.getInt("MDGuetescore");
+    		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
+    		mdInfoDoc.add(mdix);
+    		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
     		
     		String s = result.getString(Bfrdb.ATT_LITERATUREID);
     		if (s != null) {
@@ -281,6 +290,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
 						
 			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, rms, r2, aic, bic, null);
+			if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
+			if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
@@ -337,6 +348,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		    	bic = null;
 				if (result.getObject("BIC2") != null) bic = result.getDouble("BIC2");
 				emx = new EstModelXml(emid, "EM_" + emid, rms, r2, aic, bic, null);
+				if (result.getObject("Geprueft2") != null) emx.setChecked(result.getBoolean("Geprueft2"));
+				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 

@@ -11,8 +11,19 @@ SELECT
     "Versuchsbedingungen"."Matrix",
     "Versuchsbedingungen"."MatrixDetail",
     "C"."Wert" AS "Temperatur",
-    "P"."Wert" AS "pH",
-    "A"."Wert" AS "aw",
+
+    CASE
+        WHEN "P"."Wert" IS NULL
+        THEN "Psubst"."Wert"
+        ELSE "P"."Wert"
+    END "pH",
+
+    CASE
+        WHEN "A"."Wert" IS NULL
+        THEN "Asubst"."Wert"
+        ELSE "A"."Wert"
+    END AS "aw",
+
     "O"."Wert" AS "CO2",
     "D"."Wert" AS "Druck",
     "L"."Wert" AS "Luftfeuchtigkeit",
@@ -41,6 +52,15 @@ LEFT JOIN "DoubleKennzahlenEinfach" AS "D"
 ON "Versuchsbedingungen"."Druck"="D"."ID"
 
 LEFT JOIN "DoubleKennzahlenEinfach" AS "L"
-ON "Versuchsbedingungen"."Luftfeuchtigkeit"="L"."ID";
+ON "Versuchsbedingungen"."Luftfeuchtigkeit"="L"."ID"
+
+LEFT JOIN "Matrices"
+ON "Versuchsbedingungen"."Matrix"="Matrices"."ID"
+
+LEFT JOIN "DoubleKennzahlenEinfach" AS "Psubst"
+ON "Matrices"."pH"="Psubst"."ID"
+
+LEFT JOIN "DoubleKennzahlenEinfach" AS "Asubst"
+ON "Matrices"."aw"="Asubst"."ID";
 
 GRANT SELECT ON TABLE "VersuchsbedingungenEinfach" TO "PUBLIC";

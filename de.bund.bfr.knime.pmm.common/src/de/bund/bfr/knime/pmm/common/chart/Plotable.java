@@ -620,10 +620,11 @@ public class Plotable {
 	}
 
 	public int getNumberOfCombinations() {
-		int nMax = 1;
+		int nMax = 0;
 
 		for (String arg0 : functionArguments.keySet()) {
 			int n = 1;
+			boolean valueFound = false;
 
 			for (String arg : functionArguments.keySet()) {
 				if (!arg.equals(arg0) && valueLists.containsKey(arg)) {
@@ -631,10 +632,13 @@ public class Plotable {
 							valueLists.get(arg));
 
 					n *= set.size();
+					valueFound = true;
 				}
 			}
 
-			nMax = Math.max(nMax, n);
+			if (valueFound) {
+				nMax = Math.max(nMax, n);
+			}
 		}
 
 		return nMax;

@@ -60,18 +60,13 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	protected static final String CFG_FILENAME = "SecondaryModelAndDataView.zip";
 
-	protected static final String CFG_CONTAINSDATA = "ContainsData";
-	protected static final int DEFAULT_CONTAINSDATA = 1;
-
-	private DataTable table;	
-	private int containsData;
+	private DataTable table;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected SecondaryModelAndDataViewNodeModel() {
 		super(1, 0);
-		containsData = DEFAULT_CONTAINSDATA;
 	}
 
 	/**
@@ -102,10 +97,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		if (!SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
-			containsData = 0;
-		}
-
 		return new DataTableSpec[] {};
 	}
 
@@ -114,7 +105,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addInt(CFG_CONTAINSDATA, containsData);
 	}
 
 	/**
@@ -123,7 +113,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		containsData = settings.getInt(CFG_CONTAINSDATA);
 	}
 
 	/**
@@ -160,10 +149,6 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	protected DataTable getTable() {
 		return table;
-	}
-
-	protected int getContainsData() {
-		return containsData;
 	}
 
 }

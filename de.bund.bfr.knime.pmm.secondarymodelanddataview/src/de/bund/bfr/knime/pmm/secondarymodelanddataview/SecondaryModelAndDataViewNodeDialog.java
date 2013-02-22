@@ -33,20 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.secondarymodelanddataview;
 
-import java.awt.FlowLayout;
-
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-
-import org.knime.core.data.DataTableSpec;
-import org.knime.core.node.InvalidSettingsException;
-import org.knime.core.node.NodeDialogPane;
-import org.knime.core.node.NodeSettingsRO;
-import org.knime.core.node.NodeSettingsWO;
-import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "SecondaryModelAndDataView" Node.
@@ -59,52 +46,13 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  * 
  * @author Christian Thoens
  */
-public class SecondaryModelAndDataViewNodeDialog extends NodeDialogPane {
-
-	private JCheckBox containsDataBox;
-
-	private DataTableSpec spec;
+public class SecondaryModelAndDataViewNodeDialog extends
+		DefaultNodeSettingsPane {
 
 	/**
 	 * New pane for configuring the SecondaryModelAndDataView node.
 	 */
 	protected SecondaryModelAndDataViewNodeDialog() {
-		containsDataBox = new JCheckBox("Display Data Points");
-
-		JPanel panel = new JPanel();
-
-		panel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		panel.add(containsDataBox);
-
-		addTab("Options", panel);
 	}
 
-	@Override
-	protected void loadSettingsFrom(NodeSettingsRO settings,
-			DataTableSpec[] specs) throws NotConfigurableException {
-		spec = specs[0];
-
-		try {
-			containsDataBox
-					.setSelected(settings
-							.getInt(SecondaryModelAndDataViewNodeModel.CFG_CONTAINSDATA) == 1);
-		} catch (InvalidSettingsException e) {
-		}
-	}
-
-	@Override
-	protected void saveSettingsTo(NodeSettingsWO settings)
-			throws InvalidSettingsException {
-		if (containsDataBox.isSelected()) {
-			if (!SchemaFactory.createDataSchema().conforms(spec)) {
-				throw new InvalidSettingsException("No Data available in Table");
-			}
-
-			settings.addInt(
-					SecondaryModelAndDataViewNodeModel.CFG_CONTAINSDATA, 1);
-		} else {
-			settings.addInt(
-					SecondaryModelAndDataViewNodeModel.CFG_CONTAINSDATA, 0);
-		}
-	}
 }

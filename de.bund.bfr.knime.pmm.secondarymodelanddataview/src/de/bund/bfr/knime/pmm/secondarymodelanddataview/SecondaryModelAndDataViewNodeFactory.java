@@ -77,7 +77,7 @@ public class SecondaryModelAndDataViewNodeFactory extends
 	 */
 	@Override
 	public boolean hasDialog() {
-		return true;
+		return false;
 	}
 
 	/**

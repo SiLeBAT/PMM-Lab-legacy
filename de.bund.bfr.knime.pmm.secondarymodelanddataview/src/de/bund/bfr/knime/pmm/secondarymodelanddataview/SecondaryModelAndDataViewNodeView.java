@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
@@ -55,6 +56,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeView</code> for the "SecondaryModelAndDataView" Node.
@@ -70,6 +72,8 @@ public class SecondaryModelAndDataViewNodeView extends
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
 	private ChartInfoPanel infoPanel;
+
+	boolean containsData;
 
 	/**
 	 * Creates a new view.
@@ -101,10 +105,28 @@ public class SecondaryModelAndDataViewNodeView extends
 	 */
 	@Override
 	protected void onOpen() {
-		TableReader reader = new TableReader(getNodeModel().getTable(),
-				getNodeModel().getContainsData() == 1);
+		setComponent(createComponent());
+	}
 
-		if (getNodeModel().getContainsData() == 1) {
+	private JComponent createComponent() {
+		TableReader reader;
+
+		if (SchemaFactory.createDataSchema()
+				.conforms(getNodeModel().getTable())) {
+			reader = new TableReader(getNodeModel().getTable(), true);
+
+			if (Collections.max(reader.getColorCounts()) == 0) {
+				reader = new TableReader(getNodeModel().getTable(), false);
+				containsData = false;
+			} else {
+				containsData = true;
+			}
+		} else {
+			reader = new TableReader(getNodeModel().getTable(), false);
+			containsData = false;
+		}
+
+		if (containsData) {
 			configPanel = new ChartConfigPanel(
 					ChartConfigPanel.PARAMETER_BOXES, false);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
@@ -152,7 +174,8 @@ public class SecondaryModelAndDataViewNodeView extends
 
 		splitPane.setResizeWeight(1.0);
 		splitPane.setPreferredSize(preferredSize);
-		setComponent(splitPane);
+
+		return splitPane;
 	}
 
 	private void createChart() {
@@ -171,8 +194,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
 			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (getNodeModel().getContainsData() == 1
-						&& plotable.getValueList(var) != null) {
+				if (containsData && plotable.getValueList(var) != null) {
 					Set<Double> valuesSet = new LinkedHashSet<Double>(
 							plotable.getValueList(var));
 
@@ -206,7 +228,7 @@ public class SecondaryModelAndDataViewNodeView extends
 			chartCreator.setTransformY(null);
 		}
 
-		if (getNodeModel().getContainsData() == 1) {
+		if (containsData) {
 			chartCreator.setColorLists(selectionPanel.getColorLists());
 			chartCreator.setShapeLists(selectionPanel.getShapeLists());
 		} else {

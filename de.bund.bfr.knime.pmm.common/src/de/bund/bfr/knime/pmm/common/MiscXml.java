@@ -20,16 +20,21 @@ public class MiscXml implements PmmXmlElementConvertable {
 	private String description = null;
 	private Double value = null;
 	private String unit = null;
+	private String dbuuid = null;
 	
+	public MiscXml(Integer id, String name, String description, Double value, String unit) {
+		this(id, name, description, value, unit, null);
+	}
 	public MiscXml() {
 		id = MathUtilities.getRandomNegativeInt();
 	}
-	public MiscXml(Integer id, String name, String description, Double value, String unit) {
+	public MiscXml(Integer id, String name, String description, Double value, String unit, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDescription(description);
 		setValue(value);
 		setUnit(unit);
+		setDbuuid(dbuuid);
 	}
 	public MiscXml (Element xmlElement) {
 		try {
@@ -39,6 +44,9 @@ public class MiscXml implements PmmXmlElementConvertable {
 			String strDbl = xmlElement.getAttribute("value").getValue();
 			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			setUnit(xmlElement.getAttribute("unit").getValue());
+			if (xmlElement.getAttribute("dbuuid") != null) {
+				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -69,12 +77,14 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public String getDescription() {return description;}
 	public Double getValue() {return value;}
 	public String getUnit() {return unit;}
+	public String getDbuuid() {return dbuuid;}
 	
 	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDescription(String description) {this.description = (description == null) ? "" : description;}
 	public void setValue(Double value) {this.value = (value == null) ? null : value;;}
 	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
+	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
 	public Element toXmlElement() {
@@ -84,6 +94,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("description", description);
 		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));
 		modelElement.setAttribute("unit", unit);
+		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return modelElement;
 	}
 
@@ -94,6 +105,7 @@ public class MiscXml implements PmmXmlElementConvertable {
         list.add("Description");
         list.add("Value");
         list.add("Unit");
+        list.add("Dbuuid");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -110,6 +122,9 @@ public class MiscXml implements PmmXmlElementConvertable {
 			return DoubleCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("unit")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("dbuuid")) {
 			return StringCell.TYPE;
 		}
 		return null;

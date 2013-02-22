@@ -57,6 +57,7 @@ public class MMC_M extends JPanel {
 	private JComboBox<ParametricModel>[] threeBoxes = new JComboBox[3];
 	private HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = null;
 	private Connection m_conn = null;
+	private String dbuuid = null;
 	private boolean dontTouch = false;
 	
 	private boolean modelNameChangedManually = false;
@@ -173,6 +174,11 @@ public class MMC_M extends JPanel {
 	}
 	public void setConnection(final Connection conn) {	
 		this.m_conn = conn;
+		try {
+			Bfrdb db = new Bfrdb(m_conn);
+			dbuuid = db.getDBUUID();
+		}
+		catch (SQLException e1) {e1.printStackTrace();}
 		setComboBox();
 	}
 	private void setComboBox() {		
@@ -552,6 +558,7 @@ public class MMC_M extends JPanel {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
+		// New
 		doLit(null);
 	}
 
@@ -563,13 +570,15 @@ public class MMC_M extends JPanel {
 	private void button3ActionPerformed(ActionEvent e) {
 		// Edit
 		LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(referencesTable.getSelectedRow(), 0);
-		if (li != null) doLit(li.getId());
+		//if (li != null) doLit(li.getId());
+		doLit(li);
 	}
 	private void deleteSelLitRow() {
 		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());		
 	}
-	private void doLit(Integer litID) {
+	private void doLit(LiteratureItem oldLi) {
 		MyTable lit = DBKernel.myList.getTable("Literatur");
+		Integer litID = (oldLi != null && dbuuid.equals(oldLi.getDbuuid())) ? oldLi.getId() : null;
 		Object newVal = DBKernel.myList.openNewWindow(
 				lit,
 				litID,
@@ -588,12 +597,12 @@ public class MMC_M extends JPanel {
 					year == null ? null : (Integer) year,
 							title == null ? "?" : title.toString(),
 							mAbstract == null ? "?" : mAbstract.toString(),
-							(Integer) newVal);
+							(Integer) newVal, dbuuid);
 			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
 			vli.add(li);
-			if (litID != null) {
-				deleteSelLitRow();
+			if (oldLi != null) {
 				int selRow = referencesTable.getSelectedRow();
+				deleteSelLitRow();
 				((DefaultTableModel) referencesTable.getModel()).insertRow(selRow, vli);
 			}
 			else {

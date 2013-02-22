@@ -17,6 +17,8 @@ SELECT
     "Rsquared" AS "Rsquared2",
     "AIC" AS "AIC2",
     "BIC" AS "BIC2",
+    "GeschaetzteModelle"."Guetescore" AS "Guetescore2",
+    "GeschaetzteModelle"."Geprueft" AS "Geprueft2",
     "min" AS "min2",
     "max" AS "max2",
     "minIndep" AS "minIndep2",

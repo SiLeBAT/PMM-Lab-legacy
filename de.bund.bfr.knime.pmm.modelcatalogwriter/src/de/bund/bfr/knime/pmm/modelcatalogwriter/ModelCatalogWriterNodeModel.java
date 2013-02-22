@@ -216,15 +216,15 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
     private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
-		if (rowuuid != null && !rowuuid.equals(dbuuid)) {
+		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
 			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
 			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (rowuuid != null && before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
-				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (rowuuid != null && !before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
 		}    	
     }

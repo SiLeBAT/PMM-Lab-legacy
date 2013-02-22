@@ -271,31 +271,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
 			
-	    	Double rms, r2, aic, bic;
-			s = result.getString( Bfrdb.ATT_RMS );
-			if( s == null )
-				rms = null;
-			else
-				rms = Double.valueOf( s );
-			
-			s = result.getString( Bfrdb.ATT_RSQUARED );
-			if( s == null )
-				r2 = null;
-			else
-				r2 = Double.valueOf( s );
-			
-			s = result.getString( "AIC" );
-			if( s == null )
-				aic = null;
-			else
-				aic = Double.valueOf( s );
-			
-			s = result.getString( "BIC" );
-			if( s == null )
-				bic = null;
-			else
-				bic = Double.valueOf( s );
-			
+	    	Double rms = null;
+			if (result.getObject(Bfrdb.ATT_RMS) != null) rms = result.getDouble(Bfrdb.ATT_RMS);
+	    	Double r2 = null;
+			if (result.getObject(Bfrdb.ATT_RSQUARED) != null) r2 = result.getDouble(Bfrdb.ATT_RSQUARED);
+	    	Double aic = null;
+			if (result.getObject("AIC") != null) aic = result.getDouble("AIC");
+	    	Double bic = null;
+			if (result.getObject("BIC") != null) bic = result.getDouble("BIC");
+						
 			EstModelXml emx = new EstModelXml(emid, "EM_" + emid, rms, r2, aic, bic, null);
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
@@ -344,7 +328,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		
 	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID+"2");
 				emDoc = new PmmXmlDoc();
-				emx = new EstModelXml(emid, "EM_" + emid, result.getDouble(Bfrdb.ATT_RMS+"2"), result.getDouble(Bfrdb.ATT_RSQUARED+"2"), result.getDouble("AIC2"), result.getDouble("BIC2"), null);
+		    	rms = null;
+				if (result.getObject(Bfrdb.ATT_RMS+"2") != null) rms = result.getDouble(Bfrdb.ATT_RMS+"2");
+		    	r2 = null;
+				if (result.getObject(Bfrdb.ATT_RSQUARED+"2") != null) r2 = result.getDouble(Bfrdb.ATT_RSQUARED+"2");
+		    	aic = null;
+				if (result.getObject("AIC2") != null) aic = result.getDouble("AIC2");
+		    	bic = null;
+				if (result.getObject("BIC2") != null) bic = result.getDouble("BIC2");
+				emx = new EstModelXml(emid, "EM_" + emid, rms, r2, aic, bic, null);
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 

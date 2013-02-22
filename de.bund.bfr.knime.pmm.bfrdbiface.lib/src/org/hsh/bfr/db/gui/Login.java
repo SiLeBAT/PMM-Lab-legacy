@@ -482,6 +482,14 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_154_155(myList); 
 					  		DBKernel.setDBVersion("1.5.5");
 					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.5")) {
+					  		UpdateChecker.check4Updates_155_156(myList); 
+					  		DBKernel.setDBVersion("1.5.6");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.6")) {
+					  		UpdateChecker.check4Updates_156_157(myList); 
+					  		DBKernel.setDBVersion("1.5.7");
+					  	}
 					  	
 						DBKernel.closeDBConnections(false);
 					}

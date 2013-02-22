@@ -222,8 +222,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
     		Boolean checked = null;
     		Integer qualityScore = null;
-			if (result.getObject("Geprueft") != null) checked = result.getBoolean("Geprueft");
-			if (result.getObject("Guetescore") != null) qualityScore = result.getInt("Guetescore");
+			if (result.getObject("MDGeprueft") != null) checked = result.getBoolean("MDGeprueft");
+			if (result.getObject("MDGuetescore") != null) qualityScore = result.getInt("MDGuetescore");
     		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
     		mdInfoDoc.add(mdix);
     		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);

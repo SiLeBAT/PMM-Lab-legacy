@@ -17,7 +17,7 @@
    <extension
          point="org.knime.workbench.repository.nodes">
       <node
-            category-path="/pmmlab"
+            category-path="/pmmlab/editors"
             factory-class="de.bund.bfr.knime.pmm.dbdelete.DatabaseDeleteNodeFactory"
             id="de.bund.bfr.knime.pmm.dbdelete.DatabaseDeleteNodeFactory"/>
    </extension>

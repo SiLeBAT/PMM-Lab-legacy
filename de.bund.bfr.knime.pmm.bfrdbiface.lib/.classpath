@@ -4,11 +4,12 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry excluding="org/hsh/bfr/db/res/exclude/" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="libs/hsqldb.jar"/>
-	<classpathentry kind="lib" path="libs/jcm1.0-config.jar"/>
-	<classpathentry kind="lib" path="libs/jsoup-1.6.1.jar"/>
-	<classpathentry kind="lib" path="libs/MyJabRef-2.6.jar"/>
-	<classpathentry kind="lib" path="libs/mysql-connector-java-5.1.20-bin.jar"/>
-	<classpathentry kind="lib" path="libs/quicktable2swing11.jar"/>
-	<classpathentry kind="lib" path="libs/jcalendar.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jcm1.0-config.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/jsoup-1.6.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/MyJabRef-2.6.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/mysql-connector-java-5.1.20-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/quicktable2swing11.jar"/>
+	<classpathentry exported="true" kind="lib" path="icons" sourcepath="icons"/>
+	<classpathentry exported="true" kind="lib" path="libs/jcalendar.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

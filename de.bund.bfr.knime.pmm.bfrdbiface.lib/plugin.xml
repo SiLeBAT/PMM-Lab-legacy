@@ -60,33 +60,39 @@
             path="/">
       </category>
       <category
-            icon="icons/Editors.png"
-            level-id="editors"
-            name="Editors"
-            path="/pmmlab">
-      </category>
-      <category
-            icon="icons/Model.png"
-            level-id="fitting"
-            name="Model Fitting &amp; Prediction"
-            path="/pmmlab">
-      </category>
-      <category
             icon="icons/Reader.png"
             level-id="reader"
             name="Reader"
             path="/pmmlab">
       </category>
       <category
-            icon="icons/SelectionAndViews.png"
-            level-id="views"
-            name="Selection &amp; Views"
-            path="/pmmlab">
-      </category>
-      <category
             icon="icons/Writer.png"
             level-id="writer"
             name="Writer"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/Model.png"
+            level-id="fitting"
+            name="Model Fitters &amp; Predictors"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/SelectionAndViews.png"
+            level-id="views"
+            name="Selectors &amp; Viewers"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/Editors.png"
+            level-id="editors"
+            name="Editors"
+            path="/pmmlab">
+      </category>
+      <category
+            icon="icons/XMLToTable.png"
+            level-id="converter"
+            name="Converter"
             path="/pmmlab">
       </category>
    </extension>

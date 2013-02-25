@@ -1024,7 +1024,7 @@ public class DBKernel {
 			if (rs != null && rs.last()) {
 				result = rs.getInt(1);
 				if (rs.getRow() > 1) {
-					System.err.println("Fuck, geht das so??? Unbedingt checken!!!...rs.getRow()\t" + rs.getRow() + "\t" + tablename + "\t" + feldname + "\t" + feldVal);
+					System.err.println("Attention! Entry " + feldVal + " occurs " + rs.getRow() + "x in column " + feldname + " of table " + tablename + ", please check!!!");
 				}
 			}
 		}
@@ -1068,7 +1068,7 @@ public class DBKernel {
 				if (rs != null && rs.last()) { //  && rs.getRow() == 1
 					result = rs.getObject(1);
 					if (rs.getRow() > 1) {
-						System.err.println("Fuck, geht das so (getValue)??? Unbedingt checken!!!...rs.getRow()\t" + rs.getRow() + "\t" + tablename + "\t" + feldname + "\t" + feldVal);
+						System.err.println("Attention! Entry " + feldVal + " occurs " + rs.getRow() + "x in column " + feldname + " of table " + tablename + ", please check (getValue)!!!");
 					}
 				}
 			}

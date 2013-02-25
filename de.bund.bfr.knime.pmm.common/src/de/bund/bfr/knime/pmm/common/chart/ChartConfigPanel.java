@@ -112,7 +112,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private int type;
 
-	private String lastParamX;
+	private String currentParamX;
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval) {
 		this.type = type;
@@ -232,7 +232,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterSliders = new ArrayList<>();
 		add(new SpacePanel(parameterValuesPanel));
 
-		lastParamX = null;
+		currentParamX = null;
 	}
 
 	public void addConfigListener(ConfigListener listener) {
@@ -437,6 +437,22 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		return valueLists;
 	}
 
+	public String getCurrentParamX() {
+		return currentParamX;
+	}
+
+	public void setCurrentParamX(String currentParamX) {
+		this.currentParamX = currentParamX;
+	}
+
+	public Map<String, List<Boolean>> getSelectedValuesX() {
+		return selectedValuesX;
+	}
+
+	public void setSelectedValuesX(Map<String, List<Boolean>> selectedValuesX) {
+		this.selectedValuesX = selectedValuesX;
+	}
+
 	public void setParamsX(Map<String, List<Double>> parameters,
 			Map<String, Double> minParamValues,
 			Map<String, Double> maxParamValues, String paramX) {
@@ -487,32 +503,50 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 
 			if (!parameters.isEmpty()) {
-				if (parameters.containsKey(lastParamX)) {
-					xBox.setSelectedItem(lastParamX);
+				if (parameters.containsKey(currentParamX)) {
+					xBox.setSelectedItem(currentParamX);
 				} else if (parameters.containsKey(AttributeUtilities.TIME)) {
 					xBox.setSelectedItem(AttributeUtilities.TIME);
 				} else {
 					xBox.setSelectedIndex(0);
 				}
 
-				lastParamX = (String) xBox.getSelectedItem();
+				currentParamX = (String) xBox.getSelectedItem();
+			} else {
+				currentParamX = null;
 			}
 
 			xBox.addActionListener(this);
 
-			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
+			boolean isInitialized = false;
 
-			for (String param : parameters.keySet()) {
-				List<Double> values = parameters.get(param);
+			if (selectedValuesX != null) {
+				isInitialized = true;
 
-				if (!values.isEmpty()) {
-					List<Boolean> selected = new ArrayList<Boolean>(
-							Collections.nCopies(values.size(), false));
+				for (String param : parameters.keySet()) {
+					if (!selectedValuesX.containsKey(param)
+							|| selectedValuesX.get(param).size() != parameters
+									.get(param).size()) {
+						isInitialized = false;
+						break;
+					}
+				}
+			}
 
-					selected.set(0, true);
-					selectedValuesX.put(param, selected);
-				} else {
-					selectedValuesX.put(param, null);
+			if (!isInitialized) {
+				selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
+
+				for (String param : parameters.keySet()) {
+					List<Double> values = parameters.get(param);
+
+					if (!values.isEmpty()) {
+						List<Boolean> selected = new ArrayList<Boolean>(
+								Collections.nCopies(values.size(), true));
+
+						selectedValuesX.put(param, selected);
+					} else {
+						selectedValuesX.put(param, new ArrayList<Boolean>());
+					}
 				}
 			}
 
@@ -644,7 +678,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 								max));
 					}
 
-					slider.setPreferredSize(new Dimension(100, slider
+					slider.setPreferredSize(new Dimension(75, slider
 							.getPreferredSize().height));
 					slider.addChangeListener(this);
 					slider.addMouseListener(this);
@@ -717,7 +751,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				addInfoInLegendBox.setEnabled(false);
 			}
 		} else if (e.getSource() == xBox) {
-			lastParamX = (String) xBox.getSelectedItem();
+			currentParamX = (String) xBox.getSelectedItem();
 			updateXUnitBox();
 			updateParametersPanel();
 		} else if (parameterButtons.contains(e.getSource())) {

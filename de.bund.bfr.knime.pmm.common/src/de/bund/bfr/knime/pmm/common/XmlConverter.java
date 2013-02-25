@@ -96,6 +96,15 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<String, List<Boolean>> xmlToBoolListMap(String xml) {
+		try {
+			return (Map<String, List<Boolean>>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Map<String, String>> xmlToStringMapMap(String xml) {
 		try {
 			return (Map<String, Map<String, String>>) new XStream()

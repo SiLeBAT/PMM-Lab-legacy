@@ -744,16 +744,21 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				maxXField.setEnabled(false);
 				maxYField.setEnabled(false);
 			}
+			
+			fireConfigChanged();
 		} else if (e.getSource() == showLegendBox) {
 			if (showLegendBox.isSelected()) {
 				addInfoInLegendBox.setEnabled(true);
 			} else {
 				addInfoInLegendBox.setEnabled(false);
 			}
+			
+			fireConfigChanged();
 		} else if (e.getSource() == xBox) {
 			currentParamX = (String) xBox.getSelectedItem();
 			updateXUnitBox();
-			updateParametersPanel();
+			updateParametersPanel();			
+			fireConfigChanged();
 		} else if (parameterButtons.contains(e.getSource())) {
 			JButton button = (JButton) e.getSource();
 			String param = button.getText().replace(" Values", "");
@@ -764,10 +769,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 			if (dialog.isApproved()) {
 				selectedValuesX.put(param, dialog.getSelected());
+				fireConfigChanged();
 			}
-		}
-
-		fireConfigChanged();
+		}		
 	}
 
 	@Override

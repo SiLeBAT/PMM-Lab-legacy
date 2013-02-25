@@ -23,7 +23,10 @@ public class MdInfoXml implements PmmXmlElementConvertable {
 	
 	public MdInfoXml(Integer id, String name, String comment, Integer qualityScore, Boolean checked) {
 		setID(id);
+		setComment(comment);
 		setName(name);
+		setQualityScore(qualityScore);
+		setChecked(checked);
 	}
 	public MdInfoXml(Element xmlElement) {
 		try {

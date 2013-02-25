@@ -75,6 +75,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -207,28 +208,26 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new JLabel(AttributeUtilities
 						.getName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 3));
-		settingsPanel.add(new JLabel(TimeSeriesSchema.ATT_COMMENT + ":"),
+		settingsPanel.add(new JLabel(AttributeUtilities.ATT_COMMENT + ":"),
 				createConstraints(0, 4));
 		settingsPanel.add(
-				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.TIME) + ":"),
-				createConstraints(0, 5));
+				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
+						+ ":"), createConstraints(0, 5));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities.getName(AttributeUtilities.LOGC)
+						+ ":"), createConstraints(0, 6));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.LOGC) + ":"),
-				createConstraints(0, 6));
-		settingsPanel
-				.add(new JLabel(AttributeUtilities
 						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-						createConstraints(0, 7));
+				createConstraints(0, 7));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getName(AttributeUtilities.ATT_PH) + ":"),
 				createConstraints(0, 8));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_WATERACTIVITY)
-						+ ":"), createConstraints(0, 9));
+						.getName(AttributeUtilities.ATT_WATERACTIVITY) + ":"),
+				createConstraints(0, 9));
 
 		settingsPanel.add(new JScrollPane(literatureList),
 				new GridBagConstraints(1, 0, 2, 2, 0, 2,
@@ -788,8 +787,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
 				matrixButton.setText(SELECT);
 				matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
-				commentField.setValue(tuple
-						.getString(TimeSeriesSchema.ATT_COMMENT));
+				commentField.setValue(((MdInfoXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment());
 
 				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				int n = removeButtons.size();
@@ -902,7 +901,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
+						XLSReader.ID_COLUMN, AttributeUtilities.ATT_COMMENT,
 						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
@@ -963,10 +962,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, XLSReader.ID_COLUMN);
 						} else if (box.getSelectedItem().equals(
-								TimeSeriesSchema.ATT_COMMENT)) {
+								AttributeUtilities.ATT_COMMENT)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, TimeSeriesSchema.ATT_COMMENT);
+							mappings.put(column, AttributeUtilities.ATT_COMMENT);
 						} else if (box.getSelectedItem().equals(
 								AttributeUtilities.TIME)) {
 							button.setEnabled(false);

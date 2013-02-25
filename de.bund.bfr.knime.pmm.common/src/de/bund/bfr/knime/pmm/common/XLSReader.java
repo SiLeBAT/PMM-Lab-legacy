@@ -108,7 +108,7 @@ public class XLSReader {
 					miscColumns.put(column, columns.get(column));
 				} else if (mapping.equals(ID_COLUMN)) {
 					idColumn = columns.get(column);
-				} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
+				} else if (mapping.equals(AttributeUtilities.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.TIME)) {
 					timeColumn = columns.get(column);
@@ -194,8 +194,11 @@ public class XLSReader {
 				timeSeriesXml = new PmmXmlDoc();
 
 				if (commentCell != null) {
-					tuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
-							.toString().trim());
+					PmmXmlDoc dataInfo = new PmmXmlDoc();					
+
+					dataInfo.add(new MdInfoXml(null, null, commentCell
+							.toString().trim(), null, null));
+					tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 				}
 
 				PmmXmlDoc agentXml = new PmmXmlDoc();
@@ -314,7 +317,7 @@ public class XLSReader {
 
 				if (mapping instanceof MiscXml) {
 					miscColumns.put(column, columns.get(column));
-				} else if (mapping.equals(TimeSeriesSchema.ATT_COMMENT)) {
+				} else if (mapping.equals(AttributeUtilities.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
 				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
 					agentDetailsColumn = columns.get(column);
@@ -362,8 +365,11 @@ public class XLSReader {
 					MathUtilities.getRandomNegativeInt());
 
 			if (commentCell != null) {
-				dataTuple.setValue(TimeSeriesSchema.ATT_COMMENT, commentCell
-						.toString().trim());
+				PmmXmlDoc dataInfo = new PmmXmlDoc();
+
+				dataInfo.add(new MdInfoXml(null, null, commentCell.toString()
+						.trim(), null, null));
+				dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 			}
 
 			PmmXmlDoc agentXml = new PmmXmlDoc();

@@ -137,7 +137,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			String id = columnMappings.get(column);
 
 			if (id.equals(XLSReader.ID_COLUMN)
-					|| id.equals(TimeSeriesSchema.ATT_COMMENT)
+					|| id.equals(AttributeUtilities.ATT_COMMENT)
 					|| id.equals(AttributeUtilities.TIME)
 					|| id.equals(AttributeUtilities.LOGC)
 					|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)

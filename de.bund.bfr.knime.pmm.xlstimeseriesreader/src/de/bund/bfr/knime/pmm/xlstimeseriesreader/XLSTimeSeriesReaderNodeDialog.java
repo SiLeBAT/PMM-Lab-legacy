@@ -704,7 +704,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							.getSelectedItem();
 
 					if (selected.equals(XLSReader.ID_COLUMN)
-							|| selected.equals(TimeSeriesSchema.ATT_COMMENT)
+							|| selected.equals(AttributeUtilities.ATT_COMMENT)
 							|| selected.equals(AttributeUtilities.TIME)
 							|| selected.equals(AttributeUtilities.LOGC)
 							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
@@ -923,7 +923,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, TimeSeriesSchema.ATT_COMMENT,
+						XLSReader.ID_COLUMN, AttributeUtilities.ATT_COMMENT,
 						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						XLSReader.AGENT_DETAILS_COLUMN,
 						XLSReader.MATRIX_DETAILS_COLUMN,
@@ -941,7 +941,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						button.setEnabled(true);
 						button.setText(OTHER_PARAMETER);
 					} else if (id.equals(XLSReader.ID_COLUMN)
-							|| id.equals(TimeSeriesSchema.ATT_COMMENT)
+							|| id.equals(AttributeUtilities.ATT_COMMENT)
 							|| id.equals(AttributeUtilities.TIME)
 							|| id.equals(AttributeUtilities.LOGC)
 							|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)

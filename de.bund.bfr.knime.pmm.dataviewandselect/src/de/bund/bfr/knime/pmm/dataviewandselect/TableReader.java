@@ -13,6 +13,7 @@ import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -142,9 +143,10 @@ public class TableReader {
 			stringColumnValues.get(0).add(dataName);
 			infoParameters.add(Arrays.asList(AttributeUtilities.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					TimeSeriesSchema.ATT_COMMENT));
+					AttributeUtilities.ATT_COMMENT));
 			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
-					tuple.getString(TimeSeriesSchema.ATT_COMMENT)));
+					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+							.get(0)).getComment()));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
 

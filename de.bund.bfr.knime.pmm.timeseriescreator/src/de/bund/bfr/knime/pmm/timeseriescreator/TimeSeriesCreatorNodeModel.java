@@ -56,6 +56,7 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -195,10 +196,14 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 
+		PmmXmlDoc dataInfo = new PmmXmlDoc();
+
+		dataInfo.add(new MdInfoXml(null, null, comment, null, null));
+
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
-		tuple.setValue(TimeSeriesSchema.ATT_COMMENT, comment);
+		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);
 		tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);

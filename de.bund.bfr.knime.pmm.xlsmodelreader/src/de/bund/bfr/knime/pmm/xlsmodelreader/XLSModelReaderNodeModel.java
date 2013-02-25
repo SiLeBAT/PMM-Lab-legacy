@@ -141,7 +141,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		for (String column : columnMappings.keySet()) {
 			String id = columnMappings.get(column);
 
-			if (id.equals(TimeSeriesSchema.ATT_COMMENT)
+			if (id.equals(AttributeUtilities.ATT_COMMENT)
 					|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
 					|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
 				cMappings.put(column, id);

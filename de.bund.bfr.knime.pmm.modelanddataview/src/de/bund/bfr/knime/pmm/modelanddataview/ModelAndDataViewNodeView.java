@@ -57,6 +57,7 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -487,10 +488,11 @@ public class ModelAndDataViewNodeView extends
 						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,
 						TimeSeriesSchema.ATT_MATRIX,
-						TimeSeriesSchema.ATT_COMMENT));
+						AttributeUtilities.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(formula,
 						dataPoints, agent, matrix,
-						row.getString(TimeSeriesSchema.ATT_COMMENT)));
+						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+								.get(0)).getComment()));
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;

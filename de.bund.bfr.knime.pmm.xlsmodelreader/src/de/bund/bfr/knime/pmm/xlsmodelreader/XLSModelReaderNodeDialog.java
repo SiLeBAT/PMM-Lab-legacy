@@ -719,7 +719,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					String selected = (String) columnBoxes.get(column)
 							.getSelectedItem();
 
-					if (selected.equals(TimeSeriesSchema.ATT_COMMENT)
+					if (selected.equals(AttributeUtilities.ATT_COMMENT)
 							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
 							|| selected.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
 						columnMappings.put(column, selected);
@@ -999,7 +999,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						TimeSeriesSchema.ATT_COMMENT,
+						AttributeUtilities.ATT_COMMENT,
 						XLSReader.AGENT_DETAILS_COLUMN,
 						XLSReader.MATRIX_DETAILS_COLUMN,
 						AttributeUtilities.ATT_TEMPERATURE,
@@ -1015,7 +1015,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						box.setSelectedItem(OTHER_PARAMETER);
 						button.setEnabled(true);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(TimeSeriesSchema.ATT_COMMENT)
+					} else if (id.equals(AttributeUtilities.ATT_COMMENT)
 							|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
 							|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
 						box.setSelectedItem(id);

@@ -33,7 +33,40 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.secondarymodelanddataview;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Shape;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
+import org.knime.core.data.DataTable;
+import org.knime.core.node.BufferedDataTable;
+import org.knime.core.node.DataAwareNodeDialogPane;
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.NodeSettingsRO;
+import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
+
+import de.bund.bfr.knime.pmm.common.XmlConverter;
+import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.Plotable;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "SecondaryModelAndDataView" Node.
@@ -47,12 +80,307 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
  * @author Christian Thoens
  */
 public class SecondaryModelAndDataViewNodeDialog extends
-		DefaultNodeSettingsPane {
+		DataAwareNodeDialogPane implements
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
+
+	private TableReader reader;
+	private boolean containsData;
+
+	private ChartCreator chartCreator;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartInfoPanel infoPanel;
+
+	private String selectedID;
+	private String currentParamX;
+	private Map<String, List<Boolean>> selectedValuesX;
+	private Map<String, Color> colors;
+	private Map<String, Shape> shapes;
+	private Map<String, List<Color>> colorLists;
+	private Map<String, List<Shape>> shapeLists;
 
 	/**
 	 * New pane for configuring the SecondaryModelAndDataView node.
 	 */
 	protected SecondaryModelAndDataViewNodeDialog() {
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		addTab("Options", panel);
+	}
+
+	@Override
+	protected void loadSettingsFrom(NodeSettingsRO settings,
+			BufferedDataTable[] input) throws NotConfigurableException {
+		try {
+			selectedID = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_SELECTEDID);
+		} catch (InvalidSettingsException e) {
+			selectedID = null;
+		}
+
+		try {
+			currentParamX = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX);
+		} catch (InvalidSettingsException e) {
+			currentParamX = null;
+		}
+
+		try {
+			selectedValuesX = XmlConverter
+					.xmlToBoolListMap(settings
+							.getString(SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX));
+		} catch (InvalidSettingsException e) {
+			selectedValuesX = new LinkedHashMap<>();
+		}
+
+		try {
+			colors = XmlConverter.xmlToColorMap(settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_COLORS));
+		} catch (InvalidSettingsException e) {
+			colors = new LinkedHashMap<>();
+		}
+
+		try {
+			shapes = XmlConverter.xmlToShapeMap(settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_SHAPES));
+		} catch (InvalidSettingsException e) {
+			shapes = new LinkedHashMap<>();
+		}
+
+		try {
+			colorLists = XmlConverter
+					.xmlToColorListMap(settings
+							.getString(SecondaryModelAndDataViewNodeModel.CFG_COLORLISTS));
+		} catch (InvalidSettingsException e) {
+			colorLists = new LinkedHashMap<>();
+		}
+
+		try {
+			shapeLists = XmlConverter
+					.xmlToShapeListMap(settings
+							.getString(SecondaryModelAndDataViewNodeModel.CFG_SHAPELISTS));
+		} catch (InvalidSettingsException e) {
+			shapeLists = new LinkedHashMap<>();
+		}
+
+		DataTable table = input[0];
+
+		if (SchemaFactory.createDataSchema().conforms(table)) {
+			reader = new TableReader(table, true);
+
+			if (Collections.max(reader.getColorCounts()) == 0) {
+				reader = new TableReader(table, false);
+				containsData = false;
+			} else {
+				containsData = true;
+			}
+		} else {
+			reader = new TableReader(table, false);
+			containsData = false;
+		}
+
+		((JPanel) getTab("Options")).removeAll();
+		((JPanel) getTab("Options")).add(createMainComponent());
+	}
+
+	@Override
+	protected void saveSettingsTo(NodeSettingsWO settings)
+			throws InvalidSettingsException {
+		if (!selectionPanel.getSelectedIDs().isEmpty()) {
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_SELECTEDID,
+					selectionPanel.getSelectedIDs().get(0));
+		} else {
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_SELECTEDID, null);
+		}
+
+		settings.addString(
+				SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
+				configPanel.getCurrentParamX());
+		settings.addString(
+				SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX,
+				XmlConverter.mapToXml(configPanel.getSelectedValuesX()));
+
+		if (containsData) {
+			settings.addString(SecondaryModelAndDataViewNodeModel.CFG_COLORS,
+					null);
+			settings.addString(SecondaryModelAndDataViewNodeModel.CFG_SHAPES,
+					null);
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_COLORLISTS,
+					XmlConverter.colorListMapToXml(selectionPanel
+							.getColorLists()));
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_SHAPELISTS,
+					XmlConverter.shapeListMapToXml(selectionPanel
+							.getShapeLists()));
+		} else {
+			settings.addString(SecondaryModelAndDataViewNodeModel.CFG_COLORS,
+					XmlConverter.colorMapToXml(selectionPanel.getColors()));
+			settings.addString(SecondaryModelAndDataViewNodeModel.CFG_SHAPES,
+					XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_COLORLISTS, null);
+			settings.addString(
+					SecondaryModelAndDataViewNodeModel.CFG_SHAPELISTS, null);
+		}
+	}
+
+	private JComponent createMainComponent() {
+		if (containsData) {
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_BOXES, false);
+			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
+					reader.getStringColumns(), reader.getStringColumnValues(),
+					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+					reader.getVisibleColumns(),
+					reader.getFilterableStringColumns(),
+					reader.getColorCounts());
+		} else {
+			configPanel = new ChartConfigPanel(
+					ChartConfigPanel.PARAMETER_FIELDS, false);
+			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
+					reader.getStringColumns(), reader.getStringColumnValues(),
+					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+					reader.getVisibleColumns(),
+					reader.getFilterableStringColumns());
+		}
+
+		if (containsData) {
+			selectionPanel.setColorLists(colorLists);
+			selectionPanel.setShapeLists(shapeLists);
+		} else {
+			selectionPanel.setColors(colors);
+			selectionPanel.setShapes(shapes);
+		}
+
+		configPanel.setCurrentParamX(currentParamX);
+		configPanel.setSelectedValuesX(selectedValuesX);
+		configPanel.addConfigListener(this);
+		selectionPanel.addSelectionListener(this);
+		chartCreator = new ChartCreator(reader.getPlotables(),
+				reader.getShortLegend(), reader.getLongLegend());
+		infoPanel = new ChartInfoPanel(reader.getIds(),
+				reader.getInfoParameters(), reader.getInfoParameterValues());
+
+		if (selectedID != null) {
+			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
+		}
+
+		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				chartCreator, selectionPanel);
+		JPanel bottomPanel = new JPanel();
+
+		upperSplitPane.setResizeWeight(1.0);
+		bottomPanel.setLayout(new BorderLayout());
+		bottomPanel.add(configPanel, BorderLayout.WEST);
+		bottomPanel.add(infoPanel, BorderLayout.CENTER);
+		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
+
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+				upperSplitPane, bottomPanel);
+		Dimension preferredSize = splitPane.getPreferredSize();
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+		preferredSize.width = Math.min(preferredSize.width,
+				(int) (screenSize.width * 0.9));
+		preferredSize.height = Math.min(preferredSize.height,
+				(int) (screenSize.height * 0.9));
+
+		splitPane.setResizeWeight(1.0);
+		splitPane.setPreferredSize(preferredSize);
+
+		return splitPane;
+	}
+
+	private void createChart() {
+		String selectedID = null;
+
+		if (configPanel.isDisplayFocusedRow()) {
+			selectedID = selectionPanel.getFocusedID();
+		} else {
+			if (!selectionPanel.getSelectedIDs().isEmpty()) {
+				selectedID = selectionPanel.getSelectedIDs().get(0);
+			}
+		}
+
+		if (selectedID != null) {
+			Plotable plotable = chartCreator.getPlotables().get(selectedID);
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
+
+			for (String var : plotable.getFunctionArguments().keySet()) {
+				if (containsData && plotable.getValueList(var) != null) {
+					Set<Double> valuesSet = new LinkedHashSet<Double>(
+							plotable.getValueList(var));
+
+					valuesSet.remove(null);
+
+					List<Double> valuesList = new ArrayList<Double>(valuesSet);
+
+					Collections.sort(valuesList);
+					variables.put(var, valuesList);
+				} else {
+					variables.put(var, new ArrayList<Double>());
+				}
+			}
+
+			configPanel.setParamsX(variables, plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
+			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			chartCreator.setParamX(configPanel.getParamX());
+			chartCreator.setParamY(configPanel.getParamY());
+			chartCreator.setUnitX(configPanel.getUnitX());
+			chartCreator.setUnitY(configPanel.getUnitY());
+			chartCreator.setTransformY(configPanel.getTransformY());
+			plotable.setFunctionArguments(configPanel.getParamsXValues());
+		} else {
+			configPanel.setParamsX(null, null, null, null);
+			configPanel.setParamsY(null);
+			chartCreator.setParamX(null);
+			chartCreator.setParamY(null);
+			chartCreator.setUnitX(null);
+			chartCreator.setUnitY(null);
+			chartCreator.setTransformY(null);
+		}
+
+		if (containsData) {
+			chartCreator.setColorLists(selectionPanel.getColorLists());
+			chartCreator.setShapeLists(selectionPanel.getShapeLists());
+		} else {
+			chartCreator.setColors(selectionPanel.getColors());
+			chartCreator.setShapes(selectionPanel.getShapes());
+		}
+
+		chartCreator.setUseManualRange(configPanel.isUseManualRange());
+		chartCreator.setMinX(configPanel.getMinX());
+		chartCreator.setMinY(configPanel.getMinY());
+		chartCreator.setMaxX(configPanel.getMaxX());
+		chartCreator.setMaxY(configPanel.getMaxY());
+		chartCreator.setDrawLines(configPanel.isDrawLines());
+		chartCreator.setShowLegend(configPanel.isShowLegend());
+		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.createChart(selectedID);
+	}
+
+	@Override
+	public void configChanged() {
+		createChart();
+	}
+
+	@Override
+	public void selectionChanged() {
+		createChart();
+	}
+
+	@Override
+	public void focusChanged() {
+		infoPanel.showID(selectionPanel.getFocusedID());
+
+		if (configPanel.isDisplayFocusedRow()) {
+			createChart();
+		}
 	}
 
 }

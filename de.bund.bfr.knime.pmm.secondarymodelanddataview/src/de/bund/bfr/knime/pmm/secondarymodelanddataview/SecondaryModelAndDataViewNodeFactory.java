@@ -59,7 +59,7 @@ public class SecondaryModelAndDataViewNodeFactory extends
 	 */
 	@Override
 	public int getNrNodeViews() {
-		return 1;
+		return 0;
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class SecondaryModelAndDataViewNodeFactory extends
 	 */
 	@Override
 	public boolean hasDialog() {
-		return false;
+		return true;
 	}
 
 	/**

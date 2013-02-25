@@ -441,6 +441,17 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		return paints;
 	}
 
+	public void setColorLists(Map<String, List<Color>> colorLists) {
+		for (int i = 0; i < selectTable.getRowCount(); i++) {
+			List<Color> colorList = colorLists
+					.get(selectTable.getValueAt(i, 0));
+
+			if (colorList != null) {
+				selectTable.setValueAt(colorList, i, 2);
+			}
+		}
+	}
+
 	@SuppressWarnings("unchecked")
 	public Map<String, List<Shape>> getShapeLists() {
 		Map<String, List<Shape>> shapes = new LinkedHashMap<String, List<Shape>>(
@@ -458,6 +469,25 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 
 		return shapes;
+	}
+
+	public void setShapeLists(Map<String, List<Shape>> shapeLists) {
+		Map<Shape, String> shapeMap = colorAndShapes.getNameByShapeMap();
+
+		for (int i = 0; i < selectTable.getRowCount(); i++) {
+			List<Shape> shapeList = shapeLists
+					.get(selectTable.getValueAt(i, 0));
+
+			if (shapeList != null) {
+				List<String> list = new ArrayList<>();
+
+				for (Shape shape : shapeList) {
+					list.add(shapeMap.get(shape));
+				}
+
+				selectTable.setValueAt(list, i, 3);
+			}
+		}
 	}
 
 	public List<String> getVisibleColumns() {

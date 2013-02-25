@@ -938,7 +938,17 @@ public class ChartCreator extends ChartPanel {
 			double minX, double maxX) {
 		List<Color> colorList = colorLists.get(id);
 		List<Shape> shapeList = shapeLists.get(id);
+		ColorAndShapeCreator creator = new ColorAndShapeCreator(
+				plotable.getNumberOfCombinations());
 		int index = 0;
+
+		if (colorList == null) {
+			colorList = creator.getColorList();
+		}
+
+		if (shapeList == null) {
+			shapeList = creator.getShapeList();
+		}
 
 		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			String addLegend = "";

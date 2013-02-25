@@ -2,6 +2,7 @@ package de.bund.bfr.knime.pmm.dbdelete;
 
 import java.awt.BorderLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
 import org.knime.core.node.InvalidSettingsException;
@@ -28,6 +29,7 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 
 	private DbConfigurationUi dbui;
+	private JCheckBox delTestConditions;
 
 	protected DatabaseDeleteNodeDialog() {
     	JPanel panel = new JPanel();    	    	
@@ -36,6 +38,8 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
     	panel.setLayout(new BorderLayout());
     	panel.add(dbui, BorderLayout.CENTER);    	
     	    	
+    	delTestConditions = new JCheckBox(); delTestConditions.setText("Delete all entries for test conditions as well?"); panel.add(delTestConditions);
+
     	addTab("Database settings", panel);
     }
 
@@ -47,6 +51,8 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 		settings.addString(DatabaseDeleteNodeModel.PARAM_LOGIN, dbui.getLogin());
 		settings.addString(DatabaseDeleteNodeModel.PARAM_PASSWD, dbui.getPasswd());
 		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE, dbui.isOverride());
+
+		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND, delTestConditions.isSelected());
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
@@ -55,6 +61,8 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 			dbui.setLogin(settings.getString(DatabaseDeleteNodeModel.PARAM_LOGIN));
 			dbui.setPasswd(settings.getString(DatabaseDeleteNodeModel.PARAM_PASSWD));
 			dbui.setOverride(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE));
+			
+			delTestConditions.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND));
 		}
 		catch( InvalidSettingsException e ) {			
 			e.printStackTrace( System.err );

@@ -433,14 +433,7 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_144_145(myList); 
 					  		DBKernel.setDBVersion("1.4.5");
 					  	}
-					  	/*
-					  	else { // dbVersion == null || dbVersion == unbekannt
-							InfoBox ib = new InfoBox(this, "Deine DB ist zu alt...\nBitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
-							ib.setVisible(true); 
-							mf.dispose();
-							return myList;
-					  	}
-					  	*/
+
 					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
 					  		UpdateChecker.check4Updates_145_146(myList); 
 					  		DBKernel.setDBVersion("1.4.6");
@@ -502,98 +495,12 @@ public class Login extends JFrame {
 					loadDB();		
 					return myList;
 				}
-				/*
-				else if (DBKernel.isKrise) {
-					boolean doAnonymize = false;
-					DBKernel.sendRequest("CREATE USER SA PASSWORD '' ADMIN", true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Kontakte") +
-							" ALTER COLUMN " + DBKernel.delimitL("Straﬂe") + " RENAME TO " + DBKernel.delimitL("Strasse"), true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Kontakte") +
-							" ALTER COLUMN " + DBKernel.delimitL("E-Mail") + " RENAME TO " + DBKernel.delimitL("EMail"), true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Kontakte") +
-							" ALTER COLUMN " + DBKernel.delimitL("Web-Site") + " RENAME TO " + DBKernel.delimitL("Webseite"), true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Literatur") + " ALTER COLUMN " + DBKernel.delimitL("Titel") + " SET DATA TYPE VARCHAR(1023)", true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Literatur") + " ALTER COLUMN " + DBKernel.delimitL("Volume") + " SET DATA TYPE VARCHAR(50)", true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Literatur") + " ALTER COLUMN " + DBKernel.delimitL("Issue") + " SET DATA TYPE VARCHAR(50)", true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Literatur") +
-							" ADD COLUMN " + DBKernel.delimitL("Webseite") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Paper"), true);
-					DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Literatur") +
-							" ADD COLUMN " + DBKernel.delimitL("Literaturtyp") + " INTEGER BEFORE " + DBKernel.delimitL("Paper"), true);
-					if (doAnonymize) {
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Name") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Strasse") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Hausnummer") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Telefon") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Fax") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("EMail") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Webseite") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Ansprechpartner") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Postfach") + " = ''", false);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Produzent") + " SET " + DBKernel.delimitL("Betriebsnummer") + " = ''", false);
-					}
-				}
-				*/
 			}
 		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
 			if (!myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
 				myList.setSelection(null);
 			}
 
-/*
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_DoubleKennzahlen_U") + " AFTER UPDATE ON " + DBKernel.delimitL("DoubleKennzahlen") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ToxinUrsprung_U") + " AFTER UPDATE ON " + DBKernel.delimitL("ToxinUrsprung") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_DoubleKennzahlen_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Agenzien") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Codes_Agenzien_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Codes_Agenzien") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Matrices_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Matrices") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Codes_Matrices_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Codes_Matrices") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ComBaseImport_U") + " AFTER UPDATE ON " + DBKernel.delimitL("ComBaseImport") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Literatur_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Literatur") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Einheiten_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Einheiten") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Methodiken_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Methodiken") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Aufbereitungsverfahren_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Aufbereitungsverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Nachweisverfahren_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Nachweisverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Aufbereitungs_Nachweisverfahren_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Aufbereitungs_Nachweisverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Versuchsbedingungen_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Versuchsbedingungen") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_SonstigeParameter_U") + " AFTER UPDATE ON " + DBKernel.delimitL("SonstigeParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Versuchsbedingungen_Sonstiges_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Versuchsbedingungen_Sonstiges") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Messwerte_Sonstiges_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Messwerte_Sonstiges") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Messwerte_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Messwerte") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Modellkatalog_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Modellkatalog") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ModellkatalogParameter_U") + " AFTER UPDATE ON " + DBKernel.delimitL("ModellkatalogParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetztesModell_Referenz_U") + " AFTER UPDATE ON " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Modell_Referenz_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Modell_Referenz") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteModelle_U") + " AFTER UPDATE ON " + DBKernel.delimitL("GeschaetzteModelle") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteParameter_U") + " AFTER UPDATE ON " + DBKernel.delimitL("GeschaetzteParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteParameterCovCor_U") + " AFTER UPDATE ON " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Sekundaermodelle_Primaermodelle_U") + " AFTER UPDATE ON " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_DoubleKennzahlen_I") + " AFTER INSERT ON " + DBKernel.delimitL("DoubleKennzahlen") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ToxinUrsprung_I") + " AFTER INSERT ON " + DBKernel.delimitL("ToxinUrsprung") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_DoubleKennzahlen_I") + " AFTER INSERT ON " + DBKernel.delimitL("Agenzien") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Codes_Agenzien_I") + " AFTER INSERT ON " + DBKernel.delimitL("Codes_Agenzien") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Matrices_I") + " AFTER INSERT ON " + DBKernel.delimitL("Matrices") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Codes_Matrices_I") + " AFTER INSERT ON " + DBKernel.delimitL("Codes_Matrices") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ComBaseImport_I") + " AFTER INSERT ON " + DBKernel.delimitL("ComBaseImport") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Literatur_I") + " AFTER INSERT ON " + DBKernel.delimitL("Literatur") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Einheiten_I") + " AFTER INSERT ON " + DBKernel.delimitL("Einheiten") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Methodiken_I") + " AFTER INSERT ON " + DBKernel.delimitL("Methodiken") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Aufbereitungsverfahren_I") + " AFTER INSERT ON " + DBKernel.delimitL("Aufbereitungsverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Nachweisverfahren_I") + " AFTER INSERT ON " + DBKernel.delimitL("Nachweisverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Aufbereitungs_Nachweisverfahren_I") + " AFTER INSERT ON " + DBKernel.delimitL("Aufbereitungs_Nachweisverfahren") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Versuchsbedingungen_I") + " AFTER INSERT ON " + DBKernel.delimitL("Versuchsbedingungen") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_SonstigeParameter_I") + " AFTER INSERT ON " + DBKernel.delimitL("SonstigeParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Versuchsbedingungen_Sonstiges_I") + " AFTER INSERT ON " + DBKernel.delimitL("Versuchsbedingungen_Sonstiges") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Messwerte_Sonstiges_I") + " AFTER INSERT ON " + DBKernel.delimitL("Messwerte_Sonstiges") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Messwerte_I") + " AFTER INSERT ON " + DBKernel.delimitL("Messwerte") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Modellkatalog_I") + " AFTER INSERT ON " + DBKernel.delimitL("Modellkatalog") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_ModellkatalogParameter_I") + " AFTER INSERT ON " + DBKernel.delimitL("ModellkatalogParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetztesModell_Referenz_I") + " AFTER INSERT ON " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Modell_Referenz_I") + " AFTER INSERT ON " + DBKernel.delimitL("Modell_Referenz") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteModelle_I") + " AFTER INSERT ON " + DBKernel.delimitL("GeschaetzteModelle") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteParameter_I") + " AFTER INSERT ON " + DBKernel.delimitL("GeschaetzteParameter") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_GeschaetzteParameterCovCor_I") + " AFTER INSERT ON " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-		    System.out.println("CREATE TRIGGER " + DBKernel.delimitL("A_Sekundaermodelle_Primaermodelle_I") + " AFTER INSERT ON " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyDIMTrigger().getClass().getName()));
-*/
 			this.dispose();
 			mf.pack();
 			mf.setExtendedState(JFrame.MAXIMIZED_BOTH);

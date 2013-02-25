@@ -587,7 +587,7 @@ public class MMC_M extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object author = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Erstautor");
 			Object year = DBKernel.getValue("Literatur", "ID", newVal.toString(), "Jahr");

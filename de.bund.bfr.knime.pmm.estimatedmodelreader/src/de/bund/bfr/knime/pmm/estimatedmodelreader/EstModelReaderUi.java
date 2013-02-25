@@ -162,7 +162,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 					1,
 					1,
 					null,
-					true);
+					true, null, this);
 		}		
 	}
 	

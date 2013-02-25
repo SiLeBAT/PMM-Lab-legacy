@@ -336,7 +336,7 @@ public class MdReaderUi extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object matrixname = DBKernel.getValue(conn, "Matrices", "ID", newVal.toString(), "Matrixname");
 			matrixField.setText(matrixname+"");
@@ -362,7 +362,7 @@ public class MdReaderUi extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object agensname = DBKernel.getValue(conn, "Agenzien", "ID", newVal.toString(), "Agensname");
 			agentField.setText(agensname+"");
@@ -387,7 +387,7 @@ public class MdReaderUi extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object author = DBKernel.getValue(conn,"Literatur", "ID", newVal.toString(), "Erstautor");
 			Object year = DBKernel.getValue(conn,"Literatur", "ID", newVal.toString(), "Jahr");

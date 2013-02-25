@@ -136,7 +136,7 @@ public class MMC_TS extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object agensname = DBKernel.getValue("Agenzien", "ID", newVal.toString(), "Agensname");
 			agentField.setText(agensname+"");
@@ -163,7 +163,7 @@ public class MMC_TS extends JPanel {
 				1,
 				1,
 				null,
-				true);
+				true, null, this);
 		if (newVal != null && newVal instanceof Integer) {
 			Object matrixname = DBKernel.getValue("Matrices", "ID", newVal.toString(), "Matrixname");
 			matrixField.setText(matrixname+"");

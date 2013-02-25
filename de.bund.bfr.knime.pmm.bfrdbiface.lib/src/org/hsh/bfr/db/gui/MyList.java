@@ -41,8 +41,10 @@ package org.hsh.bfr.db.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -53,7 +55,9 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -514,10 +518,24 @@ if (dbForm != null || owner != null) {
 	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, null);
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf) {
+	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, mf, null);
+  }
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
   	//JDialog.setDefaultLookAndFeelDecorated(true);
-  	JDialog f = new JDialog(DBKernel.mainFrame, titel, dbTable != null || fromMMC);
+  	JDialog f;
+  	if (parent == null) {
+  		f = new JDialog(DBKernel.mainFrame, titel, dbTable != null || fromMMC);
+  	}
+  	else {
+	  	Window parentWindow = SwingUtilities.windowForComponent(parent); 
+	  	Frame parentFrame = null;
+	  	if (parentWindow instanceof Frame) {
+	  	    parentFrame = (Frame)parentWindow;
+	  	}
+	  	f = new JDialog(parentFrame, titel, dbTable != null || fromMMC);
+  	}
 		//removeMinMaxClose(f);  
 
 		MyDBTable newDBTable = new MyDBTable(); 

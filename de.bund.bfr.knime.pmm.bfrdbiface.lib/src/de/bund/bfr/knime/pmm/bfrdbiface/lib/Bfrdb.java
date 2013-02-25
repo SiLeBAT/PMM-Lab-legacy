@@ -86,7 +86,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_INDEP = "Independent";
 	public static final String ATT_LEVEL = "Level";
 	public static final String ATT_LITERATUREID = "Literatur";
-	public static final String ATT_LITERATURETEXT = "ReferenzText";
 	public static final String ATT_LOG10N = "Konzentration";
 	public static final String ATT_LOG10NUNIT = "Konz_Einheit";
 	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
@@ -155,7 +154,6 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \""+VIEW_CONDITION+"\".\"Guetescore\",\n"
 			+"    \""+VIEW_CONDITION+"\".\"Geprueft\",\n"
 			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
-			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\""+ATT_YEAR+"\" )AS \""+ATT_LITERATURETEXT+"\",\n"
 		    +"    \"SonstigesEinfach\".\"SonstigesID\",\n"
 		    +"    \"SonstigesEinfach\".\"Parameter\",\n"
 		    +"    \"SonstigesEinfach\".\"Beschreibung\",\n"
@@ -198,7 +196,6 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \""+VIEW_CONDITION+"\".\"Guetescore\",\n"
 			+"    \""+VIEW_CONDITION+"\".\"Geprueft\",\n"
 			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
-			+"    CONCAT( \""+ATT_LITERATUREID+"\".\""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_LITERATUREID+"\".\""+ATT_YEAR+"\" )AS \""+ATT_LITERATURETEXT+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_MISCID+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_PARAMID+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_DESCRIPTION+"\",\n"
@@ -312,24 +309,15 @@ public class Bfrdb extends Hsqldbiface {
 			+"\""+ATT_MAXVALUE+"\",\n"
 			+"\""+ATT_MININDEP+"\",\n"
 			+"\""+ATT_MAXINDEP+"\",\n"
-			+"\""+ATT_LITERATUREID+"\",\n"
-			+"\""+ATT_LITERATURETEXT+"\",\n"
+			+"\"LitMID\",\n"
+			+"\"LitM\",\n"
 			+"\""+REL_MODEL+"\".\""+ATT_LEVEL+"\",\n"
 			+"\""+REL_MODEL+"\".\"Klasse\"\n"
 			+"\n"
 			+"FROM \""+REL_MODEL+"\"\n"
 			+"\n"
-			+"LEFT JOIN(\n"
-			+"    SELECT\n"
-			+"        \""+ATT_MODELID+"\",\n"
-			+"        GROUP_CONCAT( \""+ATT_LITERATUREID+"\".\"ID\" )AS \""+ATT_LITERATUREID+"\",\n"
-			+"        GROUP_CONCAT( CONCAT( \""+ATT_FIRSTAUTHOR+"\", '_', \""+ATT_YEAR+"\" ) )AS \""+ATT_LITERATURETEXT+"\"\n"
-			+"    FROM \""+REL_MODEL_LITERATURE+"\"\n"
-			+"    JOIN \""+ATT_LITERATUREID+"\"\n"
-			+"    ON \""+REL_MODEL_LITERATURE+"\".\""+ATT_LITERATUREID+"\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
-			+"    GROUP BY \""+ATT_MODELID+"\"\n"
-			+")AS \"LitView\"\n"
-			+"ON \""+REL_MODEL+"\".\"ID\"=\"LitView\".\""+ATT_MODELID+"\"\n"
+			+"LEFT JOIN \"LitMView\"\n"
+			+"ON \""+REL_MODEL+"\".\"ID\"=\"LitMView\".\""+ATT_MODELID+"\"\n"
 			+"\n"
 			+"LEFT JOIN(\n"
 			+"    SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\"\n"
@@ -379,7 +367,6 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"MicrobialDataView\".\"Guetescore\" AS \"MDGuetescore\",\n"
 			+"    \"MicrobialDataView\".\"Geprueft\" AS \"MDGeprueft\",\n"
 			+"    \"MicrobialDataView\".\""+ATT_LITERATUREID+"\",\n"
-			+"    \"MicrobialDataView\".\""+ATT_LITERATURETEXT+"\",\n"
 		    +"    \"MicrobialDataView\".\"SonstigesID\",\n"
 		    +"    \"MicrobialDataView\".\"Parameter\",\n"
 		    +"    \"MicrobialDataView\".\"Beschreibung\",\n"
@@ -473,13 +460,11 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public ResultSet selectModel( final int level ) throws SQLException {
 		
-		PreparedStatement ps = conn.prepareStatement( queryModelView+" WHERE \""+ATT_LEVEL+"\"=?" );
-		ps.setInt( 1, level );
+		PreparedStatement ps = conn.prepareStatement(queryModelView+" WHERE \""+ATT_LEVEL+"\"=?");
+		ps.setInt(1, level);
 		
 		return ps.executeQuery();
-	}
-	
-	
+	}	
 	
 	public KnimeTuple getPrimModelById( int id )throws SQLException {
 		
@@ -539,7 +524,7 @@ public class Bfrdb extends Hsqldbiface {
 						null, null, null, null, null, null, null ) );
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
 					
-					String s = result.getString(Bfrdb.ATT_LITERATUREID);
+					String s = result.getString("LitMID");
 		    		if (s != null)
 						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(  s ) );
 					
@@ -615,7 +600,7 @@ public class Bfrdb extends Hsqldbiface {
 						null, null, null, null, null, null, null ) );
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, doc);
 					
-					String s = result.getString( Bfrdb.ATT_LITERATUREID );
+					String s = result.getString("LitMID");
 		    		if (s != null)
 						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(  s ) );
 					
@@ -629,6 +614,23 @@ public class Bfrdb extends Hsqldbiface {
 		return tuple;
 	}
 	
+    public PmmXmlDoc getLiteratureXml(String s) {
+		PmmXmlDoc l = new PmmXmlDoc();
+		String [] ids = s.split(",");
+		for (String id : ids) {
+			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
+			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
+			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
+			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
+			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+					(Integer) (year == null ? null : year),
+					title == null ? null : title.toString(),
+					abstrac == null ? null : abstrac.toString(),
+					Integer.valueOf(id)); 
+			l.add(li);
+		}    
+		return l;
+    }
 	public PmmXmlDoc getMiscXmlDoc(Integer tsID) throws SQLException {		
 		PmmXmlDoc miscDoc = new PmmXmlDoc();
 		

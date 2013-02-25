@@ -183,10 +183,10 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
 					emDoc.add(emx);
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
-
-					String s = result.getString(Bfrdb.ATT_LITERATUREID);
+					
+					String s = result.getString("LitMID");
 		    		if (s != null) {
-						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
+						tuple.setValue(Model1Schema.ATT_MLIT, db.getLiteratureXml(s));
 					}
 					
 		    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
@@ -254,9 +254,9 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					emDoc.add(emx);
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 
-					String s = result.getString(Bfrdb.ATT_LITERATUREID);
+					String s = result.getString("LitMID");
 		    		if (s != null) {
-						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+						tuple.setValue(Model2Schema.ATT_MLIT, db.getLiteratureXml(s));
 					}
 
 		    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
@@ -279,24 +279,6 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
         return new BufferedDataTable[]{ buf.getTable() };
     }
     
-    private PmmXmlDoc getLiterature(String s) {
-		PmmXmlDoc l = new PmmXmlDoc();
-		String [] ids = s.split(",");
-		for (String id : ids) {
-			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
-			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-					(Integer) (year == null ? null : year),
-					title == null ? null : title.toString(),
-					abstrac == null ? null : abstrac.toString(),
-					Integer.valueOf(id)); 
-			l.add(li);
-		}    
-		return l;
-    }
-
     /**
      * {@inheritDoc}
      */

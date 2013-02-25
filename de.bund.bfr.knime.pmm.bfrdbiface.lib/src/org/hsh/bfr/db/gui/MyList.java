@@ -483,11 +483,12 @@ if (dbForm != null || owner != null) {
 	  	    parentFrame = (Frame)parentWindow;
 	  	}
   	}
-  	boolean isRO = false;
+  	@SuppressWarnings("unused")
+	boolean isRO = false;
   	if (DBKernel.isKNIME) {
   		isRO = DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);  		
   	}
-  	JDialog f = new JDialog(parentFrame, titel, !isRO && (dbTable != null || fromMMC));
+  	JDialog f = new JDialog(parentFrame, titel, (dbTable != null || fromMMC)); // !isRO && 
 
 		MyDBTable newDBTable = new MyDBTable(); 
 		MyDBTree newDBTree = null; 

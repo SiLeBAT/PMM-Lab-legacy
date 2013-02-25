@@ -211,6 +211,8 @@ public class MMC_M extends JPanel {
 					int modelID = result.getInt(Bfrdb.ATT_MODELID);
 
 					pm = new ParametricModel(modelName, formula, new DepXml(result.getString(Bfrdb.ATT_DEP)), level, modelID);
+					String s = result.getString("LitMID");
+		    		if (s != null) pm.setMLit(db.getLiteratureXml(s));
 					manageDBMinMax(result, pm);
 					manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
 					

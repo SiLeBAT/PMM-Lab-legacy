@@ -46,8 +46,7 @@ public class TimeSeriesSchema extends KnimeSchema {
 	public static final String ATT_MATRIX = "Matrix";
 
 	public static final String ATT_TIMESERIES = "MD_Data";
-	@Deprecated
-	public static final String ATT_COMMENT = "Comment";
+
 	public static final String ATT_MDINFO = "MD_Info";
 
 	public static final String ATT_LITMD = "MD_Literatur";
@@ -66,7 +65,6 @@ public class TimeSeriesSchema extends KnimeSchema {
 			addXmlAttribute(ATT_MISC);
 
 			addXmlAttribute(ATT_MDINFO);
-			addStringAttribute(ATT_COMMENT);
 
 			addXmlAttribute(ATT_LITMD);
 			

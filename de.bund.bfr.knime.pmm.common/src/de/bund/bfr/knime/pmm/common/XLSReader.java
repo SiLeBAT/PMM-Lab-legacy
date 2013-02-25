@@ -428,7 +428,7 @@ public class XLSReader {
 						element.setValue(Double.parseDouble(row.getCell(column)
 								.toString()));
 					} catch (Exception e) {
-						e.printStackTrace();
+						element.setValue(null);
 					}
 				} else {
 					element.setValue(null);

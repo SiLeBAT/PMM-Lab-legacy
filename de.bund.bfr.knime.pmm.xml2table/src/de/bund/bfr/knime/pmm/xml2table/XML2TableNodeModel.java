@@ -93,10 +93,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                         			MiscXml mx = (MiscXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+mx.getName()+"_"+sarr[j], MiscXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], MiscXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+mx.getName()+"_"+sarr[j], MiscXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -111,28 +118,42 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				AgentXml ax = (AgentXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+ax.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+ax.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+ax.getName()+"_"+sarr[j], AgentXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], AgentXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+                    					for (int j=0;j<sarr.length;j++) {
+                    						if (!addColSpecs.containsKey(selColumn+"_"+ax.getName()+"_"+sarr[j]))
+                    							addColSpecs.put(selColumn+"_"+ax.getName()+"_"+sarr[j],
+                    									new DataColumnSpecCreator(selColumn+"_"+ax.getName()+"_"+sarr[j], AgentXml.getDataType(sarr[j])).createSpec());                				                					
+                    					}
                     				}
                     			}
                     			else {
                     				List<String> list = AgentXml.getElements();
                     				for (String element : list) {
-                        				addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, AgentXml.getDataType(element)).createSpec());                    					
+                    					addColSpecs.put(selColumn+"_"+element, new DataColumnSpecCreator(selColumn+"_"+element, AgentXml.getDataType(element)).createSpec());                    					
                     				}
-        		                	break;
-                    			}
+                    	        	break;
+                    			}    
                     		}
                     		else if (el instanceof MatrixXml) {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				MatrixXml mx = (MatrixXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+mx.getName()+"_"+sarr[j], MatrixXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], MatrixXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+mx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+mx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+mx.getName()+"_"+sarr[j], MatrixXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -147,10 +168,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                         			ParamXml px = (ParamXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+px.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+px.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+px.getName()+"_"+sarr[j], ParamXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], ParamXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+px.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+px.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+px.getName()+"_"+sarr[j], ParamXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -165,10 +193,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                         			IndepXml ix = (IndepXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+ix.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+ix.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+ix.getName()+"_"+sarr[j], IndepXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], IndepXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+ix.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+ix.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+ix.getName()+"_"+sarr[j], IndepXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -183,10 +218,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				DepXml dx = (DepXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+dx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+dx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+dx.getName()+"_"+sarr[j], DepXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], DepXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+dx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+dx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+dx.getName()+"_"+sarr[j], DepXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -201,10 +243,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				TimeSeriesXml tsx = (TimeSeriesXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+tsx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+tsx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+tsx.getName()+"_"+sarr[j], TimeSeriesXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], TimeSeriesXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+tsx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+tsx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+tsx.getName()+"_"+sarr[j], TimeSeriesXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -219,10 +268,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				MdInfoXml mdix = (MdInfoXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+mdix.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+mdix.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+mdix.getName()+"_"+sarr[j], MdInfoXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], MdInfoXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+mdix.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+mdix.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+mdix.getName()+"_"+sarr[j], MdInfoXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -237,10 +293,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				LiteratureItem li = (LiteratureItem) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+li.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+li.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+li.getName()+"_"+sarr[j], LiteratureItem.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], LiteratureItem.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+li.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+li.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+li.getName()+"_"+sarr[j], LiteratureItem.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -255,10 +318,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				CatalogModelXml cmx = (CatalogModelXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+cmx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+cmx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+cmx.getName()+"_"+sarr[j], CatalogModelXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], CatalogModelXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+cmx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+cmx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+cmx.getName()+"_"+sarr[j], CatalogModelXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -273,10 +343,17 @@ public class XML2TableNodeModel extends NodeModel {
                     			String[] sarr = m_xmlsel.getStringArrayValue();
                     			if (sarr != null && sarr.length > 0) {
                     				EstModelXml emx = (EstModelXml) el;
-                    				for (int j=0;j<sarr.length;j++) {
-                    					if (!addColSpecs.containsKey(selColumn+"_"+emx.getName()+"_"+sarr[j]))
-                    						addColSpecs.put(selColumn+"_"+emx.getName()+"_"+sarr[j],
-                    								new DataColumnSpecCreator(selColumn+"_"+emx.getName()+"_"+sarr[j], EstModelXml.getDataType(sarr[j])).createSpec());                				                					
+                    				if (sarr.length == 1) {
+                    					if (!addColSpecs.containsKey(selColumn+"_"+sarr[0]))
+                    						addColSpecs.put(selColumn+"_"+sarr[0],
+                    								new DataColumnSpecCreator(selColumn+"_"+sarr[0], EstModelXml.getDataType(sarr[0])).createSpec());                				                					
+                    				}
+                    				else {
+	                    				for (int j=0;j<sarr.length;j++) {
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+emx.getName()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+emx.getName()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+emx.getName()+"_"+sarr[j], EstModelXml.getDataType(sarr[j])).createSpec());                				                					
+	                    				}
                     				}
                     			}
                     			else {
@@ -451,7 +528,12 @@ public class XML2TableNodeModel extends NodeModel {
                     	for (LinkedHashMap<String, DataCell> addCells : v) {
             				for (int j=0;j<sarr.length;j++) {
             					for (int k=0;k<outSpec.getNumColumns()-inSpec.getNumColumns();k++) {
-            						if (outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
+            						if (sarr.length == 1 && outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
+            								m_col.getStringValue()+"_"+sarr[j])) {
+            							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
+            							break;
+            						}
+            						else if (outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
             								m_col.getStringValue()+"_"+addCells.get("name")+"_"+sarr[j])) {
             							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
             							break;

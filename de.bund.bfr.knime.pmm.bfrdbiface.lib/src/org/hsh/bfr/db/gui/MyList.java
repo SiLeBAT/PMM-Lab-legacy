@@ -326,36 +326,6 @@ public void valueChanged(final TreeSelectionEvent event) {
 				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
 				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
 				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-					/*
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-							DBKernel.delimitL(tableName) +
-							" referencing OLD ROW AS oldrow " +
-							" referencing NEW ROW AS newrow " +
-							" FOR EACH ROW " +
-							" BEGIN ATOMIC " +
-							" INSERTINTOCL('" + tableName + "', oldrow, newrow) " +
-							" END",
-							false);
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-							DBKernel.delimitL(tableName) +
-							" referencing OLD ROW AS oldrow " +
-							" referencing NEW ROW AS newrow " +
-							" FOR EACH ROW " +
-							" BEGIN ATOMIC " +
-							" INSERTINTOCL('" + tableName + "', oldrow, newrow) " +
-							" END",
-							false);
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " + DBKernel.delimitL(tableName) + "\n" +
-							"REFERENCING NEW AS n\n" +
-							"FOR EACH ROW\n" +
-		    	    		"BEGIN ATOMIC\n" + 
-
-		    	    		"  INSERT INTO " + DBKernel.delimitL("ChangeLog") +
-		    	    		" (" + DBKernel.delimitL("ID") + ", " + DBKernel.delimitL("Zeitstempel") + ", " +DBKernel.delimitL("Username") + ", " +
-		    	    		DBKernel.delimitL("Tabelle") + ", " + DBKernel.delimitL("TabellenID") + ") VALUES (1, CURRENT_TIMESTAMP, 'username', '" + tableName + "', n.ID);\n" + 
-							" END",
-							false);
-							*/    			
 					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
 							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
 					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
@@ -373,14 +343,6 @@ public void valueChanged(final TreeSelectionEvent event) {
 	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
-		/*
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_USERS_I") + " AFTER INSERT ON " +
-        		DBKernel.delimitL("Users") + " BEFORE " + DBKernel.delimitL("A_Users_I") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName())
-        		, false);    	
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_USERS_D") + " AFTER DELETE ON " +
-        		DBKernel.delimitL("Users") + " BEFORE " + DBKernel.delimitL("A_Users_D") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName())
-        		, false);    	
-        		*/
 	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
@@ -395,19 +357,6 @@ public void valueChanged(final TreeSelectionEvent event) {
 			return null;
 		}
 	}
-	/*
-  private void removeMinMaxClose(final Component comp) {  
-    if (comp instanceof AbstractButton) {  
-      comp.getParent().remove(comp);  
-    }  
-    if (comp instanceof Container) {  
-      Component[] comps = ((Container)comp).getComponents();  
-      for(int x = 0, y = comps.length; x < y; x++) {  
-        removeMinMaxClose(comps[x]);  
-      }  
-    }  
-  }  
-  */
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm) {
 	  return openNewWindow(theNewTable, value, headerValue, mnTable, mnID, dbForm, null);
   }
@@ -524,19 +473,21 @@ if (dbForm != null || owner != null) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
   	//JDialog.setDefaultLookAndFeelDecorated(true);
-  	JDialog f;
+  	Frame parentFrame = null;
   	if (parent == null) {
-  		f = new JDialog(DBKernel.mainFrame, titel, dbTable != null || fromMMC);
+  		parentFrame = DBKernel.mainFrame;
   	}
   	else {
 	  	Window parentWindow = SwingUtilities.windowForComponent(parent); 
-	  	Frame parentFrame = null;
 	  	if (parentWindow instanceof Frame) {
 	  	    parentFrame = (Frame)parentWindow;
 	  	}
-	  	f = new JDialog(parentFrame, titel, dbTable != null || fromMMC);
   	}
-		//removeMinMaxClose(f);  
+  	boolean isRO = false;
+  	if (DBKernel.isKNIME) {
+  		isRO = DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);  		
+  	}
+  	JDialog f = new JDialog(parentFrame, titel, !isRO && (dbTable != null || fromMMC));
 
 		MyDBTable newDBTable = new MyDBTable(); 
 		MyDBTree newDBTree = null; 

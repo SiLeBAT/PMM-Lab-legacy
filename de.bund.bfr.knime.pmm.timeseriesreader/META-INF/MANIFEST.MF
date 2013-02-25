@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: TimeSeriesReader-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.timeseriesreader; singleton:=true
-Bundle-Version: 1.0.0.v20130219
+Bundle-Version: 1.0.0.v20130225
 Bundle-ClassPath: timeseriesreader.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.timeseriesreader.TimeSeriesReaderNodePlugin
 Bundle-Vendor: BfR

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: FittedParameterView-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.fittedparameterview; singleton:=true
-Bundle-Version: 1.0.0.v20130219
+Bundle-Version: 1.0.0.v20130225
 Bundle-ClassPath: fittedparameterview.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.fittedparameterview.FittedParameterViewNodePlugin
 Bundle-Vendor: BfR

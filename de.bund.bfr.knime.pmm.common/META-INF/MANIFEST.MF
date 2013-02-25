@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Common
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.common
-Bundle-Version: 1.0.0.v20130219
+Bundle-Version: 1.0.0.v20130225
 Bundle-Activator: de.bund.bfr.knime.pmm.common.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

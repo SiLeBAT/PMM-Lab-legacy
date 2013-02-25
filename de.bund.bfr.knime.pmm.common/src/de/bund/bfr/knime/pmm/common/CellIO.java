@@ -395,8 +395,8 @@ public class CellIO {
 		        				liDB.setId(foreignDbIdsTable.get(key));
                 				fromToXmlDB.set(i, liDB);
 		        			}
-		        			else if (foreignDbIdsTable.get(key) != liDB.getId()) {
-		        				System.err.println("checkIDs, LiteratureItem ... shouldn't happen");
+		        			else if (foreignDbIdsTable.get(key).intValue() != liDB.getId().intValue()) {
+		        				System.err.println("checkIDs, LiteratureItem ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + liDB.getId().intValue());
 		        			}
 		        		}
 		        		else {
@@ -429,8 +429,8 @@ public class CellIO {
 		        				cmxDB.setID(foreignDbIdsTable.get(key));
                 				fromToXmlDB.set(i, cmxDB);
 		        			}
-		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
-		        				System.err.println("checkIDs, CatalogModelXml ... shouldn't happen");
+		        			else if (foreignDbIdsTable.get(key).intValue() != cmxDB.getID().intValue()) {
+		        				System.err.println("checkIDs, CatalogModelXml ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + cmxDB.getID().intValue());
 		        			}
 		        		}
 		        		else {
@@ -463,8 +463,8 @@ public class CellIO {
 		        				emxDB.setID(foreignDbIdsTable.get(key));
                 				fromToXmlDB.set(i, emxDB);
 		        			}
-		        			else if (foreignDbIdsTable.get(key) != emxDB.getID()) {
-		        				System.err.println("checkIDs, EstModelXml ... shouldn't happen");
+		        			else if (foreignDbIdsTable.get(key).intValue() != emxDB.getID().intValue()) {
+		        				System.err.println("checkIDs, EstModelXml ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + emxDB.getID().intValue());
 		        			}
 		        		}
 		        		else {
@@ -502,7 +502,7 @@ public class CellIO {
                 				mx2DB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, mx2DB);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != mx2DB.getID()) {
+                			else if (foreignDbIds.get(key).intValue() != mx2DB.getID().intValue()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MiscXml");
                 			}
                 		}
@@ -523,7 +523,7 @@ public class CellIO {
                 				matxDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, matxDB);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != matxDB.getID()) {
+                			else if (foreignDbIds.get(key).intValue() != matxDB.getID().intValue()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MatrixXml");
                 			}
                 		}
@@ -544,7 +544,7 @@ public class CellIO {
                 				axDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, ax);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != axDB.getID()) {
+                			else if (foreignDbIds.get(key).intValue() != axDB.getID().intValue()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...AgentXml");
                 			}
                 		}
@@ -565,7 +565,7 @@ public class CellIO {
                 				liDB.setId(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, liDB);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != liDB.getId()) {
+                			else if (foreignDbIds.get(key).intValue() != liDB.getId().intValue()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...LiteratureItem");
                 			}
                 		}
@@ -587,7 +587,7 @@ public class CellIO {
         	if (key != null) {
         		if (foreignDbIds.containsKey(key)) {
         			if (before) schemaTuple.setValue(attr, foreignDbIds.get(key));
-        			else if (foreignDbIds.get(key) != schemaTuple.getInt(attr)) {
+        			else if (foreignDbIds.get(key).intValue() != schemaTuple.getInt(attr).intValue()) {
         				System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
         			}
         		}

@@ -17,6 +17,7 @@
         <option name="Formula">Enter the formula and click 'Apply'. Enter e.g. '2x' as '2*x', if '2' does not belong to the parameter name.</option>
         <option name="Parameter Definition">Define the independent parameter. If known, also enter value, standard error, minimum and maximum values for the parameter. If the option 'primary (secondary)' was chosen click on a parameter name in order to define the secondary model for this parameter.</option>
         <option name="Goodness of fit">If known from a previously estimated model (e.g. from the literature), enter values for R<sup>2</sup>, root mean square, Akaike information criterion or Bayesian information criterion.</option>
+        <option name="References">The reference for the mathematical formula can be added, edited or deleted. The new reference can be chosen from the internal database. If the reference is not yet in there click the '+' button to manually enter a new reference.</option>
         <option name="MICROBIAL DATA">Enter details about the experimental conditions leading to the data for which the entered model was estimated.</option>
     </fullDescription>
     

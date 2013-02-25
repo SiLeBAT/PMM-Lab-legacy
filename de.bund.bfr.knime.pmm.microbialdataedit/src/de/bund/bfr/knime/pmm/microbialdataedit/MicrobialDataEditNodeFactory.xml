@@ -3,36 +3,19 @@
 <knimeNode icon="./MicrobialDataEditor.png" type="Manipulator">
     <name>Microbial Data Editor</name>
     
-    <shortDescription>
-        
+   <shortDescription>
+        Add assay conditions to microbial data
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>This node is designed to add information to previously loaded microbial data. For example, not all available information in the <a href="http://www.combase.cc">ComBase</a> can be exported to a CSV file. Also data from the database or from an XLS file may not contain all necessary information. The Microbial Data Editor allows to add columns containing additional conditions.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <option name="Conditions to add">Click 'Add' to enter the database and choose one or more additional conditions. They will be listed in the white box below the add button and they will also appear as headline of an empty column next to the ID. Here, the values for the condition can be typed in. To delete an assay condition highlight it in the white box and click 'Remove'.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Microbial data">Microbial data from spreadsheets (via ComBase Reader or XLS Microbial Data Reader) or from a database (via Microbial Data Reader)</inPort>       
+        <outPort index="0" name="Microbial data table">Edited microbial data</outPort>  
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

@@ -278,11 +278,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 
 		reader = new TableReader(input[0], schemaContainsData);
 		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createMainComponent(selectedIDs,
-				colors, shapes, manualRange == 1, minX, maxX, minY, maxY,
-				drawLines == 1, showLegend == 1, addLegendInfo == 1,
-				displayHighlighted == 1, unitX, unitY, transformY,
-				visibleColumns, modelFilter, dataFilter, fittedFilter));
+		((JPanel) getTab("Options")).add(createMainComponent());
 	}
 
 	@Override
@@ -358,13 +354,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 				selectionPanel.getFilter(ChartConstants.STATUS));
 	}
 
-	private JComponent createMainComponent(List<String> selectedIDs,
-			Map<String, Color> colors, Map<String, Shape> shapes,
-			boolean manualRange, double minX, double maxX, double minY,
-			double maxY, boolean drawLines, boolean showLegend,
-			boolean addLegendInfo, boolean displayHighlighted, String unitX,
-			String unitY, String transformY, List<String> visibleColumns,
-			String modelFilter, String dataFilter, String fittedFilter) {
+	private JComponent createMainComponent() {
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
@@ -381,15 +371,15 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 				false);
 		configPanel.setParamsX(paramsX, null, null, null);
 		configPanel.setParamsY(Arrays.asList(AttributeUtilities.LOGC));
-		configPanel.setUseManualRange(manualRange);
+		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
 		configPanel.setMinY(minY);
 		configPanel.setMaxY(maxY);
-		configPanel.setDrawLines(drawLines);
-		configPanel.setShowLegend(showLegend);
-		configPanel.setAddInfoInLegend(addLegendInfo);
-		configPanel.setDisplayFocusedRow(displayHighlighted);
+		configPanel.setDrawLines(drawLines == 1);
+		configPanel.setShowLegend(showLegend == 1);
+		configPanel.setAddInfoInLegend(addLegendInfo == 1);
+		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
 		configPanel.setUnitX(unitX);
 		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);

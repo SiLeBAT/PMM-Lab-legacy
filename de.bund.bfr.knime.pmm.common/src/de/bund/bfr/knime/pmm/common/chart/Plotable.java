@@ -203,6 +203,10 @@ public class Plotable {
 					}
 				}
 			}
+
+			if (!usedPoints.contains(true)) {
+				return null;
+			}
 		}
 
 		List<Point2D.Double> points = new ArrayList<Point2D.Double>(

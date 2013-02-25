@@ -376,7 +376,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	public void setFilter(String column, String filter) {
 		if (comboBoxes.containsKey(column)) {
-			comboBoxes.get(column).setSelectedItem(filter);
+			if (filter != null) {
+				comboBoxes.get(column).setSelectedItem(filter);
+			} else {
+				comboBoxes.get(column).setSelectedItem("");
+			}
+
 			applyFilters();
 		}
 	}

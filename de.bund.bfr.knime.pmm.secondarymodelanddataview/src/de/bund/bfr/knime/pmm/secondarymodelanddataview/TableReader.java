@@ -40,7 +40,7 @@ public class TableReader {
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
-	private List<String> visibleColumns;
+	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
 	private List<List<String>> infoParameters;
 	private List<List<?>> infoParameterValues;
@@ -88,7 +88,7 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = new ArrayList<>(Arrays.asList(
+		standardVisibleColumns = new ArrayList<>(Arrays.asList(
 				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME));
 
 		if (schemaContainsData) {
@@ -117,8 +117,8 @@ public class TableReader {
 				doubleColumns.add("Max " + param);
 				doubleColumnValues.add(new ArrayList<Double>());
 				doubleColumnValues.add(new ArrayList<Double>());
-				visibleColumns.add("Min " + param);
-				visibleColumns.add("Max " + param);
+				standardVisibleColumns.add("Min " + param);
+				standardVisibleColumns.add("Max " + param);
 			}
 		} else {
 			doubleColumns = Arrays.asList(Model2Schema.RMS,
@@ -362,8 +362,8 @@ public class TableReader {
 		return doubleColumnValues;
 	}
 
-	public List<String> getVisibleColumns() {
-		return visibleColumns;
+	public List<String> getStandardVisibleColumns() {
+		return standardVisibleColumns;
 	}
 
 	public List<String> getFilterableStringColumns() {

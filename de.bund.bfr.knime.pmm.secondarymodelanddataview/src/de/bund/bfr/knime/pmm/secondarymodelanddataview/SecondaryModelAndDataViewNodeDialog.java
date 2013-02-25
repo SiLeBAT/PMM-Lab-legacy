@@ -62,6 +62,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
@@ -98,6 +99,21 @@ public class SecondaryModelAndDataViewNodeDialog extends
 	private Map<String, Shape> shapes;
 	private Map<String, List<Color>> colorLists;
 	private Map<String, List<Shape>> shapeLists;
+	private int manualRange;
+	private double minX;
+	private double maxX;
+	private double minY;
+	private double maxY;
+	private int drawLines;
+	private int showLegend;
+	private int addLegendInfo;
+	private int displayHighlighted;
+	private String unitX;
+	private String unitY;
+	private String transformY;
+	private int standardVisibleColumns;
+	private List<String> visibleColumns;
+	private String fittedFilter;
 
 	/**
 	 * New pane for configuring the SecondaryModelAndDataView node.
@@ -164,6 +180,112 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			shapeLists = new LinkedHashMap<>();
 		}
 
+		try {
+			manualRange = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_MANUALRANGE);
+		} catch (InvalidSettingsException e) {
+			manualRange = SecondaryModelAndDataViewNodeModel.DEFAULT_MANUALRANGE;
+		}
+
+		try {
+			minX = settings
+					.getDouble(SecondaryModelAndDataViewNodeModel.CFG_MINX);
+		} catch (InvalidSettingsException e) {
+			minX = SecondaryModelAndDataViewNodeModel.DEFAULT_MINX;
+		}
+
+		try {
+			maxX = settings
+					.getDouble(SecondaryModelAndDataViewNodeModel.CFG_MAXX);
+		} catch (InvalidSettingsException e) {
+			maxX = SecondaryModelAndDataViewNodeModel.DEFAULT_MAXX;
+		}
+
+		try {
+			minY = settings
+					.getDouble(SecondaryModelAndDataViewNodeModel.CFG_MINY);
+		} catch (InvalidSettingsException e) {
+			minY = SecondaryModelAndDataViewNodeModel.DEFAULT_MINY;
+		}
+
+		try {
+			maxY = settings
+					.getDouble(SecondaryModelAndDataViewNodeModel.CFG_MAXY);
+		} catch (InvalidSettingsException e) {
+			maxY = SecondaryModelAndDataViewNodeModel.DEFAULT_MAXY;
+		}
+
+		try {
+			drawLines = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_DRAWLINES);
+		} catch (InvalidSettingsException e) {
+			drawLines = SecondaryModelAndDataViewNodeModel.DEFAULT_DRAWLINES;
+		}
+
+		try {
+			showLegend = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_SHOWLEGEND);
+		} catch (InvalidSettingsException e) {
+			showLegend = SecondaryModelAndDataViewNodeModel.DEFAULT_SHOWLEGEND;
+		}
+
+		try {
+			addLegendInfo = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_ADDLEGENDINFO);
+		} catch (InvalidSettingsException e) {
+			addLegendInfo = SecondaryModelAndDataViewNodeModel.DEFAULT_ADDLEGENDINFO;
+		}
+
+		try {
+			displayHighlighted = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
+		} catch (InvalidSettingsException e) {
+			displayHighlighted = SecondaryModelAndDataViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			unitX = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_UNITX);
+		} catch (InvalidSettingsException e) {
+			unitX = null;
+		}
+
+		try {
+			unitY = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_UNITY);
+		} catch (InvalidSettingsException e) {
+			unitY = null;
+		}
+
+		try {
+			transformY = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_TRANSFORMY);
+		} catch (InvalidSettingsException e) {
+			transformY = SecondaryModelAndDataViewNodeModel.DEFAULT_TRANSFORMY;
+		}
+
+		try {
+			standardVisibleColumns = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS);
+		} catch (InvalidSettingsException e) {
+			standardVisibleColumns = SecondaryModelAndDataViewNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
+		}
+
+		try {
+			visibleColumns = XmlConverter
+					.xmlToStringList(settings
+							.getString(SecondaryModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS));
+		} catch (InvalidSettingsException e) {
+			visibleColumns = new ArrayList<>();
+		}
+
+		try {
+			fittedFilter = settings
+					.getString(SecondaryModelAndDataViewNodeModel.CFG_FITTEDFILTER);
+		} catch (InvalidSettingsException e) {
+			fittedFilter = null;
+		}
+
 		DataTable table = input[0];
 
 		if (SchemaFactory.createDataSchema().conforms(table)) {
@@ -226,17 +348,84 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			settings.addString(
 					SecondaryModelAndDataViewNodeModel.CFG_SHAPELISTS, null);
 		}
+
+		if (configPanel.isUseManualRange()) {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_MANUALRANGE,
+					1);
+		} else {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_MANUALRANGE,
+					0);
+		}
+
+		settings.addDouble(SecondaryModelAndDataViewNodeModel.CFG_MINX,
+				configPanel.getMinX());
+		settings.addDouble(SecondaryModelAndDataViewNodeModel.CFG_MAXX,
+				configPanel.getMaxX());
+		settings.addDouble(SecondaryModelAndDataViewNodeModel.CFG_MINY,
+				configPanel.getMinY());
+		settings.addDouble(SecondaryModelAndDataViewNodeModel.CFG_MAXY,
+				configPanel.getMaxY());
+
+		if (configPanel.isDrawLines()) {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_DRAWLINES, 1);
+		} else {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_DRAWLINES, 0);
+		}
+
+		if (configPanel.isShowLegend()) {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_SHOWLEGEND,
+					1);
+		} else {
+			settings.addInt(SecondaryModelAndDataViewNodeModel.CFG_SHOWLEGEND,
+					0);
+		}
+
+		if (configPanel.isAddInfoInLegend()) {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_ADDLEGENDINFO, 1);
+		} else {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_ADDLEGENDINFO, 0);
+		}
+
+		if (configPanel.isDisplayFocusedRow()) {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED,
+					1);
+		} else {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED,
+					0);
+		}
+
+		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_UNITX,
+				configPanel.getUnitX());
+		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_UNITY,
+				configPanel.getUnitY());
+		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_TRANSFORMY,
+				configPanel.getTransformY());
+		settings.addInt(
+				SecondaryModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS,
+				0);
+		settings.addString(
+				SecondaryModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS,
+				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_FITTEDFILTER,
+				selectionPanel.getFilter(ChartConstants.STATUS));
 	}
 
 	private JComponent createMainComponent() {
+		if (standardVisibleColumns == 1) {
+			visibleColumns = reader.getStandardVisibleColumns();
+		}
+
 		if (containsData) {
 			configPanel = new ChartConfigPanel(
 					ChartConfigPanel.PARAMETER_BOXES, false);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					reader.getVisibleColumns(),
-					reader.getFilterableStringColumns(),
+					visibleColumns, reader.getFilterableStringColumns(),
 					reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
@@ -244,8 +433,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					reader.getVisibleColumns(),
-					reader.getFilterableStringColumns());
+					visibleColumns, reader.getFilterableStringColumns());
 		}
 
 		if (containsData) {
@@ -258,7 +446,20 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		configPanel.setCurrentParamX(currentParamX);
 		configPanel.setSelectedValuesX(selectedValuesX);
+		configPanel.setUseManualRange(manualRange == 1);
+		configPanel.setMinX(minX);
+		configPanel.setMaxX(maxX);
+		configPanel.setMinY(minY);
+		configPanel.setMaxY(maxY);
+		configPanel.setDrawLines(drawLines == 1);
+		configPanel.setShowLegend(showLegend == 1);
+		configPanel.setAddInfoInLegend(addLegendInfo == 1);
+		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
+		configPanel.setUnitX(unitX);
+		configPanel.setUnitY(unitY);
+		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
+		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());

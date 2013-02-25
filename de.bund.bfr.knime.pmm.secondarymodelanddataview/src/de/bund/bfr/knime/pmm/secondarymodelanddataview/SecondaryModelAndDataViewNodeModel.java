@@ -82,6 +82,33 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	protected static final String CFG_SHAPES = "Shapes";
 	protected static final String CFG_COLORLISTS = "ColorLists";
 	protected static final String CFG_SHAPELISTS = "ShapeLists";
+	protected static final String CFG_MANUALRANGE = "ManualRange";
+	protected static final String CFG_MINX = "MinX";
+	protected static final String CFG_MAXX = "MaxX";
+	protected static final String CFG_MINY = "MinY";
+	protected static final String CFG_MAXY = "MaxY";
+	protected static final String CFG_DRAWLINES = "DrawLines";
+	protected static final String CFG_SHOWLEGEND = "ShowLegend";
+	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
+	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	protected static final String CFG_UNITX = "UnitX";
+	protected static final String CFG_UNITY = "UnitY";
+	protected static final String CFG_TRANSFORMY = "TransformY";
+	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
+	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
+	protected static final String CFG_FITTEDFILTER = "FittedFilter";
+
+	protected static final int DEFAULT_MANUALRANGE = 0;
+	protected static final double DEFAULT_MINX = 0.0;
+	protected static final double DEFAULT_MAXX = 100.0;
+	protected static final double DEFAULT_MINY = 0.0;
+	protected static final double DEFAULT_MAXY = 10.0;
+	protected static final int DEFAULT_DRAWLINES = 0;
+	protected static final int DEFAULT_SHOWLEGEND = 1;
+	protected static final int DEFAULT_ADDLEGENDINFO = 0;
+	protected static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
+	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
+	protected static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
 
 	private String selectedID;
 	private String currentParamX;
@@ -90,6 +117,21 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	private Map<String, Shape> shapes;
 	private Map<String, List<Color>> colorLists;
 	private Map<String, List<Shape>> shapeLists;
+	private int manualRange;
+	private double minX;
+	private double maxX;
+	private double minY;
+	private double maxY;
+	private int drawLines;
+	private int showLegend;
+	private int addLegendInfo;
+	private int displayHighlighted;
+	private String unitX;
+	private String unitY;
+	private String transformY;
+	private int standardVisibleColumns;
+	private List<String> visibleColumns;
+	private String fittedFilter;
 
 	/**
 	 * Constructor for the node model.
@@ -104,6 +146,21 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		shapes = new LinkedHashMap<>();
 		colorLists = new LinkedHashMap<>();
 		shapeLists = new LinkedHashMap<>();
+		manualRange = DEFAULT_MANUALRANGE;
+		minX = DEFAULT_MINX;
+		maxX = DEFAULT_MAXX;
+		minY = DEFAULT_MINY;
+		maxY = DEFAULT_MAXY;
+		drawLines = DEFAULT_DRAWLINES;
+		showLegend = DEFAULT_SHOWLEGEND;
+		addLegendInfo = DEFAULT_ADDLEGENDINFO;
+		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		unitX = null;
+		unitY = null;
+		transformY = DEFAULT_TRANSFORMY;
+		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
+		visibleColumns = new ArrayList<>();
+		fittedFilter = null;
 	}
 
 	/**
@@ -140,10 +197,14 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			for (String param : selectedValuesX.keySet()) {
 				List<Double> values = new ArrayList<>();
 
-				for (int i = 0; i < selectedValuesX.get(param).size(); i++) {
-					if (selectedValuesX.get(param).get(i)) {
-						values.add(plotable.getValueList(param).get(i));
+				if (!param.equals(currentParamX)) {
+					for (int i = 0; i < selectedValuesX.get(param).size(); i++) {
+						if (selectedValuesX.get(param).get(i)) {
+							values.add(plotable.getValueList(param).get(i));
+						}
 					}
+				} else {
+					values.add(0.0);
 				}
 
 				arguments.put(param, values);
@@ -152,7 +213,17 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			plotable.setFunctionArguments(arguments);
 			creator.setParamX(currentParamX);
 			creator.setParamY(plotable.getFunctionValue());
-			creator.setTransformY(ChartConstants.NO_TRANSFORM);
+			creator.setUseManualRange(manualRange == 1);
+			creator.setMinX(minX);
+			creator.setMaxX(maxX);
+			creator.setMinY(minY);
+			creator.setMaxY(maxY);
+			creator.setDrawLines(drawLines == 1);
+			creator.setShowLegend(showLegend == 1);
+			creator.setAddInfoInLegend(addLegendInfo == 1);
+			creator.setUnitX(unitX);
+			creator.setUnitY(unitY);
+			creator.setTransformY(transformY);
 
 			if (containsData) {
 				creator.setColorLists(colorLists);
@@ -206,6 +277,22 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 				XmlConverter.colorListMapToXml(colorLists));
 		settings.addString(CFG_SHAPELISTS,
 				XmlConverter.shapeListMapToXml(shapeLists));
+		settings.addInt(CFG_MANUALRANGE, manualRange);
+		settings.addDouble(CFG_MINX, minX);
+		settings.addDouble(CFG_MAXX, maxX);
+		settings.addDouble(CFG_MINY, minY);
+		settings.addDouble(CFG_MAXY, maxY);
+		settings.addInt(CFG_DRAWLINES, drawLines);
+		settings.addInt(CFG_SHOWLEGEND, showLegend);
+		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
+		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addString(CFG_UNITX, unitX);
+		settings.addString(CFG_UNITY, unitY);
+		settings.addString(CFG_TRANSFORMY, transformY);
+		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
+		settings.addString(CFG_VISIBLECOLUMNS,
+				XmlConverter.listToXml(visibleColumns));
+		settings.addString(CFG_FITTEDFILTER, fittedFilter);
 	}
 
 	/**
@@ -224,6 +311,22 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 				.getString(CFG_COLORLISTS));
 		shapeLists = XmlConverter.xmlToShapeListMap(settings
 				.getString(CFG_SHAPELISTS));
+		manualRange = settings.getInt(CFG_MANUALRANGE);
+		minX = settings.getDouble(CFG_MINX);
+		maxX = settings.getDouble(CFG_MAXX);
+		minY = settings.getDouble(CFG_MINY);
+		maxY = settings.getDouble(CFG_MAXY);
+		drawLines = settings.getInt(CFG_DRAWLINES);
+		showLegend = settings.getInt(CFG_SHOWLEGEND);
+		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
+		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
+		unitX = settings.getString(CFG_UNITX);
+		unitY = settings.getString(CFG_UNITY);
+		transformY = settings.getString(CFG_TRANSFORMY);
+		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
+		visibleColumns = XmlConverter.xmlToStringList(settings
+				.getString(CFG_VISIBLECOLUMNS));
+		fittedFilter = settings.getString(CFG_FITTEDFILTER);
 	}
 
 	/**

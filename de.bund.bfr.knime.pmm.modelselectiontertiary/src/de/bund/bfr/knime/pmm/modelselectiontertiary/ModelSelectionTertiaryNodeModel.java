@@ -217,8 +217,7 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 				reader.getShortLegend(), reader.getLongLegend());
 
 		creator.setParamX(AttributeUtilities.TIME);
-		creator.setParamY(AttributeUtilities.LOGC);
-		creator.setTransformY(ChartConstants.NO_TRANSFORM);
+		creator.setParamY(AttributeUtilities.LOGC);		
 		creator.setColors(colors);
 		creator.setShapes(shapes);
 		creator.setUseManualRange(manualRange == 1);

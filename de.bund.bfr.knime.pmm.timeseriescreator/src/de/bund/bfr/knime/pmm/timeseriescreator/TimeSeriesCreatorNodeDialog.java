@@ -787,8 +787,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
 				matrixButton.setText(SELECT);
 				matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
-				commentField.setValue(((MdInfoXml) tuple.getPmmXml(
-						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment());
+				if (tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0) != null) {
+					commentField.setValue(((MdInfoXml) tuple.getPmmXml(
+							TimeSeriesSchema.ATT_MDINFO).get(0)).getComment());
+				}
 
 				PmmXmlDoc miscXML = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				int n = removeButtons.size();

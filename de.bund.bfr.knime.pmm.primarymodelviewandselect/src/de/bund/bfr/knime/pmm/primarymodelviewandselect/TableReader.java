@@ -329,10 +329,15 @@ public class TableReader {
 						TimeSeriesSchema.ATT_AGENT,
 						TimeSeriesSchema.ATT_MATRIX,
 						AttributeUtilities.ATT_COMMENT));
-				infoValues = new ArrayList<Object>(Arrays.asList(formula,
-						dataPoints, agent, matrix, ((MdInfoXml) tuple
-								.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0))
-								.getComment()));
+				if (tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0) != null) {
+					infoValues = new ArrayList<Object>(Arrays.asList(formula,
+							dataPoints, agent, matrix, ((MdInfoXml) tuple
+									.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0))
+									.getComment()));
+				}
+				else {
+					infoValues = new ArrayList<Object>();
+				}
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;

@@ -622,6 +622,14 @@ public class Plotable {
 	public int getNumberOfCombinations() {
 		int nMax = 0;
 
+		if (functionArguments.size() == 1) {
+			String arg = new ArrayList<>(functionArguments.keySet()).get(0);
+
+			if (valueLists.containsKey(arg) && valueLists.get(arg).size() != 0) {
+				return 1;
+			}
+		}
+
 		for (String arg0 : functionArguments.keySet()) {
 			int n = 1;
 			boolean valueFound = false;

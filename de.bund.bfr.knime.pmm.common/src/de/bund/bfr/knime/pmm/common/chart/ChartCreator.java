@@ -948,69 +948,76 @@ public class ChartCreator extends ChartPanel {
 			shapeList = creator.getShapeList();
 		}
 
-		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
+		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {			
+			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
+					unitY, transformY, choiceMap);
+
+			if (dataPoints == null) {
+				continue;
+			}
+
 			double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
 					unitX, unitY, transformY, minX, maxX,
 					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 					choiceMap);
-			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
-					unitY, transformY, choiceMap);
 
-			if (modelPoints != null && dataPoints != null) {
-				String addLegend = "";
-				DefaultXYDataset modelSet = new DefaultXYDataset();
-				XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
-						true, false);
-				DefaultXYDataset dataSet = new DefaultXYDataset();
-				XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
-						drawLines, true);
-
-				modelRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-				dataRenderer
-						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-
-				for (String arg : choiceMap.keySet()) {
-					if (!arg.equals(paramX)) {
-						addLegend += " ("
-								+ arg
-								+ "="
-								+ plotable.getFunctionArguments().get(arg)
-										.get(choiceMap.get(arg)) + ")";
-					}
-				}
-
-				if (addInfoInLegend) {
-					modelSet.addSeries(longLegend.get(id) + addLegend
-							+ " (Model)", modelPoints);
-					dataSet.addSeries(longLegend.get(id) + addLegend
-							+ " (Data)", dataPoints);
-				} else {
-					modelSet.addSeries(shortLegend.get(id) + addLegend
-							+ " (Model)", modelPoints);
-					dataSet.addSeries(shortLegend.get(id) + addLegend
-							+ " (Data)", dataPoints);
-				}
-
-				modelRenderer.setSeriesPaint(0, colorList.get(index));
-				modelRenderer.setSeriesShape(0, shapeList.get(index));
-				dataRenderer.setSeriesPaint(0, colorList.get(index));
-				dataRenderer.setSeriesShape(0, shapeList.get(index));
-
-				int i;
-
-				if (plot.getDataset(0) == null) {
-					i = 0;
-				} else {
-					i = plot.getDatasetCount();
-				}
-
-				plot.setDataset(i, modelSet);
-				plot.setRenderer(i, modelRenderer);
-				plot.setDataset(i + 1, dataSet);
-				plot.setRenderer(i + 1, dataRenderer);
+			if (modelPoints == null) {
+				continue;
 			}
 
+			String addLegend = "";
+			DefaultXYDataset modelSet = new DefaultXYDataset();
+			XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
+					true, false);
+			DefaultXYDataset dataSet = new DefaultXYDataset();
+			XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
+					drawLines, true);
+
+			modelRenderer
+					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+			dataRenderer
+					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+
+			for (String arg : choiceMap.keySet()) {
+				if (!arg.equals(paramX)) {
+					addLegend += " ("
+							+ arg
+							+ "="
+							+ plotable.getFunctionArguments().get(arg)
+									.get(choiceMap.get(arg)) + ")";
+				}
+			}
+
+			if (addInfoInLegend) {
+				modelSet.addSeries(longLegend.get(id) + addLegend + " (Model)",
+						modelPoints);
+				dataSet.addSeries(longLegend.get(id) + addLegend + " (Data)",
+						dataPoints);
+			} else {
+				modelSet.addSeries(
+						shortLegend.get(id) + addLegend + " (Model)",
+						modelPoints);
+				dataSet.addSeries(shortLegend.get(id) + addLegend + " (Data)",
+						dataPoints);
+			}
+
+			modelRenderer.setSeriesPaint(0, colorList.get(index));
+			modelRenderer.setSeriesShape(0, shapeList.get(index));
+			dataRenderer.setSeriesPaint(0, colorList.get(index));
+			dataRenderer.setSeriesShape(0, shapeList.get(index));
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
+			plot.setDataset(i, modelSet);
+			plot.setRenderer(i, modelRenderer);
+			plot.setDataset(i + 1, dataSet);
+			plot.setRenderer(i + 1, dataRenderer);
 			index++;
 		}
 	}

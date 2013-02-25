@@ -194,7 +194,7 @@ public class Plotable {
 				if (!arg.equals(paramX) && valueLists.containsKey(arg)) {
 					Double fixedValue = functionArguments.get(arg).get(
 							choice.get(arg));
-					List<Double> values = valueLists.get(arg);
+					List<Double> values = valueLists.get(arg);					
 
 					for (int i = 0; i < values.size(); i++) {
 						if (!fixedValue.equals(values.get(i))) {

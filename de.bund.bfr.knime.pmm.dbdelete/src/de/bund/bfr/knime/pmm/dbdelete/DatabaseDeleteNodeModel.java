@@ -166,7 +166,6 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		return numDBSuccesses;
     }
     private int deleteTSID(Connection conn, Object tsID) {
-    	tsID = 945;
     	int numDBSuccesses = 0;
 		String sql = "SELECT " + DBKernel.delimitL("Referenz") + " FROM " + DBKernel.delimitL("Versuchsbedingungen") +
 				" WHERE " + DBKernel.delimitL("ID") + "=" + tsID;

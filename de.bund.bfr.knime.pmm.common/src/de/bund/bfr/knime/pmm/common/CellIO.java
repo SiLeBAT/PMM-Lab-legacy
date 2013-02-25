@@ -396,7 +396,7 @@ public class CellIO {
                 				fromToXmlDB.set(i, liDB);
 		        			}
 		        			else if (foreignDbIdsTable.get(key) != liDB.getId()) {
-		        				System.err.println("checkIDs ... shouldn't happen");
+		        				System.err.println("checkIDs, LiteratureItem ... shouldn't happen");
 		        			}
 		        		}
 		        		else {
@@ -430,7 +430,7 @@ public class CellIO {
                 				fromToXmlDB.set(i, cmxDB);
 		        			}
 		        			else if (foreignDbIdsTable.get(key) != cmxDB.getID()) {
-		        				System.err.println("checkIDs ... shouldn't happen");
+		        				System.err.println("checkIDs, CatalogModelXml ... shouldn't happen");
 		        			}
 		        		}
 		        		else {
@@ -464,7 +464,7 @@ public class CellIO {
                 				fromToXmlDB.set(i, emxDB);
 		        			}
 		        			else if (foreignDbIdsTable.get(key) != emxDB.getID()) {
-		        				System.err.println("checkIDs ... shouldn't happen");
+		        				System.err.println("checkIDs, EstModelXml ... shouldn't happen");
 		        			}
 		        		}
 		        		else {

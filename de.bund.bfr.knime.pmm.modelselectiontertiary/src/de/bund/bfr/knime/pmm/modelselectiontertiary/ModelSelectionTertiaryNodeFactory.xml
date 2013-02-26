@@ -32,7 +32,7 @@
        <u>'OK'</u> means the model could be fitted to the parameter values.<br></br> 
         <u>'Coeff Out Of Limit' (yellow)</u> says that to fit the model to the parameter values the given minimum or maximum value of the parameters had to be extended. If this is not an option (e.g. because it is biologically not sensible) check 'Enforce Limits' in the Model Fitting node.<br></br>
 		<u>'No Covariance Matrix' (yellow)</u> means that no errors could be calculated for the parameters. This also means that confidence intervals cannot be shown.<br></br> 
-        <u>'Failed' (red)</u> means that the model could not be fitted to the parameter values.<br></br><br></br>
+        <u>'Failed' (red)</u> means that the model could not be fitted to the parameter values.<br></br><br></br></option>
         <option name="Select">Either select all sets of data, deselect chosen data sets or invert the current selection.</option>
         <option name="Columns">Click on "Customize" to select the columns to be displayed, e.g. model name, quality criteria (R<sup>2</sup>, AIC) and assay conditions (temperature, pH, a<sub>W</sub>).</option>
         <option name="Table"> The table shows the available sets of data, whether they are currently being displayed (selected), the color and shape of the symbol and other information (see "Columns"). Clicking on a column header sorts the table.</option>

@@ -193,16 +193,16 @@ public class XLSReader {
 						MathUtilities.getRandomNegativeInt());
 				timeSeriesXml = new PmmXmlDoc();
 
-				if (commentCell != null) {
-					PmmXmlDoc dataInfo = new PmmXmlDoc();					
-
-					dataInfo.add(new MdInfoXml(null, null, commentCell
-							.toString().trim(), null, null));
-					tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
-				}
-
+				PmmXmlDoc dataInfo = new PmmXmlDoc();
 				PmmXmlDoc agentXml = new PmmXmlDoc();
 				PmmXmlDoc matrixXml = new PmmXmlDoc();
+
+				if (commentCell != null) {
+					dataInfo.add(new MdInfoXml(null, null, commentCell
+							.toString().trim(), null, null));
+				} else {
+					dataInfo.add(new MdInfoXml(null, null, null, null, null));
+				}
 
 				if (agentCell != null
 						&& agentMappings.get(agentCell.toString().trim()) != null) {
@@ -229,6 +229,7 @@ public class XLSReader {
 							.toString().trim());
 				}
 
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 
@@ -364,16 +365,16 @@ public class XLSReader {
 			dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
 					MathUtilities.getRandomNegativeInt());
 
-			if (commentCell != null) {
-				PmmXmlDoc dataInfo = new PmmXmlDoc();
-
-				dataInfo.add(new MdInfoXml(null, null, commentCell.toString()
-						.trim(), null, null));
-				dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
-			}
-
+			PmmXmlDoc dataInfo = new PmmXmlDoc();
 			PmmXmlDoc agentXml = new PmmXmlDoc();
 			PmmXmlDoc matrixXml = new PmmXmlDoc();
+
+			if (commentCell != null) {
+				dataInfo.add(new MdInfoXml(null, null, commentCell.toString()
+						.trim(), null, null));
+			} else {
+				dataInfo.add(new MdInfoXml(null, null, null, null, null));
+			}
 
 			if (agentCell != null
 					&& agentMappings.get(agentCell.toString().trim()) != null) {
@@ -399,6 +400,7 @@ public class XLSReader {
 						.toString().trim());
 			}
 
+			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 			dataTuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			dataTuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 

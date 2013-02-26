@@ -133,7 +133,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 						" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
 	    			}
 	    			else if (ft.equals("Lieferungen")) {
-	    				String fn = myT.getFieldNames()[selectedColumn];
+	    				//String fn = myT.getFieldNames()[selectedColumn];
 	    				//System.err.println(fn);
 	    				if (tn.equals("Produktkatalog")) {
 							sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +

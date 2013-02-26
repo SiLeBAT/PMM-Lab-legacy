@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ManualModelConf-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.manualmodelconf;singleton:=true
-Bundle-Version: 1.0.0.v20130225
+Bundle-Version: 1.0.0.v20130226
 Bundle-ClassPath: manualmodelconf.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.manualmodelconf.ManualModelConfNodePlugin
 Bundle-Vendor: BfR

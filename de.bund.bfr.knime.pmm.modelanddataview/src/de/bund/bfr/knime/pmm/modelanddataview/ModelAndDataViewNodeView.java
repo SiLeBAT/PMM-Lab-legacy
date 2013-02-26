@@ -489,15 +489,10 @@ public class ModelAndDataViewNodeView extends
 						TimeSeriesSchema.ATT_AGENT,
 						TimeSeriesSchema.ATT_MATRIX,
 						AttributeUtilities.ATT_COMMENT));
-				if (row.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0) != null) {
-					infoValues = new ArrayList<Object>(Arrays.asList(formula,
-							dataPoints, agent, matrix,
-							((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-									.get(0)).getComment()));
-				}
-				else {
-					infoValues = new ArrayList<Object>();
-				}
+				infoValues = new ArrayList<Object>(Arrays.asList(formula,
+						dataPoints, agent, matrix,
+						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+								.get(0)).getComment()));
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;

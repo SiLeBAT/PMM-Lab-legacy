@@ -144,11 +144,9 @@ public class TableReader {
 			infoParameters.add(Arrays.asList(AttributeUtilities.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
 					AttributeUtilities.ATT_COMMENT));
-			if (tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0) != null) {
-				infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
-						((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-								.get(0)).getComment()));
-			}
+			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
+					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+							.get(0)).getComment()));
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
 

@@ -320,7 +320,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
-				configPanel.getCurrentParamX());
+				configPanel.getParamX());
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX,
 				XmlConverter.mapToXml(configPanel.getSelectedValuesX()));
@@ -444,7 +444,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			selectionPanel.setShapes(shapes);
 		}
 
-		configPanel.setCurrentParamX(currentParamX);
+		configPanel.setParamX(currentParamX);
 		configPanel.setSelectedValuesX(selectedValuesX);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
@@ -535,7 +535,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			chartCreator.setUnitX(configPanel.getUnitX());
 			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
-			plotable.setFunctionArguments(configPanel.getParamsXValues());
+			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);

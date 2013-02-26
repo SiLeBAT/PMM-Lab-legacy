@@ -1,41 +1,5 @@
-/*******************************************************************************
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
- * 
- * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
- * 
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
- * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
- * 
- * Developers and contributors to the PMM-Lab project are 
- * Jörgen Brandt (BfR)
- * Armin A. Weiser (BfR)
- * Matthias Filter (BfR)
- * Alexander Falenski (BfR)
- * Christian Thöns (BfR)
- * Annemarie Käsbohrer (BfR)
- * Bernd Appel (BfR)
- * 
- * PMM-Lab is a project under development. Contributions are welcome.
- * 
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- ******************************************************************************/
-package de.bund.bfr.knime.pmm.combinedmodelanddataview;
+package de.bund.bfr.knime.pmm.modelanddataview;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,10 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-
-import org.knime.core.node.NodeView;
+import org.knime.core.data.DataTable;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -59,34 +20,22 @@ import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
-/**
- * <code>NodeView</code> for the "CombinedModelAndDataView" Node.
- * 
- * 
- * @author Christian Thoens
- */
-public class CombinedModelAndDataViewNodeView extends
-		NodeView<CombinedModelAndDataViewNodeModel> implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
+public class TableReader {
 
 	private List<String> ids;
 	private Map<String, Plotable> plotables;
@@ -100,152 +49,23 @@ public class CombinedModelAndDataViewNodeView extends
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	private ChartCreator chartCreator;
-	private ChartSelectionPanel selectionPanel;
-	private ChartConfigPanel configPanel;
-	private ChartInfoPanel infoPanel;
-
-	/**
-	 * Creates a new view.
-	 * 
-	 * @param nodeModel
-	 *            The model (class: {@link ModelAndDataViewNodeModel})
-	 */
-	protected CombinedModelAndDataViewNodeView(
-			final CombinedModelAndDataViewNodeModel nodeModel) {
-		super(nodeModel);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void modelChanged() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onClose() {
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	protected void onOpen() {
-		readTable();
-
-		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false);
-		configPanel.addConfigListener(this);
-		selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
-				stringColumnValues, doubleColumns, doubleColumnValues,
-				visibleColumns, stringColumns);
-		selectionPanel.addSelectionListener(this);
-		chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
-		infoPanel = new ChartInfoPanel(ids, infoParameters, infoParameterValues);
-
-		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chartCreator, selectionPanel);
-		JPanel bottomPanel = new JPanel();
-
-		upperSplitPane.setResizeWeight(1.0);
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(configPanel, BorderLayout.WEST);
-		bottomPanel.add(infoPanel, BorderLayout.CENTER);
-		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, bottomPanel);
-		Dimension preferredSize = splitPane.getPreferredSize();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-		preferredSize.width = Math.min(preferredSize.width,
-				(int) (screenSize.width * 0.9));
-		preferredSize.height = Math.min(preferredSize.height,
-				(int) (screenSize.height * 0.9));
-
-		splitPane.setResizeWeight(1.0);
-		splitPane.setPreferredSize(preferredSize);
-		setComponent(splitPane);
-	}
-
-	private void createChart() {
-		String selectedID = null;
-
-		if (configPanel.isDisplayFocusedRow()) {
-			selectedID = selectionPanel.getFocusedID();
-		} else {
-			if (!selectionPanel.getSelectedIDs().isEmpty()) {
-				selectedID = selectionPanel.getSelectedIDs().get(0);
-			}
-		}
-
-		if (selectedID != null) {
-			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
-
-			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(var));
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
-
-					Collections.sort(valuesList);
-					variables.put(var, valuesList);
-				} else {
-					variables.put(var, new ArrayList<Double>());
-				}
-			}
-
-			configPanel.setParamsX(variables, plotable.getMinArguments(),
-					plotable.getMaxArguments(), null);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
-			plotable.setFunctionArguments(configPanel.getParamsX());
-			chartCreator.setParamX(configPanel.getParamX());
-			chartCreator.setParamY(configPanel.getParamY());
-			chartCreator.setUnitX(configPanel.getUnitX());
-			chartCreator.setUnitY(configPanel.getUnitY());
-			chartCreator.setTransformY(configPanel.getTransformY());
-		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
-			chartCreator.setParamX(null);
-			chartCreator.setParamY(null);
-			chartCreator.setUnitX(null);
-			chartCreator.setUnitY(null);
-			chartCreator.setTransformY(null);
-		}
-
-		chartCreator.setUseManualRange(configPanel.isUseManualRange());
-		chartCreator.setMinX(configPanel.getMinX());
-		chartCreator.setMinY(configPanel.getMinY());
-		chartCreator.setMaxX(configPanel.getMaxX());
-		chartCreator.setMaxY(configPanel.getMaxY());
-		chartCreator.setDrawLines(configPanel.isDrawLines());
-		chartCreator.setShowLegend(configPanel.isShowLegend());
-		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		chartCreator.setColors(selectionPanel.getColors());
-		chartCreator.setShapes(selectionPanel.getShapes());
-		chartCreator.createChart(selectedID);
-	}
-
-	private void readTable() {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(getNodeModel()
-				.getSchema(), getNodeModel().getTable());
+	public TableReader(DataTable table, boolean schemaContainsData) {
+		List<String> miscParams = null;
+		KnimeRelationReader reader;
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 		List<KnimeTuple> newTuples = null;
-		List<String> miscParams = null;
+
+		if (schemaContainsData) {
+			reader = new KnimeRelationReader(
+					SchemaFactory.createM1DataSchema(), table);
+		} else {
+			reader = new KnimeRelationReader(SchemaFactory.createM1Schema(),
+					table);
+		}
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
 		}
-
-		tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
-				getNodeModel().getContainsData() == 1, false, null).keySet());
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -254,7 +74,7 @@ public class CombinedModelAndDataViewNodeView extends
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 
-		if (getNodeModel().getContainsData() == 1) {
+		if (schemaContainsData) {
 			try {
 				tuples = QualityMeasurementComputation.computePrimary(tuples,
 						false);
@@ -267,8 +87,7 @@ public class CombinedModelAndDataViewNodeView extends
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(getNodeModel()
-					.getTable());
+			miscParams = PmmUtilities.getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
@@ -313,6 +132,8 @@ public class CombinedModelAndDataViewNodeView extends
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
 		}
 
+		Set<String> idSet = new LinkedHashSet<String>();
+
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple row = tuples.get(nr);
 			Integer catID = ((CatalogModelXml) row.getPmmXml(
@@ -327,28 +148,30 @@ public class CombinedModelAndDataViewNodeView extends
 				id += catID;
 			}
 
-			if (getNodeModel().getContainsData() == 1) {
+			if (schemaContainsData) {
 				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
-			if (!idSet.add(id)) {
+			if (!idSet.add(id)) {				
 				continue;
 			}
 
 			ids.add(id);
 
 			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
 					.get(0)).getName();
 			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
-			Plotable plotable = new Plotable(Plotable.BOTH);
+			Plotable plotable = null;
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			List<String> infoParams = null;
 			List<Object> infoValues = null;
 
@@ -365,15 +188,25 @@ public class CombinedModelAndDataViewNodeView extends
 				ParamXml element = (ParamXml) el;
 
 				parameters.put(element.getName(), element.getValue());
+
+				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el2 : paramXml.getElementSet()) {
+					cov.put(((ParamXml) el2).getName(), element
+							.getCorrelation(((ParamXml) el2).getOrigName()));
+				}
+
+				covariances.put(element.getName(), cov);
 			}
 
-			if (getNodeModel().getContainsData() == 1) {
+			if (schemaContainsData) {
 				PmmXmlDoc timeSeriesXml = row
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
-				int n = Math.max(1, timeSeriesXml.getElementSet().size());
+				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				List<Double> timeList = new ArrayList<Double>();
 				List<Double> logcList = new ArrayList<Double>();
+				int n = timeSeriesXml.getElementSet().size();
 
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
@@ -398,15 +231,14 @@ public class CombinedModelAndDataViewNodeView extends
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
 				plotable.addValueList(AttributeUtilities.LOGC, logcList);
 
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
 
-					if (element.getValue() != null
-							&& !element.getValue().isNaN()) {
-						plotable.addValueList(element.getName(),
-								Collections.nCopies(n, element.getValue()));
+					if (element.getValue() != null) {
+						plotable.addValueList(
+								element.getName(),
+								new ArrayList<Double>(Collections.nCopies(n,
+										element.getValue())));
 					}
 				}
 
@@ -440,9 +272,6 @@ public class CombinedModelAndDataViewNodeView extends
 				} else {
 					matrix = matrixDetail;
 				}
-
-				PmmXmlDoc estModelXml = row
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
@@ -506,9 +335,6 @@ public class CombinedModelAndDataViewNodeView extends
 					}
 				}
 			} else {
-				PmmXmlDoc estModelXml = row
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
-
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
@@ -532,8 +358,11 @@ public class CombinedModelAndDataViewNodeView extends
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);
+			plotable.setCovariances(covariances);
+			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
+					.getDOF());
 
-			if (getNodeModel().getContainsData() == 1) {
+			if (schemaContainsData) {
 				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.FAILED);
 				} else if (PmmUtilities.isOutOfRange(paramXml)) {
@@ -574,23 +403,47 @@ public class CombinedModelAndDataViewNodeView extends
 		}
 	}
 
-	@Override
-	public void configChanged() {
-		createChart();
+	public List<String> getIds() {
+		return ids;
 	}
 
-	@Override
-	public void selectionChanged() {
-		createChart();
+	public Map<String, Plotable> getPlotables() {
+		return plotables;
 	}
 
-	@Override
-	public void focusChanged() {
-		infoPanel.showID(selectionPanel.getFocusedID());
-
-		if (configPanel.isDisplayFocusedRow()) {
-			createChart();
-		}
+	public List<String> getStringColumns() {
+		return stringColumns;
 	}
 
+	public List<List<String>> getStringColumnValues() {
+		return stringColumnValues;
+	}
+
+	public List<String> getDoubleColumns() {
+		return doubleColumns;
+	}
+
+	public List<List<Double>> getDoubleColumnValues() {
+		return doubleColumnValues;
+	}
+
+	public List<String> getVisibleColumns() {
+		return visibleColumns;
+	}
+
+	public List<List<String>> getInfoParameters() {
+		return infoParameters;
+	}
+
+	public List<List<?>> getInfoParameterValues() {
+		return infoParameterValues;
+	}
+
+	public Map<String, String> getShortLegend() {
+		return shortLegend;
+	}
+
+	public Map<String, String> getLongLegend() {
+		return longLegend;
+	}
 }

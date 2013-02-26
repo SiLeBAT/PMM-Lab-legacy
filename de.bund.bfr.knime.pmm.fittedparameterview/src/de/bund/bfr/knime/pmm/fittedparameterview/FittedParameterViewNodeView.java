@@ -196,7 +196,7 @@ public class FittedParameterViewNodeView extends
 			chartCreator.setUnitX(configPanel.getUnitX());
 			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
-			plotable.setFunctionArguments(configPanel.getParamsXValues());
+			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
 			configPanel.setParamsY(null);

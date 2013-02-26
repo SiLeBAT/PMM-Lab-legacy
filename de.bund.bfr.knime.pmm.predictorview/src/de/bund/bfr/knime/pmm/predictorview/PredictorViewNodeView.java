@@ -222,7 +222,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					plotable.getMaxArguments(), AttributeUtilities.TIME);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setSamples(samplePanel.getTimeValues());
-			plotable.setFunctionArguments(configPanel.getParamsXValues());
+			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());

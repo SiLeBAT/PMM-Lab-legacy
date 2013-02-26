@@ -3,36 +3,46 @@
 <knimeNode icon="./FittedParameterView.png" type="Visualizer">
     <name>Fitted Parameter View</name>
     
-    <shortDescription>
-        
+   <shortDescription>
+        View parameters of fitted models and experimental conditions
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>View parameters of fitted models and experimental conditions. This is helpful for the selection of suitable parameters for the fitting of secondary models.</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+       <option name="Conditions to use">Add one or more experimental conditions (e.g. temperature, pH, aw, sodium concentration) to be able to estimate, which parameters might be suited best for the fitting of secondary models. The first condition will be shown on the x-axis in the graph and the others can be defined in the section 'Parameter Values'. Parameter assignments can be changed in the view.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
-    </ports>    
+        <inPort index="0" name="Models/microbial data">Primary and secondary models as well as microbial data (e.g. from the Model Fitting node)</inPort>
+    </ports>
     <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
+        <view index="0" name="Fitted Parameters and experimental conditions"><br></br>
+        <b>GRAPH</b><br></br>Visualizes estimated model parameters and microbial assay conditions.<br></br><br></br>
+        <b>Mouse zoom:</b> To view a part of the graph in detail left click and simultaneously drag the mouse right and down. Another way is to use the zoom options in the context menu.<br></br><br></br>
+        <b>Context Menu</b> (Right click in the graph):<br></br>
+        <u>Properties:</u> Change font (type, size, color) and labels as well as the appearance of the graph.<br></br>
+        <u>Copy:</u> Copies the graph to the clipboard enabling you to paste it in a graphical editor.<br></br>
+        <u>Save as...:</u> Saves the graph as PNG (a bitmap image). Compared to the PNG image in the outport (which has a resolution of 640x480 pixels) this PNG is saved with the same size as on the screen.<br></br>
+        <u>Save as...(SVG):</u> Saves the graph as SVG (a vector image). The file is saved with the same size as on the screen.<br></br>
+        <u>Print:</u> Print the graph directly from Knime PMM-Lab.<br></br>
+        <u>Zoom:</u> Zoom in and out or auto range the view for one or both axes.<br></br><br></br>
+        <b>DISPLAY OPTIONS</b><br></br>
+        <u>Draw Lines:</u> Connect data points with lines which helps to distinguish between different sets of data.<br></br> 
+        <u>Show Legend:</u> Display the model ID and the data set ID together with symbol and color.<br></br>
+        <u>Add Info in Legend:</u> No additional information available<br></br>
+        <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table on the right is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down). The space bar selects/unselects a set of data.<br></br><br></br>
+        <b>RANGE</b><br></br>Set the minimum and maximum values for the x and y axes.<br></br><br></br>
+        <b>PARAMETERS</b><br></br>
+		<u>X:</u> If more than one experimental condition was added via the option menu the one to be displayed on the x-axis can be defined here.<br></br>
+		<u>Y:</u> The parameter to be displayed on the y-axis is set in the table on the right and cannot be changed here.<br></br>
+		<u>X Unit:</u> If the condition is 'temperature', the unit can be changed (°C or °F).<br></br>
+		<u>Y Unit:</u> Units for parameters cannot be changed.<br></br>
+        <u>Y Transform:</u> Transforms the data on the Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).<br></br><br></br>
+        <b>COLUMNS</b><br></br>Click on 'Customize' to select the minimum and maximum values for conditions to be displayed (e.g. temperature, pH. Click on 'Set Optimal Width' to be able to view all selected columns but at the same time save as much width for the graph.<br></br><br></br>
+        <b>TABLE</b><br></br>The table shows the parameter names which were previously estimated. In predictive microbial modelling, the extrapolation of test conditions is undesired and thus the minimum and maximum values for different experimental conditions are shown next to the parameters.<br></br><br></br>
+		 <b>INFO BOX</b><br></br>There is no additional information in this PMM-Lab node.<br></br>
+		</view>        
     </views>
 </knimeNode>

@@ -33,7 +33,7 @@
         <u>Add Info in Legend:</u> Adds the formula to the legend. This option only available when the legend is displayed.<br></br>
         <u>Display Highlighted Row:</u> If checked, only the highlighted row in the table on the right is displayed. A comfortable way to select sets of data is to highlight a row and then navigate with the arrow keys (up/down). The space bar selects/unselects a set of data.<br></br><br></br>
         <b>RANGE</b><br></br>Set the minimum and maximum values for the x and y axes.<br></br><br></br>
-        <b>PARAMETERS</b><br></br><u>X and Y:</u> The x-axis and y-axis show the bacterial concentration over time. The units can be changed.<br></br>
+        <b>PARAMETERS</b><br></br><u>X and Y:</u> The units of the x-axis (time) and of the y-axis (bacterial concentration) can be changed.<br></br>
         <u>Y Transform:</u> Transforms the data on the Y axis (square root, ln, log10, basis e, basis 10). This is useful if a display of data other than the PMM-Lab default (log10) is wished for (e.g. as actual cell counts -> 10^).<br></br><br></br>
         <b>FILTER</b><br></br>Filter the model name or the status of the fitting to be displayed in the table below:<br></br> 
         <u>'OK'</u> means the model could be fitted to the parameter values.<br></br> 

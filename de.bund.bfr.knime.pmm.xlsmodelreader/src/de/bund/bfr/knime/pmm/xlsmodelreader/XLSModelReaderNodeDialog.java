@@ -102,6 +102,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private static final String OTHER_PARAMETER = "Select Other";
 	private static final String SELECT = "Select";
 
+	private XLSReader xlsReader;
+
 	private JPanel mainPanel;
 
 	private FilePanel filePanel;
@@ -150,6 +152,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	 * New pane for configuring the XLSModelReader node.
 	 */
 	protected XLSModelReaderNodeDialog() {
+		xlsReader = new XLSReader();
+
 		filePanel = new FilePanel("XLS File", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
@@ -296,7 +300,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			fileSheetList = XLSReader.getSheets(new File(filePanel
+			fileSheetList = xlsReader.getSheets(new File(filePanel
 					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
@@ -318,7 +322,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			fileColumnList = XLSReader.getColumns(
+			fileColumnList = xlsReader.getColumns(
 					new File(filePanel.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
@@ -682,7 +686,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		if (e.getSource() == sheetBox) {
 			try {
-				fileColumnList = XLSReader.getColumns(
+				fileColumnList = xlsReader.getColumns(
 						new File(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem());
 			} catch (Exception ex) {
@@ -750,7 +754,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void fileChanged(FilePanel source) {
 		try {
-			fileSheetList = XLSReader.getSheets(new File(filePanel
+			fileSheetList = xlsReader.getSheets(new File(filePanel
 					.getFileName()));
 		} catch (Exception e) {
 			fileSheetList = new ArrayList<>();
@@ -767,7 +771,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		sheetBox.addItemListener(this);
 
 		try {
-			fileColumnList = XLSReader.getColumns(
+			fileColumnList = xlsReader.getColumns(
 					new File(filePanel.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
@@ -880,7 +884,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			String column = (String) agentBox.getSelectedItem();
 
 			try {
-				Set<String> values = XLSReader.getValuesInColumn(new File(
+				Set<String> values = xlsReader.getValuesInColumn(new File(
 						filePanel.getFileName()), (String) sheetBox
 						.getSelectedItem(), column);
 
@@ -952,7 +956,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			String column = (String) matrixBox.getSelectedItem();
 
 			try {
-				Set<String> values = XLSReader.getValuesInColumn(new File(
+				Set<String> values = xlsReader.getValuesInColumn(new File(
 						filePanel.getFileName()), (String) sheetBox
 						.getSelectedItem(), column);
 

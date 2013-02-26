@@ -212,10 +212,15 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_DEPENDENT, depVar);
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
-				.getDValueTuples(new File(fileName), sheetName, cMappings,
-						agentColumn, aMappings, matrixColumn, mMappings,
-						modelTuple, modelMappings).values());
+		XLSReader xlsReader = new XLSReader();
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
+				.getPrimaryModelTuples(new File(fileName), sheetName,
+						cMappings, agentColumn, aMappings, matrixColumn,
+						mMappings, modelTuple, modelMappings).values());
+
+		for (String warning : xlsReader.getWarnings()) {
+			setWarningMessage(warning);
+		}
 
 		if (agentColumn == null && agentID != -1) {
 			String agentName = DBKernel.getValue("Agenzien", "ID",

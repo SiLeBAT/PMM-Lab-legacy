@@ -66,14 +66,18 @@ public class XLSReader {
 	public static String MATRIX_DETAILS_COLUMN = TimeSeriesSchema.ATT_MATRIX
 			+ " Details";
 
-	private XLSReader() {
+	private List<String> warnings;
+
+	public XLSReader() {
+		warnings = new ArrayList<>();
 	}
 
-	public static Map<String, KnimeTuple> getTimeSeriesTuples(File file,
-			String sheet, Map<String, Object> columnMappings,
-			String agentColumnName, Map<String, AgentXml> agentMappings,
-			String matrixColumnName, Map<String, MatrixXml> matrixMappings)
-			throws Exception {
+	public Map<String, KnimeTuple> getTimeSeriesTuples(File file, String sheet,
+			Map<String, Object> columnMappings, String agentColumnName,
+			Map<String, AgentXml> agentMappings, String matrixColumnName,
+			Map<String, MatrixXml> matrixMappings) throws Exception {
+		warnings.clear();
+
 		Sheet s = getWorkbook(file).getSheet(sheet);
 
 		if (s == null) {
@@ -91,6 +95,8 @@ public class XLSReader {
 		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
 		Integer matrixColumn = null;
+		String timeColumnName = null;
+		String logcColumnName = null;
 
 		if (agentColumnName != null) {
 			agentColumn = columns.get(agentColumnName);
@@ -112,8 +118,10 @@ public class XLSReader {
 					commentColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.TIME)) {
 					timeColumn = columns.get(column);
+					timeColumnName = column;
 				} else if (mapping.equals(AttributeUtilities.LOGC)) {
 					logcColumn = columns.get(column);
+					logcColumnName = column;
 				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
 					agentDetailsColumn = columns.get(column);
 				} else if (mapping.equals(MATRIX_DETAILS_COLUMN)) {
@@ -239,10 +247,17 @@ public class XLSReader {
 					MiscXml misc = (MiscXml) columnMappings.get(column);
 					Cell cell = row.getCell(miscColumns.get(column));
 
-					try {
-						misc.setValue(Double.parseDouble(cell.toString()
-								.replace(",", ".")));
-					} catch (Exception e) {
+					if (cell != null && !cell.toString().trim().isEmpty()) {
+						try {
+							misc.setValue(Double.parseDouble(cell.toString()
+									.replace(",", ".")));
+						} catch (NumberFormatException e) {
+							warnings.add(column + " value in row " + (i + 1)
+									+ " is not valid ("
+									+ cell.toString().trim() + ")");
+							misc.setValue(null);
+						}
+					} else {
 						misc.setValue(null);
 					}
 
@@ -261,8 +276,9 @@ public class XLSReader {
 						time = Double.parseDouble(timeCell.toString().replace(
 								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(AttributeUtilities.TIME
-								+ " value in row " + (i + 1) + " is not valid");
+						warnings.add(timeColumnName + " value in row "
+								+ (i + 1) + " is not valid ("
+								+ timeCell.toString().trim() + ")");
 					}
 				}
 
@@ -271,8 +287,9 @@ public class XLSReader {
 						logc = Double.parseDouble(logcCell.toString().replace(
 								",", "."));
 					} catch (NumberFormatException e) {
-						throw new Exception(AttributeUtilities.LOGC
-								+ " value in row " + (i + 1) + " is not valid");
+						warnings.add(logcColumnName + " value in row "
+								+ (i + 1) + " is not valid ("
+								+ logcCell.toString().trim() + ")");
 					}
 				}
 
@@ -283,12 +300,14 @@ public class XLSReader {
 		return tuples;
 	}
 
-	public static Map<String, KnimeTuple> getDValueTuples(File file,
+	public Map<String, KnimeTuple> getPrimaryModelTuples(File file,
 			String sheet, Map<String, Object> columnMappings,
 			String agentColumnName, Map<String, AgentXml> agentMappings,
 			String matrixColumnName, Map<String, MatrixXml> matrixMappings,
 			KnimeTuple modelTuple, Map<String, String> modelMappings)
 			throws Exception {
+		warnings.clear();
+
 		Sheet s = getWorkbook(file).getSheet(sheet);
 
 		if (s == null) {
@@ -410,10 +429,17 @@ public class XLSReader {
 				MiscXml misc = (MiscXml) columnMappings.get(column);
 				Cell cell = row.getCell(miscColumns.get(column));
 
-				try {
-					misc.setValue(Double.parseDouble(cell.toString().replace(
-							",", ".")));
-				} catch (Exception e) {
+				if (cell != null && !cell.toString().trim().isEmpty()) {
+					try {
+						misc.setValue(Double.parseDouble(cell.toString()
+								.replace(",", ".")));
+					} catch (NumberFormatException e) {
+						warnings.add(column + " value in row " + (i + 1)
+								+ " is not valid (" + cell.toString().trim()
+								+ ")");
+						misc.setValue(null);
+					}
+				} else {
 					misc.setValue(null);
 				}
 
@@ -431,12 +457,18 @@ public class XLSReader {
 
 				if (columnName != null) {
 					int column = columns.get(columnName);
+					Cell cell = row.getCell(column);
 
-					try {
-						element.setValue(Double.parseDouble(row.getCell(column)
-								.toString()));
-					} catch (Exception e) {
-						element.setValue(null);
+					if (cell != null && !cell.toString().trim().isEmpty()) {
+						try {
+							element.setValue(Double.parseDouble(cell.toString()
+									.replace(",", ".")));
+						} catch (NumberFormatException e) {
+							warnings.add(columnName + " value in row "
+									+ (i + 1) + " is not valid ("
+									+ cell.toString().trim() + ")");
+							element.setValue(null);
+						}
 					}
 				} else {
 					element.setValue(null);
@@ -461,7 +493,11 @@ public class XLSReader {
 		return tuples;
 	}
 
-	public static List<String> getSheets(File file) throws Exception {
+	public List<String> getWarnings() {
+		return warnings;
+	}
+
+	public List<String> getSheets(File file) throws Exception {
 		List<String> sheets = new ArrayList<>();
 		Workbook workbook = getWorkbook(file);
 
@@ -472,8 +508,7 @@ public class XLSReader {
 		return sheets;
 	}
 
-	public static List<String> getColumns(File file, String sheet)
-			throws Exception {
+	public List<String> getColumns(File file, String sheet) throws Exception {
 		Sheet s = getWorkbook(file).getSheet(sheet);
 
 		if (s == null) {
@@ -483,8 +518,8 @@ public class XLSReader {
 		return new ArrayList<>(getColumns(s).keySet());
 	}
 
-	public static Set<String> getValuesInColumn(File file, String sheet,
-			String column) throws Exception {
+	public Set<String> getValuesInColumn(File file, String sheet, String column)
+			throws Exception {
 		Set<String> valueSet = new LinkedHashSet<>();
 		Sheet s = getWorkbook(file).getSheet(sheet);
 
@@ -506,7 +541,7 @@ public class XLSReader {
 		return valueSet;
 	}
 
-	private static Workbook getWorkbook(File file) throws Exception {
+	private Workbook getWorkbook(File file) throws Exception {
 		InputStream inputStream = null;
 
 		if (file.exists()) {
@@ -524,7 +559,7 @@ public class XLSReader {
 		return WorkbookFactory.create(inputStream);
 	}
 
-	private static Map<String, Integer> getColumns(Sheet sheet) {
+	private Map<String, Integer> getColumns(Sheet sheet) {
 		Map<String, Integer> columns = new LinkedHashMap<String, Integer>();
 
 		for (int i = 0;; i++) {
@@ -540,7 +575,7 @@ public class XLSReader {
 		return columns;
 	}
 
-	private static boolean isEndOfFile(Sheet sheet, int i) {
+	private boolean isEndOfFile(Sheet sheet, int i) {
 		Row row = sheet.getRow(i);
 
 		if (row == null) {

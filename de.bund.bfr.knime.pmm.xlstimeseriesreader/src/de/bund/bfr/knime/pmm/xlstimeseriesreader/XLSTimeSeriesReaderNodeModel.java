@@ -182,10 +182,15 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 					matrixName, null));
 		}
 
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(XLSReader
+		XLSReader xlsReader = new XLSReader();
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
 				.getTimeSeriesTuples(new File(fileName), sheetName, cMappings,
 						agentColumn, aMappings, matrixColumn, mMappings)
 				.values());
+
+		for (String warning : xlsReader.getWarnings()) {
+			setWarningMessage(warning);
+		}
 
 		if (agentColumn == null && agentID != -1) {
 			String agentName = DBKernel.getValue("Agenzien", "ID",

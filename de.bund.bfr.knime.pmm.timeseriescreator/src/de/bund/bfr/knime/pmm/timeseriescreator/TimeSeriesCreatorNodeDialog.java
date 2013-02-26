@@ -113,6 +113,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private static final String NO_PARAMETER = "Do Not Use";
 	private static final String SELECT = "Select";
 
+	private XLSReader xlsReader;
+
 	private JPanel panel;
 	private JButton clearButton;
 	private JButton stepsButton;
@@ -148,6 +150,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	 * New pane for configuring the TimeSeriesCreator node.
 	 */
 	protected TimeSeriesCreatorNodeDialog() {
+		xlsReader = new XLSReader();
+
 		condButtons = new ArrayList<>();
 		condIDs = new ArrayList<>();
 		condValueFields = new ArrayList<>();
@@ -760,7 +764,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (fileChooser.showOpenDialog(panel) == JFileChooser.APPROVE_OPTION) {
 			try {
-				Object[] sheets = XLSReader.getSheets(
+				Object[] sheets = xlsReader.getSheets(
 						fileChooser.getSelectedFile()).toArray();
 				Object sheet = JOptionPane.showInputDialog(panel,
 						"Select Sheet", "Input", JOptionPane.QUESTION_MESSAGE,
@@ -774,9 +778,23 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					return;
 				}
 
-				Map<String, KnimeTuple> tuples = XLSReader.getTimeSeriesTuples(
-						fileChooser.getSelectedFile(), (String) sheet,
-						dialog.getMappings(), null, null, null, null);
+				Map<String, KnimeTuple> tuples = null;
+
+				try {
+					tuples = xlsReader.getTimeSeriesTuples(
+							fileChooser.getSelectedFile(), (String) sheet,
+							dialog.getMappings(), null, null, null, null);
+
+					if (!xlsReader.getWarnings().isEmpty()) {
+						JOptionPane.showMessageDialog(panel, xlsReader
+								.getWarnings().get(0), "Warning",
+								JOptionPane.WARNING_MESSAGE);
+					}
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(panel, e.getMessage(),
+							"Error", JOptionPane.ERROR_MESSAGE);
+				}
+
 				Object[] values = tuples.keySet().toArray();
 				Object selection = JOptionPane.showInputDialog(panel,
 						"Select Time Series", "Input",
@@ -893,7 +911,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			cancelButton = new JButton("Cancel");
 			cancelButton.addActionListener(this);
 
-			List<String> columnList = XLSReader.getColumns(file, sheet);
+			List<String> columnList = xlsReader.getColumns(file, sheet);
 			JPanel northPanel = new JPanel();
 			int row = 0;
 
@@ -956,56 +974,44 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					if (e.getSource() == mappingBoxes.get(column)) {
 						JComboBox<String> box = mappingBoxes.get(column);
 						JButton button = mappingButtons.get(column);
+						String selected = (String) box.getSelectedItem();
 
-						if (box.getSelectedItem().equals(XLSReader.ID_COLUMN)) {
+						if (selected.equals(XLSReader.ID_COLUMN)
+								|| selected
+										.equals(AttributeUtilities.ATT_COMMENT)
+								|| selected.equals(AttributeUtilities.TIME)
+								|| selected.equals(AttributeUtilities.LOGC)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, XLSReader.ID_COLUMN);
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.ATT_COMMENT)) {
-							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
-							mappings.put(column, AttributeUtilities.ATT_COMMENT);
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.TIME)) {
-							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
-							mappings.put(column, AttributeUtilities.TIME);
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.LOGC)) {
-							button.setEnabled(false);
-							button.setText(OTHER_PARAMETER);
-							mappings.put(column, AttributeUtilities.LOGC);
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.ATT_TEMPERATURE)) {
+							mappings.put(column, selected);
+						} else if (selected
+								.equals(AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
 									null, null));
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.ATT_PH)) {
+						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column,
 									new MiscXml(AttributeUtilities.ATT_PH_ID,
 											AttributeUtilities.ATT_PH, null,
 											null, null));
-						} else if (box.getSelectedItem().equals(
-								AttributeUtilities.ATT_WATERACTIVITY)) {
+						} else if (selected
+								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
 									AttributeUtilities.ATT_WATERACTIVITY, null,
 									null, null));
-						} else if (box.getSelectedItem()
-								.equals(OTHER_PARAMETER)) {
+						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, null);
-						} else if (box.getSelectedItem().equals(NO_PARAMETER)) {
+						} else if (selected.equals(NO_PARAMETER)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.remove(column);

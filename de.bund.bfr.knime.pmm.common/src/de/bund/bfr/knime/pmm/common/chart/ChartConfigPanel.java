@@ -79,6 +79,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private static final double DEFAULT_MINY = 0.0;
 	private static final double DEFAULT_MAXY = 1.0;
 
+	private static final int SLIDER_MAX = 100;
+
 	private List<ConfigListener> listeners;
 
 	private JCheckBox drawLinesBox;
@@ -670,12 +672,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 					}
 
 					if (value < min) {
-						slider = new JSlider(0, 100, doubleToInt(min, min, max));
+						slider = new JSlider(0, SLIDER_MAX, doubleToInt(min,
+								min, max));
 					} else if (value > max) {
-						slider = new JSlider(0, 100, doubleToInt(max, min, max));
+						slider = new JSlider(0, SLIDER_MAX, doubleToInt(max,
+								min, max));
 					} else {
-						slider = new JSlider(0, 100, doubleToInt(value, min,
-								max));
+						slider = new JSlider(0, SLIDER_MAX, doubleToInt(value,
+								min, max));
 					}
 
 					slider.setPreferredSize(new Dimension(75, slider
@@ -723,11 +727,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	private int doubleToInt(double d, double min, double max) {
-		return (int) ((d - min) / (max - min) * (double) 100);
+		return (int) ((d - min) / (max - min) * (double) SLIDER_MAX);
 	}
 
 	private double intToDouble(int i, double min, double max) {
-		return (double) i / (double) 100 * (max - min) + min;
+		return (double) i / (double) SLIDER_MAX * (max - min) + min;
 	}
 
 	@Override
@@ -744,7 +748,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				maxXField.setEnabled(false);
 				maxYField.setEnabled(false);
 			}
-			
+
 			fireConfigChanged();
 		} else if (e.getSource() == showLegendBox) {
 			if (showLegendBox.isSelected()) {
@@ -752,12 +756,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			} else {
 				addInfoInLegendBox.setEnabled(false);
 			}
-			
+
 			fireConfigChanged();
 		} else if (e.getSource() == xBox) {
 			currentParamX = (String) xBox.getSelectedItem();
 			updateXUnitBox();
-			updateParametersPanel();			
+			updateParametersPanel();
 			fireConfigChanged();
 		} else if (parameterButtons.contains(e.getSource())) {
 			JButton button = (JButton) e.getSource();
@@ -790,7 +794,33 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	@Override
-	public void textChanged() {
+	public void textChanged(Object source) {
+		if (parameterFields.contains(source)) {
+			int i = parameterFields.indexOf(source);
+			String paramName = parameterLabels.get(i).getText()
+					.replace(":", "");
+			DoubleTextField field = parameterFields.get(i);
+
+			if (field.getValue() != null) {
+				JSlider slider = parameterSliders.get(i);
+				int value = doubleToInt(field.getValue(),
+						minParamValuesX.get(paramName),
+						maxParamValuesX.get(paramName));
+
+				slider.removeChangeListener(this);
+
+				if (value < 0) {
+					slider.setValue(0);
+				} else if (value > SLIDER_MAX) {
+					slider.setValue(SLIDER_MAX);
+				} else {
+					slider.setValue(value);
+				}
+
+				slider.addChangeListener(this);
+			}
+		}
+
 		fireConfigChanged();
 	}
 

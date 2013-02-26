@@ -158,7 +158,7 @@ public class IntTextField extends JTextField implements DocumentListener {
 		}
 
 		for (TextListener listener : listeners) {
-			listener.textChanged();
+			listener.textChanged(this);
 		}
 	}
 

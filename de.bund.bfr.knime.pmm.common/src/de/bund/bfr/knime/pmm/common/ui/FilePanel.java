@@ -178,7 +178,7 @@ public class FilePanel extends JPanel implements ActionListener, TextListener {
 	}
 
 	@Override
-	public void textChanged() {
+	public void textChanged(Object source) {
 		fireFileChanged();
 	}
 

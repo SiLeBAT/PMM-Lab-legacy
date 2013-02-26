@@ -1162,7 +1162,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		@Override
-		public void textChanged() {
+		public void textChanged(Object source) {
 			if (numberField.isValueValid() && sizeField.isValueValid()) {
 				okButton.setEnabled(true);
 			} else {

@@ -136,7 +136,7 @@ public class StringTextField extends JTextField implements DocumentListener {
 		}
 
 		for (TextListener listener : listeners) {
-			listener.textChanged();
+			listener.textChanged(this);
 		}
 	}
 

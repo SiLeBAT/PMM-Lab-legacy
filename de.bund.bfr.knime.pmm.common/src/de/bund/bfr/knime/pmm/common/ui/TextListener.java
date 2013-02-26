@@ -35,5 +35,5 @@ package de.bund.bfr.knime.pmm.common.ui;
 
 public interface TextListener {
 
-	public void textChanged();
+	public void textChanged(Object source);
 }

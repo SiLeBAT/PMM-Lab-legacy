@@ -800,9 +800,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			String paramName = parameterLabels.get(i).getText()
 					.replace(":", "");
 			DoubleTextField field = parameterFields.get(i);
+			JSlider slider = parameterSliders.get(i);
 
-			if (field.getValue() != null) {
-				JSlider slider = parameterSliders.get(i);
+			if (field.getValue() != null && slider != null) {
 				int value = doubleToInt(field.getValue(),
 						minParamValuesX.get(paramName),
 						maxParamValuesX.get(paramName));

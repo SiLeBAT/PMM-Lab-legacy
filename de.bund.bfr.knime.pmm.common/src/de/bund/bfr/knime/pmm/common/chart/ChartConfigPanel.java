@@ -771,7 +771,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				selectedValuesX.put(param, dialog.getSelected());
 				fireConfigChanged();
 			}
-		}		
+		} else {
+			fireConfigChanged();
+		}
 	}
 
 	@Override

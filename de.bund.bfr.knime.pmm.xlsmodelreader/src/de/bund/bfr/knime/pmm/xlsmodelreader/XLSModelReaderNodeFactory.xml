@@ -4,35 +4,22 @@
     <name>XLS Primary Model Reader</name>
     
     <shortDescription>
-        
+    Load models and data from an Excel file    
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
+        <intro>This nodes enables the user to import models and microbial data into PMM-Lab. All entries are matched with the database</intro>
         
         
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <option name="XLS File">Choose a Microsoft Excel file and select a spreadsheet</option>
+        <option name="Units">Define whether to view the temperature in degrees Celsius or Fahrenheit</option>
+        <option name="Literature">Assign a reference to the data / model. In order choose your own reference this needs to be entered manually. Another option is to enter the database via the Knime menu 'PMM-Lab' -> 'Open DB GUI...' where also *.ris files can be imported.</option>
+        <option name="Primary Model">Assign a model from the database</option>
+        <option name="Organism / Matrix">Choose a column from the XLS file and assign to every organism / matrix one equivalent from the database</option>
+        <option name="XLS Column -> PMM-Lab assignments">Assign to every column from the Excel sheet a column from the database table 'Test conditions'</option>        
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
-    </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
+        <outPort index="0" name="Primary model">Primary models</outPort>        
+    </ports>        
 </knimeNode>

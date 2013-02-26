@@ -2023,7 +2023,7 @@ public class DBKernel {
 		return temp;
     }
     public static void convertEHEC2NewDB(String whichDB) {
-    	System.err.println(whichDB + ":");
+    	System.err.println("convertEHEC2NewDB - " + whichDB + ":");
     	try {
         	Connection oldDB = getConnection("C:/Users/Armin/Desktop/krise/EHEC/old/" + whichDB + "/DB", "defad", "de6!§5ddy");
         	Connection newDB = getConnection("C:/Users/Armin/Desktop/krise/EHEC/" + whichDB + "/DB", "SA", "");
@@ -2175,7 +2175,7 @@ public class DBKernel {
 			}
 			if (parsedUtilDate == null) parsedUtilDate = parseDate(strVal, "yyyy");
 			if (parsedUtilDate != null) return "'" + outFormat.format(parsedUtilDate) + "'";
-		    System.err.println(strVal);
+		    System.err.println("getDatum -> " + strVal);
 	    }
 		return "NULL";
 	}

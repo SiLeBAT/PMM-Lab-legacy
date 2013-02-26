@@ -59,9 +59,11 @@ public class TableReader {
 
 	public TableReader(BufferedDataTable table, boolean schemaContainsData) {
 		List<String> miscParams = null;
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tertiaryTuples = new ArrayList<>();
+		List<KnimeTuple> tuples = new ArrayList<>();
 		List<KnimeTuple> newTuples = null;
-		Set<String> idSet = new LinkedHashSet<String>();
+		List<List<KnimeTuple>> usedTuples = new ArrayList<>();
+		Set<String> idSet = new LinkedHashSet<>();
 		KnimeRelationReader reader = null;
 
 		if (schemaContainsData) {
@@ -73,15 +75,21 @@ public class TableReader {
 		}
 
 		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
+			tertiaryTuples.add(reader.nextElement());
 		}
 
-		tupleCombinations = ModelCombiner.combine(tuples, schemaContainsData,
-				false, null);
-		tuples = new ArrayList<>(tupleCombinations.keySet());
+		Map<KnimeTuple, List<KnimeTuple>> combinations = ModelCombiner.combine(
+				tertiaryTuples, schemaContainsData, false, null);
+
+		for (Map.Entry<KnimeTuple, List<KnimeTuple>> entry : combinations
+				.entrySet()) {
+			tuples.add(entry.getKey());
+			usedTuples.add(entry.getValue());
+		}
 
 		allIds = new ArrayList<String>();
 		allTuples = new ArrayList<KnimeTuple>();
+		tupleCombinations = new LinkedHashMap<>();
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
 		infoParameters = new ArrayList<List<String>>();
@@ -168,6 +176,7 @@ public class TableReader {
 
 			allIds.add(id);
 			allTuples.add(tuple);
+			tupleCombinations.put(tuple, usedTuples.get(nr));
 
 			if (!idSet.add(id)) {
 				continue;

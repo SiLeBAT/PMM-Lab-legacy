@@ -682,7 +682,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 								min, max));
 					}
 
-					slider.setPreferredSize(new Dimension(75, slider
+					slider.setPreferredSize(new Dimension(50, slider
 							.getPreferredSize().height));
 					slider.addChangeListener(this);
 					slider.addMouseListener(this);

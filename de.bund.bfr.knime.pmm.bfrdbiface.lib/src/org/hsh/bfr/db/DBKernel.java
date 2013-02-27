@@ -1965,7 +1965,7 @@ public class DBKernel {
 		}
     	return hs.toArray(new String[]{});
     }
-    public static void mergeIDs(Connection conn, final String tableName, int oldID, int newID) {
+    public static boolean mergeIDs(Connection conn, final String tableName, int oldID, int newID) {
 		ResultSet rs = null;
 		String sql = "SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
 				" WHERE PKTABLE_NAME = '" + tableName + "'";
@@ -1976,13 +1976,17 @@ public class DBKernel {
 		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
 		    		String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
 		    		//System.err.println(tableName + " wird in " + fkt + "->" + fkc + " referenziert");
-			    	DBKernel.sendRequest("UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID +
-			    			" WHERE " + DBKernel.delimitL(fkc) + "=" + oldID, false);
+			    	if (!DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID +
+			    			" WHERE " + DBKernel.delimitL(fkc) + "=" + oldID, false, false)) return false;
 		    	} while (rs.next());
-		    	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL(tableName) + " WHERE " + DBKernel.delimitL("ID") + "=" + oldID, false);
+		    	if (DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL(tableName) +
+		    			" WHERE " + DBKernel.delimitL("ID") + "=" + oldID, false, false)) {
+		    		return true;
+		    	}
 		    }
 	    }
-	    catch (Exception e) {MyLogger.handleException(e);}		    
+	    catch (Exception e) {MyLogger.handleException(e);}	
+		return false;
 	}
     public static int getUsagecountOfID(final String tableName, int id) {
     	int result = 0;

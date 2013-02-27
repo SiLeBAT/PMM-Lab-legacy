@@ -2116,6 +2116,36 @@ public void keyTyped(final KeyEvent keyEvent) {
 		    		checkOtherEditor2Open(lastClickedRow, lastClickedCol, e.getXOnScreen(), e.getYOnScreen(), ' ');
 		    	}
 		  	}
+		    else if (lastClickedCol == 0 && SwingUtilities.isRightMouseButton(e)) {
+	    		int oldID = this.getSelectedID();
+		    	String response = JOptionPane.showInputDialog(this,
+		    			  "Bitte die ID eingeben, die ID " + oldID + " ersetzen soll:",
+		    			  "ID " + oldID + " ersetzen durch andere ID!",
+		    			  JOptionPane.QUESTION_MESSAGE);
+		    	try {
+		    		int newID = Integer.parseInt(response);
+		    		int reallyDoIt = JOptionPane.showConfirmDialog(this,
+		    				"ID " + oldID + " wird durch " + newID + " ersetzt. Korrekt?",
+			    			  "Datensatz ersetzen durch ID???",
+			    			  JOptionPane.YES_NO_OPTION);
+		    		if (reallyDoIt == JOptionPane.YES_OPTION) {
+		    			if (DBKernel.mergeIDs(this.getConnection(), actualTable.getTablename(), oldID, newID)) {
+			    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
+			    					"ID " + this.getSelectedID() + " wurde erfolgreich durch " + newID + " ersetzt!",
+			    					true, new Dimension(400,200), null, true);
+			    			ib.setVisible(true);
+					    	this.setTable();
+		    			}
+		    			else {
+			    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
+			    					"Hmmm.... something went wrong...",
+			    					true, new Dimension(400,200), null, true);
+			    			ib.setVisible(true);
+		    			}
+		    		}
+		    	}
+		    	catch (Exception ee) {}
+		    }
 		  	else {
 		      checkForeignWindow2Open(lastClickedRow, lastClickedCol);
 		  	}

@@ -433,8 +433,42 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private int getLastClickedCol(final MouseEvent e, JTable table) {
+	      int lastClickedCol;
+	      int val = 0;
+	      for (lastClickedCol = 0; lastClickedCol < table.getColumnCount(); lastClickedCol++) {
+	      	val += table.getColumnModel().getColumn(lastClickedCol).getWidth();
+	      	if (val >= e.getX()) {
+				break;
+			}
+	      }		
+	      return lastClickedCol;
+	}
+	private int getLastClickedRow(final MouseEvent e, JTable table) {
+	    int lastClickedRow;// = e.getY()/this.getTable().getRowHeight();
+	    int val = 0;
+	    for (lastClickedRow = 0; lastClickedRow < table.getRowCount(); lastClickedRow++) {
+	    	val += table.getRowHeight(lastClickedRow);
+	    	if (val >= e.getY()) {
+				break;
+			}
+	    }		
+	    return lastClickedRow;
+	}
 	private void tableMouseClicked(MouseEvent e) {
-		if (radioButton3.isSelected()) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			int col = getLastClickedCol(e, table);
+			if (col == 0) {
+				int row = getLastClickedRow(e, table);
+				String param = table.getValueAt(row, col).toString();
+		    	String unit = JOptionPane.showInputDialog(this,
+		    			  "Bitte eine Einheit angeben für " + param + ":",
+		    			  "Einheit des Parameters!",
+		    			  JOptionPane.QUESTION_MESSAGE);
+		    	table.setUnit(param, unit);
+			}
+		}
+		else if (radioButton3.isSelected()) {
 			int row = table.getSelectedRow();
 			int col = table.getSelectedColumn();
 			Object isIndep = table.getValueAt(row, 1);

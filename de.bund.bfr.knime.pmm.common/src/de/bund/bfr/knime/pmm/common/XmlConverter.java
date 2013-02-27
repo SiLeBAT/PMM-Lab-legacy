@@ -86,6 +86,15 @@ public class XmlConverter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	public static Map<String, Double> xmlToDoubleMap(String xml) {
+		try {
+			return (Map<String, Double>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
 	public static Map<String, Color> xmlToColorMap(String xml) {
 		return stringMapToColorMap(xmlToStringMap(xml));
 	}

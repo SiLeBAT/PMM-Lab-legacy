@@ -427,7 +427,7 @@ public class TableReader {
 		return doubleColumnValues;
 	}
 
-	public List<String> getVisibleColumns() {
+	public List<String> getStandardVisibleColumns() {
 		return visibleColumns;
 	}
 

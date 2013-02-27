@@ -119,6 +119,33 @@ public class Plotable {
 		return functionArguments;
 	}
 
+	public Map<String, List<Double>> getPossibleArgumentValues(
+			boolean useData, boolean useMinMax) {
+		Map<String, List<Double>> args = new LinkedHashMap<>();
+
+		for (String var : functionArguments.keySet()) {
+			Double min = minArguments.get(var);
+			Double max = maxArguments.get(var);
+
+			if (useData && valueLists.get(var) != null) {
+				Set<Double> valuesSet = new LinkedHashSet<Double>(
+						valueLists.get(var));
+				List<Double> valuesList = new ArrayList<Double>(valuesSet);
+
+				Collections.sort(valuesList);
+				args.put(var, valuesList);
+			} else if (useMinMax && min != null) {
+				args.put(var, new ArrayList<Double>(Arrays.asList(min)));
+			} else if (useMinMax && max != null) {
+				args.put(var, new ArrayList<Double>(Arrays.asList(max)));
+			} else {
+				args.put(var, new ArrayList<Double>());
+			}
+		}
+
+		return args;
+	}
+
 	public void setFunctionArguments(Map<String, List<Double>> functionArguments) {
 		this.functionArguments = functionArguments;
 	}
@@ -194,7 +221,7 @@ public class Plotable {
 				if (!arg.equals(paramX) && valueLists.containsKey(arg)) {
 					Double fixedValue = functionArguments.get(arg).get(
 							choice.get(arg));
-					List<Double> values = valueLists.get(arg);					
+					List<Double> values = valueLists.get(arg);
 
 					for (int i = 0; i < values.size(); i++) {
 						if (!fixedValue.equals(values.get(i))) {

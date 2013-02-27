@@ -41,10 +41,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
@@ -201,28 +199,24 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
 			if (containsData) {
+				Map<String, List<Double>> possibleValues = plotable
+						.getPossibleArgumentValues(true, false);
+
 				for (String param : selectedValuesX.keySet()) {
-					Set<Double> values = new LinkedHashSet<>();
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(param));
-
-					valuesSet.remove(null);
-
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
-
-					Collections.sort(valuesList);
+					List<Double> usedValues = new ArrayList<>();
+					List<Double> valuesList = possibleValues.get(param);
 
 					if (!param.equals(currentParamX)) {
 						for (int i = 0; i < selectedValuesX.get(param).size(); i++) {
 							if (selectedValuesX.get(param).get(i)) {
-								values.add(valuesList.get(i));
+								usedValues.add(valuesList.get(i));
 							}
 						}
 					} else {
-						values.add(0.0);
+						usedValues.add(0.0);
 					}
 
-					arguments.put(param, new ArrayList<>(values));
+					arguments.put(param, usedValues);
 				}
 			} else {
 				for (Map.Entry<String, Double> entry : paramXValues.entrySet()) {

@@ -175,21 +175,10 @@ public class FittedParameterViewNodeView extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : plotable.getFunctionArguments().keySet()) {
-				Set<Double> valuesSet = new LinkedHashSet<Double>(
-						plotable.getValueList(var));
-
-				valuesSet.remove(null);
-
-				List<Double> valuesList = new ArrayList<Double>(valuesSet);
-
-				Collections.sort(valuesList);
-				variables.put(var, valuesList);
-			}
-
-			configPanel.setParamsX(variables, null, null, null);
+			configPanel.setParamsX(
+					plotable.getPossibleArgumentValues(true, false), null,
+					null, null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());

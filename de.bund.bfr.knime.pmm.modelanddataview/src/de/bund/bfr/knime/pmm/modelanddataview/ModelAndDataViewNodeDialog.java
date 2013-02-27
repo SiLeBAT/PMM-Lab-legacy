@@ -40,12 +40,9 @@ import java.awt.Shape;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -444,23 +441,11 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(var));
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
-
-					Collections.sort(valuesList);
-					variables.put(var, valuesList);
-				} else {
-					variables.put(var, new ArrayList<Double>());
-				}
-			}
-
-			configPanel.setParamsX(variables, plotable.getMinArguments(),
-					plotable.getMaxArguments(), null);
+			configPanel.setParamsX(
+					plotable.getPossibleArgumentValues(true, true),
+					plotable.getMinArguments(), plotable.getMaxArguments(),
+					null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());

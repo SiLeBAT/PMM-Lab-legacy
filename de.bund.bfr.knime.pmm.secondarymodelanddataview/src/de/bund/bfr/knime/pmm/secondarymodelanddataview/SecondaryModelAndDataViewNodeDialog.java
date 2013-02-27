@@ -42,10 +42,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -521,25 +519,9 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 
-			for (String var : plotable.getFunctionArguments().keySet()) {
-				if (containsData && plotable.getValueList(var) != null) {
-					Set<Double> valuesSet = new LinkedHashSet<Double>(
-							plotable.getValueList(var));
-
-					valuesSet.remove(null);
-
-					List<Double> valuesList = new ArrayList<Double>(valuesSet);
-
-					Collections.sort(valuesList);
-					variables.put(var, valuesList);
-				} else {
-					variables.put(var, new ArrayList<Double>());
-				}
-			}
-
-			configPanel.setParamsX(variables, plotable.getMinArguments(),
+			configPanel.setParamsX(plotable.getPossibleArgumentValues(
+					containsData, !containsData), plotable.getMinArguments(),
 					plotable.getMaxArguments(), null);
 			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
 			chartCreator.setParamX(configPanel.getParamX());

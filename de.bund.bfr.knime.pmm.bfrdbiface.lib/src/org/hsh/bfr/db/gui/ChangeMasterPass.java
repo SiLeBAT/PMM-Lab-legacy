@@ -26,7 +26,7 @@ public class ChangeMasterPass extends JDialog {
 		super(owner);
 		initComponents();
 		this.setIconImage(new ImageIcon(getClass().getResource("/org/hsh/bfr/db/gui/res/Database.gif")).getImage());
-		String sa = DBKernel.prefs.get("DBADMINUSER" + DBKernel.HSHDB_PATH, "");
+		String sa = DBKernel.prefs.get("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), "");
 		textField1.setText(sa);
 		passwordField1.requestFocus();
 	}
@@ -36,13 +36,13 @@ public class ChangeMasterPass extends JDialog {
 		String newPass = String.valueOf(passwordField1.getPassword());
 		if (newPass.equals(String.valueOf(passwordField2.getPassword()))) {
 			String ibText = "";
-			String oldSA = DBKernel.prefs.get("DBADMINUSER" + DBKernel.HSHDB_PATH, "");
+			String oldSA = DBKernel.prefs.get("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), "");
 			if (!newSA.equals(oldSA)) { // first Input of User/Pass, not a Change
-				DBKernel.prefs.put("DBADMINUSER" + DBKernel.HSHDB_PATH, newSA);
-				DBKernel.prefs.put("DBADMINPASS" + DBKernel.HSHDB_PATH, newPass);
+				DBKernel.prefs.put("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newSA);
+				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
 			}
 			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false, true)) {
-				DBKernel.prefs.put("DBADMINPASS" + DBKernel.HSHDB_PATH, newPass);
+				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
 			}
 			boolean success = DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH, true);
 			if (success) ibText = "Password successfully changed!";

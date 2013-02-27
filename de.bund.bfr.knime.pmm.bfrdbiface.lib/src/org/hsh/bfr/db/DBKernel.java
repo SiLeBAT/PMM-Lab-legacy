@@ -69,6 +69,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.prefs.Preferences;
+import java.util.zip.CRC32;
+import java.util.zip.Checksum;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -137,7 +139,7 @@ public class DBKernel {
 	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(String dbPath, boolean other) {
-		String sa = DBKernel.prefs.get("DBADMINUSER" + dbPath,"00");
+		String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
 		if (sa.equals("00")) {
 			//if (debug) return "SA";
 			if (other) sa = isKNIME || isKrise ? "defad": "SA";		
@@ -147,7 +149,7 @@ public class DBKernel {
 		return sa;
 	}
 	public static String getTempSAPass(String dbPath, boolean other) {
-		String pass = DBKernel.prefs.get("DBADMINPASS" + dbPath,"00");
+		String pass = DBKernel.prefs.get("DBADMINPASS" + getCRC32(dbPath),"00");
 		if (pass.equals("00")) {
 			//if (debug) return "";
 			if (isServerConnection && isKrise) return "de6!§5ddy";
@@ -172,8 +174,8 @@ public class DBKernel {
 	  }
 	  public static boolean saveUP2PrefsTEMP(String dbPath, boolean onlyCheck) {
 		  boolean result = false;
-			String sa = DBKernel.prefs.get("DBADMINUSER" + dbPath,"00");
-			String pass = DBKernel.prefs.get("DBADMINPASS" + dbPath,"00");
+			String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
+			String pass = DBKernel.prefs.get("DBADMINPASS" + getCRC32(dbPath),"00");
 			if (onlyCheck || sa.equals("00") || pass.equals("00")) {
 		  		DBKernel.closeDBConnections(false);
 		  		
@@ -194,8 +196,7 @@ public class DBKernel {
 					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 				  		if (conn == null) {
-				  			sa = getTempSA(dbPath, true);
-				  			pass = getTempSAPass(dbPath);
+				  			sa = getTempSA(dbPath, false);
 				  			conn = getDBConnection(dbPath, sa, pass, false);
 					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
@@ -203,14 +204,14 @@ public class DBKernel {
 			  		if (conn == null) System.err.println("save Pass to Prefs failed...");
 			  		else {
 			  			if (!onlyCheck) {
-							DBKernel.prefs.put("DBADMINUSER" + dbPath, sa);
-							DBKernel.prefs.put("DBADMINPASS" + dbPath, pass);			  				
+							DBKernel.prefs.put("DBADMINUSER" + getCRC32(dbPath), sa);
+							DBKernel.prefs.put("DBADMINPASS" + getCRC32(dbPath), pass);			  				
 			  			}
 						result = true;
 						//System.err.println("pass combi is: " + sa + "\t" + pass);
 			  		}
 		  		}
-		  		catch(Exception e) {}
+		  		catch(Exception e) {e.printStackTrace();}
 				
 		  		try {
 			  		DBKernel.closeDBConnections(false);
@@ -222,6 +223,13 @@ public class DBKernel {
 		  		catch(Exception e) {}
 			}
 			return result;
+	  }
+	  public static long getCRC32(String str) {
+		  if (str == null) return 0;
+		  Checksum checksum = new CRC32();
+		  byte b[] = str.getBytes();
+		  checksum.update(b,0,b.length);
+		  return checksum.getValue();
 	  }
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);

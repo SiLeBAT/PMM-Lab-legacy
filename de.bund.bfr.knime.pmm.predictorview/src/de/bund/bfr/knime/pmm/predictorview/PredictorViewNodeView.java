@@ -198,7 +198,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					AttributeUtilities.TIME);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			configPanel.setParamY(plotable.getFunctionValue());
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
@@ -217,7 +217,7 @@ public class PredictorViewNodeView extends NodeView<PredictorViewNodeModel>
 			samplePanel.setDataPoints(samplePoints);
 		} else {
 			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
+			configPanel.setParamY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

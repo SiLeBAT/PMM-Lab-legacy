@@ -368,8 +368,21 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
 				true);
-		configPanel.setParamX(currentParamX);
-		configPanel.setParamXValues(paramXValues);
+
+		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
+			Plotable plotable = reader.getPlotables().get(selectedID);
+
+			configPanel.setParamsX(
+					plotable.getPossibleArgumentValues(true, true),
+					plotable.getMinArguments(), plotable.getMaxArguments(),
+					null);
+			configPanel.setParamX(currentParamX);
+			configPanel.setParamY(plotable.getFunctionValue());
+			configPanel.setParamXValues(paramXValues);
+			configPanel.setUnitX(unitX);
+			configPanel.setUnitY(unitY);
+		}
+
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
@@ -379,8 +392,6 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
-		configPanel.setUnitX(unitX);
-		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
@@ -446,7 +457,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					null);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			configPanel.setParamY(plotable.getFunctionValue());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
@@ -455,7 +466,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
+			configPanel.setParamY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

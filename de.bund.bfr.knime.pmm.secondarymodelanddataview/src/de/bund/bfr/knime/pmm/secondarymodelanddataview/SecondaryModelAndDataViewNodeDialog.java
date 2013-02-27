@@ -445,17 +445,34 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					visibleColumns, reader.getFilterableStringColumns());
 		}
 
+		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
+			Plotable plotable = reader.getPlotables().get(selectedID);
+
+			configPanel.setParamsX(plotable.getPossibleArgumentValues(
+					containsData, !containsData), plotable.getMinArguments(),
+					plotable.getMaxArguments(), null);
+			configPanel.setParamX(currentParamX);
+			configPanel.setParamY(plotable.getFunctionValue());
+			configPanel.setUnitX(unitX);
+			configPanel.setUnitY(unitY);
+
+			if (containsData) {
+				configPanel.setSelectedValuesX(selectedValuesX);
+			} else {
+				configPanel.setParamXValues(paramXValues);
+			}
+		}
+
 		if (containsData) {
+			configPanel.setSelectedValuesX(selectedValuesX);
 			selectionPanel.setColorLists(colorLists);
 			selectionPanel.setShapeLists(shapeLists);
 		} else {
+			configPanel.setParamXValues(paramXValues);
 			selectionPanel.setColors(colors);
 			selectionPanel.setShapes(shapes);
 		}
 
-		configPanel.setParamX(currentParamX);
-		configPanel.setParamXValues(paramXValues);
-		configPanel.setSelectedValuesX(selectedValuesX);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);
@@ -465,20 +482,16 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
-		configPanel.setUnitX(unitX);
-		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);
+		selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		infoPanel = new ChartInfoPanel(reader.getIds(),
 				reader.getInfoParameters(), reader.getInfoParameterValues());
-
-		if (selectedID != null) {
-			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
-		}
+		createChart();
 
 		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				chartCreator, selectionPanel);
@@ -523,7 +536,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			configPanel.setParamsX(plotable.getPossibleArgumentValues(
 					containsData, !containsData), plotable.getMinArguments(),
 					plotable.getMaxArguments(), null);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			configPanel.setParamY(plotable.getFunctionValue());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
@@ -532,7 +545,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
+			configPanel.setParamY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

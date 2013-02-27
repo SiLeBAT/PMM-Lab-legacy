@@ -179,7 +179,7 @@ public class FittedParameterViewNodeView extends
 			configPanel.setParamsX(
 					plotable.getPossibleArgumentValues(true, false), null,
 					null, null);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			configPanel.setParamY(plotable.getFunctionValue());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
@@ -188,7 +188,7 @@ public class FittedParameterViewNodeView extends
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
+			configPanel.setParamY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

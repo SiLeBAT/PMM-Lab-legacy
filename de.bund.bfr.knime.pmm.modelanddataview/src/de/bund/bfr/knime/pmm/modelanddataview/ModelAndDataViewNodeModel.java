@@ -181,7 +181,7 @@ public class ModelAndDataViewNodeModel extends NodeModel {
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 
-		if (selectedID != null) {
+		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 

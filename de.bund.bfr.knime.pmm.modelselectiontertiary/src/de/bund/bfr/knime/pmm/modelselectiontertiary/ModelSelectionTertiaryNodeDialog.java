@@ -39,7 +39,6 @@ import java.awt.Dimension;
 import java.awt.Shape;
 import java.awt.Toolkit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -370,7 +369,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false);
 		configPanel.setParamsX(paramsX, null, null, null);
-		configPanel.setParamsY(Arrays.asList(AttributeUtilities.LOGC));
+		configPanel.setParamY(AttributeUtilities.LOGC);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);

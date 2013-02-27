@@ -190,7 +190,7 @@ public class CombinedModelAndDataViewNodeView extends
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					null);
-			configPanel.setParamsY(Arrays.asList(plotable.getFunctionValue()));
+			configPanel.setParamY(plotable.getFunctionValue());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
@@ -199,7 +199,7 @@ public class CombinedModelAndDataViewNodeView extends
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
 			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamsY(null);
+			configPanel.setParamY(null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

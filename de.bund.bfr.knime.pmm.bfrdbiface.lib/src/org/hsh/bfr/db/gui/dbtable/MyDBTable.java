@@ -2124,24 +2124,34 @@ public void keyTyped(final KeyEvent keyEvent) {
 		    			  JOptionPane.QUESTION_MESSAGE);
 		    	try {
 		    		int newID = Integer.parseInt(response);
-		    		int reallyDoIt = JOptionPane.showConfirmDialog(this,
-		    				"ID " + oldID + " wird durch " + newID + " ersetzt. Korrekt?",
-			    			  "Datensatz ersetzen durch ID???",
-			    			  JOptionPane.YES_NO_OPTION);
-		    		if (reallyDoIt == JOptionPane.YES_OPTION) {
-		    			if (DBKernel.mergeIDs(this.getConnection(), actualTable.getTablename(), oldID, newID)) {
-			    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
-			    					"ID " + this.getSelectedID() + " wurde erfolgreich durch " + newID + " ersetzt!",
-			    					true, new Dimension(400,200), null, true);
-			    			ib.setVisible(true);
-					    	this.setTable();
-		    			}
-		    			else {
-			    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
-			    					"Hmmm.... something went wrong...",
-			    					true, new Dimension(400,200), null, true);
-			    			ib.setVisible(true);
-		    			}
+		    		if (oldID == newID) {
+		    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "IDs identisch: " + oldID, true, new Dimension(400,200), null, true);
+		    			ib.setVisible(true);
+		    		}
+		    		else if (!DBKernel.hasID(actualTable.getTablename(), newID)) {
+		    			InfoBox ib = new InfoBox(DBKernel.mainFrame, "Die neue ID gibt es gar nicht...", true, new Dimension(400,200), null, true);
+		    			ib.setVisible(true);
+		    		}
+		    		else {
+			    		int reallyDoIt = JOptionPane.showConfirmDialog(this,
+			    				"ID " + oldID + " wird durch " + newID + " ersetzt. Korrekt?",
+				    			  "Datensatz ersetzen durch ID???",
+				    			  JOptionPane.YES_NO_OPTION);
+			    		if (reallyDoIt == JOptionPane.YES_OPTION) {
+			    			if (DBKernel.mergeIDs(this.getConnection(), actualTable.getTablename(), oldID, newID)) {
+				    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
+				    					"ID " + oldID + " wurde erfolgreich durch " + newID + " ersetzt!",
+				    					true, new Dimension(400,200), null, true);
+				    			ib.setVisible(true);
+						    	this.setTable();
+			    			}
+			    			else {
+				    			InfoBox ib = new InfoBox(DBKernel.mainFrame,
+				    					"Hmmm.... something went wrong...",
+				    					true, new Dimension(400,200), null, true);
+				    			ib.setVisible(true);
+			    			}
+			    		}
 		    		}
 		    	}
 		    	catch (Exception ee) {}

@@ -38,6 +38,7 @@ import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -79,6 +80,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	protected static final String CFG_SELECTEDID = "SelectedID";
 	protected static final String CFG_CURRENTPARAMX = "CurrentParamX";
+	protected static final String CFG_PARAMXVALUES = "ParamXValues";
 	protected static final String CFG_SELECTEDVALUESX = "SelectedValuesX";
 	protected static final String CFG_COLORS = "Colors";
 	protected static final String CFG_SHAPES = "Shapes";
@@ -114,6 +116,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 
 	private String selectedID;
 	private String currentParamX;
+	private Map<String, Double> paramXValues;
 	private Map<String, List<Boolean>> selectedValuesX;
 	private Map<String, Color> colors;
 	private Map<String, Shape> shapes;
@@ -143,6 +146,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 				new PortType[] { ImagePortObject.TYPE });
 		selectedID = null;
 		currentParamX = null;
+		paramXValues = new LinkedHashMap<>();
 		selectedValuesX = new LinkedHashMap<>();
 		colors = new LinkedHashMap<>();
 		shapes = new LinkedHashMap<>();
@@ -196,28 +200,35 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
-			for (String param : selectedValuesX.keySet()) {
-				Set<Double> values = new LinkedHashSet<>();
-				Set<Double> valuesSet = new LinkedHashSet<Double>(
-						plotable.getValueList(param));
+			if (containsData) {
+				for (String param : selectedValuesX.keySet()) {
+					Set<Double> values = new LinkedHashSet<>();
+					Set<Double> valuesSet = new LinkedHashSet<Double>(
+							plotable.getValueList(param));
 
-				valuesSet.remove(null);
+					valuesSet.remove(null);
 
-				List<Double> valuesList = new ArrayList<Double>(valuesSet);
+					List<Double> valuesList = new ArrayList<Double>(valuesSet);
 
-				Collections.sort(valuesList);
+					Collections.sort(valuesList);
 
-				if (!param.equals(currentParamX)) {
-					for (int i = 0; i < selectedValuesX.get(param).size(); i++) {
-						if (selectedValuesX.get(param).get(i)) {
-							values.add(valuesList.get(i));
+					if (!param.equals(currentParamX)) {
+						for (int i = 0; i < selectedValuesX.get(param).size(); i++) {
+							if (selectedValuesX.get(param).get(i)) {
+								values.add(valuesList.get(i));
+							}
 						}
+					} else {
+						values.add(0.0);
 					}
-				} else {
-					values.add(0.0);
-				}
 
-				arguments.put(param, new ArrayList<>(values));
+					arguments.put(param, new ArrayList<>(values));
+				}
+			} else {
+				for (Map.Entry<String, Double> entry : paramXValues.entrySet()) {
+					arguments.put(entry.getKey(),
+							Arrays.asList(entry.getValue()));
+				}
 			}
 
 			plotable.setFunctionArguments(arguments);
@@ -279,6 +290,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_SELECTEDID, selectedID);
 		settings.addString(CFG_CURRENTPARAMX, currentParamX);
+		settings.addString(CFG_PARAMXVALUES,
+				XmlConverter.mapToXml(paramXValues));
 		settings.addString(CFG_SELECTEDVALUESX,
 				XmlConverter.mapToXml(selectedValuesX));
 		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
@@ -313,6 +326,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		selectedID = settings.getString(CFG_SELECTEDID);
 		currentParamX = settings.getString(CFG_CURRENTPARAMX);
+		paramXValues = XmlConverter.xmlToDoubleMap(settings
+				.getString(CFG_PARAMXVALUES));
 		selectedValuesX = XmlConverter.xmlToBoolListMap(settings
 				.getString(CFG_SELECTEDVALUESX));
 		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));

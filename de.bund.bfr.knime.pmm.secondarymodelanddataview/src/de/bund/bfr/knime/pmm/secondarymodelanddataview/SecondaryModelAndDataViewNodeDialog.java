@@ -94,6 +94,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 	private String selectedID;
 	private String currentParamX;
+	private Map<String, Double> paramXValues;
 	private Map<String, List<Boolean>> selectedValuesX;
 	private Map<String, Color> colors;
 	private Map<String, Shape> shapes;
@@ -140,6 +141,14 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					.getString(SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX);
 		} catch (InvalidSettingsException e) {
 			currentParamX = null;
+		}
+
+		try {
+			paramXValues = XmlConverter
+					.xmlToDoubleMap(settings
+							.getString(SecondaryModelAndDataViewNodeModel.CFG_PARAMXVALUES));
+		} catch (InvalidSettingsException e) {
+			paramXValues = new LinkedHashMap<>();
 		}
 
 		try {
@@ -321,6 +330,8 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
 				configPanel.getParamX());
+		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_PARAMXVALUES,
+				XmlConverter.mapToXml(configPanel.getParamXValues()));
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX,
 				XmlConverter.mapToXml(configPanel.getSelectedValuesX()));
@@ -445,6 +456,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		}
 
 		configPanel.setParamX(currentParamX);
+		configPanel.setParamXValues(paramXValues);
 		configPanel.setSelectedValuesX(selectedValuesX);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);

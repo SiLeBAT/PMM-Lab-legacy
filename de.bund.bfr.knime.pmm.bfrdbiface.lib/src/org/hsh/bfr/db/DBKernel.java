@@ -866,8 +866,10 @@ public class DBKernel {
 			}
 			URL url = new URL(checkURL); // "192.168.212.54/silebat"
 			host = url.getHost();
-			InetSocketAddress isa = new InetSocketAddress(host, 9001);//new URL(checkURL).openConnection();
-			result = !isa.isUnresolved();
+			if (!host.isEmpty()) {
+				InetSocketAddress isa = new InetSocketAddress(host, 9001);//new URL(checkURL).openConnection();
+				result = !isa.isUnresolved();				
+			}
 		}
 		catch (MalformedURLException e) {
 			//e.printStackTrace();

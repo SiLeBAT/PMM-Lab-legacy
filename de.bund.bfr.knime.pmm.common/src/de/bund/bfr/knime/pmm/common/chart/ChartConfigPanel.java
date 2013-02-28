@@ -81,7 +81,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private static final int SLIDER_MAX = 100;
 
-	private List<ConfigListener> listeners;
+	private List<ConfigListener> configListeners;
+	private List<ExtraButtonListener> buttonListeners;
 
 	private JCheckBox drawLinesBox;
 	private JCheckBox showLegendBox;
@@ -100,6 +101,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JComboBox<String> xUnitBox;
 	private JComboBox<String> yUnitBox;
 	private JComboBox<String> yTransBox;
+	private JButton extraButton;
 	private String lastParamX;
 	private Map<String, List<Double>> parametersX;
 	private Map<String, List<Boolean>> selectedValuesX;
@@ -114,9 +116,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private int type;
 
-	public ChartConfigPanel(int type, boolean allowConfidenceInterval) {
+	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
+			String extraButtonLabel) {
 		this.type = type;
-		listeners = new ArrayList<ConfigListener>();
+		configListeners = new ArrayList<>();
+		buttonListeners = new ArrayList<>();
 		setLayout(new GridLayout(4, 1));
 
 		JPanel displayOptionsPanel = new JPanel();
@@ -219,6 +223,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parametersPanel.add(yUnitBox);
 		parametersPanel.add(new JLabel("Y Transform:"));
 		parametersPanel.add(yTransBox);
+
+		if (extraButtonLabel != null) {
+			extraButton = new JButton(extraButtonLabel);
+			extraButton.addActionListener(this);
+			parametersPanel.add(extraButton);
+		}
+
 		add(new SpacePanel(parametersPanel));
 
 		parameterValuesPanel = new JPanel();
@@ -235,11 +246,19 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	public void addConfigListener(ConfigListener listener) {
-		listeners.add(listener);
+		configListeners.add(listener);
 	}
 
 	public void removeConfigListener(ConfigListener listener) {
-		listeners.remove(listener);
+		configListeners.remove(listener);
+	}
+
+	public void addExtraButtonListener(ExtraButtonListener listener) {
+		buttonListeners.add(listener);
+	}
+
+	public void removeExtraButtonListener(ExtraButtonListener listener) {
+		buttonListeners.remove(listener);
 	}
 
 	public boolean isUseManualRange() {
@@ -701,8 +720,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	private void fireConfigChanged() {
-		for (ConfigListener listener : listeners) {
+		for (ConfigListener listener : configListeners) {
 			listener.configChanged();
+		}
+	}
+
+	private void fireButtonPressed() {
+		for (ExtraButtonListener listener : buttonListeners) {
+			listener.buttonPressed();
 		}
 	}
 
@@ -743,6 +768,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			updateXUnitBox();
 			updateParametersPanel();
 			fireConfigChanged();
+		} else if (e.getSource() == extraButton) {
+			fireButtonPressed();
 		} else if (parameterButtons.contains(e.getSource())) {
 			JButton button = (JButton) e.getSource();
 			String param = button.getText().replace(" Values", "");
@@ -834,6 +861,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public static interface ConfigListener {
 
 		public void configChanged();
+	}
+
+	public static interface ExtraButtonListener {
+
+		public void buttonPressed();
 	}
 
 	private class SelectDialog extends JDialog implements ActionListener {

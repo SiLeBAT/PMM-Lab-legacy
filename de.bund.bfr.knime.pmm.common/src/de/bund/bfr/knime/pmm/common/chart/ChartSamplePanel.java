@@ -122,13 +122,23 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	}
 
 	public List<Double> getTimeValues() {
-		List<Double> timeList = new ArrayList<Double>();
+		List<Double> timeValues = new ArrayList<Double>();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
-			timeList.add(table.getTime(i));
+			timeValues.add(table.getTime(i));
 		}
 
-		return timeList;
+		return timeValues;
+	}
+
+	public void setTimeValues(List<Double> timeValues) {
+		for (int i = 0; i < ROW_COUNT; i++) {
+			if (i >= timeValues.size()) {
+				table.setTime(i, null);
+			} else {
+				table.setTime(i, timeValues.get(i));
+			}
+		}
 	}
 
 	public void setDataPoints(double[][] points) {

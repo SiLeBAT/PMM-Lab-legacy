@@ -128,7 +128,7 @@ public class FittedParameterViewNodeView extends
 		readTable();
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
-				false);
+				false, null);
 		selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
 				stringColumnValues, doubleColumns, doubleColumnValues,
 				visibleColumns, filterableStringColumns, colorCounts);

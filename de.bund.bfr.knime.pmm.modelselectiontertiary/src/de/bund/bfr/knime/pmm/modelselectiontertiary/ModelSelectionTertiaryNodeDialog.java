@@ -367,7 +367,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				false);
+				false, null);
 		configPanel.setParamsX(paramsX, null, null, null);
 		configPanel.setParamY(AttributeUtilities.LOGC);
 		configPanel.setUseManualRange(manualRange == 1);

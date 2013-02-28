@@ -367,7 +367,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				true);
+				true, null);
 
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);

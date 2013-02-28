@@ -222,21 +222,25 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				boolean maxNull = el.getAttributeValue(ATT_MAXVALUE) == null || el.getAttributeValue(ATT_MAXVALUE).equals("null");
 				boolean valNull = el.getAttributeValue(ATT_VALUE) == null || el.getAttributeValue(ATT_VALUE).equals("null");
 				boolean errNull = el.getAttributeValue(ATT_PARAMERR) == null || el.getAttributeValue(ATT_PARAMERR).equals("null");
+				boolean unitNull = el.getAttributeValue("Unit") == null || el.getAttributeValue("Unit").equals("null");
 				Double min = minNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MINVALUE));
 				Double max = maxNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MAXVALUE));
 				Double val = valNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_VALUE));
 				Double err = errNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_PARAMERR));
+				String unit = unitNull ? null : el.getAttributeValue("Unit");
 				ParamXml px = new ParamXml(el.getAttributeValue(ATT_PARAMNAME),
 						val,
-						err, min, max, null, null);
+						err, min, max, null, null, unit);
 				parameter.add(px);
 			}
 			else if (el.getName().equals(ATT_INDEPVAR)) {
 				boolean minNull = el.getAttributeValue(ATT_MININDEP) == null || el.getAttributeValue(ATT_MININDEP).equals("null");
 				boolean maxNull = el.getAttributeValue(ATT_MAXINDEP) == null || el.getAttributeValue(ATT_MAXINDEP).equals("null");
+				boolean unitNull = el.getAttributeValue("Unit") == null || el.getAttributeValue("Unit").equals("null");
 				Double min = minNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MININDEP));
 				Double max = maxNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MAXINDEP));
-				IndepXml ix = new IndepXml(el.getAttributeValue(ATT_PARAMNAME), min, max);
+				String unit = unitNull ? null : el.getAttributeValue("Unit");
+				IndepXml ix = new IndepXml(el.getAttributeValue(ATT_PARAMNAME), min, max, unit);
 				independent.add(ix);
 			}
 			else if (el.getName().equals(ATT_RMAP)) {
@@ -412,7 +416,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public void addParam( final String paramName, final Double value, final Double error, final Double min, final Double max ) {
-		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null);
+		addParam(paramName, value, error, min, max, null);
+	}
+	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String unit) {
+		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null, unit);
 		parameter.add(px);
 	}
 		
@@ -482,6 +489,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}
+	public void setParamUnit( final String name, final String unit ) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					px.setUnit(unit);
+					break;
+				}
+			}
+		}
+	}
 	
 	public void setDepVar(final String depVar) {
 		if (depXml == null) depXml = new DepXml(depVar);
@@ -530,7 +548,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
-		IndepXml ix = new IndepXml(varName, min, max);
+		addIndepVar(varName, min, max, null);
+	}
+	public void addIndepVar(final String varName, final Double min, final Double max, String unit) {
+		IndepXml ix = new IndepXml(varName, min, max, unit);
 		independent.add(ix);
 	}
 	
@@ -615,6 +636,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		return null;
 	}
 	
+	public String getParamUnit(final String name) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					return px.getUnit();
+				}
+			}
+		}
+		return null;
+	}
+	
 	public boolean containsIndep( final String name ) {
 		for (PmmXmlElementConvertable el : independent.getElementSet()) {
 			if (el instanceof IndepXml) {
@@ -657,6 +690,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				IndepXml ix = (IndepXml) el;
 				if (ix.getName().equals(name)) {
 					return ix.getMax();
+				}
+			}
+		}
+		return null;
+	}
+	
+	public String getIndepUnit( final String name ) {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				if (ix.getName().equals(name)) {
+					return ix.getUnit();
 				}
 			}
 		}

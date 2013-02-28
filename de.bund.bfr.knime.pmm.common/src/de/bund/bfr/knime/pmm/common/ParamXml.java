@@ -23,6 +23,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double t = null;
 	private Double minGuess = null;
 	private Double maxGuess = null;
+	private String unit = null;
 	
 	private HashMap<String, Double> correlations = new HashMap<String, Double>();
 	
@@ -30,6 +31,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 		this(name, value, null, null, null, null, null);
 	}
 	public ParamXml(String name, Double value, Double error, Double min, Double max, Double P, Double t) {
+		this(name, value, error, min, max, P, t, null);
+	}
+	public ParamXml(String name, Double value, Double error, Double min, Double max, Double P, Double t, String unit) {
 		setName(name);
 		setOrigName(name);
 		setValue(value);
@@ -38,6 +42,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		setMax(max);
 		setP(P);
 		sett(t);
+		setUnit(unit);
 	}
 	public ParamXml(Element xmlElement) {
 		try {
@@ -59,6 +64,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setMinGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("maxGuess").getValue();
 			setMaxGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			if (xmlElement.getAttribute("unit") != null) {
+				setUnit(xmlElement.getAttribute("unit").getValue());				
+			}
 			
 			for (Element el : xmlElement.getChildren()) {
 				if (el.getName().equals("correlation")) {
@@ -91,6 +99,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double getMax() {return max;}
 	public Double getP() {return P;}
 	public Double gett() {return t;}
+	public String getUnit() {return unit;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
@@ -100,6 +109,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public void setMax(Double max) {this.max = (max == null) ? null : max;}
 	public void setP(Double P) {this.P = (P == null) ? null : P;}
 	public void sett(Double t) {this.t = (t == null) ? null : t;}	
+	public void setUnit(String unit) {this.unit = unit;}
 
 	public Double getMinGuess() {
 		return minGuess;
@@ -127,6 +137,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("t", "" + (t == null || Double.isNaN(t) ? "" : t));
 		modelElement.setAttribute("minGuess", "" + (minGuess == null || Double.isNaN(minGuess) ? "" : minGuess));
 		modelElement.setAttribute("maxGuess", "" + (maxGuess == null || Double.isNaN(maxGuess) ? "" : maxGuess));
+		modelElement.setAttribute("unit", unit == null ? "" : unit);
 
 		for (String origname : correlations.keySet()) {
 			Element element = new Element("correlation");
@@ -151,6 +162,7 @@ public class ParamXml implements PmmXmlElementConvertable {
         list.add("t");
         list.add("MinGuess");
         list.add("MaxGuess");
+        list.add("Unit");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -183,6 +195,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("maxGuess")) {
 			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("unit")) {
+			return StringCell.TYPE;
 		}
 		return null;
 	}

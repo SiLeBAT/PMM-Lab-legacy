@@ -71,7 +71,6 @@ public class ModelTableModel extends JTable {
 	private ParametricModel thePM;
 	private boolean hasChanged = false;
 	private HashMap<String, Boolean> rowHasChanged;
-	private HashMap<String, String> units;
 	
 	private boolean isBlankEditor = false;
 
@@ -79,7 +78,6 @@ public class ModelTableModel extends JTable {
 		super();
 		BooleanTableModel btm = new BooleanTableModel();
 		rowHasChanged = new HashMap<String, Boolean>();
-		units = new HashMap<String, String>();
 		this.setModel(btm);	
 		this.setDefaultRenderer(Object.class, new MyTableCellRenderer());
 		this.setDefaultRenderer(Boolean.class, new MyTableCellRenderer());
@@ -95,9 +93,6 @@ public class ModelTableModel extends JTable {
 		this.revalidate();
 		hasChanged = false;
 		rowHasChanged = new HashMap<String, Boolean>();
-	}
-	public void setUnit(String parameter, String unit) {
-		units.put(parameter, unit);
 	}
 	public ParametricModel getPM() {
 		return thePM;
@@ -269,7 +264,8 @@ public class ModelTableModel extends JTable {
 				    String text = "";
 				    if (value != null) {
 				    	text = value.toString();
-				    	if (units.containsKey(text)) text += "[" + units.get(text) + "]";
+				    	String unit = indep ? thePM.getIndepUnit(text) : thePM.getParamUnit(text);
+				    	if (unit != null) text += "[" + unit + "]";
 				    	else text += " []";
 				    	if (rowHasChanged.get(value) != null && rowHasChanged.get(value)) text += "*";
 				    }

@@ -457,15 +457,44 @@ public class MMC_M extends JPanel {
 	}
 	private void tableMouseClicked(MouseEvent e) {
 		if (SwingUtilities.isRightMouseButton(e)) {
+			int row = getLastClickedRow(e, table);
 			int col = getLastClickedCol(e, table);
-			if (col == 0) {
-				int row = getLastClickedRow(e, table);
+			Object isIndep = table.getValueAt(row, 1);
+			if (col == 0 && (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep))) {
 				String param = table.getValueAt(row, col).toString();
+				/*
 		    	String unit = JOptionPane.showInputDialog(this,
 		    			  "Bitte eine Einheit angeben für " + param + ":",
 		    			  "Einheit des Parameters!",
 		    			  JOptionPane.QUESTION_MESSAGE);
 		    	table.setUnit(param, unit);
+
+				MyTable units = DBKernel.myList.getTable("Einheiten");
+				//String oldUnit = table.getUnit(param);
+				Integer unitID = null;
+				Object newVal = DBKernel.myList.openNewWindow(
+						units,
+						unitID,
+						(Object) "Einheit aus wählen für " + param,
+						null,
+						1,
+						1,
+						null,
+						true, null, this);
+				if (newVal != null && newVal instanceof Integer) {
+					table.setUnit(param, (String) DBKernel.getValue("Einheiten", "ID", newVal+"", "Einheit"));
+				}
+		    			  */
+				String timeUnits[] = {"Sekunde", "Minute", "Stunde", "Tag", "Woche", "Monat", "Jahr"};
+				String unit = (String)JOptionPane.showInputDialog(
+						null,
+						"Bitte eine Einheit angeben für " + param + ":",
+						"Einheit des Parameters " + param,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						timeUnits,
+						timeUnits[timeUnits.length-1]);
+				getPM().setParamUnit(param, unit);
 			}
 		}
 		else if (radioButton3.isSelected()) {

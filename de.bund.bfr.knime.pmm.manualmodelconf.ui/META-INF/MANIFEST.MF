@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ui
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.manualmodelconf.ui
-Bundle-Version: 1.0.0.v20130226
+Bundle-Version: 1.0.0.v20130228
 Bundle-Activator: de.bund.bfr.knime.pmm.manualmodelconf.ui.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

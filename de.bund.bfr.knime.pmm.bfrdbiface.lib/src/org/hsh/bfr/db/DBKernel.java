@@ -37,6 +37,7 @@
 package org.hsh.bfr.db;
 
 import java.awt.Dimension;
+import java.awt.HeadlessException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -1923,34 +1924,37 @@ public class DBKernel {
 		return result;
 	}
 	public static void createGui(Connection conn) {
-		if (DBKernel.myList == null && conn != null) {
-    	  	Login login = new Login();
-  	    	MyDBTable myDB = new MyDBTable();
-  	    	myDB.initConn(conn);
-  	    	MyDBTree myDBTree = new MyDBTree();
-			MyList myList = new MyList(myDB, myDBTree);
-			DBKernel.myList = myList;
-	    	login.loadMyTables(myList, null);
-	    	
-			MainFrame mf = new MainFrame(myList);
-			DBKernel.mainFrame = mf;
-			myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
-			try {
-				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-				/*
-				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
-				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
-				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
-				DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
-				DBKernel.mainFrame.setBounds(x, y, w, h);
-				*/
-				DBKernel.mainFrame.pack();
-				DBKernel.mainFrame.setLocationRelativeTo(null);
-				if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			}
-			catch (Exception e) {}
-		}		
+		try {
+			if (DBKernel.myList == null && conn != null) {
+	    	  	Login login = new Login();
+	  	    	MyDBTable myDB = new MyDBTable();
+	  	    	myDB.initConn(conn);
+	  	    	MyDBTree myDBTree = new MyDBTree();
+				MyList myList = new MyList(myDB, myDBTree);
+				DBKernel.myList = myList;
+		    	login.loadMyTables(myList, null);
+		    	
+				MainFrame mf = new MainFrame(myList);
+				DBKernel.mainFrame = mf;
+				myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+				try {
+					boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+					/*
+					int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
+					int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
+					int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+					int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+					DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
+					DBKernel.mainFrame.setBounds(x, y, w, h);
+					*/
+					DBKernel.mainFrame.pack();
+					DBKernel.mainFrame.setLocationRelativeTo(null);
+					if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				}
+				catch (HeadlessException e) {}
+			}					
+		}
+		catch (Exception he) {}
 	}
     public static String[] getItemListMisc(Connection conn) {
     	HashSet<String> hs = new HashSet<String>();

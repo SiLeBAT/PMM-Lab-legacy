@@ -51,7 +51,6 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
@@ -67,8 +66,6 @@ public class PredictorViewNodeModel extends NodeModel {
 	private static final String CFG_FILENAME = "PredictorView.zip";
 
 	private DataTable table;
-	private KnimeSchema schema;
-
 	private Map<String, String> concentrationParameters;
 
 	/**
@@ -103,15 +100,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM12DataSchema();
-		} else if (SchemaFactory.createM12Schema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM12Schema();
-		} else if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM1DataSchema();
-		} else if (SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
-			schema = SchemaFactory.createM1Schema();
-		} else {
+		if (!SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
@@ -159,16 +148,6 @@ public class PredictorViewNodeModel extends NodeModel {
 		File f = new File(internDir, CFG_FILENAME);
 
 		table = DataContainer.readFromZip(f);
-
-		if (SchemaFactory.createM12DataSchema().conforms(table)) {
-			schema = SchemaFactory.createM12DataSchema();
-		} else if (SchemaFactory.createM12Schema().conforms(table)) {
-			schema = SchemaFactory.createM12Schema();
-		} else if (SchemaFactory.createM1DataSchema().conforms(table)) {
-			schema = SchemaFactory.createM1DataSchema();
-		} else if (SchemaFactory.createM1Schema().conforms(table)) {
-			schema = SchemaFactory.createM1Schema();
-		}
 	}
 
 	/**
@@ -185,10 +164,6 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	protected DataTable getTable() {
 		return table;
-	}
-
-	protected KnimeSchema getSchema() {
-		return schema;
 	}
 
 	protected Map<String, String> getConcentrationParameters() {

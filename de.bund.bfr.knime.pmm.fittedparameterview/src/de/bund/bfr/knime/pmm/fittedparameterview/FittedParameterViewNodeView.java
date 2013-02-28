@@ -36,35 +36,18 @@ package de.bund.bfr.knime.pmm.fittedparameterview;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 
 import org.knime.core.node.NodeView;
 
-import de.bund.bfr.knime.pmm.common.MiscXml;
-import de.bund.bfr.knime.pmm.common.ParamXml;
-import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * <code>NodeView</code> for the "FittedParameterView" Node.
@@ -75,20 +58,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class FittedParameterViewNodeView extends
 		NodeView<FittedParameterViewNodeModel> implements
 		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
-
-	private List<String> ids;
-	private List<Integer> colorCounts;
-	private Map<String, Plotable> plotables;
-	private List<String> stringColumns;
-	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
-	private List<String> visibleColumns;
-	private List<String> filterableStringColumns;
-	private List<List<String>> infoParameters;
-	private List<List<?>> infoParameterValues;
-	private Map<String, String> shortLegend;
-	private Map<String, String> longLegend;
 
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
@@ -125,17 +94,26 @@ public class FittedParameterViewNodeView extends
 	 */
 	@Override
 	protected void onOpen() {
-		readTable();
+		setComponent(createMainComponent());
+	}
+
+	private JComponent createMainComponent() {
+		TableReader reader = new TableReader(getNodeModel().getTable(),
+				getNodeModel().getUsedConditions());
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
 				false, null);
-		selectionPanel = new ChartSelectionPanel(ids, true, stringColumns,
-				stringColumnValues, doubleColumns, doubleColumnValues,
-				visibleColumns, filterableStringColumns, colorCounts);
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
+				reader.getStringColumns(), reader.getStringColumnValues(),
+				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
+				reader.getStandardVisibleColumns(),
+				reader.getFilterableStringColumns(), reader.getColorCounts());
 		configPanel.addConfigListener(this);
 		selectionPanel.addSelectionListener(this);
-		chartCreator = new ChartCreator(plotables, shortLegend, longLegend);
-		infoPanel = new ChartInfoPanel(ids, infoParameters, infoParameterValues);
+		chartCreator = new ChartCreator(reader.getPlotables(),
+				reader.getShortLegend(), reader.getLongLegend());
+		infoPanel = new ChartInfoPanel(reader.getIds(),
+				reader.getInfoParameters(), reader.getInfoParameterValues());
 
 		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				chartCreator, selectionPanel);
@@ -159,7 +137,8 @@ public class FittedParameterViewNodeView extends
 
 		splitPane.setResizeWeight(1.0);
 		splitPane.setPreferredSize(preferredSize);
-		setComponent(splitPane);
+
+		return splitPane;
 	}
 
 	private void createChart() {
@@ -207,129 +186,6 @@ public class FittedParameterViewNodeView extends
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
 		chartCreator.createChart(selectedID);
-	}
-
-	private void readTable() {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createM1DataSchema(), getNodeModel().getTable());
-		Map<String, List<Double>> paramDataMap = new LinkedHashMap<>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
-		List<String> miscParams = null;
-
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
-		stringColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
-		filterableStringColumns = new ArrayList<>();
-		stringColumnValues = new ArrayList<List<String>>();
-		stringColumnValues.add(new ArrayList<String>());
-		visibleColumns = new ArrayList<>(
-				Arrays.asList(Model1Schema.ATT_PARAMETER));
-
-		miscParams = PmmUtilities.getAllMiscParams(getNodeModel().getTable());
-		doubleColumns = new ArrayList<>();
-		doubleColumnValues = new ArrayList<>();
-		colorCounts = new ArrayList<Integer>();
-
-		for (String param : miscParams) {
-			doubleColumns.add("Min " + param);
-			doubleColumns.add("Max " + param);
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			visibleColumns.add("Min " + param);
-			visibleColumns.add("Max " + param);
-		}
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple row = reader.nextElement();
-			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
-
-			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
-				ParamXml element1 = (ParamXml) el1;
-				String id = element1.getName();
-
-				if (!idSet.contains(id)) {
-					idSet.add(id);
-					ids.add(id);
-					stringColumnValues.get(0).add(id);
-					infoParameters.add(new ArrayList<String>());
-					infoParameterValues.add(new ArrayList<>());
-					shortLegend.put(id, id);
-					longLegend.put(id, id);
-
-					paramDataMap.put(id, new ArrayList<Double>());
-					miscDataMaps.put(id,
-							new LinkedHashMap<String, List<Double>>());
-
-					for (String param : miscParams) {
-						miscDataMaps.get(id)
-								.put(param, new ArrayList<Double>());
-					}
-				}
-
-				paramDataMap.get(id).add(element1.getValue());
-
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-				for (String param : miscParams) {
-					Double paramValue = null;
-
-					for (PmmXmlElementConvertable el2 : misc.getElementSet()) {
-						MiscXml element2 = (MiscXml) el2;
-
-						if (param.equals(element2.getName())) {
-							paramValue = element2.getValue();
-							break;
-						}
-					}
-
-					miscDataMaps.get(id).get(param).add(paramValue);
-				}
-			}
-		}
-
-		for (String id : ids) {
-			Plotable plotable = new Plotable(Plotable.DATASET_STRICT);
-			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
-
-			for (String param : getNodeModel().getUsedConditions()) {
-				arguments.put(param, new ArrayList<Double>(Arrays.asList(0.0)));
-			}
-
-			plotable.setFunctionValue(id);
-			plotable.setFunctionArguments(arguments);
-			plotable.addValueList(id, paramDataMap.get(id));
-
-			Map<String, List<Double>> miscs = miscDataMaps.get(id);
-
-			for (String param : miscParams) {
-				plotable.addValueList(param, miscs.get(param));
-			}
-
-			for (int i = 0; i < miscParams.size(); i++) {
-				List<Double> nonNullValues = new ArrayList<Double>(
-						miscs.get(miscParams.get(i)));
-
-				nonNullValues.removeAll(Arrays.asList((Double) null));
-
-				if (!nonNullValues.isEmpty()) {
-					doubleColumnValues.get(2 * i).add(
-							Collections.min(nonNullValues));
-					doubleColumnValues.get(2 * i + 1).add(
-							Collections.max(nonNullValues));
-				} else {
-					doubleColumnValues.get(2 * i).add(null);
-					doubleColumnValues.get(2 * i + 1).add(null);
-				}
-			}
-
-			colorCounts.add(plotable.getNumberOfCombinations());
-			plotables.put(id, plotable);
-		}
 	}
 
 	@Override

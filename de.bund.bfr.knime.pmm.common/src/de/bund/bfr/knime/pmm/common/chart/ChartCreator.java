@@ -517,7 +517,17 @@ public class ChartCreator extends ChartPanel {
 	private void plotDataSetStrict(XYPlot plot, Plotable plotable, String id) {
 		List<Color> colorList = colorLists.get(id);
 		List<Shape> shapeList = shapeLists.get(id);
+		ColorAndShapeCreator creator = new ColorAndShapeCreator(
+				plotable.getNumberOfCombinations());
 		int index = 0;
+
+		if (colorList == null || colorList.isEmpty()) {
+			colorList = creator.getColorList();
+		}
+
+		if (shapeList == null || shapeList.isEmpty()) {
+			shapeList = creator.getShapeList();
+		}
 
 		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
@@ -940,15 +950,15 @@ public class ChartCreator extends ChartPanel {
 				plotable.getNumberOfCombinations());
 		int index = 0;
 
-		if (colorList == null) {
+		if (colorList == null || colorList.isEmpty()) {
 			colorList = creator.getColorList();
 		}
 
-		if (shapeList == null) {
+		if (shapeList == null || shapeList.isEmpty()) {
 			shapeList = creator.getShapeList();
 		}
 
-		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {			
+		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
 					unitY, transformY, choiceMap);
 

@@ -464,11 +464,9 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		}
 
 		if (containsData) {
-			configPanel.setSelectedValuesX(selectedValuesX);
 			selectionPanel.setColorLists(colorLists);
 			selectionPanel.setShapeLists(shapeLists);
 		} else {
-			configPanel.setParamXValues(paramXValues);
 			selectionPanel.setColors(colors);
 			selectionPanel.setShapes(shapes);
 		}

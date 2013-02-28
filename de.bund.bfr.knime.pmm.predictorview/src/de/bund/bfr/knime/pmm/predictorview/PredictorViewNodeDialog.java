@@ -594,6 +594,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (dialog.isApproved()) {
 			concentrationParameters = dialog.getResult();
 			writeSettingsToVariables();
+			selectedID = null;
 			reader = new TableReader(table, concentrationParameters);
 			((JPanel) getTab("Options")).removeAll();
 			((JPanel) getTab("Options")).add(createMainComponent());

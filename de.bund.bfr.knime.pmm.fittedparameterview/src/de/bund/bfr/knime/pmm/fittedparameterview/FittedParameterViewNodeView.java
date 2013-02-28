@@ -33,21 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.fittedparameterview;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Toolkit;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-
 import org.knime.core.node.NodeView;
-
-import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
-import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
-import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
-import de.bund.bfr.knime.pmm.common.chart.Plotable;
 
 /**
  * <code>NodeView</code> for the "FittedParameterView" Node.
@@ -56,13 +42,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
  * @author Christian Thoens
  */
 public class FittedParameterViewNodeView extends
-		NodeView<FittedParameterViewNodeModel> implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
-
-	private ChartCreator chartCreator;
-	private ChartSelectionPanel selectionPanel;
-	private ChartConfigPanel configPanel;
-	private ChartInfoPanel infoPanel;
+		NodeView<FittedParameterViewNodeModel> {
 
 	/**
 	 * Creates a new view.
@@ -94,117 +74,6 @@ public class FittedParameterViewNodeView extends
 	 */
 	@Override
 	protected void onOpen() {
-		setComponent(createMainComponent());
-	}
-
-	private JComponent createMainComponent() {
-		TableReader reader = new TableReader(getNodeModel().getTable(),
-				getNodeModel().getUsedConditions());
-
-		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
-				false, null);
-		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
-				reader.getStringColumns(), reader.getStringColumnValues(),
-				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				reader.getStandardVisibleColumns(),
-				reader.getFilterableStringColumns(), reader.getColorCounts());
-		configPanel.addConfigListener(this);
-		selectionPanel.addSelectionListener(this);
-		chartCreator = new ChartCreator(reader.getPlotables(),
-				reader.getShortLegend(), reader.getLongLegend());
-		infoPanel = new ChartInfoPanel(reader.getIds(),
-				reader.getInfoParameters(), reader.getInfoParameterValues());
-
-		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chartCreator, selectionPanel);
-		JPanel bottomPanel = new JPanel();
-
-		upperSplitPane.setResizeWeight(1.0);
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(configPanel, BorderLayout.WEST);
-		bottomPanel.add(infoPanel, BorderLayout.CENTER);
-		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, bottomPanel);
-		Dimension preferredSize = splitPane.getPreferredSize();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-		preferredSize.width = Math.min(preferredSize.width,
-				(int) (screenSize.width * 0.9));
-		preferredSize.height = Math.min(preferredSize.height,
-				(int) (screenSize.height * 0.9));
-
-		splitPane.setResizeWeight(1.0);
-		splitPane.setPreferredSize(preferredSize);
-
-		return splitPane;
-	}
-
-	private void createChart() {
-		String selectedID = null;
-
-		if (configPanel.isDisplayFocusedRow()) {
-			selectedID = selectionPanel.getFocusedID();
-		} else {
-			if (!selectionPanel.getSelectedIDs().isEmpty()) {
-				selectedID = selectionPanel.getSelectedIDs().get(0);
-			}
-		}
-
-		if (selectedID != null) {
-			Plotable plotable = chartCreator.getPlotables().get(selectedID);
-
-			configPanel.setParamsX(
-					plotable.getPossibleArgumentValues(true, false), null,
-					null, null);
-			configPanel.setParamY(plotable.getFunctionValue());
-			chartCreator.setParamX(configPanel.getParamX());
-			chartCreator.setParamY(configPanel.getParamY());
-			chartCreator.setUnitX(configPanel.getUnitX());
-			chartCreator.setUnitY(configPanel.getUnitY());
-			chartCreator.setTransformY(configPanel.getTransformY());
-			plotable.setFunctionArguments(configPanel.getParamsX());
-		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamY(null);
-			chartCreator.setParamX(null);
-			chartCreator.setParamY(null);
-			chartCreator.setUnitX(null);
-			chartCreator.setUnitY(null);
-			chartCreator.setTransformY(null);
-		}
-
-		chartCreator.setColorLists(selectionPanel.getColorLists());
-		chartCreator.setShapeLists(selectionPanel.getShapeLists());
-		chartCreator.setUseManualRange(configPanel.isUseManualRange());
-		chartCreator.setMinX(configPanel.getMinX());
-		chartCreator.setMinY(configPanel.getMinY());
-		chartCreator.setMaxX(configPanel.getMaxX());
-		chartCreator.setMaxY(configPanel.getMaxY());
-		chartCreator.setDrawLines(configPanel.isDrawLines());
-		chartCreator.setShowLegend(configPanel.isShowLegend());
-		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		chartCreator.createChart(selectedID);
-	}
-
-	@Override
-	public void configChanged() {
-		createChart();
-	}
-
-	@Override
-	public void selectionChanged() {
-		createChart();
-	}
-
-	@Override
-	public void focusChanged() {
-		infoPanel.showID(selectionPanel.getFocusedID());
-
-		if (configPanel.isDisplayFocusedRow()) {
-			createChart();
-		}
 	}
 
 }

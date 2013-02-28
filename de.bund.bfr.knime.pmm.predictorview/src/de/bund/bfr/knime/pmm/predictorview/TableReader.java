@@ -32,6 +32,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
+	private Map<String, KnimeTuple> tupleMap;
 	private Map<String, Plotable> plotables;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
@@ -100,11 +101,12 @@ public class TableReader {
 		}
 
 		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
+		tupleMap = new LinkedHashMap<>();
+		plotables = new LinkedHashMap<>();
+		infoParameters = new ArrayList<>();
+		infoParameterValues = new ArrayList<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
 
 		if (containsData) {
 			miscParams = PmmUtilities.getAllMiscParams(table);
@@ -146,12 +148,12 @@ public class TableReader {
 			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME);
 		}
 
-		for (KnimeTuple row : tuples) {
-			String id = ((EstModelXml) row.getPmmXml(Model1Schema.ATT_ESTMODEL)
+		for (KnimeTuple tuple : tuples) {
+			String id = ((EstModelXml) tuple.getPmmXml(Model1Schema.ATT_ESTMODEL)
 					.get(0)).getID() + "";
 
 			if (containsData) {
-				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			if (!idSet.add(id)) {
@@ -159,15 +161,16 @@ public class TableReader {
 			}
 
 			ids.add(id);
+			tupleMap.put(id, tuple);
 
-			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
-			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
+			String depVar = ((DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 					.get(0)).getName();
-			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
@@ -221,7 +224,7 @@ public class TableReader {
 				}
 			}
 
-			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 			shortLegend.put(id, modelName);
 			longLegend.put(id, modelName + " " + formula);
@@ -251,10 +254,10 @@ public class TableReader {
 			if (containsData) {
 				String dataName;
 
-				if (row.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
-					dataName = row.getString(TimeSeriesSchema.ATT_COMBASEID);
+				if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
+					dataName = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 				} else {
-					dataName = "" + row.getInt(TimeSeriesSchema.ATT_CONDID);
+					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
 				stringColumnValues.get(1).add(dataName);
@@ -262,7 +265,7 @@ public class TableReader {
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;
 
-					for (PmmXmlElementConvertable el : row.getPmmXml(
+					for (PmmXmlElementConvertable el : tuple.getPmmXml(
 							TimeSeriesSchema.ATT_MISC).getElementSet()) {
 						MiscXml element = (MiscXml) el;
 
@@ -332,6 +335,10 @@ public class TableReader {
 
 	public List<String> getIds() {
 		return ids;
+	}
+
+	public Map<String, KnimeTuple> getTupleMap() {
+		return tupleMap;
 	}
 
 	public Map<String, Plotable> getPlotables() {

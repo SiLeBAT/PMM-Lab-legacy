@@ -46,6 +46,7 @@ import java.util.Map;
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.image.png.PNGImageContent;
+import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -60,13 +61,23 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 /**
  * This is the model implementation of PredictorView.
@@ -140,8 +151,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	 * Constructor for the node model.
 	 */
 	protected PredictorViewNodeModel() {
-		super(new PortType[] { BufferedDataTable.TYPE },
-				new PortType[] { ImagePortObject.TYPE });
+		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
+				BufferedDataTable.TYPE, ImagePortObject.TYPE });
 		selectedID = null;
 		paramXValues = new LinkedHashMap<>();
 		timeValues = new ArrayList<>();
@@ -177,6 +188,9 @@ public class PredictorViewNodeModel extends NodeModel {
 		TableReader reader = new TableReader(table, concentrationParameters);
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
+		BufferedDataContainer container = exec
+				.createDataContainer(SchemaFactory.createDataSchema()
+						.createSpec());
 
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
@@ -203,12 +217,17 @@ public class PredictorViewNodeModel extends NodeModel {
 			creator.setTransformY(transformY);
 			creator.setColors(colors);
 			creator.setShapes(shapes);
+
+			container.addRowToTable(createDataTuple(reader));
 		}
 
-		return new PortObject[] { new ImagePortObject(
-				ChartUtilities.convertToPNGImageContent(
+		container.close();
+
+		return new PortObject[] {
+				container.getTable(),
+				new ImagePortObject(ChartUtilities.convertToPNGImageContent(
 						creator.getChart(selectedID), 640, 480),
-				new ImagePortObjectSpec(PNGImageContent.TYPE)) };
+						new ImagePortObjectSpec(PNGImageContent.TYPE)) };
 	}
 
 	/**
@@ -229,8 +248,9 @@ public class PredictorViewNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		return new PortObjectSpec[] { new ImagePortObjectSpec(
-				PNGImageContent.TYPE) };
+		return new PortObjectSpec[] {
+				SchemaFactory.createDataSchema().createSpec(),
+				new ImagePortObjectSpec(PNGImageContent.TYPE) };
 	}
 
 	/**
@@ -327,4 +347,88 @@ public class PredictorViewNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
+	private KnimeTuple createDataTuple(TableReader reader) {
+		KnimeTuple dataTuple;
+		KnimeTuple tuple = reader.getTupleMap().get(selectedID);
+		Plotable plotable = reader.getPlotables().get(selectedID);
+		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
+		PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
+
+		if (SchemaFactory.createDataSchema().conforms(tuple.getSchema())) {
+			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
+
+			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				if (conditions.containsKey(element.getName())) {
+					element.setValue(conditions.get(element.getName()).get(0));
+				}
+			}
+		} else {
+			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
+
+			for (String cond : conditions.keySet()) {
+				if (!cond.equals(concentrationParameters.get(selectedID))) {
+					miscXml.add(new MiscXml(null, cond, null, conditions.get(
+							cond).get(0), null));
+				}
+			}
+		}
+
+		List<Double> values = new ArrayList<>();
+
+		for (Double t : timeValues) {
+			values.add(AttributeUtilities.convertToStandardUnit(
+					AttributeUtilities.TIME, t, unitX));
+		}
+
+		plotable.setSamples(values);
+
+		double[][] points = plotable.getFunctionSamplePoints(
+				AttributeUtilities.TIME, AttributeUtilities.LOGC,
+				AttributeUtilities.getStandardUnit(AttributeUtilities.TIME),
+				AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC),
+				ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+				Double.POSITIVE_INFINITY);
+
+		if (points != null && points.length == 2) {
+			for (int i = 0; i < points[0].length; i++) {
+				Double time = null;
+				Double logc = null;
+
+				if (!Double.isNaN(points[0][i])) {
+					time = points[0][i];
+				}
+
+				if (!Double.isNaN(points[1][i])) {
+					logc = points[1][i];
+				}
+
+				if (time != null || logc != null) {
+					timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
+				}
+			}
+		}
+
+		PmmXmlDoc agentXml = new PmmXmlDoc();
+		PmmXmlDoc matrixXml = new PmmXmlDoc();
+		PmmXmlDoc infoXml = new PmmXmlDoc();
+
+		agentXml.add(new AgentXml(null, null, null, null));
+		matrixXml.add(new MatrixXml(null, null, null, null));
+		infoXml.add(new MdInfoXml(null, null, null, null, null));
+
+		dataTuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+		dataTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
+		dataTuple.setValue(TimeSeriesSchema.ATT_CONDID,
+				MathUtilities.getRandomNegativeInt());
+		dataTuple.setValue(TimeSeriesSchema.ATT_COMBASEID, null);
+		dataTuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+		dataTuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
+		dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
+
+		return dataTuple;
+	}
 }

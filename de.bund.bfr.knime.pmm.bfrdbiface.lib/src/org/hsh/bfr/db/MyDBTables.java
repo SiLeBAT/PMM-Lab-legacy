@@ -21,6 +21,37 @@ public class MyDBTables {
 		if (myTables.containsKey(tableName)) return myTables.get(tableName);
 		else return null;
 	}
+	public static void recreateTriggers() {
+		for(String key : myTables.keySet()) {
+				String tableName = myTables.get(key).getTablename();
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
+				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
+				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
+					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
+							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
+					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
+							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
+							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+				}
+		}
+		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), false);
+		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), false);
+		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), false);
+		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
+	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
+	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
+	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
+		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
+	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
+	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
+		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
+	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
+	}
 	@SuppressWarnings("unchecked")
 	public static void loadMyTables() {
 		fillHashes();
@@ -942,55 +973,6 @@ public class MyDBTables {
 		doLieferkettenTabellen(adressen, agenzien, matrix, h4);
 
 	}
-	public static void recreateTriggers() {
-		for(String key : myTables.keySet()) {
-				String tableName = myTables.get(key).getTablename();
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
-				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-				}
-		}
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), false);
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
-	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	}
-	public void createAllTablesInDB() {
-		//if (myDB != null) {
-			createTables();				
-			if (!DBKernel.isKrise) {
-				fillWithDataAndGrants();
-				UpdateChecker.doStatUpGrants();
-			}
-		//}				
-	}
-	private void createTables() {
-		for(String key : myTables.keySet()) {
-			if (!DBKernel.isKrise || key.equals("Produzent_Artikel") || key.equals("Artikel_Lieferung")
-					 || key.equals("Lieferung_Lieferungen") || key.equals("Produzent")
-					 || key.equals("Kontakte")) {
-				myTables.get(key).createTable();
-			}	
-		}
-	}
 	@SuppressWarnings("unchecked")
 	private static void doLieferkettenTabellen(final MyTable adressen, final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
@@ -1007,6 +989,7 @@ public class MyDBTables {
 				new LinkedHashMap[]{null,null,null,null,null,hYNB,null,null,null,null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien","INT"});
 		addTable(Knoten, MyList.Lieferketten_LIST);
+
 		MyTable Agensnachweis = new MyTable("Station_Agenzien", new String[]{"Station","Erreger","Labornachweis","AnzahlLabornachweise"},
 				new String[]{"INTEGER","INTEGER","BOOLEAN","INTEGER"},
 				new String[]{null,null,"Labornachweise vorhanden?",null},
@@ -1357,41 +1340,6 @@ public class MyDBTables {
 				new String[] {"not null","not null"});
 		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 	}
-  private void fillWithDataAndGrants() {
-	
-    try {
-      // für den Defaultwert bei Zugriffsrecht
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-      // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-      // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-      // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
-      		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-    }
-    catch (Exception e) {MyLogger.handleException(e);}
-    
-    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), true);
-    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), true);
-
-		for(String key : myTables.keySet()) {
-			String tableName = myTables.get(key).getTablename();
-			if (!tableName.equals("Users") && !tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher")) {
-				DBKernel.grantDefaults(tableName);
-			}
-		}
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
-
-    try {
-	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)) + " PASSWORD '" + DBKernel.getTempSAPass(DBKernel.HSHDB_PATH) + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
-    }
-    catch (Exception e) {MyLogger.handleException(e);}
-  }
   
   private static void fillHashes() {
 		hashZeit.put("Sekunde", "Sekunde(n) [s][sec]");					
@@ -1733,5 +1681,62 @@ public class MyDBTables {
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}
+	*/
+
+
+	/*
+	public void createAllTablesInDB() {
+		//if (myDB != null) {
+			createTables();				
+			if (!DBKernel.isKrise) {
+				fillWithDataAndGrants();
+				UpdateChecker.doStatUpGrants();
+			}
+		//}				
+	}
+	private void createTables() {
+		for(String key : myTables.keySet()) {
+			if (!DBKernel.isKrise || key.equals("Produzent_Artikel") || key.equals("Artikel_Lieferung")
+					 || key.equals("Lieferung_Lieferungen") || key.equals("Produzent")
+					 || key.equals("Kontakte")) {
+				myTables.get(key).createTable();
+			}	
+		}
+	}
+  private void fillWithDataAndGrants() {
+	
+    try {
+      // für den Defaultwert bei Zugriffsrecht
+      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
+      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
+      // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
+      // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
+      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
+      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
+      // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
+      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
+      		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
+    }
+    catch (Exception e) {MyLogger.handleException(e);}
+    
+    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), true);
+    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), true);
+
+		for(String key : myTables.keySet()) {
+			String tableName = myTables.get(key).getTablename();
+			if (!tableName.equals("Users") && !tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher")) {
+				DBKernel.grantDefaults(tableName);
+			}
+		}
+    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
+    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
+    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
+    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
+
+    try {
+	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)) + " PASSWORD '" + DBKernel.getTempSAPass(DBKernel.HSHDB_PATH) + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
+    }
+    catch (Exception e) {MyLogger.handleException(e);}
+  }
 	*/
 }

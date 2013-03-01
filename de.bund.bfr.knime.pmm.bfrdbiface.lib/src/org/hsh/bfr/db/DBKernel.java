@@ -135,8 +135,6 @@ public class DBKernel {
 	public static String DBVersion = "1.5.8";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
-	@SuppressWarnings("unused")
-	public static boolean createNewFirstDB = false && (DBKernel.debug || DBKernel.isKrise);
 	
 	public static String getTempSA(String dbPath, boolean other) {
 		String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");

@@ -749,7 +749,7 @@ public class UpdateChecker {
 	    catch(Exception e) {MyLogger.handleException(e);}	
 	    
 	    if (!dropOnly) {
-	      for (String sql : DBKernel.myList.getTable(tableName).getIndexSQL()) {
+	      for (String sql : MyDBTables.getTable(tableName).getIndexSQL()) {
 	      	if (sql.length() > 0) {
 	  				System.out.println("sent\t" + sql);
 	      		DBKernel.sendRequest(sql, false);

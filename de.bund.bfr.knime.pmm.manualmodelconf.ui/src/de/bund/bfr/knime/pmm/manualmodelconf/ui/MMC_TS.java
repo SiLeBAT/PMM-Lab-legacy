@@ -10,6 +10,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 
 import com.jgoodies.forms.factories.*;
@@ -124,7 +125,7 @@ public class MMC_TS extends JPanel {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
-		MyTable age = DBKernel.myList.getTable("Agenzien");
+		MyTable age = MyDBTables.getTable("Agenzien");
 		Integer agensID = null;
 		try {agensID = Integer.parseInt(agensIDField.getText());}
 		catch (Exception e1) {}
@@ -151,7 +152,7 @@ public class MMC_TS extends JPanel {
 	}
 
 	private void button2ActionPerformed(ActionEvent e) {
-		MyTable mat = DBKernel.myList.getTable("Matrices");
+		MyTable mat = MyDBTables.getTable("Matrices");
 		Integer matrixID = null;
 		try {matrixID = Integer.parseInt(matrixIDField.getText());}
 		catch (Exception e1) {}

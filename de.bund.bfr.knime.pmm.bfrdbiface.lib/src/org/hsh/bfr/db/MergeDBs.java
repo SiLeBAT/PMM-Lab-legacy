@@ -720,7 +720,7 @@ public class MergeDBs {
 	}	
     private void checkeDoppeltVergebeneDKZs(final Statement anfrage) {
     	System.err.println("checkeDoppeltVergebeneDKZs - Start");
-		LinkedHashMap<String, MyTable> myTables = DBKernel.myList.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
 		Hashtable<Integer, String> hash = new Hashtable<Integer, String>();
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);

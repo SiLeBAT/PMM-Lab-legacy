@@ -22,6 +22,7 @@ import javax.swing.table.*;
 import de.bund.bfr.knime.pmm.common.ui.*;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
@@ -469,7 +470,7 @@ public class MMC_M extends JPanel {
 		    			  JOptionPane.QUESTION_MESSAGE);
 		    	table.setUnit(param, unit);
 
-				MyTable units = DBKernel.myList.getTable("Einheiten");
+				MyTable units = MyDBTables.getTable("Einheiten");
 				//String oldUnit = table.getUnit(param);
 				Integer unitID = null;
 				Object newVal = DBKernel.myList.openNewWindow(
@@ -642,7 +643,7 @@ public class MMC_M extends JPanel {
 		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());		
 	}
 	private void doLit(LiteratureItem oldLi) {
-		MyTable lit = DBKernel.myList.getTable("Literatur");
+		MyTable lit = MyDBTables.getTable("Literatur");
 		Integer litID = (oldLi != null && (dbuuid != null && dbuuid.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
 		Object newVal = DBKernel.myList.openNewWindow(
 				lit,

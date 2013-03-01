@@ -51,6 +51,7 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 
@@ -151,7 +152,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 			updateTsReaderUi();			
 		}		
 		else if (src instanceof JButton) { // doFilter
-			MyTable gm = DBKernel.myList.getTable("GeschaetzteModelle");
+			MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
 			Integer gmID = null;
 			// MyIDFilter mf = new MyIDFilter(filterIDs);
 			DBKernel.myList.openNewWindow(

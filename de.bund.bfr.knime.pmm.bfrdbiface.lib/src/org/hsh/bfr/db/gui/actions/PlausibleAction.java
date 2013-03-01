@@ -61,6 +61,7 @@ import javax.swing.Icon;
 import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
@@ -104,7 +105,7 @@ public class PlausibleAction extends AbstractAction {
 		        @Override
 				public void run() {
 		  		    try {
-		        		LinkedHashMap<String, MyTable> myTables = DBKernel.myList.getAllTables();
+		        		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
 		        		if (progress != null) {
 		        			progress.setVisible(true);
 		        			progress.setStringPainted(true);
@@ -674,7 +675,7 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
   	}
   	@SuppressWarnings("unused")
 	private void checkAllEntriesIfOthersAlreadyEditedUpdates() {
-		LinkedHashMap<String, MyTable> myTables = DBKernel.myList.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
 
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);

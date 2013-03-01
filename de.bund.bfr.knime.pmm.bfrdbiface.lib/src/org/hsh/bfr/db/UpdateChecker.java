@@ -323,7 +323,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ChangeLog") + " SET " + DBKernel.delimitL("Tabelle") + "='ProzessWorkflow' WHERE " + DBKernel.delimitL("Tabelle") + "='Prozess_Workflow'", false);
 
 		// ACHTUNG: Alex hat bereits jetzt schon diese DB 1.4.2 - von hier
-		DBKernel.myList.recreateTriggers();
+		MyDBTables.recreateTriggers();
 		Integer nextID = getNextID("ChangeLog");
 		MyLogger.handleMessage("getNextID(ChangeLog): " + nextID);
 		DBKernel.sendRequest("CREATE SEQUENCE " + DBKernel.delimitL("ChangeLogSEQ") + " AS INTEGER START WITH " + nextID + " INCREMENT BY 1", false);

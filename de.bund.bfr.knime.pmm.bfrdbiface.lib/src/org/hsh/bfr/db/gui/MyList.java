@@ -66,9 +66,9 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.MyTrigger;
 import org.hsh.bfr.db.gui.dbtable.MyDBForm;
 import org.hsh.bfr.db.gui.dbtable.MyDBPanel;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
@@ -88,9 +88,6 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	 * 
 	 */
 	private static final long serialVersionUID = 5697967857506372930L;
-	private LinkedHashMap<String, MyTable> myTables = new LinkedHashMap<String, MyTable>();	
-	  //private DefaultMutableTreeNode root = null;
-	  //private DefaultMutableTreeNode[] children = new DefaultMutableTreeNode[7];
 	private InvisibleNode root = null;
 	private InvisibleNode[] children = new InvisibleNode[9];
 	private MyDBTable myDB = null;
@@ -280,18 +277,18 @@ public void valueChanged(final TreeSelectionEvent event) {
     }
     return false;
   } 
-	public void addTable(final MyTable myT, final int child) {
-		addTable(myT, child, true);
-	}
-	
-	public void addTable(final MyTable myT, final int child, final boolean visible) {
-		String tn = myT.getTablename();
-		//if (DBKernel.debug || !tn.equals("ComBaseImport")
-				 //) {
+	public void addAllTables() {
+		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+		for(String key : myTables.keySet()) {
+			MyTable myT = myTables.get(key);
+
+			String tn = myT.getTablename();
+
 			myTables.put(tn, myT);
+			int child = myT.getChild();
 			if (child >= children.length) { //  || child < 0 wird nicht angezeigt!
 				InvisibleNode iNode = new InvisibleNode(myT);
-				iNode.setVisible(visible && DBKernel.prefs.getBoolean("VIS_NODE_" + myT.getTablename(), true));
+				iNode.setVisible(DBKernel.prefs.getBoolean("VIS_NODE_" + myT.getTablename(), true));
 				root.add(iNode);
 			}
 			else if (child >= 0) {
@@ -301,58 +298,15 @@ public void valueChanged(final TreeSelectionEvent event) {
 				}
 				children[child].add(iNode);
 			}
-			//((DefaultTreeModel) this.getModel()).setRoot(root);
+
 			this.setModel(new InvisibleTreeModel(root, false, true));
-			expandAll();			
-		//}
+			expandAll();	
+		}
 	}
 	
-	public void createTables() {
-		for(String key : myTables.keySet()) {
-			if (!DBKernel.isKrise || key.equals("Produzent_Artikel") || key.equals("Artikel_Lieferung")
-					 || key.equals("Lieferung_Lieferungen") || key.equals("Produzent")
-					 || key.equals("Kontakte")) {
-				myTables.get(key).createTable();
-			}	
-		}
-	}
-	public void recreateTriggers() {
-		for(String key : myTables.keySet()) {
-				String tableName = myTables.get(key).getTablename();
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
-				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-				}
-		}
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_I"), false);
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	        // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-	        // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);   
-	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
-		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
-	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	}
-	public LinkedHashMap<String, MyTable> getAllTables() {
-		return myTables;
-	}
 	public MyTable getTable(final String tableName) {
-		if (myTables.containsKey(tableName)) {
-			return myTables.get(tableName);
+		if (MyDBTables.getAllTables().containsKey(tableName)) {
+			return MyDBTables.getAllTables().get(tableName);
 		} else {
 			return null;
 		}

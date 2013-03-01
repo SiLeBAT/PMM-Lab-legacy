@@ -69,6 +69,7 @@ public class MyTable {
 	private boolean hideScore = false;
 	private boolean hideTested = false;
 	private boolean hideKommentar = false;
+	private int child = -1;
 
 	// Parameter zum Abspeichern
 	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<Integer, Integer>();
@@ -160,6 +161,12 @@ public class MyTable {
 
 		 hideScore = hideTested
 			 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");
+	}
+	public void setChild(int child) {
+		this.child = child;
+	}
+	public int getChild() {
+		return child;
 	}
 	public void saveProperties(MyDBForm myForm) {
 		form_SelectedID = myForm.getSelectedID();

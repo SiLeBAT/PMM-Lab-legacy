@@ -37,7 +37,6 @@
 package org.hsh.bfr.db;
 
 import java.awt.Dimension;
-import java.awt.HeadlessException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -1924,15 +1923,17 @@ public class DBKernel {
 		return result;
 	}
 	public static void createGui(Connection conn) {
+		MyDBTables.loadMyTables();
 		try {
 			if (DBKernel.myList == null && conn != null) {
-	    	  	Login login = new Login();
+	    	  	//Login login = new Login();
 	  	    	MyDBTable myDB = new MyDBTable();
 	  	    	myDB.initConn(conn);
 	  	    	MyDBTree myDBTree = new MyDBTree();
 				MyList myList = new MyList(myDB, myDBTree);
 				DBKernel.myList = myList;
-		    	login.loadMyTables(myList, null);
+				myList.addAllTables();
+		    	//login.loadMyTables(myList, null);
 		    	
 				MainFrame mf = new MainFrame(myList);
 				DBKernel.mainFrame = mf;
@@ -1951,10 +1952,10 @@ public class DBKernel {
 					DBKernel.mainFrame.setLocationRelativeTo(null);
 					if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 				}
-				catch (HeadlessException e) {}
+				catch (Exception e) {}
 			}					
 		}
-		catch (Exception he) {}
+		catch (Exception he) {} // HeadlessException
 	}
     public static String[] getItemListMisc(Connection conn) {
     	HashSet<String> hs = new HashSet<String>();

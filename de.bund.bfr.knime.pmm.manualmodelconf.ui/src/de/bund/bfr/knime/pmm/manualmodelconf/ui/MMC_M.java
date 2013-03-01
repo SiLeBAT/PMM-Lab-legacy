@@ -463,13 +463,13 @@ public class MMC_M extends JPanel {
 			Object isIndep = table.getValueAt(row, 1);
 			if (col == 0 && (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep))) {
 				String param = table.getValueAt(row, col).toString();
-				/*
 		    	String unit = JOptionPane.showInputDialog(this,
 		    			  "Bitte eine Einheit angeben für " + param + ":",
 		    			  "Einheit des Parameters!",
 		    			  JOptionPane.QUESTION_MESSAGE);
-		    	table.setUnit(param, unit);
+		    	getPM().setParamUnit(param, unit);
 
+				/*
 				MyTable units = MyDBTables.getTable("Einheiten");
 				//String oldUnit = table.getUnit(param);
 				Integer unitID = null;
@@ -486,6 +486,7 @@ public class MMC_M extends JPanel {
 					table.setUnit(param, (String) DBKernel.getValue("Einheiten", "ID", newVal+"", "Einheit"));
 				}
 		    			  */
+				/*
 				String timeUnits[] = {"Sekunde", "Minute", "Stunde", "Tag", "Woche", "Monat", "Jahr"};
 				String unit = (String)JOptionPane.showInputDialog(
 						null,
@@ -496,6 +497,7 @@ public class MMC_M extends JPanel {
 						timeUnits,
 						timeUnits[timeUnits.length-1]);
 				getPM().setParamUnit(param, unit);
+				*/
 			}
 		}
 		else if (radioButton3.isSelected()) {

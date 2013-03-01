@@ -77,7 +77,7 @@ public class MergeDBs {
 	private boolean isWese = false;
 	private boolean isHammerl = false;
 	private boolean isBoehnlein = false;
-	private String DBVersion = "1.5.0"; // im Code mitunter als "oldVersion" angewendet...
+	private String DBVersion = "1.5.8"; // im Code mitunter als "oldVersion" angewendet...
 	
 	/*
 	 * 
@@ -123,7 +123,7 @@ public class MergeDBs {
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
-				go4It("C:/Dokumente und Einstellungen/Weiser/Desktop/DB5/", dateFrom, "SA", "");
+				go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
 
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
 					DBKernel.doMNs(e.nextElement());

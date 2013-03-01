@@ -252,27 +252,37 @@ public class PlausibleAction extends AbstractAction {
 		for (String[] p : vals.keySet()) {
 			i++;
 			try {
-				LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
-				Integer pID = Integer.parseInt(p[idColumn]);
-				filterIDs.add(pID);
-				LinkedHashSet<String[]> lhs = vals.get(p);
-				for (String[] sa : lhs) {
-					Integer cID = Integer.parseInt(sa[idColumn]);
-					filterIDs.add(cID);
+				if (p[idColumn] == null) {
+					System.err.println("p - " + p[1]);
 				}
-				MyTable theTable = MyDBTables.getTable(tablename);
-				MyIDFilter mf = new MyIDFilter(filterIDs);
-				Object val = DBKernel.myList.openNewWindow(
-						theTable,
-						null,
-						(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),
-						null,
-						1,
-						1,
-						null,
-						true, mf);
-				if (val == null) {
-					return false;
+				else {					
+					Integer pID = Integer.parseInt(p[idColumn]);
+					LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
+					filterIDs.add(pID);
+					LinkedHashSet<String[]> lhs = vals.get(p);
+					for (String[] sa : lhs) {
+						if (sa[idColumn] == null) {
+							System.err.println("sa - " + sa[1]);
+						}
+						else {					
+							Integer cID = Integer.parseInt(sa[idColumn]);
+							filterIDs.add(cID);
+						}
+					}
+					MyTable theTable = MyDBTables.getTable(tablename);
+					MyIDFilter mf = new MyIDFilter(filterIDs);
+					Object val = DBKernel.myList.openNewWindow(
+							theTable,
+							null,
+							(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),
+							null,
+							1,
+							1,
+							null,
+							true, mf);
+					if (val == null) {
+						return false;
+					}
 				}
 			}
 			catch (Exception e) {e.printStackTrace();}

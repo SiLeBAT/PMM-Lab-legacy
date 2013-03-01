@@ -2145,6 +2145,7 @@ public class DBKernel {
         	}
     	}
     	catch (Exception e) {e.printStackTrace();}
+    	System.err.println("Fin!");
     }
     private static String getBL(String strVal) {
     	if (strVal == null) return strVal;

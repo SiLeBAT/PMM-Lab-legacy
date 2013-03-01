@@ -119,8 +119,8 @@ public class Plotable {
 		return functionArguments;
 	}
 
-	public Map<String, List<Double>> getPossibleArgumentValues(
-			boolean useData, boolean useMinMax) {
+	public Map<String, List<Double>> getPossibleArgumentValues(boolean useData,
+			boolean useMinMax) {
 		Map<String, List<Double>> args = new LinkedHashMap<>();
 
 		for (String var : functionArguments.keySet()) {
@@ -513,9 +513,7 @@ public class Plotable {
 			return null;
 		}
 
-		double[][] points = new double[2][samples.size()];
 		DJep parser = MathUtilities.createParser();
-		Node f = null;
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null) {
@@ -534,11 +532,16 @@ public class Plotable {
 
 		parser.addVariable(paramX, 0.0);
 
+		Node f = null;
+
 		try {
 			f = parser.parse(function.replace(paramY + "=", ""));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
+
+		double[][] points = new double[2][samples.size()];
+		boolean containsValidPoint = false;
 
 		for (int i = 0; i < samples.size(); i++) {
 			Double x = samples.get(i);
@@ -564,6 +567,8 @@ public class Plotable {
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
+					} else {
+						containsValidPoint = true;
 					}
 				} else {
 					y = Double.NaN;
@@ -576,6 +581,10 @@ public class Plotable {
 			} catch (ClassCastException e) {
 				e.printStackTrace();
 			}
+		}
+
+		if (!containsValidPoint) {
+			return null;
 		}
 
 		return points;

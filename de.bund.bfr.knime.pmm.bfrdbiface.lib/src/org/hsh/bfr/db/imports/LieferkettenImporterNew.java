@@ -27,6 +27,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
@@ -186,8 +187,8 @@ public class LieferkettenImporterNew extends FileFilter implements MyImporter {
 	      	}
 	      }
 
-			    DBKernel.doMNs(DBKernel.myList.getTable("Produzent_Artikel"));
-			    DBKernel.doMNs(DBKernel.myList.getTable("Artikel_Lieferung"));
+			    DBKernel.doMNs(MyDBTables.getTable("Produzent_Artikel"));
+			    DBKernel.doMNs(MyDBTables.getTable("Artikel_Lieferung"));
     			if (progress != null) {
   	  			// Refreshen:
     				MyDBTable myDB = DBKernel.myList.getMyDBTable();

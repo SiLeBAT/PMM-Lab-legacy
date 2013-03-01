@@ -1523,8 +1523,8 @@ public class MyDBTables {
 			ps.setString(1, "SiLeBAT"); ps.setString(2, "0000"); ps.setInt(3, 3604); ps.execute();
 			ps.setString(1, "SiLeBAT"); ps.setString(2, "000000"); ps.setInt(3, 3605); ps.execute();
 			
-			DBKernel.doMNs(DBKernel.myList.getTable("Matrices"));
-			DBKernel.doMNs(DBKernel.myList.getTable("Agenzien"));
+			DBKernel.doMNs(getTable("Matrices"));
+			DBKernel.doMNs(getTable("Agenzien"));
 	
 			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Methoden") +
 					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");

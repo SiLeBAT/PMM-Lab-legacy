@@ -612,7 +612,7 @@ public class MergeDBs {
 						*/
 						// Ausnahmen, aber mal schauen. In jedem Fall auf Agenzien und Matrices achten!
 						// die anderen dürften noch keine Daten enthalten...
-						MyTable myT = DBKernel.myList.getTable(tablename);
+						MyTable myT = MyDBTables.getTable(tablename);
 						if (myT == null
 								|| tablename.equals("Matrices")
 								|| tablename.equals("Verpackungsmaterial")
@@ -755,7 +755,7 @@ public class MergeDBs {
     	System.err.println("checkeDoppeltVergebeneDKZs - Fin");
     }
     private void insertRowDeNovo(final String tablename, final Object[] eintragNeu, final Integer tID) {
-    	MyTable myT = DBKernel.myList.getTable(tablename);
+    	MyTable myT = MyDBTables.getTable(tablename);
 		PreparedStatement ps;
 		try {
 			ps = DBKernel.getDBConnection().prepareStatement(myT.getInsertSQL1(), Statement.RETURN_GENERATED_KEYS);

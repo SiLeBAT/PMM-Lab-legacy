@@ -1841,63 +1841,63 @@ public class DBKernel {
 					  	}
 					  	
 					  	if (DBKernel.getDBVersion() == null) {
-					  		UpdateChecker.check4Updates_143_144(DBKernel.myList);
+					  		UpdateChecker.check4Updates_143_144();
 					  		DBKernel.setDBVersion("1.4.4");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.4.4")) {
-					  		UpdateChecker.check4Updates_144_145(DBKernel.myList);
+					  		UpdateChecker.check4Updates_144_145();
 					  		DBKernel.setDBVersion("1.4.5");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-					  		UpdateChecker.check4Updates_145_146(DBKernel.myList);
+					  		UpdateChecker.check4Updates_145_146();
 					  		DBKernel.setDBVersion("1.4.6");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
-					  		UpdateChecker.check4Updates_146_147(myList); 
+					  		UpdateChecker.check4Updates_146_147(); 
 					  		DBKernel.setDBVersion("1.4.7");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.4.7")) {
-					  		UpdateChecker.check4Updates_147_148(myList); 
+					  		UpdateChecker.check4Updates_147_148(); 
 					  		DBKernel.setDBVersion("1.4.8");
 					  	}					  	
 					  	if (DBKernel.getDBVersion().equals("1.4.8")) {
-					  		UpdateChecker.check4Updates_148_149(myList); 
+					  		UpdateChecker.check4Updates_148_149(); 
 					  		DBKernel.setDBVersion("1.4.9");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.4.9")) {
-					  		UpdateChecker.check4Updates_149_150(myList); 
+					  		UpdateChecker.check4Updates_149_150(); 
 					  		DBKernel.setDBVersion("1.5.0");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.0")) {
-					  		UpdateChecker.check4Updates_150_151(myList); 
+					  		UpdateChecker.check4Updates_150_151(); 
 					  		DBKernel.setDBVersion("1.5.1");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.1")) {
-					  		UpdateChecker.check4Updates_151_152(myList); 
+					  		UpdateChecker.check4Updates_151_152(); 
 					  		DBKernel.setDBVersion("1.5.2");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.2")) {
-					  		UpdateChecker.check4Updates_152_153(myList); 
+					  		UpdateChecker.check4Updates_152_153(); 
 					  		DBKernel.setDBVersion("1.5.3");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.3")) {
-					  		UpdateChecker.check4Updates_153_154(myList); 
+					  		UpdateChecker.check4Updates_153_154(); 
 					  		DBKernel.setDBVersion("1.5.4");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.4")) {
-					  		UpdateChecker.check4Updates_154_155(myList); 
+					  		UpdateChecker.check4Updates_154_155(); 
 					  		DBKernel.setDBVersion("1.5.5");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.5")) {
-					  		UpdateChecker.check4Updates_155_156(myList); 
+					  		UpdateChecker.check4Updates_155_156(); 
 					  		DBKernel.setDBVersion("1.5.6");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.6")) {
-					  		UpdateChecker.check4Updates_156_157(myList); 
+					  		UpdateChecker.check4Updates_156_157(); 
 					  		DBKernel.setDBVersion("1.5.7");
 					  	}
 					  	if (DBKernel.getDBVersion().equals("1.5.7")) {
-					  		UpdateChecker.check4Updates_157_158(myList); 
+					  		UpdateChecker.check4Updates_157_158(); 
 					  		DBKernel.setDBVersion("1.5.8");
 					  	}
 					  	

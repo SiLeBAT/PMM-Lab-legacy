@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
@@ -57,7 +58,7 @@ public class ICD10Importer implements MyImporter {
 				    		is = new FileInputStream(filename + ICD10_Filenames[i]);
 				    	}
 					    	MyLogger.handleMessage(ICD10_Tables[i]);
-					    	MyTable myT = DBKernel.myList.getTable(ICD10_Tables[i]);
+					    	MyTable myT = MyDBTables.getTable(ICD10_Tables[i]);
 					    	String[] myTCols = myT.getFieldNames();
 					    	String[] myTTypes = myT.getFieldTypes();
 					    	MyTable[] myTForeigns = myT.getForeignFields();

@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.CB_ConditionsEditor;
@@ -369,8 +370,8 @@ public class MySQLImporter implements MyImporter {
 					          */
 				        }
 			        //}
-				        DBKernel.doMNs(DBKernel.myList.getTable("Versuchsbedingungen"));
-				        DBKernel.doMNs(DBKernel.myList.getTable("Messwerte"));
+				        DBKernel.doMNs(MyDBTables.getTable("Versuchsbedingungen"));
+				        DBKernel.doMNs(MyDBTables.getTable("Messwerte"));
 
 			        if (progress != null) {
 	    				progress.setVisible(false);

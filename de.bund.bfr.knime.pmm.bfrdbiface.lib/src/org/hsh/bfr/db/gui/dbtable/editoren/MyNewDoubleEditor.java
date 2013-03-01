@@ -63,6 +63,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 
@@ -242,7 +243,7 @@ public class MyNewDoubleEditor extends JDialog {
 	}
 
 	private void button13ActionPerformed(final ActionEvent e) {
-		MyTable myFT = DBKernel.myList.getTable("Literatur"); 
+		MyTable myFT = MyDBTables.getTable("Literatur"); 
 		Object newVal = DBKernel.myList.openNewWindow(myFT, getInt(textField13.getToolTipText()), "Literatur", null, "", null, this);
 		//if (newVal != null) textField13.setToolTipText(newVal.toString());
 		manageForeign(textField13, newVal, getForeignVal("Literatur", getInt(newVal == null ? null : newVal.toString()), DBKernel.delimitL("Erstautor") + "," + DBKernel.delimitL("Jahr")));

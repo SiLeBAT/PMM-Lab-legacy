@@ -144,7 +144,7 @@ public class PlausibleAction extends AbstractAction {
 		        	  		}
 		        	  		/*
 		        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur für Messwerte bzw. Versuchsbedingungen
-    	  						go4Table("Messwerte", result, -1, -1, DBKernel.myList.getTable("Messwerte"),
+    	  						go4Table("Messwerte", result, -1, -1, MyDBTables.getTable("Messwerte"),
     	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ähnlich vielleicht???
 		        	  		}
 		        	  		*/
@@ -260,7 +260,7 @@ public class PlausibleAction extends AbstractAction {
 					Integer cID = Integer.parseInt(sa[idColumn]);
 					filterIDs.add(cID);
 				}
-				MyTable theTable = DBKernel.myList.getTable(tablename);
+				MyTable theTable = MyDBTables.getTable(tablename);
 				MyIDFilter mf = new MyIDFilter(filterIDs);
 				Object val = DBKernel.myList.openNewWindow(
 						theTable,
@@ -422,7 +422,7 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String, Vector<String[]>> sqlsAll = new LinkedHashMap<String, Vector<String[]>>();
 			sqlsAll.put(null, PlausibilityChecker.getPlausibilityRow(null, myT, 0, "ID"));
 			if (myT.getTablename().equals("Versuchsbedingungen")) {
-				sqlsAll.put("Messwerte", PlausibilityChecker.getPlausibilityRow(null, DBKernel.myList.getTable("Messwerte"), 0, "Versuchsbedingungen"));
+				sqlsAll.put("Messwerte", PlausibilityChecker.getPlausibilityRow(null, MyDBTables.getTable("Messwerte"), 0, "Versuchsbedingungen"));
 			}
 			LinkedHashMap<Integer, Vector<String>> v = showOnlyDataFromCurrentUser ? DBKernel.getUsersFromChangeLog(tn, DBKernel.getUsername()) : null;   
 			for (Map.Entry<String, Vector<String[]>> entry : sqlsAll.entrySet()) {

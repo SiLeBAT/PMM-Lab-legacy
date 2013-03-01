@@ -45,6 +45,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 
@@ -98,7 +99,7 @@ public class TableCellEdit extends AbstractUndoableEdit {
 	private boolean doMyUndoRedo(Object[] row1, Object[] row2) { // rowBefore, rowAfter
 		if (DBKernel.debug) System.out.println(tablename + "\t" + rowBefore + "\t" + rowAfter);
 
-		MyTable myT = DBKernel.myList.getTable(tablename);
+		MyTable myT = MyDBTables.getTable(tablename);
 		if (row1 == null) {
 			if (DBKernel.topTable != null) {
 				if (DBKernel.topTable.equals(DBKernel.myList.getMyDBTable())) {
@@ -176,7 +177,7 @@ public class TableCellEdit extends AbstractUndoableEdit {
 				if (foreignTCEs != null) {
 					for (i=0;i<foreignTCEs.size();i++) {
 						TableCellEdit tce = foreignTCEs.get(i);
-						MyTable myT1 = DBKernel.myList.getTable(tce.getTableName());
+						MyTable myT1 = MyDBTables.getTable(tce.getTableName());
 						MyTable[] myTs = myT1.getForeignFields();
 						for (int j=0;j<myTs.length;j++) {
 							if (myTs[j] != null && myTs[j].equals(myT)) {

@@ -2094,6 +2094,7 @@ public class DBKernel {
 
         		HashMap<String, Integer> chargeLieferung = new HashMap<String, Integer>(); 
         		HashMap<Integer, Integer> chargeLieferungID = new HashMap<Integer, Integer>(); 
+        		HashMap<Integer, Integer> lieferLieferungID = new HashMap<Integer, Integer>(); 
         	    DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Chargen"), false, false);    				
         		DBKernel.sendRequest(newDB, "DELETE FROM " + DBKernel.delimitL("Lieferungen"), false, false);    				
         		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Artikel_Lieferung"), false);
@@ -2101,6 +2102,12 @@ public class DBKernel {
         			do {
         				String chargenNr = rs.getString("ChargenNr");
         				String mhd = rs.getString("MHD");
+        				if (chargenNr != null) chargenNr = chargenNr.trim();
+        				// Achtung: hier typische Microsoft-CopyPaste-Änderung eines Strings... ala " (1)" ans Ende geschrieben.
+        				int index = chargenNr.lastIndexOf(" (");
+        				if (index > 0 && chargenNr.endsWith(")") && index == chargenNr.length() - 4) chargenNr = chargenNr.substring(0, index);
+        				if (mhd != null) mhd = mhd.trim();
+    					mhd = getDatum(mhd);
         				int lieferID = rs.getInt("ID");
         				int artikelID = rs.getInt("Artikel");
         				int chargenID = lieferID;
@@ -2108,25 +2115,34 @@ public class DBKernel {
         				if (chargeLieferung.containsKey(hashKey)) chargenID = chargeLieferung.get(hashKey);
         				else {
         					if (chargenNr != null && !chargenNr.replace(",", "").trim().isEmpty()) chargeLieferung.put(hashKey, lieferID);
-            	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + DBKernel.delimitL("ID") + "," +
-                	    			DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
-                	    			") VALUES (" + lieferID + "," +
-                	    			artikelID + "," + getDBString(chargenNr) + "," + getDatum(mhd) + ")", false, false);
+            				//if (DBKernel.getValue(newDB, "Chargen", new String[]{"Artikel","ChargenNr","MHD"}, new String[]{""+artikelID,cstr,dstr}, "ID") == null) {
+                	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Chargen") + " (" + DBKernel.delimitL("ID") + "," +
+                    	    			DBKernel.delimitL("Artikel") + "," + DBKernel.delimitL("ChargenNr") + "," + DBKernel.delimitL("MHD") +
+                    	    			") VALUES (" + lieferID + "," +
+                    	    			artikelID + "," + getDBString(chargenNr) + "," + getDBString(mhd) + ")", false, false);            					
+            				//}
         				}
         				chargeLieferungID.put(lieferID, chargenID);
 
         	    		Integer empf = rs.getInt("Empfänger");
-        	    		//if (empf == 0) System.err.println(rs.getInt("ID") + "\t" + empf);
-        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Lieferungen") + " (" + DBKernel.delimitL("ID") + "," +
-            	    			DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("#Units1") +
-            	    			 "," + DBKernel.delimitL("BezUnits1") + "," + DBKernel.delimitL("#Units2") +
-            	    			 "," + DBKernel.delimitL("BezUnits2") + "," + DBKernel.delimitL("Unitmenge") +
-            	    			 "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("Empfänger") +
-            	    			") VALUES (" + lieferID + "," +
-            	    			chargenID + "," + getDatum(rs.getString("Lieferdatum")) + "," + getDouble(rs.getString("#Units1")) + "," +
-            	    			getDBString(rs.getString("BezUnits1")) + "," + getDouble(rs.getString("#Units2")) + "," + getDBString(rs.getString("BezUnits2")) + "," +
-            	    			getDouble(rs.getString("Unitmenge")) + "," + getDBString(rs.getString("UnitEinheit")) + "," +
-            	    			(empf == 0 ? "NULL" : empf) + ")", false, false);
+        	    		String lstr = getDatum(rs.getString("Lieferdatum"));
+        	    		Integer oldLieferID = (Integer) DBKernel.getValue(newDB, "Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new String[]{""+chargenID,lstr,empf==null?null:""+empf}, "ID"); 
+        				if (oldLieferID == null) {
+            	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Lieferungen") + " (" + DBKernel.delimitL("ID") + "," +
+                	    			DBKernel.delimitL("Charge") + "," + DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("#Units1") +
+                	    			 "," + DBKernel.delimitL("BezUnits1") + "," + DBKernel.delimitL("#Units2") +
+                	    			 "," + DBKernel.delimitL("BezUnits2") + "," + DBKernel.delimitL("Unitmenge") +
+                	    			 "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("Empfänger") +
+                	    			") VALUES (" + lieferID + "," +
+                	    			chargenID + "," + getDBString(lstr) + "," + getDouble(rs.getString("#Units1")) + "," +
+                	    			getDBString(rs.getString("BezUnits1")) + "," + getDouble(rs.getString("#Units2")) + "," + getDBString(rs.getString("BezUnits2")) + "," +
+                	    			getDouble(rs.getString("Unitmenge")) + "," + getDBString(rs.getString("UnitEinheit")) + "," +
+                	    			(empf == 0 ? "NULL" : empf) + ")", false, false);        					
+        					lieferLieferungID.put(lieferID, lieferID);
+        				}
+        				else {
+        					lieferLieferungID.put(lieferID, oldLieferID);
+        				}
         			} while (rs.next());
         		}
 
@@ -2134,14 +2150,18 @@ public class DBKernel {
         		rs = DBKernel.getResultSet(oldDB, "SELECT * FROM " + DBKernel.delimitL("Lieferung_Lieferungen"), false);
         		if (rs != null && rs.first()) {
         			do {
-        				int zulieferID = rs.getInt("Vorprodukt");
-        				int lieferID = rs.getInt("Artikel_Lieferung");
+        				int zulieferID = lieferLieferungID.get(rs.getInt("Vorprodukt"));
+        				int lieferID = lieferLieferungID.get(rs.getInt("Artikel_Lieferung"));
         				int chargenID = chargeLieferungID.get(lieferID);
-        	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("ChargenVerbindungen") + " (" +
-            	    			DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("Produkt") +
-            	    			") VALUES (" + zulieferID + "," + chargenID + ")", false, false);
+        				if (DBKernel.getValue(newDB, "ChargenVerbindungen", new String[]{"Zutat","Produkt"}, new String[]{""+zulieferID,""+chargenID}, "ID") == null) {
+            	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("ChargenVerbindungen") + " (" +
+                	    			DBKernel.delimitL("Zutat") + "," + DBKernel.delimitL("Produkt") +
+                	    			") VALUES (" + zulieferID + "," + chargenID + ")", false, false);        					
+        				}
         			} while (rs.next());
         		}
+        		DBKernel.sendRequest(oldDB, "SHUTDOWN", false, false);
+        		DBKernel.sendRequest(newDB, "SHUTDOWN", false, false);
         	}
     	}
     	catch (Exception e) {e.printStackTrace();}
@@ -2192,10 +2212,10 @@ public class DBKernel {
 				//if (parsedUtilDate != null) System.err.println(strVal + "->" + outFormat.format(parsedUtilDate));
 			}
 			if (parsedUtilDate == null) parsedUtilDate = parseDate(strVal, "yyyy");
-			if (parsedUtilDate != null) return "'" + outFormat.format(parsedUtilDate) + "'";
+			if (parsedUtilDate != null) return outFormat.format(parsedUtilDate);
 		    System.err.println("getDatum -> " + strVal);
 	    }
-		return "NULL";
+		return null;
 	}
 	private static Date parseDate(String strVal, String format) {
 		DateFormat inFormat = new SimpleDateFormat(format);

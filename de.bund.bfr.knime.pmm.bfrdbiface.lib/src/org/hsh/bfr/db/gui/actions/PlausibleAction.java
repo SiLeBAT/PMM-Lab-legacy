@@ -204,13 +204,18 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
 						"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
 
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
-							null, null, null);		
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD"}, new int[]{0,1,0},
+					null, null, null);		
 
-			int total = vals1.size() + vals2.size() + vals3.size();
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
+					null, null, null);		
+
+			int total = vals1.size() + vals2.size() + vals3.size() + vals4.size();
 			if (showAndFilterVals("Station", vals1, 6, 0, total)) {
 				if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
-					showAndFilterVals("Lieferungen", vals3, 0, vals1.size() + vals2.size(), total);
+					if (showAndFilterVals("Chargen", vals3, 0, vals1.size() + vals2.size(), total)) {
+						showAndFilterVals("Lieferungen", vals4, 0, vals1.size() + vals2.size() + vals3.size(), total);
+					}
 				}
 			}
 			

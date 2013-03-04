@@ -460,14 +460,17 @@ public class MMC_M extends JPanel {
 		if (SwingUtilities.isRightMouseButton(e)) {
 			int row = getLastClickedRow(e, table);
 			int col = getLastClickedCol(e, table);
-			Object isIndep = table.getValueAt(row, 1);
-			if (col == 0 && (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep))) {
+			if (col == 0) {
 				String param = table.getValueAt(row, col).toString();
 		    	String unit = JOptionPane.showInputDialog(this,
 		    			  "Bitte eine Einheit angeben für " + param + ":",
 		    			  "Einheit des Parameters!",
 		    			  JOptionPane.QUESTION_MESSAGE);
-		    	getPM().setParamUnit(param, unit);
+		    	if (unit != null) {
+					Object isIndep = table.getValueAt(row, 1);
+			    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) getPM().setIndepUnit(param, unit);
+			    	else getPM().setParamUnit(param, unit);		    		
+		    	}
 
 				/*
 				MyTable units = MyDBTables.getTable("Einheiten");

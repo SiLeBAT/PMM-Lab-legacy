@@ -445,6 +445,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}
+	public void setIndepUnit( final String name, final String unit ) {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				if (ix.getName().equals(name)) {
+					ix.setUnit(unit);
+					break;
+				}
+			}
+		}
+	}
 	public void setParamValue( final String name, final Double value ) {
 		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 			if (el instanceof ParamXml) {

@@ -190,12 +190,12 @@ public class ModelTableModel extends JTable {
         	SortedMap<String, Boolean> sm = thePM.getAllParVars();
         	Object[] oa = sm.keySet().toArray();
         	if (rowIndex < oa.length) {
-            	String rowID = oa[rowIndex].toString();
+            	String paramName = oa[rowIndex].toString();
             	if (columnIndex == 1 && o instanceof Boolean) {
             		boolean isIndep = (Boolean) o;
             		if (isIndep) {
-            			thePM.addIndepVar(rowID, thePM.getParamMin(rowID), thePM.getParamMax(rowID));
-            			thePM.removeParam(rowID);
+            			thePM.addIndepVar(paramName, thePM.getParamMin(paramName), thePM.getParamMax(paramName), thePM.getParamUnit(paramName));
+            			thePM.removeParam(paramName);
                 		if (thePM.getLevel() == 1) { // only one indepVar allowed
                 			for (int i=0;i<this.getRowCount();i++) {
                 				if (i != rowIndex && this.getValueAt(i, 1) != null && (Boolean) this.getValueAt(i, 1)) {
@@ -205,32 +205,32 @@ public class ModelTableModel extends JTable {
                 		}
             		}
             		else {
-            			thePM.addParam(rowID, Double.NaN, Double.NaN, thePM.getIndepMin(rowID), thePM.getIndepMax(rowID));
-            			thePM.removeIndepVar(rowID);
+            			thePM.addParam(paramName, Double.NaN, Double.NaN, thePM.getIndepMin(paramName), thePM.getIndepMax(paramName), thePM.getIndepUnit(paramName));
+            			thePM.removeIndepVar(paramName);
             		}
                 	hasChanged = true;
             	}
             	else {
-                	boolean isIndep = sm.get(rowID);
+                	boolean isIndep = sm.get(paramName);
                 	if (isIndep) {
-                    	if (columnIndex == 4 && (o == null || o instanceof Double)) thePM.setIndepMin(rowID, (Double) o);
-                    	if (columnIndex == 5 && (o == null || o instanceof Double)) thePM.setIndepMax(rowID, (Double) o);
+                    	if (columnIndex == 4 && (o == null || o instanceof Double)) thePM.setIndepMin(paramName, (Double) o);
+                    	if (columnIndex == 5 && (o == null || o instanceof Double)) thePM.setIndepMax(paramName, (Double) o);
                 	}
                 	else {
-                    	if (columnIndex == 2 && (o == null || o instanceof Double)) thePM.setParamValue(rowID, (Double) o);
-                    	if (columnIndex == 3 && (o == null || o instanceof Double)) thePM.setParamError(rowID, (Double) o);
+                    	if (columnIndex == 2 && (o == null || o instanceof Double)) thePM.setParamValue(paramName, (Double) o);
+                    	if (columnIndex == 3 && (o == null || o instanceof Double)) thePM.setParamError(paramName, (Double) o);
                     	if (columnIndex == 4 && (o == null || o instanceof Double)) {
-                    		thePM.setParamMin(rowID, (Double) o);
+                    		thePM.setParamMin(paramName, (Double) o);
                         	hasChanged = true;
                     	}
                     	if (columnIndex == 5 && (o == null || o instanceof Double)) {
-                    		thePM.setParamMax(rowID, (Double) o);
+                    		thePM.setParamMax(paramName, (Double) o);
                     		hasChanged = true;
                     	}
                 	}
             	}
             	//super.fireTableCellUpdated(rowIndex, columnIndex);
-            	rowHasChanged.put(rowID, true);
+            	rowHasChanged.put(paramName, true);
         	}
         }
  

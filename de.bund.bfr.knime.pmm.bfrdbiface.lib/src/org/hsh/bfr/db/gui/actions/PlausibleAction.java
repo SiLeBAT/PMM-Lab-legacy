@@ -254,6 +254,7 @@ public class PlausibleAction extends AbstractAction {
 	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn,
 			int lfd, int total) {
 		int i=0;
+		Integer lastShownID = -1;
 		for (String[] p : vals.keySet()) {
 			i++;
 			try {
@@ -274,19 +275,22 @@ public class PlausibleAction extends AbstractAction {
 							filterIDs.add(cID);
 						}
 					}
-					MyTable theTable = MyDBTables.getTable(tablename);
-					MyIDFilter mf = new MyIDFilter(filterIDs);
-					Object val = DBKernel.myList.openNewWindow(
-							theTable,
-							null,
-							(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),
-							null,
-							1,
-							1,
-							null,
-							true, mf);
-					if (val == null) {
-						return false;
+					if (!filterIDs.contains(lastShownID)) {
+						lastShownID = (Integer) filterIDs.toArray()[filterIDs.size() - 1];
+						MyTable theTable = MyDBTables.getTable(tablename);
+						MyIDFilter mf = new MyIDFilter(filterIDs);
+						Object val = DBKernel.myList.openNewWindow(
+								theTable,
+								null,
+								(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),
+								null,
+								1,
+								1,
+								null,
+								true, mf);
+						if (val == null) {
+							return false;
+						}
 					}
 				}
 			}

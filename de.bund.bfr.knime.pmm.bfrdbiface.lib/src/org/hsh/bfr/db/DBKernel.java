@@ -813,12 +813,12 @@ public class DBKernel {
 	  return localConn;
   }
   // newConn wird nur von MergeDBs benötigt
-  public static Connection getDBConnection(final String dbFile, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
+  public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 	  if (newConn) {
-		  return getNewConnection(theUsername, thePassword, dbFile);
+		  return getNewConnection(theUsername, thePassword, dbPath);
 	  }
 	  else if (localConn == null || localConn.isClosed()) { 
-		  localConn = getNewConnection(theUsername, thePassword, dbFile);
+		  localConn = getNewConnection(theUsername, thePassword, dbPath);
 	  }
 	  return localConn;
   }

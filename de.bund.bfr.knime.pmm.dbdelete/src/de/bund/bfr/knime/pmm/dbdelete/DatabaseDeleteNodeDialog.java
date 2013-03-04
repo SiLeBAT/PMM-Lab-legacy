@@ -29,22 +29,28 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 
 	private DbConfigurationUi dbui;
-	private JCheckBox delTestConditions;
+	private JCheckBox delTS;
+	private JCheckBox delPM;
+	private JCheckBox delSM;
 
 	protected DatabaseDeleteNodeDialog() {
     	JPanel panel = new JPanel();    	    	
-    	dbui = new DbConfigurationUi(true);
+    	dbui = new DbConfigurationUi();
     	    	
     	panel.setLayout(new BorderLayout());
     	panel.add(dbui, BorderLayout.CENTER);    	
     	    	
-    	delTestConditions = new JCheckBox(); delTestConditions.setText("Delete all entries for test conditions as well?"); panel.add(delTestConditions);
+    	JPanel panel2 = new JPanel();    	    	
+    	delTS = new JCheckBox(); delTS.setText("Delete test conditions?"); panel2.add(delTS);
+    	delPM = new JCheckBox(); delPM.setText("Delete primary models?"); panel2.add(delPM);
+    	delSM = new JCheckBox(); delSM.setText("Delete secondary models?"); panel2.add(delSM);
+    	panel.add(panel2, BorderLayout.SOUTH);    	
 
     	addTab("Database settings", panel);
     }
 
 	@Override
-	protected void saveSettingsTo( NodeSettingsWO settings )
+	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		
 		settings.addString(DatabaseDeleteNodeModel.PARAM_FILENAME, dbui.getFilename());
@@ -52,7 +58,9 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 		settings.addString(DatabaseDeleteNodeModel.PARAM_PASSWD, dbui.getPasswd());
 		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE, dbui.isOverride());
 
-		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND, delTestConditions.isSelected());
+		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND, delTS.isSelected());
+		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELPRIMARYMODELS, delPM.isSelected());
+		settings.addBoolean(DatabaseDeleteNodeModel.PARAM_DELSECONDARYMODELS, delSM.isSelected());
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
@@ -62,7 +70,9 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
 			dbui.setPasswd(settings.getString(DatabaseDeleteNodeModel.PARAM_PASSWD));
 			dbui.setOverride(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_OVERRIDE));
 			
-			delTestConditions.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND));
+			delTS.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELTESTCOND));
+			delPM.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELPRIMARYMODELS));
+			delSM.setSelected(settings.getBoolean(DatabaseDeleteNodeModel.PARAM_DELSECONDARYMODELS));
 		}
 		catch( InvalidSettingsException e ) {			
 			e.printStackTrace( System.err );

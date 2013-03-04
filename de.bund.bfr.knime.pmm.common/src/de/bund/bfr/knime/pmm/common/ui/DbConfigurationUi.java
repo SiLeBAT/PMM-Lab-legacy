@@ -132,74 +132,21 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 	
 	@Override
 	public void actionPerformed( ActionEvent e ) {
-		
-		JFileChooser chooser;
-		int retValue;
-		String candidate;
-		String suffix;
-		int i;
-		
 		if( e.getSource() == overrideBox ) {
-			
-			// the override box has been altered
-			System.out.println( "the override box has been altered" );
-			
-			if( overrideBox.isSelected() ) {
-				connField.setEditable( true );
-				loginField.setEditable( true );
-				passwdField.setEditable( true );
-			}
-			else {
-				connField.setEditable( false );
-				loginField.setEditable( false );
-				passwdField.setEditable( false );
-			}
+			connField.setEditable(overrideBox.isSelected());
+			loginField.setEditable(overrideBox.isSelected());
+			passwdField.setEditable(overrideBox.isSelected());
 		}
 		
-		if( e.getSource() == chooseButton ) {
-			
-			// the choose button has been clicked
-			System.out.println( "the choose button has been clicked" );
-			
-			if( overrideBox.isSelected() ) {
-				
-				System.out.println( "open file chooser" );
-				
-				chooser = new JFileChooser();
-				retValue = chooser.showOpenDialog( this );
-				
-				if( retValue == JFileChooser.APPROVE_OPTION ) {
-					
-					System.out.println( "The user approved." );
-					
-					candidate = chooser.getSelectedFile().getAbsolutePath();
-					System.out.println( candidate );
-					i = candidate.lastIndexOf( '\\' );
-					
-					if( i < 0 )
-						i = candidate.lastIndexOf( '/' );
-					
-					if( i < 0 )
-						suffix = candidate;
-					else
-						suffix = candidate.substring( i );
-					
-					System.out.println( suffix );
-					
-					i = suffix.indexOf( '.' );
-					if( i < 0 )
-						suffix = "";
-					else
-						suffix = suffix.substring( i );
-
-					System.out.println( suffix );
-					
-					candidate = candidate.substring( 0,
-						candidate.length()-suffix.length() );
-					
-					System.out.println( candidate );
-					
-					connField.setText( candidate );
+		if (e.getSource() == chooseButton) {			
+			if( overrideBox.isSelected() ) {				
+			    JFileChooser chooser = new JFileChooser(); 
+			    chooser.setCurrentDirectory(new java.io.File(connField.getText()));
+			    chooser.setDialogTitle("Choose folder of database");
+			    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			    chooser.setAcceptAllFileFilterUsed(false);
+			    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
+			    	connField.setText(chooser.getSelectedFile().getAbsolutePath());
 				}
 			}
 			

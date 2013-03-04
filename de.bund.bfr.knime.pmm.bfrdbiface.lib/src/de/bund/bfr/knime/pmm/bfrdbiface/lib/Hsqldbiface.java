@@ -74,16 +74,17 @@ public class Hsqldbiface {
 		else {
 			try {
 				String path = filename.endsWith(System.getProperty("file.separator") + "DB") ? filename.substring(0, filename.length() - 2) : filename;
+				if (!path.endsWith(System.getProperty("file.separator"))) path += System.getProperty("file.separator");
 				if (!DBKernel.DBFilesDa(path)) {
 					File temp = DBKernel.getCopyOfInternalDB();
 					if (!Backup.doRestore(path, null, temp, true, false)) {
 						
 					}
 				}
-				conn = DBKernel.getNewLocalConnection(login, pw, filename);
+				conn = DBKernel.getNewLocalConnection(login, pw, path + "DB");
 				if (conn == null) {
 					createUser(path, login, pw);
-					conn = DBKernel.getNewLocalConnection(login, pw, filename);
+					conn = DBKernel.getNewLocalConnection(login, pw, path + "DB");
 				}
 				
 				if( conn == null )

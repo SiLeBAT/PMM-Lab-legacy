@@ -48,12 +48,15 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
 	static final String PARAM_DELTESTCOND = "deleteTestConditions";
+	static final String PARAM_DELPRIMARYMODELS = "deletePrimaryModels";
+	static final String PARAM_DELSECONDARYMODELS = "deleteSecondaryModels";
 
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
-	private boolean delTestCond;
+	private boolean delTS, delPM, delSM;
+	private String warnings;
 
 	/**
      * Constructor for the node model.
@@ -77,21 +80,24 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     	String dbuuid = db.getDBUUID();
     	Connection conn = db.getConnection();
     	conn.setReadOnly(false);
-		String warnings = "";
 
 		DataTableSpec outSpec = getOutSpec(inData[0].getDataTableSpec());
 		BufferedDataContainer container = exec.createDataContainer(outSpec);
 		DataCell[] cells = new DataCell[outSpec.getNumColumns()];
 		
+    	boolean tsConform = new TimeSeriesSchema().conforms(inData[0].getDataTableSpec());
     	boolean m1Conform = new Model1Schema().conforms(inData[0].getDataTableSpec());
     	boolean m2Conform = new Model2Schema().conforms(inData[0].getDataTableSpec());
+    	warnings = "";
     	for (DataRow row : inData[0]) {
 			for (int ii=0;ii<row.getNumCells();ii++) {
 				cells[outSpec.findColumnIndex(outSpec.getColumnNames()[ii])] = row.getCell(outSpec.findColumnIndex(outSpec.getColumnNames()[ii]));
 			}
 
-			int numDBSuccesses = getNumDBSuccesses(m1Conform, 1, dbuuid, row, outSpec, conn);
+			int numDBSuccesses = 0;
 			numDBSuccesses += getNumDBSuccesses(m2Conform, 2, dbuuid, row, outSpec, conn);
+			numDBSuccesses += getNumDBSuccesses(m1Conform, 1, dbuuid, row, outSpec, conn);
+			numDBSuccesses += getNumDBSuccesses(tsConform, 0, dbuuid, row, outSpec, conn);
 			
 			cells[cells.length-1] = new IntCell(numDBSuccesses);
 			container.addRowToTable(new DefaultRow(row.getKey(), cells));
@@ -108,7 +114,7 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     }
     private int getNumDBSuccesses(boolean conform, int level, String dbuuid, DataRow row, DataTableSpec outSpec, Connection conn) {
     	int numDBSuccesses = 0;
-		if (conform) {
+		if (conform && (delPM && level == 1 || delSM && level == 2)) {
 			try {
 				if (dbuuid.equals(row.getCell(outSpec.findColumnIndex(level == 1 ? Model1Schema.ATT_DBUUID : Model2Schema.ATT_DBUUID)).toString())) {
 					DataCell dc = row.getCell(outSpec.findColumnIndex(level == 1 ? Model1Schema.ATT_ESTMODEL : Model2Schema.ATT_ESTMODEL));
@@ -122,45 +128,66 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 									break;
 								}
 							}
-							numDBSuccesses += deleteFMID(conn, emx.getID());
-						}
-					}
-					if (level == 1 && delTestCond) {
-						dc = row.getCell(outSpec.findColumnIndex(TimeSeriesSchema.ATT_CONDID));
-						if (!dc.isMissing()) {
-							Integer tsID = CellIO.getInt(dc);
-							numDBSuccesses += deleteTSID(conn, tsID);							
+							if (level == 2 || checkPrimaryDeletion(conn, emx.getID())) numDBSuccesses += deleteFMID(conn, level, emx.getID());
 						}
 					}
 				}					
 			}
 			catch (PmmException e) {e.printStackTrace();}
 		}    	
+		if (conform && level == 0 && delTS) {
+			DataCell dc = row.getCell(outSpec.findColumnIndex(TimeSeriesSchema.ATT_CONDID));
+			if (!dc.isMissing()) {
+				Integer tsID = CellIO.getInt(dc);
+				if (checkTimeSeriesDeletion(conn, tsID)) numDBSuccesses += deleteTSID(conn, tsID);							
+			}
+		}
 		return numDBSuccesses;
     }
-    private int deleteFMID(Connection conn, Object rowEstMID) {
+    private boolean checkTimeSeriesDeletion(Connection conn, int tsID) {
+    	boolean result = true;
+		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("GeschaetzteModelle") +
+				" WHERE " + DBKernel.delimitL("Versuchsbedingung") + "=" + tsID;
+		ResultSet rs = DBKernel.getResultSet(conn, sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				result = false;
+				warnings += "Unable to delete test condition with ID " + tsID + ". Please delete primary models first:\n";
+				do {
+					Object o = rs.getObject("ID");
+					warnings += "ID: " + o + "\n";
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}   
+    	return result;
+    }
+    private boolean checkPrimaryDeletion(Connection conn, int estID) {
+    	boolean result = true;
+		String sql = "SELECT " + DBKernel.delimitL("GeschaetztesSekundaermodell") + " FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") +
+				" WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + estID;
+		ResultSet rs = DBKernel.getResultSet(conn, sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				result = false;
+				warnings += "Unable to delete primary model with ID " + estID + ". Please delete secondary models first:\n";
+				do {
+					Object o = rs.getObject("GeschaetztesSekundaermodell");
+					warnings += "ID: " + o + "\n";
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}   
+		return result;
+    }
+    private int deleteFMID(Connection conn, int level, Object rowEstMID) {
     	int numDBSuccesses = 0;
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("VarParMaps") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GueltigkeitsBereiche") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameter") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-		String sql = "SELECT " + DBKernel.delimitL("GeschaetztesSekundaermodell") + " FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") +
-				" WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + rowEstMID;
-		ResultSet rs = DBKernel.getResultSet(conn, sql, false);
-		try {
-			if (rs != null && rs.first()) {
-				do {
-					Object o = rs.getObject("GeschaetztesSekundaermodell");
-					if (o != null) {
-						numDBSuccesses += deleteFMID(conn, o);
-					}
-				} while (rs.next());
-			}
-		}
-		catch (Exception e) {MyLogger.handleException(e);}
-		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + rowEstMID, false, false);
-		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
+		if (level == 2) numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteModelle") + " WHERE " + DBKernel.delimitL("ID") + "=" + rowEstMID, false, false);
 		
 		return numDBSuccesses;
@@ -242,7 +269,9 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     	settings.addString(PARAM_PASSWD, passwd);
     	settings.addBoolean(PARAM_OVERRIDE, override);
     	
-    	settings.addBoolean(PARAM_DELTESTCOND, delTestCond);
+    	settings.addBoolean(PARAM_DELTESTCOND, delTS);
+    	settings.addBoolean(PARAM_DELPRIMARYMODELS, delPM);
+    	settings.addBoolean(PARAM_DELSECONDARYMODELS, delSM);
     }
 
     /**
@@ -256,7 +285,9 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     	passwd = settings.getString(PARAM_PASSWD);
     	override = settings.getBoolean(PARAM_OVERRIDE);
     	
-    	delTestCond = settings.getBoolean(PARAM_DELTESTCOND);
+    	delTS = settings.getBoolean(PARAM_DELTESTCOND);
+    	if (settings.containsKey(PARAM_DELPRIMARYMODELS)) delPM = settings.getBoolean(PARAM_DELPRIMARYMODELS); else delPM = false;;
+    	if (settings.containsKey(PARAM_DELSECONDARYMODELS)) delSM = settings.getBoolean(PARAM_DELSECONDARYMODELS); else delSM = false;;
     }
 
     /**

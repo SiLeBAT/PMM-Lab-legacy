@@ -213,12 +213,14 @@ public class Login extends JFrame {
 					ib.setVisible(true);    				  										        									    		
 		    	}
 				MyLogger.handleMessage(username + " logged in!" + "\nDB.data (size): " + fs);
+				/*
 				if (fs >= 500*1024*1024) { // 500MB
 			    	MyLogger.handleMessage("vor CHECKPOINT DEFRAG: " + fs);
 			    	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 			    	System.gc();
 			    	MyLogger.handleMessage("nach CHECKPOINT DEFRAG: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
 				}				
+				*/
 			}
 			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", DBKernel.HSHDB_PATH);

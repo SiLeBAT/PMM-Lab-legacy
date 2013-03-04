@@ -2070,7 +2070,7 @@ public class DBKernel {
         			do {
         				int id = rs.getInt("ID");
         				boolean fe = whichDB.equals("Cluster") && (id == 3 || id == 4 || id == 5 || id == 8 || id == 10 || id == 17); // die 5 definierten Cluster - Sodexo doppelt
-        				if (!fe) fe = whichDB.equals("Samen") && (id == 20 || id == 68); // Bienenbüttel, Jardiland
+        				if (!fe) fe = whichDB.equals("Samen") && (id == 68); // Bienenbüttel=20, Jardiland=68
         	    		DBKernel.sendRequest(newDB, "INSERT INTO " + DBKernel.delimitL("Station") + " (" + DBKernel.delimitL("ID") + "," +
         	    			DBKernel.delimitL("Kontaktadresse") + "," + DBKernel.delimitL("Betriebsnummer") + "," + DBKernel.delimitL("FallErfuellt") +
         	    			"," + DBKernel.delimitL("Kommentar") +

@@ -87,7 +87,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_LEVEL = "Level";
 	public static final String ATT_LITERATUREID = "Literatur";
 	public static final String ATT_LOG10N = "Konzentration";
-	public static final String ATT_LOG10NUNIT = "Konz_Einheit";
 	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
 	public static final String ATT_MATRIXID = "Matrix";
 	public static final String ATT_MATRIXNAME = "Matrixname";
@@ -379,7 +378,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\""+ATT_PARAMNAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_VALUE+"\",\n"
 			+"    \"EstModelPrimView\".\"ZeitEinheit\",\n"
-			+"    \"EstModelPrimView\".\"KonzEinheit\",\n"
+			+"    \"EstModelPrimView\".\"Einheiten\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_NAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MODELID+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_ESTMODELID+"\",\n"
@@ -391,6 +390,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\"Geprueft\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MIN+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MAX+"\",\n"
+			+"    \"EstModelPrimView\".\"iEinheiten\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MININDEP+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MAXINDEP+"\",\n"
 			+"    \"EstModelPrimView\".\"LitMID\",\n"
@@ -466,7 +466,7 @@ public class Bfrdb extends Hsqldbiface {
 		return ps.executeQuery();
 	}	
 	
-	public KnimeTuple getPrimModelById( int id )throws SQLException {
+	public KnimeTuple getPrimModelById(int id) throws SQLException {
 		
 		KnimeTuple tuple;
 		PmmXmlDoc doc;
@@ -474,8 +474,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		tuple = null;
 		try( PreparedStatement stat = conn.prepareStatement(
-			queryModelView
-			+" WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" ) ) {
+			queryModelView + " WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" ) ) {
 			
 			stat.setInt( 1, id );
 			try( ResultSet result = stat.executeQuery() ) {
@@ -507,7 +506,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_INDEP ),
 		    				null,
-		    				null ) );
+		    				null, null ) );
 		    		
 		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -548,8 +547,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		tuple = null;
 		try( PreparedStatement stat = conn.prepareStatement(
-			queryModelView
-			+" WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" ) ) {
+			queryModelView + " WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" ) ) {
 			
 			
 			
@@ -583,7 +581,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_INDEP ),
 		    				null,
-		    				null ) );
+		    				null, null ) );
 		    		
 		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -932,7 +930,7 @@ public class Bfrdb extends Hsqldbiface {
 						System.err.println("paramId < 0... " + px.getOrigName());
 					}
 					if (!px.getOrigName().equals(px.getName())) hmi.put(px.getName(), paramId);
-					insertEstParam(estModelId, paramId, px.getValue(), px.getError());
+					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit());
 				}
 			}
 
@@ -946,6 +944,7 @@ public class Bfrdb extends Hsqldbiface {
 					if (indepId >= 0) {
 						insertMinMaxIndep(estModelId, indepId, ix.getMin(), ix.getMax());	
 						if (!ix.getOrigName().equals(ix.getName())) hmi.put(ix.getName(), indepId);
+						insertEstParam(estModelId, indepId, null, null, ix.getUnit());
 					}
 					else {
 						System.err.println("insertEm:\t" + ix.getOrigName() + "\t" + modelId);
@@ -1572,12 +1571,8 @@ public class Bfrdb extends Hsqldbiface {
 	}
 
 	private void insertData( final int condId, final int timeId, final int lognId ) {
-		
-		PreparedStatement ps;
-		
-		try {
-			
-			ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \""+ATT_LOG10NUNIT+"\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
+		try {			
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
 			ps.setInt( 1, condId );
 			if (timeId >= 0) {
 				ps.setInt(2, timeId);
@@ -1684,11 +1679,9 @@ public class Bfrdb extends Hsqldbiface {
 		return false;
 	}
 	
-	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr) {
-		PreparedStatement ps = null;
-		try {
-			
-			ps = conn.prepareStatement( "INSERT INTO \"GeschaetzteParameter\" ( \"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\" ) VALUES( ?, ?, ?, ? )" );
+	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit) {
+		try {			
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\") VALUES(?, ?, ?, ?, ?)");
 			ps.setInt(1, estModelId);
 			ps.setInt(2, paramId);
 			if (value == null || Double.isNaN(value)) {
@@ -1701,11 +1694,18 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble(4, paramErr);
 			}
+			Object unitID = DBKernel.getValue(conn, "Einheiten", "Einheit", unit, "ID");
+			if (unitID == null && !unit.trim().isEmpty()) {
+				PreparedStatement psmt = conn.prepareStatement("INSERT INTO \"Einheiten\" (\"Einheit\",\"Beschreibung\") VALUES ('" + unit + "','Inserted via PMM-Lab')", Statement.RETURN_GENERATED_KEYS);
+				psmt.executeUpdate();
+				unitID = DBKernel.getLastInsertedID(psmt);
+			}
+			if (unitID == null) ps.setNull(5, Types.INTEGER);
+			else ps.setInt(5, (int) unitID);
 			ps.executeUpdate();
 			ps.close();
 		}
 		catch (SQLException ex) {
-			System.out.println(ps);
 			ex.printStackTrace();
 		}
 	}
@@ -1832,13 +1832,8 @@ public class Bfrdb extends Hsqldbiface {
 		return ret;
 	}
 		
-	private void deleteParamNotIn( final int modelId, final LinkedList<Integer> paramIdSet ) {
-		
-		PreparedStatement ps;
-		String q, r;
-		
-		
-		r = "( ";
+	private void deleteParamNotIn( final int modelId, final LinkedList<Integer> paramIdSet ) {		
+		String r = "( ";
 		for( Integer i : paramIdSet ) {
 			
 			if( !r.equals( "( " ) ) {
@@ -1849,11 +1844,10 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		r += ")";
 		
-		q = "DELETE FROM \""+REL_PARAM+"\" WHERE \"Modell\"=" + modelId + " AND \"ID\" NOT IN " + r;
+		String q = "DELETE FROM \""+REL_PARAM+"\" WHERE \"Modell\"=" + modelId + " AND \"ID\" NOT IN " + r;
 		
 		try {
-			
-			ps = conn.prepareStatement( q );
+			PreparedStatement ps = conn.prepareStatement( q );
 			ps.executeUpdate();
 			ps.close();
 		}

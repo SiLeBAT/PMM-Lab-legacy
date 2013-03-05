@@ -47,14 +47,14 @@ public class DbIo {
 		return tsDoc;    	
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
-    		Array value, Array timeUnit, Array concUnit, Array error, Array min, Array max) {
+    		Array value, Array timeUnit, Array units, Array error, Array min, Array max) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
 				Object[] na = (Object[])name.getArray();
 				Object[] va = (value == null) ? null : (Object[])value.getArray();
 				Object[] tu = (timeUnit == null) ? null : (Object[])timeUnit.getArray();
-				Object[] cu = (concUnit == null) ? null : (Object[])concUnit.getArray();
+				Object[] cu = (units == null) ? null : (Object[])units.getArray();
 				Object[] er = (error == null) ? null : (Object[])error.getArray();
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
@@ -82,7 +82,7 @@ public class DbIo {
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						String onas = nas;
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
-						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null);
+						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cu==null?null:(String) cu[i]);
 						px.setName(nas);
 						paramDoc.add(px);
 					}					
@@ -94,13 +94,14 @@ public class DbIo {
 	    }
 		return paramDoc;
     }
-    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max) {
+    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array units) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
 				Object[] na = (Object[])name.getArray();
 				Object[] mi = (min == null) ? null : (Object[])min.getArray();
 				Object[] ma = (max == null) ? null : (Object[])max.getArray();
+				Object[] cu = (units == null) ? null : (Object[])units.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
@@ -108,7 +109,7 @@ public class DbIo {
 						Double mad = (ma == null || ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						String onas = nas;
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
-						IndepXml ix = new IndepXml(onas,mid,mad);
+						IndepXml ix = new IndepXml(onas,mid,mad,cu==null?null:(String) cu[i]);
 						ix.setName(nas);
 						indepDoc.add(ix);
 					}					

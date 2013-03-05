@@ -1288,7 +1288,7 @@ public class MyDBTables {
 				new String[] {"not null","not null"});
 		addTable(GeschaetztesModell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable GeschaetzteParameter = new MyTable("GeschaetzteParameter", new String[]{"GeschaetztesModell","Parameter",
-				"Wert","ZeitEinheit","Konz_Einheit","KI.unten","KI.oben","SD","StandardError","t","p"},
+				"Wert","ZeitEinheit","Einheit","KI.unten","KI.oben","SD","StandardError","t","p"},
 				new String[]{"INTEGER","INTEGER",
 				"DOUBLE","VARCHAR(50)","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE"},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null},

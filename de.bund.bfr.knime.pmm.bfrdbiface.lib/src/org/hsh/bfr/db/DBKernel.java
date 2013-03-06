@@ -881,7 +881,7 @@ public class DBKernel {
     passFalse = false;
     Class.forName("org.hsqldb.jdbc.JDBCDriver").newInstance();
     //System.out.println(dbFile); 
-    String connStr = "jdbc:hsqldb:file:" + dbFile + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";// + (isKNIME ? ";readonly=true" : "");
+    String connStr = "jdbc:hsqldb:file:" + dbFile;// + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";// + (isKNIME ? ";readonly=true" : "");
     //connStr = "jdbc:hsqldb:hsql://localhost/DB;hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000;hsqldb.tx=mvcc"; // 
     try {
     	result = DriverManager.getConnection(connStr
@@ -918,7 +918,7 @@ public class DBKernel {
 			if (debug) {
 				MyLogger.handleMessage(tempDir.getAbsolutePath());
 			}
-	    	result = DriverManager.getConnection("jdbc:hsqldb:file:" + tempDir.getAbsolutePath() + System.getProperty("file.separator") + "DB;hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000" // ;readonly=true
+	    	result = DriverManager.getConnection("jdbc:hsqldb:file:" + tempDir.getAbsolutePath() + System.getProperty("file.separator") + "DB"//;hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000" // ;readonly=true
 	    	//result = DriverManager.getConnection("jdbc:hsqldb:file:" + "C:\\Dokumente und Einstellungen\\Weiser\\Lokale Einstellungen\\Temp\\DBdirectory3007129564907469644.db\\DB" + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000" + ";readonly=true"
 	    			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
 	    			,dbUsername, dbPassword);

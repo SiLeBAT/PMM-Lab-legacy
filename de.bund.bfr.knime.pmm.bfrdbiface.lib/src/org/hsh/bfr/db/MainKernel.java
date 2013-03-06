@@ -100,7 +100,7 @@ public class MainKernel {
 		for (int i=0;i<dbDefs.length;i++) {
     	    try {
     	    	Connection conn = getDefaultAdminConn(i);
-    	    	defragDB(conn);// wir machen hier lieber 'CHECKPOINT DEFRAG', weil 'CHECKPOINT DEFRAG' im Gegensatz zu SHUTDOWN COMPACT bisher noch keine outofmemory Exception geworfen hat
+    	    	//defragDB(conn);// wir machen hier lieber 'CHECKPOINT DEFRAG', weil 'CHECKPOINT DEFRAG' im Gegensatz zu SHUTDOWN COMPACT bisher noch keine outofmemory Exception geworfen hat
             	MainKernel.sendRequest("SHUTDOWN", false, conn);
     	    }
     	    catch (Exception e) {
@@ -110,16 +110,18 @@ public class MainKernel {
 		}
 		System.exit(0);		
 	}
+	/*
 	private static void defragDB(final Connection conn) {
     	MyLogger.handleMessage("start CHECKPOINT DEFRAG!");
     	MainKernel.sendRequest("CHECKPOINT DEFRAG", false, conn);
     	MyLogger.handleMessage("fin CHECKPOINT DEFRAG!");		
 	}
+	*/
 	public static void dbBackup() {
 		for (int i=0;i<dbDefs.length;i++) {
     	    try {
     	    	Connection conn = getDefaultAdminConn(i);
-    	    	defragDB(conn);
+    	    	//defragDB(conn);
     	    	String backupFile = bkpFolder + dbDefs[i][0] + "_" + System.currentTimeMillis() + ".tar.gz";			
             	MainKernel.sendRequest("BACKUP DATABASE TO '" + backupFile + "' BLOCKING", false, conn);
     	    	System.gc();

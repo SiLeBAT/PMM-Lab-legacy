@@ -115,13 +115,13 @@ public class Backup extends FileFilter {
 	    		DBKernel.closeDBConnections(false);
 	    		DBKernel.getDefaultAdminConn();
 	    	}
-/*
+
 	    	if (!DBKernel.isServerConnection) {
 	    		MyLogger.handleMessage("vor CHECKPOINT DEFRAG: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
 		    	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 		    	MyLogger.handleMessage("nach CHECKPOINT DEFRAG: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
 	    	}
-	*/    	
+	 	
 	    	String answerErr = DBKernel.sendRequestGetErr("BACKUP DATABASE TO '" + filename + "' BLOCKING");
 	    	if (!silent) {
 	  	      if (answerErr.length() == 0) {

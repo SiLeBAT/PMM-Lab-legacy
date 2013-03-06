@@ -1764,6 +1764,9 @@ public class DBKernel {
 		final Connection connection = getLocalConn(true);
 		try {
 			connection.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+		  	if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+		  		DBKernel.myList.getMyDBTable().setConnection(connection);
+		  	}
 		}
 		catch (SQLException e) {
 			e.printStackTrace();

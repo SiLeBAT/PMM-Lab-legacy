@@ -229,12 +229,6 @@ public class DBKernel {
 		  checksum.update(b,0,b.length);
 		  return checksum.getValue();
 	  }
-	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
-		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
-	}
-	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final Connection conn) {
-		return insertIntoChangeLog(tablename, rowBefore, rowAfter, conn, false);
-	}
 	private static boolean different(final Object[] rowBefore, final Object[] rowAfter) {
 		if (rowBefore == null && rowAfter == null) {
 			return false;
@@ -290,6 +284,9 @@ public class DBKernel {
 		return result;
 	}
 	
+	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
+		return insertIntoChangeLog(tablename, rowBefore, rowAfter, localConn, false);
+	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final Connection conn, final boolean suppressWarnings) {
 		if (dontLog) {
 			return true;

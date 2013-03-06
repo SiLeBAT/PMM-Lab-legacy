@@ -69,7 +69,8 @@ public class MainKernel {
 	*/
 	private static String[][] dbDefs = new String[][] {
 		{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_146","silebat_146","defad","de6!§5ddy"}
+		{"silebat_146","silebat_146","defad","de6!§5ddy"},
+		{"silebat_test_146","silebat_test_146","defad","de6!§5ddy"}
 	};
 	
 	public static void main(final String[] args) { // Servervariante
@@ -147,9 +148,6 @@ public class MainKernel {
 	public static boolean isServer() {
 		return isServer;
 	}
-	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
-		return insertIntoChangeLog(tablename, rowBefore, rowAfter, false);
-	}
 	private static boolean different(final Object[] rowBefore, final Object[] rowAfter) {
 		if (rowBefore == null && rowAfter == null) {
 			return false;
@@ -206,6 +204,9 @@ public class MainKernel {
 		return result;
 	}
 	*/
+	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
+		return insertIntoChangeLog(tablename, rowBefore, rowAfter, false);
+	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
 		boolean diff = different(rowBefore, rowAfter); 
 	    if (!diff) {

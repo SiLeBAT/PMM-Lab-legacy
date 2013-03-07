@@ -245,7 +245,7 @@ public class MyDBTables {
 				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zunahme",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new LinkedHashMap[]{null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null});
-		addTable(adressen, DBKernel.isKNIME ? -1 : (DBKernel.isKrise ? MyList.Lieferketten_LIST : MyList.BasisTabellen_LIST));
+		addTable(adressen, DBKernel.isKrise ? MyList.Lieferketten_LIST : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
 				new String[]{"VARCHAR(50)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)"},

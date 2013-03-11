@@ -1838,7 +1838,7 @@ public class DBKernel {
 					  		DBKernel.getDefaultAdminConn();
 					  	}
 					  	
-					  	if (DBKernel.getDBVersion() == null) {
+					  	if (DBKernel.getDBVersion() == null || DBKernel.getDBVersion().equals("1.4.3")) {
 					  		UpdateChecker.check4Updates_143_144();
 					  		DBKernel.setDBVersion("1.4.4");
 					  	}

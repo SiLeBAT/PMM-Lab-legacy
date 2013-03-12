@@ -17,6 +17,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.Config;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
@@ -42,6 +43,14 @@ public class MdReaderUi extends JPanel {
 	 * 
 	 */
 	private static final long serialVersionUID = 4203454706269875728L;
+	
+	public static final String PARAM_MATRIXSTRING = "matrixString";
+	public static final String PARAM_AGENTSTRING = "agentString";
+	public static final String PARAM_LITERATURESTRING = "literatureString";
+	public static final String PARAM_MATRIXID = "matrixID";
+	public static final String PARAM_AGENTID = "agentID";
+	public static final String PARAM_LITERATUREID = "literatureID";
+	
 	private LinkedHashMap<String, DoubleTextField[]> params;
 	private String[] itemListMisc;
 	private String deselectedItem = "";
@@ -637,4 +646,21 @@ public class MdReaderUi extends JPanel {
 	private DoubleTextField doubleTextField9;
 	private DoubleTextField doubleTextField10;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
+
+    public void saveSettingsTo(Config c) {
+    	c.addString( MdReaderUi.PARAM_MATRIXSTRING, getMatrixString() );
+    	c.addString( MdReaderUi.PARAM_AGENTSTRING, getAgentString() );
+    	c.addString( MdReaderUi.PARAM_LITERATURESTRING, getLiteratureString() );
+    	c.addInt(MdReaderUi.PARAM_MATRIXID, getMatrixID());
+    	c.addInt(MdReaderUi.PARAM_AGENTID, getAgentID());
+    	c.addInt(MdReaderUi.PARAM_LITERATUREID, getLiteratureID());
+    }	
+	public void setSettings(Config c) throws InvalidSettingsException {		
+		setMatrixString( c.getString( MdReaderUi.PARAM_MATRIXSTRING ) );
+		setAgentString( c.getString( MdReaderUi.PARAM_AGENTSTRING ) );
+		setLiteratureString(c.getString( MdReaderUi.PARAM_LITERATURESTRING ) );
+		setMatrixID(c.containsKey(MdReaderUi.PARAM_MATRIXID) ? c.getInt(MdReaderUi.PARAM_MATRIXID) : 0);
+		setAgensID(c.containsKey(MdReaderUi.PARAM_AGENTID) ? c.getInt(MdReaderUi.PARAM_AGENTID) : 0);
+		setLiteratureID(c.containsKey(MdReaderUi.PARAM_LITERATUREID) ? c.getInt(MdReaderUi.PARAM_LITERATUREID) : 0);
+	}
 }

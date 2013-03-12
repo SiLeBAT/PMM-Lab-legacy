@@ -49,6 +49,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.Config;
+
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -59,6 +62,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 public class ModelReaderUi extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 20120828;
+
+	public static final String PARAM_LEVEL = "level";
+	public static final String PARAM_MODELCLASS = "modelClass";
+	public static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
+	public static final String PARAM_MODELLIST = "modelList";
 
 	protected static final String LABEL_UNSPEC = "Unspecified only";
 	private static final String LABEL_PRIM = "Primary";
@@ -298,18 +306,15 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 	public void enableModelList(final String idlist) {
 		if (idlist.isEmpty()) return;
-
-		String[] token = idlist.split(",");
-
 		// disable everything
 		for (JCheckBox box : modelBoxSetPrim.keySet()) {
 			box.setSelected(false);
 		}
-
 		for (JCheckBox box : modelBoxSetSec.keySet()) {
 			box.setSelected(false);
 		}
 
+		String[] token = idlist.split(",");
 		// enable model if appropriate
 		for (JCheckBox box : modelBoxSetPrim.keySet()) {
 			for (String id : token) {
@@ -376,4 +381,16 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		levelBox.addActionListener(listener);
 	}
 
+    public void saveSettingsTo(Config c) {
+    	c.addInt( ModelReaderUi.PARAM_LEVEL, getLevel() );
+    	c.addString(ModelReaderUi.PARAM_MODELCLASS, getModelClass());
+    	c.addBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED, isModelFilterEnabled() );
+    	c.addString( ModelReaderUi.PARAM_MODELLIST, getModelList() );
+    }	
+	public void setSettings(Config c) throws InvalidSettingsException {		
+		setLevel(c.getInt( ModelReaderUi.PARAM_LEVEL ));
+		setModelClass(c.getString(ModelReaderUi.PARAM_MODELCLASS));
+		setModelFilterEnabled(c.getBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED ));
+		enableModelList(c.getString( ModelReaderUi.PARAM_MODELLIST ));
+	}
 }

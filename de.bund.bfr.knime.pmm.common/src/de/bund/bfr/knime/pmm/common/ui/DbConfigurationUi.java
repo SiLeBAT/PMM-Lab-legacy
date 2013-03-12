@@ -48,10 +48,18 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.Config;
+
 public class DbConfigurationUi extends JPanel implements ActionListener {
 	
 	private static final long serialVersionUID = 20120622;
 	
+	public static final String PARAM_FILENAME = "filename";
+	public static final String PARAM_LOGIN = "login";
+	public static final String PARAM_PASSWD = "passwd";
+	public static final String PARAM_OVERRIDE = "override";
+
 	private JCheckBox overrideBox;
 	private JTextField connField;
 	private JTextField loginField;
@@ -175,12 +183,26 @@ public class DbConfigurationUi extends JPanel implements ActionListener {
 		passwdField.setText( passwd );
 	}
 	
-	public boolean isOverride() { return overrideBox.isSelected(); }
-	public String getFilename() { return connField.getText(); }
-	public String getLogin() { return loginField.getText(); }
-	public String getPasswd() { return String.valueOf( passwdField.getPassword() ); }
+	public boolean isOverride() {return overrideBox.isSelected();}
+	public String getFilename() {return connField.getText();}
+	public String getLogin() {return loginField.getText();}
+	public String getPasswd() {return String.valueOf(passwdField.getPassword());}
 	
-	public JButton getApplyButton() { return applyButton; }
+	public JButton getApplyButton() {return applyButton;}
 	
-	
+    public void saveSettingsTo(Config c) {
+    	c.addString(PARAM_FILENAME, connField.getText());
+    	c.addString(PARAM_LOGIN, loginField.getText());
+    	c.addString(PARAM_PASSWD, String.valueOf(passwdField.getPassword()));
+    	c.addBoolean(PARAM_OVERRIDE, overrideBox.isSelected());
+    }	
+	public void setSettings(Config c) throws InvalidSettingsException {		
+		connField.setText(c.getString(PARAM_FILENAME));
+		loginField.setText(c.getString(PARAM_LOGIN));
+		passwdField.setText(c.getString(PARAM_PASSWD));
+		overrideBox.setSelected(c.getBoolean(PARAM_OVERRIDE));
+		connField.setEditable(overrideBox.isSelected());
+		loginField.setEditable(overrideBox.isSelected());
+		passwdField.setEditable(overrideBox.isSelected());
+	}
 }

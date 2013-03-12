@@ -54,6 +54,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
+import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
@@ -71,6 +72,15 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 20120828;
+
+	public static final String PARAM_PARAMETERS = "parameters";
+	public static final String PARAM_PARAMETERNAME = "parameterName";
+	public static final String PARAM_PARAMETERMIN = "parameterMin";
+	public static final String PARAM_PARAMETERMAX = "parameterMax";
+
+	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
+	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
+
 	private JRadioButton qualityButtonNone;
 	private JRadioButton qualityButtonRms;
 	private JRadioButton qualityButtonR2;
@@ -87,6 +97,10 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	}
 	
 	public EstModelReaderUi(Connection conn, String[] itemListMisc) {								
+		this(conn,itemListMisc, true, true, true);
+	}
+	public EstModelReaderUi(Connection conn, String[] itemListMisc,
+			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions) {								
 		modelReaderUi = new ModelReaderUi();
 		modelReaderUi.addLevelListener( this );
 		qualityButtonNone = new JRadioButton( "Do not filter" );
@@ -127,16 +141,21 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		JPanel southPanel = new JPanel();
 		
 		southPanel.setLayout(new BorderLayout());
-		southPanel.add(panel, BorderLayout.NORTH);
-		southPanel.add(tsReaderUi, BorderLayout.CENTER);
+		if (showQualityOptions) southPanel.add(panel, BorderLayout.NORTH);
+		if (showMDOptions) southPanel.add(tsReaderUi, BorderLayout.CENTER);
 		JButton doFilter = new JButton("ApplyAndShowFilterResults");
 		doFilter.addActionListener(this);
 		southPanel.add(doFilter, BorderLayout.SOUTH);
 		
-		setPreferredSize(new Dimension(550, 500));
+		setPreferredSize(new Dimension(550, showModelOptions ? 500 : 300));
 		setLayout(new BorderLayout());
-		add(modelReaderUi, BorderLayout.CENTER);
-		add(southPanel, BorderLayout.SOUTH);		
+		if (showModelOptions) {
+			add(modelReaderUi, BorderLayout.CENTER);
+			add(southPanel, BorderLayout.SOUTH);		
+		}
+		else {
+			add(southPanel, BorderLayout.CENTER);					
+		}
 		
 		updateTsReaderUi();
 	}
@@ -315,4 +334,53 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     		tsReaderUi.setInactive();
     		*/
     }
+    
+    public void saveSettingsTo(Config c) {
+     	modelReaderUi.saveSettingsTo(c.addConfig("ModelReaderUi"));
+     	tsReaderUi.saveSettingsTo(c.addConfig("MdReaderUi"));
+    	
+    	c.addInt( EstModelReaderUi.PARAM_QUALITYMODE, this.getQualityMode() );
+    	c.addDouble( EstModelReaderUi.PARAM_QUALITYTHRESH, qualityField.getValue());
+
+    	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
+		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
+		String[] pars = new String[params.size()];
+		String[] mins = new String[params.size()];
+		String[] maxs = new String[params.size()];
+		int i=0;
+		for (String par : params.keySet()) {
+			DoubleTextField[] dbl = params.get(par);
+			pars[i] = par;
+			mins[i] = ""+dbl[0].getValue();
+			maxs[i] = ""+dbl[1].getValue();
+			i++;
+		}
+		c2.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME, pars);
+		c2.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN, mins);
+		c2.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX, maxs);
+
+    }	
+	public void setSettings(Config c) throws InvalidSettingsException {		
+     	modelReaderUi.setSettings(c.getConfig("ModelReaderUi"));
+     	tsReaderUi.setSettings(c.getConfig("MdReaderUi"));
+
+		this.setQualityMode( c.getInt( EstModelReaderUi.PARAM_QUALITYMODE ) );
+		this.setQualityThresh( c.getDouble( EstModelReaderUi.PARAM_QUALITYTHRESH ) );
+
+		Config c2 = c.getConfig(EstModelReaderUi.PARAM_PARAMETERS);
+		String[] pars = c2.getStringArray(EstModelReaderUi.PARAM_PARAMETERNAME);
+		String[] mins = c2.getStringArray(EstModelReaderUi.PARAM_PARAMETERMIN);
+		String[] maxs = c2.getStringArray(EstModelReaderUi.PARAM_PARAMETERMAX);
+
+		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+		for (int i=0;i<pars.length;i++) {
+			DoubleTextField[] dbl = new DoubleTextField[2];
+			dbl[0] = new DoubleTextField(true);
+			dbl[1] = new DoubleTextField(true);
+			if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
+			if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
+			params.put(pars[i], dbl);
+		}
+		this.setParameter(params);
+	}
 }

@@ -62,7 +62,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -553,7 +552,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == agentButton) {
-			Integer newAgentID = openAgentDBWindow(agentID);
+			Integer newAgentID = DBKernel.openAgentDBWindow(agentID);
 
 			if (newAgentID != null) {
 				String agent = ""
@@ -564,7 +563,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				agentButton.setText(agent);
 			}
 		} else if (e.getSource() == matrixButton) {
-			Integer newMatrixID = openMatrixDBWindow(matrixID);
+			Integer newMatrixID = DBKernel.openMatrixDBWindow(matrixID);
 
 			if (newMatrixID != null) {
 				String matrix = ""
@@ -575,7 +574,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				matrixButton.setText(matrix);
 			}
 		} else if (e.getSource() == addLiteratureButton) {
-			Integer id = openLiteratureDBWindow(null);
+			Integer id = DBKernel.openLiteratureDBWindow(null);
 
 			if (id != null && !literatureIDs.contains(id)) {
 				String author = DBKernel.getValue("Literatur", "ID", id + "",
@@ -612,7 +611,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					} catch (NumberFormatException ex) {
 					}
 
-					Integer newID = openAgentDBWindow(id);
+					Integer newID = DBKernel.openAgentDBWindow(id);
 
 					if (newID != null) {
 						String agent = DBKernel.getValue("Agenzien", "ID",
@@ -635,7 +634,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					} catch (NumberFormatException ex) {
 					}
 
-					Integer newID = openMatrixDBWindow(id);
+					Integer newID = DBKernel.openMatrixDBWindow(id);
 
 					if (newID != null) {
 						String matrix = DBKernel.getValue("Matrices", "ID",
@@ -658,7 +657,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					} catch (NumberFormatException ex) {
 					}
 
-					Integer miscID = openMiscDBWindow(intID);
+					Integer miscID = DBKernel.openMiscDBWindow(intID);
 
 					if (miscID != null) {
 						String misc = ""
@@ -1001,54 +1000,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);
 			columnButtons.clear();
-		}
-	}
-
-	private Integer openMiscDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id,
-				"SonstigeParameter", null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openAgentDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Agenzien");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Agenzien",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openMatrixDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Matrices");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Matrices",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openLiteratureDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Literatur");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Literatur",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
 		}
 	}
 

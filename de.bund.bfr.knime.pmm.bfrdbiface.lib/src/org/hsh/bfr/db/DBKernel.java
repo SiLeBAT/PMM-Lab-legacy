@@ -2171,6 +2171,61 @@ public class DBKernel {
     	catch (Exception e) {e.printStackTrace();}
     	System.err.println("Fin!");
     }
+    public static Integer openModelDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Modellkatalog");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Modellkatalog",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+    public static Integer openMiscDBWindow(Integer id) {
+		MyTable myT = myList.getTable("SonstigeParameter");
+		Object newVal = myList.openNewWindow(myT, id,
+				"SonstigeParameter", null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+    public static Integer openAgentDBWindow(Integer id) {
+		MyTable myT = myList.getTable("Agenzien");
+		Object newVal = myList.openNewWindow(myT, id, "Agenzien",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+	public static Integer openMatrixDBWindow(Integer id) {
+		MyTable myT = myList.getTable("Matrices");
+		Object newVal = myList.openNewWindow(myT, id, "Matrices",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+	public static Integer openLiteratureDBWindow(Integer id) {
+		MyTable myT = myList.getTable("Literatur");
+		Object newVal = myList.openNewWindow(myT, id, "Literatur",
+				null, null, null, null, true);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
     private static String getBL(String strVal) {
     	if (strVal == null) return strVal;
     	if (strVal.equals("BW") || strVal.equals("Baden-Württemberg")) return "_Baden-Württemberg";

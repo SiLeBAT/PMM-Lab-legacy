@@ -54,6 +54,9 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -72,8 +75,14 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class MicrobialDataEditNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_ADDEDCONDITIONS = "AddedConditions";
+	protected static final String CFGKEY_AGENTS = "Agents";
+	protected static final String CFGKEY_MATRICES = "Matrices";
+	protected static final String CFGKEY_COMMENTS = "Comments";
 
 	private Map<Integer, Map<String, Double>> addedConditions;
+	private Map<String, Integer> agents;
+	private Map<String, Integer> matrices;
+	private Map<String, String> comments;
 
 	/**
 	 * Constructor for the node model.
@@ -81,6 +90,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected MicrobialDataEditNodeModel() {
 		super(1, 1);
 		addedConditions = new LinkedHashMap<>();
+		agents = new LinkedHashMap<>();
+		matrices = new LinkedHashMap<>();
+		comments = new LinkedHashMap<>();
 	}
 
 	/**
@@ -111,6 +123,47 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				id = combaseID + " (" + condID + ")";
 			} else {
 				id = condID + "";
+			}
+
+			if (agents.containsKey(id)) {
+				PmmXmlDoc agentXml = new PmmXmlDoc();
+				Integer agentID = agents.get(id);
+
+				if (agentID != null) {
+					String agentName = DBKernel.getValue("Agenzien", "ID",
+							agentID + "", "Agensname") + "";
+
+					agentXml.add(new AgentXml(agentID, agentName, null));
+				} else {
+					agentXml.add(new AgentXml(null, null, null));
+				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+			}
+
+			if (matrices.containsKey(id)) {
+				PmmXmlDoc matrixXml = new PmmXmlDoc();
+				Integer matrixID = matrices.get(id);
+
+				if (matrixID != null) {
+					String matrixName = DBKernel.getValue("Matrices", "ID",
+							matrixID + "", "Matrixname") + "";
+
+					matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+				} else {
+					matrixXml.add(new MatrixXml(null, null, null));
+				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
+			}
+
+			if (comments.containsKey(id)) {
+				PmmXmlDoc infoXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MDINFO);
+
+				((MdInfoXml) infoXml.get(0)).setComment(comments.get(id));
+
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
 			}
 
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -174,6 +227,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_ADDEDCONDITIONS,
 				XmlConverter.mapToXml(addedConditions));
+		settings.addString(CFGKEY_AGENTS, XmlConverter.mapToXml(agents));
+		settings.addString(CFGKEY_MATRICES, XmlConverter.mapToXml(matrices));
+		settings.addString(CFGKEY_COMMENTS, XmlConverter.mapToXml(comments));
 	}
 
 	/**
@@ -184,6 +240,11 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		addedConditions = XmlConverter.xmlToIntDoubleMapMap(settings
 				.getString(CFGKEY_ADDEDCONDITIONS));
+		agents = XmlConverter.xmlToIntMap(settings.getString(CFGKEY_AGENTS));
+		matrices = XmlConverter
+				.xmlToIntMap(settings.getString(CFGKEY_MATRICES));
+		comments = XmlConverter.xmlToStringMap(settings
+				.getString(CFGKEY_COMMENTS));
 	}
 
 	/**

@@ -66,7 +66,6 @@ import javax.swing.JScrollPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyTable;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
@@ -550,7 +549,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				table.repaint();
 			}
 		} else if (event.getSource() == addLiteratureButton) {
-			Integer id = openLiteratureDBWindow(null);
+			Integer id = DBKernel.openLiteratureDBWindow(null);
 
 			if (id != null && !literatureIDs.contains(id)) {
 				String author = DBKernel.getValue("Literatur", "ID", id + "",
@@ -578,7 +577,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.toArray(new String[0]));
 			}
 		} else if (event.getSource() == agentButton) {
-			Integer newAgentID = openAgentDBWindow(agentID);
+			Integer newAgentID = DBKernel.openAgentDBWindow(agentID);
 
 			if (newAgentID != null) {
 				String agent = ""
@@ -589,7 +588,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				agentButton.setText(agent);
 			}
 		} else if (event.getSource() == matrixButton) {
-			Integer newMatrixID = openMatrixDBWindow(matrixID);
+			Integer newMatrixID = DBKernel.openMatrixDBWindow(matrixID);
 
 			if (newMatrixID != null) {
 				String matrix = ""
@@ -607,7 +606,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			panel.revalidate();
 		} else if (condButtons.contains(event.getSource())) {
 			int i = condButtons.indexOf(event.getSource());
-			Integer miscID = openMiscDBWindow(condIDs.get(i));
+			Integer miscID = DBKernel.openMiscDBWindow(condIDs.get(i));
 
 			if (miscID != null) {
 				String misc = ""
@@ -693,54 +692,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		condIDs.remove(i);
 		settingsPanel.remove(condButtons.remove(i));
 		settingsPanel.remove(condValueFields.remove(i));
-	}
-
-	private Integer openLiteratureDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Literatur");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Literatur",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openMiscDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("SonstigeParameter");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id,
-				"SonstigeParameter", null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openAgentDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Agenzien");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Agenzien",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
-	}
-
-	private Integer openMatrixDBWindow(Integer id) {
-		MyTable myT = DBKernel.myList.getTable("Matrices");
-		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Matrices",
-				null, null, null, null, true);
-
-		if (newVal instanceof Integer) {
-			return (Integer) newVal;
-		} else {
-			return null;
-		}
 	}
 
 	private void loadFromXLS() {
@@ -1048,7 +999,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							oldID = ((MiscXml) mappings.get(column)).getID();
 						}
 
-						Integer miscID = openMiscDBWindow(oldID);
+						Integer miscID = DBKernel.openMiscDBWindow(oldID);
 
 						if (miscID != null) {
 							String misc = ""

@@ -1065,7 +1065,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		@Override
 		protected void paintComponent(Graphics g) {
 			if (colorList.isEmpty()) {
-				super.paintComponents(g);
+				super.paintComponent(g);
 			} else {
 				double w = (double) getWidth() / (double) colorList.size();
 

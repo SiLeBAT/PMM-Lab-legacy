@@ -87,6 +87,15 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<String, Integer> xmlToIntMap(String xml) {
+		try {
+			return (Map<String, Integer>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Double> xmlToDoubleMap(String xml) {
 		try {
 			return (Map<String, Double>) new XStream().fromXML(xml);

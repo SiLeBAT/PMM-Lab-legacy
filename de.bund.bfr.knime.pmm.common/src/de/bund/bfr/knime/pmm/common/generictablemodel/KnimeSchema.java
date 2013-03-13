@@ -95,23 +95,7 @@ public class KnimeSchema {
 	
 	public void addStringAttribute( final String name ) throws PmmException {
 		addAttribute( name, KnimeAttribute.TYPE_STRING );
-	}
-	
-	public void addIntListAttribute( final String name ) throws PmmException {
-		addAttribute( name, KnimeAttribute.TYPE_COMMASEP_INT );
-	}
-	
-	public void addDoubleListAttribute( final String name ) throws PmmException {
-		addAttribute( name, KnimeAttribute.TYPE_COMMASEP_DOUBLE );
-	}
-	
-	public void addStringListAttribute( final String name ) throws PmmException {
-		addAttribute( name, KnimeAttribute.TYPE_COMMASEP_STRING );
-	}
-	
-	public void addMapAttribute( final String name ) throws PmmException {
-		addAttribute( name, KnimeAttribute.TYPE_MAP );
-	}
+	}	
 	
 	public void addXmlAttribute( final String name ) throws PmmException {
 		addAttribute( name, KnimeAttribute.TYPE_XML );

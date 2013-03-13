@@ -44,6 +44,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -72,6 +73,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -126,7 +128,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JButton modelButton;
 	private Map<String, String> modelMappings;
 	private Map<String, JComboBox<String>> modelBoxes;
-	private int modelID;
+	private KnimeTuple modelTuple;
 
 	private JPanel agentPanel;
 	private JComboBox<String> agentBox;
@@ -333,9 +335,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			modelID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_MODELID);
+			modelTuple = XmlConverter.xmlToTuple(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MODELTUPLE));
 		} catch (InvalidSettingsException e) {
-			modelID = -1;
+			modelTuple = null;
 		}
 
 		try {
@@ -447,7 +450,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Specified file is invalid");
 		}
 
-		if (modelID == -1) {
+		if (modelTuple == null) {
 			throw new InvalidSettingsException("No model is specified");
 		}
 
@@ -508,7 +511,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				filePanel.getFileName());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_SHEETNAME,
 				(String) sheetBox.getSelectedItem());
-		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MODELID, modelID);
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELTUPLE,
+				XmlConverter.tupleToXml(modelTuple));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
 				XmlConverter.mapToXml(modelMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
@@ -534,10 +538,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == modelButton) {
-			Integer newModelID = DBKernel.openModelDBWindow(modelID);
+			Integer id;
 
-			if (newModelID != null) {
-				modelID = newModelID;
+			if (modelTuple != null) {
+				id = DBKernel.openModelDBWindow(((CatalogModelXml) modelTuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
+						.getID());
+			} else {
+				id = DBKernel.openModelDBWindow(null);
+			}
+
+			if (id != null) {
+				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+
+				try {
+					modelTuple = db.getPrimModelById(id);
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+
 				updateModelPanel();
 			}
 		} else if (e.getSource() == agentButton) {
@@ -794,10 +813,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelButton = new JButton(SELECT);
 		modelButton.addActionListener(this);
 
-		if (modelID != -1) {
-			modelButton.setText(""
-					+ DBKernel.getValue("Modellkatalog", "ID", modelID + "",
-							"Notation"));
+		if (modelTuple != null) {
+			modelButton.setText(((CatalogModelXml) modelTuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getName());
 		} else {
 			modelButton.setText(SELECT);
 		}
@@ -808,39 +826,33 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northPanel.add(new JLabel("Model:"), createConstraints(0, 0));
 		northPanel.add(modelButton, createConstraints(1, 0));
 
-		if (modelID != -1) {
+		if (modelTuple != null) {
 			int row = 1;
-			Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+			PmmXmlDoc paramXml = modelTuple
+					.getPmmXml(Model1Schema.ATT_PARAMETER);
+			List<String> options = new ArrayList<>();
 
-			try {
-				KnimeTuple model = db.getPrimModelById(modelID);
-				PmmXmlDoc paramXml = model
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-				List<String> options = new ArrayList<>();
+			options.add(DO_NOT_USE);
+			options.addAll(fileColumnList);
 
-				options.add(DO_NOT_USE);
-				options.addAll(fileColumnList);
+			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+				JComboBox<String> box = new JComboBox<>(
+						options.toArray(new String[0]));
 
-				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-					JComboBox<String> box = new JComboBox<>(
-							options.toArray(new String[0]));
-
-					if (modelMappings.get(element.getName()) != null) {
-						box.setSelectedItem(modelMappings.get(element.getName()));
-					} else {
-						box.setSelectedItem(DO_NOT_USE);
-					}
-
-					box.addItemListener(this);
-					modelBoxes.put(element.getName(), box);
-
-					northPanel.add(new JLabel(element.getName() + ":"),
-							createConstraints(0, row));
-					northPanel.add(box, createConstraints(1, row));
-					row++;
+				if (modelMappings.get(element.getName()) != null) {
+					box.setSelectedItem(modelMappings.get(element.getName()));
+				} else {
+					box.setSelectedItem(DO_NOT_USE);
 				}
-			} catch (Exception e) {
+
+				box.addItemListener(this);
+				modelBoxes.put(element.getName(), box);
+
+				northPanel.add(new JLabel(element.getName() + ":"),
+						createConstraints(0, row));
+				northPanel.add(box, createConstraints(1, row));
+				row++;
 			}
 		}
 

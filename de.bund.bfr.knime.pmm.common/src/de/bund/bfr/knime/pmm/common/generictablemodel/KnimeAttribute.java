@@ -36,48 +36,54 @@ package de.bund.bfr.knime.pmm.common.generictablemodel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 
 public class KnimeAttribute {
-	
+
 	public static final int TYPE_STRING = 0;
 	public static final int TYPE_INT = 1;
 	public static final int TYPE_DOUBLE = 2;
-	public static final int TYPE_COMMASEP_INT = 3;
-	public static final int TYPE_COMMASEP_DOUBLE = 4;
-	public static final int TYPE_COMMASEP_STRING = 5;
-	public static final int TYPE_MAP = 6;
-	public static final int TYPE_XML = 7;
+	public static final int TYPE_XML = 3;
 
 	private String name;
 	private int type;
-	
-	
-	protected KnimeAttribute( final String name, final int type ) throws PmmException {
-		setName( name );
-		setType( type );
+
+	protected KnimeAttribute(final String name, final int type)
+			throws PmmException {
+		setName(name);
+		setType(type);
 	}
-	
-	public String getName() { return name; }
-	public int getType() { return type; }
-	
-	public boolean isDouble() { return type == TYPE_DOUBLE; }
-	public boolean isInt() { return type == TYPE_INT; }
-	
-	public void setName( final String name ) throws PmmException {
-		
-		if( name == null )
-			throw new PmmException( "Column name must not be null." );
-		
-		if( name.isEmpty() )
-			throw new PmmException( "Column name must not be empty." );
+
+	public String getName() {
+		return name;
+	}
+
+	public int getType() {
+		return type;
+	}
+
+	public boolean isDouble() {
+		return type == TYPE_DOUBLE;
+	}
+
+	public boolean isInt() {
+		return type == TYPE_INT;
+	}
+
+	public void setName(final String name) throws PmmException {
+
+		if (name == null)
+			throw new PmmException("Column name must not be null.");
+
+		if (name.isEmpty())
+			throw new PmmException("Column name must not be empty.");
 
 		this.name = name;
 	}
-	
-	public void setType( final int type ) throws PmmException {
-		
-		if( type < 0 || type > 7 )
-			throw new PmmException( "Unknown column type" );
-		
+
+	public void setType(final int type) throws PmmException {
+
+		if (type < 0 || type > 7)
+			throw new PmmException("Unknown column type");
+
 		this.type = type;
 	}
-	
+
 }

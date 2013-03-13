@@ -40,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -52,7 +51,6 @@ import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
-import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
@@ -88,7 +86,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
-	protected static final String CFGKEY_MODELID = "ModelID";
+	protected static final String CFGKEY_MODELTUPLE = "ModelTuple";
 	protected static final String CFGKEY_AGENT = "Agent";
 	protected static final String CFGKEY_MATRIX = "Matrix";
 	protected static final String CFGKEY_LITERATURE = "Literature";
@@ -102,7 +100,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	private String matrixColumn;
 	private Map<String, MatrixXml> matrixMappings;
 	private String tempUnit;
-	private int modelID;
+	private KnimeTuple modelTuple;
 	private AgentXml agent;
 	private MatrixXml matrix;
 	private List<LiteratureItem> literature;
@@ -114,7 +112,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		super(0, 1);
 		fileName = null;
 		sheetName = null;
-		modelID = -1;
+		modelTuple = null;
 		modelMappings = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
@@ -134,8 +132,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
-		KnimeTuple modelTuple = db.getPrimModelById(modelID);
 		PmmXmlDoc modelXml = modelTuple
 				.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
@@ -205,7 +201,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		}
 
 		for (KnimeTuple tuple : tuples) {
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
+			tuple.setValue(Model1Schema.ATT_EMLIT, literatureXML);
 		}
 
 		BufferedDataContainer container = exec
@@ -264,7 +260,8 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addString(CFGKEY_SHEETNAME, sheetName);
-		settings.addInt(CFGKEY_MODELID, modelID);
+		settings.addString(CFGKEY_MODELTUPLE,
+				XmlConverter.tupleToXml(modelTuple));
 		settings.addString(CFGKEY_MODELMAPPINGS,
 				XmlConverter.mapToXml(modelMappings));
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
@@ -290,7 +287,8 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fileName = settings.getString(CFGKEY_FILENAME);
 		sheetName = settings.getString(CFGKEY_SHEETNAME);
-		modelID = settings.getInt(CFGKEY_MODELID);
+		modelTuple = XmlConverter.xmlToTuple(settings
+				.getString(CFGKEY_MODELTUPLE));
 		modelMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_MODELMAPPINGS));
 		columnMappings = XmlConverter.xmlToObjectMap(settings

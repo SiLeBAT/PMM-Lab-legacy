@@ -34,8 +34,6 @@
 package de.bund.bfr.knime.pmm.common.generictablemodel;
 
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.knime.core.data.DataCell;
@@ -434,46 +432,7 @@ public class KnimeTuple implements DataRow {
 
 				cell[i] = CellIO.createCell((String) obj);
 
-				break;
-
-			case KnimeAttribute.TYPE_COMMASEP_DOUBLE:
-			case KnimeAttribute.TYPE_COMMASEP_INT:
-			case KnimeAttribute.TYPE_COMMASEP_STRING:
-
-				if( obj instanceof String ) {
-					cell[ i ] = CellIO.createCell( ( String )obj );
-					break;
-				}
-				
-				if( obj instanceof List<?> ) {
-					cell[ i ] = CellIO.createCell( ( List<?> ) obj );
-					break;
-				}
-				
-				if( obj instanceof Map<?,?> ) {
-					cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
-					break;
-				}
-				throw new PmmException( "Bad value type." );
-				
-			case KnimeAttribute.TYPE_MAP :
-				
-				if( obj instanceof String ) {
-					cell[ i ] = CellIO.createCell( ( String )obj );
-					break;
-				}
-				
-				if( obj instanceof List<?> ) {
-					cell[ i ] = CellIO.createCell( ( List<?> )obj );
-					break;
-				}
-				
-				if( obj instanceof Map<?,?> ) {
-					cell[ i ] = CellIO.createCell( ( Map<?,?> )obj );
-					break;
-				}
-				
-				throw new PmmException( "Bad value type" );
+				break;			
 
 			case KnimeAttribute.TYPE_XML :
 				

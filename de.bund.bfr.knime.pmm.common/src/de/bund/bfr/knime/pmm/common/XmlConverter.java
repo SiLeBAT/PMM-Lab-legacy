@@ -11,6 +11,9 @@ import java.util.Map;
 import com.thoughtworks.xstream.XStream;
 
 import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class XmlConverter {
 
@@ -31,6 +34,36 @@ public class XmlConverter {
 
 	public static String matrixToXml(MatrixXml matrix) {
 		return new XStream().toXML(matrix);
+	}
+
+	public static String tupleToXml(KnimeTuple tuple) {
+		List<Object> list = new ArrayList<>();
+
+		if (tuple == null) {
+			return listToXml(list);
+		}
+
+		KnimeSchema schema = tuple.getSchema();
+
+		list.add(schema);
+
+		for (int i = 0; i < schema.size(); i++) {
+			switch (schema.getType(i)) {
+			case KnimeAttribute.TYPE_INT:
+				list.add(tuple.getInt(schema.getName(i)));
+				break;
+			case KnimeAttribute.TYPE_DOUBLE:
+				list.add(tuple.getDouble(schema.getName(i)));
+				break;
+			case KnimeAttribute.TYPE_STRING:
+				list.add(tuple.getString(schema.getName(i)));
+				break;
+			case KnimeAttribute.TYPE_XML:
+				list.add(tuple.getPmmXml(schema.getName(i)));
+			}
+		}
+
+		return listToXml(list);
 	}
 
 	public static String colorMapToXml(Map<String, Color> map) {
@@ -62,6 +95,32 @@ public class XmlConverter {
 			return (MatrixXml) new XStream().fromXML(xml);
 		} catch (Exception e) {
 			return null;
+		}
+	}
+
+	public static KnimeTuple xmlToTuple(String xml) {
+		List<Object> list = xmlToObjectList(xml);
+
+		if (!list.isEmpty()) {
+			KnimeSchema schema = (KnimeSchema) list.get(0);
+			KnimeTuple tuple = new KnimeTuple(schema);
+
+			for (int i = 0; i < schema.size(); i++) {
+				tuple.setValue(schema.getName(i), list.get(i + 1));
+			}
+
+			return tuple;
+		} else {
+			return null;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static List<Object> xmlToObjectList(String xml) {
+		try {
+			return (List<Object>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new ArrayList<>();
 		}
 	}
 

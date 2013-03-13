@@ -81,12 +81,16 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 
+	public static final String PARAM_CHOSENMODEL = "chosenModel";
+
 	private JRadioButton qualityButtonNone;
 	private JRadioButton qualityButtonRms;
 	private JRadioButton qualityButtonR2;
 	private DoubleTextField qualityField;
 	private MdReaderUi tsReaderUi;
 	private ModelReaderUi modelReaderUi;
+	private Integer chosenModel = 0;
+	private JButton doFilter;
 	
 	public static final int MODE_OFF = 0;
 	public static final int MODE_R2 = 1;
@@ -143,7 +147,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		southPanel.setLayout(new BorderLayout());
 		if (showQualityOptions) southPanel.add(panel, BorderLayout.NORTH);
 		if (showMDOptions) southPanel.add(tsReaderUi, BorderLayout.CENTER);
-		JButton doFilter = new JButton("ApplyAndShowFilterResults");
+		doFilter = new JButton("ApplyAndShowFilterResults");
 		doFilter.addActionListener(this);
 		southPanel.add(doFilter, BorderLayout.SOUTH);
 		
@@ -172,17 +176,24 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		}		
 		else if (src instanceof JButton) { // doFilter
 			MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
-			Integer gmID = null;
 			// MyIDFilter mf = new MyIDFilter(filterIDs);
-			DBKernel.myList.openNewWindow(
+			Object newGmId = DBKernel.myList.openNewWindow(
 					gm,
-					gmID,
+					chosenModel > 0 ? chosenModel : null,
 					(Object) "GeschaetzteModelle",
 					null,
 					1,
 					1,
 					null,
 					true, null, this);
+			if (newGmId != null && newGmId instanceof Integer) {
+				chosenModel = (Integer) newGmId;
+				doFilter.setText("ApplyAndShowFilterResults [" + chosenModel + "]");
+			}
+			else {
+				chosenModel = 0;
+				doFilter.setText("ApplyAndShowFilterResults");
+			}
 		}		
 	}
 	
@@ -341,6 +352,8 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
     	
     	c.addInt( EstModelReaderUi.PARAM_QUALITYMODE, this.getQualityMode() );
     	c.addDouble( EstModelReaderUi.PARAM_QUALITYTHRESH, qualityField.getValue());
+    	
+    	c.addInt(PARAM_CHOSENMODEL, chosenModel);
 
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
@@ -367,6 +380,9 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		this.setQualityMode( c.getInt( EstModelReaderUi.PARAM_QUALITYMODE ) );
 		this.setQualityThresh( c.getDouble( EstModelReaderUi.PARAM_QUALITYTHRESH ) );
 
+		chosenModel = c.getInt(PARAM_CHOSENMODEL);
+		doFilter.setText("ApplyAndShowFilterResults" + (chosenModel > 0 ? "[" + chosenModel + "]" : ""));
+				
 		Config c2 = c.getConfig(EstModelReaderUi.PARAM_PARAMETERS);
 		String[] pars = c2.getStringArray(EstModelReaderUi.PARAM_PARAMETERNAME);
 		String[] mins = c2.getStringArray(EstModelReaderUi.PARAM_PARAMETERMIN);

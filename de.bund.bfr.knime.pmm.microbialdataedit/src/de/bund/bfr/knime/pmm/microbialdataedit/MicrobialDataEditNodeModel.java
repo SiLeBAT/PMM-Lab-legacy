@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -172,8 +171,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				}
 
 				miscXml.add(new MiscXml(misc.getID(), misc.getName(), null,
-						addedConditions.get(misc).get(id), null, DBKernel
-								.getLocalDBUUID()));
+						addedConditions.get(misc).get(id), null, misc
+								.getDbuuid()));
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);

@@ -356,21 +356,25 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentColumn = settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN);
-
-			if (agentColumn == null) {
-				agentColumn = DO_NOT_USE;
-			}
-		} catch (InvalidSettingsException e) {
-			agentColumn = DO_NOT_USE;
-		}
-
-		try {
 			agent = XmlConverter.xmlToAgent(settings
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT));
 		} catch (InvalidSettingsException e) {
 			agent = null;
+		}
+
+		try {
+			agentColumn = settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN);
+
+			if (agentColumn == null) {
+				if (agent != null) {
+					agentColumn = OTHER_PARAMETER;
+				} else {
+					agentColumn = DO_NOT_USE;
+				}
+			}
+		} catch (InvalidSettingsException e) {
+			agentColumn = DO_NOT_USE;
 		}
 
 		try {
@@ -382,21 +386,25 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixColumn = settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN);
-
-			if (matrixColumn == null) {
-				matrixColumn = DO_NOT_USE;
-			}
-		} catch (InvalidSettingsException e) {
-			matrixColumn = DO_NOT_USE;
-		}
-
-		try {
 			matrix = XmlConverter.xmlToMatrix(settings
 					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX));
 		} catch (InvalidSettingsException e) {
 			matrix = null;
+		}
+
+		try {
+			matrixColumn = settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN);
+
+			if (matrixColumn == null) {
+				if (matrix != null) {
+					matrixColumn = OTHER_PARAMETER;
+				} else {
+					matrixColumn = DO_NOT_USE;
+				}
+			}
+		} catch (InvalidSettingsException e) {
+			matrixColumn = DO_NOT_USE;
 		}
 
 		try {
@@ -486,22 +494,37 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					+ "\" is unassigned");
 		}
 
-		if (!agentColumn.equals(OTHER_PARAMETER)) {
-			agent = null;
+		if (agentColumn.equals(OTHER_PARAMETER)) {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT,
+					XmlConverter.agentToXml(agent));
+		} else {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT, null);
 		}
 
-		if (!matrixColumn.equals(OTHER_PARAMETER)) {
-			matrix = null;
+		if (matrixColumn.equals(OTHER_PARAMETER)) {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX,
+					XmlConverter.matrixToXml(matrix));
+		} else {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX, null);
 		}
 
-		if (agentColumn.equals(OTHER_PARAMETER)
-				|| agentColumn.equals(DO_NOT_USE)) {
-			agentColumn = null;
+		if (!agentColumn.equals(OTHER_PARAMETER)
+				&& !agentColumn.equals(DO_NOT_USE)) {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN,
+					agentColumn);
+		} else {
+			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN,
+					null);
 		}
 
-		if (matrixColumn.equals(OTHER_PARAMETER)
-				|| matrixColumn.equals(DO_NOT_USE)) {
-			matrixColumn = null;
+		if (!matrixColumn.equals(OTHER_PARAMETER)
+				&& !matrixColumn.equals(DO_NOT_USE)) {
+			settings.addString(
+					XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN,
+					matrixColumn);
+		} else {
+			settings.addString(
+					XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN, null);
 		}
 
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_FILENAME,
@@ -516,18 +539,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				(String) logcBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTCOLUMN,
-				agentColumn);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXCOLUMN,
-				matrixColumn);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
 				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT,
-				XmlConverter.agentToXml(agent));
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX,
-				XmlConverter.matrixToXml(matrix));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATURE,
 				XmlConverter.listToXml(literature));
 	}
@@ -535,7 +550,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == agentButton) {
-			Integer id = DBKernel.openAgentDBWindow(agent.getID());
+			Integer id;
+
+			if (agent != null) {
+				id = DBKernel.openAgentDBWindow(agent.getID());
+			} else {
+				id = DBKernel.openAgentDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Agenzien", "ID", id + "",
@@ -545,7 +566,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				agentButton.setText(name);
 			}
 		} else if (e.getSource() == matrixButton) {
-			Integer id = DBKernel.openMatrixDBWindow(matrix.getID());
+			Integer id;
+
+			if (matrix != null) {
+				id = DBKernel.openMatrixDBWindow(matrix.getID());
+			} else {
+				id = DBKernel.openMatrixDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Matrices", "ID", id + "",

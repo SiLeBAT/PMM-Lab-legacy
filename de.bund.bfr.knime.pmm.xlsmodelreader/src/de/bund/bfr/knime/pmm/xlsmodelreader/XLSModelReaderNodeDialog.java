@@ -364,21 +364,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentColumn = settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN);
-
-			if (agentColumn == null) {
-				agentColumn = DO_NOT_USE;
-			}
-		} catch (InvalidSettingsException e) {
-			agentColumn = DO_NOT_USE;
-		}
-
-		try {
 			agent = XmlConverter.xmlToAgent(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_AGENT));
 		} catch (InvalidSettingsException e) {
 			agent = null;
+		}
+
+		try {
+			agentColumn = settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN);
+
+			if (agentColumn == null) {
+				if (agent != null) {
+					agentColumn = OTHER_PARAMETER;
+				} else {
+					agentColumn = DO_NOT_USE;
+				}
+			}
+		} catch (InvalidSettingsException e) {
+			agentColumn = DO_NOT_USE;
 		}
 
 		try {
@@ -389,21 +393,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixColumn = settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN);
-
-			if (matrixColumn == null) {
-				matrixColumn = DO_NOT_USE;
-			}
-		} catch (InvalidSettingsException e) {
-			matrixColumn = DO_NOT_USE;
-		}
-
-		try {
 			matrix = XmlConverter.xmlToMatrix(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIX));
 		} catch (InvalidSettingsException e) {
 			matrix = null;
+		}
+
+		try {
+			matrixColumn = settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN);
+
+			if (matrixColumn == null) {
+				if (matrix != null) {
+					matrixColumn = OTHER_PARAMETER;
+				} else {
+					matrixColumn = DO_NOT_USE;
+				}
+			}
+		} catch (InvalidSettingsException e) {
+			matrixColumn = DO_NOT_USE;
 		}
 
 		try {
@@ -489,22 +497,35 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		if (!agentColumn.equals(OTHER_PARAMETER)) {
-			agent = null;
+		if (agentColumn.equals(OTHER_PARAMETER)) {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT,
+					XmlConverter.agentToXml(agent));
+		} else {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT, null);
 		}
 
-		if (!matrixColumn.equals(OTHER_PARAMETER)) {
-			matrix = null;
+		if (matrixColumn.equals(OTHER_PARAMETER)) {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX,
+					XmlConverter.matrixToXml(matrix));
+		} else {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX, null);
 		}
 
-		if (agentColumn.equals(OTHER_PARAMETER)
-				|| agentColumn.equals(DO_NOT_USE)) {
-			agentColumn = null;
+		if (!agentColumn.equals(OTHER_PARAMETER)
+				&& !agentColumn.equals(DO_NOT_USE)) {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
+					agentColumn);
+		} else {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN, null);
 		}
 
-		if (matrixColumn.equals(OTHER_PARAMETER)
-				|| matrixColumn.equals(DO_NOT_USE)) {
-			matrixColumn = null;
+		if (!matrixColumn.equals(OTHER_PARAMETER)
+				&& !matrixColumn.equals(DO_NOT_USE)) {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
+					matrixColumn);
+		} else {
+			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
+					null);
 		}
 
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_FILENAME,
@@ -519,18 +540,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				XmlConverter.mapToXml(columnMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
-				agentColumn);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
-				matrixColumn);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT,
-				XmlConverter.agentToXml(agent));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX,
-				XmlConverter.matrixToXml(matrix));
+				XmlConverter.mapToXml(matrixMappings));		
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATURE,
 				XmlConverter.listToXml(literature));
 	}
@@ -560,7 +573,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				updateModelPanel();
 			}
 		} else if (e.getSource() == agentButton) {
-			Integer id = DBKernel.openAgentDBWindow(agent.getID());
+			Integer id;
+
+			if (agent != null) {
+				id = DBKernel.openAgentDBWindow(agent.getID());
+			} else {
+				id = DBKernel.openAgentDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Agenzien", "ID", id + "",
@@ -570,7 +589,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				agentButton.setText(name);
 			}
 		} else if (e.getSource() == matrixButton) {
-			Integer id = DBKernel.openMatrixDBWindow(matrix.getID());
+			Integer id;
+
+			if (matrix != null) {
+				id = DBKernel.openMatrixDBWindow(matrix.getID());
+			} else {
+				id = DBKernel.openMatrixDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Matrices", "ID", id + "",

@@ -120,7 +120,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	public String getTitle() {return title;}
 	public String getAbstract() {return m_abstract;}
 	public Integer getYear() {return year;}
-	public Integer getId() {return id;}
+	public Integer getID() {return id;}
 	public String getDbuuid() {return dbuuid;}
 
 	public void setAuthor(String author) {this.author = (author == null) ? "" : author;}

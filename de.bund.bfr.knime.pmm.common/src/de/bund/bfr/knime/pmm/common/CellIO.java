@@ -389,14 +389,14 @@ public class CellIO {
     				if (el instanceof LiteratureItem) {
     					LiteratureItem li = (LiteratureItem) el;
     					LiteratureItem liDB = ((LiteratureItem) fromToXmlDB.get(i));
-    					Integer key = li.getId();
+    					Integer key = li.getID();
 		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
 		        			if (before) {
 		        				liDB.setId(foreignDbIdsTable.get(key));
                 				fromToXmlDB.set(i, liDB);
 		        			}
-		        			else if (foreignDbIdsTable.get(key).intValue() != liDB.getId().intValue()) {
-		        				System.err.println("checkIDs, LiteratureItem ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + liDB.getId().intValue());
+		        			else if (foreignDbIdsTable.get(key).intValue() != liDB.getID().intValue()) {
+		        				System.err.println("checkIDs, LiteratureItem ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + liDB.getID().intValue());
 		        			}
 		        		}
 		        		else {
@@ -404,7 +404,7 @@ public class CellIO {
 		        				liDB.setId(MathUtilities.getRandomNegativeInt());
                 				fromToXmlDB.set(i, liDB);
 		        			}
-		        			else foreignDbIdsTable.put(key, liDB.getId());
+		        			else foreignDbIdsTable.put(key, liDB.getID());
 		        		}
     				}
             		i++;
@@ -559,13 +559,13 @@ public class CellIO {
     				else if (el instanceof LiteratureItem) {
     					LiteratureItem li = (LiteratureItem) el;
     					LiteratureItem liDB = ((LiteratureItem) fromToXmlDB.get(i));
-    					Integer key = li.getId();
+    					Integer key = li.getID();
                 		if (key != null && foreignDbIds.containsKey(key)) {
                 			if (before) {
                 				liDB.setId(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, liDB);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != liDB.getId().intValue()) {
+                			else if (foreignDbIds.get(key).intValue() != liDB.getID().intValue()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...LiteratureItem");
                 			}
                 		}
@@ -574,7 +574,7 @@ public class CellIO {
                 				liDB.setId(MathUtilities.getRandomNegativeInt()); //schemaTuple.addValue(attr, MathUtilities.getRandomNegativeInt());
                 				fromToXmlDB.set(i, liDB);
                 			}
-                			else foreignDbIds.put(key, liDB.getId()); //schemaTuple.getIntList(attr).get(i));
+                			else foreignDbIds.put(key, liDB.getID()); //schemaTuple.getIntList(attr).get(i));
                 		}
     				}
             		i++;

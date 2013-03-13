@@ -488,7 +488,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                		}
 		                		else if (el instanceof LiteratureItem) {
 		                			LiteratureItem li = (LiteratureItem) el;
-		                			addCells.put("id", li.getId() == null ? CellIO.createMissingCell() : new IntCell(li.getId()));
+		                			addCells.put("id", li.getID() == null ? CellIO.createMissingCell() : new IntCell(li.getID()));
 		                			addCells.put("author", li.getAuthor() == null ? CellIO.createMissingCell() : new StringCell(li.getAuthor()));
 		                			addCells.put("year", li.getYear() == null ? CellIO.createMissingCell() : new IntCell(li.getYear()));
 		                			addCells.put("title", li.getTitle() == null ? CellIO.createMissingCell() : new StringCell(li.getTitle()));

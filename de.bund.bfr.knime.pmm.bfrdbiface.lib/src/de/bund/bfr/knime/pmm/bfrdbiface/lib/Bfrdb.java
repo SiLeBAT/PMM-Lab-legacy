@@ -1090,7 +1090,7 @@ public class Bfrdb extends Hsqldbiface {
 				List<PmmXmlElementConvertable> l = lit.getElementSet();
 				if (l.size() > 0) {
 					LiteratureItem li = (LiteratureItem) l.get(0);
-					ps.setInt(10, li.getId());
+					ps.setInt(10, li.getID());
 				}
 				else {
 					ps.setNull(10, Types.INTEGER);					
@@ -1208,7 +1208,7 @@ public class Bfrdb extends Hsqldbiface {
 			for (PmmXmlElementConvertable el : lit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getId() <= 0) {
+					if (li.getID() <= 0) {
 						if (li.getAuthor() == null) psm.setNull(1, Types.VARCHAR);
 						else psm.setString(1, li.getAuthor());
 						if (li.getYear() == null) psm.setNull(2, Types.INTEGER);
@@ -1413,15 +1413,15 @@ public class Bfrdb extends Hsqldbiface {
 			for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getId() >= 0) {
+					if (li.getID() >= 0) {
 						if (!estimatedModels) {
 							psm.setInt(1, modelId);
-							psm.setInt(2, li.getId());
+							psm.setInt(2, li.getID());
 							psm.executeUpdate();
 						}
 						else {
 							psgm.setInt(1, modelId);
-							psgm.setInt(2, li.getId());
+							psgm.setInt(2, li.getID());
 							psgm.executeUpdate();
 						}
 					}

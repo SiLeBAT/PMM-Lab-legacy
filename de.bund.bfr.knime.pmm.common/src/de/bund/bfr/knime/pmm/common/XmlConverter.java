@@ -25,6 +25,14 @@ public class XmlConverter {
 		return new XStream().toXML(map);
 	}
 
+	public static String agentToXml(AgentXml agent) {
+		return new XStream().toXML(agent);
+	}
+
+	public static String matrixToXml(MatrixXml matrix) {
+		return new XStream().toXML(matrix);
+	}
+
 	public static String colorMapToXml(Map<String, Color> map) {
 		return mapToXml(colorMapToStringMap(map));
 	}
@@ -39,6 +47,22 @@ public class XmlConverter {
 
 	public static String shapeListMapToXml(Map<String, List<Shape>> map) {
 		return mapToXml(shapeListMapToStringMap(map));
+	}
+
+	public static AgentXml xmlToAgent(String xml) {
+		try {
+			return (AgentXml) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static MatrixXml xmlToMatrix(String xml) {
+		try {
+			return (MatrixXml) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -78,6 +102,24 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static List<LiteratureItem> xmlToLiteratureList(String xml) {
+		try {
+			return (List<LiteratureItem>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> xmlToObjectMap(String xml) {
+		try {
+			return (Map<String, Object>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, String> xmlToStringMap(String xml) {
 		try {
 			return (Map<String, String>) new XStream().fromXML(xml);
@@ -99,6 +141,24 @@ public class XmlConverter {
 	public static Map<String, Double> xmlToDoubleMap(String xml) {
 		try {
 			return (Map<String, Double>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, AgentXml> xmlToAgentMap(String xml) {
+		try {
+			return (Map<String, AgentXml>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, MatrixXml> xmlToMatrixMap(String xml) {
+		try {
+			return (Map<String, MatrixXml>) new XStream().fromXML(xml);
 		} catch (Exception e) {
 			return new LinkedHashMap<>();
 		}

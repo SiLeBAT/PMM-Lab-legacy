@@ -89,6 +89,8 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.eclipse.core.resources.ResourcesPlugin;
 
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+
 /**
  * @author Armin
  *
@@ -2223,6 +2225,13 @@ public class DBKernel {
 		if (newVal instanceof Integer) {
 			return (Integer) newVal;
 		} else {
+			return null;
+		}
+	}
+	public static String getLocalDBUUID() {
+		try {
+			return new Bfrdb(getLocalConn(true)).getDBUUID();
+		} catch (SQLException e) {
 			return null;
 		}
 	}

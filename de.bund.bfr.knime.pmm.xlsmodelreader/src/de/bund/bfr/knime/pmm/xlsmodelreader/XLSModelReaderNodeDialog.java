@@ -71,6 +71,10 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -112,10 +116,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private JComboBox<String> tempBox;
 
+	private List<LiteratureItem> literature;
 	private JButton addLiteratureButton;
 	private JButton removeLiteratureButton;
 	private JList<String> literatureList;
-	private List<Integer> literatureIDs;
 	private List<String> literatureData;
 
 	private JPanel modelPanel;
@@ -128,22 +132,22 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> agentBox;
 	private JButton agentButton;
 	private String agentColumn;
-	private int agentID;
-	private Map<String, String> agentMappings;
+	private AgentXml agent;
+	private Map<String, AgentXml> agentMappings;
 	private Map<String, JButton> agentButtons;
 
 	private JPanel matrixPanel;
 	private JComboBox<String> matrixBox;
 	private JButton matrixButton;
 	private String matrixColumn;
-	private int matrixID;
-	private Map<String, String> matrixMappings;
+	private MatrixXml matrix;
+	private Map<String, MatrixXml> matrixMappings;
 	private Map<String, JButton> matrixButtons;
 
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> columnBoxes;
 	private Map<String, JButton> columnButtons;
-	private Map<String, String> columnMappings;
+	private Map<String, Object> columnMappings;
 
 	private JLabel noLabel;
 
@@ -342,7 +346,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			columnMappings = XmlConverter.xmlToStringMap(settings
+			columnMappings = XmlConverter.xmlToObjectMap(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
@@ -368,13 +372,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_AGENTID);
+			agent = XmlConverter.xmlToAgent(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_AGENT));
 		} catch (InvalidSettingsException e) {
-			agentID = -1;
+			agent = null;
 		}
 
 		try {
-			agentMappings = XmlConverter.xmlToStringMap(settings
+			agentMappings = XmlConverter.xmlToAgentMap(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
@@ -392,36 +397,33 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixID = settings.getInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID);
+			matrix = XmlConverter.xmlToMatrix(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIX));
 		} catch (InvalidSettingsException e) {
-			matrixID = -1;
+			matrix = null;
 		}
 
 		try {
-			matrixMappings = XmlConverter.xmlToStringMap(settings
+			matrixMappings = XmlConverter.xmlToMatrixMap(settings
 					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literatureIDs = XmlConverter.xmlToIntList(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS));
+			literature = XmlConverter.xmlToLiteratureList(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATURE));
 			literatureData = new ArrayList<>();
 
-			for (int id : literatureIDs) {
-				String author = DBKernel.getValue("Literatur", "ID", id + "",
-						"Erstautor") + "";
-				String year = DBKernel.getValue("Literatur", "ID", id + "",
-						"Jahr") + "";
-
-				literatureData.add(author + "-" + year);
+			for (LiteratureItem item : literature) {
+				literatureData.add(item.getAuthor() + "-" + item.getYear());
 			}
 
 			literatureList.setListData(literatureData.toArray(new String[0]));
 		} catch (InvalidSettingsException e) {
-			literatureIDs = new ArrayList<>();
-			literatureList.setListData(new String[0]);
+			literature = new ArrayList<>();
+			literatureData = new ArrayList<>();
+			literatureList.setListData(literatureData.toArray(new String[0]));
 		}
 
 		updateModelPanel();
@@ -449,21 +451,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("No model is specified");
 		}
 
-		if (agentBox.getSelectedItem().equals(OTHER_PARAMETER) && agentID == -1) {
+		if (agentBox.getSelectedItem().equals(OTHER_PARAMETER) && agent == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_AGENT);
 		}
 
 		if (matrixBox.getSelectedItem().equals(OTHER_PARAMETER)
-				&& matrixID == -1) {
+				&& matrix == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_MATRIX);
 		}
 
-		Set<String> assignments = new LinkedHashSet<>();
+		Set<Object> assignments = new LinkedHashSet<>();
 
 		for (String column : columnMappings.keySet()) {
-			String assignment = columnMappings.get(column);
+			Object assignment = columnMappings.get(column);
 
 			if (assignment == null) {
 				throw new InvalidSettingsException("Column \"" + column
@@ -473,22 +475,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			if (!assignments.add(assignment)) {
 				String name = null;
 
-				try {
-					int id = Integer.parseInt(assignment);
-
-					if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
-						name = AttributeUtilities.ATT_TEMPERATURE;
-					} else if (id == AttributeUtilities.ATT_PH_ID) {
-						name = AttributeUtilities.ATT_PH;
-					} else if (id == AttributeUtilities.ATT_AW_ID) {
-						name = AttributeUtilities.ATT_WATERACTIVITY;
-					} else {
-						name = DBKernel.getValue("SonstigeParameter", "ID", id
-								+ "", "Parameter")
-								+ "";
-					}
-				} catch (NumberFormatException e) {
-					name = assignment;
+				if (assignment instanceof MiscXml) {
+					name = ((MiscXml) assignment).getName();
+				} else if (assignment instanceof String) {
+					name = (String) assignment;
 				}
 
 				throw new InvalidSettingsException("\"" + name
@@ -496,19 +486,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		int agentID = this.agentID;
-		int matrixID = this.matrixID;
-
 		if (!agentColumn.equals(OTHER_PARAMETER)) {
-			agentID = -1;
+			agent = null;
 		}
 
 		if (!matrixColumn.equals(OTHER_PARAMETER)) {
-			matrixID = -1;
+			matrix = null;
 		}
-
-		String agentColumn = this.agentColumn;
-		String matrixColumn = this.matrixColumn;
 
 		if (agentColumn.equals(OTHER_PARAMETER)
 				|| agentColumn.equals(DO_NOT_USE)) {
@@ -533,16 +517,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				(String) tempBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTCOLUMN,
 				agentColumn);
-		settings.addInt(XLSModelReaderNodeModel.CFGKEY_AGENTID, agentID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXCOLUMN,
 				matrixColumn);
-		settings.addInt(XLSModelReaderNodeModel.CFGKEY_MATRIXID, matrixID);
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
 				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATUREIDS,
-				XmlConverter.listToXml(literatureIDs));
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT,
+				XmlConverter.agentToXml(agent));
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX,
+				XmlConverter.matrixToXml(matrix));
+		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATURE,
+				XmlConverter.listToXml(literature));
 	}
 
 	@Override
@@ -555,37 +541,46 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				updateModelPanel();
 			}
 		} else if (e.getSource() == agentButton) {
-			Integer newAgentID = DBKernel.openAgentDBWindow(agentID);
+			Integer id = DBKernel.openAgentDBWindow(agent.getID());
 
-			if (newAgentID != null) {
-				String agent = ""
-						+ DBKernel.getValue("Agenzien", "ID", newAgentID + "",
-								"Agensname");
+			if (id != null) {
+				String name = DBKernel.getValue("Agenzien", "ID", id + "",
+						"Agensname") + "";
 
-				agentID = newAgentID;
-				agentButton.setText(agent);
+				agent = new AgentXml(id, name, null, DBKernel.getLocalDBUUID());
+				agentButton.setText(name);
 			}
 		} else if (e.getSource() == matrixButton) {
-			Integer newMatrixID = DBKernel.openMatrixDBWindow(matrixID);
+			Integer id = DBKernel.openMatrixDBWindow(matrix.getID());
 
-			if (newMatrixID != null) {
-				String matrix = ""
-						+ DBKernel.getValue("Matrices", "ID", newMatrixID + "",
-								"Matrixname");
+			if (id != null) {
+				String name = DBKernel.getValue("Matrices", "ID", id + "",
+						"Matrixname") + "";
 
-				matrixID = newMatrixID;
-				matrixButton.setText(matrix);
+				matrix = new MatrixXml(id, name, null,
+						DBKernel.getLocalDBUUID());
+				matrixButton.setText(name);
 			}
 		} else if (e.getSource() == addLiteratureButton) {
 			Integer id = DBKernel.openLiteratureDBWindow(null);
+			Set<Integer> ids = new LinkedHashSet<>();
 
-			if (id != null && !literatureIDs.contains(id)) {
+			for (LiteratureItem item : literature) {
+				ids.add(item.getID());
+			}
+
+			if (id != null && !ids.contains(id)) {
 				String author = DBKernel.getValue("Literatur", "ID", id + "",
 						"Erstautor") + "";
 				String year = DBKernel.getValue("Literatur", "ID", id + "",
 						"Jahr") + "";
+				String title = DBKernel.getValue("Literatur", "ID", id + "",
+						"Titel") + "";
+				String mAbstract = DBKernel.getValue("Literatur", "ID",
+						id + "", "Abstract") + "";
 
-				literatureIDs.add(id);
+				literature.add(new LiteratureItem(author, Integer
+						.parseInt(year), title, mAbstract, id));
 				literatureData.add(author + "-" + year);
 				literatureList.setListData(literatureData
 						.toArray(new String[0]));
@@ -597,7 +592,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				Arrays.sort(indices);
 
 				for (int i = indices.length - 1; i >= 0; i--) {
-					literatureIDs.remove(i);
+					literature.remove(i);
 					literatureData.remove(i);
 				}
 
@@ -607,21 +602,23 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		} else {
 			for (String value : agentButtons.keySet()) {
 				if (e.getSource() == agentButtons.get(value)) {
-					Integer id = null;
+					Integer id;
 
-					try {
-						id = Integer.parseInt(agentMappings.get(value));
-					} catch (NumberFormatException ex) {
+					if (agentMappings.get(value) != null) {
+						id = DBKernel.openAgentDBWindow(agentMappings
+								.get(value).getID());
+					} else {
+						id = DBKernel.openAgentDBWindow(null);
 					}
 
-					Integer newID = DBKernel.openAgentDBWindow(id);
+					if (id != null) {
+						String name = DBKernel.getValue("Agenzien", "ID", id
+								+ "", "Agensname")
+								+ "";
 
-					if (newID != null) {
-						String agent = DBKernel.getValue("Agenzien", "ID",
-								newID + "", "Agensname") + "";
-
-						agentButtons.get(value).setText(agent);
-						agentMappings.put(value, newID + "");
+						agentButtons.get(value).setText(name);
+						agentMappings.put(value, new AgentXml(id, name, null,
+								DBKernel.getLocalDBUUID()));
 					}
 
 					break;
@@ -630,21 +627,23 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String value : matrixButtons.keySet()) {
 				if (e.getSource() == matrixButtons.get(value)) {
-					Integer id = null;
+					Integer id;
 
-					try {
-						id = Integer.parseInt(matrixMappings.get(value));
-					} catch (NumberFormatException ex) {
+					if (matrixMappings.get(value) != null) {
+						id = DBKernel.openMatrixDBWindow(matrixMappings.get(
+								value).getID());
+					} else {
+						id = DBKernel.openMatrixDBWindow(null);
 					}
 
-					Integer newID = DBKernel.openMatrixDBWindow(id);
+					if (id != null) {
+						String name = DBKernel.getValue("Matrices", "ID", id
+								+ "", "Matrixname")
+								+ "";
 
-					if (newID != null) {
-						String matrix = DBKernel.getValue("Matrices", "ID",
-								newID + "", "Matrixname") + "";
-
-						matrixButtons.get(value).setText(matrix);
-						matrixMappings.put(value, newID + "");
+						matrixButtons.get(value).setText(name);
+						matrixMappings.put(value, new MatrixXml(id, name, null,
+								DBKernel.getLocalDBUUID()));
 					}
 
 					break;
@@ -653,22 +652,23 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnButtons.keySet()) {
 				if (e.getSource() == columnButtons.get(column)) {
-					Integer intID = null;
+					Integer id;
 
-					try {
-						intID = Integer.parseInt(columnMappings.get(column));
-					} catch (NumberFormatException ex) {
+					if (columnMappings.get(column) instanceof MiscXml) {
+						id = DBKernel
+								.openMiscDBWindow(((MiscXml) columnMappings
+										.get(column)).getID());
+					} else {
+						id = DBKernel.openMiscDBWindow(null);
 					}
 
-					String miscID = DBKernel.openMiscDBWindow(intID) + "";
+					if (id != null) {
+						String name = DBKernel.getValue("SonstigeParameter",
+								"ID", id + "", "Parameter") + "";
 
-					if (miscID != null) {
-						String misc = ""
-								+ DBKernel.getValue("SonstigeParameter", "ID",
-										miscID, "Parameter");
-
-						columnButtons.get(column).setText(misc);
-						columnMappings.put(column, miscID);
+						columnButtons.get(column).setText(name);
+						columnMappings.put(column, new MiscXml(id, name, null,
+								null, null, DBKernel.getLocalDBUUID()));
 					}
 
 					break;
@@ -728,15 +728,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						columnMappings.put(column, selected);
 					} else if (selected
 							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-						columnMappings.put(column,
-								AttributeUtilities.ATT_TEMPERATURE_ID + "");
+						columnMappings.put(column, new MiscXml(
+								AttributeUtilities.ATT_TEMPERATURE_ID,
+								AttributeUtilities.ATT_TEMPERATURE, null, null,
+								null, DBKernel.getLocalDBUUID()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
-						columnMappings.put(column, AttributeUtilities.ATT_PH_ID
-								+ "");
+						columnMappings.put(column, new MiscXml(
+								AttributeUtilities.ATT_PH_ID,
+								AttributeUtilities.ATT_PH, null, null, null,
+								DBKernel.getLocalDBUUID()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-						columnMappings.put(column, AttributeUtilities.ATT_AW_ID
-								+ "");
+						columnMappings.put(column, new MiscXml(
+								AttributeUtilities.ATT_AW_ID,
+								AttributeUtilities.ATT_WATERACTIVITY, null,
+								null, null, DBKernel.getLocalDBUUID()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {
@@ -857,10 +863,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		agentBox.setSelectedItem(agentColumn);
 
-		if (agentID != -1) {
-			agentButton.setText(""
-					+ DBKernel.getValue("Agenzien", "ID", agentID + "",
-							"Agensname"));
+		if (agent != null) {
+			agentButton.setText(agent.getName());
 		} else {
 			agentButton.setText(OTHER_PARAMETER);
 		}
@@ -891,8 +895,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					JButton button = new JButton();
 
 					if (agentMappings.containsKey(value)) {
-						button.setText(DBKernel.getValue("Agenzien", "ID",
-								agentMappings.get(value), "Agensname") + "");
+						button.setText(agentMappings.get(value).getName());
 					} else {
 						button.setText(OTHER_PARAMETER);
 					}
@@ -929,10 +932,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		matrixBox.setSelectedItem(matrixColumn);
 
-		if (matrixID != -1) {
-			matrixButton.setText(""
-					+ DBKernel.getValue("Matrices", "ID", matrixID + "",
-							"Matrixname"));
+		if (matrix != null) {
+			matrixButton.setText(matrix.getName());
 		} else {
 			matrixButton.setText(OTHER_PARAMETER);
 		}
@@ -963,8 +964,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					JButton button = new JButton();
 
 					if (matrixMappings.containsKey(value)) {
-						button.setText(DBKernel.getValue("Matrices", "ID",
-								matrixMappings.get(value), "Matrixname") + "");
+						button.setText(matrixMappings.get(value).getName());
 					} else {
 						button.setText(OTHER_PARAMETER);
 					}
@@ -1012,36 +1012,36 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				JButton button = new JButton();
 
 				if (columnMappings.containsKey(column)) {
-					String id = columnMappings.get(column);
+					Object mapping = columnMappings.get(column);
 
-					if (id == null) {
+					if (mapping == null) {
 						box.setSelectedItem(OTHER_PARAMETER);
 						button.setEnabled(true);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(AttributeUtilities.ATT_COMMENT)
-							|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
-							|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
-						box.setSelectedItem(id);
+					} else if (mapping instanceof String) {
+						box.setSelectedItem(mapping);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID
-							+ "")) {
-						box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(AttributeUtilities.ATT_PH_ID + "")) {
-						box.setSelectedItem(AttributeUtilities.ATT_PH);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else if (id.equals(AttributeUtilities.ATT_AW_ID + "")) {
-						box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
-						button.setEnabled(false);
-						button.setText(OTHER_PARAMETER);
-					} else {
-						box.setSelectedItem(OTHER_PARAMETER);
-						button.setEnabled(true);
-						button.setText(DBKernel.getValue("SonstigeParameter",
-								"ID", id, "Parameter") + "");
+					} else if (mapping instanceof MiscXml) {
+						int id = ((MiscXml) mapping).getID();
+
+						if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
+							box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+						} else if (id == AttributeUtilities.ATT_PH_ID) {
+							box.setSelectedItem(AttributeUtilities.ATT_PH);
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+						} else if (id == AttributeUtilities.ATT_AW_ID) {
+							box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+						} else {
+							box.setSelectedItem(OTHER_PARAMETER);
+							button.setEnabled(true);
+							button.setText(((MiscXml) mapping).getName());
+						}
 					}
 				} else {
 					box.setSelectedItem(DO_NOT_USE);

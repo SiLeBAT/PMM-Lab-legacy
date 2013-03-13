@@ -89,23 +89,23 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 	protected static final String CFGKEY_MODELID = "ModelID";
-	protected static final String CFGKEY_AGENTID = "AgentID";
-	protected static final String CFGKEY_MATRIXID = "MatrixID";
-	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
+	protected static final String CFGKEY_AGENT = "Agent";
+	protected static final String CFGKEY_MATRIX = "Matrix";
+	protected static final String CFGKEY_LITERATURE = "Literature";
 
 	private String fileName;
 	private String sheetName;
 	private Map<String, String> modelMappings;
-	private Map<String, String> columnMappings;
+	private Map<String, Object> columnMappings;
 	private String agentColumn;
-	private Map<String, String> agentMappings;
+	private Map<String, AgentXml> agentMappings;
 	private String matrixColumn;
-	private Map<String, String> matrixMappings;
+	private Map<String, MatrixXml> matrixMappings;
 	private String tempUnit;
 	private int modelID;
-	private int agentID;
-	private int matrixID;
-	private List<Integer> literatureIDs;
+	private AgentXml agent;
+	private MatrixXml matrix;
+	private List<LiteratureItem> literature;
 
 	/**
 	 * Constructor for the node model.
@@ -123,9 +123,9 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		matrixMappings = new LinkedHashMap<>();
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		agentID = -1;
-		matrixID = -1;
-		literatureIDs = new ArrayList<>();
+		agent = null;
+		matrix = null;
+		literature = new ArrayList<>();
 	}
 
 	/**
@@ -134,56 +134,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		Map<String, Object> cMappings = new LinkedHashMap<>();
-		Map<String, AgentXml> aMappings = new LinkedHashMap<>();
-		Map<String, MatrixXml> mMappings = new LinkedHashMap<>();
-
-		for (String column : columnMappings.keySet()) {
-			String id = columnMappings.get(column);
-
-			if (id.equals(AttributeUtilities.ATT_COMMENT)
-					|| id.equals(XLSReader.AGENT_DETAILS_COLUMN)
-					|| id.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
-				cMappings.put(column, id);
-			} else if (id.equals(AttributeUtilities.ATT_TEMPERATURE_ID + "")) {
-				cMappings.put(column, new MiscXml(
-						AttributeUtilities.ATT_TEMPERATURE_ID,
-						AttributeUtilities.ATT_TEMPERATURE, null, null, null));
-			} else if (id.equals(AttributeUtilities.ATT_PH_ID + "")) {
-				cMappings.put(column, new MiscXml(AttributeUtilities.ATT_PH_ID,
-						AttributeUtilities.ATT_PH, null, null, null));
-			} else if (id.equals(AttributeUtilities.ATT_AW_ID + "")) {
-				cMappings
-						.put(column, new MiscXml(AttributeUtilities.ATT_AW_ID,
-								AttributeUtilities.ATT_WATERACTIVITY, null,
-								null, null));
-			} else {
-				String name = DBKernel.getValue("SonstigeParameter", "ID", id,
-						"Parameter") + "";
-
-				cMappings.put(column, new MiscXml(Integer.parseInt(id), name,
-						null, null, null));
-			}
-		}
-
-		for (String value : agentMappings.keySet()) {
-			String id = agentMappings.get(value);
-			String agentName = DBKernel.getValue("Agenzien", "ID", id,
-					"Agensname") + "";
-
-			aMappings.put(value, new AgentXml(Integer.parseInt(id), agentName,
-					null));
-		}
-
-		for (String value : matrixMappings.keySet()) {
-			String id = matrixMappings.get(value);
-			String matrixName = DBKernel.getValue("Matrices", "ID", id,
-					"Matrixname") + "";
-
-			mMappings.put(value, new MatrixXml(Integer.parseInt(id),
-					matrixName, null));
-		}
-
 		Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
 		KnimeTuple modelTuple = db.getPrimModelById(modelID);
 		PmmXmlDoc modelXml = modelTuple
@@ -213,58 +163,49 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
-				.getPrimaryModelTuples(new File(fileName), sheetName,
-						cMappings, agentColumn, aMappings, matrixColumn,
-						mMappings, modelTuple, modelMappings).values());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
+				xlsReader
+						.getPrimaryModelTuples(new File(fileName), sheetName,
+								columnMappings, agentColumn, agentMappings,
+								matrixColumn, matrixMappings, modelTuple,
+								modelMappings).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);
 		}
 
-		if (agentColumn == null && agentID != -1) {
-			String agentName = DBKernel.getValue("Agenzien", "ID",
-					agentID + "", "Agensname") + "";
-
+		if (agentColumn == null && agent != null) {
 			for (KnimeTuple tuple : tuples) {
 				PmmXmlDoc agentXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
 
-				((AgentXml) agentXml.get(0)).setID(agentID);
-				((AgentXml) agentXml.get(0)).setName(agentName);
+				((AgentXml) agentXml.get(0)).setID(agent.getID());
+				((AgentXml) agentXml.get(0)).setName(agent.getName());
+				((AgentXml) agentXml.get(0)).setDbuuid(agent.getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			}
 		}
 
-		if (matrixColumn == null && matrixID != -1) {
-			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
-					+ "", "Matrixname")
-					+ "";
-
+		if (matrixColumn == null && matrix != null) {
 			for (KnimeTuple tuple : tuples) {
 				PmmXmlDoc matrixXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
 
-				((MatrixXml) matrixXml.get(0)).setID(matrixID);
-				((MatrixXml) matrixXml.get(0)).setName(matrixName);
+				((MatrixXml) matrixXml.get(0)).setID(matrix.getID());
+				((MatrixXml) matrixXml.get(0)).setName(matrix.getName());
+				((MatrixXml) matrixXml.get(0)).setDbuuid(matrix.getDbuuid());
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 			}
 		}
 
 		PmmXmlDoc literatureXML = new PmmXmlDoc();
 
-		for (int id : literatureIDs) {
-			String author = DBKernel.getValue("Literatur", "ID", id + "",
-					"Erstautor") + "";
-			String year = DBKernel.getValue("Literatur", "ID", id + "", "Jahr")
-					+ "";
-			String title = DBKernel.getValue("Literatur", "ID", id + "",
-					"Titel") + "";
-			String mAbstract = DBKernel.getValue("Literatur", "ID", id + "",
-					"Abstract") + "";
+		for (LiteratureItem item : literature) {
+			literatureXML.add(item);
+		}
 
-			literatureXML.add(new LiteratureItem(author,
-					Integer.parseInt(year), title, mAbstract, id));
+		for (KnimeTuple tuple : tuples) {
+			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
 		}
 
 		BufferedDataContainer container = exec
@@ -286,7 +227,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-			tuple.setValue(TimeSeriesSchema.ATT_LITMD, literatureXML);
 
 			container.addRowToTable(tuple);
 		}
@@ -336,10 +276,10 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_MATRIXMAPPINGS,
 				XmlConverter.mapToXml(matrixMappings));
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
-		settings.addInt(CFGKEY_AGENTID, agentID);
-		settings.addInt(CFGKEY_MATRIXID, matrixID);
-		settings.addString(CFGKEY_LITERATUREIDS,
-				XmlConverter.listToXml(literatureIDs));
+		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
+		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
+		settings.addString(CFGKEY_LITERATURE,
+				XmlConverter.listToXml(literature));
 	}
 
 	/**
@@ -353,19 +293,19 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelID = settings.getInt(CFGKEY_MODELID);
 		modelMappings = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_MODELMAPPINGS));
-		columnMappings = XmlConverter.xmlToStringMap(settings
+		columnMappings = XmlConverter.xmlToObjectMap(settings
 				.getString(CFGKEY_COLUMNMAPPINGS));
 		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
-		agentMappings = XmlConverter.xmlToStringMap(settings
+		agentMappings = XmlConverter.xmlToAgentMap(settings
 				.getString(CFGKEY_AGENTMAPPINGS));
 		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
-		matrixMappings = XmlConverter.xmlToStringMap(settings
+		matrixMappings = XmlConverter.xmlToMatrixMap(settings
 				.getString(CFGKEY_MATRIXMAPPINGS));
 		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
-		agentID = settings.getInt(CFGKEY_AGENTID);
-		matrixID = settings.getInt(CFGKEY_MATRIXID);
-		literatureIDs = XmlConverter.xmlToIntList(settings
-				.getString(CFGKEY_LITERATUREIDS));
+		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
+		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
+		literature = XmlConverter.xmlToLiteratureList(settings
+				.getString(CFGKEY_LITERATURE));
 	}
 
 	/**

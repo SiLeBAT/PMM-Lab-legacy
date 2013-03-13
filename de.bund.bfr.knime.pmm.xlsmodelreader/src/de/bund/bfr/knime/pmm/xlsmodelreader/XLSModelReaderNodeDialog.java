@@ -611,8 +611,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				Arrays.sort(indices);
 
 				for (int i = indices.length - 1; i >= 0; i--) {
-					literature.remove(i);
-					literatureData.remove(i);
+					literature.remove(indices[i]);
+					literatureData.remove(indices[i]);
 				}
 
 				literatureList.setListData(literatureData
@@ -750,18 +750,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_TEMPERATURE_ID,
 								AttributeUtilities.ATT_TEMPERATURE, null, null,
-								null, DBKernel.getLocalDBUUID()));
+								null, null));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_PH_ID,
 								AttributeUtilities.ATT_PH, null, null, null,
-								DBKernel.getLocalDBUUID()));
+								null));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_AW_ID,
 								AttributeUtilities.ATT_WATERACTIVITY, null,
-								null, null, DBKernel.getLocalDBUUID()));
+								null, null, null));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {

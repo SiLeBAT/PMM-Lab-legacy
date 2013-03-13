@@ -50,8 +50,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -74,6 +76,9 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmConstants;
@@ -122,11 +127,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JButton addLiteratureButton;
 	private JButton removeLiteratureButton;
 	private JList<String> literatureList;
-	private List<Integer> literatureIDs;
+	private List<LiteratureItem> literature;
 	private List<String> literatureData;
-	private int agentID;
+	private AgentXml agent;
 	private JButton agentButton;
-	private int matrixID;
+	private MatrixXml matrix;
 	private JButton matrixButton;
 	private StringTextField commentField;
 	private DoubleTextField temperatureField;
@@ -136,8 +141,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> logcBox;
 	private JComboBox<String> tempBox;
 
+	private List<MiscXml> conditions;
 	private List<JButton> condButtons;
-	private List<Integer> condIDs;
 	private List<DoubleTextField> condValueFields;
 	private List<JButton> addButtons;
 	private List<JButton> removeButtons;
@@ -152,7 +157,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		xlsReader = new XLSReader();
 
 		condButtons = new ArrayList<>();
-		condIDs = new ArrayList<>();
+		conditions = new ArrayList<>();
 		condValueFields = new ArrayList<>();
 		addButtons = new ArrayList<>();
 		removeButtons = new ArrayList<>();
@@ -278,51 +283,33 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			literatureIDs = XmlConverter
-					.xmlToIntList(settings
-							.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS));
+			literature = XmlConverter.xmlToLiteratureList(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATURE));
 			literatureData = new ArrayList<>();
 
-			for (int id : literatureIDs) {
-				String author = DBKernel.getValue("Literatur", "ID", id + "",
-						"Erstautor") + "";
-				String year = DBKernel.getValue("Literatur", "ID", id + "",
-						"Jahr") + "";
-
-				literatureData.add(author + "-" + year);
+			for (LiteratureItem item : literature) {
+				literatureData.add(item.getAuthor() + "-" + item.getYear());
 			}
 
 			literatureList.setListData(literatureData.toArray(new String[0]));
 		} catch (InvalidSettingsException e) {
-			literatureIDs = new ArrayList<>();
-			literatureList.setListData(new String[0]);
+			literature = new ArrayList<>();
+			literatureData = new ArrayList<>();
+			literatureList.setListData(literatureData.toArray(new String[0]));
 		}
 
 		try {
-			agentID = settings
-					.getInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID);
-
-			if (agentID != TimeSeriesCreatorNodeModel.DEFAULT_AGENTID) {
-				String agentName = DBKernel.getValue("Agenzien", "ID", agentID
-						+ "", "Agensname")
-						+ "";
-
-				agentButton.setText(agentName);
-			}
+			agent = XmlConverter.xmlToAgent(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT));
 		} catch (InvalidSettingsException e) {
+			agent = null;
 		}
 
 		try {
-			matrixID = settings
-					.getInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID);
-
-			if (matrixID != TimeSeriesCreatorNodeModel.DEFAULT_AGENTID) {
-				String matrixName = DBKernel.getValue("Matrices", "ID",
-						matrixID + "", "Matrixname") + "";
-
-				matrixButton.setText(matrixName);
-			}
+			matrix = XmlConverter.xmlToMatrix(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX));
 		} catch (InvalidSettingsException e) {
+			matrix = null;
 		}
 
 		try {
@@ -373,40 +360,32 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
-		Map<Integer, Double> miscValues;
+		List<MiscXml> miscValues;
 		int n = removeButtons.size();
 
 		try {
-			miscValues = XmlConverter.xmlToIntDoubleMap(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES));
+			miscValues = XmlConverter.xmlToMiscList(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISC));
 		} catch (InvalidSettingsException e) {
-			miscValues = new LinkedHashMap<>();
+			miscValues = new ArrayList<>();
 		}
 
 		for (int i = 0; i < n; i++) {
 			removeButtons(0);
 		}
 
-		for (int id : miscValues.keySet()) {
-			Double value = miscValues.get(id);
-
-			if (value != null && value.isNaN()) {
-				value = null;
-			}
-
-			if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
-				temperatureField.setValue(value);
-			} else if (id == AttributeUtilities.ATT_PH_ID) {
-				phField.setValue(value);
-			} else if (id == AttributeUtilities.ATT_AW_ID) {
-				waterActivityField.setValue(value);
+		for (MiscXml misc : miscValues) {
+			if (misc.getID() == AttributeUtilities.ATT_TEMPERATURE_ID) {
+				temperatureField.setValue(misc.getValue());
+			} else if (misc.getID() == AttributeUtilities.ATT_PH_ID) {
+				phField.setValue(misc.getValue());
+			} else if (misc.getID() == AttributeUtilities.ATT_AW_ID) {
+				waterActivityField.setValue(misc.getValue());
 			} else {
 				addButtons(0);
-				condButtons.get(0).setText(
-						DBKernel.getValue("SonstigeParameter", "ID", id + "",
-								"Parameter") + "");
-				condIDs.set(0, id);
-				condValueFields.get(0).setValue(value);
+				condButtons.get(0).setText(misc.getName());
+				conditions.set(0, misc);
+				condValueFields.get(0).setValue(misc.getValue());
 			}
 		}
 	}
@@ -426,8 +405,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("Invalid Value");
 		}
 
-		for (Integer id : condIDs) {
-			if (id == null) {
+		for (MiscXml m : conditions) {
+			if (m == null) {
 				throw new InvalidSettingsException("Invalid Value");
 			}
 		}
@@ -462,10 +441,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATUREIDS,
-				XmlConverter.listToXml(literatureIDs));
-		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_AGENTID, agentID);
-		settings.addInt(TimeSeriesCreatorNodeModel.CFGKEY_MATRIXID, matrixID);
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATURE,
+				XmlConverter.listToXml(literature));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT,
+				XmlConverter.agentToXml(agent));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX,
+				XmlConverter.matrixToXml(matrix));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
 				XmlConverter.listToXml(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
@@ -475,28 +456,35 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
 				(String) tempBox.getSelectedItem());
 
-		Map<Integer, Double> miscValues = new LinkedHashMap<>();
+		List<MiscXml> miscValues = new ArrayList<>();
 
 		if (temperatureField.getValue() != null) {
-			miscValues.put(AttributeUtilities.ATT_TEMPERATURE_ID,
-					temperatureField.getValue());
+			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
+					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
+							.getValue(), null, null));
 		}
 
 		if (phField.getValue() != null) {
-			miscValues.put(AttributeUtilities.ATT_PH_ID, phField.getValue());
+			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
+					AttributeUtilities.ATT_PH, null, phField.getValue(), null,
+					null));
 		}
 
 		if (waterActivityField.getValue() != null) {
-			miscValues.put(AttributeUtilities.ATT_AW_ID,
-					waterActivityField.getValue());
+			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
+					AttributeUtilities.ATT_WATERACTIVITY, null,
+					waterActivityField.getValue(), null, null));
 		}
 
-		for (int i = condIDs.size() - 1; i >= 0; i--) {
-			miscValues.put(condIDs.get(i), condValueFields.get(i).getValue());
+		for (int i = 0; i < conditions.size(); i++) {
+			MiscXml cond = conditions.get(i);
+
+			cond.setValue(condValueFields.get(i).getValue());
+			miscValues.add(cond);
 		}
 
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISCVALUES,
-				XmlConverter.mapToXml(miscValues));
+		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISC,
+				XmlConverter.listToXml(miscValues));
 	}
 
 	@Override
@@ -507,9 +495,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			int n = removeButtons.size();
 
 			agentButton.setText(SELECT);
-			agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
+			agent = null;
 			matrixButton.setText(SELECT);
-			matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
+			matrix = null;
 			commentField.setValue(null);
 			temperatureField.setValue(null);
 			phField.setValue(null);
@@ -550,14 +538,24 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		} else if (event.getSource() == addLiteratureButton) {
 			Integer id = DBKernel.openLiteratureDBWindow(null);
+			Set<Integer> ids = new LinkedHashSet<>();
 
-			if (id != null && !literatureIDs.contains(id)) {
+			for (LiteratureItem item : literature) {
+				ids.add(item.getID());
+			}
+
+			if (id != null && !ids.contains(id)) {
 				String author = DBKernel.getValue("Literatur", "ID", id + "",
 						"Erstautor") + "";
 				String year = DBKernel.getValue("Literatur", "ID", id + "",
 						"Jahr") + "";
+				String title = DBKernel.getValue("Literatur", "ID", id + "",
+						"Titel") + "";
+				String mAbstract = DBKernel.getValue("Literatur", "ID",
+						id + "", "Abstract") + "";
 
-				literatureIDs.add(id);
+				literature.add(new LiteratureItem(author, Integer
+						.parseInt(year), title, mAbstract, id));
 				literatureData.add(author + "-" + year);
 				literatureList.setListData(literatureData
 						.toArray(new String[0]));
@@ -569,7 +567,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				Arrays.sort(indices);
 
 				for (int i = indices.length - 1; i >= 0; i--) {
-					literatureIDs.remove(i);
+					literature.remove(i);
 					literatureData.remove(i);
 				}
 
@@ -577,26 +575,25 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.toArray(new String[0]));
 			}
 		} else if (event.getSource() == agentButton) {
-			Integer newAgentID = DBKernel.openAgentDBWindow(agentID);
+			Integer id = DBKernel.openAgentDBWindow(agent.getID());
 
-			if (newAgentID != null) {
-				String agent = ""
-						+ DBKernel.getValue("Agenzien", "ID", newAgentID + "",
-								"Agensname");
+			if (id != null) {
+				String name = DBKernel.getValue("Agenzien", "ID", id + "",
+						"Agensname") + "";
 
-				agentID = newAgentID;
-				agentButton.setText(agent);
+				agent = new AgentXml(id, name, null, DBKernel.getLocalDBUUID());
+				agentButton.setText(name);
 			}
 		} else if (event.getSource() == matrixButton) {
-			Integer newMatrixID = DBKernel.openMatrixDBWindow(matrixID);
+			Integer id = DBKernel.openMatrixDBWindow(matrix.getID());
 
-			if (newMatrixID != null) {
-				String matrix = ""
-						+ DBKernel.getValue("Matrices", "ID", newMatrixID + "",
-								"Matrixname");
+			if (id != null) {
+				String name = DBKernel.getValue("Matrices", "ID", id + "",
+						"Matrixname") + "";
 
-				matrixID = newMatrixID;
-				matrixButton.setText(matrix);
+				matrix = new MatrixXml(id, name, null,
+						DBKernel.getLocalDBUUID());
+				matrixButton.setText(name);
 			}
 		} else if (addButtons.contains(event.getSource())) {
 			addButtons(addButtons.indexOf(event.getSource()));
@@ -606,15 +603,22 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			panel.revalidate();
 		} else if (condButtons.contains(event.getSource())) {
 			int i = condButtons.indexOf(event.getSource());
-			Integer miscID = DBKernel.openMiscDBWindow(condIDs.get(i));
+			Integer id;
 
-			if (miscID != null) {
-				String misc = ""
-						+ DBKernel.getValue("SonstigeParameter", "ID", miscID
-								+ "", "Parameter");
+			if (conditions.get(i) != null) {
+				id = DBKernel.openMiscDBWindow(conditions.get(i).getID());
+			} else {
+				id = DBKernel.openMiscDBWindow(null);
+			}
 
-				condButtons.get(i).setText(misc);
-				condIDs.set(i, miscID);
+			if (id != null) {
+				String name = DBKernel.getValue("SonstigeParameter", "ID", id
+						+ "", "Parameter")
+						+ "";
+
+				condButtons.get(i).setText(name);
+				conditions.set(i, new MiscXml(id, name, null, null, null,
+						DBKernel.getLocalDBUUID()));
 			}
 		}
 	}
@@ -658,7 +662,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			addButtons.add(i, addButton);
 			removeButtons.add(i, removeButton);
-			condIDs.add(i, null);
+			conditions.add(i, null);
 			condButtons.add(i, button);
 			condValueFields.add(i, valueField);
 
@@ -689,7 +693,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private void removeButtons(int i) {
 		settingsPanel.remove(addButtons.remove(i));
 		settingsPanel.remove(removeButtons.remove(i));
-		condIDs.remove(i);
+		conditions.remove(i);
 		settingsPanel.remove(condButtons.remove(i));
 		settingsPanel.remove(condValueFields.remove(i));
 	}
@@ -753,9 +757,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				KnimeTuple tuple = tuples.get(selection);
 
 				agentButton.setText(SELECT);
-				agentID = TimeSeriesCreatorNodeModel.DEFAULT_AGENTID;
+				agent = null;
 				matrixButton.setText(SELECT);
-				matrixID = TimeSeriesCreatorNodeModel.DEFAULT_MATRIXID;
+				matrix = null;
 				commentField.setValue(((MdInfoXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment());
 
@@ -789,7 +793,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					} else {
 						addButtons(0);
 						condButtons.get(0).setText(name);
-						condIDs.set(0, id);
+						conditions.set(0, misc);
 						condValueFields.get(0).setValue(value);
 					}
 				}

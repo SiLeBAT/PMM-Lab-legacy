@@ -79,9 +79,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_MATRICES = "Matrices";
 	protected static final String CFGKEY_COMMENTS = "Comments";
 
-	private Map<Integer, Map<String, Double>> addedConditions;
-	private Map<String, Integer> agents;
-	private Map<String, Integer> matrices;
+	private Map<MiscXml, Map<String, Double>> addedConditions;
+	private Map<String, AgentXml> agents;
+	private Map<String, MatrixXml> matrices;
 	private Map<String, String> comments;
 
 	/**
@@ -112,7 +112,6 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
-		Map<Integer, String> namesByID = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			String combaseID = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
@@ -127,13 +126,10 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 
 			if (agents.containsKey(id)) {
 				PmmXmlDoc agentXml = new PmmXmlDoc();
-				Integer agentID = agents.get(id);
+				AgentXml agent = agents.get(id);
 
-				if (agentID != null) {
-					String agentName = DBKernel.getValue("Agenzien", "ID",
-							agentID + "", "Agensname") + "";
-
-					agentXml.add(new AgentXml(agentID, agentName, null));
+				if (agent != null) {
+					agentXml.add(agent);
 				} else {
 					agentXml.add(new AgentXml(null, null, null));
 				}
@@ -143,13 +139,10 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 
 			if (matrices.containsKey(id)) {
 				PmmXmlDoc matrixXml = new PmmXmlDoc();
-				Integer matrixID = matrices.get(id);
+				MatrixXml matrix = matrices.get(id);
 
-				if (matrixID != null) {
-					String matrixName = DBKernel.getValue("Matrices", "ID",
-							matrixID + "", "Matrixname") + "";
-
-					matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+				if (matrix != null) {
+					matrixXml.add(matrix);
 				} else {
 					matrixXml.add(new MatrixXml(null, null, null));
 				}
@@ -173,21 +166,14 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				usedMiscIDs.add(((MiscXml) el).getID());
 			}
 
-			for (int miscID : addedConditions.keySet()) {
-				if (usedMiscIDs.contains(miscID)) {
+			for (MiscXml misc : addedConditions.keySet()) {
+				if (usedMiscIDs.contains(misc.getID())) {
 					continue;
 				}
 
-				if (!namesByID.containsKey(miscID)) {
-					namesByID.put(
-							miscID,
-							DBKernel.getValue("SonstigeParameter", "ID", miscID
-									+ "", "Parameter")
-									+ "");
-				}
-
-				miscXml.add(new MiscXml(miscID, namesByID.get(miscID), null,
-						addedConditions.get(miscID).get(id), null));
+				miscXml.add(new MiscXml(misc.getID(), misc.getName(), null,
+						addedConditions.get(misc).get(id), null, DBKernel
+								.getLocalDBUUID()));
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
@@ -238,11 +224,11 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		addedConditions = XmlConverter.xmlToIntDoubleMapMap(settings
+		addedConditions = XmlConverter.xmlToMiscStringDoubleMap(settings
 				.getString(CFGKEY_ADDEDCONDITIONS));
-		agents = XmlConverter.xmlToIntMap(settings.getString(CFGKEY_AGENTS));
-		matrices = XmlConverter
-				.xmlToIntMap(settings.getString(CFGKEY_MATRICES));
+		agents = XmlConverter.xmlToAgentMap(settings.getString(CFGKEY_AGENTS));
+		matrices = XmlConverter.xmlToMatrixMap(settings
+				.getString(CFGKEY_MATRICES));
 		comments = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_COMMENTS));
 	}

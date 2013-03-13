@@ -170,6 +170,15 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static List<MiscXml> xmlToMiscList(String xml) {
+		try {
+			return (List<MiscXml>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Object> xmlToObjectMap(String xml) {
 		try {
 			return (Map<String, Object>) new XStream().fromXML(xml);
@@ -277,10 +286,10 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<Integer, Map<String, Double>> xmlToIntDoubleMapMap(
+	public static Map<MiscXml, Map<String, Double>> xmlToMiscStringDoubleMap(
 			String xml) {
 		try {
-			return (Map<Integer, Map<String, Double>>) new XStream()
+			return (Map<MiscXml, Map<String, Double>>) new XStream()
 					.fromXML(xml);
 		} catch (Exception e) {
 			return new LinkedHashMap<>();

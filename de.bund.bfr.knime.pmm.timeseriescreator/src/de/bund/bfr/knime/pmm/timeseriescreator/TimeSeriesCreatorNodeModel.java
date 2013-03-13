@@ -37,11 +37,8 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -75,44 +72,41 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class TimeSeriesCreatorNodeModel extends NodeModel {
 
-	protected static final String CFGKEY_LITERATUREIDS = "LiteratureIDs";
-	protected static final String CFGKEY_AGENTID = "AgentID";
-	protected static final String CFGKEY_MATRIXID = "MatrixID";
+	protected static final String CFGKEY_LITERATURE = "Literature";
+	protected static final String CFGKEY_AGENT = "Agent";
+	protected static final String CFGKEY_MATRIX = "Matrix";
 	protected static final String CFGKEY_COMMENT = "Comment";
-	protected static final String CFGKEY_MISCVALUES = "MiscValues";
+	protected static final String CFGKEY_MISC = "Misc";
 	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 
-	protected static final int DEFAULT_AGENTID = -1;
-	protected static final int DEFAULT_MATRIXID = -1;
-
-	private List<Integer> literatureIDs;
-	private int agentID;
-	private int matrixID;
+	private List<LiteratureItem> literature;
+	private AgentXml agent;
+	private MatrixXml matrix;
 	private String comment;
 	private List<Point2D.Double> timeSeries;
 	private String timeUnit;
 	private String logcUnit;
 	private String tempUnit;
-	private Map<Integer, Double> miscValues;
+	private List<MiscXml> misc;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
-		literatureIDs = new ArrayList<>();
-		agentID = DEFAULT_AGENTID;
-		matrixID = DEFAULT_MATRIXID;
+		literature = new ArrayList<>();
+		agent = null;
+		matrix = null;
 		comment = "";
 		timeSeries = new ArrayList<>();
 		timeUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.TIME);
 		logcUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC);
 		tempUnit = AttributeUtilities
 				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
-		miscValues = new LinkedHashMap<>();
+		misc = new ArrayList<>();
 	}
 
 	/**
@@ -131,59 +125,19 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
 		PmmXmlDoc literatureXML = new PmmXmlDoc();
 
-		for (int litID : literatureIDs) {
-			String author = DBKernel.getValue("Literatur", "ID", litID + "",
-					"Erstautor") + "";
-			String year = DBKernel.getValue("Literatur", "ID", litID + "",
-					"Jahr") + "";
-			String title = DBKernel.getValue("Literatur", "ID", litID + "",
-					"Titel") + "";
-			String mAbstract = DBKernel.getValue("Literatur", "ID", litID + "",
-					"Abstract") + "";
+		literatureXML.getElementSet().addAll(literature);
+		miscXML.getElementSet().addAll(misc);
 
-			literatureXML.add(new LiteratureItem(author,
-					Integer.parseInt(year), title, mAbstract, litID));
-		}
-
-		if (agentID != DEFAULT_AGENTID) {
-			String agentName = DBKernel.getValue("Agenzien", "ID",
-					agentID + "", "Agensname") + "";
-
-			agentXml.add(new AgentXml(agentID, agentName, null));
+		if (agent != null) {
+			agentXml.add(agent);
 		} else {
 			agentXml.add(new AgentXml(null, null, null));
 		}
 
-		if (matrixID != DEFAULT_MATRIXID) {
-			String matrixName = DBKernel.getValue("Matrices", "ID", matrixID
-					+ "", "Matrixname")
-					+ "";
-
-			matrixXml.add(new MatrixXml(matrixID, matrixName, null));
+		if (matrix != null) {
+			matrixXml.add(matrix);
 		} else {
 			matrixXml.add(new MatrixXml(null, null, null));
-		}
-
-		for (int miscID : miscValues.keySet()) {
-			String miscName = null;
-			Double value = miscValues.get(miscID);
-
-			if (miscID == AttributeUtilities.ATT_TEMPERATURE_ID) {
-				miscName = AttributeUtilities.ATT_TEMPERATURE;
-				value = AttributeUtilities.convertToStandardUnit(
-						AttributeUtilities.ATT_TEMPERATURE, value, tempUnit);
-			} else if (miscID == AttributeUtilities.ATT_PH_ID) {
-				miscName = AttributeUtilities.ATT_PH;
-			} else if (miscID == AttributeUtilities.ATT_AW_ID) {
-				miscName = AttributeUtilities.ATT_WATERACTIVITY;
-			} else {
-				miscName = DBKernel.getValue("SonstigeParameter", "ID", miscID
-						+ "", "Parameter")
-						+ "";
-			}
-
-			miscXML.add(new MiscXml(miscID, miscName, null, miscValues
-					.get(miscID), null));
 		}
 
 		for (Point2D.Double p : timeSeries) {
@@ -237,17 +191,17 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFGKEY_LITERATUREIDS,
-				XmlConverter.listToXml(literatureIDs));
-		settings.addInt(CFGKEY_AGENTID, agentID);
-		settings.addInt(CFGKEY_MATRIXID, matrixID);
+		settings.addString(CFGKEY_LITERATURE,
+				XmlConverter.listToXml(literature));
+		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
+		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
 		settings.addString(CFGKEY_COMMENT, comment);
 		settings.addString(CFGKEY_TIMESERIES,
 				XmlConverter.listToXml(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
 		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
-		settings.addString(CFGKEY_MISCVALUES, XmlConverter.mapToXml(miscValues));
+		settings.addString(CFGKEY_MISC, XmlConverter.listToXml(misc));
 	}
 
 	/**
@@ -256,18 +210,17 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		literatureIDs = XmlConverter.xmlToIntList(settings
-				.getString(CFGKEY_LITERATUREIDS));
-		agentID = settings.getInt(CFGKEY_AGENTID);
-		matrixID = settings.getInt(CFGKEY_MATRIXID);
+		literature = XmlConverter.xmlToLiteratureList(settings
+				.getString(CFGKEY_LITERATURE));
+		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
+		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
 		comment = settings.getString(CFGKEY_COMMENT);
 		timeSeries = XmlConverter.xmlToPointDoubleList(settings
 				.getString(CFGKEY_TIMESERIES));
 		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
 		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
-		miscValues = XmlConverter.xmlToIntDoubleMap(settings
-				.getString(CFGKEY_MISCVALUES));
+		misc = XmlConverter.xmlToMiscList(settings.getString(CFGKEY_MISC));
 	}
 
 	/**

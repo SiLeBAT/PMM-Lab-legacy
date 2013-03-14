@@ -15,20 +15,20 @@ public class MiscXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_MISC = "misc";
 
-	private Integer id;
+	private int id;
 	private String name = null;
 	private String description = null;
 	private Double value = null;
 	private String unit = null;
 	private String dbuuid = null;
 	
-	public MiscXml(Integer id, String name, String description, Double value, String unit) {
+	public MiscXml(int id, String name, String description, Double value, String unit) {
 		this(id, name, description, value, unit, null);
 	}
 	public MiscXml() {
 		id = MathUtilities.getRandomNegativeInt();
 	}
-	public MiscXml(Integer id, String name, String description, Double value, String unit, String dbuuid) {
+	public MiscXml(int id, String name, String description, Double value, String unit, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDescription(description);
@@ -79,7 +79,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public String getUnit() {return unit;}
 	public String getDbuuid() {return dbuuid;}
 	
-	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
+	public void setID(int id) {this.id = id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDescription(String description) {this.description = (description == null) ? "" : description;}
 	public void setValue(Double value) {this.value = (value == null) ? null : value;;}
@@ -89,7 +89,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_MISC);
-		modelElement.setAttribute("id", id.toString());
+		modelElement.setAttribute("id", "" + id);
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("description", description);
 		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));

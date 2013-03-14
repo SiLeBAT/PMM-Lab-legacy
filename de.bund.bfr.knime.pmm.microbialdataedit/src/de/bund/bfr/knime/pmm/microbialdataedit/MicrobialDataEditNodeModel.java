@@ -74,6 +74,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class MicrobialDataEditNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_ADDEDCONDITIONS = "AddedConditions";
+	protected static final String CFGKEY_CONDITIONS = "Conditions";
 	protected static final String CFGKEY_AGENTS = "Agents";
 	protected static final String CFGKEY_MATRICES = "Matrices";
 	protected static final String CFGKEY_COMMENTS = "Comments";
@@ -81,6 +82,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_CHECKS = "Checks";
 
 	private Map<MiscXml, Map<String, Double>> addedConditions;
+	private Map<MiscXml, Map<String, Double>> conditions;
 	private Map<String, AgentXml> agents;
 	private Map<String, MatrixXml> matrices;
 	private Map<String, String> comments;
@@ -93,6 +95,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected MicrobialDataEditNodeModel() {
 		super(1, 1);
 		addedConditions = new LinkedHashMap<>();
+		conditions = new LinkedHashMap<>();
 		agents = new LinkedHashMap<>();
 		matrices = new LinkedHashMap<>();
 		comments = new LinkedHashMap<>();
@@ -187,16 +190,25 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			Set<Integer> usedMiscIDs = new LinkedHashSet<>();
 
 			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+				MiscXml misc = (MiscXml) el;
+
+				for (MiscXml cond : conditions.keySet()) {
+					if (cond.getID() == misc.getID()) {
+						misc.setValue(conditions.get(cond).get(id));
+						break;
+					}
+				}
+
 				usedMiscIDs.add(((MiscXml) el).getID());
 			}
 
-			for (MiscXml misc : addedConditions.keySet()) {
-				if (usedMiscIDs.contains(misc.getID())) {
+			for (MiscXml cond : addedConditions.keySet()) {
+				if (usedMiscIDs.contains(cond.getID())) {
 					continue;
 				}
 
-				miscXml.add(new MiscXml(misc.getID(), misc.getName(), null,
-						addedConditions.get(misc).get(id), null, misc
+				miscXml.add(new MiscXml(cond.getID(), cond.getName(), null,
+						addedConditions.get(cond).get(id), null, cond
 								.getDbuuid()));
 			}
 
@@ -237,6 +249,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_ADDEDCONDITIONS,
 				XmlConverter.mapToXml(addedConditions));
+		settings.addString(CFGKEY_CONDITIONS, XmlConverter.mapToXml(conditions));
 		settings.addString(CFGKEY_AGENTS, XmlConverter.mapToXml(agents));
 		settings.addString(CFGKEY_MATRICES, XmlConverter.mapToXml(matrices));
 		settings.addString(CFGKEY_COMMENTS, XmlConverter.mapToXml(comments));
@@ -253,6 +266,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		addedConditions = XmlConverter.xmlToMiscStringDoubleMap(settings
 				.getString(CFGKEY_ADDEDCONDITIONS));
+		conditions = XmlConverter.xmlToMiscStringDoubleMap(settings
+				.getString(CFGKEY_CONDITIONS));
 		agents = XmlConverter.xmlToAgentMap(settings.getString(CFGKEY_AGENTS));
 		matrices = XmlConverter.xmlToMatrixMap(settings
 				.getString(CFGKEY_MATRICES));

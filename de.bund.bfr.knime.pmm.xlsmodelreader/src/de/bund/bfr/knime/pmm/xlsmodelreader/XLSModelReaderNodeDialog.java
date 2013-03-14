@@ -76,6 +76,7 @@ import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -543,7 +544,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.mapToXml(matrixMappings));		
+				XmlConverter.mapToXml(matrixMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATURE,
 				XmlConverter.listToXml(literature));
 	}
@@ -766,7 +767,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					String selected = (String) columnBoxes.get(column)
 							.getSelectedItem();
 
-					if (selected.equals(AttributeUtilities.ATT_COMMENT)
+					if (selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
 							|| selected.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
 						columnMappings.put(column, selected);
@@ -1039,8 +1040,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						AttributeUtilities.ATT_COMMENT,
-						XLSReader.AGENT_DETAILS_COLUMN,
+						MdInfoXml.ATT_COMMENT, XLSReader.AGENT_DETAILS_COLUMN,
 						XLSReader.MATRIX_DETAILS_COLUMN,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,

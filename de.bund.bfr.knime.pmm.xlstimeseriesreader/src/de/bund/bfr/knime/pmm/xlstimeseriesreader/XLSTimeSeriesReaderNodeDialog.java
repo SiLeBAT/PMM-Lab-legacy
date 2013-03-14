@@ -73,6 +73,7 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
+import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -731,7 +732,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							.getSelectedItem();
 
 					if (selected.equals(XLSReader.ID_COLUMN)
-							|| selected.equals(AttributeUtilities.ATT_COMMENT)
+							|| selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected.equals(AttributeUtilities.TIME)
 							|| selected.equals(AttributeUtilities.LOGC)
 							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
@@ -950,7 +951,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, AttributeUtilities.ATT_COMMENT,
+						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						XLSReader.AGENT_DETAILS_COLUMN,
 						XLSReader.MATRIX_DETAILS_COLUMN,

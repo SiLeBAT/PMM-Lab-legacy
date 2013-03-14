@@ -143,7 +143,7 @@ public class TableReader {
 			stringColumnValues.get(0).add(dataName);
 			infoParameters.add(Arrays.asList(AttributeUtilities.DATAPOINTS,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					AttributeUtilities.ATT_COMMENT));
+					MdInfoXml.ATT_COMMENT));
 			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 							.get(0)).getComment()));

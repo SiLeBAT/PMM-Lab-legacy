@@ -77,11 +77,15 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_AGENTS = "Agents";
 	protected static final String CFGKEY_MATRICES = "Matrices";
 	protected static final String CFGKEY_COMMENTS = "Comments";
+	protected static final String CFGKEY_QUALITYSCORES = "QualityScores";
+	protected static final String CFGKEY_CHECKS = "Checks";
 
 	private Map<MiscXml, Map<String, Double>> addedConditions;
 	private Map<String, AgentXml> agents;
 	private Map<String, MatrixXml> matrices;
 	private Map<String, String> comments;
+	private Map<String, Integer> qualityScores;
+	private Map<String, Boolean> checks;
 
 	/**
 	 * Constructor for the node model.
@@ -92,6 +96,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		agents = new LinkedHashMap<>();
 		matrices = new LinkedHashMap<>();
 		comments = new LinkedHashMap<>();
+		qualityScores = new LinkedHashMap<>();
+		checks = new LinkedHashMap<>();
 	}
 
 	/**
@@ -158,6 +164,25 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
 			}
 
+			if (qualityScores.containsKey(id)) {
+				PmmXmlDoc infoXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MDINFO);
+
+				((MdInfoXml) infoXml.get(0)).setQualityScore(qualityScores
+						.get(id));
+
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
+			}
+
+			if (checks.containsKey(id)) {
+				PmmXmlDoc infoXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MDINFO);
+
+				((MdInfoXml) infoXml.get(0)).setChecked(checks.get(id));
+
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
+			}
+
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			Set<Integer> usedMiscIDs = new LinkedHashSet<>();
 
@@ -215,6 +240,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		settings.addString(CFGKEY_AGENTS, XmlConverter.mapToXml(agents));
 		settings.addString(CFGKEY_MATRICES, XmlConverter.mapToXml(matrices));
 		settings.addString(CFGKEY_COMMENTS, XmlConverter.mapToXml(comments));
+		settings.addString(CFGKEY_QUALITYSCORES,
+				XmlConverter.mapToXml(qualityScores));
+		settings.addString(CFGKEY_CHECKS, XmlConverter.mapToXml(checks));
 	}
 
 	/**
@@ -230,6 +258,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				.getString(CFGKEY_MATRICES));
 		comments = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_COMMENTS));
+		qualityScores = XmlConverter.xmlToIntMap(settings
+				.getString(CFGKEY_QUALITYSCORES));
+		checks = XmlConverter.xmlToBoolMap(settings.getString(CFGKEY_CHECKS));
 	}
 
 	/**

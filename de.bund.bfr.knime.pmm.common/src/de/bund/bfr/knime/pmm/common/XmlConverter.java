@@ -215,6 +215,15 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<String, Boolean> xmlToBoolMap(String xml) {
+		try {
+			return (Map<String, Boolean>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, AgentXml> xmlToAgentMap(String xml) {
 		try {
 			return (Map<String, AgentXml>) new XStream().fromXML(xml);

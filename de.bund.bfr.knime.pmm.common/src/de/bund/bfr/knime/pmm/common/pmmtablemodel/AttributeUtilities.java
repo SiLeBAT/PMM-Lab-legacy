@@ -46,8 +46,7 @@ public class AttributeUtilities {
 
 	public static final String TIME = "Time";
 	public static final String LOGC = "Log10C";
-	public static final String ATT_TEMPERATURE = "Temperature";
-	public static final String ATT_COMMENT = "Comment";
+	public static final String ATT_TEMPERATURE = "Temperature";	
 	public static final String ATT_PH = "pH";
 	public static final String ATT_WATERACTIVITY = "aw";
 	public static final int ATT_TEMPERATURE_ID = -1;

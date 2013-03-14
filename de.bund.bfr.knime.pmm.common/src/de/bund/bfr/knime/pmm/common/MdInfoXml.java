@@ -14,6 +14,12 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 public class MdInfoXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_MDINFO = "mdinfoxml";
+	
+	public static final String ATT_ID = "ID";
+	public static final String ATT_NAME = "Name";
+	public static final String ATT_COMMENT = "Comment";
+	public static final String ATT_QUALITYSCORE = "QualityScore";
+	public static final String ATT_CHECKED = "Checked";
 
 	private Integer id;
 	private String name = null;
@@ -73,11 +79,11 @@ public class MdInfoXml implements PmmXmlElementConvertable {
 
 	public static List<String> getElements() {
         List<String> list = new ArrayList<String>();
-        list.add("ID");
-        list.add("Name");
-        list.add("Comment");
-        list.add("QualityScore");
-        list.add("Checked");
+        list.add(ATT_ID);
+        list.add(ATT_NAME);
+        list.add(ATT_COMMENT);
+        list.add(ATT_QUALITYSCORE);
+        list.add(ATT_CHECKED);
         return list;
 	}
 	public static DataType getDataType(String element) {

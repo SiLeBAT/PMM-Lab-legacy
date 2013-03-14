@@ -216,7 +216,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new JLabel(AttributeUtilities
 						.getName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 3));
-		settingsPanel.add(new JLabel(AttributeUtilities.ATT_COMMENT + ":"),
+		settingsPanel.add(new JLabel(MdInfoXml.ATT_COMMENT + ":"),
 				createConstraints(0, 4));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
@@ -874,7 +874,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, AttributeUtilities.ATT_COMMENT,
+						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME, AttributeUtilities.LOGC,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
@@ -932,8 +932,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						String selected = (String) box.getSelectedItem();
 
 						if (selected.equals(XLSReader.ID_COLUMN)
-								|| selected
-										.equals(AttributeUtilities.ATT_COMMENT)
+								|| selected.equals(MdInfoXml.ATT_COMMENT)
 								|| selected.equals(AttributeUtilities.TIME)
 								|| selected.equals(AttributeUtilities.LOGC)) {
 							button.setEnabled(false);

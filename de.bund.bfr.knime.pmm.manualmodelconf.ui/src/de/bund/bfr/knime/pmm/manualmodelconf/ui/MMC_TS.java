@@ -265,7 +265,7 @@ public class MMC_TS extends JPanel {
 
 		//---- commentLabel ----
 		commentLabel.setText(":");
-		commentLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_COMMENT) + ":");
+		commentLabel.setText(AttributeUtilities.getName(MdInfoXml.ATT_COMMENT) + ":");
 		add(commentLabel, CC.xy(1, 5));
 		add(commentField, CC.xywh(3, 5, 5, 1));
 

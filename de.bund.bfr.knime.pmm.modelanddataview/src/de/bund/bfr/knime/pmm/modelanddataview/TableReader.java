@@ -152,7 +152,7 @@ public class TableReader {
 				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
-			if (!idSet.add(id)) {				
+			if (!idSet.add(id)) {
 				continue;
 			}
 
@@ -309,8 +309,7 @@ public class TableReader {
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,
-						TimeSeriesSchema.ATT_MATRIX,
-						AttributeUtilities.ATT_COMMENT));
+						TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(formula,
 						dataPoints, agent, matrix,
 						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)

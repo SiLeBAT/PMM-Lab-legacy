@@ -346,8 +346,7 @@ public class TableReader {
 				infoParams = new ArrayList<String>(Arrays.asList(
 						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
 						TimeSeriesSchema.ATT_AGENT,
-						TimeSeriesSchema.ATT_MATRIX,
-						AttributeUtilities.ATT_COMMENT));
+						TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
 				infoValues = new ArrayList<Object>(Arrays.asList(formula,
 						dataPoints, agent, matrix, ((MdInfoXml) tuple
 								.getPmmXml(TimeSeriesSchema.ATT_MDINFO).get(0))

@@ -417,8 +417,8 @@ public class PredictorViewNodeModel extends NodeModel {
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
 		PmmXmlDoc infoXml = new PmmXmlDoc();
 
-		agentXml.add(new AgentXml(null, null, null, null));
-		matrixXml.add(new MatrixXml(null, null, null, null));
+		agentXml.add(new AgentXml());
+		matrixXml.add(new MatrixXml());
 		infoXml.add(new MdInfoXml(null, null, null, null, null));
 
 		dataTuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);

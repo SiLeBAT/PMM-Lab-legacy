@@ -14,18 +14,18 @@ public class MatrixXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_MATRIX = "matrix";
 
-	private Integer id;
+	private int id;
 	private String name = null;
 	private String detail = null;
 	private String dbuuid = null;
 	
-	public MatrixXml(Integer id, String name, String detail) {
+	public MatrixXml(int id, String name, String detail) {
 		this(id, name, detail, null);
 	}
 	public MatrixXml() {
-		id = MathUtilities.getRandomNegativeInt();
+		this(MathUtilities.getRandomNegativeInt(), null, null, null);
 	}
-	public MatrixXml(Integer id, String name, String detail, String dbuuid) {
+	public MatrixXml(int id, String name, String detail, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDetail(detail);
@@ -45,12 +45,12 @@ public class MatrixXml implements PmmXmlElementConvertable {
 		}
 	}
 
-	public Integer getID() {return id;}
+	public int getID() {return id;}
 	public String getName() {return name;}
 	public String getDetail() {return detail;}
 	public String getDbuuid() {return dbuuid;}
 	
-	public void setID(Integer id) {this.id = (id == null) ? MathUtilities.getRandomNegativeInt() : id;}
+	public void setID(int id) {this.id = id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDetail(String detail) {this.detail = (detail == null) ? "" : detail;}
 	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
@@ -58,7 +58,7 @@ public class MatrixXml implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_MATRIX);
-		modelElement.setAttribute("id", id.toString());
+		modelElement.setAttribute("id", "" + id);
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("detail", detail);
 		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);

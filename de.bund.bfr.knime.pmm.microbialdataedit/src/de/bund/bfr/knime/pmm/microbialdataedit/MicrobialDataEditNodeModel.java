@@ -139,7 +139,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				if (agent != null) {
 					agentXml.add(agent);
 				} else {
-					agentXml.add(new AgentXml(null, null, null));
+					agentXml.add(new AgentXml());
 				}
 
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
@@ -152,7 +152,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				if (matrix != null) {
 					matrixXml.add(matrix);
 				} else {
-					matrixXml.add(new MatrixXml(null, null, null));
+					matrixXml.add(new MatrixXml());
 				}
 
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);

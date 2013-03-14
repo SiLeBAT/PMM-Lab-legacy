@@ -523,7 +523,7 @@ public class CellIO {
                 				matxDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, matxDB);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != matxDB.getID().intValue()) {
+                			else if (foreignDbIds.get(key).intValue() != matxDB.getID()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...MatrixXml");
                 			}
                 		}
@@ -544,7 +544,7 @@ public class CellIO {
                 				axDB.setID(foreignDbIds.get(key)); //schemaTuple.addValue(attr, foreignDbIds.get(key));
                 				fromToXmlDB.set(i, ax);
                 			}
-                			else if (foreignDbIds.get(key).intValue() != axDB.getID().intValue()) {
+                			else if (foreignDbIds.get(key).intValue() != axDB.getID()) {
                 				System.err.println("fillNewIDsIntoForeign ... shouldn't happen...AgentXml");
                 			}
                 		}

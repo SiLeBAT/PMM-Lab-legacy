@@ -430,7 +430,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                		}
 		                		else if (el instanceof AgentXml) {
 		                			AgentXml ax = (AgentXml) el;
-		                			addCells.put("id", ax.getID() == null ? CellIO.createMissingCell() : new IntCell(ax.getID())); 
+		                			addCells.put("id", new IntCell(ax.getID())); 
 		                			addCells.put("name", ax.getName() == null ? CellIO.createMissingCell() : new StringCell(ax.getName())); 
 		                			addCells.put("detail", ax.getDetail() == null ? CellIO.createMissingCell() : new StringCell(ax.getDetail()));
 		                			addCells.put("dbuuid", ax.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(ax.getDbuuid()));
@@ -438,7 +438,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                		}
 		                		else if (el instanceof MatrixXml) {
 		                			MatrixXml mx = (MatrixXml) el;
-		                			addCells.put("id", mx.getID() == null ? CellIO.createMissingCell() : new IntCell(mx.getID())); 
+		                			addCells.put("id", new IntCell(mx.getID())); 
 		                			addCells.put("name", mx.getName() == null ? CellIO.createMissingCell() : new StringCell(mx.getName())); 
 		                			addCells.put("detail", mx.getDetail() == null ? CellIO.createMissingCell() : new StringCell(mx.getDetail()));
 		                			addCells.put("dbuuid", mx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(mx.getDbuuid()));

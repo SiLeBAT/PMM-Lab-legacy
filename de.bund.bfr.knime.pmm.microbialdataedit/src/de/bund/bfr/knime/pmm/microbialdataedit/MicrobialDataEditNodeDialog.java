@@ -660,8 +660,6 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-			System.out.println(columnIndex);
-
 			switch (columnIndex) {
 			case 0:
 				break;

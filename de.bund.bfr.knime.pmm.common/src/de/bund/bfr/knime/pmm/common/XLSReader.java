@@ -216,7 +216,7 @@ public class XLSReader {
 						&& agentMappings.get(agentCell.toString().trim()) != null) {
 					agentXml.add(agentMappings.get(agentCell.toString().trim()));
 				} else {
-					agentXml.add(new AgentXml(null, null, null));
+					agentXml.add(new AgentXml());
 				}
 
 				if (matrixCell != null
@@ -224,7 +224,7 @@ public class XLSReader {
 					matrixXml.add(matrixMappings.get(matrixCell.toString()
 							.trim()));
 				} else {
-					matrixXml.add(new MatrixXml(null, null, null));
+					matrixXml.add(new MatrixXml());
 				}
 
 				if (agentDetailsCell != null) {
@@ -399,14 +399,14 @@ public class XLSReader {
 					&& agentMappings.get(agentCell.toString().trim()) != null) {
 				agentXml.add(agentMappings.get(agentCell.toString().trim()));
 			} else {
-				agentXml.add(new AgentXml(null, null, null));
+				agentXml.add(new AgentXml());
 			}
 
 			if (matrixCell != null
 					&& matrixMappings.get(matrixCell.toString().trim()) != null) {
 				matrixXml.add(matrixMappings.get(matrixCell.toString().trim()));
 			} else {
-				matrixXml.add(new MatrixXml(null, null, null));
+				matrixXml.add(new MatrixXml());
 			}
 
 			if (agentDetailsCell != null) {

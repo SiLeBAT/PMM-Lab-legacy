@@ -26,7 +26,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 		this(id, name, description, value, unit, null);
 	}
 	public MiscXml() {
-		id = MathUtilities.getRandomNegativeInt();
+		this(MathUtilities.getRandomNegativeInt(), null, null, null, null, null);		
 	}
 	public MiscXml(int id, String name, String description, Double value, String unit, String dbuuid) {
 		setID(id);

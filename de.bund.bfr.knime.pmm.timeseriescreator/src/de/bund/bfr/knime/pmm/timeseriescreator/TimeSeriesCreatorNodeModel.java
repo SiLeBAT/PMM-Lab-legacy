@@ -131,13 +131,13 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		if (agent != null) {
 			agentXml.add(agent);
 		} else {
-			agentXml.add(new AgentXml(null, null, null));
+			agentXml.add(new AgentXml());
 		}
 
 		if (matrix != null) {
 			matrixXml.add(matrix);
 		} else {
-			matrixXml.add(new MatrixXml(null, null, null));
+			matrixXml.add(new MatrixXml());
 		}
 
 		for (Point2D.Double p : timeSeries) {

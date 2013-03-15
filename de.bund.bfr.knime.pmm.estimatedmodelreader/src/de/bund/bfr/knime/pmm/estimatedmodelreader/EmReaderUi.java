@@ -366,7 +366,7 @@ public class EmReaderUi extends JPanel {
         			params.put(pars[i], dbl);
         		}
     		}
-    		fillWithDefaults(c, defAgent, defMatrix, defTemp, defPh, defAw, params);     		
+    		if (params.size() == 0) fillWithDefaults(c, defAgent, defMatrix, defTemp, defPh, defAw, params);     		
     		this.setParameter(params);     		
 	}
 	private void fillWithDefaults(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, LinkedHashMap<String, DoubleTextField[]> params) throws InvalidSettingsException {
@@ -384,7 +384,7 @@ public class EmReaderUi extends JPanel {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_TEMPERATURE);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
-				dtf[0] = new DoubleTextField(); dtf[1] = new DoubleTextField();
+				dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 				params.put(AttributeUtilities.ATT_TEMPERATURE, dtf);
 			}
 			dtf[0].setValue(defTemp - 10);
@@ -394,7 +394,7 @@ public class EmReaderUi extends JPanel {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_PH);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
-				dtf[0] = new DoubleTextField(); dtf[1] = new DoubleTextField();
+				dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 				params.put(AttributeUtilities.ATT_PH, dtf);
 			}
 			dtf[0].setValue(defPh - 1);
@@ -404,7 +404,7 @@ public class EmReaderUi extends JPanel {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_WATERACTIVITY);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
-				dtf[0] = new DoubleTextField(); dtf[1] = new DoubleTextField();
+				dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 				params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
 			}
 			dtf[0].setValue(defAw - 0.1);

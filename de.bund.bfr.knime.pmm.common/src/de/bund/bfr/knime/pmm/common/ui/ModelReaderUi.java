@@ -215,9 +215,9 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public void setLevel(int level) throws PmmException {
-		if (!(level == 1 || level == 2)) throw new PmmException("Level must be in {1, 2}");
+		//if (!(level == 1 || level == 2)) throw new PmmException("Level must be in {1, 2}");
 
-		levelBox.setSelectedIndex(level - 1);
+		if (level == 1 || level == 2) levelBox.setSelectedIndex(level - 1);
 	}
 	public void setModelClass(String modelClass) throws PmmException {
 		classBox.setSelectedItem(modelClass == null || modelClass.isEmpty() ? "All" : modelClass);
@@ -305,7 +305,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	}
 
 	public void enableModelList(final String idlist) {
-		if (idlist.isEmpty()) return;
+		if (idlist == null || idlist.isEmpty()) return;
 		// disable everything
 		for (JCheckBox box : modelBoxSetPrim.keySet()) {
 			box.setSelected(false);
@@ -388,7 +388,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
     	c.addString( ModelReaderUi.PARAM_MODELLIST, getModelList() );
     }	
 	public void setSettings(Config c) throws InvalidSettingsException {		
-		setLevel(c.getInt( ModelReaderUi.PARAM_LEVEL ));
+		setLevel(c.getInt(ModelReaderUi.PARAM_LEVEL, 1));
 		setModelClass(c.getString(ModelReaderUi.PARAM_MODELCLASS));
 		setModelFilterEnabled(c.getBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED ));
 		enableModelList(c.getString( ModelReaderUi.PARAM_MODELLIST ));

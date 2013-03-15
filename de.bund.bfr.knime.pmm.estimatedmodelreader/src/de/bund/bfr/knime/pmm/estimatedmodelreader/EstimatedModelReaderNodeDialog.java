@@ -71,7 +71,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 
 	// private JComboBox levelBox;
 	private DbConfigurationUi dbui;
-	private EstModelReaderUi estmodelui;
+	private EmReaderUi estmodelui;
 
 	private Bfrdb db = null;
     /**
@@ -94,7 +94,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	}
     	catch (Exception e) {}
     	    	
-    	estmodelui = new EstModelReaderUi(db);
+    	estmodelui = new EmReaderUi(db);
     	
     	panel.setLayout( new BorderLayout() );
     	//panel.add( dbui, BorderLayout.NORTH );    	

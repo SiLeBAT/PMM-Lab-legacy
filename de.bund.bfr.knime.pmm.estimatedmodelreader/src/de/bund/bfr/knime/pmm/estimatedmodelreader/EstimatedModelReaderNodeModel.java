@@ -137,7 +137,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         modelFilterEnabled = false;
         modelList = "";
         qualityThresh = .8;
-        qualityMode = EstModelReaderUi.MODE_OFF;
+        qualityMode = EmReaderUi.MODE_OFF;
         agentString = "";
         matrixString = "";
         literatureString = "";
@@ -368,7 +368,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
     		}
     		
-    		if (EstModelReaderUi.passesFilter(
+    		if (EmReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
 				modelFilterEnabled, modelList, tuple))

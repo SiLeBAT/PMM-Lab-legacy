@@ -57,6 +57,9 @@ public class MdReaderUi extends JPanel {
 	
 	private Connection conn;
 
+	public MdReaderUi() {
+		this(null);
+	}
 	public MdReaderUi(Connection conn) {
 		initComponents();
 		this.conn = conn;
@@ -215,24 +218,21 @@ public class MdReaderUi extends JPanel {
 	}
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
 		
-		if( str == null )
-			throw new InvalidSettingsException( "Matrix Filter string must not be null." );
+		if ( str == null ) return;//throw new InvalidSettingsException( "Matrix Filter string must not be null." );
 		
 		matrixField.setText( str );
 	}
 	
 	public void setAgentString( final String str ) throws InvalidSettingsException {
 		
-		if( str == null )
-			throw new InvalidSettingsException( "Matrix Filter string must not be null." );
+		if( str == null ) return;//throw new InvalidSettingsException( "Matrix Filter string must not be null." );
 		
 		agentField.setText( str );
 	}
 	
 	public void setLiteratureString( final String str ) throws InvalidSettingsException {
 		
-		if( str == null )
-			throw new InvalidSettingsException( "Literature Filter string must not be null." );
+		if( str == null ) return;//throw new InvalidSettingsException( "Literature Filter string must not be null." );
 		
 		literatureField.setText( str );
 	}
@@ -415,17 +415,17 @@ public class MdReaderUi extends JPanel {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		panel1 = new JPanel();
 		label1 = new JLabel();
-		agentField = new JTextField();
-		selectAgensButton = new JButton();
 		agensIDField = new JTextField();
 		label2 = new JLabel();
-		matrixField = new JTextField();
-		selectMatrixButton = new JButton();
 		matrixIDField = new JTextField();
 		label3 = new JLabel();
+		literatureIDField = new JTextField();
+		agentField = new JTextField();
+		selectAgensButton = new JButton();
+		matrixField = new JTextField();
+		selectMatrixButton = new JButton();
 		literatureField = new JTextField();
 		selectLiteratureButton = new JButton();
-		literatureIDField = new JTextField();
 		scrollPane1 = new JScrollPane();
 		panel4 = new JPanel();
 		label4 = new JLabel();
@@ -449,24 +449,49 @@ public class MdReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"default, $lgap, default"));
+			"default, $lgap, fill:default:grow"));
 
 		//======== panel1 ========
 		{
 			panel1.setBorder(new TitledBorder("MD Filter"));
 			panel1.setMinimumSize(new Dimension(78, 102));
 			panel1.setLayout(new FormLayout(
-				"80px, $lcgap, default:grow, 2*($lcgap, default)",
-				"2*(default, $lgap), default"));
+				"80px, 5*($lcgap, default)",
+				"fill:default, $lgap, default"));
+			((FormLayout)panel1.getLayout()).setColumnGroups(new int[][] {{1, 5, 9}, {3, 7, 11}});
 
 			//---- label1 ----
 			label1.setText("Organism");
 			panel1.add(label1, CC.xy(1, 1));
 
+			//---- agensIDField ----
+			agensIDField.setColumns(1);
+			agensIDField.setVisible(false);
+			panel1.add(agensIDField, CC.xy(3, 1));
+
+			//---- label2 ----
+			label2.setText("Matrix");
+			panel1.add(label2, CC.xy(5, 1));
+
+			//---- matrixIDField ----
+			matrixIDField.setColumns(1);
+			matrixIDField.setVisible(false);
+			panel1.add(matrixIDField, CC.xy(7, 1));
+
+			//---- label3 ----
+			label3.setText("Literature");
+			label3.setToolTipText("Author/Title");
+			panel1.add(label3, CC.xy(9, 1));
+
+			//---- literatureIDField ----
+			literatureIDField.setColumns(1);
+			literatureIDField.setVisible(false);
+			panel1.add(literatureIDField, CC.xy(11, 1));
+
 			//---- agentField ----
-			agentField.setColumns(10);
+			agentField.setColumns(20);
 			agentField.setPreferredSize(new Dimension(50, 20));
-			panel1.add(agentField, CC.xy(3, 1));
+			panel1.add(agentField, CC.xy(1, 3));
 
 			//---- selectAgensButton ----
 			selectAgensButton.setText("...");
@@ -476,21 +501,12 @@ public class MdReaderUi extends JPanel {
 					selectAgensButtonActionPerformed(e);
 				}
 			});
-			panel1.add(selectAgensButton, CC.xy(5, 1));
-
-			//---- agensIDField ----
-			agensIDField.setColumns(1);
-			agensIDField.setVisible(false);
-			panel1.add(agensIDField, CC.xy(7, 1));
-
-			//---- label2 ----
-			label2.setText("Matrix");
-			panel1.add(label2, CC.xy(1, 3));
+			panel1.add(selectAgensButton, CC.xy(3, 3));
 
 			//---- matrixField ----
-			matrixField.setColumns(10);
+			matrixField.setColumns(20);
 			matrixField.setPreferredSize(new Dimension(50, 20));
-			panel1.add(matrixField, CC.xy(3, 3));
+			panel1.add(matrixField, CC.xy(5, 3));
 
 			//---- selectMatrixButton ----
 			selectMatrixButton.setText("...");
@@ -500,22 +516,12 @@ public class MdReaderUi extends JPanel {
 					selectMatrixButtonActionPerformed(e);
 				}
 			});
-			panel1.add(selectMatrixButton, CC.xy(5, 3));
-
-			//---- matrixIDField ----
-			matrixIDField.setColumns(1);
-			matrixIDField.setVisible(false);
-			panel1.add(matrixIDField, CC.xy(7, 3));
-
-			//---- label3 ----
-			label3.setText("Literature");
-			label3.setToolTipText("Author/Title");
-			panel1.add(label3, CC.xy(1, 5));
+			panel1.add(selectMatrixButton, CC.xy(7, 3));
 
 			//---- literatureField ----
-			literatureField.setColumns(10);
+			literatureField.setColumns(20);
 			literatureField.setPreferredSize(new Dimension(50, 20));
-			panel1.add(literatureField, CC.xy(3, 5));
+			panel1.add(literatureField, CC.xy(9, 3));
 
 			//---- selectLiteratureButton ----
 			selectLiteratureButton.setText("...");
@@ -525,12 +531,7 @@ public class MdReaderUi extends JPanel {
 					selectLiteratureButtonActionPerformed(e);
 				}
 			});
-			panel1.add(selectLiteratureButton, CC.xy(5, 5));
-
-			//---- literatureIDField ----
-			literatureIDField.setColumns(1);
-			literatureIDField.setVisible(false);
-			panel1.add(literatureIDField, CC.xy(7, 5));
+			panel1.add(selectLiteratureButton, CC.xy(11, 3));
 		}
 		add(panel1, CC.xy(1, 1));
 
@@ -615,17 +616,17 @@ public class MdReaderUi extends JPanel {
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	private JPanel panel1;
 	private JLabel label1;
-	private JTextField agentField;
-	private JButton selectAgensButton;
 	private JTextField agensIDField;
 	private JLabel label2;
-	private JTextField matrixField;
-	private JButton selectMatrixButton;
 	private JTextField matrixIDField;
 	private JLabel label3;
+	private JTextField literatureIDField;
+	private JTextField agentField;
+	private JButton selectAgensButton;
+	private JTextField matrixField;
+	private JButton selectMatrixButton;
 	private JTextField literatureField;
 	private JButton selectLiteratureButton;
-	private JTextField literatureIDField;
 	private JScrollPane scrollPane1;
 	private JPanel panel4;
 	private JLabel label4;

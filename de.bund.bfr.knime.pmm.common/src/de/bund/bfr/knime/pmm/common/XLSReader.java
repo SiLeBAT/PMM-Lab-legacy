@@ -61,10 +61,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
-	public static String AGENT_DETAILS_COLUMN = TimeSeriesSchema.ATT_AGENT
-			+ " Details";
-	public static String MATRIX_DETAILS_COLUMN = TimeSeriesSchema.ATT_MATRIX
-			+ " Details";
 
 	private List<String> warnings;
 
@@ -122,9 +118,9 @@ public class XLSReader {
 				} else if (mapping.equals(AttributeUtilities.LOGC)) {
 					logcColumn = columns.get(column);
 					logcColumnName = column;
-				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
+				} else if (mapping.equals(AttributeUtilities.AGENT_DETAILS)) {
 					agentDetailsColumn = columns.get(column);
-				} else if (mapping.equals(MATRIX_DETAILS_COLUMN)) {
+				} else if (mapping.equals(AttributeUtilities.MATRIX_DETAILS)) {
 					matrixDetailsColumn = columns.get(column);
 				}
 			}
@@ -339,9 +335,9 @@ public class XLSReader {
 					miscColumns.put(column, columns.get(column));
 				} else if (mapping.equals(MdInfoXml.ATT_COMMENT)) {
 					commentColumn = columns.get(column);
-				} else if (mapping.equals(AGENT_DETAILS_COLUMN)) {
+				} else if (mapping.equals(AttributeUtilities.AGENT_DETAILS)) {
 					agentDetailsColumn = columns.get(column);
-				} else if (mapping.equals(MATRIX_DETAILS_COLUMN)) {
+				} else if (mapping.equals(AttributeUtilities.MATRIX_DETAILS)) {
 					matrixDetailsColumn = columns.get(column);
 				}
 			}

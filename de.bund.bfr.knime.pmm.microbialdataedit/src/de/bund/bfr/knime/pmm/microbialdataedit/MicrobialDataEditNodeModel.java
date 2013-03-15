@@ -77,7 +77,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_ADDEDCONDITIONS = "AddedConditions";
 	protected static final String CFGKEY_CONDITIONS = "Conditions";
 	protected static final String CFGKEY_AGENTS = "Agents";
+	protected static final String CFGKEY_AGENTDETAILS = "AgentDetails";
 	protected static final String CFGKEY_MATRICES = "Matrices";
+	protected static final String CFGKEY_MATRIXDETAILS = "MatrixDetails";
 	protected static final String CFGKEY_COMMENTS = "Comments";
 	protected static final String CFGKEY_QUALITYSCORES = "QualityScores";
 	protected static final String CFGKEY_CHECKS = "Checks";
@@ -86,7 +88,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	private Map<MiscXml, Map<String, Double>> addedConditions;
 	private Map<MiscXml, Map<String, Double>> conditions;
 	private Map<String, AgentXml> agents;
+	private Map<String, String> agentDetails;
 	private Map<String, MatrixXml> matrices;
+	private Map<String, String> matrixDetails;
 	private Map<String, String> comments;
 	private Map<String, Integer> qualityScores;
 	private Map<String, Boolean> checks;
@@ -100,7 +104,9 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		addedConditions = new LinkedHashMap<>();
 		conditions = new LinkedHashMap<>();
 		agents = new LinkedHashMap<>();
+		agentDetails = new LinkedHashMap<>();
 		matrices = new LinkedHashMap<>();
+		matrixDetails = new LinkedHashMap<>();
 		comments = new LinkedHashMap<>();
 		qualityScores = new LinkedHashMap<>();
 		checks = new LinkedHashMap<>();
@@ -149,6 +155,15 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 			}
 
+			if (agentDetails.containsKey(id)) {
+				PmmXmlDoc agentXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+
+				((AgentXml) agentXml.get(0)).setDetail(agentDetails.get(id));
+
+				tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
+			}
+
 			if (matrices.containsKey(id)) {
 				PmmXmlDoc matrixXml = new PmmXmlDoc();
 				MatrixXml matrix = matrices.get(id);
@@ -158,6 +173,15 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				} else {
 					matrixXml.add(new MatrixXml());
 				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
+			}
+
+			if (matrixDetails.containsKey(id)) {
+				PmmXmlDoc matrixXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
+
+				((MatrixXml) matrixXml.get(0)).setDetail(matrixDetails.get(id));
 
 				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
 			}
@@ -262,7 +286,11 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				XmlConverter.mapToXml(addedConditions));
 		settings.addString(CFGKEY_CONDITIONS, XmlConverter.mapToXml(conditions));
 		settings.addString(CFGKEY_AGENTS, XmlConverter.mapToXml(agents));
+		settings.addString(CFGKEY_AGENTDETAILS,
+				XmlConverter.mapToXml(agentDetails));
 		settings.addString(CFGKEY_MATRICES, XmlConverter.mapToXml(matrices));
+		settings.addString(CFGKEY_MATRIXDETAILS,
+				XmlConverter.mapToXml(matrixDetails));
 		settings.addString(CFGKEY_COMMENTS, XmlConverter.mapToXml(comments));
 		settings.addString(CFGKEY_QUALITYSCORES,
 				XmlConverter.mapToXml(qualityScores));
@@ -281,8 +309,12 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		conditions = XmlConverter.xmlToMiscStringDoubleMap(settings
 				.getString(CFGKEY_CONDITIONS));
 		agents = XmlConverter.xmlToAgentMap(settings.getString(CFGKEY_AGENTS));
+		agentDetails = XmlConverter.xmlToStringMap(settings
+				.getString(CFGKEY_AGENTDETAILS));
 		matrices = XmlConverter.xmlToMatrixMap(settings
 				.getString(CFGKEY_MATRICES));
+		matrixDetails = XmlConverter.xmlToStringMap(settings
+				.getString(CFGKEY_MATRIXDETAILS));
 		comments = XmlConverter.xmlToStringMap(settings
 				.getString(CFGKEY_COMMENTS));
 		qualityScores = XmlConverter.xmlToIntMap(settings

@@ -735,8 +735,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							|| selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected.equals(AttributeUtilities.TIME)
 							|| selected.equals(AttributeUtilities.LOGC)
-							|| selected.equals(XLSReader.AGENT_DETAILS_COLUMN)
-							|| selected.equals(XLSReader.MATRIX_DETAILS_COLUMN)) {
+							|| selected
+									.equals(AttributeUtilities.AGENT_DETAILS)
+							|| selected
+									.equals(AttributeUtilities.MATRIX_DETAILS)) {
 						columnMappings.put(column, selected);
 					} else if (selected
 							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
@@ -953,8 +955,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME, AttributeUtilities.LOGC,
-						XLSReader.AGENT_DETAILS_COLUMN,
-						XLSReader.MATRIX_DETAILS_COLUMN,
+						AttributeUtilities.AGENT_DETAILS,
+						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,

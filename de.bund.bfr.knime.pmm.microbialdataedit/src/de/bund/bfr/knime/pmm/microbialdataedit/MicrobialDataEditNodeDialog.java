@@ -87,6 +87,7 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
@@ -158,7 +159,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		Map<MiscXml, Map<String, Double>> addedConditions;
 		Map<MiscXml, Map<String, Double>> conditions;
 		Map<String, AgentXml> agents;
+		Map<String, String> agentDetails;
 		Map<String, MatrixXml> matrices;
+		Map<String, String> matrixDetails;
 		Map<String, String> comments;
 		Map<String, Integer> qualityScores;
 		Map<String, Boolean> checks;
@@ -187,10 +190,25 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
+			agentDetails = XmlConverter.xmlToStringMap(settings
+					.getString(MicrobialDataEditNodeModel.CFGKEY_AGENTDETAILS));
+		} catch (InvalidSettingsException e1) {
+			agentDetails = new LinkedHashMap<>();
+		}
+
+		try {
 			matrices = XmlConverter.xmlToMatrixMap(settings
 					.getString(MicrobialDataEditNodeModel.CFGKEY_MATRICES));
 		} catch (InvalidSettingsException e) {
 			matrices = new LinkedHashMap<>();
+		}
+
+		try {
+			matrixDetails = XmlConverter
+					.xmlToStringMap(settings
+							.getString(MicrobialDataEditNodeModel.CFGKEY_MATRIXDETAILS));
+		} catch (InvalidSettingsException e1) {
+			matrixDetails = new LinkedHashMap<>();
 		}
 
 		try {
@@ -227,7 +245,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		List<KnimeTuple> tuples = new ArrayList<>();
 		List<String> ids = new ArrayList<>();
 		List<AgentXml> agentList = new ArrayList<>();
+		List<String> agentDetailList = new ArrayList<>();
 		List<MatrixXml> matrixList = new ArrayList<>();
+		List<String> matrixDetailList = new ArrayList<>();
 		List<String> commentList = new ArrayList<>();
 		List<Integer> qualityScoreList = new ArrayList<>();
 		List<Boolean> checkedList = new ArrayList<>();
@@ -285,11 +305,25 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						TimeSeriesSchema.ATT_AGENT).get(0));
 			}
 
+			if (agentDetails.containsKey(id)) {
+				agentDetailList.add(agentDetails.get(id));
+			} else {
+				agentDetailList.add(((AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
+			}
+
 			if (matrices.containsKey(id)) {
 				matrixList.add(matrices.get(id));
 			} else {
 				matrixList.add((MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0));
+			}
+
+			if (matrixDetails.containsKey(id)) {
+				matrixDetailList.add(matrixDetails.get(id));
+			} else {
+				matrixDetailList.add(((MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
 			}
 
 			if (comments.containsKey(id)) {
@@ -363,9 +397,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		addedConditionsList.setListData(addedConditionNames
 				.toArray(new String[0]));
 
-		EditTable tableModel = new EditTable(ids, agentList, matrixList,
-				commentList, qualityScoreList, checkedList, timeSeriesList,
-				usedMiscs, usedMiscValues);
+		EditTable tableModel = new EditTable(ids, agentList, agentDetailList,
+				matrixList, matrixDetailList, commentList, qualityScoreList,
+				checkedList, timeSeriesList, usedMiscs, usedMiscValues);
 
 		for (MiscXml misc : addedConditions.keySet()) {
 			tableModel.addCondition(misc, addedConditions.get(misc));
@@ -403,9 +437,15 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(MicrobialDataEditNodeModel.CFGKEY_AGENTS,
 				XmlConverter.mapToXml(((EditTable) table.getModel())
 						.getAgentMap()));
+		settings.addString(MicrobialDataEditNodeModel.CFGKEY_AGENTDETAILS,
+				XmlConverter.mapToXml(((EditTable) table.getModel())
+						.getAgentDetailMap()));
 		settings.addString(MicrobialDataEditNodeModel.CFGKEY_MATRICES,
 				XmlConverter.mapToXml(((EditTable) table.getModel())
 						.getMatrixMap()));
+		settings.addString(MicrobialDataEditNodeModel.CFGKEY_MATRIXDETAILS,
+				XmlConverter.mapToXml(((EditTable) table.getModel())
+						.getMatrixDetailMap()));
 		settings.addString(MicrobialDataEditNodeModel.CFGKEY_COMMENTS,
 				XmlConverter.mapToXml(((EditTable) table.getModel())
 						.getCommentMap()));
@@ -473,7 +513,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		private List<String> ids;
 		private List<AgentXml> agents;
+		private List<String> agentDetails;
 		private List<MatrixXml> matrices;
+		private List<String> matrixDetails;
 		private List<String> comments;
 		private List<Integer> qualityScores;
 		private List<Boolean> checks;
@@ -484,13 +526,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<List<Double>> addedConditionValues;
 
 		public EditTable(List<String> ids, List<AgentXml> agents,
-				List<MatrixXml> matrices, List<String> comments,
+				List<String> agentDetails, List<MatrixXml> matrices,
+				List<String> matrixDetails, List<String> comments,
 				List<Integer> qualityScores, List<Boolean> checks,
 				List<List<TimeSeriesXml>> timeSeries, List<MiscXml> conditions,
 				List<List<Double>> conditionValues) {
 			this.ids = ids;
 			this.agents = agents;
+			this.agentDetails = agentDetails;
 			this.matrices = matrices;
+			this.matrixDetails = matrixDetails;
 			this.comments = comments;
 			this.qualityScores = qualityScores;
 			this.checks = checks;
@@ -567,11 +612,31 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			return map;
 		}
 
+		public Map<String, String> getAgentDetailMap() {
+			Map<String, String> map = new LinkedHashMap<>();
+
+			for (int i = 0; i < getRowCount(); i++) {
+				map.put(ids.get(i), agentDetails.get(i));
+			}
+
+			return map;
+		}
+
 		public Map<String, MatrixXml> getMatrixMap() {
 			Map<String, MatrixXml> map = new LinkedHashMap<>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), matrices.get(i));
+			}
+
+			return map;
+		}
+
+		public Map<String, String> getMatrixDetailMap() {
+			Map<String, String> map = new LinkedHashMap<>();
+
+			for (int i = 0; i < getRowCount(); i++) {
+				map.put(ids.get(i), matrixDetails.get(i));
 			}
 
 			return map;
@@ -624,7 +689,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public int getColumnCount() {
-			return addedConditions.size() + conditions.size() + 7;
+			return addedConditions.size() + conditions.size() + 9;
 		}
 
 		@Override
@@ -635,21 +700,25 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			case 1:
 				return agents.get(rowIndex);
 			case 2:
-				return matrices.get(rowIndex);
+				return agentDetails.get(rowIndex);
 			case 3:
-				return comments.get(rowIndex);
+				return matrices.get(rowIndex);
 			case 4:
-				return qualityScores.get(rowIndex);
+				return matrixDetails.get(rowIndex);
 			case 5:
-				return checks.get(rowIndex);
+				return comments.get(rowIndex);
 			case 6:
+				return qualityScores.get(rowIndex);
+			case 7:
+				return checks.get(rowIndex);
+			case 8:
 				return timeSeries.get(rowIndex);
 			default:
-				if (columnIndex - 7 < conditions.size()) {
-					return conditionValues.get(columnIndex - 7).get(rowIndex);
+				if (columnIndex - 9 < conditions.size()) {
+					return conditionValues.get(columnIndex - 9).get(rowIndex);
 				} else {
 					return addedConditionValues.get(
-							columnIndex - conditions.size() - 7).get(rowIndex);
+							columnIndex - conditions.size() - 9).get(rowIndex);
 				}
 			}
 		}
@@ -662,20 +731,24 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			case 1:
 				return TimeSeriesSchema.ATT_AGENT;
 			case 2:
-				return TimeSeriesSchema.ATT_MATRIX;
+				return AttributeUtilities.AGENT_DETAILS;
 			case 3:
-				return MdInfoXml.ATT_COMMENT;
+				return TimeSeriesSchema.ATT_MATRIX;
 			case 4:
-				return MdInfoXml.ATT_QUALITYSCORE;
+				return AttributeUtilities.MATRIX_DETAILS;
 			case 5:
-				return MdInfoXml.ATT_CHECKED;
+				return MdInfoXml.ATT_COMMENT;
 			case 6:
+				return MdInfoXml.ATT_QUALITYSCORE;
+			case 7:
+				return MdInfoXml.ATT_CHECKED;
+			case 8:
 				return TimeSeriesSchema.ATT_TIMESERIES;
 			default:
-				if (column - 7 < conditions.size()) {
-					return conditions.get(column - 7).getName();
+				if (column - 9 < conditions.size()) {
+					return conditions.get(column - 9).getName();
 				} else {
-					return addedConditions.get(column - conditions.size() - 7)
+					return addedConditions.get(column - conditions.size() - 9)
 							.getName();
 				}
 			}
@@ -689,14 +762,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			case 1:
 				return AgentXml.class;
 			case 2:
-				return MatrixXml.class;
-			case 3:
 				return String.class;
+			case 3:
+				return MatrixXml.class;
 			case 4:
-				return Integer.class;
+				return String.class;
 			case 5:
-				return Boolean.class;
+				return String.class;
 			case 6:
+				return Integer.class;
+			case 7:
+				return Boolean.class;
+			case 8:
 				return List.class;
 			default:
 				return Double.class;
@@ -718,27 +795,33 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				agents.set(rowIndex, (AgentXml) aValue);
 				break;
 			case 2:
-				matrices.set(rowIndex, (MatrixXml) aValue);
+				agentDetails.set(rowIndex, (String) aValue);
 				break;
 			case 3:
-				comments.set(rowIndex, (String) aValue);
+				matrices.set(rowIndex, (MatrixXml) aValue);
 				break;
 			case 4:
-				qualityScores.set(rowIndex, (Integer) aValue);
+				matrixDetails.set(rowIndex, (String) aValue);
 				break;
 			case 5:
-				checks.set(rowIndex, (Boolean) aValue);
+				comments.set(rowIndex, (String) aValue);
 				break;
 			case 6:
+				qualityScores.set(rowIndex, (Integer) aValue);
+				break;
+			case 7:
+				checks.set(rowIndex, (Boolean) aValue);
+				break;
+			case 8:
 				timeSeries.set(rowIndex, (List<TimeSeriesXml>) aValue);
 				break;
 			default:
-				if (columnIndex - 7 < conditions.size()) {
-					conditionValues.get(columnIndex - 7).set(rowIndex,
+				if (columnIndex - 9 < conditions.size()) {
+					conditionValues.get(columnIndex - 9).set(rowIndex,
 							(Double) aValue);
 				} else {
 					addedConditionValues.get(
-							columnIndex - conditions.size() - 7).set(rowIndex,
+							columnIndex - conditions.size() - 9).set(rowIndex,
 							(Double) aValue);
 				}
 			}

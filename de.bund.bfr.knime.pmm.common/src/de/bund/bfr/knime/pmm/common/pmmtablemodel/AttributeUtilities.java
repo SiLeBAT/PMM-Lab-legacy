@@ -46,7 +46,7 @@ public class AttributeUtilities {
 
 	public static final String TIME = "Time";
 	public static final String LOGC = "Log10C";
-	public static final String ATT_TEMPERATURE = "Temperature";	
+	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_WATERACTIVITY = "aw";
 	public static final int ATT_TEMPERATURE_ID = -1;
@@ -65,6 +65,11 @@ public class AttributeUtilities {
 
 	public static final String CELSIUS = "°C";
 	public static final String FAHRENHEIT = "°F";
+
+	public static final String AGENT_DETAILS = TimeSeriesSchema.ATT_AGENT
+			+ " Details";
+	public static final String MATRIX_DETAILS = TimeSeriesSchema.ATT_MATRIX
+			+ " Details";
 
 	private AttributeUtilities() {
 	}

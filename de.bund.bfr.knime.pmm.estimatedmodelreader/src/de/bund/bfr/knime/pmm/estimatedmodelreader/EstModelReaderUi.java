@@ -34,10 +34,12 @@
 package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 import javax.swing.BorderFactory;
@@ -49,6 +51,9 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
@@ -56,11 +61,15 @@ import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
+import quick.dbtable.DBTable;
+
+import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
@@ -92,19 +101,25 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	private Integer chosenModel = 0;
 	private JButton doFilter;
 	
+	private boolean showDbTable;
+	private Bfrdb db;
+	private JPanel southSouthPanel;
+	
 	public static final int MODE_OFF = 0;
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
 	
-	public EstModelReaderUi(Connection conn) {
-		this(conn,null);
+	public EstModelReaderUi(Bfrdb db) {
+		this(db,null);
 	}
 	
-	public EstModelReaderUi(Connection conn, String[] itemListMisc) {								
-		this(conn,itemListMisc, true, true, true);
+	public EstModelReaderUi(Bfrdb db, String[] itemListMisc) {								
+		this(db,itemListMisc, true, true, true, false);
 	}
-	public EstModelReaderUi(Connection conn, String[] itemListMisc,
-			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions) {								
+	public EstModelReaderUi(Bfrdb db, String[] itemListMisc,
+			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showDbTable) {		
+		this.showDbTable = showDbTable;
+		this.db = db;
 		modelReaderUi = new ModelReaderUi();
 		modelReaderUi.addLevelListener( this );
 		qualityButtonNone = new JRadioButton( "Do not filter" );
@@ -117,7 +132,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		qualityField = new DoubleTextField( false );
 		qualityField.setText( "0.8" );
 		qualityField.setEnabled( false );
-		tsReaderUi = new MdReaderUi(conn,itemListMisc);
+		tsReaderUi = new MdReaderUi(db.getConnection(),itemListMisc);
 						
 		JPanel buttonPanel = new JPanel();
 		ButtonGroup group = new ButtonGroup();	
@@ -147,9 +162,14 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		southPanel.setLayout(new BorderLayout());
 		if (showQualityOptions) southPanel.add(panel, BorderLayout.NORTH);
 		if (showMDOptions) southPanel.add(tsReaderUi, BorderLayout.CENTER);
+		
+		southSouthPanel = new JPanel();
+		southSouthPanel.setLayout(new BorderLayout());
 		doFilter = new JButton("ApplyAndShowFilterResults");
 		doFilter.addActionListener(this);
-		southPanel.add(doFilter, BorderLayout.SOUTH);
+		southSouthPanel.add(doFilter, BorderLayout.NORTH);
+		
+		southPanel.add(southSouthPanel, BorderLayout.SOUTH);
 		
 		setPreferredSize(new Dimension(550, showModelOptions ? 500 : 300));
 		setLayout(new BorderLayout());
@@ -164,8 +184,60 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 		updateTsReaderUi();
 	}
 	
+	private DBTable getDataTable(Bfrdb db) {
+		final DBTable dbTable = new DBTable();
+		try {
+			String sql = " TRUE " +
+					(tsReaderUi.getAgentID() > 0 ? " AND \"Agens\" = " + tsReaderUi.getAgentID() : "") +
+					(tsReaderUi.getMatrixID() > 0 ? " AND \"Matrix\" = " + tsReaderUi.getMatrixID() : "");
+			LinkedHashMap<String, DoubleTextField[]> params = tsReaderUi.getParameter();
+			for (String key : params.keySet()) {
+				DoubleTextField[] dtf = params.get(key);
+				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
+					sql +=
+							(dtf[0].getValue() != null ? " AND \"Temperatur\" >= " + dtf[0].getValue() : "") +
+							(dtf[1].getValue() != null ? " AND \"Temperatur\" <= " + dtf[1].getValue() : "");
+				}
+				else if (key.equals(AttributeUtilities.ATT_PH)) {
+					sql +=
+							(dtf[0].getValue() != null ? " AND \"pH\" >= " + dtf[0].getValue() : "") +
+							(dtf[1].getValue() != null ? " AND \"pH\" <= " + dtf[1].getValue() : "");
+				}
+				else if (key.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+					sql +=
+							(dtf[0].getValue() != null ? " AND \"aw\" >= " + dtf[0].getValue() : "") +
+							(dtf[1].getValue() != null ? " AND \"aw\" <= " + dtf[1].getValue() : "");
+				}
+			}
+			ResultSet rs = db.selectEstModel(1, sql);
+			dbTable.refresh(rs);
+			final JTable table = dbTable.getTable(); 
+			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+			    public void valueChanged(ListSelectionEvent e) {
+			    	if (!e.getValueIsAdjusting()) {
+			    		int selRow = table.getSelectedRow();
+			    		if (selRow >= 0) {
+				    		for (int i=0;i<table.getColumnCount();i++) {
+				    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell")) {
+				    				Object o = dbTable.getValueAt(table.getSelectedRow(), 31);
+				    				if (o != null && o instanceof Integer) {
+								        chosenModel = (Integer) o;
+				    				}
+							        break;
+				    			}
+				    		}
+			    		}
+			    	}
+			    }
+			});		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dbTable;
+	}
+
 	@Override
-	public void actionPerformed( ActionEvent arg0 ) {
+	public void actionPerformed(ActionEvent arg0) {
 		Object src = arg0.getSource();
 		if (src instanceof JRadioButton) {			
 			if (qualityButtonNone.isSelected()) qualityField.setEnabled(false);
@@ -175,24 +247,36 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 			updateTsReaderUi();			
 		}		
 		else if (src instanceof JButton) { // doFilter
-			MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
-			// MyIDFilter mf = new MyIDFilter(filterIDs);
-			Object newGmId = DBKernel.myList.openNewWindow(
-					gm,
-					chosenModel > 0 ? chosenModel : null,
-					(Object) "GeschaetzteModelle",
-					null,
-					1,
-					1,
-					null,
-					true, null, this);
-			if (newGmId != null && newGmId instanceof Integer) {
-				chosenModel = (Integer) newGmId;
-				doFilter.setText("ApplyAndShowFilterResults [" + chosenModel + "]");
+			if (showDbTable) {
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				southSouthPanel.setVisible(false);
+				southSouthPanel.removeAll();
+				southSouthPanel.add(doFilter, BorderLayout.NORTH);
+				southSouthPanel.add(getDataTable(db), BorderLayout.CENTER);
+				southSouthPanel.setPreferredSize(new Dimension(550, 150));
+				southSouthPanel.setVisible(true);
+				this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			}
 			else {
-				chosenModel = 0;
-				doFilter.setText("ApplyAndShowFilterResults");
+				MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
+				// MyIDFilter mf = new MyIDFilter(filterIDs);
+				Object newGmId = DBKernel.myList.openNewWindow(
+						gm,
+						chosenModel > 0 ? chosenModel : null,
+						(Object) "GeschaetzteModelle",
+						null,
+						1,
+						1,
+						null,
+						true, null, this);
+				if (newGmId != null && newGmId instanceof Integer) {
+					chosenModel = (Integer) newGmId;
+					doFilter.setText("ApplyAndShowFilterResults [" + chosenModel + "]");
+				}
+				else {
+					chosenModel = 0;
+					doFilter.setText("ApplyAndShowFilterResults");
+				}
 			}
 		}		
 	}
@@ -374,6 +458,9 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 
     }	
 	public void setSettings(Config c) throws InvalidSettingsException {		
+		setSettings(c, null, null, null, null, null);
+	}
+	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {		
      	modelReaderUi.setSettings(c.getConfig("ModelReaderUi"));
      	tsReaderUi.setSettings(c.getConfig("MdReaderUi"));
 
@@ -398,5 +485,34 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 			params.put(pars[i], dbl);
 		}
 		this.setParameter(params);
+		
+		fillWithDefaults(c, defAgent, defMatrix, defTemp, defPh, defAw, params);
+	}
+	private void fillWithDefaults(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, LinkedHashMap<String, DoubleTextField[]> params) throws InvalidSettingsException {
+		if (defAgent != null) {
+			//c.getConfig("MdReaderUi").addInt(MdReaderUi.PARAM_AGENTID, defAgent);
+			tsReaderUi.setAgensID(defAgent);
+			tsReaderUi.setAgentString(""+DBKernel.getValue(db.getConnection(), "Agenzien", "ID", defAgent+"", "Agensname"));
+		}
+		if (defMatrix != null) {
+			//c.getConfig("MdReaderUi").addInt(MdReaderUi.PARAM_MATRIXID, defMatrix);
+			tsReaderUi.setMatrixID(defMatrix);
+			tsReaderUi.setMatrixString(""+DBKernel.getValue(db.getConnection(), "Matrices", "ID", defMatrix+"", "Matrixname"));
+		}
+		if (defTemp != null) {
+			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_TEMPERATURE);
+			dtf[0].setValue(defTemp - 10);
+			dtf[1].setValue(defTemp + 10);
+		}
+		if (defPh != null) {
+			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_PH);
+			dtf[0].setValue(defPh - 1);
+			dtf[1].setValue(defPh + 1);
+		}
+		if (defAw != null) {
+			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_WATERACTIVITY);
+			dtf[0].setValue(defAw - 0.1);
+			dtf[1].setValue(defAw + 0.1);
+		}
 	}
 }

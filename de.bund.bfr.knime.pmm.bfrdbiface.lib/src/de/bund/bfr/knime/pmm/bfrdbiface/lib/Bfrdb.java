@@ -659,6 +659,12 @@ public class Bfrdb extends Hsqldbiface {
 		return selectEstModel(level, -1);
 	}
 	public ResultSet selectEstModel(final int level, int estimatedModelID) throws SQLException {
+		return selectEstModel(level, estimatedModelID, "");
+	}
+	public ResultSet selectEstModel(final int level, String where) throws SQLException {
+		return selectEstModel(level, -1, where);
+	}
+	private ResultSet selectEstModel(final int level, int estimatedModelID, String where) throws SQLException {
 		String q;
 		if (level == 1) {
 			q = queryPei2;
@@ -667,6 +673,7 @@ public class Bfrdb extends Hsqldbiface {
 			q = querySei2;
 			if (estimatedModelID > 0) q += " WHERE \"EstModelSecView\".\""+ATT_ESTMODELID+"2\" = " + estimatedModelID;
 		}		
+		if (!where.isEmpty()) q += "WHERE " + where;
 		//System.err.println(q);
 		PreparedStatement ps = conn.prepareStatement(q, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		return ps.executeQuery();

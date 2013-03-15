@@ -94,7 +94,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	}
     	catch (Exception e) {}
     	    	
-    	estmodelui = new EstModelReaderUi(db.getConnection());
+    	estmodelui = new EstModelReaderUi(db);
     	
     	panel.setLayout( new BorderLayout() );
     	//panel.add( dbui, BorderLayout.NORTH );    	

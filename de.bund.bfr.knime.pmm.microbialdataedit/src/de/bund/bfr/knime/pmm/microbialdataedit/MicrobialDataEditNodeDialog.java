@@ -83,11 +83,13 @@ import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
 
 /**
  * <code>NodeDialog</code> for the "MicrobialDataEdit" Node.
@@ -160,6 +162,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		Map<String, String> comments;
 		Map<String, Integer> qualityScores;
 		Map<String, Boolean> checks;
+		Map<String, List<TimeSeriesXml>> timeSeries;
 
 		try {
 			addedConditions = XmlConverter
@@ -212,6 +215,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			checks = new LinkedHashMap<>();
 		}
 
+		try {
+			timeSeries = XmlConverter.xmlToTimeSeriesMap(settings
+					.getString(MicrobialDataEditNodeModel.CFGKEY_TIMESERIES));
+		} catch (InvalidSettingsException e) {
+			timeSeries = new LinkedHashMap<>();
+		}
+
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), input[0]);
 		List<KnimeTuple> tuples = new ArrayList<>();
@@ -221,6 +231,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		List<String> commentList = new ArrayList<>();
 		List<Integer> qualityScoreList = new ArrayList<>();
 		List<Boolean> checkedList = new ArrayList<>();
+		List<List<TimeSeriesXml>> timeSeriesList = new ArrayList<>();
 		List<MiscXml> usedMiscs = new ArrayList<>();
 		List<List<Double>> usedMiscValues = new ArrayList<>();
 
@@ -250,6 +261,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			MdInfoXml infoXml = (MdInfoXml) tuple.getPmmXml(
 					TimeSeriesSchema.ATT_MDINFO).get(0);
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			List<TimeSeriesXml> series = new ArrayList<>();
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
+				series.add((TimeSeriesXml) el);
+			}
+
 			String id;
 
 			if (combaseID != null) {
@@ -290,6 +308,12 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				checkedList.add(checks.get(id));
 			} else {
 				checkedList.add(infoXml.getChecked());
+			}
+
+			if (timeSeries.containsKey(id)) {
+				timeSeriesList.add(timeSeries.get(id));
+			} else {
+				timeSeriesList.add(series);
 			}
 
 			for (int i = 0; i < usedMiscs.size(); i++) {
@@ -340,8 +364,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				.toArray(new String[0]));
 
 		EditTable tableModel = new EditTable(ids, agentList, matrixList,
-				commentList, qualityScoreList, checkedList, usedMiscs,
-				usedMiscValues);
+				commentList, qualityScoreList, checkedList, timeSeriesList,
+				usedMiscs, usedMiscValues);
 
 		for (MiscXml misc : addedConditions.keySet()) {
 			tableModel.addCondition(misc, addedConditions.get(misc));
@@ -360,6 +384,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				new QualityScoreRenderer());
 		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(
 				new QualityScoreEditor());
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(
+				new TimeSeriesRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
+				new TimeSeriesEditor());
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 	}
 
@@ -387,6 +415,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(MicrobialDataEditNodeModel.CFGKEY_CHECKS,
 				XmlConverter.mapToXml(((EditTable) table.getModel())
 						.getCheckedMap()));
+		settings.addString(MicrobialDataEditNodeModel.CFGKEY_TIMESERIES,
+				XmlConverter.mapToXml(((EditTable) table.getModel())
+						.getTimeSeriesMap()));
 	}
 
 	@Override
@@ -446,6 +477,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<String> comments;
 		private List<Integer> qualityScores;
 		private List<Boolean> checks;
+		private List<List<TimeSeriesXml>> timeSeries;
 		private List<MiscXml> conditions;
 		private List<List<Double>> conditionValues;
 		private List<MiscXml> addedConditions;
@@ -454,13 +486,15 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		public EditTable(List<String> ids, List<AgentXml> agents,
 				List<MatrixXml> matrices, List<String> comments,
 				List<Integer> qualityScores, List<Boolean> checks,
-				List<MiscXml> conditions, List<List<Double>> conditionValues) {
+				List<List<TimeSeriesXml>> timeSeries, List<MiscXml> conditions,
+				List<List<Double>> conditionValues) {
 			this.ids = ids;
 			this.agents = agents;
 			this.matrices = matrices;
 			this.comments = comments;
 			this.qualityScores = qualityScores;
 			this.checks = checks;
+			this.timeSeries = timeSeries;
 			this.conditions = conditions;
 			this.conditionValues = conditionValues;
 			addedConditions = new ArrayList<>();
@@ -573,6 +607,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			return map;
 		}
 
+		public Map<String, List<TimeSeriesXml>> getTimeSeriesMap() {
+			Map<String, List<TimeSeriesXml>> map = new LinkedHashMap<>();
+
+			for (int i = 0; i < getRowCount(); i++) {
+				map.put(ids.get(i), timeSeries.get(i));
+			}
+
+			return map;
+		}
+
 		@Override
 		public int getRowCount() {
 			return ids.size();
@@ -580,7 +624,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public int getColumnCount() {
-			return addedConditions.size() + conditions.size() + 6;
+			return addedConditions.size() + conditions.size() + 7;
 		}
 
 		@Override
@@ -598,12 +642,14 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return qualityScores.get(rowIndex);
 			case 5:
 				return checks.get(rowIndex);
+			case 6:
+				return timeSeries.get(rowIndex);
 			default:
-				if (columnIndex - 6 < conditions.size()) {
-					return conditionValues.get(columnIndex - 6).get(rowIndex);
+				if (columnIndex - 7 < conditions.size()) {
+					return conditionValues.get(columnIndex - 7).get(rowIndex);
 				} else {
 					return addedConditionValues.get(
-							columnIndex - conditions.size() - 6).get(rowIndex);
+							columnIndex - conditions.size() - 7).get(rowIndex);
 				}
 			}
 		}
@@ -623,11 +669,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return MdInfoXml.ATT_QUALITYSCORE;
 			case 5:
 				return MdInfoXml.ATT_CHECKED;
+			case 6:
+				return TimeSeriesSchema.ATT_TIMESERIES;
 			default:
-				if (column - 6 < conditions.size()) {
-					return conditions.get(column - 6).getName();
+				if (column - 7 < conditions.size()) {
+					return conditions.get(column - 7).getName();
 				} else {
-					return addedConditions.get(column - conditions.size() - 6)
+					return addedConditions.get(column - conditions.size() - 7)
 							.getName();
 				}
 			}
@@ -648,6 +696,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return Integer.class;
 			case 5:
 				return Boolean.class;
+			case 6:
+				return List.class;
 			default:
 				return Double.class;
 			}
@@ -658,6 +708,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			return columnIndex != 0;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 			switch (columnIndex) {
@@ -678,13 +729,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			case 5:
 				checks.set(rowIndex, (Boolean) aValue);
 				break;
+			case 6:
+				timeSeries.set(rowIndex, (List<TimeSeriesXml>) aValue);
+				break;
 			default:
-				if (columnIndex - 6 < conditions.size()) {
-					conditionValues.get(columnIndex - 6).set(rowIndex,
+				if (columnIndex - 7 < conditions.size()) {
+					conditionValues.get(columnIndex - 7).set(rowIndex,
 							(Double) aValue);
 				} else {
 					addedConditionValues.get(
-							columnIndex - conditions.size() - 6).set(rowIndex,
+							columnIndex - conditions.size() - 7).set(rowIndex,
 							(Double) aValue);
 				}
 			}
@@ -697,18 +751,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	private class AgentRenderer implements TableCellRenderer {
 
 		private JLabel label;
-		private AgentXml agent;
 
 		public AgentRenderer() {
 			label = new JLabel();
-			agent = null;
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			agent = (AgentXml) value;
+			AgentXml agent = (AgentXml) value;
 
 			if (agent != null) {
 				label.setText(agent.getName());
@@ -770,18 +822,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	private class MatrixRenderer implements TableCellRenderer {
 
 		private JLabel label;
-		private MatrixXml matrix;
 
 		public MatrixRenderer() {
 			label = new JLabel();
-			matrix = null;
 		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			matrix = (MatrixXml) value;
+			MatrixXml matrix = (MatrixXml) value;
 
 			if (matrix != null) {
 				label.setText(matrix.getName());
@@ -983,6 +1033,52 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					g.drawRect(rect.x, rect.y, rect.width, rect.height);
 				}
 			}
+		}
+	}
+
+	private class TimeSeriesRenderer implements TableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			return new JButton("View");
+		}
+	}
+
+	private class TimeSeriesEditor extends AbstractCellEditor implements
+			TableCellEditor, ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private List<TimeSeriesXml> timeSeries;
+
+		public TimeSeriesEditor() {
+			button = new JButton("View");
+			button.addActionListener(this);
+			timeSeries = new ArrayList<>();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			timeSeries = (List<TimeSeriesXml>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return timeSeries;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries);
+
+			dialog.setVisible(true);
 		}
 	}
 

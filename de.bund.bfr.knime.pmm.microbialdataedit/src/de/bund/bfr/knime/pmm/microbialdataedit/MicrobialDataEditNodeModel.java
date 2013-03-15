@@ -59,6 +59,7 @@ import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -80,6 +81,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_COMMENTS = "Comments";
 	protected static final String CFGKEY_QUALITYSCORES = "QualityScores";
 	protected static final String CFGKEY_CHECKS = "Checks";
+	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
 
 	private Map<MiscXml, Map<String, Double>> addedConditions;
 	private Map<MiscXml, Map<String, Double>> conditions;
@@ -88,6 +90,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	private Map<String, String> comments;
 	private Map<String, Integer> qualityScores;
 	private Map<String, Boolean> checks;
+	private Map<String, List<TimeSeriesXml>> timeSeries;
 
 	/**
 	 * Constructor for the node model.
@@ -101,6 +104,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		comments = new LinkedHashMap<>();
 		qualityScores = new LinkedHashMap<>();
 		checks = new LinkedHashMap<>();
+		timeSeries = new LinkedHashMap<>();
 	}
 
 	/**
@@ -186,6 +190,13 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
 			}
 
+			if (timeSeries.containsKey(id)) {
+				PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
+
+				timeSeriesXml.getElementSet().addAll(timeSeries.get(id));
+				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, timeSeriesXml);
+			}
+
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			Set<Integer> usedMiscIDs = new LinkedHashSet<>();
 
@@ -256,6 +267,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		settings.addString(CFGKEY_QUALITYSCORES,
 				XmlConverter.mapToXml(qualityScores));
 		settings.addString(CFGKEY_CHECKS, XmlConverter.mapToXml(checks));
+		settings.addString(CFGKEY_TIMESERIES, XmlConverter.mapToXml(timeSeries));
 	}
 
 	/**
@@ -276,6 +288,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 		qualityScores = XmlConverter.xmlToIntMap(settings
 				.getString(CFGKEY_QUALITYSCORES));
 		checks = XmlConverter.xmlToBoolMap(settings.getString(CFGKEY_CHECKS));
+		timeSeries = XmlConverter.xmlToTimeSeriesMap(settings
+				.getString(CFGKEY_TIMESERIES));
 	}
 
 	/**

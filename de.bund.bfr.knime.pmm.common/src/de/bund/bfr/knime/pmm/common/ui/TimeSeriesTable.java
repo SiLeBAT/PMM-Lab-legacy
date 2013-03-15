@@ -10,7 +10,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -30,31 +29,32 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 
 public class TimeSeriesTable extends JTable implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
+	private int rowCount;
 	private String timeColumnName;
 	private String logcColumnName;
 
-	public TimeSeriesTable(List<Point2D.Double> timeSeries,
+	public TimeSeriesTable(List<TimeSeriesXml> timeSeries,
 			boolean timeEditable, boolean logcEditable) {
 		this(timeSeries.size(), timeEditable, logcEditable);
 
 		for (int i = 0; i < timeSeries.size(); i++) {
-			setTime(i, timeSeries.get(i).x);
-			setLogc(i, timeSeries.get(i).y);
+			setTime(i, timeSeries.get(i).getTime());
+			setLogc(i, timeSeries.get(i).getLog10C());
 		}
 	}
 
 	public TimeSeriesTable(int rowCount, boolean timeEditable,
 			boolean logcEditable) {
-		timeColumnName = AttributeUtilities
-				.getName(AttributeUtilities.TIME);
-		logcColumnName = AttributeUtilities
-				.getName(AttributeUtilities.LOGC);
+		this.rowCount = rowCount;
+		timeColumnName = AttributeUtilities.getName(AttributeUtilities.TIME);
+		logcColumnName = AttributeUtilities.getName(AttributeUtilities.LOGC);
 		setModel(new TimeSeriesTableModel(rowCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
 		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));
@@ -96,6 +96,16 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	public TableColumn getLogcColumn() {
 		return getColumn(getLogcColumnName());
+	}
+
+	public List<TimeSeriesXml> getTimeSeries() {
+		List<TimeSeriesXml> timeSeries = new ArrayList<>();
+
+		for (int i = 0; i < rowCount; i++) {
+			timeSeries.add(new TimeSeriesXml(null, getTime(i), getLogc(i)));
+		}
+
+		return timeSeries;
 	}
 
 	public Double getTime(int i) {

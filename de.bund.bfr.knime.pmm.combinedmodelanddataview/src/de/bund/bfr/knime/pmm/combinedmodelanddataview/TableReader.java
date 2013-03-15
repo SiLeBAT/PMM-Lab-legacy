@@ -1,6 +1,5 @@
 package de.bund.bfr.knime.pmm.combinedmodelanddataview;
 
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -194,7 +193,7 @@ public class TableReader {
 			if (schemaContainsData) {
 				PmmXmlDoc timeSeriesXml = row
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-				List<Point2D.Double> dataPoints = new ArrayList<Point2D.Double>();
+				List<TimeSeriesXml> dataPoints = new ArrayList<>();
 				int n = Math.max(1, timeSeriesXml.getElementSet().size());
 				List<Double> timeList = new ArrayList<Double>();
 				List<Double> logcList = new ArrayList<Double>();
@@ -202,20 +201,10 @@ public class TableReader {
 				for (PmmXmlElementConvertable el : timeSeriesXml
 						.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
-					double time = Double.NaN;
-					double logc = Double.NaN;
-
-					if (element.getTime() != null) {
-						time = element.getTime();
-					}
-
-					if (element.getLog10C() != null) {
-						logc = element.getLog10C();
-					}
 
 					timeList.add(element.getTime());
 					logcList.add(element.getLog10C());
-					dataPoints.add(new Point2D.Double(time, logc));
+					dataPoints.add(element);
 				}
 
 				plotable = new Plotable(Plotable.BOTH);

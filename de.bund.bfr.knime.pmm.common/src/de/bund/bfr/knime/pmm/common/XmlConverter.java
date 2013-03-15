@@ -285,6 +285,16 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static Map<String, List<TimeSeriesXml>> xmlToTimeSeriesMap(String xml) {
+		try {
+			return (Map<String, List<TimeSeriesXml>>) new XStream()
+					.fromXML(xml);
+		} catch (Exception e) {
+			return new LinkedHashMap<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, Map<String, String>> xmlToStringMapMap(String xml) {
 		try {
 			return (Map<String, Map<String, String>>) new XStream()

@@ -36,27 +36,23 @@ package de.bund.bfr.knime.pmm.common.chart;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Point2D;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
-import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
+import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
 
 public class ChartInfoPanel extends JPanel implements ActionListener {
 
@@ -69,7 +65,7 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 	private JPanel labelPanel;
 	private JPanel fieldPanel;
 
-	private Map<JButton, List<Point2D.Double>> timeSeriesByButton;
+	private Map<JButton, List<TimeSeriesXml>> timeSeriesByButton;
 
 	public ChartInfoPanel(List<String> ids, List<List<String>> parameters,
 			List<List<?>> parameterValues) {
@@ -104,7 +100,7 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 	public void showID(String id) {
 		labelPanel.removeAll();
 		fieldPanel.removeAll();
-		timeSeriesByButton = new LinkedHashMap<JButton, List<Point2D.Double>>();
+		timeSeriesByButton = new LinkedHashMap<>();
 
 		if (id != null) {
 			int index = ids.indexOf(id);
@@ -128,7 +124,7 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 					field.setEditable(false);
 					fieldPanel.add(field);
 				} else if (values.get(i) instanceof List) {
-					List<Point2D.Double> list = (List<Point2D.Double>) values
+					List<TimeSeriesXml> list = (List<TimeSeriesXml>) values
 							.get(i);
 					JPanel buttonPanel = new JPanel();
 					JButton button = new JButton("View");
@@ -157,41 +153,10 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		List<Point2D.Double> timeSeries = timeSeriesByButton.get(e.getSource());
-		TimeSeriesDialog dialog = new TimeSeriesDialog(timeSeries);
+		List<TimeSeriesXml> timeSeries = timeSeriesByButton.get(e.getSource());
+		TimeSeriesDialog dialog = new TimeSeriesDialog(this, timeSeries);
 
 		dialog.setVisible(true);
-	}
-
-	private class TimeSeriesDialog extends JDialog implements ActionListener {
-
-		private static final long serialVersionUID = 1L;
-
-		public TimeSeriesDialog(List<Point2D.Double> timeSeries) {
-			super(JOptionPane.getFrameForComponent(ChartInfoPanel.this),
-					AttributeUtilities.DATAPOINTS, true);
-
-			JButton okButton = new JButton("OK");
-			JPanel bottomPanel = new JPanel();
-
-			okButton.addActionListener(this);
-			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-			bottomPanel.add(okButton);
-
-			setLayout(new BorderLayout());
-			add(new JScrollPane(new TimeSeriesTable(timeSeries, false, false)),
-					BorderLayout.CENTER);
-			add(bottomPanel, BorderLayout.SOUTH);
-			pack();
-
-			setResizable(false);
-			setLocationRelativeTo(ChartInfoPanel.this);
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			dispose();
-		}
 	}
 
 }

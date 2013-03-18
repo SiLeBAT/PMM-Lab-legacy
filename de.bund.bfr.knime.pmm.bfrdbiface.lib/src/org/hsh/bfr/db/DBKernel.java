@@ -126,6 +126,7 @@ public class DBKernel {
 	public static MyTable blobSpeicher = null;
 	public static long tempROZeit = 0;
 	public static long triggerFired = System.currentTimeMillis();
+	public static long lastCache = 0;
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;

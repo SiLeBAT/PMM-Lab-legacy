@@ -209,7 +209,7 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 							(dtf[1].getValue() != null ? " AND \"aw\" <= " + dtf[1].getValue() : "");
 				}
 			}
-			ResultSet rs = db.selectEstModel(1, sql);
+			ResultSet rs = db.selectEstModel(1, sql, "", false);
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

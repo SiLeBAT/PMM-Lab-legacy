@@ -62,7 +62,7 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_OFF = 0;
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
-
+	
 	public EmReaderUi() {
 		this(null);
 	}
@@ -86,6 +86,8 @@ public class EmReaderUi extends JPanel {
 
 	private DBTable getDataTable(Bfrdb db) {
 		try {
+			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
+
 			String where = " TRUE " +
 					(mdReaderUi.getAgentID() > 0 ? " AND \"Agens\" = " + mdReaderUi.getAgentID() : "") +
 					(mdReaderUi.getMatrixID() > 0 ? " AND \"Matrix\" = " + mdReaderUi.getMatrixID() : "");
@@ -108,14 +110,21 @@ public class EmReaderUi extends JPanel {
 							(dtf[1].getValue() != null ? " AND \"aw\" <= " + dtf[1].getValue() : "");
 				}
 			}
-			ResultSet rs = db.selectEstModel(1, where);
+			String cachedTable = "CACHE_selectEstModel1";
+			boolean dropCacheFirst = false;
+			if (!DBKernel.isServerConnection && System.currentTimeMillis() - DBKernel.lastCache > 60000*120) { // 120 mins
+				dropCacheFirst = true;
+				DBKernel.lastCache = System.currentTimeMillis();
+			}
+			ResultSet rs = db.selectEstModel(1, where, cachedTable, dropCacheFirst);
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			    public void valueChanged(ListSelectionEvent e) {
 			    	if (!e.getValueIsAdjusting()) {
 			    		int selRow = table.getSelectedRow();
-			    		if (selRow >= 0) {
+			    		chosenModel = 0;
+			    		if (selRow >= 0 && dbTable.getRowCount() > 0) {
 				    		for (int i=0;i<table.getColumnCount();i++) {
 				    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell")) {
 				    				Object o = dbTable.getValueAt(selRow, i);
@@ -144,6 +153,9 @@ public class EmReaderUi extends JPanel {
 		if (showDbTable) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
+			dbTable.getTable().clearSelection();
+			chosenModel = 0;
+			doFilter.setText("ApplyAndShowFilterResults");
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		}
 		else {

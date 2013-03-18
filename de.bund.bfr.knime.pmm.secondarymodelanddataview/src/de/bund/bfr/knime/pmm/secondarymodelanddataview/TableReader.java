@@ -133,7 +133,11 @@ public class TableReader {
 
 		for (KnimeTuple tuple : tuples) {
 			String id = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
-					.get(0)).getName();
+					.get(0)).getName()
+					+ "("
+					+ ((CatalogModelXml) tuple.getPmmXml(
+							Model2Schema.ATT_MODELCATALOG).get(0)).getID()
+					+ ")";
 
 			if (!idSet.contains(id)) {
 				PmmXmlDoc modelXmlSec = tuple

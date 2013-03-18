@@ -440,6 +440,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		cleanMaps();
+
 		if (filePanel.getFileName() == null) {
 			throw new InvalidSettingsException("No file is specfied");
 		}
@@ -714,7 +716,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				fileColumnList = new ArrayList<>();
 			}
 
-			columnMappings.clear();
 			updateColumnsPanel();
 			updateAgentPanel();
 			updateMatrixPanel();
@@ -797,7 +798,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			fileColumnList = new ArrayList<>();
 		}
 
-		columnMappings.clear();
 		updateColumnsPanel();
 		updateAgentPanel();
 		updateMatrixPanel();
@@ -805,6 +805,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateAgentPanel() {
+		agentButtons.clear();
 		agentBox = new JComboBox<>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		agentButton = new JButton(OTHER_PARAMETER);
 
@@ -873,6 +874,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void updateMatrixPanel() {
+		matrixButtons.clear();
 		matrixBox = new JComboBox<>(
 				new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		matrixButton = new JButton(OTHER_PARAMETER);
@@ -1031,6 +1033,30 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		return new GridBagConstraints(x, y, 1, 1, 0, 0,
 				GridBagConstraints.LINE_START, GridBagConstraints.NONE,
 				new Insets(2, 2, 2, 2), 0, 0);
+	}
+
+	private void cleanMaps() {
+		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
+		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
+		Map<String, Object> newColumnMappings = new LinkedHashMap<>();
+
+		for (String agent : agentButtons.keySet()) {
+			newAgentMappings.put(agent, agentMappings.get(agent));
+		}
+
+		for (String matrix : matrixButtons.keySet()) {
+			newMatrixMappings.put(matrix, matrixMappings.get(matrix));
+		}
+
+		for (String column : fileColumnList) {
+			if (columnMappings.containsKey(column)) {
+				newColumnMappings.put(column, columnMappings.get(column));
+			}
+		}
+
+		agentMappings = newAgentMappings;
+		matrixMappings = newMatrixMappings;
+		columnMappings = newColumnMappings;
 	}
 
 }

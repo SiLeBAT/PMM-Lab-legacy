@@ -124,6 +124,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private int showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -240,6 +241,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		try {
+			showConfidence = settings
+					.getInt(PredictorViewNodeModel.CFG_SHOWCONFIDENCE);
+		} catch (InvalidSettingsException e) {
+			showConfidence = PredictorViewNodeModel.DEFAULT_SHOWCONFIDENCE;
+		}
+
+		try {
 			unitX = settings.getString(PredictorViewNodeModel.CFG_UNITX);
 		} catch (InvalidSettingsException e) {
 			unitX = null;
@@ -331,6 +339,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		settings.addInt(PredictorViewNodeModel.CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addInt(PredictorViewNodeModel.CFG_DISPLAYHIGHLIGHTED,
 				displayHighlighted);
+		settings.addInt(PredictorViewNodeModel.CFG_SHOWCONFIDENCE,
+				showConfidence);
 		settings.addString(PredictorViewNodeModel.CFG_UNITX, unitX);
 		settings.addString(PredictorViewNodeModel.CFG_UNITY, unitY);
 		settings.addString(PredictorViewNodeModel.CFG_TRANSFORMY, transformY);
@@ -377,6 +387,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
+		configPanel.setShowConfidenceInterval(showConfidence == 1);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
@@ -548,6 +559,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			displayHighlighted = 1;
 		} else {
 			displayHighlighted = 0;
+		}
+
+		if (configPanel.isShowConfidenceInterval()) {
+			showConfidence = 1;
+		} else {
+			showConfidence = 0;
 		}
 
 		unitX = configPanel.getUnitX();

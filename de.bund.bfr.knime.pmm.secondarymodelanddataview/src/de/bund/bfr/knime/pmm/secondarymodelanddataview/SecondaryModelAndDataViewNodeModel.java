@@ -93,6 +93,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	protected static final String CFG_SHOWLEGEND = "ShowLegend";
 	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
 	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	protected static final String CFG_SHOWCONFIDENCE = "ShowConfidence";
 	protected static final String CFG_UNITX = "UnitX";
 	protected static final String CFG_UNITY = "UnitY";
 	protected static final String CFG_TRANSFORMY = "TransformY";
@@ -109,6 +110,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	protected static final int DEFAULT_SHOWLEGEND = 1;
 	protected static final int DEFAULT_ADDLEGENDINFO = 0;
 	protected static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
+	protected static final int DEFAULT_SHOWCONFIDENCE = 0;
 	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	protected static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
 
@@ -129,6 +131,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private int showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -159,6 +162,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		showLegend = DEFAULT_SHOWLEGEND;
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		showConfidence = DEFAULT_SHOWCONFIDENCE;
 		unitX = null;
 		unitY = null;
 		transformY = DEFAULT_TRANSFORMY;
@@ -236,6 +240,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			creator.setDrawLines(drawLines == 1);
 			creator.setShowLegend(showLegend == 1);
 			creator.setAddInfoInLegend(addLegendInfo == 1);
+			creator.setShowConfidenceInterval(showConfidence == 1);
 			creator.setUnitX(unitX);
 			creator.setUnitY(unitY);
 			creator.setTransformY(transformY);
@@ -303,6 +308,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		settings.addInt(CFG_SHOWLEGEND, showLegend);
 		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addInt(CFG_SHOWCONFIDENCE, showConfidence);
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
@@ -339,6 +345,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 		showLegend = settings.getInt(CFG_SHOWLEGEND);
 		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
 		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
+		showConfidence = settings.getInt(CFG_SHOWCONFIDENCE);
 		unitX = settings.getString(CFG_UNITX);
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);

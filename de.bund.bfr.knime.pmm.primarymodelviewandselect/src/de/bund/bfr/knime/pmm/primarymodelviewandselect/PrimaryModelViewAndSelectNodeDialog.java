@@ -100,6 +100,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private int showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -220,6 +221,13 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_DISPLAYHIGHLIGHTED);
 		} catch (InvalidSettingsException e) {
 			displayHighlighted = PrimaryModelViewAndSelectNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			showConfidence = settings
+					.getInt(PrimaryModelViewAndSelectNodeModel.CFG_SHOWCONFIDENCE);
+		} catch (InvalidSettingsException e) {
+			showConfidence = PrimaryModelViewAndSelectNodeModel.DEFAULT_SHOWCONFIDENCE;
 		}
 
 		try {
@@ -351,6 +359,14 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 					0);
 		}
 
+		if (configPanel.isShowConfidenceInterval()) {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_SHOWCONFIDENCE, 1);
+		} else {
+			settings.addInt(
+					PrimaryModelViewAndSelectNodeModel.CFG_SHOWCONFIDENCE, 0);
+		}
+
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_UNITX,
 				configPanel.getUnitX());
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_UNITY,
@@ -391,6 +407,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
+		configPanel.setShowConfidenceInterval(showConfidence == 1);
 		configPanel.setUnitX(unitX);
 		configPanel.setUnitY(unitY);
 		configPanel.setTransformY(transformY);

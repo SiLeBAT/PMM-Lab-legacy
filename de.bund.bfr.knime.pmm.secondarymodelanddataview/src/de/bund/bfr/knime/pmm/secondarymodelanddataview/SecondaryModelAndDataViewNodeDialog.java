@@ -107,6 +107,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private int showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -248,6 +249,13 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					.getInt(SecondaryModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
 		} catch (InvalidSettingsException e) {
 			displayHighlighted = SecondaryModelAndDataViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			showConfidence = settings
+					.getInt(SecondaryModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE);
+		} catch (InvalidSettingsException e) {
+			showConfidence = SecondaryModelAndDataViewNodeModel.DEFAULT_SHOWCONFIDENCE;
 		}
 
 		try {
@@ -407,6 +415,14 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					0);
 		}
 
+		if (configPanel.isShowConfidenceInterval()) {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 1);
+		} else {
+			settings.addInt(
+					SecondaryModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 0);
+		}
+
 		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_UNITX,
 				configPanel.getUnitX());
 		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_UNITY,
@@ -480,6 +496,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
+		configPanel.setShowConfidenceInterval(showConfidence == 1);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);

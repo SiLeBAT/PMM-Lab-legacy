@@ -104,6 +104,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 	private int showLegend;
 	private int addLegendInfo;
 	private int displayHighlighted;
+	private int showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -218,6 +219,13 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 					.getInt(ModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
 		} catch (InvalidSettingsException e) {
 			displayHighlighted = ModelAndDataViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			showConfidence = settings
+					.getInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE);
+		} catch (InvalidSettingsException e) {
+			showConfidence = ModelAndDataViewNodeModel.DEFAULT_SHOWCONFIDENCE;
 		}
 
 		try {
@@ -344,6 +352,12 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 			settings.addInt(ModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED, 0);
 		}
 
+		if (configPanel.isShowConfidenceInterval()) {
+			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 1);
+		} else {
+			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 0);
+		}
+
 		settings.addString(ModelAndDataViewNodeModel.CFG_UNITX,
 				configPanel.getUnitX());
 		settings.addString(ModelAndDataViewNodeModel.CFG_UNITY,
@@ -392,6 +406,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(showLegend == 1);
 		configPanel.setAddInfoInLegend(addLegendInfo == 1);
 		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
+		configPanel.setShowConfidenceInterval(showConfidence == 1);
 		configPanel.setTransformY(transformY);
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,

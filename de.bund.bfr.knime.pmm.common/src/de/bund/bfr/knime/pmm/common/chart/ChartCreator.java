@@ -906,12 +906,22 @@ public class ChartCreator extends ChartPanel {
 				continue;
 			}
 
-			DefaultXYDataset modelSet = new DefaultXYDataset();
-			XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
-					true, false);
-			DefaultXYDataset dataSet = new DefaultXYDataset();
-			XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
-					drawLines, true);
+			double[][] modelErrors = null;
+
+			if (showConfidenceInterval) {
+				modelErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
+						unitY, transformY, minX, maxX,
+						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+			}
+
+			int i;
+
+			if (plot.getDataset(0) == null) {
+				i = 0;
+			} else {
+				i = plot.getDatasetCount();
+			}
+
 			String addLegend = "";
 
 			for (String arg : choiceMap.keySet()) {
@@ -924,30 +934,62 @@ public class ChartCreator extends ChartPanel {
 				}
 			}
 
-			modelSet.addSeries(legend + addLegend, modelPoints);
+			if (modelErrors != null) {
+				YIntervalSeriesCollection modelSet = new YIntervalSeriesCollection();
+				DeviationRenderer modelRenderer = new DeviationRenderer(true,
+						false);
+				YIntervalSeries series = new YIntervalSeries(legend);
+
+				for (int j = 0; j < modelPoints[0].length; j++) {
+					double error = Double.isNaN(modelErrors[1][j]) ? 0.0
+							: modelErrors[1][j];
+
+					series.add(modelPoints[0][j], modelPoints[1][j],
+							modelPoints[1][j] - error, modelPoints[1][j]
+									+ error);
+				}
+
+				modelSet.addSeries(series);
+				modelRenderer
+						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+				modelRenderer.setSeriesPaint(0, colorList.get(index));
+				modelRenderer.setSeriesFillPaint(0, colorList.get(index));
+				modelRenderer.setSeriesShape(0, shapeList.get(index));
+
+				if (dataPoints != null) {
+					modelRenderer.setBaseSeriesVisibleInLegend(false);
+				}
+
+				plot.setDataset(i, modelSet);
+				plot.setRenderer(i, modelRenderer);
+			} else {
+				DefaultXYDataset modelSet = new DefaultXYDataset();
+				XYLineAndShapeRenderer modelRenderer = new XYLineAndShapeRenderer(
+						true, false);
+
+				modelSet.addSeries(legend + addLegend, modelPoints);
+				modelRenderer
+						.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
+				modelRenderer.setBaseSeriesVisibleInLegend(false);
+				modelRenderer.setSeriesPaint(0, colorList.get(index));
+				modelRenderer.setSeriesShape(0, shapeList.get(index));
+
+				plot.setDataset(i, modelSet);
+				plot.setRenderer(i, modelRenderer);
+			}
+
+			DefaultXYDataset dataSet = new DefaultXYDataset();
+			XYLineAndShapeRenderer dataRenderer = new XYLineAndShapeRenderer(
+					drawLines, true);
+
 			dataSet.addSeries(legend + addLegend, dataPoints);
-			modelRenderer
-					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
-			modelRenderer.setBaseSeriesVisibleInLegend(false);
-			modelRenderer.setSeriesPaint(0, colorList.get(index));
-			modelRenderer.setSeriesShape(0, shapeList.get(index));
 			dataRenderer
 					.setBaseToolTipGenerator(new StandardXYToolTipGenerator());
 			dataRenderer.setSeriesPaint(0, colorList.get(index));
 			dataRenderer.setSeriesShape(0, shapeList.get(index));
-
-			int i;
-
-			if (plot.getDataset(0) == null) {
-				i = 0;
-			} else {
-				i = plot.getDatasetCount();
-			}
-
-			plot.setDataset(i, modelSet);
-			plot.setRenderer(i, modelRenderer);
 			plot.setDataset(i + 1, dataSet);
 			plot.setRenderer(i + 1, dataRenderer);
+
 			index++;
 		}
 	}

@@ -60,6 +60,7 @@ public class TableReader {
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
 		List<KnimeTuple> tuples = new ArrayList<>();
 
@@ -185,6 +186,7 @@ public class TableReader {
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
 				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAIC());
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
+				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDOF());
 
 				if (schemaContainsData) {
 					miscDataMaps.put(id,
@@ -232,6 +234,7 @@ public class TableReader {
 			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 
@@ -255,6 +258,16 @@ public class TableReader {
 				ParamXml element = (ParamXml) el;
 
 				constants.put(element.getName(), element.getValue());
+
+				Map<String, Double> cov = new LinkedHashMap<String, Double>();
+
+				for (PmmXmlElementConvertable el2 : paramMap.get(id)
+						.getElementSet()) {
+					cov.put(((ParamXml) el2).getName(), element
+							.getCorrelation(((ParamXml) el2).getOrigName()));
+				}
+
+				covariances.put(element.getName(), cov);
 			}
 
 			plotable.setFunction(formulaMap.get(id));
@@ -263,6 +276,8 @@ public class TableReader {
 			plotable.setMinArguments(minArg);
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
+			plotable.setCovariances(covariances);
+			plotable.setDegreesOfFreedom(dofMap.get(id));
 
 			doubleColumnValues.get(0).add(rmsMap.get(id));
 			doubleColumnValues.get(1).add(rSquaredMap.get(id));

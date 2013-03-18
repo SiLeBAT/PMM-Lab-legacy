@@ -430,7 +430,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		if (containsData) {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_BOXES, false, null);
+					ChartConfigPanel.PARAMETER_BOXES, true, null);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
@@ -438,7 +438,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, false, null);
+					ChartConfigPanel.PARAMETER_FIELDS, true, null);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
@@ -567,6 +567,8 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
+		chartCreator.setShowConfidenceInterval(configPanel
+				.isShowConfidenceInterval());
 		chartCreator.createChart(selectedID);
 	}
 

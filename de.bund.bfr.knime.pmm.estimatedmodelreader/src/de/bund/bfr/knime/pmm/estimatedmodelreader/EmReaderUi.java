@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import javax.swing.*;
@@ -87,27 +88,85 @@ public class EmReaderUi extends JPanel {
 	private DBTable getDataTable(Bfrdb db) {
 		try {
 			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
+			HashMap<String, Integer> codeLength = new HashMap<String, Integer>();
+			codeLength.put("ADV", 4);
+			codeLength.put("BLS", 3);
+			codeLength.put("TOP", 4);
+			codeLength.put("GS1", 3);
+			codeLength.put("Combase", 5);
+			codeLength.put("FA", 4);
+			codeLength.put("SiLeBAT", 4);
+			codeLength.put("Nährmedien", 13);
+			codeLength.put("VET", 5);
+			String where = " TRUE ";
+			if (mdReaderUi.getAgentID() > 0) {
+				String matchingIDs = "" + mdReaderUi.getAgentID();
+				ResultSet rs = DBKernel.getResultSet(db.getConnection(), "SELECT \"CodeSystem\",\"Code\" FROM " + DBKernel.delimitL("Codes_Agenzien") +
+						" WHERE \"Basis\" = " + mdReaderUi.getAgentID(), false);
+				if (rs != null && rs.first()) {
+					do {
+						int codeLen = codeLength.get(rs.getString("CodeSystem"));
+						String aCode = rs.getString("Code");
+						if (aCode == null) aCode = "12345678901234";
+						if (aCode.length() >= codeLen) {
+							ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Agenzien") +
+									" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
+									"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + aCode.substring(0, codeLen) + "'", false);
+							if (rs2 != null && rs2.first()) {
+								do {
+									matchingIDs += "," + rs2.getInt("Basis");
+								} while (rs2.next());
+							}							
+						}
+					} while (rs.next());
+				}
 
-			String where = " TRUE " +
-					(mdReaderUi.getAgentID() > 0 ? " AND \"Agens\" = " + mdReaderUi.getAgentID() : "") +
-					(mdReaderUi.getMatrixID() > 0 ? " AND \"Matrix\" = " + mdReaderUi.getMatrixID() : "");
+				where += " AND (\"Agens\" IS NULL OR \"Agens\" IN (" + matchingIDs + "))";
+			}
+
+			codeLength.put("ADV", 5);
+			if (mdReaderUi.getMatrixID() > 0) {
+				String matchingIDs = "" + mdReaderUi.getMatrixID();
+				ResultSet rs = DBKernel.getResultSet(db.getConnection(), "SELECT \"CodeSystem\",\"Code\" FROM " + DBKernel.delimitL("Codes_Matrices") +
+						" WHERE \"Basis\" = " + mdReaderUi.getMatrixID(), false);
+				if (rs != null && rs.first()) {
+					do {
+						int codeLen = codeLength.get(rs.getString("CodeSystem"));
+						String mCode = rs.getString("Code");
+						if (mCode == null) mCode = "12345678901234";
+						if (mCode.length() >= codeLen) {
+							ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Matrices") +
+									" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
+									"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + mCode.substring(0, codeLen) + "'", false);
+							if (rs2 != null && rs2.first()) {
+								do {
+									matchingIDs += "," + rs2.getInt("Basis");
+								} while (rs2.next());
+							}							
+						}
+					} while (rs.next());
+				}
+
+				where += " AND (\"Matrix\" IS NULL OR \"Matrix\" IN (" + matchingIDs + "))";
+			}
+			
 			LinkedHashMap<String, DoubleTextField[]> params = mdReaderUi.getParameter();
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
 					where +=
-							(dtf[0].getValue() != null ? " AND \"Temperatur\" >= " + dtf[0].getValue() : "") +
-							(dtf[1].getValue() != null ? " AND \"Temperatur\" <= " + dtf[1].getValue() : "");
+							(dtf[0].getValue() != null ? " AND (\"Temperatur\" >= " + dtf[0].getValue() + " OR \"Temperatur\" IS NULL)" : "") +
+							(dtf[1].getValue() != null ? " AND (\"Temperatur\" <= " + dtf[1].getValue() + " OR \"Temperatur\" IS NULL)" : "");
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
 					where +=
-							(dtf[0].getValue() != null ? " AND \"pH\" >= " + dtf[0].getValue() : "") +
-							(dtf[1].getValue() != null ? " AND \"pH\" <= " + dtf[1].getValue() : "");
+							(dtf[0].getValue() != null ? " AND (\"pH\" >= " + dtf[0].getValue() + " OR \"pH\" IS NULL)" : "") +
+							(dtf[1].getValue() != null ? " AND (\"pH\" <= " + dtf[1].getValue() + " OR \"pH\" IS NULL)" : "");
 				}
 				else if (key.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 					where +=
-							(dtf[0].getValue() != null ? " AND \"aw\" >= " + dtf[0].getValue() : "") +
-							(dtf[1].getValue() != null ? " AND \"aw\" <= " + dtf[1].getValue() : "");
+							(dtf[0].getValue() != null ? " AND (\"aw\" >= " + dtf[0].getValue() + " OR \"aw\" IS NULL)" : "") +
+							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
 				}
 			}
 			String cachedTable = "CACHE_selectEstModel1";
@@ -119,6 +178,18 @@ public class EmReaderUi extends JPanel {
 			ResultSet rs = db.selectEstModel(1, where, cachedTable, dropCacheFirst);
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
+    		for (int i=0;i<table.getColumnCount();i++) {
+    			Column c = dbTable.getColumn(i);
+    			String cn = c.getColumnName(); 
+    			if (cn.equals("GeschaetztesModell") || cn.equals("Temperatur") || cn.equals("pH") || cn.equals("aw")
+    					 || cn.equals("Agensname") || cn.equals("AgensDetail") || cn.equals("Matrixname")
+    					 || cn.equals("MatrixDetail") || cn.equals("Kommentar") || cn.equals("MDGeprueft") || cn.equals("MDGuetescore")
+    					 || cn.equals("Parameter") || cn.equals("Parametername") || cn.equals("Wert") || cn.equals("ZeitEinheit") || cn.equals("Rsquared")
+    					 || cn.equals("Geprueft") || cn.equals("Guetescore")) {
+    				c.setVisible(true);
+    			}
+    			else c.setVisible(false);
+    		}
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			    public void valueChanged(ListSelectionEvent e) {
 			    	if (!e.getValueIsAdjusting()) {
@@ -441,7 +512,7 @@ public class EmReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"default:grow, 2*($lgap, default), $lgap, default:grow"));
+			"3*(fill:default, $lgap), fill:default:grow"));
 		add(modelReaderUi, CC.xy(1, 1));
 
 		//======== qualityPanel ========
@@ -499,7 +570,7 @@ public class EmReaderUi extends JPanel {
 			panel6.setBorder(new TitledBorder("Data Table"));
 			panel6.setLayout(new FormLayout(
 				"default:grow",
-				"default, $lgap, default"));
+				"default, $lgap, fill:default:grow"));
 
 			//---- doFilter ----
 			doFilter.setText("ApplyAndShowFilterResults");

@@ -5,7 +5,7 @@ new FormModel {
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow"
-			"$rowSpecs": "default:grow, linegap, default, linegap, default, linegap, default:grow"
+			"$rowSpecs": "fill:default, linegap, fill:default, linegap, fill:default, linegap, fill:default:grow"
 		} ) {
 			name: "this"
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.ModelReaderUi" ) {
@@ -69,7 +69,7 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default:grow"
-				"$rowSpecs": "default, linegap, default"
+				"$rowSpecs": "default, linegap, fill:default:grow"
 			} ) {
 				name: "panel6"
 				"border": new javax.swing.border.TitledBorder( "Data Table" )

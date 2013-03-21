@@ -1159,7 +1159,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries);
+			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries,
+					true);
 
 			dialog.setVisible(true);
 		}

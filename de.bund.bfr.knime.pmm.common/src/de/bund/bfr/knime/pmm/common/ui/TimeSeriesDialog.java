@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -14,13 +15,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
+import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 
 public class TimeSeriesDialog extends JDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
 
-	public TimeSeriesDialog(JComponent owner, List<TimeSeriesXml> timeSeries) {
+	public TimeSeriesDialog(JComponent owner, List<TimeSeriesXml> timeSeries,
+			boolean showChart) {
 		super(JOptionPane.getFrameForComponent(owner),
 				AttributeUtilities.DATAPOINTS, true);
 
@@ -32,17 +37,64 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		bottomPanel.add(okButton);
 
 		setLayout(new BorderLayout());
-		add(new JScrollPane(new TimeSeriesTable(timeSeries, false, false)),
-				BorderLayout.CENTER);
+
+		if (showChart) {
+			add(createTableChartComponent(timeSeries), BorderLayout.CENTER);
+		} else {
+			add(createTableComponent(timeSeries), BorderLayout.CENTER);
+		}
+
 		add(bottomPanel, BorderLayout.SOUTH);
 		pack();
 
-		setResizable(false);
+		setResizable(true);
 		setLocationRelativeTo(owner);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		dispose();
+	}
+
+	private JComponent createTableComponent(List<TimeSeriesXml> timeSeries) {
+		return new JScrollPane(new TimeSeriesTable(timeSeries, false, false));
+	}
+
+	private JComponent createTableChartComponent(List<TimeSeriesXml> timeSeries) {
+		List<Double> timeList = new ArrayList<>();
+		List<Double> logcList = new ArrayList<>();
+
+		for (TimeSeriesXml point : timeSeries) {
+			timeList.add(point.getTime());
+			logcList.add(point.getLog10C());
+		}
+
+		Plotable plotable = new Plotable(Plotable.DATASET);
+
+		plotable.addValueList(AttributeUtilities.TIME, timeList);
+		plotable.addValueList(AttributeUtilities.LOGC, logcList);
+
+		ChartCreator creator = new ChartCreator(plotable);
+
+		creator.setParamX(AttributeUtilities.TIME);
+		creator.setParamY(AttributeUtilities.LOGC);
+		creator.setTransformY(ChartConstants.NO_TRANSFORM);
+		creator.setUseManualRange(false);
+		creator.setDrawLines(false);
+		creator.setShowLegend(false);
+		creator.setUnitX(AttributeUtilities
+				.getStandardUnit(AttributeUtilities.TIME));
+		creator.setUnitY(AttributeUtilities
+				.getStandardUnit(AttributeUtilities.LOGC));
+		creator.setTransformY(ChartConstants.NO_TRANSFORM);
+		creator.createChart();
+
+		JPanel panel = new JPanel();
+
+		panel.setLayout(new BorderLayout());
+		panel.add(createTableComponent(timeSeries), BorderLayout.EAST);
+		panel.add(creator, BorderLayout.CENTER);
+
+		return panel;
 	}
 }

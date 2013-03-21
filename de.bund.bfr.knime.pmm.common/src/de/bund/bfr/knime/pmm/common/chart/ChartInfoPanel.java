@@ -154,7 +154,7 @@ public class ChartInfoPanel extends JPanel implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		List<TimeSeriesXml> timeSeries = timeSeriesByButton.get(e.getSource());
-		TimeSeriesDialog dialog = new TimeSeriesDialog(this, timeSeries);
+		TimeSeriesDialog dialog = new TimeSeriesDialog(this, timeSeries, false);
 
 		dialog.setVisible(true);
 	}

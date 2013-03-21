@@ -89,6 +89,22 @@ public class ChartCreator extends ChartPanel {
 	private boolean addInfoInLegend;
 	private boolean showConfidenceInterval;
 
+	public ChartCreator(Plotable plotable) {
+		super(new JFreeChart(new XYPlot()));
+		getPopupMenu().insert(new DataAndModelChartSaveAsItem(), 4);
+		plotables = new LinkedHashMap<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
+		colorLists = new LinkedHashMap<String, List<Color>>();
+		shapeLists = new LinkedHashMap<String, List<Shape>>();
+
+		plotables.put("", plotable);
+		shortLegend.put("", "");
+		longLegend.put("", "");
+	}
+
 	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
@@ -100,6 +116,10 @@ public class ChartCreator extends ChartPanel {
 		shapes = new LinkedHashMap<String, Shape>();
 		colorLists = new LinkedHashMap<String, List<Color>>();
 		shapeLists = new LinkedHashMap<String, List<Shape>>();
+	}
+
+	public void createChart() {
+		setChart(getChart(new ArrayList<String>(plotables.keySet())));
 	}
 
 	public void createChart(String idToPaint) {

@@ -36,6 +36,7 @@
  */
 package org.hsh.bfr.db;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -43,6 +44,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.hsqldb.server.Server;
@@ -69,8 +71,8 @@ public class MainKernel {
 	*/
 	private static String[][] dbDefs = new String[][] {
 		{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_146","silebat_146","defad","de6!§5ddy"},
-		{"silebat_test_146","silebat_test_146","defad","de6!§5ddy"}
+		{"silebat_146","silebat_146","defad","de6!§5ddy"}//,
+//		{"silebat_test_146","silebat_test_146","defad","de6!§5ddy"}
 	};
 	
 	public static void main(final String[] args) { // Servervariante
@@ -123,7 +125,15 @@ public class MainKernel {
     	    try {
     	    	Connection conn = getDefaultAdminConn(i);
     	    	//defragDB(conn);
-    	    	String backupFile = bkpFolder + dbDefs[i][0] + "_" + System.currentTimeMillis() + ".tar.gz";			
+	    		Calendar cal = Calendar.getInstance();
+	    		cal.setTime(new Date());
+	    		int day = cal.get(Calendar.DAY_OF_MONTH);
+    	    	String backupFile = bkpFolder + dbDefs[i][0] + "_" + day + ".tar.gz"; // System.currentTimeMillis()		
+    	    	File f = new File(backupFile);
+    	    	if (f.exists()) {
+    	    		f.delete();
+    	    		System.gc();
+    	    	}
             	MainKernel.sendRequest("BACKUP DATABASE TO '" + backupFile + "' BLOCKING", false, conn);
     	    	System.gc();
     	    }

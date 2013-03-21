@@ -49,10 +49,10 @@ import java.util.TimerTask;
 public class Wecker {
 
     private final Timer timer = new Timer();
-    //private final double hours;
+    private final double hours;
 
     public Wecker(double hours) {
-      //this.hours = hours;
+      this.hours = hours;
     }
 
     public void stop() {
@@ -66,13 +66,16 @@ public class Wecker {
 		MyLogger.handleMessage("Stunden bis zum ersten Backup: " + delayStunden);
 		timer.schedule(new TimerTask() {
 	        public void run() {
+	        	/*
 	    		Calendar cal = Calendar.getInstance();
 	    		cal.setTime(new Date());
 	    		int now = cal.get(Calendar.HOUR_OF_DAY);
 	        	if (now > 7 && now < 20) MainKernel.dbBackup();
+	        	*/
+	        	MainKernel.dbBackup();
 	        }
     	},
-    	(long) (1 * 60 * 60 * 1000), // delayStunden
-    	(long) (1 * 60 * 60 * 1000)); // hours
+    	(long) (delayStunden * 60 * 60 * 1000), // delayStunden 0
+    	(long) (hours * 60 * 60 * 1000)); // hours 1
     }
 }

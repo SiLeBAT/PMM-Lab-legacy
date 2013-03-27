@@ -575,7 +575,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						.toArray(new String[0]));
 			}
 		} else if (event.getSource() == agentButton) {
-			Integer id = DBKernel.openAgentDBWindow(agent.getID());
+			Integer id;
+
+			if (agent != null) {
+				id = DBKernel.openAgentDBWindow(agent.getID());
+			} else {
+				id = DBKernel.openAgentDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Agenzien", "ID", id + "",
@@ -585,7 +591,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				agentButton.setText(name);
 			}
 		} else if (event.getSource() == matrixButton) {
-			Integer id = DBKernel.openMatrixDBWindow(matrix.getID());
+			Integer id;
+
+			if (matrix != null) {
+				id = DBKernel.openMatrixDBWindow(matrix.getID());
+			} else {
+				id = DBKernel.openMatrixDBWindow(null);
+			}
 
 			if (id != null) {
 				String name = DBKernel.getValue("Matrices", "ID", id + "",

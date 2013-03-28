@@ -1636,13 +1636,18 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			panel.add(leftPanel, BorderLayout.WEST);
 			panel.add(rightPanel, BorderLayout.CENTER);
 
+			JPanel mainPanel = new JPanel();
+
+			mainPanel.setLayout(new BorderLayout());
+			mainPanel.add(panel, BorderLayout.NORTH);
+
 			JPanel bottomPanel = new JPanel();
 
 			bottomPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 			bottomPanel.add(okButton);
 
 			setLayout(new BorderLayout());
-			add(panel, BorderLayout.CENTER);
+			add(new JScrollPane(mainPanel), BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
 

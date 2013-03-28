@@ -350,7 +350,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, reader.getFilterableStringColumns(),
+				visibleColumns, reader.getFilterableStringColumns(), null,
 				reader.getColorCounts());
 		selectionPanel.setColorLists(colorLists);
 		selectionPanel.setShapeLists(shapeLists);

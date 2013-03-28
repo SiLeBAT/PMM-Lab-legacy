@@ -36,10 +36,8 @@ public class TableReader {
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<List<TimeSeriesXml>> data;
 	private List<String> standardVisibleColumns;
-
-	private List<List<String>> infoParameters;
-	private List<List<?>> infoParameterValues;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -51,19 +49,23 @@ public class TableReader {
 				SchemaFactory.createDataSchema(), table);
 		List<String> miscParams = PmmUtilities.getAllMiscParams(table);
 
-		allIds = new ArrayList<String>();
-		allTuples = new ArrayList<KnimeTuple>();
-		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		stringColumns = Arrays.asList(AttributeUtilities.DATAID);
-		stringColumnValues = new ArrayList<List<String>>();
+		allIds = new ArrayList<>();
+		allTuples = new ArrayList<>();
+		ids = new ArrayList<>();
+		plotables = new LinkedHashMap<>();
+		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
+				TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+				MdInfoXml.ATT_COMMENT);
+		stringColumnValues = new ArrayList<>();
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = new ArrayList<String>();
-		doubleColumnValues = new ArrayList<List<Double>>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
-		shortLegend = new LinkedHashMap<String, String>();
-		longLegend = new LinkedHashMap<String, String>();
+		stringColumnValues.add(new ArrayList<String>());
+		stringColumnValues.add(new ArrayList<String>());
+		stringColumnValues.add(new ArrayList<String>());
+		doubleColumns = new ArrayList<>();
+		doubleColumnValues = new ArrayList<>();
+		data = new ArrayList<>();
+		shortLegend = new LinkedHashMap<>();
+		longLegend = new LinkedHashMap<>();
 		standardVisibleColumns = new ArrayList<>(
 				Arrays.asList(AttributeUtilities.DATAID));
 
@@ -130,12 +132,12 @@ public class TableReader {
 			}
 
 			stringColumnValues.get(0).add(dataName);
-			infoParameters.add(Arrays.asList(AttributeUtilities.DATAPOINTS,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					MdInfoXml.ATT_COMMENT));
-			infoParameterValues.add(Arrays.asList(dataPoints, agent, matrix,
+			stringColumnValues.get(1).add(agent);
+			stringColumnValues.get(2).add(matrix);
+			stringColumnValues.get(3).add(
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-							.get(0)).getComment()));
+							.get(0)).getComment());
+			data.add(dataPoints);
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent);
 
@@ -198,16 +200,12 @@ public class TableReader {
 		return doubleColumnValues;
 	}
 
+	public List<List<TimeSeriesXml>> getData() {
+		return data;
+	}
+
 	public List<String> getStandardVisibleColumns() {
 		return standardVisibleColumns;
-	}
-
-	public List<List<String>> getInfoParameters() {
-		return infoParameters;
-	}
-
-	public List<List<?>> getInfoParameterValues() {
-		return infoParameterValues;
 	}
 
 	public Map<String, Plotable> getPlotables() {

@@ -26,8 +26,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 
 	public TimeSeriesDialog(JComponent owner, List<TimeSeriesXml> timeSeries,
 			boolean showChart) {
-		super(JOptionPane.getFrameForComponent(owner),
-				AttributeUtilities.DATAPOINTS, true);
+		super(JOptionPane.getFrameForComponent(owner), "Data Points", true);
 
 		JButton okButton = new JButton("OK");
 		JPanel bottomPanel = new JPanel();

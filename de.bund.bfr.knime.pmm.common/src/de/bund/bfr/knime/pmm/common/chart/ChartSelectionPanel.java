@@ -82,7 +82,9 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
+import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
 
 public class ChartSelectionPanel extends JPanel implements ActionListener,
 		CellEditorListener, ListSelectionListener {
@@ -98,6 +100,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private ColorAndShapeCreator colorAndShapes;
 
 	private JTable selectTable;
+	private boolean containsData;
 	private JComponent optionsPanel;
 
 	private JScrollPane tableScrollPane;
@@ -111,18 +114,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
 			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
-			List<String> visibleColumns, List<String> filterableColumns) {
+			List<String> visibleColumns, List<String> filterableColumns,
+			List<List<TimeSeriesXml>> data) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
 				doubleColumns, doubleColumnValues, visibleColumns,
-				filterableColumns, null);
+				filterableColumns, data, null);
 	}
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
 			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
 			List<String> visibleColumns, List<String> filterableStringColumns,
-			List<Integer> colorCounts) {
+			List<List<TimeSeriesXml>> data, List<Integer> colorCounts) {
 		listeners = new ArrayList<SelectionListener>();
+		containsData = data != null;
 
 		JPanel upperPanel = new JPanel();
 
@@ -200,7 +205,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		if (colorCounts == null) {
 			colorAndShapes = new ColorAndShapeCreator(ids.size());
 			model = new SelectTableModel(ids, colorAndShapes.getColorList(),
-					colorAndShapes.getShapeNameList(), stringColumns,
+					colorAndShapes.getShapeNameList(), data, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
 					false, selectionsExclusive);
 		} else {
@@ -223,7 +228,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				shapeLists.add(shapes);
 			}
 
-			model = new SelectTableModel(ids, colorLists, shapeLists,
+			model = new SelectTableModel(ids, colorLists, shapeLists, data,
 					stringColumns, stringColumnValues, doubleColumns,
 					doubleColumnValues, true, selectionsExclusive);
 		}
@@ -267,6 +272,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				.addCellEditorListener(this);
 		selectTable.getColumn(SelectTableModel.SHAPE).getCellEditor()
 				.addCellEditorListener(this);
+		selectTable.getColumn(SelectTableModel.DATA).setCellEditor(
+				new TimeSeriesEditor());
+		selectTable.getColumn(SelectTableModel.DATA).setCellRenderer(
+				new TimeSeriesRenderer());
 
 		if (!visibleColumns.contains(SelectTableModel.COLOR)) {
 			selectTable.getColumn(SelectTableModel.COLOR).setMinWidth(0);
@@ -291,6 +300,19 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			selectTable.getColumn(SelectTableModel.SHAPE).setMaxWidth(
 					MAX_COLUMN_WIDTH);
 			selectTable.getColumn(SelectTableModel.SHAPE).setPreferredWidth(
+					PREFERRED_COLUMN_WIDTH);
+		}
+
+		if (!visibleColumns.contains(SelectTableModel.DATA)) {
+			selectTable.getColumn(SelectTableModel.DATA).setMinWidth(0);
+			selectTable.getColumn(SelectTableModel.DATA).setMaxWidth(0);
+			selectTable.getColumn(SelectTableModel.DATA).setPreferredWidth(0);
+		} else {
+			selectTable.getColumn(SelectTableModel.DATA).setMinWidth(
+					MIN_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.DATA).setMaxWidth(
+					MAX_COLUMN_WIDTH);
+			selectTable.getColumn(SelectTableModel.DATA).setPreferredWidth(
 					PREFERRED_COLUMN_WIDTH);
 		}
 
@@ -548,7 +570,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			List<String> columnNames = new ArrayList<String>();
 			List<Boolean> isVisible = new ArrayList<Boolean>();
 
-			for (int i = 2; i < selectTable.getColumnCount(); i++) {
+			columnNames.add(SelectTableModel.COLOR);
+			isVisible.add(selectTable.getColumn(SelectTableModel.COLOR)
+					.getMaxWidth() != 0);
+			columnNames.add(SelectTableModel.SHAPE);
+			isVisible.add(selectTable.getColumn(SelectTableModel.SHAPE)
+					.getMaxWidth() != 0);
+
+			if (containsData) {
+				columnNames.add(SelectTableModel.DATA);
+				isVisible.add(selectTable.getColumn(SelectTableModel.DATA)
+						.getMaxWidth() != 0);
+			}
+
+			for (int i = 5; i < selectTable.getColumnCount(); i++) {
 				String columnName = selectTable.getColumnName(i);
 				TableColumn column = selectTable.getColumn(columnName);
 				boolean selected = column.getMaxWidth() != 0;
@@ -694,6 +729,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		public static final String SELECTED = "Selected";
 		public static final String COLOR = "Color";
 		public static final String SHAPE = "Shape";
+		public static final String DATA = "Data Points";
 
 		private static final long serialVersionUID = 1L;
 
@@ -705,6 +741,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private List<List<Color>> colorLists;
 		private List<String> shapes;
 		private List<List<String>> shapeLists;
+		private List<List<TimeSeriesXml>> data;
 		private List<String> stringColumns;
 		private List<List<String>> stringColumnValues;
 		private List<String> doubleColumns;
@@ -712,7 +749,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		@SuppressWarnings("unchecked")
 		public AbstractSelectTableModel(List<String> ids, List<?> colors,
-				List<?> shapes, List<String> stringColumns,
+				List<?> shapes, List<List<TimeSeriesXml>> data,
+				List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
 				List<List<Double>> doubleColumnValues, boolean listBased) {
@@ -724,6 +762,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			} else {
 				this.colorLists = (List<List<Color>>) colors;
 				this.shapeLists = (List<List<String>>) shapes;
+			}
+
+			if (data != null) {
+				this.data = data;
+			} else {
+				this.data = Collections.nCopies(ids.size(), null);
 			}
 
 			this.ids = ids;
@@ -741,7 +785,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		@Override
 		public int getColumnCount() {
-			return 4 + stringColumns.size() + doubleColumns.size();
+			return 5 + stringColumns.size() + doubleColumns.size();
 		}
 
 		@Override
@@ -755,11 +799,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				return COLOR;
 			case 3:
 				return SHAPE;
+			case 4:
+				return DATA;
 			default:
-				if (column - 4 < stringColumns.size()) {
-					return stringColumns.get(column - 4);
+				if (column - 5 < stringColumns.size()) {
+					return stringColumns.get(column - 5);
 				} else {
-					return doubleColumns.get(column - 4 - stringColumns.size());
+					return doubleColumns.get(column - 5 - stringColumns.size());
 				}
 			}
 		}
@@ -788,12 +834,14 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				} else {
 					return shapeLists.get(row);
 				}
+			case 4:
+				return data.get(row);
 			default:
-				if (column - 4 < stringColumns.size()) {
-					return stringColumnValues.get(column - 4).get(row);
+				if (column - 5 < stringColumns.size()) {
+					return stringColumnValues.get(column - 5).get(row);
 				} else {
 					return doubleColumnValues.get(
-							column - 4 - stringColumns.size()).get(row);
+							column - 5 - stringColumns.size()).get(row);
 				}
 			}
 		}
@@ -817,8 +865,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				} else {
 					return List.class;
 				}
+			case 4:
+				return List.class;
 			default:
-				if (column - 4 < stringColumns.size()) {
+				if (column - 5 < stringColumns.size()) {
 					return String.class;
 				} else {
 					return Double.class;
@@ -850,11 +900,14 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					shapeLists.set(row, (List<String>) value);
 				}
 				break;
+			case 4:
+				data.set(row, (List<TimeSeriesXml>) value);
+				break;
 			default:
-				if (column - 4 < stringColumns.size()) {
-					stringColumnValues.get(column - 4).set(row, (String) value);
+				if (column - 5 < stringColumns.size()) {
+					stringColumnValues.get(column - 5).set(row, (String) value);
 				} else {
-					doubleColumnValues.get(column - 4 - stringColumns.size())
+					doubleColumnValues.get(column - 5 - stringColumns.size())
 							.set(row, (Double) value);
 				}
 			}
@@ -862,7 +915,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		@Override
 		public boolean isCellEditable(int row, int column) {
-			return column == 1 || column == 2 || column == 3;
+			return column == 1 || column == 2 || column == 3 || column == 4;
 		}
 	}
 
@@ -873,12 +926,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private boolean exclusive;
 
 		public SelectTableModel(List<String> ids, List<?> colors,
-				List<?> shapes, List<String> stringColumns,
+				List<?> shapes, List<List<TimeSeriesXml>> data,
+				List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
 				List<List<Double>> doubleColumnValues, boolean listBased,
 				boolean exclusive) {
-			super(ids, colors, shapes, stringColumns, stringColumnValues,
+			super(ids, colors, shapes, data, stringColumns, stringColumnValues,
 					doubleColumns, doubleColumnValues, listBased);
 			this.exclusive = exclusive;
 		}
@@ -1023,6 +1077,43 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 	}
 
+	private class TimeSeriesEditor extends AbstractCellEditor implements
+			TableCellEditor, ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private List<TimeSeriesXml> timeSeries;
+
+		public TimeSeriesEditor() {
+			button = new JButton("View");
+			button.addActionListener(this);
+			timeSeries = new ArrayList<>();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			timeSeries = (List<TimeSeriesXml>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return timeSeries;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries,
+					false);
+
+			dialog.setVisible(true);
+		}
+	}
+
 	private class ColorRenderer extends JLabel implements TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
@@ -1090,6 +1181,16 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {
 			return this;
+		}
+	}
+
+	private class TimeSeriesRenderer implements TableCellRenderer {
+
+		@Override
+		public Component getTableCellRendererComponent(JTable table,
+				Object value, boolean isSelected, boolean hasFocus, int row,
+				int column) {
+			return new JButton("View");
 		}
 	}
 

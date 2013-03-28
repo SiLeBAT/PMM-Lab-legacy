@@ -386,7 +386,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, reader.getStringColumns(), null);
+				visibleColumns, reader.getStringColumns(), null, null);
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);

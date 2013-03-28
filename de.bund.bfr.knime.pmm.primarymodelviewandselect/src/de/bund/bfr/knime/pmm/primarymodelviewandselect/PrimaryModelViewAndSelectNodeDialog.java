@@ -59,7 +59,6 @@ import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -85,7 +84,6 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
-	private ChartInfoPanel infoPanel;
 
 	private List<String> selectedIDs;
 	private Map<String, Color> colors;
@@ -415,7 +413,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, reader.getStringColumns(), null);
+				visibleColumns, reader.getFilterableStringColumns(),
+				reader.getData(), reader.getParameterData());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
@@ -424,8 +423,6 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
-		infoPanel = new ChartInfoPanel(reader.getIds(),
-				reader.getInfoParameters(), reader.getInfoParameterValues());
 
 		if (selectedIDs != null) {
 			selectionPanel.setSelectedIDs(selectedIDs);
@@ -433,16 +430,12 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				chartCreator, selectionPanel);
-		JPanel bottomPanel = new JPanel();
 
 		upperSplitPane.setResizeWeight(1.0);
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(configPanel, BorderLayout.WEST);
-		bottomPanel.add(infoPanel, BorderLayout.CENTER);
-		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
+		configPanel.setMinimumSize(configPanel.getPreferredSize());
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, bottomPanel);
+				upperSplitPane, configPanel);
 		Dimension preferredSize = splitPane.getPreferredSize();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -490,8 +483,6 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 	@Override
 	public void focusChanged() {
-		infoPanel.showID(selectionPanel.getFocusedID());
-
 		if (configPanel.isDisplayFocusedRow()) {
 			createChart();
 		}

@@ -41,8 +41,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 
 public class AttributeUtilities {
 
-	public static final String DATAID = "DataID";
-	public static final String DATAPOINTS = "Data Points";
+	public static final String DATAID = "DataID";	
 
 	public static final String TIME = "Time";
 	public static final String LOGC = "Log10C";

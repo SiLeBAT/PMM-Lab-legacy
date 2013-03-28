@@ -26,16 +26,15 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
-	private List<Integer> colorCounts;
-	private Map<String, Plotable> plotables;
+	private List<Integer> colorCounts;	
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
+	private List<List<Double>> doubleColumnValues;	
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
-	private List<List<String>> infoParameters;
-	private List<List<?>> infoParameterValues;
+	
+	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
@@ -48,9 +47,7 @@ public class TableReader {
 		List<String> miscParams = null;
 
 		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
+		plotables = new LinkedHashMap<String, Plotable>();		
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
@@ -85,9 +82,7 @@ public class TableReader {
 				if (!idSet.contains(id)) {
 					idSet.add(id);
 					ids.add(id);
-					stringColumnValues.get(0).add(id);
-					infoParameters.add(new ArrayList<String>());
-					infoParameterValues.add(new ArrayList<>());
+					stringColumnValues.get(0).add(id);					
 					shortLegend.put(id, id);
 					longLegend.put(id, id);
 
@@ -196,14 +191,6 @@ public class TableReader {
 
 	public List<String> getFilterableStringColumns() {
 		return filterableStringColumns;
-	}
-
-	public List<List<String>> getInfoParameters() {
-		return infoParameters;
-	}
-
-	public List<List<?>> getInfoParameterValues() {
-		return infoParameterValues;
 	}
 
 	public Map<String, String> getShortLegend() {

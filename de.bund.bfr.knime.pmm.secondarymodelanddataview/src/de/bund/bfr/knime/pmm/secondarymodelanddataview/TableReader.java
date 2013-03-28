@@ -35,15 +35,15 @@ public class TableReader {
 
 	private List<String> ids;
 	private List<Integer> colorCounts;
-	private Map<String, Plotable> plotables;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<Map<String, Double>> parameterData;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
-	private List<List<String>> infoParameters;
-	private List<List<?>> infoParameterValues;
+
+	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
@@ -78,14 +78,15 @@ public class TableReader {
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+		parameterData = new ArrayList<>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, ChartConstants.STATUS);
+				Model2Schema.MODELNAME, Model2Schema.FORMULA,
+				ChartConstants.STATUS);
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		stringColumnValues = new ArrayList<List<String>>();
+		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -152,30 +153,25 @@ public class TableReader {
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
-				List<String> infoParams = new ArrayList<String>(Arrays.asList(
-						Model2Schema.MODELNAME, Model2Schema.FORMULA));
-				List<Object> infoValues = new ArrayList<Object>(Arrays.asList(
-						modelNameSec, formulaSec));
+				Map<String, Double> paramData = new LinkedHashMap<>();
 
 				for (PmmXmlElementConvertable el : paramXmlSec.getElementSet()) {
 					ParamXml element = (ParamXml) el;
 
-					infoParams.add(element.getName());
-					infoValues.add(element.getValue());
-					infoParams.add(element.getName() + ": SE");
-					infoValues.add(element.getError());
-					infoParams.add(element.getName() + ": t");
-					infoValues.add(element.gett());
-					infoParams.add(element.getName() + ": Pr > |t|");
-					infoValues.add(element.getP());
+					paramData.put(element.getName(), element.getValue());
+					paramData.put(element.getName() + ": SE",
+							element.getError());
+					paramData.put(element.getName() + ": t", element.gett());
+					paramData.put(element.getName() + ": Pr > |t|",
+							element.getP());
 				}
 
 				idSet.add(id);
 				ids.add(id);
 				stringColumnValues.get(0).add(depVarSec);
 				stringColumnValues.get(1).add(modelNameSec);
-				infoParameters.add(infoParams);
-				infoParameterValues.add(infoValues);
+				stringColumnValues.get(2).add(formulaSec);
+				parameterData.add(paramData);
 				shortLegend.put(id, depVarSec);
 				longLegend.put(id, depVarSec + " (" + modelNameSec + ")");
 
@@ -340,13 +336,13 @@ public class TableReader {
 			}
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(2).add(ChartConstants.FAILED);
+				stringColumnValues.get(3).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramMap.get(id))) {
-				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(3).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramMap.get(id))) {
-				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(3).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(2).add(ChartConstants.OK);
+				stringColumnValues.get(3).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -381,20 +377,16 @@ public class TableReader {
 		return doubleColumnValues;
 	}
 
+	public List<Map<String, Double>> getParameterData() {
+		return parameterData;
+	}
+
 	public List<String> getStandardVisibleColumns() {
 		return standardVisibleColumns;
 	}
 
 	public List<String> getFilterableStringColumns() {
 		return filterableStringColumns;
-	}
-
-	public List<List<String>> getInfoParameters() {
-		return infoParameters;
-	}
-
-	public List<List<?>> getInfoParameterValues() {
-		return infoParameterValues;
 	}
 
 	public Map<String, String> getShortLegend() {

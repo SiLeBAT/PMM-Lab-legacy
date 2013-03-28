@@ -76,7 +76,6 @@ import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
-import de.bund.bfr.knime.pmm.common.chart.ChartInfoPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
@@ -107,7 +106,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
-	private ChartInfoPanel infoPanel;
 	private ChartSamplePanel samplePanel;
 
 	private String selectedID;
@@ -394,7 +392,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, reader.getStringColumns(), null, null);
+				visibleColumns, reader.getFilterableStringColumns(), null,
+				reader.getParameterData());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
@@ -403,8 +402,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
-		infoPanel = new ChartInfoPanel(reader.getIds(),
-				reader.getInfoParameters(), reader.getInfoParameterValues());
 		samplePanel = new ChartSamplePanel();
 		samplePanel.setTimeColumnName(AttributeUtilities
 				.getName(AttributeUtilities.TIME));
@@ -425,16 +422,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				chartCreator, upperRightPanel);
-		JPanel bottomPanel = new JPanel();
 
 		upperSplitPane.setResizeWeight(1.0);
-		bottomPanel.setLayout(new BorderLayout());
-		bottomPanel.add(configPanel, BorderLayout.WEST);
-		bottomPanel.add(infoPanel, BorderLayout.CENTER);
-		bottomPanel.setMinimumSize(bottomPanel.getPreferredSize());
+		configPanel.setMinimumSize(configPanel.getPreferredSize());
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, bottomPanel);
+				upperSplitPane, configPanel);
 		Dimension preferredSize = splitPane.getPreferredSize();
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
@@ -589,8 +582,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void focusChanged() {
-		infoPanel.showID(selectionPanel.getFocusedID());
-
 		if (configPanel.isDisplayFocusedRow()) {
 			createChart();
 		}

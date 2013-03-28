@@ -37,14 +37,16 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
-	private Map<String, Plotable> plotables;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<List<TimeSeriesXml>> data;
+	private List<Map<String, Double>> parameterData;
 	private List<String> visibleColumns;
-	private List<List<String>> infoParameters;
-	private List<List<?>> infoParameterValues;
+	private List<String> filterableStringColumns;
+
+	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
@@ -68,8 +70,6 @@ public class TableReader {
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
-		infoParameters = new ArrayList<List<String>>();
-		infoParameterValues = new ArrayList<List<?>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 
@@ -88,8 +88,14 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, ChartConstants.STATUS);
+					AttributeUtilities.DATAID, Model1Schema.FORMULA,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+					MdInfoXml.ATT_COMMENT, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -109,16 +115,22 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					AttributeUtilities.DATAID);
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
 				doubleColumnValues.add(new ArrayList<Double>());
 				visibleColumns.add(param);
 			}
+
+			data = new ArrayList<>();
+			parameterData = new ArrayList<>();
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS);
+					Model1Schema.FORMULA, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.RMS,
@@ -129,6 +141,10 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME);
+
+			data = null;
+			parameterData = new ArrayList<>();
 		}
 
 		Set<String> idSet = new LinkedHashSet<String>();
@@ -169,10 +185,9 @@ public class TableReader {
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
-			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
+			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
-			List<String> infoParams = null;
-			List<Object> infoValues = null;
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -196,7 +211,13 @@ public class TableReader {
 				}
 
 				covariances.put(element.getName(), cov);
+				paramData.put(element.getName(), element.getValue());
+				paramData.put(element.getName() + ": SE", element.getError());
+				paramData.put(element.getName() + ": t", element.gett());
+				paramData.put(element.getName() + ": Pr > |t|", element.getP());
 			}
+
+			parameterData.add(paramData);
 
 			if (schemaContainsData) {
 				PmmXmlDoc timeSeriesXml = row
@@ -267,6 +288,12 @@ public class TableReader {
 						.put(id, modelName + " (" + dataName + ") " + formula);
 				stringColumnValues.get(0).add(modelName);
 				stringColumnValues.get(1).add(dataName);
+				stringColumnValues.get(2).add(formula);
+				stringColumnValues.get(3).add(agent);
+				stringColumnValues.get(4).add(matrix);
+				stringColumnValues.get(5).add(
+						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+								.get(0)).getComment());
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(
@@ -275,6 +302,7 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
 						((EstModelXml) estModelXml.get(0)).getBIC());
+				data.add(dataPoints);
 
 				if (newTuples != null) {
 					PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
@@ -294,15 +322,6 @@ public class TableReader {
 					doubleColumnValues.get(6).add(null);
 					doubleColumnValues.get(7).add(null);
 				}
-
-				infoParams = new ArrayList<String>(Arrays.asList(
-						Model1Schema.FORMULA, AttributeUtilities.DATAPOINTS,
-						TimeSeriesSchema.ATT_AGENT,
-						TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
-				infoValues = new ArrayList<Object>(Arrays.asList(formula,
-						dataPoints, agent, matrix,
-						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-								.get(0)).getComment()));
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;
@@ -327,6 +346,7 @@ public class TableReader {
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
 				stringColumnValues.get(0).add(modelName);
+				stringColumnValues.get(1).add(formula);
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(
@@ -335,9 +355,6 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getAIC());
 				doubleColumnValues.get(3).add(
 						((EstModelXml) estModelXml.get(0)).getBIC());
-				infoParams = new ArrayList<String>(
-						Arrays.asList(Model1Schema.FORMULA));
-				infoValues = new ArrayList<Object>(Arrays.asList(formula));
 			}
 
 			plotable.setFunction(formula);
@@ -352,6 +369,16 @@ public class TableReader {
 
 			if (schemaContainsData) {
 				if (!plotable.isPlotable()) {
+					stringColumnValues.get(6).add(ChartConstants.FAILED);
+				} else if (PmmUtilities.isOutOfRange(paramXml)) {
+					stringColumnValues.get(6).add(ChartConstants.OUT_OF_LIMITS);
+				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
+					stringColumnValues.get(6).add(ChartConstants.NO_COVARIANCE);
+				} else {
+					stringColumnValues.get(6).add(ChartConstants.OK);
+				}
+			} else {
+				if (!plotable.isPlotable()) {
 					stringColumnValues.get(2).add(ChartConstants.FAILED);
 				} else if (PmmUtilities.isOutOfRange(paramXml)) {
 					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
@@ -360,34 +387,9 @@ public class TableReader {
 				} else {
 					stringColumnValues.get(2).add(ChartConstants.OK);
 				}
-			} else {
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(1).add(ChartConstants.FAILED);
-				} else if (PmmUtilities.isOutOfRange(paramXml)) {
-					stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-					stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
-				} else {
-					stringColumnValues.get(1).add(ChartConstants.OK);
-				}
-			}
-
-			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-				ParamXml element = (ParamXml) el;
-
-				infoParams.add(element.getName());
-				infoValues.add(element.getValue());
-				infoParams.add(element.getName() + ": SE");
-				infoValues.add(element.getError());
-				infoParams.add(element.getName() + ": t");
-				infoValues.add(element.gett());
-				infoParams.add(element.getName() + ": Pr > |t|");
-				infoValues.add(element.getP());
 			}
 
 			plotables.put(id, plotable);
-			infoParameters.add(infoParams);
-			infoParameterValues.add(infoValues);
 		}
 	}
 
@@ -415,16 +417,20 @@ public class TableReader {
 		return doubleColumnValues;
 	}
 
+	public List<List<TimeSeriesXml>> getData() {
+		return data;
+	}
+
+	public List<Map<String, Double>> getParameterData() {
+		return parameterData;
+	}
+
 	public List<String> getStandardVisibleColumns() {
 		return visibleColumns;
 	}
 
-	public List<List<String>> getInfoParameters() {
-		return infoParameters;
-	}
-
-	public List<List<?>> getInfoParameterValues() {
-		return infoParameterValues;
+	public List<String> getFilterableStringColumns() {
+		return filterableStringColumns;
 	}
 
 	public Map<String, String> getShortLegend() {

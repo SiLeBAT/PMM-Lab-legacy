@@ -6,6 +6,8 @@ package de.bund.bfr.knime.pmm.ui.handlers;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.sql.Connection;
 
 import javax.swing.*;
@@ -27,6 +29,7 @@ public class SettingsDialog extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 8433737081879655528L;
+	
 	public SettingsDialog() {
 		initComponents();
 		this.setIconImage(Resources.getInstance().getDefaultIcon());
@@ -40,7 +43,20 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
-	    JFileChooser chooser = new JFileChooser(); 
+		FileDialog chooser = new FileDialog(this, "Choose folder of database", FileDialog.LOAD);
+		chooser.setFilenameFilter(new FolderFilter());
+		chooser.setDirectory(dbPath.getText());
+		chooser.setVisible(true);
+		String folderSelected = chooser.getDirectory();
+	    File folder = new File(folderSelected) ;
+	    if(folder.exists() && folder.isDirectory()) {
+	    	dbPath.setText(folder.getAbsolutePath());
+	    }	    
+	    else {
+	    	MyLogger.handleMessage("No Selection ");
+	    }
+		/*
+	    JFileChooser chooser1 = new JFileChooser(); 
 	    chooser.setCurrentDirectory(new java.io.File(dbPath.getText()));
 	    chooser.setDialogTitle("Choose folder of database");
 	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -51,6 +67,7 @@ public class SettingsDialog extends JFrame {
 	    else {
 	    	MyLogger.handleMessage("No Selection ");
 	    }
+	    */
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
@@ -118,7 +135,7 @@ public class SettingsDialog extends JFrame {
 
 		//======== dialogPane ========
 		{
-			dialogPane.setBorder(Borders.DIALOG); // DIALOG_BORDER
+			dialogPane.setBorder(Borders.DIALOG);
 			dialogPane.setLayout(new BorderLayout());
 
 			//======== contentPanel ========
@@ -164,7 +181,7 @@ public class SettingsDialog extends JFrame {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_PAD); // BUTTON_BAR_GAP_BORDER
+				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setLayout(new FormLayout(
 					"$glue, $button, $rgap, $button",
 					"pref"));
@@ -213,4 +230,12 @@ public class SettingsDialog extends JFrame {
 	private JButton okButton;
 	private JButton cancelButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
+
+	class FolderFilter implements FilenameFilter {
+	    public boolean accept(File dir, String name) {
+	    	File f = new File(dir.getAbsolutePath() + File.separator + name);
+	    	System.err.println(name + "\t" + (f.exists() && f.isDirectory()));
+	        return f.exists() && f.isDirectory();
+	    }
+	}
 }

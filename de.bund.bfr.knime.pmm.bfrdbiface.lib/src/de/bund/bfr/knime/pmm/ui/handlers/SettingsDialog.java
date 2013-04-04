@@ -43,6 +43,7 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
+		/*
 		FileDialog chooser = new FileDialog(this, "Choose folder of database", FileDialog.LOAD);
 		chooser.setFilenameFilter(new FolderFilter());
 		chooser.setDirectory(dbPath.getText());
@@ -55,8 +56,8 @@ public class SettingsDialog extends JFrame {
 	    else {
 	    	MyLogger.handleMessage("No Selection ");
 	    }
-		/*
-	    JFileChooser chooser1 = new JFileChooser(); 
+		*/
+	    JFileChooser chooser = new JFileChooser(); 
 	    chooser.setCurrentDirectory(new java.io.File(dbPath.getText()));
 	    chooser.setDialogTitle("Choose folder of database");
 	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -67,7 +68,7 @@ public class SettingsDialog extends JFrame {
 	    else {
 	    	MyLogger.handleMessage("No Selection ");
 	    }
-	    */
+
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {

@@ -202,7 +202,7 @@ public class MMC_TS extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Microbial Data Properties"),
-			Borders.DLU2));
+			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"default, $lcgap, default:grow, $lcgap, default, $lcgap, default:grow, $lcgap, default",
 			"5*(default, $lgap), default"));

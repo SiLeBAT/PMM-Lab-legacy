@@ -1,11 +1,11 @@
-JFDML JFormDesigner: "5.1.0.0.51" Java: "1.6.0_22" encoding: "UTF-8"
+JFDML JFormDesigner: "5.1.0.0.51" Java: "1.7.0_07" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
-			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, pargap, fill:default:grow, 1dlu, default"
+			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, linegap, fill:default:grow, 1dlu, default, pargap, default"
 			"$columnGroupIds": "0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1"
 		} ) {
 			name: "this"
@@ -65,6 +65,9 @@ new FormModel {
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
 				name: "modelNameBox"
+				auxiliary() {
+					"JavaCodeGenerator.typeParameters": "ParametricModel"
+				}
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "modelNameBoxActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
@@ -267,6 +270,41 @@ new FormModel {
 				"gridX": 15
 				"gridY": 19
 				"gridWidth": 5
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label10"
+				"text": "Subjective quality:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 21
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "label11"
+				"text": "QualityScore:"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 3
+				"gridY": 21
+				"gridWidth": 3
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "qScoreBox"
+				auxiliary() {
+					"JavaCodeGenerator.typeParameters": "Color"
+					"JavaCodeGenerator.customCreateCode": "new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});"
+					"JavaCodeGenerator.postCreateCode": "${field}.setRenderer(new DefaultListCellRenderer() {\n\t\t\tprivate static final long serialVersionUID = 1L;\n\n\t\t\tprivate Color color = Color.WHITE;\n\t\t\tprivate boolean isSelected = false;\n\n\t\t\t@Override\n\t\t\tpublic Component getListCellRendererComponent(JList<?> list,\n\t\t\t\t\tObject value, int index, boolean isSelected,\n\t\t\t\t\tboolean cellHasFocus) {\n\t\t\t\tcolor = (Color) value;\n\t\t\t\tthis.isSelected = isSelected;\n\n\t\t\t\treturn super.getListCellRendererComponent(list, value, index,\n\t\t\t\t\t\tisSelected, cellHasFocus);\n\t\t\t}\n\n\t\t\t@Override\n\t\t\tprotected void paintComponent(Graphics g) {\n\t\t\t\tRectangle rect = g.getClipBounds();\n\n\t\t\t\tif (rect != null) {\n\t\t\t\t\tg.setColor(color);\n\t\t\t\t\tg.fillRect(rect.x, rect.y, rect.width, rect.height);\n\n\t\t\t\t\tif (isSelected) {\n\t\t\t\t\t\tg.setColor(UIManager.getDefaults().getColor(\n\t\t\t\t\t\t\t\t\"List.selectionBackground\"));\n\t\t\t\t\t} else {\n\t\t\t\t\t\tg.setColor(UIManager.getDefaults().getColor(\n\t\t\t\t\t\t\t\t\"List.background\"));\n\t\t\t\t\t}\n\n\t\t\t\t\t((Graphics2D) g).setStroke(new BasicStroke(5));\n\t\t\t\t\tg.drawRect(rect.x, rect.y, rect.width, rect.height);\n\t\t\t\t}\n\t\t\t}\n});"
+				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "qScoreBoxActionPerformed", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 7
+				"gridY": 21
+			} )
+			add( new FormComponent( "javax.swing.JCheckBox" ) {
+				name: "checkBox1"
+				"text": "Checked"
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "checkBox1ActionPerformed", true ) )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 13
+				"gridY": 21
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

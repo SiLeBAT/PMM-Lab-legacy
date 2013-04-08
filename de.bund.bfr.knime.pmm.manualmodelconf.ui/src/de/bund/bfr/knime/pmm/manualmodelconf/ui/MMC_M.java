@@ -95,6 +95,8 @@ public class MMC_M extends JPanel {
 			rmsField.setVisible(false);
 			aicField.setVisible(false);
 			bicField.setVisible(false);
+			checkBox1.setVisible(false);
+			qScoreBox.setVisible(false);
 			table.getColumnModel().getColumn(2).setMinWidth(0);
 			table.getColumnModel().getColumn(2).setMaxWidth(0);
 			table.getColumnModel().getColumn(2).setWidth(0);
@@ -156,6 +158,10 @@ public class MMC_M extends JPanel {
 			while (referencesTable.getRowCount() > 0) ((DefaultTableModel) referencesTable.getModel()).removeRow(0);		
 			insertRefs(pm.getEstModelLit());
 			insertRefs(pm.getModelLit());
+			if (pm.isChecked() != null && pm.isChecked()) checkBox1.setSelected(true);
+			else checkBox1.setSelected(false);
+			if (pm.getQualityScore() != null) qScoreBox.setSelectedIndex(pm.getQualityScore());
+			else qScoreBox.setSelectedIndex(0);
 			insertNselectPMintoBox(pm);
 		}
 	}
@@ -742,6 +748,28 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void qScoreBoxActionPerformed(ActionEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setQualityScore(qScoreBox.getSelectedIndex());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private void checkBox1ActionPerformed(ActionEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setChecked(checkBox1.isSelected());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
@@ -750,7 +778,7 @@ public class MMC_M extends JPanel {
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
 		modelNameLabel = new JLabel();
-		modelNameBox = new JComboBox<ParametricModel>();
+		modelNameBox = new JComboBox<>();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
 		label2 = new JLabel();
@@ -774,14 +802,56 @@ public class MMC_M extends JPanel {
 		button1 = new JButton();
 		button3 = new JButton();
 		button2 = new JButton();
+		label10 = new JLabel();
+		label11 = new JLabel();
+		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
+		qScoreBox.setRenderer(new DefaultListCellRenderer() {
+					private static final long serialVersionUID = 1L;
+
+					private Color color = Color.WHITE;
+					private boolean isSelected = false;
+
+					@Override
+					public Component getListCellRendererComponent(JList<?> list,
+							Object value, int index, boolean isSelected,
+							boolean cellHasFocus) {
+						color = (Color) value;
+						this.isSelected = isSelected;
+
+						return super.getListCellRendererComponent(list, value, index,
+								isSelected, cellHasFocus);
+					}
+
+					@Override
+					protected void paintComponent(Graphics g) {
+						Rectangle rect = g.getClipBounds();
+
+						if (rect != null) {
+							g.setColor(color);
+							g.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+							if (isSelected) {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.selectionBackground"));
+							} else {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.background"));
+							}
+
+							((Graphics2D) g).setStroke(new BasicStroke(5));
+							g.drawRect(rect.x, rect.y, rect.width, rect.height);
+						}
+					}
+		});
+		checkBox1 = new JCheckBox();
 
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Model Properties"),
-			Borders.DLU2)); // DLU2_BORDER
+			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"3*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $pgap, fill:default:grow, 1dlu, default"));
+			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
 		((FormLayout)getLayout()).setColumnGroups(new int[][] {{3, 9, 15}, {5, 11, 17}, {7, 13, 19}});
 
 		//---- depVarLabel ----
@@ -995,10 +1065,6 @@ public class MMC_M extends JPanel {
 					"Reference"
 				}
 			) {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 2116023616116493648L;
 				boolean[] columnEditable = new boolean[] {
 					false
 				};
@@ -1047,6 +1113,33 @@ public class MMC_M extends JPanel {
 		});
 		add(button2, CC.xywh(15, 19, 5, 1));
 
+		//---- label10 ----
+		label10.setText("Subjective quality:");
+		add(label10, CC.xy(1, 21));
+
+		//---- label11 ----
+		label11.setText("QualityScore:");
+		add(label11, CC.xywh(3, 21, 3, 1));
+
+		//---- qScoreBox ----
+		qScoreBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				qScoreBoxActionPerformed(e);
+			}
+		});
+		add(qScoreBox, CC.xy(7, 21));
+
+		//---- checkBox1 ----
+		checkBox1.setText("Checked");
+		checkBox1.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				checkBox1ActionPerformed(e);
+			}
+		});
+		add(checkBox1, CC.xy(13, 21));
+
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
 		buttonGroup1.add(radioButton1);
@@ -1086,6 +1179,10 @@ public class MMC_M extends JPanel {
 	private JButton button1;
 	private JButton button3;
 	private JButton button2;
+	private JLabel label10;
+	private JLabel label11;
+	private JComboBox<Color> qScoreBox;
+	private JCheckBox checkBox1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 }

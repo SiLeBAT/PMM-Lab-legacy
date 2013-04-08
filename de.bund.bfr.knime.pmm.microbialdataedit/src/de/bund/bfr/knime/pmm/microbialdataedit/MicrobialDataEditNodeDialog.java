@@ -1071,6 +1071,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		public void actionPerformed(ActionEvent e) {
 			color = (Color) ((JComboBox<Color>) e.getSource())
 					.getSelectedItem();
+			stopCellEditing();
 		}
 
 		private class ColorListRenderer extends DefaultListCellRenderer {

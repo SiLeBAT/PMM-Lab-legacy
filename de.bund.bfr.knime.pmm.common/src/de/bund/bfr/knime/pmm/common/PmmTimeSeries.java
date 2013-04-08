@@ -252,15 +252,15 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public Double getTemperature() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, null); // return Double.NaN; // getDouble( TimeSeriesSchema.ATT_TEMPERATURE )
+		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, Double.NaN); // return Double.NaN; // getDouble( TimeSeriesSchema.ATT_TEMPERATURE )
 	}
 
 	public Double getPh() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_PH, null);// return Double.NaN; // getDouble( TimeSeriesSchema.ATT_PH )
+		return getMiscValue(AttributeUtilities.ATT_PH, Double.NaN);// return Double.NaN; // getDouble( TimeSeriesSchema.ATT_PH )
 	}
 	
 	public Double getWaterActivity() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, null);// return Double.NaN; getDouble( TimeSeriesSchema.ATT_WATERACTIVITY )
+		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, Double.NaN);// return Double.NaN; getDouble( TimeSeriesSchema.ATT_WATERACTIVITY )
 	}
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);

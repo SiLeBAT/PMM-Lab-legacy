@@ -79,6 +79,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ELEMENT_PARAM = "Parameter";
 	private static final String ATT_CONDID = "CondId";
 
+	private static final String ATT_CHECKED = "ModelChecked";
+	private static final String ATT_QSCORE = "ModelQualityScore";
+
 	private DepXml depXml = null;
 	private PmmXmlDoc independent = null;
 	private PmmXmlDoc parameter = null;
@@ -98,6 +101,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private Double aic;
 	private Double bic;
 	private int condId;
+	
+	private Boolean isChecked;
+	private Integer qualityScore;
 		
 	private static final String ATT_LEVEL = "Level";
 	
@@ -110,7 +116,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		rms = Double.NaN;
 		aic = Double.NaN;
 		bic = Double.NaN;
-		condId = MathUtilities.getRandomNegativeInt();
+		isChecked = null;
+		qualityScore = null;
 		modelId = MathUtilities.getRandomNegativeInt();
 		estModelId = MathUtilities.getRandomNegativeInt();
 		
@@ -180,6 +187,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					this.rsquared = emx.getR2();
 					this.aic = emx.getAIC();
 					this.bic = emx.getBIC();
+					this.qualityScore = emx.getQualityScore();
+					this.isChecked = emx.getChecked();
 					break;
 				}
 			}
@@ -205,6 +214,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
+		
+		if (modelElement.getAttributeValue(ATT_CHECKED) != null && !modelElement.getAttributeValue(ATT_CHECKED).isEmpty()) isChecked = Boolean.valueOf( modelElement.getAttributeValue(ATT_CHECKED) );
+		if (modelElement.getAttributeValue(ATT_QSCORE) != null && !modelElement.getAttributeValue(ATT_QSCORE).isEmpty()) qualityScore = Integer.valueOf( modelElement.getAttributeValue(ATT_QSCORE) );
 		if (modelElement.getAttributeValue(ATT_RSS) != null) rss = Double.valueOf( modelElement.getAttributeValue(ATT_RSS) );
 		if (modelElement.getAttributeValue(ATT_RMS) != null) rms = Double.valueOf( modelElement.getAttributeValue(ATT_RMS) );
 		if (modelElement.getAttributeValue(ATT_AIC) != null) aic = Double.valueOf( modelElement.getAttributeValue(ATT_AIC) );
@@ -321,6 +333,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}
+	public void setChecked(Boolean checked) {
+		this.isChecked = checked;
+	}
+	public Boolean isChecked() {
+		return isChecked;
+	}
+	public void setQualityScore(Integer qScore) {
+		this.qualityScore = qScore;
+	}
+	public Integer getQualityScore() {
+		return qualityScore;
+	}
 	public void setDepXml(DepXml depXml) {this.depXml = depXml;}
 	public void setIndependent(PmmXmlDoc independent) {this.independent = independent;}
 	public void setParameter(PmmXmlDoc parameter) {this.parameter = parameter;}
@@ -340,7 +364,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getEstModel() {
 		PmmXmlDoc emDoc = new PmmXmlDoc();
 		int emid = getEstModelId();
-		EstModelXml emx = new EstModelXml(emid, "EM_" + emid, getRms(), getRsquared(), getAic(), getBic(), null);
+		EstModelXml emx = new EstModelXml(emid, "EM_" + emid, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore);
 		emDoc.add(emx);
 		return emDoc;
 	}
@@ -367,7 +391,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			e.printStackTrace();
 		}
 		clonedPM.setCondId(condId);
-
+		
+		clonedPM.setChecked(isChecked);
+		clonedPM.setQualityScore(qualityScore);
+		
 		if (depXml != null) clonedPM.setDepXml(new DepXml(depXml.toXmlElement()));
 		try {
 			if (independent != null) clonedPM.setIndependent(new PmmXmlDoc(independent.toXmlString()));
@@ -805,6 +832,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_RMS, String.valueOf( rms ) );
 		modelElement.setAttribute( ATT_AIC, String.valueOf( aic ) );
 		modelElement.setAttribute( ATT_BIC, String.valueOf( bic ) );
+		modelElement.setAttribute(ATT_CHECKED, isChecked == null ? "" : String.valueOf( isChecked ) );
+		modelElement.setAttribute( ATT_QSCORE, qualityScore == null ? "" : String.valueOf( qualityScore ) );
+
 		
 		modelElement.setAttribute( ATT_RSQUARED, String.valueOf( rsquared ) );
 		

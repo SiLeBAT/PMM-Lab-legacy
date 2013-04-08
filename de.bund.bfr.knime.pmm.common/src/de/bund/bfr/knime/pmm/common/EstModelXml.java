@@ -26,9 +26,12 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private String dbuuid = null;
 	
 	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof) {
-		this(id, name, rms, r2, aic, bic, dof, null);
+		this(id, name, rms, r2, aic, bic, dof, null, null);
 	}
-	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof, String dbuuid) {
+	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof, Boolean checked, Integer qualityScore) {
+		this(id, name, rms, r2, aic, bic, dof, checked, qualityScore, null);
+	}
+	public EstModelXml(Integer id, String name, Double rms, Double r2, Double aic, Double bic, Integer dof, Boolean checked, Integer qualityScore, String dbuuid) {
 		setID(id);
 		setName(name);
 		setRMS(rms);
@@ -36,6 +39,8 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		setAIC(aic);
 		setBIC(bic);
 		setDOF(dof);
+		setChecked(checked);
+		setQualityScore(qualityScore);
 		setDbuuid(dbuuid);
 	}
 	public EstModelXml(Element xmlElement) {

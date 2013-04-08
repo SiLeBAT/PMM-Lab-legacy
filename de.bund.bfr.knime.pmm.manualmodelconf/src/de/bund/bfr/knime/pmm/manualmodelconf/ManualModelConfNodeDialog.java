@@ -156,7 +156,7 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] inData) throws NotConfigurableException {
-		if (inData != null && inData.length == 1) {
+		if (inData != null && inData.length == 1) { // !settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING) && 
 		    DataTableSpec inSpec = inData[0].getDataTableSpec();
 		    try {
 			    KnimeSchema tsSchema = new TimeSeriesSchema();

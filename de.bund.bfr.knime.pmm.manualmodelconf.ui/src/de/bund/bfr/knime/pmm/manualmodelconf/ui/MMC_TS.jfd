@@ -13,11 +13,10 @@ new FormModel {
 				name: "agentLabel"
 				"text": "Agent:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_AGENTNAME) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_AGENT) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 1
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "agentField"
@@ -27,7 +26,6 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 3
-				"gridY": 1
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
@@ -35,7 +33,6 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 5
-				"gridY": 1
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.StringTextField" ) {
 				name: "agensDetailField"
@@ -45,7 +42,6 @@ new FormModel {
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 7
-				"gridY": 1
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
 				name: "agensIDField"
@@ -53,13 +49,12 @@ new FormModel {
 				"visible": false
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 9
-				"gridY": 1
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "matrixLabel"
 				"text": "Matrix:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_MATRIXNAME) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(TimeSeriesSchema.ATT_MATRIX) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -105,7 +100,7 @@ new FormModel {
 				name: "commentLabel"
 				"text": ":"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(TimeSeriesSchema.ATT_COMMENT) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(MdInfoXml.ATT_COMMENT) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -125,7 +120,7 @@ new FormModel {
 				name: "tempLabel"
 				"text": "Temperature:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_TEMPERATURE) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(AttributeUtilities.ATT_TEMPERATURE) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -145,7 +140,7 @@ new FormModel {
 				name: "phLabel"
 				"text": "pH:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_PH) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(AttributeUtilities.ATT_PH) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
@@ -165,7 +160,7 @@ new FormModel {
 				name: "awLabel"
 				"text": "aw:"
 				auxiliary() {
-					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getFullName(AttributeUtilities.ATT_WATERACTIVITY) + \":\");"
+					"JavaCodeGenerator.postInitCode": "${field}.setText(AttributeUtilities.getName(AttributeUtilities.ATT_WATERACTIVITY) + \":\");"
 				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1

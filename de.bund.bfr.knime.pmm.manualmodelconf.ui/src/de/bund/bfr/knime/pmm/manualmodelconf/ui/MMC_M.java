@@ -629,6 +629,7 @@ public class MMC_M extends JPanel {
 		return doc.toXmlString();
 	}
 	public String tssToXmlString() {
+		if (formulaCreator) return "";
 		PmmXmlDoc doc = new PmmXmlDoc();
 		if (tss == null) {
 			PmmTimeSeries ts = m_mmcts.getTS();

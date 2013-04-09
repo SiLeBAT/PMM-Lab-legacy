@@ -144,7 +144,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			}
         		}
         	}
-			if (tupleM1 != null) doBuf(tupleM1, tstuple, rowSec, buf, ks);
+			doBuf(tupleM1, tstuple, rowSec, buf, ks);
 
         	buf.close();
             return new BufferedDataTable[]{ buf.getTable()};

@@ -33,9 +33,13 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.manualmodelconf;
 
+import java.io.IOException;
+import java.util.HashMap;
+
 import javax.swing.JOptionPane;
 
 import org.hsh.bfr.db.DBKernel;
+import org.jdom2.JDOMException;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -45,7 +49,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
@@ -81,11 +84,11 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
      */
     protected ManualModelConfNodeDialog(boolean formulaCreator) {
     	try {    
-    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", formulaCreator);
+    		m_mmcts = new MMC_TS();
+    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", formulaCreator, m_mmcts);
     		m_mmcm.setConnection(DBKernel.getLocalConn(true));
     		this.addTab("Model Definition", m_mmcm);    	
     		
-    		m_mmcts = new MMC_TS();
     		if (!formulaCreator) {
         		this.addTab("Microbial Data", m_mmcts);        			
     		}
@@ -102,61 +105,57 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 		//m_confui.stopCellEditing();
 		m_mmcm.stopCellEditing();
 		//settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_confui.toXmlString() );
-		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_mmcm.toXmlString() );
-		try {
-			//PmmTimeSeries ts = confui.getTS();
-			PmmTimeSeries ts = m_mmcts.getTS();
-			if (ts.getAgentDetail() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL, ts.getAgentDetail());}
-			else {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL, "");}
-			if (ts.getAgentName() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, ts.getAgentName());}
-			else {settings.addString(ManualModelConfNodeModel.CFGKEY_AGENT, "");}
-			if (ts.getAgentId() != null) {settings.addInt(ManualModelConfNodeModel.CFGKEY_AGENTID, ts.getAgentId());}
-			else {settings.addInt(ManualModelConfNodeModel.CFGKEY_AGENTID, -1);}
-			if (ts.getMatrixDetail() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL, ts.getMatrixDetail());}
-			else {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL, "");}
-			if (ts.getMatrixName() != null) {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, ts.getMatrixName());}
-			else {settings.addString(ManualModelConfNodeModel.CFGKEY_MATRIX, "");}
-			if (ts.getMatrixId() != null) {settings.addInt(ManualModelConfNodeModel.CFGKEY_MATRIXID, ts.getMatrixId());}
-			else {settings.addInt(ManualModelConfNodeModel.CFGKEY_MATRIXID, -1);}
-			
-			if (ts.getComment() != null) {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, ts.getComment());
-			}
-			else {
-				settings.addString(ManualModelConfNodeModel.CFGKEY_COMMENT, "");
-			}
-			if (ts.getTemperature() != null) {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, ts.getTemperature());
-			}
-			else {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE, Double.NaN);
-			}
-			if (ts.getPh() != null) {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_PH, ts.getPh());
-			}
-			else {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_PH, Double.NaN);
-			}
-			if (ts.getWaterActivity() != null) {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_AW, ts.getWaterActivity());
-			}
-			else {
-				settings.addDouble(ManualModelConfNodeModel.CFGKEY_AW, Double.NaN);
-			}
-		}
-		catch (PmmException e) {
-			if (e.getMessage().equals("Invalid Value")) {
-				throw new InvalidSettingsException("Invalid Value");
-			} else {
-				e.printStackTrace();
-			}
-		}
+		settings.addString( ManualModelConfNodeModel.PARAM_XMLSTRING, m_mmcm.listToXmlString() );
+		String tStr = m_mmcm.tssToXmlString();
+		settings.addString( ManualModelConfNodeModel.PARAM_TSXMLSTRING, tStr );//-1673022417
 	}
 	
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] inData) throws NotConfigurableException {
-		if (inData != null && inData.length == 1) { // !settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING) && 
+		String mStr = null;
+		String tsStr = null;
+		// MMC_M
+		try {
+			if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
+				mStr = settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING);
+			}
+		}
+		catch( InvalidSettingsException e ) {
+			e.printStackTrace();
+		}
+
+		//MMC_TS
+		try {
+			if (settings.containsKey(ManualModelConfNodeModel.PARAM_TSXMLSTRING)) {
+				tsStr = settings.getString(ManualModelConfNodeModel.PARAM_TSXMLSTRING);
+			}
+		}
+		catch (Exception e) {} // e.printStackTrace();
+		if (inData != null && inData.length == 1) {
+			HashMap<Integer, ParametricModel> mlist = new HashMap<Integer, ParametricModel>();
+			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<Integer, PmmTimeSeries>();
+			try {
+				PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
+				for (int i = 0; i < mDoc.size(); i++) {
+					PmmXmlElementConvertable el = mDoc.get(i);
+					if (el instanceof ParametricModel) {
+						ParametricModel pm = (ParametricModel) el;
+						mlist.put(pm.getEstModelId(), pm);
+					}
+				}
+				PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
+				for (int i = 0; i < tsDoc.size(); i++) {
+					PmmXmlElementConvertable el = tsDoc.get(i);
+					if (el instanceof PmmTimeSeries) {
+						PmmTimeSeries ts = (PmmTimeSeries) el;
+						tslist.put(ts.getCondId(), ts);
+					}
+				}
+			}
+			catch (IOException | JDOMException e) {
+				e.printStackTrace();
+			}	
 		    DataTableSpec inSpec = inData[0].getDataTableSpec();
 		    try {
 			    KnimeSchema tsSchema = new TimeSeriesSchema();
@@ -173,72 +172,49 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 		    	if (hasTs) finalSchema = (finalSchema == null) ? tsSchema : KnimeSchema.merge(tsSchema, finalSchema);
 		    	if (finalSchema != null) {
 		    		KnimeRelationReader reader = new KnimeRelationReader(finalSchema, inData[0]);
-		    		PmmXmlDoc pmmDoc = new PmmXmlDoc();
+		    		HashMap<Integer, PmmTimeSeries> tss = new HashMap<Integer, PmmTimeSeries>();
+		    		HashMap<Integer, ParametricModel> m1s = new HashMap<Integer, ParametricModel>();
+		    		HashMap<Integer, ParametricModel> m2s = new HashMap<Integer, ParametricModel>();
+		    		HashMap<ParametricModel, HashMap<String, ParametricModel>> m_secondaryModels = new HashMap<ParametricModel, HashMap<String, ParametricModel>>();
 		    		Integer condID = null;
-		    		Integer firstM1EstID = null;
+		    		Integer m1EstID = null, m2EstID;
 		    		while (reader.hasMoreElements()) {
 		    			KnimeTuple row = reader.nextElement();
-		    			Integer actualM1EstID = null;//row.getInt(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODELID, 1));
-		    			PmmXmlDoc x = row.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODEL, 1));
-		    			if (x != null) {
-		    				for (PmmXmlElementConvertable el : x.getElementSet()) {
-		    					if (el instanceof EstModelXml) {
-		    						EstModelXml emx = (EstModelXml) el;
-		    						actualM1EstID = emx.getID();
-		    						break;
-		    					}
-		    				}
-		    			}
 		    			if (hasTs) {
-		    				if (firstM1EstID == null || actualM1EstID.intValue() == firstM1EstID.intValue()) {
-				    			PmmTimeSeries ts = new PmmTimeSeries(row);
-				    			m_mmcts.setTS(ts);
-				    			condID = ts.getCondId();
-		    				}
+			    			PmmTimeSeries ts = new PmmTimeSeries(row);
+			    			condID = ts.getCondId();
+			    			//System.err.println(condID);
+			    			if (tslist.containsKey(condID)) tss.put(condID, tslist.get(condID));
+			    			else tss.put(condID, ts);
 		    			}
 		    			if (hasM1) {
-		    				if (firstM1EstID == null) {
-				    			ParametricModel pm = new ParametricModel(row, 1, hasTs ? condID : null);
-				    			pmmDoc.add(pm);
-			    				if (!hasM2) break;
-			    				firstM1EstID = pm.getEstModelId();
-		    				}
-		    			}
-		    			if (hasM2) {
-		    				if (!hasM1 || actualM1EstID.intValue() == firstM1EstID.intValue()) {
-				    			pmmDoc.add(new ParametricModel(row, 2, null));
-		    				}
-			    			if (!hasM1) break;
+			    			ParametricModel pm1 = new ParametricModel(row, 1, hasTs ? condID : null);
+			    			m1EstID = pm1.getEstModelId();
+			    			if (!m1s.containsKey(m1EstID)) {
+				    			if (mlist.containsKey(m1EstID)) m1s.put(m1EstID, mlist.get(m1EstID));
+				    			else m1s.put(m1EstID, pm1);			    				
+			    			}
+			    			if (hasM2) {
+			    				ParametricModel pm2 = new ParametricModel(row, 2, null);
+			    				m2EstID = pm2.getEstModelId();
+				    			if (!m2s.containsKey(m2EstID)) {
+					    			if (mlist.containsKey(m2EstID)) m2s.put(m2EstID, mlist.get(m2EstID));
+					    			else m2s.put(m2EstID, pm2);			    				
+				    			}
+				    			if (!m_secondaryModels.containsKey(m1s.get(m1EstID))) m_secondaryModels.put(m1s.get(m1EstID), new HashMap<String, ParametricModel>());
+				    			HashMap<String, ParametricModel> hm = m_secondaryModels.get(m1s.get(m1EstID));
+				    			hm.put(pm2.getDepVar(), m2s.get(m2EstID));
+			    			}
 		    			}
 		    		}
-		    		m_mmcm.setFromXmlString(pmmDoc.toXmlString());
+		    		m_mmcm.setInputData(m1s.values(), m_secondaryModels, tss);
 		    	}
 		    }
 		    catch (PmmException e) {}
 		}
 		else {
-			try {
-				if (settings.containsKey(ManualModelConfNodeModel.PARAM_XMLSTRING)) {
-					m_mmcm.setFromXmlString(settings.getString(ManualModelConfNodeModel.PARAM_XMLSTRING));
-				}
-			}
-			catch( InvalidSettingsException e ) {
-				e.printStackTrace( System.err );
-			}
-			
-			try {
-				m_mmcts.setTS(settings.getString(ManualModelConfNodeModel.CFGKEY_AGENT),
-						settings.getString(ManualModelConfNodeModel.CFGKEY_AGENTDETAIL),
-						settings.getInt(ManualModelConfNodeModel.CFGKEY_AGENTID),
-						settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIX),
-						settings.getString(ManualModelConfNodeModel.CFGKEY_MATRIXDETAIL),
-						settings.getInt(ManualModelConfNodeModel.CFGKEY_MATRIXID),
-						settings.getString(ManualModelConfNodeModel.CFGKEY_COMMENT),
-						settings.getDouble(ManualModelConfNodeModel.CFGKEY_TEMPERATURE),
-						settings.getDouble(ManualModelConfNodeModel.CFGKEY_PH),
-						settings.getDouble(ManualModelConfNodeModel.CFGKEY_AW));
-			}
-			catch (Exception e) {} // e.printStackTrace();
+			if (tsStr != null) m_mmcts.setTS(tsStr);
+			if (mStr != null) m_mmcm.setFromXmlString(mStr);
 		}
 	}
 }

@@ -4,9 +4,9 @@ new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-			"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
+			"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
 			"$rowSpecs": "default, relgap, default, unrelgap, default, pargap, default, pargap, default, unrelgap, default, unrelgap, default, unrelgap, default, linegap, fill:default:grow, 1dlu, default, pargap, default"
-			"$columnGroupIds": "0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1"
+			"$columnGroupIds": "0, 0, 0, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1, 0, 3, 0, 2, 0, 1"
 		} ) {
 			name: "this"
 			"border": new javax.swing.border.CompoundBorder( new javax.swing.border.TitledBorder( "Model Properties" ), sfield com.jgoodies.forms.factories.Borders DLU2_BORDER )
@@ -17,12 +17,26 @@ new FormModel {
 				"font": new java.awt.Font( "Tahoma", 1, 14 )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridWidth": 19
+				"gridX": 3
+			} )
+			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+				name: "scrollPane3"
+				add( new FormComponent( "javax.swing.JList" ) {
+					name: "list1"
+					"selectionMode": 0
+					auxiliary() {
+						"JavaCodeGenerator.typeParameters": "ParametricModel"
+					}
+					addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "list1ValueChanged", true ) )
+				} )
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridHeight": 21
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label7"
 				"text": "Model type:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 3
 			} )
 			add( new FormComponent( "javax.swing.JRadioButton" ) {
@@ -32,7 +46,7 @@ new FormModel {
 				"selected": true
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "radioButtonActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 3
 				"gridWidth": 5
 			} )
@@ -42,7 +56,7 @@ new FormModel {
 				"$buttonGroup": new FormReference( "buttonGroup1" )
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "radioButtonActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 9
+				"gridX": 11
 				"gridY": 3
 				"gridWidth": 5
 			} )
@@ -52,7 +66,7 @@ new FormModel {
 				"$buttonGroup": new FormReference( "buttonGroup1" )
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "radioButtonActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 15
+				"gridX": 17
 				"gridY": 3
 				"gridWidth": 5
 			} )
@@ -60,7 +74,7 @@ new FormModel {
 				name: "modelNameLabel"
 				"text": "Formula from DB:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 5
 			} )
 			add( new FormComponent( "javax.swing.JComboBox" ) {
@@ -70,7 +84,7 @@ new FormModel {
 				}
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "modelNameBoxActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridWidth": 17
 				"gridY": 5
 			} )
@@ -78,7 +92,7 @@ new FormModel {
 				name: "label1"
 				"text": "Formula Name:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 7
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
@@ -86,7 +100,7 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "modelnameFieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "modelnameFieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 7
 				"gridWidth": 17
 			} )
@@ -94,7 +108,7 @@ new FormModel {
 				name: "label2"
 				"text": "Formula:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 9
 			} )
 			add( new FormComponent( "javax.swing.JTextField" ) {
@@ -102,7 +116,7 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "formulaAreaFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "formulaAreaKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 9
 				"gridWidth": 15
 			} )
@@ -110,14 +124,14 @@ new FormModel {
 				name: "formulaApply"
 				"text": "Apply"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 19
+				"gridX": 21
 				"gridY": 9
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "tableLabel"
 				"text": "Parameter Definition:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 11
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -128,7 +142,7 @@ new FormModel {
 					addEvent( new FormEvent( "java.awt.event.MouseListener", "mouseClicked", "tableMouseClicked", true ) )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 11
 				"gridWidth": 17
 			} )
@@ -138,13 +152,14 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 13
 				"gridHeight": 3
+				"gridX": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label3"
 				"text": "R²:"
 				"horizontalAlignment": 0
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 13
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
@@ -156,7 +171,7 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "r2FieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "r2FieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 5
+				"gridX": 7
 				"gridY": 13
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
@@ -164,7 +179,7 @@ new FormModel {
 				"text": "RMS:"
 				"horizontalAlignment": 0
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 9
+				"gridX": 11
 				"gridY": 13
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
@@ -176,14 +191,14 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "rmsFieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "rmsFieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 11
+				"gridX": 13
 				"gridY": 13
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label5"
 				"text": "AIC:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 15
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
@@ -194,14 +209,14 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "aicFieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "aicFieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 5
+				"gridX": 7
 				"gridY": 15
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label6"
 				"text": "BIC:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 9
+				"gridX": 11
 				"gridY": 15
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.DoubleTextField" ) {
@@ -212,7 +227,7 @@ new FormModel {
 				addEvent( new FormEvent( "java.awt.event.FocusListener", "focusLost", "bicFieldFocusLost", true ) )
 				addEvent( new FormEvent( "java.awt.event.KeyListener", "keyReleased", "bicFieldKeyReleased", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 11
+				"gridX": 13
 				"gridY": 15
 			} )
 			add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
@@ -231,7 +246,7 @@ new FormModel {
 					} )
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 17
 				"gridWidth": 17
 			} )
@@ -241,13 +256,14 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridY": 17
 				"gridHeight": 3
+				"gridX": 3
 			} )
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "button1"
 				"text": "New Reference"
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button1ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 19
 				"gridWidth": 5
 			} )
@@ -257,7 +273,7 @@ new FormModel {
 				"enabled": false
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button3ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 9
+				"gridX": 11
 				"gridY": 19
 				"gridWidth": 5
 			} )
@@ -267,7 +283,7 @@ new FormModel {
 				"enabled": false
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "button2ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 15
+				"gridX": 17
 				"gridY": 19
 				"gridWidth": 5
 			} )
@@ -275,14 +291,14 @@ new FormModel {
 				name: "label10"
 				"text": "Subjective quality:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 1
+				"gridX": 3
 				"gridY": 21
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label11"
 				"text": "QualityScore:"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 3
+				"gridX": 5
 				"gridY": 21
 				"gridWidth": 3
 			} )
@@ -295,7 +311,7 @@ new FormModel {
 				}
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "qScoreBoxActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 7
+				"gridX": 9
 				"gridY": 21
 			} )
 			add( new FormComponent( "javax.swing.JCheckBox" ) {
@@ -303,7 +319,7 @@ new FormModel {
 				"text": "Checked"
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "checkBox1ActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-				"gridX": 13
+				"gridX": 15
 				"gridY": 21
 			} )
 		}, new FormLayoutConstraints( null ) {

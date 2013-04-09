@@ -42,10 +42,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertable {
 	
-	private static final String ELEMENT_TIMESERIES = "TimeSeries";
+	public static final String ELEMENT_TIMESERIES = "TimeSeries";
 	//private static final String ELEMENT_TSTUPLE = "TimeSeriesTuple";
 	private static final String ELEMENT_TSXML = "TimeSeriesXml";
 	private static final String ELEMENT_MDINFO = "MdInfoXml";
+	private static final String ELEMENT_LITMD = "LiteraturMD";
 	private String warningMsg = null;
 	private double mr;
 
@@ -81,35 +82,52 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			setCell(i, tuple.getCell(i));
 		}			
 	}
+	public PmmTimeSeries(Element xmlElement) {
+		super(new TimeSeriesSchema());
+		try {
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_CONDID) != null) setCondId(Integer.parseInt(xmlElement.getAttributeValue(TimeSeriesSchema.ATT_CONDID)));
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_COMBASEID) != null) setCombaseId(xmlElement.getAttributeValue(TimeSeriesSchema.ATT_COMBASEID));
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_MATRIX) != null) setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(xmlElement.getAttributeValue(TimeSeriesSchema.ATT_MATRIX)));
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_AGENT) != null) setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(xmlElement.getAttributeValue(TimeSeriesSchema.ATT_AGENT)));
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_MISC) != null) setValue(TimeSeriesSchema.ATT_MISC, new PmmXmlDoc(xmlElement.getAttributeValue(TimeSeriesSchema.ATT_MISC)));
+			for (Element el : xmlElement.getChildren()) {
+				if (el.getName().equals(ELEMENT_TSXML)) {
+					if (el.getText() != null) {
+						PmmXmlDoc timeSeriesXmlDoc = new PmmXmlDoc(el.getText()); 
+						this.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
+					}
+				}
+				else if (el.getName().equals(ELEMENT_MDINFO)) {
+					if (el.getText() != null) {
+						PmmXmlDoc mdInfoXmlDoc = new PmmXmlDoc(el.getText()); 
+						this.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoXmlDoc);
+					}
+				}
+				else if (el.getName().equals(ELEMENT_LITMD)) {
+					if (el.getText() != null) {
+						PmmXmlDoc litMdDoc = new PmmXmlDoc(el.getText()); 
+						this.setValue(TimeSeriesSchema.ATT_LITMD, litMdDoc);
+					}
+				}
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 		
 	@Override
-	public Element toXmlElement() {
-		
-		Element ret = new Element(ELEMENT_TIMESERIES);
-		
-		try {
-		
+	public Element toXmlElement() {		
+		Element ret = new Element(ELEMENT_TIMESERIES);		
+		try {		
+			if (getCondId() != null) {
+				ret.setAttribute(TimeSeriesSchema.ATT_CONDID, getCondId()+"");
+			}
 			if (getCombaseId() != null) {
 				if (!getCombaseId().isEmpty()) {
 					ret.setAttribute(TimeSeriesSchema.ATT_COMBASEID, getCombaseId());
 				}
 			}
-			
-			// TODO: add id and detail
-			
-			/*
-			if( hasTemperature() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_TEMPERATURE, String.valueOf( getTemperature() ) );
-			}
-			
-			if( hasPh() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_PH, String.valueOf( getPh() ) );
-			}
-			
-			if( hasWaterActivity() ) {
-				ret.setAttribute( TimeSeriesSchema.ATT_WATERACTIVITY, String.valueOf( getWaterActivity() ) );
-			}
-			*/
 			if (hasMatrix()) {
 				ret.setAttribute(TimeSeriesSchema.ATT_MATRIX, getMatrix().toXmlString());
 			}
@@ -119,25 +137,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			if (hasMisc()) {
 				ret.setAttribute(TimeSeriesSchema.ATT_MISC, getMisc().toXmlString());
 			}
-			/* if( !isNaN( maximumRate ) )
-				ret.setAttribute( ATT_MAXIMUMRATE, String.valueOf( maximumRate ) );
-			
-			if( !isNaN( doublingTime ) )
-				ret.setAttribute( ATT_DOUBLINGTIME, String.valueOf( doublingTime ) ); 
-			
-			tlist = this.getDoubleList( TimeSeriesSchema.ATT_TIME );
-			clist = this.getDoubleList( TimeSeriesSchema.ATT_LOGC );
-			
-			if( tlist != null ) {
-				for( i = 0; i < tlist.size(); i++ ) {
-								
-					el = new Element( ELEMENT_TSTUPLE );
-					el.setAttribute( TimeSeriesSchema.ATT_TIME, String.valueOf( tlist.get( i ) ) );
-					el.setAttribute( TimeSeriesSchema.ATT_LOGC, String.valueOf( clist.get( i ) ) );
-					ret.addContent( el );
-				}
-			}
-			*/
 			Element element = new Element(ELEMENT_TSXML);
 			PmmXmlDoc timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			element.addContent(timeSeriesXmlDoc.toXmlString());
@@ -146,11 +145,14 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			PmmXmlDoc mdInfoXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_MDINFO);
 			element.addContent(mdInfoXmlDoc.toXmlString());
 			ret.addContent(element);
+			element = new Element(ELEMENT_LITMD);
+			PmmXmlDoc litMdDoc = this.getPmmXml(TimeSeriesSchema.ATT_LITMD);
+			element.addContent(litMdDoc.toXmlString());
+			ret.addContent(element);
 		}
 		catch( PmmException ex ) {
-			ex.printStackTrace( System.err );
-		}
-				
+			ex.printStackTrace();
+		}				
 		return ret;
 	}
 	
@@ -160,8 +162,6 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		timeSeriesXmlDoc.add(tsx);
 		this.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
 		setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
-		//addValue(TimeSeriesSchema.ATT_TIME, t);
-		//addValue(TimeSeriesSchema.ATT_LOGC, n);
 	}
 	public void add(Double t, Double n) throws PmmException {		
 		add("t"+System.currentTimeMillis(), t, n);
@@ -197,12 +197,10 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public String getAgentName() throws PmmException {
 		return (String) getAgentAttribute(false, true, false);
-//		return getString( TimeSeriesSchema.ATT_AGENTNAME );
 	}
 	
 	public String getMatrixName() throws PmmException {
 		return (String) getMatrixAttribute(false, true, false);
-		//return getString( TimeSeriesSchema.ATT_MATRIXNAME );
 	}
 	
 	private Object getMatrixAttribute(boolean id, boolean name, boolean detail) throws PmmException {
@@ -298,22 +296,18 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	
 	public Integer getAgentId() throws PmmException {
 		return (Integer) getAgentAttribute(true, false, false);
-		//return getInt( TimeSeriesSchema.ATT_AGENTID );
 	}
 	
 	public Integer getMatrixId() throws PmmException {
 		return (Integer) getMatrixAttribute(true, false, false);
-		//return getInt( TimeSeriesSchema.ATT_MATRIXID );
 	}
 	
 	public String getAgentDetail() throws PmmException {
 		return (String) getAgentAttribute(false, false, true);
-		//return getString( TimeSeriesSchema.ATT_AGENTDETAIL );
 	}
 	
 	public String getMatrixDetail() throws PmmException {
 		return (String) getMatrixAttribute(false, false, true);
-		//return getString( TimeSeriesSchema.ATT_MATRIXDETAIL );
 	}
 	
 	public String getComment() throws PmmException {
@@ -380,11 +374,40 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	public boolean hasAgent() throws PmmException {
 		return !isNull(TimeSeriesSchema.ATT_AGENT);
 	}
-	
-	public boolean hasCondId() throws PmmException {
-		return getInt( TimeSeriesSchema.ATT_CONDID ) >= 0;
+	/*
+	public void setCondId( final Integer condId ) throws PmmException { 
+		if (condId != null) {
+			PmmXmlDoc mdInfoXmlDoc = getMdInfo();
+			if (mdInfoXmlDoc == null) mdInfoXmlDoc = new PmmXmlDoc();
+			MdInfoXml mdix = null;
+	    	for (PmmXmlElementConvertable el : mdInfoXmlDoc.getElementSet()) {
+	    		if (el instanceof MdInfoXml) {
+	    			mdix = (MdInfoXml) el;
+	    			mdix.setID(condId);
+	    			break;
+	    		}
+	    	}
+	    	if (mdix != null) {
+		    	mdInfoXmlDoc = new PmmXmlDoc();
+		    	mdInfoXmlDoc.add(mdix);    		
+		    	setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoXmlDoc);			    		
+	    	}
+		}
 	}
-	
+	public Integer getCondId() throws PmmException {
+		PmmXmlDoc mdInfoXmlDoc = getMdInfo();
+		if (mdInfoXmlDoc != null) {
+			MdInfoXml mdix = null;
+	    	for (PmmXmlElementConvertable el : mdInfoXmlDoc.getElementSet()) {
+	    		if (el instanceof MdInfoXml) {
+	    			mdix = (MdInfoXml) el;
+	    			return mdix.getID();
+	    		}
+	    	}
+		}
+		return null;//getString( TimeSeriesSchema.ATT_COMMENT );
+	}
+*/	
 	public void setCondId( final int condId ) throws PmmException { 
 		setValue( TimeSeriesSchema.ATT_CONDID, condId );
 	}
@@ -431,30 +454,24 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setAgentName( final String agentName ) throws PmmException {
-		//setValue( TimeSeriesSchema.ATT_AGENTNAME, agentName );		
 		setAgentAttribute(null, agentName, null);
 	}
 	public void setMatrixName( final String matrixName ) throws PmmException {
-		//setValue( TimeSeriesSchema.ATT_MATRIXNAME, matrixName );
 		setMatrixAttribute(null, matrixName, null);
 	}
 	
 	public void setAgentDetail( final String agentDetail ) throws PmmException {
-		//setValue(TimeSeriesSchema.ATT_AGENTDETAIL, agentDetail );
 		setAgentAttribute(null, null, agentDetail);
 	}
 	public void setMatrixDetail( final String matrixDetail ) throws PmmException {
-		//setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, matrixDetail );
 		setMatrixAttribute(null, null, matrixDetail);
 	}
 	
 	public void setAgentId( final Integer agentId ) throws PmmException {
-		//setValue( TimeSeriesSchema.ATT_AGENTID, agentId );
 		setAgentAttribute(agentId, null, null);
 	}
 	
 	public void setMatrixId( final Integer matrixId ) throws PmmException {
-		//setValue( TimeSeriesSchema.ATT_MATRIXID, matrixId );
 		setMatrixAttribute(matrixId, null, null);
 	}
 	

@@ -108,6 +108,9 @@ public class PmmXmlDoc {
 			else if (el.getName().equals(MatrixXml.ELEMENT_MATRIX)) {
 				elementSet.add(new MatrixXml(el));
 			}	
+			else if (el.getName().equals(PmmTimeSeries.ELEMENT_TIMESERIES)) {
+				elementSet.add(new PmmTimeSeries(el));
+			}	
 		}					
 	}
 	public void add(PmmXmlElementConvertable el) {

@@ -111,8 +111,8 @@ public class TableReader {
 		if (containsData) {
 			miscParams = PmmUtilities.getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, Model1Schema.FORMULA,
-					ChartConstants.STATUS);
+					Model1Schema.FORMULA, ChartConstants.STATUS,
+					AttributeUtilities.DATAID);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -129,7 +129,7 @@ public class TableReader {
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID);
+					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
@@ -151,7 +151,8 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
 		}
 
 		for (KnimeTuple tuple : tuples) {
@@ -272,7 +273,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(2).add(dataName);
+				stringColumnValues.get(3).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					boolean paramFound = false;
@@ -300,26 +301,16 @@ public class TableReader {
 						doubleColumnValues.get(i + 4).add(null);
 					}
 				}
+			}
 
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(3).add(ChartConstants.FAILED);
-				} else if (PmmUtilities.isOutOfRange(paramXml)) {
-					stringColumnValues.get(3).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-					stringColumnValues.get(3).add(ChartConstants.NO_COVARIANCE);
-				} else {
-					stringColumnValues.get(3).add(ChartConstants.OK);
-				}
+			if (!plotable.isPlotable()) {
+				stringColumnValues.get(2).add(ChartConstants.FAILED);
+			} else if (PmmUtilities.isOutOfRange(paramXml)) {
+				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
+				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.FAILED);
-				} else if (PmmUtilities.isOutOfRange(paramXml)) {
-					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-					stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.OK);
-				}
+				stringColumnValues.get(2).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

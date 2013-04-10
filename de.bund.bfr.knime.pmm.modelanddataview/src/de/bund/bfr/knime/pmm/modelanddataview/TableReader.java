@@ -88,9 +88,9 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getAllMiscParams(table);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, Model1Schema.FORMULA,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					MdInfoXml.ATT_COMMENT, ChartConstants.STATUS);
+					Model1Schema.FORMULA, ChartConstants.STATUS,
+					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
+					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -116,7 +116,7 @@ public class TableReader {
 			visibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID);
+					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
 			for (String param : miscParams) {
 				doubleColumns.add(param);
@@ -141,7 +141,8 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			visibleColumns = Arrays.asList(Model1Schema.MODELNAME);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
 
 			data = null;
 			parameterData = new ArrayList<>();
@@ -286,12 +287,10 @@ public class TableReader {
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
-				stringColumnValues.get(0).add(modelName);
-				stringColumnValues.get(1).add(dataName);
-				stringColumnValues.get(2).add(formula);
-				stringColumnValues.get(3).add(agent);
-				stringColumnValues.get(4).add(matrix);
-				stringColumnValues.get(5).add(
+				stringColumnValues.get(3).add(dataName);
+				stringColumnValues.get(4).add(agent);
+				stringColumnValues.get(5).add(matrix);
+				stringColumnValues.get(6).add(
 						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 								.get(0)).getComment());
 				doubleColumnValues.get(0).add(
@@ -345,8 +344,6 @@ public class TableReader {
 				plotable = new Plotable(Plotable.FUNCTION);
 				shortLegend.put(id, modelName);
 				longLegend.put(id, modelName + " " + formula);
-				stringColumnValues.get(0).add(modelName);
-				stringColumnValues.get(1).add(formula);
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(
@@ -367,26 +364,17 @@ public class TableReader {
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
 
-			if (schemaContainsData) {
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(6).add(ChartConstants.FAILED);
-				} else if (PmmUtilities.isOutOfRange(paramXml)) {
-					stringColumnValues.get(6).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-					stringColumnValues.get(6).add(ChartConstants.NO_COVARIANCE);
-				} else {
-					stringColumnValues.get(6).add(ChartConstants.OK);
-				}
+			stringColumnValues.get(0).add(modelName);
+			stringColumnValues.get(1).add(formula);
+
+			if (!plotable.isPlotable()) {
+				stringColumnValues.get(2).add(ChartConstants.FAILED);
+			} else if (PmmUtilities.isOutOfRange(paramXml)) {
+				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
+				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				if (!plotable.isPlotable()) {
-					stringColumnValues.get(2).add(ChartConstants.FAILED);
-				} else if (PmmUtilities.isOutOfRange(paramXml)) {
-					stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
-				} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-					stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
-				} else {
-					stringColumnValues.get(2).add(ChartConstants.OK);
-				}
+				stringColumnValues.get(2).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

@@ -14,7 +14,7 @@ public class AgentXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_AGENT = "agent";
 
-	private int id;
+	private Integer id;
 	private String name = null;
 	private String detail = null;
 	private String dbuuid = null;
@@ -22,10 +22,10 @@ public class AgentXml implements PmmXmlElementConvertable {
 	public AgentXml() {
 		this(MathUtilities.getRandomNegativeInt(), null, null, null);		
 	}
-	public AgentXml(int id, String name, String detail) {
+	public AgentXml(Integer id, String name, String detail) {
 		this(id, name, detail, null);
 	}
-	public AgentXml(int id, String name, String detail, String dbuuid) {
+	public AgentXml(Integer id, String name, String detail, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDetail(detail);
@@ -45,12 +45,12 @@ public class AgentXml implements PmmXmlElementConvertable {
 		}
 	}
 
-	public int getID() {return id;}
+	public Integer getID() {return id;}
 	public String getName() {return name;}
 	public String getDetail() {return detail;}
 	public String getDbuuid() {return dbuuid;}
 	
-	public void setID(int id) {this.id = id;}
+	public void setID(Integer id) {this.id = id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDetail(String detail) {this.detail = (detail == null) ? "" : detail;}
 	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}

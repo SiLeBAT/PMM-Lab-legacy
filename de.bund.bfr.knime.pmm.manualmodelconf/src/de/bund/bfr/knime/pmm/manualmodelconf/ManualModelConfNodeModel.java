@@ -332,6 +332,8 @@ public class ManualModelConfNodeModel extends NodeModel {
 	    			String agent, agentDetail, matrix, matrixDetail, comment;
 	    			Integer agentID, matrixID;
 	    			Double temperature, ph, waterActivity;
+	    			
+	    			settings.containsKey(CFGKEY_AGENT);
 	        		try {agent = settings.getString(CFGKEY_AGENT);}
 	        		catch (InvalidSettingsException e) {agent = null;}
 	        		try {agentID = settings.getInt(CFGKEY_AGENTID);}
@@ -378,6 +380,7 @@ public class ManualModelConfNodeModel extends NodeModel {
 		}
     	catch (Exception e1) {
 			e1.printStackTrace();
+			docTS.add(new PmmTimeSeries());
     		throw new InvalidSettingsException("Invalid model parameters");
 		}
     }

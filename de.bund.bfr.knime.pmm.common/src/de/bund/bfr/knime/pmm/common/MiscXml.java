@@ -15,20 +15,20 @@ public class MiscXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_MISC = "misc";
 
-	private int id;
+	private Integer id;
 	private String name = null;
 	private String description = null;
 	private Double value = null;
 	private String unit = null;
 	private String dbuuid = null;
 	
-	public MiscXml(int id, String name, String description, Double value, String unit) {
+	public MiscXml(Integer id, String name, String description, Double value, String unit) {
 		this(id, name, description, value, unit, null);
 	}
 	public MiscXml() {
 		this(MathUtilities.getRandomNegativeInt(), null, null, null, null, null);		
 	}
-	public MiscXml(int id, String name, String description, Double value, String unit, String dbuuid) {
+	public MiscXml(Integer id, String name, String description, Double value, String unit, String dbuuid) {
 		setID(id);
 		setName(name);
 		setDescription(description);
@@ -79,7 +79,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public String getUnit() {return unit;}
 	public String getDbuuid() {return dbuuid;}
 	
-	public void setID(int id) {this.id = id;}
+	public void setID(Integer id) {this.id = id;}
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDescription(String description) {this.description = (description == null) ? "" : description;}
 	public void setValue(Double value) {this.value = (value == null) ? null : value;;}

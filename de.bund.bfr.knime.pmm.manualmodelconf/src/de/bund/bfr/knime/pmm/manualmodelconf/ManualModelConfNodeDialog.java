@@ -136,20 +136,24 @@ public class ManualModelConfNodeDialog extends DataAwareNodeDialogPane {
 			HashMap<Integer, ParametricModel> mlist = new HashMap<Integer, ParametricModel>();
 			HashMap<Integer, PmmTimeSeries> tslist = new HashMap<Integer, PmmTimeSeries>();
 			try {
-				PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
-				for (int i = 0; i < mDoc.size(); i++) {
-					PmmXmlElementConvertable el = mDoc.get(i);
-					if (el instanceof ParametricModel) {
-						ParametricModel pm = (ParametricModel) el;
-						mlist.put(pm.getEstModelId(), pm);
+				if (mStr != null && !mStr.isEmpty()) {
+					PmmXmlDoc mDoc = new PmmXmlDoc(mStr);
+					for (int i = 0; i < mDoc.size(); i++) {
+						PmmXmlElementConvertable el = mDoc.get(i);
+						if (el instanceof ParametricModel) {
+							ParametricModel pm = (ParametricModel) el;
+							mlist.put(pm.getEstModelId(), pm);
+						}
 					}
 				}
-				PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
-				for (int i = 0; i < tsDoc.size(); i++) {
-					PmmXmlElementConvertable el = tsDoc.get(i);
-					if (el instanceof PmmTimeSeries) {
-						PmmTimeSeries ts = (PmmTimeSeries) el;
-						tslist.put(ts.getCondId(), ts);
+				if (tsStr != null && !tsStr.isEmpty()) {
+					PmmXmlDoc tsDoc = new PmmXmlDoc(tsStr);
+					for (int i = 0; i < tsDoc.size(); i++) {
+						PmmXmlElementConvertable el = tsDoc.get(i);
+						if (el instanceof PmmTimeSeries) {
+							PmmTimeSeries ts = (PmmTimeSeries) el;
+							tslist.put(ts.getCondId(), ts);
+						}
 					}
 				}
 			}

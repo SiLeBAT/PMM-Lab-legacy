@@ -618,11 +618,13 @@ public class MMC_M extends JPanel {
 			if (list1.isSelectedIndex(i)) finalizePM(i);
 			ParametricModel pm1 = listModel.get(i);
 			doc.add(pm1);
-			for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm1).entrySet()) {
-				String key = entry.getKey();
-				if (pm1.containsParam(key)) {
-					ParametricModel value = entry.getValue();
-					doc.add(value);
+			if (m_secondaryModels.containsKey(pm1)) {
+				for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm1).entrySet()) {
+					String key = entry.getKey();
+					if (pm1.containsParam(key)) {
+						ParametricModel value = entry.getValue();
+						doc.add(value);
+					}
 				}
 			}
 		}

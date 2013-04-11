@@ -17,8 +17,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
-import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
 
@@ -57,7 +55,6 @@ public class EmReaderUi extends JPanel {
 	
 	private Integer chosenModel = 0;
 	
-	private boolean showDbTable;
 	private Bfrdb db;
 	
 	public static final int MODE_OFF = 0;
@@ -71,18 +68,17 @@ public class EmReaderUi extends JPanel {
 		this(db,null);
 	}	
 	public EmReaderUi(Bfrdb db, String[] itemListMisc) {								
-		this(db,itemListMisc, true, true, true, false);
+		this(db,itemListMisc, true, true, true);
 	}
 	public EmReaderUi(Bfrdb db, String[] itemListMisc,
-			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showDbTable) {		
-		this.showDbTable = showDbTable;
+			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions) {		
 		this.db = db;
 		initComponents();		
 		
 		if (!showModelOptions) modelReaderUi.setVisible(false);
 		if (!showQualityOptions) qualityPanel.setVisible(false);
 		if (!showMDOptions) mdReaderUi.setVisible(false);
-		if (!showDbTable) dbTable.setVisible(false);
+		//if (!showDbTable) dbTable.setVisible(false);
 	}
 
 	private DBTable getDataTable(Bfrdb db) {
@@ -169,13 +165,9 @@ public class EmReaderUi extends JPanel {
 							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
 				}
 			}
-			String cachedTable = "CACHE_selectEstModel1";
-			boolean dropCacheFirst = false;
-			if (!DBKernel.isServerConnection && System.currentTimeMillis() - DBKernel.lastCache > 60000*120) { // 120 mins
-				dropCacheFirst = true;
-				DBKernel.lastCache = System.currentTimeMillis();
-			}
-			ResultSet rs = db.selectEstModel(1, where, cachedTable, dropCacheFirst);
+			int level = 1;
+			if (modelReaderUi.isVisible()) level = modelReaderUi.getLevel();
+			ResultSet rs = db.selectEstModel(level, where);
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
     		for (int i=0;i<table.getColumnCount();i++) {
@@ -221,14 +213,13 @@ public class EmReaderUi extends JPanel {
 	}
 
 	private void doFilterActionPerformed(ActionEvent e) {
-		if (showDbTable) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
 			dbTable.getTable().clearSelection();
 			chosenModel = 0;
 			doFilter.setText("ApplyAndShowFilterResults");
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-		}
+			/*
 		else {
 			MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
 			// MyIDFilter mf = new MyIDFilter(filterIDs);
@@ -250,6 +241,7 @@ public class EmReaderUi extends JPanel {
 				doFilter.setText("ApplyAndShowFilterResults");
 			}
 		}
+		*/
 	}
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
 		modelReaderUi.addModelPrim(id, name, modelType);

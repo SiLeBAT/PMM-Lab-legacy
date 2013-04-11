@@ -146,20 +146,22 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
     	int i = 0;
+    	long ttt,tt1=0,tt2=0,tt3=0,tt4=0,tt5=0;
     	while (result.next()) {
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
 
     		if (tsDoc.size() > 0) {
+ttt = System.currentTimeMillis();        		
         		// initialize row
     			PmmTimeSeries tuple = new PmmTimeSeries();
-        		
-        		// fill row
+
+    			// fill row
     			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
         		tuple.setCondId(condID);
         		tuple.setCombaseId(result.getString("CombaseID"));
-
-        		PmmXmlDoc miscDoc = null;
-        		miscDoc = db.getMiscXmlDoc(result);
+        		//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
+        		PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"),
+        				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
         			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
@@ -186,13 +188,11 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         		mdInfoDoc.add(mdix);
         		tuple.setMdInfo(mdInfoDoc);
 
-    	    	tuple.setAgentId( result.getInt( Bfrdb.ATT_AGENTID ) );
-        		tuple.setAgentName( result.getString( Bfrdb.ATT_AGENTNAME ) );
-        		tuple.setAgentDetail( result.getString( Bfrdb.ATT_AGENTDETAIL ) );
-        		tuple.setMatrixId( result.getInt( Bfrdb.ATT_MATRIXID ) );
-        		tuple.setMatrixName( result.getString( Bfrdb.ATT_MATRIXNAME ) );
-        		tuple.setMatrixDetail( result.getString( Bfrdb.ATT_MATRIXDETAIL ) );    
-        		//tuple.setMdData(DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N)));
+tt1 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
+				tuple.setAgent(result.getInt( Bfrdb.ATT_AGENTID ), result.getString( Bfrdb.ATT_AGENTNAME ), result.getString( Bfrdb.ATT_AGENTDETAIL ));
+tt2 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
+				tuple.setMatrix(result.getInt( Bfrdb.ATT_MATRIXID ), result.getString( Bfrdb.ATT_MATRIXNAME ), result.getString( Bfrdb.ATT_MATRIXDETAIL ));
+tt3 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
         		tuple.setMdData(tsDoc);
         		//tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
@@ -212,14 +212,16 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         			l.add(li);
     				tuple.setLiterature(l);
     			}
+tt4 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
         		
         		// add row to data buffer
         		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
         			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
         		}    			
+tt5 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     		}    		
     	}
-    	
+System.err.println(tt1 + "\t" + tt2 + "\t" + tt3 + "\t" + tt4 + "\t" + tt5);    	
     	// close data buffer
     	buf.close();
     	result.close();

@@ -72,6 +72,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
+import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi;
 
 /**
  * This is the model implementation of EstimatedModelReader.
@@ -115,6 +118,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String agentString;
 	private String literatureString;
 	private int matrixID, agentID, literatureID;
+	private int chosenModel;
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
@@ -181,8 +185,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
     		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));
     		
-    		PmmXmlDoc miscDoc = null;
-    		miscDoc = db.getMiscXmlDoc(result);
+    		//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
+    		PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"),
+    				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
     		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
         		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
     			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
@@ -439,6 +444,52 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
+        try {
+          	Config c = settings.addConfig("DbConfigurationUi");
+         	c.addString(DbConfigurationUi.PARAM_FILENAME, filename);
+         	c.addString(DbConfigurationUi.PARAM_LOGIN, login);
+         	c.addString(DbConfigurationUi.PARAM_PASSWD, passwd);
+         	c.addBoolean(DbConfigurationUi.PARAM_OVERRIDE, override);
+
+         	c = settings.addConfig("EstModelReaderUi");
+         	
+         	Config c3 = c.addConfig("ModelReaderUi");
+        	c3.addInt( ModelReaderUi.PARAM_LEVEL, level );
+        	c3.addString(ModelReaderUi.PARAM_MODELCLASS, modelClass);
+        	c3.addBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED, modelFilterEnabled );
+        	c3.addString( ModelReaderUi.PARAM_MODELLIST, modelList );
+        	
+         	Config c4 = c.addConfig("MdReaderUi");    	
+        	c4.addString( MdReaderUi.PARAM_MATRIXSTRING, matrixString );
+        	c4.addString( MdReaderUi.PARAM_AGENTSTRING, agentString );
+        	c4.addString( MdReaderUi.PARAM_LITERATURESTRING, literatureString );
+        	c4.addInt(MdReaderUi.PARAM_MATRIXID, matrixID);
+        	c4.addInt(MdReaderUi.PARAM_AGENTID, agentID);
+        	c4.addInt(MdReaderUi.PARAM_LITERATUREID, literatureID);
+        	
+        	c.addInt( EmReaderUi.PARAM_QUALITYMODE, qualityMode );
+        	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityThresh );
+
+        	c.addInt( EmReaderUi.PARAM_CHOSENMODEL, chosenModel );
+
+        	Config c2 = c.addConfig(EmReaderUi.PARAM_PARAMETERS);
+    		String[] pars = new String[parameter.size()];
+    		String[] mins = new String[parameter.size()];
+    		String[] maxs = new String[parameter.size()];
+    		int i=0;
+    		for (String par : parameter.keySet()) {
+    			Double[] dbl = parameter.get(par);
+    			pars[i] = par;
+    			mins[i] = ""+dbl[0];
+    			maxs[i] = ""+dbl[1];
+    			i++;
+    		}
+    		c2.addStringArray(EmReaderUi.PARAM_PARAMETERNAME, pars);
+    		c2.addStringArray(EmReaderUi.PARAM_PARAMETERMIN, mins);
+    		c2.addStringArray(EmReaderUi.PARAM_PARAMETERMAX, maxs);        	 
+         }
+         catch (Exception e) {}
+    	/*
     	settings.addString( PARAM_FILENAME, filename );
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
@@ -471,13 +522,72 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		c.addStringArray(PARAM_PARAMETERNAME, pars);
 		c.addStringArray(PARAM_PARAMETERMIN, mins);
 		c.addStringArray(PARAM_PARAMETERMAX, maxs);
+		*/
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
+    protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
+            throws InvalidSettingsException {
+    	if (!settings.containsKey("DbConfigurationUi")) loadOldValidatedSettingsFrom(settings);
+    	else {
+            loadDBGui(settings);
+            loadEstModelGui(settings);    		
+    	}
+    }
+
+    private void loadDBGui(final NodeSettingsRO settings) throws InvalidSettingsException {
+    	try {
+    		Config c = settings.getConfig("DbConfigurationUi");
+    		filename = c.getString(DbConfigurationUi.PARAM_FILENAME);
+    		login = c.getString(DbConfigurationUi.PARAM_LOGIN);
+    		passwd = c.getString(DbConfigurationUi.PARAM_PASSWD);
+    		override = c.getBoolean(DbConfigurationUi.PARAM_OVERRIDE);    	
+    	}
+    	catch (Exception e) {}
+    }
+    private void loadEstModelGui(final NodeSettingsRO settings) throws InvalidSettingsException {
+    	try {
+    		Config c = settings.getConfig("EstModelReaderUi");
+
+    		Config c3 = c.getConfig("ModelReaderUi");
+        	level = c3.getInt( ModelReaderUi.PARAM_LEVEL );
+        	modelClass = c3.getString(ModelReaderUi.PARAM_MODELCLASS);
+        	modelFilterEnabled = c3.getBoolean( ModelReaderUi.PARAM_MODELFILTERENABLED );
+        	modelList = c3.getString( ModelReaderUi.PARAM_MODELLIST );
+        	
+    		Config c4 = c.getConfig("MdReaderUi");
+        	matrixString = c4.getString( MdReaderUi.PARAM_MATRIXSTRING );
+        	agentString = c4.getString( MdReaderUi.PARAM_AGENTSTRING );
+        	literatureString = c4.getString( MdReaderUi.PARAM_LITERATURESTRING );
+        	matrixID = c4.containsKey(MdReaderUi.PARAM_MATRIXID) ? c4.getInt(MdReaderUi.PARAM_MATRIXID) : 0;
+        	agentID = c4.containsKey(MdReaderUi.PARAM_AGENTID) ? c4.getInt(MdReaderUi.PARAM_AGENTID) : 0;
+        	literatureID = c4.containsKey(MdReaderUi.PARAM_LITERATUREID) ? c4.getInt(MdReaderUi.PARAM_LITERATUREID) : 0;
+
+        	qualityMode = c.getInt( EmReaderUi.PARAM_QUALITYMODE );
+        	qualityThresh = c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH );
+
+    		chosenModel = c.getInt(EmReaderUi.PARAM_CHOSENMODEL);
+
+    		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
+    		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);
+    		String[] mins = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMIN);
+    		String[] maxs = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMAX);
+
+            parameter = new LinkedHashMap<String, Double[]>();
+    		for (int i=0;i<pars.length;i++) {
+    			Double[] dbl = new Double[2];
+    			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);
+    			if (!maxs[i].equals("null")) dbl[1] = Double.parseDouble(maxs[i]);
+    			parameter.put(pars[i], dbl);
+    		}    	    		
+    	}
+    	catch (Exception e) {}
+    }
+    
+    protected void loadOldValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
     	filename = settings.getString( PARAM_FILENAME );
     	login = settings.getString( PARAM_LOGIN );

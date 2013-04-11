@@ -126,7 +126,6 @@ public class DBKernel {
 	public static MyTable blobSpeicher = null;
 	public static long tempROZeit = 0;
 	public static long triggerFired = System.currentTimeMillis();
-	public static long lastCache = 0;
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
@@ -135,7 +134,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.5.9";
+	public static String DBVersion = "1.6.0";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
@@ -1708,6 +1707,35 @@ public class DBKernel {
 		}
 		return result;
 	}
+	public static long getLastCache(Connection conn, String tablename) {
+		long result = 0;
+		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") +
+				" WHERE " + delimitL("Parameter") + " = 'lastCache_" + tablename + "'", true);
+		try {
+			if (rs != null && rs.first()) {
+				String strVal = rs.getString(1);
+				result = Long.parseLong(strVal);
+			}
+		}
+		catch (Exception e) {
+			MyLogger.handleException(e);
+		}
+		//System.out.println(result);
+		return result;
+	}
+	public static void setLastCache(Connection conn, String tablename, long newCacheTime) {
+		try {
+			boolean ro = conn.isReadOnly();
+			if (ro) conn.setReadOnly(false);
+			if (!sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('lastCache_" + tablename + "','" + newCacheTime + "')", true, false)) {
+				sendRequest(conn, "UPDATE \"Infotabelle\" SET \"Wert\" = '" + newCacheTime + "' WHERE \"Parameter\" = 'lastCache_" + tablename + "'", false, false);				
+			}
+			if (ro) conn.setReadOnly(ro);
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	public static String getDBVersion() {
 		String result = null;
 		ResultSet rs = getResultSet("SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") +
@@ -1904,6 +1932,10 @@ public class DBKernel {
 					  	if (DBKernel.getDBVersion().equals("1.5.8")) {
 					  		UpdateChecker.check4Updates_158_159(); 
 					  		DBKernel.setDBVersion("1.5.9");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.5.9")) {
+					  		UpdateChecker.check4Updates_159_160(); 
+					  		DBKernel.setDBVersion("1.6.0");
 					  	}
 					  	
 					  	if (!isAdmin) {

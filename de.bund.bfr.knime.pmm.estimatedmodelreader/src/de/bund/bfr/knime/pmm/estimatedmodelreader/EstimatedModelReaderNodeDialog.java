@@ -113,8 +113,10 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
-			throws InvalidSettingsException {
-		
+			throws InvalidSettingsException {	
+    	dbui.saveSettingsTo(settings.addConfig("DbConfigurationUi"));
+    	estmodelui.saveSettingsTo(settings.addConfig("EstModelReaderUi"));
+		/*
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
@@ -145,40 +147,46 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME, pars);
 		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN, mins);
 		c.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX, maxs);
+		*/
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
-		try {
-			
-			dbui.setFilename( settings.getString( EstimatedModelReaderNodeModel.PARAM_FILENAME ) );
-			dbui.setLogin( settings.getString( EstimatedModelReaderNodeModel.PARAM_LOGIN ) );
-			dbui.setPasswd( settings.getString( EstimatedModelReaderNodeModel.PARAM_PASSWD ) );
-			dbui.setOverride( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE ) );
-			estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );
-			estmodelui.setModelClass( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELCLASS ) );
-			estmodelui.setModelFilterEnabled( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED ) );
-			estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
-			estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
-			estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
-			estmodelui.setMatrixString( settings.getString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING ) );
-			estmodelui.setAgentString( settings.getString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING ) );
-			estmodelui.setLiteratureString(settings.getString( EstimatedModelReaderNodeModel.PARAM_LITERATURESTRING ) );
-			
-			Config c = settings.getConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
-			String[] pars = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME);
-			String[] mins = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN);
-			String[] maxs = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX);
-
-			LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
-			for (int i=0;i<pars.length;i++) {
-				DoubleTextField[] dbl = new DoubleTextField[2];
-				dbl[0] = new DoubleTextField(true);
-				dbl[1] = new DoubleTextField(true);
-				if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
-				if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
-				params.put(pars[i], dbl);
+		try {			
+			if (settings.containsKey("DbConfigurationUi")) dbui.setSettings(settings.getConfig("DbConfigurationUi"));
+			else { // old Config
+				dbui.setFilename( settings.getString( EstimatedModelReaderNodeModel.PARAM_FILENAME ) );
+				dbui.setLogin( settings.getString( EstimatedModelReaderNodeModel.PARAM_LOGIN ) );
+				dbui.setPasswd( settings.getString( EstimatedModelReaderNodeModel.PARAM_PASSWD ) );
+				dbui.setOverride( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE ) );
 			}
-			estmodelui.setParameter(params);
+			if (settings.containsKey("EstModelReaderUi")) estmodelui.setSettings(settings.getConfig("EstModelReaderUi"));
+			else {
+				estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );
+				estmodelui.setModelClass( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELCLASS ) );
+				estmodelui.setModelFilterEnabled( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_MODELFILTERENABLED ) );
+				estmodelui.enableModelList( settings.getString( EstimatedModelReaderNodeModel.PARAM_MODELLIST ) );
+				estmodelui.setQualityMode( settings.getInt( EstimatedModelReaderNodeModel.PARAM_QUALITYMODE ) );
+				estmodelui.setQualityThresh( settings.getDouble( EstimatedModelReaderNodeModel.PARAM_QUALITYTHRESH ) );
+				estmodelui.setMatrixString( settings.getString( EstimatedModelReaderNodeModel.PARAM_MATRIXSTRING ) );
+				estmodelui.setAgentString( settings.getString( EstimatedModelReaderNodeModel.PARAM_AGENTSTRING ) );
+				estmodelui.setLiteratureString(settings.getString( EstimatedModelReaderNodeModel.PARAM_LITERATURESTRING ) );
+				
+				Config c = settings.getConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
+				String[] pars = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERNAME);
+				String[] mins = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMIN);
+				String[] maxs = c.getStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX);
+
+				LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+				for (int i=0;i<pars.length;i++) {
+					DoubleTextField[] dbl = new DoubleTextField[2];
+					dbl[0] = new DoubleTextField(true);
+					dbl[1] = new DoubleTextField(true);
+					if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
+					if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
+					params.put(pars[i], dbl);
+				}
+				estmodelui.setParameter(params);				
+			}
 		}
 		catch( InvalidSettingsException e ) {			
 			e.printStackTrace( System.err );

@@ -187,29 +187,29 @@ public class EstModelReaderUi extends JPanel implements ActionListener {
 	private DBTable getDataTable(Bfrdb db) {
 		final DBTable dbTable = new DBTable();
 		try {
-			String sql = " TRUE " +
+			String where = " TRUE " +
 					(tsReaderUi.getAgentID() > 0 ? " AND \"Agens\" = " + tsReaderUi.getAgentID() : "") +
 					(tsReaderUi.getMatrixID() > 0 ? " AND \"Matrix\" = " + tsReaderUi.getMatrixID() : "");
 			LinkedHashMap<String, DoubleTextField[]> params = tsReaderUi.getParameter();
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-					sql +=
+					where +=
 							(dtf[0].getValue() != null ? " AND \"Temperatur\" >= " + dtf[0].getValue() : "") +
 							(dtf[1].getValue() != null ? " AND \"Temperatur\" <= " + dtf[1].getValue() : "");
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
-					sql +=
+					where +=
 							(dtf[0].getValue() != null ? " AND \"pH\" >= " + dtf[0].getValue() : "") +
 							(dtf[1].getValue() != null ? " AND \"pH\" <= " + dtf[1].getValue() : "");
 				}
 				else if (key.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-					sql +=
+					where +=
 							(dtf[0].getValue() != null ? " AND \"aw\" >= " + dtf[0].getValue() : "") +
 							(dtf[1].getValue() != null ? " AND \"aw\" <= " + dtf[1].getValue() : "");
 				}
 			}
-			ResultSet rs = db.selectEstModel(1, sql, "", false);
+			ResultSet rs = db.selectEstModel(1, where);
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

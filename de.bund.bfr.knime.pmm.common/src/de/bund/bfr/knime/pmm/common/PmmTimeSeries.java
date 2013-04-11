@@ -476,15 +476,11 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void setMatrix( final int matrixId, final String matrixName, final String matrixDetail ) throws PmmException {
-		setMatrixId( matrixId );
-		setMatrixName( matrixName );
-		setMatrixDetail( matrixDetail );
+		setMatrixAttribute(matrixId, matrixName, matrixDetail);
 	}
 	
 	public void setAgent( final int agentId, final String agentName, final String agentDetail ) throws PmmException {
-		setAgentId( agentId );
-		setAgentName( agentName );
-		setAgentDetail( agentDetail );
+		setAgentAttribute(agentId, agentName, agentDetail);
 	}
 
 	public void addMisc(int attrID, String attribute, String description, Double value, String unit) throws PmmException {

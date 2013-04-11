@@ -275,7 +275,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"\n"
 			+"WHERE \""+ATT_TIME+"\" IS NOT NULL\n"
 			+"\n"
-			+"ORDER BY \""+ATT_CONDITIONID+"\";\n";
+			+"ORDER BY \""+ATT_CONDITIONID+"\"\n";
 	
 	private static final String queryXmlDoc = "SELECT\n"
 			+"\n"
@@ -643,6 +643,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		return miscDoc;
 	}
+	/*
 	public PmmXmlDoc getMiscXmlDoc(ResultSet rs) throws SQLException {		
 		int condID = rs.getInt(Bfrdb.ATT_CONDITIONID);
 		PmmXmlDoc miscDoc = new PmmXmlDoc();
@@ -656,16 +657,17 @@ public class Bfrdb extends Hsqldbiface {
 		rs.previous();
 		return miscDoc;
 	}
+	*/
 	public ResultSet selectEstModel(final int level) throws SQLException {
 		return selectEstModel(level, -1);
 	}
 	public ResultSet selectEstModel(final int level, int estimatedModelID) throws SQLException {
-		return selectEstModel(level, estimatedModelID, "", "", false);
+		return selectEstModel(level, estimatedModelID, "");
 	}
-	public ResultSet selectEstModel(final int level, String where, String cacheTable, boolean dropCacheFirst) throws SQLException {
-		return selectEstModel(level, -1, where, cacheTable, dropCacheFirst);
+	public ResultSet selectEstModel(final int level, String where) throws SQLException {
+		return selectEstModel(level, -1, where);
 	}
-	public ResultSet selectEstModel(final int level, int estimatedModelID, String where, String cacheTable, boolean dropCacheFirst) throws SQLException {
+	public ResultSet selectEstModel(final int level, int estimatedModelID, String where) throws SQLException {
 		String q;
 		String myWhere = "";
 		String myWhereCache = "";
@@ -687,24 +689,7 @@ public class Bfrdb extends Hsqldbiface {
 			myWhereCache = " WHERE " + where;
 		}
 
-		if (!dropCacheFirst && !cacheTable.isEmpty() && DBKernel.getRowCount(cacheTable, "") > 0) {
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + myWhereCache,
-					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			return ps.executeQuery();
-		}
-		//System.err.println(q);
-		PreparedStatement ps = conn.prepareStatement(q + myWhere, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-		ResultSet rs = ps.executeQuery(); 
-		if (!cacheTable.isEmpty()) {
-			String sql = prepareCaching(rs, cacheTable);
-			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL(cacheTable) + " IF EXISTS", false);
-			DBKernel.sendRequest(sql, false);
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL(cacheTable) + " " + q, false);
-			ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + myWhereCache,
-					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
-			return ps.executeQuery();
-		}
-		return rs;
+		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache);
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {
 		String sql = "CREATE TABLE " + DBKernel.delimitL(cacheTableneme) + " (";
@@ -713,7 +698,7 @@ public class Bfrdb extends Hsqldbiface {
 			String cn = mtd.getColumnLabel(i);
 			String ct = mtd.getColumnTypeName(i);
 			int cs = mtd.getColumnDisplaySize(i);
-			if (cs > 2000) cs = 1023;
+			if (cs > 2000) cs = 16383; // 2047
 			String toAppend = DBKernel.delimitL(cn) + " ";
 			if (ct.equals("VARCHAR")) toAppend += ct + "(" + cs + "),";
 			else if (ct.equals("VARCHAR ARRAY")) toAppend += "VARCHAR(" + cs + ") ARRAY,";
@@ -725,7 +710,35 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	public ResultSet selectTs() throws SQLException {
-		return pushQuery(queryTimeSeries9, true);
+		//return pushQuery(queryTimeSeries9, true);
+		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "");
+	}
+	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL) throws SQLException {
+		boolean dropCacheFirst = false;
+		if (System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*120) { // 120 mins
+			dropCacheFirst = true;
+			DBKernel.setLastCache(conn, cacheTable, System.currentTimeMillis()); 
+		}
+		
+		if (!dropCacheFirst && !cacheTable.isEmpty() && DBKernel.getRowCount(cacheTable, "") > 0) {
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + whereSQL,
+					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			return ps.executeQuery();
+		}
+		//System.err.println(q);
+		PreparedStatement ps = conn.prepareStatement(selectSQL + " " + whereSQL, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs = ps.executeQuery(); 
+		if (!cacheTable.isEmpty()) {
+			String createSQL = prepareCaching(rs, cacheTable);
+			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL(cacheTable) + " IF EXISTS", false);
+			DBKernel.sendRequest(createSQL, false);
+			//System.err.println(q);
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL(cacheTable) + " (" + selectSQL + ")", false);
+			ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + cacheWhereSQL,
+					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+			return ps.executeQuery();
+		}
+		return rs;		
 	}
 	
 	public ResultSet selectRelatedLiterature( final String modelName ) throws SQLException {

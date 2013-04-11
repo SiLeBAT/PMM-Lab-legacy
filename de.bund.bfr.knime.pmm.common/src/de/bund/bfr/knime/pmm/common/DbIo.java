@@ -121,6 +121,33 @@ public class DbIo {
 	    }
 		return indepDoc;
     }
+    public static PmmXmlDoc convertArrays2MiscXmlDoc(Array id, Array param, Array desc, Array value, Array unit) {
+		PmmXmlDoc miscDoc = new PmmXmlDoc();
+	    if (id != null) {
+		    try {
+				Object[] sid = (Object[])id.getArray();
+				Object[] spa = (param == null) ? null : (Object[])param.getArray();
+				Object[] sde = (desc == null) ? null : (Object[])desc.getArray();
+				Object[] sv = (value == null) ? null : (Object[])value.getArray();
+				Object[] su = (unit == null) ? null : (Object[])unit.getArray();
+				if (sid != null && sid.length > 0) {
+					for (int i=0;i<sid.length;i++) {
+						Integer sidi = (sid[i] == null ? null : Integer.parseInt(sid[i].toString()));
+						String spas = (spa == null || spa[i] == null ? null : spa[i].toString());
+						String sdes = (sde == null || sde[i] == null ? null : sde[i].toString());
+						Double svd = (sv == null || sv[i] == null) ? Double.NaN : Double.parseDouble(sv[i].toString());
+						String sus = (su == null || su[i] == null ? null : su[i].toString());
+			    		MiscXml mx = new MiscXml(sidi,spas,sdes,svd,sus);
+						miscDoc.add(mx);
+					}					
+				}
+			}
+		    catch (SQLException e) {
+				e.printStackTrace();
+			}
+	    }
+		return miscDoc;
+    }
     
     private static String convertO(Object o) {
 		if (o == null) {

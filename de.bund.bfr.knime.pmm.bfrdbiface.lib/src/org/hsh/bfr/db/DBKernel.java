@@ -1582,9 +1582,18 @@ public class DBKernel {
     return result;
   }
 	public static int getRowCount(final String tableName, final String where) {
+		Connection conn = null;
+		try {
+			conn = getDBConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return getRowCount(conn, tableName, where);
+	}
+	public static int getRowCount(Connection conn, final String tableName, final String where) {
 		int result = 0;
 		String sql = "SELECT COUNT(*) FROM " + DBKernel.delimitL(tableName) + (where != null && where.trim().length() > 0 ? " " + where : "");
-		ResultSet rs = DBKernel.getResultSet(sql, false);
+		ResultSet rs = DBKernel.getResultSet(conn, sql, true);
 		try {
 			if (rs != null && rs.first()) {
 				result = rs.getInt(1);

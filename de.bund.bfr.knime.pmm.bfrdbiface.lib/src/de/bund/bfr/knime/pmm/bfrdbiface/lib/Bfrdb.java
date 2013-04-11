@@ -689,7 +689,7 @@ public class Bfrdb extends Hsqldbiface {
 			myWhereCache = " WHERE " + where;
 		}
 
-		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache);
+		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, false);
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {
 		String sql = "CREATE TABLE " + DBKernel.delimitL(cacheTableneme) + " (";
@@ -698,7 +698,7 @@ public class Bfrdb extends Hsqldbiface {
 			String cn = mtd.getColumnLabel(i);
 			String ct = mtd.getColumnTypeName(i);
 			int cs = mtd.getColumnDisplaySize(i);
-			if (cs > 2000) cs = 16383; // 2047
+			if (cs > 2000) cs = 16383; // 16383; // 2047
 			String toAppend = DBKernel.delimitL(cn) + " ";
 			if (ct.equals("VARCHAR")) toAppend += ct + "(" + cs + "),";
 			else if (ct.equals("VARCHAR ARRAY")) toAppend += "VARCHAR(" + cs + ") ARRAY,";
@@ -711,16 +711,16 @@ public class Bfrdb extends Hsqldbiface {
 	
 	public ResultSet selectTs() throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
-		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "");
+		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", false);
 	}
-	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL) throws SQLException {
+	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
 		boolean dropCacheFirst = false;
-		if (System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*120) { // 120 mins
+		if (forceUpdate || System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*240) { // 240 mins
 			dropCacheFirst = true;
 			DBKernel.setLastCache(conn, cacheTable, System.currentTimeMillis()); 
 		}
 		
-		if (!dropCacheFirst && !cacheTable.isEmpty() && DBKernel.getRowCount(cacheTable, "") > 0) {
+		if (!dropCacheFirst && !cacheTable.isEmpty() && DBKernel.getRowCount(conn, cacheTable, "") > 0) {
 			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + whereSQL,
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			return ps.executeQuery();
@@ -730,10 +730,11 @@ public class Bfrdb extends Hsqldbiface {
 		ResultSet rs = ps.executeQuery(); 
 		if (!cacheTable.isEmpty()) {
 			String createSQL = prepareCaching(rs, cacheTable);
-			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL(cacheTable) + " IF EXISTS", false);
-			DBKernel.sendRequest(createSQL, false);
+			//System.err.println(createSQL);
+			DBKernel.sendRequest(conn, "DROP TABLE " + DBKernel.delimitL(cacheTable) + " IF EXISTS", false, true);
+			DBKernel.sendRequest(conn, createSQL, false, true);
 			//System.err.println(q);
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL(cacheTable) + " (" + selectSQL + ")", false);
+			DBKernel.sendRequest(conn, "INSERT INTO " + DBKernel.delimitL(cacheTable) + " (" + selectSQL + ")", false, false);
 			ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + cacheWhereSQL,
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			return ps.executeQuery();

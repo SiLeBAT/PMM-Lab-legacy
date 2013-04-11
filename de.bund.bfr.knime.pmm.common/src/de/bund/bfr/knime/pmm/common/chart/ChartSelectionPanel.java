@@ -65,7 +65,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
@@ -687,7 +686,6 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	private void packColumns() {
-		int tableWidth = 0;
 
 		for (int c = 0; c < selectTable.getColumnCount(); c++) {
 			TableColumn col = selectTable.getColumnModel().getColumn(c);
@@ -711,39 +709,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				width = Math.max(width, comp.getPreferredSize().width);
 			}
 
-			width += 5;
-			col.setPreferredWidth(width);
-			tableWidth += width;
+			col.setPreferredWidth(width += 5);
 		}
 
-		tableWidth += 10;
-
-		if (getParent() instanceof JSplitPane) {
-			JSplitPane splitPane = (JSplitPane) getParent();
-			int w = Math.max(tableWidth, optionsPanel.getPreferredSize().width);
-
-			if (this.equals(splitPane.getLeftComponent())) {
-				splitPane.setDividerLocation(w + splitPane.getDividerSize());
-			} else if (this.equals(splitPane.getRightComponent())) {
-				splitPane.setDividerLocation(splitPane.getWidth() - w
-						- splitPane.getDividerSize());
-			}
-		} else if (getParent().getParent() != null
-				&& getParent().getParent() instanceof JSplitPane) {
-			JSplitPane splitPane = (JSplitPane) getParent().getParent();
-			int w = Math.max(tableWidth, optionsPanel.getPreferredSize().width);
-
-			if (getParent().equals(splitPane.getLeftComponent())) {
-				splitPane.setDividerLocation(w + splitPane.getDividerSize());
-			} else if (getParent().equals(splitPane.getRightComponent())) {
-				splitPane.setDividerLocation(splitPane.getWidth() - w
-						- splitPane.getDividerSize());
-			}
-		} else if (getParent() instanceof JComponent) {
-			tableScrollPane.setPreferredSize(new Dimension(tableWidth,
-					tableScrollPane.getPreferredSize().height));
-			((JComponent) getParent()).revalidate();
-		}
+		revalidate();
 	}
 
 	public static interface SelectionListener {

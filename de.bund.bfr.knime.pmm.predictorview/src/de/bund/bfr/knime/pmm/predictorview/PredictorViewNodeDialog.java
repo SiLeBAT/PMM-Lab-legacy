@@ -39,7 +39,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Shape;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -58,7 +57,6 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
@@ -73,6 +71,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
+import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -414,32 +413,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
 		}
 
-		JPanel upperRightPanel = new JPanel();
-
-		upperRightPanel.setLayout(new GridLayout(2, 1));
-		upperRightPanel.add(selectionPanel);
-		upperRightPanel.add(samplePanel);
-
-		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chartCreator, upperRightPanel);
-
-		upperSplitPane.setResizeWeight(1.0);
-		configPanel.setMinimumSize(configPanel.getPreferredSize());
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, configPanel);
-		Dimension preferredSize = splitPane.getPreferredSize();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-		preferredSize.width = Math.min(preferredSize.width,
-				(int) (screenSize.width * 0.9));
-		preferredSize.height = Math.min(preferredSize.height,
-				(int) (screenSize.height * 0.9));
-
-		splitPane.setResizeWeight(1.0);
-		splitPane.setPreferredSize(preferredSize);
-
-		return splitPane;
+		return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
+				samplePanel);
 	}
 
 	private void createChart() {

@@ -35,9 +35,7 @@ package de.bund.bfr.knime.pmm.combinedmodelanddataview;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Shape;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -46,7 +44,6 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
@@ -58,6 +55,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
+import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -428,26 +426,7 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
 		}
 
-		JSplitPane upperSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-				chartCreator, selectionPanel);
-
-		upperSplitPane.setResizeWeight(1.0);
-		configPanel.setMinimumSize(configPanel.getPreferredSize());
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-				upperSplitPane, configPanel);
-		Dimension preferredSize = splitPane.getPreferredSize();
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-		preferredSize.width = Math.min(preferredSize.width,
-				(int) (screenSize.width * 0.9));
-		preferredSize.height = Math.min(preferredSize.height,
-				(int) (screenSize.height * 0.9));
-
-		splitPane.setPreferredSize(preferredSize);
-		splitPane.setResizeWeight(1.0);
-
-		return splitPane;
+		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 	}
 
 	private void createChart() {

@@ -154,7 +154,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 ttt = System.currentTimeMillis();        		
         		// initialize row
     			PmmTimeSeries tuple = new PmmTimeSeries();
-
+//11020	3295	2068	10734	2540
+        		tt1 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     			// fill row
     			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
         		tuple.setCondId(condID);
@@ -178,6 +179,7 @@ ttt = System.currentTimeMillis();
         			miscDoc.add(mx);
         		}
         		tuple.addMiscs(miscDoc);
+        		tt2 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 
         		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
         		Boolean checked = null;
@@ -187,16 +189,16 @@ ttt = System.currentTimeMillis();
         		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
         		mdInfoDoc.add(mdix);
         		tuple.setMdInfo(mdInfoDoc);
+        		tt3 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 
-tt1 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 				tuple.setAgent(result.getInt( Bfrdb.ATT_AGENTID ), result.getString( Bfrdb.ATT_AGENTNAME ), result.getString( Bfrdb.ATT_AGENTDETAIL ));
-tt2 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 				tuple.setMatrix(result.getInt( Bfrdb.ATT_MATRIXID ), result.getString( Bfrdb.ATT_MATRIXNAME ), result.getString( Bfrdb.ATT_MATRIXDETAIL ));
-tt3 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
+        		tt4 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
         		tuple.setMdData(tsDoc);
         		//tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
         		
+        		tt5 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     	    	String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
         			PmmXmlDoc l = new PmmXmlDoc();
@@ -212,13 +214,11 @@ tt3 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis();
         			l.add(li);
     				tuple.setLiterature(l);
     			}
-tt4 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
         		
         		// add row to data buffer
         		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
         			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
         		}    			
-tt5 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     		}    		
     	}
 System.err.println(tt1 + "\t" + tt2 + "\t" + tt3 + "\t" + tt4 + "\t" + tt5);    	

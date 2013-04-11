@@ -715,7 +715,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
 		boolean dropCacheFirst = false;
-		if (forceUpdate || System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*240) { // 240 mins
+		if (forceUpdate || System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*60) { // 60 mins
 			dropCacheFirst = true;
 			DBKernel.setLastCache(conn, cacheTable, System.currentTimeMillis()); 
 		}

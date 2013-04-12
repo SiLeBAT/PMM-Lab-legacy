@@ -825,7 +825,7 @@ public class MyDBTables {
 				null,
 				new LinkedHashMap[]{null,null,null,null,hashGeld},
 				new String[]{null,null,null,null,null});
-		addTable(Kostenkatalogpreise, DBKernel.getUsername().equals("burchardi") ? 66 : -1);
+		addTable(Kostenkatalogpreise, DBKernel.getUsername().equals("burchardi") || DBKernel.getUsername().equals("defad") ? 66 : -1);
 
 		MyTable prozessdaten = new MyTable("Prozessdaten",
 				new String[]{"Referenz","Workflow","Bezugsgruppe","Prozess_CARVER","ProzessDetail",

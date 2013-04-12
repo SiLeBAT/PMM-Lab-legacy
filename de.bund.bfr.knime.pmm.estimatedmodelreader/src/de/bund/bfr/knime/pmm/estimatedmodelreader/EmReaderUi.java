@@ -165,19 +165,24 @@ public class EmReaderUi extends JPanel {
 							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
 				}
 			}
-			int level = 1;
-			if (modelReaderUi.isVisible()) level = modelReaderUi.getLevel();
-			ResultSet rs = db.selectEstModel(level, where);
+			ResultSet rs = null;
+			if (modelReaderUi.isVisible()) {
+				rs = db.selectEstModel(modelReaderUi.getLevel(), where);
+			}
+			else {
+				rs = db.selectEstModel(1, where);
+			}
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
     		for (int i=0;i<table.getColumnCount();i++) {
     			Column c = dbTable.getColumn(i);
     			String cn = c.getColumnName(); 
-    			if (cn.equals("GeschaetztesModell") || cn.equals("Temperatur") || cn.equals("pH") || cn.equals("aw")
+    			if (cn.equals("GeschaetztesModell2") || cn.equals("GeschaetztesModell") || cn.equals("Temperatur") || cn.equals("pH") || cn.equals("aw")
     					 || cn.equals("Agensname") || cn.equals("AgensDetail") || cn.equals("Matrixname")
     					 || cn.equals("MatrixDetail") || cn.equals("Kommentar") || cn.equals("MDGeprueft") || cn.equals("MDGuetescore")
-    					 || cn.equals("Parameter") || cn.equals("Parametername") || cn.equals("Wert") || cn.equals("ZeitEinheit") || cn.equals("Rsquared")
-    					 || cn.equals("Geprueft") || cn.equals("Guetescore")) {
+    					 || cn.equals("Parameter") || cn.equals("Parametername")  || cn.equals("Parametername2") || cn.equals("Wert") || cn.equals("Wert2")
+    					 || cn.equals("ZeitEinheit") || cn.equals("ZeitEinheit") || cn.equals("Rsquared") || cn.equals("Rsquared2")
+    					 || cn.equals("Geprueft") || cn.equals("Geprueft2") || cn.equals("Guetescore") || cn.equals("Guetescore2")) {
     				c.setVisible(true);
     			}
     			else c.setVisible(false);

@@ -821,7 +821,7 @@ public class DBKernel {
 	  }
 	  return localConn;
   }
-  // newConn wird nur von MergeDBs benötigt
+  // newConn wird nur von MergeDBs und Bfrdb benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
 	  Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
 	  if (result == null) result = getDBConnection(dbPath, getTempSA(dbPath, true), getTempSAPass(dbPath, true), newConn);
@@ -1486,10 +1486,11 @@ public class DBKernel {
 	return false;
   }
   public static boolean sendRequest(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
-    boolean result = false;
+	boolean result = false;
     boolean adminGathered = false;
     try {
-    	if (fetchAdminInCase && !DBKernel.isAdmin()) {
+  	  if (conn == null) conn = getDBConnection();
+    	if (fetchAdminInCase && !DBKernel.isAdmin()) { // @Todo: eigentlich: isAdmin(conn, conn.getMetaData().getUserName())
     		DBKernel.closeDBConnections(false);
     		conn = DBKernel.getDefaultAdminConn();
     		adminGathered = true;
@@ -1746,8 +1747,11 @@ public class DBKernel {
 		}
 	}
 	public static String getDBVersion() {
+		return getDBVersion(null);
+	}
+	public static String getDBVersion(Connection conn) {
 		String result = null;
-		ResultSet rs = getResultSet("SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") +
+		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") +
 				" WHERE " + delimitL("Parameter") + " = 'DBVersion'", true);
 		try {
 			if (rs != null && rs.first()) {
@@ -1761,9 +1765,12 @@ public class DBKernel {
 		return result;
 	}
 	public static void setDBVersion(final String dbVersion) {
-		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Infotabelle") +
+		setDBVersion(null, dbVersion);
+	}
+	public static void setDBVersion(Connection conn, final String dbVersion) {
+		DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL("Infotabelle") +
 				" SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion + "'" +
-				" WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false);		
+				" WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);		
 	}
 	public static long getFileSize(final String filename) {
 		File file = new File(filename);

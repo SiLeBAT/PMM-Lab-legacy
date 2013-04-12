@@ -43,6 +43,8 @@ import java.util.UUID;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MainKernel;
+import org.hsh.bfr.db.UpdateChecker;
 import org.hsh.bfr.db.Users;
 
 public class Hsqldbiface {
@@ -87,14 +89,106 @@ public class Hsqldbiface {
 					conn = DBKernel.getNewLocalConnection(login, pw, path + "DB");
 				}
 				
-				if( conn == null )
-					throw new NullPointerException( "Did not get a connection from DBKernel.getNewLocalConnection." );
+				if( conn == null ) throw new NullPointerException( "Did not get a connection from DBKernel.getNewLocalConnection." );				
+				//conn = check4DbUpdate(conn, path, login, pw);
+				//if( conn == null ) throw new NullPointerException( "Did not get a connection from DBKernel.getNewLocalConnection." );
 			}
 			catch (Exception e) {
 				e.printStackTrace();
 			}
 		}	
 	}
+	/*
+	private Connection check4DbUpdate(Connection conn, String dbPath, String login, String pw) throws Exception {
+	  	String dbVersion = DBKernel.getDBVersion(conn);
+	  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
+		  	boolean dl = MainKernel.dontLog;
+			MainKernel.dontLog = true;
+		  	boolean isAdmin = DBKernel.isAdmin(conn, login);
+		  	if (!isAdmin) {
+		  		conn.close();
+		  	    conn = DBKernel.getNewLocalConnection(DBKernel.getTempSA(dbPath), DBKernel.getTempSAPass(dbPath), dbPath + "DB");
+			    if (conn == null) conn = DBKernel.getNewLocalConnection(DBKernel.getTempSA(dbPath, true), DBKernel.getTempSAPass(dbPath, true), dbPath + "DB");
+		  	}
+		  	
+		  	if (dbVersion == null || dbVersion.equals("1.4.3")) {
+		  		UpdateChecker.check4Updates_143_144(conn);
+		  		DBKernel.setDBVersion(conn, "1.4.4");
+		  	}
+		  	if (dbVersion.equals("1.4.4")) {
+		  		UpdateChecker.check4Updates_144_145();
+		  		DBKernel.setDBVersion(conn, "1.4.5");
+		  	}
+		  	if (dbVersion.equals("1.4.5")) {
+		  		UpdateChecker.check4Updates_145_146();
+		  		DBKernel.setDBVersion(conn, "1.4.6");
+		  	}
+		  	if (dbVersion.equals("1.4.6")) {
+		  		UpdateChecker.check4Updates_146_147(); 
+		  		DBKernel.setDBVersion(conn, "1.4.7");
+		  	}
+		  	if (dbVersion.equals("1.4.7")) {
+		  		UpdateChecker.check4Updates_147_148(); 
+		  		DBKernel.setDBVersion(conn, "1.4.8");
+		  	}					  	
+		  	if (dbVersion.equals("1.4.8")) {
+		  		UpdateChecker.check4Updates_148_149(); 
+		  		DBKernel.setDBVersion(conn, "1.4.9");
+		  	}
+		  	if (dbVersion.equals("1.4.9")) {
+		  		UpdateChecker.check4Updates_149_150(); 
+		  		DBKernel.setDBVersion(conn, "1.5.0");
+		  	}
+		  	if (dbVersion.equals("1.5.0")) {
+		  		UpdateChecker.check4Updates_150_151(); 
+		  		DBKernel.setDBVersion(conn, "1.5.1");
+		  	}
+		  	if (dbVersion.equals("1.5.1")) {
+		  		UpdateChecker.check4Updates_151_152(); 
+		  		DBKernel.setDBVersion(conn, "1.5.2");
+		  	}
+		  	if (dbVersion.equals("1.5.2")) {
+		  		UpdateChecker.check4Updates_152_153(); 
+		  		DBKernel.setDBVersion(conn, "1.5.3");
+		  	}
+		  	if (dbVersion.equals("1.5.3")) {
+		  		UpdateChecker.check4Updates_153_154(); 
+		  		DBKernel.setDBVersion(conn, "1.5.4");
+		  	}
+		  	if (dbVersion.equals("1.5.4")) {
+		  		UpdateChecker.check4Updates_154_155(); 
+		  		DBKernel.setDBVersion(conn, "1.5.5");
+		  	}
+		  	if (dbVersion.equals("1.5.5")) {
+		  		UpdateChecker.check4Updates_155_156(); 
+		  		DBKernel.setDBVersion(conn, "1.5.6");
+		  	}
+		  	if (dbVersion.equals("1.5.6")) {
+		  		UpdateChecker.check4Updates_156_157(); 
+		  		DBKernel.setDBVersion(conn, "1.5.7");
+		  	}
+		  	if (dbVersion.equals("1.5.7")) {
+		  		UpdateChecker.check4Updates_157_158(); 
+		  		DBKernel.setDBVersion(conn, "1.5.8");
+		  	}
+		  	if (dbVersion.equals("1.5.8")) {
+		  		UpdateChecker.check4Updates_158_159(); 
+		  		DBKernel.setDBVersion(conn, "1.5.9");
+		  	}
+		  	if (dbVersion.equals("1.5.9")) {
+		  		UpdateChecker.check4Updates_159_160(); 
+		  		DBKernel.setDBVersion(conn, "1.6.0");
+		  	}
+		  	
+		  	if (!isAdmin) {
+		  		conn.close();
+		  		conn = DBKernel.getNewLocalConnection(login, pw, dbPath + "DB");
+		  	}
+		  	MainKernel.dontLog = dl;			  		
+	  	}
+	  	return conn;
+	}
+	*/
 	private void createUser(String path, String login, String pw) throws Exception {
 		
 		Connection conn;

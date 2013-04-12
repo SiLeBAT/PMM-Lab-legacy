@@ -725,8 +725,12 @@ public class Bfrdb extends Hsqldbiface {
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			return ps.executeQuery();
 		}
-		//System.err.println(q);
-		PreparedStatement ps = conn.prepareStatement(selectSQL + " " + whereSQL, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		String selectWhereSQL = selectSQL;
+		int orderIndex = selectSQL.lastIndexOf("ORDER BY "); 
+		if (orderIndex > 0) selectWhereSQL = selectSQL.substring(0, orderIndex) + " " + whereSQL + " " + selectSQL.substring(orderIndex);
+		else selectWhereSQL = selectSQL + " " + whereSQL;
+		//System.err.println(selectWhereSQL);
+		PreparedStatement ps = conn.prepareStatement(selectWhereSQL, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs = ps.executeQuery(); 
 		if (!cacheTable.isEmpty()) {
 			String createSQL = prepareCaching(rs, cacheTable);

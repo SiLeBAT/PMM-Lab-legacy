@@ -77,7 +77,7 @@ public class MergeDBs {
 	private boolean isWese = false;
 	private boolean isHammerl = false;
 	private boolean isBoehnlein = false;
-	private String DBVersion = "1.5.8"; // im Code mitunter als "oldVersion" angewendet...
+	private String DBVersion = "1.6.0"; // im Code mitunter als "oldVersion" angewendet...
 	
 	/*
 	 * 
@@ -109,9 +109,9 @@ public class MergeDBs {
 				usedTs = new Hashtable<MyTable, MyTable>();
 				usedIDs = new Hashtable<String, String>();
 				checkIfOthersAlreadyEditedUpdates = new HashMap<String, Integer>();
-				//String folder = "Q:/BfR/DBs/";
+				String folder = "Q:/BfR/DBs/";
 				//String dateFrom = "2012-07-10 00:00:00"; // 20120403
-				String dateFrom = "2012-08-22 12:00:00";
+				String dateFrom = "2012-11-29 12:00:00";
 				//folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/144_lars/";
 
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();  lastInsertedID = new Hashtable<String, Integer>();
@@ -120,10 +120,10 @@ public class MergeDBs {
 				//isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
-				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				//isMertens = true; go4It(folder + "143_mertens/", dateFrom); isMertens = false;
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
-				go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
+				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
+				//go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
 
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
 					DBKernel.doMNs(e.nextElement());
@@ -202,7 +202,7 @@ public class MergeDBs {
 									tt += entry.getKey() + "\t" + entr + "\n"; 
 								}
 						  	}			
-				    		System.err.println("not Kennzahlen, ist das auch kein Versehen? " + sql + "\t" + tID + "\n" + tt);
+						  	if (!DBVersion.equals("1.6.0")) System.err.println("not Kennzahlen, ist das auch kein Versehen? " + sql + "\t" + tID + "\n" + tt);
 			    		}
 		    			return true;
 		    		}
@@ -832,7 +832,7 @@ public class MergeDBs {
 	  	boolean result = false;
 	  	if ((tt.length() > 0 || v.size() == 0) && (otherUsers || anyway)) { // v.size() == 0: falls nix in den Logs steht, trotzdem checken! Könnten ja Ur-defad-Daten verändert worden sein.
 	  		if (!checkIfOthersAlreadyEditedUpdates.containsKey(tablename + "_" + id)) {
-		  		System.err.print("checkIfOthersAlreadyEditedUpdates...  " + tablename + "\t" + id + "\n" + tt);	 
+		  		if (!DBVersion.equals("1.6.0")) System.err.print("checkIfOthersAlreadyEditedUpdates...  " + tablename + "\t" + id + "\n" + tt);	 
 		  		checkIfOthersAlreadyEditedUpdates.put(tablename + "_" + id, id);
 	  		}
 	  		result = true;

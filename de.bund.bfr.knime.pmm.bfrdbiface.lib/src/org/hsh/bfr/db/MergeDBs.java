@@ -74,6 +74,7 @@ public class MergeDBs {
 	private String untersuchteDB = "";
 	private boolean isFalenski = false;
 	private boolean isMertens = false;
+	private boolean isBrandt = false;
 	private boolean isWese = false;
 	private boolean isHammerl = false;
 	private boolean isBoehnlein = false;
@@ -122,6 +123,8 @@ public class MergeDBs {
 				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
+				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				isBrandt = true; go4It(folder + "silebat_146/", dateFrom, "defad", "de6!§5ddy"); isBrandt = false;
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
 				//go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
 
@@ -592,7 +595,8 @@ public class MergeDBs {
 	}
 	private void go4ChangeLog(final Statement anfrage, final String datumAb) {
 	    String sql = "SELECT * FROM " + DBKernel.delimitL("ChangeLog") +
-		" WHERE " +  (isMertens && DBVersion.equals("1.3.7") ? DBKernel.delimitL("ID") + " > 169239 AND " : "") + DBKernel.delimitL("Zeitstempel") + " > '" + datumAb + "' ORDER BY " + DBKernel.delimitL("ID") + " ASC"; // Zeitstempel
+		" WHERE " +  (isMertens && DBVersion.equals("1.3.7") ? DBKernel.delimitL("ID") + " > 169239 AND " : "") + DBKernel.delimitL("Zeitstempel") + " > '" + datumAb + "'" +
+	    		" ORDER BY " + (isBrandt ? DBKernel.delimitL("Zeitstempel") : DBKernel.delimitL("ID")) + " ASC"; // Zeitstempel 
 	    //System.out.println(sql);
 	    ResultSet rs = getResultSet(anfrage, sql, false);
 	    try {
@@ -645,8 +649,8 @@ public class MergeDBs {
 						    " FROM " + DBKernel.delimitL("ChangeLog") +
 						    	" WHERE " + DBKernel.delimitL("TabellenID") + " = " + tID +
 						    	" AND " + DBKernel.delimitL("Tabelle") + " = '" + tablename + "'" +
-						    	//" AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" + // Das hier ist irgendwie blöd... da gibts tatsächlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht öfter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
-						    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'" + // mit den IDs das kann nicht klappen für bereits zusammengeführte DB-Einträge! Stichwort: Konflikt! Der Konflikt würde aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
+						    	(isBrandt ? " AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" : // Das hier ist irgendwie blöd... da gibts tatsächlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht öfter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
+						    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'") + // mit den IDs das kann nicht klappen für bereits zusammengeführte DB-Einträge! Stichwort: Konflikt! Der Konflikt würde aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
 						    	" GROUP BY " + DBKernel.delimitL("Tabelle") + "," + DBKernel.delimitL("TabellenID");
 						    ResultSet rs2 = getResultSet(anfrage, sql, false);
 						    if (rs2 != null && rs2.first()) {

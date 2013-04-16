@@ -167,10 +167,10 @@ public class EmReaderUi extends JPanel {
 			}
 			ResultSet rs = null;
 			if (modelReaderUi.isVisible()) {
-				rs = db.selectEstModel(modelReaderUi.getLevel(), where);
+				rs = db.selectEstModel(modelReaderUi.getLevel(), -1, where, false);
 			}
 			else {
-				rs = db.selectEstModel(1, where);
+				rs = db.selectEstModel(1, -1, where);
 			}
 			dbTable.refresh(rs);
 			final JTable table = dbTable.getTable(); 
@@ -194,7 +194,7 @@ public class EmReaderUi extends JPanel {
 			    		chosenModel = 0;
 			    		if (selRow >= 0 && dbTable.getRowCount() > 0) {
 				    		for (int i=0;i<table.getColumnCount();i++) {
-				    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell")) {
+				    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell" + (getLevel() == 2 ? "2" : ""))) {
 				    				Object o = dbTable.getValueAt(selRow, i);
 				    				if (o != null && o instanceof Integer) {
 								        chosenModel = (Integer) o;

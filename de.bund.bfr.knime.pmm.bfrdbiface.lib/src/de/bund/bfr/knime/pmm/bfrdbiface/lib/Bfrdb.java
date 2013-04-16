@@ -668,6 +668,9 @@ public class Bfrdb extends Hsqldbiface {
 		return selectEstModel(level, -1, where);
 	}
 	public ResultSet selectEstModel(final int level, int estimatedModelID, String where) throws SQLException {
+		return selectEstModel(level, estimatedModelID, where, false);
+	}
+	public ResultSet selectEstModel(final int level, int estimatedModelID, String where, boolean forceUpdate) throws SQLException {
 		String q;
 		String myWhere = "";
 		String myWhereCache = "";
@@ -689,7 +692,7 @@ public class Bfrdb extends Hsqldbiface {
 			myWhereCache = " WHERE " + where;
 		}
 
-		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, false);
+		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, forceUpdate);
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {
 		String sql = "CREATE TABLE " + DBKernel.delimitL(cacheTableneme) + " (";
@@ -710,8 +713,11 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	public ResultSet selectTs() throws SQLException {
+		return selectTs(false);
+	}
+	public ResultSet selectTs(boolean forceUpdate) throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
-		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", false);
+		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", forceUpdate);
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
 		boolean dropCacheFirst = false;
@@ -721,7 +727,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		
 		if (!dropCacheFirst && !cacheTable.isEmpty() && DBKernel.getRowCount(conn, cacheTable, "") > 0) {
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + whereSQL,
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + cacheWhereSQL,
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			return ps.executeQuery();
 		}

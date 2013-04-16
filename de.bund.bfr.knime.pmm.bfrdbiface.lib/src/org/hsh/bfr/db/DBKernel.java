@@ -1059,23 +1059,24 @@ public class DBKernel {
   public static Object getValue(Connection conn, final String tablename, final String[] feldname, final String[] feldVal, final String desiredColumn) {
 	  	Object result = null;
 		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE ";
+		  String where = " ";
 		  for (int i=0;i<feldname.length;i++) {
 			  if (i < feldVal.length) {
-				  if (!sql.trim().endsWith("WHERE")) sql += " AND ";
-				  	sql += delimitL(feldname[i]);			  				  
-					  if (feldVal[i] == null) {
-							sql += " IS NULL";
-						} else {
-							sql += " = '" + feldVal[i].replace("'", "''") + "'";
-						}
+				  if (!where.trim().isEmpty()) sql += " AND ";
+				  where += delimitL(feldname[i]);			  				  
+				  if (feldVal[i] == null) {
+					  where += " IS NULL";
+					} else {
+						where += " = '" + feldVal[i].replace("'", "''") + "'";
+					}
 			  }
 		  }
-			ResultSet rs = getResultSet(conn, sql, true);
+			ResultSet rs = getResultSet(conn, sql + where, true);
 			try {
 				if (rs != null && rs.last()) { //  && rs.getRow() == 1
 					result = rs.getObject(1);
 					if (rs.getRow() > 1) {
-						System.err.println("Attention! Entry " + feldVal + " occurs " + rs.getRow() + "x in column " + feldname + " of table " + tablename + ", please check (getValue)!!!");
+						System.err.println("Attention! '" + where + "' results in " + rs.getRow() + " entries in table " + tablename + ", please check (getValue)!!!");
 					}
 				}
 			}

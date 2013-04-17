@@ -101,18 +101,20 @@ public class EmReaderUi extends JPanel {
 						" WHERE \"Basis\" = " + mdReaderUi.getAgentID(), false);
 				if (rs != null && rs.first()) {
 					do {
-						int codeLen = codeLength.get(rs.getString("CodeSystem"));
-						String aCode = rs.getString("Code");
-						if (aCode == null) aCode = "12345678901234";
-						if (aCode.length() >= codeLen) {
-							ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Agenzien") +
-									" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
-									"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + aCode.substring(0, codeLen) + "'", false);
-							if (rs2 != null && rs2.first()) {
-								do {
-									matchingIDs += "," + rs2.getInt("Basis");
-								} while (rs2.next());
-							}							
+						if (rs.getObject("CodeSystem") != null) {
+							int codeLen = codeLength.get(rs.getString("CodeSystem"));
+							String aCode = rs.getString("Code");
+							if (aCode == null) aCode = "12345678901234";
+							if (aCode.length() >= codeLen) {
+								ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Agenzien") +
+										" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
+										"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + aCode.substring(0, codeLen) + "'", false);
+								if (rs2 != null && rs2.first()) {
+									do {
+										matchingIDs += "," + rs2.getInt("Basis");
+									} while (rs2.next());
+								}							
+							}
 						}
 					} while (rs.next());
 				}
@@ -127,18 +129,20 @@ public class EmReaderUi extends JPanel {
 						" WHERE \"Basis\" = " + mdReaderUi.getMatrixID(), false);
 				if (rs != null && rs.first()) {
 					do {
-						int codeLen = codeLength.get(rs.getString("CodeSystem"));
-						String mCode = rs.getString("Code");
-						if (mCode == null) mCode = "12345678901234";
-						if (mCode.length() >= codeLen) {
-							ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Matrices") +
-									" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
-									"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + mCode.substring(0, codeLen) + "'", false);
-							if (rs2 != null && rs2.first()) {
-								do {
-									matchingIDs += "," + rs2.getInt("Basis");
-								} while (rs2.next());
-							}							
+						if (rs.getObject("CodeSystem") != null) {
+							int codeLen = codeLength.get(rs.getString("CodeSystem"));
+							String mCode = rs.getString("Code");
+							if (mCode == null) mCode = "12345678901234";
+							if (mCode.length() >= codeLen) {
+								ResultSet rs2 = DBKernel.getResultSet(db.getConnection(), "SELECT \"Basis\" FROM " + DBKernel.delimitL("Codes_Matrices") +
+										" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + rs.getString("CodeSystem") +
+										"' AND LEFT(" + DBKernel.delimitL("Code") + "," + codeLen + ") = '" + mCode.substring(0, codeLen) + "'", false);
+								if (rs2 != null && rs2.first()) {
+									do {
+										matchingIDs += "," + rs2.getInt("Basis");
+									} while (rs2.next());
+								}							
+							}
 						}
 					} while (rs.next());
 				}

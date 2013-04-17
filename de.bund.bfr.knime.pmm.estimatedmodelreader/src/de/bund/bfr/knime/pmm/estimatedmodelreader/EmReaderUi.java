@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -51,9 +52,11 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	public static final String PARAM_CHOSENMODEL = "chosenModel";
+	public static final String PARAM_CHOSENMODEL2 = "chosenModel2";
 
 	
-	private Integer chosenModel = 0;
+	private int[] chosenModel = null;
+	private int[] chosenModel2 = null;
 	
 	private Bfrdb db;
 	
@@ -194,22 +197,40 @@ public class EmReaderUi extends JPanel {
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 			    public void valueChanged(ListSelectionEvent e) {
 			    	if (!e.getValueIsAdjusting()) {
-			    		int selRow = table.getSelectedRow();
-			    		chosenModel = 0;
-			    		if (selRow >= 0 && dbTable.getRowCount() > 0) {
-				    		for (int i=0;i<table.getColumnCount();i++) {
-				    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell" + (getLevel() == 2 ? "2" : ""))) {
-				    				Object o = dbTable.getValueAt(selRow, i);
-				    				if (o != null && o instanceof Integer) {
-								        chosenModel = (Integer) o;
-				    				}
-							        break;
-				    			}
-				    		}
+			    		chosenModel = null; chosenModel2 = null;
+			    		java.util.List<Integer> c1 = new ArrayList<Integer>();
+			    		java.util.List<Integer> c2 = new ArrayList<Integer>();
+			    		int[] selRows = table.getSelectedRows();
+			    		if (dbTable.getRowCount() > 0) {
+			    			for (int ii=0;ii<selRows.length;ii++) {
+			    				if (selRows[ii] >= 0) {
+						    		for (int i=0;i<table.getColumnCount();i++) {
+						    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell")) {
+						    				Object o = dbTable.getValueAt(selRows[ii], i);
+						    				if (o != null && o instanceof Integer) {
+										        c1.add((Integer) o);
+						    				}
+									        if (getLevel() != 2) break;
+						    			}
+						    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell2")) {
+						    				Object o = dbTable.getValueAt(selRows[ii], i);
+						    				if (o != null && o instanceof Integer) {
+										        c2.add((Integer) o);
+						    				}
+									        break;
+						    			}
+						    		}
+			    				}
+			    			}
 			    		}
+			    		chosenModel = new int[c1.size()];
+			    		chosenModel2 = new int[c2.size()];
+			    		int i=0; for (int c : c1) {chosenModel[i] = c;i++;}
+			    		i=0; for (int c : c2) {chosenModel2[i] = c;i++;}
 			    	}
 			    }
-			});		}
+			});
+		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -225,32 +246,10 @@ public class EmReaderUi extends JPanel {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
 			dbTable.getTable().clearSelection();
-			chosenModel = 0;
+			chosenModel = null;
+			chosenModel2 = null;
 			doFilter.setText("ApplyAndShowFilterResults");
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-			/*
-		else {
-			MyTable gm = MyDBTables.getTable("GeschaetzteModelle");
-			// MyIDFilter mf = new MyIDFilter(filterIDs);
-			Object newGmId = DBKernel.myList.openNewWindow(
-					gm,
-					chosenModel > 0 ? chosenModel : null,
-					(Object) "GeschaetzteModelle",
-					null,
-					1,
-					1,
-					null,
-					true, null, this);
-			if (newGmId != null && newGmId instanceof Integer) {
-				chosenModel = (Integer) newGmId;
-				doFilter.setText("ApplyAndShowFilterResults [" + chosenModel + "]");
-			}
-			else {
-				chosenModel = 0;
-				doFilter.setText("ApplyAndShowFilterResults");
-			}
-		}
-		*/
 	}
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
 		modelReaderUi.addModelPrim(id, name, modelType);
@@ -399,7 +398,8 @@ public class EmReaderUi extends JPanel {
     	c.addInt( EmReaderUi.PARAM_QUALITYMODE, this.getQualityMode() );
     	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityField.getValue());
     	
-    	c.addInt(PARAM_CHOSENMODEL, chosenModel);
+    	c.addIntArray(PARAM_CHOSENMODEL, chosenModel);
+    	c.addIntArray(PARAM_CHOSENMODEL2, chosenModel2);
 
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
@@ -432,8 +432,11 @@ public class EmReaderUi extends JPanel {
     		this.setQualityMode( c.getInt( EmReaderUi.PARAM_QUALITYMODE ) );
     		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
 
-    		chosenModel = c.getInt(PARAM_CHOSENMODEL);
-    		doFilter.setText("ApplyAndShowFilterResults" + (chosenModel > 0 ? "[" + chosenModel + "]" : ""));
+    		chosenModel = c.getIntArray(PARAM_CHOSENMODEL);
+    		if (c.containsKey(PARAM_CHOSENMODEL2)) chosenModel2 = c.getIntArray(PARAM_CHOSENMODEL2);
+    		doFilter.setText("ApplyAndShowFilterResults" +
+    		(chosenModel != null && chosenModel.length > 0 ? " [" + chosenModel[0] +
+    				(chosenModel2 != null && chosenModel2.length > 0 ? ", " + chosenModel2[0] : "") + "]" : ""));
     				
     		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
     		if (c2.containsKey(EmReaderUi.PARAM_PARAMETERNAME)) {

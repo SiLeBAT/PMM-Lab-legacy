@@ -13,6 +13,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Export-Package: de.bund.bfr.knime.pmm.bfrdbiface.lib,
  org.hsh.bfr.db,
  org.hsh.bfr.db.gui,
+ org.hsh.bfr.db.imports,
  quick.dbtable
 Bundle-ClassPath: .,
  libs/hsqldb.jar,

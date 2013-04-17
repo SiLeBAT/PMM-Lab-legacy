@@ -43,8 +43,6 @@ import java.util.UUID;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MainKernel;
-import org.hsh.bfr.db.UpdateChecker;
 import org.hsh.bfr.db.Users;
 
 public class Hsqldbiface {

@@ -102,33 +102,36 @@ public class MMC_TS extends JPanel {
 	*/
 	private void fillTS() {
 		// @Todo: dbuuid muss evtl. noch angepasst werden!!!! in MatrixXml, AgentXml
-		int agentID = MathUtilities.getRandomNegativeInt();
-		int matrixID = MathUtilities.getRandomNegativeInt();
-		try {agentID = Integer.parseInt(agensIDField.getText());}
-		catch (Exception e) {}
-		try {matrixID = Integer.parseInt(matrixIDField.getText());}
-		catch (Exception e) {}
+		if (theTS == null) theTS = new PmmTimeSeries();
 		
-		PmmXmlDoc matDoc = new PmmXmlDoc(); 
-		MatrixXml mx = new MatrixXml(matrixID, matrixField.getText(), matrixDetailField.getText(), null);
-		matDoc.add(mx);
-		theTS.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
-		
-		PmmXmlDoc agtDoc = theTS.getAgent();
-		AgentXml ax = new AgentXml(agentID, agentField.getText(), agensDetailField.getText(), null);
-		agtDoc.add(ax);
-		theTS.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
-		
-		PmmXmlDoc mdInfoDoc = theTS.getMdInfo();
-		MdInfoXml mdix = (MdInfoXml) mdInfoDoc.get(0);
-		mdix.setComment(commentField.getText());
-		mdInfoDoc = new PmmXmlDoc();
-		mdInfoDoc.add(mdix);
-		theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
-		
-		theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),"°C");
-		theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null);
-		theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivityField.getValue(),null);
+			int agentID = MathUtilities.getRandomNegativeInt();
+			int matrixID = MathUtilities.getRandomNegativeInt();
+			try {agentID = Integer.parseInt(agensIDField.getText());}
+			catch (Exception e) {}
+			try {matrixID = Integer.parseInt(matrixIDField.getText());}
+			catch (Exception e) {}
+			
+			
+			PmmXmlDoc matDoc = new PmmXmlDoc(); 
+			MatrixXml mx = new MatrixXml(matrixID, matrixField.getText(), matrixDetailField.getText(), null);
+			matDoc.add(mx);
+			theTS.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
+			
+			PmmXmlDoc agtDoc = theTS.getAgent();
+			AgentXml ax = new AgentXml(agentID, agentField.getText(), agensDetailField.getText(), null);
+			agtDoc.add(ax);
+			theTS.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
+			
+			PmmXmlDoc mdInfoDoc = theTS.getMdInfo();
+			MdInfoXml mdix = (MdInfoXml) mdInfoDoc.get(0);
+			mdix.setComment(commentField.getText());
+			mdInfoDoc = new PmmXmlDoc();
+			mdInfoDoc.add(mdix);
+			theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
+			
+			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),"°C");
+			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null);
+			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivityField.getValue(),null);
 	}
 	private void fillFields() {
 		agentField.setText(theTS.getAgentName() == null ? "" : theTS.getAgentName());

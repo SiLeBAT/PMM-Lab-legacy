@@ -104,8 +104,9 @@ public class EmReaderUi extends JPanel {
 						" WHERE \"Basis\" = " + mdReaderUi.getAgentID(), false);
 				if (rs != null && rs.first()) {
 					do {
-						if (rs.getObject("CodeSystem") != null) {
-							int codeLen = codeLength.get(rs.getString("CodeSystem"));
+						String cs = rs.getString("CodeSystem");
+						if (cs != null && codeLength.containsKey(cs)) {
+							int codeLen = codeLength.get(cs);
 							String aCode = rs.getString("Code");
 							if (aCode == null) aCode = "12345678901234";
 							if (aCode.length() >= codeLen) {
@@ -132,8 +133,9 @@ public class EmReaderUi extends JPanel {
 						" WHERE \"Basis\" = " + mdReaderUi.getMatrixID(), false);
 				if (rs != null && rs.first()) {
 					do {
-						if (rs.getObject("CodeSystem") != null) {
-							int codeLen = codeLength.get(rs.getString("CodeSystem"));
+						String cs = rs.getString("CodeSystem");
+						if (cs != null && codeLength.containsKey(cs)) {
+							int codeLen = codeLength.get(cs);
 							String mCode = rs.getString("Code");
 							if (mCode == null) mCode = "12345678901234";
 							if (mCode.length() >= codeLen) {

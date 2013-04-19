@@ -225,27 +225,37 @@ public class MergeDBs {
 					Object[] newF = doFields(ps, myT, eintragNeu); 
 		    		if (newF != null) {
 		    			//System.err.println(newF[1] + "\t" + ps.toString());
-						if (ps.executeUpdate() > 0) {
-							Integer lastID = DBKernel.getLastInsertedID(ps);
-							if (lastInsertedID.get(tablename) == null || lastInsertedID.get(tablename) < tID) {
-								lastInsertedID.put(tablename, tID);
-							}				    	
-							if (idConverter.containsKey(tablename + "_" + tID)) {
-								System.err.println("Ups... idConverter contains " + tablename + "_" + tID + " already..." + idConverter.get(tablename + "_" + tID) + "\t" + lastID);
+						try {
+							if (ps.executeUpdate() > 0) {
+								Integer lastID = DBKernel.getLastInsertedID(ps);
+								if (lastInsertedID.get(tablename) == null || lastInsertedID.get(tablename) < tID) {
+									lastInsertedID.put(tablename, tID);
+								}				    	
+								if (idConverter.containsKey(tablename + "_" + tID)) {
+									System.err.println("Ups... idConverter contains " + tablename + "_" + tID + " already..." + idConverter.get(tablename + "_" + tID) + "\t" + lastID);
+								}
+								if (idConverterReverse.containsKey(tablename + "_" + lastID)) {
+									System.err.println("Ups... idConverterReverse contains " + tablename + "_" + lastID + " already..." + idConverterReverse.get(tablename + "_" + lastID) + "\t" + tID);
+								}
+								idConverter.put(tablename + "_" + tID, lastID);			
+								idConverterReverse.put(tablename + "_" + lastID, tID);			
+								checkUsedIDs(tablename, lastID);
+							} 
+							else {
+								MyLogger.handleMessage("INSERT failed... " + ps);
 							}
-							if (idConverterReverse.containsKey(tablename + "_" + lastID)) {
-								System.err.println("Ups... idConverterReverse contains " + tablename + "_" + lastID + " already..." + idConverterReverse.get(tablename + "_" + lastID) + "\t" + tID);
-							}
-							idConverter.put(tablename + "_" + tID, lastID);			
-							idConverterReverse.put(tablename + "_" + lastID, tID);			
-							checkUsedIDs(tablename, lastID);
-						} 
-						else {
-							MyLogger.handleMessage("INSERT failed... " + ps);
 						}
+						catch (Exception e) {System.err.println("foreign key no parent;\t" + newF[1] + "\t" + ps.toString());}
 		    		}
 	    		}
 				else { // UPDATE
+					if (isMertens && DBVersion.equals("1.6.0") && tablename.equals("Literatur") && tID == 1346
+							&& ts.getTime() == 1363865261912L) { // && ts.getTime() == 1363865261912L
+						Integer neueID = insertNewEmptyDatensatz(tablename, tID);
+						System.err.println("isMertens\t" + ts + "\t" + ts.getTime() + "\t" + tID + "\t" + neueID);
+						System.err.println("Alteintrag: " + eintragAlt2String(eintragAlt));
+					}
+
 		    			Integer cid = convertID(tablename, tID, true);
 						if (checkIfOthersAlreadyEditedUpdates(anfrage, tablename, tID, false)) {
 					  		//System.err.println("vorher nachher:"); 
@@ -596,7 +606,7 @@ public class MergeDBs {
 	private void go4ChangeLog(final Statement anfrage, final String datumAb) {
 	    String sql = "SELECT * FROM " + DBKernel.delimitL("ChangeLog") +
 		" WHERE " +  (isMertens && DBVersion.equals("1.3.7") ? DBKernel.delimitL("ID") + " > 169239 AND " : "") + DBKernel.delimitL("Zeitstempel") + " > '" + datumAb + "'" +
-	    		" ORDER BY " + (isBrandt ? DBKernel.delimitL("Zeitstempel") : DBKernel.delimitL("ID")) + " ASC"; // Zeitstempel 
+	    		" ORDER BY " + (isBrandt ? DBKernel.delimitL("ID") : DBKernel.delimitL("ID")) + " ASC"; // Zeitstempel 
 	    //System.out.println(sql);
 	    ResultSet rs = getResultSet(anfrage, sql, false);
 	    try {
@@ -649,8 +659,8 @@ public class MergeDBs {
 						    " FROM " + DBKernel.delimitL("ChangeLog") +
 						    	" WHERE " + DBKernel.delimitL("TabellenID") + " = " + tID +
 						    	" AND " + DBKernel.delimitL("Tabelle") + " = '" + tablename + "'" +
-						    	(isBrandt ? " AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" : // Das hier ist irgendwie blöd... da gibts tatsächlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht öfter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
-						    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'") + // mit den IDs das kann nicht klappen für bereits zusammengeführte DB-Einträge! Stichwort: Konflikt! Der Konflikt würde aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
+						    	//(isBrandt ? " AND " + DBKernel.delimitL("Zeitstempel") + " >= '" + ts + "'" : // Das hier ist irgendwie blöd... da gibts tatsächlich manchmal identische Zeiten... wieso auch immer...Import von Exceltabellen??? Konsequenz ist jedenfalls: Ups... idConverter contains Versuchsbedingungen_Sonstiges_1188 already...1191	1192! Der Algorithmus macht öfter hintereinander INSERT INTO, weil der NULL Alteintrag (=Ersteintrag in die DB) denselben Zeitstempel hat wie der bereits zum erstenmal editierte... 
+						    	" AND " + DBKernel.delimitL("ID") + " >= '" + clID + "'" + // mit den IDs das kann nicht klappen für bereits zusammengeführte DB-Einträge! Stichwort: Konflikt! Der Konflikt würde aber auch drohen bei der Zeitstempel Variante, oder? Glaub schon! 
 						    	" GROUP BY " + DBKernel.delimitL("Tabelle") + "," + DBKernel.delimitL("TabellenID");
 						    ResultSet rs2 = getResultSet(anfrage, sql, false);
 						    if (rs2 != null && rs2.first()) {

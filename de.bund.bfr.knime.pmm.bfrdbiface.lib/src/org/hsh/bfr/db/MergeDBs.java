@@ -121,8 +121,8 @@ public class MergeDBs {
 				//isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
-				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				//isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				isBrandt = true; go4It(folder + "silebat_146/", dateFrom, "defad", "de6!§5ddy"); isBrandt = false;
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();

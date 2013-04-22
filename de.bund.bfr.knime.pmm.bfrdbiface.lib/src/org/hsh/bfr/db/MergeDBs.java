@@ -121,10 +121,10 @@ public class MergeDBs {
 				//isHammerl = true; go4It(folder + "141_hammerl/", dateFrom); isHammerl = false;					
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
 				//isWese = true; go4It(folder + "141_wese/", dateFrom); isWese = false;	
-				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				//isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
 				idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
-				isBrandt = true; go4It(folder + "silebat_146/", dateFrom, "defad", "de6!§5ddy"); isBrandt = false;
+				isMertens = true; go4It(folder + "mertens_144/", dateFrom, "defad", "de6!§5ddy"); isMertens = false;
+				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>();   lastInsertedID = new Hashtable<String, Integer>();
+				//isBrandt = true; go4It(folder + "silebat_146/", dateFrom, "defad", "de6!§5ddy"); isBrandt = false;
 				//idConverter = new Hashtable<String, Integer>(); idConverterReverse = new Hashtable<String, Integer>(); lastInsertedID = new Hashtable<String, Integer>();
 				//go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
 
@@ -605,7 +605,7 @@ public class MergeDBs {
 	}
 	private void go4ChangeLog(final Statement anfrage, final String datumAb) {
 	    String sql = "SELECT * FROM " + DBKernel.delimitL("ChangeLog") +
-		" WHERE " +  (isMertens && DBVersion.equals("1.3.7") ? DBKernel.delimitL("ID") + " > 169239 AND " : "") + DBKernel.delimitL("Zeitstempel") + " > '" + datumAb + "'" +
+		" WHERE " + DBKernel.delimitL("Zeitstempel") + " > '" + datumAb + "'" +
 	    		" ORDER BY " + (isBrandt ? DBKernel.delimitL("ID") : DBKernel.delimitL("ID")) + " ASC"; // Zeitstempel 
 	    //System.out.println(sql);
 	    ResultSet rs = getResultSet(anfrage, sql, false);
@@ -617,17 +617,13 @@ public class MergeDBs {
 							tablename.equals("Modell_Referenz") || tablename.equals("Literatur")) {
 						Integer tID = rs.getInt("TabellenID");
 						Integer clID = rs.getInt("ID");
+						//System.err.println("CL: " + clID);
 						Timestamp ts = rs.getTimestamp("Zeitstempel");
-						/*
-						if (isMertens && DBVersion.equals("1.3.7") && tablename.equals("Literatur")) {
-				    		Object o = rs.getObject("Alteintrag");
-				    		System.out.println(clID + "\t" + ts + "\t" + rs.getString("Username") + "\t" + tablename + "\t" + tID + "\t" + o);
-						}
-						*/
 						// Ausnahmen, aber mal schauen. In jedem Fall auf Agenzien und Matrices achten!
 						// die anderen dürften noch keine Daten enthalten...
 						MyTable myT = MyDBTables.getTable(tablename);
-						if (myT == null
+						if (!isBrandt &&
+								(myT == null
 								|| tablename.equals("Matrices")
 								|| tablename.equals("Verpackungsmaterial")
 								|| tablename.equals("Agenzien")
@@ -646,7 +642,7 @@ public class MergeDBs {
 								|| (tablename.equals("Messwerte") && (tID < 19 || tID >= 11249 && tID <= 12244)) // das sind Combase Einträge, da sollte nix geändert werden...
 								|| (isWese && tablename.equals("Kontakte") && tID == 129 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht löschen, der leere Datensatz wird von Mertens benutzt beim Merge von 1.3.6 nach 1.3.7
 								|| (isWese && tablename.equals("Versuchsbedingungen") && tID == 1107 && (DBVersion.equals("1.3.6") || DBVersion.equals("1.3.7"))) // nicht ändern, versehentlich editiert von Wese
-								) {
+								)) {
 							MyLogger.handleMessage("not merged: " + untersuchteDB + "\t" + tablename + "\t" + tID);
 						}
 						else {

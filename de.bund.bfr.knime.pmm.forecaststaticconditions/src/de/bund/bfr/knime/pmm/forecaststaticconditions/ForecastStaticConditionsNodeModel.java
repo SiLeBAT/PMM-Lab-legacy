@@ -206,14 +206,13 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, true, true, concentrationParameters);
+				.combine(tuples, true, false, concentrationParameters);
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
 		int index = 0;
 
 		for (KnimeTuple newTuple : combinedTuples.keySet()) {
-
 			String id = ((CatalogModelXml) newTuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
 					+ "(" + newTuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";

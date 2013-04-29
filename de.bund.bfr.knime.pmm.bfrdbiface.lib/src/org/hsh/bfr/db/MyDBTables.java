@@ -729,7 +729,7 @@ public class MyDBTables {
 					null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					"Messwerte_Sonstiges"});
-		addTable(tenazity_measured_vals, MyList.Tenazitaet_LIST); // MyList.Tenazitaet_LIST
+		addTable(tenazity_measured_vals, DBKernel.isKNIME ? MyList.Tenazitaet_LIST : -1);
 		tenazity_raw_data.setForeignField(tenazity_measured_vals, 6);
 
 		MyTable Versuchsbedingungen_Sonstiges = new MyTable("Versuchsbedingungen_Sonstiges",
@@ -866,7 +866,7 @@ public class MyDBTables {
 				"INT",
 				null,null,null,null,null,null,
 				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte","Prozessdaten_Kosten"});
-		addTable(prozessdaten, MyList.Prozessdaten_LIST); // MyList.Prozessdaten_LIST
+		addTable(prozessdaten, DBKernel.isKNIME ? MyList.Prozessdaten_LIST : -1); // MyList.Prozessdaten_LIST
 		prozessFlow.setForeignField(prozessdaten, 7);
 		MyTable prozessReferenzen = new MyTable("Prozessdaten_Literatur",
 				new String[]{"Prozessdaten","Literatur"},

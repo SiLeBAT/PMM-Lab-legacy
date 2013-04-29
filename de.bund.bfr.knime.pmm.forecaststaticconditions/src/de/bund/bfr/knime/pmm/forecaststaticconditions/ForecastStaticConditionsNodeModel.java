@@ -229,54 +229,46 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			String initialParameter = concentrationParameters.get(oldID);
 
-			if (initialParameter != null) {
-				PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				String formula = ((CatalogModelXml) newTuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-				PmmXmlDoc params = newTuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-				Map<String, Double> constants = new LinkedHashMap<String, Double>();
-
-				checkPrimaryModel(newTuple, initialParameter, false);
-				checkSecondaryModels(combinedTuples.get(newTuple));
-				checkData(newTuple);
-
-				for (PmmXmlElementConvertable el : params.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-
-					if (element.getName().equals(initialParameter)) {
-						constants.put(element.getName(), concentration);
-					} else {
-						constants.put(element.getName(), element.getValue());
-					}
-				}
-
-				for (PmmXmlElementConvertable el : misc.getElementSet()) {
-					MiscXml element = (MiscXml) el;
-
-					constants.put(element.getName(), element.getValue());
-				}
-
-				for (PmmXmlElementConvertable el : timeSeriesXml
-						.getElementSet()) {
-					TimeSeriesXml element = (TimeSeriesXml) el;
-
-					constants.put(AttributeUtilities.TIME, element.getTime());
-					element.setLog10C(computeLogc(formula, constants));
-				}
-			} else {
+			if (initialParameter == null) {
 				setWarningMessage("Initial Concentration Parameter for "
 						+ ((CatalogModelXml) combinedTuples.get(newTuple)
 								.get(0)
 								.getPmmXml(Model1Schema.ATT_MODELCATALOG)
 								.get(0)).getName() + " is not specified");
+			}
 
-				for (PmmXmlElementConvertable el : timeSeriesXml
-						.getElementSet()) {
-					TimeSeriesXml element = (TimeSeriesXml) el;
+			PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			String formula = ((CatalogModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
+			Map<String, Double> constants = new LinkedHashMap<String, Double>();
 
-					element.setLog10C(null);
+			checkPrimaryModel(newTuple, initialParameter, false);
+			checkSecondaryModels(combinedTuples.get(newTuple));
+			checkData(newTuple);
+
+			for (PmmXmlElementConvertable el : newTuple.getPmmXml(
+					Model1Schema.ATT_PARAMETER).getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				if (initialParameter != null
+						&& element.getName().equals(initialParameter)) {
+					constants.put(element.getName(), concentration);
+				} else {
+					constants.put(element.getName(), element.getValue());
 				}
+			}
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				constants.put(element.getName(), element.getValue());
+			}
+
+			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
+				TimeSeriesXml element = (TimeSeriesXml) el;
+
+				constants.put(AttributeUtilities.TIME, element.getTime());
+				element.setLog10C(computeLogc(formula, constants));
 			}
 
 			for (KnimeTuple tuple : combinedTuples.get(newTuple)) {
@@ -331,37 +323,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 			String initialParameter = concentrationParameters.get(id);
 
-			if (initialParameter != null) {
-				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-				String formula = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-				Map<String, Double> constants = new LinkedHashMap<String, Double>();
-
-				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
-						initialParameter))).setValue(concentration);
-				checkPrimaryModel(tuple, initialParameter, true);
-				checkData(tuple);
-
-				for (PmmXmlElementConvertable el : params.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-
-					constants.put(element.getName(), element.getValue());
-				}
-
-				for (PmmXmlElementConvertable el : misc.getElementSet()) {
-					MiscXml element = (MiscXml) el;
-
-					constants.put(element.getName(), element.getValue());
-				}
-
-				for (PmmXmlElementConvertable el : timeSeriesXml
-						.getElementSet()) {
-					TimeSeriesXml element = (TimeSeriesXml) el;
-
-					constants.put(AttributeUtilities.TIME, element.getTime());
-					element.setLog10C(computeLogc(formula, constants));
-				}
-			} else {
+			if (initialParameter == null) {
 				setWarningMessage("Initial Concentration Parameter for "
 						+ ((CatalogModelXml) tuple.getPmmXml(
 								Model1Schema.ATT_MODELCATALOG).get(0))
@@ -373,6 +335,38 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 					element.setLog10C(null);
 				}
+			}
+
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+			String formula = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
+			Map<String, Double> constants = new LinkedHashMap<String, Double>();
+
+			if (initialParameter != null) {
+				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
+						initialParameter))).setValue(concentration);
+			}
+
+			checkPrimaryModel(tuple, initialParameter, true);
+			checkData(tuple);
+
+			for (PmmXmlElementConvertable el : params.getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				constants.put(element.getName(), element.getValue());
+			}
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				constants.put(element.getName(), element.getValue());
+			}
+
+			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
+				TimeSeriesXml element = (TimeSeriesXml) el;
+
+				constants.put(AttributeUtilities.TIME, element.getTime());
+				element.setLog10C(computeLogc(formula, constants));
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);
@@ -421,7 +415,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		for (PmmXmlElementConvertable el : params.getElementSet()) {
 			ParamXml element = (ParamXml) el;
 
-			if (!element.getName().equals(initialParameter)
+			if ((initialParameter == null || !element.getName().equals(
+					initialParameter))
 					&& element.getValue() == null) {
 				if (outputEstID) {
 					setWarningMessage(element.getName() + " in " + modelName

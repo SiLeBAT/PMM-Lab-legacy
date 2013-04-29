@@ -80,8 +80,6 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
  */
 public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane {
 
-	private static final String NO_PARAM = "\"Skip Prediction\"";
-
 	private List<String> ids;
 	private Map<String, String> modelNames;
 	private Map<String, String> formulas;
@@ -140,7 +138,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
 
 		for (String id : ids) {
-			if (!paramBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
+			if (!paramBoxes.get(id).getSelectedItem().equals("")) {
 				parameterMap.put(id, (String) paramBoxes.get(id)
 						.getSelectedItem());
 			} else {
@@ -179,7 +177,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 			List<String> params = new ArrayList<String>();
 
-			params.add(NO_PARAM);
+			params.add("");
 			params.addAll(CellIO.getNameList(tuple
 					.getPmmXml(Model1Schema.ATT_PARAMETER)));
 

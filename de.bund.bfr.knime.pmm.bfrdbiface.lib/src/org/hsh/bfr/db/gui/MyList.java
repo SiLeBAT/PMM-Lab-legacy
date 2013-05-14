@@ -316,7 +316,7 @@ public void valueChanged(final TreeSelectionEvent event) {
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm, final JDialog owner) {
 	  	Object result = null;
-	  	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
+	  	String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
 	  	//JDialog f = new JDialog(DBKernel.mainFrame, titel, dbForm != null);
 	  	JDialog f = new JDialog(owner == null ? DBKernel.mainFrame : owner, titel);
 	  	f.setModal(dbForm != null || owner != null);
@@ -425,7 +425,7 @@ if (dbForm != null || owner != null) {
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent) {
   	Object result = null;
-  	String titel = (headerValue == null) ? theNewTable.getTablename() : headerValue + " auswählen...";
+  	String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
   	//JDialog.setDefaultLookAndFeelDecorated(true);
   	Frame parentFrame = null;
   	if (parent == null) {

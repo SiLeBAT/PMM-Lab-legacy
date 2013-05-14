@@ -1342,24 +1342,24 @@ public class MyDBTables {
 	}
   
   private static void fillHashes() {
-		hashZeit.put("Sekunde", "Sekunde(n) [s][sec]");					
-		hashZeit.put("Minute", "Minute(n)");					
-		hashZeit.put("Stunde", "Stunde(n)");		
-		hashZeit.put("Tag", "Tag(e)");		
-		hashZeit.put("Woche", "Woche(n)");		
-		hashZeit.put("Monat", "Monat(e)");		
-		hashZeit.put("Jahr", "Jahr(e)");			  
+		hashZeit.put("Sekunde", DBKernel.getLanguage().equals("en") ? "Second(s)" : "Sekunde(n) [s][sec]");					
+		hashZeit.put("Minute", DBKernel.getLanguage().equals("en") ? "Minute(s)" : "Minute(n)");					
+		hashZeit.put("Stunde", DBKernel.getLanguage().equals("en") ? "Hour(s)" : "Stunde(n)");		
+		hashZeit.put("Tag", DBKernel.getLanguage().equals("en") ? "Day(s)" : "Tag(e)");		
+		hashZeit.put("Woche", DBKernel.getLanguage().equals("en") ? "Week(s)" : "Woche(n)");		
+		hashZeit.put("Monat", DBKernel.getLanguage().equals("en") ? "Month(s)" : "Monat(e)");		
+		hashZeit.put("Jahr", DBKernel.getLanguage().equals("en") ? "Year(s)" : "Jahr(e)");			  
 
 		hashGeld.put("Dollar", "Dollar ($)");					
 		hashGeld.put("Euro", "Euro (€)");					
 
-		hashGewicht.put("Milligramm", "Milligramm (mg)");					
-		hashGewicht.put("Gramm", "Gramm (g)");					
-		hashGewicht.put("Kilogramm", "Kilogramm (kg)");					
-		hashGewicht.put("Tonne", "Tonne (t)");					
+		hashGewicht.put("Milligramm", DBKernel.getLanguage().equals("en") ? "Milligrams (mg)" : "Milligramm (mg)");					
+		hashGewicht.put("Gramm", DBKernel.getLanguage().equals("en") ? "Grams (g)" : "Gramm (g)");					
+		hashGewicht.put("Kilogramm", DBKernel.getLanguage().equals("en") ? "Kilograms (kg)" : "Kilogramm (kg)");					
+		hashGewicht.put("Tonne", DBKernel.getLanguage().equals("en") ? "Tons (t)" : "Tonne (t)");					
 
-		hashSpeed.put("pro Stunde", "pro Stunde (1/h)");					
-		hashSpeed.put("pro Tag", "pro Tag (1/d)");							
+		hashSpeed.put("pro Stunde", DBKernel.getLanguage().equals("en") ? "per hour (1/h)" : "pro Stunde (1/h)");					
+		hashSpeed.put("pro Tag", DBKernel.getLanguage().equals("en") ? "per day (1/d)" : "pro Tag (1/d)");							
 
 		hashDosis.put("Sporenzahl", "Sporenzahl");					
 		hashDosis.put("KBE pro g", "KBE (cfu) pro Gramm (KBE/g)");					
@@ -1371,9 +1371,9 @@ public class MyDBTables {
 		hashDosis.put("\u00B5g/kg/KG", "\u00B5g/kg/KG");							
 		hashDosis.put("Anzahl", "Anzahl (Viren, Bakterien, Parasiten, Organismen, ...)");	
 
-		hashFreigabe.put(0, "gar nicht");					
-		hashFreigabe.put(1, "Krise");					
-		hashFreigabe.put(2, "immer");					
+		hashFreigabe.put(0, DBKernel.getLanguage().equals("en") ? "never" : "gar nicht");					
+		hashFreigabe.put(1, DBKernel.getLanguage().equals("en") ? "crisis" : "Krise");					
+		hashFreigabe.put(2, DBKernel.getLanguage().equals("en") ? "always" : "immer");					
 		
 		DBKernel.hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
 		DBKernel.hashBundesland.put("Bayern", "Bayern");

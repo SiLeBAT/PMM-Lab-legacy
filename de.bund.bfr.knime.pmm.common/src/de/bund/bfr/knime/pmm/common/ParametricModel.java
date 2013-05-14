@@ -769,14 +769,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public String revertFormula() {
 		String result = formula;
 		if (depXml != null && !depXml.getName().equals(depXml.getOrigName())) {
-			result = MathUtilities.replaceVariable(formula, depXml.getName(), depXml.getOrigName());			
+			result = MathUtilities.replaceVariable(result, depXml.getName(), depXml.getOrigName());			
 		}
 		if (parameter != null && parameter.getElementSet() != null) {
 			for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 				if (el instanceof ParamXml) {
 					ParamXml px = (ParamXml) el;
 					if (!px.getName().equals(px.getOrigName())) {
-						result = MathUtilities.replaceVariable(formula, px.getName(), px.getOrigName());									
+						result = MathUtilities.replaceVariable(result, px.getName(), px.getOrigName());									
 					}
 				}
 			}			
@@ -786,7 +786,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				if (el instanceof IndepXml) {
 					IndepXml ix = (IndepXml) el;
 					if (!ix.getName().equals(ix.getOrigName())) {
-						result = MathUtilities.replaceVariable(formula, ix.getName(), ix.getOrigName());									
+						result = MathUtilities.replaceVariable(result, ix.getName(), ix.getOrigName());									
 					}
 				}
 			}

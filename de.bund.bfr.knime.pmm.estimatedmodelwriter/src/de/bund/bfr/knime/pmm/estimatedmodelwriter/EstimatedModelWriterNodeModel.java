@@ -228,9 +228,9 @@ if (true) return null;
 					}
 					else {
 			    		ppm = new ParametricModel(modelName, formula, dx, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
-			    		ppm.setFormula(ppm.revertFormula());
 			    		ppm.setParameter(paramXml);
 			    		ppm.setIndependent(indepXml);
+			    		ppm.setFormula(ppm.revertFormula());
 			    		ppm.setMLit(mLitXmlDoc);
 			    		
 						String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
@@ -332,9 +332,9 @@ if (true) return null;
 							}
 							else {
 					    		spm = new ParametricModel( modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );
-					    		spm.setFormula(spm.revertFormula());
 					    		spm.setParameter(paramXml);
 					    		spm.setIndependent(indepXml);
+					    		spm.setFormula(spm.revertFormula());
 					    		spm.setMLit(mLitXmlDoc);
 	
 								String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};

@@ -434,7 +434,7 @@ public class EmReaderUi extends JPanel {
     		this.setQualityMode( c.getInt( EmReaderUi.PARAM_QUALITYMODE ) );
     		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
 
-    		chosenModel = c.getIntArray(PARAM_CHOSENMODEL);
+    		if (c.containsKey(PARAM_CHOSENMODEL)) chosenModel = c.getIntArray(PARAM_CHOSENMODEL);
     		if (c.containsKey(PARAM_CHOSENMODEL2)) chosenModel2 = c.getIntArray(PARAM_CHOSENMODEL2);
     		doFilter.setText("ApplyAndShowFilterResults" +
     		(chosenModel != null && chosenModel.length > 0 ? " [" + chosenModel[0] +

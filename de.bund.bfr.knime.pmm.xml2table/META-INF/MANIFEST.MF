@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: XML2Table-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.xml2table; singleton:=true
-Bundle-Version: 1.0.0.v20130226
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: xml2table.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.xml2table.XML2TableNodePlugin
 Bundle-Vendor: BfR

@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: ForecastStaticConditions-Node extension for KNIME Workbench
 Bundle-SymbolicName: de.bund.bfr.knime.pmm.forecaststaticconditions; singleton:=true
-Bundle-Version: 1.0.0.v20130226
+Bundle-Version: 1.0.0.qualifier
 Bundle-ClassPath: forecaststaticconditions.jar
 Bundle-Activator: de.bund.bfr.knime.pmm.forecaststaticconditions.ForecastStaticConditionsNodePlugin
 Bundle-Vendor: BfR

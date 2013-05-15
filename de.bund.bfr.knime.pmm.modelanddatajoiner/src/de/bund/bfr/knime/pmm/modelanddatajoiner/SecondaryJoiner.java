@@ -63,6 +63,7 @@ import org.knime.core.node.ExecutionContext;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
@@ -251,6 +252,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
 				KnimeRelationReader modelReader = new KnimeRelationReader(
 						SchemaFactory.createM2Schema(), modelTable);
+				Set<Integer> usedEstIDs = new LinkedHashSet<>();
 
 				while (modelReader.hasMoreElements()) {
 					KnimeTuple modelRow = modelReader.nextElement();
@@ -258,6 +260,13 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							.getPmmXml(Model2Schema.ATT_MODELCATALOG);
 					String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
 							.getID() + "";
+					Integer estIDSec = ((EstModelXml) modelRow.getPmmXml(
+							Model2Schema.ATT_ESTMODEL).get(0)).getID();
+
+					if (!model.equals(modelIDSec) || !usedEstIDs.add(estIDSec)) {
+						continue;
+					}
+
 					String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
 							.getFormula();
 					PmmXmlDoc depVarSec = modelRow
@@ -267,8 +276,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					PmmXmlDoc indepVarsSec = modelRow
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-					KnimeRelationReader peiReader = new KnimeRelationReader(
-							SchemaFactory.createM1DataSchema(), dataTable);
 					boolean allVarsReplaced = true;
 
 					if (replace.containsKey(depVarSecName)) {
@@ -305,14 +312,15 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						continue;
 					}
 
+					KnimeRelationReader peiReader = new KnimeRelationReader(
+							SchemaFactory.createM1DataSchema(), dataTable);
+
 					while (peiReader.hasMoreElements()) {
 						KnimeTuple peiRow = peiReader.nextElement();
 						PmmXmlDoc params = peiRow
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-						if (!model.equals(modelIDSec)
-								|| !CellIO.getNameList(params).contains(
-										depVarSecName)) {
+						if (!CellIO.getNameList(params).contains(depVarSecName)) {
 							continue;
 						}
 

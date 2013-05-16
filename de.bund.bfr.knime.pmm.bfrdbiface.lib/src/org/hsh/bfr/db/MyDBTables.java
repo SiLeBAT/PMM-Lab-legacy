@@ -486,13 +486,13 @@ public class MyDBTables {
 				new LinkedHashMap[]{null,null},
 				new String[]{null,null});
 		addTable(Konzentrationseinheiten, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
-		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung"},
-				new String[]{"VARCHAR(255)","VARCHAR(255)"},
-				new String[]{null,null},
-				new MyTable[]{null,null},
+		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
+				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
+				new String[]{null,null,null},
+				new MyTable[]{null,null,null},
 				null,
-				new LinkedHashMap[]{null,null},
-				new String[]{null,null});
+				new LinkedHashMap[]{null,null,null},
+				new String[]{null,null,null});
 		addTable(SonstigeParameter, -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		

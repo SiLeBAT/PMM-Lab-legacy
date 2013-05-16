@@ -5,11 +5,17 @@ public class Temperature implements Category {
 	public static final String CELSIUS = "°C";
 	public static final String FAHRENHEIT = "°F";
 
-	public static final String[] UNITS = { CELSIUS, FAHRENHEIT };
+	public Temperature() {
+	}
+
+	@Override
+	public String[] getAllUnits() {
+		return new String[] { CELSIUS, FAHRENHEIT };
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
-		return fromStandardUnit(toStandardUnit(value, fromUnit), toUnit);
+		return fromCelsius(toCelsius(value, fromUnit), toUnit);
 	}
 
 	@Override
@@ -17,7 +23,7 @@ public class Temperature implements Category {
 		return true;
 	}
 
-	private Double toStandardUnit(Double value, String unit) {
+	private Double toCelsius(Double value, String unit) {
 		if (value == null) {
 			return null;
 		}
@@ -32,7 +38,7 @@ public class Temperature implements Category {
 		}
 	}
 
-	private Double fromStandardUnit(Double value, String unit) {
+	private Double fromCelsius(Double value, String unit) {
 		if (value == null) {
 			return null;
 		}

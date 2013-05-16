@@ -11,21 +11,24 @@ public class Time implements Category {
 	public static final String DAY = "day";
 	public static final String WEEK = "week";
 
-	public static final String[] UNITS = { SECOND, MINUTE, HOUR, DAY, WEEK };
-
-	private Map<String, Double> factors;
-
 	public Time() {
-		factors = new LinkedHashMap<>();
+	}
+
+	@Override
+	public String[] getAllUnits() {
+		return new String[] { SECOND, MINUTE, HOUR, DAY, WEEK };
+	}
+
+	@Override
+	public Double convert(Double value, String fromUnit, String toUnit) {
+		Map<String, Double> factors = new LinkedHashMap<>();
+		
 		factors.put(SECOND, 1.0);
 		factors.put(MINUTE, 60.0);
 		factors.put(HOUR, 60 * 60.0);
 		factors.put(DAY, 24.0 * 60.0 * 60.0);
 		factors.put(WEEK, 7.0 * 24.0 * 60.0 * 60.0);
-	}
 
-	@Override
-	public Double convert(Double value, String fromUnit, String toUnit) {
 		if (value == null || factors.get(fromUnit) == null
 				|| factors.get(toUnit) == null) {
 			return null;

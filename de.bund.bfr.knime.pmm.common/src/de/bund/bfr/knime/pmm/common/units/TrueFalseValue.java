@@ -1,15 +1,15 @@
 package de.bund.bfr.knime.pmm.common.units;
 
-public class PH implements Category {
+public class TrueFalseValue implements Category {
 
-	public static final String PH_SCALE = "pH Scale";
-	
-	public PH() {		
+	public static final String TRUE_FALSE = "True/False";
+
+	public TrueFalseValue() {
 	}
 
 	@Override
 	public String[] getAllUnits() {
-		return new String[] { PH_SCALE };
+		return new String[] { TRUE_FALSE };
 	}
 
 	@Override

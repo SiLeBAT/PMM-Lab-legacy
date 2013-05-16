@@ -12,22 +12,14 @@ public class CFU implements Category {
 	public static final String LOG_CFU_PER_MILLILITER = "log CFU/ml";
 	public static final String LN_CFU_PER_MILLILITER = "ln CFU/ml";
 
-	public static final String[] UNITS = { CFU_PER_GRAMM, LOG_CFU_PER_GRAMM,
-			LN_CFU_PER_GRAMM, CFU_PER_MILLILITER, LOG_CFU_PER_MILLILITER,
-			LN_CFU_PER_MILLILITER };
-
-	private Set<String> weightUnits;
-	private Set<String> volumeUnits;
-
 	public CFU() {
-		weightUnits = new LinkedHashSet<>();
-		weightUnits.add(CFU_PER_GRAMM);
-		weightUnits.add(LOG_CFU_PER_GRAMM);
-		weightUnits.add(LN_CFU_PER_GRAMM);
-		volumeUnits = new LinkedHashSet<>();
-		volumeUnits.add(CFU_PER_MILLILITER);
-		volumeUnits.add(LOG_CFU_PER_MILLILITER);
-		volumeUnits.add(LN_CFU_PER_MILLILITER);
+	}
+
+	@Override
+	public String[] getAllUnits() {
+		return new String[] { CFU_PER_GRAMM, LOG_CFU_PER_GRAMM,
+				LN_CFU_PER_GRAMM, CFU_PER_MILLILITER, LOG_CFU_PER_MILLILITER,
+				LN_CFU_PER_MILLILITER };
 	}
 
 	@Override
@@ -36,17 +28,27 @@ public class CFU implements Category {
 			return null;
 		}
 
-		return fromStandardUnit(toStandardUnit(value, fromUnit), toUnit);
+		return fromCFU(toCFU(value, fromUnit), toUnit);
 	}
 
 	@Override
 	public boolean canConvert(String fromUnit, String toUnit) {
+		Set<String> weightUnits = new LinkedHashSet<>();
+		Set<String> volumeUnits = new LinkedHashSet<>();
+		
+		weightUnits.add(CFU_PER_GRAMM);
+		weightUnits.add(LOG_CFU_PER_GRAMM);
+		weightUnits.add(LN_CFU_PER_GRAMM);		
+		volumeUnits.add(CFU_PER_MILLILITER);
+		volumeUnits.add(LOG_CFU_PER_MILLILITER);
+		volumeUnits.add(LN_CFU_PER_MILLILITER);
+
 		return (weightUnits.contains(fromUnit) && weightUnits.contains(toUnit))
 				|| (volumeUnits.contains(fromUnit) && volumeUnits
 						.contains(toUnit));
 	}
 
-	private Double toStandardUnit(Double value, String unit) {
+	private Double toCFU(Double value, String unit) {
 		if (value == null) {
 			return null;
 		}
@@ -66,7 +68,7 @@ public class CFU implements Category {
 		}
 	}
 
-	private Double fromStandardUnit(Double value, String unit) {
+	private Double fromCFU(Double value, String unit) {
 		if (value == null) {
 			return null;
 		}

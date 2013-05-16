@@ -165,17 +165,17 @@ ttt = System.currentTimeMillis();
         				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,"°C");
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,"°C");
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_PH);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null,null);
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null,null);
         			miscDoc.add(mx);
         		}
         		tuple.addMiscs(miscDoc);

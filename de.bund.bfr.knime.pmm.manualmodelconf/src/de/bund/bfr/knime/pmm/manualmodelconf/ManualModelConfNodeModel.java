@@ -369,9 +369,9 @@ public class ManualModelConfNodeModel extends NodeModel {
 	        			MdInfoXml mdix = new MdInfoXml(ri, "i"+ri, comment, null, null);
 	        			mdInfoDoc.add(mdix);
 	        			tstuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
-	        			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,"°C");
-	        			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null);
-	        			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null);
+	        			tstuple.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,null,"°C");
+	        			tstuple.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null,null);
+	        			tstuple.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivity,null,null);
 
 	        		docTS = new PmmXmlDoc();
 	        		docTS.add(tstuple);

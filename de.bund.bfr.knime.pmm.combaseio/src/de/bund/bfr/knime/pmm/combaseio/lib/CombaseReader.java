@@ -162,7 +162,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				if (!token[1].endsWith(" °C")) throw new PmmException( "Temperature unit must be [°C]" );
 				Double value = parse(token[1].substring(0, pos));
 				//next.setTemperature(value);
-				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, value, "°C");
+				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID, AttributeUtilities.ATT_TEMPERATURE, AttributeUtilities.ATT_TEMPERATURE, value, null, "°C");
 				continue;
 			}
 			
@@ -170,7 +170,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			if( key.equals( "ph" ) ) {
 				Double value = parse(token[1]);
 				//next.setPh(value);
-				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value, null);
+				next.addMisc(AttributeUtilities.ATT_PH_ID, AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH, value, null, null);
 				continue;
 			}
 			
@@ -178,7 +178,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			if( key.equals( "water activity" ) ) {
 				Double value = parse(token[1]);
 				//next.setWaterActivity(value);
-				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_WATERACTIVITY, AttributeUtilities.ATT_WATERACTIVITY, value, null);
+				next.addMisc(AttributeUtilities.ATT_AW_ID, AttributeUtilities.ATT_WATERACTIVITY, AttributeUtilities.ATT_WATERACTIVITY, value, null, null);
 				continue;
 			}
 			
@@ -266,7 +266,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				}
 				// ersetzen mehrerer Spaces im Text durch lediglich eines, Bsp.: "was    ist los?" -> "was ist los?"
 				String description = val.trim().replaceAll(" +", " ");
-				MiscXml mx = getMiscXml(description, dbl, unit);
+				MiscXml mx = getMiscXml(description, dbl, null, unit);
 				//new MiscXml(newIDs.get(description), getCombaseName(description), description, dbl, unit);
 				result.add(mx);
 			}
@@ -306,7 +306,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		else id = newAgentIDs.get(agentsname);
 		next.setAgent(id, id < 0 ? null : agentsname, id < 0 ? agentsname : null);
 	}
-	private MiscXml getMiscXml(String description, Double dbl, String unit) {
+	private MiscXml getMiscXml(String description, Double dbl, String category, String unit) {
 		if (!newIDs.containsKey(description)) {
 			Integer id = DBKernel.getID("SonstigeParameter", "Beschreibung", description.toLowerCase());
 			if (id == null)  {
@@ -323,7 +323,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			}
 			newParams.put(description, param.toString());
 		}
-		return new MiscXml(newIDs.get(description), newParams.get(description), description, dbl, unit);
+		return new MiscXml(newIDs.get(description), newParams.get(description), description, dbl, category, unit);
 	}
 	private String getCombaseName(String description) {
 		String result = "";

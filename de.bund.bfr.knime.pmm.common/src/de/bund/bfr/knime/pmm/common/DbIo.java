@@ -137,7 +137,7 @@ public class DbIo {
 						String sdes = (sde == null || sde[i] == null ? null : sde[i].toString());
 						Double svd = (sv == null || sv[i] == null) ? Double.NaN : Double.parseDouble(sv[i].toString());
 						String sus = (su == null || su[i] == null ? null : su[i].toString());
-			    		MiscXml mx = new MiscXml(sidi,spas,sdes,svd,sus);
+			    		MiscXml mx = new MiscXml(sidi,spas,sdes,svd,null,sus);
 						miscDoc.add(mx);
 					}					
 				}

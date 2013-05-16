@@ -379,7 +379,7 @@ public class PredictorViewNodeModel extends NodeModel {
 				if (!cond.equals(concentrationParameters.get(selectedID))) {
 					miscXml.add(new MiscXml(MathUtilities
 							.getRandomNegativeInt(), cond, null, conditions
-							.get(cond).get(0), null));
+							.get(cond).get(0), null, null));
 				}
 			}
 		}

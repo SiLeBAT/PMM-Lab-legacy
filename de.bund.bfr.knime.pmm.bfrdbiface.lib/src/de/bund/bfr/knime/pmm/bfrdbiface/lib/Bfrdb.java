@@ -638,7 +638,7 @@ public class Bfrdb extends Hsqldbiface {
 		PreparedStatement ps = conn.prepareStatement( q );
 		ResultSet rs = ps.executeQuery();
 		while(rs.next()) {
-			MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),rs.getString("Einheit"));
+			MiscXml mx = new MiscXml(rs.getInt("SonstigesID"),rs.getString("Parameter"),rs.getString("Beschreibung"),rs.getDouble("Wert"),null,rs.getString("Einheit"));
 			miscDoc.add(mx);
 		}
 		return miscDoc;

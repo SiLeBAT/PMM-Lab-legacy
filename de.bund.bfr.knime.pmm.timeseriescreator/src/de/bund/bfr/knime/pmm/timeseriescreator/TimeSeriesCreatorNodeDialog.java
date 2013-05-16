@@ -957,14 +957,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
-									null, null));
+									null, null, null));
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column,
-									new MiscXml(AttributeUtilities.ATT_PH_ID,
-											AttributeUtilities.ATT_PH, null,
-											null, null));
+							mappings.put(column, new MiscXml(
+									AttributeUtilities.ATT_PH_ID,
+									AttributeUtilities.ATT_PH, null, null,
+									null, null));
 						} else if (selected
 								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
@@ -972,7 +972,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
 									AttributeUtilities.ATT_WATERACTIVITY, null,
-									null, null));
+									null, null, null));
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);
@@ -1023,7 +1023,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 							mappingButtons.get(column).setText(misc);
 							mappings.put(column, new MiscXml(miscID, misc,
-									null, null, null));
+									null, null, null, null));
 							pack();
 						}
 

@@ -474,7 +474,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			TimeSeriesXml tsx = (TimeSeriesXml) el;
 		                			addCells.put("name", tsx.getName() == null ? CellIO.createMissingCell() : new StringCell(tsx.getName())); 
 		                			addCells.put("time", tsx.getTime() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getTime()));
-		                			addCells.put("log10c", tsx.getLog10C() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getLog10C()));
+		                			addCells.put("log10c", tsx.getConcentration() == null ? CellIO.createMissingCell() : new DoubleCell(tsx.getConcentration()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof MdInfoXml) {

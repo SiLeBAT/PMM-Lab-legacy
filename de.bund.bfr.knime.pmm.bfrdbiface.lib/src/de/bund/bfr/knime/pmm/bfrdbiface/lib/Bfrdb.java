@@ -1387,7 +1387,7 @@ public class Bfrdb extends Hsqldbiface {
 			if (el instanceof TimeSeriesXml) {
 				TimeSeriesXml tsx = (TimeSeriesXml) el;
 				int timeId = insertDouble(tsx.getTime());				
-				int lognId = insertDouble(tsx.getLog10C());				
+				int lognId = insertDouble(tsx.getConcentration());				
 				insertData(condId, timeId, lognId);
 			}
 		}

@@ -267,7 +267,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
 				constants.put(AttributeUtilities.TIME, element.getTime());
-				element.setLog10C(computeLogc(formula, constants));
+				element.setConcentration(computeLogc(formula, constants));
 			}
 
 			for (KnimeTuple tuple : combinedTuples.get(newTuple)) {
@@ -332,7 +332,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					element.setLog10C(null);
+					element.setConcentration(null);
 				}
 			}
 
@@ -365,7 +365,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
 				constants.put(AttributeUtilities.TIME, element.getTime());
-				element.setLog10C(computeLogc(formula, constants));
+				element.setConcentration(computeLogc(formula, constants));
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);

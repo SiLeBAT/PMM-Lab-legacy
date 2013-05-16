@@ -185,8 +185,8 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 
 				element.setTime(AttributeUtilities.convertToStandardUnit(
 						AttributeUtilities.TIME, element.getTime(), timeUnit));
-				element.setLog10C(AttributeUtilities.convertToStandardUnit(
-						AttributeUtilities.LOGC, element.getLog10C(), logcUnit));
+				element.setConcentration(AttributeUtilities.convertToStandardUnit(
+						AttributeUtilities.LOGC, element.getConcentration(), logcUnit));
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);

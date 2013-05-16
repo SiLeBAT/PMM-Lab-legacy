@@ -156,20 +156,20 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		return ret;
 	}
 	
-	public void add(String name, Double t, Double n) throws PmmException {		
-		TimeSeriesXml tsx = new TimeSeriesXml(name, t, n);
+	public void add(String name, Double t, String tUnit, Double n, String nUnit) throws PmmException {		
+		TimeSeriesXml tsx = new TimeSeriesXml(name, t, tUnit, n, nUnit);
 		PmmXmlDoc timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 		timeSeriesXmlDoc.add(tsx);
 		this.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
 		setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);
 	}
-	public void add(Double t, Double n) throws PmmException {		
-		add("t"+System.currentTimeMillis(), t, n);
+	public void add(Double t, String tUnit, Double n, String nUnit) throws PmmException {		
+		add("t"+System.currentTimeMillis(), t, tUnit, n, nUnit);
 	}
 	
-	public void add(String t, String n) {		
+	public void add(String t, String tUnit, String n, String nUnit) {		
 		try {
-			add(Double.valueOf(t), Double.valueOf(n));
+			add(Double.valueOf(t), tUnit, Double.valueOf(n), nUnit);
 		}
 		catch( Exception ex ) {
 			ex.printStackTrace();

@@ -3,7 +3,7 @@ package de.bund.bfr.knime.pmm.common.units;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class CFU implements Category {
+public class BacterialConcentration implements Category {
 
 	public static final String CFU_PER_GRAMM = "CFU/g";
 	public static final String LOG_CFU_PER_GRAMM = "log CFU/g";
@@ -12,7 +12,7 @@ public class CFU implements Category {
 	public static final String LOG_CFU_PER_MILLILITER = "log CFU/ml";
 	public static final String LN_CFU_PER_MILLILITER = "ln CFU/ml";
 
-	public CFU() {
+	public BacterialConcentration() {
 	}
 
 	@Override

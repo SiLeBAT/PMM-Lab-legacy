@@ -107,8 +107,8 @@ public class QualityMeasurementComputation {
 			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
-				if (element.getTime() != null && element.getLog10C() != null) {
-					targetValues.add(element.getLog10C());
+				if (element.getTime() != null && element.getConcentration() != null) {
+					targetValues.add(element.getConcentration());
 					variableValues.get(AttributeUtilities.TIME).add(
 							element.getTime());
 

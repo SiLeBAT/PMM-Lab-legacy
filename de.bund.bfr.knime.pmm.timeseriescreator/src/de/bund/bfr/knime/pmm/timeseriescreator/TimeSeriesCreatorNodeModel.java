@@ -143,9 +143,9 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		for (Point2D.Double p : timeSeries) {
 			timeSeriesXml.add(new TimeSeriesXml(null, AttributeUtilities
 					.convertToStandardUnit(AttributeUtilities.TIME, p.x,
-							timeUnit), AttributeUtilities
+							timeUnit), null, AttributeUtilities
 					.convertToStandardUnit(AttributeUtilities.LOGC, p.y,
-							logcUnit)));
+							logcUnit), null));
 		}
 
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());

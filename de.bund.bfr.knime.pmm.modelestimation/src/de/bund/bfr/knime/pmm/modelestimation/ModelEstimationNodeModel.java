@@ -484,7 +484,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
 					timeValues.add(element.getTime());
-					targetValues.add(element.getLog10C());
+					targetValues.add(element.getConcentration());
 				}
 
 				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -1080,7 +1080,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 						TimeSeriesXml element = (TimeSeriesXml) el;
 
 						timeList.add(element.getTime());
-						targetValues.add(element.getLog10C());
+						targetValues.add(element.getConcentration());
 					}
 
 					for (PmmXmlElementConvertable el : misc.getElementSet()) {

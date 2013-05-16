@@ -289,7 +289,8 @@ public class XLSReader {
 					}
 				}
 
-				timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
+				timeSeriesXml.add(new TimeSeriesXml(null, time, null, logc,
+						null));
 			}
 		}
 

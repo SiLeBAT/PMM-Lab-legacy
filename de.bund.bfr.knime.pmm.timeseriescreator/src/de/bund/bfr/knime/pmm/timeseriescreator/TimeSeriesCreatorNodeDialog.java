@@ -828,7 +828,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					if (i < count) {
 						time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
 						logc = ((TimeSeriesXml) timeSeriesXml.get(i))
-								.getLog10C();
+								.getConcentration();
 					}
 
 					table.setTime(i, time);

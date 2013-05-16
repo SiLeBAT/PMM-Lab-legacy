@@ -65,7 +65,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 
 		for (TimeSeriesXml point : timeSeries) {
 			timeList.add(point.getTime());
-			logcList.add(point.getLog10C());
+			logcList.add(point.getConcentration());
 		}
 
 		Plotable plotable = new Plotable(Plotable.DATASET);

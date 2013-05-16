@@ -415,7 +415,8 @@ public class PredictorViewNodeModel extends NodeModel {
 				}
 
 				if (time != null || logc != null) {
-					timeSeriesXml.add(new TimeSeriesXml(null, time, logc));
+					timeSeriesXml.add(new TimeSeriesXml(null, time, null, logc,
+							null));
 				}
 			}
 		}

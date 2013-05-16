@@ -213,7 +213,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					if (Double.isNaN(t) || Double.isNaN(logc)) {
 						continue;
 					}					
-					next.add(t, logc);
+					next.add(t, null, logc, null);
 				}
 				break;
 			}

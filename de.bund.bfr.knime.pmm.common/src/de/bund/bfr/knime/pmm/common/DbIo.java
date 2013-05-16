@@ -34,8 +34,8 @@ public class DbIo {
 				for (String time : toksT) {
 					try {
 						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-								time.equals("?") ? null : Double.parseDouble(time),
-										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]));
+								time.equals("?") ? null : Double.parseDouble(time),null,
+										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),null);
 						tsDoc.add(tsx);
 					}
 					catch (Exception e) {

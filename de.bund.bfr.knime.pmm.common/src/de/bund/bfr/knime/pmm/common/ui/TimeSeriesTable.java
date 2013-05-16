@@ -46,7 +46,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 		for (int i = 0; i < timeSeries.size(); i++) {
 			setTime(i, timeSeries.get(i).getTime());
-			setLogc(i, timeSeries.get(i).getLog10C());
+			setLogc(i, timeSeries.get(i).getConcentration());
 		}
 	}
 
@@ -102,7 +102,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		List<TimeSeriesXml> timeSeries = new ArrayList<>();
 
 		for (int i = 0; i < rowCount; i++) {
-			timeSeries.add(new TimeSeriesXml(null, getTime(i), getLogc(i)));
+			timeSeries.add(new TimeSeriesXml(null, getTime(i), null,
+					getLogc(i), null));
 		}
 
 		return timeSeries;

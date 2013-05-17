@@ -89,6 +89,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.PH;
+import de.bund.bfr.knime.pmm.common.units.Temperature;
+import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "XLSModelReader" Node.
@@ -116,8 +121,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> sheetBox;
 	private List<String> fileSheetList;
 	private List<String> fileColumnList;
-
-	private JComboBox<String> tempBox;
 
 	private List<LiteratureItem> literature;
 	private JButton addLiteratureButton;
@@ -150,6 +153,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> columnBoxes;
 	private Map<String, JButton> columnButtons;
+	private Map<String, JComboBox<String>> columnUnitBoxes;
 	private Map<String, Object> columnMappings;
 
 	private JLabel noLabel;
@@ -168,10 +172,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		sheetBox.addItemListener(this);
 		fileSheetList = new ArrayList<>();
 		fileColumnList = new ArrayList<>();
-
-		tempBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
-				.toArray(new String[0]));
 
 		addLiteratureButton = new JButton("Add");
 		addLiteratureButton.addActionListener(this);
@@ -215,27 +215,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		columnsPanel.add(noLabel, BorderLayout.CENTER);
 		columnBoxes = new LinkedHashMap<>();
 		columnButtons = new LinkedHashMap<>();
+		columnUnitBoxes = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
-
-		JPanel northUnitsPanel = new JPanel();
-
-		northUnitsPanel.setLayout(new GridBagLayout());
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-				createConstraints(0, 0));
-		northUnitsPanel.add(tempBox, createConstraints(1, 0));
-
-		JPanel westUnitsPanel = new JPanel();
-
-		westUnitsPanel.setLayout(new BorderLayout());
-		westUnitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
-
-		JPanel unitsPanel = new JPanel();
-
-		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
-		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(westUnitsPanel, BorderLayout.WEST);
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -243,31 +224,20 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		northLiteraturePanel.add(addLiteratureButton);
 		northLiteraturePanel.add(removeLiteratureButton);
 
-		JPanel westLiteraturePanel = new JPanel();
-
-		westLiteraturePanel.setLayout(new BorderLayout());
-		westLiteraturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
-		westLiteraturePanel.add(new JScrollPane(literatureList,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-
 		JPanel literaturePanel = new JPanel();
 
 		literaturePanel.setBorder(BorderFactory
 				.createTitledBorder("Literature"));
 		literaturePanel.setLayout(new BorderLayout());
-		literaturePanel.add(westLiteraturePanel, BorderLayout.WEST);
-
-		JPanel unitsLiteraturePanel = new JPanel();
-
-		unitsLiteraturePanel.setLayout(new BorderLayout());
-		unitsLiteraturePanel.add(unitsPanel, BorderLayout.NORTH);
-		unitsLiteraturePanel.add(literaturePanel, BorderLayout.CENTER);
+		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
+		literaturePanel.add(new JScrollPane(literatureList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		optionsPanel.add(unitsLiteraturePanel);
+		optionsPanel.add(literaturePanel);
 		optionsPanel.add(modelPanel);
 		optionsPanel.add(agentPanel);
 		optionsPanel.add(matrixPanel);
@@ -354,14 +324,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
-		}
-
-		try {
-			tempBox.setSelectedItem(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT));
-		} catch (InvalidSettingsException e) {
-			tempBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
 		}
 
 		try {
@@ -541,8 +503,6 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				XmlConverter.mapToXml(modelMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.mapToXml(columnMappings));
-		settings.addString(XLSModelReaderNodeModel.CFGKEY_TEMPUNIT,
-				(String) tempBox.getSelectedItem());
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
@@ -712,10 +672,28 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					if (id != null) {
 						String name = DBKernel.getValue("SonstigeParameter",
 								"ID", id + "", "Parameter") + "";
+						String description = DBKernel.getValue(
+								"SonstigeParameter", "ID", id + "",
+								"Beschreibung")
+								+ "";
+						String categoryID = DBKernel
+								.getValue("SonstigeParameter", "ID", id + "",
+										"Kategorie")
+								+ "";
+						String unit = null;
+						Category category = Categories.getCategory(categoryID);
+
+						if (category != null) {
+							unit = category.getAllUnits()[0];
+						}
 
 						columnButtons.get(column).setText(name);
-						columnMappings.put(column, new MiscXml(id, name, null,
-								null, null, null, DBKernel.getLocalDBUUID()));
+						columnMappings.put(
+								column,
+								new MiscXml(id, name, description, null,
+										categoryID, unit, DBKernel
+												.getLocalDBUUID()));
+						updateColumnsPanel();
 					}
 
 					break;
@@ -776,21 +754,24 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						columnMappings.put(column, selected);
 					} else if (selected
 							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-						columnMappings.put(column, new MiscXml(
-								AttributeUtilities.ATT_TEMPERATURE_ID,
-								AttributeUtilities.ATT_TEMPERATURE, null, null,
-								null, null));
+						columnMappings.put(column,
+								new MiscXml(
+										AttributeUtilities.ATT_TEMPERATURE_ID,
+										AttributeUtilities.ATT_TEMPERATURE,
+										null, null, Categories.TEMPERATURE,
+										new Temperature().getAllUnits()[0]));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_PH_ID,
-								AttributeUtilities.ATT_PH, null, null, null,
-								null));
+								AttributeUtilities.ATT_PH, null, null,
+								Categories.PH, new PH().getAllUnits()[0]));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_AW_ID,
 								AttributeUtilities.ATT_WATERACTIVITY, null,
-								null, null, null));
+								null, Categories.WATER_ACTIVITY,
+								new WaterActivity().getAllUnits()[0]));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {
@@ -798,6 +779,18 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					}
 
 					updateColumnsPanel();
+					break;
+				}
+			}
+
+			for (String column : columnUnitBoxes.keySet()) {
+				if (e.getSource() == columnUnitBoxes.get(column)) {
+					String unit = (String) columnUnitBoxes.get(column)
+							.getSelectedItem();
+					MiscXml condition = (MiscXml) columnMappings.get(column);
+
+					condition.setUnit(unit);
+
 					break;
 				}
 			}
@@ -1037,6 +1030,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		if (!fileColumnList.isEmpty()) {
 			columnBoxes.clear();
 			columnButtons.clear();
+			columnUnitBoxes.clear();
 
 			JPanel northPanel = new JPanel();
 			int row = 0;
@@ -1101,6 +1095,26 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						createConstraints(0, row));
 				northPanel.add(box, createConstraints(1, row));
 				northPanel.add(button, createConstraints(2, row));
+
+				if (columnMappings.get(column) instanceof MiscXml) {
+					MiscXml condition = (MiscXml) columnMappings.get(column);
+					Category category = Categories.getCategory(condition
+							.getCategory());
+
+					if (category != null) {
+						JComboBox<String> unitBox = new JComboBox<>(
+								category.getAllUnits());
+
+						if (condition.getUnit() != null) {
+							unitBox.setSelectedItem(condition.getUnit());
+						}
+
+						unitBox.addItemListener(this);
+						columnUnitBoxes.put(column, unitBox);
+						northPanel.add(unitBox, createConstraints(3, row));
+					}
+				}
+
 				row++;
 			}
 

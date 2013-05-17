@@ -57,9 +57,7 @@ import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -85,7 +83,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
 	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
-	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 	protected static final String CFGKEY_MODELTUPLE = "ModelTuple";
 	protected static final String CFGKEY_AGENT = "Agent";
 	protected static final String CFGKEY_MATRIX = "Matrix";
@@ -99,7 +96,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 	private Map<String, AgentXml> agentMappings;
 	private String matrixColumn;
 	private Map<String, MatrixXml> matrixMappings;
-	private String tempUnit;
 	private KnimeTuple modelTuple;
 	private AgentXml agent;
 	private MatrixXml matrix;
@@ -119,8 +115,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		agentMappings = new LinkedHashMap<>();
 		matrixColumn = null;
 		matrixMappings = new LinkedHashMap<>();
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		agent = null;
 		matrix = null;
 		literature = new ArrayList<>();
@@ -209,21 +203,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 						.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
-			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				if (AttributeUtilities.ATT_TEMPERATURE
-						.equals(element.getName())) {
-					element.setValue(AttributeUtilities.convertToStandardUnit(
-							AttributeUtilities.ATT_TEMPERATURE,
-							element.getValue(), tempUnit));
-				}
-			}
-
-			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-
 			container.addRowToTable(tuple);
 		}
 
@@ -272,7 +251,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
 		settings.addString(CFGKEY_MATRIXMAPPINGS,
 				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
 		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
 		settings.addString(CFGKEY_LITERATURE,
@@ -299,7 +277,6 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		matrixMappings = XmlConverter.xmlToMatrixMap(settings
 				.getString(CFGKEY_MATRIXMAPPINGS));
-		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
 		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
 		literature = XmlConverter.xmlToLiteratureList(settings

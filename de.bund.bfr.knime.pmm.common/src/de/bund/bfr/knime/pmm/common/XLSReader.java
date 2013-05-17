@@ -69,7 +69,8 @@ public class XLSReader {
 	}
 
 	public Map<String, KnimeTuple> getTimeSeriesTuples(File file, String sheet,
-			Map<String, Object> columnMappings, String agentColumnName,
+			Map<String, Object> columnMappings, String timeUnit,
+			String concentrationUnit, String agentColumnName,
 			Map<String, AgentXml> agentMappings, String matrixColumnName,
 			Map<String, MatrixXml> matrixMappings) throws Exception {
 		warnings.clear();
@@ -289,8 +290,8 @@ public class XLSReader {
 					}
 				}
 
-				timeSeriesXml.add(new TimeSeriesXml(null, time, null, logc,
-						null));
+				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc,
+						concentrationUnit));
 			}
 		}
 

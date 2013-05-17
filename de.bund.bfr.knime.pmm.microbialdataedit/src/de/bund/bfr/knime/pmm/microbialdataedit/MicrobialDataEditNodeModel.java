@@ -243,7 +243,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				}
 
 				miscXml.add(new MiscXml(cond.getID(), cond.getName(), null,
-						addedConditions.get(cond).get(id), null, cond
+						addedConditions.get(cond).get(id), null, null, cond
 								.getDbuuid()));
 			}
 

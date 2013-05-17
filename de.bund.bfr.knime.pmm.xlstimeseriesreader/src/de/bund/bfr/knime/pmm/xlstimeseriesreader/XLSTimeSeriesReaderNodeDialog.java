@@ -81,6 +81,13 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.PH;
+import de.bund.bfr.knime.pmm.common.units.Temperature;
+import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "XLSTimeSeriesReader" Node.
@@ -108,10 +115,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private List<String> fileSheetList;
 	private List<String> fileColumnList;
 
-	private JComboBox<String> timeBox;
-	private JComboBox<String> logcBox;
-	private JComboBox<String> tempBox;
-
 	private List<LiteratureItem> literature;
 	private JButton addLiteratureButton;
 	private JButton removeLiteratureButton;
@@ -137,7 +140,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	private JPanel columnsPanel;
 	private Map<String, JComboBox<String>> columnBoxes;
 	private Map<String, JButton> columnButtons;
+	private Map<String, JComboBox<String>> columnUnitBoxes;
 	private Map<String, Object> columnMappings;
+	private String timeUnit;
+	private String concentrationUnit;
 
 	private JLabel noLabel;
 
@@ -155,16 +161,6 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		sheetBox.addItemListener(this);
 		fileSheetList = new ArrayList<>();
 		fileColumnList = new ArrayList<>();
-
-		timeBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.TIME).toArray(
-						new String[0]));
-		logcBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.LOGC).toArray(
-						new String[0]));
-		tempBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
-				.toArray(new String[0]));
 
 		addLiteratureButton = new JButton("Add");
 		addLiteratureButton.addActionListener(this);
@@ -197,35 +193,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		columnsPanel.add(noLabel, BorderLayout.CENTER);
 		columnBoxes = new LinkedHashMap<>();
 		columnButtons = new LinkedHashMap<>();
+		columnUnitBoxes = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
-
-		JPanel northUnitsPanel = new JPanel();
-
-		northUnitsPanel.setLayout(new GridBagLayout());
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
-						+ ":"), createConstraints(0, 0));
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities.getName(AttributeUtilities.LOGC)
-						+ ":"), createConstraints(0, 1));
-		northUnitsPanel.add(
-				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
-				createConstraints(0, 2));
-		northUnitsPanel.add(timeBox, createConstraints(1, 0));
-		northUnitsPanel.add(logcBox, createConstraints(1, 1));
-		northUnitsPanel.add(tempBox, createConstraints(1, 2));
-
-		JPanel westUnitsPanel = new JPanel();
-
-		westUnitsPanel.setLayout(new BorderLayout());
-		westUnitsPanel.add(northUnitsPanel, BorderLayout.NORTH);
-
-		JPanel unitsPanel = new JPanel();
-
-		unitsPanel.setBorder(BorderFactory.createTitledBorder("Units"));
-		unitsPanel.setLayout(new BorderLayout());
-		unitsPanel.add(westUnitsPanel, BorderLayout.WEST);
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -233,31 +202,20 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		northLiteraturePanel.add(addLiteratureButton);
 		northLiteraturePanel.add(removeLiteratureButton);
 
-		JPanel westLiteraturePanel = new JPanel();
-
-		westLiteraturePanel.setLayout(new BorderLayout());
-		westLiteraturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
-		westLiteraturePanel.add(new JScrollPane(literatureList,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
-
 		JPanel literaturePanel = new JPanel();
 
 		literaturePanel.setBorder(BorderFactory
 				.createTitledBorder("Literature"));
 		literaturePanel.setLayout(new BorderLayout());
-		literaturePanel.add(westLiteraturePanel, BorderLayout.WEST);
-
-		JPanel unitsLiteraturePanel = new JPanel();
-
-		unitsLiteraturePanel.setLayout(new BorderLayout());
-		unitsLiteraturePanel.add(unitsPanel, BorderLayout.NORTH);
-		unitsLiteraturePanel.add(literaturePanel, BorderLayout.CENTER);
+		literaturePanel.add(northLiteraturePanel, BorderLayout.NORTH);
+		literaturePanel.add(new JScrollPane(literatureList,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 
 		JPanel optionsPanel = new JPanel();
 
 		optionsPanel.setLayout(new BoxLayout(optionsPanel, BoxLayout.X_AXIS));
-		optionsPanel.add(unitsLiteraturePanel);
+		optionsPanel.add(literaturePanel);
 		optionsPanel.add(agentPanel);
 		optionsPanel.add(matrixPanel);
 		optionsPanel.add(columnsPanel);
@@ -333,27 +291,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			timeBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT));
+			timeUnit = settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT);
 		} catch (InvalidSettingsException e) {
-			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.TIME));
+			timeUnit = null;
 		}
 
 		try {
-			logcBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT));
+			concentrationUnit = settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_CONCENTRATIONUNIT);
 		} catch (InvalidSettingsException e) {
-			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.LOGC));
-		}
-
-		try {
-			tempBox.setSelectedItem(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT));
-		} catch (InvalidSettingsException e) {
-			tempBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
+			concentrationUnit = null;
 		}
 
 		try {
@@ -537,11 +485,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.mapToXml(columnMappings));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
-				(String) timeBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LOGCUNIT,
-				(String) logcBox.getSelectedItem());
-		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TEMPUNIT,
-				(String) tempBox.getSelectedItem());
+				timeUnit);
+		settings.addString(
+				XLSTimeSeriesReaderNodeModel.CFGKEY_CONCENTRATIONUNIT,
+				concentrationUnit);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
@@ -689,10 +636,28 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					if (id != null) {
 						String name = DBKernel.getValue("SonstigeParameter",
 								"ID", id + "", "Parameter") + "";
+						String description = DBKernel.getValue(
+								"SonstigeParameter", "ID", id + "",
+								"Beschreibung")
+								+ "";
+						String categoryID = DBKernel
+								.getValue("SonstigeParameter", "ID", id + "",
+										"Kategorie")
+								+ "";
+						String unit = null;
+						Category category = Categories.getCategory(categoryID);
+
+						if (category != null) {
+							unit = category.getAllUnits()[0];
+						}
 
 						columnButtons.get(column).setText(name);
-						columnMappings.put(column, new MiscXml(id, name, null,
-								null, null, DBKernel.getLocalDBUUID()));
+						columnMappings.put(
+								column,
+								new MiscXml(id, name, description, null,
+										categoryID, unit, DBKernel
+												.getLocalDBUUID()));
+						updateColumnsPanel();
 					}
 
 					break;
@@ -743,21 +708,24 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnMappings.put(column, selected);
 					} else if (selected
 							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-						columnMappings.put(column, new MiscXml(
-								AttributeUtilities.ATT_TEMPERATURE_ID,
-								AttributeUtilities.ATT_TEMPERATURE, null, null,
-								null, null));
+						columnMappings.put(column,
+								new MiscXml(
+										AttributeUtilities.ATT_TEMPERATURE_ID,
+										AttributeUtilities.ATT_TEMPERATURE,
+										null, null, Categories.TEMPERATURE,
+										new Temperature().getAllUnits()[0]));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_PH_ID,
-								AttributeUtilities.ATT_PH, null, null, null,
-								null));
+								AttributeUtilities.ATT_PH, null, null,
+								Categories.PH, new PH().getAllUnits()[0]));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_AW_ID,
 								AttributeUtilities.ATT_WATERACTIVITY, null,
-								null, null, null));
+								null, Categories.WATER_ACTIVITY,
+								new WaterActivity().getAllUnits()[0]));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {
@@ -765,6 +733,30 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					}
 
 					updateColumnsPanel();
+					break;
+				}
+			}
+
+			for (String column : columnUnitBoxes.keySet()) {
+				if (e.getSource() == columnUnitBoxes.get(column)) {
+					String unit = (String) columnUnitBoxes.get(column)
+							.getSelectedItem();
+
+					if (columnMappings.get(column) instanceof MiscXml) {
+						MiscXml condition = (MiscXml) columnMappings
+								.get(column);
+
+						condition.setUnit(unit);
+					} else if (columnMappings.get(column) instanceof String) {
+						String mapping = (String) columnMappings.get(column);
+
+						if (mapping.equals(AttributeUtilities.TIME)) {
+							timeUnit = unit;
+						} else if (mapping.equals(AttributeUtilities.LOGC)) {
+							concentrationUnit = unit;
+						}
+					}
+
 					break;
 				}
 			}
@@ -947,6 +939,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		if (!fileColumnList.isEmpty()) {
 			columnBoxes.clear();
 			columnButtons.clear();
+			columnUnitBoxes.clear();
 
 			JPanel northPanel = new JPanel();
 			int row = 0;
@@ -1012,6 +1005,55 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						createConstraints(0, row));
 				northPanel.add(box, createConstraints(1, row));
 				northPanel.add(button, createConstraints(2, row));
+
+				if (columnMappings.get(column) instanceof MiscXml) {
+					MiscXml condition = (MiscXml) columnMappings.get(column);
+					Category category = Categories.getCategory(condition
+							.getCategory());
+
+					if (category != null) {
+						JComboBox<String> unitBox = new JComboBox<>(
+								category.getAllUnits());
+
+						if (condition.getUnit() != null) {
+							unitBox.setSelectedItem(condition.getUnit());
+						}
+
+						unitBox.addItemListener(this);
+						columnUnitBoxes.put(column, unitBox);
+						northPanel.add(unitBox, createConstraints(3, row));
+					}
+				} else if (columnMappings.get(column) instanceof String) {
+					String mapping = (String) columnMappings.get(column);
+
+					if (mapping.equals(AttributeUtilities.TIME)) {
+						JComboBox<String> unitBox = new JComboBox<>(
+								new Time().getAllUnits());
+
+						if (timeUnit == null) {
+							timeUnit = new Time().getAllUnits()[0];
+						}
+
+						unitBox.setSelectedItem(timeUnit);
+						unitBox.addItemListener(this);
+						columnUnitBoxes.put(column, unitBox);
+						northPanel.add(unitBox, createConstraints(3, row));
+					} else if (mapping.equals(AttributeUtilities.LOGC)) {
+						JComboBox<String> unitBox = new JComboBox<>(
+								new BacterialConcentration().getAllUnits());
+
+						if (concentrationUnit == null) {
+							concentrationUnit = new BacterialConcentration()
+									.getAllUnits()[0];
+						}
+
+						unitBox.setSelectedItem(concentrationUnit);
+						unitBox.addItemListener(this);
+						columnUnitBoxes.put(column, unitBox);
+						northPanel.add(unitBox, createConstraints(3, row));
+					}
+				}
+
 				row++;
 			}
 

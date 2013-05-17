@@ -94,6 +94,8 @@ import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesCreator" Node.
@@ -629,7 +631,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						+ "";
 
 				condButtons.get(i).setText(name);
-				conditions.set(i, new MiscXml(id, name, null, null, null,
+				conditions.set(i, new MiscXml(id, name, null, null, null, null,
 						DBKernel.getLocalDBUUID()));
 			}
 		}
@@ -750,7 +752,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				try {
 					tuples = xlsReader.getTimeSeriesTuples(
 							fileChooser.getSelectedFile(), (String) sheet,
-							dialog.getMappings(), null, null, null, null);
+							dialog.getMappings(), new Time().getAllUnits()[0],
+							new BacterialConcentration().getAllUnits()[0],
+							null, null, null, null);
 
 					if (!xlsReader.getWarnings().isEmpty()) {
 						JOptionPane.showMessageDialog(panel, xlsReader
@@ -1023,7 +1027,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 							mappingButtons.get(column).setText(misc);
 							mappings.put(column, new MiscXml(miscID, misc,
-									null, null, null, null));
+									null, null, null, null, null));
 							pack();
 						}
 

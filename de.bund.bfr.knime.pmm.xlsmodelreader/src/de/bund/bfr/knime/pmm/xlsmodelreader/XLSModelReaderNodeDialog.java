@@ -715,7 +715,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						columnButtons.get(column).setText(name);
 						columnMappings.put(column, new MiscXml(id, name, null,
-								null, null, DBKernel.getLocalDBUUID()));
+								null, null, null, DBKernel.getLocalDBUUID()));
 					}
 
 					break;

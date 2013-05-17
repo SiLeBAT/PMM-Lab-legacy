@@ -18,6 +18,10 @@ public class Categories {
 	}
 
 	public static Category getCategory(String id) {
+		if (id == null) {
+			return null;
+		}
+		
 		switch (id) {
 		case BACTERIAL_CONCENTRATION:
 			return new BacterialConcentration();

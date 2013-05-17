@@ -54,14 +54,10 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XLSReader;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -76,13 +72,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	protected static final String CFGKEY_FILENAME = "FileName";
 	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
+	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
+	protected static final String CFGKEY_CONCENTRATIONUNIT = "ConcentrationUnit";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
 	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
-	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
-	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 	protected static final String CFGKEY_AGENT = "Agent";
 	protected static final String CFGKEY_MATRIX = "Matrix";
 	protected static final String CFGKEY_LITERATURE = "Literature";
@@ -90,13 +85,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 	private String fileName;
 	private String sheetName;
 	private Map<String, Object> columnMappings;
+	private String timeUnit;
+	private String concentrationUnit;
 	private String agentColumn;
 	private Map<String, AgentXml> agentMappings;
 	private String matrixColumn;
 	private Map<String, MatrixXml> matrixMappings;
-	private String timeUnit;
-	private String logcUnit;
-	private String tempUnit;
 	private AgentXml agent;
 	private MatrixXml matrix;
 	private List<LiteratureItem> literature;
@@ -109,14 +103,12 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		fileName = null;
 		sheetName = null;
 		columnMappings = new LinkedHashMap<>();
+		timeUnit = null;
+		concentrationUnit = null;
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
 		matrixColumn = null;
 		matrixMappings = new LinkedHashMap<>();
-		timeUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC);
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
 		agent = null;
 		matrix = null;
 		literature = new ArrayList<>();
@@ -131,8 +123,9 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		XLSReader xlsReader = new XLSReader();
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
 				.getTimeSeriesTuples(new File(fileName), sheetName,
-						columnMappings, agentColumn, agentMappings,
-						matrixColumn, matrixMappings).values());
+						columnMappings, timeUnit, concentrationUnit,
+						agentColumn, agentMappings, matrixColumn,
+						matrixMappings).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);
@@ -177,35 +170,6 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 						.createSpec());
 
 		for (KnimeTuple tuple : tuples) {
-			PmmXmlDoc timeSeriesXml = tuple
-					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-
-			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
-				TimeSeriesXml element = (TimeSeriesXml) el;
-
-				element.setTime(AttributeUtilities.convertToStandardUnit(
-						AttributeUtilities.TIME, element.getTime(), timeUnit));
-				element.setConcentration(AttributeUtilities.convertToStandardUnit(
-						AttributeUtilities.LOGC, element.getConcentration(), logcUnit));
-			}
-
-			tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
-
-			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				if (AttributeUtilities.ATT_TEMPERATURE
-						.equals(element.getName())) {
-					element.setValue(AttributeUtilities.convertToStandardUnit(
-							AttributeUtilities.ATT_TEMPERATURE,
-							element.getValue(), tempUnit));
-				}
-			}
-
-			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-
 			container.addRowToTable(tuple);
 		}
 
@@ -244,15 +208,14 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_SHEETNAME, sheetName);
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.mapToXml(columnMappings));
+		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
+		settings.addString(CFGKEY_CONCENTRATIONUNIT, concentrationUnit);
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
 		settings.addString(CFGKEY_AGENTMAPPINGS,
 				XmlConverter.mapToXml(agentMappings));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
 		settings.addString(CFGKEY_MATRIXMAPPINGS,
 				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
-		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
-		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
 		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
 		settings.addString(CFGKEY_LITERATURE,
@@ -269,15 +232,14 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		sheetName = settings.getString(CFGKEY_SHEETNAME);
 		columnMappings = XmlConverter.xmlToObjectMap(settings
 				.getString(CFGKEY_COLUMNMAPPINGS));
+		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
+		concentrationUnit = settings.getString(CFGKEY_CONCENTRATIONUNIT);
 		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
 		agentMappings = XmlConverter.xmlToAgentMap(settings
 				.getString(CFGKEY_AGENTMAPPINGS));
 		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
 		matrixMappings = XmlConverter.xmlToMatrixMap(settings
 				.getString(CFGKEY_MATRIXMAPPINGS));
-		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
-		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
 		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
 		literature = XmlConverter.xmlToLiteratureList(settings

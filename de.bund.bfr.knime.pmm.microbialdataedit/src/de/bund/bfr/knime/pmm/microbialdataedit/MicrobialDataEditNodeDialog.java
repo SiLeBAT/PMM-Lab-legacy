@@ -474,8 +474,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					addedConditionNames.add(name);
 					addedConditionsList.setListData(addedConditionNames
 							.toArray(new String[0]));
-					((EditTable) table.getModel()).addCondition(new MiscXml(id,
-							name, null, null, null, DBKernel.getLocalDBUUID()),
+					((EditTable) table.getModel()).addCondition(
+							new MiscXml(id, name, null, null, null, null,
+									DBKernel.getLocalDBUUID()),
 							new LinkedHashMap<String, Double>());
 					table.repaint();
 				} else {

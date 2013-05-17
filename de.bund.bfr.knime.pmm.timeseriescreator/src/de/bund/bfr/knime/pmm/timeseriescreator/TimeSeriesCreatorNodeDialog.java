@@ -45,7 +45,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -95,7 +94,12 @@ import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
 import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.PH;
+import de.bund.bfr.knime.pmm.common.units.Temperature;
 import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesCreator" Node.
@@ -142,10 +146,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private JComboBox<String> timeBox;
 	private JComboBox<String> logcBox;
 	private JComboBox<String> tempBox;
+	private JComboBox<String> phBox;
+	private JComboBox<String> awBox;
 
 	private List<MiscXml> conditions;
 	private List<JButton> condButtons;
 	private List<DoubleTextField> condValueFields;
+	private List<JComboBox<String>> condUnitFields;
 	private List<JButton> addButtons;
 	private List<JButton> removeButtons;
 
@@ -161,6 +168,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		condButtons = new ArrayList<>();
 		conditions = new ArrayList<>();
 		condValueFields = new ArrayList<>();
+		condUnitFields = new ArrayList<>();
 		addButtons = new ArrayList<>();
 		removeButtons = new ArrayList<>();
 
@@ -196,15 +204,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				true);
 		waterActivityField.setPreferredSize(new Dimension(100,
 				waterActivityField.getPreferredSize().height));
-		timeBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.TIME).toArray(
-						new String[0]));
-		logcBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.LOGC).toArray(
-						new String[0]));
-		tempBox = new JComboBox<String>(AttributeUtilities
-				.getUnitsForAttribute(AttributeUtilities.ATT_TEMPERATURE)
-				.toArray(new String[0]));
+		timeBox = new JComboBox<String>(new Time().getAllUnits());
+		logcBox = new JComboBox<String>(
+				new BacterialConcentration().getAllUnits());
+		tempBox = new JComboBox<String>(new Temperature().getAllUnits());
+		phBox = new JComboBox<String>(new PH().getAllUnits());
+		awBox = new JComboBox<String>(new WaterActivity().getAllUnits());
 
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
@@ -253,6 +258,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		settingsPanel.add(timeBox, createConstraints(2, 5));
 		settingsPanel.add(logcBox, createConstraints(2, 6));
 		settingsPanel.add(tempBox, createConstraints(2, 7));
+		settingsPanel.add(phBox, createConstraints(2, 8));
+		settingsPanel.add(awBox, createConstraints(2, 9));
 
 		settingsPanel.add(addLiteratureButton, createConstraints(3, 0));
 		settingsPanel.add(removeLiteratureButton, createConstraints(4, 0));
@@ -321,18 +328,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			List<Point2D.Double> timeSeries = XmlConverter
-					.xmlToPointDoubleList(settings
+			List<TimeSeriesXml> timeSeries = XmlConverter
+					.xmlToTimeSeriesList(settings
 							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES));
 
 			for (int i = 0; i < timeSeries.size(); i++) {
-				if (!Double.isNaN(timeSeries.get(i).x)) {
-					table.setTime(i, timeSeries.get(i).x);
-				}
-
-				if (!Double.isNaN(timeSeries.get(i).y)) {
-					table.setLogc(i, timeSeries.get(i).y);
-				}
+				table.setTime(i, timeSeries.get(i).getTime());
+				table.setLogc(i, timeSeries.get(i).getConcentration());
 			}
 		} catch (InvalidSettingsException e) {
 		} catch (NullPointerException e) {
@@ -354,14 +356,6 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					.getStandardUnit(AttributeUtilities.LOGC));
 		}
 
-		try {
-			tempBox.setSelectedItem(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT));
-		} catch (InvalidSettingsException e) {
-			tempBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE));
-		}
-
 		List<MiscXml> miscValues;
 		int n = removeButtons.size();
 
@@ -379,15 +373,28 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		for (MiscXml misc : miscValues) {
 			if (misc.getID() == AttributeUtilities.ATT_TEMPERATURE_ID) {
 				temperatureField.setValue(misc.getValue());
+				tempBox.setSelectedItem(misc.getUnit());
 			} else if (misc.getID() == AttributeUtilities.ATT_PH_ID) {
 				phField.setValue(misc.getValue());
+				phBox.setSelectedItem(misc.getUnit());
 			} else if (misc.getID() == AttributeUtilities.ATT_AW_ID) {
 				waterActivityField.setValue(misc.getValue());
+				awBox.setSelectedItem(misc.getUnit());
 			} else {
 				addButtons(0);
 				condButtons.get(0).setText(misc.getName());
 				conditions.set(0, misc);
 				condValueFields.get(0).setValue(misc.getValue());
+
+				Category category = Categories.getCategory(misc.getCategory());
+
+				if (category != null) {
+					for (String u : category.getAllUnits()) {
+						condUnitFields.get(0).addItem(u);
+					}
+
+					condUnitFields.get(0).setSelectedItem(misc.getUnit());
+				}
 			}
 		}
 	}
@@ -424,22 +431,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					commentField.getValue());
 		}
 
-		List<Point2D.Double> timeSeries = new ArrayList<>();
+		List<TimeSeriesXml> timeSeries = new ArrayList<>();
+		String timeUnit = (String) timeBox.getSelectedItem();
+		String concentrationUnit = (String) logcBox.getSelectedItem();
 
 		for (int i = 0; i < ROW_COUNT; i++) {
 			Double time = table.getTime(i);
 			Double logc = table.getLogc(i);
 
 			if (time != null || logc != null) {
-				if (time == null) {
-					time = Double.NaN;
-				}
-
-				if (logc == null) {
-					logc = Double.NaN;
-				}
-
-				timeSeries.add(new Point2D.Double(time, logc));
+				timeSeries.add(new TimeSeriesXml(null, time, timeUnit, logc,
+						concentrationUnit));
 			}
 		}
 
@@ -455,33 +457,38 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
 				(String) logcBox.getSelectedItem());
-		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TEMPUNIT,
-				(String) tempBox.getSelectedItem());
 
 		List<MiscXml> miscValues = new ArrayList<>();
 
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
-							.getValue(), null, null));
+							.getValue(), Categories.TEMPERATURE,
+					(String) tempBox.getSelectedItem()));
 		}
 
 		if (phField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
-					AttributeUtilities.ATT_PH, null, phField.getValue(), null,
-					null));
+					AttributeUtilities.ATT_PH, null, phField.getValue(),
+					Categories.PH, (String) phBox.getSelectedItem()));
 		}
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 					AttributeUtilities.ATT_WATERACTIVITY, null,
-					waterActivityField.getValue(), null, null));
+					waterActivityField.getValue(), Categories.WATER_ACTIVITY,
+					(String) awBox.getSelectedItem()));
 		}
 
 		for (int i = 0; i < conditions.size(); i++) {
 			MiscXml cond = conditions.get(i);
 
 			cond.setValue(condValueFields.get(i).getValue());
+
+			if (condUnitFields.get(i).getSelectedItem() != null) {
+				cond.setUnit((String) condUnitFields.get(i).getSelectedItem());
+			}
+
 			miscValues.add(cond);
 		}
 
@@ -629,10 +636,25 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				String name = DBKernel.getValue("SonstigeParameter", "ID", id
 						+ "", "Parameter")
 						+ "";
+				String description = DBKernel.getValue("SonstigeParameter",
+						"ID", id + "", "Beschreibung") + "";
+				String categoryID = DBKernel.getValue("SonstigeParameter",
+						"ID", id + "", "Kategorie") + "";
+				Category category = Categories.getCategory(categoryID);
 
 				condButtons.get(i).setText(name);
-				conditions.set(i, new MiscXml(id, name, null, null, null, null,
-						DBKernel.getLocalDBUUID()));
+				conditions.set(i, new MiscXml(id, name, description, null,
+						categoryID, null, DBKernel.getLocalDBUUID()));
+				condUnitFields.get(i).removeAllItems();
+
+				if (category != null) {
+					for (String u : category.getAllUnits()) {
+						condUnitFields.get(i).addItem(u);
+					}
+
+					condUnitFields.get(i).setSelectedItem(
+							category.getStandardUnit());
+				}
 			}
 		}
 	}
@@ -651,6 +673,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			JButton removeButton = new JButton("-");
 			JButton button = new JButton(OTHER_PARAMETER);
 			DoubleTextField valueField = new DoubleTextField(true);
+			JComboBox<String> unitBox = new JComboBox<>();
 
 			addButton.addActionListener(this);
 			removeButton.addActionListener(this);
@@ -674,11 +697,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				settingsPanel.remove(c);
 			}
 
+			for (JComboBox<String> c : condUnitFields) {
+				settingsPanel.remove(c);
+			}
+
 			addButtons.add(i, addButton);
 			removeButtons.add(i, removeButton);
 			conditions.add(i, null);
 			condButtons.add(i, button);
 			condValueFields.add(i, valueField);
+			condUnitFields.add(i, unitBox);
 
 			for (int j = 0; j < addButtons.size(); j++) {
 				settingsPanel.add(addButtons.get(j),
@@ -700,6 +728,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						createConstraints(1, settingsPanelRows + j));
 			}
 
+			for (int j = 0; j < condUnitFields.size(); j++) {
+				settingsPanel.add(condUnitFields.get(j),
+						createConstraints(2, settingsPanelRows + j));
+			}
+
 			settingsPanel.revalidate();
 		}
 	}
@@ -710,6 +743,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		conditions.remove(i);
 		settingsPanel.remove(condButtons.remove(i));
 		settingsPanel.remove(condValueFields.remove(i));
+		settingsPanel.remove(condUnitFields.remove(i));
 	}
 
 	private void loadFromXLS() {
@@ -752,9 +786,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				try {
 					tuples = xlsReader.getTimeSeriesTuples(
 							fileChooser.getSelectedFile(), (String) sheet,
-							dialog.getMappings(), new Time().getAllUnits()[0],
-							new BacterialConcentration().getAllUnits()[0],
-							null, null, null, null);
+							dialog.getMappings(), dialog.getTimeUnit(),
+							dialog.getConcentrationUnit(), null, null, null,
+							null);
 
 					if (!xlsReader.getWarnings().isEmpty()) {
 						JOptionPane.showMessageDialog(panel, xlsReader
@@ -795,6 +829,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 					int id = misc.getID();
 					String name = misc.getName();
 					Double value = misc.getValue();
+					String unit = misc.getUnit();
 
 					if (value != null && value.isNaN()) {
 						value = null;
@@ -802,15 +837,19 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 					if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
 						temperatureField.setValue(value);
+						tempBox.setSelectedItem(unit);
 					} else if (id == AttributeUtilities.ATT_PH_ID) {
 						phField.setValue(value);
+						phBox.setSelectedItem(unit);
 					} else if (id == AttributeUtilities.ATT_AW_ID) {
 						waterActivityField.setValue(value);
+						awBox.setSelectedItem(unit);
 					} else {
 						addButtons(0);
 						condButtons.get(0).setText(name);
 						conditions.set(0, misc);
 						condValueFields.get(0).setValue(value);
+						condUnitFields.get(0).setSelectedItem(unit);
 					}
 				}
 
@@ -862,7 +901,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		private Map<String, JComboBox<String>> mappingBoxes;
 		private Map<String, JButton> mappingButtons;
+		private Map<String, JComboBox<String>> unitBoxes;
 		private Map<String, Object> mappings;
+		private String timeUnit;
+		private String concentrationUnit;
 
 		private JButton okButton;
 		private JButton cancelButton;
@@ -874,8 +916,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			approved = false;
 
 			mappings = new LinkedHashMap<>();
+			timeUnit = null;
+			concentrationUnit = null;
+
 			mappingBoxes = new LinkedHashMap<>();
 			mappingButtons = new LinkedHashMap<>();
+			unitBoxes = new LinkedHashMap<>();
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
@@ -897,6 +943,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
 						NO_PARAMETER });
 				JButton button = new JButton();
+				JComboBox<String> unitBox = new JComboBox<>();
 
 				box.setSelectedItem(NO_PARAMETER);
 				button.setEnabled(false);
@@ -904,14 +951,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				box.addItemListener(this);
 				button.addActionListener(this);
+				unitBox.addItemListener(this);
 
 				mappingBoxes.put(column, box);
 				mappingButtons.put(column, button);
+				unitBoxes.put(column, unitBox);
 
 				northPanel.add(new JLabel(column + ":"),
 						createConstraints(0, row));
 				northPanel.add(box, createConstraints(1, row));
 				northPanel.add(button, createConstraints(2, row));
+				northPanel.add(unitBox, createConstraints(3, row));
 				row++;
 			}
 
@@ -938,6 +988,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			return mappings;
 		}
 
+		public String getTimeUnit() {
+			return timeUnit;
+		}
+
+		public String getConcentrationUnit() {
+			return concentrationUnit;
+		}
+
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -961,14 +1019,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
-									null, null, null));
+									null, Categories.TEMPERATURE,
+									new Temperature().getStandardUnit()));
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_PH_ID,
 									AttributeUtilities.ATT_PH, null, null,
-									null, null));
+									Categories.PH, new PH().getStandardUnit()));
 						} else if (selected
 								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
@@ -976,7 +1035,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
 									AttributeUtilities.ATT_WATERACTIVITY, null,
-									null, null, null));
+									null, Categories.WATER_ACTIVITY,
+									new WaterActivity().getStandardUnit()));
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);
@@ -985,6 +1045,29 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.remove(column);
+						}
+
+						break;
+					}
+				}
+
+				for (String column : unitBoxes.keySet()) {
+					if (e.getSource() == unitBoxes.get(column)) {
+						String unit = (String) unitBoxes.get(column)
+								.getSelectedItem();
+
+						if (mappings.get(column) instanceof MiscXml) {
+							MiscXml condition = (MiscXml) mappings.get(column);
+
+							condition.setUnit(unit);
+						} else if (mappings.get(column) instanceof String) {
+							String mapping = (String) mappings.get(column);
+
+							if (mapping.equals(AttributeUtilities.TIME)) {
+								timeUnit = unit;
+							} else if (mapping.equals(AttributeUtilities.LOGC)) {
+								concentrationUnit = unit;
+							}
 						}
 
 						break;
@@ -1018,16 +1101,40 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							oldID = ((MiscXml) mappings.get(column)).getID();
 						}
 
-						Integer miscID = DBKernel.openMiscDBWindow(oldID);
+						Integer id = DBKernel.openMiscDBWindow(oldID);
 
-						if (miscID != null) {
-							String misc = ""
-									+ DBKernel.getValue("SonstigeParameter",
-											"ID", miscID + "", "Parameter");
+						if (id != null) {
+							String name = DBKernel.getValue(
+									"SonstigeParameter", "ID", id + "",
+									"Parameter")
+									+ "";
+							String description = DBKernel.getValue(
+									"SonstigeParameter", "ID", id + "",
+									"Beschreibung")
+									+ "";
+							String categoryID = DBKernel.getValue(
+									"SonstigeParameter", "ID", id + "",
+									"Kategorie")
+									+ "";
+							String unit = null;
+							Category category = Categories
+									.getCategory(categoryID);
 
-							mappingButtons.get(column).setText(misc);
-							mappings.put(column, new MiscXml(miscID, misc,
-									null, null, null, null, null));
+							unitBoxes.get(column).removeAllItems();
+
+							if (category != null) {
+								unit = category.getStandardUnit();
+
+								for (String u : category.getAllUnits()) {
+									unitBoxes.get(column).addItem(u);
+								}
+
+								unitBoxes.get(column).setSelectedItem(unit);
+							}
+
+							mappingButtons.get(column).setText(name);
+							mappings.put(column, new MiscXml(id, name,
+									description, null, categoryID, unit));
 							pack();
 						}
 

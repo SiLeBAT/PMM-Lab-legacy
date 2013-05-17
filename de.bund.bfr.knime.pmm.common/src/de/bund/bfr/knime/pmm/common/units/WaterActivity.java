@@ -13,6 +13,11 @@ public class WaterActivity implements Category {
 	}
 
 	@Override
+	public String getStandardUnit() {
+		return WATER_ACTIVITY;
+	}
+
+	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return value;
 	}

@@ -12,6 +12,11 @@ public class Temperature implements Category {
 	public String[] getAllUnits() {
 		return new String[] { CELSIUS, FAHRENHEIT };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return CELSIUS;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

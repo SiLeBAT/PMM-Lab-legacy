@@ -21,6 +21,11 @@ public class BacterialConcentration implements Category {
 				LN_CFU_PER_GRAMM, CFU_PER_MILLILITER, LOG_CFU_PER_MILLILITER,
 				LN_CFU_PER_MILLILITER };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return LOG_CFU_PER_GRAMM;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

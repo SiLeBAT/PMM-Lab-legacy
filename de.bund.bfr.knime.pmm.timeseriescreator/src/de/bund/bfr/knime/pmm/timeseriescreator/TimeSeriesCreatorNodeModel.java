@@ -33,7 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.timeseriescreator;
 
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -60,9 +59,10 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * This is the model implementation of TimeSeriesCreator.
@@ -80,16 +80,14 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
-	protected static final String CFGKEY_TEMPUNIT = "TempUnit";
 
 	private List<LiteratureItem> literature;
 	private AgentXml agent;
 	private MatrixXml matrix;
 	private String comment;
-	private List<Point2D.Double> timeSeries;
+	private List<TimeSeriesXml> timeSeries;
 	private String timeUnit;
 	private String logcUnit;
-	private String tempUnit;
 	private List<MiscXml> misc;
 
 	/**
@@ -102,10 +100,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		matrix = null;
 		comment = "";
 		timeSeries = new ArrayList<>();
-		timeUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.TIME);
-		logcUnit = AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC);
-		tempUnit = AttributeUtilities
-				.getStandardUnit(AttributeUtilities.ATT_TEMPERATURE);
+		timeUnit = new Time().getStandardUnit();
+		logcUnit = new BacterialConcentration().getStandardUnit();
 		misc = new ArrayList<>();
 	}
 
@@ -140,12 +136,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 			matrixXml.add(new MatrixXml());
 		}
 
-		for (Point2D.Double p : timeSeries) {
-			timeSeriesXml.add(new TimeSeriesXml(null, AttributeUtilities
-					.convertToStandardUnit(AttributeUtilities.TIME, p.x,
-							timeUnit), null, AttributeUtilities
-					.convertToStandardUnit(AttributeUtilities.LOGC, p.y,
-							logcUnit), null));
+		for (TimeSeriesXml p : timeSeries) {
+			timeSeriesXml.add(p);
 		}
 
 		KnimeTuple tuple = new KnimeTuple(SchemaFactory.createDataSchema());
@@ -200,7 +192,6 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 				XmlConverter.listToXml(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
-		settings.addString(CFGKEY_TEMPUNIT, tempUnit);
 		settings.addString(CFGKEY_MISC, XmlConverter.listToXml(misc));
 	}
 
@@ -215,11 +206,10 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
 		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
 		comment = settings.getString(CFGKEY_COMMENT);
-		timeSeries = XmlConverter.xmlToPointDoubleList(settings
+		timeSeries = XmlConverter.xmlToTimeSeriesList(settings
 				.getString(CFGKEY_TIMESERIES));
 		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		tempUnit = settings.getString(CFGKEY_TEMPUNIT);
 		misc = XmlConverter.xmlToMiscList(settings.getString(CFGKEY_MISC));
 	}
 

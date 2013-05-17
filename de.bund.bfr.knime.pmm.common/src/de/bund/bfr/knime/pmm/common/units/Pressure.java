@@ -20,6 +20,11 @@ public class Pressure implements Category {
 		return new String[] { PASCAL, KILO_PASCAL, MEGA_PASCAL, BAR, MILLI_BAR,
 				KILO_BAR };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return PASCAL;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

@@ -12,6 +12,11 @@ public class SolutionConcentration implements Category {
 	public String[] getAllUnits() {
 		return new String[] { PERCENT_WTVOL, PERCENT_WTWT };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return PERCENT_WTVOL;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

@@ -648,7 +648,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						Category category = Categories.getCategory(categoryID);
 
 						if (category != null) {
-							unit = category.getAllUnits()[0];
+							unit = category.getStandardUnit();
 						}
 
 						columnButtons.get(column).setText(name);
@@ -713,19 +713,19 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 										AttributeUtilities.ATT_TEMPERATURE_ID,
 										AttributeUtilities.ATT_TEMPERATURE,
 										null, null, Categories.TEMPERATURE,
-										new Temperature().getAllUnits()[0]));
+										new Temperature().getStandardUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_PH_ID,
 								AttributeUtilities.ATT_PH, null, null,
-								Categories.PH, new PH().getAllUnits()[0]));
+								Categories.PH, new PH().getStandardUnit()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_AW_ID,
 								AttributeUtilities.ATT_WATERACTIVITY, null,
 								null, Categories.WATER_ACTIVITY,
-								new WaterActivity().getAllUnits()[0]));
+								new WaterActivity().getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {
@@ -1031,7 +1031,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 								new Time().getAllUnits());
 
 						if (timeUnit == null) {
-							timeUnit = new Time().getAllUnits()[0];
+							timeUnit = new Time().getStandardUnit();
 						}
 
 						unitBox.setSelectedItem(timeUnit);
@@ -1044,7 +1044,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 						if (concentrationUnit == null) {
 							concentrationUnit = new BacterialConcentration()
-									.getAllUnits()[0];
+									.getStandardUnit();
 						}
 
 						unitBox.setSelectedItem(concentrationUnit);

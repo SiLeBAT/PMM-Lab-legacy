@@ -224,6 +224,15 @@ public class XmlConverter {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static List<TimeSeriesXml> xmlToTimeSeriesList(String xml) {
+		try {
+			return (List<TimeSeriesXml>) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return new ArrayList<>();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static Map<String, AgentXml> xmlToAgentMap(String xml) {
 		try {
 			return (Map<String, AgentXml>) new XStream().fromXML(xml);

@@ -18,6 +18,11 @@ public class Time implements Category {
 	public String[] getAllUnits() {
 		return new String[] { SECOND, MINUTE, HOUR, DAY, WEEK };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return HOUR;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

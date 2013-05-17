@@ -11,6 +11,11 @@ public class PH implements Category {
 	public String[] getAllUnits() {
 		return new String[] { PH_SCALE };
 	}
+	
+	@Override
+	public String getStandardUnit() {		
+		return PH_SCALE;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

@@ -11,6 +11,11 @@ public class TrueFalseValue implements Category {
 	public String[] getAllUnits() {
 		return new String[] { TRUE_FALSE };
 	}
+	
+	@Override
+	public String getStandardUnit() {	
+		return TRUE_FALSE;
+	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {

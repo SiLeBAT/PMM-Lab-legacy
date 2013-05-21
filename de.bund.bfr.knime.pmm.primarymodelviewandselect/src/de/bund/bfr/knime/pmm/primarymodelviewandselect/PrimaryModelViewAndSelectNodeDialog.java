@@ -392,8 +392,8 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				true, null);
-		configPanel.setParamsX(paramsX, null, null, null);
-		configPanel.setParamY(AttributeUtilities.LOGC);
+		configPanel.setParameters(AttributeUtilities.LOGC, paramsX, null, null,
+				null, null, null);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);

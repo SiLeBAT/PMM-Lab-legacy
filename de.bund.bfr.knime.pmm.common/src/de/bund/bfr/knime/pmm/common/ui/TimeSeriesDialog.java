@@ -19,6 +19,8 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TimeSeriesDialog extends JDialog implements ActionListener {
 
@@ -81,10 +83,8 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		creator.setUseManualRange(false);
 		creator.setDrawLines(false);
 		creator.setShowLegend(false);
-		creator.setUnitX(AttributeUtilities
-				.getStandardUnit(AttributeUtilities.TIME));
-		creator.setUnitY(AttributeUtilities
-				.getStandardUnit(AttributeUtilities.LOGC));
+		creator.setUnitX(new Time().getStandardUnit());
+		creator.setUnitY(new BacterialConcentration().getStandardUnit());
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.createChart();
 

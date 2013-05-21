@@ -644,12 +644,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 								.getValue("SonstigeParameter", "ID", id + "",
 										"Kategorie")
 								+ "";
-						String unit = null;
 						Category category = Categories.getCategory(categoryID);
-
-						if (category != null) {
-							unit = category.getStandardUnit();
-						}
+						String unit = category.getStandardUnit();
 
 						columnButtons.get(column).setText(name);
 						columnMappings.put(
@@ -1010,19 +1006,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					MiscXml condition = (MiscXml) columnMappings.get(column);
 					Category category = Categories.getCategory(condition
 							.getCategory());
+					JComboBox<String> unitBox = new JComboBox<>(
+							category.getAllUnits());
 
-					if (category != null) {
-						JComboBox<String> unitBox = new JComboBox<>(
-								category.getAllUnits());
-
-						if (condition.getUnit() != null) {
-							unitBox.setSelectedItem(condition.getUnit());
-						}
-
-						unitBox.addItemListener(this);
-						columnUnitBoxes.put(column, unitBox);
-						northPanel.add(unitBox, createConstraints(3, row));
+					if (condition.getUnit() != null) {
+						unitBox.setSelectedItem(condition.getUnit());
 					}
+
+					unitBox.addItemListener(this);
+					columnUnitBoxes.put(column, unitBox);
+					northPanel.add(unitBox, createConstraints(3, row));
 				} else if (columnMappings.get(column) instanceof String) {
 					String mapping = (String) columnMappings.get(column);
 

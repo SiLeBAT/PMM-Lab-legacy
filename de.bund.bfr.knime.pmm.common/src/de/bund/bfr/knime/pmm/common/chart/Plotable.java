@@ -50,7 +50,8 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class Plotable {
 
@@ -72,17 +73,21 @@ public class Plotable {
 	private Map<String, Map<String, Double>> covariances;
 	private Map<String, Double> minArguments;
 	private Map<String, Double> maxArguments;
+	private Map<String, String> categories;
+	private Map<String, String> units;
 	private List<Double> samples;
 	private Integer degreesOfFreedom;
 
 	public Plotable(int type) {
 		this.type = type;
-		valueLists = new LinkedHashMap<String, List<Double>>();
-		functionArguments = new LinkedHashMap<String, List<Double>>();
-		minArguments = new LinkedHashMap<String, Double>();
-		maxArguments = new LinkedHashMap<String, Double>();
-		functionParameters = new LinkedHashMap<String, Double>();
-		covariances = new LinkedHashMap<String, Map<String, Double>>();
+		valueLists = new LinkedHashMap<>();
+		functionArguments = new LinkedHashMap<>();
+		minArguments = new LinkedHashMap<>();
+		maxArguments = new LinkedHashMap<>();
+		categories = new LinkedHashMap<>();
+		units = new LinkedHashMap<>();
+		functionParameters = new LinkedHashMap<>();
+		covariances = new LinkedHashMap<>();
 		samples = new ArrayList<Double>();
 		degreesOfFreedom = null;
 	}
@@ -182,6 +187,22 @@ public class Plotable {
 		this.maxArguments = maxArguments;
 	}
 
+	public Map<String, String> getCategories() {
+		return categories;
+	}
+
+	public void setCategories(Map<String, String> categories) {
+		this.categories = categories;
+	}
+
+	public Map<String, String> getUnits() {
+		return units;
+	}
+
+	public void setUnits(Map<String, String> units) {
+		this.units = units;
+	}
+
 	public List<Double> getSamples() {
 		return samples;
 	}
@@ -238,19 +259,21 @@ public class Plotable {
 
 		List<Point2D.Double> points = new ArrayList<Point2D.Double>(
 				xList.size());
+		Category categoryX = Categories.getCategory(categories.get(paramX));
+		Category categoryY = Categories.getCategory(categories.get(paramY));
+		String currentUnitX = units.get(paramX);
+		String currentUnitY = units.get(paramY);
 
 		for (int i = 0; i < xList.size(); i++) {
 			Double x = xList.get(i);
 			Double y = yList.get(i);
 
 			if (x != null) {
-				x = AttributeUtilities
-						.convertFromStandardUnit(paramX, x, unitX);
+				x = categoryX.convert(x, currentUnitX, unitX);
 			}
 
 			if (y != null) {
-				y = AttributeUtilities
-						.convertFromStandardUnit(paramY, y, unitY);
+				y = categoryY.convert(y, currentUnitY, unitY);
 				y = transformDouble(y, transformY);
 			}
 
@@ -299,6 +322,10 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
+		Category categoryX = Categories.getCategory(categories.get(paramX));
+		Category categoryY = Categories.getCategory(categories.get(paramY));
+		String currentUnitX = units.get(paramX);
+		String currentUnitY = units.get(paramY);
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null) {
@@ -328,7 +355,7 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
+					categoryX.convert(x, currentUnitX, unitX));
 
 			try {
 				Object number = parser.evaluate(f);
@@ -336,8 +363,7 @@ public class Plotable {
 
 				if (number instanceof Double) {
 					y = (Double) number;
-					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
-							unitY);
+					y = categoryY.convert(y, currentUnitY, unitY);
 					y = transformDouble(y, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
@@ -382,6 +408,10 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
+		Category categoryX = Categories.getCategory(categories.get(paramX));
+		Category categoryY = Categories.getCategory(categories.get(paramY));
+		String currentUnitX = units.get(paramX);
+		String currentUnitY = units.get(paramY);
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null
@@ -424,7 +454,7 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
+					categoryX.convert(x, currentUnitX, unitX));
 
 			try {
 				Double y = 0.0;
@@ -472,8 +502,7 @@ public class Plotable {
 
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
-					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
-							unitY);
+					y = categoryY.convert(y, currentUnitY, unitY);
 					y = transformDouble(y, transformY);
 
 					if (y != null) {
@@ -542,6 +571,10 @@ public class Plotable {
 
 		double[][] points = new double[2][samples.size()];
 		boolean containsValidPoint = false;
+		Category categoryX = Categories.getCategory(categories.get(paramX));
+		Category categoryY = Categories.getCategory(categories.get(paramY));
+		String currentUnitX = units.get(paramX);
+		String currentUnitY = units.get(paramY);
 
 		for (int i = 0; i < samples.size(); i++) {
 			Double x = samples.get(i);
@@ -553,7 +586,7 @@ public class Plotable {
 			}
 
 			parser.setVarValue(paramX,
-					AttributeUtilities.convertToStandardUnit(paramX, x, unitX));
+					categoryX.convert(x, currentUnitX, unitX));
 
 			try {
 				Object number = parser.evaluate(f);
@@ -561,8 +594,7 @@ public class Plotable {
 
 				if (number instanceof Double) {
 					y = (Double) number;
-					y = AttributeUtilities.convertFromStandardUnit(paramY, y,
-							unitY);
+					y = categoryY.convert(y, currentUnitY, unitY);
 					y = transformDouble(y, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {

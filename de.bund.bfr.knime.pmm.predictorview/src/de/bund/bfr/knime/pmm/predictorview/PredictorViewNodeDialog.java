@@ -365,11 +365,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
+					plotable.getCategories(), plotable.getUnits(),
 					AttributeUtilities.TIME);
-			configPanel.setParamY(plotable.getFunctionValue());
 			configPanel.setParamXValues(paramXValues);
 			configPanel.setUnitX(unitX);
 			configPanel.setUnitY(unitY);
@@ -431,11 +431,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
+					plotable.getCategories(), plotable.getUnits(),
 					AttributeUtilities.TIME);
-			configPanel.setParamY(plotable.getFunctionValue());
 			plotable.setSamples(samplePanel.getTimeValues());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
@@ -453,8 +453,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			samplePanel.setDataPoints(samplePoints);
 		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamY(null);
+			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

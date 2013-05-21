@@ -382,12 +382,11 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
-					null);
+					plotable.getCategories(), plotable.getUnits(), null);
 			configPanel.setParamX(currentParamX);
-			configPanel.setParamY(plotable.getFunctionValue());
 			configPanel.setParamXValues(paramXValues);
 			configPanel.setUnitX(unitX);
 			configPanel.setUnitY(unitY);
@@ -440,11 +439,10 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
-					null);
-			configPanel.setParamY(plotable.getFunctionValue());
+					plotable.getCategories(), plotable.getUnits(), null);
 			plotable.setFunctionArguments(configPanel.getParamsX());
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
@@ -452,8 +450,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamY(null);
+			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

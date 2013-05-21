@@ -344,16 +344,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			timeBox.setSelectedItem(settings
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
-			timeBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.TIME));
+			timeBox.setSelectedItem(new Time().getStandardUnit());
 		}
 
 		try {
 			logcBox.setSelectedItem(settings
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
-			logcBox.setSelectedItem(AttributeUtilities
-					.getStandardUnit(AttributeUtilities.LOGC));
+			logcBox.setSelectedItem(new BacterialConcentration()
+					.getStandardUnit());
 		}
 
 		List<MiscXml> miscValues;
@@ -388,13 +387,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				Category category = Categories.getCategory(misc.getCategory());
 
-				if (category != null) {
-					for (String u : category.getAllUnits()) {
-						condUnitFields.get(0).addItem(u);
-					}
-
-					condUnitFields.get(0).setSelectedItem(misc.getUnit());
+				for (String u : category.getAllUnits()) {
+					condUnitFields.get(0).addItem(u);
 				}
+
+				condUnitFields.get(0).setSelectedItem(misc.getUnit());
 			}
 		}
 	}
@@ -1116,21 +1113,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									"SonstigeParameter", "ID", id + "",
 									"Kategorie")
 									+ "";
-							String unit = null;
 							Category category = Categories
 									.getCategory(categoryID);
+							String unit = category.getStandardUnit();
 
 							unitBoxes.get(column).removeAllItems();
 
-							if (category != null) {
-								unit = category.getStandardUnit();
-
-								for (String u : category.getAllUnits()) {
-									unitBoxes.get(column).addItem(u);
-								}
-
-								unitBoxes.get(column).setSelectedItem(unit);
+							for (String u : category.getAllUnits()) {
+								unitBoxes.get(column).addItem(u);
 							}
+
+							unitBoxes.get(column).setSelectedItem(unit);
 
 							mappingButtons.get(column).setText(name);
 							mappings.put(column, new MiscXml(id, name,

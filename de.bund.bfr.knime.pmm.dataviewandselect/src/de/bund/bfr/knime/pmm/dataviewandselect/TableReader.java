@@ -24,6 +24,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TableReader {
 
@@ -94,6 +97,9 @@ public class TableReader {
 			List<Double> timeList = new ArrayList<Double>();
 			List<Double> logcList = new ArrayList<Double>();
 			List<TimeSeriesXml> dataPoints = new ArrayList<>();
+			String timeUnit = new Time().getStandardUnit();
+			String concentrationUnit = new BacterialConcentration()
+					.getStandardUnit();
 			String dataName;
 			String agent;
 			String matrix;
@@ -104,6 +110,8 @@ public class TableReader {
 				timeList.add(element.getTime());
 				logcList.add(element.getConcentration());
 				dataPoints.add(element);
+				timeUnit = element.getTimeUnit();
+				concentrationUnit = element.getConcentrationUnit();
 			}
 
 			if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
@@ -162,6 +170,17 @@ public class TableReader {
 			}
 
 			Plotable plotable = new Plotable(Plotable.DATASET);
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
+
+			categories.put(AttributeUtilities.TIME, Categories.TIME);
+			categories.put(AttributeUtilities.LOGC,
+					Categories.BACTERIAL_CONCENTRATION);
+			units.put(AttributeUtilities.TIME, timeUnit);
+			units.put(AttributeUtilities.LOGC, concentrationUnit);
+
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			if (!timeList.isEmpty() && !logcList.isEmpty()) {
 				plotable.addValueList(AttributeUtilities.TIME, timeList);

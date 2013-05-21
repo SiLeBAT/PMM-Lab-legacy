@@ -78,6 +78,8 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * This is the model implementation of PredictorView.
@@ -387,16 +389,16 @@ public class PredictorViewNodeModel extends NodeModel {
 		List<Double> values = new ArrayList<>();
 
 		for (Double t : timeValues) {
-			values.add(AttributeUtilities.convertToStandardUnit(
-					AttributeUtilities.TIME, t, unitX));
+			values.add(new Time().convert(t, unitX,
+					plotable.getUnits().get(AttributeUtilities.TIME)));
 		}
 
 		plotable.setSamples(values);
 
 		double[][] points = plotable.getFunctionSamplePoints(
 				AttributeUtilities.TIME, AttributeUtilities.LOGC,
-				AttributeUtilities.getStandardUnit(AttributeUtilities.TIME),
-				AttributeUtilities.getStandardUnit(AttributeUtilities.LOGC),
+				new Time().getStandardUnit(),
+				new BacterialConcentration().getStandardUnit(),
 				ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);

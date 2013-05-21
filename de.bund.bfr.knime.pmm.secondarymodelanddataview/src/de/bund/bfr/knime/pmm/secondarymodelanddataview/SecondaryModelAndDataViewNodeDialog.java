@@ -461,11 +461,11 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(plotable.getPossibleArgumentValues(
-					containsData, !containsData), plotable.getMinArguments(),
-					plotable.getMaxArguments(), null);
+			configPanel.setParameters(plotable.getFunctionValue(), plotable
+					.getPossibleArgumentValues(containsData, !containsData),
+					plotable.getMinArguments(), plotable.getMaxArguments(),
+					plotable.getCategories(), plotable.getUnits(), null);
 			configPanel.setParamX(currentParamX);
-			configPanel.setParamY(plotable.getFunctionValue());
 			configPanel.setUnitX(unitX);
 			configPanel.setUnitY(unitY);
 
@@ -520,10 +520,10 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(plotable.getPossibleArgumentValues(
-					containsData, !containsData), plotable.getMinArguments(),
-					plotable.getMaxArguments(), null);
-			configPanel.setParamY(plotable.getFunctionValue());
+			configPanel.setParameters(plotable.getFunctionValue(), plotable
+					.getPossibleArgumentValues(containsData, !containsData),
+					plotable.getMinArguments(), plotable.getMaxArguments(),
+					plotable.getCategories(), plotable.getUnits(), null);
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
@@ -531,8 +531,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamY(null);
+			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

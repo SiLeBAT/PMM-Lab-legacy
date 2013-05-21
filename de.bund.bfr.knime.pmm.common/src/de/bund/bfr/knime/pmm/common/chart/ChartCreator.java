@@ -61,6 +61,8 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartCreator extends ChartPanel {
 
@@ -144,11 +146,10 @@ public class ChartCreator extends ChartPanel {
 					new XYPlot(), showLegend);
 		}
 
-		String labelY = AttributeUtilities.getNameWithUnit(paramY, unitY,
-				transformY);
 		NumberAxis xAxis = new NumberAxis(AttributeUtilities.getNameWithUnit(
 				paramX, unitX));
-		NumberAxis yAxis = new NumberAxis(labelY);
+		NumberAxis yAxis = new NumberAxis(AttributeUtilities.getNameWithUnit(
+				paramY, unitY, transformY));
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
 		double usedMinX = Double.POSITIVE_INFINITY;
 		double usedMaxX = Double.NEGATIVE_INFINITY;
@@ -162,11 +163,13 @@ public class ChartCreator extends ChartPanel {
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.BOTH
 						|| plotable.getType() == Plotable.BOTH_STRICT) {
-					Double minArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMinArguments().get(paramX),
+					Category category = Categories.getCategory(plotable
+							.getCategories().get(paramX));
+					Double minArg = category.convert(plotable.getMinArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
-					Double maxArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMaxArguments().get(paramX),
+					Double maxArg = category.convert(plotable.getMaxArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
 
 					if (minArg != null) {
@@ -200,11 +203,13 @@ public class ChartCreator extends ChartPanel {
 						}
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION) {
-					Double minArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMinArguments().get(paramX),
+					Category category = Categories.getCategory(plotable
+							.getCategories().get(paramX));
+					Double minArg = category.convert(plotable.getMinArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
-					Double maxArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMaxArguments().get(paramX),
+					Double maxArg = category.convert(plotable.getMaxArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
 
 					if (minArg != null) {
@@ -215,11 +220,13 @@ public class ChartCreator extends ChartPanel {
 						usedMaxX = Math.max(usedMaxX, maxArg);
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION_SAMPLE) {
-					Double minArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMinArguments().get(paramX),
+					Category category = Categories.getCategory(plotable
+							.getCategories().get(paramX));
+					Double minArg = category.convert(plotable.getMinArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
-					Double maxArg = AttributeUtilities.convertFromStandardUnit(
-							paramX, plotable.getMaxArguments().get(paramX),
+					Double maxArg = category.convert(plotable.getMaxArguments()
+							.get(paramX), plotable.getUnits().get(paramX),
 							unitX);
 
 					if (minArg != null) {

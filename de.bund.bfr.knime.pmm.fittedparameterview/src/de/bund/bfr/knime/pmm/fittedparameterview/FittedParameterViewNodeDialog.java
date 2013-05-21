@@ -320,12 +320,11 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
 			Plotable plotable = reader.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, false),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
-					null);
+					plotable.getCategories(), plotable.getUnits(), null);
 			configPanel.setParamX(currentParamX);
-			configPanel.setParamY(plotable.getFunctionValue());
 			configPanel.setUnitX(unitX);
 			configPanel.setUnitY(unitY);
 			configPanel.setSelectedValuesX(selectedValuesX);
@@ -373,10 +372,9 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		if (selectedID != null) {
 			Plotable plotable = chartCreator.getPlotables().get(selectedID);
 
-			configPanel.setParamsX(
+			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, false), null,
-					null, null);
-			configPanel.setParamY(plotable.getFunctionValue());
+					null, plotable.getCategories(), plotable.getUnits(), null);
 			chartCreator.setParamX(configPanel.getParamX());
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
@@ -384,8 +382,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
-			configPanel.setParamsX(null, null, null, null);
-			configPanel.setParamY(null);
+			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);
 			chartCreator.setParamY(null);
 			chartCreator.setUnitX(null);

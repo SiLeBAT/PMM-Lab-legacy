@@ -64,6 +64,8 @@ import javax.swing.event.ChangeListener;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -107,6 +109,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private Map<String, List<Boolean>> selectedValuesX;
 	private Map<String, Double> minParamValuesX;
 	private Map<String, Double> maxParamValuesX;
+	private Map<String, String> categories;
+	private Map<String, String> units;
 
 	private JPanel parameterValuesPanel;
 	private List<JPanel> parameterSubPanels;
@@ -446,32 +450,43 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		yTransBox.setSelectedItem(transformY);
 	}
 
-	public void setParamsX(Map<String, List<Double>> parameters,
-			Map<String, Double> minParamValues,
-			Map<String, Double> maxParamValues, String lockedParamX) {
+	public void setParameters(String paramY,
+			Map<String, List<Double>> parametersX,
+			Map<String, Double> minParamXValues,
+			Map<String, Double> maxParamXValues,
+			Map<String, String> categories, Map<String, String> units,
+			String lockedParamX) {
 		boolean parametersChanged = false;
 
-		if (parameters == null) {
-			parameters = new LinkedHashMap<String, List<Double>>();
+		if (parametersX == null) {
+			parametersX = new LinkedHashMap<>();
 		}
 
-		if (minParamValues == null) {
-			minParamValues = new LinkedHashMap<String, Double>();
+		if (minParamXValues == null) {
+			minParamXValues = new LinkedHashMap<>();
 		}
 
-		if (maxParamValues == null) {
-			maxParamValues = new LinkedHashMap<String, Double>();
+		if (maxParamXValues == null) {
+			maxParamXValues = new LinkedHashMap<>();
+		}
+
+		if (categories == null) {
+			categories = new LinkedHashMap<>();
+		}
+
+		if (units == null) {
+			units = new LinkedHashMap<>();
 		}
 
 		if (this.parametersX == null
-				|| parameters.size() != this.parametersX.size()) {
+				|| parametersX.size() != this.parametersX.size()) {
 			parametersChanged = true;
 		} else {
-			for (String param : parameters.keySet()) {
+			for (String param : parametersX.keySet()) {
 				if (!this.parametersX.containsKey(param)) {
 					parametersChanged = true;
 					break;
-				} else if (!parameters.get(param).equals(
+				} else if (!parametersX.get(param).equals(
 						this.parametersX.get(param))) {
 					parametersChanged = true;
 					break;
@@ -479,9 +494,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		this.parametersX = parameters;
-		this.minParamValuesX = minParamValues;
-		this.maxParamValuesX = maxParamValues;
+		this.parametersX = parametersX;
+		this.minParamValuesX = minParamXValues;
+		this.maxParamValuesX = maxParamXValues;
+		this.categories = categories;
+		this.units = units;
 
 		if (parametersChanged) {
 			xBox.removeActionListener(this);
@@ -490,15 +507,15 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			if (lockedParamX != null) {
 				xBox.addItem(lockedParamX);
 			} else {
-				for (String param : parameters.keySet()) {
+				for (String param : parametersX.keySet()) {
 					xBox.addItem(param);
 				}
 			}
 
-			if (!parameters.isEmpty()) {
-				if (parameters.containsKey(lastParamX)) {
+			if (!parametersX.isEmpty()) {
+				if (parametersX.containsKey(lastParamX)) {
 					xBox.setSelectedItem(lastParamX);
-				} else if (parameters.containsKey(AttributeUtilities.TIME)) {
+				} else if (parametersX.containsKey(AttributeUtilities.TIME)) {
 					xBox.setSelectedItem(AttributeUtilities.TIME);
 				} else {
 					xBox.setSelectedIndex(0);
@@ -512,8 +529,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			xBox.addActionListener(this);
 			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
 
-			for (String param : parameters.keySet()) {
-				List<Double> values = parameters.get(param);
+			for (String param : parametersX.keySet()) {
+				List<Double> values = parametersX.get(param);
 
 				if (!values.isEmpty()) {
 					List<Boolean> selected = new ArrayList<Boolean>(
@@ -528,9 +545,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			updateParametersPanel();
 			updateXUnitBox();
 		}
-	}
 
-	public void setParamY(String paramY) {
 		if (paramY == null) {
 			yBox.removeAllItems();
 			updateYUnitBox();
@@ -620,38 +635,34 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	}
 
 	private void updateXUnitBox() {
-		List<String> units = AttributeUtilities
-				.getUnitsForAttribute((String) xBox.getSelectedItem());
+		String var = (String) xBox.getSelectedItem();
 
 		xUnitBox.removeActionListener(this);
 		xUnitBox.removeAllItems();
 
-		for (String unit : units) {
+		Category category = Categories.getCategory(categories.get(var));
+
+		for (String unit : category.getAllUnits()) {
 			xUnitBox.addItem(unit);
 		}
 
-		if (!units.isEmpty()) {
-			xUnitBox.setSelectedIndex(0);
-		}
-
+		xUnitBox.setSelectedItem(units.get(var));
 		xUnitBox.addActionListener(this);
 	}
 
 	private void updateYUnitBox() {
-		List<String> units = AttributeUtilities
-				.getUnitsForAttribute((String) yBox.getSelectedItem());
+		String var = (String) yBox.getSelectedItem();
 
 		yUnitBox.removeActionListener(this);
 		yUnitBox.removeAllItems();
 
-		for (String unit : units) {
+		Category category = Categories.getCategory(categories.get(var));
+
+		for (String unit : category.getAllUnits()) {
 			yUnitBox.addItem(unit);
 		}
 
-		if (!units.isEmpty()) {
-			yUnitBox.setSelectedIndex(0);
-		}
-
+		yUnitBox.setSelectedItem(units.get(var));
 		yUnitBox.addActionListener(this);
 	}
 

@@ -243,7 +243,7 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 		settings.addString(CFG_SELECTEDID, selectedID);
 		settings.addString(CFG_CURRENTPARAMX, currentParamX);
 		settings.addString(CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(paramXValues));
+				XmlConverter.objectToXml(paramXValues));
 		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
 		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
 		settings.addInt(CFG_MANUALRANGE, manualRange);
@@ -260,7 +260,7 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
@@ -274,8 +274,9 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		selectedID = settings.getString(CFG_SELECTEDID);
 		currentParamX = settings.getString(CFG_CURRENTPARAMX);
-		paramXValues = XmlConverter.xmlToDoubleMap(settings
-				.getString(CFG_PARAMXVALUES));
+		paramXValues = XmlConverter.xmlToObject(
+				settings.getString(CFG_PARAMXVALUES),
+				new LinkedHashMap<String, Double>());
 		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		manualRange = settings.getInt(CFG_MANUALRANGE);
@@ -291,8 +292,9 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
 		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter.xmlToStringList(settings
-				.getString(CFG_VISIBLECOLUMNS));
+		visibleColumns = XmlConverter
+				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
+						new ArrayList<String>());
 		modelFilter = settings.getString(CFG_MODELFILTER);
 		dataFilter = settings.getString(CFG_DATAFILTER);
 		fittedFilter = settings.getString(CFG_FITTEDFILTER);

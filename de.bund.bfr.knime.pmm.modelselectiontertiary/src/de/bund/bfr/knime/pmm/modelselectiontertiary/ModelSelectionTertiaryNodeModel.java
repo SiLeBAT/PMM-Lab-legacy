@@ -217,7 +217,7 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 				reader.getShortLegend(), reader.getLongLegend());
 
 		creator.setParamX(AttributeUtilities.TIME);
-		creator.setParamY(AttributeUtilities.LOGC);		
+		creator.setParamY(AttributeUtilities.LOGC);
 		creator.setColors(colors);
 		creator.setShapes(shapes);
 		creator.setUseManualRange(manualRange == 1);
@@ -271,7 +271,8 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDIDS, XmlConverter.listToXml(selectedIDs));
+		settings.addString(CFG_SELECTEDIDS,
+				XmlConverter.objectToXml(selectedIDs));
 		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
 		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
 		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
@@ -289,7 +290,7 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
@@ -301,8 +302,8 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		selectedIDs = XmlConverter.xmlToStringList(settings
-				.getString(CFG_SELECTEDIDS));
+		selectedIDs = XmlConverter.xmlToObject(
+				settings.getString(CFG_SELECTEDIDS), new ArrayList<String>());
 		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		selectAllIDs = settings.getInt(CFG_SELECTALLIDS);
@@ -319,8 +320,9 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
 		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter.xmlToStringList(settings
-				.getString(CFG_VISIBLECOLUMNS));
+		visibleColumns = XmlConverter
+				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
+						new ArrayList<String>());
 		modelFilter = settings.getString(CFG_MODELFILTER);
 		dataFilter = settings.getString(CFG_DATAFILTER);
 		fittedFilter = settings.getString(CFG_FITTEDFILTER);

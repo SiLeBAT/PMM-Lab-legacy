@@ -100,7 +100,8 @@ public class CombinedJoiner implements Joiner {
 	@Override
 	public JComponent createPanel(String assignments) {
 		Map<String, Map<String, String>> assignmentsMap = XmlConverter
-				.xmlToStringMapMap(assignments);
+				.xmlToObject(assignments,
+						new LinkedHashMap<String, Map<String, String>>());
 
 		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
 				primaryVariables.size());
@@ -201,7 +202,7 @@ public class CombinedJoiner implements Joiner {
 			assignmentsMap.put(depVarSec, secondaryAssignments);
 		}
 
-		return XmlConverter.mapToXml(assignmentsMap);
+		return XmlConverter.objectToXml(assignmentsMap);
 	}
 
 	@Override
@@ -211,7 +212,8 @@ public class CombinedJoiner implements Joiner {
 				.createDataContainer(SchemaFactory.createM12DataSchema()
 						.createSpec());
 		Map<String, Map<String, String>> replacements = XmlConverter
-				.xmlToStringMapMap(assignments);
+				.xmlToObject(assignments,
+						new LinkedHashMap<String, Map<String, String>>());
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 

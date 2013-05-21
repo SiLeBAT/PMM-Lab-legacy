@@ -218,7 +218,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
 		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
 		settings.addString(CFGKEY_PARAMETERGUESSES,
-				XmlConverter.mapToXml(parameterGuesses));
+				XmlConverter.objectToXml(parameterGuesses));
 	}
 
 	/**
@@ -233,8 +233,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 		nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
 		nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
 		stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
-		parameterGuesses = XmlConverter.xmlToPointDoubleMapMap(settings
-				.getString(CFGKEY_PARAMETERGUESSES));
+		parameterGuesses = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_PARAMETERGUESSES),
+				new LinkedHashMap<String, Map<String, Point2D.Double>>());
 	}
 
 	/**
@@ -658,7 +659,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 				Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
 				Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 				Set<String> ids = new LinkedHashSet<String>();
-				List<String> miscParams = PmmUtilities.getAllMiscParams(inTable);
+				List<String> miscParams = PmmUtilities
+						.getAllMiscParams(inTable);
 
 				for (String param : miscParams) {
 					miscMaps.put(param,

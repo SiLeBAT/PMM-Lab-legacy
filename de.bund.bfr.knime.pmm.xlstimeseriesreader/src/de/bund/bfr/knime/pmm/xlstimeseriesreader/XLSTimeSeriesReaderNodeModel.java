@@ -207,19 +207,19 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 		settings.addString(CFGKEY_FILENAME, fileName);
 		settings.addString(CFGKEY_SHEETNAME, sheetName);
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
-				XmlConverter.mapToXml(columnMappings));
+				XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_CONCENTRATIONUNIT, concentrationUnit);
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
 		settings.addString(CFGKEY_AGENTMAPPINGS,
-				XmlConverter.mapToXml(agentMappings));
+				XmlConverter.objectToXml(agentMappings));
 		settings.addString(CFGKEY_MATRIXCOLUMN, matrixColumn);
 		settings.addString(CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.mapToXml(matrixMappings));
-		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
-		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
+				XmlConverter.objectToXml(matrixMappings));
+		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
+		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
 		settings.addString(CFGKEY_LITERATURE,
-				XmlConverter.listToXml(literature));
+				XmlConverter.objectToXml(literature));
 	}
 
 	/**
@@ -230,20 +230,26 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		fileName = settings.getString(CFGKEY_FILENAME);
 		sheetName = settings.getString(CFGKEY_SHEETNAME);
-		columnMappings = XmlConverter.xmlToObjectMap(settings
-				.getString(CFGKEY_COLUMNMAPPINGS));
+		columnMappings = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_COLUMNMAPPINGS),
+				new LinkedHashMap<String, Object>());
 		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		concentrationUnit = settings.getString(CFGKEY_CONCENTRATIONUNIT);
 		agentColumn = settings.getString(CFGKEY_AGENTCOLUMN);
-		agentMappings = XmlConverter.xmlToAgentMap(settings
-				.getString(CFGKEY_AGENTMAPPINGS));
+		agentMappings = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_AGENTMAPPINGS),
+				new LinkedHashMap<String, AgentXml>());
 		matrixColumn = settings.getString(CFGKEY_MATRIXCOLUMN);
-		matrixMappings = XmlConverter.xmlToMatrixMap(settings
-				.getString(CFGKEY_MATRIXMAPPINGS));
-		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
-		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
-		literature = XmlConverter.xmlToLiteratureList(settings
-				.getString(CFGKEY_LITERATURE));
+		matrixMappings = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_MATRIXMAPPINGS),
+				new LinkedHashMap<String, MatrixXml>());
+		agent = XmlConverter
+				.xmlToObject(settings.getString(CFGKEY_AGENT), null);
+		matrix = XmlConverter.xmlToObject(settings.getString(CFGKEY_MATRIX),
+				null);
+		literature = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_LITERATURE),
+				new ArrayList<LiteratureItem>());
 	}
 
 	/**

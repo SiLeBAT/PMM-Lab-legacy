@@ -120,7 +120,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		removeButtons = new LinkedHashMap<String, List<JButton>>();
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
-		assignmentsMap = XmlConverter.xmlToStringMapListMap(assignments);
+		assignmentsMap = XmlConverter.xmlToObject(assignments,
+				new LinkedHashMap<String, List<Map<String, String>>>());
 
 		for (String modelID : models) {
 			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
@@ -237,7 +238,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			assignmentsMap.put(model, modelAssignments);
 		}
 
-		return XmlConverter.mapToXml(assignmentsMap);
+		return XmlConverter.objectToXml(assignmentsMap);
 	}
 
 	@Override
@@ -246,7 +247,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		BufferedDataContainer buf = exec.createDataContainer(SchemaFactory
 				.createM12DataSchema().createSpec());
 
-		assignmentsMap = XmlConverter.xmlToStringMapListMap(assignments);
+		assignmentsMap = XmlConverter.xmlToObject(assignments,
+				new LinkedHashMap<String, List<Map<String, String>>>());
 
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {

@@ -112,8 +112,9 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		try {
 			concentrationParameters = XmlConverter
-					.xmlToStringMap(settings
-							.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS));
+					.xmlToObject(
+							settings.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS),
+							new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
@@ -148,7 +149,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		settings.addString(
 				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.mapToXml(parameterMap));
+				XmlConverter.objectToXml(parameterMap));
 	}
 
 	private void readTable(BufferedDataTable table) {

@@ -138,8 +138,9 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			paramXValues = XmlConverter.xmlToDoubleMap(settings
-					.getString(ModelAndDataViewNodeModel.CFG_PARAMXVALUES));
+			paramXValues = XmlConverter.xmlToObject(settings
+					.getString(ModelAndDataViewNodeModel.CFG_PARAMXVALUES),
+					new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
 			paramXValues = new LinkedHashMap<>();
 		}
@@ -251,8 +252,9 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = XmlConverter.xmlToStringList(settings
-					.getString(ModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS));
+			visibleColumns = XmlConverter.xmlToObject(settings
+					.getString(ModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS),
+					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -303,7 +305,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(ModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
 				configPanel.getParamX());
 		settings.addString(ModelAndDataViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(configPanel.getParamXValues()));
+				XmlConverter.objectToXml(configPanel.getParamXValues()));
 		settings.addString(ModelAndDataViewNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(ModelAndDataViewNodeModel.CFG_SHAPES,
@@ -362,7 +364,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 				configPanel.getTransformY());
 		settings.addInt(ModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS, 0);
 		settings.addString(ModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 		settings.addString(ModelAndDataViewNodeModel.CFG_MODELFILTER,
 				selectionPanel.getFilter(Model1Schema.MODELNAME));
 		settings.addString(ModelAndDataViewNodeModel.CFG_DATAFILTER,

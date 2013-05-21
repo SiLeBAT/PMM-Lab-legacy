@@ -284,8 +284,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			columnMappings = XmlConverter
-					.xmlToObjectMap(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
+					.xmlToObject(
+							settings.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS),
+							new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
@@ -305,8 +306,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agent = XmlConverter.xmlToAgent(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT));
+			agent = XmlConverter
+					.xmlToObject(
+							settings.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT),
+							null);
 		} catch (InvalidSettingsException e) {
 			agent = null;
 		}
@@ -328,15 +331,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			agentMappings = XmlConverter
-					.xmlToAgentMap(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS));
+					.xmlToObject(
+							settings.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS),
+							new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			matrix = XmlConverter.xmlToMatrix(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX));
+			matrix = XmlConverter.xmlToObject(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX),
+					null);
 		} catch (InvalidSettingsException e) {
 			matrix = null;
 		}
@@ -358,15 +363,17 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		try {
 			matrixMappings = XmlConverter
-					.xmlToMatrixMap(settings
-							.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
+					.xmlToObject(
+							settings.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS),
+							new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literature = XmlConverter.xmlToLiteratureList(settings
-					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATURE));
+			literature = XmlConverter.xmlToObject(settings
+					.getString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATURE),
+					new ArrayList<LiteratureItem>());
 			literatureData = new ArrayList<>();
 
 			for (LiteratureItem item : literature) {
@@ -447,14 +454,14 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 		if (agentColumn.equals(OTHER_PARAMETER)) {
 			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT,
-					XmlConverter.agentToXml(agent));
+					XmlConverter.objectToXml(agent));
 		} else {
 			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENT, null);
 		}
 
 		if (matrixColumn.equals(OTHER_PARAMETER)) {
 			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX,
-					XmlConverter.matrixToXml(matrix));
+					XmlConverter.objectToXml(matrix));
 		} else {
 			settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIX, null);
 		}
@@ -483,18 +490,18 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_SHEETNAME,
 				(String) sheetBox.getSelectedItem());
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				XmlConverter.mapToXml(columnMappings));
+				XmlConverter.objectToXml(columnMappings));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_TIMEUNIT,
 				timeUnit);
 		settings.addString(
 				XLSTimeSeriesReaderNodeModel.CFGKEY_CONCENTRATIONUNIT,
 				concentrationUnit);
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				XmlConverter.mapToXml(agentMappings));
+				XmlConverter.objectToXml(agentMappings));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.mapToXml(matrixMappings));
+				XmlConverter.objectToXml(matrixMappings));
 		settings.addString(XLSTimeSeriesReaderNodeModel.CFGKEY_LITERATURE,
-				XmlConverter.listToXml(literature));
+				XmlConverter.objectToXml(literature));
 	}
 
 	@Override

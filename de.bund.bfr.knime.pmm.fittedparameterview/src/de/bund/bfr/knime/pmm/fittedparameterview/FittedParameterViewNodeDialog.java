@@ -142,8 +142,9 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			selectedValuesX = XmlConverter
-					.xmlToBoolListMap(settings
-							.getString(FittedParameterViewNodeModel.CFG_SELECTEDVALUESX));
+					.xmlToObject(
+							settings.getString(FittedParameterViewNodeModel.CFG_SELECTEDVALUESX),
+							new LinkedHashMap<String, List<Boolean>>());
 		} catch (InvalidSettingsException e) {
 			selectedValuesX = new LinkedHashMap<>();
 		}
@@ -249,16 +250,18 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			visibleColumns = XmlConverter
-					.xmlToStringList(settings
-							.getString(FittedParameterViewNodeModel.CFG_VISIBLECOLUMNS));
+					.xmlToObject(
+							settings.getString(FittedParameterViewNodeModel.CFG_VISIBLECOLUMNS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
 
 		try {
 			usedConditions = XmlConverter
-					.xmlToStringList(settings
-							.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS));
+					.xmlToObject(
+							settings.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			usedConditions = new ArrayList<>();
 		}
@@ -279,7 +282,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(FittedParameterViewNodeModel.CFG_CURRENTPARAMX,
 				currentParamX);
 		settings.addString(FittedParameterViewNodeModel.CFG_SELECTEDVALUESX,
-				XmlConverter.mapToXml(selectedValuesX));
+				XmlConverter.objectToXml(selectedValuesX));
 		settings.addString(FittedParameterViewNodeModel.CFG_COLORLISTS,
 				XmlConverter.colorListMapToXml(colorLists));
 		settings.addString(FittedParameterViewNodeModel.CFG_SHAPELISTS,
@@ -304,9 +307,9 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				FittedParameterViewNodeModel.CFG_STANDARDVISIBLECOLUMNS,
 				standardVisibleColumns);
 		settings.addString(FittedParameterViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS,
-				XmlConverter.listToXml(usedConditions));
+				XmlConverter.objectToXml(usedConditions));
 	}
 
 	private JComponent createMainComponent() {

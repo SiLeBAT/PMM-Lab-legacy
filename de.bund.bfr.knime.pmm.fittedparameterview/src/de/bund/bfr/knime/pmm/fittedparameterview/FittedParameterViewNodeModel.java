@@ -194,7 +194,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 		settings.addString(CFG_SELECTEDID, selectedID);
 		settings.addString(CFG_CURRENTPARAMX, currentParamX);
 		settings.addString(CFG_SELECTEDVALUESX,
-				XmlConverter.mapToXml(selectedValuesX));
+				XmlConverter.objectToXml(selectedValuesX));
 		settings.addString(CFG_COLORLISTS,
 				XmlConverter.colorListMapToXml(colorLists));
 		settings.addString(CFG_SHAPELISTS,
@@ -213,9 +213,9 @@ public class FittedParameterViewNodeModel extends NodeModel {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_USEDCONDITIONS,
-				XmlConverter.listToXml(usedConditions));
+				XmlConverter.objectToXml(usedConditions));
 	}
 
 	/**
@@ -226,8 +226,9 @@ public class FittedParameterViewNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		selectedID = settings.getString(CFG_SELECTEDID);
 		currentParamX = settings.getString(CFG_CURRENTPARAMX);
-		selectedValuesX = XmlConverter.xmlToBoolListMap(settings
-				.getString(CFG_SELECTEDVALUESX));
+		selectedValuesX = XmlConverter.xmlToObject(
+				settings.getString(CFG_SELECTEDVALUESX),
+				new LinkedHashMap<String, List<Boolean>>());
 		colorLists = XmlConverter.xmlToColorListMap(settings
 				.getString(CFG_COLORLISTS));
 		shapeLists = XmlConverter.xmlToShapeListMap(settings
@@ -245,10 +246,12 @@ public class FittedParameterViewNodeModel extends NodeModel {
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
 		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter.xmlToStringList(settings
-				.getString(CFG_VISIBLECOLUMNS));
-		usedConditions = XmlConverter.xmlToStringList(settings
-				.getString(CFG_USEDCONDITIONS));
+		visibleColumns = XmlConverter
+				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
+						new ArrayList<String>());
+		usedConditions = XmlConverter
+				.xmlToObject(settings.getString(CFG_USEDCONDITIONS),
+						new ArrayList<String>());
 	}
 
 	/**

@@ -153,15 +153,18 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		try {
-			paramXValues = XmlConverter.xmlToDoubleMap(settings
-					.getString(PredictorViewNodeModel.CFG_PARAMXVALUES));
+			paramXValues = XmlConverter
+					.xmlToObject(
+							settings.getString(PredictorViewNodeModel.CFG_PARAMXVALUES),
+							new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
 			paramXValues = new LinkedHashMap<>();
 		}
 
 		try {
-			timeValues = XmlConverter.xmlToDoubleList(settings
-					.getString(PredictorViewNodeModel.CFG_TIMEVALUES));
+			timeValues = XmlConverter.xmlToObject(
+					settings.getString(PredictorViewNodeModel.CFG_TIMEVALUES),
+					new ArrayList<Double>());
 		} catch (InvalidSettingsException e1) {
 			timeValues = new ArrayList<>();
 		}
@@ -271,8 +274,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		try {
-			visibleColumns = XmlConverter.xmlToStringList(settings
-					.getString(PredictorViewNodeModel.CFG_VISIBLECOLUMNS));
+			visibleColumns = XmlConverter.xmlToObject(settings
+					.getString(PredictorViewNodeModel.CFG_VISIBLECOLUMNS),
+					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -300,8 +304,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		try {
 			concentrationParameters = XmlConverter
-					.xmlToStringMap(settings
-							.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS));
+					.xmlToObject(
+							settings.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS),
+							new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
 		}
@@ -319,9 +324,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		settings.addString(PredictorViewNodeModel.CFG_SELECTEDID, selectedID);
 		settings.addString(PredictorViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(paramXValues));
+				XmlConverter.objectToXml(paramXValues));
 		settings.addString(PredictorViewNodeModel.CFG_TIMEVALUES,
-				XmlConverter.listToXml(timeValues));
+				XmlConverter.objectToXml(timeValues));
 		settings.addString(PredictorViewNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(colors));
 		settings.addString(PredictorViewNodeModel.CFG_SHAPES,
@@ -344,14 +349,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		settings.addInt(PredictorViewNodeModel.CFG_STANDARDVISIBLECOLUMNS,
 				standardVisibleColumns);
 		settings.addString(PredictorViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(PredictorViewNodeModel.CFG_MODELFILTER, modelFilter);
 		settings.addString(PredictorViewNodeModel.CFG_DATAFILTER, dataFilter);
 		settings.addString(PredictorViewNodeModel.CFG_FITTEDFILTER,
 				fittedFilter);
 		settings.addString(
 				PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.mapToXml(concentrationParameters));
+				XmlConverter.objectToXml(concentrationParameters));
 	}
 
 	private JComponent createMainComponent() {

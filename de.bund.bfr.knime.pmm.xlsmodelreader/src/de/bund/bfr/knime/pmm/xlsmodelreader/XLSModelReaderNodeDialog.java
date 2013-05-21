@@ -313,22 +313,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			modelMappings = XmlConverter.xmlToStringMap(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS));
+			modelMappings = XmlConverter.xmlToObject(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS),
+					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			columnMappings = XmlConverter.xmlToObjectMap(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS));
+			columnMappings = XmlConverter.xmlToObject(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS),
+					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 			columnMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			agent = XmlConverter.xmlToAgent(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_AGENT));
+			agent = XmlConverter.xmlToObject(
+					settings.getString(XLSModelReaderNodeModel.CFGKEY_AGENT),
+					null);
 		} catch (InvalidSettingsException e) {
 			agent = null;
 		}
@@ -349,15 +352,17 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agentMappings = XmlConverter.xmlToAgentMap(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS));
+			agentMappings = XmlConverter.xmlToObject(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS),
+					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
 			agentMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			matrix = XmlConverter.xmlToMatrix(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIX));
+			matrix = XmlConverter.xmlToObject(
+					settings.getString(XLSModelReaderNodeModel.CFGKEY_MATRIX),
+					null);
 		} catch (InvalidSettingsException e) {
 			matrix = null;
 		}
@@ -378,15 +383,17 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			matrixMappings = XmlConverter.xmlToMatrixMap(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS));
+			matrixMappings = XmlConverter.xmlToObject(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS),
+					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
 			matrixMappings = new LinkedHashMap<>();
 		}
 
 		try {
-			literature = XmlConverter.xmlToLiteratureList(settings
-					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATURE));
+			literature = XmlConverter.xmlToObject(settings
+					.getString(XLSModelReaderNodeModel.CFGKEY_LITERATURE),
+					new ArrayList<LiteratureItem>());
 			literatureData = new ArrayList<>();
 
 			for (LiteratureItem item : literature) {
@@ -464,14 +471,14 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		if (agentColumn.equals(OTHER_PARAMETER)) {
 			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT,
-					XmlConverter.agentToXml(agent));
+					XmlConverter.objectToXml(agent));
 		} else {
 			settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENT, null);
 		}
 
 		if (matrixColumn.equals(OTHER_PARAMETER)) {
 			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX,
-					XmlConverter.matrixToXml(matrix));
+					XmlConverter.objectToXml(matrix));
 		} else {
 			settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIX, null);
 		}
@@ -500,15 +507,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELTUPLE,
 				XmlConverter.tupleToXml(modelTuple));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MODELMAPPINGS,
-				XmlConverter.mapToXml(modelMappings));
+				XmlConverter.objectToXml(modelMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_COLUMNMAPPINGS,
-				XmlConverter.mapToXml(columnMappings));
+				XmlConverter.objectToXml(columnMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_AGENTMAPPINGS,
-				XmlConverter.mapToXml(agentMappings));
+				XmlConverter.objectToXml(agentMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_MATRIXMAPPINGS,
-				XmlConverter.mapToXml(matrixMappings));
+				XmlConverter.objectToXml(matrixMappings));
 		settings.addString(XLSModelReaderNodeModel.CFGKEY_LITERATURE,
-				XmlConverter.listToXml(literature));
+				XmlConverter.objectToXml(literature));
 	}
 
 	@Override

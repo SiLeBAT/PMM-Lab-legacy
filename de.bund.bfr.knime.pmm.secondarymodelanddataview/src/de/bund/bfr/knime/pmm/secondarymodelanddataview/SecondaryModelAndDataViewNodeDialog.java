@@ -140,16 +140,18 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		try {
 			paramXValues = XmlConverter
-					.xmlToDoubleMap(settings
-							.getString(SecondaryModelAndDataViewNodeModel.CFG_PARAMXVALUES));
+					.xmlToObject(
+							settings.getString(SecondaryModelAndDataViewNodeModel.CFG_PARAMXVALUES),
+							new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
 			paramXValues = new LinkedHashMap<>();
 		}
 
 		try {
 			selectedValuesX = XmlConverter
-					.xmlToBoolListMap(settings
-							.getString(SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX));
+					.xmlToObject(
+							settings.getString(SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX),
+							new LinkedHashMap<String, List<Boolean>>());
 		} catch (InvalidSettingsException e) {
 			selectedValuesX = new LinkedHashMap<>();
 		}
@@ -284,8 +286,9 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		try {
 			visibleColumns = XmlConverter
-					.xmlToStringList(settings
-							.getString(SecondaryModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS));
+					.xmlToObject(
+							settings.getString(SecondaryModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -333,10 +336,10 @@ public class SecondaryModelAndDataViewNodeDialog extends
 				SecondaryModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
 				configPanel.getParamX());
 		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(configPanel.getParamXValues()));
+				XmlConverter.objectToXml(configPanel.getParamXValues()));
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_SELECTEDVALUESX,
-				XmlConverter.mapToXml(configPanel.getSelectedValuesX()));
+				XmlConverter.objectToXml(configPanel.getSelectedValuesX()));
 
 		if (containsData) {
 			settings.addString(SecondaryModelAndDataViewNodeModel.CFG_COLORS,
@@ -430,7 +433,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 				0);
 		settings.addString(
 				SecondaryModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 		settings.addString(SecondaryModelAndDataViewNodeModel.CFG_FITTEDFILTER,
 				selectionPanel.getFilter(ChartConstants.STATUS));
 	}

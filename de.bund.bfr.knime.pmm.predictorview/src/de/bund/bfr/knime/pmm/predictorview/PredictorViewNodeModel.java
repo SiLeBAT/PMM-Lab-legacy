@@ -267,8 +267,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFG_SELECTEDID, selectedID);
 		settings.addString(CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(paramXValues));
-		settings.addString(CFG_TIMEVALUES, XmlConverter.listToXml(timeValues));
+				XmlConverter.objectToXml(paramXValues));
+		settings.addString(CFG_TIMEVALUES, XmlConverter.objectToXml(timeValues));
 		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
 		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
 		settings.addInt(CFG_MANUALRANGE, manualRange);
@@ -286,12 +286,12 @@ public class PredictorViewNodeModel extends NodeModel {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(visibleColumns));
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.mapToXml(concentrationParameters));
+				XmlConverter.objectToXml(concentrationParameters));
 	}
 
 	/**
@@ -301,10 +301,11 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		selectedID = settings.getString(CFG_SELECTEDID);
-		paramXValues = XmlConverter.xmlToDoubleMap(settings
-				.getString(CFG_PARAMXVALUES));
-		timeValues = XmlConverter.xmlToDoubleList(settings
-				.getString(CFG_TIMEVALUES));
+		paramXValues = XmlConverter.xmlToObject(
+				settings.getString(CFG_PARAMXVALUES),
+				new LinkedHashMap<String, Double>());
+		timeValues = XmlConverter.xmlToObject(
+				settings.getString(CFG_TIMEVALUES), new ArrayList<Double>());
 		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		manualRange = settings.getInt(CFG_MANUALRANGE);
@@ -321,13 +322,15 @@ public class PredictorViewNodeModel extends NodeModel {
 		unitY = settings.getString(CFG_UNITY);
 		transformY = settings.getString(CFG_TRANSFORMY);
 		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter.xmlToStringList(settings
-				.getString(CFG_VISIBLECOLUMNS));
+		visibleColumns = XmlConverter
+				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
+						new ArrayList<String>());
 		modelFilter = settings.getString(CFG_MODELFILTER);
 		dataFilter = settings.getString(CFG_DATAFILTER);
 		fittedFilter = settings.getString(CFG_FITTEDFILTER);
-		concentrationParameters = XmlConverter.xmlToStringMap(settings
-				.getString(CFGKEY_CONCENTRATIONPARAMETERS));
+		concentrationParameters = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
+				new LinkedHashMap<String, String>());
 	}
 
 	/**

@@ -116,8 +116,9 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		try {
-			selectedIDs = XmlConverter.xmlToStringList(settings
-					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS));
+			selectedIDs = XmlConverter.xmlToObject(settings
+					.getString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS),
+					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -229,8 +230,9 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		try {
-			visibleColumns = XmlConverter.xmlToStringList(settings
-					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+			visibleColumns = XmlConverter.xmlToObject(settings
+					.getString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS),
+					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -245,7 +247,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		settings.addString(DataViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				XmlConverter.listToXml(selectionPanel.getSelectedIDs()));
+				XmlConverter.objectToXml(selectionPanel.getSelectedIDs()));
 		settings.addString(DataViewAndSelectNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(DataViewAndSelectNodeModel.CFG_SHAPES,
@@ -253,7 +255,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		settings.addInt(DataViewAndSelectNodeModel.CFG_STANDARDVISIBLECOLUMNS,
 				0);
 		settings.addString(DataViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 
 		settings.addInt(DataViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 

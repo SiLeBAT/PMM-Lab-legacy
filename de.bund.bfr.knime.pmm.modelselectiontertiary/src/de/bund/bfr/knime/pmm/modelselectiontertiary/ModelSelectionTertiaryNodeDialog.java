@@ -128,8 +128,9 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			selectedIDs = XmlConverter
-					.xmlToStringList(settings
-							.getString(ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS));
+					.xmlToObject(
+							settings.getString(ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -244,8 +245,9 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			visibleColumns = XmlConverter
-					.xmlToStringList(settings
-							.getString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS));
+					.xmlToObject(
+							settings.getString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -280,7 +282,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_SELECTEDIDS,
-				XmlConverter.listToXml(selectionPanel.getSelectedIDs()));
+				XmlConverter.objectToXml(selectionPanel.getSelectedIDs()));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_SHAPES,
@@ -288,7 +290,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		settings.addInt(
 				ModelSelectionTertiaryNodeModel.CFG_STANDARDVISIBLECOLUMNS, 0);
 		settings.addString(ModelSelectionTertiaryNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 
 		settings.addInt(ModelSelectionTertiaryNodeModel.CFG_SELECTALLIDS, 0);
 

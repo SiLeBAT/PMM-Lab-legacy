@@ -189,15 +189,15 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_LITERATURE,
-				XmlConverter.listToXml(literature));
-		settings.addString(CFGKEY_AGENT, XmlConverter.agentToXml(agent));
-		settings.addString(CFGKEY_MATRIX, XmlConverter.matrixToXml(matrix));
+				XmlConverter.objectToXml(literature));
+		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
+		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
 		settings.addString(CFGKEY_COMMENT, comment);
 		settings.addString(CFGKEY_TIMESERIES,
-				XmlConverter.listToXml(timeSeries));
+				XmlConverter.objectToXml(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
 		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
-		settings.addString(CFGKEY_MISC, XmlConverter.listToXml(misc));
+		settings.addString(CFGKEY_MISC, XmlConverter.objectToXml(misc));
 	}
 
 	/**
@@ -206,16 +206,21 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		literature = XmlConverter.xmlToLiteratureList(settings
-				.getString(CFGKEY_LITERATURE));
-		agent = XmlConverter.xmlToAgent(settings.getString(CFGKEY_AGENT));
-		matrix = XmlConverter.xmlToMatrix(settings.getString(CFGKEY_MATRIX));
+		literature = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_LITERATURE),
+				new ArrayList<LiteratureItem>());
+		agent = XmlConverter
+				.xmlToObject(settings.getString(CFGKEY_AGENT), null);
+		matrix = XmlConverter.xmlToObject(settings.getString(CFGKEY_MATRIX),
+				null);
 		comment = settings.getString(CFGKEY_COMMENT);
-		timeSeries = XmlConverter.xmlToTimeSeriesList(settings
-				.getString(CFGKEY_TIMESERIES));
+		timeSeries = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_TIMESERIES),
+				new ArrayList<TimeSeriesXml>());
 		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
 		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		misc = XmlConverter.xmlToMiscList(settings.getString(CFGKEY_MISC));
+		misc = XmlConverter.xmlToObject(settings.getString(CFGKEY_MISC),
+				new ArrayList<MiscXml>());
 	}
 
 	/**

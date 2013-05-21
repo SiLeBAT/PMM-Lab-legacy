@@ -105,8 +105,8 @@ public class PrimaryJoiner implements Joiner {
 		JPanel parameterPanel = new JPanel();
 		JPanel leftPanel = new JPanel();
 		JPanel rightPanel = new JPanel();
-		Map<String, String> replacements = XmlConverter
-				.xmlToStringMap(assignments);
+		Map<String, String> replacements = XmlConverter.xmlToObject(
+				assignments, new LinkedHashMap<String, String>());
 
 		panel.setLayout(new BorderLayout());
 		parameterPanel.setLayout(new BorderLayout());
@@ -160,7 +160,7 @@ public class PrimaryJoiner implements Joiner {
 			}
 		}
 
-		return XmlConverter.mapToXml(assignmentsMap);
+		return XmlConverter.objectToXml(assignmentsMap);
 	}
 
 	@Override
@@ -169,8 +169,8 @@ public class PrimaryJoiner implements Joiner {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createM1DataSchema()
 						.createSpec());
-		Map<String, String> replacements = XmlConverter
-				.xmlToStringMap(assignments);
+		Map<String, String> replacements = XmlConverter.xmlToObject(
+				assignments, new LinkedHashMap<String, String>());
 		int rowCount = modelTuples.size() * dataTable.getRowCount();
 		int index = 0;
 

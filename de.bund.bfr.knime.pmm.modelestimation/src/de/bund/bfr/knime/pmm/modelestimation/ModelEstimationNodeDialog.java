@@ -260,8 +260,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			guessMap = XmlConverter
-					.xmlToPointDoubleMapMap(settings
-							.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES));
+					.xmlToObject(
+							settings.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES),
+							new LinkedHashMap<String, Map<String, Point2D.Double>>());
 		} catch (InvalidSettingsException e) {
 			guessMap = new LinkedHashMap<>();
 		}
@@ -343,7 +344,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		settings.addString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES,
-				XmlConverter.mapToXml(guessMap));
+				XmlConverter.objectToXml(guessMap));
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) {

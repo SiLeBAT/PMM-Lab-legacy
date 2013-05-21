@@ -2,7 +2,6 @@ package de.bund.bfr.knime.pmm.common;
 
 import java.awt.Color;
 import java.awt.Shape;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,27 +32,11 @@ public class XmlConverter {
 		}
 	}
 
-	public static String listToXml(List<?> list) {
-		return new XStream().toXML(list);
-	}
-
-	public static String mapToXml(Map<?, ?> map) {
-		return new XStream().toXML(map);
-	}
-
-	public static String agentToXml(AgentXml agent) {
-		return new XStream().toXML(agent);
-	}
-
-	public static String matrixToXml(MatrixXml matrix) {
-		return new XStream().toXML(matrix);
-	}
-
 	public static String tupleToXml(KnimeTuple tuple) {
 		List<Object> list = new ArrayList<>();
 
 		if (tuple == null) {
-			return listToXml(list);
+			return objectToXml(list);
 		}
 
 		KnimeSchema schema = tuple.getSchema();
@@ -76,43 +59,27 @@ public class XmlConverter {
 			}
 		}
 
-		return listToXml(list);
+		return objectToXml(list);
 	}
 
 	public static String colorMapToXml(Map<String, Color> map) {
-		return mapToXml(colorMapToStringMap(map));
+		return objectToXml(colorMapToStringMap(map));
 	}
 
 	public static String shapeMapToXml(Map<String, Shape> map) {
-		return mapToXml(shapeMapToStringMap(map));
+		return objectToXml(shapeMapToStringMap(map));
 	}
 
 	public static String colorListMapToXml(Map<String, List<Color>> map) {
-		return mapToXml(colorListMapToStringMap(map));
+		return objectToXml(colorListMapToStringMap(map));
 	}
 
 	public static String shapeListMapToXml(Map<String, List<Shape>> map) {
-		return mapToXml(shapeListMapToStringMap(map));
-	}
-
-	public static AgentXml xmlToAgent(String xml) {
-		try {
-			return (AgentXml) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	public static MatrixXml xmlToMatrix(String xml) {
-		try {
-			return (MatrixXml) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return null;
-		}
+		return objectToXml(shapeListMapToStringMap(map));
 	}
 
 	public static KnimeTuple xmlToTuple(String xml) {
-		List<Object> list = xmlToObjectList(xml);
+		List<Object> list = xmlToObject(xml, new ArrayList<Object>());
 
 		if (!list.isEmpty()) {
 			KnimeSchema schema = (KnimeSchema) list.get(0);
@@ -128,224 +95,24 @@ public class XmlConverter {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static List<Object> xmlToObjectList(String xml) {
-		try {
-			return (List<Object>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<String> xmlToStringList(String xml) {
-		try {
-			return (List<String>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<Integer> xmlToIntList(String xml) {
-		try {
-			return (List<Integer>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<Double> xmlToDoubleList(String xml) {
-		try {
-			return (List<Double>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<Point2D.Double> xmlToPointDoubleList(String xml) {
-		try {
-			return (List<Point2D.Double>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<LiteratureItem> xmlToLiteratureList(String xml) {
-		try {
-			return (List<LiteratureItem>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<MiscXml> xmlToMiscList(String xml) {
-		try {
-			return (List<MiscXml>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Object> xmlToObjectMap(String xml) {
-		try {
-			return (Map<String, Object>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, String> xmlToStringMap(String xml) {
-		try {
-			return (Map<String, String>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Integer> xmlToIntMap(String xml) {
-		try {
-			return (Map<String, Integer>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Double> xmlToDoubleMap(String xml) {
-		try {
-			return (Map<String, Double>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Boolean> xmlToBoolMap(String xml) {
-		try {
-			return (Map<String, Boolean>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static List<TimeSeriesXml> xmlToTimeSeriesList(String xml) {
-		try {
-			return (List<TimeSeriesXml>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new ArrayList<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, AgentXml> xmlToAgentMap(String xml) {
-		try {
-			return (Map<String, AgentXml>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, MatrixXml> xmlToMatrixMap(String xml) {
-		try {
-			return (Map<String, MatrixXml>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
 	public static Map<String, Color> xmlToColorMap(String xml) {
-		return stringMapToColorMap(xmlToStringMap(xml));
+		return stringMapToColorMap(xmlToObject(xml,
+				new LinkedHashMap<String, String>()));
 	}
 
 	public static Map<String, Shape> xmlToShapeMap(String xml) {
-		return stringMapToShapeMap(xmlToStringMap(xml));
+		return stringMapToShapeMap(xmlToObject(xml,
+				new LinkedHashMap<String, String>()));
 	}
 
 	public static Map<String, List<Color>> xmlToColorListMap(String xml) {
-		return stringMapToColorListMap(xmlToStringListMap(xml));
+		return stringMapToColorListMap(xmlToObject(xml,
+				new LinkedHashMap<String, List<String>>()));
 	}
 
 	public static Map<String, List<Shape>> xmlToShapeListMap(String xml) {
-		return stringMapToShapeListMap(xmlToStringListMap(xml));
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<Integer, Double> xmlToIntDoubleMap(String xml) {
-		try {
-			return (Map<Integer, Double>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, List<String>> xmlToStringListMap(String xml) {
-		try {
-			return (Map<String, List<String>>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, List<Boolean>> xmlToBoolListMap(String xml) {
-		try {
-			return (Map<String, List<Boolean>>) new XStream().fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, List<TimeSeriesXml>> xmlToTimeSeriesMap(String xml) {
-		try {
-			return (Map<String, List<TimeSeriesXml>>) new XStream()
-					.fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Map<String, String>> xmlToStringMapMap(String xml) {
-		try {
-			return (Map<String, Map<String, String>>) new XStream()
-					.fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, Map<String, Point2D.Double>> xmlToPointDoubleMapMap(
-			String xml) {
-		try {
-			return (Map<String, Map<String, Point2D.Double>>) new XStream()
-					.fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<String, List<Map<String, String>>> xmlToStringMapListMap(
-			String xml) {
-		try {
-			return (Map<String, List<Map<String, String>>>) new XStream()
-					.fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
+		return stringMapToShapeListMap(xmlToObject(xml,
+				new LinkedHashMap<String, List<String>>()));
 	}
 
 	private static Map<String, String> colorMapToStringMap(

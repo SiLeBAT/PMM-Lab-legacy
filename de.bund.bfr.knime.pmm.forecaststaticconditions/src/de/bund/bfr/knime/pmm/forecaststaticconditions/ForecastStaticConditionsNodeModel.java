@@ -156,7 +156,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.mapToXml(concentrationParameters));
+				XmlConverter.objectToXml(concentrationParameters));
 	}
 
 	/**
@@ -166,8 +166,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		concentration = settings.getDouble(CFGKEY_CONCENTRATION);
-		concentrationParameters = XmlConverter.xmlToStringMap(settings
-				.getString(CFGKEY_CONCENTRATIONPARAMETERS));
+		concentrationParameters = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
+				new LinkedHashMap<String, String>());
 	}
 
 	/**

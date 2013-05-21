@@ -292,8 +292,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected void loadSettingsFrom(final NodeSettingsRO settings,
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		try {
-			literature = XmlConverter.xmlToLiteratureList(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATURE));
+			literature = XmlConverter.xmlToObject(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATURE),
+					new ArrayList<LiteratureItem>());
 			literatureData = new ArrayList<>();
 
 			for (LiteratureItem item : literature) {
@@ -308,15 +309,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			agent = XmlConverter.xmlToAgent(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT));
+			agent = XmlConverter
+					.xmlToObject(
+							settings.getString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT),
+							null);
 		} catch (InvalidSettingsException e) {
 			agent = null;
 		}
 
 		try {
-			matrix = XmlConverter.xmlToMatrix(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX));
+			matrix = XmlConverter.xmlToObject(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
 			matrix = null;
 		}
@@ -328,9 +331,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		try {
-			List<TimeSeriesXml> timeSeries = XmlConverter
-					.xmlToTimeSeriesList(settings
-							.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES));
+			List<TimeSeriesXml> timeSeries = XmlConverter.xmlToObject(settings
+					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES),
+					new ArrayList<TimeSeriesXml>());
 
 			for (int i = 0; i < timeSeries.size(); i++) {
 				table.setTime(i, timeSeries.get(i).getTime());
@@ -358,8 +361,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		int n = removeButtons.size();
 
 		try {
-			miscValues = XmlConverter.xmlToMiscList(settings
-					.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISC));
+			miscValues = XmlConverter.xmlToObject(
+					settings.getString(TimeSeriesCreatorNodeModel.CFGKEY_MISC),
+					new ArrayList<MiscXml>());
 		} catch (InvalidSettingsException e) {
 			miscValues = new ArrayList<>();
 		}
@@ -442,13 +446,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LITERATURE,
-				XmlConverter.listToXml(literature));
+				XmlConverter.objectToXml(literature));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_AGENT,
-				XmlConverter.agentToXml(agent));
+				XmlConverter.objectToXml(agent));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MATRIX,
-				XmlConverter.matrixToXml(matrix));
+				XmlConverter.objectToXml(matrix));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMESERIES,
-				XmlConverter.listToXml(timeSeries));
+				XmlConverter.objectToXml(timeSeries));
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT,
 				(String) timeBox.getSelectedItem());
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT,
@@ -489,7 +493,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		settings.addString(TimeSeriesCreatorNodeModel.CFGKEY_MISC,
-				XmlConverter.listToXml(miscValues));
+				XmlConverter.objectToXml(miscValues));
 	}
 
 	@Override

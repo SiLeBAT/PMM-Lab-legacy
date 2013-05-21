@@ -138,8 +138,9 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			paramXValues = XmlConverter
-					.xmlToDoubleMap(settings
-							.getString(CombinedModelAndDataViewNodeModel.CFG_PARAMXVALUES));
+					.xmlToObject(
+							settings.getString(CombinedModelAndDataViewNodeModel.CFG_PARAMXVALUES),
+							new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
 			paramXValues = new LinkedHashMap<>();
 		}
@@ -251,8 +252,9 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 
 		try {
 			visibleColumns = XmlConverter
-					.xmlToStringList(settings
-							.getString(CombinedModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS));
+					.xmlToObject(
+							settings.getString(CombinedModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -305,7 +307,7 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
 				configPanel.getParamX());
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.mapToXml(configPanel.getParamXValues()));
+				XmlConverter.objectToXml(configPanel.getParamXValues()));
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_SHAPES,
@@ -366,7 +368,7 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 				CombinedModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS, 0);
 		settings.addString(
 				CombinedModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_MODELFILTER,
 				selectionPanel.getFilter(Model1Schema.MODELNAME));
 		settings.addString(CombinedModelAndDataViewNodeModel.CFG_DATAFILTER,

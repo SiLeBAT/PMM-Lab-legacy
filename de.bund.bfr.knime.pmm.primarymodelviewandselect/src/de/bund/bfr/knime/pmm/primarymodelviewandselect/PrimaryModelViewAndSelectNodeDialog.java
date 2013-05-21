@@ -129,8 +129,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		try {
 			selectedIDs = XmlConverter
-					.xmlToStringList(settings
-							.getString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS));
+					.xmlToObject(
+							settings.getString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			selectedIDs = new ArrayList<String>();
 		}
@@ -256,8 +257,9 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 
 		try {
 			visibleColumns = XmlConverter
-					.xmlToStringList(settings
-							.getString(PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS));
+					.xmlToObject(
+							settings.getString(PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS),
+							new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
@@ -292,7 +294,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_SELECTEDIDS,
-				XmlConverter.listToXml(selectionPanel.getSelectedIDs()));
+				XmlConverter.objectToXml(selectionPanel.getSelectedIDs()));
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_COLORS,
 				XmlConverter.colorMapToXml(selectionPanel.getColors()));
 		settings.addString(PrimaryModelViewAndSelectNodeModel.CFG_SHAPES,
@@ -302,7 +304,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 				0);
 		settings.addString(
 				PrimaryModelViewAndSelectNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.listToXml(selectionPanel.getVisibleColumns()));
+				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
 
 		settings.addInt(PrimaryModelViewAndSelectNodeModel.CFG_SELECTALLIDS, 0);
 

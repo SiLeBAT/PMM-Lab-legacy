@@ -81,6 +81,11 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 
+	protected static final String DEFAULT_TIMEUNIT = new Time()
+			.getStandardUnit();
+	protected static final String DEFAULT_LOGCUNIT = new BacterialConcentration()
+			.getStandardUnit();
+
 	private List<LiteratureItem> literature;
 	private AgentXml agent;
 	private MatrixXml matrix;
@@ -100,8 +105,8 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		matrix = null;
 		comment = "";
 		timeSeries = new ArrayList<>();
-		timeUnit = new Time().getStandardUnit();
-		logcUnit = new BacterialConcentration().getStandardUnit();
+		timeUnit = DEFAULT_TIMEUNIT;
+		logcUnit = DEFAULT_LOGCUNIT;
 		misc = new ArrayList<>();
 	}
 

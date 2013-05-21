@@ -344,15 +344,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			timeBox.setSelectedItem(settings
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_TIMEUNIT));
 		} catch (InvalidSettingsException e) {
-			timeBox.setSelectedItem(new Time().getStandardUnit());
+			timeBox.setSelectedItem(TimeSeriesCreatorNodeModel.DEFAULT_TIMEUNIT);
 		}
 
 		try {
 			logcBox.setSelectedItem(settings
 					.getString(TimeSeriesCreatorNodeModel.CFGKEY_LOGCUNIT));
 		} catch (InvalidSettingsException e) {
-			logcBox.setSelectedItem(new BacterialConcentration()
-					.getStandardUnit());
+			logcBox.setSelectedItem(TimeSeriesCreatorNodeModel.DEFAULT_LOGCUNIT);
 		}
 
 		List<MiscXml> miscValues;

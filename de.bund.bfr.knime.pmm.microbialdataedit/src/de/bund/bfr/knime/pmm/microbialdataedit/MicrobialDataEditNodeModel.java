@@ -37,10 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -58,7 +56,6 @@ import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
@@ -75,7 +72,11 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class MicrobialDataEditNodeModel extends NodeModel {
 
 	protected static final String CFGKEY_ADDEDCONDITIONS = "AddedConditions";
+	protected static final String CFGKEY_ADDEDCONDITIONVALUES = "AddedConditionValues";
+	protected static final String CFGKEY_ADDEDCONDITIONUNITS = "AddedConditionUnits";
 	protected static final String CFGKEY_CONDITIONS = "Conditions";
+	protected static final String CFGKEY_CONDITIONVALUES = "ConditionValues";
+	protected static final String CFGKEY_CONDITIONUNITS = "ConditionUnits";
 	protected static final String CFGKEY_AGENTS = "Agents";
 	protected static final String CFGKEY_AGENTDETAILS = "AgentDetails";
 	protected static final String CFGKEY_MATRICES = "Matrices";
@@ -85,8 +86,12 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected static final String CFGKEY_CHECKS = "Checks";
 	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
 
-	private Map<MiscXml, Map<String, Double>> addedConditions;
-	private Map<MiscXml, Map<String, Double>> conditions;
+	private Map<Integer, MiscXml> addedConditions;
+	private Map<Integer, Map<String, Double>> addedConditionValues;
+	private Map<Integer, Map<String, String>> addedConditionUnits;
+	private Map<Integer, MiscXml> conditions;
+	private Map<Integer, Map<String, Double>> conditionValues;
+	private Map<Integer, Map<String, String>> conditionUnits;
 	private Map<String, AgentXml> agents;
 	private Map<String, String> agentDetails;
 	private Map<String, MatrixXml> matrices;
@@ -102,7 +107,11 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	protected MicrobialDataEditNodeModel() {
 		super(1, 1);
 		addedConditions = new LinkedHashMap<>();
+		addedConditionValues = new LinkedHashMap<>();
+		addedConditionUnits = new LinkedHashMap<>();
 		conditions = new LinkedHashMap<>();
+		conditionValues = new LinkedHashMap<>();
+		conditionUnits = new LinkedHashMap<>();
 		agents = new LinkedHashMap<>();
 		agentDetails = new LinkedHashMap<>();
 		matrices = new LinkedHashMap<>();
@@ -221,30 +230,26 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 			}
 
-			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-			Set<Integer> usedMiscIDs = new LinkedHashSet<>();
+			PmmXmlDoc miscXml = new PmmXmlDoc();
 
-			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
-				MiscXml misc = (MiscXml) el;
+			for (int miscID : conditions.keySet()) {
+				MiscXml misc = new MiscXml(conditions.get(miscID));
 
-				for (MiscXml cond : conditions.keySet()) {
-					if (cond.getID() == misc.getID()) {
-						misc.setValue(conditions.get(cond).get(id));
-						break;
-					}
-				}
-
-				usedMiscIDs.add(((MiscXml) el).getID());
+				misc.setValue(conditionValues.get(miscID).get(id));
+				misc.setUnit(conditionUnits.get(miscID).get(id));
+				miscXml.add(misc);
 			}
 
-			for (MiscXml cond : addedConditions.keySet()) {
-				if (usedMiscIDs.contains(cond.getID())) {
+			for (int miscID : addedConditions.keySet()) {
+				if (conditions.containsKey(miscID)) {
 					continue;
 				}
 
-				miscXml.add(new MiscXml(cond.getID(), cond.getName(), null,
-						addedConditions.get(cond).get(id), null, null, cond
-								.getDbuuid()));
+				MiscXml misc = new MiscXml(conditions.get(miscID));
+
+				misc.setValue(addedConditionValues.get(miscID).get(id));
+				misc.setUnit(addedConditionUnits.get(miscID).get(id));
+				miscXml.add(misc);
 			}
 
 			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
@@ -283,19 +288,29 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_ADDEDCONDITIONS,
-				XmlConverter.mapToXml(addedConditions));
-		settings.addString(CFGKEY_CONDITIONS, XmlConverter.mapToXml(conditions));
-		settings.addString(CFGKEY_AGENTS, XmlConverter.mapToXml(agents));
+				XmlConverter.objectToXml(addedConditions));
+		settings.addString(CFGKEY_ADDEDCONDITIONVALUES,
+				XmlConverter.objectToXml(addedConditionValues));
+		settings.addString(CFGKEY_ADDEDCONDITIONUNITS,
+				XmlConverter.objectToXml(addedConditionUnits));
+		settings.addString(CFGKEY_CONDITIONS,
+				XmlConverter.objectToXml(conditions));
+		settings.addString(CFGKEY_CONDITIONVALUES,
+				XmlConverter.objectToXml(conditionValues));
+		settings.addString(CFGKEY_CONDITIONUNITS,
+				XmlConverter.objectToXml(conditionUnits));
+		settings.addString(CFGKEY_AGENTS, XmlConverter.objectToXml(agents));
 		settings.addString(CFGKEY_AGENTDETAILS,
-				XmlConverter.mapToXml(agentDetails));
-		settings.addString(CFGKEY_MATRICES, XmlConverter.mapToXml(matrices));
+				XmlConverter.objectToXml(agentDetails));
+		settings.addString(CFGKEY_MATRICES, XmlConverter.objectToXml(matrices));
 		settings.addString(CFGKEY_MATRIXDETAILS,
-				XmlConverter.mapToXml(matrixDetails));
-		settings.addString(CFGKEY_COMMENTS, XmlConverter.mapToXml(comments));
+				XmlConverter.objectToXml(matrixDetails));
+		settings.addString(CFGKEY_COMMENTS, XmlConverter.objectToXml(comments));
 		settings.addString(CFGKEY_QUALITYSCORES,
-				XmlConverter.mapToXml(qualityScores));
-		settings.addString(CFGKEY_CHECKS, XmlConverter.mapToXml(checks));
-		settings.addString(CFGKEY_TIMESERIES, XmlConverter.mapToXml(timeSeries));
+				XmlConverter.objectToXml(qualityScores));
+		settings.addString(CFGKEY_CHECKS, XmlConverter.objectToXml(checks));
+		settings.addString(CFGKEY_TIMESERIES,
+				XmlConverter.objectToXml(timeSeries));
 	}
 
 	/**
@@ -304,24 +319,47 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		addedConditions = XmlConverter.xmlToMiscStringDoubleMap(settings
-				.getString(CFGKEY_ADDEDCONDITIONS));
-		conditions = XmlConverter.xmlToMiscStringDoubleMap(settings
-				.getString(CFGKEY_CONDITIONS));
-		agents = XmlConverter.xmlToAgentMap(settings.getString(CFGKEY_AGENTS));
-		agentDetails = XmlConverter.xmlToStringMap(settings
-				.getString(CFGKEY_AGENTDETAILS));
-		matrices = XmlConverter.xmlToMatrixMap(settings
-				.getString(CFGKEY_MATRICES));
-		matrixDetails = XmlConverter.xmlToStringMap(settings
-				.getString(CFGKEY_MATRIXDETAILS));
-		comments = XmlConverter.xmlToStringMap(settings
-				.getString(CFGKEY_COMMENTS));
-		qualityScores = XmlConverter.xmlToIntMap(settings
-				.getString(CFGKEY_QUALITYSCORES));
-		checks = XmlConverter.xmlToBoolMap(settings.getString(CFGKEY_CHECKS));
-		timeSeries = XmlConverter.xmlToTimeSeriesMap(settings
-				.getString(CFGKEY_TIMESERIES));
+
+		addedConditions = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_ADDEDCONDITIONS),
+				new LinkedHashMap<Integer, MiscXml>());
+		addedConditionValues = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_ADDEDCONDITIONVALUES),
+				new LinkedHashMap<Integer, Map<String, Double>>());
+		addedConditionUnits = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_ADDEDCONDITIONUNITS),
+				new LinkedHashMap<Integer, Map<String, String>>());
+		conditions = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_CONDITIONS),
+				new LinkedHashMap<Integer, MiscXml>());
+		conditionValues = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_CONDITIONVALUES),
+				new LinkedHashMap<Integer, Map<String, Double>>());
+		conditionUnits = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_CONDITIONUNITS),
+				new LinkedHashMap<Integer, Map<String, String>>());
+		agents = XmlConverter.xmlToObject(settings.getString(CFGKEY_AGENTS),
+				new LinkedHashMap<String, AgentXml>());
+		agentDetails = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_AGENTDETAILS),
+				new LinkedHashMap<String, String>());
+		matrices = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_MATRICES),
+				new LinkedHashMap<String, MatrixXml>());
+		matrixDetails = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_MATRIXDETAILS),
+				new LinkedHashMap<String, String>());
+		comments = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_COMMENTS),
+				new LinkedHashMap<String, String>());
+		qualityScores = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_QUALITYSCORES),
+				new LinkedHashMap<String, Integer>());
+		checks = XmlConverter.xmlToObject(settings.getString(CFGKEY_CHECKS),
+				new LinkedHashMap<String, Boolean>());
+		timeSeries = XmlConverter.xmlToObject(
+				settings.getString(CFGKEY_TIMESERIES),
+				new LinkedHashMap<String, List<TimeSeriesXml>>());
 	}
 
 	/**

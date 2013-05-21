@@ -64,10 +64,15 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 	private JComponent createTableChartComponent(List<TimeSeriesXml> timeSeries) {
 		List<Double> timeList = new ArrayList<>();
 		List<Double> logcList = new ArrayList<>();
+		String timeUnit = new Time().getStandardUnit();
+		String concentrationUnit = new BacterialConcentration()
+				.getStandardUnit();
 
 		for (TimeSeriesXml point : timeSeries) {
 			timeList.add(point.getTime());
 			logcList.add(point.getConcentration());
+			timeUnit = point.getTimeUnit();
+			concentrationUnit = point.getConcentrationUnit();
 		}
 
 		Plotable plotable = new Plotable(Plotable.DATASET);
@@ -83,9 +88,8 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		creator.setUseManualRange(false);
 		creator.setDrawLines(false);
 		creator.setShowLegend(false);
-		creator.setUnitX(new Time().getStandardUnit());
-		creator.setUnitY(new BacterialConcentration().getStandardUnit());
-		creator.setTransformY(ChartConstants.NO_TRANSFORM);
+		creator.setUnitX(timeUnit);
+		creator.setUnitY(concentrationUnit);		
 		creator.createChart();
 
 		JPanel panel = new JPanel();

@@ -23,6 +23,10 @@ public class MiscXml implements PmmXmlElementConvertable {
 	private String unit = null;
 	private String dbuuid = null;
 	
+	public MiscXml(MiscXml misc) {
+		this(misc.getID(),misc.getName(),misc.getDescription(),misc.getValue(),misc.getCategory(),misc.getUnit(),misc.getDbuuid());
+	}
+	
 	public MiscXml(Integer id, String name, String description, Double value, String category, String unit) {
 		this(id, name, description, value, category, unit, null);
 	}

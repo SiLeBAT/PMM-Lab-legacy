@@ -20,6 +20,19 @@ public class XmlConverter {
 	private XmlConverter() {
 	}
 
+	public static String objectToXml(Object obj) {
+		return new XStream().toXML(obj);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T xmlToObject(String xml, T obj) {
+		try {
+			return (T) new XStream().fromXML(xml);
+		} catch (Exception e) {
+			return obj;
+		}
+	}
+
 	public static String listToXml(List<?> list) {
 		return new XStream().toXML(list);
 	}
@@ -307,17 +320,6 @@ public class XmlConverter {
 	public static Map<String, Map<String, String>> xmlToStringMapMap(String xml) {
 		try {
 			return (Map<String, Map<String, String>>) new XStream()
-					.fromXML(xml);
-		} catch (Exception e) {
-			return new LinkedHashMap<>();
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static Map<MiscXml, Map<String, Double>> xmlToMiscStringDoubleMap(
-			String xml) {
-		try {
-			return (Map<MiscXml, Map<String, Double>>) new XStream()
 					.fromXML(xml);
 		} catch (Exception e) {
 			return new LinkedHashMap<>();

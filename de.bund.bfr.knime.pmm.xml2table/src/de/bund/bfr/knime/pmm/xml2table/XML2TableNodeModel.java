@@ -424,6 +424,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("name", mx.getName() == null ? CellIO.createMissingCell() : new StringCell(mx.getName())); 
 		                			addCells.put("description", mx.getDescription() == null ? CellIO.createMissingCell() : new StringCell(mx.getDescription()));
 		                			addCells.put("value", mx.getValue() == null ? CellIO.createMissingCell() : new DoubleCell(mx.getValue()));
+		                			addCells.put("category", mx.getCategory() == null ? CellIO.createMissingCell() : new StringCell(mx.getCategory()));
 		                			addCells.put("unit", mx.getUnit() == null ? CellIO.createMissingCell() : new StringCell(mx.getUnit()));
 		                			addCells.put("dbuuid", mx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(mx.getDbuuid()));
 		                			v.add(addCells);

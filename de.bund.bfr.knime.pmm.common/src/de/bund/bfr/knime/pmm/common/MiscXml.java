@@ -45,7 +45,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 			setDescription(xmlElement.getAttribute("description").getValue());
 			String strDbl = xmlElement.getAttribute("value").getValue();
 			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			setCategory(xmlElement.getAttribute("category").getValue());
+			setCategory(xmlElement.getAttribute("category") == null ? null : xmlElement.getAttribute("category").getValue());
 			setUnit(xmlElement.getAttribute("unit").getValue());
 			if (xmlElement.getAttribute("dbuuid") != null) {
 				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				

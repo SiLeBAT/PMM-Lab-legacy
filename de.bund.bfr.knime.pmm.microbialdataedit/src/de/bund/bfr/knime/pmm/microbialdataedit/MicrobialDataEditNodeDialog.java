@@ -53,6 +53,7 @@ import java.util.Set;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -468,6 +469,22 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
 				new TimeSeriesEditor());
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
+
+		for (MiscXml cond : usedMiscs) {
+			String[] units = Categories.getCategory(cond.getCategory())
+					.getAllUnits();
+
+			table.getColumn(cond.getName() + " Unit").setCellEditor(
+					new DefaultCellEditor(new JComboBox<>(units)));
+		}
+
+		for (MiscXml cond : addedConditions.values()) {
+			String[] units = Categories.getCategory(cond.getCategory())
+					.getAllUnits();
+
+			table.getColumn(cond.getName() + " Unit").setCellEditor(
+					new DefaultCellEditor(new JComboBox<>(units)));
+		}
 	}
 
 	@Override
@@ -534,6 +551,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						id + "", "Kategorie") + "";
 
 				if (!usedMiscIDs.contains(id)) {
+					String[] units = Categories.getCategory(category)
+							.getAllUnits();
+
 					addedConditionNames.add(name);
 					addedConditionsList.setListData(addedConditionNames
 							.toArray(new String[0]));
@@ -542,6 +562,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 									null, DBKernel.getLocalDBUUID()),
 							new LinkedHashMap<String, Double>(),
 							new LinkedHashMap<String, String>());
+					table.getColumn(name + " Unit").setCellEditor(
+							new DefaultCellEditor(new JComboBox<>(units)));
+
 					table.repaint();
 				} else {
 					JOptionPane.showMessageDialog(addButton,
@@ -620,6 +643,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				Map<String, String> units) {
 			List<Double> valueList = new ArrayList<>();
 			List<String> unitList = new ArrayList<>();
+			String standardUnit = Categories.getCategory(
+					condition.getCategory()).getStandardUnit();
 
 			for (String id : ids) {
 				valueList.add(values.get(id));
@@ -627,9 +652,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				if (units.containsKey(id)) {
 					unitList.add(units.get(id));
 				} else {
-					unitList.add(Categories
-							.getCategory(condition.getCategory())
-							.getStandardUnit());
+					unitList.add(standardUnit);
 				}
 			}
 
@@ -862,7 +885,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					if (i % 2 == 0) {
 						return addedConditionValues.get(i / 2).get(rowIndex);
 					} else {
-						return addedConditionValues.get(i / 2).get(rowIndex);
+						return addedConditionUnits.get(i / 2).get(rowIndex);
 					}
 				}
 			}

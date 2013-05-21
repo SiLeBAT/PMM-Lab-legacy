@@ -30,7 +30,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			setName(xmlElement.getAttribute("name").getValue());
 			String strDbl = xmlElement.getAttribute("time").getValue();
 			setTime(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			setTimeUnit(xmlElement.getAttribute("timeUnit").getValue());
+			setTimeUnit(xmlElement.getAttribute("timeUnit") == null ? null : xmlElement.getAttribute("timeUnit").getValue());
 			strDbl = xmlElement.getAttribute("concentration").getValue();
 			setConcentration(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			setConcentrationUnit(xmlElement.getAttribute("concentrationUnit").getValue());

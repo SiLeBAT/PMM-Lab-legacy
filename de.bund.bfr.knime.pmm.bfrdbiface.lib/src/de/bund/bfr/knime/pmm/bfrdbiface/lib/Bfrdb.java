@@ -307,6 +307,10 @@ public class Bfrdb extends Hsqldbiface {
 			+"\""+REL_MODEL+"\".\""+ATT_NAME+"\",\n"
 			+"\""+ATT_MINVALUE+"\",\n"
 			+"\""+ATT_MAXVALUE+"\",\n"
+			+"\"DepCategory\",\n"
+			+"\"DepUnit\",\n"
+			+"\"IndepCategory\",\n"
+			+"\"IndepUnit\",\n"
 			+"\""+ATT_MININDEP+"\",\n"
 			+"\""+ATT_MAXINDEP+"\",\n"
 			+"\"LitMID\",\n"
@@ -320,7 +324,9 @@ public class Bfrdb extends Hsqldbiface {
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"LitMView\".\""+ATT_MODELID+"\"\n"
 			+"\n"
 			+"LEFT JOIN(\n"
-			+"    SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\"\n"
+			+"    SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\",\n"
+			+"        \"Kategorie\" AS \"DepCategory\",\n"
+			+"        \"Einheit\" AS \"DepUnit\"\n"
 			+"    FROM \""+REL_PARAM+"\"\n"
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=3 )AS \"D\"\n"
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"D\".\""+ATT_MODELID+"\"\n"
@@ -330,7 +336,9 @@ public class Bfrdb extends Hsqldbiface {
 			+"        \""+ATT_MODELID+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MININDEP+"\",\n"
-			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXINDEP+"\"\n"
+			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXINDEP+"\",\n"
+			+"        ARRAY_AGG( \"Kategorie\" )AS \"IndepCategory\",\n"
+			+"        ARRAY_AGG( \"Einheit\" )AS \"IndepUnit\"\n"
 			+"    FROM \""+REL_PARAM+"\"\n"
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=1\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"I\"\n"
@@ -380,6 +388,12 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\""+ATT_VALUE+"\",\n"
 			+"    \"EstModelPrimView\".\"ZeitEinheit\",\n"
 			+"    \"EstModelPrimView\".\"Einheiten\",\n"
+			+"    \"EstModelPrimView\".\"DepCategory\",\n"
+			+"    \"EstModelPrimView\".\"DepUnit\",\n"
+			+"    \"EstModelPrimView\".\"IndepCategory\",\n"
+			+"    \"EstModelPrimView\".\"IndepUnit\",\n"
+			+"    \"EstModelPrimView\".\"ParCategory\",\n"
+			+"    \"EstModelPrimView\".\"ParUnit\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_NAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MODELID+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_ESTMODELID+"\",\n"
@@ -463,7 +477,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		PreparedStatement ps = conn.prepareStatement(queryModelView+" WHERE \""+ATT_LEVEL+"\"=?");
 		ps.setInt(1, level);
-		
+		//System.err.println(queryModelView);
 		return ps.executeQuery();
 	}	
 	
@@ -498,16 +512,16 @@ public class Bfrdb extends Hsqldbiface {
 					tuple.setValue( Model1Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();
-		    		doc.add( new DepXml( result.getString( Bfrdb.ATT_DEP ) ) );
+		    		doc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
 		    		tuple.setValue( Model1Schema.ATT_DEPENDENT, doc );
 		    		
 		    		tuple.setValue(
 	    				Model1Schema.ATT_INDEPENDENT,
 	    				DbIo.convertArrays2IndepXmlDoc(
     						null,
-    						result.getArray( Bfrdb.ATT_INDEP ),
+    						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
-		    				null, null ) );
+		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));
 		    		
 		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -515,7 +529,7 @@ public class Bfrdb extends Hsqldbiface {
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
 		    				null,null,
-		    				null,
+		    				null,null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
 		    		
@@ -573,16 +587,16 @@ public class Bfrdb extends Hsqldbiface {
 					tuple.setValue( Model2Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();
-		    		doc.add( new DepXml( result.getString( Bfrdb.ATT_DEP ) ) );
+		    		doc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
 		    		tuple.setValue( Model2Schema.ATT_DEPENDENT, doc );
 		    		
 		    		tuple.setValue(
 	    				Model2Schema.ATT_INDEPENDENT,
 	    				DbIo.convertArrays2IndepXmlDoc(
     						null,
-    						result.getArray( Bfrdb.ATT_INDEP ),
+    						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
-		    				null, null ) );
+		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));
 		    		
 		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -590,7 +604,7 @@ public class Bfrdb extends Hsqldbiface {
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
 		    				null,null,
-		    				null,
+		    				null,null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
 		    		
@@ -1451,14 +1465,15 @@ public class Bfrdb extends Hsqldbiface {
 		LinkedList<Integer> paramIdSet = new LinkedList<Integer>();
 		
 		// insert dependent variable
-		int paramId = insertParam(modelId, m.getDepXml().getOrigName(), PARAMTYPE_DEP, null, null);
+		DepXml depXml = m.getDepXml();
+		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit());
 		paramIdSet.add(paramId);
 		
 		// insert independent variable set
 		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
 			if (el instanceof IndepXml) {
 				IndepXml ix = (IndepXml) el;
-				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax());
+				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit());
 				paramIdSet.add(paramId);
 			}
 		}
@@ -1467,7 +1482,7 @@ public class Bfrdb extends Hsqldbiface {
 		for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
 			if (el instanceof ParamXml) {
 				ParamXml px = (ParamXml) el;
-				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax());
+				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax(), px.getCategory(), px.getUnit());
 				paramIdSet.add(paramId);
 			}
 		}
@@ -1674,18 +1689,18 @@ public class Bfrdb extends Hsqldbiface {
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
 	
-	private int insertParam(final int modelId, final String paramName, final int paramType, final Double min, final Double max) {
-		
+	private int insertParam(final int modelId, final String paramName, final int paramType,
+			final Double min, final Double max, final String category, final String unit) {		
 		PreparedStatement ps;
 				
 		int id = -1;
 		try {
 			int paramId = queryParamId(modelId, paramName, paramType);
 			if( paramId <= 0 ) {
-				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\" ) VALUES( ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
+				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Kategorie\",\"Einheit\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
 			}
 			else {
-				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
+				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Kategorie\"= ?, \"Einheit\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
 			}
 				
 			ps.setInt( 1, modelId );
@@ -1700,6 +1715,16 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setNull(5, Types.DOUBLE);
 			} else {
 				ps.setDouble(5, max);
+			}
+			if (category == null) {
+				ps.setNull(6, Types.VARCHAR);
+			} else {
+				ps.setString(6, category);
+			}
+			if (unit == null) {
+				ps.setNull(7, Types.VARCHAR);
+			} else {
+				ps.setString(7, unit);
 			}
 			
 			if( ps.executeUpdate() < 1 ) {

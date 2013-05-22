@@ -455,6 +455,8 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("max", px.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(px.getMax()));
 		                			addCells.put("p", px.getP() == null ? CellIO.createMissingCell() : new DoubleCell(px.getP()));
 		                			addCells.put("t", px.gett() == null ? CellIO.createMissingCell() : new DoubleCell(px.gett()));
+		                			addCells.put("category", px.getCategory() == null ? CellIO.createMissingCell() : new StringCell(px.getCategory()));
+		                			addCells.put("unit", px.getUnit() == null ? CellIO.createMissingCell() : new StringCell(px.getUnit()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof IndepXml) {
@@ -463,12 +465,16 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("origname", ix.getOrigName() == null ? CellIO.createMissingCell() : new StringCell(ix.getOrigName())); 
 		                			addCells.put("min", ix.getMin() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMin()));
 		                			addCells.put("max", ix.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMax()));
+		                			addCells.put("category", ix.getCategory() == null ? CellIO.createMissingCell() : new StringCell(ix.getCategory()));
+		                			addCells.put("unit", ix.getUnit() == null ? CellIO.createMissingCell() : new StringCell(ix.getUnit()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof DepXml) {
 		                			DepXml dx = (DepXml) el;
 		                			addCells.put("name", dx.getName() == null ? CellIO.createMissingCell() : new StringCell(dx.getName())); 
 		                			addCells.put("origname", dx.getOrigName() == null ? CellIO.createMissingCell() : new StringCell(dx.getOrigName())); 
+		                			addCells.put("category", dx.getCategory() == null ? CellIO.createMissingCell() : new StringCell(dx.getCategory()));
+		                			addCells.put("unit", dx.getUnit() == null ? CellIO.createMissingCell() : new StringCell(dx.getUnit()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof TimeSeriesXml) {

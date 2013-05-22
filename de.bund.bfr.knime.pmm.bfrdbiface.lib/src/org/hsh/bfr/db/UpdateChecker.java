@@ -50,6 +50,26 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_161_162() {		
+		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
+				" ADD COLUMN " + DBKernel.delimitL("Kategorie") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Beschreibung"), false)) {
+			updateChangeLog("ModellkatalogParameter", 7, false);		
+			if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
+					" ADD COLUMN " + DBKernel.delimitL("Einheit") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Beschreibung"), false)) {
+				updateChangeLog("ModellkatalogParameter", 8, false);		
+			}
+		}
+		refreshFKs("ModellkatalogParameter");
+
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("ParamView") + ";", false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_162.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView_162.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView_162.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_162.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_162.sql", null, false);		
+	}
 	public static void check4Updates_160_161() {		
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("SonstigeParameter") +
 				" ADD COLUMN " + DBKernel.delimitL("Kategorie") + " VARCHAR(255)", false))

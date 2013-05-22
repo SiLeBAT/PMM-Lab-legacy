@@ -13,15 +13,28 @@ public class DepXml implements PmmXmlElementConvertable {
 
 	private String name = null;
 	private String origName = null;
+	private String category = null;
+	private String unit = null;
 	
 	public DepXml(String name) {
+		this(name, null, null);
+	}
+	public DepXml(String name, String category, String unit) {
 		setName(name);
 		setOrigName(name);
+		setCategory(category);
+		setUnit(unit);
 	}
 	public DepXml(Element xmlElement) {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
 			setOrigName(xmlElement.getAttribute("origname").getValue());
+			if (xmlElement.getAttribute("category") != null) {
+				setCategory(xmlElement.getAttribute("category").getValue());
+			}
+			if (xmlElement.getAttribute("unit") != null) {
+				setUnit(xmlElement.getAttribute("unit").getValue());
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -29,15 +42,21 @@ public class DepXml implements PmmXmlElementConvertable {
 	}
 	public String getName() {return name;}
 	public String getOrigName() {return origName;}
+	public String getCategory() {return category;}
+	public String getUnit() {return unit;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
+	public void setCategory(String category) {this.category = (category == null) ? "" : category;}
+	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
 
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_DEPENDENT);
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("origname", origName);
+		modelElement.setAttribute("category", category == null ? "" : category);
+		modelElement.setAttribute("unit", unit == null ? "" : unit);
 		return modelElement;
 	}
 
@@ -45,6 +64,8 @@ public class DepXml implements PmmXmlElementConvertable {
         List<String> list = new ArrayList<String>();
         list.add("Name");
         list.add("Origname");
+        list.add("Category");
+        list.add("Unit");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -52,6 +73,12 @@ public class DepXml implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("origname")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("category")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("unit")) {
 			return StringCell.TYPE;
 		}
 		return null;

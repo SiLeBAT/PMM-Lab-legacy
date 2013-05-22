@@ -234,25 +234,29 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				boolean maxNull = el.getAttributeValue(ATT_MAXVALUE) == null || el.getAttributeValue(ATT_MAXVALUE).equals("null");
 				boolean valNull = el.getAttributeValue(ATT_VALUE) == null || el.getAttributeValue(ATT_VALUE).equals("null");
 				boolean errNull = el.getAttributeValue(ATT_PARAMERR) == null || el.getAttributeValue(ATT_PARAMERR).equals("null");
+				boolean categoryNull = el.getAttributeValue("Category") == null || el.getAttributeValue("Category").equals("null");
 				boolean unitNull = el.getAttributeValue("Unit") == null || el.getAttributeValue("Unit").equals("null");
 				Double min = minNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MINVALUE));
 				Double max = maxNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MAXVALUE));
 				Double val = valNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_VALUE));
 				Double err = errNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_PARAMERR));
+				String category = categoryNull ? null : el.getAttributeValue("Category");
 				String unit = unitNull ? null : el.getAttributeValue("Unit");
 				ParamXml px = new ParamXml(el.getAttributeValue(ATT_PARAMNAME),
 						val,
-						err, min, max, null, null, unit);
+						err, min, max, null, null, category, unit);
 				parameter.add(px);
 			}
 			else if (el.getName().equals(ATT_INDEPVAR)) {
 				boolean minNull = el.getAttributeValue(ATT_MININDEP) == null || el.getAttributeValue(ATT_MININDEP).equals("null");
 				boolean maxNull = el.getAttributeValue(ATT_MAXINDEP) == null || el.getAttributeValue(ATT_MAXINDEP).equals("null");
+				boolean categoryNull = el.getAttributeValue("Category") == null || el.getAttributeValue("Category").equals("null");
 				boolean unitNull = el.getAttributeValue("Unit") == null || el.getAttributeValue("Unit").equals("null");
 				Double min = minNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MININDEP));
 				Double max = maxNull ? Double.NaN : Double.valueOf(el.getAttributeValue(ATT_MAXINDEP));
+				String category = categoryNull ? null : el.getAttributeValue("Category");
 				String unit = unitNull ? null : el.getAttributeValue("Unit");
-				IndepXml ix = new IndepXml(el.getAttributeValue(ATT_PARAMNAME), min, max, unit);
+				IndepXml ix = new IndepXml(el.getAttributeValue(ATT_PARAMNAME), min, max, category, unit);
 				independent.add(ix);
 			}
 			else if (el.getName().equals(ATT_RMAP)) {
@@ -443,10 +447,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public void addParam( final String paramName, final Double value, final Double error, final Double min, final Double max ) {
-		addParam(paramName, value, error, min, max, null);
+		addParam(paramName, value, error, min, max, null, null);
 	}
-	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String unit) {
-		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null, unit);
+	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String category, String unit) {
+		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null, category, unit);
 		parameter.add(px);
 	}
 		
@@ -586,10 +590,10 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
-		addIndepVar(varName, min, max, null);
+		addIndepVar(varName, min, max, null, null);
 	}
-	public void addIndepVar(final String varName, final Double min, final Double max, String unit) {
-		IndepXml ix = new IndepXml(varName, min, max, unit);
+	public void addIndepVar(final String varName, final Double min, final Double max, String category, String unit) {
+		IndepXml ix = new IndepXml(varName, min, max, category, unit);
 		independent.add(ix);
 	}
 	
@@ -685,6 +689,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		}
 		return null;
 	}
+	public String getParamCategory(final String name) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					return px.getCategory();
+				}
+			}
+		}
+		return null;
+	}
 	
 	public boolean containsIndep( final String name ) {
 		for (PmmXmlElementConvertable el : independent.getElementSet()) {
@@ -740,6 +755,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				IndepXml ix = (IndepXml) el;
 				if (ix.getName().equals(name)) {
 					return ix.getUnit();
+				}
+			}
+		}
+		return null;
+	}
+	public String getIndepCategory( final String name ) {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				if (ix.getName().equals(name)) {
+					return ix.getCategory();
 				}
 			}
 		}
@@ -884,7 +910,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			
 			//tuple.setValue( Model1Schema.ATT_FORMULA, getFormula() );
     		PmmXmlDoc depDoc = new PmmXmlDoc();
-    		depDoc.add(new DepXml(getDepVar()));
+    		depDoc.add(depXml == null ? new DepXml(getDepVar()) : depXml);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 			//tuple.setValue( Model1Schema.ATT_MODELNAME, getModelName() );
 			//tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
@@ -914,7 +940,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			//tuple.setValue( Model2Schema.ATT_FORMULA, getFormula() );
 
     		PmmXmlDoc depDoc = new PmmXmlDoc();
-    		depDoc.add(new DepXml(getDepVar()));
+    		depDoc.add(depXml == null ? new DepXml(getDepVar()) : depXml);
     		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
     		/*
 			tuple.setValue( Model2Schema.ATT_MODELNAME, getModelName() );

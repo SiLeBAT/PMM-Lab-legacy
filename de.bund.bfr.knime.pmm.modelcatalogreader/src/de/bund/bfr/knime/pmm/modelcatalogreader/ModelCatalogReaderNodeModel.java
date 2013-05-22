@@ -170,12 +170,12 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
 		    		PmmXmlDoc depDoc = new PmmXmlDoc();
-		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
 		    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 		    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-		    				null, null, null));	    		
+		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));	    		
 		    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 		    		
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -235,7 +235,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		//tuple.setValue( Model2Schema.ATT_PARAMNAME, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_PARAMNAME ) ));
 		    		//tuple.setValue( Model2Schema.ATT_DEPVAR, result.getString( Bfrdb.ATT_DEP ) );
 		    		PmmXmlDoc depDoc = new PmmXmlDoc();
-		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP)));
+		    		depDoc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
 		    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
 		    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 		    		//tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
@@ -243,9 +243,9 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
 		    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 		    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-		    				null, null, null));	    		
+		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));	    		
 		    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
 
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();

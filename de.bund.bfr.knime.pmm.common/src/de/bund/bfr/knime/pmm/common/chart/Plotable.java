@@ -355,7 +355,7 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					categoryX.convert(x, currentUnitX, unitX));
+					categoryX.convert(x, unitX, currentUnitX));
 
 			try {
 				Object number = parser.evaluate(f);
@@ -454,7 +454,7 @@ public class Plotable {
 					* (maxX - minX);
 
 			parser.setVarValue(paramX,
-					categoryX.convert(x, currentUnitX, unitX));
+					categoryX.convert(x, unitX, currentUnitX));
 
 			try {
 				Double y = 0.0;
@@ -586,7 +586,7 @@ public class Plotable {
 			}
 
 			parser.setVarValue(paramX,
-					categoryX.convert(x, currentUnitX, unitX));
+					categoryX.convert(x, unitX, currentUnitX));
 
 			try {
 				Object number = parser.evaluate(f);

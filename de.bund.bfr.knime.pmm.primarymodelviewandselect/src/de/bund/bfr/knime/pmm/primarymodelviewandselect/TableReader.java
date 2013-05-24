@@ -33,6 +33,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TableReader {
 
@@ -184,10 +186,11 @@ public class TableReader {
 
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
-			String depVar = ((DepXml) tuple.getPmmXml(
-					Model1Schema.ATT_DEPENDENT).get(0)).getName();
+			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			List<String> indepVars = CellIO.getNameList(indepXml);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -198,6 +201,8 @@ public class TableReader {
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+			String timeUnit = new Time().getStandardUnit();
+			String concentrationUnit = depXml.getUnit();
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -207,6 +212,7 @@ public class TableReader {
 							Arrays.asList(0.0)));
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
+					timeUnit = element.getUnit();
 				}
 			}
 
@@ -376,6 +382,15 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getBIC());
 			}
 
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
+
+			categories.put(AttributeUtilities.TIME, Categories.TIME);
+			categories.put(AttributeUtilities.LOGC,
+					Categories.BACTERIAL_CONCENTRATION);
+			units.put(AttributeUtilities.TIME, timeUnit);
+			units.put(AttributeUtilities.LOGC, concentrationUnit);
+
 			plotable.setFunction(formula);
 			plotable.setFunctionParameters(parameters);
 			plotable.setFunctionArguments(variables);
@@ -385,6 +400,8 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			stringColumnValues.get(0).add(modelName);
 			stringColumnValues.get(1).add(formula);

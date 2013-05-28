@@ -172,11 +172,12 @@ public class TableReader {
 			tupleMap.put(id, tuple);
 
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
-			String depVar = ((DepXml) tuple.getPmmXml(
-					Model1Schema.ATT_DEPENDENT).get(0)).getName();
+			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
@@ -186,8 +187,12 @@ public class TableReader {
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			String initParam = initParams.get(modelID);
-
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
+
+			categories.put(depXml.getName(), depXml.getCategory());
+			units.put(depXml.getName(), depXml.getUnit());
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -195,6 +200,9 @@ public class TableReader {
 				variables.put(element.getName(), new ArrayList<Double>());
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
+				
+				categories.put(element.getName(), element.getCategory());
+				units.put(element.getName(), element.getUnit());
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -263,6 +271,8 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			if (containsData) {
 				String dataName;

@@ -176,10 +176,11 @@ public class TableReader {
 
 			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			PmmXmlDoc estModelXml = row.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			DepXml depXml = (DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
+					.get(0);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
-			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
-					.get(0)).getName();
+			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Plotable plotable = null;
@@ -189,6 +190,11 @@ public class TableReader {
 			Map<String, Double> parameters = new LinkedHashMap<>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
+
+			categories.put(depXml.getName(), depXml.getCategory());
+			units.put(depXml.getName(), depXml.getUnit());
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -197,6 +203,9 @@ public class TableReader {
 						new ArrayList<Double>(Arrays.asList(0.0)));
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
+
+				categories.put(element.getName(), element.getCategory());
+				units.put(element.getName(), element.getUnit());
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -363,6 +372,8 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
 					.getDOF());
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			stringColumnValues.get(0).add(modelName);
 			stringColumnValues.get(1).add(formula);

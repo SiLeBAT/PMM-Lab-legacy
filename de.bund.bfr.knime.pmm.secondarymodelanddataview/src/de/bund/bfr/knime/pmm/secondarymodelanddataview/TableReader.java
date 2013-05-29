@@ -235,6 +235,8 @@ public class TableReader {
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 
@@ -252,6 +254,8 @@ public class TableReader {
 						new ArrayList<Double>(Arrays.asList(0.0)));
 				minArg.put(element.getName(), element.getMin());
 				maxArg.put(element.getName(), element.getMax());
+				categories.put(element.getName(), element.getCategory());
+				units.put(element.getName(), element.getUnit());
 			}
 
 			for (PmmXmlElementConvertable el : paramMap.get(id).getElementSet()) {
@@ -278,6 +282,8 @@ public class TableReader {
 			plotable.setFunctionParameters(constants);
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(dofMap.get(id));
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			doubleColumnValues.get(0).add(rmsMap.get(id));
 			doubleColumnValues.get(1).add(rSquaredMap.get(id));

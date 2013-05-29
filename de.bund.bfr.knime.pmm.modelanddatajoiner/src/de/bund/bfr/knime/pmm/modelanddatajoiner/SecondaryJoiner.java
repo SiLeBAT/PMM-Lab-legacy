@@ -65,6 +65,8 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
@@ -75,6 +77,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class SecondaryJoiner implements Joiner, ActionListener {
 
@@ -87,9 +91,10 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	private Map<String, String> modelNames;
 	private Map<String, String> modelFormulas;
 	private Map<String, String> dependentVariables;
-	private Map<String, List<String>> independentVariables;
-	private List<String> dependentParameters;
-	private List<String> independentParameters;
+	private Map<String, Map<String, String>> independentVariableCategories;
+	private Map<String, Map<String, String>> independentVariableUnits;
+	private Set<String> dependentParameters;
+	private Map<String, String> independentParameterCategories;
 
 	private Map<String, JPanel> boxPanels;
 	private Map<String, JPanel> buttonPanels;
@@ -157,9 +162,13 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						+ ":"));
 				assignmentPanel.add(depBox);
 
-				for (String indepVar : independentVariables.get(modelID)) {
+				for (String indepVar : independentVariableCategories.get(
+						modelID).keySet()) {
 					JComboBox<String> indepBox = new JComboBox<String>(
-							independentParameters.toArray(new String[0]));
+							getIndepParamsFromCategory(
+									independentVariableCategories.get(modelID)
+											.get(indepVar)).toArray(
+									new String[0]));
 
 					indepBox.setSelectedItem(assignment.get(indepVar));
 					indepBox.addActionListener(this);
@@ -278,41 +287,41 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					PmmXmlDoc indepVarsSec = modelRow
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-					boolean allVarsReplaced = true;
+					List<String> oldIndepVars = new ArrayList<>();
 
-					if (replace.containsKey(depVarSecName)) {
-						depVarSecName = replace.get(depVarSecName);
-						((DepXml) depVarSec.get(0)).setName(depVarSecName);
-					} else {
-						allVarsReplaced = false;
+					if (!replace.containsKey(depVarSecName)) {
+						continue;
 					}
 
-					for (String var : replace.keySet()) {
-						String newVar = replace.get(var);
+					formulaSec = MathUtilities.replaceVariable(formulaSec,
+							depVarSecName, replace.get(depVarSecName));
+					depVarSecName = replace.get(depVarSecName);
+					((DepXml) depVarSec.get(0)).setName(depVarSecName);
 
-						formulaSec = MathUtilities.replaceVariable(formulaSec,
-								var, newVar);
-					}
-
-					((CatalogModelXml) modelXmlSec.get(0))
-							.setFormula(formulaSec);
+					boolean error = true;
 
 					for (PmmXmlElementConvertable el : indepVarsSec
 							.getElementSet()) {
 						IndepXml iv = (IndepXml) el;
 
-						if (replace.containsKey(iv.getName())) {
-							iv.setName(replace.get(iv.getName()));
-							newIndepVarsSec.add(iv);
-						} else {
-							allVarsReplaced = false;
+						if (!replace.containsKey(iv.getName())) {
+							error = false;
 							break;
 						}
+
+						oldIndepVars.add(iv.getName());
+						formulaSec = MathUtilities.replaceVariable(formulaSec,
+								iv.getName(), replace.get(iv.getName()));
+						iv.setName(replace.get(iv.getName()));
+						newIndepVarsSec.add(iv);
 					}
 
-					if (!allVarsReplaced) {
+					if (!error) {
 						continue;
 					}
+
+					((CatalogModelXml) modelXmlSec.get(0))
+							.setFormula(formulaSec);
 
 					KnimeRelationReader peiReader = new KnimeRelationReader(
 							SchemaFactory.createM1DataSchema(), dataTable);
@@ -321,10 +330,38 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						KnimeTuple peiRow = peiReader.nextElement();
 						PmmXmlDoc params = peiRow
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
+						PmmXmlDoc miscs = peiRow
+								.getPmmXml(TimeSeriesSchema.ATT_MISC);
+						Map<String, String> paramsConvertTo = new LinkedHashMap<>();
 
 						if (!CellIO.getNameList(params).contains(depVarSecName)) {
 							continue;
 						}
+
+						for (String var : oldIndepVars) {
+							paramsConvertTo.put(replace.get(var),
+									independentVariableUnits.get(model)
+											.get(var));
+						}
+
+						for (PmmXmlElementConvertable el : miscs
+								.getElementSet()) {
+							MiscXml element = (MiscXml) el;
+
+							if (paramsConvertTo.containsKey(element.getName())) {
+								Category cat = Categories.getCategory(element
+										.getCategory());
+								String unit = paramsConvertTo.get(element
+										.getName());
+
+								element.setValue(cat.convert(
+										element.getValue(), element.getUnit(),
+										unit));
+								element.setUnit(unit);
+							}
+						}
+
+						peiRow.setValue(TimeSeriesSchema.ATT_MISC, miscs);
 
 						KnimeTuple seiRow = new KnimeTuple(
 								SchemaFactory.createM12DataSchema(), modelRow,
@@ -354,11 +391,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readModelTable() {
-		models = new ArrayList<String>();
-		modelNames = new LinkedHashMap<String, String>();
-		modelFormulas = new LinkedHashMap<String, String>();
-		dependentVariables = new LinkedHashMap<String, String>();
-		independentVariables = new LinkedHashMap<String, List<String>>();
+		models = new ArrayList<>();
+		modelNames = new LinkedHashMap<>();
+		modelFormulas = new LinkedHashMap<>();
+		dependentVariables = new LinkedHashMap<>();
+		independentVariableCategories = new LinkedHashMap<>();
+		independentVariableUnits = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM2Schema(), modelTable);
@@ -366,6 +404,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
 			PmmXmlDoc modelXml = row.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+			DepXml depXml = (DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT)
+					.get(0);
 			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 
 			if (dependentVariables.containsKey(modelID)) {
@@ -377,32 +417,63 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					((CatalogModelXml) modelXml.get(0)).getName());
 			modelFormulas.put(modelID,
 					((CatalogModelXml) modelXml.get(0)).getFormula());
-			dependentVariables.put(modelID,
-					((DepXml) row.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0))
-							.getName());
-			independentVariables.put(modelID, CellIO.getNameList(row
-					.getPmmXml(Model2Schema.ATT_INDEPENDENT)));
+			dependentVariables.put(modelID, depXml.getName());
+
+			Map<String, String> indepCategories = new LinkedHashMap<>();
+			Map<String, String> indepUnits = new LinkedHashMap<>();
+
+			for (PmmXmlElementConvertable el : row.getPmmXml(
+					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+				IndepXml element = (IndepXml) el;
+
+				indepCategories.put(element.getName(), element.getCategory());
+				indepUnits.put(element.getName(), element.getUnit());
+			}
+
+			independentVariableCategories.put(modelID, indepCategories);
+			independentVariableUnits.put(modelID, indepUnits);
 		}
 	}
 
 	private void readDataTable() {
-		Set<String> indepParamSet = new LinkedHashSet<String>();
-		Set<String> depParamSet = new LinkedHashSet<String>();
+		dependentParameters = new LinkedHashSet<>();
+		independentParameterCategories = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1DataSchema(), dataTable);
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
-			PmmXmlDoc params = row.getPmmXml(Model1Schema.ATT_PARAMETER);
-			PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			depParamSet.addAll(CellIO.getNameList(params));
-			indepParamSet.addAll(CellIO.getNameList(misc));
+			for (PmmXmlElementConvertable el : row.getPmmXml(
+					Model1Schema.ATT_PARAMETER).getElementSet()) {
+				ParamXml element = (ParamXml) el;
+
+				dependentParameters.add(element.getName());
+			}
+
+			for (PmmXmlElementConvertable el : row.getPmmXml(
+					TimeSeriesSchema.ATT_MISC).getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				independentParameterCategories.put(element.getName(),
+						element.getCategory());
+			}
+		}
+	}
+
+	private List<String> getIndepParamsFromCategory(String category) {
+		List<String> params = new ArrayList<>();
+
+		for (String param : independentParameterCategories.keySet()) {
+			if (category == null
+					|| independentParameterCategories.get(param).equals(
+							category)) {
+				params.add(param);
+			}
 		}
 
-		independentParameters = new ArrayList<String>(indepParamSet);
-		dependentParameters = new ArrayList<String>(depParamSet);
+		return params;
 	}
 
 	private void addOrRemoveButtonPressed(JButton button) {
@@ -431,9 +502,13 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						+ ":"));
 				assignmentPanel.add(depBox);
 
-				for (String indepVar : independentVariables.get(model)) {
+				for (String indepVar : independentVariableCategories.get(model)
+						.keySet()) {
 					JComboBox<String> indepBox = new JComboBox<String>(
-							independentParameters.toArray(new String[0]));
+							getIndepParamsFromCategory(
+									independentVariableCategories.get(model)
+											.get(indepVar)).toArray(
+									new String[0]));
 
 					indepBox.setSelectedItem(null);
 					indepBox.addActionListener(this);

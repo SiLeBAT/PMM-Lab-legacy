@@ -209,21 +209,35 @@ public class PrimaryJoiner implements Joiner {
 			Map<String, String> assign = assignmentsMap.get(id);
 			List<String> oldVars = new ArrayList<>();
 
+			if (!assign.containsKey(depVarName)) {
+				continue;
+			}
+
 			oldVars.add(depVarName);
+			formula = MathUtilities.replaceVariable(formula, depVarName,
+					assign.get(depVarName));
 			depVarName = assign.get(depVarName);
 			((DepXml) depVar.get(0)).setName(depVarName);
+
+			boolean error = false;
 
 			for (PmmXmlElementConvertable el : oldIndepVar.getElementSet()) {
 				IndepXml iv = (IndepXml) el;
 
+				if (!assign.containsKey(iv.getName())) {
+					error = true;
+					break;
+				}
+
 				oldVars.add(iv.getName());
+				formula = MathUtilities.replaceVariable(formula, iv.getName(),
+						assign.get(iv.getName()));
 				iv.setName(assign.get(iv.getName()));
 				newIndepVar.add(iv);
 			}
 
-			for (String var : oldVars) {
-				formula = MathUtilities.replaceVariable(formula, var,
-						assign.get(var));
+			if (error) {
+				continue;
 			}
 
 			((CatalogModelXml) modelXml.get(0)).setFormula(formula);

@@ -93,7 +93,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	private Map<String, String> dependentVariables;
 	private Map<String, Map<String, String>> independentVariableCategories;
 	private Map<String, Map<String, String>> independentVariableUnits;
-	private Set<String> dependentParameters;
+	private Map<Integer, List<String>> dependentParameters;
+	private Map<Integer, String> primaryModelNames;
 	private Map<String, String> independentParameterCategories;
 
 	private Map<String, JPanel> boxPanels;
@@ -151,8 +152,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox<String> depBox = new JComboBox<String>(
-						dependentParameters.toArray(new String[0]));
+				JComboBox<String> depBox = new JComboBox<String>(getDepParams()
+						.toArray(new String[0]));
 
 				depBox.setSelectedItem(assignment.get(dependentVariables
 						.get(modelID)));
@@ -293,10 +294,22 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						continue;
 					}
 
+					String s = replace.get(depVarSecName);
+					String newDepVarSecName = s.substring(0, s.indexOf(" "));
+					String modelName = s.substring(s.indexOf("(") + 1,
+							s.length() - 1);
+					int modelID = -1;
+
+					for (int id : primaryModelNames.keySet()) {
+						if (primaryModelNames.get(id).equals(modelName)) {
+							modelID = id;
+							break;
+						}
+					}
+
 					formulaSec = MathUtilities.replaceVariable(formulaSec,
-							depVarSecName, replace.get(depVarSecName));
-					depVarSecName = replace.get(depVarSecName);
-					((DepXml) depVarSec.get(0)).setName(depVarSecName);
+							depVarSecName, newDepVarSecName);
+					((DepXml) depVarSec.get(0)).setName(newDepVarSecName);
 
 					boolean error = true;
 
@@ -328,13 +341,21 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 					while (peiReader.hasMoreElements()) {
 						KnimeTuple peiRow = peiReader.nextElement();
+						int id = ((CatalogModelXml) peiRow.getPmmXml(
+								Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+
+						if (id != modelID) {
+							continue;
+						}
+
 						PmmXmlDoc params = peiRow
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
 						PmmXmlDoc miscs = peiRow
 								.getPmmXml(TimeSeriesSchema.ATT_MISC);
 						Map<String, String> paramsConvertTo = new LinkedHashMap<>();
 
-						if (!CellIO.getNameList(params).contains(depVarSecName)) {
+						if (!CellIO.getNameList(params).contains(
+								newDepVarSecName)) {
 							continue;
 						}
 
@@ -436,7 +457,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readDataTable() {
-		dependentParameters = new LinkedHashSet<>();
+		dependentParameters = new LinkedHashMap<>();
+		primaryModelNames = new LinkedHashMap<>();
 		independentParameterCategories = new LinkedHashMap<>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
@@ -444,12 +466,21 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
+			CatalogModelXml modelXml = (CatalogModelXml) row.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
 
-			for (PmmXmlElementConvertable el : row.getPmmXml(
-					Model1Schema.ATT_PARAMETER).getElementSet()) {
-				ParamXml element = (ParamXml) el;
+			if (!primaryModelNames.containsKey(modelXml.getID())) {
+				List<String> params = new ArrayList<>();
 
-				dependentParameters.add(element.getName());
+				for (PmmXmlElementConvertable el : row.getPmmXml(
+						Model1Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml element = (ParamXml) el;
+
+					params.add(element.getName());
+				}
+
+				primaryModelNames.put(modelXml.getID(), modelXml.getName());
+				dependentParameters.put(modelXml.getID(), params);
 			}
 
 			for (PmmXmlElementConvertable el : row.getPmmXml(
@@ -460,6 +491,18 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						element.getCategory());
 			}
 		}
+	}
+
+	private List<String> getDepParams() {
+		List<String> params = new ArrayList<>();
+
+		for (int modelID : dependentParameters.keySet()) {
+			for (String param : dependentParameters.get(modelID)) {
+				params.add(param + " (" + primaryModelNames.get(modelID) + ")");
+			}
+		}
+
+		return params;
 	}
 
 	private List<String> getIndepParamsFromCategory(String category) {
@@ -492,8 +535,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 				assignmentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-				JComboBox<String> depBox = new JComboBox<String>(
-						dependentParameters.toArray(new String[0]));
+				JComboBox<String> depBox = new JComboBox<String>(getDepParams()
+						.toArray(new String[0]));
 
 				depBox.setSelectedItem(null);
 				depBox.addActionListener(this);

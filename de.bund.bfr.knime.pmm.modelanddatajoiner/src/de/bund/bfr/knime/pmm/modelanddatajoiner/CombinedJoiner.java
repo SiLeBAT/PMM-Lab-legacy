@@ -36,7 +36,6 @@ package de.bund.bfr.knime.pmm.modelanddatajoiner;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,12 +56,12 @@ import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
-import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
-import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -72,21 +71,27 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class CombinedJoiner implements Joiner {
-
-	private static final String PRIMARY = "Primary";
 
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
 
-	private List<JComboBox<String>> primaryVariableBoxes;
-	private Map<String, List<JComboBox<String>>> secondaryVariableBoxes;
+	private Map<String, Map<String, JComboBox<String>>> primaryVariableBoxes;
+	private Map<String, Map<String, JComboBox<String>>> secondaryVariableBoxes;
 
-	private List<String> primaryVariables;
-	private Map<String, List<String>> secondaryVariables;
-	private List<String> primaryParameters;
-	private List<String> secondaryParameters;
+	private Map<String, String> primaryModelNames;
+	private Map<String, String> secondaryModelNames;
+	private Map<String, Map<String, String>> primaryVariableCategories;
+	private Map<String, Map<String, String>> primaryVariableUnits;
+	private Map<String, Map<String, String>> secondaryVariableCategories;
+	private Map<String, Map<String, String>> secondaryVariableUnits;
+	private Map<String, String> primaryParameterCategories;
+	private Map<String, String> secondaryParameterCategories;
 
 	public CombinedJoiner(BufferedDataTable modelTable,
 			BufferedDataTable dataTable) {
@@ -102,67 +107,81 @@ public class CombinedJoiner implements Joiner {
 		Map<String, Map<String, String>> assignmentsMap = XmlConverter
 				.xmlToObject(assignments,
 						new LinkedHashMap<String, Map<String, String>>());
-
-		primaryVariableBoxes = new ArrayList<JComboBox<String>>(
-				primaryVariables.size());
-		secondaryVariableBoxes = new LinkedHashMap<String, List<JComboBox<String>>>();
-
 		JPanel panel = new JPanel();
 		JPanel topPanel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
 
-		JPanel primaryPanel = new JPanel();
+		primaryVariableBoxes = new LinkedHashMap<>();
+		secondaryVariableBoxes = new LinkedHashMap<>();
 
-		primaryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-		primaryPanel.setBorder(BorderFactory
-				.createTitledBorder("Primary Variables"));
+		for (String modelID : primaryModelNames.keySet()) {
+			JPanel primaryPanel = new JPanel();
+			Map<String, JComboBox<String>> boxes = new LinkedHashMap<>();
+			Map<String, String> map = assignmentsMap.get(modelID);
 
-		for (String var : primaryVariables) {
-			JComboBox<String> box = new JComboBox<String>(
-					primaryParameters.toArray(new String[0]));
-
-			if (assignmentsMap.containsKey(PRIMARY)
-					&& assignmentsMap.get(PRIMARY).containsKey(var)) {
-				box.setSelectedItem(assignmentsMap.get(PRIMARY).get(var));
-			} else {
-				box.setSelectedItem(null);
+			if (map == null) {
+				map = new LinkedHashMap<>();
 			}
 
-			primaryVariableBoxes.add(box);
-			primaryPanel.add(new JLabel(var + ":"));
-			primaryPanel.add(box);
-		}
+			primaryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			primaryPanel.setBorder(BorderFactory
+					.createTitledBorder(primaryModelNames.get(modelID)));
 
-		topPanel.add(primaryPanel);
-
-		for (String depVarSec : secondaryVariables.keySet()) {
-			JPanel secondaryPanel = new JPanel();
-			List<JComboBox<String>> boxes = new ArrayList<JComboBox<String>>();
-
-			secondaryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-			secondaryPanel.setBorder(BorderFactory.createTitledBorder(depVarSec
-					+ "-Model Variables"));
-
-			for (String var : secondaryVariables.get(depVarSec)) {
+			for (String var : primaryVariableCategories.get(modelID).keySet()) {
 				JComboBox<String> box = new JComboBox<String>(
-						secondaryParameters.toArray(new String[0]));
+						getPrimParamsFromCategory(
+								primaryVariableCategories.get(modelID).get(var))
+								.toArray(new String[0]));
 
-				if (assignmentsMap.containsKey(depVarSec)
-						&& assignmentsMap.get(depVarSec).containsKey(var)) {
-					box.setSelectedItem(assignmentsMap.get(depVarSec).get(var));
+				if (map.containsKey(var)) {
+					box.setSelectedItem(map.get(var));
 				} else {
 					box.setSelectedItem(null);
 				}
 
-				boxes.add(box);
+				boxes.put(var, box);
+				primaryPanel.add(new JLabel(var + ":"));
+				primaryPanel.add(box);
+			}
+
+			topPanel.add(primaryPanel);
+			primaryVariableBoxes.put(modelID, boxes);
+		}
+
+		for (String modelID : secondaryVariableCategories.keySet()) {
+			JPanel secondaryPanel = new JPanel();
+			Map<String, JComboBox<String>> boxes = new LinkedHashMap<>();
+			Map<String, String> map = assignmentsMap.get(modelID);
+
+			if (map == null) {
+				map = new LinkedHashMap<>();
+			}
+
+			secondaryPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			secondaryPanel.setBorder(BorderFactory
+					.createTitledBorder(secondaryModelNames.get(modelID)));
+
+			for (String var : secondaryVariableCategories.get(modelID).keySet()) {
+				JComboBox<String> box = new JComboBox<String>(
+						getSecParamsFromCategory(
+								secondaryVariableCategories.get(modelID).get(
+										var)).toArray(new String[0]));
+
+				if (map.containsKey(var)) {
+					box.setSelectedItem(map.get(var));
+				} else {
+					box.setSelectedItem(null);
+				}
+
+				boxes.put(var, box);
 				secondaryPanel.add(new JLabel(var + ":"));
 				secondaryPanel.add(box);
 			}
 
-			secondaryVariableBoxes.put(depVarSec, boxes);
 			topPanel.add(secondaryPanel);
+			secondaryVariableBoxes.put(modelID, boxes);
 		}
 
 		panel.add(topPanel, BorderLayout.NORTH);
@@ -173,33 +192,31 @@ public class CombinedJoiner implements Joiner {
 	@Override
 	public String getAssignments() {
 		Map<String, Map<String, String>> assignmentsMap = new LinkedHashMap<>();
-		Map<String, String> primaryAssignments = new LinkedHashMap<>();
 
-		for (int i = 0; i < primaryVariables.size(); i++) {
-			String replacement = (String) primaryVariableBoxes.get(i)
-					.getSelectedItem();
+		for (String modelID : primaryVariableBoxes.keySet()) {
+			Map<String, String> primaryAssignments = new LinkedHashMap<>();
 
-			if (!replacement.equals("")) {
-				primaryAssignments.put(primaryVariables.get(i), replacement);
+			for (String var : primaryVariableBoxes.get(modelID).keySet()) {
+				String replacement = (String) primaryVariableBoxes.get(modelID)
+						.get(var).getSelectedItem();
+
+				primaryAssignments.put(var, replacement);
 			}
+
+			assignmentsMap.put(modelID, primaryAssignments);
 		}
 
-		assignmentsMap.put(PRIMARY, primaryAssignments);
-
-		for (String depVarSec : secondaryVariables.keySet()) {
+		for (String modelID : secondaryVariableBoxes.keySet()) {
 			Map<String, String> secondaryAssignments = new LinkedHashMap<>();
 
-			for (int i = 0; i < secondaryVariables.get(depVarSec).size(); i++) {
+			for (String var : secondaryVariableBoxes.get(modelID).keySet()) {
 				String replacement = (String) secondaryVariableBoxes
-						.get(depVarSec).get(i).getSelectedItem();
+						.get(modelID).get(var).getSelectedItem();
 
-				if (!replacement.equals("")) {
-					secondaryAssignments.put(secondaryVariables.get(depVarSec)
-							.get(i), replacement);
-				}
+				secondaryAssignments.put(var, replacement);
 			}
 
-			assignmentsMap.put(depVarSec, secondaryAssignments);
+			assignmentsMap.put(modelID, secondaryAssignments);
 		}
 
 		return XmlConverter.objectToXml(assignmentsMap);
@@ -217,30 +234,23 @@ public class CombinedJoiner implements Joiner {
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 
-		if (!replacements.containsKey(PRIMARY)) {
-			container.close();
-
-			return container.getTable();
-		}
-
 		KnimeRelationReader modelReader = new KnimeRelationReader(
 				SchemaFactory.createM12Schema(), modelTable);
-		Set<String> ids = new LinkedHashSet<String>();
+		Set<String> ids = new LinkedHashSet<>();
 
 		while (modelReader.hasMoreElements()) {
 			KnimeTuple modelTuple = modelReader.nextElement();
-			int modelID = ((CatalogModelXml) modelTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
-			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
-					Model2Schema.ATT_DEPENDENT).get(0)).getName();
-
-			if (!ids.add(modelID + "(" + depVarSecName + ")")) {
-				index += dataTable.getRowCount();
-				continue;
-			}
-
 			PmmXmlDoc modelXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
+					Model2Schema.ATT_DEPENDENT).get(0)).getName();
+			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
+			String modelIDSec = depVarSecName + " (" + modelID + ")";
+			
+			if (!ids.add(modelIDSec)) { 
+				continue;
+			}
+			
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 			String depVarName = ((DepXml) depVar.get(0)).getName();
@@ -254,56 +264,60 @@ public class CombinedJoiner implements Joiner {
 			PmmXmlDoc indepVarSec = modelTuple
 					.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 			PmmXmlDoc newIndepVarSec = new PmmXmlDoc();
-			boolean allVarsReplaced = true;
+			Map<String, String> primAssign = replacements.get(modelID);
+			Map<String, String> secAssign = replacements.get(modelIDSec);
+			List<String> oldPrimVars = new ArrayList<>();
+			List<String> oldSecVars = new ArrayList<>();
+			boolean error = false;
 
-			if (replacements.get(PRIMARY).containsKey(depVarName)) {
-				depVarName = replacements.get(PRIMARY).get(depVarName);
-				((DepXml) depVar.get(0)).setName(depVarName);
-			} else {
-				allVarsReplaced = false;
+			if (primAssign == null || secAssign == null
+					|| !primAssign.containsKey(depVarName)) {
+				index += dataTable.getRowCount();
+				continue;
 			}
 
-			for (String var : replacements.get(PRIMARY).keySet()) {
-				String newVar = replacements.get(PRIMARY).get(var);
-
-				formula = MathUtilities.replaceVariable(formula, var, newVar);
-			}
+			oldPrimVars.add(depVarName);
+			formula = MathUtilities.replaceVariable(formula, depVarName,
+					primAssign.get(depVarName));
+			depVarName = primAssign.get(depVarName);
+			((DepXml) depVar.get(0)).setName(depVarName);
 
 			for (PmmXmlElementConvertable el : indepVar.getElementSet()) {
 				IndepXml iv = (IndepXml) el;
 
-				if (replacements.get(PRIMARY).containsKey(iv.getName())) {
-					iv.setName(replacements.get(PRIMARY).get(iv.getName()));
-					newIndepVar.add(iv);
-				} else {
-					allVarsReplaced = false;
+				if (!primAssign.containsKey(iv.getName())) {
+					error = true;
 					break;
 				}
+
+				oldPrimVars.add(iv.getName());
+				formula = MathUtilities.replaceVariable(formula, iv.getName(),
+						primAssign.get(iv.getName()));
+				iv.setName(primAssign.get(iv.getName()));
+				newIndepVar.add(iv);
 			}
 
-			for (String var : replacements.get(depVarSecName).keySet()) {
-				String newVar = replacements.get(depVarSecName).get(var);
-
-				formulaSec = MathUtilities.replaceVariable(formulaSec, var,
-						newVar);
+			if (error) {
+				index += dataTable.getRowCount();
+				continue;
 			}
 
 			for (PmmXmlElementConvertable el : indepVarSec.getElementSet()) {
 				IndepXml iv = (IndepXml) el;
 
-				if (replacements.containsKey(depVarSecName)
-						&& replacements.get(depVarSecName).containsKey(
-								iv.getName())) {
-					iv.setName(replacements.get(depVarSecName)
-							.get(iv.getName()));
-					newIndepVarSec.add(iv);
-				} else {
-					allVarsReplaced = false;
+				if (!secAssign.containsKey(iv.getName())) {
+					error = true;
 					break;
 				}
+
+				oldSecVars.add(iv.getName());
+				formulaSec = MathUtilities.replaceVariable(formulaSec,
+						iv.getName(), secAssign.get(iv.getName()));
+				iv.setName(secAssign.get(iv.getName()));
+				newIndepVarSec.add(iv);
 			}
 
-			if (!allVarsReplaced) {
+			if (error) {
 				index += dataTable.getRowCount();
 				continue;
 			}
@@ -326,6 +340,55 @@ public class CombinedJoiner implements Joiner {
 
 			while (dataReader.hasMoreElements()) {
 				KnimeTuple dataTuple = dataReader.nextElement();
+				PmmXmlDoc timeSeries = dataTuple
+						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
+				PmmXmlDoc misc = dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				Map<String, String> paramsConvertTo = new LinkedHashMap<>();
+
+				for (String var : oldPrimVars) {
+					paramsConvertTo.put(primAssign.get(var),
+							primaryVariableUnits.get(modelID).get(var));
+				}
+
+				for (String var : oldSecVars) {
+					paramsConvertTo.put(secAssign.get(var),
+							secondaryVariableUnits.get(modelIDSec).get(var));
+				}
+
+				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
+				String concentrationUnit = paramsConvertTo
+						.get(AttributeUtilities.LOGC);
+
+				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
+					TimeSeriesXml element = (TimeSeriesXml) el;
+
+					element.setTime(new Time().convert(element.getTime(),
+							element.getTimeUnit(), timeUnit));
+					element.setConcentration(new BacterialConcentration()
+							.convert(element.getConcentration(),
+									element.getConcentrationUnit(),
+									concentrationUnit));
+					element.setTimeUnit(timeUnit);
+					element.setConcentrationUnit(concentrationUnit);
+				}
+
+				for (PmmXmlElementConvertable el : misc.getElementSet()) {
+					MiscXml element = (MiscXml) el;
+
+					if (paramsConvertTo.containsKey(element.getName())) {
+						Category cat = Categories.getCategory(element
+								.getCategory());
+						String unit = paramsConvertTo.get(element.getName());
+
+						element.setValue(cat.convert(element.getValue(),
+								element.getUnit(), unit));
+						element.setUnit(unit);
+					}
+				}
+
+				dataTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeries);
+				dataTuple.setValue(TimeSeriesSchema.ATT_MISC, misc);
+
 				KnimeTuple tuple = new KnimeTuple(
 						SchemaFactory.createM12DataSchema(), modelTuple,
 						dataTuple);
@@ -348,7 +411,14 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	private void readDataTable() {
-		Set<String> secParamSet = new LinkedHashSet<String>();
+		primaryParameterCategories = new LinkedHashMap<>();
+		secondaryParameterCategories = new LinkedHashMap<>();
+
+		primaryParameterCategories
+				.put(AttributeUtilities.TIME, Categories.TIME);
+		primaryParameterCategories.put(AttributeUtilities.LOGC,
+				Categories.BACTERIAL_CONCENTRATION);
+
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), dataTable);
 
@@ -356,47 +426,101 @@ public class CombinedJoiner implements Joiner {
 			KnimeTuple tuple = reader.nextElement();
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
-			secParamSet.addAll(CellIO.getNameList(misc));
-		}
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
 
-		primaryParameters = Arrays.asList(AttributeUtilities.LOGC,
-				AttributeUtilities.TIME);
-		secondaryParameters = new ArrayList<String>(secParamSet);
+				secondaryParameterCategories.put(element.getName(),
+						element.getCategory());
+			}
+		}
 	}
 
 	private void readModelTable() {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM12Schema(), modelTable);
-		Set<String> ids = new LinkedHashSet<String>();
-		Set<String> primaryVarSet = new LinkedHashSet<String>();
 
-		secondaryVariables = new LinkedHashMap<String, List<String>>();
+		primaryModelNames = new LinkedHashMap<>();
+		secondaryModelNames = new LinkedHashMap<>();
+		primaryVariableCategories = new LinkedHashMap<>();
+		primaryVariableUnits = new LinkedHashMap<>();
+		secondaryVariableCategories = new LinkedHashMap<>();
+		secondaryVariableUnits = new LinkedHashMap<>();
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			Integer estModelID = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID();
-			String depVar = ((DepXml) tuple.getPmmXml(
-					Model1Schema.ATT_DEPENDENT).get(0)).getName();
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
+			String modelID = modelXml.getID() + "";
+			String modelIDSec = depVarSec + " (" + modelXml.getID() + ")";
 
-			if (estModelID != null
-					&& !ids.add(estModelID + "(" + depVarSec + ")")) {
-				continue;
+			if (!primaryModelNames.containsKey(modelID)) {
+				Map<String, String> categories = new LinkedHashMap<>();
+				Map<String, String> units = new LinkedHashMap<>();
+				DepXml depXml = (DepXml) tuple.getPmmXml(
+						Model1Schema.ATT_DEPENDENT).get(0);
+
+				categories.put(depXml.getName(), depXml.getCategory());
+				units.put(depXml.getName(), depXml.getUnit());
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+					IndepXml element = (IndepXml) el;
+
+					categories.put(element.getName(), element.getCategory());
+					units.put(element.getName(), element.getUnit());
+				}
+
+				primaryModelNames.put(modelID, modelXml.getName());
+				primaryVariableCategories.put(modelID, categories);
+				primaryVariableUnits.put(modelID, units);
 			}
 
-			primaryVarSet.add(depVar);
-			primaryVarSet.addAll(CellIO.getNameList(tuple
-					.getPmmXml(Model1Schema.ATT_INDEPENDENT)));
+			if (!secondaryModelNames.containsKey(modelIDSec)) {
+				Map<String, String> categories = new LinkedHashMap<>();
+				Map<String, String> units = new LinkedHashMap<>();
 
-			if (!secondaryVariables.containsKey(depVarSec)) {
-				secondaryVariables.put(depVarSec, CellIO.getNameList(tuple
-						.getPmmXml(Model2Schema.ATT_INDEPENDENT)));
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+					IndepXml element = (IndepXml) el;
+
+					categories.put(element.getName(), element.getCategory());
+					units.put(element.getName(), element.getUnit());
+				}
+
+				secondaryModelNames.put(modelIDSec,
+						depVarSec + " (" + modelXml.getName() + ")");
+				secondaryVariableCategories.put(modelIDSec, categories);
+				secondaryVariableUnits.put(modelIDSec, units);
+			}
+		}
+	}
+
+	private List<String> getPrimParamsFromCategory(String category) {
+		List<String> params = new ArrayList<>();
+
+		for (String param : primaryParameterCategories.keySet()) {
+			if (category == null
+					|| primaryParameterCategories.get(param).equals(category)) {
+				params.add(param);
 			}
 		}
 
-		primaryVariables = new ArrayList<String>(primaryVarSet);
+		return params;
+	}
+
+	private List<String> getSecParamsFromCategory(String category) {
+		List<String> params = new ArrayList<>();
+
+		for (String param : secondaryParameterCategories.keySet()) {
+			if (category == null
+					|| secondaryParameterCategories.get(param).equals(category)) {
+				params.add(param);
+			}
+		}
+
+		return params;
 	}
 
 }

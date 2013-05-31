@@ -18,7 +18,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -47,13 +46,9 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(BufferedDataTable table) {
-		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		List<String> miscParams = PmmUtilities.getAllMiscParams(table);
-
 		allIds = new ArrayList<>();
-		allTuples = new ArrayList<>();
+		allTuples = PmmUtilities.getTuples(table,
+				SchemaFactory.createDataSchema());
 		ids = new ArrayList<>();
 		plotables = new LinkedHashMap<>();
 		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
@@ -72,18 +67,19 @@ public class TableReader {
 		standardVisibleColumns = new ArrayList<>(
 				Arrays.asList(AttributeUtilities.DATAID));
 
+		Set<String> idSet = new LinkedHashSet<String>();
+		List<String> miscParams = PmmUtilities.getAllMiscParams(allTuples);
+
 		for (String param : miscParams) {
 			doubleColumns.add(param);
 			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns.add(param);
 		}
 
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
+		for (KnimeTuple tuple : allTuples) {
 			String id = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 
-			allIds.add(id);
-			allTuples.add(tuple);
+			allIds.add(id);			
 
 			if (idSet.contains(id)) {
 				continue;

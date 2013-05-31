@@ -27,7 +27,6 @@ import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -53,21 +52,16 @@ public class TableReader {
 
 	public TableReader(DataTable table, boolean schemaContainsData) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader;
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples;
 		List<KnimeTuple> newTuples = null;
 		List<String> miscParams = null;
 
 		if (schemaContainsData) {
-			reader = new KnimeRelationReader(
-					SchemaFactory.createM12DataSchema(), table);
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM12DataSchema());
 		} else {
-			reader = new KnimeRelationReader(SchemaFactory.createM12Schema(),
-					table);
-		}
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM12Schema());
 		}
 
 		tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
@@ -91,7 +85,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model1Schema.FORMULA, ChartConstants.STATUS,
 					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
@@ -205,7 +199,7 @@ public class TableReader {
 						new ArrayList<Double>(Arrays.asList(0.0)));
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
-				
+
 				categories.put(element.getName(), element.getCategory());
 				units.put(element.getName(), element.getUnit());
 			}

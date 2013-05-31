@@ -26,7 +26,6 @@ import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -52,20 +51,15 @@ public class TableReader {
 
 	public TableReader(DataTable table, boolean schemaContainsData) {
 		List<String> miscParams = null;
-		KnimeRelationReader reader;
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples;
 		List<KnimeTuple> newTuples = null;
 
 		if (schemaContainsData) {
-			reader = new KnimeRelationReader(
-					SchemaFactory.createM1DataSchema(), table);
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM1DataSchema());
 		} else {
-			reader = new KnimeRelationReader(SchemaFactory.createM1Schema(),
-					table);
-		}
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM1Schema());
 		}
 
 		ids = new ArrayList<String>();
@@ -86,7 +80,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model1Schema.FORMULA, ChartConstants.STATUS,
 					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
@@ -176,8 +170,8 @@ public class TableReader {
 
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
-			DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
-					.get(0);
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			String depVar = depXml.getName();
@@ -266,7 +260,8 @@ public class TableReader {
 				String agent;
 				String matrix;
 
-				PmmXmlDoc agentXml = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
+				PmmXmlDoc agentXml = tuple
+						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
 				String agentName = ((AgentXml) agentXml.get(0)).getName();
 				String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
 				PmmXmlDoc matrixXml = tuple
@@ -300,8 +295,9 @@ public class TableReader {
 				stringColumnValues.get(4).add(agent);
 				stringColumnValues.get(5).add(matrix);
 				stringColumnValues.get(6).add(
-						((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-								.get(0)).getComment());
+						((MdInfoXml) tuple.getPmmXml(
+								TimeSeriesSchema.ATT_MDINFO).get(0))
+								.getComment());
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(

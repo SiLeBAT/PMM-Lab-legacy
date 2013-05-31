@@ -56,7 +56,6 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -103,30 +102,23 @@ public class SecondaryEstimationThread implements Runnable {
 	@Override
 	public void run() {
 		try {
-			KnimeRelationReader reader = new KnimeRelationReader(schema,
-					inTable);
-			int n = inTable.getRowCount();
-			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
-
+			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
+			List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
 			Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
 			Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 			Set<String> ids = new LinkedHashSet<String>();
-			List<String> miscParams = PmmUtilities.getAllMiscParams(inTable);
 
 			for (String param : miscParams) {
 				miscMaps.put(param, new LinkedHashMap<String, List<Double>>());
 			}
 
-			while (reader.hasMoreElements()) {
-				KnimeTuple tuple = reader.nextElement();
+			for (KnimeTuple tuple : tuples) {
 				DepXml depXml = (DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0);
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
 				String id = depXml.getName() + " (" + primModelXml.getID()
 						+ ")";
-
-				tuples.add(tuple);
 
 				if (ids.add(id)) {
 					depVarMap.put(id, new ArrayList<Double>());

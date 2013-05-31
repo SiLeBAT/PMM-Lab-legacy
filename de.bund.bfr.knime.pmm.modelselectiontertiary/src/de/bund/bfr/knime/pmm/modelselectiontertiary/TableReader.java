@@ -27,7 +27,6 @@ import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -60,23 +59,18 @@ public class TableReader {
 
 	public TableReader(BufferedDataTable table, boolean schemaContainsData) {
 		List<String> miscParams = null;
-		List<KnimeTuple> tertiaryTuples = new ArrayList<>();
+		List<KnimeTuple> tertiaryTuples;
 		List<KnimeTuple> tuples = new ArrayList<>();
 		List<KnimeTuple> newTuples = null;
 		List<List<KnimeTuple>> usedTuples = new ArrayList<>();
 		Set<String> idSet = new LinkedHashSet<>();
-		KnimeRelationReader reader = null;
 
 		if (schemaContainsData) {
-			reader = new KnimeRelationReader(
-					SchemaFactory.createM12DataSchema(), table);
+			tertiaryTuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM12DataSchema());
 		} else {
-			reader = new KnimeRelationReader(SchemaFactory.createM12Schema(),
-					table);
-		}
-
-		while (reader.hasMoreElements()) {
-			tertiaryTuples.add(reader.nextElement());
+			tertiaryTuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM12Schema());
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinations = ModelCombiner.combine(
@@ -109,7 +103,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(tuples);
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,

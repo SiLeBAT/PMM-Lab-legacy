@@ -56,7 +56,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -81,7 +80,6 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(DataTable table, boolean schemaContainsData) {
-		KnimeRelationReader reader;
 		Set<String> idSet = new LinkedHashSet<String>();
 		Map<String, String> formulaMap = new LinkedHashMap<>();
 		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
@@ -95,18 +93,14 @@ public class TableReader {
 		Map<String, Double> bicMap = new LinkedHashMap<>();
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
-		List<KnimeTuple> tuples = new ArrayList<>();
+		List<KnimeTuple> tuples;
 
 		if (schemaContainsData) {
-			reader = new KnimeRelationReader(
-					SchemaFactory.createM12DataSchema(), table);
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM12DataSchema());
 		} else {
-			reader = new KnimeRelationReader(SchemaFactory.createM2Schema(),
-					table);
-		}
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
+			tuples = PmmUtilities.getTuples(table,
+					SchemaFactory.createM2Schema());
 		}
 
 		ids = new ArrayList<String>();
@@ -132,7 +126,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(tuples);
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
 					Model2Schema.BIC));

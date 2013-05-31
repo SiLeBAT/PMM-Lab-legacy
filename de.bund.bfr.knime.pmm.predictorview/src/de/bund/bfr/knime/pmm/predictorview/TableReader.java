@@ -21,7 +21,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -47,8 +46,7 @@ public class TableReader {
 
 	public TableReader(DataTable table, Map<String, String> initParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader;
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<KnimeTuple> tuples;
 		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
 				table);
 		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
@@ -56,24 +54,20 @@ public class TableReader {
 
 		if (isTertiaryModel) {
 			if (containsData) {
-				reader = new KnimeRelationReader(
-						SchemaFactory.createM12DataSchema(), table);
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM12DataSchema());
 			} else {
-				reader = new KnimeRelationReader(
-						SchemaFactory.createM12Schema(), table);
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM12Schema());
 			}
 		} else {
 			if (containsData) {
-				reader = new KnimeRelationReader(
-						SchemaFactory.createM1DataSchema(), table);
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM1DataSchema());
 			} else {
-				reader = new KnimeRelationReader(
-						SchemaFactory.createM1Schema(), table);
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM1Schema());
 			}
-		}
-
-		while (reader.hasMoreElements()) {
-			tuples.add(reader.nextElement());
 		}
 
 		if (isTertiaryModel) {
@@ -109,7 +103,7 @@ public class TableReader {
 		parameterData = new ArrayList<>();
 
 		if (containsData) {
-			miscParams = PmmUtilities.getAllMiscParams(table);
+			miscParams = PmmUtilities.getAllMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model1Schema.FORMULA, ChartConstants.STATUS,
 					AttributeUtilities.DATAID);
@@ -200,7 +194,7 @@ public class TableReader {
 				variables.put(element.getName(), new ArrayList<Double>());
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
-				
+
 				categories.put(element.getName(), element.getCategory());
 				units.put(element.getName(), element.getUnit());
 			}

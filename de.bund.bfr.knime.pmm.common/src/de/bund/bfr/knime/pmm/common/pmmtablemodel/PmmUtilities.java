@@ -14,65 +14,20 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class PmmUtilities {
-	
-	public static List<String> getAllMiscParams(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Set<String> paramSet = new LinkedHashSet<String>();
+
+	public static List<KnimeTuple> getTuples(DataTable table, KnimeSchema schema) {
+		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
+		List<KnimeTuple> tuples = new ArrayList<>();
 
 		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				paramSet.add(element.getName());
-			}
+			tuples.add(reader.nextElement());
 		}
 
-		return new ArrayList<String>(paramSet);
-	}
-
-	public static Map<String, String> getAllMiscCategories(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Map<String, String> map = new LinkedHashMap<>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				map.put(element.getName(), element.getCategory());
-			}
-		}
-
-		return map;
-	}
-
-	public static Map<String, String> getAllMiscUnits(DataTable table) {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createDataSchema(), table);
-		Map<String, String> map = new LinkedHashMap<>();
-
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
-			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : misc.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				map.put(element.getName(), element.getUnit());
-			}
-		}
-
-		return map;
+		return tuples;
 	}
 
 	public static List<String> getAllMiscParams(List<KnimeTuple> tuples) {
@@ -89,6 +44,39 @@ public class PmmUtilities {
 		}
 
 		return new ArrayList<String>(paramSet);
+	}
+
+	public static Map<String, String> getAllMiscCategories(
+			List<KnimeTuple> tuples) {
+		Map<String, String> map = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				map.put(element.getName(), element.getCategory());
+			}
+		}
+
+		return map;
+	}
+
+	public static Map<String, String> getAllMiscUnits(List<KnimeTuple> tuples) {
+		Map<String, String> map = new LinkedHashMap<>();
+
+		for (KnimeTuple tuple : tuples) {
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				map.put(element.getName(), element.getUnit());
+			}
+		}
+
+		return map;
 	}
 
 	public static boolean isOutOfRange(PmmXmlDoc paramXml) {

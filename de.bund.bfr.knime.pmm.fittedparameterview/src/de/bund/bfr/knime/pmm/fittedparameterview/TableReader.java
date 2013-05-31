@@ -17,7 +17,6 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -41,15 +40,15 @@ public class TableReader {
 
 	public TableReader(DataTable table, List<String> usedConditions) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createM1DataSchema(), table);
 		Map<String, String> paramNames = new LinkedHashMap<>();
 		Map<String, List<Double>> paramDataMap = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
-		List<String> miscParams = PmmUtilities.getAllMiscParams(table);
+		List<KnimeTuple> tuples = PmmUtilities.getTuples(table,
+				SchemaFactory.createM1DataSchema());
+		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
 		Map<String, String> miscCategories = PmmUtilities
-				.getAllMiscCategories(table);
-		Map<String, String> miscUnits = PmmUtilities.getAllMiscUnits(table);
+				.getAllMiscCategories(tuples);
+		Map<String, String> miscUnits = PmmUtilities.getAllMiscUnits(tuples);
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -75,11 +74,10 @@ public class TableReader {
 			standardVisibleColumns.add("Max " + param);
 		}
 
-		while (reader.hasMoreElements()) {
-			KnimeTuple row = reader.nextElement();
-			CatalogModelXml modelXml = (CatalogModelXml) row.getPmmXml(
+		for (KnimeTuple tuple : tuples) {
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
 				ParamXml element1 = (ParamXml) el1;
@@ -106,7 +104,7 @@ public class TableReader {
 
 				paramDataMap.get(id).add(element1.getValue());
 
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 				for (String param : miscParams) {
 					Double paramValue = null;

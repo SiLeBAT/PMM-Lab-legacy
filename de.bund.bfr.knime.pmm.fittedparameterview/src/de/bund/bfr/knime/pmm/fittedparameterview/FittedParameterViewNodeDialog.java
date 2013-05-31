@@ -69,6 +69,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
 /**
  * <code>NodeDialog</code> for the "FittedParameterView" Node.
@@ -516,7 +517,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			super(JOptionPane.getFrameForComponent(owner),
 					"Conditions to use (for x-axis)", true);
 			approved = false;
-			this.allConditions = PmmUtilities.getAllMiscParams(table);
+			this.allConditions = PmmUtilities.getAllMiscParams(PmmUtilities
+					.getTuples(table, SchemaFactory.createDataSchema()));
 			this.usedConditions = new ArrayList<>();
 
 			for (String cond : usedConditions) {

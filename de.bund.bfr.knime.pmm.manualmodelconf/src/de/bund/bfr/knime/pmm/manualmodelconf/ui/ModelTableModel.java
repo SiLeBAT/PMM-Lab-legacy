@@ -264,8 +264,9 @@ public class ModelTableModel extends JTable {
 				    String text = "";
 				    if (value != null) {
 				    	text = value.toString();
+				    	String category = indep ? thePM.getIndepCategory(text) : thePM.getParamCategory(text);
 				    	String unit = indep ? thePM.getIndepUnit(text) : thePM.getParamUnit(text);
-				    	if (unit != null) text += "[" + unit + "]";
+				    	if (unit != null && !unit.isEmpty()) text += "[" + category + " -> " + unit + "]";
 				    	else text += " []";
 				    	if (rowHasChanged.get(value) != null && rowHasChanged.get(value)) text += "*";
 				    }

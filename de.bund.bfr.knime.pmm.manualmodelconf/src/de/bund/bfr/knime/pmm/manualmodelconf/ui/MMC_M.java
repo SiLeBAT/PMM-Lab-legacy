@@ -21,6 +21,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.*;
 import de.bund.bfr.knime.pmm.common.ui.*;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
@@ -477,45 +479,49 @@ public class MMC_M extends JPanel {
 			int col = getLastClickedCol(e, table);
 			if (col == 0) {
 				String param = table.getValueAt(row, col).toString();
-		    	String unit = JOptionPane.showInputDialog(this,
-		    			  "Bitte eine Einheit angeben für " + param + ":",
-		    			  "Einheit des Parameters!",
-		    			  JOptionPane.QUESTION_MESSAGE);
-		    	if (unit != null) {
-					Object isIndep = table.getValueAt(row, 1);
-			    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) getPM().setIndepUnit(param, unit);
-			    	else getPM().setParamUnit(param, unit);		    		
+				String defCategory, defUnit;
+				Object isIndep = table.getValueAt(row, 1);
+				ParametricModel pm = getPM();
+		    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
+		    		defCategory = pm.getIndepCategory(param);
+		    		defUnit = pm.getIndepUnit(param);
+		    	}
+		    	else {
+		    		defCategory = pm.getParamCategory(param);
+		    		defUnit = pm.getParamUnit(param);		
 		    	}
 
-				/*
-				MyTable units = MyDBTables.getTable("Einheiten");
-				//String oldUnit = table.getUnit(param);
-				Integer unitID = null;
-				Object newVal = DBKernel.myList.openNewWindow(
-						units,
-						unitID,
-						(Object) "Einheit aus wählen für " + param,
+		    	String categoryStr = (String)JOptionPane.showInputDialog(
 						null,
-						1,
-						1,
-						null,
-						true, null, this);
-				if (newVal != null && newVal instanceof Integer) {
-					table.setUnit(param, (String) DBKernel.getValue("Einheiten", "ID", newVal+"", "Einheit"));
-				}
-		    			  */
-				/*
-				String timeUnits[] = {"Sekunde", "Minute", "Stunde", "Tag", "Woche", "Monat", "Jahr"};
-				String unit = (String)JOptionPane.showInputDialog(
-						null,
-						"Bitte eine Einheit angeben für " + param + ":",
+						"Bitte eine Einheitenkategorie angeben für " + param + ":",
 						"Einheit des Parameters " + param,
 						JOptionPane.QUESTION_MESSAGE,
 						null,
-						timeUnits,
-						timeUnits[timeUnits.length-1]);
-				getPM().setParamUnit(param, unit);
-				*/
+						Categories.getAllCategories(),
+						defCategory);
+				
+		    	if (categoryStr != null) {
+		    		Category category = Categories.getCategory(categoryStr);
+					String unit = (String)JOptionPane.showInputDialog(
+							null,
+							"Bitte eine Einheit angeben für " + param + " (Kategorie: " + categoryStr + "):",
+							"Einheit des Parameters " + param,
+							JOptionPane.QUESTION_MESSAGE,
+							null,
+							category.getAllUnits(),
+							defUnit != null && !defUnit.isEmpty() ? defUnit : category.getStandardUnit());
+					
+			    	if (unit != null) {
+				    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
+				    		pm.setIndepCategory(param, categoryStr);
+				    		pm.setIndepUnit(param, unit);
+				    	}
+				    	else {
+				    		pm.setParamCategory(param, categoryStr);
+				    		pm.setParamUnit(param, unit);		
+				    	}
+			    	}
+		    	}
 			}
 		}
 		else if (radioButton3.isSelected()) {

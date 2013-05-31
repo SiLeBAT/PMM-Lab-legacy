@@ -548,7 +548,7 @@ public class MMC_M extends JPanel {
 				secondaryDialog.pack();
 				
 				secondaryDialog.setLocationRelativeTo(this);
-				secondaryDialog.setAlwaysOnTop(true);
+				//secondaryDialog.setAlwaysOnTop(true);
 				secondaryDialog.setVisible(true);
 				
 			}

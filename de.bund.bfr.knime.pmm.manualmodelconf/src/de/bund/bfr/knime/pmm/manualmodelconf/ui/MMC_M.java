@@ -131,6 +131,7 @@ public class MMC_M extends JPanel {
 		        }
 		    }
 		});
+		depVarLabel4Units.setText("[]");
 	}
 	
 	public ParametricModel getPM() {
@@ -138,6 +139,10 @@ public class MMC_M extends JPanel {
 	}
 	public void setPM(ParametricModel pm) {
 		if (pm != null) {
+			String categoryStr = pm.getDepCategory();
+			String unit = pm.getDepUnit();
+			if (unit != null && !unit.isEmpty()) depVarLabel4Units.setText("[" + categoryStr + " -> " + unit + "]");
+			else depVarLabel4Units.setText("[]");
 			if (pm.getLevel() == 2) {
 				if (!radioButton2.isSelected()) {
 					radioButton2.setSelected(true);
@@ -478,50 +483,52 @@ public class MMC_M extends JPanel {
 			int row = getLastClickedRow(e, table);
 			int col = getLastClickedCol(e, table);
 			if (col == 0) {
-				String param = table.getValueAt(row, col).toString();
-				String defCategory, defUnit;
-				Object isIndep = table.getValueAt(row, 1);
 				ParametricModel pm = getPM();
-		    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
-		    		defCategory = pm.getIndepCategory(param);
-		    		defUnit = pm.getIndepUnit(param);
-		    	}
-		    	else {
-		    		defCategory = pm.getParamCategory(param);
-		    		defUnit = pm.getParamUnit(param);		
-		    	}
+				if (pm != null) {
+					String param = table.getValueAt(row, col).toString();
+					String defCategory, defUnit;
+					Object isIndep = table.getValueAt(row, 1);
+			    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
+			    		defCategory = pm.getIndepCategory(param);
+			    		defUnit = pm.getIndepUnit(param);
+			    	}
+			    	else {
+			    		defCategory = pm.getParamCategory(param);
+			    		defUnit = pm.getParamUnit(param);		
+			    	}
 
-		    	String categoryStr = (String)JOptionPane.showInputDialog(
-						null,
-						"Bitte eine Einheitenkategorie angeben für " + param + ":",
-						"Einheit des Parameters " + param,
-						JOptionPane.QUESTION_MESSAGE,
-						null,
-						Categories.getAllCategories(),
-						defCategory);
-				
-		    	if (categoryStr != null) {
-		    		Category category = Categories.getCategory(categoryStr);
-					String unit = (String)JOptionPane.showInputDialog(
+			    	String categoryStr = (String)JOptionPane.showInputDialog(
 							null,
-							"Bitte eine Einheit angeben für " + param + " (Kategorie: " + categoryStr + "):",
+							"Bitte eine Einheitenkategorie angeben für " + param + ":",
 							"Einheit des Parameters " + param,
 							JOptionPane.QUESTION_MESSAGE,
 							null,
-							category.getAllUnits(),
-							defUnit != null && !defUnit.isEmpty() ? defUnit : category.getStandardUnit());
+							Categories.getAllCategories(),
+							defCategory);
 					
-			    	if (unit != null) {
-				    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
-				    		pm.setIndepCategory(param, categoryStr);
-				    		pm.setIndepUnit(param, unit);
-				    	}
-				    	else {
-				    		pm.setParamCategory(param, categoryStr);
-				    		pm.setParamUnit(param, unit);		
+			    	if (categoryStr != null) {
+			    		Category category = Categories.getCategory(categoryStr);
+						String unit = (String)JOptionPane.showInputDialog(
+								null,
+								"Bitte eine Einheit angeben für " + param + " (Kategorie: " + categoryStr + "):",
+								"Einheit des Parameters " + param,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								category.getAllUnits(),
+								defUnit != null && !defUnit.isEmpty() ? defUnit : category.getStandardUnit());
+						
+				    	if (unit != null) {
+					    	if (isIndep != null && isIndep instanceof Boolean && ((Boolean) isIndep)) {
+					    		pm.setIndepCategory(param, categoryStr);
+					    		pm.setIndepUnit(param, unit);
+					    	}
+					    	else {
+					    		pm.setParamCategory(param, categoryStr);
+					    		pm.setParamUnit(param, unit);		
+					    	}
 				    	}
 			    	}
-		    	}
+				}
 			}
 		}
 		else if (radioButton3.isSelected()) {
@@ -884,6 +891,44 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void depVarLabel4UnitsMouseClicked(MouseEvent e) {
+		if (SwingUtilities.isRightMouseButton(e)) {
+			ParametricModel pm = getPM();
+			if (pm != null) {
+				String param = pm.getDepVar();
+				String defCategory = pm.getDepCategory();
+				String defUnit = pm.getDepUnit();
+
+		    	String categoryStr = (String)JOptionPane.showInputDialog(
+						null,
+						"Bitte eine Einheitenkategorie angeben für " + param + ":",
+						"Einheit des Parameters " + param,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						Categories.getAllCategories(),
+						defCategory);
+				
+		    	if (categoryStr != null) {
+		    		Category category = Categories.getCategory(categoryStr);
+					String unit = (String)JOptionPane.showInputDialog(
+							null,
+							"Bitte eine Einheit angeben für " + param + " (Kategorie: " + categoryStr + "):",
+							"Einheit des Parameters " + param,
+							JOptionPane.QUESTION_MESSAGE,
+							null,
+							category.getAllUnits(),
+							defUnit != null && !defUnit.isEmpty() ? defUnit : category.getStandardUnit());
+					
+			    	if (unit != null) {
+			    		pm.setDepCategory(categoryStr);
+			    		pm.setDepUnit(unit);
+			    		depVarLabel4Units.setText("[" + categoryStr + " -> " + unit + "]");
+			    	}
+		    	}
+			}
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		depVarLabel = new JLabel();
@@ -900,6 +945,8 @@ public class MMC_M extends JPanel {
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		formulaApply = new JButton();
+		label12 = new JLabel();
+		depVarLabel4Units = new JLabel();
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
@@ -967,7 +1014,7 @@ public class MMC_M extends JPanel {
 			Borders.DLU2));
 		setLayout(new FormLayout(
 			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
+			"default, $rgap, default, $ugap, 2*(default, $pgap), default, $ugap, default, $lgap, 2*(default, $ugap), default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
 		((FormLayout)getLayout()).setColumnGroups(new int[][] {{5, 11, 17}, {7, 13, 19}, {9, 15, 21}});
 
 		//---- depVarLabel ----
@@ -989,7 +1036,7 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane3.setViewportView(list1);
 		}
-		add(scrollPane3, CC.xywh(1, 1, 1, 21));
+		add(scrollPane3, CC.xywh(1, 1, 1, 23));
 
 		//---- label7 ----
 		label7.setText("Model type:");
@@ -1081,9 +1128,23 @@ public class MMC_M extends JPanel {
 		formulaApply.setText("Apply");
 		add(formulaApply, CC.xy(21, 9));
 
+		//---- label12 ----
+		label12.setText("Dependent Unit:");
+		add(label12, CC.xy(3, 11));
+
+		//---- depVarLabel4Units ----
+		depVarLabel4Units.setText("[]");
+		depVarLabel4Units.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				depVarLabel4UnitsMouseClicked(e);
+			}
+		});
+		add(depVarLabel4Units, CC.xywh(5, 11, 17, 1));
+
 		//---- tableLabel ----
 		tableLabel.setText("Parameter Definition:");
-		add(tableLabel, CC.xy(3, 11));
+		add(tableLabel, CC.xy(3, 13));
 
 		//======== scrollPane1 ========
 		{
@@ -1098,16 +1159,16 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane1.setViewportView(table);
 		}
-		add(scrollPane1, CC.xywh(5, 11, 17, 1));
+		add(scrollPane1, CC.xywh(5, 13, 17, 1));
 
 		//---- label8 ----
 		label8.setText("Goodness of fit:");
-		add(label8, CC.xywh(3, 13, 1, 3));
+		add(label8, CC.xywh(3, 15, 1, 3));
 
 		//---- label3 ----
 		label3.setText("R\u00b2:");
 		label3.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label3, CC.xy(5, 13));
+		add(label3, CC.xy(5, 15));
 
 		//---- r2Field ----
 		r2Field.setColumns(7);
@@ -1123,12 +1184,12 @@ public class MMC_M extends JPanel {
 				r2FieldKeyReleased(e);
 			}
 		});
-		add(r2Field, CC.xy(7, 13));
+		add(r2Field, CC.xy(7, 15));
 
 		//---- label4 ----
 		label4.setText("RMS:");
 		label4.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label4, CC.xy(11, 13));
+		add(label4, CC.xy(11, 15));
 
 		//---- rmsField ----
 		rmsField.setColumns(7);
@@ -1144,11 +1205,11 @@ public class MMC_M extends JPanel {
 				rmsFieldKeyReleased(e);
 			}
 		});
-		add(rmsField, CC.xy(13, 13));
+		add(rmsField, CC.xy(13, 15));
 
 		//---- label5 ----
 		label5.setText("AIC:");
-		add(label5, CC.xy(5, 15));
+		add(label5, CC.xy(5, 17));
 
 		//---- aicField ----
 		aicField.addFocusListener(new FocusAdapter() {
@@ -1163,11 +1224,11 @@ public class MMC_M extends JPanel {
 				aicFieldKeyReleased(e);
 			}
 		});
-		add(aicField, CC.xy(7, 15));
+		add(aicField, CC.xy(7, 17));
 
 		//---- label6 ----
 		label6.setText("BIC:");
-		add(label6, CC.xy(11, 15));
+		add(label6, CC.xy(11, 17));
 
 		//---- bicField ----
 		bicField.addFocusListener(new FocusAdapter() {
@@ -1182,7 +1243,7 @@ public class MMC_M extends JPanel {
 				bicFieldKeyReleased(e);
 			}
 		});
-		add(bicField, CC.xy(13, 15));
+		add(bicField, CC.xy(13, 17));
 
 		//======== scrollPane2 ========
 		{
@@ -1199,7 +1260,7 @@ public class MMC_M extends JPanel {
 				/**
 				 * 
 				 */
-				private static final long serialVersionUID = -8895562718466268745L;
+				private static final long serialVersionUID = -8486729813187070298L;
 				boolean[] columnEditable = new boolean[] {
 					false
 				};
@@ -1210,11 +1271,11 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane2.setViewportView(referencesTable);
 		}
-		add(scrollPane2, CC.xywh(5, 17, 17, 1));
+		add(scrollPane2, CC.xywh(5, 19, 17, 1));
 
 		//---- label9 ----
 		label9.setText("References:");
-		add(label9, CC.xywh(3, 17, 1, 3));
+		add(label9, CC.xywh(3, 19, 1, 3));
 
 		//---- button1 ----
 		button1.setText("New Reference");
@@ -1224,7 +1285,7 @@ public class MMC_M extends JPanel {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xywh(5, 19, 5, 1));
+		add(button1, CC.xywh(5, 21, 5, 1));
 
 		//---- button3 ----
 		button3.setText("Edit Reference");
@@ -1235,7 +1296,7 @@ public class MMC_M extends JPanel {
 				button3ActionPerformed(e);
 			}
 		});
-		add(button3, CC.xywh(11, 19, 5, 1));
+		add(button3, CC.xywh(11, 21, 5, 1));
 
 		//---- button2 ----
 		button2.setText("Delete Reference");
@@ -1246,15 +1307,15 @@ public class MMC_M extends JPanel {
 				button2ActionPerformed(e);
 			}
 		});
-		add(button2, CC.xywh(17, 19, 5, 1));
+		add(button2, CC.xywh(17, 21, 5, 1));
 
 		//---- label10 ----
 		label10.setText("Subjective quality:");
-		add(label10, CC.xy(3, 21));
+		add(label10, CC.xy(3, 23));
 
 		//---- label11 ----
 		label11.setText("QualityScore:");
-		add(label11, CC.xywh(5, 21, 3, 1));
+		add(label11, CC.xywh(5, 23, 3, 1));
 
 		//---- qScoreBox ----
 		qScoreBox.addActionListener(new ActionListener() {
@@ -1263,7 +1324,7 @@ public class MMC_M extends JPanel {
 				qScoreBoxActionPerformed(e);
 			}
 		});
-		add(qScoreBox, CC.xy(9, 21));
+		add(qScoreBox, CC.xy(9, 23));
 
 		//---- checkBox1 ----
 		checkBox1.setText("Checked");
@@ -1273,7 +1334,7 @@ public class MMC_M extends JPanel {
 				checkBox1ActionPerformed(e);
 			}
 		});
-		add(checkBox1, CC.xy(15, 21));
+		add(checkBox1, CC.xy(15, 23));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1298,6 +1359,8 @@ public class MMC_M extends JPanel {
 	private JLabel label2;
 	private JTextField formulaArea;
 	private JButton formulaApply;
+	private JLabel label12;
+	private JLabel depVarLabel4Units;
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;

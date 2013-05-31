@@ -793,6 +793,18 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		}
 		return null;
 	}
+	public String getDepCategory() {
+		return depXml == null ? null : depXml.getCategory();
+	}
+	public String getDepUnit() {
+		return depXml == null ? null : depXml.getUnit();
+	}
+	public void setDepUnit(String unit) {
+		if (depXml != null) depXml.setUnit(unit);
+	}
+	public void setDepCategory(String category) {
+		if (depXml != null) depXml.setCategory(category);
+	}
 	
 	public SortedMap<String, Boolean> getAllParVars(){
 		SortedMap<String, Boolean> result = new TreeMap<String, Boolean>();

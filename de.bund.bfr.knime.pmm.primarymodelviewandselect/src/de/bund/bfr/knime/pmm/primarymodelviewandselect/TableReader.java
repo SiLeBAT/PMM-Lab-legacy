@@ -89,7 +89,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(tuples);
+			miscParams = PmmUtilities.getMiscParams(tuples);
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(
 					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,

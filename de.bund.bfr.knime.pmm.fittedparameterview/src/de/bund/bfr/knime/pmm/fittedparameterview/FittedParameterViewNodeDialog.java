@@ -517,7 +517,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			super(JOptionPane.getFrameForComponent(owner),
 					"Conditions to use (for x-axis)", true);
 			approved = false;
-			this.allConditions = PmmUtilities.getAllMiscParams(PmmUtilities
+			this.allConditions = PmmUtilities.getMiscParams(PmmUtilities
 					.getTuples(table, SchemaFactory.createDataSchema()));
 			this.usedConditions = new ArrayList<>();
 

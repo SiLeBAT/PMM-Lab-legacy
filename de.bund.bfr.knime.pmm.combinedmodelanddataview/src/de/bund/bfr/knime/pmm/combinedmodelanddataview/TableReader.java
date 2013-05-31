@@ -85,7 +85,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(tuples);
+			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model1Schema.FORMULA, ChartConstants.STATUS,
 					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,

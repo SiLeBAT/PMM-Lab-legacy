@@ -30,7 +30,7 @@ public class PmmUtilities {
 		return tuples;
 	}
 
-	public static List<String> getAllMiscParams(List<KnimeTuple> tuples) {
+	public static List<String> getMiscParams(List<KnimeTuple> tuples) {
 		Set<String> paramSet = new LinkedHashSet<String>();
 
 		for (KnimeTuple tuple : tuples) {
@@ -46,7 +46,7 @@ public class PmmUtilities {
 		return new ArrayList<String>(paramSet);
 	}
 
-	public static Map<String, String> getAllMiscCategories(
+	public static Map<String, String> getMiscCategories(
 			List<KnimeTuple> tuples) {
 		Map<String, String> map = new LinkedHashMap<>();
 
@@ -63,7 +63,8 @@ public class PmmUtilities {
 		return map;
 	}
 
-	public static Map<String, String> getAllMiscUnits(List<KnimeTuple> tuples) {
+	public static Map<String, String> getMiscUnits(List<KnimeTuple> tuples) {
+		Map<String, Map<String, Integer>> occurences = new LinkedHashMap<>();
 		Map<String, String> map = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
@@ -72,8 +73,37 @@ public class PmmUtilities {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				map.put(element.getName(), element.getUnit());
+				if (!occurences.containsKey(element.getName())) {
+					occurences.put(element.getName(),
+							new LinkedHashMap<String, Integer>());
+				}
+
+				Integer value = occurences.get(element.getName()).get(
+						element.getUnit());
+
+				if (value != null) {
+					occurences.get(element.getName()).put(element.getUnit(),
+							value + 1);
+				} else {
+					occurences.get(element.getName()).put(element.getUnit(), 1);
+				}
 			}
+		}
+
+		for (String name : occurences.keySet()) {
+			String maxUnit = null;
+			int maxN = 0;
+
+			for (String unit : occurences.get(name).keySet()) {
+				int n = occurences.get(name).get(unit);
+
+				if (n > maxN) {
+					maxUnit = unit;
+					maxN = n;
+				}
+			}
+
+			map.put(name, maxUnit);
 		}
 
 		return map;

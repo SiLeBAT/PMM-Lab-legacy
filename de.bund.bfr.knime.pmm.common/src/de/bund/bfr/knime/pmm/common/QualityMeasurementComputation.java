@@ -247,7 +247,7 @@ public class QualityMeasurementComputation {
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Double> bicMap = new LinkedHashMap<>();
-		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
+		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 
 		for (KnimeTuple tuple : tuples) {
 			DepXml depXml = (DepXml) tuple

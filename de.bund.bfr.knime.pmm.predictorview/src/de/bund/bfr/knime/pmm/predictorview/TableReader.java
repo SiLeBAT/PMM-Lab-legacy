@@ -103,7 +103,7 @@ public class TableReader {
 		parameterData = new ArrayList<>();
 
 		if (containsData) {
-			miscParams = PmmUtilities.getAllMiscParams(tuples);
+			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model1Schema.FORMULA, ChartConstants.STATUS,
 					AttributeUtilities.DATAID);

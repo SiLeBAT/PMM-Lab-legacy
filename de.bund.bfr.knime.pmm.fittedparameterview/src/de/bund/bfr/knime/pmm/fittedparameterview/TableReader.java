@@ -22,6 +22,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class TableReader {
 
@@ -46,9 +48,9 @@ public class TableReader {
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(table,
 				SchemaFactory.createM1DataSchema());
 		Map<String, Integer> primModelIDs = new LinkedHashMap<>();
-		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
+		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 		Map<String, String> miscCategories = PmmUtilities
-				.getAllMiscCategories(tuples);
+				.getMiscCategories(tuples);
 		Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
 
 		ids = new ArrayList<String>();
@@ -78,7 +80,6 @@ public class TableReader {
 		for (KnimeTuple tuple : tuples) {
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 			if (!tuplesByPrimID.containsKey(modelXml.getID())) {
 				tuplesByPrimID.put(modelXml.getID(),
@@ -86,6 +87,19 @@ public class TableReader {
 			}
 
 			tuplesByPrimID.get(modelXml.getID()).add(tuple);
+		}
+
+		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
+
+		for (int primID : tuplesByPrimID.keySet()) {
+			miscUnits.put(primID,
+					PmmUtilities.getMiscUnits(tuplesByPrimID.get(primID)));
+		}
+
+		for (KnimeTuple tuple : tuples) {
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
 				ParamXml element1 = (ParamXml) el1;
@@ -122,7 +136,14 @@ public class TableReader {
 						MiscXml element2 = (MiscXml) el2;
 
 						if (param.equals(element2.getName())) {
-							paramValue = element2.getValue();
+							Category category = Categories
+									.getCategory(miscCategories.get(element2
+											.getName()));
+							String unit = miscUnits.get(modelXml.getID()).get(
+									element2.getName());
+
+							paramValue = category.convert(element2.getValue(),
+									element2.getUnit(), unit);
 							break;
 						}
 					}
@@ -130,13 +151,6 @@ public class TableReader {
 					miscDataMaps.get(id).get(param).add(paramValue);
 				}
 			}
-		}
-
-		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
-
-		for (int primID : tuplesByPrimID.keySet()) {
-			miscUnits.put(primID,
-					PmmUtilities.getAllMiscUnits(tuplesByPrimID.get(primID)));
 		}
 
 		for (String id : ids) {

@@ -68,7 +68,7 @@ public class TableReader {
 				Arrays.asList(AttributeUtilities.DATAID));
 
 		Set<String> idSet = new LinkedHashSet<String>();
-		List<String> miscParams = PmmUtilities.getAllMiscParams(allTuples);
+		List<String> miscParams = PmmUtilities.getMiscParams(allTuples);
 
 		for (String param : miscParams) {
 			doubleColumns.add(param);

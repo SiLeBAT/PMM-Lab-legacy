@@ -103,7 +103,7 @@ public class SecondaryEstimationThread implements Runnable {
 	public void run() {
 		try {
 			List<KnimeTuple> tuples = PmmUtilities.getTuples(inTable, schema);
-			List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
+			List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 			Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
 			Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 			Set<String> ids = new LinkedHashSet<String>();

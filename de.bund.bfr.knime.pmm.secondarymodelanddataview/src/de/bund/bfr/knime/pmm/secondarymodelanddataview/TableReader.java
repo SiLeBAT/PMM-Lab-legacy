@@ -126,7 +126,7 @@ public class TableReader {
 			} catch (Exception e) {
 			}
 
-			miscParams = PmmUtilities.getAllMiscParams(tuples);
+			miscParams = PmmUtilities.getMiscParams(tuples);
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
 					Model2Schema.BIC));

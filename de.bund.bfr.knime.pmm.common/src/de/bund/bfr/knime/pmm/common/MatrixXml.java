@@ -33,7 +33,9 @@ public class MatrixXml implements PmmXmlElementConvertable {
 	}
 	public MatrixXml(Element xmlElement) {
 		try {
-			setID(Integer.parseInt(xmlElement.getAttribute("id").getValue()));
+			if (xmlElement.getAttribute("id") != null && !xmlElement.getAttribute("id").getValue().equalsIgnoreCase("null")) {
+				setID(Integer.parseInt(xmlElement.getAttribute("id").getValue()));
+			}
 			setName(xmlElement.getAttribute("name").getValue());
 			setDetail(xmlElement.getAttribute("detail").getValue());
 			if (xmlElement.getAttribute("dbuuid") != null) {

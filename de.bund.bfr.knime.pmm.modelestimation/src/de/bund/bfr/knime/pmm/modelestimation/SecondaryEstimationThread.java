@@ -119,8 +119,12 @@ public class SecondaryEstimationThread implements Runnable {
 
 			while (reader.hasMoreElements()) {
 				KnimeTuple tuple = reader.nextElement();
-				String id = ((DepXml) tuple.getPmmXml(
-						Model2Schema.ATT_DEPENDENT).get(0)).getName();
+				DepXml depXml = (DepXml) tuple.getPmmXml(
+						Model2Schema.ATT_DEPENDENT).get(0);
+				CatalogModelXml primModelXml = (CatalogModelXml) tuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
+				String id = depXml.getName() + " (" + primModelXml.getID()
+						+ ")";
 
 				tuples.add(tuple);
 
@@ -141,8 +145,7 @@ public class SecondaryEstimationThread implements Runnable {
 
 				for (PmmXmlElementConvertable el : params.getElementSet()) {
 					ParamXml element = (ParamXml) el;
-					String depVarSec = ((DepXml) tuple.getPmmXml(
-							Model2Schema.ATT_DEPENDENT).get(0)).getName();
+					String depVarSec = depXml.getName();
 
 					if (element.getName().equals(depVarSec)) {
 						if (element.getValue() == null) {
@@ -188,13 +191,13 @@ public class SecondaryEstimationThread implements Runnable {
 			Map<String, PmmXmlDoc> indepMap = new LinkedHashMap<String, PmmXmlDoc>();
 			Map<String, PmmXmlDoc> estModelMap = new LinkedHashMap<String, PmmXmlDoc>();
 
-			for (int i = 0; i < n; i++) {
-				KnimeTuple tuple = tuples.get(i);
-				String id = ((DepXml) tuple.getPmmXml(
-						Model2Schema.ATT_DEPENDENT).get(0)).getName();
-
-				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
-						Model2Schema.WRITABLE);
+			for (KnimeTuple tuple : tuples) {
+				DepXml depXml = (DepXml) tuple.getPmmXml(
+						Model2Schema.ATT_DEPENDENT).get(0);
+				CatalogModelXml primModelXml = (CatalogModelXml) tuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
+				String id = depXml.getName() + " (" + primModelXml.getID()
+						+ ")";
 
 				if (!paramMap.containsKey(id)) {
 					PmmXmlDoc modelXml = tuple
@@ -360,6 +363,8 @@ public class SecondaryEstimationThread implements Runnable {
 				tuple.setValue(Model2Schema.ATT_PARAMETER, paramMap.get(id));
 				tuple.setValue(Model2Schema.ATT_INDEPENDENT, indepMap.get(id));
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, estModelMap.get(id));
+				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
+						Model2Schema.WRITABLE);
 
 				container.addRowToTable(tuple);
 			}

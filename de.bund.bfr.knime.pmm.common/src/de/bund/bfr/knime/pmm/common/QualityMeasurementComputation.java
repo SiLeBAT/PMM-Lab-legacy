@@ -107,7 +107,8 @@ public class QualityMeasurementComputation {
 			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
-				if (element.getTime() != null && element.getConcentration() != null) {
+				if (element.getTime() != null
+						&& element.getConcentration() != null) {
 					targetValues.add(element.getConcentration());
 					variableValues.get(AttributeUtilities.TIME).add(
 							element.getTime());
@@ -249,8 +250,11 @@ public class QualityMeasurementComputation {
 		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
 
 		for (KnimeTuple tuple : tuples) {
-			String id = ((DepXml) tuple.getPmmXml(Model2Schema.ATT_DEPENDENT)
-					.get(0)).getName();
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
+			CatalogModelXml primModelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
+			String id = depXml.getName() + " (" + primModelXml.getID() + ")";
 
 			if (!idSet.contains(id)) {
 				PmmXmlDoc modelXmlSec = tuple
@@ -394,8 +398,11 @@ public class QualityMeasurementComputation {
 		for (KnimeTuple tuple : tuples) {
 			KnimeTuple newTuple = new KnimeTuple(tuple.getSchema(), tuple
 					.getSchema().createSpec(), tuple);
-			String id = ((DepXml) newTuple
-					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0)).getName();
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
+			CatalogModelXml primModelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
+			String id = depXml.getName() + " (" + primModelXml.getID() + ")";
 
 			if (rmsMap.containsKey(id)) {
 				PmmXmlDoc estModelXml = newTuple

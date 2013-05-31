@@ -61,6 +61,9 @@ import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * <code>NodeDialog</code> for the "ModelSelectionTertiary" Node.
@@ -352,8 +355,16 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
+		Map<String, String> categories = new LinkedHashMap<>();
+		Map<String, String> units = new LinkedHashMap<>();
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
+		categories.put(AttributeUtilities.TIME, Categories.TIME);
+		categories.put(AttributeUtilities.LOGC,
+				Categories.BACTERIAL_CONCENTRATION);
+		units.put(AttributeUtilities.TIME, new Time().getStandardUnit());
+		units.put(AttributeUtilities.LOGC,
+				new BacterialConcentration().getStandardUnit());
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
 
 		if (selectAllIDs == 1) {
@@ -367,7 +378,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false, null);
 		configPanel.setParameters(AttributeUtilities.LOGC, paramsX, null, null,
-				null, null, null);
+				categories, units, null);
 		configPanel.setUseManualRange(manualRange == 1);
 		configPanel.setMinX(minX);
 		configPanel.setMaxX(maxX);

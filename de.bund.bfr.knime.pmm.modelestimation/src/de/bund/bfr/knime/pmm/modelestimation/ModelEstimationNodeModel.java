@@ -37,7 +37,6 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -90,28 +89,28 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ModelEstimationNodeModel extends NodeModel {
 
-	static final String PRIMARY = "Primary";
-	static final String SECONDARY = "Secondary";
+	protected static final String PRIMARY = "Primary";
+	protected static final String SECONDARY = "Secondary";
 
-	static final String NO_FITTING = "";
-	static final String PRIMARY_FITTING = "Primary Fitting";
-	static final String SECONDARY_FITTING = "Secondary Fitting";
-	static final String ONESTEP_FITTING = "One-Step Fitting";
+	protected static final String NO_FITTING = "";
+	protected static final String PRIMARY_FITTING = "Primary Fitting";
+	protected static final String SECONDARY_FITTING = "Secondary Fitting";
+	protected static final String ONESTEP_FITTING = "One-Step Fitting";
 
-	static final String CFGKEY_FITTINGTYPE = "FittingType";
-	static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
-	static final String CFGKEY_EXPERTSETTINGS = "ExpertSettings";
-	static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
-	static final String CFGKEY_NLEVENBERG = "NLevenberg";
-	static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
-	static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
+	protected static final String CFGKEY_FITTINGTYPE = "FittingType";
+	protected static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
+	protected static final String CFGKEY_EXPERTSETTINGS = "ExpertSettings";
+	protected static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
+	protected static final String CFGKEY_NLEVENBERG = "NLevenberg";
+	protected static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
+	protected static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
 
-	static final String DEFAULT_FITTINGTYPE = NO_FITTING;
-	static final int DEFAULT_ENFORCELIMITS = 0;
-	static final int DEFAULT_EXPERTSETTINGS = 0;
-	static final int DEFAULT_NPARAMETERSPACE = 10000;
-	static final int DEFAULT_NLEVENBERG = 10;
-	static final int DEFAULT_STOPWHENSUCCESSFUL = 0;
+	protected static final String DEFAULT_FITTINGTYPE = NO_FITTING;
+	protected static final int DEFAULT_ENFORCELIMITS = 0;
+	protected static final int DEFAULT_EXPERTSETTINGS = 0;
+	protected static final int DEFAULT_NPARAMETERSPACE = 10000;
+	protected static final int DEFAULT_NLEVENBERG = 10;
+	protected static final int DEFAULT_STOPWHENSUCCESSFUL = 0;
 
 	private static final int MAX_THREADS = 8;
 
@@ -125,7 +124,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 	private int nLevenberg;
 	private int stopWhenSuccessful;
 	private Map<String, Map<String, Point2D.Double>> parameterGuesses;
-
 	private Map<String, Map<String, Point2D.Double>> parameterLimits;
 
 	/**
@@ -272,7 +270,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			String id = ModelEstimationNodeModel.PRIMARY
+			String id = PRIMARY
 					+ ((CatalogModelXml) tuple.getPmmXml(
 							Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 
@@ -309,7 +307,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
-			String id = ModelEstimationNodeModel.SECONDARY
+			String id = SECONDARY
 					+ ((CatalogModelXml) tuple.getPmmXml(
 							Model2Schema.ATT_MODELCATALOG).get(0)).getID();
 
@@ -348,6 +346,22 @@ public class ModelEstimationNodeModel extends NodeModel {
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(n);
 		AtomicInteger runningThreads = new AtomicInteger(0);
 		AtomicInteger finishedThreads = new AtomicInteger(0);
+		Map<String, Map<String, Point2D.Double>> parameterGuesses;
+		int nParameterSpace;
+		int nLevenberg;
+		int stopWhenSuccessful;
+
+		if (expertSettings == 1) {
+			parameterGuesses = this.parameterGuesses;
+			nParameterSpace = this.nParameterSpace;
+			nLevenberg = this.nLevenberg;
+			stopWhenSuccessful = this.stopWhenSuccessful;
+		} else {
+			parameterGuesses = parameterLimits;
+			nParameterSpace = DEFAULT_NPARAMETERSPACE;
+			nLevenberg = DEFAULT_NLEVENBERG;
+			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
+		}
 
 		for (int i = 0; i < n; i++) {
 			tuples.add(reader.nextElement());
@@ -367,7 +381,9 @@ public class ModelEstimationNodeModel extends NodeModel {
 			}
 
 			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
-					runningThreads, finishedThreads));
+					parameterGuesses, enforceLimits == 1, nParameterSpace,
+					nLevenberg, stopWhenSuccessful == 1, runningThreads,
+					finishedThreads));
 
 			runningThreads.incrementAndGet();
 			thread.start();
@@ -442,197 +458,6 @@ public class ModelEstimationNodeModel extends NodeModel {
 		}
 
 		return container.getTable();
-	}
-
-	private class PrimaryEstimationThread implements Runnable {
-
-		private KnimeTuple tuple;
-
-		private AtomicInteger runningThreads;
-		private AtomicInteger finishedThreads;
-
-		public PrimaryEstimationThread(KnimeTuple tuple,
-				AtomicInteger runningThreads, AtomicInteger finishedThreads) {
-			this.tuple = tuple;
-			this.runningThreads = runningThreads;
-			this.finishedThreads = finishedThreads;
-		}
-
-		@Override
-		public void run() {
-			try {
-				PmmXmlDoc modelXml = tuple
-						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-				String modelID = ((CatalogModelXml) modelXml.get(0)).getID()
-						+ "";
-				String formula = ((CatalogModelXml) modelXml.get(0))
-						.getFormula();
-				PmmXmlDoc paramXml = tuple
-						.getPmmXml(Model1Schema.ATT_PARAMETER);
-				List<String> parameters = new ArrayList<String>();
-				List<Double> minParameterValues = new ArrayList<Double>();
-				List<Double> maxParameterValues = new ArrayList<Double>();
-				List<Double> minGuessValues = new ArrayList<Double>();
-				List<Double> maxGuessValues = new ArrayList<Double>();
-				PmmXmlDoc timeSeriesXml = tuple
-						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-				List<Double> targetValues = new ArrayList<Double>();
-				List<Double> timeValues = new ArrayList<Double>();
-				List<String> arguments = Arrays.asList(AttributeUtilities.TIME);
-
-				for (PmmXmlElementConvertable el : timeSeriesXml
-						.getElementSet()) {
-					TimeSeriesXml element = (TimeSeriesXml) el;
-
-					timeValues.add(element.getTime());
-					targetValues.add(element.getConcentration());
-				}
-
-				for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
-					ParamXml element = (ParamXml) el;
-
-					parameters.add(element.getName());
-					minParameterValues.add(element.getMin());
-					maxParameterValues.add(element.getMax());
-
-					Map<String, Point2D.Double> guesses;
-
-					if (expertSettings == 1) {
-						guesses = parameterGuesses.get(PRIMARY + modelID);
-					} else {
-						guesses = parameterLimits.get(PRIMARY + modelID);
-					}
-
-					if (guesses != null
-							&& guesses.containsKey(element.getName())) {
-						Point2D.Double guess = guesses.get(element.getName());
-
-						if (!Double.isNaN(guess.x)) {
-							minGuessValues.add(guess.x);
-						} else {
-							minGuessValues.add(null);
-						}
-
-						if (!Double.isNaN(guess.y)) {
-							maxGuessValues.add(guess.y);
-						} else {
-							maxGuessValues.add(null);
-						}
-					} else {
-						minGuessValues.add(element.getMin());
-						maxGuessValues.add(element.getMax());
-					}
-				}
-
-				List<Double> parameterValues = Collections.nCopies(
-						parameters.size(), null);
-				List<Double> parameterErrors = Collections.nCopies(
-						parameters.size(), null);
-				List<Double> parameterTValues = Collections.nCopies(
-						parameters.size(), null);
-				List<Double> parameterPValues = Collections.nCopies(
-						parameters.size(), null);
-				List<List<Double>> covariances = new ArrayList<List<Double>>();
-
-				for (int j = 0; j < parameters.size(); j++) {
-					List<Double> nullList = Collections.nCopies(
-							parameters.size(), null);
-
-					covariances.add(nullList);
-				}
-
-				Double rms = null;
-				Double rSquare = null;
-				Double aic = null;
-				Double bic = null;
-				Integer dof = null;
-				Double minIndep = null;
-				Double maxIndep = null;
-				Integer estID = null;
-				boolean successful = false;
-				ParameterOptimizer optimizer = null;
-
-				if (!targetValues.isEmpty() && !timeValues.isEmpty()) {
-					List<List<Double>> argumentValues = new ArrayList<List<Double>>();
-
-					argumentValues.add(timeValues);
-					MathUtilities
-							.removeNullValues(targetValues, argumentValues);
-
-					minIndep = Collections.min(argumentValues.get(0));
-					maxIndep = Collections.max(argumentValues.get(0));
-					optimizer = new ParameterOptimizer(formula, parameters,
-							minParameterValues, maxParameterValues,
-							minGuessValues, maxGuessValues, targetValues,
-							arguments, argumentValues, enforceLimits == 1);
-
-					if (expertSettings == 1) {
-						optimizer.optimize(new AtomicInteger(),
-								nParameterSpace, nLevenberg,
-								stopWhenSuccessful == 1);
-					} else {
-						optimizer.optimize(new AtomicInteger(),
-								DEFAULT_NPARAMETERSPACE, DEFAULT_NLEVENBERG,
-								DEFAULT_STOPWHENSUCCESSFUL == 1);
-					}
-
-					successful = optimizer.isSuccessful();
-				}
-
-				if (successful) {
-					parameterValues = optimizer.getParameterValues();
-					parameterErrors = optimizer.getParameterStandardErrors();
-					parameterTValues = optimizer.getParameterTValues();
-					parameterPValues = optimizer.getParameterPValues();
-					covariances = optimizer.getCovariances();
-					rms = optimizer.getRMS();
-					rSquare = optimizer.getRSquare();
-					aic = optimizer.getAIC();
-					bic = optimizer.getBIC();
-					dof = targetValues.size() - parameters.size();
-					estID = MathUtilities.getRandomNegativeInt();
-				}
-
-				for (int i = 0; i < paramXml.getElementSet().size(); i++) {
-					ParamXml element = (ParamXml) paramXml.get(i);
-
-					element.setValue(parameterValues.get(i));
-					element.setError(parameterErrors.get(i));
-					element.sett(parameterTValues.get(i));
-					element.setP(parameterPValues.get(i));
-
-					for (int j = 0; j < paramXml.getElementSet().size(); j++) {
-						element.addCorrelation(
-								((ParamXml) paramXml.get(j)).getOrigName(),
-								covariances.get(i).get(j));
-					}
-				}
-
-				PmmXmlDoc indepXml = tuple
-						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-
-				((IndepXml) indepXml.get(0)).setMin(minIndep);
-				((IndepXml) indepXml.get(0)).setMax(maxIndep);
-
-				PmmXmlDoc estModelXml = tuple
-						.getPmmXml(Model1Schema.ATT_ESTMODEL);
-
-				((EstModelXml) estModelXml.get(0)).setID(estID);
-				((EstModelXml) estModelXml.get(0)).setRMS(rms);
-				((EstModelXml) estModelXml.get(0)).setR2(rSquare);
-				((EstModelXml) estModelXml.get(0)).setAIC(aic);
-				((EstModelXml) estModelXml.get(0)).setBIC(bic);
-				((EstModelXml) estModelXml.get(0)).setDOF(dof);
-
-				tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
-				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
-				tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);
-				runningThreads.decrementAndGet();
-				finishedThreads.incrementAndGet();
-			} catch (ParseException e) {
-				e.printStackTrace();
-			}
-		}
 	}
 
 	private class SecondaryEstimationThread implements Runnable {

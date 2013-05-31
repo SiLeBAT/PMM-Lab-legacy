@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.knime.core.data.DataTable;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -26,14 +27,14 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 public class TableReader {
 
 	private List<String> ids;
-	private List<Integer> colorCounts;	
+	private List<Integer> colorCounts;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;	
+	private List<List<Double>> doubleColumnValues;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
-	
+
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
@@ -42,12 +43,16 @@ public class TableReader {
 		Set<String> idSet = new LinkedHashSet<String>();
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1DataSchema(), table);
+		Map<String, String> paramNames = new LinkedHashMap<>();
 		Map<String, List<Double>> paramDataMap = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
-		List<String> miscParams = null;
+		List<String> miscParams = PmmUtilities.getAllMiscParams(table);
+		Map<String, String> miscCategories = PmmUtilities
+				.getAllMiscCategories(table);
+		Map<String, String> miscUnits = PmmUtilities.getAllMiscUnits(table);
 
 		ids = new ArrayList<String>();
-		plotables = new LinkedHashMap<String, Plotable>();		
+		plotables = new LinkedHashMap<String, Plotable>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 		stringColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
@@ -57,7 +62,6 @@ public class TableReader {
 		standardVisibleColumns = new ArrayList<>(
 				Arrays.asList(Model1Schema.ATT_PARAMETER));
 
-		miscParams = PmmUtilities.getAllMiscParams(table);
 		doubleColumns = new ArrayList<>();
 		doubleColumnValues = new ArrayList<>();
 		colorCounts = new ArrayList<Integer>();
@@ -73,18 +77,22 @@ public class TableReader {
 
 		while (reader.hasMoreElements()) {
 			KnimeTuple row = reader.nextElement();
+			CatalogModelXml modelXml = (CatalogModelXml) row.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 
 			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
 				ParamXml element1 = (ParamXml) el1;
-				String id = element1.getName();
+				String id = element1.getName() + " (" + modelXml.getID() + ")";
+				String name = element1.getName() + " (" + modelXml.getName()
+						+ ")";
 
-				if (!idSet.contains(id)) {
-					idSet.add(id);
+				if (idSet.add(id)) {
+					paramNames.put(id, element1.getName());
 					ids.add(id);
-					stringColumnValues.get(0).add(id);					
-					shortLegend.put(id, id);
-					longLegend.put(id, id);
+					stringColumnValues.get(0).add(name);
+					shortLegend.put(id, name);
+					longLegend.put(id, name);
 
 					paramDataMap.put(id, new ArrayList<Double>());
 					miscDataMaps.put(id,
@@ -125,9 +133,11 @@ public class TableReader {
 				arguments.put(param, new ArrayList<Double>(Arrays.asList(0.0)));
 			}
 
-			plotable.setFunctionValue(id);
+			plotable.setFunctionValue(paramNames.get(id));
 			plotable.setFunctionArguments(arguments);
-			plotable.addValueList(id, paramDataMap.get(id));
+			plotable.addValueList(paramNames.get(id), paramDataMap.get(id));
+			plotable.setCategories(miscCategories);
+			plotable.setUnits(miscUnits);
 
 			Map<String, List<Double>> miscs = miscDataMaps.get(id);
 

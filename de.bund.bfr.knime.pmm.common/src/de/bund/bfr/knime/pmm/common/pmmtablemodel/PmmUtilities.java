@@ -1,8 +1,10 @@
 package de.bund.bfr.knime.pmm.common.pmmtablemodel;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.data.DataTable;
@@ -15,7 +17,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 
 public class PmmUtilities {
-
+	
 	public static List<String> getAllMiscParams(DataTable table) {
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), table);
@@ -33,6 +35,44 @@ public class PmmUtilities {
 		}
 
 		return new ArrayList<String>(paramSet);
+	}
+
+	public static Map<String, String> getAllMiscCategories(DataTable table) {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), table);
+		Map<String, String> map = new LinkedHashMap<>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				map.put(element.getName(), element.getCategory());
+			}
+		}
+
+		return map;
+	}
+
+	public static Map<String, String> getAllMiscUnits(DataTable table) {
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createDataSchema(), table);
+		Map<String, String> map = new LinkedHashMap<>();
+
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+
+			for (PmmXmlElementConvertable el : misc.getElementSet()) {
+				MiscXml element = (MiscXml) el;
+
+				map.put(element.getName(), element.getUnit());
+			}
+		}
+
+		return map;
 	}
 
 	public static List<String> getAllMiscParams(List<KnimeTuple> tuples) {

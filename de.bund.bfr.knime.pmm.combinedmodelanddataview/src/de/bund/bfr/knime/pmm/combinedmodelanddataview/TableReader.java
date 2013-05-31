@@ -177,11 +177,13 @@ public class TableReader {
 
 			ids.add(id);
 
-			PmmXmlDoc modelXml = row.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
-			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
-			String depVar = ((DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
-					.get(0)).getName();
+			CatalogModelXml modelXml = (CatalogModelXml) row.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
+			DepXml depXml = (DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
+					.get(0);
+			String modelName = modelXml.getName();
+			String formula = modelXml.getFormula();
+			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Plotable plotable = new Plotable(Plotable.BOTH);
@@ -190,6 +192,11 @@ public class TableReader {
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
+			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, String> units = new LinkedHashMap<>();
+
+			categories.put(depXml.getName(), depXml.getCategory());
+			units.put(depXml.getName(), depXml.getUnit());
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 				IndepXml element = (IndepXml) el;
@@ -198,6 +205,9 @@ public class TableReader {
 						new ArrayList<Double>(Arrays.asList(0.0)));
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
+				
+				categories.put(element.getName(), element.getCategory());
+				units.put(element.getName(), element.getUnit());
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -358,6 +368,8 @@ public class TableReader {
 			plotable.setMinArguments(varMin);
 			plotable.setMaxArguments(varMax);
 			plotable.setFunctionParameters(parameters);
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			stringColumnValues.get(0).add(modelName);
 			stringColumnValues.get(1).add(formula);

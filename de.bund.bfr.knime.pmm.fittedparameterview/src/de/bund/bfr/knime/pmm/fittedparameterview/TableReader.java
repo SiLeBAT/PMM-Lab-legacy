@@ -45,10 +45,11 @@ public class TableReader {
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
 		List<KnimeTuple> tuples = PmmUtilities.getTuples(table,
 				SchemaFactory.createM1DataSchema());
+		Map<String, Integer> primModelIDs = new LinkedHashMap<>();
 		List<String> miscParams = PmmUtilities.getAllMiscParams(tuples);
 		Map<String, String> miscCategories = PmmUtilities
 				.getAllMiscCategories(tuples);
-		Map<String, String> miscUnits = PmmUtilities.getAllMiscUnits(tuples);
+		Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -79,6 +80,13 @@ public class TableReader {
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 
+			if (!tuplesByPrimID.containsKey(modelXml.getID())) {
+				tuplesByPrimID.put(modelXml.getID(),
+						new ArrayList<KnimeTuple>());
+			}
+
+			tuplesByPrimID.get(modelXml.getID()).add(tuple);
+
 			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
 				ParamXml element1 = (ParamXml) el1;
 				String id = element1.getName() + " (" + modelXml.getID() + ")";
@@ -88,6 +96,7 @@ public class TableReader {
 				if (idSet.add(id)) {
 					paramNames.put(id, element1.getName());
 					ids.add(id);
+					primModelIDs.put(id, modelXml.getID());
 					stringColumnValues.get(0).add(name);
 					shortLegend.put(id, name);
 					longLegend.put(id, name);
@@ -123,6 +132,13 @@ public class TableReader {
 			}
 		}
 
+		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
+
+		for (int primID : tuplesByPrimID.keySet()) {
+			miscUnits.put(primID,
+					PmmUtilities.getAllMiscUnits(tuplesByPrimID.get(primID)));
+		}
+
 		for (String id : ids) {
 			Plotable plotable = new Plotable(Plotable.DATASET_STRICT);
 			Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
@@ -135,7 +151,7 @@ public class TableReader {
 			plotable.setFunctionArguments(arguments);
 			plotable.addValueList(paramNames.get(id), paramDataMap.get(id));
 			plotable.setCategories(miscCategories);
-			plotable.setUnits(miscUnits);
+			plotable.setUnits(miscUnits.get(primModelIDs.get(id)));
 
 			Map<String, List<Double>> miscs = miscDataMaps.get(id);
 

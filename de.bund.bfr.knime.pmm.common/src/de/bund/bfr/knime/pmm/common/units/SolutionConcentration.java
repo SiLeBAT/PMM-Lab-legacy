@@ -45,15 +45,15 @@ public class SolutionConcentration implements Category {
 	public String[] getAllUnits() {
 		return new String[] { PERCENT_WTVOL, PERCENT_WTWT };
 	}
-	
+
 	@Override
-	public String getStandardUnit() {		
+	public String getStandardUnit() {
 		return PERCENT_WTVOL;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
-		if (fromUnit == toUnit) {
+		if (fromUnit.equals(toUnit)) {
 			return value;
 		}
 
@@ -62,7 +62,7 @@ public class SolutionConcentration implements Category {
 
 	@Override
 	public boolean canConvert(String fromUnit, String toUnit) {
-		return fromUnit == toUnit;
+		return fromUnit.equals(toUnit);
 	}
 
 }

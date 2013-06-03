@@ -375,11 +375,9 @@ public class CombinedJoiner implements Joiner {
 								.getCategory());
 						String unit = paramsConvertTo.get(element.getName());
 
-						if (unit != null) {
-							element.setValue(cat.convert(element.getValue(),
-									element.getUnit(), unit));
-							element.setUnit(unit);
-						}
+						element.setValue(cat.convert(element.getValue(),
+								element.getUnit(), unit));
+						element.setUnit(unit);
 					}
 				}
 
@@ -433,9 +431,22 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	private void readModelTable() {
-		Map<KnimeTuple, List<KnimeTuple>> tuples = ModelCombiner.combine(
-				PmmUtilities.getTuples(modelTable,
-						SchemaFactory.createM12Schema()), false, false, null);
+		boolean containsData = SchemaFactory.createM12DataSchema().conforms(
+				modelTable);
+		Map<KnimeTuple, List<KnimeTuple>> tuples;
+
+		if (containsData) {
+			tuples = ModelCombiner.combine(
+					PmmUtilities.getTuples(modelTable,
+							SchemaFactory.createM12DataSchema()), true, false,
+					null);
+		} else {
+			tuples = ModelCombiner.combine(
+					PmmUtilities.getTuples(modelTable,
+							SchemaFactory.createM12Schema()), false, false,
+					null);
+		}
+
 		Set<Integer> ids = new LinkedHashSet<Integer>();
 		Set<Integer> estIDs = new LinkedHashSet<Integer>();
 
@@ -505,6 +516,22 @@ public class CombinedJoiner implements Joiner {
 
 					categories.put(element.getName(), element.getCategory());
 					units.put(element.getName(), element.getUnit());
+				}
+
+				if (containsData) {
+					for (PmmXmlElementConvertable el : tuple.getPmmXml(
+							TimeSeriesSchema.ATT_MISC).getElementSet()) {
+						MiscXml element = (MiscXml) el;
+
+						if (categories.get(element.getName()) == null) {
+							categories.put(element.getName(),
+									element.getCategory());
+						}
+
+						if (units.get(element.getName()) == null) {
+							units.put(element.getName(), element.getUnit());
+						}
+					}
 				}
 
 				secondaryModelNames.put(modelIDSec,

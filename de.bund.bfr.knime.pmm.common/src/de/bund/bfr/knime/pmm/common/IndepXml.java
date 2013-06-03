@@ -37,12 +37,14 @@ public class IndepXml implements PmmXmlElementConvertable {
 			String strDbl = xmlElement.getAttribute("min").getValue();
 			setMin(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("max").getValue();
-			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));			
 			if (xmlElement.getAttribute("category") != null) {
-				setCategory(xmlElement.getAttribute("category").getValue());
+				strDbl = xmlElement.getAttribute("category").getValue();
+				setCategory(strDbl.trim().isEmpty() ? null : strDbl);
 			}
 			if (xmlElement.getAttribute("unit") != null) {
-				setUnit(xmlElement.getAttribute("unit").getValue());
+				strDbl = xmlElement.getAttribute("unit").getValue();
+				setUnit(strDbl.trim().isEmpty() ? null : strDbl);				
 			}
 		}
 		catch (Exception e) {
@@ -58,10 +60,10 @@ public class IndepXml implements PmmXmlElementConvertable {
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
-	public void setMin(Double min) {this.min = (min == null) ? null : min;}
-	public void setMax(Double max) {this.max = (max == null) ? null : max;}
-	public void setCategory(String category) {this.category = (category == null) ? "" : category;}
-	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
+	public void setMin(Double min) {this.min = min;}
+	public void setMax(Double max) {this.max = max;}
+	public void setCategory(String category) {this.category = category;}
+	public void setUnit(String unit) {this.unit = unit;}
 
 	@Override
 	public Element toXmlElement() {

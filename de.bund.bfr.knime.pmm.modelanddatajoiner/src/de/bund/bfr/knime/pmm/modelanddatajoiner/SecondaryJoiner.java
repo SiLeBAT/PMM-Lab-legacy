@@ -75,6 +75,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
@@ -267,12 +268,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 				Set<Integer> usedEstIDs = new LinkedHashSet<>();
 
 				while (modelReader.hasMoreElements()) {
-					KnimeTuple modelRow = modelReader.nextElement();
-					PmmXmlDoc modelXmlSec = modelRow
+					KnimeTuple modelTuple = modelReader.nextElement();
+					PmmXmlDoc modelXmlSec = modelTuple
 							.getPmmXml(Model2Schema.ATT_MODELCATALOG);
 					String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
 							.getID() + "";
-					Integer estIDSec = ((EstModelXml) modelRow.getPmmXml(
+					Integer estIDSec = ((EstModelXml) modelTuple.getPmmXml(
 							Model2Schema.ATT_ESTMODEL).get(0)).getID();
 
 					if (!model.equals(modelIDSec) || !usedEstIDs.add(estIDSec)) {
@@ -281,11 +282,11 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 					String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
 							.getFormula();
-					PmmXmlDoc depVarSec = modelRow
+					PmmXmlDoc depVarSec = modelTuple
 							.getPmmXml(Model2Schema.ATT_DEPENDENT);
 					String depVarSecName = ((DepXml) depVarSec.get(0))
 							.getName();
-					PmmXmlDoc indepVarsSec = modelRow
+					PmmXmlDoc indepVarsSec = modelTuple
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
 					List<String> oldIndepVars = new ArrayList<>();
@@ -311,14 +312,14 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							depVarSecName, newDepVarSecName);
 					((DepXml) depVarSec.get(0)).setName(newDepVarSecName);
 
-					boolean error = true;
+					boolean error = false;
 
 					for (PmmXmlElementConvertable el : indepVarsSec
 							.getElementSet()) {
 						IndepXml iv = (IndepXml) el;
 
 						if (!replace.containsKey(iv.getName())) {
-							error = false;
+							error = true;
 							break;
 						}
 
@@ -329,28 +330,47 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						newIndepVarsSec.add(iv);
 					}
 
-					if (!error) {
+					if (error) {
 						continue;
 					}
 
 					((CatalogModelXml) modelXmlSec.get(0))
 							.setFormula(formulaSec);
 
-					KnimeRelationReader peiReader = new KnimeRelationReader(
-							SchemaFactory.createM1DataSchema(), dataTable);
+					List<KnimeTuple> dataTuples = PmmUtilities.getTuples(
+							dataTable, SchemaFactory.createM1DataSchema());
+					Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
+					Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
 
-					while (peiReader.hasMoreElements()) {
-						KnimeTuple peiRow = peiReader.nextElement();
-						int id = ((CatalogModelXml) peiRow.getPmmXml(
+					for (KnimeTuple dataTuple : dataTuples) {
+						CatalogModelXml modelXml = (CatalogModelXml) dataTuple
+								.getPmmXml(Model1Schema.ATT_MODELCATALOG)
+								.get(0);
+
+						if (!tuplesByPrimID.containsKey(modelXml.getID())) {
+							tuplesByPrimID.put(modelXml.getID(),
+									new ArrayList<KnimeTuple>());
+						}
+
+						tuplesByPrimID.get(modelXml.getID()).add(dataTuple);
+					}
+
+					for (int primID : tuplesByPrimID.keySet()) {
+						miscUnits.put(primID, PmmUtilities
+								.getMiscUnits(tuplesByPrimID.get(primID)));
+					}
+
+					for (KnimeTuple dataTuple : dataTuples) {
+						int id = ((CatalogModelXml) dataTuple.getPmmXml(
 								Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 
 						if (id != modelID) {
 							continue;
 						}
 
-						PmmXmlDoc params = peiRow
+						PmmXmlDoc params = dataTuple
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
-						PmmXmlDoc miscs = peiRow
+						PmmXmlDoc miscs = dataTuple
 								.getPmmXml(TimeSeriesSchema.ATT_MISC);
 						Map<String, String> paramsConvertTo = new LinkedHashMap<>();
 
@@ -360,9 +380,16 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 						}
 
 						for (String var : oldIndepVars) {
-							paramsConvertTo.put(replace.get(var),
-									independentVariableUnits.get(model)
-											.get(var));
+							String unit = independentVariableUnits.get(model)
+									.get(var);
+							String newVar = replace.get(var);
+
+							if (unit != null) {
+								paramsConvertTo.put(newVar, unit);
+							} else {
+								paramsConvertTo.put(newVar, miscUnits.get(id)
+										.get(newVar));
+							}
 						}
 
 						for (PmmXmlElementConvertable el : miscs
@@ -382,21 +409,21 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							}
 						}
 
-						peiRow.setValue(TimeSeriesSchema.ATT_MISC, miscs);
+						dataTuple.setValue(TimeSeriesSchema.ATT_MISC, miscs);
 
-						KnimeTuple seiRow = new KnimeTuple(
-								SchemaFactory.createM12DataSchema(), modelRow,
-								peiRow);
+						KnimeTuple tuple = new KnimeTuple(
+								SchemaFactory.createM12DataSchema(),
+								modelTuple, dataTuple);
 
-						seiRow.setValue(Model2Schema.ATT_MODELCATALOG,
+						tuple.setValue(Model2Schema.ATT_MODELCATALOG,
 								modelXmlSec);
-						seiRow.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
-						seiRow.setValue(Model2Schema.ATT_INDEPENDENT,
+						tuple.setValue(Model2Schema.ATT_DEPENDENT, depVarSec);
+						tuple.setValue(Model2Schema.ATT_INDEPENDENT,
 								newIndepVarsSec);
-						seiRow.setValue(Model2Schema.ATT_DATABASEWRITABLE,
+						tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 								Model2Schema.NOTWRITABLE);
 
-						buf.addRowToTable(seiRow);
+						buf.addRowToTable(tuple);
 					}
 				}
 			}
@@ -506,7 +533,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getIndepParamsFromCategory(String category) {
-		List<String> params = new ArrayList<>();
+		List<String> params = new ArrayList<>();		
 
 		for (String param : independentParameterCategories.keySet()) {
 			if (category == null

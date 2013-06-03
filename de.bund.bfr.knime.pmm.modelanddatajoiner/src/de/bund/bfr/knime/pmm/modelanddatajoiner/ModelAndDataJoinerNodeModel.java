@@ -57,21 +57,18 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class ModelAndDataJoinerNodeModel extends NodeModel {
 
-	static final String NO_JOIN = "";
-	static final String PRIMARY_JOIN = "Primary Join";
-	static final String SECONDARY_JOIN = "Secondary Join";
-	static final String COMBINED_JOIN = "Combined Join";
+	protected static final String NO_JOIN = "";
+	protected static final String PRIMARY_JOIN = "Primary Join";
+	protected static final String SECONDARY_JOIN = "Secondary Join";
+	protected static final String COMBINED_JOIN = "Combined Join";
 
-	static final String CFGKEY_JOINTYPE = "JoinType";
-	static final String CFGKEY_ASSIGNMENTS = "Assignments";
-	static final String CFGKEY_JOINSAMECONDITIONS = "JoinSameConditions";
+	protected static final String CFGKEY_JOINTYPE = "JoinType";
+	protected static final String CFGKEY_ASSIGNMENTS = "Assignments";
 
-	static final String DEFAULT_JOINTYPE = NO_JOIN;
-	static final int DEFAULT_JOINSAMECONDITIONS = 0;
+	protected static final String DEFAULT_JOINTYPE = NO_JOIN;
 
 	private String joinType;
 	private String assignments;
-	private int joinSameConditions;
 
 	/**
 	 * Constructor for the node model.
@@ -79,8 +76,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected ModelAndDataJoinerNodeModel() {
 		super(2, 1);
 		joinType = DEFAULT_JOINTYPE;
-		assignments = "";
-		joinSameConditions = DEFAULT_JOINSAMECONDITIONS;
+		assignments = null;
 	}
 
 	/**
@@ -92,8 +88,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 		Joiner joiner = null;
 
 		if (joinType.equals(PRIMARY_JOIN)) {
-			joiner = new PrimaryJoiner(inData[0], inData[1],
-					joinSameConditions == 1);
+			joiner = new PrimaryJoiner(inData[0], inData[1]);
 		} else if (joinType.equals(SECONDARY_JOIN)) {
 			joiner = new SecondaryJoiner(inData[0], inData[1]);
 		} else if (joinType.equals(COMBINED_JOIN)) {
@@ -163,7 +158,6 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		settings.addString(CFGKEY_JOINTYPE, joinType);
 		settings.addString(CFGKEY_ASSIGNMENTS, assignments);
-		settings.addInt(CFGKEY_JOINSAMECONDITIONS, joinSameConditions);
 	}
 
 	/**
@@ -174,7 +168,6 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		joinType = settings.getString(CFGKEY_JOINTYPE);
 		assignments = settings.getString(CFGKEY_ASSIGNMENTS);
-		joinSameConditions = settings.getInt(CFGKEY_JOINSAMECONDITIONS);
 	}
 
 	/**

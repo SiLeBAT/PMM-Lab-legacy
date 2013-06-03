@@ -75,7 +75,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 
 	private String joinType;
 	private String assignments;
-	private int joinSameConditions;
 
 	private BufferedDataTable[] input;
 
@@ -120,14 +119,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 			assignments = settings
 					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS);
 		} catch (InvalidSettingsException e) {
-			assignments = "";
-		}
-
-		try {
-			joinSameConditions = settings
-					.getInt(ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS);
-		} catch (InvalidSettingsException e) {
-			joinSameConditions = ModelAndDataJoinerNodeModel.DEFAULT_JOINSAMECONDITIONS;
+			assignments = null;
 		}
 
 		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
@@ -156,22 +148,6 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 				joinType);
 		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
 				joiner.getAssignments());
-
-		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
-			if (((PrimaryJoiner) joiner).isJoinSameConditions()) {
-				settings.addInt(
-						ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
-						1);
-			} else {
-				settings.addInt(
-						ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
-						0);
-			}
-		} else {
-			settings.addInt(
-					ModelAndDataJoinerNodeModel.CFGKEY_JOINSAMECONDITIONS,
-					ModelAndDataJoinerNodeModel.DEFAULT_JOINSAMECONDITIONS);
-		}
 	}
 
 	@Override
@@ -189,8 +165,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
 			if (SchemaFactory.createM1Schema().conforms(input[0])
 					&& SchemaFactory.createDataSchema().conforms(input[1])) {
-				joiner = new PrimaryJoiner(input[0], input[1],
-						joinSameConditions == 1);
+				joiner = new PrimaryJoiner(input[0], input[1]);
 			}
 		} else if (joinType.equals(ModelAndDataJoinerNodeModel.SECONDARY_JOIN)) {
 			if (SchemaFactory.createM2Schema().conforms(input[0])

@@ -57,8 +57,10 @@ import org.knime.core.node.ExecutionContext;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
+import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
+import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -69,6 +71,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
@@ -92,6 +95,8 @@ public class CombinedJoiner implements Joiner {
 	private Map<String, Map<String, String>> secondaryVariableUnits;
 	private Map<String, String> primaryParameterCategories;
 	private Map<String, String> secondaryParameterCategories;
+
+	private List<KnimeTuple> modelTuples;
 
 	public CombinedJoiner(BufferedDataTable modelTable,
 			BufferedDataTable dataTable) {
@@ -234,23 +239,13 @@ public class CombinedJoiner implements Joiner {
 		int rowCount = modelTable.getRowCount() * dataTable.getRowCount();
 		int index = 0;
 
-		KnimeRelationReader modelReader = new KnimeRelationReader(
-				SchemaFactory.createM12Schema(), modelTable);
-		Set<String> ids = new LinkedHashSet<>();
-
-		while (modelReader.hasMoreElements()) {
-			KnimeTuple modelTuple = modelReader.nextElement();
+		for (KnimeTuple modelTuple : modelTuples) {
 			PmmXmlDoc modelXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
 			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
 			String modelIDSec = depVarSecName + " (" + modelID + ")";
-			
-			if (!ids.add(modelIDSec)) { 
-				continue;
-			}
-			
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 			String depVarName = ((DepXml) depVar.get(0)).getName();
@@ -380,9 +375,11 @@ public class CombinedJoiner implements Joiner {
 								.getCategory());
 						String unit = paramsConvertTo.get(element.getName());
 
-						element.setValue(cat.convert(element.getValue(),
-								element.getUnit(), unit));
-						element.setUnit(unit);
+						if (unit != null) {
+							element.setValue(cat.convert(element.getValue(),
+									element.getUnit(), unit));
+							element.setUnit(unit);
+						}
 					}
 				}
 
@@ -436,8 +433,30 @@ public class CombinedJoiner implements Joiner {
 	}
 
 	private void readModelTable() {
-		KnimeRelationReader reader = new KnimeRelationReader(
-				SchemaFactory.createM12Schema(), modelTable);
+		Map<KnimeTuple, List<KnimeTuple>> tuples = ModelCombiner.combine(
+				PmmUtilities.getTuples(modelTable,
+						SchemaFactory.createM12Schema()), false, false, null);
+		Set<Integer> ids = new LinkedHashSet<Integer>();
+		Set<Integer> estIDs = new LinkedHashSet<Integer>();
+
+		modelTuples = new ArrayList<>();
+
+		for (KnimeTuple tuple : tuples.keySet()) {
+			int id = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			Integer estID = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+
+			if (estID != null) {
+				if (estIDs.add(estID)) {
+					modelTuples.addAll(tuples.get(tuple));
+				}
+			} else {
+				if (ids.add(id)) {
+					modelTuples.addAll(tuples.get(tuple));
+				}
+			}
+		}
 
 		primaryModelNames = new LinkedHashMap<>();
 		secondaryModelNames = new LinkedHashMap<>();
@@ -446,8 +465,7 @@ public class CombinedJoiner implements Joiner {
 		secondaryVariableCategories = new LinkedHashMap<>();
 		secondaryVariableUnits = new LinkedHashMap<>();
 
-		while (reader.hasMoreElements()) {
-			KnimeTuple tuple = reader.nextElement();
+		for (KnimeTuple tuple : modelTuples) {
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			String depVarSec = ((DepXml) tuple.getPmmXml(

@@ -44,7 +44,6 @@ import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -80,11 +79,7 @@ public class PrimaryJoiner implements Joiner {
 
 	private BufferedDataTable modelTable;
 	private BufferedDataTable dataTable;
-	private boolean joinSameConditions;
 
-	private boolean isEstimated;
-
-	private JCheckBox joinBox;
 	private Map<Integer, Map<String, JComboBox<String>>> variableBoxes;
 
 	private Map<Integer, String> modelNames;
@@ -93,13 +88,11 @@ public class PrimaryJoiner implements Joiner {
 	private Map<String, String> parameterCategories;
 
 	private List<KnimeTuple> modelTuples;
-	private List<KnimeTuple> conditionTuples;
 
 	public PrimaryJoiner(BufferedDataTable modelTable,
-			BufferedDataTable dataTable, boolean joinSameConditions) {
+			BufferedDataTable dataTable) {
 		this.modelTable = modelTable;
 		this.dataTable = dataTable;
-		this.joinSameConditions = joinSameConditions;
 
 		readModelTable();
 		readDataTable();
@@ -146,13 +139,6 @@ public class PrimaryJoiner implements Joiner {
 			topPanel.add(modelPanel);
 		}
 
-		if (isEstimated) {
-			joinBox = new JCheckBox(
-					"Only join when model was estimated under same conditions");
-			joinBox.setSelected(joinSameConditions);
-			topPanel.add(joinBox, BorderLayout.SOUTH);
-		}
-
 		panel.add(topPanel, BorderLayout.NORTH);
 
 		return panel;
@@ -190,13 +176,6 @@ public class PrimaryJoiner implements Joiner {
 
 		for (int i = 0; i < modelTuples.size(); i++) {
 			KnimeTuple modelTuple = modelTuples.get(i);
-			PmmXmlDoc condMisc = null;
-
-			if (isEstimated) {
-				condMisc = conditionTuples.get(i).getPmmXml(
-						TimeSeriesSchema.ATT_MISC);
-			}
-
 			PmmXmlDoc modelXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			int id = ((CatalogModelXml) modelXml.get(0)).getID();
@@ -257,7 +236,6 @@ public class PrimaryJoiner implements Joiner {
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				PmmXmlDoc misc = dataTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 				Map<String, String> paramsConvertTo = new LinkedHashMap<>();
-				boolean addRow = true;
 
 				for (String var : oldVars) {
 					paramsConvertTo.put(assign.get(var), variableUnits.get(id)
@@ -298,41 +276,11 @@ public class PrimaryJoiner implements Joiner {
 				dataTuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeries);
 				dataTuple.setValue(TimeSeriesSchema.ATT_MISC, misc);
 
-				if (isEstimated && joinSameConditions) {
-					for (PmmXmlElementConvertable el : misc.getElementSet()) {
-						MiscXml element = (MiscXml) el;
+				KnimeTuple tuple = new KnimeTuple(
+						SchemaFactory.createM1DataSchema(), modelTuple,
+						dataTuple);
 
-						if (element.getValue() != null) {
-							boolean sameValue = false;
-
-							for (PmmXmlElementConvertable condEl : condMisc
-									.getElementSet()) {
-								MiscXml condElement = (MiscXml) condEl;
-
-								if (element.getName().equals(
-										condElement.getName())
-										&& element.getValue().equals(
-												condElement.getValue())) {
-									sameValue = true;
-								}
-							}
-
-							if (!sameValue) {
-								addRow = false;
-								break;
-							}
-						}
-					}
-				}
-
-				if (addRow) {
-					KnimeTuple tuple = new KnimeTuple(
-							SchemaFactory.createM1DataSchema(), modelTuple,
-							dataTuple);
-
-					container.addRowToTable(tuple);
-				}
-
+				container.addRowToTable(tuple);
 				exec.checkCanceled();
 				exec.setProgress((double) index / (double) rowCount, "");
 				index++;
@@ -357,75 +305,30 @@ public class PrimaryJoiner implements Joiner {
 		return true;
 	}
 
-	public boolean isJoinSameConditions() {
-		if (joinBox != null) {
-			return joinBox.isSelected();
-		} else {
-			return joinSameConditions;
-		}
-	}
-
 	private void readModelTable() {
 		Set<Integer> ids = new LinkedHashSet<Integer>();
 		Set<Integer> estIDs = new LinkedHashSet<Integer>();
+		KnimeRelationReader reader = new KnimeRelationReader(
+				SchemaFactory.createM1Schema(), modelTable);
 
-		modelTuples = new ArrayList<KnimeTuple>();
-		conditionTuples = new ArrayList<KnimeTuple>();
+		modelTuples = new ArrayList<>();
 
-		if (SchemaFactory.createM12Schema().conforms(modelTable)) {
-			KnimeRelationReader reader = new KnimeRelationReader(
-					SchemaFactory.createM1DataSchema(), modelTable);
+		while (reader.hasMoreElements()) {
+			KnimeTuple tuple = reader.nextElement();
+			int id = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			Integer estID = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
-			while (reader.hasMoreElements()) {
-				KnimeTuple tuple = reader.nextElement();
-				KnimeTuple modelTuple = new KnimeTuple(
-						SchemaFactory.createM1Schema(), SchemaFactory
-								.createM1DataSchema().createSpec(), tuple);
-				KnimeTuple condTuple = new KnimeTuple(
-						SchemaFactory.createDataSchema(), SchemaFactory
-								.createM1DataSchema().createSpec(), tuple);
-				int id = ((CatalogModelXml) modelTuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
-				Integer estID = ((EstModelXml) modelTuple.getPmmXml(
-						Model1Schema.ATT_ESTMODEL).get(0)).getID();
-
-				if (estID != null) {
-					if (estIDs.add(estID)) {
-						modelTuples.add(tuple);
-						conditionTuples.add(condTuple);
-					}
-				} else {
-					if (ids.add(id)) {
-						modelTuples.add(tuple);
-						conditionTuples.add(condTuple);
-					}
+			if (estID != null) {
+				if (estIDs.add(estID)) {
+					modelTuples.add(tuple);
+				}
+			} else {
+				if (ids.add(id)) {
+					modelTuples.add(tuple);
 				}
 			}
-
-			isEstimated = true;
-		} else {
-			KnimeRelationReader reader = new KnimeRelationReader(
-					SchemaFactory.createM1Schema(), modelTable);
-
-			while (reader.hasMoreElements()) {
-				KnimeTuple modelRow = reader.nextElement();
-				int id = ((CatalogModelXml) modelRow.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
-				Integer estID = ((EstModelXml) modelRow.getPmmXml(
-						Model1Schema.ATT_ESTMODEL).get(0)).getID();
-
-				if (estID != null) {
-					if (estIDs.add(estID)) {
-						modelTuples.add(modelRow);
-					}
-				} else {
-					if (ids.add(id)) {
-						modelTuples.add(modelRow);
-					}
-				}
-			}
-
-			isEstimated = false;
 		}
 
 		modelNames = new LinkedHashMap<>();

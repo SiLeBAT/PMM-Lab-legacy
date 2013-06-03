@@ -247,6 +247,15 @@ public class TableReader {
 						plotable.addValueList(element.getName(),
 								Collections.nCopies(n, element.getValue()));
 					}
+
+					if (categories.get(element.getName()) == null) {
+						categories
+								.put(element.getName(), element.getCategory());
+					}
+
+					if (units.get(element.getName()) == null) {
+						units.put(element.getName(), element.getUnit());
+					}
 				}
 
 				String dataName;

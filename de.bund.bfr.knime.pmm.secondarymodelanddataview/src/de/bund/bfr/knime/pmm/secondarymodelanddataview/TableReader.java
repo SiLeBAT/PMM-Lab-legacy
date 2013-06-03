@@ -165,9 +165,14 @@ public class TableReader {
 		for (KnimeTuple tuple : tuples) {
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
-			CatalogModelXml primModelXml = (CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0);
-			String id = depXml.getName() + " (" + primModelXml.getID() + ")";
+			String id = depXml.getName();
+
+			if (schemaContainsData) {
+				CatalogModelXml primModelXml = (CatalogModelXml) tuple
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
+
+				id += " (" + primModelXml.getID() + ")";
+			}
 
 			if (!idSet.contains(id)) {
 				PmmXmlDoc modelXmlSec = tuple

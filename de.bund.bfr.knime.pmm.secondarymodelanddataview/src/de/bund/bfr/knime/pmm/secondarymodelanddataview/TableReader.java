@@ -87,12 +87,14 @@ public class TableReader {
 		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
 		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
 		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
+		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<>();
 		Map<String, Double> rmsMap = new LinkedHashMap<>();
 		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
 		Map<String, Double> aicMap = new LinkedHashMap<>();
 		Map<String, Double> bicMap = new LinkedHashMap<>();
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
+		Map<String, String> miscCategories = null;
 		List<KnimeTuple> tuples;
 
 		if (schemaContainsData) {
@@ -127,6 +129,7 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
+			miscCategories = PmmUtilities.getMiscCategories(tuples);
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
 					Model2Schema.BIC));
@@ -217,6 +220,7 @@ public class TableReader {
 				if (schemaContainsData) {
 					miscDataMaps.put(id,
 							new LinkedHashMap<String, List<Double>>());
+					miscUnitMaps.put(id, new LinkedHashMap<String, String>());
 
 					for (String param : miscParams) {
 						miscDataMaps.get(id)
@@ -245,6 +249,7 @@ public class TableReader {
 
 						if (param.equals(element.getName())) {
 							paramValue = element.getValue();
+							miscUnitMaps.get(id).put(param, element.getUnit());
 							break;
 						}
 					}
@@ -334,6 +339,14 @@ public class TableReader {
 
 				for (String param : miscParams) {
 					plotable.addValueList(param, miscs.get(param));
+
+					if (categories.get(param) == null) {
+						categories.put(param, miscCategories.get(param));
+					}
+
+					if (units.get(param) == null) {
+						units.put(param, miscUnitMaps.get(id).get(param));
+					}
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {

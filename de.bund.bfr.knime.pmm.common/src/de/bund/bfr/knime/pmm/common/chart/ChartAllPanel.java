@@ -10,6 +10,8 @@ public class ChartAllPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
+	private JSplitPane splitPane;
+
 	public ChartAllPanel(ChartCreator chartCreator,
 			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel) {
 		JPanel upperPanel = new JPanel();
@@ -20,9 +22,11 @@ public class ChartAllPanel extends JPanel {
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
+				selectionPanel);
+
 		setLayout(new BorderLayout());
-		add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
-				selectionPanel), BorderLayout.CENTER);
+		add(splitPane, BorderLayout.CENTER);
 	}
 
 	public ChartAllPanel(ChartCreator chartCreator,
@@ -42,8 +46,18 @@ public class ChartAllPanel extends JPanel {
 		bottomPanel.add(selectionPanel, BorderLayout.CENTER);
 		bottomPanel.add(samplePanel, BorderLayout.EAST);
 
+		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
+				bottomPanel);
+
 		setLayout(new BorderLayout());
-		add(new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel, bottomPanel),
-				BorderLayout.CENTER);
+		add(splitPane, BorderLayout.CENTER);
+	}
+
+	public int getDividerLocation() {
+		return splitPane.getDividerLocation();
+	}
+
+	public void setDividerLocation(int location) {
+		splitPane.setDividerLocation(location);
 	}
 }

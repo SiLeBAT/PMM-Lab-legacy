@@ -89,6 +89,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	private DataTable table;
 	private TableReader reader;
 
+	private ChartAllPanel mainComponent;
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
@@ -269,8 +270,9 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 		table = input[0];
 		reader = new TableReader(table, usedConditions);
+		mainComponent = createMainComponent();
 		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createMainComponent());
+		((JPanel) getTab("Options")).add(mainComponent);
 	}
 
 	@Override
@@ -313,7 +315,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				XmlConverter.objectToXml(usedConditions));
 	}
 
-	private JComponent createMainComponent() {
+	private ChartAllPanel createMainComponent() {
 		if (standardVisibleColumns == 1) {
 			visibleColumns = reader.getStandardVisibleColumns();
 		}
@@ -492,9 +494,14 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			writeSettingsToVariables();
 			selectedID = null;
 			reader = new TableReader(table, usedConditions);
+
+			int divider = mainComponent.getDividerLocation();
+
+			mainComponent = createMainComponent();
 			((JPanel) getTab("Options")).removeAll();
-			((JPanel) getTab("Options")).add(createMainComponent());
-			getPanel().repaint();
+			((JPanel) getTab("Options")).add(mainComponent);
+			((JPanel) getTab("Options")).revalidate();
+			mainComponent.setDividerLocation(divider);
 		}
 	}
 

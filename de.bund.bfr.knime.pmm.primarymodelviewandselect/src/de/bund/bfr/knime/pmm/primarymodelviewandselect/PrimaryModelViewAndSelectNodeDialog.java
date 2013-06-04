@@ -424,8 +424,10 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, reader.getFilterableStringColumns(),
-				reader.getData(), reader.getParameterData());
+				reader.getConditions(), reader.getConditionValues(),
+				reader.getConditionUnits(), visibleColumns,
+				reader.getFilterableStringColumns(), reader.getData(),
+				reader.getParameterData());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);

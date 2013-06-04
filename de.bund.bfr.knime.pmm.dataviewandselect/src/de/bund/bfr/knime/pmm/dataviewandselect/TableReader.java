@@ -36,9 +36,10 @@ public class TableReader {
 
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
 	private List<List<TimeSeriesXml>> data;
+	private List<String> conditions;
+	private List<List<Double>> conditionValues;
+	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 
 	private Map<String, Plotable> plotables;
@@ -59,27 +60,29 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = new ArrayList<>();
-		doubleColumnValues = new ArrayList<>();
+		conditions = new ArrayList<>();
+		conditionValues = new ArrayList<>();
+		conditionUnits = new ArrayList<>();
 		data = new ArrayList<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
-		standardVisibleColumns = new ArrayList<>(
-				Arrays.asList(AttributeUtilities.DATAID));
+		standardVisibleColumns = Arrays.asList(AttributeUtilities.DATAID,
+				TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+				MdInfoXml.ATT_COMMENT);
 
 		Set<String> idSet = new LinkedHashSet<String>();
 		List<String> miscParams = PmmUtilities.getMiscParams(allTuples);
 
 		for (String param : miscParams) {
-			doubleColumns.add(param);
-			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns.add(param);
+			conditions.add(param);
+			conditionValues.add(new ArrayList<Double>());
+			conditionUnits.add(new ArrayList<String>());
 		}
 
 		for (KnimeTuple tuple : allTuples) {
 			String id = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 
-			allIds.add(id);			
+			allIds.add(id);
 
 			if (idSet.contains(id)) {
 				continue;
@@ -154,14 +157,16 @@ public class TableReader {
 					MiscXml element = (MiscXml) el;
 
 					if (miscParams.get(i).equals(element.getName())) {
-						doubleColumnValues.get(i).add(element.getValue());
+						conditionValues.get(i).add(element.getValue());
+						conditionUnits.get(i).add(element.getUnit());
 						paramFound = true;
 						break;
 					}
 				}
 
 				if (!paramFound) {
-					doubleColumnValues.get(i).add(null);
+					conditionValues.get(i).add(null);
+					conditionUnits.get(i).add(null);
 				}
 			}
 
@@ -207,16 +212,20 @@ public class TableReader {
 		return stringColumnValues;
 	}
 
-	public List<String> getDoubleColumns() {
-		return doubleColumns;
-	}
-
-	public List<List<Double>> getDoubleColumnValues() {
-		return doubleColumnValues;
-	}
-
 	public List<List<TimeSeriesXml>> getData() {
 		return data;
+	}
+
+	public List<String> getConditions() {
+		return conditions;
+	}
+
+	public List<List<Double>> getConditionValues() {
+		return conditionValues;
+	}
+
+	public List<List<String>> getConditionUnits() {
+		return conditionUnits;
 	}
 
 	public List<String> getStandardVisibleColumns() {

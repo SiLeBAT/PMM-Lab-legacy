@@ -50,6 +50,9 @@ public class TableReader {
 	private List<List<Double>> doubleColumnValues;
 	private List<List<TimeSeriesXml>> data;
 	private List<Map<String, Double>> parameterData;
+	private List<String> conditions;
+	private List<List<Double>> conditionValues;
+	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
 
@@ -104,8 +107,10 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
-			standardVisibleColumns = new ArrayList<>(Arrays.asList(
-					Model1Schema.MODELNAME, AttributeUtilities.DATAID));
+			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+					Model1Schema.FORMULA, ChartConstants.STATUS,
+					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
+					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
@@ -135,14 +140,17 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 
-			for (String param : miscParams) {
-				doubleColumns.add(param);
-				doubleColumnValues.add(new ArrayList<Double>());
-				standardVisibleColumns.add(param);
-			}
-
 			data = new ArrayList<>();
 			parameterData = new ArrayList<>();
+			conditions = new ArrayList<>();
+			conditionValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
+
+			for (String param : miscParams) {
+				conditions.add(param);
+				conditionValues.add(new ArrayList<Double>());
+				conditionUnits.add(new ArrayList<String>());
+			}
 		} else {
 			standardVisibleColumns = new ArrayList<>(
 					Arrays.asList(Model1Schema.MODELNAME));
@@ -163,6 +171,9 @@ public class TableReader {
 
 			data = null;
 			parameterData = new ArrayList<>();
+			conditions = null;
+			conditionValues = null;
+			conditionUnits = null;
 		}
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
@@ -351,22 +362,21 @@ public class TableReader {
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {
-					boolean paramFound = false;
+					Double value = null;
+					String unit = null;
 
 					for (PmmXmlElementConvertable el : misc.getElementSet()) {
 						MiscXml element = (MiscXml) el;
 
 						if (miscParams.get(i).equals(element.getName())) {
-							doubleColumnValues.get(i + 8).add(
-									element.getValue());
-							paramFound = true;
+							value = element.getValue();
+							unit = element.getUnit();
 							break;
 						}
 					}
 
-					if (!paramFound) {
-						doubleColumnValues.get(i + 8).add(null);
-					}
+					conditionValues.get(i).add(value);
+					conditionUnits.get(i).add(unit);
 				}
 			} else {
 				for (int i = 0; i < indepVars.size(); i++) {
@@ -464,6 +474,18 @@ public class TableReader {
 
 	public List<Map<String, Double>> getParameterData() {
 		return parameterData;
+	}
+
+	public List<String> getConditions() {
+		return conditions;
+	}
+
+	public List<List<Double>> getConditionValues() {
+		return conditionValues;
+	}
+
+	public List<List<String>> getConditionUnits() {
+		return conditionUnits;
 	}
 
 	public List<String> getStandardVisibleColumns() {

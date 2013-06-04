@@ -348,8 +348,10 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
-				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				visibleColumns, new ArrayList<String>(), reader.getData(), null);
+				new ArrayList<String>(), new ArrayList<List<Double>>(),
+				reader.getConditions(), reader.getConditionValues(),
+				reader.getConditionUnits(), visibleColumns,
+				new ArrayList<String>(), reader.getData(), null);
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);

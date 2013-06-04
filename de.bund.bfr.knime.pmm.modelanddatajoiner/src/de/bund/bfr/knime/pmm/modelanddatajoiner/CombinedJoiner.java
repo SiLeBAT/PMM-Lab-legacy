@@ -523,12 +523,14 @@ public class CombinedJoiner implements Joiner {
 							TimeSeriesSchema.ATT_MISC).getElementSet()) {
 						MiscXml element = (MiscXml) el;
 
-						if (categories.get(element.getName()) == null) {
+						if (categories.containsKey(element.getName())
+								&& categories.get(element.getName()) == null) {
 							categories.put(element.getName(),
 									element.getCategory());
 						}
 
-						if (units.get(element.getName()) == null) {
+						if (units.containsKey(element.getName())
+								&& units.get(element.getName()) == null) {
 							units.put(element.getName(), element.getUnit());
 						}
 					}

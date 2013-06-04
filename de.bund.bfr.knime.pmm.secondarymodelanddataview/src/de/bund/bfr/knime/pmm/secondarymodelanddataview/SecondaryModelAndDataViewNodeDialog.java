@@ -449,8 +449,10 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					null, null, null, visibleColumns,
-					reader.getFilterableStringColumns(), null,
+					reader.getConditions(), null,
+					reader.getConditionMinValues(),
+					reader.getConditionMaxValues(), reader.getConditionUnits(),
+					visibleColumns, reader.getFilterableStringColumns(), null,
 					reader.getParameterData(), reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
@@ -458,8 +460,10 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-					null, null, null, visibleColumns,
-					reader.getFilterableStringColumns(), null,
+					reader.getConditions(), null,
+					reader.getConditionMinValues(),
+					reader.getConditionMaxValues(), reader.getConditionUnits(),
+					visibleColumns, reader.getFilterableStringColumns(), null,
 					reader.getParameterData());
 		}
 

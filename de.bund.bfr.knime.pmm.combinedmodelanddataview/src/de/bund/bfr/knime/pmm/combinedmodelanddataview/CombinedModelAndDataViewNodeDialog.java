@@ -412,8 +412,8 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				reader.getConditions(), reader.getConditionValues(),
-				reader.getConditionUnits(), visibleColumns,
+				reader.getConditions(), reader.getConditionValues(), null,
+				null, reader.getConditionUnits(), visibleColumns,
 				reader.getFilterableStringColumns(), reader.getData(),
 				reader.getParameterData());
 		selectionPanel.setColors(colors);

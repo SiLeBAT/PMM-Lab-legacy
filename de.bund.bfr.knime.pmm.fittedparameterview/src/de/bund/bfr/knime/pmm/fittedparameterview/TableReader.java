@@ -31,8 +31,10 @@ public class TableReader {
 	private List<Integer> colorCounts;
 	private List<String> stringColumns;
 	private List<List<String>> stringColumnValues;
-	private List<String> doubleColumns;
-	private List<List<Double>> doubleColumnValues;
+	private List<String> conditions;
+	private List<List<Double>> conditionMinValues;
+	private List<List<Double>> conditionMaxValues;
+	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
 
@@ -61,20 +63,19 @@ public class TableReader {
 		filterableStringColumns = new ArrayList<>();
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
-		standardVisibleColumns = new ArrayList<>(
-				Arrays.asList(Model1Schema.ATT_PARAMETER));
-
-		doubleColumns = new ArrayList<>();
-		doubleColumnValues = new ArrayList<>();
+		standardVisibleColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
 		colorCounts = new ArrayList<Integer>();
 
+		conditions = new ArrayList<>();
+		conditionMinValues = new ArrayList<>();
+		conditionMaxValues = new ArrayList<>();
+		conditionUnits = new ArrayList<>();
+
 		for (String param : miscParams) {
-			doubleColumns.add("Min " + param);
-			doubleColumns.add("Max " + param);
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns.add("Min " + param);
-			standardVisibleColumns.add("Max " + param);
+			conditions.add(param);
+			conditionMinValues.add(new ArrayList<Double>());
+			conditionMaxValues.add(new ArrayList<Double>());
+			conditionUnits.add(new ArrayList<String>());
 		}
 
 		for (KnimeTuple tuple : tuples) {
@@ -176,18 +177,22 @@ public class TableReader {
 			for (int i = 0; i < miscParams.size(); i++) {
 				List<Double> nonNullValues = new ArrayList<Double>(
 						miscs.get(miscParams.get(i)));
+				Double min = null;
+				Double max = null;
+				String unit = null;
 
 				nonNullValues.removeAll(Arrays.asList((Double) null));
 
 				if (!nonNullValues.isEmpty()) {
-					doubleColumnValues.get(2 * i).add(
-							Collections.min(nonNullValues));
-					doubleColumnValues.get(2 * i + 1).add(
-							Collections.max(nonNullValues));
-				} else {
-					doubleColumnValues.get(2 * i).add(null);
-					doubleColumnValues.get(2 * i + 1).add(null);
+					min = Collections.min(nonNullValues);
+					max = Collections.max(nonNullValues);
+					unit = miscUnits.get(primModelIDs.get(id)).get(
+							miscParams.get(i));
 				}
+
+				conditionMinValues.get(i).add(min);
+				conditionMaxValues.get(i).add(max);
+				conditionUnits.get(i).add(unit);
 			}
 
 			colorCounts.add(plotable.getNumberOfCombinations());
@@ -215,12 +220,20 @@ public class TableReader {
 		return stringColumnValues;
 	}
 
-	public List<String> getDoubleColumns() {
-		return doubleColumns;
+	public List<String> getConditions() {
+		return conditions;
 	}
 
-	public List<List<Double>> getDoubleColumnValues() {
-		return doubleColumnValues;
+	public List<List<Double>> getConditionMinValues() {
+		return conditionMinValues;
+	}
+
+	public List<List<Double>> getConditionMaxValues() {
+		return conditionMaxValues;
+	}
+
+	public List<List<String>> getConditionUnits() {
+		return conditionUnits;
 	}
 
 	public List<String> getStandardVisibleColumns() {

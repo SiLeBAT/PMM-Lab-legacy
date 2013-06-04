@@ -123,30 +123,56 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private JButton resizeColumnsButton;
 	private Map<String, JComboBox<String>> comboBoxes;
 
+	private boolean hasConditionRanges;
+
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
 			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
 			List<String> conditions, List<List<Double>> conditionValues,
+			List<List<Double>> conditionMinValues,
+			List<List<Double>> conditionMaxValues,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
 			List<String> filterableColumns, List<List<TimeSeriesXml>> data,
 			List<Map<String, Double>> parameters) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
 				doubleColumns, doubleColumnValues, conditions, conditionValues,
-				conditionUnits, visibleColumns, filterableColumns, data,
-				parameters, null);
+				conditionMinValues, conditionMaxValues, conditionUnits,
+				visibleColumns, filterableColumns, data, parameters, null);
 	}
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
 			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
 			List<String> conditions, List<List<Double>> conditionValues,
+			List<List<Double>> conditionMinValues,
+			List<List<Double>> conditionMaxValues,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
 			List<String> filterableStringColumns,
 			List<List<TimeSeriesXml>> data,
 			List<Map<String, Double>> parameters, List<Integer> colorCounts) {
+		if (stringColumns == null) {
+			stringColumns = new ArrayList<>();
+		}
+
+		if (doubleColumns == null) {
+			doubleColumns = new ArrayList<>();
+		}
+
+		if (conditions == null) {
+			conditions = new ArrayList<>();
+		}
+
+		if (conditionValues == null && conditionMinValues != null
+				&& conditionMaxValues != null) {
+			hasConditionRanges = true;
+		} else {
+			hasConditionRanges = false;
+		}
+
 		this.stringColumns = stringColumns;
 		this.doubleColumns = doubleColumns;
 		this.conditions = conditions;
+
 		listeners = new ArrayList<SelectionListener>();
 		containsData = data != null;
 		containsParameters = parameters != null;
@@ -228,7 +254,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			colorAndShapes = new ColorAndShapeCreator(ids.size());
 			model = new SelectTableModel(ids, colorAndShapes.getColorList(),
 					colorAndShapes.getShapeNameList(), data, parameters,
-					conditions, conditionValues, conditionUnits, stringColumns,
+					conditions, conditionValues, conditionMinValues,
+					conditionMaxValues, conditionUnits, stringColumns,
 					stringColumnValues, doubleColumns, doubleColumnValues,
 					false, selectionsExclusive);
 		} else {
@@ -252,7 +279,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 
 			model = new SelectTableModel(ids, colorLists, shapeLists, data,
-					parameters, conditions, conditionValues, conditionUnits,
+					parameters, conditions, conditionValues,
+					conditionMinValues, conditionMaxValues, conditionUnits,
 					stringColumns, stringColumnValues, doubleColumns,
 					doubleColumnValues, true, selectionsExclusive);
 		}
@@ -565,7 +593,11 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 
 			for (String column : conditions) {
-				if (selectTable.getColumn(column).getMaxWidth() != 0) {
+				if (!hasConditionRanges
+						&& selectTable.getColumn(column).getMaxWidth() != 0) {
+					visibleColumns.add(column);
+				} else if (hasConditionRanges
+						&& selectTable.getColumn("Min " + column).getMaxWidth() != 0) {
 					visibleColumns.add(column);
 				}
 			}
@@ -687,25 +719,62 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		for (String column : conditions) {
-			if (!visibleColumns.contains(column)) {
-				selectTable.getColumn(column).setMinWidth(0);
-				selectTable.getColumn(column).setMaxWidth(0);
-				selectTable.getColumn(column).setPreferredWidth(0);
-				selectTable.getColumn(column + " Unit").setMinWidth(0);
-				selectTable.getColumn(column + " Unit").setMaxWidth(0);
-				selectTable.getColumn(column + " Unit").setPreferredWidth(0);
-			} else {
-				selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
-				selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
-				selectTable.getColumn(column).setPreferredWidth(
-						PREFERRED_COLUMN_WIDTH);
-				selectTable.getColumn(column + " Unit").setMinWidth(
-						MIN_COLUMN_WIDTH);
-				selectTable.getColumn(column + " Unit").setMaxWidth(
-						MAX_COLUMN_WIDTH);
-				selectTable.getColumn(column + " Unit").setPreferredWidth(
-						PREFERRED_COLUMN_WIDTH);
+		if (!hasConditionRanges) {
+			for (String column : conditions) {
+				if (!visibleColumns.contains(column)) {
+					selectTable.getColumn(column).setMinWidth(0);
+					selectTable.getColumn(column).setMaxWidth(0);
+					selectTable.getColumn(column).setPreferredWidth(0);
+					selectTable.getColumn(column + " Unit").setMinWidth(0);
+					selectTable.getColumn(column + " Unit").setMaxWidth(0);
+					selectTable.getColumn(column + " Unit")
+							.setPreferredWidth(0);
+				} else {
+					selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
+					selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
+					selectTable.getColumn(column).setPreferredWidth(
+							PREFERRED_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setMinWidth(
+							MIN_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setMaxWidth(
+							MAX_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setPreferredWidth(
+							PREFERRED_COLUMN_WIDTH);
+				}
+			}
+		} else {
+			for (String column : conditions) {
+				if (!visibleColumns.contains(column)) {
+					selectTable.getColumn("Min " + column).setMinWidth(0);
+					selectTable.getColumn("Min " + column).setMaxWidth(0);
+					selectTable.getColumn("Min " + column).setPreferredWidth(0);
+					selectTable.getColumn("Max " + column).setMinWidth(0);
+					selectTable.getColumn("Max " + column).setMaxWidth(0);
+					selectTable.getColumn("Max " + column).setPreferredWidth(0);
+					selectTable.getColumn(column + " Unit").setMinWidth(0);
+					selectTable.getColumn(column + " Unit").setMaxWidth(0);
+					selectTable.getColumn(column + " Unit")
+							.setPreferredWidth(0);
+				} else {
+					selectTable.getColumn("Min " + column).setMinWidth(
+							MIN_COLUMN_WIDTH);
+					selectTable.getColumn("Min " + column).setMaxWidth(
+							MAX_COLUMN_WIDTH);
+					selectTable.getColumn("Min " + column).setPreferredWidth(
+							PREFERRED_COLUMN_WIDTH);
+					selectTable.getColumn("Max " + column).setMinWidth(
+							MIN_COLUMN_WIDTH);
+					selectTable.getColumn("Max " + column).setMaxWidth(
+							MAX_COLUMN_WIDTH);
+					selectTable.getColumn("Max " + column).setPreferredWidth(
+							PREFERRED_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setMinWidth(
+							MIN_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setMaxWidth(
+							MAX_COLUMN_WIDTH);
+					selectTable.getColumn(column + " Unit").setPreferredWidth(
+							PREFERRED_COLUMN_WIDTH);
+				}
 			}
 		}
 	}
@@ -763,17 +832,23 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private List<Map<String, Double>> parameters;
 		private List<String> conditions;
 		private List<List<Double>> conditionValues;
+		private List<List<Double>> conditionMinValues;
+		private List<List<Double>> conditionMaxValues;
 		private List<List<String>> conditionUnits;
 		private List<String> stringColumns;
 		private List<List<String>> stringColumnValues;
 		private List<String> doubleColumns;
 		private List<List<Double>> doubleColumnValues;
 
+		private boolean hasConditionRanges;
+
 		@SuppressWarnings("unchecked")
 		public AbstractSelectTableModel(List<String> ids, List<?> colors,
 				List<?> shapes, List<List<TimeSeriesXml>> data,
 				List<Map<String, Double>> parameters, List<String> conditions,
 				List<List<Double>> conditionValues,
+				List<List<Double>> conditionMinValues,
+				List<List<Double>> conditionMaxValues,
 				List<List<String>> conditionUnits, List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
@@ -803,27 +878,36 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			this.ids = ids;
 			this.conditions = conditions;
 			this.conditionValues = conditionValues;
+			this.conditionMinValues = conditionMinValues;
+			this.conditionMaxValues = conditionMaxValues;
 			this.conditionUnits = conditionUnits;
-			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
-					false));
 			this.stringColumns = stringColumns;
 			this.stringColumnValues = stringColumnValues;
 			this.doubleColumns = doubleColumns;
 			this.doubleColumnValues = doubleColumnValues;
+			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
+					false));
 
-			if (this.conditions == null) {
-				this.conditions = new ArrayList<>();
-			}
-
-			if (this.doubleColumns == null) {
-				this.doubleColumns = new ArrayList<>();
+			if (conditionValues == null && conditionMinValues != null
+					&& conditionMaxValues != null) {
+				hasConditionRanges = true;
+			} else {
+				hasConditionRanges = false;
 			}
 		}
 
 		@Override
 		public int getColumnCount() {
-			return 6 + stringColumns.size() + doubleColumns.size() + 2
-					* conditions.size();
+			int conditionCount;
+
+			if (!hasConditionRanges) {
+				conditionCount = 2 * conditions.size();
+			} else {
+				conditionCount = 3 * conditions.size();
+			}
+
+			return 6 + stringColumns.size() + doubleColumns.size()
+					+ conditionCount;
 		}
 
 		@Override
@@ -850,10 +934,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					return stringColumns.get(i1);
 				} else if (i2 < doubleColumns.size()) {
 					return doubleColumns.get(i2);
-				} else if (i3 % 2 == 0) {
-					return conditions.get(i3 / 2);
+				} else if (!hasConditionRanges) {
+					if (i3 % 2 == 0) {
+						return conditions.get(i3 / 2);
+					} else {
+						return conditions.get(i3 / 2) + " Unit";
+					}
 				} else {
-					return conditions.get(i3 / 2) + " Unit";
+					if (i3 % 3 == 0) {
+						return "Min " + conditions.get(i3 / 3);
+					} else if (i3 % 3 == 1) {
+						return "Max " + conditions.get(i3 / 3);
+					} else {
+						return conditions.get(i3 / 3) + " Unit";
+					}
 				}
 			}
 		}
@@ -895,10 +989,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					return stringColumnValues.get(i1).get(row);
 				} else if (i2 < doubleColumns.size()) {
 					return doubleColumnValues.get(i2).get(row);
-				} else if (i3 % 2 == 0) {
-					return conditionValues.get(i3 / 2).get(row);
+				} else if (!hasConditionRanges) {
+					if (i3 % 2 == 0) {
+						return conditionValues.get(i3 / 2).get(row);
+					} else {
+						return conditionUnits.get(i3 / 2).get(row);
+					}
 				} else {
-					return conditionUnits.get(i3 / 2).get(row);
+					if (i3 % 3 == 0) {
+						return conditionMinValues.get(i3 / 3).get(row);
+					} else if (i3 % 3 == 1) {
+						return conditionMaxValues.get(i3 / 3).get(row);
+					} else {
+						return conditionUnits.get(i3 / 3).get(row);
+					}
 				}
 			}
 		}
@@ -935,10 +1039,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					return String.class;
 				} else if (i2 < doubleColumns.size()) {
 					return Double.class;
-				} else if (i3 % 2 == 0) {
-					return Double.class;
+				} else if (!hasConditionRanges) {
+					if (i3 % 2 == 0) {
+						return Double.class;
+					} else {
+						return String.class;
+					}
 				} else {
-					return String.class;
+					if (i3 % 3 == 0) {
+						return Double.class;
+					} else if (i3 % 3 == 1) {
+						return Double.class;
+					} else {
+						return String.class;
+					}
 				}
 			}
 		}
@@ -982,10 +1096,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					stringColumnValues.get(i1).set(row, (String) value);
 				} else if (i2 < doubleColumns.size()) {
 					doubleColumnValues.get(i2).set(row, (Double) value);
-				} else if (i3 % 2 == 0) {
-					conditionValues.get(i3 / 2).set(row, (Double) value);
+				} else if (!hasConditionRanges) {
+					if (i3 % 2 == 0) {
+						conditionValues.get(i3 / 2).set(row, (Double) value);
+					} else {
+						conditionUnits.get(i3 / 2).set(row, (String) value);
+					}
 				} else {
-					conditionUnits.get(i3 / 2).set(row, (String) value);
+					if (i3 % 3 == 0) {
+						conditionMinValues.get(i3 / 3).set(row, (Double) value);
+					} else if (i3 % 3 == 1) {
+						conditionMaxValues.get(i3 / 3).set(row, (Double) value);
+					} else {
+						conditionUnits.get(i3 / 3).set(row, (String) value);
+					}
 				}
 			}
 		}
@@ -1007,15 +1131,17 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				List<?> shapes, List<List<TimeSeriesXml>> data,
 				List<Map<String, Double>> parameters, List<String> conditions,
 				List<List<Double>> conditionValues,
+				List<List<Double>> conditionMinValues,
+				List<List<Double>> conditionMaxValues,
 				List<List<String>> conditionUnits, List<String> stringColumns,
 				List<List<String>> stringColumnValues,
 				List<String> doubleColumns,
 				List<List<Double>> doubleColumnValues, boolean listBased,
 				boolean exclusive) {
 			super(ids, colors, shapes, data, parameters, conditions,
-					conditionValues, conditionUnits, stringColumns,
-					stringColumnValues, doubleColumns, doubleColumnValues,
-					listBased);
+					conditionValues, conditionMinValues, conditionMaxValues,
+					conditionUnits, stringColumns, stringColumnValues,
+					doubleColumns, doubleColumnValues, listBased);
 			this.exclusive = exclusive;
 		}
 

@@ -72,6 +72,10 @@ public class TableReader {
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
 	private List<Map<String, Double>> parameterData;
+	private List<String> conditions;
+	private List<List<Double>> conditionMinValues;
+	private List<List<Double>> conditionMaxValues;
+	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
 
@@ -119,8 +123,9 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		standardVisibleColumns = new ArrayList<>(Arrays.asList(
-				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME));
+		standardVisibleColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
+				Model2Schema.MODELNAME, Model2Schema.FORMULA,
+				ChartConstants.STATUS);
 
 		if (schemaContainsData) {
 			try {
@@ -133,7 +138,7 @@ public class TableReader {
 			doubleColumns = new ArrayList<String>(Arrays.asList(
 					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
 					Model2Schema.BIC));
-			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues = new ArrayList<>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -143,14 +148,16 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			colorCounts = new ArrayList<Integer>();
+			conditions = new ArrayList<>();
+			conditionMinValues = new ArrayList<>();
+			conditionMaxValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
 
 			for (String param : miscParams) {
-				doubleColumns.add("Min " + param);
-				doubleColumns.add("Max " + param);
-				doubleColumnValues.add(new ArrayList<Double>());
-				doubleColumnValues.add(new ArrayList<Double>());
-				standardVisibleColumns.add("Min " + param);
-				standardVisibleColumns.add("Max " + param);
+				conditions.add(param);
+				conditionMinValues.add(new ArrayList<Double>());
+				conditionMaxValues.add(new ArrayList<Double>());
+				conditionUnits.add(new ArrayList<String>());
 			}
 		} else {
 			doubleColumns = Arrays.asList(Model2Schema.RMS,
@@ -160,6 +167,11 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+
+			conditions = null;
+			conditionMinValues = null;
+			conditionMaxValues = null;
+			conditionUnits = null;
 		}
 
 		for (KnimeTuple tuple : tuples) {
@@ -357,6 +369,9 @@ public class TableReader {
 				for (int i = 0; i < miscParams.size(); i++) {
 					List<Double> nonNullValues = new ArrayList<Double>(
 							miscs.get(miscParams.get(i)));
+					Double min = null;
+					Double max = null;
+					String unit = null;
 
 					nonNullValues.removeAll(Arrays.asList((Double) null));
 
@@ -367,14 +382,14 @@ public class TableReader {
 									new ArrayList<Double>(Arrays.asList(0.0)));
 						}
 
-						doubleColumnValues.get(2 * i + 4).add(
-								Collections.min(nonNullValues));
-						doubleColumnValues.get(2 * i + 5).add(
-								Collections.max(nonNullValues));
-					} else {
-						doubleColumnValues.get(2 * i + 4).add(null);
-						doubleColumnValues.get(2 * i + 5).add(null);
+						min = Collections.min(nonNullValues);
+						max = Collections.max(nonNullValues);
+						unit = miscUnitMaps.get(id).get(miscParams.get(i));
 					}
+
+					conditionMinValues.get(i).add(min);
+					conditionMaxValues.get(i).add(max);
+					conditionUnits.get(i).add(unit);
 				}
 
 				colorCounts.add(plotable.getNumberOfCombinations());
@@ -429,6 +444,22 @@ public class TableReader {
 
 	public List<Map<String, Double>> getParameterData() {
 		return parameterData;
+	}
+
+	public List<String> getConditions() {
+		return conditions;
+	}
+
+	public List<List<Double>> getConditionMinValues() {
+		return conditionMinValues;
+	}
+
+	public List<List<Double>> getConditionMaxValues() {
+		return conditionMaxValues;
+	}
+
+	public List<List<String>> getConditionUnits() {
+		return conditionUnits;
 	}
 
 	public List<String> getStandardVisibleColumns() {

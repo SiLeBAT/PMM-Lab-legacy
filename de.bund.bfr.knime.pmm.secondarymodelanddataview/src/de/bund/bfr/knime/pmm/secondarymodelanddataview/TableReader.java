@@ -212,9 +212,18 @@ public class TableReader {
 							element.getP());
 				}
 
+				String depVarSecDesc = depVarSec;
+
+				if (schemaContainsData) {
+					CatalogModelXml primModelXml = (CatalogModelXml) tuple
+							.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
+
+					depVarSecDesc += " (" + primModelXml.getName() + ")";
+				}
+
 				idSet.add(id);
 				ids.add(id);
-				stringColumnValues.get(0).add(depVarSec);
+				stringColumnValues.get(0).add(depVarSecDesc);
 				stringColumnValues.get(1).add(modelNameSec);
 				stringColumnValues.get(2).add(formulaSec);
 				parameterData.add(paramData);
@@ -329,9 +338,7 @@ public class TableReader {
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
 			plotable.setCovariances(covariances);
-			plotable.setDegreesOfFreedom(dofMap.get(id));
-			plotable.setCategories(categories);
-			plotable.setUnits(units);
+			plotable.setDegreesOfFreedom(dofMap.get(id));			
 
 			doubleColumnValues.get(0).add(rmsMap.get(id));
 			doubleColumnValues.get(1).add(rSquaredMap.get(id));
@@ -399,6 +406,9 @@ public class TableReader {
 							new ArrayList<Double>(Arrays.asList(0.0)));
 				}
 			}
+						
+			plotable.setCategories(categories);
+			plotable.setUnits(units);
 
 			if (!plotable.isPlotable()) {
 				stringColumnValues.get(3).add(ChartConstants.FAILED);

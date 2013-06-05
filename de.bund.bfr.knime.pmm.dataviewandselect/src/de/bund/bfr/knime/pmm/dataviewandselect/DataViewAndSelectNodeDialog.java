@@ -351,7 +351,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 				new ArrayList<String>(), new ArrayList<List<Double>>(),
 				reader.getConditions(), reader.getConditionValues(), null,
 				null, reader.getConditionUnits(), visibleColumns,
-				new ArrayList<String>(), reader.getData(), null);
+				new ArrayList<String>(), reader.getData(), null, null);
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.addSelectionListener(this);

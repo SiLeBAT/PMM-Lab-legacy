@@ -71,6 +71,7 @@ public class TableReader {
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
 	private List<String> conditions;
 	private List<List<Double>> conditionMinValues;
@@ -113,19 +114,24 @@ public class TableReader {
 		plotables = new LinkedHashMap<String, Plotable>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
+		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, Model2Schema.FORMULA,
-				ChartConstants.STATUS);
-		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
+				Model2Schema.MODELNAME, ChartConstants.STATUS);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
+		doubleColumns = Arrays.asList(Model2Schema.RMS, Model2Schema.RSQUARED,
+				Model2Schema.AIC, Model2Schema.BIC);
+		doubleColumnValues = new ArrayList<>();
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		standardVisibleColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, Model2Schema.FORMULA,
-				ChartConstants.STATUS);
+				Model2Schema.MODELNAME, ChartConstants.STATUS);
 
 		if (schemaContainsData) {
 			try {
@@ -135,17 +141,7 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			miscCategories = PmmUtilities.getMiscCategories(tuples);
-			doubleColumns = Arrays.asList(Model2Schema.RMS,
-					Model2Schema.RSQUARED, Model2Schema.AIC, Model2Schema.BIC);
-			doubleColumnValues = new ArrayList<>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
+
 			colorCounts = new ArrayList<Integer>();
 			conditions = new ArrayList<>();
 			conditionMinValues = new ArrayList<>();
@@ -159,14 +155,6 @@ public class TableReader {
 				conditionUnits.add(new ArrayList<String>());
 			}
 		} else {
-			doubleColumns = Arrays.asList(Model2Schema.RMS,
-					Model2Schema.RSQUARED, Model2Schema.AIC, Model2Schema.BIC);
-			doubleColumnValues = new ArrayList<List<Double>>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-
 			conditions = null;
 			conditionMinValues = null;
 			conditionMaxValues = null;
@@ -224,7 +212,7 @@ public class TableReader {
 				ids.add(id);
 				stringColumnValues.get(0).add(depVarSecDesc);
 				stringColumnValues.get(1).add(modelNameSec);
-				stringColumnValues.get(2).add(formulaSec);
+				formulas.add(formulaSec);
 				parameterData.add(paramData);
 				shortLegend.put(id, depVarSec);
 				longLegend.put(id, depVarSec + " (" + modelNameSec + ")");
@@ -410,13 +398,13 @@ public class TableReader {
 			plotable.setUnits(units);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(3).add(ChartConstants.FAILED);
+				stringColumnValues.get(2).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramMap.get(id))) {
-				stringColumnValues.get(3).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramMap.get(id))) {
-				stringColumnValues.get(3).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(3).add(ChartConstants.OK);
+				stringColumnValues.get(2).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -449,6 +437,10 @@ public class TableReader {
 
 	public List<List<Double>> getDoubleColumnValues() {
 		return doubleColumnValues;
+	}
+
+	public List<String> getFormulas() {
+		return formulas;
 	}
 
 	public List<Map<String, Double>> getParameterData() {

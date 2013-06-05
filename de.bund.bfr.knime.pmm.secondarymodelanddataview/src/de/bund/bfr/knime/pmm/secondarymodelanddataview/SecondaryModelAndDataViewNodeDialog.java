@@ -453,7 +453,8 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					reader.getConditionMinValues(),
 					reader.getConditionMaxValues(), reader.getConditionUnits(),
 					visibleColumns, reader.getFilterableStringColumns(), null,
-					reader.getParameterData(), reader.getColorCounts());
+					reader.getParameterData(), reader.getFormulas(),
+					reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
 					ChartConfigPanel.PARAMETER_FIELDS, true, null);
@@ -464,7 +465,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					reader.getConditionMinValues(),
 					reader.getConditionMaxValues(), reader.getConditionUnits(),
 					visibleColumns, reader.getFilterableStringColumns(), null,
-					reader.getParameterData());
+					reader.getParameterData(), reader.getFormulas());
 		}
 
 		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {

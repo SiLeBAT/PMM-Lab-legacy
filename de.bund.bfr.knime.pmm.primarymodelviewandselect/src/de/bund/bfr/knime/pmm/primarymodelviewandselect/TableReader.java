@@ -47,6 +47,7 @@ public class TableReader {
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
 	private List<List<TimeSeriesXml>> data;
+	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
 	private List<String> conditions;
 	private List<List<Double>> conditionValues;
@@ -93,18 +94,11 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS,
-					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, ChartConstants.STATUS);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS,
-					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT);
+					ChartConstants.STATUS, AttributeUtilities.DATAID,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+					MdInfoXml.ATT_COMMENT);
 			stringColumnValues = new ArrayList<List<String>>();
-			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -125,8 +119,15 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS, AttributeUtilities.DATAID,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+					MdInfoXml.ATT_COMMENT);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
 			data = new ArrayList<>();
+			formulas = new ArrayList<>();
 			parameterData = new ArrayList<>();
 			conditions = new ArrayList<>();
 			conditionValues = new ArrayList<>();
@@ -138,13 +139,9 @@ public class TableReader {
 				conditionUnits.add(new ArrayList<String>());
 			}
 		} else {
-			standardVisibleColumns = new ArrayList<>(
-					Arrays.asList(Model1Schema.MODELNAME));
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS);
+					ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
-			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.RMS,
@@ -154,8 +151,13 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
+			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
 
 			data = null;
+			formulas = new ArrayList<>();
 			parameterData = new ArrayList<>();
 			conditions = null;
 			conditionValues = null;
@@ -238,6 +240,7 @@ public class TableReader {
 				paramData.put(element.getName() + ": Pr > |t|", element.getP());
 			}
 
+			formulas.add(formula);
 			parameterData.add(paramData);
 
 			if (schemaContainsData) {
@@ -313,10 +316,10 @@ public class TableReader {
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
-				stringColumnValues.get(3).add(dataName);
-				stringColumnValues.get(4).add(agent);
-				stringColumnValues.get(5).add(matrix);
-				stringColumnValues.get(6).add(
+				stringColumnValues.get(2).add(dataName);
+				stringColumnValues.get(3).add(agent);
+				stringColumnValues.get(4).add(matrix);
+				stringColumnValues.get(5).add(
 						((MdInfoXml) tuple.getPmmXml(
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
@@ -408,16 +411,15 @@ public class TableReader {
 			plotable.setUnits(units);
 
 			stringColumnValues.get(0).add(modelName);
-			stringColumnValues.get(1).add(formula);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(2).add(ChartConstants.FAILED);
+				stringColumnValues.get(1).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(2).add(ChartConstants.OK);
+				stringColumnValues.get(1).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -454,6 +456,10 @@ public class TableReader {
 
 	public List<List<TimeSeriesXml>> getData() {
 		return data;
+	}
+
+	public List<String> getFormulas() {
+		return formulas;
 	}
 
 	public List<Map<String, Double>> getParameterData() {

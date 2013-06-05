@@ -36,6 +36,7 @@ public class TableReader {
 	private List<List<String>> stringColumnValues;
 	private List<String> doubleColumns;
 	private List<List<Double>> doubleColumnValues;
+	private List<String> formulas;
 	private List<Map<String, Double>> parameterData;
 	private List<String> conditions;
 	private List<List<Double>> conditionValues;
@@ -103,15 +104,14 @@ public class TableReader {
 		plotables = new LinkedHashMap<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
+		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
 
 		if (containsData) {
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS,
-					AttributeUtilities.DATAID);
+					ChartConstants.STATUS, AttributeUtilities.DATAID);
 			stringColumnValues = new ArrayList<List<String>>();
-			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -123,10 +123,9 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS,
-					AttributeUtilities.DATAID);
+					ChartConstants.STATUS, AttributeUtilities.DATAID);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					AttributeUtilities.DATAID, ChartConstants.STATUS);
+					ChartConstants.STATUS, AttributeUtilities.DATAID);
 
 			conditions = new ArrayList<>();
 			conditionValues = new ArrayList<>();
@@ -139,9 +138,8 @@ public class TableReader {
 			}
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model1Schema.FORMULA, ChartConstants.STATUS);
+					ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
-			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.RMS,
@@ -151,7 +149,8 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME);
+			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+					ChartConstants.STATUS);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS);
 
@@ -250,6 +249,7 @@ public class TableReader {
 				}
 			}
 
+			formulas.add(formula);
 			parameterData.add(paramData);
 
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
@@ -257,7 +257,7 @@ public class TableReader {
 			shortLegend.put(id, modelName);
 			longLegend.put(id, modelName + " " + formula);
 			stringColumnValues.get(0).add(modelName);
-			stringColumnValues.get(1).add(formula);
+
 			doubleColumnValues.get(0).add(
 					((EstModelXml) estModelXml.get(0)).getRMS());
 			doubleColumnValues.get(1).add(
@@ -288,7 +288,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(3).add(dataName);
+				stringColumnValues.get(2).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;
@@ -311,13 +311,13 @@ public class TableReader {
 			}
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(2).add(ChartConstants.FAILED);
+				stringColumnValues.get(1).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(2).add(ChartConstants.OK);
+				stringColumnValues.get(1).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);
@@ -350,6 +350,10 @@ public class TableReader {
 
 	public List<List<Double>> getDoubleColumnValues() {
 		return doubleColumnValues;
+	}
+
+	public List<String> getFormulas() {
+		return formulas;
 	}
 
 	public List<Map<String, Double>> getParameterData() {

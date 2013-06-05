@@ -412,7 +412,7 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 				reader.getConditions(), reader.getConditionValues(), null,
 				null, reader.getConditionUnits(), visibleColumns,
 				reader.getFilterableStringColumns(), reader.getData(),
-				reader.getParameterData());
+				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(colors);
 		selectionPanel.setShapes(shapes);
 		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);

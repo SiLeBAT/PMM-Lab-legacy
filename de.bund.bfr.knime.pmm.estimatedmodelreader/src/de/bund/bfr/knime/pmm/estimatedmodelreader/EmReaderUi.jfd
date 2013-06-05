@@ -1,17 +1,25 @@
-JFDML JFormDesigner: "5.1.0.0.51" Java: "1.7.0_07" encoding: "UTF-8"
+JFDML JFormDesigner: "5.1.1.0.120" Java: "1.7.0_07" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
 	root: new FormRoot {
 		add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 			"$columnSpecs": "default:grow"
-			"$rowSpecs": "fill:default, linegap, fill:default, linegap, fill:default, linegap, fill:default:grow"
+			"$rowSpecs": "default, linegap, fill:default, linegap, fill:default, linegap, fill:default, linegap, fill:default:grow"
 		} ) {
 			name: "this"
+			add( new FormComponent( "javax.swing.JCheckBox" ) {
+				name: "withoutData"
+				"text": "Load models without associated microbial data"
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 1
+				"gridY": 1
+			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.ModelReaderUi" ) {
 				name: "modelReaderUi"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
+				"gridY": 3
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default:grow"
@@ -59,13 +67,13 @@ new FormModel {
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 3
+				"gridY": 5
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi" ) {
 				name: "mdReaderUi"
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 5
+				"gridY": 7
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default:grow"
@@ -87,7 +95,7 @@ new FormModel {
 				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
-				"gridY": 7
+				"gridY": 9
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )

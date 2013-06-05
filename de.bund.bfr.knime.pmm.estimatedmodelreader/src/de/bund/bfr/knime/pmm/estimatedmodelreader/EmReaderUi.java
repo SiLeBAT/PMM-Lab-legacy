@@ -54,6 +54,7 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_CHOSENMODEL = "chosenModel";
 	public static final String PARAM_CHOSENMODEL2 = "chosenModel2";
 
+	public static final String PARAM_NOMDDATA = "withoutMdData";
 	
 	private int[] chosenModel = null;
 	private int[] chosenModel2 = null;
@@ -402,6 +403,7 @@ public class EmReaderUi extends JPanel {
     	
     	c.addIntArray(PARAM_CHOSENMODEL, chosenModel);
     	c.addIntArray(PARAM_CHOSENMODEL2, chosenModel2);
+    	c.addBoolean(PARAM_NOMDDATA, withoutData.isSelected());
 
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
@@ -434,6 +436,7 @@ public class EmReaderUi extends JPanel {
     		this.setQualityMode( c.getInt( EmReaderUi.PARAM_QUALITYMODE ) );
     		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
 
+    		if (c.containsKey(PARAM_NOMDDATA)) withoutData.setSelected(c.getBoolean(PARAM_NOMDDATA));
     		if (c.containsKey(PARAM_CHOSENMODEL)) chosenModel = c.getIntArray(PARAM_CHOSENMODEL);
     		if (c.containsKey(PARAM_CHOSENMODEL2)) chosenModel2 = c.getIntArray(PARAM_CHOSENMODEL2);
     		doFilter.setText("ApplyAndShowFilterResults" +
@@ -503,6 +506,7 @@ public class EmReaderUi extends JPanel {
 
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
+		withoutData = new JCheckBox();
 		modelReaderUi = new ModelReaderUi();
 		qualityPanel = new JPanel();
 		qualityButtonNone = new JRadioButton();
@@ -518,8 +522,12 @@ public class EmReaderUi extends JPanel {
 		//======== this ========
 		setLayout(new FormLayout(
 			"default:grow",
-			"3*(fill:default, $lgap), fill:default:grow"));
-		add(modelReaderUi, CC.xy(1, 1));
+			"default, 3*($lgap, fill:default), $lgap, fill:default:grow"));
+
+		//---- withoutData ----
+		withoutData.setText("Load models without associated microbial data");
+		add(withoutData, CC.xy(1, 1));
+		add(modelReaderUi, CC.xy(1, 3));
 
 		//======== qualityPanel ========
 		{
@@ -568,8 +576,8 @@ public class EmReaderUi extends JPanel {
 			qualityField.setEnabled(false);
 			qualityPanel.add(qualityField, CC.xy(9, 1));
 		}
-		add(qualityPanel, CC.xy(1, 3));
-		add(mdReaderUi, CC.xy(1, 5));
+		add(qualityPanel, CC.xy(1, 5));
+		add(mdReaderUi, CC.xy(1, 7));
 
 		//======== panel6 ========
 		{
@@ -592,7 +600,7 @@ public class EmReaderUi extends JPanel {
 			dbTable.setPreferredSize(new Dimension(454, 160));
 			panel6.add(dbTable, CC.xy(1, 3));
 		}
-		add(panel6, CC.xy(1, 7));
+		add(panel6, CC.xy(1, 9));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -603,6 +611,7 @@ public class EmReaderUi extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+	private JCheckBox withoutData;
 	private ModelReaderUi modelReaderUi;
 	private JPanel qualityPanel;
 	private JRadioButton qualityButtonNone;

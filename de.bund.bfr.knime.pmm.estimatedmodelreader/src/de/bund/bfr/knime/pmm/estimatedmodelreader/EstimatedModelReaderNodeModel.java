@@ -118,7 +118,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String agentString;
 	private String literatureString;
 	private int matrixID, agentID, literatureID;
-	private int chosenModel;
+	private int[] chosenModel, chosenModel2;
+	private boolean withoutMdData;
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
@@ -179,77 +180,73 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// initialize row
     		KnimeTuple tuple = new KnimeTuple(schema);
-    		    		
-    		// fill ts
-			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
-    		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
-    		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));
-    		
-    		//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
-    		PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"),
-    				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
-    		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
-        		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,"°C");
-    			miscDoc.add(mx);
-    		}
-    		if (result.getObject(Bfrdb.ATT_PH) != null) {
-    			double dbl = result.getDouble(Bfrdb.ATT_PH);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null,null);
-    			miscDoc.add(mx);
-    		}
-    		if (result.getObject(Bfrdb.ATT_AW) != null) {
-    			double dbl = result.getDouble(Bfrdb.ATT_AW);
-    			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null,null);
-    			miscDoc.add(mx);
-    		}
-    		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
+    		    	
+    		if (!withoutMdData) {
+        		// fill ts
+    			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
+        		tuple.setValue(TimeSeriesSchema.ATT_CONDID, condID);
+        		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, result.getString("CombaseID"));    			
 
-    		PmmXmlDoc matDoc = new PmmXmlDoc(); 
-			MatrixXml mx = new MatrixXml(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL));
-			matDoc.add(mx);
-			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
-    		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
-			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
-			agtDoc.add(ax);
-			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
-/*
-    		tuple.setValue(TimeSeriesSchema.ATT_AGENTID, result.getString( Bfrdb.ATT_AGENTID));
-    		tuple.setValue(TimeSeriesSchema.ATT_AGENTNAME, result.getString( Bfrdb.ATT_AGENTNAME));
-    		tuple.setValue(TimeSeriesSchema.ATT_AGENTDETAIL, result.getString( Bfrdb.ATT_AGENTDETAIL));
-    		tuple.setValue(TimeSeriesSchema.ATT_MATRIXID, result.getString( Bfrdb.ATT_MATRIXID));
-    		tuple.setValue(TimeSeriesSchema.ATT_MATRIXNAME, result.getString( Bfrdb.ATT_MATRIXNAME));
-    		tuple.setValue(TimeSeriesSchema.ATT_MATRIXDETAIL, result.getString( Bfrdb.ATT_MATRIXDETAIL));
-    		*/
-    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
-    		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
-    		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
-    		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
-    		Boolean checked = null;
-    		Integer qualityScore = null;
-			if (result.getObject("MDGeprueft") != null) checked = result.getBoolean("MDGeprueft");
-			if (result.getObject("MDGuetescore") != null) qualityScore = result.getInt("MDGuetescore");
-    		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
-    		mdInfoDoc.add(mdix);
-    		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
-    		
-    		String s = result.getString(Bfrdb.ATT_LITERATUREID);
-    		if (s != null) {
-    			PmmXmlDoc l = new PmmXmlDoc();
-    			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
-    			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
-    			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
-    			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
-    			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-    					(Integer) (year == null ? null : year),
-    					title == null ? null : title.toString(),
-    					abstrac == null ? null : abstrac.toString(),
-    					Integer.valueOf(s)); 
-    			l.add(li);
-				tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
-			}
+        		//PmmXmlDoc miscDoc = null; miscDoc = db.getMiscXmlDoc(result);
+        		PmmXmlDoc miscDoc = DbIo.convertArrays2MiscXmlDoc(result.getArray("SonstigesID"), result.getArray("Parameter"),
+        				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
+        		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
+            		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,"°C");
+        			miscDoc.add(mx);
+        		}
+        		if (result.getObject(Bfrdb.ATT_PH) != null) {
+        			double dbl = result.getDouble(Bfrdb.ATT_PH);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null,null);
+        			miscDoc.add(mx);
+        		}
+        		if (result.getObject(Bfrdb.ATT_AW) != null) {
+        			double dbl = result.getDouble(Bfrdb.ATT_AW);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null,null);
+        			miscDoc.add(mx);
+        		}
+        		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);
 
-    		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
+        		PmmXmlDoc matDoc = new PmmXmlDoc(); 
+    			MatrixXml mx = new MatrixXml(result.getInt(Bfrdb.ATT_MATRIXID), result.getString(Bfrdb.ATT_MATRIXNAME), result.getString(Bfrdb.ATT_MATRIXDETAIL));
+    			matDoc.add(mx);
+    			tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
+        		PmmXmlDoc agtDoc = new PmmXmlDoc(); 
+    			AgentXml ax = new AgentXml(result.getInt(Bfrdb.ATT_AGENTID), result.getString(Bfrdb.ATT_AGENTNAME), result.getString(Bfrdb.ATT_AGENTDETAIL));
+    			agtDoc.add(ax);
+    			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
+
+        		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
+        		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
+        		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
+        		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
+        		Boolean checked = null;
+        		Integer qualityScore = null;
+    			if (result.getObject("MDGeprueft") != null) checked = result.getBoolean("MDGeprueft");
+    			if (result.getObject("MDGuetescore") != null) qualityScore = result.getInt("MDGuetescore");
+        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
+        		mdInfoDoc.add(mdix);
+        		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
+        		
+        		String s = result.getString(Bfrdb.ATT_LITERATUREID);
+        		if (s != null) {
+        			PmmXmlDoc l = new PmmXmlDoc();
+        			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
+        			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
+        			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
+        			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
+        			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
+        					(Integer) (year == null ? null : year),
+        					title == null ? null : title.toString(),
+        					abstrac == null ? null : abstrac.toString(),
+        					Integer.valueOf(s)); 
+        			l.add(li);
+    				tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
+    			}
+
+        		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
+    		}
+    		
     		
     		// fill m1
     		String formula = result.getString(Bfrdb.ATT_FORMULA);
@@ -258,7 +255,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			}
 
     		// Time=t,Log10C=LOG10N
-    		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO ));
+    		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
 
     		for (String to : varMap.keySet())	{
     			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
@@ -306,13 +303,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
     				result.getArray(Bfrdb.ATT_MAX)));
     		
-    		s = result.getString("LitMID");
+    		String s = result.getString("LitMID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
     		s = result.getString("LitEmID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(s));
     		
-    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
-    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
+    		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model1Schema.NOTWRITABLE : Model1Schema.WRITABLE);
+    		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
     		
     		// fill m2
     		if (level == 2) {
@@ -369,8 +366,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		s = result.getString("LitEmID2");
 	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(s));
 
-	    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
-	    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
+	    		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model2Schema.NOTWRITABLE : Model2Schema.WRITABLE);
+	    		tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
     		}
     		
     		if (EmReaderUi.passesFilter(
@@ -432,7 +429,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     private KnimeSchema createSchema() throws PmmException {    	
     	KnimeSchema schema;
-		schema = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+    	if (withoutMdData) {
+    		schema = new Model1Schema();    		
+    	}
+    	else {
+    		schema = KnimeSchema.merge(new TimeSeriesSchema(), new Model1Schema());
+    	}
     	
     	if (level == 2) {
 			schema = KnimeSchema.merge(schema, new Model2Schema());
@@ -445,6 +447,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
         try {
+        	
           	Config c = settings.addConfig("DbConfigurationUi");
          	c.addString(DbConfigurationUi.PARAM_FILENAME, filename);
          	c.addString(DbConfigurationUi.PARAM_LOGIN, login);
@@ -470,7 +473,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	c.addInt( EmReaderUi.PARAM_QUALITYMODE, qualityMode );
         	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityThresh );
 
-        	c.addInt( EmReaderUi.PARAM_CHOSENMODEL, chosenModel );
+        	c.addIntArray(EmReaderUi.PARAM_CHOSENMODEL, chosenModel);
+        	c.addIntArray(EmReaderUi.PARAM_CHOSENMODEL2, chosenModel2);
+        	c.addBoolean(EmReaderUi.PARAM_NOMDDATA, withoutMdData);
 
         	Config c2 = c.addConfig(EmReaderUi.PARAM_PARAMETERS);
     		String[] pars = new String[parameter.size()];
@@ -550,7 +555,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     }
     private void loadEstModelGui(final NodeSettingsRO settings) throws InvalidSettingsException {
     	try {
-    		Config c = settings.getConfig("EstModelReaderUi");
+        	Config c = settings.getConfig("EstModelReaderUi");
 
     		Config c3 = c.getConfig("ModelReaderUi");
         	level = c3.getInt( ModelReaderUi.PARAM_LEVEL );
@@ -569,7 +574,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	qualityMode = c.getInt( EmReaderUi.PARAM_QUALITYMODE );
         	qualityThresh = c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH );
 
-    		chosenModel = c.getInt(EmReaderUi.PARAM_CHOSENMODEL);
+    		chosenModel = c.getIntArray(EmReaderUi.PARAM_CHOSENMODEL);
+    		chosenModel2 = c.getIntArray(EmReaderUi.PARAM_CHOSENMODEL2);
+    		withoutMdData = c.getBoolean(EmReaderUi.PARAM_NOMDDATA);
 
     		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
     		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);

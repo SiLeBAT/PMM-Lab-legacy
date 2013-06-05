@@ -117,7 +117,6 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private Map<String, String> units;
 
 	private JPanel parameterValuesPanel;
-	private List<JPanel> parameterSubPanels;
 	private List<JButton> parameterButtons;
 	private List<JLabel> parameterLabels;
 	private List<DoubleTextField> parameterFields;
@@ -267,16 +266,19 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		mainPanel.add(outerParametersPanel, createConstraints(2));
 
 		parameterValuesPanel = new JPanel();
-		parameterValuesPanel.setBorder(BorderFactory
-				.createTitledBorder("Parameter Values"));
-		parameterValuesPanel.setLayout(new BoxLayout(parameterValuesPanel,
-				BoxLayout.Y_AXIS));
-		parameterSubPanels = new ArrayList<>();
+		parameterValuesPanel.setLayout(new GridBagLayout());
 		parameterFields = new ArrayList<>();
 		parameterButtons = new ArrayList<>();
 		parameterLabels = new ArrayList<>();
 		parameterSliders = new ArrayList<>();
-		mainPanel.add(parameterValuesPanel, createConstraints(3));
+
+		JPanel outerParameterValuesPanel = new JPanel();
+
+		outerParameterValuesPanel.setBorder(BorderFactory
+				.createTitledBorder("Parameter Values"));
+		outerParameterValuesPanel.setLayout(new BorderLayout());
+		outerParameterValuesPanel.add(parameterValuesPanel, BorderLayout.WEST);
+		mainPanel.add(outerParameterValuesPanel, createConstraints(3));
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);
@@ -669,15 +671,13 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			return;
 		}
 
-		for (JPanel panel : parameterSubPanels) {
-			parameterValuesPanel.remove(panel);
-		}
-
-		parameterSubPanels.clear();
+		parameterValuesPanel.removeAll();
 		parameterFields.clear();
 		parameterButtons.clear();
 		parameterLabels.clear();
 		parameterSliders.clear();
+
+		int row = 0;
 
 		for (String param : parametersX.keySet()) {
 			if (param.equals(xBox.getSelectedItem())) {
@@ -730,31 +730,25 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				parameterFields.add(input);
 				parameterLabels.add(label);
 				parameterSliders.add(slider);
-
-				JPanel subPanel = new JPanel();
-
-				subPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-				subPanel.add(label);
+				parameterValuesPanel
+						.add(label, createConstraints(0, row, 1, 1));
+				parameterValuesPanel
+						.add(input, createConstraints(2, row, 1, 1));
 
 				if (slider != null) {
-					subPanel.add(slider);
+					parameterValuesPanel.add(slider,
+							createConstraints(1, row, 1, 1));
 				}
 
-				subPanel.add(input);
-				parameterSubPanels.add(subPanel);
-				parameterValuesPanel.add(subPanel);
+				row++;
 			} else if (type == PARAMETER_BOXES) {
 				JButton selectButton = new JButton(param + " Values");
 
 				selectButton.addActionListener(this);
 				parameterButtons.add(selectButton);
-
-				JPanel subPanel = new JPanel();
-
-				subPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-				subPanel.add(selectButton);
-				parameterSubPanels.add(subPanel);
-				parameterValuesPanel.add(subPanel);
+				parameterValuesPanel.add(selectButton,
+						createConstraints(0, row, 3, 1));
+				row++;
 			}
 		}
 

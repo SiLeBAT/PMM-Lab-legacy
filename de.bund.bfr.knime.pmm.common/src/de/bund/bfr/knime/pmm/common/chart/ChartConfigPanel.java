@@ -34,9 +34,13 @@
 package de.bund.bfr.knime.pmm.common.chart;
 
 import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -126,11 +130,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		this.type = type;
 		configListeners = new ArrayList<>();
 		buttonListeners = new ArrayList<>();
-		setLayout(new GridLayout(4, 1));
+		lastParamX = null;
 
-		JPanel displayOptionsPanel = new JPanel();
-		JPanel displayOptionsPanel1 = new JPanel();
-		JPanel displayOptionsPanel2 = new JPanel();
+		JPanel mainPanel = new JPanel();
+
+		mainPanel.setLayout(new GridBagLayout());
 
 		drawLinesBox = new JCheckBox("Draw Lines");
 		drawLinesBox.setSelected(false);
@@ -145,37 +149,35 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		displayFocusedRowBox.setSelected(false);
 		displayFocusedRowBox.addActionListener(this);
 
-		displayOptionsPanel1.setLayout(new FlowLayout(FlowLayout.LEFT));
-		displayOptionsPanel1.add(drawLinesBox);
-		displayOptionsPanel1.add(displayFocusedRowBox);
-		displayOptionsPanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
-		displayOptionsPanel2.add(showLegendBox);
-		displayOptionsPanel2.add(addInfoInLegendBox);
+		JPanel displayOptionsPanel = new JPanel();
 
-		displayOptionsPanel.setBorder(BorderFactory
-				.createTitledBorder("Display Options"));
 		displayOptionsPanel.setLayout(new BoxLayout(displayOptionsPanel,
 				BoxLayout.Y_AXIS));
-		displayOptionsPanel.add(displayOptionsPanel1);
-		displayOptionsPanel.add(displayOptionsPanel2);
+		displayOptionsPanel.setLayout(new GridBagLayout());
+		displayOptionsPanel.add(drawLinesBox, createConstraints(0, 0, 1, 1));
+		displayOptionsPanel.add(displayFocusedRowBox,
+				createConstraints(1, 0, 1, 1));
+		displayOptionsPanel.add(showLegendBox, createConstraints(0, 1, 1, 1));
+		displayOptionsPanel.add(addInfoInLegendBox,
+				createConstraints(1, 1, 1, 1));
 
 		if (allowConfidenceInterval) {
-			JPanel displayOptionsPanel3 = new JPanel();
-
 			showConfidenceBox = new JCheckBox("Show Confidence Interval");
 			showConfidenceBox.setSelected(false);
 			showConfidenceBox.addActionListener(this);
-			displayOptionsPanel3.setLayout(new FlowLayout(FlowLayout.LEFT));
-			displayOptionsPanel3.add(showConfidenceBox);
-			displayOptionsPanel.add(displayOptionsPanel3);
+			displayOptionsPanel.add(showConfidenceBox,
+					createConstraints(0, 2, 2, 1));
 		}
 
-		add(displayOptionsPanel);
+		JPanel outerDisplayOptionsPanel = new JPanel();
+
+		outerDisplayOptionsPanel.setBorder(BorderFactory
+				.createTitledBorder("Display Options"));
+		outerDisplayOptionsPanel.setLayout(new BorderLayout());
+		outerDisplayOptionsPanel.add(displayOptionsPanel, BorderLayout.WEST);
+		mainPanel.add(outerDisplayOptionsPanel, createConstraints(0));
 
 		JPanel rangePanel = new JPanel();
-		JPanel rangePanel1 = new JPanel();
-		JPanel rangePanel2 = new JPanel();
-		JPanel rangePanel3 = new JPanel();
 
 		manualRangeBox = new JCheckBox("Set Manual Range");
 		manualRangeBox.setSelected(false);
@@ -205,30 +207,23 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		maxYField.setEnabled(false);
 		maxYField.addTextListener(this);
 
-		rangePanel1.setLayout(new FlowLayout(FlowLayout.LEFT));
-		rangePanel1.add(manualRangeBox);
-		rangePanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
-		rangePanel2.add(new JLabel("Min X:"));
-		rangePanel2.add(minXField);
-		rangePanel2.add(new JLabel("Max X:"));
-		rangePanel2.add(maxXField);
-		rangePanel3.setLayout(new FlowLayout(FlowLayout.LEFT));
-		rangePanel3.add(new JLabel("Min Y:"));
-		rangePanel3.add(minYField);
-		rangePanel3.add(new JLabel("Max Y:"));
-		rangePanel3.add(maxYField);
+		rangePanel.setLayout(new GridBagLayout());
+		rangePanel.add(manualRangeBox, createConstraints(0, 0, 4, 1));
+		rangePanel.add(new JLabel("Min X:"), createConstraints(0, 1, 1, 1));
+		rangePanel.add(minXField, createConstraints(1, 1, 1, 1));
+		rangePanel.add(new JLabel("Max X:"), createConstraints(2, 1, 1, 1));
+		rangePanel.add(maxXField, createConstraints(3, 1, 1, 1));
+		rangePanel.add(new JLabel("Min Y:"), createConstraints(0, 2, 1, 1));
+		rangePanel.add(minYField, createConstraints(1, 2, 1, 1));
+		rangePanel.add(new JLabel("Max Y:"), createConstraints(2, 2, 1, 1));
+		rangePanel.add(maxYField, createConstraints(3, 2, 1, 1));
 
-		rangePanel.setBorder(BorderFactory.createTitledBorder("Range"));
-		rangePanel.setLayout(new BoxLayout(rangePanel, BoxLayout.Y_AXIS));
-		rangePanel.add(rangePanel1);
-		rangePanel.add(rangePanel2);
-		rangePanel.add(rangePanel3);
-		add(rangePanel);
+		JPanel outerRangePanel = new JPanel();
 
-		JPanel parametersPanel = new JPanel();
-		JPanel parametersPanel1 = new JPanel();
-		JPanel parametersPanel2 = new JPanel();
-		JPanel parametersPanel3 = new JPanel();
+		outerRangePanel.setBorder(BorderFactory.createTitledBorder("Range"));
+		outerRangePanel.setLayout(new BorderLayout());
+		outerRangePanel.add(rangePanel, BorderLayout.WEST);
+		mainPanel.add(outerRangePanel, createConstraints(1));
 
 		xBox = new JComboBox<String>();
 		xBox.addActionListener(this);
@@ -240,34 +235,36 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		yTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
 		yTransBox.addActionListener(this);
 
-		parametersPanel1.setLayout(new FlowLayout(FlowLayout.LEFT));
-		parametersPanel1.add(new JLabel("X:"));
-		parametersPanel1.add(xBox);
-		parametersPanel1.add(new JLabel("X Unit:"));
-		parametersPanel1.add(xUnitBox);
-		parametersPanel2.setLayout(new FlowLayout(FlowLayout.LEFT));
-		parametersPanel2.add(new JLabel("Y:"));
-		parametersPanel2.add(yBox);
-		parametersPanel2.add(new JLabel("Y Unit:"));
-		parametersPanel2.add(yUnitBox);
-		parametersPanel3.setLayout(new FlowLayout(FlowLayout.LEFT));
-		parametersPanel3.add(new JLabel("Y Transform:"));
-		parametersPanel3.add(yTransBox);
+		JPanel parametersPanel = new JPanel();
+
+		parametersPanel.setLayout(new GridBagLayout());
+		parametersPanel.add(new JLabel("X:"), createConstraints(0, 0, 1, 1));
+		parametersPanel.add(xBox, createConstraints(1, 0, 1, 1));
+		parametersPanel.add(new JLabel("X Unit:"),
+				createConstraints(2, 0, 1, 1));
+		parametersPanel.add(xUnitBox, createConstraints(3, 0, 1, 1));
+		parametersPanel.add(new JLabel("Y:"), createConstraints(0, 1, 1, 1));
+		parametersPanel.add(yBox, createConstraints(1, 1, 1, 1));
+		parametersPanel.add(new JLabel("Y Unit:"),
+				createConstraints(2, 1, 1, 1));
+		parametersPanel.add(yUnitBox, createConstraints(3, 1, 1, 1));
+		parametersPanel.add(new JLabel("Y Transform:"),
+				createConstraints(2, 2, 1, 1));
+		parametersPanel.add(yTransBox, createConstraints(3, 2, 1, 1));
 
 		if (extraButtonLabel != null) {
 			extraButton = new JButton(extraButtonLabel);
 			extraButton.addActionListener(this);
-			parametersPanel3.add(extraButton);
+			parametersPanel.add(extraButton, createConstraints(0, 3, 4, 1));
 		}
 
-		parametersPanel.setBorder(BorderFactory
+		JPanel outerParametersPanel = new JPanel();
+
+		outerParametersPanel.setBorder(BorderFactory
 				.createTitledBorder("Parameters"));
-		parametersPanel.setLayout(new BoxLayout(parametersPanel,
-				BoxLayout.Y_AXIS));
-		parametersPanel.add(parametersPanel1);
-		parametersPanel.add(parametersPanel2);
-		parametersPanel.add(parametersPanel3);
-		add(parametersPanel);
+		outerParametersPanel.setLayout(new BorderLayout());
+		outerParametersPanel.add(parametersPanel, BorderLayout.WEST);
+		mainPanel.add(outerParametersPanel, createConstraints(2));
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setBorder(BorderFactory
@@ -279,9 +276,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterButtons = new ArrayList<>();
 		parameterLabels = new ArrayList<>();
 		parameterSliders = new ArrayList<>();
-		add(parameterValuesPanel);
+		mainPanel.add(parameterValuesPanel, createConstraints(3));
 
-		lastParamX = null;
+		setLayout(new BorderLayout());
+		add(mainPanel, BorderLayout.NORTH);
 	}
 
 	public void addConfigListener(ConfigListener listener) {
@@ -760,8 +758,16 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		parameterValuesPanel.updateUI();
-		revalidate();
+		Container container = getParent();
+
+		while (container != null) {
+			if (container instanceof JPanel) {
+				container.revalidate();
+				break;
+			}
+
+			container = container.getParent();
+		}
 	}
 
 	private void fireConfigChanged() {
@@ -782,6 +788,18 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	private double intToDouble(int i, double min, double max) {
 		return (double) i / (double) SLIDER_MAX * (max - min) + min;
+	}
+
+	private GridBagConstraints createConstraints(int x, int y, int w, int h) {
+		return new GridBagConstraints(x, y, w, h, 0, 0,
+				GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(2,
+						2, 2, 2), 0, 0);
+	}
+
+	private GridBagConstraints createConstraints(int y) {
+		return new GridBagConstraints(0, y, 1, 1, 0, 0,
+				GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(
+						0, 0, 0, 0), 0, 0);
 	}
 
 	@Override

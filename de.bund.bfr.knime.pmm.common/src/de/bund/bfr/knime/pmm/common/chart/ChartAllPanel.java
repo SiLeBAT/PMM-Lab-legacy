@@ -19,7 +19,7 @@ public class ChartAllPanel extends JPanel {
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(chartCreator, BorderLayout.CENTER);
 		upperPanel.add(new JScrollPane(configPanel,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
 		splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperPanel,
@@ -37,7 +37,7 @@ public class ChartAllPanel extends JPanel {
 		upperPanel.setLayout(new BorderLayout());
 		upperPanel.add(chartCreator, BorderLayout.CENTER);
 		upperPanel.add(new JScrollPane(configPanel,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.EAST);
 
 		JPanel bottomPanel = new JPanel();

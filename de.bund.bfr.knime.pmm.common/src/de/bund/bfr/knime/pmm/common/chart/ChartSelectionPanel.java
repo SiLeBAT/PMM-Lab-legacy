@@ -1827,7 +1827,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		public ParameterDialog(Map<String, Double> parameters) {
 			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Parameters", true);
+					"Parameters", false);
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);

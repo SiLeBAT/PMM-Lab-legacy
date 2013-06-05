@@ -115,9 +115,8 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
-					Model1Schema.BIC));
+			doubleColumns = Arrays.asList(Model1Schema.RMS,
+					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());

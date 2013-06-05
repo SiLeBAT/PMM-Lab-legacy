@@ -111,11 +111,11 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model1Schema.RMS, Model1Schema.RSQUARED, Model1Schema.AIC,
-					Model1Schema.BIC, Model1Schema.RMS + " (Local)",
-					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
-							+ " (Local)", Model1Schema.BIC + " (Local)"));
+			doubleColumns = Arrays.asList(Model1Schema.RMS,
+					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC,
+					Model1Schema.RMS + " (Local)", Model1Schema.RSQUARED
+							+ " (Local)", Model1Schema.AIC + " (Local)",
+					Model1Schema.BIC + " (Local)");
 			doubleColumnValues = new ArrayList<List<Double>>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());

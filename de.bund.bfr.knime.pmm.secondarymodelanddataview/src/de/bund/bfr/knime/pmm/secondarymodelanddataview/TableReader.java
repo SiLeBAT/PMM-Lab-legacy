@@ -135,9 +135,8 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			miscCategories = PmmUtilities.getMiscCategories(tuples);
-			doubleColumns = new ArrayList<String>(Arrays.asList(
-					Model2Schema.RMS, Model2Schema.RSQUARED, Model2Schema.AIC,
-					Model2Schema.BIC));
+			doubleColumns = Arrays.asList(Model2Schema.RMS,
+					Model2Schema.RSQUARED, Model2Schema.AIC, Model2Schema.BIC);
 			doubleColumnValues = new ArrayList<>();
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -338,7 +337,7 @@ public class TableReader {
 			plotable.setMaxArguments(maxArg);
 			plotable.setFunctionParameters(constants);
 			plotable.setCovariances(covariances);
-			plotable.setDegreesOfFreedom(dofMap.get(id));			
+			plotable.setDegreesOfFreedom(dofMap.get(id));
 
 			doubleColumnValues.get(0).add(rmsMap.get(id));
 			doubleColumnValues.get(1).add(rSquaredMap.get(id));
@@ -406,7 +405,7 @@ public class TableReader {
 							new ArrayList<Double>(Arrays.asList(0.0)));
 				}
 			}
-						
+
 			plotable.setCategories(categories);
 			plotable.setUnits(units);
 

@@ -67,6 +67,8 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class Bfrdb extends Hsqldbiface {
 	
@@ -1402,7 +1404,7 @@ public class Bfrdb extends Hsqldbiface {
 				TimeSeriesXml tsx = (TimeSeriesXml) el;
 				int timeId = insertDouble(tsx.getTime());				
 				int lognId = insertDouble(tsx.getConcentration());				
-				insertData(condId, timeId, lognId);
+				insertData(condId, timeId, lognId, tsx.getTimeUnit(), tsx.getConcentrationUnit());
 			}
 		}
 		return condId;
@@ -1666,9 +1668,9 @@ public class Bfrdb extends Hsqldbiface {
 			return result;
 	}
 
-	private void insertData( final int condId, final int timeId, final int lognId ) {
+	private void insertData(final int condId, final int timeId, final int lognId, String timeUnit, String concUnit) {
 		try {			
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES( ?, ?, 'Stunde', ?, '1' )" );
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES(?, ?, ?, ?, ?)" );
 			ps.setInt( 1, condId );
 			if (timeId >= 0) {
 				ps.setInt(2, timeId);
@@ -1676,11 +1678,39 @@ public class Bfrdb extends Hsqldbiface {
 			else {
 				ps.setNull(2, Types.INTEGER);
 			}
-			if (lognId >= 0) {
-				ps.setInt(3, lognId);
+			
+			if (timeUnit != null) {
+				if (timeUnit.equals(Time.SECOND)) ps.setString(3, "Sekunde");
+				else if (timeUnit.equals(Time.MINUTE)) ps.setString(3, "Minute");
+				else if (timeUnit.equals(Time.HOUR)) ps.setString(3, "Stunde");
+				else if (timeUnit.equals(Time.DAY)) ps.setString(3, "Tag");
+				else if (timeUnit.equals(Time.WEEK)) ps.setString(3, "Woche");
+				else ps.setNull(3, Types.VARCHAR);
+				//hashZeit.put("Monat", DBKernel.getLanguage().equals("en") ? "Month(s)" : "Monat(e)");		
+				//hashZeit.put("Jahr", DBKernel.getLanguage().equals("en") ? "Year(s)" : "Jahr(e)");			  
 			}
 			else {
-				ps.setNull(3, Types.INTEGER);
+				ps.setNull(3, Types.VARCHAR);
+			}
+			
+			if (lognId >= 0) {
+				ps.setInt(4, lognId);
+			}
+			else {
+				ps.setNull(4, Types.INTEGER);
+			}
+			
+			if (concUnit != null) {
+				if (concUnit.equals(BacterialConcentration.CFU_PER_GRAMM)) ps.setInt(5, 20);
+				else if (concUnit.equals(BacterialConcentration.LOG_CFU_PER_GRAMM)) ps.setInt(5, 5);
+				else if (concUnit.equals(BacterialConcentration.LN_CFU_PER_GRAMM)) ps.setNull(5, Types.INTEGER);
+				else if (concUnit.equals(BacterialConcentration.CFU_PER_MILLILITER)) ps.setInt(5, 23);
+				else if (concUnit.equals(BacterialConcentration.LOG_CFU_PER_MILLILITER)) ps.setInt(5, 8);
+				else if (concUnit.equals(BacterialConcentration.LN_CFU_PER_MILLILITER)) ps.setNull(5, Types.INTEGER);
+				else ps.setNull(5, Types.INTEGER);
+			}
+			else {
+				ps.setNull(5, Types.INTEGER);
 			}
 			
 			ps.executeUpdate();

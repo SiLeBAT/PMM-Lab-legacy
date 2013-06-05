@@ -570,28 +570,16 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				visibleColumns.add(SHAPE);
 			}
 
-			if (containsData) {
-				columns.add(DATA);
-
-				if (selectTable.getColumn(DATA).getMaxWidth() != 0) {
-					visibleColumns.add(DATA);
-				}
+			if (selectTable.getColumn(DATA).getMaxWidth() != 0) {
+				visibleColumns.add(DATA);
 			}
 
-			if (containsFormulas) {
-				columns.add(FORMULA);
-
-				if (selectTable.getColumn(FORMULA).getMaxWidth() != 0) {
-					visibleColumns.add(FORMULA);
-				}
+			if (selectTable.getColumn(FORMULA).getMaxWidth() != 0) {
+				visibleColumns.add(FORMULA);
 			}
 
-			if (containsParameters) {
-				columns.add(PARAMETERS);
-
-				if (selectTable.getColumn(PARAMETERS).getMaxWidth() != 0) {
-					visibleColumns.add(PARAMETERS);
-				}
+			if (selectTable.getColumn(PARAMETERS).getMaxWidth() != 0) {
+				visibleColumns.add(PARAMETERS);
 			}
 
 			for (String column : stringColumns) {
@@ -616,8 +604,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				}
 			}
 
-			ColumnSelectionDialog dialog = new ColumnSelectionDialog(columns,
-					stringColumns, doubleColumns, conditions, visibleColumns);
+			ColumnSelectionDialog dialog = new ColumnSelectionDialog(
+					visibleColumns);
 
 			dialog.setVisible(true);
 
@@ -1888,40 +1876,27 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		private boolean approved;
 		private List<String> selection;
-
-		private List<String> allColumns;
-		private List<JCheckBox> selectionBoxes;
+		private Map<String, JCheckBox> selectionBoxes;
 
 		private JButton okButton;
 		private JButton cancelButton;
 
-		public ColumnSelectionDialog(List<String> columns,
-				List<String> stringColumns, List<String> doubleColumns,
-				List<String> conditions, List<String> initialSelection) {
+		public ColumnSelectionDialog(List<String> initialSelection) {
 			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
 					"Column Selection", true);
-			allColumns = new ArrayList<>();
-			allColumns.addAll(columns);
-			allColumns.addAll(stringColumns);
-			allColumns.addAll(doubleColumns);
-			allColumns.addAll(conditions);
-
 			approved = false;
 			selection = null;
+			selectionBoxes = new LinkedHashMap<>();
 
-			selectionBoxes = new ArrayList<JCheckBox>();
-			okButton = new JButton("OK");
-			okButton.addActionListener(this);
-			cancelButton = new JButton("Cancel");
-			cancelButton.addActionListener(this);
+			JPanel visualizationPanel = new JPanel();
+			List<String> visualizationColumns = new ArrayList<>();
 
-			JPanel centerPanel = new JPanel();
-			JPanel bottomPanel = new JPanel();
+			visualizationColumns.add(COLOR);
+			visualizationColumns.add(SHAPE);
+			visualizationPanel.setLayout(new GridLayout(visualizationColumns
+					.size(), 1, 5, 5));
 
-			centerPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			centerPanel.setLayout(new GridLayout(allColumns.size(), 1, 5, 5));
-
-			for (String column : allColumns) {
+			for (String column : visualizationColumns) {
 				JCheckBox box = new JCheckBox(column);
 
 				if (initialSelection.contains(column)) {
@@ -1930,9 +1905,106 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					box.setSelected(false);
 				}
 
-				selectionBoxes.add(box);
-				centerPanel.add(box);
+				selectionBoxes.put(column, box);
+				visualizationPanel.add(box);
 			}
+
+			JPanel miscellaneousPanel = new JPanel();
+			List<String> miscellaneousColumns = new ArrayList<>();
+
+			if (containsData) {
+				miscellaneousColumns.add(DATA);
+			}
+
+			if (containsFormulas) {
+				miscellaneousColumns.add(FORMULA);
+			}
+
+			if (containsParameters) {
+				miscellaneousColumns.add(PARAMETERS);
+			}
+
+			miscellaneousColumns.addAll(stringColumns);
+			miscellaneousPanel.setLayout(new GridLayout(miscellaneousColumns
+					.size(), 1, 5, 5));
+
+			for (String column : miscellaneousColumns) {
+				JCheckBox box = new JCheckBox(column);
+
+				if (initialSelection.contains(column)) {
+					box.setSelected(true);
+				} else {
+					box.setSelected(false);
+				}
+
+				selectionBoxes.put(column, box);
+				miscellaneousPanel.add(box);
+			}
+
+			JPanel qualityPanel = new JPanel();
+
+			qualityPanel
+					.setLayout(new GridLayout(doubleColumns.size(), 1, 5, 5));
+
+			for (String column : doubleColumns) {
+				JCheckBox box = new JCheckBox(column);
+
+				if (initialSelection.contains(column)) {
+					box.setSelected(true);
+				} else {
+					box.setSelected(false);
+				}
+
+				selectionBoxes.put(column, box);
+				qualityPanel.add(box);
+			}
+
+			JPanel conditionsPanel = new JPanel();
+
+			conditionsPanel
+					.setLayout(new GridLayout(conditions.size(), 1, 5, 5));
+
+			for (String column : conditions) {
+				JCheckBox box = new JCheckBox(column);
+
+				if (initialSelection.contains(column)) {
+					box.setSelected(true);
+				} else {
+					box.setSelected(false);
+				}
+
+				selectionBoxes.put(column, box);
+				conditionsPanel.add(box);
+			}
+
+			JPanel centerPanel = new JPanel();
+
+			centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.X_AXIS));
+
+			centerPanel.add(createNorthPanel(visualizationPanel,
+					"Visualization"));
+
+			if (!miscellaneousColumns.isEmpty()) {
+				centerPanel.add(createNorthPanel(miscellaneousPanel,
+						"Miscellaneous"));
+			}
+
+			if (!doubleColumns.isEmpty()) {
+				centerPanel.add(createNorthPanel(qualityPanel,
+						"Quality Criteria"));
+			}
+
+			if (!conditions.isEmpty()) {
+				centerPanel
+						.add(createNorthPanel(conditionsPanel, "Conditions"));
+			}
+
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel bottomPanel = new JPanel();
 
 			bottomPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 			bottomPanel.add(okButton);
@@ -1961,9 +2033,9 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				approved = true;
 				selection = new ArrayList<String>();
 
-				for (int i = 0; i < allColumns.size(); i++) {
-					if (selectionBoxes.get(i).isSelected()) {
-						selection.add(allColumns.get(i));
+				for (String column : selectionBoxes.keySet()) {
+					if (selectionBoxes.get(column).isSelected()) {
+						selection.add(column);
 					}
 				}
 
@@ -1971,6 +2043,19 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			} else if (e.getSource() == cancelButton) {
 				dispose();
 			}
+		}
+
+		private JPanel createNorthPanel(JComponent comp, String name) {
+			JPanel panel = new JPanel();
+
+			panel.setBorder(BorderFactory.createTitledBorder(name));
+			panel.setLayout(new BorderLayout());
+			panel.add(comp, BorderLayout.NORTH);
+			panel.setPreferredSize(new Dimension(Math.max(
+					panel.getPreferredSize().width, 100), panel
+					.getPreferredSize().height));
+
+			return panel;
 		}
 	}
 

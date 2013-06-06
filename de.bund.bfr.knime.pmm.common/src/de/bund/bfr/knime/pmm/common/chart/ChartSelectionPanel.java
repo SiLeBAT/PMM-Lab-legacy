@@ -109,9 +109,22 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	private ColorAndShapeCreator colorAndShapes;
 
+	private List<String> ids;
+	private boolean selectionExlusive;
+	private List<List<TimeSeriesXml>> data;
+	private List<String> formulas;
+	private List<Map<String, Double>> parameters;
 	private List<String> stringColumns;
+	private List<List<String>> stringColumnValues;
 	private List<String> qualityColumns;
+	private List<List<Double>> qualityColumnValues;
 	private List<String> conditions;
+	private List<List<Double>> conditionValues;
+	private List<List<Double>> conditionMinValues;
+	private List<List<Double>> conditionMaxValues;
+	private List<List<String>> conditionUnits;
+
+	private List<String> conditionStandardUnits;
 	private List<String> visualizationColumns;
 	private List<String> miscellaneousColumns;
 
@@ -169,16 +182,47 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			conditions = new ArrayList<>();
 		}
 
-		if (conditionValues == null && conditionMinValues != null
-				&& conditionMaxValues != null) {
-			hasConditionRanges = true;
-		} else {
-			hasConditionRanges = false;
+		this.ids = ids;
+		this.selectionExlusive = selectionsExclusive;
+		this.data = data;
+		this.formulas = formulas;
+		this.parameters = parameters;
+		this.stringColumns = stringColumns;
+		this.stringColumnValues = stringColumnValues;
+		this.qualityColumns = qualityColumns;
+		this.qualityColumnValues = qualityColumnValues;
+		this.conditions = conditions;
+		this.conditionValues = conditionValues;
+		this.conditionMinValues = conditionMinValues;
+		this.conditionMaxValues = conditionMaxValues;
+		this.conditionUnits = conditionUnits;
+
+		conditionStandardUnits = new ArrayList<>();
+
+		for (int i = 0; i < conditions.size(); i++) {
+			String standardUnit = null;
+			boolean multipleUnits = false;
+
+			for (String unit : conditionUnits.get(i)) {
+				if (standardUnit == null) {
+					standardUnit = unit;
+				} else if (unit == null || unit.equals(standardUnit)) {
+					// Do nothing
+				} else {
+					standardUnit = null;
+					multipleUnits = true;
+					break;
+				}
+			}
+
+			if (!multipleUnits) {
+				conditionStandardUnits.add(standardUnit);
+			} else {
+				conditionStandardUnits = null;
+				break;
+			}
 		}
 
-		this.stringColumns = stringColumns;
-		this.qualityColumns = qualityColumns;
-		this.conditions = conditions;
 		visualizationColumns = Arrays.asList(COLOR, SHAPE);
 		miscellaneousColumns = new ArrayList<>();
 
@@ -195,6 +239,14 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 
 		miscellaneousColumns.addAll(stringColumns);
+
+		if (conditionValues == null && conditionMinValues != null
+				&& conditionMaxValues != null) {
+			hasConditionRanges = true;
+		} else {
+			hasConditionRanges = false;
+		}
+
 		listeners = new ArrayList<SelectionListener>();
 
 		JPanel upperPanel = new JPanel();
@@ -272,12 +324,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		if (colorCounts == null) {
 			colorAndShapes = new ColorAndShapeCreator(ids.size());
-			model = new SelectTableModel(ids, colorAndShapes.getColorList(),
-					colorAndShapes.getShapeNameList(), data, formulas,
-					parameters, conditions, conditionValues,
-					conditionMinValues, conditionMaxValues, conditionUnits,
-					stringColumns, stringColumnValues, qualityColumns,
-					qualityColumnValues, false, selectionsExclusive);
+			model = new SelectTableModel(colorAndShapes.getColorList(),
+					colorAndShapes.getShapeNameList(), false);
 		} else {
 			List<List<Color>> colorLists = new ArrayList<List<Color>>();
 			List<List<String>> shapeLists = new ArrayList<List<String>>();
@@ -298,11 +346,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				shapeLists.add(shapes);
 			}
 
-			model = new SelectTableModel(ids, colorLists, shapeLists, data,
-					formulas, parameters, conditions, conditionValues,
-					conditionMinValues, conditionMaxValues, conditionUnits,
-					stringColumns, stringColumnValues, qualityColumns,
-					qualityColumnValues, true, selectionsExclusive);
+			model = new SelectTableModel(colorLists, shapeLists, true);
 		}
 
 		selectTable = new JTable(model);
@@ -609,13 +653,32 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				}
 			}
 
-			for (String column : conditions) {
-				if (!hasConditionRanges
-						&& selectTable.getColumn(column).getMaxWidth() != 0) {
-					visibleColumns.add(column);
-				} else if (hasConditionRanges
-						&& selectTable.getColumn("Min " + column).getMaxWidth() != 0) {
-					visibleColumns.add(column);
+			for (int i = 0; i < conditions.size(); i++) {
+				String column = conditions.get(i);
+
+				if (conditionStandardUnits != null) {
+					String unit = conditionStandardUnits.get(i);
+
+					if (!hasConditionRanges
+							&& selectTable
+									.getColumn(column + " (" + unit + ")")
+									.getMaxWidth() != 0) {
+						visibleColumns.add(column);
+					} else if (hasConditionRanges
+							&& selectTable.getColumn(
+									"Min " + column + " (" + unit + ")")
+									.getMaxWidth() != 0) {
+						visibleColumns.add(column);
+					}
+				} else {
+					if (!hasConditionRanges
+							&& selectTable.getColumn(column).getMaxWidth() != 0) {
+						visibleColumns.add(column);
+					} else if (hasConditionRanges
+							&& selectTable.getColumn("Min " + column)
+									.getMaxWidth() != 0) {
+						visibleColumns.add(column);
+					}
 				}
 			}
 
@@ -673,75 +736,57 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		allColumns.addAll(qualityColumns);
 
 		for (String column : allColumns) {
-			if (!visibleColumns.contains(column)) {
-				selectTable.getColumn(column).setMinWidth(0);
-				selectTable.getColumn(column).setMaxWidth(0);
-				selectTable.getColumn(column).setPreferredWidth(0);
-			} else {
-				selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
-				selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
-				selectTable.getColumn(column).setPreferredWidth(
-						PREFERRED_COLUMN_WIDTH);
-			}
+			setColumnVisible(column, visibleColumns.contains(column));
 		}
 
 		if (!hasConditionRanges) {
-			for (String column : conditions) {
-				if (!visibleColumns.contains(column)) {
-					selectTable.getColumn(column).setMinWidth(0);
-					selectTable.getColumn(column).setMaxWidth(0);
-					selectTable.getColumn(column).setPreferredWidth(0);
-					selectTable.getColumn(column + " Unit").setMinWidth(0);
-					selectTable.getColumn(column + " Unit").setMaxWidth(0);
-					selectTable.getColumn(column + " Unit")
-							.setPreferredWidth(0);
+			for (int i = 0; i < conditions.size(); i++) {
+				String column = conditions.get(i);
+
+				if (conditionStandardUnits != null) {
+					String unit = conditionStandardUnits.get(i);
+
+					setColumnVisible(column + " (" + unit + ")",
+							visibleColumns.contains(column));
 				} else {
-					selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
-					selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
-					selectTable.getColumn(column).setPreferredWidth(
-							PREFERRED_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setMinWidth(
-							MIN_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setMaxWidth(
-							MAX_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setPreferredWidth(
-							PREFERRED_COLUMN_WIDTH);
+					setColumnVisible(column, visibleColumns.contains(column));
+					setColumnVisible(column + " Unit",
+							visibleColumns.contains(column));
 				}
 			}
 		} else {
-			for (String column : conditions) {
-				if (!visibleColumns.contains(column)) {
-					selectTable.getColumn("Min " + column).setMinWidth(0);
-					selectTable.getColumn("Min " + column).setMaxWidth(0);
-					selectTable.getColumn("Min " + column).setPreferredWidth(0);
-					selectTable.getColumn("Max " + column).setMinWidth(0);
-					selectTable.getColumn("Max " + column).setMaxWidth(0);
-					selectTable.getColumn("Max " + column).setPreferredWidth(0);
-					selectTable.getColumn(column + " Unit").setMinWidth(0);
-					selectTable.getColumn(column + " Unit").setMaxWidth(0);
-					selectTable.getColumn(column + " Unit")
-							.setPreferredWidth(0);
+			for (int i = 0; i < conditions.size(); i++) {
+				String column = conditions.get(i);
+
+				if (conditionStandardUnits != null) {
+					String unit = conditionStandardUnits.get(i);
+
+					setColumnVisible("Min " + column + " (" + unit + ")",
+							visibleColumns.contains(column));
+					setColumnVisible("Max " + column + " (" + unit + ")",
+							visibleColumns.contains(column));
 				} else {
-					selectTable.getColumn("Min " + column).setMinWidth(
-							MIN_COLUMN_WIDTH);
-					selectTable.getColumn("Min " + column).setMaxWidth(
-							MAX_COLUMN_WIDTH);
-					selectTable.getColumn("Min " + column).setPreferredWidth(
-							PREFERRED_COLUMN_WIDTH);
-					selectTable.getColumn("Max " + column).setMinWidth(
-							MIN_COLUMN_WIDTH);
-					selectTable.getColumn("Max " + column).setMaxWidth(
-							MAX_COLUMN_WIDTH);
-					selectTable.getColumn("Max " + column).setPreferredWidth(
-							PREFERRED_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setMinWidth(
-							MIN_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setMaxWidth(
-							MAX_COLUMN_WIDTH);
-					selectTable.getColumn(column + " Unit").setPreferredWidth(
-							PREFERRED_COLUMN_WIDTH);
+					setColumnVisible("Min " + column,
+							visibleColumns.contains(column));
+					setColumnVisible("Max " + column,
+							visibleColumns.contains(column));
+					setColumnVisible(column + " Unit",
+							visibleColumns.contains(column));
 				}
 			}
+		}
+	}
+
+	private void setColumnVisible(String column, boolean value) {
+		if (value) {
+			selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
+			selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
+			selectTable.getColumn(column).setPreferredWidth(
+					PREFERRED_COLUMN_WIDTH);
+		} else {
+			selectTable.getColumn(column).setMinWidth(0);
+			selectTable.getColumn(column).setMaxWidth(0);
+			selectTable.getColumn(column).setPreferredWidth(0);
 		}
 	}
 
@@ -788,38 +833,15 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		private boolean listBased;
 
-		private List<String> ids;
 		private List<Boolean> selections;
 		private List<Color> colors;
 		private List<List<Color>> colorLists;
 		private List<String> shapes;
 		private List<List<String>> shapeLists;
-		private List<List<TimeSeriesXml>> data;
-		private List<String> formulas;
-		private List<Map<String, Double>> parameters;
-		private List<String> conditions;
-		private List<List<Double>> conditionValues;
-		private List<List<Double>> conditionMinValues;
-		private List<List<Double>> conditionMaxValues;
-		private List<List<String>> conditionUnits;
-		private List<String> stringColumns;
-		private List<List<String>> stringColumnValues;
-		private List<String> doubleColumns;
-		private List<List<Double>> doubleColumnValues;
-
-		private boolean hasConditionRanges;
 
 		@SuppressWarnings("unchecked")
-		public AbstractSelectTableModel(List<String> ids, List<?> colors,
-				List<?> shapes, List<List<TimeSeriesXml>> data,
-				List<String> formulas, List<Map<String, Double>> parameters,
-				List<String> conditions, List<List<Double>> conditionValues,
-				List<List<Double>> conditionMinValues,
-				List<List<Double>> conditionMaxValues,
-				List<List<String>> conditionUnits, List<String> stringColumns,
-				List<List<String>> stringColumnValues,
-				List<String> doubleColumns,
-				List<List<Double>> doubleColumnValues, boolean listBased) {
+		public AbstractSelectTableModel(List<?> colors, List<?> shapes,
+				boolean listBased) {
 			this.listBased = listBased;
 
 			if (!listBased) {
@@ -830,56 +852,25 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				this.shapeLists = (List<List<String>>) shapes;
 			}
 
-			if (data != null) {
-				this.data = data;
-			} else {
-				this.data = Collections.nCopies(ids.size(), null);
-			}
-
-			if (formulas != null) {
-				this.formulas = formulas;
-			} else {
-				this.formulas = Collections.nCopies(ids.size(), null);
-			}
-
-			if (parameters != null) {
-				this.parameters = parameters;
-			} else {
-				this.parameters = Collections.nCopies(ids.size(), null);
-			}
-
-			this.ids = ids;
-			this.conditions = conditions;
-			this.conditionValues = conditionValues;
-			this.conditionMinValues = conditionMinValues;
-			this.conditionMaxValues = conditionMaxValues;
-			this.conditionUnits = conditionUnits;
-			this.stringColumns = stringColumns;
-			this.stringColumnValues = stringColumnValues;
-			this.doubleColumns = doubleColumns;
-			this.doubleColumnValues = doubleColumnValues;
 			selections = new ArrayList<Boolean>(Collections.nCopies(ids.size(),
 					false));
-
-			if (conditionValues == null && conditionMinValues != null
-					&& conditionMaxValues != null) {
-				hasConditionRanges = true;
-			} else {
-				hasConditionRanges = false;
-			}
 		}
 
 		@Override
 		public int getColumnCount() {
-			int conditionCount;
+			int conditionCount = conditions.size();
 
 			if (!hasConditionRanges) {
-				conditionCount = 2 * conditions.size();
+				conditionCount *= 2;
 			} else {
-				conditionCount = 3 * conditions.size();
+				conditionCount *= 3;
 			}
 
-			return 7 + stringColumns.size() + doubleColumns.size()
+			if (conditionStandardUnits != null) {
+				conditionCount -= conditions.size();
+			}
+
+			return 7 + stringColumns.size() + qualityColumns.size()
 					+ conditionCount;
 		}
 
@@ -903,25 +894,40 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			default:
 				int i1 = column - 7;
 				int i2 = i1 - stringColumns.size();
-				int i3 = i2 - doubleColumns.size();
+				int i3 = i2 - qualityColumns.size();
 
 				if (i1 < stringColumns.size()) {
 					return stringColumns.get(i1);
-				} else if (i2 < doubleColumns.size()) {
-					return doubleColumns.get(i2);
+				} else if (i2 < qualityColumns.size()) {
+					return qualityColumns.get(i2);
 				} else if (!hasConditionRanges) {
-					if (i3 % 2 == 0) {
-						return conditions.get(i3 / 2);
+					if (conditionStandardUnits != null) {
+						return conditions.get(i3) + " ("
+								+ conditionStandardUnits.get(i3) + ")";
 					} else {
-						return conditions.get(i3 / 2) + " Unit";
+						if (i3 % 2 == 0) {
+							return conditions.get(i3 / 2);
+						} else {
+							return conditions.get(i3 / 2) + " Unit";
+						}
 					}
 				} else {
-					if (i3 % 3 == 0) {
-						return "Min " + conditions.get(i3 / 3);
-					} else if (i3 % 3 == 1) {
-						return "Max " + conditions.get(i3 / 3);
+					if (conditionStandardUnits != null) {
+						if (i3 % 2 == 0) {
+							return "Min " + conditions.get(i3 / 2) + " ("
+									+ conditionStandardUnits.get(i3) + ")";
+						} else {
+							return "Max " + conditions.get(i3 / 2) + " ("
+									+ conditionStandardUnits.get(i3 / 2) + ")";
+						}
 					} else {
-						return conditions.get(i3 / 3) + " Unit";
+						if (i3 % 3 == 0) {
+							return "Min " + conditions.get(i3 / 3);
+						} else if (i3 % 3 == 1) {
+							return "Max " + conditions.get(i3 / 3);
+						} else {
+							return conditions.get(i3 / 3) + " Unit";
+						}
 					}
 				}
 			}
@@ -952,33 +958,45 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					return shapeLists.get(row);
 				}
 			case 4:
-				return data.get(row);
+				return data != null ? data.get(row) : null;
 			case 5:
-				return formulas.get(row);
+				return formulas != null ? formulas.get(row) : null;
 			case 6:
-				return parameters.get(row);
+				return parameters != null ? parameters.get(row) : null;
 			default:
 				int i1 = column - 7;
 				int i2 = i1 - stringColumns.size();
-				int i3 = i2 - doubleColumns.size();
+				int i3 = i2 - qualityColumns.size();
 
 				if (i1 < stringColumns.size()) {
 					return stringColumnValues.get(i1).get(row);
-				} else if (i2 < doubleColumns.size()) {
-					return doubleColumnValues.get(i2).get(row);
+				} else if (i2 < qualityColumns.size()) {
+					return qualityColumnValues.get(i2).get(row);
 				} else if (!hasConditionRanges) {
-					if (i3 % 2 == 0) {
-						return conditionValues.get(i3 / 2).get(row);
+					if (conditionStandardUnits != null) {
+						return conditionValues.get(i3).get(row);
 					} else {
-						return conditionUnits.get(i3 / 2).get(row);
+						if (i3 % 2 == 0) {
+							return conditionValues.get(i3 / 2).get(row);
+						} else {
+							return conditionUnits.get(i3 / 2).get(row);
+						}
 					}
 				} else {
-					if (i3 % 3 == 0) {
-						return conditionMinValues.get(i3 / 3).get(row);
-					} else if (i3 % 3 == 1) {
-						return conditionMaxValues.get(i3 / 3).get(row);
+					if (conditionStandardUnits != null) {
+						if (i3 % 2 == 0) {
+							return conditionMinValues.get(i3 / 2).get(row);
+						} else {
+							return conditionMaxValues.get(i3 / 2).get(row);
+						}
 					} else {
-						return conditionUnits.get(i3 / 3).get(row);
+						if (i3 % 3 == 0) {
+							return conditionMinValues.get(i3 / 3).get(row);
+						} else if (i3 % 3 == 1) {
+							return conditionMinValues.get(i3 / 3).get(row);
+						} else {
+							return conditionUnits.get(i3 / 3).get(row);
+						}
 					}
 				}
 			}
@@ -1012,25 +1030,37 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			default:
 				int i1 = column - 7;
 				int i2 = i1 - stringColumns.size();
-				int i3 = i2 - doubleColumns.size();
+				int i3 = i2 - qualityColumns.size();
 
 				if (i1 < stringColumns.size()) {
 					return String.class;
-				} else if (i2 < doubleColumns.size()) {
+				} else if (i2 < qualityColumns.size()) {
 					return Double.class;
 				} else if (!hasConditionRanges) {
-					if (i3 % 2 == 0) {
+					if (conditionStandardUnits != null) {
 						return Double.class;
 					} else {
-						return String.class;
+						if (i3 % 2 == 0) {
+							return Double.class;
+						} else {
+							return String.class;
+						}
 					}
 				} else {
-					if (i3 % 3 == 0) {
-						return Double.class;
-					} else if (i3 % 3 == 1) {
-						return Double.class;
+					if (conditionStandardUnits != null) {
+						if (i3 % 2 == 0) {
+							return Double.class;
+						} else {
+							return Double.class;
+						}
 					} else {
-						return String.class;
+						if (i3 % 3 == 0) {
+							return Double.class;
+						} else if (i3 % 3 == 1) {
+							return Double.class;
+						} else {
+							return String.class;
+						}
 					}
 				}
 			}
@@ -1040,9 +1070,6 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			switch (column) {
-			case 0:
-				ids.set(row, (String) value);
-				break;
 			case 1:
 				selections.set(row, (Boolean) value);
 				break;
@@ -1060,39 +1087,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					shapeLists.set(row, (List<String>) value);
 				}
 				break;
-			case 4:
-				data.set(row, (List<TimeSeriesXml>) value);
-				break;
-			case 5:
-				formulas.set(row, (String) value);
-				break;
-			case 6:
-				parameters.set(row, (Map<String, Double>) value);
-				break;
 			default:
-				int i1 = column - 7;
-				int i2 = i1 - stringColumns.size();
-				int i3 = i2 - doubleColumns.size();
-
-				if (i1 < stringColumns.size()) {
-					stringColumnValues.get(i1).set(row, (String) value);
-				} else if (i2 < doubleColumns.size()) {
-					doubleColumnValues.get(i2).set(row, (Double) value);
-				} else if (!hasConditionRanges) {
-					if (i3 % 2 == 0) {
-						conditionValues.get(i3 / 2).set(row, (Double) value);
-					} else {
-						conditionUnits.get(i3 / 2).set(row, (String) value);
-					}
-				} else {
-					if (i3 % 3 == 0) {
-						conditionMinValues.get(i3 / 3).set(row, (Double) value);
-					} else if (i3 % 3 == 1) {
-						conditionMaxValues.get(i3 / 3).set(row, (Double) value);
-					} else {
-						conditionUnits.get(i3 / 3).set(row, (String) value);
-					}
-				}
+				// Do nothing
 			}
 		}
 
@@ -1107,31 +1103,16 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 		private static final long serialVersionUID = 1L;
 
-		private boolean exclusive;
-
-		public SelectTableModel(List<String> ids, List<?> colors,
-				List<?> shapes, List<List<TimeSeriesXml>> data,
-				List<String> formulas, List<Map<String, Double>> parameters,
-				List<String> conditions, List<List<Double>> conditionValues,
-				List<List<Double>> conditionMinValues,
-				List<List<Double>> conditionMaxValues,
-				List<List<String>> conditionUnits, List<String> stringColumns,
-				List<List<String>> stringColumnValues,
-				List<String> doubleColumns,
-				List<List<Double>> doubleColumnValues, boolean listBased,
-				boolean exclusive) {
-			super(ids, colors, shapes, data, formulas, parameters, conditions,
-					conditionValues, conditionMinValues, conditionMaxValues,
-					conditionUnits, stringColumns, stringColumnValues,
-					doubleColumns, doubleColumnValues, listBased);
-			this.exclusive = exclusive;
+		public SelectTableModel(List<?> colors, List<?> shapes,
+				boolean listBased) {
+			super(colors, shapes, listBased);
 		}
 
 		@Override
 		public void setValueAt(Object value, int row, int column) {
 			super.setValueAt(value, row, column);
 
-			if (exclusive && column == 1 && value.equals(Boolean.TRUE)) {
+			if (selectionExlusive && column == 1 && value.equals(Boolean.TRUE)) {
 				for (int i = 0; i < getRowCount(); i++) {
 					if (i != row) {
 						super.setValueAt(false, i, 1);

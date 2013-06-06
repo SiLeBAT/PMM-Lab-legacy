@@ -29,12 +29,10 @@ public class DepXml implements PmmXmlElementConvertable {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
 			setOrigName(xmlElement.getAttribute("origname").getValue());
-			if (xmlElement.getAttribute("category") != null) {
-				setCategory(xmlElement.getAttribute("category").getValue());
-			}
-			if (xmlElement.getAttribute("unit") != null) {
-				setUnit(xmlElement.getAttribute("unit").getValue());
-			}
+			String strDbl = xmlElement.getAttribute("category").getValue().trim();
+			setCategory(strDbl.isEmpty() ? null : strDbl);
+			strDbl = xmlElement.getAttribute("unit").getValue().trim();
+			setUnit(strDbl.isEmpty() ? null : strDbl);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -47,8 +45,8 @@ public class DepXml implements PmmXmlElementConvertable {
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
-	public void setCategory(String category) {this.category = (category == null) ? "" : category;}
-	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
+	public void setCategory(String category) {this.category = category;}
+	public void setUnit(String unit) {this.unit = unit;}
 
 	@Override
 	public Element toXmlElement() {

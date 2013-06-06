@@ -66,12 +66,10 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setMinGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("maxGuess").getValue();
 			setMaxGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			if (xmlElement.getAttribute("category") != null) {
-				setCategory(xmlElement.getAttribute("category").getValue());
-			}
-			if (xmlElement.getAttribute("unit") != null) {
-				setUnit(xmlElement.getAttribute("unit").getValue());				
-			}
+			strDbl = xmlElement.getAttribute("category").getValue().trim();
+			setCategory(strDbl.isEmpty() ? null : strDbl);
+			strDbl = xmlElement.getAttribute("unit").getValue().trim();
+			setUnit(strDbl.isEmpty() ? null : strDbl);
 			
 			for (Element el : xmlElement.getChildren()) {
 				if (el.getName().equals("correlation")) {
@@ -115,7 +113,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public void setMax(Double max) {this.max = (max == null) ? null : max;}
 	public void setP(Double P) {this.P = (P == null) ? null : P;}
 	public void sett(Double t) {this.t = (t == null) ? null : t;}	
-	public void setCategory(String category) {this.category = (category == null) ? "" : category;}
+	public void setCategory(String category) {this.category = category;}
 	public void setUnit(String unit) {this.unit = unit;}
 
 	public Double getMinGuess() {

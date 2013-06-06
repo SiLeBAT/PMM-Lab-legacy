@@ -49,8 +49,10 @@ public class MiscXml implements PmmXmlElementConvertable {
 			setDescription(xmlElement.getAttribute("description").getValue());
 			String strDbl = xmlElement.getAttribute("value").getValue();
 			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			setCategory(xmlElement.getAttribute("category") == null ? null : xmlElement.getAttribute("category").getValue());
-			setUnit(xmlElement.getAttribute("unit").getValue());
+			strDbl = xmlElement.getAttribute("category").getValue().trim();
+			setCategory(strDbl.isEmpty() ? null : strDbl);
+			strDbl = xmlElement.getAttribute("unit").getValue().trim();
+			setUnit(strDbl.isEmpty() ? null : strDbl);
 			if (xmlElement.getAttribute("dbuuid") != null) {
 				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
 			}
@@ -91,8 +93,8 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setDescription(String description) {this.description = (description == null) ? "" : description;}
 	public void setValue(Double value) {this.value = value;}
-	public void setCategory(String category) {this.category = (category == null) ? "" : category;}
-	public void setUnit(String unit) {this.unit = (unit == null) ? "" : unit;}
+	public void setCategory(String category) {this.category = category;}
+	public void setUnit(String unit) {this.unit = unit;}
 	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
@@ -102,8 +104,8 @@ public class MiscXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("name", name);
 		modelElement.setAttribute("description", description);
 		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));
-		modelElement.setAttribute("category", category);
-		modelElement.setAttribute("unit", unit);
+		modelElement.setAttribute("category", category == null ? "" : category);
+		modelElement.setAttribute("unit", unit == null ? "" : unit);
 		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		return modelElement;
 	}

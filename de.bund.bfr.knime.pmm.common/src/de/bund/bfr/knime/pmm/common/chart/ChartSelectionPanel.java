@@ -44,6 +44,7 @@ import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -108,13 +109,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	private ColorAndShapeCreator colorAndShapes;
 
 	private List<String> stringColumns;
-	private List<String> doubleColumns;
+	private List<String> qualityColumns;
 	private List<String> conditions;
+	private List<String> visualizationColumns;
+	private List<String> miscellaneousColumns;
 
 	private JTable selectTable;
-	private boolean containsData;
-	private boolean containsParameters;
-	private boolean containsFormulas;
 	private JComponent optionsPanel;
 
 	private JScrollPane tableScrollPane;
@@ -129,24 +129,26 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
-			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
-			List<String> conditions, List<List<Double>> conditionValues,
+			List<String> qualityColumns,
+			List<List<Double>> qualityColumnValues, List<String> conditions,
+			List<List<Double>> conditionValues,
 			List<List<Double>> conditionMinValues,
 			List<List<Double>> conditionMaxValues,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
 			List<String> filterableColumns, List<List<TimeSeriesXml>> data,
 			List<Map<String, Double>> parameters, List<String> formulas) {
 		this(ids, selectionsExclusive, stringColumns, stringColumnValues,
-				doubleColumns, doubleColumnValues, conditions, conditionValues,
-				conditionMinValues, conditionMaxValues, conditionUnits,
-				visibleColumns, filterableColumns, data, parameters, formulas,
-				null);
+				qualityColumns, qualityColumnValues, conditions,
+				conditionValues, conditionMinValues, conditionMaxValues,
+				conditionUnits, visibleColumns, filterableColumns, data,
+				parameters, formulas, null);
 	}
 
 	public ChartSelectionPanel(List<String> ids, boolean selectionsExclusive,
 			List<String> stringColumns, List<List<String>> stringColumnValues,
-			List<String> doubleColumns, List<List<Double>> doubleColumnValues,
-			List<String> conditions, List<List<Double>> conditionValues,
+			List<String> qualityColumns,
+			List<List<Double>> qualityColumnValues, List<String> conditions,
+			List<List<Double>> conditionValues,
 			List<List<Double>> conditionMinValues,
 			List<List<Double>> conditionMaxValues,
 			List<List<String>> conditionUnits, List<String> visibleColumns,
@@ -158,8 +160,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			stringColumns = new ArrayList<>();
 		}
 
-		if (doubleColumns == null) {
-			doubleColumns = new ArrayList<>();
+		if (qualityColumns == null) {
+			qualityColumns = new ArrayList<>();
 		}
 
 		if (conditions == null) {
@@ -174,13 +176,25 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 
 		this.stringColumns = stringColumns;
-		this.doubleColumns = doubleColumns;
+		this.qualityColumns = qualityColumns;
 		this.conditions = conditions;
+		visualizationColumns = Arrays.asList(COLOR, SHAPE);
+		miscellaneousColumns = new ArrayList<>();
 
+		if (data != null) {
+			miscellaneousColumns.add(DATA);
+		}
+
+		if (formulas != null) {
+			miscellaneousColumns.add(FORMULA);
+		}
+
+		if (parameters != null) {
+			miscellaneousColumns.add(PARAMETERS);
+		}
+
+		miscellaneousColumns.addAll(stringColumns);
 		listeners = new ArrayList<SelectionListener>();
-		containsData = data != null;
-		containsParameters = parameters != null;
-		containsFormulas = formulas != null;
 
 		JPanel upperPanel = new JPanel();
 
@@ -261,8 +275,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					colorAndShapes.getShapeNameList(), data, formulas,
 					parameters, conditions, conditionValues,
 					conditionMinValues, conditionMaxValues, conditionUnits,
-					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, false, selectionsExclusive);
+					stringColumns, stringColumnValues, qualityColumns,
+					qualityColumnValues, false, selectionsExclusive);
 		} else {
 			List<List<Color>> colorLists = new ArrayList<List<Color>>();
 			List<List<String>> shapeLists = new ArrayList<List<String>>();
@@ -286,8 +300,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			model = new SelectTableModel(ids, colorLists, shapeLists, data,
 					formulas, parameters, conditions, conditionValues,
 					conditionMinValues, conditionMaxValues, conditionUnits,
-					stringColumns, stringColumnValues, doubleColumns,
-					doubleColumnValues, true, selectionsExclusive);
+					stringColumns, stringColumnValues, qualityColumns,
+					qualityColumnValues, true, selectionsExclusive);
 		}
 
 		selectTable = new JTable(model);
@@ -588,7 +602,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				}
 			}
 
-			for (String column : doubleColumns) {
+			for (String column : qualityColumns) {
 				if (selectTable.getColumn(column).getMaxWidth() != 0) {
 					visibleColumns.add(column);
 				}
@@ -719,7 +733,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		for (String column : doubleColumns) {
+		for (String column : qualityColumns) {
 			if (!visibleColumns.contains(column)) {
 				selectTable.getColumn(column).setMinWidth(0);
 				selectTable.getColumn(column).setMaxWidth(0);
@@ -1877,6 +1891,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private boolean approved;
 		private List<String> selection;
 		private Map<String, JCheckBox> selectionBoxes;
+		private JCheckBox visualizationBox;
+		private JCheckBox miscellaneousBox;
+		private JCheckBox qualityBox;
+		private JCheckBox conditionsBox;
 
 		private JButton okButton;
 		private JButton cancelButton;
@@ -1889,12 +1907,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			selectionBoxes = new LinkedHashMap<>();
 
 			JPanel visualizationPanel = new JPanel();
-			List<String> visualizationColumns = new ArrayList<>();
 
-			visualizationColumns.add(COLOR);
-			visualizationColumns.add(SHAPE);
 			visualizationPanel.setLayout(new GridLayout(visualizationColumns
-					.size(), 1, 5, 5));
+					.size() + 1, 1, 5, 5));
+			visualizationBox = new JCheckBox("All");
+			visualizationBox.addActionListener(this);
+			visualizationPanel.add(visualizationBox);
 
 			for (String column : visualizationColumns) {
 				JCheckBox box = new JCheckBox(column);
@@ -1905,28 +1923,18 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					box.setSelected(false);
 				}
 
+				box.addActionListener(this);
 				selectionBoxes.put(column, box);
 				visualizationPanel.add(box);
 			}
 
 			JPanel miscellaneousPanel = new JPanel();
-			List<String> miscellaneousColumns = new ArrayList<>();
 
-			if (containsData) {
-				miscellaneousColumns.add(DATA);
-			}
-
-			if (containsFormulas) {
-				miscellaneousColumns.add(FORMULA);
-			}
-
-			if (containsParameters) {
-				miscellaneousColumns.add(PARAMETERS);
-			}
-
-			miscellaneousColumns.addAll(stringColumns);
 			miscellaneousPanel.setLayout(new GridLayout(miscellaneousColumns
-					.size(), 1, 5, 5));
+					.size() + 1, 1, 5, 5));
+			miscellaneousBox = new JCheckBox("All");
+			miscellaneousBox.addActionListener(this);
+			miscellaneousPanel.add(miscellaneousBox);
 
 			for (String column : miscellaneousColumns) {
 				JCheckBox box = new JCheckBox(column);
@@ -1937,16 +1945,20 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					box.setSelected(false);
 				}
 
+				box.addActionListener(this);
 				selectionBoxes.put(column, box);
 				miscellaneousPanel.add(box);
 			}
 
 			JPanel qualityPanel = new JPanel();
 
-			qualityPanel
-					.setLayout(new GridLayout(doubleColumns.size(), 1, 5, 5));
+			qualityPanel.setLayout(new GridLayout(qualityColumns.size() + 1, 1,
+					5, 5));
+			qualityBox = new JCheckBox("All");
+			qualityBox.addActionListener(this);
+			qualityPanel.add(qualityBox);
 
-			for (String column : doubleColumns) {
+			for (String column : qualityColumns) {
 				JCheckBox box = new JCheckBox(column);
 
 				if (initialSelection.contains(column)) {
@@ -1955,14 +1967,18 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					box.setSelected(false);
 				}
 
+				box.addActionListener(this);
 				selectionBoxes.put(column, box);
 				qualityPanel.add(box);
 			}
 
 			JPanel conditionsPanel = new JPanel();
 
-			conditionsPanel
-					.setLayout(new GridLayout(conditions.size(), 1, 5, 5));
+			conditionsPanel.setLayout(new GridLayout(conditions.size() + 1, 1,
+					5, 5));
+			conditionsBox = new JCheckBox("All");
+			conditionsBox.addActionListener(this);
+			conditionsPanel.add(conditionsBox);
 
 			for (String column : conditions) {
 				JCheckBox box = new JCheckBox(column);
@@ -1973,9 +1989,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					box.setSelected(false);
 				}
 
+				box.addActionListener(this);
 				selectionBoxes.put(column, box);
 				conditionsPanel.add(box);
 			}
+
+			updateCheckBoxes();
 
 			JPanel centerPanel = new JPanel();
 
@@ -1989,7 +2008,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 						"Miscellaneous"));
 			}
 
-			if (!doubleColumns.isEmpty()) {
+			if (!qualityColumns.isEmpty()) {
 				centerPanel.add(createNorthPanel(qualityPanel,
 						"Quality Criteria"));
 			}
@@ -2042,6 +2061,32 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				dispose();
 			} else if (e.getSource() == cancelButton) {
 				dispose();
+			} else if (e.getSource() == visualizationBox) {
+				if (visualizationBox.isSelected()) {
+					setColumnsTo(visualizationColumns, true);
+				} else {
+					setColumnsTo(visualizationColumns, false);
+				}
+			} else if (e.getSource() == miscellaneousBox) {
+				if (miscellaneousBox.isSelected()) {
+					setColumnsTo(miscellaneousColumns, true);
+				} else {
+					setColumnsTo(miscellaneousColumns, false);
+				}
+			} else if (e.getSource() == qualityBox) {
+				if (qualityBox.isSelected()) {
+					setColumnsTo(qualityColumns, true);
+				} else {
+					setColumnsTo(qualityColumns, false);
+				}
+			} else if (e.getSource() == conditionsBox) {
+				if (conditionsBox.isSelected()) {
+					setColumnsTo(conditions, true);
+				} else {
+					setColumnsTo(conditions, false);
+				}
+			} else {
+				updateCheckBoxes();
 			}
 		}
 
@@ -2056,6 +2101,71 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					.getPreferredSize().height));
 
 			return panel;
+		}
+
+		private void updateCheckBoxes() {
+			boolean allVisualizationSelected = true;
+			boolean allMiscellaneousSelected = true;
+			boolean allQualitySelected = true;
+			boolean allConditionsSelected = true;
+
+			for (String column : visualizationColumns) {
+				if (!selectionBoxes.get(column).isSelected()) {
+					allVisualizationSelected = false;
+					break;
+				}
+			}
+
+			for (String column : miscellaneousColumns) {
+				if (!selectionBoxes.get(column).isSelected()) {
+					allMiscellaneousSelected = false;
+					break;
+				}
+			}
+
+			for (String column : qualityColumns) {
+				if (!selectionBoxes.get(column).isSelected()) {
+					allQualitySelected = false;
+					break;
+				}
+			}
+
+			for (String column : conditions) {
+				if (!selectionBoxes.get(column).isSelected()) {
+					allConditionsSelected = false;
+					break;
+				}
+			}
+
+			if (allVisualizationSelected) {
+				visualizationBox.setSelected(true);
+			} else {
+				visualizationBox.setSelected(false);
+			}
+
+			if (allMiscellaneousSelected) {
+				miscellaneousBox.setSelected(true);
+			} else {
+				miscellaneousBox.setSelected(false);
+			}
+
+			if (allQualitySelected) {
+				qualityBox.setSelected(true);
+			} else {
+				qualityBox.setSelected(false);
+			}
+
+			if (allConditionsSelected) {
+				conditionsBox.setSelected(true);
+			} else {
+				conditionsBox.setSelected(false);
+			}
+		}
+
+		private void setColumnsTo(List<String> columns, boolean value) {
+			for (String column : columns) {
+				selectionBoxes.get(column).setSelected(value);
+			}
 		}
 	}
 

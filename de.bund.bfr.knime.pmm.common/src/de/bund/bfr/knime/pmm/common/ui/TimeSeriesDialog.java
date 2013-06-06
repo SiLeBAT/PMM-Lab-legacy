@@ -27,8 +27,8 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	public TimeSeriesDialog(JComponent owner, List<TimeSeriesXml> timeSeries,
-			boolean showChart) {
-		super(JOptionPane.getFrameForComponent(owner), "Data Points", true);
+			boolean showChart, boolean modal) {
+		super(JOptionPane.getFrameForComponent(owner), "Data Points", modal);
 
 		JButton okButton = new JButton("OK");
 		JPanel bottomPanel = new JPanel();
@@ -89,7 +89,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		creator.setDrawLines(false);
 		creator.setShowLegend(false);
 		creator.setUnitX(timeUnit);
-		creator.setUnitY(concentrationUnit);		
+		creator.setUnitY(concentrationUnit);
 		creator.createChart();
 
 		JPanel panel = new JPanel();

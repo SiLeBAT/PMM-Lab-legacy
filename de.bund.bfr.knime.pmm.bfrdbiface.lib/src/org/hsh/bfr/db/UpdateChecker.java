@@ -50,6 +50,45 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_162_163() {		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("name") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 3, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("kind of quantity") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 4, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("print") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 5, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("c/s") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 6, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("c/i") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 7, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("M") + " BOOLEAN", false);
+		updateChangeLog("Einheiten", 8, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("definition value") + " DOUBLE", false);
+		updateChangeLog("Einheiten", 9, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("definition unit") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 10, false);		
+		refreshFKs("Einheiten");
+		
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach") + ";", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='1'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Sekunde'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='2'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Minute'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='3'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Stunde'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='4'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Tag'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='5'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Woche'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='6'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Monat'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='7'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Jahr'", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Messwerte") + " ALTER COLUMN " + DBKernel.delimitL("ZeitEinheit") + " INTEGER", false);
+		refreshFKs("Messwerte");
+		
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_163.sql", null, false);
+	}
 	public static void check4Updates_161_162() {		
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
 				" ADD COLUMN " + DBKernel.delimitL("Kategorie") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Beschreibung"), false)) {

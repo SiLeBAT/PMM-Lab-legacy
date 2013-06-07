@@ -478,13 +478,25 @@ public class MyDBTables {
 		addTable(labore_Agenzien_Methodiken, -1);
 
 		
-		MyTable Konzentrationseinheiten = new MyTable("Einheiten", new String[]{"Einheit","Beschreibung"},
-				new String[]{"VARCHAR(255)","VARCHAR(255)"},
-				new String[]{null,null},
-				new MyTable[]{null,null},
+		MyTable Konzentrationseinheiten = new MyTable("Einheiten", new String[]{"Einheit","Beschreibung",
+				"name","kind of quantity","print","c/s","c/i",
+				"M","definition value","definition unit"},
+				new String[]{"VARCHAR(255)","VARCHAR(255)"
+				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"
+				,"BOOLEAN","DOUBLE","VARCHAR(255)"},
+				new String[]{null,null,
+				null,null,null,null,null,
+				null,null,null},
+				new MyTable[]{null,null,
+				null,null,null,null,null,
+				null,null,null},
 				null,
-				new LinkedHashMap[]{null,null},
-				new String[]{null,null});
+				new LinkedHashMap[]{null,null,
+				null,null,null,null,null,
+				null,null,null},
+				new String[]{null,null,
+				null,null,null,null,null,
+				null,null,null});
 		addTable(Konzentrationseinheiten, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
@@ -713,7 +725,7 @@ public class MyDBTables {
 				"Delta","Konzentration","Konz_Einheit",
 				"Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit",
 				"Sonstiges"},
-				new String[]{"INTEGER","DOUBLE","VARCHAR(50)",
+				new String[]{"INTEGER","DOUBLE","INTEGER",
 				"BOOLEAN","DOUBLE","INTEGER",
 				"DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE",
 				"INTEGER"},
@@ -721,15 +733,15 @@ public class MyDBTables {
 				"Falls angehakt:\nin den folgenden Feldern sind die Veränderungen der Konzentration des Erregers im Vergleich zum Startzeitpunkt eingetragen.\nDabei bedeutet eine positive Zahl im Feld 'Konzentration' eine Konzentrationserhöhung, eine negative Zahl eine Konzentrationsreduzierung.","Konzentration des Erregers - Entweder ist die absolute Konzentration bzw. der Mittelwert bei Mehrfachmessungen hier einzutragen ODER die Konzentrationsänderung, falls das Delta-Feld angehakt ist","Einheit zu den Konzentrationsangaben, auch der Logarithmus ist hier auswählbar - Auswahlbox",
 				"Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Temperatur in Grad Celcius","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: pH-Wert","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: aw-Wert","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: CO2 [ppm]","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Druck [bar]","Experimentelle Bedingung, falls abweichend von den festen Versuchsbedingungen: Luftfeuchtigkeit [%]",
 				"Sonstige experimentelle Rahmenbedingungen in der Umgebung, aber auch Facetten der Matrix, falls abweichend von den festen Versuchsbedingungen.\nEs öffnet sich ein Fenster, in dem an die Combase angelehnte Parameter eingetragen werden können, vgl. Feld condition in der Combase:\nhttp://www.combase.cc/CB_TechnDescription.pdf"},
-				new MyTable[]{tenazity_raw_data,newDoubleTable,null,null,newDoubleTable,Konzentrationseinheiten,
+				new MyTable[]{tenazity_raw_data,newDoubleTable,Konzentrationseinheiten,null,newDoubleTable,Konzentrationseinheiten,
 				newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,newDoubleTable,
 				SonstigeParameter},
 				null,
-				new LinkedHashMap[]{null,null,hashZeit,null,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,
 					null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					"Messwerte_Sonstiges"});
-		addTable(tenazity_measured_vals, DBKernel.isKNIME ? MyList.Tenazitaet_LIST : -1);
+		addTable(tenazity_measured_vals, DBKernel.isKNIME ? MyList.Tenazitaet_LIST : 66);
 		tenazity_raw_data.setForeignField(tenazity_measured_vals, 6);
 
 		MyTable Versuchsbedingungen_Sonstiges = new MyTable("Versuchsbedingungen_Sonstiges",

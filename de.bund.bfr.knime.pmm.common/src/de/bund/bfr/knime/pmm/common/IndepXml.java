@@ -38,7 +38,7 @@ public class IndepXml implements PmmXmlElementConvertable {
 			setMin(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("max").getValue();
 			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));			
-			strDbl = xmlElement.getAttribute("category").getValue().trim();
+			strDbl = xmlElement.getAttribute("category") != null ? xmlElement.getAttribute("category").getValue().trim() : "";
 			setCategory(strDbl.isEmpty() ? null : strDbl);
 			strDbl = xmlElement.getAttribute("unit").getValue().trim();
 			setUnit(strDbl.isEmpty() ? null : strDbl);

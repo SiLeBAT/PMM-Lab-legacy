@@ -66,7 +66,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setMinGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			strDbl = xmlElement.getAttribute("maxGuess").getValue();
 			setMaxGuess(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("category").getValue().trim();
+			strDbl = xmlElement.getAttribute("category") != null ? xmlElement.getAttribute("category").getValue().trim() : "";
 			setCategory(strDbl.isEmpty() ? null : strDbl);
 			strDbl = xmlElement.getAttribute("unit").getValue().trim();
 			setUnit(strDbl.isEmpty() ? null : strDbl);

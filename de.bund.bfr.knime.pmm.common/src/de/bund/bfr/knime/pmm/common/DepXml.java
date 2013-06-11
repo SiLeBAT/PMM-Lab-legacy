@@ -29,9 +29,9 @@ public class DepXml implements PmmXmlElementConvertable {
 		try {
 			setName(xmlElement.getAttribute("name").getValue());
 			setOrigName(xmlElement.getAttribute("origname").getValue());
-			String strDbl = xmlElement.getAttribute("category").getValue().trim();
+			String strDbl = xmlElement.getAttribute("category") != null ? xmlElement.getAttribute("category").getValue().trim() : "";
 			setCategory(strDbl.isEmpty() ? null : strDbl);
-			strDbl = xmlElement.getAttribute("unit").getValue().trim();
+			strDbl = xmlElement.getAttribute("unit") != null ? xmlElement.getAttribute("unit").getValue().trim() : "";
 			setUnit(strDbl.isEmpty() ? null : strDbl);
 		}
 		catch (Exception e) {

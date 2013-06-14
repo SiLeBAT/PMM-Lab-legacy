@@ -61,7 +61,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
@@ -83,7 +83,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 	protected static final String DEFAULT_TIMEUNIT = new Time()
 			.getStandardUnit();
-	protected static final String DEFAULT_LOGCUNIT = new BacterialConcentration()
+	protected static final String DEFAULT_LOGCUNIT = new NumberContent()
 			.getStandardUnit();
 
 	private List<LiteratureItem> literature;

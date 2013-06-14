@@ -54,12 +54,7 @@ public class Temperature implements Category {
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return fromCelsius(toCelsius(value, fromUnit), toUnit);
-	}
-
-	@Override
-	public boolean canConvert(String fromUnit, String toUnit) {
-		return true;
-	}
+	}	
 
 	private Double toCelsius(Double value, String unit) {
 		if (value == null) {

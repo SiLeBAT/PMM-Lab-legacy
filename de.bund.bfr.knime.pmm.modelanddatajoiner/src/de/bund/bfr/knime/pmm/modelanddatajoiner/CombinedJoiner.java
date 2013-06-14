@@ -74,7 +74,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.Time;
@@ -359,7 +359,7 @@ public class CombinedJoiner implements Joiner {
 
 					element.setTime(new Time().convert(element.getTime(),
 							element.getTimeUnit(), timeUnit));
-					element.setConcentration(new BacterialConcentration()
+					element.setConcentration(new NumberContent()
 							.convert(element.getConcentration(),
 									element.getConcentrationUnit(),
 									concentrationUnit));
@@ -412,7 +412,7 @@ public class CombinedJoiner implements Joiner {
 		primaryParameterCategories
 				.put(AttributeUtilities.TIME, Categories.TIME);
 		primaryParameterCategories.put(AttributeUtilities.LOGC,
-				Categories.BACTERIAL_CONCENTRATION);
+				Categories.NUMBER_CONTENT);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), dataTable);

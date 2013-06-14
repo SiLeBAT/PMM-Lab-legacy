@@ -191,11 +191,12 @@ public class TableReader {
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			String initParam = initParams.get(modelID);
-			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 
-			categories.put(depXml.getName(), depXml.getCategory());
+			categories.put(depXml.getName(),
+					Arrays.asList(depXml.getCategory()));
 			units.put(depXml.getName(), depXml.getUnit());
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
@@ -205,7 +206,8 @@ public class TableReader {
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
 
-				categories.put(element.getName(), element.getCategory());
+				categories.put(element.getName(),
+						Arrays.asList(element.getCategory()));
 				units.put(element.getName(), element.getUnit());
 			}
 

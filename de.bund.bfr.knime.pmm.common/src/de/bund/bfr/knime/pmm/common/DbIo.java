@@ -4,7 +4,7 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class DbIo {
@@ -38,7 +38,7 @@ public class DbIo {
 					try {
 						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
 								time.equals("?") ? null : Double.parseDouble(time),Time.HOUR,
-										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),BacterialConcentration.LOG_CFU_PER_GRAMM);
+										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),NumberContent.LOG_COUNT_PER_GRAMM);
 						tsDoc.add(tsx);
 					}
 					catch (Exception e) {

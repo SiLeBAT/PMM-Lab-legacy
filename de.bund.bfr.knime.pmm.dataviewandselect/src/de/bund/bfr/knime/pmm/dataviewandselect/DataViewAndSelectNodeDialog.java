@@ -37,6 +37,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Shape;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
@@ -309,16 +310,16 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private JComponent createMainComponent() {
-		Map<String, String> categories = new LinkedHashMap<>();
+		Map<String, List<String>> categories = new LinkedHashMap<>();
 		Map<String, String> units = new LinkedHashMap<>();
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
-		categories.put(AttributeUtilities.TIME, Categories.TIME);
-		categories.put(AttributeUtilities.LOGC,
-				Categories.BACTERIAL_CONCENTRATION);
+		categories.put(AttributeUtilities.TIME, Arrays.asList(Categories.TIME));
+		categories.put(AttributeUtilities.LOGC, Arrays.asList(
+				Categories.NUMBER_CONTENT, Categories.NUMBER_CONCENTRATION));
 		units.put(AttributeUtilities.TIME, new Time().getStandardUnit());
 		units.put(AttributeUtilities.LOGC,
-				new BacterialConcentration().getStandardUnit());
+				new NumberContent().getStandardUnit());
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
 
 		if (selectAllIDs == 1) {

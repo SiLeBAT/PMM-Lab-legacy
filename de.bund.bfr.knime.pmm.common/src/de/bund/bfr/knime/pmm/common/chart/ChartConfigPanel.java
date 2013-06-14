@@ -69,7 +69,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -113,7 +112,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private Map<String, List<Boolean>> selectedValuesX;
 	private Map<String, Double> minParamValuesX;
 	private Map<String, Double> maxParamValuesX;
-	private Map<String, String> categories;
+	private Map<String, List<String>> categories;
 	private Map<String, String> units;
 
 	private JPanel parameterValuesPanel;
@@ -454,7 +453,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			Map<String, List<Double>> parametersX,
 			Map<String, Double> minParamXValues,
 			Map<String, Double> maxParamXValues,
-			Map<String, String> categories, Map<String, String> units,
+			Map<String, List<String>> categories, Map<String, String> units,
 			String lockedParamX) {
 		boolean parametersChanged = false;
 
@@ -640,10 +639,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xUnitBox.removeActionListener(this);
 		xUnitBox.removeAllItems();
 
-		Category category = Categories.getCategory(categories.get(var));
-
-		for (String unit : category.getAllUnits()) {
-			xUnitBox.addItem(unit);
+		for (String category : categories.get(var)) {
+			for (String unit : Categories.getCategory(category).getAllUnits()) {
+				xUnitBox.addItem(unit);
+			}
 		}
 
 		xUnitBox.setSelectedItem(units.get(var));
@@ -656,10 +655,10 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		yUnitBox.removeActionListener(this);
 		yUnitBox.removeAllItems();
 
-		Category category = Categories.getCategory(categories.get(var));
-
-		for (String unit : category.getAllUnits()) {
-			yUnitBox.addItem(unit);
+		for (String category : categories.get(var)) {
+			for (String unit : Categories.getCategory(category).getAllUnits()) {
+				yUnitBox.addItem(unit);
+			}
 		}
 
 		yUnitBox.setSelectedItem(units.get(var));

@@ -33,36 +33,63 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
-public class SolutionConcentration implements Category {
+public class NumberContent implements Category {
 
-	public static final String PERCENT_WTVOL = "% wt/vol";
-	public static final String PERCENT_WTWT = "% wt/wt";
+	public static final String COUNT_PER_GRAMM = "count/g";
+	public static final String LOG_COUNT_PER_GRAMM = "log10(count/g)";
+	public static final String LN_COUNT_PER_GRAMM = "ln(count/g)";
 
-	public SolutionConcentration() {
+	public NumberContent() {
 	}
 
 	@Override
 	public String[] getAllUnits() {
-		return new String[] { PERCENT_WTVOL, PERCENT_WTWT };
+		return new String[] { COUNT_PER_GRAMM, LOG_COUNT_PER_GRAMM,
+				LN_COUNT_PER_GRAMM };
 	}
 
 	@Override
 	public String getStandardUnit() {
-		return PERCENT_WTVOL;
+		return LOG_COUNT_PER_GRAMM;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
-		if (fromUnit.equals(toUnit)) {
-			return value;
-		}
-
-		return null;
+		return fromCFU(toCFU(value, fromUnit), toUnit);
 	}
 
-	@Override
-	public boolean canConvert(String fromUnit, String toUnit) {
-		return fromUnit.equals(toUnit);
+	private Double toCFU(Double value, String unit) {
+		if (value == null) {
+			return null;
+		}
+
+		switch (unit) {
+		case COUNT_PER_GRAMM:
+			return value;
+		case LOG_COUNT_PER_GRAMM:
+			return Math.pow(10.0, value);
+		case LN_COUNT_PER_GRAMM:
+			return Math.exp(value);
+		default:
+			return null;
+		}
+	}
+
+	private Double fromCFU(Double value, String unit) {
+		if (value == null) {
+			return null;
+		}
+
+		switch (unit) {
+		case COUNT_PER_GRAMM:
+			return value;
+		case LOG_COUNT_PER_GRAMM:
+			return Math.log10(value);
+		case LN_COUNT_PER_GRAMM:
+			return Math.log(value);
+		default:
+			return null;
+		}
 	}
 
 }

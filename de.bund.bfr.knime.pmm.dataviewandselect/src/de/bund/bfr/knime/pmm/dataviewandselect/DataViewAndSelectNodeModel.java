@@ -68,7 +68,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
@@ -109,7 +109,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	static final int DEFAULT_ADDLEGENDINFO = 0;
 	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
 	static final String DEFAULT_UNITX = new Time().getStandardUnit();
-	static final String DEFAULT_UNITY = new BacterialConcentration()
+	static final String DEFAULT_UNITY = new NumberContent()
 			.getStandardUnit();
 	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;

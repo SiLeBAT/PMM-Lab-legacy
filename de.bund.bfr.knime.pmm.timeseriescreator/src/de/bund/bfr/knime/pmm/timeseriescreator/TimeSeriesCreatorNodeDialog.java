@@ -93,7 +93,8 @@ import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.PH;
@@ -163,6 +164,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	 * New pane for configuring the TimeSeriesCreator node.
 	 */
 	protected TimeSeriesCreatorNodeDialog() {
+		List<String> concentrationUnits = new ArrayList<>();
+
+		concentrationUnits.addAll(Arrays.asList(new NumberContent()
+				.getAllUnits()));
+		concentrationUnits.addAll(Arrays.asList(new NumberConcentration()
+				.getAllUnits()));
+
 		xlsReader = new XLSReader();
 
 		condButtons = new ArrayList<>();
@@ -206,7 +214,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				waterActivityField.getPreferredSize().height));
 		timeBox = new JComboBox<String>(new Time().getAllUnits());
 		logcBox = new JComboBox<String>(
-				new BacterialConcentration().getAllUnits());
+				concentrationUnits.toArray(new String[0]));
 		tempBox = new JComboBox<String>(new Temperature().getAllUnits());
 		phBox = new JComboBox<String>(new PH().getAllUnits());
 		awBox = new JComboBox<String>(new WaterActivity().getAllUnits());

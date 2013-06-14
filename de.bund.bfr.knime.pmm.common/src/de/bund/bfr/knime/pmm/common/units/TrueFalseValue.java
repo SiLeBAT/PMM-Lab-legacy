@@ -53,11 +53,6 @@ public class TrueFalseValue implements Category {
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return value;
-	}
-
-	@Override
-	public boolean canConvert(String fromUnit, String toUnit) {
-		return true;
-	}
+	}	
 
 }

@@ -33,12 +33,26 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
-public interface Category {
+public class MassConcentration implements Category {
 
-	public String[] getAllUnits();
-	
-	public String getStandardUnit();
+	public static final String PERCENT_WTVOL = "% wt/vol";	
 
-	public Double convert(Double value, String fromUnit, String toUnit);
-	
+	public MassConcentration() {
+	}
+
+	@Override
+	public String[] getAllUnits() {
+		return new String[] { PERCENT_WTVOL };
+	}
+
+	@Override
+	public String getStandardUnit() {
+		return PERCENT_WTVOL;
+	}
+
+	@Override
+	public Double convert(Double value, String fromUnit, String toUnit) {
+		return value;
+	}
+
 }

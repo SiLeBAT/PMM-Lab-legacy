@@ -55,8 +55,4 @@ public class NoCategory implements Category {
 		return value;
 	}
 
-	@Override
-	public boolean canConvert(String fromUnit, String toUnit) {
-		return true;
-	}
 }

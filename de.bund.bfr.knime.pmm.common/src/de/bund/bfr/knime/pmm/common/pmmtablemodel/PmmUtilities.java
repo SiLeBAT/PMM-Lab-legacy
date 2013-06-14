@@ -1,6 +1,7 @@
 package de.bund.bfr.knime.pmm.common.pmmtablemodel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,9 +47,9 @@ public class PmmUtilities {
 		return new ArrayList<String>(paramSet);
 	}
 
-	public static Map<String, String> getMiscCategories(
+	public static Map<String, List<String>> getMiscCategories(
 			List<KnimeTuple> tuples) {
-		Map<String, String> map = new LinkedHashMap<>();
+		Map<String, List<String>> map = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -56,7 +57,7 @@ public class PmmUtilities {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				map.put(element.getName(), element.getCategory());
+				map.put(element.getName(), Arrays.asList(element.getCategory()));
 			}
 		}
 

@@ -19,7 +19,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TimeSeriesDialog extends JDialog implements ActionListener {
@@ -65,7 +65,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		List<Double> timeList = new ArrayList<>();
 		List<Double> logcList = new ArrayList<>();
 		String timeUnit = new Time().getStandardUnit();
-		String concentrationUnit = new BacterialConcentration()
+		String concentrationUnit = new NumberContent()
 				.getStandardUnit();
 
 		for (TimeSeriesXml point : timeSeries) {

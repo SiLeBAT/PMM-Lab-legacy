@@ -81,7 +81,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.PH;
@@ -1039,11 +1040,18 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnUnitBoxes.put(column, unitBox);
 						northPanel.add(unitBox, createConstraints(3, row));
 					} else if (mapping.equals(AttributeUtilities.LOGC)) {
+						List<String> units = new ArrayList<>();
+
+						units.addAll(Arrays.asList(new NumberContent()
+								.getAllUnits()));
+						units.addAll(Arrays.asList(new NumberConcentration()
+								.getAllUnits()));
+
 						JComboBox<String> unitBox = new JComboBox<>(
-								new BacterialConcentration().getAllUnits());
+								units.toArray(new String[0]));
 
 						if (concentrationUnit == null) {
-							concentrationUnit = new BacterialConcentration()
+							concentrationUnit = new NumberContent()
 									.getStandardUnit();
 						}
 

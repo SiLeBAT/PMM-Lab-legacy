@@ -199,10 +199,11 @@ public class TableReader {
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
-			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 
-			categories.put(depXml.getName(), depXml.getCategory());
+			categories.put(depXml.getName(),
+					Arrays.asList(depXml.getCategory()));
 			units.put(depXml.getName(), depXml.getUnit());
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
@@ -213,7 +214,8 @@ public class TableReader {
 				varMin.put(element.getName(), element.getMin());
 				varMax.put(element.getName(), element.getMax());
 
-				categories.put(element.getName(), element.getCategory());
+				categories.put(element.getName(),
+						Arrays.asList(element.getCategory()));
 				units.put(element.getName(), element.getUnit());
 			}
 
@@ -263,8 +265,8 @@ public class TableReader {
 					}
 
 					if (categories.get(element.getName()) == null) {
-						categories
-								.put(element.getName(), element.getCategory());
+						categories.put(element.getName(),
+								Arrays.asList(element.getCategory()));
 					}
 
 					if (units.get(element.getName()) == null) {

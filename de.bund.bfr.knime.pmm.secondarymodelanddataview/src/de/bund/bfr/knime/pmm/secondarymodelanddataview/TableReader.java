@@ -99,7 +99,7 @@ public class TableReader {
 		Map<String, Double> bicMap = new LinkedHashMap<>();
 		Map<String, Integer> dofMap = new LinkedHashMap<>();
 		List<String> miscParams = null;
-		Map<String, String> miscCategories = null;
+		Map<String, List<String>> miscCategories = null;
 		List<KnimeTuple> tuples;
 
 		if (schemaContainsData) {
@@ -279,7 +279,7 @@ public class TableReader {
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
-			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
@@ -298,7 +298,8 @@ public class TableReader {
 						new ArrayList<Double>(Arrays.asList(0.0)));
 				minArg.put(element.getName(), element.getMin());
 				maxArg.put(element.getName(), element.getMax());
-				categories.put(element.getName(), element.getCategory());
+				categories.put(element.getName(),
+						Arrays.asList(element.getCategory()));
 				units.put(element.getName(), element.getUnit());
 			}
 

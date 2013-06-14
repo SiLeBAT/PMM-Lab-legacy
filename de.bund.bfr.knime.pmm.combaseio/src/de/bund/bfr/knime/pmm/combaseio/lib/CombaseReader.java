@@ -55,7 +55,7 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.PH;
@@ -240,7 +240,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 						continue;
 					}
 					next.add(t, Time.HOUR, logc,
-							BacterialConcentration.LOG_CFU_PER_GRAMM);
+							NumberContent.LOG_COUNT_PER_GRAMM);
 				}
 				break;
 			}

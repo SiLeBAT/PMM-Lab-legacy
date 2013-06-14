@@ -73,11 +73,6 @@ public class Time implements Category {
 		}
 
 		return value * factors.get(fromUnit) / factors.get(toUnit);
-	}
-
-	@Override
-	public boolean canConvert(String fromUnit, String toUnit) {
-		return true;
-	}
+	}	
 
 }

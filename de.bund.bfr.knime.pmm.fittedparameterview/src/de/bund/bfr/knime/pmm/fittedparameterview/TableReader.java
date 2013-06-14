@@ -51,7 +51,7 @@ public class TableReader {
 				SchemaFactory.createM1DataSchema());
 		Map<String, Integer> primModelIDs = new LinkedHashMap<>();
 		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
-		Map<String, String> miscCategories = PmmUtilities
+		Map<String, List<String>> miscCategories = PmmUtilities
 				.getMiscCategories(tuples);
 		Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
 
@@ -137,11 +137,11 @@ public class TableReader {
 						MiscXml element2 = (MiscXml) el2;
 
 						if (param.equals(element2.getName())) {
-							Category category = Categories
-									.getCategory(miscCategories.get(element2
-											.getName()));
 							String unit = miscUnits.get(modelXml.getID()).get(
 									element2.getName());
+							Category category = Categories.getCategoryByUnit(
+									miscCategories.get(element2.getName()),
+									unit);
 
 							paramValue = category.convert(element2.getValue(),
 									element2.getUnit(), unit);

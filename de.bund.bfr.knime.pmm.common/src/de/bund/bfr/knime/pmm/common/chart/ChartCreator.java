@@ -61,8 +61,6 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartCreator extends ChartPanel {
 
@@ -163,14 +161,10 @@ public class ChartCreator extends ChartPanel {
 			if (plotable != null) {
 				if (plotable.getType() == Plotable.BOTH
 						|| plotable.getType() == Plotable.BOTH_STRICT) {
-					Category category = Categories.getCategory(plotable
-							.getCategories().get(paramX));
-					Double minArg = category.convert(plotable.getMinArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
-					Double maxArg = category.convert(plotable.getMaxArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
+					Double minArg = plotable.convertToUnit(paramX, plotable
+							.getMinArguments().get(paramX), unitX);
+					Double maxArg = plotable.convertToUnit(paramX, plotable
+							.getMaxArguments().get(paramX), unitX);
 
 					if (minArg != null) {
 						usedMinX = Math.min(usedMinX, minArg);
@@ -203,14 +197,10 @@ public class ChartCreator extends ChartPanel {
 						}
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION) {
-					Category category = Categories.getCategory(plotable
-							.getCategories().get(paramX));
-					Double minArg = category.convert(plotable.getMinArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
-					Double maxArg = category.convert(plotable.getMaxArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
+					Double minArg = plotable.convertToUnit(paramX, plotable
+							.getMinArguments().get(paramX), unitX);
+					Double maxArg = plotable.convertToUnit(paramX, plotable
+							.getMaxArguments().get(paramX), unitX);
 
 					if (minArg != null) {
 						usedMinX = Math.min(usedMinX, minArg);
@@ -220,14 +210,10 @@ public class ChartCreator extends ChartPanel {
 						usedMaxX = Math.max(usedMaxX, maxArg);
 					}
 				} else if (plotable.getType() == Plotable.FUNCTION_SAMPLE) {
-					Category category = Categories.getCategory(plotable
-							.getCategories().get(paramX));
-					Double minArg = category.convert(plotable.getMinArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
-					Double maxArg = category.convert(plotable.getMaxArguments()
-							.get(paramX), plotable.getUnits().get(paramX),
-							unitX);
+					Double minArg = plotable.convertToUnit(paramX, plotable
+							.getMinArguments().get(paramX), unitX);
+					Double maxArg = plotable.convertToUnit(paramX, plotable
+							.getMaxArguments().get(paramX), unitX);
 
 					if (minArg != null) {
 						usedMinX = Math.min(usedMinX, minArg);

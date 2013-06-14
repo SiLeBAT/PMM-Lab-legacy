@@ -33,21 +33,26 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Categories {
 
-	public static final String BACTERIAL_CONCENTRATION = "Bacterial Concentration";
-	public static final String PH = "pH";
-	public static final String PRESSURE = "Pressure";
-	public static final String SOLUTION_CONCENTRATION = "Solution Concentration";
-	public static final String TEMPERATURE = "Temperature";
 	public static final String TIME = "Time";
-	public static final String TRUE_FALSE_VALUE = "True/False Value";
+	public static final String NUMBER_CONTENT = "Number Content";
+	public static final String NUMBER_CONCENTRATION = "Number Concentration";
+	public static final String TEMPERATURE = "Temperature";
+	public static final String PH = "pH";
 	public static final String WATER_ACTIVITY = "Water Activity";
+	public static final String MASS_CONCENTRATION = "Mass Concentration";
+	public static final String MASS_RATIO = "Mass Ratio";
+	public static final String PRESSURE = "Pressure";
+	public static final String TRUE_FALSE_VALUE = "True/False Value";
 
 	public static String[] getAllCategories() {
-		return new String[] { BACTERIAL_CONCENTRATION, PH, PRESSURE,
-				SOLUTION_CONCENTRATION, TEMPERATURE, TIME, TRUE_FALSE_VALUE,
-				WATER_ACTIVITY };
+		return new String[] { TIME, NUMBER_CONTENT, NUMBER_CONCENTRATION,
+				TEMPERATURE, PH, WATER_ACTIVITY, MASS_CONCENTRATION,
+				MASS_RATIO, PRESSURE, TRUE_FALSE_VALUE };
 	}
 
 	public static Category getCategory(String id) {
@@ -56,24 +61,44 @@ public class Categories {
 		}
 
 		switch (id) {
-		case BACTERIAL_CONCENTRATION:
-			return new BacterialConcentration();
-		case PH:
-			return new PH();
-		case PRESSURE:
-			return new Pressure();
-		case SOLUTION_CONCENTRATION:
-			return new SolutionConcentration();
-		case TEMPERATURE:
-			return new Temperature();
 		case TIME:
 			return new Time();
-		case TRUE_FALSE_VALUE:
-			return new TrueFalseValue();
+		case NUMBER_CONTENT:
+			return new NumberContent();
+		case NUMBER_CONCENTRATION:
+			return new NumberConcentration();
+		case TEMPERATURE:
+			return new Temperature();
+		case PH:
+			return new PH();
 		case WATER_ACTIVITY:
 			return new WaterActivity();
+		case MASS_CONCENTRATION:
+			return new MassConcentration();
+		case MASS_RATIO:
+			return new MassRatio();
+		case PRESSURE:
+			return new Pressure();
+		case TRUE_FALSE_VALUE:
+			return new TrueFalseValue();
 		default:
 			return new NoCategory();
 		}
+	}
+
+	public static Category getCategoryByUnit(List<String> categories,
+			String unit) {
+		Category category = null;
+
+		for (String s : categories) {
+			Category c = Categories.getCategory(s);
+
+			if (Arrays.asList(c.getAllUnits()).contains(unit)) {
+				category = c;
+				break;
+			}
+		}
+
+		return category;
 	}
 }

@@ -67,7 +67,8 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.units.BacterialConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class Bfrdb extends Hsqldbiface {
@@ -1701,12 +1702,12 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			
 			if (concUnit != null) {
-				if (concUnit.equals(BacterialConcentration.CFU_PER_GRAMM)) ps.setInt(5, 20);
-				else if (concUnit.equals(BacterialConcentration.LOG_CFU_PER_GRAMM)) ps.setInt(5, 5);
-				else if (concUnit.equals(BacterialConcentration.LN_CFU_PER_GRAMM)) ps.setNull(5, Types.INTEGER);
-				else if (concUnit.equals(BacterialConcentration.CFU_PER_MILLILITER)) ps.setInt(5, 23);
-				else if (concUnit.equals(BacterialConcentration.LOG_CFU_PER_MILLILITER)) ps.setInt(5, 8);
-				else if (concUnit.equals(BacterialConcentration.LN_CFU_PER_MILLILITER)) ps.setNull(5, Types.INTEGER);
+				if (concUnit.equals(NumberContent.COUNT_PER_GRAMM)) ps.setInt(5, 20);
+				else if (concUnit.equals(NumberContent.LOG_COUNT_PER_GRAMM)) ps.setInt(5, 5);
+				else if (concUnit.equals(NumberContent.LN_COUNT_PER_GRAMM)) ps.setNull(5, Types.INTEGER);
+				else if (concUnit.equals(NumberConcentration.COUNT_PER_MILLILITER)) ps.setInt(5, 23);
+				else if (concUnit.equals(NumberConcentration.LOG_COUNT_PER_MILLILITER)) ps.setInt(5, 8);
+				else if (concUnit.equals(NumberConcentration.LN_COUNT_PER_MILLILITER)) ps.setNull(5, Types.INTEGER);
 				else ps.setNull(5, Types.INTEGER);
 			}
 			else {

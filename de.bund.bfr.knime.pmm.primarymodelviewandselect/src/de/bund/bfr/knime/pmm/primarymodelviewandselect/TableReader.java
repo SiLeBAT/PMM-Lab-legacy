@@ -389,12 +389,15 @@ public class TableReader {
 						((EstModelXml) estModelXml.get(0)).getBIC());
 			}
 
-			Map<String, String> categories = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 
-			categories.put(AttributeUtilities.TIME, Categories.TIME);
-			categories.put(AttributeUtilities.LOGC,
-					Categories.BACTERIAL_CONCENTRATION);
+			categories.put(AttributeUtilities.TIME,
+					Arrays.asList(Categories.TIME));
+			categories
+					.put(AttributeUtilities.LOGC, Arrays.asList(
+							Categories.NUMBER_CONTENT,
+							Categories.NUMBER_CONCENTRATION));
 			units.put(AttributeUtilities.TIME, timeUnit);
 			units.put(AttributeUtilities.LOGC, concentrationUnit);
 

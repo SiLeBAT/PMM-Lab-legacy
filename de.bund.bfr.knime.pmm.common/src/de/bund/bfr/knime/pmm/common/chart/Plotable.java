@@ -708,7 +708,7 @@ public class Plotable {
 	public Double convertToUnit(String param, Double value, String unit) {
 		String currentUnit = units.get(param);
 		Category category = Categories.getCategoryByUnit(categories.get(param),
-				currentUnit);
+				currentUnit);		
 
 		return category.convert(value, currentUnit, unit);
 	}

@@ -89,14 +89,16 @@ public class Categories {
 
 	public static Category getCategoryByUnit(List<String> categories,
 			String unit) {
-		Category category = null;
+		Category category = new NoCategory();
 
-		for (String s : categories) {
-			Category c = Categories.getCategory(s);
+		if (categories != null) {
+			for (String s : categories) {
+				Category c = Categories.getCategory(s);
 
-			if (c.getAllUnits().contains(unit)) {
-				category = c;
-				break;
+				if (c.getAllUnits().contains(unit)) {
+					category = c;
+					break;
+				}
 			}
 		}
 

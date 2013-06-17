@@ -639,9 +639,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xUnitBox.removeActionListener(this);
 		xUnitBox.removeAllItems();
 
-		for (String category : categories.get(var)) {
-			for (String unit : Categories.getCategory(category).getAllUnits()) {
-				xUnitBox.addItem(unit);
+		if (categories.containsKey(var)) {
+			for (String category : categories.get(var)) {
+				for (String unit : Categories.getCategory(category)
+						.getAllUnits()) {
+					xUnitBox.addItem(unit);
+				}
 			}
 		}
 
@@ -655,9 +658,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		yUnitBox.removeActionListener(this);
 		yUnitBox.removeAllItems();
 
-		for (String category : categories.get(var)) {
-			for (String unit : Categories.getCategory(category).getAllUnits()) {
-				yUnitBox.addItem(unit);
+		if (categories.containsKey(var)) {
+			for (String category : categories.get(var)) {
+				for (String unit : Categories.getCategory(category)
+						.getAllUnits()) {
+					yUnitBox.addItem(unit);
+				}
 			}
 		}
 

@@ -72,6 +72,7 @@ import java.util.prefs.Preferences;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.undo.UndoableEditSupport;
@@ -1825,7 +1826,7 @@ public class DBKernel {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
 				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
 	}
-	public static Connection getInternalKNIMEDB_LoadGui() {
+	private static Connection getInternalKNIMEDB_LoadGui() {
 		Connection result = null;
 		try {
 			// Create a file object from the URL
@@ -1861,6 +1862,11 @@ public class DBKernel {
 								"--extract",
 								incFilefirstDB.getAbsolutePath(),
 								incFileInternalDBFolder.getAbsolutePath()});
+						JOptionPane pane = new JOptionPane("Internal database created in folder '" + incFileInternalDBFolder.getAbsolutePath() + "'",
+								JOptionPane.INFORMATION_MESSAGE);
+						JDialog dialog = pane.createDialog("Internal database created");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
 					}
 					catch (Exception e) {
 						throw new IllegalStateException("Creation of internal database not succeeded.", e);

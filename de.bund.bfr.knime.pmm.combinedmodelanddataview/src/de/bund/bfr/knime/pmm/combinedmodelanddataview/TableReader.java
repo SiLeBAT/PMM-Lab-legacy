@@ -266,7 +266,7 @@ public class TableReader {
 
 					if (categories.get(element.getName()) == null) {
 						categories.put(element.getName(),
-								Arrays.asList(element.getCategory()));
+								element.getCategories());
 					}
 
 					if (units.get(element.getName()) == null) {

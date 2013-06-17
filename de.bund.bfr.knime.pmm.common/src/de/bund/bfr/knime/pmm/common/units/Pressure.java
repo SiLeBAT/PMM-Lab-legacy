@@ -33,7 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Pressure implements Category {
@@ -49,20 +51,25 @@ public class Pressure implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { PASCAL, KILO_PASCAL, MEGA_PASCAL, BAR, MILLI_BAR,
-				KILO_BAR };
+	public String getName() {
+		return Categories.PRESSURE;
 	}
-	
+
 	@Override
-	public String getStandardUnit() {		
+	public List<String> getAllUnits() {
+		return Arrays.asList(PASCAL, KILO_PASCAL, MEGA_PASCAL, BAR, MILLI_BAR,
+				KILO_BAR);
+	}
+
+	@Override
+	public String getStandardUnit() {
 		return PASCAL;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		Map<String, Double> factors = new LinkedHashMap<>();
-		
+
 		factors.put(PASCAL, 1.0);
 		factors.put(KILO_PASCAL, 1e3);
 		factors.put(MEGA_PASCAL, 1e6);
@@ -76,6 +83,6 @@ public class Pressure implements Category {
 		}
 
 		return value * factors.get(fromUnit) / factors.get(toUnit);
-	}	
+	}
 
 }

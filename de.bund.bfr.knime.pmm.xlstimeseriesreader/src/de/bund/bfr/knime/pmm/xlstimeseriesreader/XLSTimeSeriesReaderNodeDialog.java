@@ -81,10 +81,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
 import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.PH;
 import de.bund.bfr.knime.pmm.common.units.Temperature;
 import de.bund.bfr.knime.pmm.common.units.Time;
@@ -648,18 +647,21 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 								"SonstigeParameter", "ID", id + "",
 								"Beschreibung")
 								+ "";
-						String categoryID = DBKernel
+						List<String> categoryIDs = Arrays.asList(DBKernel
 								.getValue("SonstigeParameter", "ID", id + "",
-										"Kategorie")
-								+ "";
-						Category category = Categories.getCategory(categoryID);
-						String unit = category.getStandardUnit();
+										"Kategorie").toString().split(","));
+						String unit = null;
+
+						if (!categoryIDs.isEmpty()) {
+							unit = Categories.getCategory(categoryIDs.get(0))
+									.getStandardUnit();
+						}
 
 						columnButtons.get(column).setText(name);
 						columnMappings.put(
 								column,
 								new MiscXml(id, name, description, null,
-										categoryID, unit, DBKernel
+										categoryIDs, unit, DBKernel
 												.getLocalDBUUID()));
 						updateColumnsPanel();
 					}
@@ -712,23 +714,24 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnMappings.put(column, selected);
 					} else if (selected
 							.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-						columnMappings.put(column,
-								new MiscXml(
-										AttributeUtilities.ATT_TEMPERATURE_ID,
-										AttributeUtilities.ATT_TEMPERATURE,
-										null, null, Categories.TEMPERATURE,
-										new Temperature().getStandardUnit()));
-					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						columnMappings.put(column, new MiscXml(
-								AttributeUtilities.ATT_PH_ID,
-								AttributeUtilities.ATT_PH, null, null,
-								Categories.PH, new PH().getStandardUnit()));
+								AttributeUtilities.ATT_TEMPERATURE_ID,
+								AttributeUtilities.ATT_TEMPERATURE, null, null,
+								Arrays.asList(Categories.TEMPERATURE),
+								new Temperature().getStandardUnit()));
+					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
+						columnMappings.put(
+								column,
+								new MiscXml(AttributeUtilities.ATT_PH_ID,
+										AttributeUtilities.ATT_PH, null, null,
+										Arrays.asList(Categories.PH), new PH()
+												.getStandardUnit()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 						columnMappings.put(column, new MiscXml(
 								AttributeUtilities.ATT_AW_ID,
 								AttributeUtilities.ATT_WATERACTIVITY, null,
-								null, Categories.WATER_ACTIVITY,
+								null, Arrays.asList(Categories.WATER_ACTIVITY),
 								new WaterActivity().getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						columnMappings.put(column, null);
@@ -1012,10 +1015,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 				if (columnMappings.get(column) instanceof MiscXml) {
 					MiscXml condition = (MiscXml) columnMappings.get(column);
-					Category category = Categories.getCategory(condition
-							.getCategory());
+					List<String> allUnits = new ArrayList<>();
+
+					for (String cat : condition.getCategories()) {
+						allUnits.addAll(Categories.getCategory(cat)
+								.getAllUnits());
+					}
+
 					JComboBox<String> unitBox = new JComboBox<>(
-							category.getAllUnits());
+							allUnits.toArray(new String[0]));
 
 					if (condition.getUnit() != null) {
 						unitBox.setSelectedItem(condition.getUnit());
@@ -1028,8 +1036,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					String mapping = (String) columnMappings.get(column);
 
 					if (mapping.equals(AttributeUtilities.TIME)) {
-						JComboBox<String> unitBox = new JComboBox<>(
-								new Time().getAllUnits());
+						JComboBox<String> unitBox = new JComboBox<>(new Time()
+								.getAllUnits().toArray(new String[0]));
 
 						if (timeUnit == null) {
 							timeUnit = new Time().getStandardUnit();
@@ -1042,10 +1050,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					} else if (mapping.equals(AttributeUtilities.LOGC)) {
 						List<String> units = new ArrayList<>();
 
-						units.addAll(Arrays.asList(new NumberContent()
-								.getAllUnits()));
-						units.addAll(Arrays.asList(new NumberConcentration()
-								.getAllUnits()));
+						units.addAll(new NumberContent().getAllUnits());
+						units.addAll(new NumberConcentration().getAllUnits());
 
 						JComboBox<String> unitBox = new JComboBox<>(
 								units.toArray(new String[0]));

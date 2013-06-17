@@ -1,7 +1,6 @@
 package de.bund.bfr.knime.pmm.common.pmmtablemodel;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,7 +56,7 @@ public class PmmUtilities {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				map.put(element.getName(), Arrays.asList(element.getCategory()));
+				map.put(element.getName(), element.getCategories());
 			}
 		}
 

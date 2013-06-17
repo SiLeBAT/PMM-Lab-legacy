@@ -33,6 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
+import java.util.List;
+
 import org.jdom2.Element;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -483,7 +485,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		setAgentAttribute(agentId, agentName, agentDetail);
 	}
 
-	public void addMisc(int attrID, String attribute, String description, Double value, String category, String unit) throws PmmException {
+	public void addMisc(int attrID, String attribute, String description, Double value, List<String> categories, String unit) throws PmmException {
 		PmmXmlDoc miscXmlDoc = getMisc();
 		if (miscXmlDoc == null) miscXmlDoc = new PmmXmlDoc();
 		MiscXml mx = null;
@@ -499,7 +501,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     	}
     	if (paramFound) miscXmlDoc.remove(mx);
     	if (value != null && !value.isInfinite() && !value.isNaN()) {
-    		mx = new MiscXml(attrID,attribute,description,value,category,unit);
+    		mx = new MiscXml(attrID,attribute,description,value,categories,unit);
     		miscXmlDoc.add(mx);    		
     	}
     	setValue(TimeSeriesSchema.ATT_MISC, miscXmlDoc);

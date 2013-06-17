@@ -33,26 +33,34 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class PH implements Category {
 
 	public static final String PH_SCALE = "pH Scale";
+
+	public PH() {
+	}
 	
-	public PH() {		
+	@Override
+	public String getName() {
+		return Categories.PH;
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { PH_SCALE };
+	public List<String> getAllUnits() {
+		return Arrays.asList(PH_SCALE);
 	}
-	
+
 	@Override
-	public String getStandardUnit() {		
+	public String getStandardUnit() {
 		return PH_SCALE;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return value;
-	}	
+	}
 
 }

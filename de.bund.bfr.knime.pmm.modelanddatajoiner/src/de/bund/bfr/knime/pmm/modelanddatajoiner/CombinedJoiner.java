@@ -359,10 +359,9 @@ public class CombinedJoiner implements Joiner {
 
 					element.setTime(new Time().convert(element.getTime(),
 							element.getTimeUnit(), timeUnit));
-					element.setConcentration(new NumberContent()
-							.convert(element.getConcentration(),
-									element.getConcentrationUnit(),
-									concentrationUnit));
+					element.setConcentration(new NumberContent().convert(
+							element.getConcentration(),
+							element.getConcentrationUnit(), concentrationUnit));
 					element.setTimeUnit(timeUnit);
 					element.setConcentrationUnit(concentrationUnit);
 				}
@@ -371,8 +370,8 @@ public class CombinedJoiner implements Joiner {
 					MiscXml element = (MiscXml) el;
 
 					if (paramsConvertTo.containsKey(element.getName())) {
-						Category cat = Categories.getCategory(element
-								.getCategory());
+						Category cat = Categories.getCategoryByUnit(
+								element.getCategories(), element.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
 						element.setValue(cat.convert(element.getValue(),
@@ -424,8 +423,10 @@ public class CombinedJoiner implements Joiner {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				secondaryParameterCategories.put(element.getName(),
-						element.getCategory());
+				secondaryParameterCategories.put(
+						element.getName(),
+						Categories.getCategoryByUnit(element.getCategories(),
+								element.getUnit()).getName());
 			}
 		}
 	}
@@ -525,12 +526,11 @@ public class CombinedJoiner implements Joiner {
 
 						if (categories.containsKey(element.getName())
 								&& categories.get(element.getName()) == null) {
-							categories.put(element.getName(),
-									element.getCategory());
-						}
-
-						if (units.containsKey(element.getName())
-								&& units.get(element.getName()) == null) {
+							categories.put(
+									element.getName(),
+									Categories.getCategoryByUnit(
+											element.getCategories(),
+											element.getUnit()).getName());
 							units.put(element.getName(), element.getUnit());
 						}
 					}

@@ -251,10 +251,9 @@ public class PrimaryJoiner implements Joiner {
 
 					element.setTime(new Time().convert(element.getTime(),
 							element.getTimeUnit(), timeUnit));
-					element.setConcentration(new NumberContent()
-							.convert(element.getConcentration(),
-									element.getConcentrationUnit(),
-									concentrationUnit));
+					element.setConcentration(new NumberContent().convert(
+							element.getConcentration(),
+							element.getConcentrationUnit(), concentrationUnit));
 					element.setTimeUnit(timeUnit);
 					element.setConcentrationUnit(concentrationUnit);
 				}
@@ -263,8 +262,8 @@ public class PrimaryJoiner implements Joiner {
 					MiscXml element = (MiscXml) el;
 
 					if (paramsConvertTo.containsKey(element.getName())) {
-						Category cat = Categories.getCategory(element
-								.getCategory());
+						Category cat = Categories.getCategoryByUnit(
+								element.getCategories(), element.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
 						element.setValue(cat.convert(element.getValue(),
@@ -384,8 +383,10 @@ public class PrimaryJoiner implements Joiner {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				parameterCategories.put(element.getName(),
-						element.getCategory());
+				parameterCategories.put(
+						element.getName(),
+						Categories.getCategoryByUnit(element.getCategories(),
+								element.getUnit()).getName());
 			}
 		}
 	}

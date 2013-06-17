@@ -397,8 +397,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 							MiscXml element = (MiscXml) el;
 
 							if (paramsConvertTo.containsKey(element.getName())) {
-								Category cat = Categories.getCategory(element
-										.getCategory());
+								Category cat = Categories
+										.getCategory(Categories
+												.getCategoryByUnit(
+														element.getCategories(),
+														element.getUnit())
+												.getName());
 								String unit = paramsConvertTo.get(element
 										.getName());
 
@@ -514,8 +518,10 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					TimeSeriesSchema.ATT_MISC).getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				independentParameterCategories.put(element.getName(),
-						element.getCategory());
+				independentParameterCategories.put(
+						element.getName(),
+						Categories.getCategoryByUnit(element.getCategories(),
+								element.getUnit()).getName());
 			}
 		}
 	}
@@ -533,7 +539,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getIndepParamsFromCategory(String category) {
-		List<String> params = new ArrayList<>();		
+		List<String> params = new ArrayList<>();
 
 		for (String param : independentParameterCategories.keySet()) {
 			if (category == null

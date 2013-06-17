@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class NoCategory implements Category {
 
 	public static final String NO_UNIT = "No Unit";
@@ -41,8 +44,13 @@ public class NoCategory implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { NO_UNIT };
+	public String getName() {
+		return Categories.NO_CATEGORY;
+	}
+
+	@Override
+	public List<String> getAllUnits() {
+		return Arrays.asList(NO_UNIT);
 	}
 
 	@Override

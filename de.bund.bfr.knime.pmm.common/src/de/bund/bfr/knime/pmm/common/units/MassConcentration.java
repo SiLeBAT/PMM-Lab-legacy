@@ -33,16 +33,24 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class MassConcentration implements Category {
 
-	public static final String PERCENT_WTVOL = "% wt/vol";	
+	public static final String PERCENT_WTVOL = "% wt/vol";
 
 	public MassConcentration() {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { PERCENT_WTVOL };
+	public String getName() {
+		return Categories.MASS_CONCENTRATION;
+	}
+
+	@Override
+	public List<String> getAllUnits() {
+		return Arrays.asList(PERCENT_WTVOL);
 	}
 
 	@Override

@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class NumberContent implements Category {
 
 	public static final String COUNT_PER_GRAMM = "count/g";
@@ -43,9 +46,14 @@ public class NumberContent implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { COUNT_PER_GRAMM, LOG_COUNT_PER_GRAMM,
-				LN_COUNT_PER_GRAMM };
+	public String getName() {
+		return Categories.NUMBER_CONTENT;
+	}
+
+	@Override
+	public List<String> getAllUnits() {
+		return Arrays.asList(COUNT_PER_GRAMM, LOG_COUNT_PER_GRAMM,
+				LN_COUNT_PER_GRAMM);
 	}
 
 	@Override

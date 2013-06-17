@@ -33,12 +33,16 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.List;
+
 public interface Category {
 
-	public String[] getAllUnits();
-	
+	public String getName();
+
+	public List<String> getAllUnits();
+
 	public String getStandardUnit();
 
 	public Double convert(Double value, String fromUnit, String toUnit);
-	
+
 }

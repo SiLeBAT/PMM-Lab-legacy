@@ -1,5 +1,8 @@
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class NumberConcentration implements Category {
 
 	public static final String COUNT_PER_MILLILITER = "count/ml";
@@ -10,9 +13,14 @@ public class NumberConcentration implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { COUNT_PER_MILLILITER, LOG_COUNT_PER_MILLILITER,
-				LN_COUNT_PER_MILLILITER };
+	public String getName() {
+		return Categories.NUMBER_CONCENTRATION;
+	}
+
+	@Override
+	public List<String> getAllUnits() {
+		return Arrays.asList(COUNT_PER_MILLILITER, LOG_COUNT_PER_MILLILITER,
+				LN_COUNT_PER_MILLILITER);
 	}
 
 	@Override

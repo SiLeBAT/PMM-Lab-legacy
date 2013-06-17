@@ -166,10 +166,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected TimeSeriesCreatorNodeDialog() {
 		List<String> concentrationUnits = new ArrayList<>();
 
-		concentrationUnits.addAll(Arrays.asList(new NumberContent()
-				.getAllUnits()));
-		concentrationUnits.addAll(Arrays.asList(new NumberConcentration()
-				.getAllUnits()));
+		concentrationUnits.addAll(new NumberContent().getAllUnits());
+		concentrationUnits.addAll(new NumberConcentration().getAllUnits());
 
 		xlsReader = new XLSReader();
 
@@ -212,12 +210,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				true);
 		waterActivityField.setPreferredSize(new Dimension(100,
 				waterActivityField.getPreferredSize().height));
-		timeBox = new JComboBox<String>(new Time().getAllUnits());
+		timeBox = new JComboBox<String>(new Time().getAllUnits().toArray(
+				new String[0]));
 		logcBox = new JComboBox<String>(
 				concentrationUnits.toArray(new String[0]));
-		tempBox = new JComboBox<String>(new Temperature().getAllUnits());
-		phBox = new JComboBox<String>(new PH().getAllUnits());
-		awBox = new JComboBox<String>(new WaterActivity().getAllUnits());
+		tempBox = new JComboBox<String>(new Temperature().getAllUnits()
+				.toArray(new String[0]));
+		phBox = new JComboBox<String>(new PH().getAllUnits().toArray(
+				new String[0]));
+		awBox = new JComboBox<String>(new WaterActivity().getAllUnits()
+				.toArray(new String[0]));
 
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
@@ -396,10 +398,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				conditions.set(0, misc);
 				condValueFields.get(0).setValue(misc.getValue());
 
-				Category category = Categories.getCategory(misc.getCategory());
-
-				for (String u : category.getAllUnits()) {
-					condUnitFields.get(0).addItem(u);
+				for (String category : misc.getCategories()) {
+					for (String u : Categories.getCategory(category)
+							.getAllUnits()) {
+						condUnitFields.get(0).addItem(u);
+					}
 				}
 
 				condUnitFields.get(0).setSelectedItem(misc.getUnit());
@@ -471,21 +474,23 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
-							.getValue(), Categories.TEMPERATURE,
+							.getValue(), Arrays.asList(Categories.TEMPERATURE),
 					(String) tempBox.getSelectedItem()));
 		}
 
 		if (phField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
-					AttributeUtilities.ATT_PH, null, phField.getValue(),
-					Categories.PH, (String) phBox.getSelectedItem()));
+					AttributeUtilities.ATT_PH, null, phField.getValue(), Arrays
+							.asList(Categories.PH), (String) phBox
+							.getSelectedItem()));
 		}
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 					AttributeUtilities.ATT_WATERACTIVITY, null,
-					waterActivityField.getValue(), Categories.WATER_ACTIVITY,
-					(String) awBox.getSelectedItem()));
+					waterActivityField.getValue(), Arrays
+							.asList(Categories.WATER_ACTIVITY), (String) awBox
+							.getSelectedItem()));
 		}
 
 		for (int i = 0; i < conditions.size(); i++) {
@@ -646,16 +651,18 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						+ "";
 				String description = DBKernel.getValue("SonstigeParameter",
 						"ID", id + "", "Beschreibung") + "";
-				String categoryID = DBKernel.getValue("SonstigeParameter",
-						"ID", id + "", "Kategorie") + "";
-				Category category = Categories.getCategory(categoryID);
+				List<String> categoryIDs = Arrays.asList(DBKernel
+						.getValue("SonstigeParameter", "ID", id + "",
+								"Kategorie").toString().split(","));
 
 				condButtons.get(i).setText(name);
 				conditions.set(i, new MiscXml(id, name, description, null,
-						categoryID, null, DBKernel.getLocalDBUUID()));
+						categoryIDs, null, DBKernel.getLocalDBUUID()));
 				condUnitFields.get(i).removeAllItems();
 
-				if (category != null) {
+				for (String categoryID : categoryIDs) {
+					Category category = Categories.getCategory(categoryID);
+
 					for (String u : category.getAllUnits()) {
 						condUnitFields.get(i).addItem(u);
 					}
@@ -1027,24 +1034,31 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
-									null, Categories.TEMPERATURE,
+									null,
+									Arrays.asList(Categories.TEMPERATURE),
 									new Temperature().getStandardUnit()));
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, new MiscXml(
-									AttributeUtilities.ATT_PH_ID,
-									AttributeUtilities.ATT_PH, null, null,
-									Categories.PH, new PH().getStandardUnit()));
+							mappings.put(column,
+									new MiscXml(AttributeUtilities.ATT_PH_ID,
+											AttributeUtilities.ATT_PH, null,
+											null, Arrays.asList(Categories.PH),
+											new PH().getStandardUnit()));
 						} else if (selected
 								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, new MiscXml(
-									AttributeUtilities.ATT_AW_ID,
-									AttributeUtilities.ATT_WATERACTIVITY, null,
-									null, Categories.WATER_ACTIVITY,
-									new WaterActivity().getStandardUnit()));
+							mappings.put(
+									column,
+									new MiscXml(
+											AttributeUtilities.ATT_AW_ID,
+											AttributeUtilities.ATT_WATERACTIVITY,
+											null,
+											null,
+											Arrays.asList(Categories.WATER_ACTIVITY),
+											new WaterActivity()
+													.getStandardUnit()));
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);
@@ -1120,25 +1134,31 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									"SonstigeParameter", "ID", id + "",
 									"Beschreibung")
 									+ "";
-							String categoryID = DBKernel.getValue(
-									"SonstigeParameter", "ID", id + "",
-									"Kategorie")
-									+ "";
-							Category category = Categories
-									.getCategory(categoryID);
-							String unit = category.getStandardUnit();
+							List<String> categoryIDs = Arrays.asList(DBKernel
+									.getValue("SonstigeParameter", "ID",
+											id + "", "Kategorie").toString()
+									.split(","));
 
 							unitBoxes.get(column).removeAllItems();
 
-							for (String u : category.getAllUnits()) {
-								unitBoxes.get(column).addItem(u);
+							String unit = null;
+
+							for (String categoryID : categoryIDs) {
+								Category category = Categories
+										.getCategory(categoryID);
+
+								for (String u : category.getAllUnits()) {
+									unitBoxes.get(column).addItem(u);
+								}
+
+								unit = category.getStandardUnit();
+								unitBoxes.get(column).setSelectedItem(unit);
+
+								mappingButtons.get(column).setText(name);
 							}
 
-							unitBoxes.get(column).setSelectedItem(unit);
-
-							mappingButtons.get(column).setText(name);
 							mappings.put(column, new MiscXml(id, name,
-									description, null, categoryID, unit));
+									description, null, categoryIDs, unit));
 							pack();
 						}
 

@@ -33,10 +33,11 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Categories {
+
+	public static final String NO_CATEGORY = "No Category";
 
 	public static final String TIME = "Time";
 	public static final String NUMBER_CONTENT = "Number Content";
@@ -93,7 +94,7 @@ public class Categories {
 		for (String s : categories) {
 			Category c = Categories.getCategory(s);
 
-			if (Arrays.asList(c.getAllUnits()).contains(unit)) {
+			if (c.getAllUnits().contains(unit)) {
 				category = c;
 				break;
 			}

@@ -471,19 +471,27 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 
 		for (MiscXml cond : usedMiscs) {
-			String[] units = Categories.getCategory(cond.getCategory())
-					.getAllUnits();
+			List<String> units = new ArrayList<>();
+
+			for (String cat : cond.getCategories()) {
+				units.addAll(Categories.getCategory(cat).getAllUnits());
+			}
 
 			table.getColumn(cond.getName() + " Unit").setCellEditor(
-					new DefaultCellEditor(new JComboBox<>(units)));
+					new DefaultCellEditor(new JComboBox<>(units
+							.toArray(new String[0]))));
 		}
 
 		for (MiscXml cond : addedConditions.values()) {
-			String[] units = Categories.getCategory(cond.getCategory())
-					.getAllUnits();
+			List<String> units = new ArrayList<>();
+
+			for (String cat : cond.getCategories()) {
+				units.addAll(Categories.getCategory(cat).getAllUnits());
+			}
 
 			table.getColumn(cond.getName() + " Unit").setCellEditor(
-					new DefaultCellEditor(new JComboBox<>(units)));
+					new DefaultCellEditor(new JComboBox<>(units
+							.toArray(new String[0]))));
 		}
 	}
 
@@ -547,23 +555,30 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						+ "";
 				String description = DBKernel.getValue("SonstigeParameter",
 						"ID", id + "", "Beschreibung") + "";
-				String category = DBKernel.getValue("SonstigeParameter", "ID",
-						id + "", "Kategorie") + "";
+				List<String> categories = Arrays.asList(DBKernel
+						.getValue("SonstigeParameter", "ID", id + "",
+								"Kategorie").toString().split(","));
 
 				if (!usedMiscIDs.contains(id)) {
-					String[] units = Categories.getCategory(category)
-							.getAllUnits();
+					List<String> units = new ArrayList<>();
+
+					for (String cat : categories) {
+						units.addAll(Categories.getCategory(cat).getAllUnits());
+					}
 
 					addedConditionNames.add(name);
 					addedConditionsList.setListData(addedConditionNames
 							.toArray(new String[0]));
-					((EditTable) table.getModel()).addCondition(
-							new MiscXml(id, name, description, null, category,
-									null, DBKernel.getLocalDBUUID()),
-							new LinkedHashMap<String, Double>(),
-							new LinkedHashMap<String, String>());
+					((EditTable) table.getModel())
+							.addCondition(
+									new MiscXml(id, name, description, null,
+											categories, null, DBKernel
+													.getLocalDBUUID()),
+									new LinkedHashMap<String, Double>(),
+									new LinkedHashMap<String, String>());
 					table.getColumn(name + " Unit").setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units)));
+							new DefaultCellEditor(new JComboBox<>(units
+									.toArray(new String[0]))));
 
 					table.repaint();
 				} else {
@@ -643,8 +658,12 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				Map<String, String> units) {
 			List<Double> valueList = new ArrayList<>();
 			List<String> unitList = new ArrayList<>();
-			String standardUnit = Categories.getCategory(
-					condition.getCategory()).getStandardUnit();
+			String standardUnit = null;
+
+			if (!condition.getCategories().isEmpty()) {
+				standardUnit = Categories.getCategory(
+						condition.getCategories().get(0)).getStandardUnit();
+			}
 
 			for (String id : ids) {
 				valueList.add(values.get(id));

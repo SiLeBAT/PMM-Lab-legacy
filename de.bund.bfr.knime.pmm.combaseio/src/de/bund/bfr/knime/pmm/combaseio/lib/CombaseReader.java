@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,9 +56,8 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.PH;
 import de.bund.bfr.knime.pmm.common.units.Temperature;
 import de.bund.bfr.knime.pmm.common.units.Time;
@@ -71,7 +71,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<>();
 	private Map<String, Integer> newIDs = new LinkedHashMap<>();
 	private Map<String, String> newParams = new LinkedHashMap<>();
-	private Map<String, String> newCategories = new LinkedHashMap<>();
+	private Map<String, List<String>> newCategories = new LinkedHashMap<>();
 
 	public CombaseReader(final String filename) throws FileNotFoundException,
 			IOException, Exception {
@@ -180,7 +180,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_TEMPERATURE, value,
-						Categories.TEMPERATURE, Temperature.CELSIUS);
+						Arrays.asList(Categories.TEMPERATURE),
+						Temperature.CELSIUS);
 				continue;
 			}
 
@@ -190,7 +191,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// next.setPh(value);
 				next.addMisc(AttributeUtilities.ATT_PH_ID,
 						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH,
-						value, Categories.PH, PH.PH_SCALE);
+						value, Arrays.asList(Categories.PH), PH.PH_SCALE);
 				continue;
 			}
 
@@ -201,7 +202,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				next.addMisc(AttributeUtilities.ATT_AW_ID,
 						AttributeUtilities.ATT_WATERACTIVITY,
 						AttributeUtilities.ATT_WATERACTIVITY, value,
-						Categories.WATER_ACTIVITY, WaterActivity.WATER_ACTIVITY);
+						Arrays.asList(Categories.WATER_ACTIVITY),
+						WaterActivity.WATER_ACTIVITY);
 				continue;
 			}
 
@@ -365,20 +367,27 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 		if (!newCategories.containsKey(description)) {
 			Object category = DBKernel.getValue("SonstigeParameter",
 					"Beschreibung", description.toLowerCase(), "Kategorie");
+			List<String> categories = null;
 			if (category == null) {
 				System.err.println(description
 						+ "... unknown Misc parameter...");
-				category = getCombaseName(description);
+				category = new ArrayList<String>();
+			} else {
+				categories = Arrays.asList(category.toString().split(","));
 			}
-			newCategories.put(description, category.toString());
+			newCategories.put(description, categories);
 		}
 
-		Category category = Categories.getCategory(newCategories
-				.get(description));
+		String unit = null;
+
+		if (!newCategories.get(description).isEmpty()) {
+			unit = Categories
+					.getCategory(newCategories.get(description).get(0))
+					.getStandardUnit();
+		}
 
 		return new MiscXml(newIDs.get(description), newParams.get(description),
-				description, dbl, newCategories.get(description),
-				category.getStandardUnit());
+				description, dbl, newCategories.get(description), unit);
 	}
 
 	private String getCombaseName(String description) {

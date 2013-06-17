@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Temperature implements Category {
 
 	public static final String CELSIUS = "°C";
@@ -42,19 +45,24 @@ public class Temperature implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { CELSIUS, FAHRENHEIT };
+	public String getName() {
+		return Categories.TEMPERATURE;
 	}
-	
+
 	@Override
-	public String getStandardUnit() {		
+	public List<String> getAllUnits() {
+		return Arrays.asList(CELSIUS, FAHRENHEIT);
+	}
+
+	@Override
+	public String getStandardUnit() {
 		return CELSIUS;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return fromCelsius(toCelsius(value, fromUnit), toUnit);
-	}	
+	}
 
 	private Double toCelsius(Double value, String unit) {
 		if (value == null) {

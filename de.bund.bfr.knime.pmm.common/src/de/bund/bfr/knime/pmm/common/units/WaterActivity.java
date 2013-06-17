@@ -33,6 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class WaterActivity implements Category {
 
 	public static final String WATER_ACTIVITY = "Water Activity";
@@ -41,8 +44,13 @@ public class WaterActivity implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { WATER_ACTIVITY };
+	public String getName() {
+		return Categories.WATER_ACTIVITY;
+	}
+
+	@Override
+	public List<String> getAllUnits() {
+		return Arrays.asList(WATER_ACTIVITY);
 	}
 
 	@Override
@@ -53,6 +61,6 @@ public class WaterActivity implements Category {
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		return value;
-	}	
+	}
 
 }

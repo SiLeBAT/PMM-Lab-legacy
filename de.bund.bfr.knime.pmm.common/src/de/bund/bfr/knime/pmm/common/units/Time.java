@@ -33,7 +33,9 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Time implements Category {
@@ -48,19 +50,24 @@ public class Time implements Category {
 	}
 
 	@Override
-	public String[] getAllUnits() {
-		return new String[] { SECOND, MINUTE, HOUR, DAY, WEEK };
+	public String getName() {
+		return Categories.TIME;
 	}
-	
+
 	@Override
-	public String getStandardUnit() {		
+	public List<String> getAllUnits() {
+		return Arrays.asList(SECOND, MINUTE, HOUR, DAY, WEEK);
+	}
+
+	@Override
+	public String getStandardUnit() {
 		return HOUR;
 	}
 
 	@Override
 	public Double convert(Double value, String fromUnit, String toUnit) {
 		Map<String, Double> factors = new LinkedHashMap<>();
-		
+
 		factors.put(SECOND, 1.0);
 		factors.put(MINUTE, 60.0);
 		factors.put(HOUR, 60 * 60.0);
@@ -73,6 +80,6 @@ public class Time implements Category {
 		}
 
 		return value * factors.get(fromUnit) / factors.get(toUnit);
-	}	
+	}
 
 }

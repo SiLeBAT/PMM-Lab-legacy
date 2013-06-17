@@ -309,7 +309,8 @@ public class ModelTableModel extends JTable {
 				    	if (unit != null && !unit.isEmpty()) text = category + " -> " + unit;
 				    	else text = "";
 				    }
-				    JComponent editor = new JTextField(text);					  
+				    JComponent editor = new JTextField(text);
+				    if (rowIndex == 0) editor.setEnabled(false);
 				    editor.setBackground(new Color(244, 244, 244));
 				    editor.setForeground(Color.BLACK);
 				    c = editor;
@@ -317,7 +318,8 @@ public class ModelTableModel extends JTable {
 			  else if (columnIndex == 2) {
 				  JCheckBox checkbox = new JCheckBox();
 				  checkbox.setHorizontalAlignment(SwingConstants.CENTER);
-				  checkbox.setEnabled(true);
+				  if (rowIndex == 0) checkbox.setEnabled(false);
+				  else checkbox.setEnabled(true);
 				  checkbox.setSelected(value == null ? false : (Boolean) value);
 				  checkbox.setBackground(Color.WHITE);
 				  c = checkbox;
@@ -331,6 +333,7 @@ public class ModelTableModel extends JTable {
 					    if (indep == null) indep = false;
 					    editor.setEnabled(!indep);				    	
 				    }
+				    if (rowIndex == 0) editor.setEnabled(false);
 				    //if (isSelected)
 				    c = editor;
 			  }

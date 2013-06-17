@@ -522,30 +522,7 @@ public class MMC_M extends JPanel {
 			 */
 			int row = getLastClickedRow(e, table);
 			int col = getLastClickedCol(e, table);
-			if (row > 0 && radioButton3.isSelected()) {
-				Object isIndep = table.getValueAt(row, 2);
-				if (col == 0
-						&& (isIndep == null || isIndep instanceof Boolean
-								&& !((Boolean) isIndep))) {
-					SecDialog secondaryDialog = new SecDialog(m_parentFrame);
-					secondaryDialog.setModal(true);
-					secondaryDialog.setIconImage(Resources.getInstance()
-							.getDefaultIcon());
-					String param = table.getValueAt(row, 0).toString();
-					MMC_M m2 = new MMC_M(null, 2, param, formulaCreator, null);
-					m2.setConnection(m_conn);
-					HashMap<String, ParametricModel> sm = m_secondaryModels
-							.get(table.getPM());
-					m2.setPM(sm.get(param));
-					secondaryDialog.setPanel(m2, param, sm);
-					secondaryDialog.pack();
-
-					secondaryDialog.setLocationRelativeTo(this);
-					// secondaryDialog.setAlwaysOnTop(true);
-					secondaryDialog.setVisible(true);
-
-				}
-			} else if (col == 1) {
+			if (col == 1) {
 				ParametricModel pm = getPM();
 				if (pm != null) {
 					String param = table.getValueAt(row, col).toString();
@@ -597,6 +574,30 @@ public class MMC_M extends JPanel {
 							}
 						}
 					}
+				}
+			}
+			else if (row > 0 && radioButton3.isSelected()) {
+				Object isIndep = table.getValueAt(row, 2);
+				if (col == 0
+						&& (isIndep == null || isIndep instanceof Boolean
+								&& !((Boolean) isIndep))) {
+					SecDialog secondaryDialog = new SecDialog(m_parentFrame);
+					secondaryDialog.setModal(true);
+					secondaryDialog.setIconImage(Resources.getInstance()
+							.getDefaultIcon());
+					String param = table.getValueAt(row, 0).toString();
+					MMC_M m2 = new MMC_M(null, 2, param, formulaCreator, null);
+					m2.setConnection(m_conn);
+					HashMap<String, ParametricModel> sm = m_secondaryModels
+							.get(table.getPM());
+					m2.setPM(sm.get(param));
+					secondaryDialog.setPanel(m2, param, sm);
+					secondaryDialog.pack();
+
+					secondaryDialog.setLocationRelativeTo(this);
+					// secondaryDialog.setAlwaysOnTop(true);
+					secondaryDialog.setVisible(true);
+
 				}
 			}
 		}

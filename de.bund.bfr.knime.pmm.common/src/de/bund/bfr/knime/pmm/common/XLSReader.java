@@ -302,7 +302,7 @@ public class XLSReader {
 			String sheet, Map<String, Object> columnMappings,
 			String agentColumnName, Map<String, AgentXml> agentMappings,
 			String matrixColumnName, Map<String, MatrixXml> matrixMappings,
-			KnimeTuple modelTuple, Map<String, String> modelMappings)
+			KnimeTuple modelTuple, Map<String, Object> modelMappings)
 			throws Exception {
 		warnings.clear();
 
@@ -451,7 +451,8 @@ public class XLSReader {
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
-				String columnName = modelMappings.get(element.getName());
+				String columnName = (String) modelMappings.get(element
+						.getName());
 
 				if (columnName != null) {
 					int column = columns.get(columnName);

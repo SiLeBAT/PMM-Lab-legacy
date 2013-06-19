@@ -53,25 +53,29 @@ public class SettingsHelper {
 	protected static final String CFGKEY_FILENAME = "FileName";
 	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
+	protected static final String CFGKEY_SECMODELMAPPINGS = "SecModelMappings";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
 	protected static final String CFGKEY_MATRIXCOLUMN = "MatrixColumn";
 	protected static final String CFGKEY_MATRIXMAPPINGS = "MatrixMappings";
 	protected static final String CFGKEY_MODELTUPLE = "ModelTuple";
+	protected static final String CFGKEY_SECMODELTUPLES = "SecModelTuples";
 	protected static final String CFGKEY_AGENT = "Agent";
 	protected static final String CFGKEY_MATRIX = "Matrix";
 	protected static final String CFGKEY_LITERATURE = "Literature";
 
 	private String fileName;
 	private String sheetName;
-	private Map<String, String> modelMappings;
+	private Map<String, Object> modelMappings;
+	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
 	private Map<String, AgentXml> agentMappings;
 	private String matrixColumn;
 	private Map<String, MatrixXml> matrixMappings;
 	private KnimeTuple modelTuple;
+	private Map<String, KnimeTuple> secModelTuples;
 	private AgentXml agent;
 	private MatrixXml matrix;
 	private List<LiteratureItem> literature;
@@ -80,7 +84,9 @@ public class SettingsHelper {
 		fileName = null;
 		sheetName = null;
 		modelTuple = null;
+		secModelTuples = new LinkedHashMap<>();
 		modelMappings = new LinkedHashMap<>();
+		secModelMappings = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
@@ -112,11 +118,26 @@ public class SettingsHelper {
 		}
 
 		try {
+			secModelTuples = XmlConverter.xmlToTupleMap(settings
+					.getString(CFGKEY_SECMODELTUPLES));
+		} catch (InvalidSettingsException e) {
+			secModelTuples = new LinkedHashMap<>();
+		}
+
+		try {
 			modelMappings = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_MODELMAPPINGS),
-					new LinkedHashMap<String, String>());
+					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
+		}
+
+		try {
+			secModelMappings = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_SECMODELMAPPINGS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+			secModelMappings = new LinkedHashMap<>();
 		}
 
 		try {
@@ -183,8 +204,12 @@ public class SettingsHelper {
 		settings.addString(CFGKEY_SHEETNAME, sheetName);
 		settings.addString(CFGKEY_MODELTUPLE,
 				XmlConverter.tupleToXml(modelTuple));
+		settings.addString(CFGKEY_SECMODELTUPLES,
+				XmlConverter.tupleMapToXml(secModelTuples));
 		settings.addString(CFGKEY_MODELMAPPINGS,
 				XmlConverter.objectToXml(modelMappings));
+		settings.addString(CFGKEY_SECMODELMAPPINGS,
+				XmlConverter.objectToXml(secModelMappings));
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
@@ -215,12 +240,21 @@ public class SettingsHelper {
 		this.sheetName = sheetName;
 	}
 
-	public Map<String, String> getModelMappings() {
+	public Map<String, Object> getModelMappings() {
 		return modelMappings;
 	}
 
-	public void setModelMappings(Map<String, String> modelMappings) {
+	public void setModelMappings(Map<String, Object> modelMappings) {
 		this.modelMappings = modelMappings;
+	}
+
+	public Map<String, Map<String, String>> getSecModelMappings() {
+		return secModelMappings;
+	}
+
+	public void setSecModelMappings(
+			Map<String, Map<String, String>> secModelMappings) {
+		this.secModelMappings = secModelMappings;
 	}
 
 	public Map<String, Object> getColumnMappings() {
@@ -269,6 +303,14 @@ public class SettingsHelper {
 
 	public void setModelTuple(KnimeTuple modelTuple) {
 		this.modelTuple = modelTuple;
+	}
+
+	public Map<String, KnimeTuple> getSecModelTuples() {
+		return secModelTuples;
+	}
+
+	public void setSecModelTuples(Map<String, KnimeTuple> secModelTuples) {
+		this.secModelTuples = secModelTuples;
 	}
 
 	public AgentXml getAgent() {

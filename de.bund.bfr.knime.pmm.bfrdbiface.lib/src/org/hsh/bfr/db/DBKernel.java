@@ -2241,8 +2241,20 @@ public class DBKernel {
     	}
     	catch (Exception e) {e.printStackTrace();}
     	System.err.println("Fin!");
-    }
-    public static Integer openModelDBWindow(Integer id) {
+    }    
+    public static Integer openPrimModelDBWindow(Integer id) {
+		MyTable myT = DBKernel.myList.getTable("Modellkatalog");
+		MyStringFilter mf = new MyStringFilter(myT, "Level", "1");
+		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Modellkatalog",
+				null, null, null, null, true, mf);
+
+		if (newVal instanceof Integer) {
+			return (Integer) newVal;
+		} else {
+			return null;
+		}
+	}
+    public static Integer openSecModelDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("Modellkatalog");
 		MyStringFilter mf = new MyStringFilter(myT, "Level", "2");
 		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Modellkatalog",

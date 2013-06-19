@@ -62,6 +62,16 @@ public class XmlConverter {
 		return objectToXml(list);
 	}
 
+	public static String tupleMapToXml(Map<String, KnimeTuple> tuples) {
+		Map<String, String> stringMap = new LinkedHashMap<>();
+
+		for (String key : tuples.keySet()) {
+			stringMap.put(key, tupleToXml(tuples.get(key)));
+		}
+
+		return objectToXml(stringMap);
+	}
+
 	public static String colorMapToXml(Map<String, Color> map) {
 		return objectToXml(colorMapToStringMap(map));
 	}
@@ -93,6 +103,18 @@ public class XmlConverter {
 		} else {
 			return null;
 		}
+	}
+
+	public static Map<String, KnimeTuple> xmlToTupleMap(String xml) {
+		Map<String, String> stringMap = xmlToObject(xml,
+				new LinkedHashMap<String, String>());
+		Map<String, KnimeTuple> tuples = new LinkedHashMap<>();
+
+		for (String key : stringMap.keySet()) {
+			tuples.put(key, xmlToTuple(stringMap.get(key)));
+		}
+
+		return tuples;
 	}
 
 	public static Map<String, Color> xmlToColorMap(String xml) {

@@ -55,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
@@ -346,14 +347,16 @@ public class XLSReader {
 			}
 		}
 
-		for (int i = 1;; i++) {
-			if (isEndOfFile(s, i)) {
+		int index = 0;
+
+		for (int rowNumber = 1;; rowNumber++) {
+			if (isEndOfFile(s, rowNumber)) {
 				break;
 			}
 
 			KnimeTuple dataTuple = new KnimeTuple(
 					SchemaFactory.createDataSchema());
-			Row row = s.getRow(i);
+			Row row = s.getRow(rowNumber);
 			Cell commentCell = null;
 			Cell agentDetailsCell = null;
 			Cell matrixDetailsCell = null;
@@ -433,9 +436,9 @@ public class XLSReader {
 						misc.setValue(Double.parseDouble(cell.toString()
 								.replace(",", ".")));
 					} catch (NumberFormatException e) {
-						warnings.add(column + " value in row " + (i + 1)
-								+ " is not valid (" + cell.toString().trim()
-								+ ")");
+						warnings.add(column + " value in row "
+								+ (rowNumber + 1) + " is not valid ("
+								+ cell.toString().trim() + ")");
 						misc.setValue(null);
 					}
 				} else {
@@ -449,14 +452,17 @@ public class XLSReader {
 
 			PmmXmlDoc paramXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_PARAMETER);
+			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+
+			((EstModelXml) estXml.get(0)).setID(MathUtilities
+					.getRandomNegativeInt());
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
-				String columnName = (String) modelMappings.get(element
-						.getName());
+				Object mapping = modelMappings.get(element.getName());
 
-				if (columnName != null) {
-					int column = columns.get(columnName);
+				if (mapping instanceof String) {
+					int column = columns.get(mapping);
 					Cell cell = row.getCell(column);
 
 					if (cell != null && !cell.toString().trim().isEmpty()) {
@@ -464,8 +470,8 @@ public class XLSReader {
 							element.setValue(Double.parseDouble(cell.toString()
 									.replace(",", ".")));
 						} catch (NumberFormatException e) {
-							warnings.add(columnName + " value in row "
-									+ (i + 1) + " is not valid ("
+							warnings.add(mapping + " value in row "
+									+ (rowNumber + 1) + " is not valid ("
 									+ cell.toString().trim() + ")");
 							element.setValue(null);
 						}
@@ -476,18 +482,68 @@ public class XLSReader {
 			}
 
 			modelTuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
-
-			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
-
-			((EstModelXml) estXml.get(0)).setID(MathUtilities
-					.getRandomNegativeInt());
-
 			modelTuple.setValue(Model1Schema.ATT_ESTMODEL, estXml);
 
-			KnimeTuple tuple = new KnimeTuple(
-					SchemaFactory.createM1DataSchema(), modelTuple, dataTuple);
+			if (secModelTuples.isEmpty()) {
+				tuples.put(index + "",
+						new KnimeTuple(SchemaFactory.createM1DataSchema(),
+								modelTuple, dataTuple));
+				index++;
+			} else {
+				for (String param : secModelTuples.keySet()) {
+					KnimeTuple secTuple = secModelTuples.get(param);
+					PmmXmlDoc secParamXml = secTuple
+							.getPmmXml(Model2Schema.ATT_PARAMETER);
+					PmmXmlDoc secDepXml = secTuple
+							.getPmmXml(Model2Schema.ATT_DEPENDENT);
+					PmmXmlDoc secEstXml = secTuple
+							.getPmmXml(Model2Schema.ATT_ESTMODEL);
 
-			tuples.put((i + 1) + "", tuple);
+					((DepXml) secDepXml.get(0)).setName(param);
+					((EstModelXml) secEstXml.get(0)).setID(MathUtilities
+							.getRandomNegativeInt());
+
+					for (PmmXmlElementConvertable el : secParamXml
+							.getElementSet()) {
+						ParamXml element = (ParamXml) el;
+						String mapping = secModelMappings.get(param).get(
+								element.getName());
+
+						if (mapping != null) {
+							int column = columns.get(mapping);
+							Cell cell = row.getCell(column);
+
+							if (cell != null
+									&& !cell.toString().trim().isEmpty()) {
+								try {
+									element.setValue(Double.parseDouble(cell
+											.toString().replace(",", ".")));
+								} catch (NumberFormatException e) {
+									warnings.add(mapping + " value in row "
+											+ (rowNumber + 1)
+											+ " is not valid ("
+											+ cell.toString().trim() + ")");
+									element.setValue(null);
+								}
+							}
+						} else {
+							element.setValue(null);
+						}
+					}
+
+					secTuple.setValue(Model2Schema.ATT_PARAMETER, secParamXml);
+					secTuple.setValue(Model2Schema.ATT_DEPENDENT, secDepXml);
+					secTuple.setValue(Model2Schema.ATT_ESTMODEL, secEstXml);
+
+					tuples.put(
+							index + "",
+							new KnimeTuple(SchemaFactory.createM12DataSchema(),
+									new KnimeTuple(SchemaFactory
+											.createM1DataSchema(), modelTuple,
+											dataTuple), secTuple));
+					index++;
+				}
+			}
 		}
 
 		return tuples;

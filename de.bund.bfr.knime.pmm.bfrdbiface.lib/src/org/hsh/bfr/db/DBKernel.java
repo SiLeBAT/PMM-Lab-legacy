@@ -82,6 +82,7 @@ import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
 import org.hsh.bfr.db.gui.dbtable.undoredo.BfRUndoManager;
 import org.hsh.bfr.db.gui.dbtable.undoredo.TableCellEdit;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
@@ -2243,8 +2244,9 @@ public class DBKernel {
     }
     public static Integer openModelDBWindow(Integer id) {
 		MyTable myT = DBKernel.myList.getTable("Modellkatalog");
+		MyStringFilter mf = new MyStringFilter(myT, "Level", "2");
 		Object newVal = DBKernel.myList.openNewWindow(myT, id, "Modellkatalog",
-				null, null, null, null, true);
+				null, null, null, null, true, mf);
 
 		if (newVal instanceof Integer) {
 			return (Integer) newVal;

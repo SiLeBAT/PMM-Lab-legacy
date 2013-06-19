@@ -36,7 +36,9 @@ package de.bund.bfr.knime.pmm.xlsmodelreader;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -91,6 +93,15 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		KnimeTuple modelTuple = new KnimeTuple(set.getModelTuple().getSchema(),
 				set.getModelTuple().getSchema().createSpec(),
 				set.getModelTuple());
+		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();
+
+		for (String key : set.getSecModelTuples().keySet()) {
+			KnimeTuple tuple = set.getSecModelTuples().get(key);
+
+			secModelTuples.put(key, new KnimeTuple(tuple.getSchema(), tuple
+					.getSchema().createSpec(), tuple));
+		}
+
 		PmmXmlDoc modelXml = modelTuple
 				.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
@@ -119,11 +130,12 @@ public class XLSModelReaderNodeModel extends NodeModel {
 
 		XLSReader xlsReader = new XLSReader();
 		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
-				.getPrimaryModelTuples(new File(set.getFileName()),
+				.getModelTuples(new File(set.getFileName()),
 						set.getSheetName(), set.getColumnMappings(),
 						set.getAgentColumn(), set.getAgentMappings(),
 						set.getMatrixColumn(), set.getMatrixMappings(),
-						modelTuple, set.getModelMappings()).values());
+						modelTuple, set.getModelMappings(), secModelTuples,
+						set.getSecModelMappings()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

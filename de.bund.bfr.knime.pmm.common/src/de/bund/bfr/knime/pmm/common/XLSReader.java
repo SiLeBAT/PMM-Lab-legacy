@@ -298,12 +298,13 @@ public class XLSReader {
 		return tuples;
 	}
 
-	public Map<String, KnimeTuple> getPrimaryModelTuples(File file,
-			String sheet, Map<String, Object> columnMappings,
-			String agentColumnName, Map<String, AgentXml> agentMappings,
-			String matrixColumnName, Map<String, MatrixXml> matrixMappings,
-			KnimeTuple modelTuple, Map<String, Object> modelMappings)
-			throws Exception {
+	public Map<String, KnimeTuple> getModelTuples(File file, String sheet,
+			Map<String, Object> columnMappings, String agentColumnName,
+			Map<String, AgentXml> agentMappings, String matrixColumnName,
+			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
+			Map<String, Object> modelMappings,
+			Map<String, KnimeTuple> secModelTuples,
+			Map<String, Map<String, String>> secModelMappings) throws Exception {
 		warnings.clear();
 
 		Sheet s = getWorkbook(file).getSheet(sheet);

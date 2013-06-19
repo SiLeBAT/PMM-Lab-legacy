@@ -339,13 +339,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			throw new InvalidSettingsException("No model is specified");
 		}
 
-		if (set.getAgentColumn().equals(OTHER_PARAMETER)
+		if (set.getAgentColumn() != null
+				&& set.getAgentColumn().equals(OTHER_PARAMETER)
 				&& set.getAgent() == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_AGENT);
 		}
 
-		if (set.getMatrixColumn().equals(OTHER_PARAMETER)
+		if (set.getMatrixColumn() != null
+				&& set.getMatrixColumn().equals(OTHER_PARAMETER)
 				&& set.getMatrix() == null) {
 			throw new InvalidSettingsException("No assignment for "
 					+ TimeSeriesSchema.ATT_MATRIX);
@@ -375,21 +377,25 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		if (!set.getAgentColumn().equals(OTHER_PARAMETER)) {
+		if (set.getAgentColumn() != null
+				&& !set.getAgentColumn().equals(OTHER_PARAMETER)) {
 			set.setAgent(null);
 		}
 
-		if (!set.getMatrixColumn().equals(OTHER_PARAMETER)) {
+		if (set.getMatrixColumn() != null
+				&& !set.getMatrixColumn().equals(OTHER_PARAMETER)) {
 			set.setMatrix(null);
 		}
 
-		if (set.getAgentColumn().equals(OTHER_PARAMETER)
-				|| set.getAgentColumn().equals(DO_NOT_USE)) {
+		if (set.getAgentColumn() != null
+				&& (set.getAgentColumn().equals(OTHER_PARAMETER) || set
+						.getAgentColumn().equals(DO_NOT_USE))) {
 			set.setAgentColumn(null);
 		}
 
-		if (set.getMatrixColumn().equals(OTHER_PARAMETER)
-				|| set.getMatrixColumn().equals(DO_NOT_USE)) {
+		if (set.getMatrixColumn() != null
+				&& (set.getMatrixColumn().equals(OTHER_PARAMETER) || set
+						.getMatrixColumn().equals(DO_NOT_USE))) {
 			set.setMatrixColumn(null);
 		}
 
@@ -896,10 +902,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Map<String, String> mappings = set
 								.getSecModelMappings().get(element.getName());
 
-						if (!mappings.containsKey(element.getName())) {
+						if (!mappings.containsKey(element2.getName())) {
 							box.setSelectedItem(DO_NOT_USE);
 						} else {
-							box.setSelectedItem(mappings.get(element.getName()));
+							box.setSelectedItem(mappings.get(element2.getName()));
 						}
 
 						box.addItemListener(this);
@@ -1182,23 +1188,55 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private void cleanMaps() {
 		Map<String, Object> newModelMappings = new LinkedHashMap<>();
+		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
+		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
 		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
 		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
 		Map<String, Object> newColumnMappings = new LinkedHashMap<>();
 
 		for (String param : modelBoxes.keySet()) {
-			newModelMappings.put(param, set.getModelMappings().get(param));
+			if (set.getModelMappings().containsKey(param)) {
+				newModelMappings.put(param, set.getModelMappings().get(param));
+			}
+		}
+
+		for (String param : secModelButtons.keySet()) {
+			if (set.getSecModelTuples().containsKey(param)) {
+				newSecModelTuples
+						.put(param, set.getSecModelTuples().get(param));
+			}
+		}
+
+		for (String param1 : secModelBoxes.keySet()) {
+			for (String param2 : secModelBoxes.get(param1).keySet()) {
+				if (set.getSecModelMappings().containsKey(param1)
+						&& set.getSecModelMappings().get(param1)
+								.containsKey(param2)) {
+					if (!newSecModelMappings.containsKey(param1)) {
+						newSecModelMappings.put(param1,
+								new LinkedHashMap<String, String>());
+					}
+
+					newSecModelMappings.get(param1).put(param2,
+							set.getSecModelMappings().get(param1).get(param2));
+				}
+			}
 		}
 
 		for (String agent : agentButtons.keySet()) {
-			newAgentMappings.put(agent, set.getAgentMappings().get(agent));
+			if (set.getAgentMappings().containsKey(agent)) {
+				newAgentMappings.put(agent, set.getAgentMappings().get(agent));
+			}
 		}
 
 		for (String matrix : matrixButtons.keySet()) {
-			newMatrixMappings.put(matrix, set.getMatrixMappings().get(matrix));
+			if (set.getMatrixMappings().containsKey(matrix)) {
+				newMatrixMappings.put(matrix,
+						set.getMatrixMappings().get(matrix));
+			}
 		}
 
-		for (String column : fileColumnList) {
+		for (String column : columnBoxes.keySet()) {
 			if (set.getColumnMappings().containsKey(column)) {
 				newColumnMappings.put(column,
 						set.getColumnMappings().get(column));
@@ -1206,6 +1244,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		set.setModelMappings(newModelMappings);
+		set.setSecModelTuples(newSecModelTuples);
+		set.setSecModelMappings(newSecModelMappings);
 		set.setAgentMappings(newAgentMappings);
 		set.setMatrixMappings(newMatrixMappings);
 		set.setColumnMappings(newColumnMappings);

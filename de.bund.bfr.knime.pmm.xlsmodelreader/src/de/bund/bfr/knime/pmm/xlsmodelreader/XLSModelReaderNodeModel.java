@@ -59,6 +59,7 @@ import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.XLSReader;
+import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -178,9 +179,15 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			tuple.setValue(Model1Schema.ATT_EMLIT, literatureXML);
 		}
 
-		BufferedDataContainer container = exec
-				.createDataContainer(SchemaFactory.createM1DataSchema()
-						.createSpec());
+		BufferedDataContainer container;
+
+		if (secModelTuples.isEmpty()) {
+			container = exec.createDataContainer(SchemaFactory
+					.createM1DataSchema().createSpec());
+		} else {
+			container = exec.createDataContainer(SchemaFactory
+					.createM12DataSchema().createSpec());
+		}
 
 		for (KnimeTuple tuple : tuples) {
 			container.addRowToTable(tuple);
@@ -208,8 +215,15 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			throw new InvalidSettingsException("");
 		}
 
-		return new DataTableSpec[] { SchemaFactory.createM1DataSchema()
-				.createSpec() };
+		KnimeSchema schema;
+
+		if (set.getSecModelTuples().isEmpty()) {
+			schema = SchemaFactory.createM1DataSchema();
+		} else {
+			schema = SchemaFactory.createM12DataSchema();
+		}
+
+		return new DataTableSpec[] { schema.createSpec() };
 	}
 
 	/**

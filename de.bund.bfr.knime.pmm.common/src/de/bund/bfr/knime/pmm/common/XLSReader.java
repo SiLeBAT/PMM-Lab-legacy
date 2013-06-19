@@ -303,7 +303,7 @@ public class XLSReader {
 			Map<String, Object> columnMappings, String agentColumnName,
 			Map<String, AgentXml> agentMappings, String matrixColumnName,
 			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
-			Map<String, Object> modelMappings,
+			Map<String, String> modelMappings,
 			Map<String, KnimeTuple> secModelTuples,
 			Map<String, Map<String, String>> secModelMappings) throws Exception {
 		warnings.clear();
@@ -459,9 +459,9 @@ public class XLSReader {
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
-				Object mapping = modelMappings.get(element.getName());
+				String mapping = modelMappings.get(element.getName());
 
-				if (mapping instanceof String) {
+				if (mapping != null) {
 					int column = columns.get(mapping);
 					Cell cell = row.getCell(column);
 
@@ -498,7 +498,14 @@ public class XLSReader {
 							.getPmmXml(Model2Schema.ATT_DEPENDENT);
 					PmmXmlDoc secEstXml = secTuple
 							.getPmmXml(Model2Schema.ATT_ESTMODEL);
+					PmmXmlDoc secModelXml = secTuple
+							.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+					String formula = ((CatalogModelXml) secModelXml.get(0))
+							.getFormula();
 
+					formula = MathUtilities.replaceVariable(formula,
+							((DepXml) secDepXml.get(0)).getName(), param);
+					((CatalogModelXml) secModelXml.get(0)).setFormula(formula);
 					((DepXml) secDepXml.get(0)).setName(param);
 					((EstModelXml) secEstXml.get(0)).setID(MathUtilities
 							.getRandomNegativeInt());
@@ -531,6 +538,8 @@ public class XLSReader {
 						}
 					}
 
+					secTuple.setValue(Model2Schema.ATT_MODELCATALOG,
+							secModelXml);
 					secTuple.setValue(Model2Schema.ATT_PARAMETER, secParamXml);
 					secTuple.setValue(Model2Schema.ATT_DEPENDENT, secDepXml);
 					secTuple.setValue(Model2Schema.ATT_ESTMODEL, secEstXml);

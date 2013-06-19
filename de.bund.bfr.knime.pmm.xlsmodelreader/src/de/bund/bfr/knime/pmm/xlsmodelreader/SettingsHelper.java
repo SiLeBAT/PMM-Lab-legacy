@@ -67,7 +67,7 @@ public class SettingsHelper {
 
 	private String fileName;
 	private String sheetName;
-	private Map<String, Object> modelMappings;
+	private Map<String, String> modelMappings;
 	private Map<String, Map<String, String>> secModelMappings;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
@@ -127,7 +127,7 @@ public class SettingsHelper {
 		try {
 			modelMappings = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_MODELMAPPINGS),
-					new LinkedHashMap<String, Object>());
+					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			modelMappings = new LinkedHashMap<>();
 		}
@@ -240,11 +240,11 @@ public class SettingsHelper {
 		this.sheetName = sheetName;
 	}
 
-	public Map<String, Object> getModelMappings() {
+	public Map<String, String> getModelMappings() {
 		return modelMappings;
 	}
 
-	public void setModelMappings(Map<String, Object> modelMappings) {
+	public void setModelMappings(Map<String, String> modelMappings) {
 		this.modelMappings = modelMappings;
 	}
 

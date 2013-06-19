@@ -795,6 +795,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			fileColumnList = new ArrayList<>();
 		}
 
+		updateModelPanel();
 		updateColumnsPanel();
 		updateAgentPanel();
 		updateMatrixPanel();
@@ -1187,7 +1188,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void cleanMaps() {
-		Map<String, Object> newModelMappings = new LinkedHashMap<>();
+		Map<String, String> newModelMappings = new LinkedHashMap<>();
 		Map<String, KnimeTuple> newSecModelTuples = new LinkedHashMap<>();
 		Map<String, Map<String, String>> newSecModelMappings = new LinkedHashMap<>();
 		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
@@ -1196,7 +1197,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		for (String param : modelBoxes.keySet()) {
 			if (set.getModelMappings().containsKey(param)) {
-				newModelMappings.put(param, set.getModelMappings().get(param));
+				String value = set.getModelMappings().get(param);
+
+				if (value == null || fileColumnList.contains(value)) {
+					newModelMappings.put(param,
+							set.getModelMappings().get(param));
+				}
 			}
 		}
 
@@ -1250,5 +1256,4 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setMatrixMappings(newMatrixMappings);
 		set.setColumnMappings(newColumnMappings);
 	}
-
 }

@@ -80,7 +80,6 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
@@ -407,13 +406,13 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		plotable.setSamples(values);
 
+		String timeUnit = unitX;
+		String concentrationUnit = unitY;
 		double[][] points = plotable.getFunctionSamplePoints(
-				AttributeUtilities.TIME, AttributeUtilities.LOGC,
-				new Time().getStandardUnit(),
-				new NumberContent().getStandardUnit(),
-				ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				AttributeUtilities.TIME, AttributeUtilities.LOGC, timeUnit,
+				concentrationUnit, ChartConstants.NO_TRANSFORM,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
 		if (points != null && points.length == 2) {
 			for (int i = 0; i < points[0].length; i++) {
@@ -429,8 +428,8 @@ public class PredictorViewNodeModel extends NodeModel {
 				}
 
 				if (time != null || logc != null) {
-					timeSeriesXml.add(new TimeSeriesXml(null, time, null, logc,
-							null));
+					timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit,
+							logc, concentrationUnit));
 				}
 			}
 		}

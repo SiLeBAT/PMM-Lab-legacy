@@ -48,19 +48,6 @@ public class AttributeUtilities {
 	public static final int ATT_PH_ID = -2;
 	public static final int ATT_AW_ID = -3;
 
-	public static final String HOURS = "h";
-	public static final String MINUTES = "min";
-	public static final String SECONDS = "sec";
-	public static final String DAYS = "days";
-	public static final String WEEKS = "weeks";
-
-	public static final String LOGCFU = "log10(...)";
-	public static final String LNCFU = "ln(...)";
-	public static final String CFU = "...";
-
-	public static final String CELSIUS = "°C";
-	public static final String FAHRENHEIT = "°F";
-
 	public static final String AGENT_DETAILS = TimeSeriesSchema.ATT_AGENT
 			+ " Details";
 	public static final String MATRIX_DETAILS = TimeSeriesSchema.ATT_MATRIX

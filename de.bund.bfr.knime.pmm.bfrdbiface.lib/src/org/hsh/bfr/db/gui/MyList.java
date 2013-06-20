@@ -478,11 +478,13 @@ if (dbForm != null || owner != null) {
 			}
 
 			final MyDBPanel myP = new MyDBPanel(newDBTable, newDBTree, disableButtons);
+			
 			if (mf != null) {
 				newDBTable.setFilter(mf);
 				myP.disableAdding();
 				myP.disableFilter();
 			}
+			
 	  		if (value != null && value instanceof Integer) {
 	  			newDBTable.setSelectedID((Integer) value);
 	  			myP.setFirstSelectedID((Integer) value);

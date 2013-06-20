@@ -833,7 +833,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	}
 	public void setFilter(Filter mf) {
 		theFilter = mf;
-    	if (theFilter != null) this.filter(theFilter);
+    	if (theFilter != null) {
+    		this.filter(theFilter);
+    		this.setReadOnly(true);
+    	}
 	}
 	public void myRefresh(final int row, final int col) {
 		JScrollPane scroller = getScroller();
@@ -843,7 +846,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		int id = getSelectedID();
 	    try {
 	    	this.refresh();
-	    	if (theFilter != null) this.filter(theFilter);
+	    	if (theFilter != null) {
+	    		this.filter(theFilter);
+	    		this.setReadOnly(true);
+	    	}
 	    }
 	    catch (Exception e1) {
 	    	MyLogger.handleException(e1);
@@ -2125,6 +2131,14 @@ public void keyTyped(final KeyEvent keyEvent) {
 		  	}
 		}
 	}
+	public void setReadOnly(boolean ro) {
+		if (ro) {
+			for (int i=0; i<this.getColumnCount(); i++) {		
+				Column c = this.getColumn(i);
+				c.setReadOnly(ro);
+			}			
+		}
+	}
 	private void merging() {
 		int oldID = this.getSelectedID();
     	String response = JOptionPane.showInputDialog(this,
@@ -2153,7 +2167,10 @@ public void keyTyped(final KeyEvent keyEvent) {
 		    					true, new Dimension(400,200), null, true);
 		    			ib.setVisible(true);
 				    	this.setTable();
-				    	if (theFilter != null) this.filter(theFilter);
+				    	if (theFilter != null) {
+				    		this.filter(theFilter);
+				    		this.setReadOnly(true);
+				    	}
 	    			}
 	    			else {
 		    			InfoBox ib = new InfoBox(DBKernel.mainFrame,

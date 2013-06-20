@@ -417,6 +417,7 @@ public class MyDBPanel extends JPanel {
 				myDBTable1.checkUnsavedStuff(false);
 				int id = myDBTable1.getSelectedID();
 				myDBTable1.filter(new MyFilter(myDBTable1, textField1.getText(), null, e != null ? textField1 : null));				
+				myDBTable1.setReadOnly(true);
 				myDBTable1.refreshSort();
 				if (id < 0 || !myDBTable1.setSelectedID(id)) myDBTable1.clearSelection();
 			}
@@ -436,6 +437,7 @@ public class MyDBPanel extends JPanel {
 				int id = myDBTable1.getSelectedID();
 				MyFilter mf = new MyFilter(myDBTable1, textField1.getText(), v, e != null ? textField1 : null);
 				myDBTable1.filter(mf);
+				myDBTable1.setReadOnly(true);
 				myDBTable1.refreshSort();
 				if (id < 0 || !myDBTable1.setSelectedID(id)) myDBTable1.clearSelection();
 			}

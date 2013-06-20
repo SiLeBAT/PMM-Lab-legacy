@@ -831,13 +831,15 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			myRefresh(row, this.getSelectedColumn()); // bei bigbigTable muss erstmal nicht nen autoupdate nach afterUpdate von MyDataChangeListener gemacht werden.. is sonst zu lahm
 		}
 	}
+	
 	public void setFilter(Filter mf) {
 		theFilter = mf;
     	if (theFilter != null) {
     		this.filter(theFilter);
-    		this.setReadOnly(true);
+    		//this.setReadOnly(true);
     	}
 	}
+    	
 	public void myRefresh(final int row, final int col) {
 		JScrollPane scroller = getScroller();
 		int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
@@ -846,10 +848,12 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		int id = getSelectedID();
 	    try {
 	    	this.refresh();
+	    	
 	    	if (theFilter != null) {
 	    		this.filter(theFilter);
-	    		this.setReadOnly(true);
+	    		//this.setReadOnly(true);
 	    	}
+	    	
 	    }
 	    catch (Exception e1) {
 	    	MyLogger.handleException(e1);
@@ -1373,6 +1377,7 @@ if (myDBPanel1 != null) {
 	public void checkUnsavedStuff(final boolean saveProps) {
 		//if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
 		// eigentlich würde es genügen, wenn man nur this.save() ausführt. this.save() hat selbst eine Routine, die checkt, ob was geändert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
+		if (theFilter != null) return;
 		if (this.getEditingColumn() >= 0 && this.getEditingRow() >= 0) {
 			this.save();
 		}		
@@ -2167,10 +2172,12 @@ public void keyTyped(final KeyEvent keyEvent) {
 		    					true, new Dimension(400,200), null, true);
 		    			ib.setVisible(true);
 				    	this.setTable();
+				    	
 				    	if (theFilter != null) {
 				    		this.filter(theFilter);
-				    		this.setReadOnly(true);
+				    		//this.setReadOnly(true);
 				    	}
+				    	
 	    			}
 	    			else {
 		    			InfoBox ib = new InfoBox(DBKernel.mainFrame,

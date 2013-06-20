@@ -364,11 +364,12 @@ public class PredictorViewNodeModel extends NodeModel {
 		KnimeTuple tuple = reader.getTupleMap().get(selectedID);
 		Plotable plotable = reader.getPlotables().get(selectedID);
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
-		PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
 
-		if (SchemaFactory.createDataSchema().conforms(tuple.getSchema())) {
+		if (tuple.getSchema().conforms(SchemaFactory.createDataSchema())) {
 			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
+			miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
 				MiscXml element = (MiscXml) el;
@@ -379,12 +380,14 @@ public class PredictorViewNodeModel extends NodeModel {
 			}
 		} else {
 			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
+			miscXml = new PmmXmlDoc();
 
 			for (String cond : conditions.keySet()) {
 				if (!cond.equals(concentrationParameters.get(selectedID))) {
 					miscXml.add(new MiscXml(MathUtilities
 							.getRandomNegativeInt(), cond, null, conditions
-							.get(cond).get(0), null, null, null));
+							.get(cond).get(0), plotable.getCategories().get(
+							cond), plotable.getUnits().get(cond), null));
 				}
 			}
 		}

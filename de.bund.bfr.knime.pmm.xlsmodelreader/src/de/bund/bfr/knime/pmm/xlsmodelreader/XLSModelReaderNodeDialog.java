@@ -698,7 +698,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						if (box.getSelectedItem().equals(DO_NOT_USE)) {
 							set.getSecModelMappings().get(param1)
-									.remove(param2);
+									.put(param2, null);
 						} else {
 							set.getSecModelMappings()
 									.get(param1)
@@ -718,7 +718,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						if (box.getSelectedItem().equals(DO_NOT_USE)) {
 							set.getSecModelIndepMins().get(param1)
-									.remove(param2);
+									.put(param2, null);
 						} else {
 							set.getSecModelIndepMins()
 									.get(param1)
@@ -738,7 +738,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 						if (box.getSelectedItem().equals(DO_NOT_USE)) {
 							set.getSecModelIndepMaxs().get(param1)
-									.remove(param2);
+									.put(param2, null);
 						} else {
 							set.getSecModelIndepMaxs()
 									.get(param1)
@@ -976,7 +976,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Map<String, String> mappings = set
 								.getSecModelMappings().get(element.getName());
 
-						if (!mappings.containsKey(element2.getName())) {
+						if (mappings.get(element2.getName()) == null) {
 							box.setSelectedItem(DO_NOT_USE);
 						} else {
 							box.setSelectedItem(mappings.get(element2.getName()));
@@ -1015,27 +1015,27 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Map<String, String> units = set.getSecModelIndepUnits()
 								.get(element.getName());
 
-						if (!mins.containsKey(indep.getName())) {
+						if (mins.get(indep.getName()) == null) {
 							minBox.setSelectedItem(DO_NOT_USE);
 						} else {
 							minBox.setSelectedItem(mins.get(indep.getName()));
 						}
 
-						if (!maxs.containsKey(indep.getName())) {
+						if (maxs.get(indep.getName()) == null) {
 							maxBox.setSelectedItem(DO_NOT_USE);
 						} else {
 							maxBox.setSelectedItem(maxs.get(indep.getName()));
 						}
 
-						if (!units.containsKey(indep.getName())) {
-							unitBox.setSelectedItem(DO_NOT_USE);
+						if (units.get(indep.getName()) == null) {
+							unitBox.setSelectedItem(null);
 						} else {
 							unitBox.setSelectedItem(units.get(indep.getName()));
 						}
 
-						minBox.addActionListener(this);
-						maxBox.addActionListener(this);
-						unitBox.addActionListener(this);
+						minBox.addItemListener(this);
+						maxBox.addItemListener(this);
+						unitBox.addItemListener(this);
 						secMinBoxes.get(element.getName()).put(indep.getName(),
 								minBox);
 						secMaxBoxes.get(element.getName()).put(indep.getName(),

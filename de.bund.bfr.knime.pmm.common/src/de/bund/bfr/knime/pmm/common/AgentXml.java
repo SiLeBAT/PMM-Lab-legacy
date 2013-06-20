@@ -25,6 +25,9 @@ public class AgentXml implements PmmXmlElementConvertable {
 	public AgentXml(Integer id, String name, String detail) {
 		this(id, name, detail, null);
 	}
+	public AgentXml(AgentXml agent) {
+		this(agent.getID(), agent.getName(), agent.getDetail(), agent.getDbuuid());
+	}
 	public AgentXml(Integer id, String name, String detail, String dbuuid) {
 		setID(id);
 		setName(name);

@@ -130,13 +130,17 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepVar);
 
 		XLSReader xlsReader = new XLSReader();
-		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(xlsReader
-				.getModelTuples(new File(set.getFileName()),
-						set.getSheetName(), set.getColumnMappings(),
-						set.getAgentColumn(), set.getAgentMappings(),
-						set.getMatrixColumn(), set.getMatrixMappings(),
-						modelTuple, set.getModelMappings(), secModelTuples,
-						set.getSecModelMappings()).values());
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
+				xlsReader
+						.getModelTuples(new File(set.getFileName()),
+								set.getSheetName(), set.getColumnMappings(),
+								set.getAgentColumn(), set.getAgentMappings(),
+								set.getMatrixColumn(), set.getMatrixMappings(),
+								modelTuple, set.getModelMappings(),
+								secModelTuples, set.getSecModelMappings(),
+								set.getSecModelIndepMins(),
+								set.getSecModelIndepMaxs(),
+								set.getSecModelIndepUnits()).values());
 
 		for (String warning : xlsReader.getWarnings()) {
 			setWarningMessage(warning);

@@ -25,6 +25,9 @@ public class MatrixXml implements PmmXmlElementConvertable {
 	public MatrixXml() {
 		this(MathUtilities.getRandomNegativeInt(), null, null, null);
 	}
+	public MatrixXml(MatrixXml matrix) {
+		this(matrix.getID(), matrix.getName(), matrix.getDetail(), matrix.getDbuuid());
+	}
 	public MatrixXml(Integer id, String name, String detail, String dbuuid) {
 		setID(id);
 		setName(name);

@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class XLSReader {
 
@@ -305,7 +306,11 @@ public class XLSReader {
 			Map<String, MatrixXml> matrixMappings, KnimeTuple modelTuple,
 			Map<String, String> modelMappings,
 			Map<String, KnimeTuple> secModelTuples,
-			Map<String, Map<String, String>> secModelMappings) throws Exception {
+			Map<String, Map<String, String>> secModelMappings,
+			Map<String, Map<String, String>> secModelIndepMins,
+			Map<String, Map<String, String>> secModelIndepMaxs,
+			Map<String, Map<String, String>> secModelIndepUnits)
+			throws Exception {
 		warnings.clear();
 
 		Sheet s = getWorkbook(file).getSheet(sheet);
@@ -397,26 +402,28 @@ public class XLSReader {
 				dataInfo.add(new MdInfoXml(null, null, null, null, null));
 			}
 
-			if (agentCell != null
+			if (hasData(agentCell)
 					&& agentMappings.get(agentCell.toString().trim()) != null) {
-				agentXml.add(agentMappings.get(agentCell.toString().trim()));
+				agentXml.add(new AgentXml(agentMappings.get(agentCell
+						.toString().trim())));
 			} else {
 				agentXml.add(new AgentXml());
 			}
 
-			if (matrixCell != null
+			if (hasData(matrixCell)
 					&& matrixMappings.get(matrixCell.toString().trim()) != null) {
-				matrixXml.add(matrixMappings.get(matrixCell.toString().trim()));
+				matrixXml.add(new MatrixXml(matrixMappings.get(matrixCell
+						.toString().trim())));
 			} else {
 				matrixXml.add(new MatrixXml());
 			}
 
-			if (agentDetailsCell != null) {
+			if (hasData(agentDetailsCell)) {
 				((AgentXml) agentXml.get(0)).setDetail(agentDetailsCell
 						.toString().trim());
 			}
 
-			if (matrixDetailsCell != null) {
+			if (hasData(matrixDetailsCell)) {
 				((MatrixXml) matrixXml.get(0)).setDetail(matrixDetailsCell
 						.toString().trim());
 			}
@@ -428,10 +435,10 @@ public class XLSReader {
 			PmmXmlDoc miscXML = new PmmXmlDoc();
 
 			for (String column : miscColumns.keySet()) {
-				MiscXml misc = (MiscXml) columnMappings.get(column);
+				MiscXml misc = new MiscXml((MiscXml) columnMappings.get(column));
 				Cell cell = row.getCell(miscColumns.get(column));
 
-				if (cell != null && !cell.toString().trim().isEmpty()) {
+				if (hasData(cell)) {
 					try {
 						misc.setValue(Double.parseDouble(cell.toString()
 								.replace(",", ".")));
@@ -439,10 +446,7 @@ public class XLSReader {
 						warnings.add(column + " value in row "
 								+ (rowNumber + 1) + " is not valid ("
 								+ cell.toString().trim() + ")");
-						misc.setValue(null);
 					}
-				} else {
-					misc.setValue(null);
 				}
 
 				miscXML.add(misc);
@@ -465,7 +469,7 @@ public class XLSReader {
 					int column = columns.get(mapping);
 					Cell cell = row.getCell(column);
 
-					if (cell != null && !cell.toString().trim().isEmpty()) {
+					if (hasData(cell)) {
 						try {
 							element.setValue(Double.parseDouble(cell.toString()
 									.replace(",", ".")));
@@ -473,11 +477,8 @@ public class XLSReader {
 							warnings.add(mapping + " value in row "
 									+ (rowNumber + 1) + " is not valid ("
 									+ cell.toString().trim() + ")");
-							element.setValue(null);
 						}
 					}
-				} else {
-					element.setValue(null);
 				}
 			}
 
@@ -500,6 +501,8 @@ public class XLSReader {
 							.getPmmXml(Model2Schema.ATT_ESTMODEL);
 					PmmXmlDoc secModelXml = secTuple
 							.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+					PmmXmlDoc secIndepXml = secTuple
+							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					String formula = ((CatalogModelXml) secModelXml.get(0))
 							.getFormula();
 
@@ -517,11 +520,9 @@ public class XLSReader {
 								element.getName());
 
 						if (mapping != null) {
-							int column = columns.get(mapping);
-							Cell cell = row.getCell(column);
+							Cell cell = row.getCell(columns.get(mapping));
 
-							if (cell != null
-									&& !cell.toString().trim().isEmpty()) {
+							if (hasData(cell)) {
 								try {
 									element.setValue(Double.parseDouble(cell
 											.toString().replace(",", ".")));
@@ -530,11 +531,82 @@ public class XLSReader {
 											+ (rowNumber + 1)
 											+ " is not valid ("
 											+ cell.toString().trim() + ")");
-									element.setValue(null);
 								}
 							}
-						} else {
-							element.setValue(null);
+						}
+					}
+
+					for (PmmXmlElementConvertable el : secIndepXml
+							.getElementSet()) {
+						IndepXml element = (IndepXml) el;
+						String unitMapping = secModelIndepUnits.get(param).get(
+								element.getName());
+
+						if (unitMapping != null) {
+							Cell unitCell = row.getCell(columns
+									.get(unitMapping));
+
+							if (hasData(unitCell)) {
+								String unit = unitCell.toString().trim();
+								String minMapping = secModelIndepMins
+										.get(param).get(element.getName());
+								String maxMapping = secModelIndepMaxs
+										.get(param).get(element.getName());
+
+								if (minMapping != null) {
+									Cell minCell = row.getCell(columns
+											.get(minMapping));
+
+									if (hasData(minCell)) {
+										try {
+											double value = Double
+													.parseDouble(minCell
+															.toString()
+															.replace(",", "."));
+
+											element.setMin(Categories
+													.getCategory(
+															element.getCategory())
+													.convert(value, unit,
+															element.getUnit()));
+										} catch (NumberFormatException e) {
+											warnings.add(minMapping
+													+ " value in row "
+													+ (rowNumber + 1)
+													+ " is not valid ("
+													+ minCell.toString().trim()
+													+ ")");
+										}
+									}
+								}
+
+								if (maxMapping != null) {
+									Cell maxCell = row.getCell(columns
+											.get(maxMapping));
+
+									if (hasData(maxCell)) {
+										try {
+											double value = Double
+													.parseDouble(maxCell
+															.toString()
+															.replace(",", "."));
+
+											element.setMax(Categories
+													.getCategory(
+															element.getCategory())
+													.convert(value, unit,
+															element.getUnit()));
+										} catch (NumberFormatException e) {
+											warnings.add(maxMapping
+													+ " value in row "
+													+ (rowNumber + 1)
+													+ " is not valid ("
+													+ maxCell.toString().trim()
+													+ ")");
+										}
+									}
+								}
+							}
 						}
 					}
 
@@ -543,6 +615,7 @@ public class XLSReader {
 					secTuple.setValue(Model2Schema.ATT_PARAMETER, secParamXml);
 					secTuple.setValue(Model2Schema.ATT_DEPENDENT, secDepXml);
 					secTuple.setValue(Model2Schema.ATT_ESTMODEL, secEstXml);
+					secTuple.setValue(Model2Schema.ATT_INDEPENDENT, secIndepXml);
 
 					tuples.put(
 							index + "",
@@ -659,6 +732,10 @@ public class XLSReader {
 				return false;
 			}
 		}
+	}
+
+	private boolean hasData(Cell cell) {
+		return cell != null && !cell.toString().trim().isEmpty();
 	}
 
 }

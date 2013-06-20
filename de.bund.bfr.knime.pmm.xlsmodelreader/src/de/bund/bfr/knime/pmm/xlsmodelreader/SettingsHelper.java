@@ -54,6 +54,9 @@ public class SettingsHelper {
 	protected static final String CFGKEY_SHEETNAME = "SheetName";
 	protected static final String CFGKEY_MODELMAPPINGS = "ModelMappings";
 	protected static final String CFGKEY_SECMODELMAPPINGS = "SecModelMappings";
+	protected static final String CFGKEY_SECMODELINDEPMINS = "SecModelIndepMins";
+	protected static final String CFGKEY_SECMODELINDEPMAXS = "SecModelIndepMaxs";
+	protected static final String CFGKEY_SECMODELINDEPUNITS = "SecModelIndepUnits";
 	protected static final String CFGKEY_COLUMNMAPPINGS = "ColumnMappings";
 	protected static final String CFGKEY_AGENTCOLUMN = "AgentColumn";
 	protected static final String CFGKEY_AGENTMAPPINGS = "AgentMappings";
@@ -69,6 +72,9 @@ public class SettingsHelper {
 	private String sheetName;
 	private Map<String, String> modelMappings;
 	private Map<String, Map<String, String>> secModelMappings;
+	private Map<String, Map<String, String>> secModelIndepMins;
+	private Map<String, Map<String, String>> secModelIndepMaxs;
+	private Map<String, Map<String, String>> secModelIndepUnits;
 	private Map<String, Object> columnMappings;
 	private String agentColumn;
 	private Map<String, AgentXml> agentMappings;
@@ -87,6 +93,9 @@ public class SettingsHelper {
 		secModelTuples = new LinkedHashMap<>();
 		modelMappings = new LinkedHashMap<>();
 		secModelMappings = new LinkedHashMap<>();
+		secModelIndepMins = new LinkedHashMap<>();
+		secModelIndepMaxs = new LinkedHashMap<>();
+		secModelIndepUnits = new LinkedHashMap<>();
 		columnMappings = new LinkedHashMap<>();
 		agentColumn = null;
 		agentMappings = new LinkedHashMap<>();
@@ -138,6 +147,30 @@ public class SettingsHelper {
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
 			secModelMappings = new LinkedHashMap<>();
+		}
+
+		try {
+			secModelIndepMins = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_SECMODELINDEPMINS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+			secModelIndepMins = new LinkedHashMap<>();
+		}
+
+		try {
+			secModelIndepMaxs = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_SECMODELINDEPMAXS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+			secModelIndepMaxs = new LinkedHashMap<>();
+		}
+
+		try {
+			secModelIndepUnits = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_SECMODELINDEPUNITS),
+					new LinkedHashMap<String, Map<String, String>>());
+		} catch (InvalidSettingsException e) {
+			secModelIndepUnits = new LinkedHashMap<>();
 		}
 
 		try {
@@ -210,6 +243,12 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(modelMappings));
 		settings.addString(CFGKEY_SECMODELMAPPINGS,
 				XmlConverter.objectToXml(secModelMappings));
+		settings.addString(CFGKEY_SECMODELINDEPMINS,
+				XmlConverter.objectToXml(secModelIndepMins));
+		settings.addString(CFGKEY_SECMODELINDEPMAXS,
+				XmlConverter.objectToXml(secModelIndepMaxs));
+		settings.addString(CFGKEY_SECMODELINDEPUNITS,
+				XmlConverter.objectToXml(secModelIndepUnits));
 		settings.addString(CFGKEY_COLUMNMAPPINGS,
 				XmlConverter.objectToXml(columnMappings));
 		settings.addString(CFGKEY_AGENTCOLUMN, agentColumn);
@@ -255,6 +294,33 @@ public class SettingsHelper {
 	public void setSecModelMappings(
 			Map<String, Map<String, String>> secModelMappings) {
 		this.secModelMappings = secModelMappings;
+	}	
+
+	public Map<String, Map<String, String>> getSecModelIndepMins() {
+		return secModelIndepMins;
+	}
+
+	public void setSecModelIndepMins(
+			Map<String, Map<String, String>> secModelIndepMins) {
+		this.secModelIndepMins = secModelIndepMins;
+	}
+
+	public Map<String, Map<String, String>> getSecModelIndepMaxs() {
+		return secModelIndepMaxs;
+	}
+
+	public void setSecModelIndepMaxs(
+			Map<String, Map<String, String>> secModelIndepMaxs) {
+		this.secModelIndepMaxs = secModelIndepMaxs;
+	}
+
+	public Map<String, Map<String, String>> getSecModelIndepUnits() {
+		return secModelIndepUnits;
+	}
+
+	public void setSecModelIndepUnits(
+			Map<String, Map<String, String>> secModelIndepUnits) {
+		this.secModelIndepUnits = secModelIndepUnits;
 	}
 
 	public Map<String, Object> getColumnMappings() {

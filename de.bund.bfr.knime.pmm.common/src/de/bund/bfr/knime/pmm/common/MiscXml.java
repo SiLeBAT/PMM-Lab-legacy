@@ -118,7 +118,9 @@ public class MiscXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		
 		for (int i = 0; i < categories.size(); i++) {
-			modelElement.setAttribute("category" + i, categories.get(i));
+			if (categories.get(i) != null) {
+				modelElement.setAttribute("category" + i, categories.get(i));
+			}
 		}		
 		
 		return modelElement;

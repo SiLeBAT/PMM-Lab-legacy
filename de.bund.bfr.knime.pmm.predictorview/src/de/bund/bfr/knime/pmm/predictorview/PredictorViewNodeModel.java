@@ -40,8 +40,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
@@ -366,29 +368,33 @@ public class PredictorViewNodeModel extends NodeModel {
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
 		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
+		Set<String> allMiscs = new LinkedHashSet<>();
 
 		if (tuple.getSchema().conforms(SchemaFactory.createDataSchema())) {
-			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
 			miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-
-			for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
-				MiscXml element = (MiscXml) el;
-
-				if (conditions.containsKey(element.getName())) {
-					element.setValue(conditions.get(element.getName()).get(0));
-				}
-			}
 		} else {
-			dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
 			miscXml = new PmmXmlDoc();
+		}
 
-			for (String cond : conditions.keySet()) {
-				if (!cond.equals(concentrationParameters.get(selectedID))) {
-					miscXml.add(new MiscXml(MathUtilities
-							.getRandomNegativeInt(), cond, null, conditions
-							.get(cond).get(0), plotable.getCategories().get(
-							cond), plotable.getUnits().get(cond), null));
-				}
+		dataTuple = new KnimeTuple(SchemaFactory.createDataSchema());
+
+		for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
+			MiscXml element = (MiscXml) el;
+
+			if (conditions.containsKey(element.getName())) {
+				element.setValue(conditions.get(element.getName()).get(0));
+			}
+
+			allMiscs.add(element.getName());
+		}
+
+		for (String cond : conditions.keySet()) {
+			if (!allMiscs.contains(cond)
+					&& !cond.equals(concentrationParameters.get(selectedID))) {
+				miscXml.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
+						cond, null, conditions.get(cond).get(0), plotable
+								.getCategories().get(cond), plotable.getUnits()
+								.get(cond), null));
 			}
 		}
 

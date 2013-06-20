@@ -539,71 +539,59 @@ public class XLSReader {
 					for (PmmXmlElementConvertable el : secIndepXml
 							.getElementSet()) {
 						IndepXml element = (IndepXml) el;
-						String unitMapping = secModelIndepUnits.get(param).get(
+						String unit = secModelIndepUnits.get(param).get(
 								element.getName());
 
-						if (unitMapping != null) {
-							Cell unitCell = row.getCell(columns
-									.get(unitMapping));
+						if (unit != null) {
+							String minMapping = secModelIndepMins.get(param)
+									.get(element.getName());
+							String maxMapping = secModelIndepMaxs.get(param)
+									.get(element.getName());
 
-							if (hasData(unitCell)) {
-								String unit = unitCell.toString().trim();
-								String minMapping = secModelIndepMins
-										.get(param).get(element.getName());
-								String maxMapping = secModelIndepMaxs
-										.get(param).get(element.getName());
+							if (minMapping != null) {
+								Cell minCell = row.getCell(columns
+										.get(minMapping));
 
-								if (minMapping != null) {
-									Cell minCell = row.getCell(columns
-											.get(minMapping));
+								if (hasData(minCell)) {
+									try {
+										double value = Double
+												.parseDouble(minCell.toString()
+														.replace(",", "."));
 
-									if (hasData(minCell)) {
-										try {
-											double value = Double
-													.parseDouble(minCell
-															.toString()
-															.replace(",", "."));
-
-											element.setMin(Categories
-													.getCategory(
-															element.getCategory())
-													.convert(value, unit,
-															element.getUnit()));
-										} catch (NumberFormatException e) {
-											warnings.add(minMapping
-													+ " value in row "
-													+ (rowNumber + 1)
-													+ " is not valid ("
-													+ minCell.toString().trim()
-													+ ")");
-										}
+										element.setMin(Categories.getCategory(
+												element.getCategory()).convert(
+												value, unit, element.getUnit()));
+									} catch (NumberFormatException e) {
+										warnings.add(minMapping
+												+ " value in row "
+												+ (rowNumber + 1)
+												+ " is not valid ("
+												+ minCell.toString().trim()
+												+ ")");
 									}
 								}
+							}
 
-								if (maxMapping != null) {
-									Cell maxCell = row.getCell(columns
-											.get(maxMapping));
+							if (maxMapping != null) {
+								Cell maxCell = row.getCell(columns
+										.get(maxMapping));
 
-									if (hasData(maxCell)) {
-										try {
-											double value = Double
-													.parseDouble(maxCell
-															.toString()
-															.replace(",", "."));
+								if (hasData(maxCell)) {
+									try {
+										double value = Double
+												.parseDouble(maxCell.toString()
+														.replace(",", "."));
 
-											element.setMax(Categories
-													.getCategory(
-															element.getCategory())
-													.convert(value, unit,
-															element.getUnit()));
-										} catch (NumberFormatException e) {
-											warnings.add(maxMapping
-													+ " value in row "
-													+ (rowNumber + 1)
-													+ " is not valid ("
-													+ maxCell.toString().trim()
-													+ ")");
-										}
+										element.setMax(Categories.getCategory(
+												element.getCategory()).convert(
+												value, unit, element.getUnit()));
+									} catch (NumberFormatException e) {
+										warnings.add(maxMapping
+												+ " value in row "
+												+ (rowNumber + 1)
+												+ " is not valid ("
+												+ maxCell.toString().trim()
+												+ ")");
 									}
 								}
 							}

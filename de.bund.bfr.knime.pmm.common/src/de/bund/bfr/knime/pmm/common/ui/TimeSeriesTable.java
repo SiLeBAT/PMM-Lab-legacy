@@ -103,7 +103,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 		for (int i = 0; i < rowCount; i++) {
 			timeSeries.add(new TimeSeriesXml(null, getTime(i), null,
-					getLogc(i), null));
+					getLogc(i), null, null));
 		}
 
 		return timeSeries;

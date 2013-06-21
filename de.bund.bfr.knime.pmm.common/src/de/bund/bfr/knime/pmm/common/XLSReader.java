@@ -293,7 +293,7 @@ public class XLSReader {
 				}
 
 				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc,
-						concentrationUnit));
+						concentrationUnit, null));
 			}
 		}
 

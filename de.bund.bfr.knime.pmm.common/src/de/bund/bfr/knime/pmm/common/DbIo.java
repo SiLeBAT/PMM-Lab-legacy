@@ -38,7 +38,7 @@ public class DbIo {
 					try {
 						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
 								time.equals("?") ? null : Double.parseDouble(time),Time.HOUR,
-										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),NumberContent.LOG_COUNT_PER_GRAMM);
+										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),NumberContent.LOG_COUNT_PER_GRAMM,null);
 						tsDoc.add(tsx);
 					}
 					catch (Exception e) {

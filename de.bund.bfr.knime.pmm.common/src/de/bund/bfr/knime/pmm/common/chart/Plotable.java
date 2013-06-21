@@ -603,6 +603,150 @@ public class Plotable {
 		return points;
 	}
 
+	public double[][] getFunctionSamplePointsErrors(String paramX,
+			String paramY, String unitX, String unitY, String transformY,
+			double minX, double maxX, double minY, double maxY) {
+		return getFunctionSamplePointsErrors(paramX, paramY, unitX, unitY,
+				transformY, minX, maxX, minY, maxY, getStandardChoice());
+	}
+
+	public double[][] getFunctionSamplePointsErrors(String paramX,
+			String paramY, String unitX, String unitY, String transformY,
+			double minX, double maxX, double minY, double maxY,
+			Map<String, Integer> choice) {
+		if (function == null) {
+			return null;
+		}
+
+		if (!function.startsWith(paramY + "=")
+				|| !functionArguments.containsKey(paramX)) {
+			return null;
+		}
+
+		double[][] points = new double[2][samples.size()];
+		boolean containsValidPoint = false;
+		DJep parser = MathUtilities.createParser();
+		Node f = null;
+
+		for (String param : functionParameters.keySet()) {
+			if (functionParameters.get(param) == null
+					|| covariances.get(param) == null) {
+				return null;
+			}
+
+			for (String param2 : functionParameters.keySet()) {
+				if (covariances.get(param).get(param2) == null) {
+					return null;
+				}
+			}
+
+			parser.addConstant(param, functionParameters.get(param));
+		}
+
+		for (String param : functionArguments.keySet()) {
+			if (!param.equals(paramX)) {
+				parser.addConstant(param,
+						functionArguments.get(param).get(choice.get(param)));
+			}
+		}
+
+		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+
+		parser.addVariable(paramX, 0.0);
+
+		try {
+			f = parser.parse(function.replace(paramY + "=", ""));
+
+			for (String param : functionParameters.keySet()) {
+				derivatives.put(param, parser.differentiate(f, param));
+			}
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+
+		for (int n = 0; n < samples.size(); n++) {
+			Double x = samples.get(n);
+
+			if (x == null || x < minX || x > maxX) {
+				points[0][n] = Double.NaN;
+				points[1][n] = Double.NaN;
+				continue;
+			}
+
+			parser.setVarValue(paramX, convertFromUnit(paramX, x, unitX));
+
+			try {
+				Double y = 0.0;
+				boolean failed = false;
+				List<String> paramList = new ArrayList<String>(
+						functionParameters.keySet());
+
+				for (String param : paramList) {
+					Object obj = parser.evaluate(derivatives.get(param));
+
+					if (!(obj instanceof Double)) {
+						failed = true;
+						break;
+					}
+
+					y += (Double) obj * (Double) obj
+							* covariances.get(param).get(param);
+				}
+
+				for (int i = 0; i < paramList.size() - 1; i++) {
+					for (int j = i + 1; j < paramList.size(); j++) {
+						Object obj1 = parser.evaluate(derivatives.get(paramList
+								.get(i)));
+						Object obj2 = parser.evaluate(derivatives.get(paramList
+								.get(j)));
+
+						if (!(obj1 instanceof Double)
+								|| !(obj2 instanceof Double)) {
+							failed = true;
+							break;
+						}
+
+						double cov = covariances.get(paramList.get(i)).get(
+								paramList.get(j));
+
+						y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
+					}
+				}
+
+				points[0][n] = x;
+
+				if (!failed) {
+					// 95% interval
+					TDistribution dist = new TDistribution(degreesOfFreedom);
+
+					y = Math.sqrt(y)
+							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+					y = convertToUnit(paramY, y, unitY);
+					y = transformDouble(y, transformY);
+
+					if (y != null) {
+						points[1][n] = y;
+						containsValidPoint = true;
+					} else {
+						points[1][n] = Double.NaN;
+					}
+				} else {
+					points[1][n] = Double.NaN;
+				}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (ClassCastException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (!containsValidPoint) {
+			return null;
+		}
+
+		return points;
+	}
+
 	public boolean isPlotable() {
 		if (type == FUNCTION || type == FUNCTION_SAMPLE) {
 			for (String param : functionParameters.keySet()) {
@@ -708,7 +852,7 @@ public class Plotable {
 	public Double convertToUnit(String param, Double value, String unit) {
 		String currentUnit = units.get(param);
 		Category category = Categories.getCategoryByUnit(categories.get(param),
-				currentUnit);		
+				currentUnit);
 
 		return category.convert(value, currentUnit, unit);
 	}

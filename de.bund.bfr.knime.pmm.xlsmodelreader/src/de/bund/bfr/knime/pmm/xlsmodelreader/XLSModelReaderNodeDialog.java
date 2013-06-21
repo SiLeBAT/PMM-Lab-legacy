@@ -1067,6 +1067,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		modelPanel.removeAll();
 		modelPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		modelPanel.revalidate();
 	}
 
 	private void updateAgentPanel() {
@@ -1137,6 +1138,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		agentPanel.removeAll();
 		agentPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		agentPanel.revalidate();
 	}
 
 	private void updateMatrixPanel() {
@@ -1208,6 +1210,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 		matrixPanel.removeAll();
 		matrixPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+		matrixPanel.revalidate();
 	}
 
 	private void updateColumnsPanel() {
@@ -1312,9 +1315,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			columnsPanel.removeAll();
 			columnsPanel.add(new JScrollPane(panel), BorderLayout.CENTER);
+			columnsPanel.revalidate();
 		} else {
 			columnsPanel.removeAll();
 			columnsPanel.add(noLabel, BorderLayout.CENTER);
+			columnsPanel.revalidate();
 			columnButtons.clear();
 		}
 	}
@@ -1355,15 +1360,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		for (String param1 : secModelBoxes.keySet()) {
+			newSecModelMappings
+					.put(param1, new LinkedHashMap<String, String>());
+
 			for (String param2 : secModelBoxes.get(param1).keySet()) {
 				if (set.getSecModelMappings().containsKey(param1)
 						&& set.getSecModelMappings().get(param1)
 								.containsKey(param2)) {
-					if (!newSecModelMappings.containsKey(param1)) {
-						newSecModelMappings.put(param1,
-								new LinkedHashMap<String, String>());
-					}
-
 					newSecModelMappings.get(param1).put(param2,
 							set.getSecModelMappings().get(param1).get(param2));
 				}
@@ -1371,15 +1374,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		for (String param1 : secMinBoxes.keySet()) {
+			newSecModelIndepMins.put(param1,
+					new LinkedHashMap<String, String>());
+
 			for (String param2 : secMinBoxes.get(param1).keySet()) {
 				if (set.getSecModelIndepMins().containsKey(param1)
 						&& set.getSecModelIndepMins().get(param1)
 								.containsKey(param2)) {
-					if (!newSecModelIndepMins.containsKey(param1)) {
-						newSecModelIndepMins.put(param1,
-								new LinkedHashMap<String, String>());
-					}
-
 					newSecModelIndepMins.get(param1).put(param2,
 							set.getSecModelIndepMins().get(param1).get(param2));
 				}
@@ -1387,15 +1388,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		for (String param1 : secMaxBoxes.keySet()) {
+			newSecModelIndepMaxs.put(param1,
+					new LinkedHashMap<String, String>());
+
 			for (String param2 : secMaxBoxes.get(param1).keySet()) {
 				if (set.getSecModelIndepMaxs().containsKey(param1)
 						&& set.getSecModelIndepMaxs().get(param1)
 								.containsKey(param2)) {
-					if (!newSecModelIndepMaxs.containsKey(param1)) {
-						newSecModelIndepMaxs.put(param1,
-								new LinkedHashMap<String, String>());
-					}
-
 					newSecModelIndepMaxs.get(param1).put(param2,
 							set.getSecModelIndepMaxs().get(param1).get(param2));
 				}
@@ -1403,15 +1402,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		}
 
 		for (String param1 : secUnitBoxes.keySet()) {
+			newSecModelIndepUnits.put(param1,
+					new LinkedHashMap<String, String>());
+
 			for (String param2 : secUnitBoxes.get(param1).keySet()) {
 				if (set.getSecModelIndepUnits().containsKey(param1)
 						&& set.getSecModelIndepUnits().get(param1)
 								.containsKey(param2)) {
-					if (!newSecModelIndepUnits.containsKey(param1)) {
-						newSecModelIndepUnits.put(param1,
-								new LinkedHashMap<String, String>());
-					}
-
 					newSecModelIndepUnits.get(param1)
 							.put(param2,
 									set.getSecModelIndepUnits().get(param1)

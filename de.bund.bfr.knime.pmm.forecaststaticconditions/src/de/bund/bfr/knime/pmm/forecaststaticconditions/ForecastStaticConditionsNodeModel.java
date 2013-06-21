@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.math3.distribution.TDistribution;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -54,6 +55,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.Node;
+import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
@@ -240,7 +242,11 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			String formula = ((CatalogModelXml) newTuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-			Map<String, Double> constants = new LinkedHashMap<String, Double>();
+			Map<String, Double> variables = new LinkedHashMap<>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			int degreesOfFreedom = ((EstModelXml) newTuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getDOF();
 
 			checkPrimaryModel(newTuple, initialParameter, false);
 			checkSecondaryModels(combinedTuples.get(newTuple));
@@ -252,23 +258,37 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				if (initialParameter != null
 						&& element.getName().equals(initialParameter)) {
-					constants.put(element.getName(), concentration);
+					parameters.put(element.getName(), concentration);
 				} else {
-					constants.put(element.getName(), element.getValue());
+					parameters.put(element.getName(), element.getValue());
+				}
+
+				covariances.put(element.getName(),
+						new LinkedHashMap<String, Double>());
+
+				for (PmmXmlElementConvertable el2 : newTuple.getPmmXml(
+						Model1Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml element2 = (ParamXml) el2;
+
+					covariances.get(element.getName()).put(element2.getName(),
+							element.getCorrelation(element2.getName()));
 				}
 			}
 
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				constants.put(element.getName(), element.getValue());
+				variables.put(element.getName(), element.getValue());
 			}
 
 			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
-				constants.put(AttributeUtilities.TIME, element.getTime());
-				element.setConcentration(computeLogc(formula, constants));
+				variables.put(AttributeUtilities.TIME, element.getTime());
+				element.setConcentration(computeLogc(formula, variables,
+						parameters));
+				element.setConcentrationConfInterval(computeConfidence(formula,
+						variables, parameters, covariances, degreesOfFreedom));
 			}
 
 			for (KnimeTuple tuple : combinedTuples.get(newTuple)) {
@@ -340,7 +360,11 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			String formula = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-			Map<String, Double> constants = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
+			Map<String, Double> variables = new LinkedHashMap<>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			int degreesOfFreedom = ((EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0)).getDOF();
 
 			if (initialParameter != null) {
 				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
@@ -353,20 +377,32 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			for (PmmXmlElementConvertable el : params.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
-				constants.put(element.getName(), element.getValue());
+				parameters.put(element.getName(), element.getValue());
+				covariances.put(element.getName(),
+						new LinkedHashMap<String, Double>());
+
+				for (PmmXmlElementConvertable el2 : params.getElementSet()) {
+					ParamXml element2 = (ParamXml) el2;
+
+					covariances.get(element.getName()).put(element2.getName(),
+							element.getCorrelation(element2.getName()));
+				}
 			}
 
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				constants.put(element.getName(), element.getValue());
+				variables.put(element.getName(), element.getValue());
 			}
 
 			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
 				TimeSeriesXml element = (TimeSeriesXml) el;
 
-				constants.put(AttributeUtilities.TIME, element.getTime());
-				element.setConcentration(computeLogc(formula, constants));
+				variables.put(AttributeUtilities.TIME, element.getTime());
+				element.setConcentration(computeLogc(formula, variables,
+						parameters));
+				element.setConcentrationConfInterval(computeConfidence(formula,
+						variables, parameters, covariances, degreesOfFreedom));
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);
@@ -382,14 +418,23 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		return container.getTable();
 	}
 
-	private Double computeLogc(String formula, Map<String, Double> constants) {
+	private Double computeLogc(String formula, Map<String, Double> variables,
+			Map<String, Double> parameters) {
 		DJep parser = MathUtilities.createParser();
 
-		for (String constant : constants.keySet()) {
-			Double value = constants.get(constant);
+		for (String param : parameters.keySet()) {
+			Double value = parameters.get(param);
 
 			if (value != null) {
-				parser.addConstant(constant, value);
+				parser.addConstant(param, value);
+			}
+		}
+
+		for (String var : variables.keySet()) {
+			Double value = variables.get(var);
+
+			if (value != null) {
+				parser.addConstant(var, value);
 			}
 		}
 
@@ -400,6 +445,84 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 			return value;
 		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	private Double computeConfidence(String formula,
+			Map<String, Double> variables, Map<String, Double> parameters,
+			Map<String, Map<String, Double>> covariances, int degreesOfFreedom) {
+		DJep parser = MathUtilities.createParser();
+		Node f = null;
+
+		for (String param : parameters.keySet()) {
+			if (parameters.get(param) == null || covariances.get(param) == null) {
+				return null;
+			}
+
+			for (String param2 : parameters.keySet()) {
+				if (covariances.get(param).get(param2) == null) {
+					return null;
+				}
+			}
+
+			parser.addConstant(param, parameters.get(param));
+		}
+
+		for (String var : variables.keySet()) {
+			parser.addConstant(var, variables.get(var));
+		}
+
+		Map<String, Node> derivatives = new LinkedHashMap<String, Node>();
+
+		try {
+			f = parser
+					.parse(formula.replace(AttributeUtilities.LOGC + "=", ""));
+
+			for (String param : parameters.keySet()) {
+				derivatives.put(param, parser.differentiate(f, param));
+			}
+
+			List<String> paramList = new ArrayList<>(parameters.keySet());
+			Double y = 0.0;
+
+			for (String param : paramList) {
+				Object obj = parser.evaluate(derivatives.get(param));
+
+				if (!(obj instanceof Double)) {
+					return null;
+				}
+
+				y += (Double) obj * (Double) obj
+						* covariances.get(param).get(param);
+			}
+
+			for (int i = 0; i < paramList.size() - 1; i++) {
+				for (int j = i + 1; j < paramList.size(); j++) {
+					Object obj1 = parser.evaluate(derivatives.get(paramList
+							.get(i)));
+					Object obj2 = parser.evaluate(derivatives.get(paramList
+							.get(j)));
+
+					if (!(obj1 instanceof Double) || !(obj2 instanceof Double)) {
+						return null;
+					}
+
+					double cov = covariances.get(paramList.get(i)).get(
+							paramList.get(j));
+
+					y += 2.0 * (Double) obj1 * (Double) obj2 * cov;
+				}
+			}
+
+			TDistribution dist = new TDistribution(degreesOfFreedom);
+
+			y = Math.sqrt(y)
+					* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
+
+			return y;
+		} catch (ParseException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}

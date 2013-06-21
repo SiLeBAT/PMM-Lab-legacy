@@ -258,20 +258,20 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				if (initialParameter != null
 						&& element.getName().equals(initialParameter)) {
-					parameters.put(element.getName(), concentration);
+					variables.put(element.getName(), concentration);
 				} else {
 					parameters.put(element.getName(), element.getValue());
-				}
+					covariances.put(element.getName(),
+							new LinkedHashMap<String, Double>());
 
-				covariances.put(element.getName(),
-						new LinkedHashMap<String, Double>());
+					for (PmmXmlElementConvertable el2 : newTuple.getPmmXml(
+							Model1Schema.ATT_PARAMETER).getElementSet()) {
+						ParamXml element2 = (ParamXml) el2;
 
-				for (PmmXmlElementConvertable el2 : newTuple.getPmmXml(
-						Model1Schema.ATT_PARAMETER).getElementSet()) {
-					ParamXml element2 = (ParamXml) el2;
-
-					covariances.get(element.getName()).put(element2.getName(),
-							element.getCorrelation(element2.getName()));
+						covariances.get(element.getName()).put(
+								element2.getName(),
+								element.getCorrelation(element2.getName()));
+					}
 				}
 			}
 
@@ -366,26 +366,27 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			int degreesOfFreedom = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getDOF();
 
-			if (initialParameter != null) {
-				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
-						initialParameter))).setValue(concentration);
-			}
-
 			checkPrimaryModel(tuple, initialParameter, true);
 			checkData(tuple);
 
 			for (PmmXmlElementConvertable el : params.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
-				parameters.put(element.getName(), element.getValue());
-				covariances.put(element.getName(),
-						new LinkedHashMap<String, Double>());
+				if (initialParameter != null
+						&& element.getName().equals(initialParameter)) {
+					variables.put(element.getName(), concentration);
+				} else {
+					parameters.put(element.getName(), element.getValue());
+					covariances.put(element.getName(),
+							new LinkedHashMap<String, Double>());
 
-				for (PmmXmlElementConvertable el2 : params.getElementSet()) {
-					ParamXml element2 = (ParamXml) el2;
+					for (PmmXmlElementConvertable el2 : params.getElementSet()) {
+						ParamXml element2 = (ParamXml) el2;
 
-					covariances.get(element.getName()).put(element2.getName(),
-							element.getCorrelation(element2.getName()));
+						covariances.get(element.getName()).put(
+								element2.getName(),
+								element.getCorrelation(element2.getName()));
+					}
 				}
 			}
 
@@ -403,6 +404,11 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 						parameters));
 				element.setConcentrationConfInterval(computeConfidence(formula,
 						variables, parameters, covariances, degreesOfFreedom));
+			}
+
+			if (initialParameter != null) {
+				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
+						initialParameter))).setValue(concentration);
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);

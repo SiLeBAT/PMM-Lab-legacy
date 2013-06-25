@@ -33,8 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.predictorview;
 
-import java.awt.Color;
-import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -70,7 +68,6 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -90,68 +87,7 @@ import de.bund.bfr.knime.pmm.common.units.Time;
  */
 public class PredictorViewNodeModel extends NodeModel {
 
-	protected static final String CFG_SELECTEDID = "SelectedID";
-	protected static final String CFG_PARAMXVALUES = "ParamXValues";
-	protected static final String CFG_TIMEVALUES = "TimeValues";
-	protected static final String CFG_COLORS = "Colors";
-	protected static final String CFG_SHAPES = "Shapes";
-	protected static final String CFG_MANUALRANGE = "ManualRange";
-	protected static final String CFG_MINX = "MinX";
-	protected static final String CFG_MAXX = "MaxX";
-	protected static final String CFG_MINY = "MinY";
-	protected static final String CFG_MAXY = "MaxY";
-	protected static final String CFG_DRAWLINES = "DrawLines";
-	protected static final String CFG_SHOWLEGEND = "ShowLegend";
-	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
-	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
-	protected static final String CFG_SHOWCONFIDENCE = "ShowConfidence";
-	protected static final String CFG_UNITX = "UnitX";
-	protected static final String CFG_UNITY = "UnitY";
-	protected static final String CFG_TRANSFORMY = "TransformY";
-	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
-	protected static final String CFG_MODELFILTER = "ModelFilter";
-	protected static final String CFG_DATAFILTER = "DataFilter";
-	protected static final String CFG_FITTEDFILTER = "FittedFilter";
-	protected static final String CFGKEY_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
-
-	protected static final int DEFAULT_MANUALRANGE = 0;
-	protected static final double DEFAULT_MINX = 0.0;
-	protected static final double DEFAULT_MAXX = 100.0;
-	protected static final double DEFAULT_MINY = 0.0;
-	protected static final double DEFAULT_MAXY = 10.0;
-	protected static final int DEFAULT_DRAWLINES = 0;
-	protected static final int DEFAULT_SHOWLEGEND = 1;
-	protected static final int DEFAULT_ADDLEGENDINFO = 0;
-	protected static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
-	protected static final int DEFAULT_SHOWCONFIDENCE = 0;
-	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	protected static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
-
-	private String selectedID;
-	private Map<String, Double> paramXValues;
-	private List<Double> timeValues;
-	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private int showConfidence;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
-	private String modelFilter;
-	private String dataFilter;
-	private String fittedFilter;
-	private Map<String, String> concentrationParameters;
+	private SettingsHelper set;
 
 	/**
 	 * Constructor for the node model.
@@ -159,30 +95,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected PredictorViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
 				BufferedDataTable.TYPE, ImagePortObject.TYPE });
-		selectedID = null;
-		paramXValues = new LinkedHashMap<>();
-		timeValues = new ArrayList<>();
-		colors = new LinkedHashMap<>();
-		shapes = new LinkedHashMap<>();
-		manualRange = DEFAULT_MANUALRANGE;
-		minX = DEFAULT_MINX;
-		maxX = DEFAULT_MAXX;
-		minY = DEFAULT_MINY;
-		maxY = DEFAULT_MAXY;
-		drawLines = DEFAULT_DRAWLINES;
-		showLegend = DEFAULT_SHOWLEGEND;
-		addLegendInfo = DEFAULT_ADDLEGENDINFO;
-		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		showConfidence = DEFAULT_SHOWCONFIDENCE;
-		unitX = null;
-		unitY = null;
-		transformY = DEFAULT_TRANSFORMY;
-		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
-		modelFilter = null;
-		dataFilter = null;
-		fittedFilter = null;
-		concentrationParameters = new LinkedHashMap<>();
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -192,39 +105,42 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		DataTable table = (DataTable) inObjects[0];
-		TableReader reader = new TableReader(table, concentrationParameters);
+		TableReader reader = new TableReader(table,
+				set.getConcentrationParameters());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
 
-		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
-			Plotable plotable = reader.getPlotables().get(selectedID);
+		if (set.getSelectedID() != null
+				&& reader.getPlotables().get(set.getSelectedID()) != null) {
+			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
-			for (Map.Entry<String, Double> entry : paramXValues.entrySet()) {
+			for (Map.Entry<String, Double> entry : set.getParamXValues()
+					.entrySet()) {
 				arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
 			}
 
-			plotable.setSamples(timeValues);
+			plotable.setSamples(set.getTimeValues());
 			plotable.setFunctionArguments(arguments);
 			creator.setParamX(AttributeUtilities.TIME);
 			creator.setParamY(plotable.getFunctionValue());
-			creator.setUseManualRange(manualRange == 1);
-			creator.setMinX(minX);
-			creator.setMaxX(maxX);
-			creator.setMinY(minY);
-			creator.setMaxY(maxY);
-			creator.setDrawLines(drawLines == 1);
-			creator.setShowLegend(showLegend == 1);
-			creator.setAddInfoInLegend(addLegendInfo == 1);
-			creator.setShowConfidenceInterval(showConfidence == 1);
-			creator.setUnitX(unitX);
-			creator.setUnitY(unitY);
-			creator.setTransformY(transformY);
-			creator.setColors(colors);
-			creator.setShapes(shapes);
+			creator.setUseManualRange(set.isManualRange());
+			creator.setMinX(set.getMinX());
+			creator.setMaxX(set.getMaxX());
+			creator.setMinY(set.getMinY());
+			creator.setMaxY(set.getMaxY());
+			creator.setDrawLines(set.isDrawLines());
+			creator.setShowLegend(set.isShowLegend());
+			creator.setAddInfoInLegend(set.isAddLegendInfo());
+			creator.setShowConfidenceInterval(set.isShowConfidence());
+			creator.setUnitX(set.getUnitX());
+			creator.setUnitY(set.getUnitY());
+			creator.setTransformY(set.getTransformY());
+			creator.setColors(set.getColors());
+			creator.setShapes(set.getShapes());
 
 			container.addRowToTable(createDataTuple(reader));
 		}
@@ -234,7 +150,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		return new PortObject[] {
 				container.getTable(),
 				new ImagePortObject(ChartUtilities.convertToPNGImageContent(
-						creator.getChart(selectedID), 640, 480),
+						creator.getChart(set.getSelectedID()), 640, 480),
 						new ImagePortObjectSpec(PNGImageContent.TYPE)) };
 	}
 
@@ -266,33 +182,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDID, selectedID);
-		settings.addString(CFG_PARAMXVALUES,
-				XmlConverter.objectToXml(paramXValues));
-		settings.addString(CFG_TIMEVALUES, XmlConverter.objectToXml(timeValues));
-		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
-		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
-		settings.addInt(CFG_MANUALRANGE, manualRange);
-		settings.addDouble(CFG_MINX, minX);
-		settings.addDouble(CFG_MAXX, maxX);
-		settings.addDouble(CFG_MINY, minY);
-		settings.addDouble(CFG_MAXY, maxY);
-		settings.addInt(CFG_DRAWLINES, drawLines);
-		settings.addInt(CFG_SHOWLEGEND, showLegend);
-		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
-		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
-		settings.addInt(CFG_SHOWCONFIDENCE, showConfidence);
-		settings.addString(CFG_UNITX, unitX);
-		settings.addString(CFG_UNITY, unitY);
-		settings.addString(CFG_TRANSFORMY, transformY);
-		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
-		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
-		settings.addString(CFG_MODELFILTER, modelFilter);
-		settings.addString(CFG_DATAFILTER, dataFilter);
-		settings.addString(CFG_FITTEDFILTER, fittedFilter);
-		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.objectToXml(concentrationParameters));
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -301,37 +191,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		selectedID = settings.getString(CFG_SELECTEDID);
-		paramXValues = XmlConverter.xmlToObject(
-				settings.getString(CFG_PARAMXVALUES),
-				new LinkedHashMap<String, Double>());
-		timeValues = XmlConverter.xmlToObject(
-				settings.getString(CFG_TIMEVALUES), new ArrayList<Double>());
-		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
-		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
-		manualRange = settings.getInt(CFG_MANUALRANGE);
-		minX = settings.getDouble(CFG_MINX);
-		maxX = settings.getDouble(CFG_MAXX);
-		minY = settings.getDouble(CFG_MINY);
-		maxY = settings.getDouble(CFG_MAXY);
-		drawLines = settings.getInt(CFG_DRAWLINES);
-		showLegend = settings.getInt(CFG_SHOWLEGEND);
-		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
-		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
-		showConfidence = settings.getInt(CFG_SHOWCONFIDENCE);
-		unitX = settings.getString(CFG_UNITX);
-		unitY = settings.getString(CFG_UNITY);
-		transformY = settings.getString(CFG_TRANSFORMY);
-		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter
-				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
-						new ArrayList<String>());
-		modelFilter = settings.getString(CFG_MODELFILTER);
-		dataFilter = settings.getString(CFG_DATAFILTER);
-		fittedFilter = settings.getString(CFG_FITTEDFILTER);
-		concentrationParameters = XmlConverter.xmlToObject(
-				settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
-				new LinkedHashMap<String, String>());
+		set.loadSettings(settings);
 	}
 
 	/**
@@ -362,8 +222,8 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	private KnimeTuple createDataTuple(TableReader reader) {
 		KnimeTuple dataTuple;
-		KnimeTuple tuple = reader.getTupleMap().get(selectedID);
-		Plotable plotable = reader.getPlotables().get(selectedID);
+		KnimeTuple tuple = reader.getTupleMap().get(set.getSelectedID());
+		Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
 		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
@@ -389,7 +249,8 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		for (String cond : conditions.keySet()) {
 			if (!allMiscs.contains(cond)
-					&& !cond.equals(concentrationParameters.get(selectedID))) {
+					&& !cond.equals(set.getConcentrationParameters().get(
+							set.getSelectedID()))) {
 				miscXml.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
 						cond, null, conditions.get(cond).get(0), plotable
 								.getCategories().get(cond), plotable.getUnits()
@@ -399,23 +260,21 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		List<Double> values = new ArrayList<>();
 
-		for (Double t : timeValues) {
-			values.add(new Time().convert(t, unitX,
-					plotable.getUnits().get(AttributeUtilities.TIME)));
+		for (Double t : set.getTimeValues()) {
+			values.add(new Time().convert(t, set.getUnitX(), plotable
+					.getUnits().get(AttributeUtilities.TIME)));
 		}
 
 		plotable.setSamples(values);
 
-		String timeUnit = unitX;
-		String concentrationUnit = unitY;
 		double[][] points = plotable.getFunctionSamplePoints(
-				AttributeUtilities.TIME, AttributeUtilities.LOGC, timeUnit,
-				concentrationUnit, ChartConstants.NO_TRANSFORM,
+				AttributeUtilities.TIME, AttributeUtilities.LOGC,
+				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] errors = plotable.getFunctionSamplePointsErrors(
-				AttributeUtilities.TIME, AttributeUtilities.LOGC, timeUnit,
-				concentrationUnit, ChartConstants.NO_TRANSFORM,
+				AttributeUtilities.TIME, AttributeUtilities.LOGC,
+				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
@@ -439,8 +298,8 @@ public class PredictorViewNodeModel extends NodeModel {
 				}
 
 				if (time != null || logc != null) {
-					timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit,
-							logc, concentrationUnit, error));
+					timeSeriesXml.add(new TimeSeriesXml(null, time, set
+							.getUnitX(), logc, set.getUnitY(), error));
 				}
 			}
 		}

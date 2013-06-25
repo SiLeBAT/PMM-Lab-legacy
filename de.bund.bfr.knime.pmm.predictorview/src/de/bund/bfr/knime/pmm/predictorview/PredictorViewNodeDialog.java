@@ -34,11 +34,9 @@
 package de.bund.bfr.knime.pmm.predictorview;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -70,7 +68,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -101,37 +98,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private DataTable table;
 	private TableReader reader;
+	private SettingsHelper set;
 
 	private ChartAllPanel mainComponent;
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
 	private ChartSamplePanel samplePanel;
-
-	private String selectedID;
-	private Map<String, Double> paramXValues;
-	private List<Double> timeValues;
-	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private int showConfidence;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
-	private String modelFilter;
-	private String dataFilter;
-	private String fittedFilter;
-	private Map<String, String> concentrationParameters;
 
 	/**
 	 * New pane for configuring the ForecastStaticConditions node.
@@ -146,174 +119,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		try {
-			selectedID = settings
-					.getString(PredictorViewNodeModel.CFG_SELECTEDID);
-		} catch (InvalidSettingsException e) {
-			selectedID = null;
-		}
-
-		try {
-			paramXValues = XmlConverter
-					.xmlToObject(
-							settings.getString(PredictorViewNodeModel.CFG_PARAMXVALUES),
-							new LinkedHashMap<String, Double>());
-		} catch (InvalidSettingsException e) {
-			paramXValues = new LinkedHashMap<>();
-		}
-
-		try {
-			timeValues = XmlConverter.xmlToObject(
-					settings.getString(PredictorViewNodeModel.CFG_TIMEVALUES),
-					new ArrayList<Double>());
-		} catch (InvalidSettingsException e1) {
-			timeValues = new ArrayList<>();
-		}
-
-		try {
-			colors = XmlConverter.xmlToColorMap(settings
-					.getString(PredictorViewNodeModel.CFG_COLORS));
-		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<>();
-		}
-
-		try {
-			shapes = XmlConverter.xmlToShapeMap(settings
-					.getString(PredictorViewNodeModel.CFG_SHAPES));
-		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<>();
-		}
-
-		try {
-			manualRange = settings
-					.getInt(PredictorViewNodeModel.CFG_MANUALRANGE);
-		} catch (InvalidSettingsException e) {
-			manualRange = PredictorViewNodeModel.DEFAULT_MANUALRANGE;
-		}
-
-		try {
-			minX = settings.getDouble(PredictorViewNodeModel.CFG_MINX);
-		} catch (InvalidSettingsException e) {
-			minX = PredictorViewNodeModel.DEFAULT_MINX;
-		}
-
-		try {
-			maxX = settings.getDouble(PredictorViewNodeModel.CFG_MAXX);
-		} catch (InvalidSettingsException e) {
-			maxX = PredictorViewNodeModel.DEFAULT_MAXX;
-		}
-
-		try {
-			minY = settings.getDouble(PredictorViewNodeModel.CFG_MINY);
-		} catch (InvalidSettingsException e) {
-			minY = PredictorViewNodeModel.DEFAULT_MINY;
-		}
-
-		try {
-			maxY = settings.getDouble(PredictorViewNodeModel.CFG_MAXY);
-		} catch (InvalidSettingsException e) {
-			maxY = PredictorViewNodeModel.DEFAULT_MAXY;
-		}
-
-		try {
-			drawLines = settings.getInt(PredictorViewNodeModel.CFG_DRAWLINES);
-		} catch (InvalidSettingsException e) {
-			drawLines = PredictorViewNodeModel.DEFAULT_DRAWLINES;
-		}
-
-		try {
-			showLegend = settings.getInt(PredictorViewNodeModel.CFG_SHOWLEGEND);
-		} catch (InvalidSettingsException e) {
-			showLegend = PredictorViewNodeModel.DEFAULT_SHOWLEGEND;
-		}
-
-		try {
-			addLegendInfo = settings
-					.getInt(PredictorViewNodeModel.CFG_ADDLEGENDINFO);
-		} catch (InvalidSettingsException e) {
-			addLegendInfo = PredictorViewNodeModel.DEFAULT_ADDLEGENDINFO;
-		}
-
-		try {
-			displayHighlighted = settings
-					.getInt(PredictorViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
-		} catch (InvalidSettingsException e) {
-			displayHighlighted = PredictorViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
-		}
-
-		try {
-			showConfidence = settings
-					.getInt(PredictorViewNodeModel.CFG_SHOWCONFIDENCE);
-		} catch (InvalidSettingsException e) {
-			showConfidence = PredictorViewNodeModel.DEFAULT_SHOWCONFIDENCE;
-		}
-
-		try {
-			unitX = settings.getString(PredictorViewNodeModel.CFG_UNITX);
-		} catch (InvalidSettingsException e) {
-			unitX = null;
-		}
-
-		try {
-			unitY = settings.getString(PredictorViewNodeModel.CFG_UNITY);
-		} catch (InvalidSettingsException e) {
-			unitY = null;
-		}
-
-		try {
-			transformY = settings
-					.getString(PredictorViewNodeModel.CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {
-			transformY = PredictorViewNodeModel.DEFAULT_TRANSFORMY;
-		}
-
-		try {
-			standardVisibleColumns = settings
-					.getInt(PredictorViewNodeModel.CFG_STANDARDVISIBLECOLUMNS);
-		} catch (InvalidSettingsException e) {
-			standardVisibleColumns = PredictorViewNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
-		}
-
-		try {
-			visibleColumns = XmlConverter.xmlToObject(settings
-					.getString(PredictorViewNodeModel.CFG_VISIBLECOLUMNS),
-					new ArrayList<String>());
-		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
-		}
-
-		try {
-			modelFilter = settings
-					.getString(PredictorViewNodeModel.CFG_MODELFILTER);
-		} catch (InvalidSettingsException e) {
-			modelFilter = null;
-		}
-
-		try {
-			dataFilter = settings
-					.getString(PredictorViewNodeModel.CFG_DATAFILTER);
-		} catch (InvalidSettingsException e) {
-			dataFilter = null;
-		}
-
-		try {
-			fittedFilter = settings
-					.getString(PredictorViewNodeModel.CFG_FITTEDFILTER);
-		} catch (InvalidSettingsException e) {
-			fittedFilter = null;
-		}
-
-		try {
-			concentrationParameters = XmlConverter
-					.xmlToObject(
-							settings.getString(PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS),
-							new LinkedHashMap<String, String>());
-		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<String, String>();
-		}
-
+		set = new SettingsHelper();
+		set.loadSettings(settings);
 		table = input[0];
-		reader = new TableReader(table, concentrationParameters);
+		reader = new TableReader(table, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
@@ -323,90 +132,57 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		writeSettingsToVariables();
-
-		settings.addString(PredictorViewNodeModel.CFG_SELECTEDID, selectedID);
-		settings.addString(PredictorViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.objectToXml(paramXValues));
-		settings.addString(PredictorViewNodeModel.CFG_TIMEVALUES,
-				XmlConverter.objectToXml(timeValues));
-		settings.addString(PredictorViewNodeModel.CFG_COLORS,
-				XmlConverter.colorMapToXml(colors));
-		settings.addString(PredictorViewNodeModel.CFG_SHAPES,
-				XmlConverter.shapeMapToXml(shapes));
-		settings.addInt(PredictorViewNodeModel.CFG_MANUALRANGE, manualRange);
-		settings.addDouble(PredictorViewNodeModel.CFG_MINX, minX);
-		settings.addDouble(PredictorViewNodeModel.CFG_MAXX, maxX);
-		settings.addDouble(PredictorViewNodeModel.CFG_MINY, minY);
-		settings.addDouble(PredictorViewNodeModel.CFG_MAXY, maxY);
-		settings.addInt(PredictorViewNodeModel.CFG_DRAWLINES, drawLines);
-		settings.addInt(PredictorViewNodeModel.CFG_SHOWLEGEND, showLegend);
-		settings.addInt(PredictorViewNodeModel.CFG_ADDLEGENDINFO, addLegendInfo);
-		settings.addInt(PredictorViewNodeModel.CFG_DISPLAYHIGHLIGHTED,
-				displayHighlighted);
-		settings.addInt(PredictorViewNodeModel.CFG_SHOWCONFIDENCE,
-				showConfidence);
-		settings.addString(PredictorViewNodeModel.CFG_UNITX, unitX);
-		settings.addString(PredictorViewNodeModel.CFG_UNITY, unitY);
-		settings.addString(PredictorViewNodeModel.CFG_TRANSFORMY, transformY);
-		settings.addInt(PredictorViewNodeModel.CFG_STANDARDVISIBLECOLUMNS,
-				standardVisibleColumns);
-		settings.addString(PredictorViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
-		settings.addString(PredictorViewNodeModel.CFG_MODELFILTER, modelFilter);
-		settings.addString(PredictorViewNodeModel.CFG_DATAFILTER, dataFilter);
-		settings.addString(PredictorViewNodeModel.CFG_FITTEDFILTER,
-				fittedFilter);
-		settings.addString(
-				PredictorViewNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.objectToXml(concentrationParameters));
+		set.saveSettings(settings);
 	}
 
 	private ChartAllPanel createMainComponent() {
-		if (standardVisibleColumns == 1) {
-			visibleColumns = reader.getStandardVisibleColumns();
+		if (set.isStandardVisibleColumns()) {
+			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
 				true, "Change Init Params");
 
-		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
-			Plotable plotable = reader.getPlotables().get(selectedID);
+		if (set.getSelectedID() != null
+				&& reader.getPlotables().get(set.getSelectedID()) != null) {
+			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 
 			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					plotable.getCategories(), plotable.getUnits(),
 					AttributeUtilities.TIME);
-			configPanel.setParamXValues(paramXValues);
-			configPanel.setUnitX(unitX);
-			configPanel.setUnitY(unitY);
+			configPanel.setParamXValues(set.getParamXValues());
+			configPanel.setUnitX(set.getUnitX());
+			configPanel.setUnitY(set.getUnitY());
 		}
 
-		configPanel.setUseManualRange(manualRange == 1);
-		configPanel.setMinX(minX);
-		configPanel.setMaxX(maxX);
-		configPanel.setMinY(minY);
-		configPanel.setMaxY(maxY);
-		configPanel.setDrawLines(drawLines == 1);
-		configPanel.setShowLegend(showLegend == 1);
-		configPanel.setAddInfoInLegend(addLegendInfo == 1);
-		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
-		configPanel.setShowConfidenceInterval(showConfidence == 1);
-		configPanel.setTransformY(transformY);
+		configPanel.setUseManualRange(set.isManualRange());
+		configPanel.setMinX(set.getMinX());
+		configPanel.setMaxX(set.getMaxX());
+		configPanel.setMinY(set.getMinY());
+		configPanel.setMaxY(set.getMaxY());
+		configPanel.setDrawLines(set.isDrawLines());
+		configPanel.setShowLegend(set.isShowLegend());
+		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
+		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setShowConfidenceInterval(set.isShowConfidence());
+		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
 				reader.getConditions(), reader.getConditionValues(), null,
-				null, reader.getConditionUnits(), visibleColumns,
+				null, reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), null,
 				reader.getParameterData(), reader.getFormulas());
-		selectionPanel.setColors(colors);
-		selectionPanel.setShapes(shapes);
-		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
-		selectionPanel.setFilter(AttributeUtilities.DATAID, dataFilter);
-		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);
+		selectionPanel.setColors(set.getColors());
+		selectionPanel.setShapes(set.getShapes());
+		selectionPanel.setFilter(Model1Schema.MODELNAME, set.getModelFilter());
+		selectionPanel
+				.setFilter(AttributeUtilities.DATAID, set.getDataFilter());
+		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
@@ -415,11 +191,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				.getName(AttributeUtilities.TIME));
 		samplePanel.setLogcColumnName(AttributeUtilities
 				.getName(AttributeUtilities.LOGC));
-		samplePanel.setTimeValues(timeValues);
+		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
-		if (selectedID != null) {
-			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
+		if (set.getSelectedID() != null) {
+			selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		}
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
@@ -492,65 +268,33 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private void writeSettingsToVariables() {
 		if (!selectionPanel.getSelectedIDs().isEmpty()) {
-			selectedID = selectionPanel.getSelectedIDs().get(0);
+			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
 		} else {
-			selectedID = null;
+			set.setSelectedID(null);
 		}
 
-		paramXValues = configPanel.getParamXValues();
-		timeValues = samplePanel.getTimeValues();
-		colors = selectionPanel.getColors();
-		shapes = selectionPanel.getShapes();
-
-		if (configPanel.isUseManualRange()) {
-			manualRange = 1;
-		} else {
-			manualRange = 0;
-		}
-
-		minX = configPanel.getMinX();
-		maxX = configPanel.getMaxX();
-		minY = configPanel.getMinY();
-		maxY = configPanel.getMaxY();
-
-		if (configPanel.isDrawLines()) {
-			drawLines = 1;
-		} else {
-			drawLines = 0;
-		}
-
-		if (configPanel.isShowLegend()) {
-			showLegend = 1;
-		} else {
-			showLegend = 0;
-		}
-
-		if (configPanel.isAddInfoInLegend()) {
-			addLegendInfo = 1;
-		} else {
-			addLegendInfo = 0;
-		}
-
-		if (configPanel.isDisplayFocusedRow()) {
-			displayHighlighted = 1;
-		} else {
-			displayHighlighted = 0;
-		}
-
-		if (configPanel.isShowConfidenceInterval()) {
-			showConfidence = 1;
-		} else {
-			showConfidence = 0;
-		}
-
-		unitX = configPanel.getUnitX();
-		unitY = configPanel.getUnitY();
-		transformY = configPanel.getTransformY();
-		standardVisibleColumns = 0;
-		visibleColumns = selectionPanel.getVisibleColumns();
-		modelFilter = selectionPanel.getFilter(Model1Schema.MODELNAME);
-		dataFilter = selectionPanel.getFilter(AttributeUtilities.DATAID);
-		fittedFilter = selectionPanel.getFilter(ChartConstants.STATUS);
+		set.setParamXValues(configPanel.getParamXValues());
+		set.setTimeValues(samplePanel.getTimeValues());
+		set.setColors(selectionPanel.getColors());
+		set.setShapes(selectionPanel.getShapes());
+		set.setManualRange(configPanel.isUseManualRange());
+		set.setMinX(configPanel.getMinX());
+		set.setMaxX(configPanel.getMaxX());
+		set.setMinY(configPanel.getMinY());
+		set.setMaxY(configPanel.getMaxY());
+		set.setDrawLines(configPanel.isDrawLines());
+		set.setShowLegend(configPanel.isShowLegend());
+		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
+		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setShowConfidence(configPanel.isShowConfidenceInterval());
+		set.setUnitX(configPanel.getUnitX());
+		set.setUnitY(configPanel.getUnitY());
+		set.setTransformY(configPanel.getTransformY());
+		set.setStandardVisibleColumns(false);
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
+		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
+		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 	}
 
 	@Override
@@ -578,15 +322,15 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	public void buttonPressed() {
 		InitParamDialog dialog = new InitParamDialog(getPanel(), table,
-				concentrationParameters);
+				set.getConcentrationParameters());
 
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			concentrationParameters = dialog.getResult();
 			writeSettingsToVariables();
-			selectedID = null;
-			reader = new TableReader(table, concentrationParameters);
+			set.setConcentrationParameters(dialog.getResult());
+			set.setSelectedID(null);
+			reader = new TableReader(table, set.getConcentrationParameters());
 
 			int divider = mainComponent.getDividerLocation();
 

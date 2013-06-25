@@ -34,13 +34,7 @@
 package de.bund.bfr.knime.pmm.modelanddataview;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Shape;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -54,7 +48,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -81,34 +74,11 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		ChartConfigPanel.ConfigListener {
 
 	private TableReader reader;
+	private SettingsHelper set;
 
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
-
-	private String selectedID;
-	private String currentParamX;
-	private Map<String, Double> paramXValues;
-	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private int showConfidence;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
-	private String modelFilter;
-	private String dataFilter;
-	private String fittedFilter;
 
 	/**
 	 * New pane for configuring the ModelAndDataView node.
@@ -123,162 +93,8 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		try {
-			selectedID = settings
-					.getString(ModelAndDataViewNodeModel.CFG_SELECTEDID);
-		} catch (InvalidSettingsException e) {
-			selectedID = null;
-		}
-
-		try {
-			currentParamX = settings
-					.getString(ModelAndDataViewNodeModel.CFG_CURRENTPARAMX);
-		} catch (InvalidSettingsException e) {
-			currentParamX = null;
-		}
-
-		try {
-			paramXValues = XmlConverter.xmlToObject(settings
-					.getString(ModelAndDataViewNodeModel.CFG_PARAMXVALUES),
-					new LinkedHashMap<String, Double>());
-		} catch (InvalidSettingsException e) {
-			paramXValues = new LinkedHashMap<>();
-		}
-
-		try {
-			colors = XmlConverter.xmlToColorMap(settings
-					.getString(ModelAndDataViewNodeModel.CFG_COLORS));
-		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<>();
-		}
-
-		try {
-			shapes = XmlConverter.xmlToShapeMap(settings
-					.getString(ModelAndDataViewNodeModel.CFG_SHAPES));
-		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<>();
-		}
-
-		try {
-			manualRange = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_MANUALRANGE);
-		} catch (InvalidSettingsException e) {
-			manualRange = ModelAndDataViewNodeModel.DEFAULT_MANUALRANGE;
-		}
-
-		try {
-			minX = settings.getDouble(ModelAndDataViewNodeModel.CFG_MINX);
-		} catch (InvalidSettingsException e) {
-			minX = ModelAndDataViewNodeModel.DEFAULT_MINX;
-		}
-
-		try {
-			maxX = settings.getDouble(ModelAndDataViewNodeModel.CFG_MAXX);
-		} catch (InvalidSettingsException e) {
-			maxX = ModelAndDataViewNodeModel.DEFAULT_MAXX;
-		}
-
-		try {
-			minY = settings.getDouble(ModelAndDataViewNodeModel.CFG_MINY);
-		} catch (InvalidSettingsException e) {
-			minY = ModelAndDataViewNodeModel.DEFAULT_MINY;
-		}
-
-		try {
-			maxY = settings.getDouble(ModelAndDataViewNodeModel.CFG_MAXY);
-		} catch (InvalidSettingsException e) {
-			maxY = ModelAndDataViewNodeModel.DEFAULT_MAXY;
-		}
-
-		try {
-			drawLines = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_DRAWLINES);
-		} catch (InvalidSettingsException e) {
-			drawLines = ModelAndDataViewNodeModel.DEFAULT_DRAWLINES;
-		}
-
-		try {
-			showLegend = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_SHOWLEGEND);
-		} catch (InvalidSettingsException e) {
-			showLegend = ModelAndDataViewNodeModel.DEFAULT_SHOWLEGEND;
-		}
-
-		try {
-			addLegendInfo = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_ADDLEGENDINFO);
-		} catch (InvalidSettingsException e) {
-			addLegendInfo = ModelAndDataViewNodeModel.DEFAULT_ADDLEGENDINFO;
-		}
-
-		try {
-			displayHighlighted = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
-		} catch (InvalidSettingsException e) {
-			displayHighlighted = ModelAndDataViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
-		}
-
-		try {
-			showConfidence = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE);
-		} catch (InvalidSettingsException e) {
-			showConfidence = ModelAndDataViewNodeModel.DEFAULT_SHOWCONFIDENCE;
-		}
-
-		try {
-			unitX = settings.getString(ModelAndDataViewNodeModel.CFG_UNITX);
-		} catch (InvalidSettingsException e) {
-			unitX = null;
-		}
-
-		try {
-			unitY = settings.getString(ModelAndDataViewNodeModel.CFG_UNITY);
-		} catch (InvalidSettingsException e) {
-			unitY = null;
-		}
-
-		try {
-			transformY = settings
-					.getString(ModelAndDataViewNodeModel.CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {
-			transformY = ModelAndDataViewNodeModel.DEFAULT_TRANSFORMY;
-		}
-
-		try {
-			standardVisibleColumns = settings
-					.getInt(ModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS);
-		} catch (InvalidSettingsException e) {
-			standardVisibleColumns = ModelAndDataViewNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
-		}
-
-		try {
-			visibleColumns = XmlConverter.xmlToObject(settings
-					.getString(ModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS),
-					new ArrayList<String>());
-		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
-		}
-
-		try {
-			modelFilter = settings
-					.getString(ModelAndDataViewNodeModel.CFG_MODELFILTER);
-		} catch (InvalidSettingsException e) {
-			modelFilter = null;
-		}
-
-		try {
-			dataFilter = settings
-					.getString(ModelAndDataViewNodeModel.CFG_DATAFILTER);
-		} catch (InvalidSettingsException e) {
-			dataFilter = null;
-		}
-
-		try {
-			fittedFilter = settings
-					.getString(ModelAndDataViewNodeModel.CFG_FITTEDFILTER);
-		} catch (InvalidSettingsException e) {
-			fittedFilter = null;
-		}
+		set = new SettingsHelper();
+		set.loadSettings(settings);
 
 		DataTable table = input[0];
 
@@ -296,134 +112,89 @@ public class ModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		if (!selectionPanel.getSelectedIDs().isEmpty()) {
-			settings.addString(ModelAndDataViewNodeModel.CFG_SELECTEDID,
-					selectionPanel.getSelectedIDs().get(0));
+			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
 		} else {
-			settings.addString(ModelAndDataViewNodeModel.CFG_SELECTEDID, null);
+			set.setSelectedID(null);
 		}
 
-		settings.addString(ModelAndDataViewNodeModel.CFG_CURRENTPARAMX,
-				configPanel.getParamX());
-		settings.addString(ModelAndDataViewNodeModel.CFG_PARAMXVALUES,
-				XmlConverter.objectToXml(configPanel.getParamXValues()));
-		settings.addString(ModelAndDataViewNodeModel.CFG_COLORS,
-				XmlConverter.colorMapToXml(selectionPanel.getColors()));
-		settings.addString(ModelAndDataViewNodeModel.CFG_SHAPES,
-				XmlConverter.shapeMapToXml(selectionPanel.getShapes()));
-
-		if (configPanel.isUseManualRange()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_MANUALRANGE, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_MANUALRANGE, 0);
-		}
-
-		settings.addDouble(ModelAndDataViewNodeModel.CFG_MINX,
-				configPanel.getMinX());
-		settings.addDouble(ModelAndDataViewNodeModel.CFG_MAXX,
-				configPanel.getMaxX());
-		settings.addDouble(ModelAndDataViewNodeModel.CFG_MINY,
-				configPanel.getMinY());
-		settings.addDouble(ModelAndDataViewNodeModel.CFG_MAXY,
-				configPanel.getMaxY());
-
-		if (configPanel.isDrawLines()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_DRAWLINES, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_DRAWLINES, 0);
-		}
-
-		if (configPanel.isShowLegend()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWLEGEND, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWLEGEND, 0);
-		}
-
-		if (configPanel.isAddInfoInLegend()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_ADDLEGENDINFO, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_ADDLEGENDINFO, 0);
-		}
-
-		if (configPanel.isDisplayFocusedRow()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_DISPLAYHIGHLIGHTED, 0);
-		}
-
-		if (configPanel.isShowConfidenceInterval()) {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 1);
-		} else {
-			settings.addInt(ModelAndDataViewNodeModel.CFG_SHOWCONFIDENCE, 0);
-		}
-
-		settings.addString(ModelAndDataViewNodeModel.CFG_UNITX,
-				configPanel.getUnitX());
-		settings.addString(ModelAndDataViewNodeModel.CFG_UNITY,
-				configPanel.getUnitY());
-		settings.addString(ModelAndDataViewNodeModel.CFG_TRANSFORMY,
-				configPanel.getTransformY());
-		settings.addInt(ModelAndDataViewNodeModel.CFG_STANDARDVISIBLECOLUMNS, 0);
-		settings.addString(ModelAndDataViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(selectionPanel.getVisibleColumns()));
-		settings.addString(ModelAndDataViewNodeModel.CFG_MODELFILTER,
-				selectionPanel.getFilter(Model1Schema.MODELNAME));
-		settings.addString(ModelAndDataViewNodeModel.CFG_DATAFILTER,
-				selectionPanel.getFilter(AttributeUtilities.DATAID));
-		settings.addString(ModelAndDataViewNodeModel.CFG_FITTEDFILTER,
-				selectionPanel.getFilter(ChartConstants.STATUS));
+		set.setCurrentParamX(configPanel.getParamX());
+		set.setParamXValues(configPanel.getParamXValues());
+		set.setColors(selectionPanel.getColors());
+		set.setShapes(selectionPanel.getShapes());
+		set.setManualRange(configPanel.isUseManualRange());
+		set.setMinX(configPanel.getMinX());
+		set.setMaxX(configPanel.getMaxX());
+		set.setMinY(configPanel.getMinY());
+		set.setMaxY(configPanel.getMaxY());
+		set.setDrawLines(configPanel.isDrawLines());
+		set.setShowLegend(configPanel.isShowLegend());
+		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
+		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setShowConfidence(configPanel.isShowConfidenceInterval());
+		set.setUnitX(configPanel.getUnitX());
+		set.setUnitY(configPanel.getUnitY());
+		set.setTransformY(configPanel.getTransformY());
+		set.setStandardVisibleColumns(false);
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
+		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
+		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
+		set.saveSettings(settings);
 	}
 
 	private JComponent createMainComponent() {
-		if (standardVisibleColumns == 1) {
-			visibleColumns = reader.getStandardVisibleColumns();
+		if (set.isStandardVisibleColumns()) {
+			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
 				true, null);
 
-		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
-			Plotable plotable = reader.getPlotables().get(selectedID);
+		if (set.getSelectedID() != null
+				&& reader.getPlotables().get(set.getSelectedID()) != null) {
+			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 
 			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, true),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					plotable.getCategories(), plotable.getUnits(), null);
-			configPanel.setParamX(currentParamX);
-			configPanel.setParamXValues(paramXValues);
-			configPanel.setUnitX(unitX);
-			configPanel.setUnitY(unitY);
+			configPanel.setParamX(set.getCurrentParamX());
+			configPanel.setParamXValues(set.getParamXValues());
+			configPanel.setUnitX(set.getUnitX());
+			configPanel.setUnitY(set.getUnitY());
 		}
 
-		configPanel.setUseManualRange(manualRange == 1);
-		configPanel.setMinX(minX);
-		configPanel.setMaxX(maxX);
-		configPanel.setMinY(minY);
-		configPanel.setMaxY(maxY);
-		configPanel.setDrawLines(drawLines == 1);
-		configPanel.setShowLegend(showLegend == 1);
-		configPanel.setAddInfoInLegend(addLegendInfo == 1);
-		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
-		configPanel.setShowConfidenceInterval(showConfidence == 1);
-		configPanel.setTransformY(transformY);
+		configPanel.setUseManualRange(set.isManualRange());
+		configPanel.setMinX(set.getMinX());
+		configPanel.setMaxX(set.getMaxX());
+		configPanel.setMinY(set.getMinY());
+		configPanel.setMaxY(set.getMaxY());
+		configPanel.setDrawLines(set.isDrawLines());
+		configPanel.setShowLegend(set.isShowLegend());
+		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
+		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setShowConfidenceInterval(set.isShowConfidence());
+		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
 				reader.getConditions(), reader.getConditionValues(), null,
-				null, reader.getConditionUnits(), visibleColumns,
+				null, reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), reader.getData(),
 				reader.getParameterData(), reader.getFormulas());
-		selectionPanel.setColors(colors);
-		selectionPanel.setShapes(shapes);
-		selectionPanel.setFilter(Model1Schema.MODELNAME, modelFilter);
-		selectionPanel.setFilter(AttributeUtilities.DATAID, dataFilter);
-		selectionPanel.setFilter(ChartConstants.STATUS, fittedFilter);
+		selectionPanel.setColors(set.getColors());
+		selectionPanel.setShapes(set.getShapes());
+		selectionPanel.setFilter(Model1Schema.MODELNAME, set.getModelFilter());
+		selectionPanel
+				.setFilter(AttributeUtilities.DATAID, set.getDataFilter());
+		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 
-		if (selectedID != null) {
-			selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
+		if (set.getSelectedID() != null) {
+			selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		}
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);

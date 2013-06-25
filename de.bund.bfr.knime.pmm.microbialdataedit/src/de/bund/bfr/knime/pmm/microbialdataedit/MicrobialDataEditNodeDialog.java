@@ -85,7 +85,6 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -158,135 +157,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		Map<Integer, MiscXml> addedConditions;
-		Map<Integer, Map<String, Double>> addedConditionValues;
-		Map<Integer, Map<String, String>> addedConditionUnits;
-		Map<Integer, MiscXml> conditions;
-		Map<Integer, Map<String, Double>> conditionValues;
-		Map<Integer, Map<String, String>> conditionUnits;
-		Map<String, AgentXml> agents;
-		Map<String, String> agentDetails;
-		Map<String, MatrixXml> matrices;
-		Map<String, String> matrixDetails;
-		Map<String, String> comments;
-		Map<String, Integer> qualityScores;
-		Map<String, Boolean> checks;
-		Map<String, List<TimeSeriesXml>> timeSeries;
+		SettingsHelper set = new SettingsHelper();
 
-		try {
-			addedConditions = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONS),
-							new LinkedHashMap<Integer, MiscXml>());
-		} catch (InvalidSettingsException e) {
-			addedConditions = new LinkedHashMap<>();
-		}
-		try {
-			addedConditionValues = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONVALUES),
-							new LinkedHashMap<Integer, Map<String, Double>>());
-		} catch (InvalidSettingsException e) {
-			addedConditionValues = new LinkedHashMap<>();
-		}
-		try {
-			addedConditionUnits = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONUNITS),
-							new LinkedHashMap<Integer, Map<String, String>>());
-		} catch (InvalidSettingsException e2) {
-			addedConditionUnits = new LinkedHashMap<>();
-		}
-		try {
-			conditions = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONS),
-					new LinkedHashMap<Integer, MiscXml>());
-		} catch (InvalidSettingsException e) {
-			conditions = new LinkedHashMap<>();
-		}
-		try {
-			conditionValues = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONVALUES),
-							new LinkedHashMap<Integer, Map<String, Double>>());
-		} catch (InvalidSettingsException e) {
-			conditionValues = new LinkedHashMap<>();
-		}
-
-		try {
-			conditionUnits = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONUNITS),
-							new LinkedHashMap<Integer, Map<String, String>>());
-		} catch (InvalidSettingsException e) {
-			conditionUnits = new LinkedHashMap<>();
-		}
-
-		try {
-			agents = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_AGENTS),
-					new LinkedHashMap<String, AgentXml>());
-		} catch (InvalidSettingsException e) {
-			agents = new LinkedHashMap<>();
-		}
-
-		try {
-			agentDetails = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_AGENTDETAILS),
-					new LinkedHashMap<String, String>());
-		} catch (InvalidSettingsException e1) {
-			agentDetails = new LinkedHashMap<>();
-		}
-
-		try {
-			matrices = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_MATRICES),
-					new LinkedHashMap<String, MatrixXml>());
-		} catch (InvalidSettingsException e) {
-			matrices = new LinkedHashMap<>();
-		}
-
-		try {
-			matrixDetails = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_MATRIXDETAILS),
-							new LinkedHashMap<String, String>());
-		} catch (InvalidSettingsException e1) {
-			matrixDetails = new LinkedHashMap<>();
-		}
-
-		try {
-			comments = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_COMMENTS),
-					new LinkedHashMap<String, String>());
-		} catch (InvalidSettingsException e) {
-			comments = new LinkedHashMap<>();
-		}
-
-		try {
-			qualityScores = XmlConverter
-					.xmlToObject(
-							settings.getString(MicrobialDataEditNodeModel.CFGKEY_QUALITYSCORES),
-							new LinkedHashMap<String, Integer>());
-		} catch (InvalidSettingsException e) {
-			qualityScores = new LinkedHashMap<>();
-		}
-
-		try {
-			checks = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_CHECKS),
-					new LinkedHashMap<String, Boolean>());
-		} catch (InvalidSettingsException e) {
-			checks = new LinkedHashMap<>();
-		}
-
-		try {
-			timeSeries = XmlConverter.xmlToObject(settings
-					.getString(MicrobialDataEditNodeModel.CFGKEY_TIMESERIES),
-					new LinkedHashMap<String, List<TimeSeriesXml>>());
-		} catch (InvalidSettingsException e) {
-			timeSeries = new LinkedHashMap<>();
-		}
+		set.loadSettings(settings);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), input[0]);
@@ -348,54 +221,54 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			ids.add(id);
 
-			if (agents.containsKey(id)) {
-				agentList.add(agents.get(id));
+			if (set.getAgents().containsKey(id)) {
+				agentList.add(set.getAgents().get(id));
 			} else {
 				agentList.add((AgentXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_AGENT).get(0));
 			}
 
-			if (agentDetails.containsKey(id)) {
-				agentDetailList.add(agentDetails.get(id));
+			if (set.getAgentDetails().containsKey(id)) {
+				agentDetailList.add(set.getAgentDetails().get(id));
 			} else {
 				agentDetailList.add(((AgentXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_AGENT).get(0)).getDetail());
 			}
 
-			if (matrices.containsKey(id)) {
-				matrixList.add(matrices.get(id));
+			if (set.getMatrices().containsKey(id)) {
+				matrixList.add(set.getMatrices().get(id));
 			} else {
 				matrixList.add((MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0));
 			}
 
-			if (matrixDetails.containsKey(id)) {
-				matrixDetailList.add(matrixDetails.get(id));
+			if (set.getMatrixDetails().containsKey(id)) {
+				matrixDetailList.add(set.getMatrixDetails().get(id));
 			} else {
 				matrixDetailList.add(((MatrixXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MATRIX).get(0)).getDetail());
 			}
 
-			if (comments.containsKey(id)) {
-				commentList.add(comments.get(id));
+			if (set.getComments().containsKey(id)) {
+				commentList.add(set.getComments().get(id));
 			} else {
 				commentList.add(infoXml.getComment());
 			}
 
-			if (qualityScores.containsKey(id)) {
-				qualityScoreList.add(qualityScores.get(id));
+			if (set.getQualityScores().containsKey(id)) {
+				qualityScoreList.add(set.getQualityScores().get(id));
 			} else {
 				qualityScoreList.add(infoXml.getQualityScore());
 			}
 
-			if (checks.containsKey(id)) {
-				checkedList.add(checks.get(id));
+			if (set.getChecks().containsKey(id)) {
+				checkedList.add(set.getChecks().get(id));
 			} else {
 				checkedList.add(infoXml.getChecked());
 			}
 
-			if (timeSeries.containsKey(id)) {
-				timeSeriesList.add(timeSeries.get(id));
+			if (set.getTimeSeries().containsKey(id)) {
+				timeSeriesList.add(set.getTimeSeries().get(id));
 			} else {
 				timeSeriesList.add(series);
 			}
@@ -405,10 +278,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				String unit = null;
 				int miscID = usedMiscs.get(i).getID();
 
-				if (conditions.containsKey(miscID)
-						&& conditionValues.get(miscID).containsKey(id)) {
-					value = conditionValues.get(miscID).get(id);
-					unit = conditionUnits.get(miscID).get(id);
+				if (set.getConditions().containsKey(miscID)
+						&& set.getConditionValues().get(miscID).containsKey(id)) {
+					value = set.getConditionValues().get(miscID).get(id);
+					unit = set.getConditionUnits().get(miscID).get(id);
 				} else {
 					for (PmmXmlElementConvertable el : miscXml.getElementSet()) {
 						MiscXml cond = (MiscXml) el;
@@ -427,14 +300,15 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		for (int id : usedMiscIDs) {
-			addedConditions.remove(id);
-			addedConditionValues.remove(id);
-			addedConditionUnits.remove(id);
+			set.getAddedConditions().remove(id);
+			set.getAddedConditionValues().remove(id);
+			set.getAddedConditionUnits().remove(id);
 		}
 
-		for (int miscID : addedConditions.keySet()) {
+		for (int miscID : set.getAddedConditions().keySet()) {
 			addedConditionIDs.add(miscID);
-			addedConditionNames.add(addedConditions.get(miscID).getName());
+			addedConditionNames.add(set.getAddedConditions().get(miscID)
+					.getName());
 		}
 
 		addedConditionsList.setListData(addedConditionNames
@@ -445,10 +319,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				checkedList, timeSeriesList, usedMiscs, usedMiscValues,
 				usedMiscUnits);
 
-		for (int miscID : addedConditions.keySet()) {
-			tableModel.addCondition(addedConditions.get(miscID),
-					addedConditionValues.get(miscID),
-					addedConditionUnits.get(miscID));
+		for (int miscID : set.getAddedConditions().keySet()) {
+			tableModel.addCondition(set.getAddedConditions().get(miscID), set
+					.getAddedConditionValues().get(miscID), set
+					.getAddedConditionUnits().get(miscID));
 		}
 
 		table.setModel(tableModel);
@@ -482,7 +356,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 							.toArray(new String[0]))));
 		}
 
-		for (MiscXml cond : addedConditions.values()) {
+		for (MiscXml cond : set.getAddedConditions().values()) {
 			List<String> units = new ArrayList<>();
 
 			for (String cat : cond.getCategories()) {
@@ -498,50 +372,24 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getAddedConditionMap()));
-		settings.addString(
-				MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONVALUES,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getAddedConditionValueMap()));
-		settings.addString(
-				MicrobialDataEditNodeModel.CFGKEY_ADDEDCONDITIONUNITS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getAddedConditionUnitMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getConditionMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONVALUES,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getConditionValueMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_CONDITIONUNITS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getConditionUnitMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_AGENTS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getAgentMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_AGENTDETAILS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getAgentDetailMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_MATRICES,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getMatrixMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_MATRIXDETAILS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getMatrixDetailMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_COMMENTS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getCommentMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_QUALITYSCORES,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getQualityScoreMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_CHECKS,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getCheckedMap()));
-		settings.addString(MicrobialDataEditNodeModel.CFGKEY_TIMESERIES,
-				XmlConverter.objectToXml(((EditTable) table.getModel())
-						.getTimeSeriesMap()));
+		EditTable model = (EditTable) table.getModel();
+		SettingsHelper set = new SettingsHelper();
+
+		set.setAddedConditions(model.getAddedConditionMap());
+		set.setAddedConditionValues(model.getAddedConditionValueMap());
+		set.setAddedConditionUnits(model.getAddedConditionUnitMap());
+		set.setConditions(model.getConditionMap());
+		set.setConditionValues(model.getConditionValueMap());
+		set.setConditionUnits(model.getConditionUnitMap());
+		set.setAgents(model.getAgentMap());
+		set.setAgentDetails(model.getAgentDetailMap());
+		set.setMatrices(model.getMatrixMap());
+		set.setMatrixDetails(model.getMatrixDetailMap());
+		set.setComments(model.getCommentMap());
+		set.setQualityScores(model.getQualityScoreMap());
+		set.setChecks(model.getCheckedMap());
+		set.setTimeSeries(model.getTimeSeriesMap());
+		set.saveSettings(settings);
 	}
 
 	@Override

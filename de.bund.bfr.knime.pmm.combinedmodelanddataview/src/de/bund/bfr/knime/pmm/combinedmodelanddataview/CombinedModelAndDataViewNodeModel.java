@@ -33,11 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.combinedmodelanddataview;
 
-import java.awt.Color;
-import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -60,8 +57,6 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
@@ -75,63 +70,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class CombinedModelAndDataViewNodeModel extends NodeModel {
 
-	protected static final String CFG_SELECTEDID = "SelectedID";
-	protected static final String CFG_CURRENTPARAMX = "CurrentParamX";
-	protected static final String CFG_PARAMXVALUES = "ParamXValues";
-	protected static final String CFG_COLORS = "Colors";
-	protected static final String CFG_SHAPES = "Shapes";
-	protected static final String CFG_MANUALRANGE = "ManualRange";
-	protected static final String CFG_MINX = "MinX";
-	protected static final String CFG_MAXX = "MaxX";
-	protected static final String CFG_MINY = "MinY";
-	protected static final String CFG_MAXY = "MaxY";
-	protected static final String CFG_DRAWLINES = "DrawLines";
-	protected static final String CFG_SHOWLEGEND = "ShowLegend";
-	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
-	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
-	protected static final String CFG_UNITX = "UnitX";
-	protected static final String CFG_UNITY = "UnitY";
-	protected static final String CFG_TRANSFORMY = "TransformY";
-	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
-	protected static final String CFG_MODELFILTER = "ModelFilter";
-	protected static final String CFG_DATAFILTER = "DataFilter";
-	protected static final String CFG_FITTEDFILTER = "FittedFilter";
-
-	protected static final int DEFAULT_MANUALRANGE = 0;
-	protected static final double DEFAULT_MINX = 0.0;
-	protected static final double DEFAULT_MAXX = 100.0;
-	protected static final double DEFAULT_MINY = 0.0;
-	protected static final double DEFAULT_MAXY = 10.0;
-	protected static final int DEFAULT_DRAWLINES = 0;
-	protected static final int DEFAULT_SHOWLEGEND = 1;
-	protected static final int DEFAULT_ADDLEGENDINFO = 0;
-	protected static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
-	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	protected static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
-
-	private String selectedID;
-	private String currentParamX;
-	private Map<String, Double> paramXValues;
-	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
-	private String modelFilter;
-	private String dataFilter;
-	private String fittedFilter;
+	private SettingsHelper set;
 
 	/**
 	 * Constructor for the node model.
@@ -139,28 +78,7 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	protected CombinedModelAndDataViewNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE },
 				new PortType[] { ImagePortObject.TYPE });
-		selectedID = null;
-		currentParamX = null;
-		paramXValues = new LinkedHashMap<>();
-		colors = new LinkedHashMap<>();
-		shapes = new LinkedHashMap<>();
-		manualRange = DEFAULT_MANUALRANGE;
-		minX = DEFAULT_MINX;
-		maxX = DEFAULT_MAXX;
-		minY = DEFAULT_MINY;
-		maxY = DEFAULT_MAXY;
-		drawLines = DEFAULT_DRAWLINES;
-		showLegend = DEFAULT_SHOWLEGEND;
-		addLegendInfo = DEFAULT_ADDLEGENDINFO;
-		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		unitX = null;
-		unitY = null;
-		transformY = DEFAULT_TRANSFORMY;
-		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
-		modelFilter = null;
-		dataFilter = null;
-		fittedFilter = null;
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -181,35 +99,37 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 
-		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
-			Plotable plotable = reader.getPlotables().get(selectedID);
+		if (set.getSelectedID() != null
+				&& reader.getPlotables().get(set.getSelectedID()) != null) {
+			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 			Map<String, List<Double>> arguments = new LinkedHashMap<>();
 
-			for (Map.Entry<String, Double> entry : paramXValues.entrySet()) {
+			for (Map.Entry<String, Double> entry : set.getParamXValues()
+					.entrySet()) {
 				arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
 			}
 
 			plotable.setFunctionArguments(arguments);
-			creator.setParamX(currentParamX);
+			creator.setParamX(set.getCurrentParamX());
 			creator.setParamY(plotable.getFunctionValue());
-			creator.setUseManualRange(manualRange == 1);
-			creator.setMinX(minX);
-			creator.setMaxX(maxX);
-			creator.setMinY(minY);
-			creator.setMaxY(maxY);
-			creator.setDrawLines(drawLines == 1);
-			creator.setShowLegend(showLegend == 1);
-			creator.setAddInfoInLegend(addLegendInfo == 1);
-			creator.setUnitX(unitX);
-			creator.setUnitY(unitY);
-			creator.setTransformY(transformY);
-			creator.setColors(colors);
-			creator.setShapes(shapes);
+			creator.setUseManualRange(set.isManualRange());
+			creator.setMinX(set.getMinX());
+			creator.setMaxX(set.getMaxX());
+			creator.setMinY(set.getMinY());
+			creator.setMaxY(set.getMaxY());
+			creator.setDrawLines(set.isDrawLines());
+			creator.setShowLegend(set.isShowLegend());
+			creator.setAddInfoInLegend(set.isAddLegendInfo());
+			creator.setUnitX(set.getUnitX());
+			creator.setUnitY(set.getUnitY());
+			creator.setTransformY(set.getTransformY());
+			creator.setColors(set.getColors());
+			creator.setShapes(set.getShapes());
 		}
 
 		return new PortObject[] { new ImagePortObject(
 				ChartUtilities.convertToPNGImageContent(
-						creator.getChart(selectedID), 640, 480),
+						creator.getChart(set.getSelectedID()), 640, 480),
 				new ImagePortObjectSpec(PNGImageContent.TYPE)) };
 	}
 
@@ -240,30 +160,7 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDID, selectedID);
-		settings.addString(CFG_CURRENTPARAMX, currentParamX);
-		settings.addString(CFG_PARAMXVALUES,
-				XmlConverter.objectToXml(paramXValues));
-		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
-		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
-		settings.addInt(CFG_MANUALRANGE, manualRange);
-		settings.addDouble(CFG_MINX, minX);
-		settings.addDouble(CFG_MAXX, maxX);
-		settings.addDouble(CFG_MINY, minY);
-		settings.addDouble(CFG_MAXY, maxY);
-		settings.addInt(CFG_DRAWLINES, drawLines);
-		settings.addInt(CFG_SHOWLEGEND, showLegend);
-		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
-		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
-		settings.addString(CFG_UNITX, unitX);
-		settings.addString(CFG_UNITY, unitY);
-		settings.addString(CFG_TRANSFORMY, transformY);
-		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
-		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
-		settings.addString(CFG_MODELFILTER, modelFilter);
-		settings.addString(CFG_DATAFILTER, dataFilter);
-		settings.addString(CFG_FITTEDFILTER, fittedFilter);
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -272,32 +169,7 @@ public class CombinedModelAndDataViewNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		selectedID = settings.getString(CFG_SELECTEDID);
-		currentParamX = settings.getString(CFG_CURRENTPARAMX);
-		paramXValues = XmlConverter.xmlToObject(
-				settings.getString(CFG_PARAMXVALUES),
-				new LinkedHashMap<String, Double>());
-		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
-		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
-		manualRange = settings.getInt(CFG_MANUALRANGE);
-		minX = settings.getDouble(CFG_MINX);
-		maxX = settings.getDouble(CFG_MAXX);
-		minY = settings.getDouble(CFG_MINY);
-		maxY = settings.getDouble(CFG_MAXY);
-		drawLines = settings.getInt(CFG_DRAWLINES);
-		showLegend = settings.getInt(CFG_SHOWLEGEND);
-		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
-		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
-		unitX = settings.getString(CFG_UNITX);
-		unitY = settings.getString(CFG_UNITY);
-		transformY = settings.getString(CFG_TRANSFORMY);
-		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter
-				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
-						new ArrayList<String>());
-		modelFilter = settings.getString(CFG_MODELFILTER);
-		dataFilter = settings.getString(CFG_DATAFILTER);
-		fittedFilter = settings.getString(CFG_FITTEDFILTER);
+		set.loadSettings(settings);
 	}
 
 	/**

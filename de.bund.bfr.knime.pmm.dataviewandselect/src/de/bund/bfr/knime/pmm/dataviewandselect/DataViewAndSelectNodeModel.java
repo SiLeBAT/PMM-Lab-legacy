@@ -33,15 +33,10 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.dataviewandselect;
 
-import java.awt.Color;
-import java.awt.Shape;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.knime.core.data.DataTableSpec;
@@ -61,15 +56,12 @@ import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 import org.knime.core.node.port.image.ImagePortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * This is the model implementation of DataViewAndSelect.
@@ -79,59 +71,7 @@ import de.bund.bfr.knime.pmm.common.units.Time;
  */
 public class DataViewAndSelectNodeModel extends NodeModel {
 
-	static final String CFG_SELECTEDIDS = "SelectedIDs";
-	static final String CFG_COLORS = "Colors";
-	static final String CFG_SHAPES = "Shapes";
-	static final String CFG_SELECTALLIDS = "SelectAllIDs";
-	static final String CFG_MANUALRANGE = "ManualRange";
-	static final String CFG_MINX = "MinX";
-	static final String CFG_MAXX = "MaxX";
-	static final String CFG_MINY = "MinY";
-	static final String CFG_MAXY = "MaxY";
-	static final String CFG_DRAWLINES = "DrawLines";
-	static final String CFG_SHOWLEGEND = "ShowLegend";
-	static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
-	static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
-	static final String CFG_UNITX = "UnitX";
-	static final String CFG_UNITY = "UnitY";
-	static final String CFG_TRANSFORMY = "TransformY";
-	static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
-
-	static final int DEFAULT_SELECTALLIDS = 0;
-	static final int DEFAULT_MANUALRANGE = 0;
-	static final double DEFAULT_MINX = 0.0;
-	static final double DEFAULT_MAXX = 100.0;
-	static final double DEFAULT_MINY = 0.0;
-	static final double DEFAULT_MAXY = 10.0;
-	static final int DEFAULT_DRAWLINES = 0;
-	static final int DEFAULT_SHOWLEGEND = 1;
-	static final int DEFAULT_ADDLEGENDINFO = 0;
-	static final int DEFAULT_DISPLAYHIGHLIGHTED = 0;
-	static final String DEFAULT_UNITX = new Time().getStandardUnit();
-	static final String DEFAULT_UNITY = new NumberContent()
-			.getStandardUnit();
-	static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
-	static final int DEFAULT_STANDARDVISIBLECOLUMNS = 1;
-
-	private List<String> selectedIDs;
-	private Map<String, Color> colors;
-	private Map<String, Shape> shapes;
-	private int selectAllIDs;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
+	private SettingsHelper set;
 
 	/**
 	 * Constructor for the node model.
@@ -139,24 +79,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	protected DataViewAndSelectNodeModel() {
 		super(new PortType[] { BufferedDataTable.TYPE }, new PortType[] {
 				BufferedDataTable.TYPE, ImagePortObject.TYPE });
-		selectedIDs = new ArrayList<String>();
-		colors = new LinkedHashMap<String, Color>();
-		shapes = new LinkedHashMap<String, Shape>();
-		selectAllIDs = DEFAULT_SELECTALLIDS;
-		manualRange = DEFAULT_MANUALRANGE;
-		minX = DEFAULT_MINX;
-		maxX = DEFAULT_MAXX;
-		minY = DEFAULT_MINY;
-		maxY = DEFAULT_MAXY;
-		drawLines = DEFAULT_DRAWLINES;
-		showLegend = DEFAULT_SHOWLEGEND;
-		addLegendInfo = DEFAULT_ADDLEGENDINFO;
-		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
-		unitX = DEFAULT_UNITX;
-		unitY = DEFAULT_UNITY;
-		transformY = DEFAULT_TRANSFORMY;
-		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
+		set = new SettingsHelper();
 	}
 
 	@Override
@@ -166,10 +89,10 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		TableReader reader = new TableReader(table);
 		List<String> ids;
 
-		if (selectAllIDs == 1) {
+		if (set.isSelectAllIDs()) {
 			ids = reader.getIds();
 		} else {
-			ids = selectedIDs;
+			ids = set.getSelectedIDs();
 		}
 
 		BufferedDataContainer container = exec
@@ -199,19 +122,19 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 		creator.setParamX(AttributeUtilities.TIME);
 		creator.setParamY(AttributeUtilities.LOGC);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
-		creator.setColors(colors);
-		creator.setShapes(shapes);
-		creator.setUseManualRange(manualRange == 1);
-		creator.setMinX(minX);
-		creator.setMaxX(maxX);
-		creator.setMinY(minY);
-		creator.setMaxY(maxY);
-		creator.setDrawLines(drawLines == 1);
-		creator.setShowLegend(showLegend == 1);
-		creator.setAddInfoInLegend(addLegendInfo == 1);
-		creator.setUnitX(unitX);
-		creator.setUnitY(unitY);
-		creator.setTransformY(transformY);
+		creator.setColors(set.getColors());
+		creator.setShapes(set.getShapes());
+		creator.setUseManualRange(set.isManualRange());
+		creator.setMinX(set.getMinX());
+		creator.setMaxX(set.getMaxX());
+		creator.setMinY(set.getMinY());
+		creator.setMaxY(set.getMaxY());
+		creator.setDrawLines(set.isDrawLines());
+		creator.setShowLegend(set.isShowLegend());
+		creator.setAddInfoInLegend(set.isAddLegendInfo());
+		creator.setUnitX(set.getUnitX());
+		creator.setUnitY(set.getUnitY());
+		creator.setTransformY(set.getTransformY());
 
 		return new PortObject[] {
 				container.getTable(),
@@ -245,26 +168,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDIDS,
-				XmlConverter.objectToXml(selectedIDs));
-		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
-		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
-		settings.addInt(CFG_SELECTALLIDS, selectAllIDs);
-		settings.addInt(CFG_MANUALRANGE, manualRange);
-		settings.addDouble(CFG_MINX, minX);
-		settings.addDouble(CFG_MAXX, maxX);
-		settings.addDouble(CFG_MINY, minY);
-		settings.addDouble(CFG_MAXY, maxY);
-		settings.addInt(CFG_DRAWLINES, drawLines);
-		settings.addInt(CFG_SHOWLEGEND, showLegend);
-		settings.addInt(CFG_ADDLEGENDINFO, addLegendInfo);
-		settings.addInt(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
-		settings.addString(CFG_UNITX, unitX);
-		settings.addString(CFG_UNITY, unitY);
-		settings.addString(CFG_TRANSFORMY, transformY);
-		settings.addInt(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
-		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -273,27 +177,7 @@ public class DataViewAndSelectNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		selectedIDs = XmlConverter.xmlToObject(
-				settings.getString(CFG_SELECTEDIDS), new ArrayList<String>());
-		colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
-		shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
-		selectAllIDs = settings.getInt(CFG_SELECTALLIDS);
-		manualRange = settings.getInt(CFG_MANUALRANGE);
-		minX = settings.getDouble(CFG_MINX);
-		maxX = settings.getDouble(CFG_MAXX);
-		minY = settings.getDouble(CFG_MINY);
-		maxY = settings.getDouble(CFG_MAXY);
-		drawLines = settings.getInt(CFG_DRAWLINES);
-		showLegend = settings.getInt(CFG_SHOWLEGEND);
-		addLegendInfo = settings.getInt(CFG_ADDLEGENDINFO);
-		displayHighlighted = settings.getInt(CFG_DISPLAYHIGHLIGHTED);
-		unitX = settings.getString(CFG_UNITX);
-		unitY = settings.getString(CFG_UNITY);
-		transformY = settings.getString(CFG_TRANSFORMY);
-		standardVisibleColumns = settings.getInt(CFG_STANDARDVISIBLECOLUMNS);
-		visibleColumns = XmlConverter
-				.xmlToObject(settings.getString(CFG_VISIBLECOLUMNS),
-						new ArrayList<String>());
+		set.loadSettings(settings);
 	}
 
 	/**

@@ -35,8 +35,6 @@ package de.bund.bfr.knime.pmm.timeseriescreator;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.node.BufferedDataContainer;
@@ -50,19 +48,14 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
-import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
-import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * This is the model implementation of TimeSeriesCreator.
@@ -72,42 +65,14 @@ import de.bund.bfr.knime.pmm.common.units.Time;
  */
 public class TimeSeriesCreatorNodeModel extends NodeModel {
 
-	protected static final String CFGKEY_LITERATURE = "Literature";
-	protected static final String CFGKEY_AGENT = "Agent";
-	protected static final String CFGKEY_MATRIX = "Matrix";
-	protected static final String CFGKEY_COMMENT = "Comment";
-	protected static final String CFGKEY_MISC = "Misc";
-	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
-	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
-	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
-
-	protected static final String DEFAULT_TIMEUNIT = new Time()
-			.getStandardUnit();
-	protected static final String DEFAULT_LOGCUNIT = new NumberContent()
-			.getStandardUnit();
-
-	private List<LiteratureItem> literature;
-	private AgentXml agent;
-	private MatrixXml matrix;
-	private String comment;
-	private List<TimeSeriesXml> timeSeries;
-	private String timeUnit;
-	private String logcUnit;
-	private List<MiscXml> misc;
+	SettingsHelper set;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected TimeSeriesCreatorNodeModel() {
 		super(0, 1);
-		literature = new ArrayList<>();
-		agent = null;
-		matrix = null;
-		comment = "";
-		timeSeries = new ArrayList<>();
-		timeUnit = DEFAULT_TIMEUNIT;
-		logcUnit = DEFAULT_LOGCUNIT;
-		misc = new ArrayList<>();
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -126,22 +91,22 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		PmmXmlDoc matrixXml = new PmmXmlDoc();
 		PmmXmlDoc literatureXML = new PmmXmlDoc();
 
-		literatureXML.getElementSet().addAll(literature);
-		miscXML.getElementSet().addAll(misc);
+		literatureXML.getElementSet().addAll(set.getLiterature());
+		miscXML.getElementSet().addAll(set.getMisc());
 
-		if (agent != null) {
-			agentXml.add(agent);
+		if (set.getAgent() != null) {
+			agentXml.add(set.getAgent());
 		} else {
 			agentXml.add(new AgentXml());
 		}
 
-		if (matrix != null) {
-			matrixXml.add(matrix);
+		if (set.getMatrix() != null) {
+			matrixXml.add(set.getMatrix());
 		} else {
 			matrixXml.add(new MatrixXml());
 		}
 
-		for (TimeSeriesXml p : timeSeries) {
+		for (TimeSeriesXml p : set.getTimeSeries()) {
 			timeSeriesXml.add(p);
 		}
 
@@ -149,7 +114,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 
 		PmmXmlDoc dataInfo = new PmmXmlDoc();
 
-		dataInfo.add(new MdInfoXml(null, null, comment, null, null));
+		dataInfo.add(new MdInfoXml(null, null, set.getComment(), null, null));
 
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
@@ -188,16 +153,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFGKEY_LITERATURE,
-				XmlConverter.objectToXml(literature));
-		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
-		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
-		settings.addString(CFGKEY_COMMENT, comment);
-		settings.addString(CFGKEY_TIMESERIES,
-				XmlConverter.objectToXml(timeSeries));
-		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
-		settings.addString(CFGKEY_LOGCUNIT, logcUnit);
-		settings.addString(CFGKEY_MISC, XmlConverter.objectToXml(misc));
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -206,21 +162,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		literature = XmlConverter.xmlToObject(
-				settings.getString(CFGKEY_LITERATURE),
-				new ArrayList<LiteratureItem>());
-		agent = XmlConverter
-				.xmlToObject(settings.getString(CFGKEY_AGENT), null);
-		matrix = XmlConverter.xmlToObject(settings.getString(CFGKEY_MATRIX),
-				null);
-		comment = settings.getString(CFGKEY_COMMENT);
-		timeSeries = XmlConverter.xmlToObject(
-				settings.getString(CFGKEY_TIMESERIES),
-				new ArrayList<TimeSeriesXml>());
-		timeUnit = settings.getString(CFGKEY_TIMEUNIT);
-		logcUnit = settings.getString(CFGKEY_LOGCUNIT);
-		misc = XmlConverter.xmlToObject(settings.getString(CFGKEY_MISC),
-				new ArrayList<MiscXml>());
+		set.loadSettings(settings);
 	}
 
 	/**

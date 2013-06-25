@@ -68,7 +68,6 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -87,14 +86,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  */
 public class ForecastStaticConditionsNodeModel extends NodeModel {
 
-	static final String CFGKEY_CONCENTRATION = "Concentration";
-	static final String CFGKEY_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
-
-	static final double DEFAULT_CONCENTRATION = 3.0;
-
-	private double concentration;
-	private Map<String, String> concentrationParameters;
-
+	private SettingsHelper set;
 	private KnimeSchema schema;
 
 	/**
@@ -102,8 +94,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	 */
 	protected ForecastStaticConditionsNodeModel() {
 		super(1, 1);
-		concentration = DEFAULT_CONCENTRATION;
-		concentrationParameters = new LinkedHashMap<>();
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -144,7 +135,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		if (concentrationParameters.isEmpty()) {
+		if (set.getConcentrationParameters().isEmpty()) {
 			throw new InvalidSettingsException("Node has to be configured");
 		}
 
@@ -156,9 +147,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addDouble(CFGKEY_CONCENTRATION, concentration);
-		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.objectToXml(concentrationParameters));
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -167,10 +156,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		concentration = settings.getDouble(CFGKEY_CONCENTRATION);
-		concentrationParameters = XmlConverter.xmlToObject(
-				settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
-				new LinkedHashMap<String, String>());
+		set.loadSettings(settings);
 	}
 
 	/**
@@ -209,7 +195,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, true, false, concentrationParameters);
+				.combine(tuples, true, false, set.getConcentrationParameters());
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
@@ -229,7 +215,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 			PmmXmlDoc timeSeriesXml = newTuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			String initialParameter = concentrationParameters.get(oldID);
+			String initialParameter = set.getConcentrationParameters().get(
+					oldID);
 
 			if (initialParameter == null) {
 				setWarningMessage("Initial Concentration Parameter for "
@@ -258,7 +245,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				if (initialParameter != null
 						&& element.getName().equals(initialParameter)) {
-					variables.put(element.getName(), concentration);
+					variables.put(element.getName(), set.getConcentration());
 				} else {
 					parameters.put(element.getName(), element.getValue());
 					covariances.put(element.getName(),
@@ -296,7 +283,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				if (initialParameter != null) {
 					((ParamXml) params.get(CellIO.getNameList(params).indexOf(
-							initialParameter))).setValue(concentration);
+							initialParameter)))
+							.setValue(set.getConcentration());
 				} else {
 					for (PmmXmlElementConvertable el : params.getElementSet()) {
 						ParamXml element = (ParamXml) el;
@@ -341,7 +329,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc timeSeriesXml = tuple
 					.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
-			String initialParameter = concentrationParameters.get(id);
+			String initialParameter = set.getConcentrationParameters().get(id);
 
 			if (initialParameter == null) {
 				setWarningMessage("Initial Concentration Parameter for "
@@ -374,7 +362,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 				if (initialParameter != null
 						&& element.getName().equals(initialParameter)) {
-					variables.put(element.getName(), concentration);
+					variables.put(element.getName(), set.getConcentration());
 				} else {
 					parameters.put(element.getName(), element.getValue());
 					covariances.put(element.getName(),
@@ -408,7 +396,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 			if (initialParameter != null) {
 				((ParamXml) params.get(CellIO.getNameList(params).indexOf(
-						initialParameter))).setValue(concentration);
+						initialParameter))).setValue(set.getConcentration());
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, params);

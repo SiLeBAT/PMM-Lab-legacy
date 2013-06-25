@@ -60,7 +60,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -100,29 +99,13 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		double concentration;
-		Map<String, String> concentrationParameters;
+		SettingsHelper set = new SettingsHelper();
 
-		try {
-			concentration = settings
-					.getDouble(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATION);
-		} catch (InvalidSettingsException e) {
-			concentration = ForecastStaticConditionsNodeModel.DEFAULT_CONCENTRATION;
-		}
-
-		try {
-			concentrationParameters = XmlConverter
-					.xmlToObject(
-							settings.getString(ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS),
-							new LinkedHashMap<String, String>());
-		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<String, String>();
-		}
-
+		set.loadSettings(settings);
 		readTable(input[0]);
 		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(createPanel(concentration,
-				concentrationParameters));
+		((JPanel) getTab("Options")).add(createPanel(set.getConcentration(),
+				set.getConcentrationParameters()));
 	}
 
 	@Override
@@ -131,10 +114,6 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 		if (!valueField.isValueValid()) {
 			throw new InvalidSettingsException("");
 		}
-
-		settings.addDouble(
-				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATION,
-				valueField.getValue());
 
 		Map<String, String> parameterMap = new LinkedHashMap<String, String>();
 
@@ -147,9 +126,11 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 			}
 		}
 
-		settings.addString(
-				ForecastStaticConditionsNodeModel.CFGKEY_CONCENTRATIONPARAMETERS,
-				XmlConverter.objectToXml(parameterMap));
+		SettingsHelper set = new SettingsHelper();
+
+		set.setConcentration(valueField.getValue());
+		set.setConcentrationParameters(parameterMap);
+		set.saveSettings(settings);
 	}
 
 	private void readTable(BufferedDataTable table) {

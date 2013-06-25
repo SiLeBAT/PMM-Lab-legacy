@@ -73,10 +73,9 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 
 	private Joiner joiner;
 
-	private String joinType;
-	private String assignments;
-
 	private BufferedDataTable[] input;
+
+	private SettingsHelper set;
 
 	/**
 	 * New pane for configuring the ModelAndDataJoiner node.
@@ -86,9 +85,8 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		JPanel upperPanel = new JPanel();
 
 		joinerBox = new JComboBox<String>(new String[] {
-				ModelAndDataJoinerNodeModel.PRIMARY_JOIN,
-				ModelAndDataJoinerNodeModel.SECONDARY_JOIN,
-				ModelAndDataJoinerNodeModel.COMBINED_JOIN });
+				SettingsHelper.PRIMARY_JOIN, SettingsHelper.SECONDARY_JOIN,
+				SettingsHelper.COMBINED_JOIN });
 		joinerBox.addActionListener(this);
 		joinerPanel = new JPanel();
 		joinerPanel.setBorder(BorderFactory.createTitledBorder("Join Options"));
@@ -107,30 +105,18 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		this.input = input;
+		set = new SettingsHelper();
+		set.loadSettings(settings);
 
-		try {
-			joinType = settings
-					.getString(ModelAndDataJoinerNodeModel.CFGKEY_JOINTYPE);
-		} catch (InvalidSettingsException e) {
-			joinType = ModelAndDataJoinerNodeModel.DEFAULT_JOINTYPE;
-		}
-
-		try {
-			assignments = settings
-					.getString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS);
-		} catch (InvalidSettingsException e) {
-			assignments = null;
-		}
-
-		if (joinType.equals(ModelAndDataJoinerNodeModel.NO_JOIN)) {
+		if (set.getJoinType().equals(SettingsHelper.NO_JOIN)) {
 			if (SchemaFactory.createM2Schema().conforms(input[0])
 					&& SchemaFactory.createM1DataSchema().conforms(input[1])) {
-				joinType = ModelAndDataJoinerNodeModel.SECONDARY_JOIN;
+				set.setJoinType(SettingsHelper.SECONDARY_JOIN);
 			} else if (SchemaFactory.createM12Schema().conforms(input[0])
 					&& SchemaFactory.createDataSchema().conforms(input[1])) {
-				joinType = ModelAndDataJoinerNodeModel.COMBINED_JOIN;
+				set.setJoinType(SettingsHelper.COMBINED_JOIN);
 			} else {
-				joinType = ModelAndDataJoinerNodeModel.PRIMARY_JOIN;
+				set.setJoinType(SettingsHelper.PRIMARY_JOIN);
 			}
 		}
 
@@ -144,35 +130,33 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_JOINTYPE,
-				joinType);
-		settings.addString(ModelAndDataJoinerNodeModel.CFGKEY_ASSIGNMENTS,
-				joiner.getAssignments());
+		set.setAssignments(joiner.getAssignments());
+		set.saveSettings(settings);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		joinType = (String) joinerBox.getSelectedItem();
+		set.setJoinType((String) joinerBox.getSelectedItem());
 		initGUI();
 	}
 
 	private void initGUI() {
 		joinerBox.removeActionListener(this);
-		joinerBox.setSelectedItem(joinType);
+		joinerBox.setSelectedItem(set.getJoinType());
 		joinerBox.addActionListener(this);
 		joiner = null;
 
-		if (joinType.equals(ModelAndDataJoinerNodeModel.PRIMARY_JOIN)) {
+		if (set.getJoinType().equals(SettingsHelper.PRIMARY_JOIN)) {
 			if (SchemaFactory.createM1Schema().conforms(input[0])
 					&& SchemaFactory.createDataSchema().conforms(input[1])) {
 				joiner = new PrimaryJoiner(input[0], input[1]);
 			}
-		} else if (joinType.equals(ModelAndDataJoinerNodeModel.SECONDARY_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.SECONDARY_JOIN)) {
 			if (SchemaFactory.createM2Schema().conforms(input[0])
 					&& SchemaFactory.createM1DataSchema().conforms(input[1])) {
 				joiner = new SecondaryJoiner(input[0], input[1]);
 			}
-		} else if (joinType.equals(ModelAndDataJoinerNodeModel.COMBINED_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.COMBINED_JOIN)) {
 			if (SchemaFactory.createM12Schema().conforms(input[0])
 					&& SchemaFactory.createDataSchema().conforms(input[1])) {
 				joiner = new CombinedJoiner(input[0], input[1]);
@@ -182,13 +166,13 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 		joinerPanel.removeAll();
 
 		if (joiner != null) {
-			joinerPanel.add(joiner.createPanel(assignments),
+			joinerPanel.add(joiner.createPanel(set.getAssignments()),
 					BorderLayout.CENTER);
 			joinerPanel.revalidate();
 		} else {
 			if (joinerBox.isValid()) {
 				JOptionPane.showMessageDialog(joinerBox,
-						"Data is not valid for " + joinType);
+						"Data is not valid for " + set.getJoinType());
 			}
 
 			joinerPanel.add(new JLabel(), BorderLayout.CENTER);

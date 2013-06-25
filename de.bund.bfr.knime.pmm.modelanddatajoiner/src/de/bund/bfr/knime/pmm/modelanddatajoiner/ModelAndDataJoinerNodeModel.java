@@ -57,26 +57,14 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class ModelAndDataJoinerNodeModel extends NodeModel {
 
-	protected static final String NO_JOIN = "";
-	protected static final String PRIMARY_JOIN = "Primary Join";
-	protected static final String SECONDARY_JOIN = "Secondary Join";
-	protected static final String COMBINED_JOIN = "Combined Join";
-
-	protected static final String CFGKEY_JOINTYPE = "JoinType";
-	protected static final String CFGKEY_ASSIGNMENTS = "Assignments";
-
-	protected static final String DEFAULT_JOINTYPE = NO_JOIN;
-
-	private String joinType;
-	private String assignments;
+	private SettingsHelper set;
 
 	/**
 	 * Constructor for the node model.
 	 */
 	protected ModelAndDataJoinerNodeModel() {
 		super(2, 1);
-		joinType = DEFAULT_JOINTYPE;
-		assignments = null;
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -87,16 +75,16 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			final ExecutionContext exec) throws Exception {
 		Joiner joiner = null;
 
-		if (joinType.equals(PRIMARY_JOIN)) {
+		if (set.getJoinType().equals(SettingsHelper.PRIMARY_JOIN)) {
 			joiner = new PrimaryJoiner(inData[0], inData[1]);
-		} else if (joinType.equals(SECONDARY_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.SECONDARY_JOIN)) {
 			joiner = new SecondaryJoiner(inData[0], inData[1]);
-		} else if (joinType.equals(COMBINED_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.COMBINED_JOIN)) {
 			joiner = new CombinedJoiner(inData[0], inData[1]);
 		}
 
-		return new BufferedDataTable[] { joiner.getOutputTable(assignments,
-				exec) };
+		return new BufferedDataTable[] { joiner.getOutputTable(
+				set.getAssignments(), exec) };
 	}
 
 	/**
@@ -114,9 +102,9 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			throws InvalidSettingsException {
 		KnimeSchema outSchema = null;
 
-		if (joinType.equals(NO_JOIN)) {
+		if (set.getJoinType().equals(SettingsHelper.NO_JOIN)) {
 			throw new InvalidSettingsException("Node has to be configured!");
-		} else if (joinType.equals(PRIMARY_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.PRIMARY_JOIN)) {
 			if (SchemaFactory.createM1Schema().conforms(inSpecs[0])
 					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
 				outSchema = SchemaFactory.createM1DataSchema();
@@ -126,7 +114,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
-		} else if (joinType.equals(SECONDARY_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.SECONDARY_JOIN)) {
 			if (SchemaFactory.createM2Schema().conforms(inSpecs[0])
 					&& SchemaFactory.createM1DataSchema().conforms(inSpecs[1])) {
 				outSchema = SchemaFactory.createM12DataSchema();
@@ -136,7 +124,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
-		} else if (joinType.equals(COMBINED_JOIN)) {
+		} else if (set.getJoinType().equals(SettingsHelper.COMBINED_JOIN)) {
 			if (SchemaFactory.createM12Schema().conforms(inSpecs[0])
 					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
 				outSchema = SchemaFactory.createM12DataSchema();
@@ -156,8 +144,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFGKEY_JOINTYPE, joinType);
-		settings.addString(CFGKEY_ASSIGNMENTS, assignments);
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -166,8 +153,7 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		joinType = settings.getString(CFGKEY_JOINTYPE);
-		assignments = settings.getString(CFGKEY_ASSIGNMENTS);
+		set.loadSettings(settings);
 	}
 
 	/**

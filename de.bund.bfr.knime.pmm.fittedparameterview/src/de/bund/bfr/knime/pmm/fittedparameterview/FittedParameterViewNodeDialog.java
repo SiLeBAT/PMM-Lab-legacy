@@ -34,16 +34,12 @@
 package de.bund.bfr.knime.pmm.fittedparameterview;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -62,7 +58,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
@@ -88,32 +83,12 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 	private DataTable table;
 	private TableReader reader;
+	private SettingsHelper set;
 
 	private ChartAllPanel mainComponent;
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
-
-	private String selectedID;
-	private String currentParamX;
-	private Map<String, List<Boolean>> selectedValuesX;
-	private Map<String, List<Color>> colorLists;
-	private Map<String, List<Shape>> shapeLists;
-	private int manualRange;
-	private double minX;
-	private double maxX;
-	private double minY;
-	private double maxY;
-	private int drawLines;
-	private int showLegend;
-	private int addLegendInfo;
-	private int displayHighlighted;
-	private String unitX;
-	private String unitY;
-	private String transformY;
-	private int standardVisibleColumns;
-	private List<String> visibleColumns;
-	private List<String> usedConditions;
 
 	/**
 	 * New pane for configuring the FittedParameterView node.
@@ -128,148 +103,10 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		try {
-			selectedID = settings
-					.getString(FittedParameterViewNodeModel.CFG_SELECTEDID);
-		} catch (InvalidSettingsException e) {
-			selectedID = null;
-		}
-
-		try {
-			currentParamX = settings
-					.getString(FittedParameterViewNodeModel.CFG_CURRENTPARAMX);
-		} catch (InvalidSettingsException e) {
-			currentParamX = null;
-		}
-
-		try {
-			selectedValuesX = XmlConverter
-					.xmlToObject(
-							settings.getString(FittedParameterViewNodeModel.CFG_SELECTEDVALUESX),
-							new LinkedHashMap<String, List<Boolean>>());
-		} catch (InvalidSettingsException e) {
-			selectedValuesX = new LinkedHashMap<>();
-		}
-
-		try {
-			colorLists = XmlConverter.xmlToColorListMap(settings
-					.getString(FittedParameterViewNodeModel.CFG_COLORLISTS));
-		} catch (InvalidSettingsException e) {
-			colorLists = new LinkedHashMap<>();
-		}
-
-		try {
-			shapeLists = XmlConverter.xmlToShapeListMap(settings
-					.getString(FittedParameterViewNodeModel.CFG_SHAPELISTS));
-		} catch (InvalidSettingsException e) {
-			shapeLists = new LinkedHashMap<>();
-		}
-
-		try {
-			manualRange = settings
-					.getInt(FittedParameterViewNodeModel.CFG_MANUALRANGE);
-		} catch (InvalidSettingsException e) {
-			manualRange = FittedParameterViewNodeModel.DEFAULT_MANUALRANGE;
-		}
-
-		try {
-			minX = settings.getDouble(FittedParameterViewNodeModel.CFG_MINX);
-		} catch (InvalidSettingsException e) {
-			minX = FittedParameterViewNodeModel.DEFAULT_MINX;
-		}
-
-		try {
-			maxX = settings.getDouble(FittedParameterViewNodeModel.CFG_MAXX);
-		} catch (InvalidSettingsException e) {
-			maxX = FittedParameterViewNodeModel.DEFAULT_MAXX;
-		}
-
-		try {
-			minY = settings.getDouble(FittedParameterViewNodeModel.CFG_MINY);
-		} catch (InvalidSettingsException e) {
-			minY = FittedParameterViewNodeModel.DEFAULT_MINY;
-		}
-
-		try {
-			maxY = settings.getDouble(FittedParameterViewNodeModel.CFG_MAXY);
-		} catch (InvalidSettingsException e) {
-			maxY = FittedParameterViewNodeModel.DEFAULT_MAXY;
-		}
-
-		try {
-			drawLines = settings
-					.getInt(FittedParameterViewNodeModel.CFG_DRAWLINES);
-		} catch (InvalidSettingsException e) {
-			drawLines = FittedParameterViewNodeModel.DEFAULT_DRAWLINES;
-		}
-
-		try {
-			showLegend = settings
-					.getInt(FittedParameterViewNodeModel.CFG_SHOWLEGEND);
-		} catch (InvalidSettingsException e) {
-			showLegend = FittedParameterViewNodeModel.DEFAULT_SHOWLEGEND;
-		}
-
-		try {
-			addLegendInfo = settings
-					.getInt(FittedParameterViewNodeModel.CFG_ADDLEGENDINFO);
-		} catch (InvalidSettingsException e) {
-			addLegendInfo = FittedParameterViewNodeModel.DEFAULT_ADDLEGENDINFO;
-		}
-
-		try {
-			displayHighlighted = settings
-					.getInt(FittedParameterViewNodeModel.CFG_DISPLAYHIGHLIGHTED);
-		} catch (InvalidSettingsException e) {
-			displayHighlighted = FittedParameterViewNodeModel.DEFAULT_DISPLAYHIGHLIGHTED;
-		}
-
-		try {
-			unitX = settings.getString(FittedParameterViewNodeModel.CFG_UNITX);
-		} catch (InvalidSettingsException e) {
-			unitX = null;
-		}
-
-		try {
-			unitY = settings.getString(FittedParameterViewNodeModel.CFG_UNITY);
-		} catch (InvalidSettingsException e) {
-			unitY = null;
-		}
-
-		try {
-			transformY = settings
-					.getString(FittedParameterViewNodeModel.CFG_TRANSFORMY);
-		} catch (InvalidSettingsException e) {
-			transformY = FittedParameterViewNodeModel.DEFAULT_TRANSFORMY;
-		}
-
-		try {
-			standardVisibleColumns = settings
-					.getInt(FittedParameterViewNodeModel.CFG_STANDARDVISIBLECOLUMNS);
-		} catch (InvalidSettingsException e) {
-			standardVisibleColumns = FittedParameterViewNodeModel.DEFAULT_STANDARDVISIBLECOLUMNS;
-		}
-
-		try {
-			visibleColumns = XmlConverter
-					.xmlToObject(
-							settings.getString(FittedParameterViewNodeModel.CFG_VISIBLECOLUMNS),
-							new ArrayList<String>());
-		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
-		}
-
-		try {
-			usedConditions = XmlConverter
-					.xmlToObject(
-							settings.getString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS),
-							new ArrayList<String>());
-		} catch (InvalidSettingsException e) {
-			usedConditions = new ArrayList<>();
-		}
-
+		set = new SettingsHelper();
+		set.loadSettings(settings);
 		table = input[0];
-		reader = new TableReader(table, usedConditions);
+		reader = new TableReader(table, set.getUsedConditions());
 		mainComponent = createMainComponent();
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
@@ -279,85 +116,53 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
 		writeSettingsToVariables();
-
-		settings.addString(FittedParameterViewNodeModel.CFG_SELECTEDID,
-				selectedID);
-		settings.addString(FittedParameterViewNodeModel.CFG_CURRENTPARAMX,
-				currentParamX);
-		settings.addString(FittedParameterViewNodeModel.CFG_SELECTEDVALUESX,
-				XmlConverter.objectToXml(selectedValuesX));
-		settings.addString(FittedParameterViewNodeModel.CFG_COLORLISTS,
-				XmlConverter.colorListMapToXml(colorLists));
-		settings.addString(FittedParameterViewNodeModel.CFG_SHAPELISTS,
-				XmlConverter.shapeListMapToXml(shapeLists));
-		settings.addInt(FittedParameterViewNodeModel.CFG_MANUALRANGE,
-				manualRange);
-		settings.addDouble(FittedParameterViewNodeModel.CFG_MINX, minX);
-		settings.addDouble(FittedParameterViewNodeModel.CFG_MAXX, maxX);
-		settings.addDouble(FittedParameterViewNodeModel.CFG_MINY, minY);
-		settings.addDouble(FittedParameterViewNodeModel.CFG_MAXY, maxY);
-		settings.addInt(FittedParameterViewNodeModel.CFG_DRAWLINES, drawLines);
-		settings.addInt(FittedParameterViewNodeModel.CFG_SHOWLEGEND, showLegend);
-		settings.addInt(FittedParameterViewNodeModel.CFG_ADDLEGENDINFO,
-				addLegendInfo);
-		settings.addInt(FittedParameterViewNodeModel.CFG_DISPLAYHIGHLIGHTED,
-				displayHighlighted);
-		settings.addString(FittedParameterViewNodeModel.CFG_UNITX, unitX);
-		settings.addString(FittedParameterViewNodeModel.CFG_UNITY, unitY);
-		settings.addString(FittedParameterViewNodeModel.CFG_TRANSFORMY,
-				transformY);
-		settings.addInt(
-				FittedParameterViewNodeModel.CFG_STANDARDVISIBLECOLUMNS,
-				standardVisibleColumns);
-		settings.addString(FittedParameterViewNodeModel.CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
-		settings.addString(FittedParameterViewNodeModel.CFG_USEDCONDITIONS,
-				XmlConverter.objectToXml(usedConditions));
+		set.saveSettings(settings);
 	}
 
 	private ChartAllPanel createMainComponent() {
-		if (standardVisibleColumns == 1) {
-			visibleColumns = reader.getStandardVisibleColumns();
+		if (set.isStandardVisibleColumns()) {
+			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
 				false, "Conditions");
 
-		if (selectedID != null && reader.getPlotables().get(selectedID) != null) {
-			Plotable plotable = reader.getPlotables().get(selectedID);
+		if (set.getSelectedID() != null
+				&& reader.getPlotables().get(set.getSelectedID()) != null) {
+			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
 
 			configPanel.setParameters(plotable.getFunctionValue(),
 					plotable.getPossibleArgumentValues(true, false),
 					plotable.getMinArguments(), plotable.getMaxArguments(),
 					plotable.getCategories(), plotable.getUnits(), null);
-			configPanel.setParamX(currentParamX);
-			configPanel.setUnitX(unitX);
-			configPanel.setUnitY(unitY);
-			configPanel.setSelectedValuesX(selectedValuesX);
+			configPanel.setParamX(set.getCurrentParamX());
+			configPanel.setUnitX(set.getUnitX());
+			configPanel.setUnitY(set.getUnitY());
+			configPanel.setSelectedValuesX(set.getSelectedValuesX());
 		}
 
-		configPanel.setUseManualRange(manualRange == 1);
-		configPanel.setMinX(minX);
-		configPanel.setMaxX(maxX);
-		configPanel.setMinY(minY);
-		configPanel.setMaxY(maxY);
-		configPanel.setDrawLines(drawLines == 1);
-		configPanel.setShowLegend(showLegend == 1);
-		configPanel.setAddInfoInLegend(addLegendInfo == 1);
-		configPanel.setDisplayFocusedRow(displayHighlighted == 1);
-		configPanel.setTransformY(transformY);
+		configPanel.setUseManualRange(set.isManualRange());
+		configPanel.setMinX(set.getMinX());
+		configPanel.setMaxX(set.getMaxX());
+		configPanel.setMinY(set.getMinY());
+		configPanel.setMaxY(set.getMaxY());
+		configPanel.setDrawLines(set.isDrawLines());
+		configPanel.setShowLegend(set.isShowLegend());
+		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
+		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				null, null, reader.getConditions(), null,
 				reader.getConditionMinValues(), reader.getConditionMaxValues(),
-				reader.getConditionUnits(), visibleColumns,
+				reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), null, null, null,
 				reader.getColorCounts());
-		selectionPanel.setColorLists(colorLists);
-		selectionPanel.setShapeLists(shapeLists);
-		selectionPanel.setSelectedIDs(Arrays.asList(selectedID));
+		selectionPanel.setColorLists(set.getColorLists());
+		selectionPanel.setShapeLists(set.getShapeLists());
+		selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
@@ -413,56 +218,29 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 	private void writeSettingsToVariables() {
 		if (!selectionPanel.getSelectedIDs().isEmpty()) {
-			selectedID = selectionPanel.getSelectedIDs().get(0);
+			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
 		} else {
-			selectedID = null;
+			set.setSelectedID(null);
 		}
 
-		currentParamX = configPanel.getParamX();
-		selectedValuesX = configPanel.getSelectedValuesX();
-		colorLists = selectionPanel.getColorLists();
-		shapeLists = selectionPanel.getShapeLists();
-
-		if (configPanel.isUseManualRange()) {
-			manualRange = 1;
-		} else {
-			manualRange = 0;
-		}
-
-		minX = configPanel.getMinX();
-		maxX = configPanel.getMaxX();
-		minY = configPanel.getMinY();
-		maxY = configPanel.getMaxY();
-
-		if (configPanel.isDrawLines()) {
-			drawLines = 1;
-		} else {
-			drawLines = 0;
-		}
-
-		if (configPanel.isShowLegend()) {
-			showLegend = 1;
-		} else {
-			showLegend = 0;
-		}
-
-		if (configPanel.isAddInfoInLegend()) {
-			addLegendInfo = 1;
-		} else {
-			addLegendInfo = 0;
-		}
-
-		if (configPanel.isDisplayFocusedRow()) {
-			displayHighlighted = 1;
-		} else {
-			displayHighlighted = 0;
-		}
-
-		unitX = configPanel.getUnitX();
-		unitY = configPanel.getUnitY();
-		transformY = configPanel.getTransformY();
-		standardVisibleColumns = 0;
-		visibleColumns = selectionPanel.getVisibleColumns();
+		set.setCurrentParamX(configPanel.getParamX());
+		set.setSelectedValuesX(configPanel.getSelectedValuesX());
+		set.setColorLists(selectionPanel.getColorLists());
+		set.setShapeLists(selectionPanel.getShapeLists());
+		set.setManualRange(configPanel.isUseManualRange());
+		set.setMinX(configPanel.getMinX());
+		set.setMaxX(configPanel.getMaxX());
+		set.setMinY(configPanel.getMinY());
+		set.setMaxY(configPanel.getMaxY());
+		set.setDrawLines(configPanel.isDrawLines());
+		set.setShowLegend(configPanel.isShowLegend());
+		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
+		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setUnitX(configPanel.getUnitX());
+		set.setUnitY(configPanel.getUnitY());
+		set.setTransformY(configPanel.getTransformY());
+		set.setStandardVisibleColumns(false);
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());
 	}
 
 	@Override
@@ -485,15 +263,15 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void buttonPressed() {
 		UsedConditionsDialog dialog = new UsedConditionsDialog(getPanel(),
-				table, usedConditions);
+				table, set.getUsedConditions());
 
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			usedConditions = dialog.getResult();
 			writeSettingsToVariables();
-			selectedID = null;
-			reader = new TableReader(table, usedConditions);
+			set.setUsedConditions(dialog.getResult());
+			set.setSelectedID(null);
+			reader = new TableReader(table, set.getUsedConditions());
 
 			int divider = mainComponent.getDividerLocation();
 

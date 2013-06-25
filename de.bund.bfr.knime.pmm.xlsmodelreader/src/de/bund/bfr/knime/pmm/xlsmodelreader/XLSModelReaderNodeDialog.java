@@ -660,6 +660,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				fileColumnList = new ArrayList<>();
 			}
 
+			updateModelPanel();
 			updateColumnsPanel();
 			updateAgentPanel();
 			updateMatrixPanel();

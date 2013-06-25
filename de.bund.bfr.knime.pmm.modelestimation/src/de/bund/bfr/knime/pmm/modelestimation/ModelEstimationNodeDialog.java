@@ -69,7 +69,6 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -94,8 +93,7 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 		implements ActionListener {
 
 	private BufferedDataTable[] input;
-
-	private Map<String, Map<String, Point2D.Double>> guessMap;
+	private SettingsHelper set;
 
 	private JComboBox<String> fittingBox;
 	private JCheckBox limitsBox;
@@ -124,9 +122,9 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	 */
 	protected ModelEstimationNodeDialog() {
 		fittingBox = new JComboBox<String>(new String[] {
-				ModelEstimationNodeModel.PRIMARY_FITTING,
-				ModelEstimationNodeModel.SECONDARY_FITTING,
-				ModelEstimationNodeModel.ONESTEP_FITTING });
+				SettingsHelper.PRIMARY_FITTING,
+				SettingsHelper.SECONDARY_FITTING,
+				SettingsHelper.ONESTEP_FITTING });
 		limitsBox = new JCheckBox("Enforce limits of Formula Definition");
 		expertBox = new JCheckBox("Expert Settings");
 		expertBox.addActionListener(this);
@@ -208,80 +206,24 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
 		this.input = input;
+		set = new SettingsHelper();
+		set.loadSettings(settings);
 
-		String fittingType;
-		int enforceLimits;
-		int expertSettings;
-		int nParameterSpace;
-		int nLevenberg;
-		int stopWhenSuccessful;
-
-		try {
-			fittingType = settings
-					.getString(ModelEstimationNodeModel.CFGKEY_FITTINGTYPE);
-		} catch (InvalidSettingsException e) {
-			fittingType = ModelEstimationNodeModel.DEFAULT_FITTINGTYPE;
-		}
-
-		try {
-			enforceLimits = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS);
-		} catch (InvalidSettingsException e) {
-			enforceLimits = ModelEstimationNodeModel.DEFAULT_ENFORCELIMITS;
-		}
-
-		try {
-			expertSettings = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS);
-		} catch (InvalidSettingsException e) {
-			expertSettings = ModelEstimationNodeModel.DEFAULT_EXPERTSETTINGS;
-		}
-
-		try {
-			nParameterSpace = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_NPARAMETERSPACE);
-		} catch (InvalidSettingsException e) {
-			nParameterSpace = ModelEstimationNodeModel.DEFAULT_NPARAMETERSPACE;
-		}
-
-		try {
-			nLevenberg = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_NLEVENBERG);
-		} catch (InvalidSettingsException e) {
-			nLevenberg = ModelEstimationNodeModel.DEFAULT_NLEVENBERG;
-		}
-
-		try {
-			stopWhenSuccessful = settings
-					.getInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL);
-		} catch (InvalidSettingsException e) {
-			stopWhenSuccessful = ModelEstimationNodeModel.DEFAULT_STOPWHENSUCCESSFUL;
-		}
-
-		try {
-			guessMap = XmlConverter
-					.xmlToObject(
-							settings.getString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES),
-							new LinkedHashMap<String, Map<String, Point2D.Double>>());
-		} catch (InvalidSettingsException e) {
-			guessMap = new LinkedHashMap<>();
-		}
-
-		if (fittingType.equals(ModelEstimationNodeModel.NO_FITTING)) {
+		if (set.getFittingType().equals(SettingsHelper.NO_FITTING)) {
 			if (SchemaFactory.createM12DataSchema().conforms(input[0])) {
-				fittingType = ModelEstimationNodeModel.SECONDARY_FITTING;
+				set.setFittingType(SettingsHelper.SECONDARY_FITTING);
 			} else {
-				fittingType = ModelEstimationNodeModel.PRIMARY_FITTING;
+				set.setFittingType(SettingsHelper.PRIMARY_FITTING);
 			}
 		}
 
-		fittingBox.setSelectedItem(fittingType);
+		fittingBox.setSelectedItem(set.getFittingType());
 		fittingBox.addActionListener(this);
-		limitsBox.setSelected(enforceLimits == 1);
-		expertBox.setSelected(expertSettings == 1);
-		nParamSpaceField.setValue(nParameterSpace);
-		nLevenbergField.setValue(nLevenberg);
-		stopWhenSuccessBox.setSelected(stopWhenSuccessful == 1);
+		limitsBox.setSelected(set.isEnforceLimits());
+		expertBox.setSelected(set.isExpertSettings());
+		nParamSpaceField.setValue(set.getnParameterSpace());
+		nLevenbergField.setValue(set.getnLevenberg());
+		stopWhenSuccessBox.setSelected(set.isStopWhenSuccessful());
 		initGUI();
 	}
 
@@ -293,37 +235,10 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
-		settings.addString(ModelEstimationNodeModel.CFGKEY_FITTINGTYPE,
-				(String) fittingBox.getSelectedItem());
-		settings.addInt(ModelEstimationNodeModel.CFGKEY_NPARAMETERSPACE,
-				nParamSpaceField.getValue());
-		settings.addInt(ModelEstimationNodeModel.CFGKEY_NLEVENBERG,
-				nLevenbergField.getValue());
-
-		if (limitsBox.isSelected()) {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 1);
-		} else {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_ENFORCELIMITS, 0);
-		}
-
-		if (expertBox.isSelected()) {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS, 1);
-		} else {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_EXPERTSETTINGS, 0);
-		}
-
-		if (stopWhenSuccessBox.isSelected()) {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL,
-					1);
-		} else {
-			settings.addInt(ModelEstimationNodeModel.CFGKEY_STOPWHENSUCCESSFUL,
-					0);
-		}
-
-		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, Point2D.Double>>();
+		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<>();
 
 		for (String modelName : parameters.keySet()) {
-			Map<String, Point2D.Double> guesses = new LinkedHashMap<String, Point2D.Double>();
+			Map<String, Point2D.Double> guesses = new LinkedHashMap<>();
 
 			for (String param : parameters.get(modelName)) {
 				Double min = minimumFields.get(modelName).get(param).getValue();
@@ -343,8 +258,14 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			guessMap.put(modelName, guesses);
 		}
 
-		settings.addString(ModelEstimationNodeModel.CFGKEY_PARAMETERGUESSES,
-				XmlConverter.objectToXml(guessMap));
+		set.setFittingType((String) fittingBox.getSelectedItem());
+		set.setnParameterSpace(nParamSpaceField.getValue());
+		set.setnLevenberg(nLevenbergField.getValue());
+		set.setEnforceLimits(limitsBox.isSelected());
+		set.setExpertSettings(expertBox.isSelected());
+		set.setStopWhenSuccessful(stopWhenSuccessBox.isSelected());
+		set.setParameterGuesses(guessMap);
+		set.saveSettings(settings);
 	}
 
 	private void readPrimaryTable(BufferedDataTable table) {
@@ -436,7 +357,8 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			List<String> params = parameters.get(id);
 			Map<String, DoubleTextField> minFields = new LinkedHashMap<String, DoubleTextField>();
 			Map<String, DoubleTextField> maxFields = new LinkedHashMap<String, DoubleTextField>();
-			Map<String, Point2D.Double> guesses = guessMap.get(id);
+			Map<String, Point2D.Double> guesses = set.getParameterGuesses()
+					.get(id);
 
 			leftPanel.setLayout(new GridLayout(params.size(), 1));
 			rightPanel.setLayout(new GridLayout(params.size(), 1));
@@ -528,18 +450,17 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 
 		JComponent fittingValuesPanel = null;
 
-		if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.PRIMARY_FITTING)
+		if (fittingBox.getSelectedItem().equals(SettingsHelper.PRIMARY_FITTING)
 				&& SchemaFactory.createM1DataSchema().conforms(input[0])) {
 			readPrimaryTable(input[0]);
 			fittingValuesPanel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.SECONDARY_FITTING)
+				SettingsHelper.SECONDARY_FITTING)
 				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
 			fittingValuesPanel = createPanel();
 		} else if (fittingBox.getSelectedItem().equals(
-				ModelEstimationNodeModel.ONESTEP_FITTING)
+				SettingsHelper.ONESTEP_FITTING)
 				&& SchemaFactory.createM12DataSchema().conforms(input[0])) {
 			readSecondaryTable(input[0]);
 			fittingValuesPanel = createPanel();

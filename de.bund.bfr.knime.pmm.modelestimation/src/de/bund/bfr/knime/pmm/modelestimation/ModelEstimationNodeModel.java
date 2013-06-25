@@ -56,7 +56,6 @@ import org.knime.core.node.NodeSettingsWO;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
-import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -75,38 +74,13 @@ public class ModelEstimationNodeModel extends NodeModel {
 	protected static final String PRIMARY = "Primary";
 	protected static final String SECONDARY = "Secondary";
 
-	protected static final String NO_FITTING = "";
-	protected static final String PRIMARY_FITTING = "Primary Fitting";
-	protected static final String SECONDARY_FITTING = "Secondary Fitting";
-	protected static final String ONESTEP_FITTING = "One-Step Fitting";
-
-	protected static final String CFGKEY_FITTINGTYPE = "FittingType";
-	protected static final String CFGKEY_ENFORCELIMITS = "EnforceLimits";
-	protected static final String CFGKEY_EXPERTSETTINGS = "ExpertSettings";
-	protected static final String CFGKEY_NPARAMETERSPACE = "NParameterSpace";
-	protected static final String CFGKEY_NLEVENBERG = "NLevenberg";
-	protected static final String CFGKEY_STOPWHENSUCCESSFUL = "StopWhenSuccessful";
-	protected static final String CFGKEY_PARAMETERGUESSES = "ParameterGuesses";
-
-	protected static final String DEFAULT_FITTINGTYPE = NO_FITTING;
-	protected static final int DEFAULT_ENFORCELIMITS = 0;
-	protected static final int DEFAULT_EXPERTSETTINGS = 0;
-	protected static final int DEFAULT_NPARAMETERSPACE = 10000;
-	protected static final int DEFAULT_NLEVENBERG = 10;
-	protected static final int DEFAULT_STOPWHENSUCCESSFUL = 0;
-
 	private static final int MAX_THREADS = 8;
 
 	private KnimeSchema schema;
 	private KnimeSchema outSchema;
 
-	private String fittingType;
-	private int enforceLimits;
-	private int expertSettings;
-	private int nParameterSpace;
-	private int nLevenberg;
-	private int stopWhenSuccessful;
-	private Map<String, Map<String, Point2D.Double>> parameterGuesses;
+	private SettingsHelper set;
+
 	private Map<String, Map<String, Point2D.Double>> parameterLimits;
 
 	/**
@@ -114,13 +88,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	protected ModelEstimationNodeModel() {
 		super(1, 1);
-		fittingType = DEFAULT_FITTINGTYPE;
-		enforceLimits = DEFAULT_ENFORCELIMITS;
-		expertSettings = DEFAULT_EXPERTSETTINGS;
-		nParameterSpace = DEFAULT_NPARAMETERSPACE;
-		nLevenberg = DEFAULT_NLEVENBERG;
-		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
-		parameterGuesses = new LinkedHashMap<>();
+		set = new SettingsHelper();
 	}
 
 	/**
@@ -132,13 +100,14 @@ public class ModelEstimationNodeModel extends NodeModel {
 		BufferedDataTable table = inData[0];
 		BufferedDataTable outTable = null;
 
-		if (fittingType.equals(PRIMARY_FITTING)) {
+		if (set.getFittingType().equals(SettingsHelper.PRIMARY_FITTING)) {
 			readPrimaryTable(table);
 			outTable = doPrimaryEstimation(table, exec);
-		} else if (fittingType.equals(SECONDARY_FITTING)) {
+		} else if (set.getFittingType()
+				.equals(SettingsHelper.SECONDARY_FITTING)) {
 			readSecondaryTable(table);
 			outTable = doSecondaryEstimation(table, exec);
-		} else if (fittingType.equals(ONESTEP_FITTING)) {
+		} else if (set.getFittingType().equals(SettingsHelper.ONESTEP_FITTING)) {
 			readSecondaryTable(table);
 			outTable = doOneStepEstimation(table, exec);
 		}
@@ -159,23 +128,24 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (fittingType.equals(NO_FITTING)) {
+		if (set.getFittingType().equals(SettingsHelper.NO_FITTING)) {
 			throw new InvalidSettingsException("Node has to be configured!");
-		} else if (fittingType.equals(PRIMARY_FITTING)) {
+		} else if (set.getFittingType().equals(SettingsHelper.PRIMARY_FITTING)) {
 			if (SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
 				schema = SchemaFactory.createM1DataSchema();
 				outSchema = SchemaFactory.createM1DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
-		} else if (fittingType.equals(SECONDARY_FITTING)) {
+		} else if (set.getFittingType()
+				.equals(SettingsHelper.SECONDARY_FITTING)) {
 			if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
 				schema = SchemaFactory.createM12DataSchema();
 				outSchema = SchemaFactory.createM12DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
-		} else if (fittingType.equals(ONESTEP_FITTING)) {
+		} else if (set.getFittingType().equals(SettingsHelper.ONESTEP_FITTING)) {
 			if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
 				schema = SchemaFactory.createM12DataSchema();
 				outSchema = SchemaFactory.createM1DataSchema();
@@ -192,14 +162,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	 */
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
-		settings.addString(CFGKEY_FITTINGTYPE, fittingType);
-		settings.addInt(CFGKEY_ENFORCELIMITS, enforceLimits);
-		settings.addInt(CFGKEY_EXPERTSETTINGS, expertSettings);
-		settings.addInt(CFGKEY_NPARAMETERSPACE, nParameterSpace);
-		settings.addInt(CFGKEY_NLEVENBERG, nLevenberg);
-		settings.addInt(CFGKEY_STOPWHENSUCCESSFUL, stopWhenSuccessful);
-		settings.addString(CFGKEY_PARAMETERGUESSES,
-				XmlConverter.objectToXml(parameterGuesses));
+		set.saveSettings(settings);
 	}
 
 	/**
@@ -208,15 +171,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 	@Override
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
-		fittingType = settings.getString(CFGKEY_FITTINGTYPE);
-		enforceLimits = settings.getInt(CFGKEY_ENFORCELIMITS);
-		expertSettings = settings.getInt(CFGKEY_EXPERTSETTINGS);
-		nParameterSpace = settings.getInt(CFGKEY_NPARAMETERSPACE);
-		nLevenberg = settings.getInt(CFGKEY_NLEVENBERG);
-		stopWhenSuccessful = settings.getInt(CFGKEY_STOPWHENSUCCESSFUL);
-		parameterGuesses = XmlConverter.xmlToObject(
-				settings.getString(CFGKEY_PARAMETERGUESSES),
-				new LinkedHashMap<String, Map<String, Point2D.Double>>());
+		set.loadSettings(settings);
 	}
 
 	/**
@@ -336,18 +291,18 @@ public class ModelEstimationNodeModel extends NodeModel {
 		Map<String, Map<String, Point2D.Double>> parameterGuesses;
 		int nParameterSpace;
 		int nLevenberg;
-		int stopWhenSuccessful;
+		boolean stopWhenSuccessful;
 
-		if (expertSettings == 1) {
-			parameterGuesses = this.parameterGuesses;
-			nParameterSpace = this.nParameterSpace;
-			nLevenberg = this.nLevenberg;
-			stopWhenSuccessful = this.stopWhenSuccessful;
+		if (set.isExpertSettings()) {
+			parameterGuesses = set.getParameterGuesses();
+			nParameterSpace = set.getnParameterSpace();
+			nLevenberg = set.getnLevenberg();
+			stopWhenSuccessful = set.isStopWhenSuccessful();
 		} else {
 			parameterGuesses = parameterLimits;
-			nParameterSpace = DEFAULT_NPARAMETERSPACE;
-			nLevenberg = DEFAULT_NLEVENBERG;
-			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
+			nParameterSpace = SettingsHelper.DEFAULT_NPARAMETERSPACE;
+			nLevenberg = SettingsHelper.DEFAULT_NLEVENBERG;
+			stopWhenSuccessful = SettingsHelper.DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
 		for (int i = 0; i < n; i++) {
@@ -368,8 +323,8 @@ public class ModelEstimationNodeModel extends NodeModel {
 			}
 
 			Thread thread = new Thread(new PrimaryEstimationThread(tuple,
-					parameterGuesses, enforceLimits == 1, nParameterSpace,
-					nLevenberg, stopWhenSuccessful == 1, runningThreads,
+					parameterGuesses, set.isEnforceLimits(), nParameterSpace,
+					nLevenberg, stopWhenSuccessful, runningThreads,
 					finishedThreads));
 
 			runningThreads.incrementAndGet();
@@ -406,24 +361,25 @@ public class ModelEstimationNodeModel extends NodeModel {
 		Map<String, Map<String, Point2D.Double>> parameterGuesses;
 		int nParameterSpace;
 		int nLevenberg;
-		int stopWhenSuccessful;
+		boolean stopWhenSuccessful;
 
-		if (expertSettings == 1) {
-			parameterGuesses = this.parameterGuesses;
-			nParameterSpace = this.nParameterSpace;
-			nLevenberg = this.nLevenberg;
-			stopWhenSuccessful = this.stopWhenSuccessful;
+		if (set.isExpertSettings()) {
+			parameterGuesses = set.getParameterGuesses();
+			nParameterSpace = set.getnParameterSpace();
+			nLevenberg = set.getnLevenberg();
+			stopWhenSuccessful = set.isStopWhenSuccessful();
 		} else {
 			parameterGuesses = parameterLimits;
-			nParameterSpace = DEFAULT_NPARAMETERSPACE;
-			nLevenberg = DEFAULT_NLEVENBERG;
-			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
+			nParameterSpace = SettingsHelper.DEFAULT_NPARAMETERSPACE;
+			nLevenberg = SettingsHelper.DEFAULT_NLEVENBERG;
+			stopWhenSuccessful = SettingsHelper.DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
-		Thread thread = new Thread(new SecondaryEstimationThread(table, schema,
-				container, parameterGuesses, enforceLimits == 1,
-				nParameterSpace, nLevenberg, stopWhenSuccessful == 1, this,
-				progress));
+		Thread thread = new Thread(
+				new SecondaryEstimationThread(table, schema, container,
+						parameterGuesses, set.isEnforceLimits(),
+						nParameterSpace, nLevenberg, stopWhenSuccessful, this,
+						progress));
 
 		thread.start();
 
@@ -450,23 +406,23 @@ public class ModelEstimationNodeModel extends NodeModel {
 		Map<String, Map<String, Point2D.Double>> parameterGuesses;
 		int nParameterSpace;
 		int nLevenberg;
-		int stopWhenSuccessful;
+		boolean stopWhenSuccessful;
 
-		if (expertSettings == 1) {
-			parameterGuesses = this.parameterGuesses;
-			nParameterSpace = this.nParameterSpace;
-			nLevenberg = this.nLevenberg;
-			stopWhenSuccessful = this.stopWhenSuccessful;
+		if (set.isExpertSettings()) {
+			parameterGuesses = set.getParameterGuesses();
+			nParameterSpace = set.getnParameterSpace();
+			nLevenberg = set.getnLevenberg();
+			stopWhenSuccessful = set.isStopWhenSuccessful();
 		} else {
 			parameterGuesses = parameterLimits;
-			nParameterSpace = DEFAULT_NPARAMETERSPACE;
-			nLevenberg = DEFAULT_NLEVENBERG;
-			stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
+			nParameterSpace = SettingsHelper.DEFAULT_NPARAMETERSPACE;
+			nLevenberg = SettingsHelper.DEFAULT_NLEVENBERG;
+			stopWhenSuccessful = SettingsHelper.DEFAULT_STOPWHENSUCCESSFUL;
 		}
 
 		Thread thread = new Thread(new OneStepEstimationThread(table, schema,
-				container, parameterGuesses, enforceLimits == 1,
-				nParameterSpace, nLevenberg, stopWhenSuccessful == 1, progress));
+				container, parameterGuesses, set.isEnforceLimits(),
+				nParameterSpace, nLevenberg, stopWhenSuccessful, progress));
 
 		thread.start();
 

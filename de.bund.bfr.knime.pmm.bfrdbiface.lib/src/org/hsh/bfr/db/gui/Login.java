@@ -414,11 +414,12 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_161_162(); 
 					  		DBKernel.setDBVersion("1.6.2");
 					  	}
+					  	/*
 					  	if (DBKernel.getDBVersion().equals("1.6.2")) {
 					  		UpdateChecker.check4Updates_162_163(); 
 					  		DBKernel.setDBVersion("1.6.3");
 					  	}
-					  						  	
+					  		*/				  	
 						DBKernel.closeDBConnections(false);
 					}
 					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return myList;}

@@ -112,6 +112,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private static final String OTHER_PARAMETER = "Select Other";
 	private static final String SELECT = "Select";
 	private static final String USE_SECONDARY_MODEL = "Use Sec. Model";
+	private static final String RELOAD = "Reload";
 
 	private XLSReader xlsReader;
 
@@ -131,8 +132,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private JPanel modelPanel;
 	private JButton modelButton;
+	private JButton modelReloadButton;
 	private Map<String, JComboBox<String>> modelBoxes;
 	private Map<String, JButton> secModelButtons;
+	private Map<String, JButton> secModelReloadButtons;
 	private Map<String, Map<String, JComboBox<String>>> secModelBoxes;
 	private Map<String, Map<String, JComboBox<String>>> secMinBoxes;
 	private Map<String, Map<String, JComboBox<String>>> secMaxBoxes;
@@ -185,6 +188,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		modelPanel.add(noLabel, BorderLayout.CENTER);
 		modelBoxes = new LinkedHashMap<>();
 		secModelButtons = new LinkedHashMap<>();
+		secModelReloadButtons = new LinkedHashMap<>();
 		secModelBoxes = new LinkedHashMap<>();
 		secMinBoxes = new LinkedHashMap<>();
 		secMaxBoxes = new LinkedHashMap<>();
@@ -433,6 +437,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 				updateModelPanel();
 			}
+		} else if (e.getSource() == modelReloadButton) {
+			Integer id = ((CatalogModelXml) set.getModelTuple()
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+
+			if (id != null) {
+				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+
+				try {
+					set.setModelTuple(db.getPrimModelById(id));
+				} catch (SQLException ex) {
+					ex.printStackTrace();
+				}
+
+				updateModelPanel();
+			}
 		} else if (e.getSource() == agentButton) {
 			Integer id;
 
@@ -527,16 +546,30 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
 
 						try {
-							set.getSecModelTuples().put(param,
-									db.getSecModelById(id));
-							set.getSecModelMappings().put(param,
-									new LinkedHashMap<String, String>());
-							set.getSecModelIndepMins().put(param,
-									new LinkedHashMap<String, String>());
-							set.getSecModelIndepMaxs().put(param,
-									new LinkedHashMap<String, String>());
-							set.getSecModelIndepUnits().put(param,
-									new LinkedHashMap<String, String>());
+							addSecModel(param, db.getSecModelById(id));
+						} catch (SQLException ex) {
+							ex.printStackTrace();
+						}
+
+						updateModelPanel();
+					}
+
+					break;
+				}
+			}
+
+			for (String param : secModelReloadButtons.keySet()) {
+				if (e.getSource() == secModelReloadButtons.get(param)) {
+					KnimeTuple secModelTuple = set.getSecModelTuples().get(
+							param);
+					Integer id = ((CatalogModelXml) secModelTuple.getPmmXml(
+							Model2Schema.ATT_MODELCATALOG).get(0)).getID();
+
+					if (id != null) {
+						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+
+						try {
+							addSecModel(param, db.getSecModelById(id));
 						} catch (SQLException ex) {
 							ex.printStackTrace();
 						}
@@ -871,6 +904,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 	private void updateModelPanel() {
 		modelBoxes.clear();
 		secModelButtons.clear();
+		secModelReloadButtons.clear();
 		secModelBoxes.clear();
 		secMinBoxes.clear();
 		secMaxBoxes.clear();
@@ -879,18 +913,29 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		if (set.getModelTuple() != null) {
 			modelButton = new JButton(((CatalogModelXml) set.getModelTuple()
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getName());
+			modelReloadButton = new JButton(RELOAD);
+			modelReloadButton.setEnabled(true);
 		} else {
 			modelButton = new JButton(SELECT);
+			modelReloadButton = new JButton(RELOAD);
+			modelReloadButton.setEnabled(false);
 		}
 
 		modelButton.addActionListener(this);
+		modelReloadButton.addActionListener(this);
 
 		JPanel northPanel = new JPanel();
 		int row = 0;
 
+		JPanel modelButtonPanel = new JPanel();
+
+		modelButtonPanel.setLayout(new BorderLayout());
+		modelButtonPanel.add(modelButton, BorderLayout.WEST);
+		modelButtonPanel.add(modelReloadButton, BorderLayout.EAST);
+
 		northPanel.setLayout(new GridBagLayout());
 		northPanel.add(new JLabel("Primary Model:"), createConstraints(0, row));
-		northPanel.add(modelButton, createConstraints(1, row));
+		northPanel.add(modelButtonPanel, createConstraints(1, row));
 		row++;
 
 		if (set.getModelTuple() != null) {
@@ -936,21 +981,33 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				KnimeTuple secModelTuple = set.getSecModelTuples().get(
 						element.getName());
 				JButton secButton;
+				JButton secReloadButton;
+				JPanel secButtonPanel = new JPanel();
 
 				if (secModelTuple != null) {
 					secButton = new JButton(
 							((CatalogModelXml) secModelTuple.getPmmXml(
 									Model2Schema.ATT_MODELCATALOG).get(0))
 									.getName());
+					secReloadButton = new JButton(RELOAD);
+					secReloadButton.setEnabled(true);
 				} else {
 					secButton = new JButton(SELECT);
+					secReloadButton = new JButton(RELOAD);
+					secReloadButton.setEnabled(false);
 				}
 
+				secButtonPanel.setLayout(new BorderLayout());
+				secButtonPanel.add(secButton, BorderLayout.WEST);
+				secButtonPanel.add(secReloadButton, BorderLayout.EAST);
+
 				secButton.addActionListener(this);
+				secReloadButton.addActionListener(this);
 				secModelButtons.put(element.getName(), secButton);
+				secModelReloadButtons.put(element.getName(), secReloadButton);
 				northPanel.add(new JLabel(element.getName() + ":"),
 						createConstraints(0, row));
-				northPanel.add(secButton, createConstraints(1, row));
+				northPanel.add(secButtonPanel, createConstraints(1, row));
 				row++;
 
 				if (secModelTuple != null) {
@@ -1447,5 +1504,29 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		set.setAgentMappings(newAgentMappings);
 		set.setMatrixMappings(newMatrixMappings);
 		set.setColumnMappings(newColumnMappings);
+	}
+
+	private void addSecModel(String param, KnimeTuple tuple) {
+		set.getSecModelTuples().put(param, tuple);
+
+		if (!set.getSecModelMappings().containsKey(param)) {
+			set.getSecModelMappings().put(param,
+					new LinkedHashMap<String, String>());
+		}
+
+		if (!set.getSecModelIndepMins().containsKey(param)) {
+			set.getSecModelIndepMins().put(param,
+					new LinkedHashMap<String, String>());
+		}
+
+		if (!set.getSecModelIndepMaxs().containsKey(param)) {
+			set.getSecModelIndepMaxs().put(param,
+					new LinkedHashMap<String, String>());
+		}
+
+		if (!set.getSecModelIndepUnits().containsKey(param)) {
+			set.getSecModelIndepUnits().put(param,
+					new LinkedHashMap<String, String>());
+		}
 	}
 }

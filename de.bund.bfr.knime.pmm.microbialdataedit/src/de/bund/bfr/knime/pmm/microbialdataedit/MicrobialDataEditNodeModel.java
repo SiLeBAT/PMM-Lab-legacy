@@ -238,6 +238,10 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input");
 		}
 
+		if (set.getTimeSeries().isEmpty()) {
+			throw new InvalidSettingsException("Node has to be configured");
+		}
+
 		return new DataTableSpec[] { SchemaFactory.createDataSchema()
 				.createSpec() };
 	}

@@ -70,6 +70,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
 import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
@@ -245,13 +246,22 @@ public class PrimaryJoiner implements Joiner {
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
 						.get(AttributeUtilities.LOGC);
+				Category concentrationCategory = null;
+
+				if (new NumberContent().getAllUnits().contains(
+						concentrationUnit)) {
+					concentrationCategory = new NumberContent();
+				} else if (new NumberConcentration().getAllUnits().contains(
+						concentrationUnit)) {
+					concentrationCategory = new NumberConcentration();
+				}
 
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
 					element.setTime(new Time().convert(element.getTime(),
 							element.getTimeUnit(), timeUnit));
-					element.setConcentration(new NumberContent().convert(
+					element.setConcentration(concentrationCategory.convert(
 							element.getConcentration(),
 							element.getConcentrationUnit(), concentrationUnit));
 					element.setTimeUnit(timeUnit);
@@ -370,8 +380,8 @@ public class PrimaryJoiner implements Joiner {
 	private void readDataTable() {
 		parameterCategories = new LinkedHashMap<>();
 		parameterCategories.put(AttributeUtilities.TIME, Categories.TIME);
-		parameterCategories.put(AttributeUtilities.LOGC,
-				Categories.NUMBER_CONTENT);
+		parameterCategories
+				.put(AttributeUtilities.LOGC, Categories.NO_CATEGORY);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), dataTable);
@@ -395,9 +405,15 @@ public class PrimaryJoiner implements Joiner {
 		List<String> params = new ArrayList<>();
 
 		for (String param : parameterCategories.keySet()) {
-			if (category == null
-					|| parameterCategories.get(param).equals(category)) {
+			String paramCat = parameterCategories.get(param);
+
+			if (category == null || paramCat.equals(category)) {
 				params.add(param);
+			} else if (paramCat.equals(Categories.NO_CATEGORY)) {
+				if (category.equals(Categories.NUMBER_CONTENT)
+						|| category.equals(Categories.NUMBER_CONCENTRATION)) {
+					params.add(param);
+				}
 			}
 		}
 

@@ -6,7 +6,7 @@ import java.util.List;
 public class NumberConcentration implements Category {
 
 	public static final String COUNT_PER_MILLILITER = "count/ml";
-	public static final String LOG_COUNT_PER_MILLILITER = "log(count/ml)";
+	public static final String LOG_COUNT_PER_MILLILITER = "log10(count/ml)";
 	public static final String LN_COUNT_PER_MILLILITER = "ln(count/ml)";
 
 	public NumberConcentration() {

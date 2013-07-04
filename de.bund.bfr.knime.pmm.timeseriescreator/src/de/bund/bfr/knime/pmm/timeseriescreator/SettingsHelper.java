@@ -46,8 +46,7 @@ import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.XmlConverter;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class SettingsHelper {
 
@@ -60,10 +59,10 @@ public class SettingsHelper {
 	protected static final String CFGKEY_TIMEUNIT = "TimeUnit";
 	protected static final String CFGKEY_LOGCUNIT = "LogcUnit";
 
-	protected static final String DEFAULT_TIMEUNIT = new Time()
-			.getStandardUnit();
-	protected static final String DEFAULT_LOGCUNIT = new NumberContent()
-			.getStandardUnit();
+	protected static final String DEFAULT_TIMEUNIT = Categories
+			.getTimeCategory().getStandardUnit();
+	protected static final String DEFAULT_LOGCUNIT = Categories
+			.getConcentrationCategories().get(0).getStandardUnit();
 
 	private List<LiteratureItem> literature;
 	private AgentXml agent;

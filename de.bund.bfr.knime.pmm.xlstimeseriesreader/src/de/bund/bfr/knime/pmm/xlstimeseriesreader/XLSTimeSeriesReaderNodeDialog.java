@@ -81,11 +81,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.PH;
 import de.bund.bfr.knime.pmm.common.units.Temperature;
-import de.bund.bfr.knime.pmm.common.units.Time;
 import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
@@ -927,11 +924,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							column);
 
 					if (mapping.equals(AttributeUtilities.TIME)) {
-						JComboBox<String> unitBox = new JComboBox<>(new Time()
-								.getAllUnits().toArray(new String[0]));
+						JComboBox<String> unitBox = new JComboBox<>(Categories
+								.getTimeCategory().getAllUnits()
+								.toArray(new String[0]));
 
 						if (set.getTimeUnit() == null) {
-							set.setTimeUnit(new Time().getStandardUnit());
+							set.setTimeUnit(Categories.getTimeCategory()
+									.getStandardUnit());
 						}
 
 						unitBox.setSelectedItem(set.getTimeUnit());
@@ -939,16 +938,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnUnitBoxes.put(column, unitBox);
 						northPanel.add(unitBox, createConstraints(3, row));
 					} else if (mapping.equals(AttributeUtilities.LOGC)) {
-						List<String> units = new ArrayList<>();
-
-						units.addAll(new NumberContent().getAllUnits());
-						units.addAll(new NumberConcentration().getAllUnits());
-
 						JComboBox<String> unitBox = new JComboBox<>(
-								units.toArray(new String[0]));
+								Categories
+										.getUnitsFromCategories(
+												Categories
+														.getConcentrationCategories())
+										.toArray(new String[0]));
 
 						if (set.getConcentrationUnit() == null) {
-							set.setConcentrationUnit(new NumberContent()
+							set.setConcentrationUnit(Categories
+									.getConcentrationCategories().get(0)
 									.getStandardUnit());
 						}
 

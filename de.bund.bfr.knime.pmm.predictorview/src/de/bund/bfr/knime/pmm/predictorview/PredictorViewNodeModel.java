@@ -77,7 +77,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 /**
  * This is the model implementation of PredictorView.
@@ -261,8 +261,8 @@ public class PredictorViewNodeModel extends NodeModel {
 		List<Double> values = new ArrayList<>();
 
 		for (Double t : set.getTimeValues()) {
-			values.add(new Time().convert(t, set.getUnitX(), plotable
-					.getUnits().get(AttributeUtilities.TIME)));
+			values.add(Categories.getTimeCategory().convert(t, set.getUnitX(),
+					plotable.getUnits().get(AttributeUtilities.TIME)));
 		}
 
 		plotable.setSamples(values);

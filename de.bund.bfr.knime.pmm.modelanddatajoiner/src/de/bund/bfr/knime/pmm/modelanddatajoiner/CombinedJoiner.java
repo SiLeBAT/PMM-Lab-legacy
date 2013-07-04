@@ -74,11 +74,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class CombinedJoiner implements Joiner {
 
@@ -354,21 +351,15 @@ public class CombinedJoiner implements Joiner {
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
 						.get(AttributeUtilities.LOGC);
-				Category concentrationCategory = null;
-
-				if (new NumberContent().getAllUnits().contains(
-						concentrationUnit)) {
-					concentrationCategory = new NumberContent();
-				} else if (new NumberConcentration().getAllUnits().contains(
-						concentrationUnit)) {
-					concentrationCategory = new NumberConcentration();
-				}
+				Category concentrationCategory = Categories.getCategoryByUnit(
+						Categories.getConcentrationCategories(),
+						concentrationUnit);
 
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					element.setTime(new Time().convert(element.getTime(),
-							element.getTimeUnit(), timeUnit));
+					element.setTime(Categories.getTimeCategory().convert(
+							element.getTime(), element.getTimeUnit(), timeUnit));
 					element.setConcentration(concentrationCategory.convert(
 							element.getConcentration(),
 							element.getConcentrationUnit(), concentrationUnit));

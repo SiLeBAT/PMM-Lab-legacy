@@ -46,8 +46,7 @@ import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class SettingsHelper {
 
@@ -85,9 +84,10 @@ public class SettingsHelper {
 	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
 	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = false;
 	protected static final boolean DEFAULT_SHOWCONFIDENCE = false;
-	protected static final String DEFAULT_UNITX = new Time().getStandardUnit();
-	protected static final String DEFAULT_UNITY = new NumberContent()
+	protected static final String DEFAULT_UNITX = Categories.getTimeCategory()
 			.getStandardUnit();
+	protected static final String DEFAULT_UNITY = Categories
+			.getConcentrationCategories().get(0).getStandardUnit();
 	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
 

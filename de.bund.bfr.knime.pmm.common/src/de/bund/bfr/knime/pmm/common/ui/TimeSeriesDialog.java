@@ -19,8 +19,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class TimeSeriesDialog extends JDialog implements ActionListener {
 
@@ -64,9 +63,9 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 	private JComponent createTableChartComponent(List<TimeSeriesXml> timeSeries) {
 		List<Double> timeList = new ArrayList<>();
 		List<Double> logcList = new ArrayList<>();
-		String timeUnit = new Time().getStandardUnit();
-		String concentrationUnit = new NumberContent()
-				.getStandardUnit();
+		String timeUnit = Categories.getTimeCategory().getStandardUnit();
+		String concentrationUnit = Categories.getConcentrationCategories()
+				.get(0).getStandardUnit();
 
 		for (TimeSeriesXml point : timeSeries) {
 			timeList.add(point.getTime());

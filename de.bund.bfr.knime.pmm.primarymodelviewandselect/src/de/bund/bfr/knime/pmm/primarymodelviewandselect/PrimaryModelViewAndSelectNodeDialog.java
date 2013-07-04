@@ -60,8 +60,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 /**
  * <code>NodeDialog</code> for the "PrimaryModelViewAndSelect" Node.
@@ -149,9 +147,10 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		categories.put(AttributeUtilities.TIME, Arrays.asList(Categories.TIME));
 		categories.put(AttributeUtilities.LOGC, Arrays.asList(
 				Categories.NUMBER_CONTENT, Categories.NUMBER_CONCENTRATION));
-		units.put(AttributeUtilities.TIME, new Time().getStandardUnit());
-		units.put(AttributeUtilities.LOGC,
-				new NumberContent().getStandardUnit());
+		units.put(AttributeUtilities.TIME, Categories.getTimeCategory()
+				.getStandardUnit());
+		units.put(AttributeUtilities.LOGC, Categories
+				.getConcentrationCategories().get(0).getStandardUnit());
 		paramsX.put(AttributeUtilities.TIME, new ArrayList<Double>());
 
 		if (set.isSelectAllIDs()) {

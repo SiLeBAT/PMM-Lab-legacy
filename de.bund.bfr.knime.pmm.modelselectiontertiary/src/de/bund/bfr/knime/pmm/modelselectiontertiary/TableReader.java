@@ -34,7 +34,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TableReader {
 
@@ -223,7 +222,7 @@ public class TableReader {
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
 			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
-			String timeUnit = new Time().getStandardUnit();
+			String timeUnit = Categories.getTimeCategory().getStandardUnit();
 			String concentrationUnit = depXml.getUnit();
 
 			for (PmmXmlElementConvertable el : indepXml.getElementSet()) {

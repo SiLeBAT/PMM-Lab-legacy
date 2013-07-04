@@ -33,6 +33,8 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Categories {
@@ -87,16 +89,23 @@ public class Categories {
 		}
 	}
 
-	public static Category getCategoryByUnit(List<String> categories,
-			String unit) {
+	public static Category getCategoryByUnit(List<?> categories, String unit) {
 		Category category = new NoCategory();
 
 		if (categories != null) {
-			for (String s : categories) {
-				Category c = Categories.getCategory(s);
+			for (Object o : categories) {
+				Category cat;
 
-				if (c.getAllUnits().contains(unit)) {
-					category = c;
+				if (o instanceof Category) {
+					cat = (Category) o;
+				} else if (o instanceof String) {
+					cat = Categories.getCategory((String) o);
+				} else {
+					continue;
+				}
+
+				if (cat.getAllUnits().contains(unit)) {
+					category = cat;
 					break;
 				}
 			}
@@ -104,4 +113,30 @@ public class Categories {
 
 		return category;
 	}
+
+	public static List<String> getUnitsFromCategories(List<?> categories) {
+		List<String> units = new ArrayList<>();
+
+		if (categories != null) {
+			for (Object o : categories) {
+				if (o instanceof Category) {
+					units.addAll(((Category) o).getAllUnits());
+				} else if (o instanceof String) {
+					units.addAll(Categories.getCategory((String) o)
+							.getAllUnits());
+				}
+			}
+		}
+
+		return units;
+	}
+
+	public static Category getTimeCategory() {
+		return new Time();
+	}
+
+	public static List<Category> getConcentrationCategories() {
+		return Arrays.asList(new NumberContent(), new NumberConcentration());
+	}
+
 }

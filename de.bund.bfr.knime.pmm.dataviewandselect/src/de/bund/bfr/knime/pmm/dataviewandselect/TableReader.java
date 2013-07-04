@@ -23,9 +23,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.Time;
 
 public class TableReader {
 
@@ -96,8 +94,9 @@ public class TableReader {
 			List<Double> timeList = new ArrayList<Double>();
 			List<Double> logcList = new ArrayList<Double>();
 			List<TimeSeriesXml> dataPoints = new ArrayList<>();
-			String timeUnit = new Time().getStandardUnit();
-			String concentrationUnit = new NumberContent().getStandardUnit();
+			String timeUnit = Categories.getTimeCategory().getStandardUnit();
+			String concentrationUnit = Categories.getConcentrationCategories()
+					.get(0).getStandardUnit();
 			String dataName;
 			String agent;
 			String matrix;

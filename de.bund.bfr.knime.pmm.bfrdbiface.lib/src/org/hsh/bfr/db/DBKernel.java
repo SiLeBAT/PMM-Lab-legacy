@@ -136,7 +136,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.6.2";
+	public static String DBVersion = "1.6.3";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
@@ -1020,6 +1020,33 @@ public class DBKernel {
 		return result;
   }
   */
+  public static Integer getID(final String tablename, final String[] feldname, final String[] feldVal) {
+	  Integer result = null;
+	  String sql = "SELECT " + delimitL("ID") + " FROM " + delimitL(tablename) + " WHERE ";
+	  String where = " ";
+	  for (int i=0;i<feldname.length;i++) {
+		  if (i < feldVal.length) {
+			  if (!where.trim().isEmpty()) where += " AND ";
+			  where += delimitL(feldname[i]);			  				  
+			  if (feldVal[i] == null) {
+				  where += " IS NULL";
+				} else {
+					where += " = '" + feldVal[i].replace("'", "''") + "'";
+				}
+		  }
+	  }
+		ResultSet rs = getResultSet(sql + where, true);
+		try {
+			if (rs != null && rs.last()) {
+				result = rs.getInt(1);
+				if (rs.getRow() > 1) {
+					System.err.println("Attention! Entry " + feldVal + " occurs " + rs.getRow() + "x in column " + feldname + " of table " + tablename + ", please check!!!");
+				}
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}
+		return result;
+  }
   public static Integer getID(final String tablename, final String feldname, final String feldVal) {
 	  Integer result = null;
 	  String sql = "SELECT " + delimitL("ID") + " FROM " + delimitL(tablename) + " WHERE " + delimitL(feldname);
@@ -1064,7 +1091,7 @@ public class DBKernel {
 		  String where = " ";
 		  for (int i=0;i<feldname.length;i++) {
 			  if (i < feldVal.length) {
-				  if (!where.trim().isEmpty()) sql += " AND ";
+				  if (!where.trim().isEmpty()) where += " AND ";
 				  where += delimitL(feldname[i]);			  				  
 				  if (feldVal[i] == null) {
 					  where += " IS NULL";
@@ -1969,12 +1996,11 @@ public class DBKernel {
 					  		UpdateChecker.check4Updates_161_162(); 
 					  		DBKernel.setDBVersion("1.6.2");
 					  	}
-					  	/*
 					  	if (DBKernel.getDBVersion().equals("1.6.2")) {
 					  		UpdateChecker.check4Updates_162_163(); 
 					  		DBKernel.setDBVersion("1.6.3");
 					  	}
-					  	*/
+					  	
 					  	if (!isAdmin) {
 					  		DBKernel.closeDBConnections(false);
 					  		DBKernel.getDBConnection();

@@ -477,26 +477,25 @@ public class MyDBTables {
 				new LinkedHashMap[]{null,null});
 		addTable(labore_Agenzien_Methodiken, -1);
 
-		
 		MyTable Konzentrationseinheiten = new MyTable("Einheiten", new String[]{"Einheit","Beschreibung",
-				"name","kind of quantity","print","c/s","c/i",
-				"M","definition value","definition unit"},
+				"name","kind of property / quantity","notation case sensitive","convert to","conversion function / factor",
+				"inverse conversion function / factor","object type","display in GUI as","MathML string","Priority for display in GUI"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)"
 				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"
-				,"BOOLEAN","DOUBLE","VARCHAR(255)"},
+				,"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","VARCHAR(255)","BOOLEAN"},
 				new String[]{null,null,
 				null,null,null,null,null,
-				null,null,null},
+				null,null,null,null,null},
 				new MyTable[]{null,null,
 				null,null,null,null,null,
-				null,null,null},
+				null,null,null,null,null},
 				null,
 				new LinkedHashMap[]{null,null,
 				null,null,null,null,null,
-				null,null,null},
+				null,null,null,null,null},
 				new String[]{null,null,
 				null,null,null,null,null,
-				null,null,null});
+				null,null,null,null,null});
 		addTable(Konzentrationseinheiten, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},

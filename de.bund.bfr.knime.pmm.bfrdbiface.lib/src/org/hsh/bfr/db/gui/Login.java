@@ -208,7 +208,7 @@ public class Login extends JFrame {
 			// Login succeeded
 			if (!DBKernel.isServerConnection) {
 				long fs = DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data");
-		    	if (fs > 200000000) {
+		    	if (fs > 300000000) {
 					InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
 					ib.setVisible(true);    				  										        									    		
 		    	}
@@ -414,12 +414,11 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_161_162(); 
 					  		DBKernel.setDBVersion("1.6.2");
 					  	}
-					  	/*
 					  	if (DBKernel.getDBVersion().equals("1.6.2")) {
 					  		UpdateChecker.check4Updates_162_163(); 
 					  		DBKernel.setDBVersion("1.6.3");
 					  	}
-					  		*/				  	
+
 						DBKernel.closeDBConnections(false);
 					}
 					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return myList;}

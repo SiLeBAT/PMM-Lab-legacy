@@ -53,37 +53,48 @@ public class UpdateChecker {
 	public static void check4Updates_162_163() {		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("name") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 3, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("kind of quantity") + " VARCHAR(255)", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("kind of property / quantity") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 4, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("print") + " VARCHAR(255)", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("notation case sensitive") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 5, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("c/s") + " VARCHAR(255)", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("convert to") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 6, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("c/i") + " VARCHAR(255)", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("conversion function / factor") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 7, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("M") + " BOOLEAN", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("inverse conversion function / factor") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 8, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("definition value") + " DOUBLE", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("object type") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 9, false);		
-		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("definition unit") + " VARCHAR(255)", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("display in GUI as") + " VARCHAR(255)", false);
 		updateChangeLog("Einheiten", 10, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("MathML string") + " VARCHAR(255)", false);
+		updateChangeLog("Einheiten", 11, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("Priority for display in GUI") + " BOOLEAN", false);
+		updateChangeLog("Einheiten", 12, false);		
 		refreshFKs("Einheiten");
+		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_New.xls", DBKernel.mainFrame.getProgressBar(), false);
+		
+		int idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
+		int idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
+		int idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
+		int idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});
+		int idJ = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"a_j", "Time"});
 		
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach") + ";", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='1'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Sekunde'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idS + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Sekunde'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='2'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Minute'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idM + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Minute'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='3'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Stunde'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idH + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Stunde'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='4'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Tag'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='86'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Tag'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='5'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Woche'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='92'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Woche'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='6'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Monat'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idMo + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Monat'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
-				" SET " + DBKernel.delimitL("ZeitEinheit") + "='7'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Jahr'", false);
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idJ + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Jahr'", false);
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Messwerte") + " ALTER COLUMN " + DBKernel.delimitL("ZeitEinheit") + " INTEGER", false);
 		refreshFKs("Messwerte");
 		

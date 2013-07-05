@@ -73,8 +73,33 @@ public class UpdateChecker {
 		updateChangeLog("Einheiten", 12, false);		
 		refreshFKs("Einheiten");
 		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_New.xls", DBKernel.mainFrame.getProgressBar(), false);
-		
-		int idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
+/*		
+		// sync der firstDB with SiLeBAT - DB!!!
+  		for (int i=112;i>=94;i--) {
+	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+	  				" SET " + DBKernel.delimitL("ID") + "=" + (i+9) + " WHERE " + DBKernel.delimitL("ID") + "=" + i, false);
+  		}
+  		for (int i=99;i>=85;i--) {
+	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-6), false);
+  		}
+  		for (int i=83;i>=71;i--) {
+	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-5), false);
+  		}
+  		for (int i=69;i>=47;i--) {
+	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-4), false);
+  		}
+  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+  				" SET " + DBKernel.delimitL("ID") + "=" + 45 + " WHERE " + DBKernel.delimitL("ID") + "=" + 42, false);
+  		for (int i=43;i>=38;i--) {
+	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
+	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-2), false);
+  		}
+		// sync der firstDB with SiLeBAT - DB!!!
+*/
+  		int idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
 		int idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
 		int idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
 		int idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});

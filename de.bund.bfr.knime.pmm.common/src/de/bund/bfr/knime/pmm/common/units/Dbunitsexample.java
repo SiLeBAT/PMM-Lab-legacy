@@ -9,5 +9,6 @@ public class Dbunitsexample {
 		UnitsFromDB ufdb = new UnitsFromDB();
 		ufdb.askDB();
 		HashMap<Integer, UnitsFromDB> z = ufdb.getMap();
+		System.err.print(z.size());
 	}
 }

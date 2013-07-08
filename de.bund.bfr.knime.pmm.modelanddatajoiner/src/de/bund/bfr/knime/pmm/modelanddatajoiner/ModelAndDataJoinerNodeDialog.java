@@ -141,25 +141,42 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void initGUI() {
+		String error = "";
+
 		joinerBox.removeActionListener(this);
 		joinerBox.setSelectedItem(set.getJoinType());
 		joinerBox.addActionListener(this);
 		joiner = null;
 
 		if (set.getJoinType().equals(SettingsHelper.PRIMARY_JOIN)) {
-			if (SchemaFactory.createM1Schema().conforms(input[0])
-					&& SchemaFactory.createDataSchema().conforms(input[1])) {
+			if (SchemaFactory.conformsM1Schema(input[0].getSpec())
+					&& SchemaFactory.conformsDataSchema(input[1].getSpec())) {
 				joiner = new PrimaryJoiner(input[0], input[1]);
+			} else if (SchemaFactory.conformsM1Schema(input[1].getSpec())
+					&& SchemaFactory.conformsDataSchema(input[0].getSpec())) {
+				error = "Please switch the ports!";
+			} else {
+				error = "Wrong input!";
 			}
 		} else if (set.getJoinType().equals(SettingsHelper.SECONDARY_JOIN)) {
-			if (SchemaFactory.createM2Schema().conforms(input[0])
-					&& SchemaFactory.createM1DataSchema().conforms(input[1])) {
+			if (SchemaFactory.conformsM2Schema(input[0].getSpec())
+					&& SchemaFactory.conformsM1DataSchema(input[1].getSpec())) {
 				joiner = new SecondaryJoiner(input[0], input[1]);
+			} else if (SchemaFactory.conformsM2Schema(input[1].getSpec())
+					&& SchemaFactory.conformsM1DataSchema(input[0].getSpec())) {
+				error = "Please switch the ports!";
+			} else {
+				error = "Wrong input!";
 			}
 		} else if (set.getJoinType().equals(SettingsHelper.COMBINED_JOIN)) {
-			if (SchemaFactory.createM12Schema().conforms(input[0])
-					&& SchemaFactory.createDataSchema().conforms(input[1])) {
+			if (SchemaFactory.conformsM12Schema(input[0].getSpec())
+					&& SchemaFactory.conformsDataSchema(input[1].getSpec())) {
 				joiner = new CombinedJoiner(input[0], input[1]);
+			} else if (SchemaFactory.conformsM12Schema(input[1].getSpec())
+					&& SchemaFactory.conformsDataSchema(input[0].getSpec())) {
+				error = "Please switch the ports!";
+			} else {
+				error = "Wrong input!";
 			}
 		}
 
@@ -175,7 +192,7 @@ public class ModelAndDataJoinerNodeDialog extends DataAwareNodeDialogPane
 						"Data is not valid for " + set.getJoinType());
 			}
 
-			joinerPanel.add(new JLabel(), BorderLayout.CENTER);
+			joinerPanel.add(new JLabel(error), BorderLayout.CENTER);
 		}
 	}
 }

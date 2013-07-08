@@ -130,9 +130,10 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		Map<String, String> units = new LinkedHashMap<>();
 		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
 
-		categories.put(AttributeUtilities.TIME, Arrays.asList(Categories.TIME));
-		categories.put(AttributeUtilities.CONCENTRATION, Arrays.asList(
-				Categories.NUMBER_CONTENT, Categories.NUMBER_CONCENTRATION));
+		categories.put(AttributeUtilities.TIME,
+				Arrays.asList(Categories.getTime()));
+		categories.put(AttributeUtilities.CONCENTRATION,
+				Categories.getConcentrations());
 		units.put(AttributeUtilities.TIME, Categories.getTimeCategory()
 				.getStandardUnit());
 		units.put(AttributeUtilities.CONCENTRATION, Categories
@@ -149,8 +150,8 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
 				false, null);
-		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX, null, null,
-				categories, units, null);
+		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
+				null, null, categories, units, null);
 		configPanel.setUseManualRange(set.isManualRange());
 		configPanel.setMinX(set.getMinX());
 		configPanel.setMaxX(set.getMaxX());

@@ -370,9 +370,9 @@ public class PrimaryJoiner implements Joiner {
 
 	private void readDataTable() {
 		parameterCategories = new LinkedHashMap<>();
-		parameterCategories.put(AttributeUtilities.TIME, Categories.TIME);
-		parameterCategories
-				.put(AttributeUtilities.CONCENTRATION, Categories.NO_CATEGORY);
+		parameterCategories.put(AttributeUtilities.TIME, Categories.getTime());
+		parameterCategories.put(AttributeUtilities.CONCENTRATION,
+				Categories.NO_CATEGORY);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), dataTable);
@@ -401,8 +401,7 @@ public class PrimaryJoiner implements Joiner {
 			if (category == null || paramCat.equals(category)) {
 				params.add(param);
 			} else if (paramCat.equals(Categories.NO_CATEGORY)) {
-				if (category.equals(Categories.NUMBER_CONTENT)
-						|| category.equals(Categories.NUMBER_CONCENTRATION)) {
+				if (Categories.getConcentrations().contains(category)) {
 					params.add(param);
 				}
 			}

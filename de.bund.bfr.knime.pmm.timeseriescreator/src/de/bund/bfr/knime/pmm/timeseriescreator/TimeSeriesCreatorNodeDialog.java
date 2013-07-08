@@ -383,23 +383,22 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
-							.getValue(), Arrays.asList(Categories.TEMPERATURE),
+							.getValue(), Arrays.asList(Categories.getTemp()),
 					(String) tempBox.getSelectedItem()));
 		}
 
 		if (phField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
 					AttributeUtilities.ATT_PH, null, phField.getValue(), Arrays
-							.asList(Categories.PH), (String) phBox
+							.asList(Categories.getPh()), (String) phBox
 							.getSelectedItem()));
 		}
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 					AttributeUtilities.ATT_WATERACTIVITY, null,
-					waterActivityField.getValue(), Arrays
-							.asList(Categories.WATER_ACTIVITY), (String) awBox
-							.getSelectedItem()));
+					waterActivityField.getValue(), Arrays.asList(Categories
+							.getAw()), (String) awBox.getSelectedItem()));
 		}
 
 		for (int i = 0; i < conditions.size(); i++) {
@@ -961,8 +960,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
-									null,
-									Arrays.asList(Categories.TEMPERATURE),
+									null, Arrays.asList(Categories.getTemp()),
 									Categories.getTempCategory()
 											.getStandardUnit()));
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
@@ -971,22 +969,19 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_PH_ID,
 									AttributeUtilities.ATT_PH, null, null,
-									Arrays.asList(Categories.PH), Categories
-											.getPhCategory().getStandardUnit()));
+									Arrays.asList(Categories.getPh()),
+									Categories.getPhCategory()
+											.getStandardUnit()));
 						} else if (selected
 								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(
-									column,
-									new MiscXml(
-											AttributeUtilities.ATT_AW_ID,
-											AttributeUtilities.ATT_WATERACTIVITY,
-											null,
-											null,
-											Arrays.asList(Categories.WATER_ACTIVITY),
-											Categories.getAwCategory()
-													.getStandardUnit()));
+							mappings.put(column, new MiscXml(
+									AttributeUtilities.ATT_AW_ID,
+									AttributeUtilities.ATT_WATERACTIVITY, null,
+									null, Arrays.asList(Categories.getAw()),
+									Categories.getAwCategory()
+											.getStandardUnit()));
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);

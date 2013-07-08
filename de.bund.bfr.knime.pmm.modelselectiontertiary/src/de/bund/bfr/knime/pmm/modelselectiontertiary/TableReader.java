@@ -287,7 +287,8 @@ public class TableReader {
 
 				plotable = new Plotable(Plotable.BOTH);
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
-				plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
+				plotable.addValueList(AttributeUtilities.CONCENTRATION,
+						logcList);
 
 				String dataName;
 				String agent;
@@ -407,11 +408,9 @@ public class TableReader {
 			Map<String, String> units = new LinkedHashMap<>();
 
 			categories.put(AttributeUtilities.TIME,
-					Arrays.asList(Categories.TIME));
-			categories
-					.put(AttributeUtilities.CONCENTRATION, Arrays.asList(
-							Categories.NUMBER_CONTENT,
-							Categories.NUMBER_CONCENTRATION));
+					Arrays.asList(Categories.getTime()));
+			categories.put(AttributeUtilities.CONCENTRATION,
+					Categories.getConcentrations());
 			units.put(AttributeUtilities.TIME, timeUnit);
 			units.put(AttributeUtilities.CONCENTRATION, concentrationUnit);
 

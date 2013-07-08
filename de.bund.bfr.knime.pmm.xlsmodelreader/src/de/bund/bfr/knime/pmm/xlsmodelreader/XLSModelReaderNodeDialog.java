@@ -812,30 +812,28 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								new MiscXml(
 										AttributeUtilities.ATT_TEMPERATURE_ID,
 										AttributeUtilities.ATT_TEMPERATURE,
-										null, null,
-										Arrays.asList(Categories.TEMPERATURE),
-										Categories.getTempCategory()
+										null, null, Arrays.asList(Categories
+												.getTemp()), Categories
+												.getTempCategory()
 												.getStandardUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						set.getColumnMappings().put(
 								column,
 								new MiscXml(AttributeUtilities.ATT_PH_ID,
 										AttributeUtilities.ATT_PH, null, null,
-										Arrays.asList(Categories.PH),
+										Arrays.asList(Categories.getPh()),
 										Categories.getPhCategory()
 												.getStandardUnit()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
-						set.getColumnMappings()
-								.put(column,
-										new MiscXml(
-												AttributeUtilities.ATT_AW_ID,
-												AttributeUtilities.ATT_WATERACTIVITY,
-												null,
-												null,
-												Arrays.asList(Categories.WATER_ACTIVITY),
-												Categories.getAwCategory()
-														.getStandardUnit()));
+						set.getColumnMappings().put(
+								column,
+								new MiscXml(AttributeUtilities.ATT_AW_ID,
+										AttributeUtilities.ATT_WATERACTIVITY,
+										null, null, Arrays.asList(Categories
+												.getAw()), Categories
+												.getAwCategory()
+												.getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {

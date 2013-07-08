@@ -409,8 +409,8 @@ public class CombinedJoiner implements Joiner {
 		primaryParameterCategories = new LinkedHashMap<>();
 		secondaryParameterCategories = new LinkedHashMap<>();
 
-		primaryParameterCategories
-				.put(AttributeUtilities.TIME, Categories.TIME);
+		primaryParameterCategories.put(AttributeUtilities.TIME,
+				Categories.getTime());
 		primaryParameterCategories.put(AttributeUtilities.CONCENTRATION,
 				Categories.NO_CATEGORY);
 
@@ -554,8 +554,7 @@ public class CombinedJoiner implements Joiner {
 			if (category == null || paramCat.equals(category)) {
 				params.add(param);
 			} else if (paramCat.equals(Categories.NO_CATEGORY)) {
-				if (category.equals(Categories.NUMBER_CONTENT)
-						|| category.equals(Categories.NUMBER_CONCENTRATION)) {
+				if (Categories.getConcentrations().contains(category)) {
 					params.add(param);
 				}
 			}

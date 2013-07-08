@@ -41,16 +41,18 @@ public class Categories {
 
 	public static final String NO_CATEGORY = "No Category";
 
+	@Deprecated
 	public static final String TIME = "Time";
+	@Deprecated
 	public static final String NUMBER_CONTENT = "Number Content";
+	@Deprecated
 	public static final String NUMBER_CONCENTRATION = "Number Concentration";
+	@Deprecated
 	public static final String TEMPERATURE = "Temperature";
+	@Deprecated
 	public static final String PH = "pH";
+	@Deprecated
 	public static final String WATER_ACTIVITY = "Water Activity";
-	public static final String MASS_CONCENTRATION = "Mass Concentration";
-	public static final String MASS_RATIO = "Mass Ratio";
-	public static final String PRESSURE = "Pressure";
-	public static final String TRUE_FALSE_VALUE = "True/False Value";
 
 	public static List<String> getAllCategories() {
 		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());
@@ -112,24 +114,45 @@ public class Categories {
 		return units;
 	}
 
+	public static String getTime() {
+		return "Time";
+	}
+
 	public static Category getTimeCategory() {
-		return getCategory("Time");
+		return getCategory(getTime());
+	}
+
+	public static List<String> getConcentrations() {
+		return Arrays.asList("Number Content (count/mass)",
+				"Number Concentration (count/vol)");
 	}
 
 	public static List<Category> getConcentrationCategories() {
-		return Arrays.asList(getCategory("Number Content (count/mass)"),
-				getCategory("Number Concentration (count/vol)"));
+		return Arrays.asList(getCategory(getConcentrations().get(0)),
+				getCategory(getConcentrations().get(1)));
+	}
+
+	public static String getTemp() {
+		return "Temperature";
 	}
 
 	public static Category getTempCategory() {
-		return getCategory("Temperature");
+		return getCategory(getTemp());
+	}
+
+	public static String getPh() {
+		return "pH";
 	}
 
 	public static Category getPhCategory() {
-		return getCategory("pH");
+		return getCategory(getPh());
+	}
+
+	public static String getAw() {
+		return "Water Activity";
 	}
 
 	public static Category getAwCategory() {
-		return getCategory("Water Activity");
+		return getCategory(getAw());
 	}
 }

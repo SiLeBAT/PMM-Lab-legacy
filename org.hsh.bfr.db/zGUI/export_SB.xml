@@ -11,27 +11,27 @@
                 <attribute name="Rsrc-Class-Path" value="./ quicktable2swing11.jar jcalendar.jar jsoup-1.6.1.jar jgoodies-forms-1.6.0.jar jgoodies-looks-2.5.2.jar poi-3.8-20120326.jar hsqldb.jar poi-scratchpad-3.8-20120326.jar mysql-connector-java-5.1.20-bin.jar jcommon-1.0.17.jar jcm1.0-config.jar jfreechart-1.0.14.jar MyJabRef-2.6.jar jgoodies-common-1.4.0.jar"/>
             </manifest>
             <zipfileset src="jar-in-jar-loader.zip"/>
-            <fileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\bin">
+            <fileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\bin">
                 <exclude name="**/de/**" />
                 <exclude name="**/firstDB.tar.gz" />
             </fileset>
         	
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="quicktable2swing11.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="jcalendar.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="jsoup-1.6.1.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jgoodies-forms-1.6.0.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jgoodies-looks-2.5.2.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="poi-3.8-20120326.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="hsqldb.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="poi-scratchpad-3.8-20120326.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="mysql-connector-java-5.1.20-bin.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jcommon-1.0.17.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="jcm1.0-config.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jfreechart-1.0.14.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib\libs" includes="MyJabRef-2.6.jar"/>
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.common\lib" includes="jgoodies-common-1.4.0.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="quicktable2swing11.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jcalendar.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jsoup-1.6.1.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jgoodies-forms-1.6.0.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jgoodies-looks-2.5.2.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="poi-3.8-20120326.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="hsqldb.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="poi-scratchpad-3.8-20120326.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="mysql-connector-java-5.1.20-bin.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jcommon-1.0.17.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jcm1.0-config.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jfreechart-1.0.14.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="MyJabRef-2.6.jar"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db\lib" includes="jgoodies-common-1.4.0.jar"/>
         	
-            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\de.bund.bfr.knime.pmm.bfrdbiface.lib/src" includes="org/hsh/bfr/db/res/exclude/firstDB_defad.tar.gz" fullpath="org/hsh/bfr/db/res/firstDB.tar.gz"/>
+            <zipfileset dir="D:\workspaces\PmmLab_newWS\code\org.hsh.bfr.db/src" includes="org/hsh/bfr/db/res/exclude/firstDB_defad.tar.gz" fullpath="org/hsh/bfr/db/res/firstDB.tar.gz"/>
         </jar>
     </target>
 </project>

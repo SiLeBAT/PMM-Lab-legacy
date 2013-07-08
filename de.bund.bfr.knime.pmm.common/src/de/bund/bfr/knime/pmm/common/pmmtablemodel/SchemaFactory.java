@@ -1,5 +1,7 @@
 package de.bund.bfr.knime.pmm.common.pmmtablemodel;
 
+import org.knime.core.data.DataTableSpec;
+
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 
 public class SchemaFactory {
@@ -26,6 +28,30 @@ public class SchemaFactory {
 
 	public static KnimeSchema createM12DataSchema() {
 		return new KnimeSchema(createM12Schema(), createDataSchema());
+	}
+
+	public static boolean conformsDataSchema(DataTableSpec spec) {
+		return createDataSchema().conforms(spec);
+	}
+
+	public static boolean conformsM1Schema(DataTableSpec spec) {
+		return createM1Schema().conforms(spec);
+	}
+
+	public static boolean conformsM2Schema(DataTableSpec spec) {
+		return createM2Schema().conforms(spec);
+	}
+
+	public static boolean conformsM12Schema(DataTableSpec spec) {
+		return createM12Schema().conforms(spec);
+	}
+
+	public static boolean conformsM1DataSchema(DataTableSpec spec) {
+		return createM1DataSchema().conforms(spec);
+	}
+
+	public static boolean conformsM12DataSchema(DataTableSpec spec) {
+		return createM12DataSchema().conforms(spec);
 	}
 
 	public static boolean isDataSchema(KnimeSchema schema) {

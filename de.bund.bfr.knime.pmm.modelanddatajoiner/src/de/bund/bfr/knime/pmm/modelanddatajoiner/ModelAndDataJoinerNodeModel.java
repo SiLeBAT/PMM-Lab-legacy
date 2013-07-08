@@ -101,35 +101,47 @@ public class ModelAndDataJoinerNodeModel extends NodeModel {
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
 		KnimeSchema outSchema = null;
+		boolean conformsPrimary = SchemaFactory.conformsM1Schema(inSpecs[0])
+				&& SchemaFactory.conformsDataSchema(inSpecs[1]);
+		boolean switchPrimary = SchemaFactory.conformsM1Schema(inSpecs[1])
+				&& SchemaFactory.conformsDataSchema(inSpecs[0]);
+		boolean conformsSecondary = SchemaFactory.conformsM2Schema(inSpecs[0])
+				&& SchemaFactory.conformsM1DataSchema(inSpecs[1]);
+		boolean switchSecondary = SchemaFactory.conformsM2Schema(inSpecs[1])
+				&& SchemaFactory.conformsM1DataSchema(inSpecs[0]);
+		boolean conformsCombined = SchemaFactory.conformsM12Schema(inSpecs[0])
+				&& SchemaFactory.conformsDataSchema(inSpecs[1]);
+		boolean switchCombined = SchemaFactory.conformsM12Schema(inSpecs[1])
+				&& SchemaFactory.conformsDataSchema(inSpecs[0]);
 
 		if (set.getJoinType().equals(SettingsHelper.NO_JOIN)) {
-			throw new InvalidSettingsException("Node has to be configured!");
+			if (conformsPrimary || conformsSecondary || conformsCombined) {
+				throw new InvalidSettingsException("Node has to be configured!");
+			} else if (switchPrimary || switchSecondary || switchCombined) {
+				throw new InvalidSettingsException("Please switch the ports!");
+			} else {
+				throw new InvalidSettingsException("Wrong input!");
+			}
 		} else if (set.getJoinType().equals(SettingsHelper.PRIMARY_JOIN)) {
-			if (SchemaFactory.createM1Schema().conforms(inSpecs[0])
-					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
+			if (conformsPrimary) {
 				outSchema = SchemaFactory.createM1DataSchema();
-			} else if (SchemaFactory.createM1Schema().conforms(inSpecs[1])
-					&& SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
+			} else if (switchPrimary) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (set.getJoinType().equals(SettingsHelper.SECONDARY_JOIN)) {
-			if (SchemaFactory.createM2Schema().conforms(inSpecs[0])
-					&& SchemaFactory.createM1DataSchema().conforms(inSpecs[1])) {
+			if (conformsSecondary) {
 				outSchema = SchemaFactory.createM12DataSchema();
-			} else if (SchemaFactory.createM2Schema().conforms(inSpecs[1])
-					&& SchemaFactory.createM1DataSchema().conforms(inSpecs[0])) {
+			} else if (switchSecondary) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}
 		} else if (set.getJoinType().equals(SettingsHelper.COMBINED_JOIN)) {
-			if (SchemaFactory.createM12Schema().conforms(inSpecs[0])
-					&& SchemaFactory.createDataSchema().conforms(inSpecs[1])) {
+			if (conformsCombined) {
 				outSchema = SchemaFactory.createM12DataSchema();
-			} else if (SchemaFactory.createM12Schema().conforms(inSpecs[1])
-					&& SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
+			} else if (switchCombined) {
 				throw new InvalidSettingsException("Please switch the ports!");
 			} else {
 				throw new InvalidSettingsException("Wrong input!");

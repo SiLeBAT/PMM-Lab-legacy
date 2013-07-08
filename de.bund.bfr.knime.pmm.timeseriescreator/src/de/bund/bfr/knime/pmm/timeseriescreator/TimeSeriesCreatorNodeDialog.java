@@ -94,9 +94,6 @@ import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
-import de.bund.bfr.knime.pmm.common.units.PH;
-import de.bund.bfr.knime.pmm.common.units.Temperature;
-import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesCreator" Node.
@@ -203,11 +200,11 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				.getAllUnits().toArray(new String[0]));
 		logcBox = new JComboBox<String>(Categories.getUnitsFromCategories(
 				Categories.getConcentrationCategories()).toArray(new String[0]));
-		tempBox = new JComboBox<String>(new Temperature().getAllUnits()
+		tempBox = new JComboBox<String>(Categories.getTempCategory()
+				.getAllUnits().toArray(new String[0]));
+		phBox = new JComboBox<String>(Categories.getPhCategory().getAllUnits()
 				.toArray(new String[0]));
-		phBox = new JComboBox<String>(new PH().getAllUnits().toArray(
-				new String[0]));
-		awBox = new JComboBox<String>(new WaterActivity().getAllUnits()
+		awBox = new JComboBox<String>(Categories.getAwCategory().getAllUnits()
 				.toArray(new String[0]));
 
 		settingsPanel.add(
@@ -228,8 +225,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
 						+ ":"), createConstraints(0, 5));
 		settingsPanel.add(
-				new JLabel(AttributeUtilities.getName(AttributeUtilities.CONCENTRATION)
-						+ ":"), createConstraints(0, 6));
+				new JLabel(AttributeUtilities
+						.getName(AttributeUtilities.CONCENTRATION) + ":"),
+				createConstraints(0, 6));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
@@ -879,7 +877,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
-						AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
+						AttributeUtilities.TIME,
+						AttributeUtilities.CONCENTRATION,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -950,7 +949,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						if (selected.equals(XLSReader.ID_COLUMN)
 								|| selected.equals(MdInfoXml.ATT_COMMENT)
 								|| selected.equals(AttributeUtilities.TIME)
-								|| selected.equals(AttributeUtilities.CONCENTRATION)) {
+								|| selected
+										.equals(AttributeUtilities.CONCENTRATION)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, selected);
@@ -963,15 +963,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									AttributeUtilities.ATT_TEMPERATURE, null,
 									null,
 									Arrays.asList(Categories.TEMPERATURE),
-									new Temperature().getStandardUnit()));
+									Categories.getTempCategory()
+											.getStandardUnit()));
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column,
-									new MiscXml(AttributeUtilities.ATT_PH_ID,
-											AttributeUtilities.ATT_PH, null,
-											null, Arrays.asList(Categories.PH),
-											new PH().getStandardUnit()));
+							mappings.put(column, new MiscXml(
+									AttributeUtilities.ATT_PH_ID,
+									AttributeUtilities.ATT_PH, null, null,
+									Arrays.asList(Categories.PH), Categories
+											.getPhCategory().getStandardUnit()));
 						} else if (selected
 								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
 							button.setEnabled(false);
@@ -984,7 +985,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 											null,
 											null,
 											Arrays.asList(Categories.WATER_ACTIVITY),
-											new WaterActivity()
+											Categories.getAwCategory()
 													.getStandardUnit()));
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
@@ -1014,7 +1015,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 							if (mapping.equals(AttributeUtilities.TIME)) {
 								timeUnit = unit;
-							} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
+							} else if (mapping
+									.equals(AttributeUtilities.CONCENTRATION)) {
 								concentrationUnit = unit;
 							}
 						}

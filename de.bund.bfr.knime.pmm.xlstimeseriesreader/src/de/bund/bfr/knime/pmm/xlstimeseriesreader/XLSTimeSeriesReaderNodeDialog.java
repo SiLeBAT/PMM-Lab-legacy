@@ -81,9 +81,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.PH;
-import de.bund.bfr.knime.pmm.common.units.Temperature;
-import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "XLSTimeSeriesReader" Node.
@@ -575,7 +572,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					if (selected.equals(XLSReader.ID_COLUMN)
 							|| selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected.equals(AttributeUtilities.TIME)
-							|| selected.equals(AttributeUtilities.CONCENTRATION)
+							|| selected
+									.equals(AttributeUtilities.CONCENTRATION)
 							|| selected
 									.equals(XLSReader.CONCENTRATION_STDDEV_COLUMN)
 							|| selected
@@ -592,13 +590,15 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 										AttributeUtilities.ATT_TEMPERATURE,
 										null, null,
 										Arrays.asList(Categories.TEMPERATURE),
-										new Temperature().getStandardUnit()));
+										Categories.getTempCategory()
+												.getStandardUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						set.getColumnMappings().put(
 								column,
 								new MiscXml(AttributeUtilities.ATT_PH_ID,
 										AttributeUtilities.ATT_PH, null, null,
-										Arrays.asList(Categories.PH), new PH()
+										Arrays.asList(Categories.PH),
+										Categories.getPhCategory()
 												.getStandardUnit()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
@@ -610,7 +610,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 												null,
 												null,
 												Arrays.asList(Categories.WATER_ACTIVITY),
-												new WaterActivity()
+												Categories.getAwCategory()
 														.getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);
@@ -639,7 +639,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 						if (mapping.equals(AttributeUtilities.TIME)) {
 							set.setTimeUnit(unit);
-						} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
+						} else if (mapping
+								.equals(AttributeUtilities.CONCENTRATION)) {
 							set.setConcentrationUnit(unit);
 						}
 					}
@@ -844,7 +845,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
-						AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
+						AttributeUtilities.TIME,
+						AttributeUtilities.CONCENTRATION,
 						XLSReader.CONCENTRATION_STDDEV_COLUMN,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,

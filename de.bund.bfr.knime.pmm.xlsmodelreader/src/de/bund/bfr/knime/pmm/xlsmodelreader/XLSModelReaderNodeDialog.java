@@ -90,9 +90,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.PH;
-import de.bund.bfr.knime.pmm.common.units.Temperature;
-import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 /**
  * <code>NodeDialog</code> for the "XLSModelReader" Node.
@@ -817,13 +814,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 										AttributeUtilities.ATT_TEMPERATURE,
 										null, null,
 										Arrays.asList(Categories.TEMPERATURE),
-										new Temperature().getStandardUnit()));
+										Categories.getTempCategory()
+												.getStandardUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 						set.getColumnMappings().put(
 								column,
 								new MiscXml(AttributeUtilities.ATT_PH_ID,
 										AttributeUtilities.ATT_PH, null, null,
-										Arrays.asList(Categories.PH), new PH()
+										Arrays.asList(Categories.PH),
+										Categories.getPhCategory()
 												.getStandardUnit()));
 					} else if (selected
 							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
@@ -835,7 +834,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 												null,
 												null,
 												Arrays.asList(Categories.WATER_ACTIVITY),
-												new WaterActivity()
+												Categories.getAwCategory()
 														.getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);

@@ -113,15 +113,23 @@ public class Categories {
 	}
 
 	public static Category getTimeCategory() {
-		return CategoryReader.getInstance().getMap().get("Time");
+		return getCategory("Time");
 	}
 
 	public static List<Category> getConcentrationCategories() {
-		return Arrays.asList(
-				CategoryReader.getInstance().getMap()
-						.get("Number Content (count/mass)"),
-				CategoryReader.getInstance().getMap()
-						.get("Number Concentration (count/vol)"));
+		return Arrays.asList(getCategory("Number Content (count/mass)"),
+				getCategory("Number Concentration (count/vol)"));
 	}
 
+	public static Category getTempCategory() {
+		return getCategory("Temperature");
+	}
+
+	public static Category getPhCategory() {
+		return getCategory("pH");
+	}
+
+	public static Category getAwCategory() {
+		return getCategory("Water Activity");
+	}
 }

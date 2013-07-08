@@ -93,7 +93,10 @@ public class CategoryReader {
 
 			String unitName = unit.getDisplay_in_GUI_as();
 
-			standardUnit = unitName;
+			if (unit.getPriority_for_display_in_GUI().equals("TRUE")) {
+				standardUnit = unitName;
+			}
+
 			fromFormulas.put(unitName, unit.getConversion_function_factor());
 			toFormulas.put(unitName,
 					unit.getInverse_conversion_function_factor());

@@ -546,7 +546,7 @@ public class MMC_M extends JPanel {
 							null, "Bitte eine Einheitenkategorie angeben für "
 									+ param + ":", "Einheit des Parameters "
 									+ param, JOptionPane.QUESTION_MESSAGE,
-							null, Categories.getAllCategories(), defCategory);
+							null, Categories.getAllCategories().toArray(), defCategory);
 
 					if (categoryStr != null) {
 						Category category = Categories.getCategory(categoryStr);

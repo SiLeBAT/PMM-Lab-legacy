@@ -3,6 +3,7 @@ package de.bund.bfr.knime.pmm.common.units;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 public class NumberConcentration implements Category {
 
 	public static final String COUNT_PER_MILLILITER = "count/ml";

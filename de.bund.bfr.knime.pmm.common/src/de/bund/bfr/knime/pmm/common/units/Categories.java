@@ -52,10 +52,8 @@ public class Categories {
 	public static final String PRESSURE = "Pressure";
 	public static final String TRUE_FALSE_VALUE = "True/False Value";
 
-	public static String[] getAllCategories() {
-		return new String[] { TIME, NUMBER_CONTENT, NUMBER_CONCENTRATION,
-				TEMPERATURE, PH, WATER_ACTIVITY, MASS_CONCENTRATION,
-				MASS_RATIO, PRESSURE, TRUE_FALSE_VALUE };
+	public static List<String> getAllCategories() {
+		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());
 	}
 
 	public static Category getCategory(String id) {
@@ -63,30 +61,13 @@ public class Categories {
 			return new NoCategory();
 		}
 
-		switch (id) {
-		case TIME:
-			return new Time();
-		case NUMBER_CONTENT:
-			return new NumberContent();
-		case NUMBER_CONCENTRATION:
-			return new NumberConcentration();
-		case TEMPERATURE:
-			return new Temperature();
-		case PH:
-			return new PH();
-		case WATER_ACTIVITY:
-			return new WaterActivity();
-		case MASS_CONCENTRATION:
-			return new MassConcentration();
-		case MASS_RATIO:
-			return new MassRatio();
-		case PRESSURE:
-			return new Pressure();
-		case TRUE_FALSE_VALUE:
-			return new TrueFalseValue();
-		default:
+		Category category = CategoryReader.getInstance().getMap().get(id);
+
+		if (category == null) {
 			return new NoCategory();
 		}
+
+		return category;
 	}
 
 	public static Category getCategoryByUnit(List<?> categories, String unit) {
@@ -132,11 +113,15 @@ public class Categories {
 	}
 
 	public static Category getTimeCategory() {
-		return new Time();
+		return CategoryReader.getInstance().getMap().get("Time");
 	}
 
 	public static List<Category> getConcentrationCategories() {
-		return Arrays.asList(new NumberContent(), new NumberConcentration());
+		return Arrays.asList(
+				CategoryReader.getInstance().getMap()
+						.get("Number Content (count/mass)"),
+				CategoryReader.getInstance().getMap()
+						.get("Number Concentration (count/vol)"));
 	}
 
 }

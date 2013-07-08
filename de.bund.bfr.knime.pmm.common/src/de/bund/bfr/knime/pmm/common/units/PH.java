@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.common.units;
 import java.util.Arrays;
 import java.util.List;
 
+@Deprecated
 public class PH implements Category {
 
 	public static final String PH_SCALE = "pH Scale";

@@ -55,7 +55,6 @@ import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
-import de.bund.bfr.knime.pmm.common.units.Dbunitsexample;
 
 /**
  * <code>NodeDialog</code> for the "CombaseReader" Node.
@@ -80,7 +79,6 @@ public class CombaseReaderNodeDialog extends NodeDialogPane implements
 	 * New pane for configuring the CombaseReader node.
 	 */
 	protected CombaseReaderNodeDialog() {
-		new Dbunitsexample();
 		filePanel = new FilePanel("Selected File:", FilePanel.OPEN_DIALOG);
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".csv", "Combase File (*.csv)");

@@ -29,6 +29,19 @@ public class UnitsFromDB {
 	public UnitsFromDB(int id, String unit, String description, String name, String kind_of_property_quantity,
 			String notation_case_sensitive, String convert_to, String conversion_function_factor, String inverse_conversion_function_factor,
 			String object_type, String display_in_GUI_as, String MathML_string, String Priority_for_display_in_GUI) {
+		this.id = id;
+		this.unit = unit;
+		this.description = description;
+		this.name = name;
+		this.kind_of_property_quantity = kind_of_property_quantity;
+		this.notation_case_sensitive = notation_case_sensitive;
+		this.convert_to = convert_to;
+		this.conversion_function_factor = conversion_function_factor;
+		this.inverse_conversion_function_factor = inverse_conversion_function_factor;
+		this.object_type = object_type;
+		this.display_in_GUI_as = display_in_GUI_as;
+		this.MathML_string = MathML_string;
+		this.Priority_for_display_in_GUI = Priority_for_display_in_GUI;
 	}
 	
 	public void askDB() {

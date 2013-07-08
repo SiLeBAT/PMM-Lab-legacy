@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.hsh.bfr.db.gui"; //$NON-NLS-1$
+	public static final String PLUGIN_ID = "org.hsh.bfr.db"; //$NON-NLS-1$
 
 	// The shared instance
 	private static Activator plugin;
@@ -27,7 +27,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		DBKernel.isKNIME = true;
 		MyLogger.isKNIME = true;
-		DBKernel.getLocalConn(true);
+		DBKernel.getLocalConn(true, false);
 		super.start(context);
 		plugin = this;
 	}

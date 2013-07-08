@@ -96,7 +96,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		    	else {
 		    		is = new FileInputStream(filename);
 		    	}
-		
+
 		    	POIFSFileSystem fs = new POIFSFileSystem(is);
 		      HSSFWorkbook wb = new HSSFWorkbook(fs);
 		      HSSFSheet sheet;

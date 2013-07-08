@@ -806,8 +806,11 @@ public class DBKernel {
 	  DBKernel.m_Password = password;
   }
   public static Connection getLocalConn(boolean try2Boot) {
+	  return getLocalConn(try2Boot, true);
+  }
+  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
 	  try {
-		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui();
+		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
 	}
 	  catch (SQLException e) {
 		e.printStackTrace();
@@ -1855,7 +1858,7 @@ public class DBKernel {
 		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
 				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
 	}
-	private static Connection getInternalKNIMEDB_LoadGui() {
+	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate) {
 		Connection result = null;
 		try {
 			// Create a file object from the URL
@@ -1910,106 +1913,109 @@ public class DBKernel {
 							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH, true)));
 
 					createGui(result);
-					// UpdateChecker
-				  	String dbVersion = DBKernel.getDBVersion();
-				  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
-						boolean dl = MainKernel.dontLog;
-						MainKernel.dontLog = true;
-					  	boolean isAdmin = DBKernel.isAdmin();
-					  	if (!isAdmin) {
-					  		DBKernel.closeDBConnections(false);
-					  		DBKernel.getDefaultAdminConn();
+					if (autoUpdate) {
+						// UpdateChecker
+					  	String dbVersion = DBKernel.getDBVersion();
+					  	if (!DBKernel.isServerConnection && (dbVersion == null || !dbVersion.equals(DBKernel.DBVersion))) {
+							boolean dl = MainKernel.dontLog;
+							MainKernel.dontLog = true;
+						  	boolean isAdmin = DBKernel.isAdmin();
+						  	if (!isAdmin) {
+						  		DBKernel.closeDBConnections(false);
+						  		DBKernel.getDefaultAdminConn();
+						  	}
+						  	
+						  	if (DBKernel.getDBVersion() == null || DBKernel.getDBVersion().equals("1.4.3")) {
+						  		UpdateChecker.check4Updates_143_144();
+						  		DBKernel.setDBVersion("1.4.4");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.4")) {
+						  		UpdateChecker.check4Updates_144_145();
+						  		DBKernel.setDBVersion("1.4.5");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.5")) {
+						  		UpdateChecker.check4Updates_145_146();
+						  		DBKernel.setDBVersion("1.4.6");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.6")) {
+						  		UpdateChecker.check4Updates_146_147(); 
+						  		DBKernel.setDBVersion("1.4.7");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.7")) {
+						  		UpdateChecker.check4Updates_147_148(); 
+						  		DBKernel.setDBVersion("1.4.8");
+						  	}					  	
+						  	if (DBKernel.getDBVersion().equals("1.4.8")) {
+						  		UpdateChecker.check4Updates_148_149(); 
+						  		DBKernel.setDBVersion("1.4.9");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.4.9")) {
+						  		UpdateChecker.check4Updates_149_150(); 
+						  		DBKernel.setDBVersion("1.5.0");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.0")) {
+						  		UpdateChecker.check4Updates_150_151(); 
+						  		DBKernel.setDBVersion("1.5.1");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.1")) {
+						  		UpdateChecker.check4Updates_151_152(); 
+						  		DBKernel.setDBVersion("1.5.2");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.2")) {
+						  		UpdateChecker.check4Updates_152_153(); 
+						  		DBKernel.setDBVersion("1.5.3");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.3")) {
+						  		UpdateChecker.check4Updates_153_154(); 
+						  		DBKernel.setDBVersion("1.5.4");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.4")) {
+						  		UpdateChecker.check4Updates_154_155(); 
+						  		DBKernel.setDBVersion("1.5.5");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.5")) {
+						  		UpdateChecker.check4Updates_155_156(); 
+						  		DBKernel.setDBVersion("1.5.6");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.6")) {
+						  		UpdateChecker.check4Updates_156_157(); 
+						  		DBKernel.setDBVersion("1.5.7");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.7")) {
+						  		UpdateChecker.check4Updates_157_158(); 
+						  		DBKernel.setDBVersion("1.5.8");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.8")) {
+						  		UpdateChecker.check4Updates_158_159(); 
+						  		DBKernel.setDBVersion("1.5.9");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.5.9")) {
+						  		UpdateChecker.check4Updates_159_160(); 
+						  		DBKernel.setDBVersion("1.6.0");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.6.0")) {
+						  		UpdateChecker.check4Updates_160_161(); 
+						  		DBKernel.setDBVersion("1.6.1");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.6.1")) {
+						  		UpdateChecker.check4Updates_161_162(); 
+						  		DBKernel.setDBVersion("1.6.2");
+						  	}
+						  	if (DBKernel.getDBVersion().equals("1.6.2")) {
+						  		UpdateChecker.check4Updates_162_163(); 
+						  		DBKernel.setDBVersion("1.6.3");
+						  	}
+						  	
+						  	if (!isAdmin) {
+						  		DBKernel.closeDBConnections(false);
+						  		DBKernel.getDBConnection();
+						  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+						  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+						  		}
+						  	}
+						  	MainKernel.dontLog = dl;
+						
 					  	}
-					  	
-					  	if (DBKernel.getDBVersion() == null || DBKernel.getDBVersion().equals("1.4.3")) {
-					  		UpdateChecker.check4Updates_143_144();
-					  		DBKernel.setDBVersion("1.4.4");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.4")) {
-					  		UpdateChecker.check4Updates_144_145();
-					  		DBKernel.setDBVersion("1.4.5");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-					  		UpdateChecker.check4Updates_145_146();
-					  		DBKernel.setDBVersion("1.4.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
-					  		UpdateChecker.check4Updates_146_147(); 
-					  		DBKernel.setDBVersion("1.4.7");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.7")) {
-					  		UpdateChecker.check4Updates_147_148(); 
-					  		DBKernel.setDBVersion("1.4.8");
-					  	}					  	
-					  	if (DBKernel.getDBVersion().equals("1.4.8")) {
-					  		UpdateChecker.check4Updates_148_149(); 
-					  		DBKernel.setDBVersion("1.4.9");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.9")) {
-					  		UpdateChecker.check4Updates_149_150(); 
-					  		DBKernel.setDBVersion("1.5.0");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.0")) {
-					  		UpdateChecker.check4Updates_150_151(); 
-					  		DBKernel.setDBVersion("1.5.1");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.1")) {
-					  		UpdateChecker.check4Updates_151_152(); 
-					  		DBKernel.setDBVersion("1.5.2");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.2")) {
-					  		UpdateChecker.check4Updates_152_153(); 
-					  		DBKernel.setDBVersion("1.5.3");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.3")) {
-					  		UpdateChecker.check4Updates_153_154(); 
-					  		DBKernel.setDBVersion("1.5.4");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.4")) {
-					  		UpdateChecker.check4Updates_154_155(); 
-					  		DBKernel.setDBVersion("1.5.5");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.5")) {
-					  		UpdateChecker.check4Updates_155_156(); 
-					  		DBKernel.setDBVersion("1.5.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.6")) {
-					  		UpdateChecker.check4Updates_156_157(); 
-					  		DBKernel.setDBVersion("1.5.7");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.7")) {
-					  		UpdateChecker.check4Updates_157_158(); 
-					  		DBKernel.setDBVersion("1.5.8");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.8")) {
-					  		UpdateChecker.check4Updates_158_159(); 
-					  		DBKernel.setDBVersion("1.5.9");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.9")) {
-					  		UpdateChecker.check4Updates_159_160(); 
-					  		DBKernel.setDBVersion("1.6.0");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.0")) {
-					  		UpdateChecker.check4Updates_160_161(); 
-					  		DBKernel.setDBVersion("1.6.1");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.1")) {
-					  		UpdateChecker.check4Updates_161_162(); 
-					  		DBKernel.setDBVersion("1.6.2");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.2")) {
-					  		UpdateChecker.check4Updates_162_163(); 
-					  		DBKernel.setDBVersion("1.6.3");
-					  	}
-					  	
-					  	if (!isAdmin) {
-					  		DBKernel.closeDBConnections(false);
-					  		DBKernel.getDBConnection();
-					  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
-					  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
-					  		}
-					  	}
-					  	MainKernel.dontLog = dl;
 			  		}
 				}
 				catch (Exception e) {

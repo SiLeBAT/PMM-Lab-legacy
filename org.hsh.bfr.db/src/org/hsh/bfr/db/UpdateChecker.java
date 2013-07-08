@@ -72,6 +72,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " ADD COLUMN " + DBKernel.delimitL("Priority for display in GUI") + " BOOLEAN", false);
 		updateChangeLog("Einheiten", 12, false);		
 		refreshFKs("Einheiten");
+		
 		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_New.xls", null, false);
 /*		
 		// sync der firstDB with SiLeBAT - DB!!!
@@ -99,11 +100,11 @@ public class UpdateChecker {
   		}
 		// sync der firstDB with SiLeBAT - DB!!!
 */
-  		int idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
-		int idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
-		int idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
-		int idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});
-		int idJ = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"a_j", "Time"});
+  		Integer idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
+  		Integer idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
+  		Integer idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
+  		Integer idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});
+  		Integer idJ = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"a_j", "Time"});
 		
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach") + ";", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +

@@ -575,7 +575,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					if (selected.equals(XLSReader.ID_COLUMN)
 							|| selected.equals(MdInfoXml.ATT_COMMENT)
 							|| selected.equals(AttributeUtilities.TIME)
-							|| selected.equals(AttributeUtilities.LOGC)
+							|| selected.equals(AttributeUtilities.CONCENTRATION)
+							|| selected
+									.equals(XLSReader.CONCENTRATION_STDDEV_COLUMN)
 							|| selected
 									.equals(AttributeUtilities.AGENT_DETAILS)
 							|| selected
@@ -637,7 +639,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 						if (mapping.equals(AttributeUtilities.TIME)) {
 							set.setTimeUnit(unit);
-						} else if (mapping.equals(AttributeUtilities.LOGC)) {
+						} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
 							set.setConcentrationUnit(unit);
 						}
 					}
@@ -842,7 +844,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
-						AttributeUtilities.TIME, AttributeUtilities.LOGC,
+						AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
+						XLSReader.CONCENTRATION_STDDEV_COLUMN,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,
@@ -937,7 +940,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						unitBox.addItemListener(this);
 						columnUnitBoxes.put(column, unitBox);
 						northPanel.add(unitBox, createConstraints(3, row));
-					} else if (mapping.equals(AttributeUtilities.LOGC)) {
+					} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
 						JComboBox<String> unitBox = new JComboBox<>(
 								Categories
 										.getUnitsFromCategories(

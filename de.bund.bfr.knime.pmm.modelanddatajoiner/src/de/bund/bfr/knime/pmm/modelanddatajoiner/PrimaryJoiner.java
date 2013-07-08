@@ -242,7 +242,7 @@ public class PrimaryJoiner implements Joiner {
 
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
-						.get(AttributeUtilities.LOGC);
+						.get(AttributeUtilities.CONCENTRATION);
 				Category concentrationCategory = Categories.getCategoryByUnit(
 						Categories.getConcentrationCategories(),
 						concentrationUnit);
@@ -372,7 +372,7 @@ public class PrimaryJoiner implements Joiner {
 		parameterCategories = new LinkedHashMap<>();
 		parameterCategories.put(AttributeUtilities.TIME, Categories.TIME);
 		parameterCategories
-				.put(AttributeUtilities.LOGC, Categories.NO_CATEGORY);
+				.put(AttributeUtilities.CONCENTRATION, Categories.NO_CATEGORY);
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), dataTable);

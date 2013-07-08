@@ -63,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
+	public static String CONCENTRATION_STDDEV_COLUMN = "Concentration StdDev";
 
 	private List<String> warnings;
 
@@ -90,12 +91,14 @@ public class XLSReader {
 		Integer commentColumn = null;
 		Integer timeColumn = null;
 		Integer logcColumn = null;
+		Integer stdDevColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
 		Integer matrixColumn = null;
 		String timeColumnName = null;
 		String logcColumnName = null;
+		String stdDevColumnName = null;
 
 		if (agentColumnName != null) {
 			agentColumn = columns.get(agentColumnName);
@@ -118,9 +121,13 @@ public class XLSReader {
 				} else if (mapping.equals(AttributeUtilities.TIME)) {
 					timeColumn = columns.get(column);
 					timeColumnName = column;
-				} else if (mapping.equals(AttributeUtilities.LOGC)) {
+				} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
 					logcColumn = columns.get(column);
 					logcColumnName = column;
+				} else if (mapping
+						.equals(XLSReader.CONCENTRATION_STDDEV_COLUMN)) {
+					stdDevColumn = columns.get(column);
+					stdDevColumnName = column;
 				} else if (mapping.equals(AttributeUtilities.AGENT_DETAILS)) {
 					agentDetailsColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.MATRIX_DETAILS)) {
@@ -149,6 +156,7 @@ public class XLSReader {
 			Cell commentCell = null;
 			Cell timeCell = null;
 			Cell logcCell = null;
+			Cell stdDevCell = null;
 			Cell agentDetailsCell = null;
 			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
@@ -170,6 +178,10 @@ public class XLSReader {
 				logcCell = row.getCell(logcColumn);
 			}
 
+			if (stdDevColumn != null) {
+				stdDevCell = row.getCell(stdDevColumn);
+			}
+
 			if (agentDetailsColumn != null) {
 				agentDetailsCell = row.getCell(agentDetailsColumn);
 			}
@@ -186,15 +198,14 @@ public class XLSReader {
 				matrixCell = row.getCell(matrixColumn);
 			}
 
-			if (idCell != null && !idCell.toString().trim().isEmpty()
-					&& !idCell.toString().trim().equals(id)) {
+			if (hasData(idCell) && !getData(idCell).equals(id)) {
 				if (tuple != null) {
 					tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES,
 							timeSeriesXml);
 					tuples.put(id, tuple);
 				}
 
-				id = idCell.toString().trim();
+				id = getData(idCell);
 				tuple = new KnimeTuple(SchemaFactory.createDataSchema());
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 						MathUtilities.getRandomNegativeInt());
@@ -205,35 +216,34 @@ public class XLSReader {
 				PmmXmlDoc matrixXml = new PmmXmlDoc();
 
 				if (commentCell != null) {
-					dataInfo.add(new MdInfoXml(null, null, commentCell
-							.toString().trim(), null, null));
+					dataInfo.add(new MdInfoXml(null, null,
+							getData(commentCell), null, null));
 				} else {
 					dataInfo.add(new MdInfoXml(null, null, null, null, null));
 				}
 
-				if (agentCell != null
-						&& agentMappings.get(agentCell.toString().trim()) != null) {
-					agentXml.add(agentMappings.get(agentCell.toString().trim()));
+				if (hasData(agentCell)
+						&& agentMappings.get(getData(agentCell)) != null) {
+					agentXml.add(agentMappings.get(getData(agentCell)));
 				} else {
 					agentXml.add(new AgentXml());
 				}
 
-				if (matrixCell != null
-						&& matrixMappings.get(matrixCell.toString().trim()) != null) {
-					matrixXml.add(matrixMappings.get(matrixCell.toString()
-							.trim()));
+				if (hasData(matrixCell)
+						&& matrixMappings.get(getData(matrixCell)) != null) {
+					matrixXml.add(matrixMappings.get(getData(matrixCell)));
 				} else {
 					matrixXml.add(new MatrixXml());
 				}
 
-				if (agentDetailsCell != null) {
-					((AgentXml) agentXml.get(0)).setDetail(agentDetailsCell
-							.toString().trim());
+				if (hasData(agentDetailsCell)) {
+					((AgentXml) agentXml.get(0))
+							.setDetail(getData(agentDetailsCell));
 				}
 
-				if (matrixDetailsCell != null) {
-					((MatrixXml) matrixXml.get(0)).setDetail(matrixDetailsCell
-							.toString().trim());
+				if (hasData(matrixDetailsCell)) {
+					((MatrixXml) matrixXml.get(0))
+							.setDetail(getData(matrixDetailsCell));
 				}
 
 				tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
@@ -246,14 +256,13 @@ public class XLSReader {
 					MiscXml misc = (MiscXml) columnMappings.get(column);
 					Cell cell = row.getCell(miscColumns.get(column));
 
-					if (cell != null && !cell.toString().trim().isEmpty()) {
+					if (hasData(cell)) {
 						try {
-							misc.setValue(Double.parseDouble(cell.toString()
+							misc.setValue(Double.parseDouble(getData(cell)
 									.replace(",", ".")));
 						} catch (NumberFormatException e) {
 							warnings.add(column + " value in row " + (i + 1)
-									+ " is not valid ("
-									+ cell.toString().trim() + ")");
+									+ " is not valid (" + getData(cell) + ")");
 							misc.setValue(null);
 						}
 					} else {
@@ -269,31 +278,43 @@ public class XLSReader {
 			if (tuple != null) {
 				Double time = null;
 				Double logc = null;
+				Double stdDev = null;
 
-				if (timeCell != null && !timeCell.toString().trim().isEmpty()) {
+				if (hasData(timeCell)) {
 					try {
-						time = Double.parseDouble(timeCell.toString().replace(
+						time = Double.parseDouble(getData(timeCell).replace(
 								",", "."));
 					} catch (NumberFormatException e) {
 						warnings.add(timeColumnName + " value in row "
 								+ (i + 1) + " is not valid ("
-								+ timeCell.toString().trim() + ")");
+								+ getData(timeCell) + ")");
 					}
 				}
 
-				if (logcCell != null && !logcCell.toString().trim().isEmpty()) {
+				if (hasData(logcCell)) {
 					try {
-						logc = Double.parseDouble(logcCell.toString().replace(
+						logc = Double.parseDouble(getData(logcCell).replace(
 								",", "."));
 					} catch (NumberFormatException e) {
 						warnings.add(logcColumnName + " value in row "
 								+ (i + 1) + " is not valid ("
-								+ logcCell.toString().trim() + ")");
+								+ getData(logcCell) + ")");
+					}
+				}
+
+				if (hasData(stdDevCell)) {
+					try {
+						stdDev = Double.parseDouble(getData(stdDevCell)
+								.replace(",", "."));
+					} catch (NumberFormatException e) {
+						warnings.add(stdDevColumnName + " value in row "
+								+ (i + 1) + " is not valid ("
+								+ getData(stdDevCell) + ")");
 					}
 				}
 
 				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc,
-						concentrationUnit, null));
+						concentrationUnit, stdDev));
 			}
 		}
 
@@ -395,37 +416,36 @@ public class XLSReader {
 			PmmXmlDoc agentXml = new PmmXmlDoc();
 			PmmXmlDoc matrixXml = new PmmXmlDoc();
 
-			if (commentCell != null) {
-				dataInfo.add(new MdInfoXml(null, null, commentCell.toString()
-						.trim(), null, null));
+			if (hasData(commentCell)) {
+				dataInfo.add(new MdInfoXml(null, null, getData(commentCell),
+						null, null));
 			} else {
 				dataInfo.add(new MdInfoXml(null, null, null, null, null));
 			}
 
 			if (hasData(agentCell)
-					&& agentMappings.get(agentCell.toString().trim()) != null) {
-				agentXml.add(new AgentXml(agentMappings.get(agentCell
-						.toString().trim())));
+					&& agentMappings.get(getData(agentCell)) != null) {
+				agentXml.add(new AgentXml(agentMappings.get(getData(agentCell))));
 			} else {
 				agentXml.add(new AgentXml());
 			}
 
 			if (hasData(matrixCell)
-					&& matrixMappings.get(matrixCell.toString().trim()) != null) {
-				matrixXml.add(new MatrixXml(matrixMappings.get(matrixCell
-						.toString().trim())));
+					&& matrixMappings.get(getData(matrixCell)) != null) {
+				matrixXml.add(new MatrixXml(matrixMappings
+						.get(getData(matrixCell))));
 			} else {
 				matrixXml.add(new MatrixXml());
 			}
 
 			if (hasData(agentDetailsCell)) {
-				((AgentXml) agentXml.get(0)).setDetail(agentDetailsCell
-						.toString().trim());
+				((AgentXml) agentXml.get(0))
+						.setDetail(getData(agentDetailsCell));
 			}
 
 			if (hasData(matrixDetailsCell)) {
-				((MatrixXml) matrixXml.get(0)).setDetail(matrixDetailsCell
-						.toString().trim());
+				((MatrixXml) matrixXml.get(0))
+						.setDetail(getData(matrixDetailsCell));
 			}
 
 			dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
@@ -440,12 +460,12 @@ public class XLSReader {
 
 				if (hasData(cell)) {
 					try {
-						misc.setValue(Double.parseDouble(cell.toString()
-								.replace(",", ".")));
+						misc.setValue(Double.parseDouble(getData(cell).replace(
+								",", ".")));
 					} catch (NumberFormatException e) {
 						warnings.add(column + " value in row "
 								+ (rowNumber + 1) + " is not valid ("
-								+ cell.toString().trim() + ")");
+								+ getData(cell) + ")");
 					}
 				}
 
@@ -471,12 +491,12 @@ public class XLSReader {
 
 					if (hasData(cell)) {
 						try {
-							element.setValue(Double.parseDouble(cell.toString()
+							element.setValue(Double.parseDouble(getData(cell)
 									.replace(",", ".")));
 						} catch (NumberFormatException e) {
 							warnings.add(mapping + " value in row "
 									+ (rowNumber + 1) + " is not valid ("
-									+ cell.toString().trim() + ")");
+									+ getData(cell) + ")");
 						}
 					}
 				}
@@ -524,13 +544,14 @@ public class XLSReader {
 
 							if (hasData(cell)) {
 								try {
-									element.setValue(Double.parseDouble(cell
-											.toString().replace(",", ".")));
+									element.setValue(Double
+											.parseDouble(getData(cell).replace(
+													",", ".")));
 								} catch (NumberFormatException e) {
 									warnings.add(mapping + " value in row "
 											+ (rowNumber + 1)
-											+ " is not valid ("
-											+ cell.toString().trim() + ")");
+											+ " is not valid (" + getData(cell)
+											+ ")");
 								}
 							}
 						}
@@ -555,7 +576,7 @@ public class XLSReader {
 								if (hasData(minCell)) {
 									try {
 										double value = Double
-												.parseDouble(minCell.toString()
+												.parseDouble(getData(minCell)
 														.replace(",", "."));
 
 										element.setMin(Categories.getCategory(
@@ -566,8 +587,7 @@ public class XLSReader {
 												+ " value in row "
 												+ (rowNumber + 1)
 												+ " is not valid ("
-												+ minCell.toString().trim()
-												+ ")");
+												+ getData(minCell) + ")");
 									}
 								}
 							}
@@ -579,7 +599,7 @@ public class XLSReader {
 								if (hasData(maxCell)) {
 									try {
 										double value = Double
-												.parseDouble(maxCell.toString()
+												.parseDouble(getData(maxCell)
 														.replace(",", "."));
 
 										element.setMax(Categories.getCategory(
@@ -590,8 +610,7 @@ public class XLSReader {
 												+ " value in row "
 												+ (rowNumber + 1)
 												+ " is not valid ("
-												+ maxCell.toString().trim()
-												+ ")");
+												+ getData(maxCell) + ")");
 									}
 								}
 							}
@@ -659,8 +678,8 @@ public class XLSReader {
 		for (int i = 1; i < s.getLastRowNum(); i++) {
 			Cell cell = s.getRow(i).getCell(columnId);
 
-			if (cell != null && !cell.toString().trim().isEmpty()) {
-				valueSet.add(cell.toString().trim());
+			if (hasData(cell)) {
+				valueSet.add(getData(cell));
 			}
 		}
 
@@ -691,11 +710,11 @@ public class XLSReader {
 		for (int i = 0;; i++) {
 			Cell cell = sheet.getRow(0).getCell(i);
 
-			if (cell == null || cell.toString().trim().isEmpty()) {
+			if (!hasData(cell)) {
 				break;
 			}
 
-			columns.put(cell.toString().trim(), i);
+			columns.put(getData(cell), i);
 		}
 
 		return columns;
@@ -712,11 +731,11 @@ public class XLSReader {
 			Cell headerCell = sheet.getRow(0).getCell(j);
 			Cell cell = sheet.getRow(i).getCell(j);
 
-			if (headerCell == null || headerCell.toString().trim().isEmpty()) {
+			if (!hasData(headerCell)) {
 				return true;
 			}
 
-			if (cell != null && !cell.toString().trim().isEmpty()) {
+			if (hasData(cell)) {
 				return false;
 			}
 		}
@@ -724,6 +743,14 @@ public class XLSReader {
 
 	private boolean hasData(Cell cell) {
 		return cell != null && !cell.toString().trim().isEmpty();
+	}
+
+	public String getData(Cell cell) {
+		if (cell != null) {
+			return cell.toString().trim();
+		}
+
+		return null;
 	}
 
 }

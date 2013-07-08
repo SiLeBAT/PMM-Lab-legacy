@@ -228,7 +228,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
 						+ ":"), createConstraints(0, 5));
 		settingsPanel.add(
-				new JLabel(AttributeUtilities.getName(AttributeUtilities.LOGC)
+				new JLabel(AttributeUtilities.getName(AttributeUtilities.CONCENTRATION)
 						+ ":"), createConstraints(0, 6));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
@@ -879,7 +879,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			for (String column : columnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
-						AttributeUtilities.TIME, AttributeUtilities.LOGC,
+						AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
 						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
@@ -950,7 +950,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						if (selected.equals(XLSReader.ID_COLUMN)
 								|| selected.equals(MdInfoXml.ATT_COMMENT)
 								|| selected.equals(AttributeUtilities.TIME)
-								|| selected.equals(AttributeUtilities.LOGC)) {
+								|| selected.equals(AttributeUtilities.CONCENTRATION)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, selected);
@@ -1014,7 +1014,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 							if (mapping.equals(AttributeUtilities.TIME)) {
 								timeUnit = unit;
-							} else if (mapping.equals(AttributeUtilities.LOGC)) {
+							} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
 								concentrationUnit = unit;
 							}
 						}

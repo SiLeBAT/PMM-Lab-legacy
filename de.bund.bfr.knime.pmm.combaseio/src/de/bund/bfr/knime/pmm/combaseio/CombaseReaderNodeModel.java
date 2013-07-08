@@ -152,7 +152,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 				PmmXmlDoc cmDoc = new PmmXmlDoc();
 				CatalogModelXml cmx = new CatalogModelXml(
 						MathUtilities.getRandomNegativeInt(), "D-Value",
-						AttributeUtilities.LOGC + "=LogC0+mumax*"
+						AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
 								+ AttributeUtilities.TIME);
 				cmDoc.add(cmx);
 				modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
@@ -187,7 +187,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 				// start+","+candidate.getMaximumRate() );
 				modelTuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXML);
 				paramDoc = new PmmXmlDoc();
-				DepXml dx = new DepXml(AttributeUtilities.LOGC);
+				DepXml dx = new DepXml(AttributeUtilities.CONCENTRATION);
 				paramDoc.add(dx);
 				modelTuple.setValue(Model1Schema.ATT_DEPENDENT, paramDoc);
 				// modelTuple.setValue(Model1Schema.ATT_DEPVAR,

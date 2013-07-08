@@ -125,7 +125,7 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 				reader.getShortLegend(), reader.getLongLegend());
 
 		creator.setParamX(AttributeUtilities.TIME);
-		creator.setParamY(AttributeUtilities.LOGC);
+		creator.setParamY(AttributeUtilities.CONCENTRATION);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.setColors(set.getColors());
 		creator.setShapes(set.getShapes());

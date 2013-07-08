@@ -242,7 +242,7 @@ public class ChartCreator extends ChartPanel {
 		}
 
 		if (paramX.equals(AttributeUtilities.TIME)
-				|| paramX.equals(AttributeUtilities.LOGC)) {
+				|| paramX.equals(AttributeUtilities.CONCENTRATION)) {
 			usedMinX = Math.min(usedMinX, 0.0);
 			xAxis.setAutoRangeIncludesZero(true);
 		} else {
@@ -250,7 +250,7 @@ public class ChartCreator extends ChartPanel {
 		}
 
 		if (paramY.equals(AttributeUtilities.TIME)
-				|| paramY.equals(AttributeUtilities.LOGC)) {
+				|| paramY.equals(AttributeUtilities.CONCENTRATION)) {
 			yAxis.setAutoRangeIncludesZero(true);
 		} else {
 			yAxis.setAutoRangeIncludesZero(false);

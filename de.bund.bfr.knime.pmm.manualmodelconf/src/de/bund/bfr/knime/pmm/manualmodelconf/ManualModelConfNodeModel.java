@@ -162,8 +162,8 @@ public class ManualModelConfNodeModel extends NodeModel {
     		PmmXmlDoc indepVar = tupleM1.getPmmXml(Model1Schema.ATT_INDEPENDENT);        		
     		
     		if (depVar.size() == 1) {
-    			formula = MathUtilities.replaceVariable(formula, ((DepXml) depVar.get(0)).getName(), AttributeUtilities.LOGC);
-    			((DepXml) depVar.get(0)).setName(AttributeUtilities.LOGC);        			
+    			formula = MathUtilities.replaceVariable(formula, ((DepXml) depVar.get(0)).getName(), AttributeUtilities.CONCENTRATION);
+    			((DepXml) depVar.get(0)).setName(AttributeUtilities.CONCENTRATION);        			
     		}
     		
     		if (indepVar.size() == 1) {

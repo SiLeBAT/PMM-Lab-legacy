@@ -190,7 +190,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		samplePanel.setTimeColumnName(AttributeUtilities
 				.getName(AttributeUtilities.TIME));
 		samplePanel.setLogcColumnName(AttributeUtilities
-				.getName(AttributeUtilities.LOGC));
+				.getName(AttributeUtilities.CONCENTRATION));
 		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
@@ -230,7 +230,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			chartCreator.setTransformY(configPanel.getTransformY());
 
 			double[][] samplePoints = plotable.getFunctionSamplePoints(
-					AttributeUtilities.TIME, AttributeUtilities.LOGC,
+					AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
 					configPanel.getUnitX(), configPanel.getUnitY(),
 					configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
@@ -249,7 +249,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
 				AttributeUtilities.TIME, configPanel.getUnitX()));
 		samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
-				AttributeUtilities.LOGC, configPanel.getUnitY(),
+				AttributeUtilities.CONCENTRATION, configPanel.getUnitY(),
 				configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());

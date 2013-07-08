@@ -268,12 +268,12 @@ public class PredictorViewNodeModel extends NodeModel {
 		plotable.setSamples(values);
 
 		double[][] points = plotable.getFunctionSamplePoints(
-				AttributeUtilities.TIME, AttributeUtilities.LOGC,
+				AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
 				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] errors = plotable.getFunctionSamplePointsErrors(
-				AttributeUtilities.TIME, AttributeUtilities.LOGC,
+				AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
 				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);

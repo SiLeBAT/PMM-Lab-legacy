@@ -17,15 +17,15 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	private String timeUnit = null;
 	private Double concentration = null;
 	private String concentrationUnit = null;
-	private Double concentrationConfInterval = null;
+	private Double concentrationStdDev = null;
 	
-	public TimeSeriesXml(String name, Double time, String timeUnit, Double concentration, String concentrationUnit, Double concentrationConfInterval) {
+	public TimeSeriesXml(String name, Double time, String timeUnit, Double concentration, String concentrationUnit, Double concentrationStdDev) {
 		setName(name);
 		setTime(time);
 		setTimeUnit(timeUnit);
 		setConcentration(concentration);
 		setConcentrationUnit(concentrationUnit);
-		setConcentrationConfInterval(concentrationConfInterval);
+		setConcentrationStdDev(concentrationStdDev);
 	}
 	public TimeSeriesXml(Element xmlElement) {
 		try {
@@ -38,7 +38,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			setConcentrationUnit(xmlElement.getAttribute("concentrationUnit").getValue());
 			if (xmlElement.getAttribute("concentrationConfInterval") != null) {
 				strDbl = xmlElement.getAttribute("concentrationConfInterval").getValue();
-				setConcentrationConfInterval(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
+				setConcentrationStdDev(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			}
 		}
 		catch (Exception e) {
@@ -50,14 +50,14 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	public String getTimeUnit() {return timeUnit;}
 	public Double getConcentration() {return concentration;}	
 	public String getConcentrationUnit() {return concentrationUnit;}
-	public Double getConcentrationConfInterval() {return concentrationConfInterval;}
+	public Double getConcentrationStdDev() {return concentrationStdDev;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setTime(Double time) {this.time = time;}
 	public void setTimeUnit(String timeUnit) {this.timeUnit = (timeUnit == null) ? "" : timeUnit;}
 	public void setConcentration(Double concentration) {this.concentration = concentration;}
 	public void setConcentrationUnit(String concentrationUnit) {this.concentrationUnit = (concentrationUnit == null) ? "" : concentrationUnit;}
-	public void setConcentrationConfInterval(Double concentrationConfInterval) {this.concentrationConfInterval = concentrationConfInterval;}
+	public void setConcentrationStdDev(Double concentrationStdDev) {this.concentrationStdDev = concentrationStdDev;}
 
 	@Override
 	public Element toXmlElement() {
@@ -67,7 +67,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("timeUnit", timeUnit);
 		modelElement.setAttribute("concentration", "" + (concentration == null || Double.isNaN(concentration) ? "" : concentration));
 		modelElement.setAttribute("concentrationUnit", concentrationUnit);
-		modelElement.setAttribute("concentrationConfInterval", "" + (concentrationConfInterval == null || Double.isNaN(concentrationConfInterval) ? "" : concentrationConfInterval));
+		modelElement.setAttribute("concentrationStdDev", "" + (concentrationStdDev == null || Double.isNaN(concentrationStdDev) ? "" : concentrationStdDev));
 		return modelElement;
 	}
 
@@ -78,7 +78,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
         list.add("TimeUnit");
         list.add("Concentration");
         list.add("ConcentrationUnit");
-        list.add("ConcentrationConfInterval");
+        list.add("ConcentrationStdDev");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -97,7 +97,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		else if (element.equalsIgnoreCase("concentrationUnit")) {
 			return StringCell.TYPE;
 		}
-		else if (element.equalsIgnoreCase("concentrationConfInterval")) {
+		else if (element.equalsIgnoreCase("concentrationStdDev")) {
 			return DoubleCell.TYPE;
 		}
 		return null;

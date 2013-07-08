@@ -259,7 +259,7 @@ public class TableReader {
 
 				plotable = new Plotable(Plotable.BOTH);
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
-				plotable.addValueList(AttributeUtilities.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;

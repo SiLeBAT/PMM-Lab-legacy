@@ -278,7 +278,7 @@ public class TableReader {
 
 				plotable = new Plotable(Plotable.BOTH);
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
-				plotable.addValueList(AttributeUtilities.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
 
 				String dataName;
 				String agent;
@@ -394,11 +394,11 @@ public class TableReader {
 			categories.put(AttributeUtilities.TIME,
 					Arrays.asList(Categories.TIME));
 			categories
-					.put(AttributeUtilities.LOGC, Arrays.asList(
+					.put(AttributeUtilities.CONCENTRATION, Arrays.asList(
 							Categories.NUMBER_CONTENT,
 							Categories.NUMBER_CONCENTRATION));
 			units.put(AttributeUtilities.TIME, timeUnit);
-			units.put(AttributeUtilities.LOGC, concentrationUnit);
+			units.put(AttributeUtilities.CONCENTRATION, concentrationUnit);
 
 			plotable.setFunction(formula);
 			plotable.setFunctionParameters(parameters);

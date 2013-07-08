@@ -54,7 +54,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			boolean logcEditable) {
 		this.rowCount = rowCount;
 		timeColumnName = AttributeUtilities.getName(AttributeUtilities.TIME);
-		logcColumnName = AttributeUtilities.getName(AttributeUtilities.LOGC);
+		logcColumnName = AttributeUtilities.getName(AttributeUtilities.CONCENTRATION);
 		setModel(new TimeSeriesTableModel(rowCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
 		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));

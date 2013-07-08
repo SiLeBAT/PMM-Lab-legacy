@@ -251,7 +251,7 @@ public class TableReader {
 
 				plotable = new Plotable(Plotable.BOTH);
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
-				plotable.addValueList(AttributeUtilities.LOGC, logcList);
+				plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
 
 				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
 

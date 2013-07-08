@@ -77,12 +77,12 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 		Plotable plotable = new Plotable(Plotable.DATASET);
 
 		plotable.addValueList(AttributeUtilities.TIME, timeList);
-		plotable.addValueList(AttributeUtilities.LOGC, logcList);
+		plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
 
 		ChartCreator creator = new ChartCreator(plotable);
 
 		creator.setParamX(AttributeUtilities.TIME);
-		creator.setParamY(AttributeUtilities.LOGC);
+		creator.setParamY(AttributeUtilities.CONCENTRATION);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.setUseManualRange(false);
 		creator.setDrawLines(false);

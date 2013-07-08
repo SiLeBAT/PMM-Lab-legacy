@@ -113,8 +113,8 @@ public class XLSModelReaderNodeModel extends NodeModel {
 			formula = MathUtilities
 					.replaceVariable(formula,
 							((DepXml) depVar.get(0)).getName(),
-							AttributeUtilities.LOGC);
-			((DepXml) depVar.get(0)).setName(AttributeUtilities.LOGC);
+							AttributeUtilities.CONCENTRATION);
+			((DepXml) depVar.get(0)).setName(AttributeUtilities.CONCENTRATION);
 		}
 
 		if (indepVar.size() == 1) {

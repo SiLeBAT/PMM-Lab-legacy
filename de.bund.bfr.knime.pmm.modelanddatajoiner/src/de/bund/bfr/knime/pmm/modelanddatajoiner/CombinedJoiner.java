@@ -350,7 +350,7 @@ public class CombinedJoiner implements Joiner {
 
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
-						.get(AttributeUtilities.LOGC);
+						.get(AttributeUtilities.CONCENTRATION);
 				Category concentrationCategory = Categories.getCategoryByUnit(
 						Categories.getConcentrationCategories(),
 						concentrationUnit);
@@ -411,7 +411,7 @@ public class CombinedJoiner implements Joiner {
 
 		primaryParameterCategories
 				.put(AttributeUtilities.TIME, Categories.TIME);
-		primaryParameterCategories.put(AttributeUtilities.LOGC,
+		primaryParameterCategories.put(AttributeUtilities.CONCENTRATION,
 				Categories.NO_CATEGORY);
 
 		KnimeRelationReader reader = new KnimeRelationReader(

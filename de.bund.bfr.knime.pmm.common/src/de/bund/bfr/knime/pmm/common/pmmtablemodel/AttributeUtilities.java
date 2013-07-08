@@ -40,7 +40,7 @@ public class AttributeUtilities {
 	public static final String DATAID = "DataID";
 
 	public static final String TIME = "Time";
-	public static final String LOGC = "Log10C";
+	public static final String CONCENTRATION = "Concentration";
 	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_WATERACTIVITY = "aw";
@@ -63,7 +63,7 @@ public class AttributeUtilities {
 			return "pH";
 		} else if (attr.equals(ATT_WATERACTIVITY)) {
 			return "Water Activity";
-		} else if (attr.equals(LOGC)) {
+		} else if (attr.equals(CONCENTRATION)) {
 			return "Concentration";
 		} else {
 			return attr;

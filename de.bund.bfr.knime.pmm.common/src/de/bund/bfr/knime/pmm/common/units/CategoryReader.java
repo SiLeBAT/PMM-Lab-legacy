@@ -93,7 +93,8 @@ public class CategoryReader {
 
 			String unitName = unit.getDisplay_in_GUI_as();
 
-			if (unit.getPriority_for_display_in_GUI().equals("TRUE")) {
+			if (unit.getPriority_for_display_in_GUI() != null
+					&& unit.getPriority_for_display_in_GUI().equals("TRUE")) {
 				standardUnit = unitName;
 			}
 

@@ -17,4 +17,6 @@ Require-Bundle: org.eclipse.core.runtime,
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: org.hsh.bfr.db,
+ quick.dbtable
 

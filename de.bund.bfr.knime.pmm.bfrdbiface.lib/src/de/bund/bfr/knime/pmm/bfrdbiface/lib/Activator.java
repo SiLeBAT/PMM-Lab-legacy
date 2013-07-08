@@ -34,8 +34,6 @@
 package de.bund.bfr.knime.pmm.bfrdbiface.lib;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyLogger;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -60,9 +58,6 @@ public class Activator extends AbstractUIPlugin {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
-		DBKernel.isKNIME = true;
-		MyLogger.isKNIME = true;
-		DBKernel.getLocalConn(true);
 		super.start(context);
 		plugin = this;
 	}
@@ -72,7 +67,6 @@ public class Activator extends AbstractUIPlugin {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext)
 	 */
 	public void stop(BundleContext context) throws Exception {
-		DBKernel.closeDBConnections(true);
 		plugin = null;
 		super.stop(context);
 	}

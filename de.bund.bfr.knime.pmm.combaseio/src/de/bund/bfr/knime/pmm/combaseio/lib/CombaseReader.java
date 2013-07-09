@@ -57,11 +57,6 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.PH;
-import de.bund.bfr.knime.pmm.common.units.Temperature;
-import de.bund.bfr.knime.pmm.common.units.Time;
-import de.bund.bfr.knime.pmm.common.units.WaterActivity;
 
 public class CombaseReader implements Enumeration<PmmTimeSeries> {
 
@@ -179,9 +174,9 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// next.setTemperature(value);
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,
 						AttributeUtilities.ATT_TEMPERATURE,
-						AttributeUtilities.ATT_TEMPERATURE, value,
-						Arrays.asList(Categories.TEMPERATURE),
-						Temperature.CELSIUS);
+						AttributeUtilities.ATT_TEMPERATURE, value, Arrays
+								.asList(Categories.getTemp()), Categories
+								.getTempCategory().getStandardUnit());
 				continue;
 			}
 
@@ -191,7 +186,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// next.setPh(value);
 				next.addMisc(AttributeUtilities.ATT_PH_ID,
 						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH,
-						value, Arrays.asList(Categories.PH), PH.PH_SCALE);
+						value, Arrays.asList(Categories.getPh()), Categories
+								.getPhCategory().getStandardUnit());
 				continue;
 			}
 
@@ -201,9 +197,9 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// next.setWaterActivity(value);
 				next.addMisc(AttributeUtilities.ATT_AW_ID,
 						AttributeUtilities.ATT_WATERACTIVITY,
-						AttributeUtilities.ATT_WATERACTIVITY, value,
-						Arrays.asList(Categories.WATER_ACTIVITY),
-						WaterActivity.WATER_ACTIVITY);
+						AttributeUtilities.ATT_WATERACTIVITY, value, Arrays
+								.asList(Categories.getAw()), Categories
+								.getAwCategory().getStandardUnit());
 				continue;
 			}
 
@@ -241,8 +237,9 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 					if (Double.isNaN(t) || Double.isNaN(logc)) {
 						continue;
 					}
-					next.add(t, Time.HOUR, logc,
-							NumberContent.LOG_COUNT_PER_GRAMM);
+					next.add(t, Categories.getTimeCategory().getStandardUnit(),
+							logc, Categories.getConcentrationCategories()
+									.get(0).getStandardUnit());
 				}
 				break;
 			}

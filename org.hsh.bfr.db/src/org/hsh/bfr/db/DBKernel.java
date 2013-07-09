@@ -2346,20 +2346,20 @@ public class DBKernel {
 	}
 	public static String getLocalDBUUID() {
 		try {
-			return getDBUUID(getLocalConn(true));
+			return getDBUUID(getLocalConn(true), true);
 		} catch (SQLException e) {
 			return null;
 		}
 	}
-	public static String getDBUUID(Connection conn) throws SQLException {
+	public static String getDBUUID(Connection conn, boolean tryOnceAgain) throws SQLException {
 		String result = null;
 		ResultSet rs = getResultSet(conn, "SELECT \"Wert\" FROM \"Infotabelle\" WHERE \"Parameter\" = 'DBuuid'", false);
 		if (rs != null && rs.next()) {
 			result = rs.getString(1);
 		}
-		if (result == null) {
+		if (tryOnceAgain && result == null) {
 			setDBUUID(conn, UUID.randomUUID().toString());
-			result = getDBUUID(conn);
+			result = getDBUUID(conn, false);
 		}
 		return result;
 	}

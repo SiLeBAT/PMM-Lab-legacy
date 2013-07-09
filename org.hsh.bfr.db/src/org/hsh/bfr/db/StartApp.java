@@ -78,7 +78,7 @@ public class StartApp {
 		if (!DBKernel.debug) {
 	  		MyLogger.setup(DBKernel.HSH_PATH + "LOGs" + System.getProperty("file.separator") + "log_" + System.currentTimeMillis() + ".txt");
 	  	}
-		MyLogger.handleMessage(System.getProperty("java.version") + "\t" + (Runtime.getRuntime().maxMemory()/1024/1024)+ "MB"); // -Xms256m -Xmx1g
+		MyLogger.handleMessage(System.getProperty("java.version") + "\t" + (Runtime.getRuntime().maxMemory()/1024/1024)+ " MB"); // -Xms256m -Xmx1g
 	      
 	  	ToolTipManager ttm = null;
 	  	ttm = ToolTipManager.sharedInstance();

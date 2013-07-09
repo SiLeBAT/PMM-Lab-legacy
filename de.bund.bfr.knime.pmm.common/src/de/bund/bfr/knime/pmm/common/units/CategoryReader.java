@@ -63,7 +63,7 @@ public class CategoryReader {
 		for (UnitsFromDB unit : map.values()) {
 			String categoryName = unit.getKind_of_property_quantity();
 
-			if (!categories.containsKey(categoryName)) {
+			if (categoryName != null && !categories.containsKey(categoryName)) {
 				categories.put(categoryName, createCategory(map, categoryName));
 			}
 		}
@@ -91,7 +91,7 @@ public class CategoryReader {
 		parser.addVariable("x", 0.0);
 
 		for (UnitsFromDB unit : units.values()) {
-			if (!unit.getKind_of_property_quantity().equals(categoryName)) {
+			if (!categoryName.equals(unit.getKind_of_property_quantity())) {
 				continue;
 			}
 

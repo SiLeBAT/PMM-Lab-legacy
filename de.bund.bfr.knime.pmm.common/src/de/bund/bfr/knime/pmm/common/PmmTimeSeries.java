@@ -159,7 +159,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public void add(String name, Double t, String tUnit, Double n, String nUnit) throws PmmException {		
-		TimeSeriesXml tsx = new TimeSeriesXml(name, t, tUnit, n, nUnit,null);
+		TimeSeriesXml tsx = new TimeSeriesXml(name, t, tUnit, n, nUnit,null,null);
 		PmmXmlDoc timeSeriesXmlDoc = this.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 		timeSeriesXmlDoc.add(tsx);
 		this.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXmlDoc);

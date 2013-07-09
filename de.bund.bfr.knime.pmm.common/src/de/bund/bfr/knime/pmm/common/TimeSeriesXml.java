@@ -6,6 +6,7 @@ import java.util.List;
 import org.jdom2.Element;
 import org.knime.core.data.DataType;
 import org.knime.core.data.def.DoubleCell;
+import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 
 public class TimeSeriesXml implements PmmXmlElementConvertable {
@@ -18,14 +19,16 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	private Double concentration = null;
 	private String concentrationUnit = null;
 	private Double concentrationStdDev = null;
+	private Integer numberOfMeasurements = null;
 	
-	public TimeSeriesXml(String name, Double time, String timeUnit, Double concentration, String concentrationUnit, Double concentrationStdDev) {
+	public TimeSeriesXml(String name, Double time, String timeUnit, Double concentration, String concentrationUnit, Double concentrationStdDev, Integer numberOfMeasurements) {
 		setName(name);
 		setTime(time);
 		setTimeUnit(timeUnit);
 		setConcentration(concentration);
 		setConcentrationUnit(concentrationUnit);
 		setConcentrationStdDev(concentrationStdDev);
+		setNumberOfMeasurements(numberOfMeasurements);
 	}
 	public TimeSeriesXml(Element xmlElement) {
 		try {
@@ -40,6 +43,10 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 				strDbl = xmlElement.getAttribute("concentrationConfInterval").getValue();
 				setConcentrationStdDev(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			}
+			if (xmlElement.getAttribute("numberOfMeasurements") != null) {
+				strDbl = xmlElement.getAttribute("numberOfMeasurements").getValue();
+				setNumberOfMeasurements(strDbl.trim().isEmpty() ? null : Integer.parseInt(strDbl));
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -51,6 +58,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	public Double getConcentration() {return concentration;}	
 	public String getConcentrationUnit() {return concentrationUnit;}
 	public Double getConcentrationStdDev() {return concentrationStdDev;}
+	public Integer getNumberOfMeasurements() {return numberOfMeasurements;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	public void setTime(Double time) {this.time = time;}
@@ -58,6 +66,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	public void setConcentration(Double concentration) {this.concentration = concentration;}
 	public void setConcentrationUnit(String concentrationUnit) {this.concentrationUnit = (concentrationUnit == null) ? "" : concentrationUnit;}
 	public void setConcentrationStdDev(Double concentrationStdDev) {this.concentrationStdDev = concentrationStdDev;}
+	public void setNumberOfMeasurements(Integer numberOfMeasurements) {this.numberOfMeasurements = numberOfMeasurements;}
 
 	@Override
 	public Element toXmlElement() {
@@ -68,6 +77,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("concentration", "" + (concentration == null || Double.isNaN(concentration) ? "" : concentration));
 		modelElement.setAttribute("concentrationUnit", concentrationUnit);
 		modelElement.setAttribute("concentrationStdDev", "" + (concentrationStdDev == null || Double.isNaN(concentrationStdDev) ? "" : concentrationStdDev));
+		modelElement.setAttribute("numberOfMeasurements", "" + (numberOfMeasurements == null ? "" : numberOfMeasurements));
 		return modelElement;
 	}
 
@@ -79,6 +89,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
         list.add("Concentration");
         list.add("ConcentrationUnit");
         list.add("ConcentrationStdDev");
+        list.add("NumberOfMeasurements");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -99,6 +110,9 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		}
 		else if (element.equalsIgnoreCase("concentrationStdDev")) {
 			return DoubleCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("numberOfMeasurements")) {
+			return IntCell.TYPE;
 		}
 		return null;
 	}

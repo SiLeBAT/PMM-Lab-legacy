@@ -64,6 +64,7 @@ public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
 	public static String CONCENTRATION_STDDEV_COLUMN = "Concentration StdDev";
+	public static String CONCENTRATION_MEASURE_NUMBER = "Concentration Measurements";
 
 	private List<String> warnings;
 
@@ -92,6 +93,7 @@ public class XLSReader {
 		Integer timeColumn = null;
 		Integer logcColumn = null;
 		Integer stdDevColumn = null;
+		Integer nMeasureColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
 		Integer agentColumn = null;
@@ -99,6 +101,7 @@ public class XLSReader {
 		String timeColumnName = null;
 		String logcColumnName = null;
 		String stdDevColumnName = null;
+		String nMeasureColumnName = null;
 
 		if (agentColumnName != null) {
 			agentColumn = columns.get(agentColumnName);
@@ -128,6 +131,10 @@ public class XLSReader {
 						.equals(XLSReader.CONCENTRATION_STDDEV_COLUMN)) {
 					stdDevColumn = columns.get(column);
 					stdDevColumnName = column;
+				} else if (mapping
+						.equals(XLSReader.CONCENTRATION_MEASURE_NUMBER)) {
+					nMeasureColumn = columns.get(column);
+					nMeasureColumnName = column;
 				} else if (mapping.equals(AttributeUtilities.AGENT_DETAILS)) {
 					agentDetailsColumn = columns.get(column);
 				} else if (mapping.equals(AttributeUtilities.MATRIX_DETAILS)) {
@@ -157,6 +164,7 @@ public class XLSReader {
 			Cell timeCell = null;
 			Cell logcCell = null;
 			Cell stdDevCell = null;
+			Cell nMeasureCell = null;
 			Cell agentDetailsCell = null;
 			Cell matrixDetailsCell = null;
 			Cell agentCell = null;
@@ -180,6 +188,10 @@ public class XLSReader {
 
 			if (stdDevColumn != null) {
 				stdDevCell = row.getCell(stdDevColumn);
+			}
+
+			if (nMeasureColumn != null) {
+				nMeasureCell = row.getCell(nMeasureColumn);
 			}
 
 			if (agentDetailsColumn != null) {
@@ -279,6 +291,7 @@ public class XLSReader {
 				Double time = null;
 				Double logc = null;
 				Double stdDev = null;
+				Integer nMeasure = null;
 
 				if (hasData(timeCell)) {
 					try {
@@ -313,8 +326,24 @@ public class XLSReader {
 					}
 				}
 
+				if (hasData(nMeasureCell)) {
+					try {
+						String number = getData(nMeasureCell).replace(",", ".");
+
+						if (number.contains(".")) {
+							number = number.substring(0, number.indexOf("."));
+						}
+
+						nMeasure = Integer.parseInt(number);
+					} catch (NumberFormatException e) {
+						warnings.add(nMeasureColumnName + " value in row "
+								+ (i + 1) + " is not valid ("
+								+ getData(nMeasureCell) + ")");
+					}
+				}
+
 				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc,
-						concentrationUnit, stdDev));
+						concentrationUnit, stdDev, nMeasure));
 			}
 		}
 

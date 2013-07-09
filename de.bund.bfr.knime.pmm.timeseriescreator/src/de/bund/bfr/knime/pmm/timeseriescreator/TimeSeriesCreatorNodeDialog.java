@@ -419,7 +419,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			if (time != null || logc != null) {
 				timeSeries.add(new TimeSeriesXml(null, time, timeUnit, logc,
-						concentrationUnit, null));
+						concentrationUnit, null, null));
 			}
 		}
 

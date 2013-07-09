@@ -577,6 +577,8 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							|| selected
 									.equals(XLSReader.CONCENTRATION_STDDEV_COLUMN)
 							|| selected
+									.equals(XLSReader.CONCENTRATION_MEASURE_NUMBER)
+							|| selected
 									.equals(AttributeUtilities.AGENT_DETAILS)
 							|| selected
 									.equals(AttributeUtilities.MATRIX_DETAILS)) {
@@ -846,6 +848,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.TIME,
 						AttributeUtilities.CONCENTRATION,
 						XLSReader.CONCENTRATION_STDDEV_COLUMN,
+						XLSReader.CONCENTRATION_MEASURE_NUMBER,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,

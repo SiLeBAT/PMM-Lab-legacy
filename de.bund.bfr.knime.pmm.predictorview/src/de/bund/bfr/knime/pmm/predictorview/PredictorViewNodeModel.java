@@ -272,17 +272,17 @@ public class PredictorViewNodeModel extends NodeModel {
 				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-		double[][] errors = plotable.getFunctionSamplePointsErrors(
-				AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
-				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		// double[][] errors = plotable.getFunctionSamplePointsErrors(
+		// AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
+		// set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
+		// Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+		// Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 
 		if (points != null && points.length == 2) {
 			for (int i = 0; i < points[0].length; i++) {
 				Double time = null;
 				Double logc = null;
-				Double error = null;
+				// Double error = null;
 
 				if (!Double.isNaN(points[0][i])) {
 					time = points[0][i];
@@ -292,14 +292,14 @@ public class PredictorViewNodeModel extends NodeModel {
 					logc = points[1][i];
 				}
 
-				if (errors != null && errors.length == 2
-						&& !Double.isNaN(errors[1][i])) {
-					error = errors[1][i];
-				}
+				// if (errors != null && errors.length == 2
+				// && !Double.isNaN(errors[1][i])) {
+				// error = errors[1][i];
+				// }
 
 				if (time != null || logc != null) {
 					timeSeriesXml.add(new TimeSeriesXml(null, time, set
-							.getUnitX(), logc, set.getUnitY(), error));
+							.getUnitX(), logc, set.getUnitY(), null, null));
 				}
 			}
 		}

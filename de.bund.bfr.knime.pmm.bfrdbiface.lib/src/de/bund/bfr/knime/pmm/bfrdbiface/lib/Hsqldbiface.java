@@ -196,8 +196,8 @@ public class Hsqldbiface {
 			conn.setReadOnly(false);
 			pushUpdate("INSERT INTO " + DBKernel.delimitL("Users") +
 					"(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht") +
-					") VALUES ('" + login + "', " + Users.SUPER_WRITE_ACCESS + ")");
-			pushUpdate("ALTER USER " + DBKernel.delimitL(login) + " SET PASSWORD '" + pw + "';");
+					") VALUES ('" + login + "', " + Users.SUPER_WRITE_ACCESS + ")", conn);
+			pushUpdate("ALTER USER " + DBKernel.delimitL(login) + " SET PASSWORD '" + pw + "';", conn);
 			conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 		}
 		conn.close();
@@ -205,14 +205,15 @@ public class Hsqldbiface {
 	public Connection getConnection() {
 		return conn;
 	}
-	
-	public void pushUpdate( String query ) throws SQLException {		
+	public void pushUpdate(String query) throws SQLException {		
+		pushUpdate(query, conn);
+	}
+	private void pushUpdate(String query, Connection conn) throws SQLException {	
 		String[] q = new String[] { query };
-		pushUpdate( q );
+		pushUpdate(q, conn);
 	}
 	
-	public void pushUpdate( String[] query ) throws SQLException {
-		
+	private void pushUpdate(String[] query, Connection conn) throws SQLException {		
 		Statement statement = conn.createStatement();
 		for( String q : query ) {
 			//System.out.println( q );

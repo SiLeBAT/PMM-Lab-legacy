@@ -144,7 +144,7 @@ public class CategoryReader {
 		}
 
 		private Double apply(Double value, String formula) {
-			if (value == null) {
+			if (value == null || formula == null) {
 				return null;
 			}
 

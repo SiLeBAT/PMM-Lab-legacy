@@ -46,13 +46,7 @@ public class Categories {
 	@Deprecated
 	public static final String NUMBER_CONTENT = "Number Content";
 	@Deprecated
-	public static final String NUMBER_CONCENTRATION = "Number Concentration";
-	@Deprecated
-	public static final String TEMPERATURE = "Temperature";
-	@Deprecated
-	public static final String PH = "pH";
-	@Deprecated
-	public static final String WATER_ACTIVITY = "Water Activity";
+	public static final String NUMBER_CONCENTRATION = "Number Concentration";	
 
 	public static List<String> getAllCategories() {
 		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());

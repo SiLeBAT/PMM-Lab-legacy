@@ -2,7 +2,8 @@ package org.hsh.bfr.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 public class UnitsFromDB {
@@ -21,7 +22,7 @@ public class UnitsFromDB {
 	private String MathML_string;
 	private String Priority_for_display_in_GUI;
 	
-	private HashMap<Integer, UnitsFromDB> ghm;
+	private Map<Integer, UnitsFromDB> ghm;
 	
 	public UnitsFromDB() {
 		
@@ -45,7 +46,7 @@ public class UnitsFromDB {
 	}
 	
 	public void askDB() {
-		ghm = new HashMap<Integer, UnitsFromDB>();
+		ghm = new LinkedHashMap<Integer, UnitsFromDB>();
 		ResultSet rs = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL("Einheiten"), true);
 		try {
 			if (rs != null && rs.first()) {
@@ -60,7 +61,7 @@ public class UnitsFromDB {
 		catch (SQLException e) {e.printStackTrace();}
 	}
 	
-	public HashMap<Integer, UnitsFromDB> getMap() {
+	public Map<Integer, UnitsFromDB> getMap() {
 		return ghm;
 	}
 

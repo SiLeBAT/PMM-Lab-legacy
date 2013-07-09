@@ -238,7 +238,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				createConstraints(0, 8));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_WATERACTIVITY) + ":"),
+						.getName(AttributeUtilities.ATT_AW) + ":"),
 				createConstraints(0, 9));
 
 		settingsPanel.add(new JScrollPane(literatureList),
@@ -396,7 +396,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
-					AttributeUtilities.ATT_WATERACTIVITY, null,
+					AttributeUtilities.ATT_AW, null,
 					waterActivityField.getValue(), Arrays.asList(Categories
 							.getAw()), (String) awBox.getSelectedItem()));
 		}
@@ -880,7 +880,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.CONCENTRATION,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_PH,
-						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
+						AttributeUtilities.ATT_AW, OTHER_PARAMETER,
 						NO_PARAMETER });
 				JButton button = new JButton();
 				JComboBox<String> unitBox = new JComboBox<>();
@@ -973,12 +973,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									Categories.getPhCategory()
 											.getStandardUnit()));
 						} else if (selected
-								.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+								.equals(AttributeUtilities.ATT_AW)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
-									AttributeUtilities.ATT_WATERACTIVITY, null,
+									AttributeUtilities.ATT_AW, null,
 									null, Arrays.asList(Categories.getAw()),
 									Categories.getAwCategory()
 											.getStandardUnit()));

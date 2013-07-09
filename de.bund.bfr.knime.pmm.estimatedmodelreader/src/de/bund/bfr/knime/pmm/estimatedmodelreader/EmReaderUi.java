@@ -169,7 +169,7 @@ public class EmReaderUi extends JPanel {
 							(dtf[0].getValue() != null ? " AND (\"pH\" >= " + dtf[0].getValue() + " OR \"pH\" IS NULL)" : "") +
 							(dtf[1].getValue() != null ? " AND (\"pH\" <= " + dtf[1].getValue() + " OR \"pH\" IS NULL)" : "");
 				}
-				else if (key.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+				else if (key.equals(AttributeUtilities.ATT_AW)) {
 					where +=
 							(dtf[0].getValue() != null ? " AND (\"aw\" >= " + dtf[0].getValue() + " OR \"aw\" IS NULL)" : "") +
 							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
@@ -493,11 +493,11 @@ public class EmReaderUi extends JPanel {
 			dtf[1].setValue(defPh + 1);
 		}
 		if (defAw != null) {
-			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_WATERACTIVITY);
+			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_AW);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
 				dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-				params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
+				params.put(AttributeUtilities.ATT_AW, dtf);
 			}
 			dtf[0].setValue(defAw - 0.1);
 			dtf[1].setValue(defAw + 0.1);

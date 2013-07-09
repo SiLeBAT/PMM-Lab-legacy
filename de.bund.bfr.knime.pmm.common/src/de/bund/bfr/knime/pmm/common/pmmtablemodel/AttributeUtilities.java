@@ -43,7 +43,7 @@ public class AttributeUtilities {
 	public static final String CONCENTRATION = "Concentration";
 	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
-	public static final String ATT_WATERACTIVITY = "aw";
+	public static final String ATT_AW = "aw";
 	public static final int ATT_TEMPERATURE_ID = -1;
 	public static final int ATT_PH_ID = -2;
 	public static final int ATT_AW_ID = -3;
@@ -61,7 +61,7 @@ public class AttributeUtilities {
 			return "Temperature";
 		} else if (attr.equals(ATT_PH)) {
 			return "pH";
-		} else if (attr.equals(ATT_WATERACTIVITY)) {
+		} else if (attr.equals(ATT_AW)) {
 			return "Water Activity";
 		} else if (attr.equals(CONCENTRATION)) {
 			return "Concentration";

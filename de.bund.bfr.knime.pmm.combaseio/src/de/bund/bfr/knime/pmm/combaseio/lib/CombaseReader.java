@@ -196,8 +196,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				Double value = parse(token[1]);
 				// next.setWaterActivity(value);
 				next.addMisc(AttributeUtilities.ATT_AW_ID,
-						AttributeUtilities.ATT_WATERACTIVITY,
-						AttributeUtilities.ATT_WATERACTIVITY, value, Arrays
+						AttributeUtilities.ATT_AW,
+						AttributeUtilities.ATT_AW, value, Arrays
 								.asList(Categories.getAw()), Categories
 								.getAwCategory().getStandardUnit());
 				continue;

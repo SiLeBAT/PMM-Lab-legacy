@@ -80,7 +80,7 @@ public class MdReaderUi extends JPanel {
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put(AttributeUtilities.ATT_PH, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
-			params.put(AttributeUtilities.ATT_WATERACTIVITY, dtf);
+			params.put(AttributeUtilities.ATT_AW, dtf);
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
 			params.put("other1", dtf); // raw
 			dtf = new DoubleTextField[2]; dtf[0] = new DoubleTextField(true); dtf[1] = new DoubleTextField(true);
@@ -118,7 +118,7 @@ public class MdReaderUi extends JPanel {
 			JComponent c;
 			if (par.equalsIgnoreCase(AttributeUtilities.ATT_TEMPERATURE) ||
 					par.equalsIgnoreCase(AttributeUtilities.ATT_PH) ||
-					par.equalsIgnoreCase(AttributeUtilities.ATT_WATERACTIVITY)) {
+					par.equalsIgnoreCase(AttributeUtilities.ATT_AW)) {
 				JTextField textField = new JTextField();
 				textField.setText(par);
 				textField.setEnabled(false);

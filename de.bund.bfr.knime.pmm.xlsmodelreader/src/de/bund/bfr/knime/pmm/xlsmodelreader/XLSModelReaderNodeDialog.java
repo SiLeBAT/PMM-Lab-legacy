@@ -88,6 +88,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.ui.FilePanel.FileListener;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
@@ -284,7 +285,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			sheetBox.addItem(sheet);
 		}
 
-		sheetBox.setSelectedItem(set.getSheetName());
+		UI.select(sheetBox, set.getSheetName());
 		sheetBox.addItemListener(this);
 
 		try {
@@ -824,15 +825,13 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 										Arrays.asList(Categories.getPh()),
 										Categories.getPhCategory()
 												.getStandardUnit()));
-					} else if (selected
-							.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+					} else if (selected.equals(AttributeUtilities.ATT_AW)) {
 						set.getColumnMappings().put(
 								column,
 								new MiscXml(AttributeUtilities.ATT_AW_ID,
-										AttributeUtilities.ATT_WATERACTIVITY,
-										null, null, Arrays.asList(Categories
-												.getAw()), Categories
-												.getAwCategory()
+										AttributeUtilities.ATT_AW, null, null,
+										Arrays.asList(Categories.getAw()),
+										Categories.getAwCategory()
 												.getStandardUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);
@@ -949,12 +948,12 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						options.toArray(new String[0]));
 
 				if (!set.getModelMappings().containsKey(element.getName())) {
-					box.setSelectedItem(DO_NOT_USE);
+					UI.select(box, DO_NOT_USE);
 				} else if (set.getModelMappings().get(element.getName()) == null) {
-					box.setSelectedItem(USE_SECONDARY_MODEL);
+					UI.select(box, USE_SECONDARY_MODEL);
 				} else {
-					box.setSelectedItem(set.getModelMappings().get(
-							element.getName()));
+					UI.select(box, set.getModelMappings()
+							.get(element.getName()));
 				}
 
 				box.addItemListener(this);
@@ -1032,9 +1031,9 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								.getSecModelMappings().get(element.getName());
 
 						if (mappings.get(element2.getName()) == null) {
-							box.setSelectedItem(DO_NOT_USE);
+							UI.select(box, DO_NOT_USE);
 						} else {
-							box.setSelectedItem(mappings.get(element2.getName()));
+							UI.select(box, mappings.get(element2.getName()));
 						}
 
 						box.addItemListener(this);
@@ -1071,21 +1070,21 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								.get(element.getName());
 
 						if (mins.get(indep.getName()) == null) {
-							minBox.setSelectedItem(DO_NOT_USE);
+							UI.select(minBox, DO_NOT_USE);
 						} else {
-							minBox.setSelectedItem(mins.get(indep.getName()));
+							UI.select(minBox, mins.get(indep.getName()));
 						}
 
 						if (maxs.get(indep.getName()) == null) {
-							maxBox.setSelectedItem(DO_NOT_USE);
+							UI.select(maxBox, DO_NOT_USE);
 						} else {
-							maxBox.setSelectedItem(maxs.get(indep.getName()));
+							UI.select(maxBox, maxs.get(indep.getName()));
 						}
 
 						if (units.get(indep.getName()) == null) {
-							unitBox.setSelectedItem(null);
+							UI.select(unitBox, null);
 						} else {
-							unitBox.setSelectedItem(units.get(indep.getName()));
+							UI.select(unitBox, units.get(indep.getName()));
 						}
 
 						minBox.addItemListener(this);
@@ -1134,7 +1133,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			agentBox.addItem(column);
 		}
 
-		agentBox.setSelectedItem(set.getAgentColumn());
+		UI.select(agentBox, set.getAgentColumn());
 
 		if (set.getAgent() != null) {
 			agentButton.setText(set.getAgent().getName());
@@ -1206,7 +1205,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			matrixBox.addItem(column);
 		}
 
-		matrixBox.setSelectedItem(set.getMatrixColumn());
+		UI.select(matrixBox, set.getMatrixColumn());
 
 		if (set.getMatrix() != null) {
 			matrixButton.setText(set.getMatrix().getName());
@@ -1285,45 +1284,44 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,
-						AttributeUtilities.ATT_PH,
-						AttributeUtilities.ATT_WATERACTIVITY, OTHER_PARAMETER,
-						DO_NOT_USE });
+						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
+						OTHER_PARAMETER, DO_NOT_USE });
 				JButton button = new JButton();
 
 				if (set.getColumnMappings().containsKey(column)) {
 					Object mapping = set.getColumnMappings().get(column);
 
 					if (mapping == null) {
-						box.setSelectedItem(OTHER_PARAMETER);
+						UI.select(box, OTHER_PARAMETER);
 						button.setEnabled(true);
 						button.setText(OTHER_PARAMETER);
 					} else if (mapping instanceof String) {
-						box.setSelectedItem(mapping);
+						UI.select(box, mapping);
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (mapping instanceof MiscXml) {
 						int id = ((MiscXml) mapping).getID();
 
 						if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
-							box.setSelectedItem(AttributeUtilities.ATT_TEMPERATURE);
+							UI.select(box, AttributeUtilities.ATT_TEMPERATURE);
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 						} else if (id == AttributeUtilities.ATT_PH_ID) {
-							box.setSelectedItem(AttributeUtilities.ATT_PH);
+							UI.select(box, AttributeUtilities.ATT_PH);
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 						} else if (id == AttributeUtilities.ATT_AW_ID) {
-							box.setSelectedItem(AttributeUtilities.ATT_WATERACTIVITY);
+							UI.select(box, AttributeUtilities.ATT_AW);
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 						} else {
-							box.setSelectedItem(OTHER_PARAMETER);
+							UI.select(box, OTHER_PARAMETER);
 							button.setEnabled(true);
 							button.setText(((MiscXml) mapping).getName());
 						}
 					}
 				} else {
-					box.setSelectedItem(DO_NOT_USE);
+					UI.select(box, DO_NOT_USE);
 					button.setEnabled(false);
 					button.setText(OTHER_PARAMETER);
 				}
@@ -1351,10 +1349,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					JComboBox<String> unitBox = new JComboBox<>(
 							allUnits.toArray(new String[0]));
 
-					if (condition.getUnit() != null) {
-						unitBox.setSelectedItem(condition.getUnit());
-					}
-
+					UI.select(unitBox, condition.getUnit());
 					unitBox.addItemListener(this);
 					columnUnitBoxes.put(column, unitBox);
 					northPanel.add(unitBox, createConstraints(3, row));

@@ -202,7 +202,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,dbl,null,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,null,null);
         			miscDoc.add(mx);
         		}
         		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);

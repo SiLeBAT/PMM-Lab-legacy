@@ -1243,7 +1243,7 @@ public class Bfrdb extends Hsqldbiface {
 					if (n == null ||
 							!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
 							!n.equals(AttributeUtilities.ATT_PH) &&
-							!n.equals(AttributeUtilities.ATT_WATERACTIVITY)) {
+							!n.equals(AttributeUtilities.ATT_AW)) {
 	    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
 	    				if (paramID == null) {
 							try {

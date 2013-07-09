@@ -260,7 +260,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public Double getWaterActivity() throws PmmException {
-		return getMiscValue(AttributeUtilities.ATT_WATERACTIVITY, Double.NaN);// return Double.NaN; getDouble( TimeSeriesSchema.ATT_WATERACTIVITY )
+		return getMiscValue(AttributeUtilities.ATT_AW, Double.NaN);// return Double.NaN; getDouble( TimeSeriesSchema.ATT_WATERACTIVITY )
 	}
 	public PmmXmlDoc getMisc() throws PmmException {
 		return getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -364,7 +364,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 	}
 	
 	public boolean hasWaterActivity() throws PmmException {
-		return hasValue(AttributeUtilities.ATT_WATERACTIVITY, false); // !isNull( TimeSeriesSchema.ATT_WATERACTIVITY )
+		return hasValue(AttributeUtilities.ATT_AW, false); // !isNull( TimeSeriesSchema.ATT_WATERACTIVITY )
 	}
 	
 	public boolean hasMisc() throws PmmException {

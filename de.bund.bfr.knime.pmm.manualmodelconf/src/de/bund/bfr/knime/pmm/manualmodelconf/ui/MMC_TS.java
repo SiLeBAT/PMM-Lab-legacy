@@ -131,7 +131,7 @@ public class MMC_TS extends JPanel {
 			
 			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),null,"°C");
 			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null,null);
-			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,waterActivityField.getValue(),null,null);
+			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),null,null);
 	}
 	private void fillFields() {
 		agentField.setText(theTS.getAgentName() == null ? "" : theTS.getAgentName());
@@ -172,7 +172,7 @@ public class MMC_TS extends JPanel {
 		theTS.setCondId(ri);
 		theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,null,"°C");
 		theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null,null);
-		theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_WATERACTIVITY,AttributeUtilities.ATT_WATERACTIVITY,aw,null,null);
+		theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,aw,null,null);
 		
 		fillFields();
 		/*
@@ -364,7 +364,7 @@ public class MMC_TS extends JPanel {
 
 		//---- awLabel ----
 		awLabel.setText("aw:");
-		awLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_WATERACTIVITY) + ":");
+		awLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_AW) + ":");
 		add(awLabel, CC.xy(1, 11));
 		add(waterActivityField, CC.xywh(3, 11, 5, 1));
 		// JFormDesigner - End of component initialization  //GEN-END:initComponents

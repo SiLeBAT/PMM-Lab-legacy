@@ -55,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartConfigPanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
+import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
@@ -185,6 +186,28 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 	}
 
 	private void createChart() {
+		String id = null;
+
+		if (configPanel.isDisplayFocusedRow()) {
+			id = selectionPanel.getFocusedID();
+		} else if (!selectionPanel.getSelectedIDs().isEmpty()) {
+			id = selectionPanel.getSelectedIDs().get(0);
+		}
+
+		if (id != null) {
+			Plotable plotable = chartCreator.getPlotables().get(id);
+
+			if (configPanel.getUnitX() == null) {
+				configPanel.setUnitX(plotable.getUnits().get(
+						AttributeUtilities.TIME));
+			}
+
+			if (configPanel.getUnitY() == null) {
+				configPanel.setUnitY(plotable.getUnits().get(
+						AttributeUtilities.CONCENTRATION));
+			}
+		}
+
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
 		chartCreator.setUnitX(configPanel.getUnitX());

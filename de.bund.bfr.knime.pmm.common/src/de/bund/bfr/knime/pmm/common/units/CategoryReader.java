@@ -40,6 +40,7 @@ import java.util.Map;
 
 import org.hsh.bfr.db.UnitsFromDB;
 import org.lsmp.djep.djep.DJep;
+import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -82,9 +83,12 @@ public class CategoryReader {
 
 	private Category createCategory(Map<Integer, UnitsFromDB> units,
 			String categoryName) {
-		Map<String, String> fromFormulas = new LinkedHashMap<>();
-		Map<String, String> toFormulas = new LinkedHashMap<>();
+		DJep parser = MathUtilities.createParser();
+		Map<String, Node> fromFormulas = new LinkedHashMap<>();
+		Map<String, Node> toFormulas = new LinkedHashMap<>();
 		String standardUnit = null;
+
+		parser.addVariable("x", 0.0);
 
 		for (UnitsFromDB unit : units.values()) {
 			if (!unit.getKind_of_property_quantity().equals(categoryName)) {
@@ -98,28 +102,45 @@ public class CategoryReader {
 				standardUnit = unitName;
 			}
 
-			fromFormulas.put(unitName, unit.getConversion_function_factor());
-			toFormulas.put(unitName,
-					unit.getInverse_conversion_function_factor());
+			if (unit.getConversion_function_factor() != null) {
+				try {
+					fromFormulas.put(unitName,
+							parser.parse(unit.getConversion_function_factor()));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+
+			if (unit.getInverse_conversion_function_factor() != null) {
+				try {
+					toFormulas.put(unitName, parser.parse(unit
+							.getInverse_conversion_function_factor()));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		return new DBCategory(categoryName, standardUnit, fromFormulas,
-				toFormulas);
+				toFormulas, parser);
 	}
 
 	private static class DBCategory implements Category {
 
 		private String name;
 		private String standardUnit;
-		private Map<String, String> fromFormulas;
-		private Map<String, String> toFormulas;
+		private Map<String, Node> fromFormulas;
+		private Map<String, Node> toFormulas;
+		private DJep parser;
 
 		public DBCategory(String name, String standardUnit,
-				Map<String, String> fromFormulas, Map<String, String> toFormulas) {
+				Map<String, Node> fromFormulas, Map<String, Node> toFormulas,
+				DJep parser) {
 			this.name = name;
 			this.standardUnit = standardUnit;
 			this.fromFormulas = fromFormulas;
 			this.toFormulas = toFormulas;
+			this.parser = parser;
 		}
 
 		@Override
@@ -139,21 +160,23 @@ public class CategoryReader {
 
 		@Override
 		public Double convert(Double value, String fromUnit, String toUnit) {
+			if (fromUnit != null && fromUnit.equals(toUnit)) {
+				return value;
+			}
+
 			return apply(apply(value, fromFormulas.get(fromUnit)),
 					toFormulas.get(toUnit));
 		}
 
-		private Double apply(Double value, String formula) {
+		private Double apply(Double value, Node formula) {
 			if (value == null || formula == null) {
 				return null;
 			}
 
-			DJep parser = MathUtilities.createParser();
-
-			parser.addConstant("x", value);
+			parser.setVarValue("x", value);
 
 			try {
-				return (Double) parser.evaluate(parser.parse(formula));
+				return (Double) parser.evaluate(formula);
 			} catch (ParseException e) {
 				e.printStackTrace();
 				return null;

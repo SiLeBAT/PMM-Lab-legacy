@@ -46,6 +46,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellValue;
+import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -67,9 +69,11 @@ public class XLSReader {
 	public static String CONCENTRATION_MEASURE_NUMBER = "Concentration Measurements";
 
 	private List<String> warnings;
+	private FormulaEvaluator evaluator;
 
 	public XLSReader() {
 		warnings = new ArrayList<>();
+		evaluator = null;
 	}
 
 	public Map<String, KnimeTuple> getTimeSeriesTuples(File file, String sheet,
@@ -77,9 +81,11 @@ public class XLSReader {
 			String concentrationUnit, String agentColumnName,
 			Map<String, AgentXml> agentMappings, String matrixColumnName,
 			Map<String, MatrixXml> matrixMappings) throws Exception {
-		warnings.clear();
+		Workbook wb = getWorkbook(file);
+		Sheet s = wb.getSheet(sheet);
 
-		Sheet s = getWorkbook(file).getSheet(sheet);
+		warnings.clear();
+		evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		if (s == null) {
 			throw new Exception("Sheet not found");
@@ -361,9 +367,11 @@ public class XLSReader {
 			Map<String, Map<String, String>> secModelIndepMaxs,
 			Map<String, Map<String, String>> secModelIndepUnits)
 			throws Exception {
-		warnings.clear();
+		Workbook wb = getWorkbook(file);
+		Sheet s = wb.getSheet(sheet);
 
-		Sheet s = getWorkbook(file).getSheet(sheet);
+		warnings.clear();
+		evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		if (s == null) {
 			throw new Exception("Sheet not found");
@@ -774,9 +782,24 @@ public class XLSReader {
 		return cell != null && !cell.toString().trim().isEmpty();
 	}
 
-	public String getData(Cell cell) {
+	private String getData(Cell cell) {
 		if (cell != null) {
-			return cell.toString().trim();
+			if (cell.getCellType() == Cell.CELL_TYPE_FORMULA) {
+				CellValue value = evaluator.evaluate(cell);
+
+				switch (value.getCellType()) {
+				case Cell.CELL_TYPE_BOOLEAN:
+					return value.getBooleanValue() + "";
+				case Cell.CELL_TYPE_NUMERIC:
+					return value.getNumberValue() + "";
+				case Cell.CELL_TYPE_STRING:
+					return value.getStringValue();
+				default:
+					return "";
+				}
+			} else {
+				return cell.toString().trim();
+			}
 		}
 
 		return null;

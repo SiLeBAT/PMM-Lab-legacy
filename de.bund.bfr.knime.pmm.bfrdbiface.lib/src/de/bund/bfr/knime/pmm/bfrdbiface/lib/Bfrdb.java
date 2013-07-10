@@ -760,8 +760,16 @@ public class Bfrdb extends Hsqldbiface {
 			//System.err.println(createSQL);
 			DBKernel.sendRequest(conn, "DROP TABLE " + DBKernel.delimitL(cacheTable) + " IF EXISTS", false, true);
 			DBKernel.sendRequest(conn, createSQL, false, true);
+			DBKernel.sendRequest(conn, "GRANT SELECT ON TABLE \"" + cacheTable + "\" TO \"PUBLIC\";", false, true);
 			//System.err.println(q);
-			DBKernel.sendRequest(conn, "INSERT INTO " + DBKernel.delimitL(cacheTable) + " (" + selectSQL + ")", false, false);
+			DBKernel.sendRequest(conn, "INSERT INTO " + DBKernel.delimitL(cacheTable) + " (" + selectSQL + ")", false, true);
+			if (conn == null || conn.isClosed()) {
+				try {
+					conn = DBKernel.getDBConnection();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
 			ps = conn.prepareStatement("SELECT * FROM " + DBKernel.delimitL(cacheTable) + " " + cacheWhereSQL,
 					ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			return ps.executeQuery();

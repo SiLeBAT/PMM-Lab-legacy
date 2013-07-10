@@ -1523,7 +1523,7 @@ public class DBKernel {
 	boolean result = false;
     boolean adminGathered = false;
     try {
-  	  if (conn == null) conn = getDBConnection();
+  	  if (conn == null || conn.isClosed()) conn = getDBConnection();
     	if (fetchAdminInCase && !DBKernel.isAdmin()) { // @Todo: eigentlich: isAdmin(conn, conn.getMetaData().getUserName())
     		DBKernel.closeDBConnections(false);
     		conn = DBKernel.getDefaultAdminConn();

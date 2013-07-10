@@ -46,7 +46,7 @@ public class Categories {
 	@Deprecated
 	public static final String NUMBER_CONTENT = "Number Content";
 	@Deprecated
-	public static final String NUMBER_CONCENTRATION = "Number Concentration";	
+	public static final String NUMBER_CONCENTRATION = "Number Concentration";
 
 	public static List<String> getAllCategories() {
 		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());
@@ -118,12 +118,13 @@ public class Categories {
 
 	public static List<String> getConcentrations() {
 		return Arrays.asList("Number Content (count/mass)",
-				"Number Concentration (count/vol)");
+				"Number Concentration (count/vol)", "Number Fraction");
 	}
 
 	public static List<Category> getConcentrationCategories() {
 		return Arrays.asList(getCategory(getConcentrations().get(0)),
-				getCategory(getConcentrations().get(1)));
+				getCategory(getConcentrations().get(1)),
+				getCategory(getConcentrations().get(2)));
 	}
 
 	public static String getTemp() {

@@ -228,7 +228,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.createChart(selectionPanel.getFocusedID());
 		} else {
 			chartCreator.createChart(selectionPanel.getSelectedIDs());
-		}
+		}		
 	}
 
 	@Override

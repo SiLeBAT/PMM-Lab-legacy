@@ -78,6 +78,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * This is the model implementation of PredictorView.
@@ -261,17 +262,29 @@ public class PredictorViewNodeModel extends NodeModel {
 		List<Double> values = new ArrayList<>();
 
 		for (Double t : set.getTimeValues()) {
-			values.add(Categories.getTimeCategory().convert(t, set.getUnitX(),
-					plotable.getUnits().get(AttributeUtilities.TIME)));
+			try {
+				values.add(Categories.getTimeCategory().convert(t,
+						set.getUnitX(),
+						plotable.getUnits().get(AttributeUtilities.TIME)));
+			} catch (ConvertException e) {
+				e.printStackTrace();
+			}
 		}
 
 		plotable.setSamples(values);
 
-		double[][] points = plotable.getFunctionSamplePoints(
-				AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
-				set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		double[][] points = null;
+
+		try {
+			points = plotable.getFunctionSamplePoints(AttributeUtilities.TIME,
+					AttributeUtilities.CONCENTRATION, set.getUnitX(),
+					set.getUnitY(), ChartConstants.NO_TRANSFORM,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+		} catch (ConvertException e) {
+			e.printStackTrace();
+		}
+
 		// double[][] errors = plotable.getFunctionSamplePointsErrors(
 		// AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
 		// set.getUnitX(), set.getUnitY(), ChartConstants.NO_TRANSFORM,

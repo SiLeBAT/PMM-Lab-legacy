@@ -80,6 +80,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "PredictorView" Node.
@@ -229,14 +230,17 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			chartCreator.setUnitY(configPanel.getUnitY());
 			chartCreator.setTransformY(configPanel.getTransformY());
 
-			double[][] samplePoints = plotable.getFunctionSamplePoints(
-					AttributeUtilities.TIME, AttributeUtilities.CONCENTRATION,
-					configPanel.getUnitX(), configPanel.getUnitY(),
-					configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
-
-			samplePanel.setDataPoints(samplePoints);
+			try {
+				samplePanel.setDataPoints(plotable.getFunctionSamplePoints(
+						AttributeUtilities.TIME,
+						AttributeUtilities.CONCENTRATION,
+						configPanel.getUnitX(), configPanel.getUnitY(),
+						configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
+						Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+						Double.POSITIVE_INFINITY));
+			} catch (ConvertException e) {
+				e.printStackTrace();
+			}
 		} else {
 			configPanel.setParameters(null, null, null, null, null, null, null);
 			chartCreator.setParamX(null);

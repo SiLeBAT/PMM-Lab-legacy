@@ -46,6 +46,7 @@ import java.util.Map;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.jfree.chart.ChartPanel;
@@ -61,6 +62,7 @@ import org.jfree.data.xy.YIntervalSeries;
 import org.jfree.data.xy.YIntervalSeriesCollection;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class ChartCreator extends ChartPanel {
 
@@ -158,25 +160,39 @@ public class ChartCreator extends ChartPanel {
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
-			if (plotable != null) {
-				if (plotable.getType() == Plotable.BOTH
-						|| plotable.getType() == Plotable.BOTH_STRICT) {
-					Double minArg = plotable.convertToUnit(paramX, plotable
-							.getMinArguments().get(paramX), unitX);
-					Double maxArg = plotable.convertToUnit(paramX, plotable
-							.getMaxArguments().get(paramX), unitX);
+			try {
+				if (plotable != null) {
+					if (plotable.getType() == Plotable.BOTH
+							|| plotable.getType() == Plotable.BOTH_STRICT) {
+						Double minArg = plotable.convertToUnit(paramX, plotable
+								.getMinArguments().get(paramX), unitX);
+						Double maxArg = plotable.convertToUnit(paramX, plotable
+								.getMaxArguments().get(paramX), unitX);
 
-					if (minArg != null) {
-						usedMinX = Math.min(usedMinX, minArg);
-					}
+						if (minArg != null) {
+							usedMinX = Math.min(usedMinX, minArg);
+						}
 
-					if (maxArg != null) {
-						usedMaxX = Math.max(usedMaxX, maxArg);
-					}
+						if (maxArg != null) {
+							usedMaxX = Math.max(usedMaxX, maxArg);
+						}
 
-					for (Map<String, Integer> choice : plotable.getAllChoices()) {
+						for (Map<String, Integer> choice : plotable
+								.getAllChoices()) {
+							double[][] points = plotable.getPoints(paramX,
+									paramY, unitX, unitY, transformY, choice);
+
+							if (points != null) {
+								for (int i = 0; i < points[0].length; i++) {
+									usedMinX = Math.min(usedMinX, points[0][i]);
+									usedMaxX = Math.max(usedMaxX, points[0][i]);
+								}
+							}
+						}
+					} else if (plotable.getType() == Plotable.DATASET
+							|| plotable.getType() == Plotable.DATASET_STRICT) {
 						double[][] points = plotable.getPoints(paramX, paramY,
-								unitX, unitY, transformY, choice);
+								unitX, unitY, transformY);
 
 						if (points != null) {
 							for (int i = 0; i < points[0].length; i++) {
@@ -184,52 +200,42 @@ public class ChartCreator extends ChartPanel {
 								usedMaxX = Math.max(usedMaxX, points[0][i]);
 							}
 						}
-					}
-				} else if (plotable.getType() == Plotable.DATASET
-						|| plotable.getType() == Plotable.DATASET_STRICT) {
-					double[][] points = plotable.getPoints(paramX, paramY,
-							unitX, unitY, transformY);
+					} else if (plotable.getType() == Plotable.FUNCTION) {
+						Double minArg = plotable.convertToUnit(paramX, plotable
+								.getMinArguments().get(paramX), unitX);
+						Double maxArg = plotable.convertToUnit(paramX, plotable
+								.getMaxArguments().get(paramX), unitX);
 
-					if (points != null) {
-						for (int i = 0; i < points[0].length; i++) {
-							usedMinX = Math.min(usedMinX, points[0][i]);
-							usedMaxX = Math.max(usedMaxX, points[0][i]);
+						if (minArg != null) {
+							usedMinX = Math.min(usedMinX, minArg);
 						}
-					}
-				} else if (plotable.getType() == Plotable.FUNCTION) {
-					Double minArg = plotable.convertToUnit(paramX, plotable
-							.getMinArguments().get(paramX), unitX);
-					Double maxArg = plotable.convertToUnit(paramX, plotable
-							.getMaxArguments().get(paramX), unitX);
 
-					if (minArg != null) {
-						usedMinX = Math.min(usedMinX, minArg);
-					}
+						if (maxArg != null) {
+							usedMaxX = Math.max(usedMaxX, maxArg);
+						}
+					} else if (plotable.getType() == Plotable.FUNCTION_SAMPLE) {
+						Double minArg = plotable.convertToUnit(paramX, plotable
+								.getMinArguments().get(paramX), unitX);
+						Double maxArg = plotable.convertToUnit(paramX, plotable
+								.getMaxArguments().get(paramX), unitX);
 
-					if (maxArg != null) {
-						usedMaxX = Math.max(usedMaxX, maxArg);
-					}
-				} else if (plotable.getType() == Plotable.FUNCTION_SAMPLE) {
-					Double minArg = plotable.convertToUnit(paramX, plotable
-							.getMinArguments().get(paramX), unitX);
-					Double maxArg = plotable.convertToUnit(paramX, plotable
-							.getMaxArguments().get(paramX), unitX);
+						if (minArg != null) {
+							usedMinX = Math.min(usedMinX, minArg);
+						}
 
-					if (minArg != null) {
-						usedMinX = Math.min(usedMinX, minArg);
-					}
+						if (maxArg != null) {
+							usedMaxX = Math.max(usedMaxX, maxArg);
+						}
 
-					if (maxArg != null) {
-						usedMaxX = Math.max(usedMaxX, maxArg);
-					}
-
-					for (Double x : plotable.getSamples()) {
-						if (x != null) {
-							usedMinX = Math.min(usedMinX, x);
-							usedMaxX = Math.max(usedMaxX, x);
+						for (Double x : plotable.getSamples()) {
+							if (x != null) {
+								usedMinX = Math.min(usedMinX, x);
+								usedMaxX = Math.max(usedMaxX, x);
+							}
 						}
 					}
 				}
+			} catch (ConvertException e) {
 			}
 		}
 
@@ -268,14 +274,20 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(minY, maxY));
 		}
 
+		boolean conversionFailed = false;
+
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.DATASET) {
-				plotDataSet(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index));
-				index++;
+				try {
+					plotDataSet(plot, plotable, id, colorAndShapeCreator
+							.getColorList().get(index), colorAndShapeCreator
+							.getShapeList().get(index));
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
 		}
 
@@ -284,8 +296,12 @@ public class ChartCreator extends ChartPanel {
 
 			if (plotable != null
 					&& plotable.getType() == Plotable.DATASET_STRICT) {
-				plotDataSetStrict(plot, plotable, id);
-				index++;
+				try {
+					plotDataSetStrict(plot, plotable, id);
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
 		}
 
@@ -293,10 +309,14 @@ public class ChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.FUNCTION) {
-				plotFunction(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
+				try {
+					plotFunction(plot, plotable, id, colorAndShapeCreator
+							.getColorList().get(index), colorAndShapeCreator
+							.getShapeList().get(index), usedMinX, usedMaxX);
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
 		}
 
@@ -305,10 +325,14 @@ public class ChartCreator extends ChartPanel {
 
 			if (plotable != null
 					&& plotable.getType() == Plotable.FUNCTION_SAMPLE) {
-				plotFunctionSample(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
+				try {
+					plotFunctionSample(plot, plotable, id, colorAndShapeCreator
+							.getColorList().get(index), colorAndShapeCreator
+							.getShapeList().get(index), usedMinX, usedMaxX);
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
 		}
 
@@ -316,10 +340,14 @@ public class ChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.BOTH) {
-				plotBoth(plot, plotable, id, colorAndShapeCreator
-						.getColorList().get(index), colorAndShapeCreator
-						.getShapeList().get(index), usedMinX, usedMaxX);
-				index++;
+				try {
+					plotBoth(plot, plotable, id, colorAndShapeCreator
+							.getColorList().get(index), colorAndShapeCreator
+							.getShapeList().get(index), usedMinX, usedMaxX);
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
 		}
 
@@ -327,9 +355,21 @@ public class ChartCreator extends ChartPanel {
 			Plotable plotable = plotables.get(id);
 
 			if (plotable != null && plotable.getType() == Plotable.BOTH_STRICT) {
-				plotBothStrict(plot, plotable, id, usedMinX, usedMaxX);
-				index++;
+				try {
+					plotBothStrict(plot, plotable, id, usedMinX, usedMaxX);
+					index++;
+				} catch (ConvertException e) {
+					conversionFailed = true;
+				}
 			}
+		}
+
+		if (conversionFailed) {
+			JOptionPane
+					.showMessageDialog(
+							this,
+							"Some datasets/functions cannot be converted to the desired unit",
+							"Warning", JOptionPane.WARNING_MESSAGE);
 		}
 
 		return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,
@@ -485,7 +525,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape) {
+			Color defaultColor, Shape defaultShape) throws ConvertException {
 		double[][] points = plotable.getPoints(paramX, paramY, unitX, unitY,
 				transformY);
 		String legend = shortLegend.get(id);
@@ -527,7 +567,8 @@ public class ChartCreator extends ChartPanel {
 		}
 	}
 
-	private void plotDataSetStrict(XYPlot plot, Plotable plotable, String id) {
+	private void plotDataSetStrict(XYPlot plot, Plotable plotable, String id)
+			throws ConvertException {
 		String legend = shortLegend.get(id);
 		List<Color> colorList = colorLists.get(id);
 		List<Shape> shapeList = shapeLists.get(id);
@@ -590,7 +631,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotFunction(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ConvertException {
 		double[][] points = plotable.getFunctionPoints(paramX, paramY, unitX,
 				unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
@@ -667,7 +709,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotFunctionSample(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ConvertException {
 		double[][] functionPoints = plotable.getFunctionPoints(paramX, paramY,
 				unitX, unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
@@ -771,7 +814,8 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotBoth(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX) {
+			Color defaultColor, Shape defaultShape, double minX, double maxX)
+			throws ConvertException {
 		double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
 				unitX, unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
 				Double.POSITIVE_INFINITY);
@@ -882,7 +926,7 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotBothStrict(XYPlot plot, Plotable plotable, String id,
-			double minX, double maxX) {
+			double minX, double maxX) throws ConvertException {
 		String legend = shortLegend.get(id);
 		List<Color> colorList = colorLists.get(id);
 		List<Shape> shapeList = shapeLists.get(id);

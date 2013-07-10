@@ -24,6 +24,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class TableReader {
 
@@ -143,8 +144,14 @@ public class TableReader {
 									miscCategories.get(element2.getName()),
 									unit);
 
-							paramValue = category.convert(element2.getValue(),
-									element2.getUnit(), unit);
+							try {
+								paramValue = category.convert(
+										element2.getValue(),
+										element2.getUnit(), unit);
+							} catch (ConvertException e) {
+								e.printStackTrace();
+							}
+
 							break;
 						}
 					}

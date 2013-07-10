@@ -159,9 +159,20 @@ public class CategoryReader {
 		}
 
 		@Override
-		public Double convert(Double value, String fromUnit, String toUnit) {
+		public Double convert(Double value, String fromUnit, String toUnit)
+				throws ConvertException {
 			if (fromUnit != null && fromUnit.equals(toUnit)) {
 				return value;
+			}
+
+			if (value == null) {
+				return null;
+			}
+
+			if (fromUnit == null || toUnit == null
+					|| fromFormulas.get(fromUnit) == null
+					|| toFormulas.get(toUnit) == null) {
+				throw new ConvertException();
 			}
 
 			return apply(apply(value, fromFormulas.get(fromUnit)),
@@ -169,10 +180,6 @@ public class CategoryReader {
 		}
 
 		private Double apply(Double value, Node formula) {
-			if (value == null || formula == null) {
-				return null;
-			}
-
 			parser.setVarValue("x", value);
 
 			try {

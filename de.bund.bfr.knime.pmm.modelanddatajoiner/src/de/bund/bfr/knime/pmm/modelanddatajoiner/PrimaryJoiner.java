@@ -72,6 +72,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class PrimaryJoiner implements Joiner {
 
@@ -250,11 +251,18 @@ public class PrimaryJoiner implements Joiner {
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					element.setTime(Categories.getTimeCategory().convert(
-							element.getTime(), element.getTimeUnit(), timeUnit));
-					element.setConcentration(concentrationCategory.convert(
-							element.getConcentration(),
-							element.getConcentrationUnit(), concentrationUnit));
+					try {
+						element.setTime(Categories.getTimeCategory().convert(
+								element.getTime(), element.getTimeUnit(),
+								timeUnit));
+						element.setConcentration(concentrationCategory.convert(
+								element.getConcentration(),
+								element.getConcentrationUnit(),
+								concentrationUnit));
+					} catch (ConvertException e) {
+						e.printStackTrace();
+					}
+
 					element.setTimeUnit(timeUnit);
 					element.setConcentrationUnit(concentrationUnit);
 				}
@@ -267,8 +275,13 @@ public class PrimaryJoiner implements Joiner {
 								element.getCategories(), element.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
-						element.setValue(cat.convert(element.getValue(),
-								element.getUnit(), unit));
+						try {
+							element.setValue(cat.convert(element.getValue(),
+									element.getUnit(), unit));
+						} catch (ConvertException e) {
+							e.printStackTrace();
+						}
+
 						element.setUnit(unit);
 					}
 				}

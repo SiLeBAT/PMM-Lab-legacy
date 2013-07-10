@@ -52,6 +52,7 @@ import org.nfunk.jep.ParseException;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class Plotable {
 
@@ -220,13 +221,14 @@ public class Plotable {
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String unitX,
-			String unitY, String transformY) {
+			String unitY, String transformY) throws ConvertException {
 		return getPoints(paramX, paramY, unitX, unitY, transformY,
 				getStandardChoice());
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String unitX,
-			String unitY, String transformY, Map<String, Integer> choice) {
+			String unitY, String transformY, Map<String, Integer> choice)
+			throws ConvertException {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
 
@@ -298,14 +300,15 @@ public class Plotable {
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) {
+			double maxX, double minY, double maxY) throws ConvertException {
 		return getFunctionPoints(paramX, paramY, unitX, unitY, transformY,
 				minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice) {
+			double maxX, double minY, double maxY, Map<String, Integer> choice)
+			throws ConvertException {
 		if (function == null) {
 			return null;
 		}
@@ -379,14 +382,15 @@ public class Plotable {
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) {
+			double maxX, double minY, double maxY) throws ConvertException {
 		return getFunctionErrors(paramX, paramY, unitX, unitY, transformY,
 				minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice) {
+			double maxX, double minY, double maxY, Map<String, Integer> choice)
+			throws ConvertException {
 		if (function == null) {
 			return null;
 		}
@@ -511,14 +515,15 @@ public class Plotable {
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) {
+			double maxX, double minY, double maxY) throws ConvertException {
 		return getFunctionSamplePoints(paramX, paramY, unitX, unitY,
 				transformY, minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
 			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice) {
+			double maxX, double minY, double maxY, Map<String, Integer> choice)
+			throws ConvertException {
 		if (function == null || samples.isEmpty()) {
 			return null;
 		}
@@ -605,7 +610,8 @@ public class Plotable {
 
 	public double[][] getFunctionSamplePointsErrors(String paramX,
 			String paramY, String unitX, String unitY, String transformY,
-			double minX, double maxX, double minY, double maxY) {
+			double minX, double maxX, double minY, double maxY)
+			throws ConvertException {
 		return getFunctionSamplePointsErrors(paramX, paramY, unitX, unitY,
 				transformY, minX, maxX, minY, maxY, getStandardChoice());
 	}
@@ -613,7 +619,7 @@ public class Plotable {
 	public double[][] getFunctionSamplePointsErrors(String paramX,
 			String paramY, String unitX, String unitY, String transformY,
 			double minX, double maxX, double minY, double maxY,
-			Map<String, Integer> choice) {
+			Map<String, Integer> choice) throws ConvertException {
 		if (function == null) {
 			return null;
 		}
@@ -849,7 +855,8 @@ public class Plotable {
 		return nMax;
 	}
 
-	public Double convertToUnit(String param, Double value, String unit) {
+	public Double convertToUnit(String param, Double value, String unit)
+			throws ConvertException {
 		String currentUnit = units.get(param);
 		Category category = Categories.getCategoryByUnit(categories.get(param),
 				currentUnit);
@@ -857,7 +864,8 @@ public class Plotable {
 		return category.convert(value, currentUnit, unit);
 	}
 
-	public Double convertFromUnit(String param, Double value, String unit) {
+	public Double convertFromUnit(String param, Double value, String unit)
+			throws ConvertException {
 		String newUnit = units.get(param);
 		Category category = Categories.getCategoryByUnit(categories.get(param),
 				newUnit);

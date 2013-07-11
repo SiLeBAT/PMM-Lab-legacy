@@ -87,6 +87,7 @@ import de.bund.bfr.knime.pmm.common.ui.FormattedDoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.SpacePanel;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 
 public class ChartSelectionPanel extends JPanel implements ActionListener,
 		CellEditorListener, ListSelectionListener {
@@ -2003,6 +2004,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			pack();
 			
 			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {

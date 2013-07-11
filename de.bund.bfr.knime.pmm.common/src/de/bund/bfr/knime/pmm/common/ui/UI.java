@@ -33,7 +33,12 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.ui;
 
+import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.Toolkit;
+
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 
 public class UI {
 
@@ -47,5 +52,26 @@ public class UI {
 				&& !box.getSelectedItem().equals(item)) {
 			box.setSelectedItem(null);
 		}
+	}
+
+	public static void adjustDialog(JDialog dialog) {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(
+				dialog.getGraphicsConfiguration());
+		int maxWidth = screenSize.width - insets.left - insets.right;
+		int maxHeight = screenSize.height - insets.top - insets.bottom;
+
+		dialog.setSize(Math.min(dialog.getWidth(), maxWidth),
+				Math.min(dialog.getHeight(), maxHeight));
+
+		int minX = insets.left;
+		int minY = insets.top;
+		int maxX = screenSize.width - insets.right - dialog.getWidth();
+		int maxY = screenSize.height - insets.bottom - dialog.getHeight();
+
+		dialog.setLocation(Math.max(dialog.getX(), minX),
+				Math.max(dialog.getY(), minY));
+		dialog.setLocation(Math.min(dialog.getX(), maxX),
+				Math.min(dialog.getY(), maxY));
 	}
 }

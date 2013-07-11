@@ -8,7 +8,8 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Loads laboratory test data from a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).</intro>
+        <intro>Loads laboratory test data from a database, stored for example as bacterial cell counts (log10) per time (hours) for a specific test organism in a matrix with defined test conditions concerning temperature (temp), pH value (ph) and water activity (aw).
+        <br></br><br></br>Note: The Microbial Data Reader loads only test conditions containing test results.</intro>
         
         
         <option name="Use external database">By default the internal database is accessed. This can be accessed and edited by clicking "PmmLab" -> "Open DB Gui...". In order to use an external database, check the box and choose another HSQL database. If necessary, a login and a password can also be entered. Please note: In order to be able to read the stored data the database should be structured in the same way as the internal database.</option>

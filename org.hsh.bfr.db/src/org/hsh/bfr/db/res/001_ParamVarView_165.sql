@@ -73,7 +73,7 @@ FROM(
         WHERE "Parametertyp"=2 AND "GeschaetzteModelle"."ID" IS NOT NULL
     )
 
-    GROUP BY "GeschaetztesModell", "Parametername", "ZeitEinheit", "Einheiten", "Kategorie", "Einheit"
+    GROUP BY "GeschaetztesModell", "Parametername", "ZeitEinheit", "Einheiten", "EinheitenOT", "Kategorie", "Einheit"
 
 )
 

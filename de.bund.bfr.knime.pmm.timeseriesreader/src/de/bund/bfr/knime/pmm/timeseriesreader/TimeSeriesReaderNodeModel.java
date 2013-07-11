@@ -148,7 +148,9 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	int i = 0;
     	long ttt,tt1=0,tt2=0,tt3=0,tt4=0,tt5=0;
     	while (result.next()) {
-    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
+    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString("Zeit"), result.getString("ZeitEinheit"),
+    				result.getString("Konzentration"), result.getString("KonzentrationsEinheit"), result.getString("KonzentrationsObjectType"),
+    				result.getString("Standardabweichung"), result.getString("Wiederholungen"));
 
     		if (tsDoc.size() > 0) {
 ttt = System.currentTimeMillis();        		

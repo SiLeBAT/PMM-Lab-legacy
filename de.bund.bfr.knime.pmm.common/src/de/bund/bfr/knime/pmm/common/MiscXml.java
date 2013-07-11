@@ -41,6 +41,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 		setValue(value);
 		setCategories(categories);
 		setUnit(unit);
+		setOrigUnit(unit);
 		setDbuuid(dbuuid);
 	}
 	public MiscXml (Element xmlElement) {

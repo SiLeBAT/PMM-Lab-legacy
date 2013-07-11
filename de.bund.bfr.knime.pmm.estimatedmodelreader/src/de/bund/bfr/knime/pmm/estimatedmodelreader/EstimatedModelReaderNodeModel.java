@@ -216,7 +216,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			agtDoc.add(ax);
     			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
 
-        		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString(Bfrdb.ATT_TIME), result.getString(Bfrdb.ATT_LOG10N));
+        		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString("Zeit"), result.getString("ZeitEinheit"),
+        				result.getString("Konzentration"), result.getString("KonzentrationsEinheit"), result.getString("KonzentrationsObjectType"),
+        				result.getString("Standardabweichung"), result.getString("Wiederholungen"));
         		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
         		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
         		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();

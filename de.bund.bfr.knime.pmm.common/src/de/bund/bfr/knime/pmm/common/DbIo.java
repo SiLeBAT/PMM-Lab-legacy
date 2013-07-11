@@ -4,9 +4,6 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
-
 public class DbIo {
 
     public static String convertArray2String(Array array) {
@@ -27,18 +24,26 @@ public class DbIo {
 	    }
     	return result;
     }
-    public static PmmXmlDoc convertStringLists2TSXmlDoc(String t, String l) {
+    public static PmmXmlDoc convertStringLists2TSXmlDoc(String t, String tu, String l, String lu, String lot, String stddevs, String wdhs) {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
 		if (t != null && l != null && !t.isEmpty() && !l.isEmpty()) {
 			String[] toksT = t.split(",");
+			String[] toksTu = tu.split(",");
 			String[] toksL = l.split(",");
+			String[] toksLu = lu.split(",");
+			String[] toksLot = lot == null ? null : lot.split(",");
+			String[] toksSd = stddevs == null ? null : stddevs.split(",");
+			String[] toksWdh = wdhs == null ? null : wdhs.split(",");
 			if (toksT.length > 0) {
 				int i=0;
 				for (String time : toksT) {
 					try {
 						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-								time.equals("?") ? null : Double.parseDouble(time),Time.HOUR,
-										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),NumberContent.LOG_COUNT_PER_GRAMM,null,null);
+								time.equals("?") ? null : Double.parseDouble(time),toksTu[i],
+										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),toksLu[i],
+										toksSd == null || toksSd[i].equals("?") ? null : Double.parseDouble(toksSd[i]),
+										toksWdh == null || toksWdh[i].equals("?") ? null : Integer.parseInt(toksWdh[i]));
+						if (toksLot != null) tsx.setConcentrationUnitObjectType(toksLot[i]);
 						tsDoc.add(tsx);
 					}
 					catch (Exception e) {

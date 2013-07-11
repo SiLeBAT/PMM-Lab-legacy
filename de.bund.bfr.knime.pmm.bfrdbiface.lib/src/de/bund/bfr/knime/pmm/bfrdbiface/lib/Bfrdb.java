@@ -67,9 +67,8 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
-import de.bund.bfr.knime.pmm.common.units.NumberConcentration;
-import de.bund.bfr.knime.pmm.common.units.NumberContent;
-import de.bund.bfr.knime.pmm.common.units.Time;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class Bfrdb extends Hsqldbiface {
 	
@@ -136,147 +135,165 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String REL_PARAM = "ModellkatalogParameter";
 	public static final String REL_UNIT = "Einheiten";
 	public static final String REL_VARMAP = "VarParMaps";
-	public static final String VIEW_CONDITION = "VersuchsbedingungenEinfach";
-	public static final String VIEW_DATA = "MesswerteEinfach";
 	public static final String VIEW_MISCPARAM = "SonstigesEinfach";
 
 	private static final String queryTimeSeries9SinDataView = "SELECT\n"
 			+"\n"
-			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
 			+"    \""+REL_COMBASE+"\".\"CombaseID\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_TEMPERATURE+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_PH+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AW+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_PH+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AW+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AGENTID+"\",\n"
 			+"    \""+REL_AGENT+"\".\""+ATT_AGENTNAME+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXID+"\",\n"
 			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Guetescore\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Geprueft\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXDETAIL+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_COMMENT+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Guetescore\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Geprueft\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
 		    +"    \"SonstigesEinfach\".\"SonstigesID\",\n"
 		    +"    \"SonstigesEinfach\".\"Parameter\",\n"
 		    +"    \"SonstigesEinfach\".\"Beschreibung\",\n"
 		    +"    \"SonstigesEinfach\".\"Einheit\",\n"
 		    +"    \"SonstigesEinfach\".\"Wert\" AS \"SonstigesWert\"\n"
 			+"\n"
-			+"FROM \""+VIEW_CONDITION+"\"\n"
+			+"FROM \"VersuchsbedingungenEinfach\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_COMBASE+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_AGENT+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_MATRIX+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN \""+VIEW_MISCPARAM+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+VIEW_MISCPARAM+"\".\""+ATT_CONDITIONID+"\"\n";
+			+"ON \"VersuchsbedingungenEinfach\".\"ID\"=\""+VIEW_MISCPARAM+"\".\""+ATT_CONDITIONID+"\"\n";
 	
 	private static final String queryTimeSeries9 = "SELECT\n"
 			+"\n"
-			+"    \""+VIEW_CONDITION+"\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"ID\" AS \""+ATT_CONDITIONID+"\",\n"
 			+"    \""+REL_COMBASE+"\".\"CombaseID\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_TEMPERATURE+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_PH+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AW+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_TEMPERATURE+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_PH+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AW+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AGENTID+"\",\n"
 			+"    \""+REL_AGENT+"\".\""+ATT_AGENTNAME+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_AGENTDETAIL+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_AGENTDETAIL+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXID+"\",\n"
 			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_MATRIXDETAIL+"\",\n"
-			+"    \"DataView\".\""+ATT_TIME+"\",\n"
-			+"    \"DataView\".\""+ATT_LOG10N+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\""+ATT_COMMENT+"\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Guetescore\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Geprueft\",\n"
-			+"    \""+VIEW_CONDITION+"\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXDETAIL+"\",\n"
+			+"    \"DataView\".\"Zeit\",\n"
+			+"    \"DataView\".\"ZeitEinheit\",\n"
+			+"    \"DataView\".\"Konzentration\",\n"
+			+"    \"DataView\".\"KonzentrationsEinheit\",\n"
+			+"    \"DataView\".\"KonzentrationsObjectType\",\n"
+			+"    \"DataView\".\"Standardabweichung\",\n"
+			+"    \"DataView\".\"Wiederholungen\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\""+ATT_COMMENT+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Guetescore\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Geprueft\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_MISCID+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_PARAMID+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_DESCRIPTION+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_UNIT+"\",\n"
 			+"    \""+VIEW_MISCPARAM+"\".\""+ATT_VALUE+"\" AS \""+ATT_MISC+""+ATT_VALUE+"\"\n"
 			+"\n"
-			+"FROM \""+VIEW_CONDITION+"\"\n"
+			+"FROM \"VersuchsbedingungenEinfach\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_COMBASE+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"ID\"=\""+REL_COMBASE+"\".\""+ATT_CONDITIONID+"\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_AGENT+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\""+ATT_AGENTID+"\"=\""+REL_AGENT+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN \""+REL_MATRIX+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXID+"\"=\""+REL_MATRIX+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN \""+ATT_LITERATUREID+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"Referenz\"=\""+ATT_LITERATUREID+"\".\"ID\"\n"
 			+"\n"
 			+"LEFT JOIN(\n"
 			+"\n"
 			+"    SELECT\n"
 			+"\n"
-			+"        \""+ATT_CONDITIONID+"\",\n"
-			+"        GROUP_CONCAT( \""+ATT_TIME+"\" )AS \""+ATT_TIME+"\",\n"
-			+"        GROUP_CONCAT( \""+ATT_LOG10N+"\" )AS \""+ATT_LOG10N+"\"\n"
+			+"        \"Versuchsbedingung\",\n"
+			+"        GROUP_CONCAT( \"Zeit\" )AS \"Zeit\",\n"
+			+"        GROUP_CONCAT( \"ZeitEinheit\" )AS \"ZeitEinheit\",\n"
+			+"        GROUP_CONCAT( \"Konzentration\" )AS \"Konzentration\",\n"
+			+"        GROUP_CONCAT( \"KonzentrationsEinheit\" )AS \"KonzentrationsEinheit\",\n"
+			+"        GROUP_CONCAT( \"KonzentrationsObjectType\" )AS \"KonzentrationsObjectType\",\n"
+			+"        GROUP_CONCAT( \"Standardabweichung\" )AS \"Standardabweichung\",\n"
+			+"        GROUP_CONCAT( \"Wiederholungen\" )AS \"Wiederholungen\"\n"
 			+"\n"
 			+"    FROM(\n"
 			+"\n"
 			+"        SELECT\n"
 			+"\n"
 			+"            \"Messung\".\"ID\",\n"
-			+"            \"Messung\".\""+ATT_CONDITIONID+"\",\n"
-			+"            \"Messung\".\""+ATT_TIME+"\",\n"
-			+"            \"Referenz\".\""+ATT_LOG10N+"\"+\"Messung\".\""+ATT_LOG10N+"\" AS \""+ATT_LOG10N+"\"\n"
+			+"            \"Messung\".\"Versuchsbedingung\",\n"
+			+"            \"Messung\".\"Zeit\",\n"
+			+"            \"Messung\".\"ZeitEinheit\",\n"
+			+"            \"Referenz\".\"Konzentration\"+\"Messung\".\"Konzentration\" AS \"Konzentration\",\n"
+			+"            \"Messung\".\"KonzentrationsEinheit\",\n"
+			+"            \"Messung\".\"KonzentrationsObjectType\",\n"
+			+"            \"Messung\".\"Standardabweichung\",\n"
+			+"            \"Messung\".\"Wiederholungen\"\n"
 			+"\n"
 			+"        FROM(\n"
 			+"\n"
 			+"            SELECT *\n"
-			+"            FROM \""+VIEW_DATA+"\"\n"
-			+"            WHERE( \"Delta\" IS NULL OR NOT \"Delta\" )AND \""+ATT_TIME+"\"=0 AND \""+ATT_LOG10N+"\" IS NOT NULL\n"
+			+"            FROM \"MesswerteEinfach\"\n"
+			+"            WHERE( \"Delta\" IS NULL OR NOT \"Delta\" )AND \"Zeit\"=0 AND \"Konzentration\" IS NOT NULL\n"
 			+"\n"
 			+"        )\"Referenz\"\n"
 			+"\n"
 			+"        JOIN(\n"
 			+"\n"
 			+"            SELECT *\n"
-			+"            FROM \""+VIEW_DATA+"\"\n"
-			+"            WHERE \"Delta\" AND NOT( \""+ATT_TIME+"\" IS NULL OR \""+ATT_LOG10N+"\" IS NULL )\n"
+			+"            FROM \"MesswerteEinfach\"\n"
+			+"            WHERE \"Delta\" AND NOT( \"Zeit\" IS NULL OR \"Konzentration\" IS NULL )\n"
 			+"\n"
 			+"        )\"Messung\"\n"
-			+"        ON \"Referenz\".\""+ATT_CONDITIONID+"\"=\"Messung\".\""+ATT_CONDITIONID+"\"\n"
+			+"        ON \"Referenz\".\"Versuchsbedingung\"=\"Messung\".\"Versuchsbedingung\"\n"
 			+"\n"
 			+"        UNION\n"
 			+"\n"
 			+"        SELECT \n"
 			+"\n"
 			+"            \"ID\",\n"
-			+"            \""+ATT_CONDITIONID+"\",\n"
-			+"            \""+ATT_TIME+"\",\n"
-			+"            \""+ATT_LOG10N+"\"\n"
+			+"            \"Versuchsbedingung\",\n"
+			+"            \"Zeit\",\n"
+			+"            \"ZeitEinheit\",\n"
+			+"            \"Konzentration\",\n"
+			+"            \"KonzentrationsEinheit\",\n"
+			+"            \"KonzentrationsObjectType\",\n"
+			+"            \"Standardabweichung\",\n"
+			+"            \"Wiederholungen\"\n"
 			+"\n"
-			+"        FROM \""+VIEW_DATA+"\"\n"
+			+"        FROM \"MesswerteEinfach\"\n"
 			+"\n"
 			+"        WHERE \"Delta\" IS NULL OR NOT \"Delta\"\n"
 			+"\n"
 			+"    )\n"
 			+"\n"
-			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
+			+"    GROUP BY \"Versuchsbedingung\"\n"
 			+"\n"
 			+")\"DataView\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\"DataView\".\""+ATT_CONDITIONID+"\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"ID\"=\"DataView\".\"Versuchsbedingung\"\n"
 			+"\n"
 			+"LEFT JOIN \""+VIEW_MISCPARAM+"\"\n"
-			+"ON \""+VIEW_CONDITION+"\".\"ID\"=\""+VIEW_MISCPARAM+"\".\""+ATT_CONDITIONID+"\"\n"
+			+"ON \"VersuchsbedingungenEinfach\".\"ID\"=\""+VIEW_MISCPARAM+"\".\"Versuchsbedingung\"\n"
 			+"\n"
-			+"WHERE \""+ATT_TIME+"\" IS NOT NULL\n"
+			+"WHERE \"Zeit\" IS NOT NULL\n"
 			+"\n"
 			+"ORDER BY \""+ATT_CONDITIONID+"\"\n";
 	
@@ -435,7 +452,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"        GROUP_CONCAT( \""+ATT_TIME+"\" )AS \""+ATT_TIME+"\",\n"
 			+"        GROUP_CONCAT( \""+ATT_LOG10N+"\" )AS \""+ATT_LOG10N+"\"\n"
 			+"\n"
-			+"    FROM \""+VIEW_DATA+"\"\n"
+			+"    FROM \"MesswerteEinfach\"\n"
 			+"    WHERE NOT( \""+ATT_TIME+"\" IS NULL OR \""+ATT_LOG10N+"\" IS NULL )\n"
 			+"    GROUP BY \""+ATT_CONDITIONID+"\"\n"
 			+"\n"
@@ -734,6 +751,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	public ResultSet selectTs(boolean forceUpdate) throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
+		//System.err.println(queryTimeSeries9);
 		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", forceUpdate);
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
@@ -1280,19 +1298,26 @@ public class Bfrdb extends Hsqldbiface {
 	    							ps.setNull(3, Types.DOUBLE);
 	    							ps.setNull(4, Types.INTEGER);
 	    							ps.setBoolean(5, true);
+		    						ps.executeUpdate();
 	    						}
 	    						else {
-	    							int did = insertDouble(mx.getValue());
-	    							ps.setDouble(3, did);							
-	    							Integer eid = getID("Einheiten", "Einheit", mx.getUnit());
-	    							if (eid == null) {
-	    								ps.setNull(4, Types.INTEGER);
-	    							} else {
-	    								ps.setInt(4, eid);
+	    							try {
+	    								Double origVal = Categories.getCategoryByUnit(mx.getCategories(), mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
+	    								int valId = insertDouble(origVal);				
+		    							ps.setDouble(3, valId);							
+		    							Integer eid = getID("Einheiten", "Einheit", mx.getOrigUnit());
+		    							if (eid == null) {
+		    								ps.setNull(4, Types.INTEGER);
+		    							} else {
+		    								ps.setInt(4, eid);
+		    							}
+		    							ps.setBoolean(5, false);
+			    						ps.executeUpdate();
 	    							}
-	    							ps.setBoolean(5, false);
+	    							catch (ConvertException e) {
+	    								e.printStackTrace();
+	    							}
 	    						}
-	    						ps.executeUpdate();
 	    						//try {ts.addValue(TimeSeriesSchema.ATT_MISCID, paramID);} catch (PmmException e) {e.printStackTrace();}
 	    					}
 	    					catch (Exception e) {e.printStackTrace();}
@@ -1411,9 +1436,18 @@ public class Bfrdb extends Hsqldbiface {
 		for (PmmXmlElementConvertable el : mdData.getElementSet()) {
 			if (el instanceof TimeSeriesXml) {
 				TimeSeriesXml tsx = (TimeSeriesXml) el;
-				int timeId = insertDouble(tsx.getTime());				
-				int lognId = insertDouble(tsx.getConcentration(), tsx.getConcentrationStdDev(), tsx.getNumberOfMeasurements());
-				insertData(condId, timeId, lognId, tsx.getTimeUnit(), tsx.getConcentrationUnit());
+				try {
+					Double origTime = Categories.getTimeCategory().convert(tsx.getTime(), tsx.getTimeUnit(), tsx.getOrigTimeUnit());
+					Double origConc = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentration(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
+					Double origConcStdDev = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentrationStdDev(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
+					int timeId = insertDouble(origTime);				
+					int lognId = insertDouble(origConc, origConcStdDev, tsx.getNumberOfMeasurements());
+					insertData(condId, timeId, lognId, tsx.getOrigTimeUnit(), tsx.getOrigConcentrationUnit(), tsx.getConcentrationUnitObjectType());
+				}
+				catch (ConvertException e) {
+					//System.out.println(tsx.getTime() + "\t" + tsx.getTimeUnit() + "\t" + tsx.getOrigTimeUnit());
+					e.printStackTrace();
+				}
 			}
 		}
 		return condId;
@@ -1681,7 +1715,7 @@ public class Bfrdb extends Hsqldbiface {
 			return result;
 	}
 
-	private void insertData(final int condId, final int timeId, final int lognId, String timeUnit, String concUnit) {
+	private void insertData(final int condId, final int timeId, final int lognId, String timeUnit, String concUnit, String concUnitObjectType) {
 		try {			
 			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES(?, ?, ?, ?, ?)" );
 			ps.setInt( 1, condId );
@@ -1693,17 +1727,12 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			
 			if (timeUnit != null) {
-				if (timeUnit.equals(Time.SECOND)) ps.setString(3, "Sekunde");
-				else if (timeUnit.equals(Time.MINUTE)) ps.setString(3, "Minute");
-				else if (timeUnit.equals(Time.HOUR)) ps.setString(3, "Stunde");
-				else if (timeUnit.equals(Time.DAY)) ps.setString(3, "Tag");
-				else if (timeUnit.equals(Time.WEEK)) ps.setString(3, "Woche");
-				else ps.setNull(3, Types.VARCHAR);
-				//hashZeit.put("Monat", DBKernel.getLanguage().equals("en") ? "Month(s)" : "Monat(e)");		
-				//hashZeit.put("Jahr", DBKernel.getLanguage().equals("en") ? "Year(s)" : "Jahr(e)");			  
+				Integer tid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{timeUnit});
+				if (tid != null) ps.setInt(3, tid);
+				else ps.setNull(3, Types.INTEGER);
 			}
 			else {
-				ps.setNull(3, Types.VARCHAR);
+				ps.setNull(3, Types.INTEGER);
 			}
 			
 			if (lognId >= 0) {
@@ -1714,12 +1743,8 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			
 			if (concUnit != null) {
-				if (concUnit.equals(NumberContent.COUNT_PER_GRAMM)) ps.setInt(5, 20);
-				else if (concUnit.equals(NumberContent.LOG_COUNT_PER_GRAMM)) ps.setInt(5, 5);
-				else if (concUnit.equals(NumberContent.LN_COUNT_PER_GRAMM)) ps.setNull(5, Types.INTEGER);
-				else if (concUnit.equals(NumberConcentration.COUNT_PER_MILLILITER)) ps.setInt(5, 23);
-				else if (concUnit.equals(NumberConcentration.LOG_COUNT_PER_MILLILITER)) ps.setInt(5, 8);
-				else if (concUnit.equals(NumberConcentration.LN_COUNT_PER_MILLILITER)) ps.setNull(5, Types.INTEGER);
+				Integer cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as","object type"}, new String[]{concUnit,concUnitObjectType});
+				if (cid != null) ps.setInt(5, cid);
 				else ps.setNull(5, Types.INTEGER);
 			}
 			else {

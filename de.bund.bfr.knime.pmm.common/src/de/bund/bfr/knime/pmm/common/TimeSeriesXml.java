@@ -19,6 +19,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	private String origTimeUnit = null;
 	private Double concentration = null;
 	private String concentrationUnit = null;
+	private String concentrationUnitObjectType = null;
 	private String origConcentrationUnit = null;
 	private Double concentrationStdDev = null;
 	private Integer numberOfMeasurements = null;
@@ -27,8 +28,10 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		setName(name);
 		setTime(time);
 		setTimeUnit(timeUnit);
+		setOrigTimeUnit(timeUnit);
 		setConcentration(concentration);
 		setConcentrationUnit(concentrationUnit);
+		setOrigConcentrationUnit(concentrationUnit);
 		setConcentrationStdDev(concentrationStdDev);
 		setNumberOfMeasurements(numberOfMeasurements);
 	}
@@ -42,6 +45,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			strDbl = xmlElement.getAttribute("concentration").getValue();
 			setConcentration(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			setConcentrationUnit(xmlElement.getAttribute("concentrationUnit").getValue());
+			setConcentrationUnitObjectType(xmlElement.getAttribute("concentrationUnitObjectType") == null ? null : xmlElement.getAttribute("concentrationUnitObjectType").getValue());
 			setOrigConcentrationUnit(xmlElement.getAttribute("origConcentrationUnit") == null ? null : xmlElement.getAttribute("origConcentrationUnit").getValue());
 			if (xmlElement.getAttribute("concentrationConfInterval") != null) {
 				strDbl = xmlElement.getAttribute("concentrationConfInterval").getValue();
@@ -62,6 +66,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	public String getOrigTimeUnit() {return origTimeUnit;}
 	public Double getConcentration() {return concentration;}	
 	public String getConcentrationUnit() {return concentrationUnit;}
+	public String getConcentrationUnitObjectType() {return concentrationUnitObjectType;}
 	public String getOrigConcentrationUnit() {return origConcentrationUnit;}
 	public Double getConcentrationStdDev() {return concentrationStdDev;}
 	public Integer getNumberOfMeasurements() {return numberOfMeasurements;}
@@ -72,6 +77,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	public void setOrigTimeUnit(String origTimeUnit) {this.origTimeUnit = (origTimeUnit == null) ? "" : origTimeUnit;}
 	public void setConcentration(Double concentration) {this.concentration = concentration;}
 	public void setConcentrationUnit(String concentrationUnit) {this.concentrationUnit = (concentrationUnit == null) ? "" : concentrationUnit;}
+	public void setConcentrationUnitObjectType(String concentrationUnitObjectType) {this.concentrationUnitObjectType = (concentrationUnitObjectType == null) ? "" : concentrationUnitObjectType;}
 	public void setOrigConcentrationUnit(String origConcentrationUnit) {this.origConcentrationUnit = (origConcentrationUnit == null) ? "" : origConcentrationUnit;}
 	public void setConcentrationStdDev(Double concentrationStdDev) {this.concentrationStdDev = concentrationStdDev;}
 	public void setNumberOfMeasurements(Integer numberOfMeasurements) {this.numberOfMeasurements = numberOfMeasurements;}
@@ -85,6 +91,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("origTimeUnit", origTimeUnit == null ? "" : origTimeUnit);
 		modelElement.setAttribute("concentration", "" + (concentration == null || Double.isNaN(concentration) ? "" : concentration));
 		modelElement.setAttribute("concentrationUnit", concentrationUnit);
+		modelElement.setAttribute("concentrationUnitObjectType", concentrationUnitObjectType == null ? "" : concentrationUnitObjectType);
 		modelElement.setAttribute("origConcentrationUnit", origConcentrationUnit == null ? "" : origConcentrationUnit);
 		modelElement.setAttribute("concentrationStdDev", "" + (concentrationStdDev == null || Double.isNaN(concentrationStdDev) ? "" : concentrationStdDev));
 		modelElement.setAttribute("numberOfMeasurements", "" + (numberOfMeasurements == null ? "" : numberOfMeasurements));
@@ -99,6 +106,7 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
         list.add("OrigTimeUnit");
         list.add("Concentration");
         list.add("ConcentrationUnit");
+        list.add("ConcentrationUnitObjectType");
         list.add("OrigConcentrationUnit");
         list.add("ConcentrationStdDev");
         list.add("NumberOfMeasurements");
@@ -121,6 +129,9 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			return DoubleCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("concentrationUnit")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("concentrationUnitObjectType")) {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("origConcentrationUnit")) {

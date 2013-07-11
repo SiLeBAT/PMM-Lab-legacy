@@ -24,34 +24,40 @@ public class DbIo {
 	    }
     	return result;
     }
-    public static PmmXmlDoc convertStringLists2TSXmlDoc(String t, String tu, String l, String lu, String lot, String stddevs, String wdhs) {
+    public static PmmXmlDoc convertStringLists2TSXmlDoc(Array t, Array tu, Array l, Array lu, Array lot, Array stddevs, Array wdhs) {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
-		if (t != null && l != null && !t.isEmpty() && !l.isEmpty()) {
-			String[] toksT = t.split(",");
-			String[] toksTu = tu == null ? null : tu.split(",");
-			String[] toksL = l.split(",");
-			String[] toksLu = lu == null ? null : lu.split(",");
-			String[] toksLot = lot == null ? null : lot.split(",");
-			String[] toksSd = stddevs == null ? null : stddevs.split(",");
-			String[] toksWdh = wdhs == null ? null : wdhs.split(",");
-			if (toksT.length > 0) {
-				int i=0;
-				for (String time : toksT) {
-					try {
-						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-								time.equals("?") ? null : Double.parseDouble(time),
-										toksTu == null || toksTu[i].equals("?") ? null : toksTu[i],
-										toksL == null || toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),
-										toksLu == null || toksLu[i].equals("?") ? null : toksLu[i],
-										toksSd == null || toksSd[i].equals("?") ? null : Double.parseDouble(toksSd[i]),
-										toksWdh == null || toksWdh[i].equals("?") ? null : Integer.parseInt(toksWdh[i]));
-						if (toksLot != null) tsx.setConcentrationUnitObjectType(toksLot[i]);
-						tsDoc.add(tsx);
+		if (t != null) {
+			try {
+				Object[] toksT = (Object[])t.getArray();
+				Object[] toksTu = (tu == null) ? null : (Object[])tu.getArray();
+				Object[] toksL = (l == null) ? null : (Object[])l.getArray();
+				Object[] toksLu = (lu == null) ? null : (Object[])lu.getArray();
+				Object[] toksLot = (lot == null) ? null : (Object[])lot.getArray();
+				Object[] toksSd = (stddevs == null) ? null : (Object[])stddevs.getArray();
+				Object[] toksWdh = (wdhs == null) ? null : (Object[])wdhs.getArray();
+				if (toksT.length > 0) {
+					int i=0;
+					for (Object time : toksT) {
+						try {
+							TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
+									time == null ? null : Double.parseDouble(time.toString()),
+											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
+											toksL == null || toksL[i] == null ? null : Double.parseDouble(toksL[i].toString()),
+											toksLu == null || toksLu[i] == null ? null : toksLu[i].toString(),
+											toksSd == null || toksSd[i] == null ? null : Double.parseDouble(toksSd[i].toString()),
+											toksWdh == null || toksWdh[i] == null ? null : (int) Double.parseDouble(toksWdh[i].toString()));
+							if (toksLot != null && toksLot[i] != null) tsx.setConcentrationUnitObjectType(toksLot[i].toString());
+							tsDoc.add(tsx);
+						}
+						catch (Exception e) {
+							e.printStackTrace();
+						}
+						i++;
 					}
-					catch (Exception e) {
-					}
-					i++;
 				}
+			}
+		    catch (SQLException e) {
+				e.printStackTrace();
 			}
 		}
 		return tsDoc;    	

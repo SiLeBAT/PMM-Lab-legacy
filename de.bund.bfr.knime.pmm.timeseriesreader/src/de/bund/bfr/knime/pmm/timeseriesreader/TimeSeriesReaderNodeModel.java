@@ -145,12 +145,14 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
-    	int i = 0;
+    	int i = 0, j=0;
     	long ttt,tt1=0,tt2=0,tt3=0,tt4=0,tt5=0;
+
     	while (result.next()) {
-    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getString("Zeit"), result.getString("ZeitEinheit"),
-    				result.getString("Konzentration"), result.getString("KonzentrationsEinheit"), result.getString("KonzentrationsObjectType"),
-    				result.getString("Standardabweichung"), result.getString("Wiederholungen"));
+    		System.err.println(j+"\t"+i);
+    		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getArray("Zeit"), result.getArray("ZeitEinheit"),
+    				result.getArray("Konzentration"), result.getArray("KonzentrationsEinheit"), result.getArray("KonzentrationsObjectType"),
+    				result.getArray("Standardabweichung"), result.getArray("Wiederholungen"));
 
     		if (tsDoc.size() > 0) {
 ttt = System.currentTimeMillis();        		
@@ -221,9 +223,12 @@ ttt = System.currentTimeMillis();
         		if (!filterEnabled || MdReaderUi.passesFilter( matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
         			buf.addRowToTable( new DefaultRow( String.valueOf( i++ ), tuple ) );
         		}    			
-    		}    		
+    		}    	
+    		else {
+        		j++;
+    		}
     	}
-System.err.println(tt1 + "\t" + tt2 + "\t" + tt3 + "\t" + tt4 + "\t" + tt5);    	
+System.err.println("PmmTimeSeries: " + tt1 + "\tMiscXml: " + tt2 + "\tMdInfoXml: " + tt3 + "\tsetAgent/Matrix: " + tt4 + "\tsetMdData: " + tt5);    	
     	// close data buffer
     	buf.close();
     	result.close();
@@ -307,7 +312,7 @@ System.err.println(tt1 + "\t" + tt2 + "\t" + tt3 + "\t" + tt4 + "\t" + tt5);
 			Double[] dbl = new Double[2];
 			if (!mins[i].equals("null")) dbl[0] = Double.parseDouble(mins[i]);
 			if (!maxs[i].equals("null")) dbl[1] = Double.parseDouble(maxs[i]);
-			parameter.put(pars[i], dbl);
+			if (dbl[0] != null || dbl[1] != null) parameter.put(pars[i], dbl);
 		}
     }
 

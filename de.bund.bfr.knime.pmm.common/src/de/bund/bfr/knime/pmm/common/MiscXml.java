@@ -21,6 +21,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	private Double value = null;
 	private List<String> categories = null;
 	private String unit = null;
+	private String origUnit = null;
 	private String dbuuid = null;
 	
 	public MiscXml(MiscXml misc) {
@@ -51,6 +52,10 @@ public class MiscXml implements PmmXmlElementConvertable {
 			setValue(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));			
 			strDbl = xmlElement.getAttribute("unit").getValue().trim();
 			setUnit(strDbl.isEmpty() ? null : strDbl);
+			if (xmlElement.getAttribute("origUnit") != null) {
+				strDbl = xmlElement.getAttribute("origUnit").getValue().trim();
+				setOrigUnit(strDbl.isEmpty() ? null : strDbl);
+			}
 			if (xmlElement.getAttribute("dbuuid") != null) {
 				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
 			}
@@ -97,6 +102,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public Double getValue() {return value;}
 	public List<String> getCategories() {return categories;}
 	public String getUnit() {return unit;}
+	public String getOrigUnit() {return origUnit;}
 	public String getDbuuid() {return dbuuid;}
 	
 	public void setID(Integer id) {this.id = id;}
@@ -105,6 +111,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 	public void setValue(Double value) {this.value = value;}
 	public void setCategories(List<String> categories) {this.categories = categories != null ? categories : new ArrayList<String>();}
 	public void setUnit(String unit) {this.unit = unit;}
+	public void setOrigUnit(String origUnit) {this.origUnit = origUnit;}
 	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
 
 	@Override
@@ -115,6 +122,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("description", description);
 		modelElement.setAttribute("value", "" + (value == null || Double.isNaN(value) ? "" : value));		
 		modelElement.setAttribute("unit", unit == null ? "" : unit);
+		modelElement.setAttribute("origUnit", origUnit == null ? "" : origUnit);
 		modelElement.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
 		
 		for (int i = 0; i < categories.size(); i++) {
@@ -133,6 +141,7 @@ public class MiscXml implements PmmXmlElementConvertable {
         list.add("Description");
         list.add("Value");        
         list.add("Unit");
+        list.add("OrigUnit");
         list.add("Dbuuid");
         
         // TODO handle Categories
@@ -157,6 +166,9 @@ public class MiscXml implements PmmXmlElementConvertable {
 			return null;
 		}
 		else if (element.equalsIgnoreCase("unit")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("origunit")) {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("dbuuid")) {

@@ -1412,7 +1412,7 @@ public class Bfrdb extends Hsqldbiface {
 			if (el instanceof TimeSeriesXml) {
 				TimeSeriesXml tsx = (TimeSeriesXml) el;
 				int timeId = insertDouble(tsx.getTime());				
-				int lognId = insertDouble(tsx.getConcentration());				
+				int lognId = insertDouble(tsx.getConcentration(), tsx.getConcentrationStdDev(), tsx.getNumberOfMeasurements());
 				insertData(condId, timeId, lognId, tsx.getTimeUnit(), tsx.getConcentrationUnit());
 			}
 		}
@@ -1431,7 +1431,7 @@ public class Bfrdb extends Hsqldbiface {
 				m.setModelId(modelId);
 			}
 			try {
-				PreparedStatement ps = conn.prepareStatement( "UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?" );
+				PreparedStatement ps = conn.prepareStatement("UPDATE \"Modellkatalog\" SET \"Name\"=?, \"Level\"=?, \"Formel\"=? WHERE \"ID\"=?");
 				ps.setString(1, m.getModelName());
 				ps.setInt(2, m.getLevel());
 				//ps.setDate( 3, date );
@@ -1563,29 +1563,33 @@ public class Bfrdb extends Hsqldbiface {
 		return res;
 	}
 	
-	private int insertDouble( final Double value ) {
-		
-		int doubleId;
+	private int insertDouble(final Double value) {
+		return insertDouble(value, null, null);
+	}
+	private int insertDouble(final Double value, final Double stdDev, final Integer numValues) {		
+		if (value == null || Double.isNaN(value) || Double.isInfinite(value)) return -1;
 		PreparedStatement psInsertDouble;
 		ResultSet result;
 		
-		doubleId = -1;
+		int doubleId = -1;
 		try {
-			psInsertDouble = conn.prepareStatement( "INSERT INTO \"DoubleKennzahlen\" (\""+ATT_VALUE+"\", \""+ATT_VALUETYPE+"\" )VALUES( ?, 1 )", Statement.RETURN_GENERATED_KEYS );
-			if( value == null || Double.isNaN( value ) || Double.isInfinite( value ) ) {
-				// psInsertDouble.setNull( 1, Types.DOUBLE );
-				return -1;
-			} else {
-				psInsertDouble.setDouble( 1, value );
+			if (stdDev != null) {
+				psInsertDouble = conn.prepareStatement("INSERT INTO \"DoubleKennzahlen\" (\""+ATT_VALUE+"\",\"Standardabweichung\",\"Wiederholungen\", \""+ATT_VALUETYPE+"\" )VALUES(?, ?, ?, 2)", Statement.RETURN_GENERATED_KEYS);
 			}
-			
-			if( psInsertDouble.executeUpdate() < 1 ) {
-				return doubleId;
+			else {
+				psInsertDouble = conn.prepareStatement("INSERT INTO \"DoubleKennzahlen\" (\""+ATT_VALUE+"\", \""+ATT_VALUETYPE+"\" )VALUES(?, 1)", Statement.RETURN_GENERATED_KEYS);
 			}
+			psInsertDouble.setDouble(1, value);
+			if (stdDev != null) {
+				psInsertDouble.setDouble(2, stdDev);
+				if (numValues == null) psInsertDouble.setNull(3, java.sql.Types.INTEGER);
+				else psInsertDouble.setInt(3, numValues);
+			}
+			if (psInsertDouble.executeUpdate() < 1) return -1;
 			
 			result = psInsertDouble.getGeneratedKeys();
 			result.next();
-			doubleId = result.getInt( 1 );
+			doubleId = result.getInt(1);
 			
 			result.close();
 			psInsertDouble.close();

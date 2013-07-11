@@ -1543,7 +1543,7 @@ public class DBKernel {
     if (adminGathered) {
 		DBKernel.closeDBConnections(false);
 		try {
-			DBKernel.getDBConnection();
+			conn = DBKernel.getDBConnection();
 		}
 		catch (Exception e) {
 			e.printStackTrace();

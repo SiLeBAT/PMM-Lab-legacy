@@ -145,11 +145,11 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
-    	int i = 0, j=0;
+    	int i = 0;//, j=0;
     	long ttt,tt1=0,tt2=0,tt3=0,tt4=0,tt5=0;
 
     	while (result.next()) {
-    		System.err.println(j+"\t"+i);
+    		//System.err.println(j+"\t"+i);
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getArray("Zeit"), result.getArray("ZeitEinheit"),
     				result.getArray("Konzentration"), result.getArray("KonzentrationsEinheit"), result.getArray("KonzentrationsObjectType"),
     				result.getArray("Standardabweichung"), result.getArray("Wiederholungen"));
@@ -225,7 +225,7 @@ ttt = System.currentTimeMillis();
         		}    			
     		}    	
     		else {
-        		j++;
+        		//j++;
     		}
     	}
 System.err.println("PmmTimeSeries: " + tt1 + "\tMiscXml: " + tt2 + "\tMdInfoXml: " + tt3 + "\tsetAgent/Matrix: " + tt4 + "\tsetMdData: " + tt5);    	

@@ -2001,8 +2001,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			add(centerPanel, BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
-
-			setResizable(false);
+			
 			setLocationRelativeTo(ChartSelectionPanel.this);
 		}
 
@@ -2058,7 +2057,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 		}
 
-		private JPanel createNorthPanel(JComponent comp, String name) {
+		private JComponent createNorthPanel(JComponent comp, String name) {
 			JPanel panel = new JPanel();
 
 			panel.setBorder(BorderFactory.createTitledBorder(name));
@@ -2068,7 +2067,9 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 					panel.getPreferredSize().width, 100), panel
 					.getPreferredSize().height));
 
-			return panel;
+			return new JScrollPane(panel,
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 
 		private void updateCheckBoxes() {

@@ -92,6 +92,7 @@ import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.StringTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 
@@ -918,6 +919,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			setResizable(false);
 			setLocationRelativeTo(owner);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {
@@ -1159,7 +1161,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			pack();
 
 			setResizable(false);
-			setLocationRelativeTo(owner);
+			setLocationRelativeTo(owner);			
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {

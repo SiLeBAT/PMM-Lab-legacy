@@ -59,6 +59,7 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.IntTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesTable;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 
 public class ChartSamplePanel extends JPanel implements ActionListener,
 		CellEditorListener {
@@ -289,6 +290,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 
 			setResizable(false);
 			setLocationRelativeTo(owner);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {

@@ -80,6 +80,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
@@ -371,9 +372,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			setLayout(new BorderLayout());
 			add(createPanel(concentrationParameters), BorderLayout.CENTER);
-			setResizable(false);
-			setLocationRelativeTo(owner);
+			setResizable(false);			
 			pack();
+			
+			setLocationRelativeTo(owner);
+			UI.adjustDialog(this);
 		}
 
 		public Map<String, String> getResult() {

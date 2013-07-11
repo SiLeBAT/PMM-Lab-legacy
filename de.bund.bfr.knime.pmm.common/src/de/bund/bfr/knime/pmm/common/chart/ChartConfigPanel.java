@@ -68,6 +68,7 @@ import javax.swing.event.ChangeListener;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
@@ -982,6 +983,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 			setResizable(false);
 			setLocationRelativeTo(ChartConfigPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {

@@ -1626,6 +1626,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			pack();
 
 			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {
@@ -1717,6 +1718,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			pack();
 
 			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {
@@ -1782,6 +1784,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			pack();
 
 			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		@Override
@@ -1844,6 +1847,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			pack();
 
 			setLocationRelativeTo(ChartSelectionPanel.this);
+			UI.adjustDialog(this);
 		}
 
 		@Override

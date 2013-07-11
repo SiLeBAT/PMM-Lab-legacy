@@ -65,6 +65,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 
 /**
  * <code>NodeDialog</code> for the "FittedParameterView" Node.
@@ -348,9 +349,11 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			setLayout(new BorderLayout());
 			add(mainPanel, BorderLayout.CENTER);
 			add(okCancelPanel, BorderLayout.SOUTH);
-			setResizable(false);
-			setLocationRelativeTo(owner);
+			setResizable(false);			
 			pack();
+			
+			setLocationRelativeTo(owner);
+			UI.adjustDialog(this);
 		}
 
 		public boolean isApproved() {

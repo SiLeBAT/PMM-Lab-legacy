@@ -49,6 +49,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 
 		setResizable(true);
 		setLocationRelativeTo(owner);
+		UI.adjustDialog(this);
 	}
 
 	@Override

@@ -1301,11 +1301,11 @@ public class MyDBTables {
 		MyTable GeschaetzteParameter = new MyTable("GeschaetzteParameter", new String[]{"GeschaetztesModell","Parameter",
 				"Wert","ZeitEinheit","Einheit","KI.unten","KI.oben","SD","StandardError","t","p"},
 				new String[]{"INTEGER","INTEGER",
-				"DOUBLE","VARCHAR(50)","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE"},
+				"DOUBLE","INTEGER","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE"},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null},
-				new MyTable[]{GeschaetzteModelle,ModellkatalogParameter,null,null,Konzentrationseinheiten,null,null,null,null,null,null},
+				new MyTable[]{GeschaetzteModelle,ModellkatalogParameter,null,Konzentrationseinheiten,Konzentrationseinheiten,null,null,null,null,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,hashZeit,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null},
 				null,
 				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null});
 		addTable(GeschaetzteParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	

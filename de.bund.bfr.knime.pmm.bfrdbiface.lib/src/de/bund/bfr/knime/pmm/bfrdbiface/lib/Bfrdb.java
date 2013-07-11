@@ -114,7 +114,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_STANDARDERROR = "StandardError";
 	public static final String ATT_TEMPERATURE = "Temperatur";
 	public static final String ATT_TIME = "Zeit";
-	public static final String ATT_TIMEUNIT = "ZeitEinheit";
 	public static final String ATT_UNIT = "Einheit";
 	public static final String ATT_VALUE = "Wert";
 	public static final String ATT_VALUETYPE = "Wert_typ";
@@ -1727,7 +1726,7 @@ public class Bfrdb extends Hsqldbiface {
 
 	private void insertData(final int condId, final int timeId, final int lognId, String timeUnit, String concUnit, String concUnitObjectType) {
 		try {			
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \""+ATT_TIMEUNIT+"\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES(?, ?, ?, ?, ?)" );
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Messwerte\" (\""+REL_CONDITION+"\", \""+ATT_TIME+"\", \"ZeitEinheit\", \""+ATT_LOG10N+"\", \"Konz_Einheit\" )VALUES(?, ?, ?, ?, ?)" );
 			ps.setInt( 1, condId );
 			if (timeId >= 0) {
 				ps.setInt(2, timeId);

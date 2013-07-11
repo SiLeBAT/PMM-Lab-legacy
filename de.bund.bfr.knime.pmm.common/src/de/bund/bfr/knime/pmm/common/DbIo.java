@@ -69,7 +69,7 @@ public class DbIo {
 		    try {
 				Object[] na = (Object[])name.getArray();
 				Object[] va = (value == null) ? null : (Object[])value.getArray();
-				Object[] tu = (timeUnit == null) ? null : (Object[])timeUnit.getArray();
+				//Object[] tu = (timeUnit == null) ? null : (Object[])timeUnit.getArray();
 				Object[] cc = (categories == null) ? null : (Object[])categories.getArray();
 				Object[] cu = (units == null) ? null : (Object[])units.getArray();
 				Object[] er = (error == null) ? null : (Object[])error.getArray();
@@ -79,6 +79,7 @@ public class DbIo {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
 						Double vad = (va == null || va[i] == null) ? Double.NaN : Double.parseDouble(va[i].toString());
+						/*
 						if (!Double.isNaN(vad)) {
 							if (tu != null && tu[i] != null) {
 								if (tu[i].toString().equalsIgnoreCase("Sekunde")) vad = vad / 3600;
@@ -94,6 +95,7 @@ public class DbIo {
 								System.err.println("convertArrays2ParamXmlDoc - Unconsidered concentration Unit used... Please Check!!!! ->" + cu[i]);
 							}
 						}
+						*/
 						Double erd = (er == null || er[i] == null) ? Double.NaN : Double.parseDouble(er[i].toString());
 						Double mid = (mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());

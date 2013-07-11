@@ -50,6 +50,38 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_164_165() {	
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("ParamView") + ";", false);
+		
+  		Integer idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
+  		Integer idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
+  		Integer idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
+  		Integer idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});
+  		Integer idJ = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"a_j", "Time"});
+
+  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idS + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Sekunde'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idM + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Minute'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idH + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Stunde'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='86'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Tag'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='92'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Woche'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idMo + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Monat'", false);
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("GeschaetzteParameter") +
+				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idJ + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Jahr'", false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameter") + " ALTER COLUMN " + DBKernel.delimitL("ZeitEinheit") + " INTEGER", false);
+		refreshFKs("GeschaetzteParameter");
+
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_165.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_165.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null, false);		
+	}
 	public static void check4Updates_163_164() {	
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql", null, false);
 	}

@@ -28,9 +28,9 @@ public class DbIo {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
 		if (t != null && l != null && !t.isEmpty() && !l.isEmpty()) {
 			String[] toksT = t.split(",");
-			String[] toksTu = tu.split(",");
+			String[] toksTu = tu == null ? null : tu.split(",");
 			String[] toksL = l.split(",");
-			String[] toksLu = lu.split(",");
+			String[] toksLu = lu == null ? null : lu.split(",");
 			String[] toksLot = lot == null ? null : lot.split(",");
 			String[] toksSd = stddevs == null ? null : stddevs.split(",");
 			String[] toksWdh = wdhs == null ? null : wdhs.split(",");
@@ -39,8 +39,10 @@ public class DbIo {
 				for (String time : toksT) {
 					try {
 						TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-								time.equals("?") ? null : Double.parseDouble(time),toksTu[i],
-										toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),toksLu[i],
+								time.equals("?") ? null : Double.parseDouble(time),
+										toksTu == null || toksTu[i].equals("?") ? null : toksTu[i],
+										toksL == null || toksL[i].equals("?") ? null : Double.parseDouble(toksL[i]),
+										toksLu == null || toksLu[i].equals("?") ? null : toksLu[i],
 										toksSd == null || toksSd[i].equals("?") ? null : Double.parseDouble(toksSd[i]),
 										toksWdh == null || toksWdh[i].equals("?") ? null : Integer.parseInt(toksWdh[i]));
 						if (toksLot != null) tsx.setConcentrationUnitObjectType(toksLot[i]);

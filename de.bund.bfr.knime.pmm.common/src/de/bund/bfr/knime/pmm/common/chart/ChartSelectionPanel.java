@@ -567,13 +567,43 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	public List<String> getVisibleColumns() {
-		List<String> visibleColumns = new ArrayList<String>();
+		List<String> visibleColumns = new ArrayList<>();
+		List<String> columns = new ArrayList<>();
 
-		for (int i = 2; i < selectTable.getColumnCount(); i++) {
-			String columnName = selectTable.getColumnName(i);
+		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS));
+		columns.addAll(stringColumns);
+		columns.addAll(qualityColumns);
 
-			if (selectTable.getColumn(columnName).getMaxWidth() != 0) {
-				visibleColumns.add(columnName);
+		for (String column : columns) {
+			if (selectTable.getColumn(column).getMaxWidth() != 0) {
+				visibleColumns.add(column);
+			}
+		}
+
+		for (int i = 0; i < conditions.size(); i++) {
+			String column = conditions.get(i);
+
+			if (conditionStandardUnits != null) {
+				String unit = conditionStandardUnits.get(i);
+
+				if (!hasConditionRanges
+						&& selectTable.getColumn(column + " (" + unit + ")")
+								.getMaxWidth() != 0) {
+					visibleColumns.add(column);
+				} else if (hasConditionRanges
+						&& selectTable.getColumn(
+								"Min " + column + " (" + unit + ")")
+								.getMaxWidth() != 0) {
+					visibleColumns.add(column);
+				}
+			} else {
+				if (!hasConditionRanges
+						&& selectTable.getColumn(column).getMaxWidth() != 0) {
+					visibleColumns.add(column);
+				} else if (hasConditionRanges
+						&& selectTable.getColumn("Min " + column).getMaxWidth() != 0) {
+					visibleColumns.add(column);
+				}
 			}
 		}
 
@@ -616,75 +646,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 						i, 1);
 			}
 		} else if (e.getSource() == customizeColumnsButton) {
-			List<String> columns = new ArrayList<>();
-			List<String> visibleColumns = new ArrayList<>();
-
-			columns.add(COLOR);
-			columns.add(SHAPE);
-
-			if (selectTable.getColumn(COLOR).getMaxWidth() != 0) {
-				visibleColumns.add(COLOR);
-			}
-
-			if (selectTable.getColumn(SHAPE).getMaxWidth() != 0) {
-				visibleColumns.add(SHAPE);
-			}
-
-			if (selectTable.getColumn(DATA).getMaxWidth() != 0) {
-				visibleColumns.add(DATA);
-			}
-
-			if (selectTable.getColumn(FORMULA).getMaxWidth() != 0) {
-				visibleColumns.add(FORMULA);
-			}
-
-			if (selectTable.getColumn(PARAMETERS).getMaxWidth() != 0) {
-				visibleColumns.add(PARAMETERS);
-			}
-
-			for (String column : stringColumns) {
-				if (selectTable.getColumn(column).getMaxWidth() != 0) {
-					visibleColumns.add(column);
-				}
-			}
-
-			for (String column : qualityColumns) {
-				if (selectTable.getColumn(column).getMaxWidth() != 0) {
-					visibleColumns.add(column);
-				}
-			}
-
-			for (int i = 0; i < conditions.size(); i++) {
-				String column = conditions.get(i);
-
-				if (conditionStandardUnits != null) {
-					String unit = conditionStandardUnits.get(i);
-
-					if (!hasConditionRanges
-							&& selectTable
-									.getColumn(column + " (" + unit + ")")
-									.getMaxWidth() != 0) {
-						visibleColumns.add(column);
-					} else if (hasConditionRanges
-							&& selectTable.getColumn(
-									"Min " + column + " (" + unit + ")")
-									.getMaxWidth() != 0) {
-						visibleColumns.add(column);
-					}
-				} else {
-					if (!hasConditionRanges
-							&& selectTable.getColumn(column).getMaxWidth() != 0) {
-						visibleColumns.add(column);
-					} else if (hasConditionRanges
-							&& selectTable.getColumn("Min " + column)
-									.getMaxWidth() != 0) {
-						visibleColumns.add(column);
-					}
-				}
-			}
-
 			ColumnSelectionDialog dialog = new ColumnSelectionDialog(
-					visibleColumns);
+					getVisibleColumns());
 
 			dialog.setVisible(true);
 
@@ -730,13 +693,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	}
 
 	private void applyColumnSelection(List<String> visibleColumns) {
-		List<String> allColumns = new ArrayList<>(Arrays.asList(COLOR, SHAPE,
-				DATA, FORMULA, PARAMETERS));
+		List<String> columns = new ArrayList<>();
 
-		allColumns.addAll(stringColumns);
-		allColumns.addAll(qualityColumns);
+		columns.addAll(Arrays.asList(COLOR, SHAPE, DATA, FORMULA, PARAMETERS));
+		columns.addAll(stringColumns);
+		columns.addAll(qualityColumns);
 
-		for (String column : allColumns) {
+		for (String column : columns) {
 			setColumnVisible(column, visibleColumns.contains(column));
 		}
 
@@ -2006,7 +1969,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			add(centerPanel, BorderLayout.CENTER);
 			add(bottomPanel, BorderLayout.SOUTH);
 			pack();
-			
+
 			setLocationRelativeTo(ChartSelectionPanel.this);
 			UI.adjustDialog(this);
 		}

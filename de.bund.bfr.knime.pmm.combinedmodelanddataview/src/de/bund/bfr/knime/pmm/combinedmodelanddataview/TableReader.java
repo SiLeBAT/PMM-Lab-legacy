@@ -92,9 +92,13 @@ public class TableReader {
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS, AttributeUtilities.DATAID,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					MdInfoXml.ATT_COMMENT);
+					TimeSeriesSchema.ATT_AGENT,
+					AttributeUtilities.AGENT_DETAILS,
+					TimeSeriesSchema.ATT_MATRIX,
+					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -161,10 +165,10 @@ public class TableReader {
 		}
 
 		for (int nr = 0; nr < tuples.size(); nr++) {
-			KnimeTuple row = tuples.get(nr);
-			Integer catID = ((CatalogModelXml) row.getPmmXml(
+			KnimeTuple tuple = tuples.get(nr);
+			Integer catID = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
-			Integer estID = ((EstModelXml) row.getPmmXml(
+			Integer estID = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 			String id = "";
 
@@ -175,7 +179,7 @@ public class TableReader {
 			}
 
 			if (schemaContainsData) {
-				id += "(" + row.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
 			if (!idSet.add(id)) {
@@ -184,15 +188,15 @@ public class TableReader {
 
 			ids.add(id);
 
-			CatalogModelXml modelXml = (CatalogModelXml) row.getPmmXml(
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			DepXml depXml = (DepXml) row.getPmmXml(Model1Schema.ATT_DEPENDENT)
+			DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
 					.get(0);
 			String modelName = modelXml.getName();
 			String formula = modelXml.getFormula();
 			String depVar = depXml.getName();
-			PmmXmlDoc indepXml = row.getPmmXml(Model1Schema.ATT_INDEPENDENT);
-			PmmXmlDoc paramXml = row.getPmmXml(Model1Schema.ATT_PARAMETER);
+			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Plotable plotable = new Plotable(Plotable.BOTH);
 			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
 			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
@@ -233,7 +237,7 @@ public class TableReader {
 			parameterData.add(paramData);
 
 			if (schemaContainsData) {
-				PmmXmlDoc timeSeriesXml = row
+				PmmXmlDoc timeSeriesXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_TIMESERIES);
 				List<TimeSeriesXml> dataPoints = new ArrayList<>();
 				int n = Math.max(1, timeSeriesXml.getElementSet().size());
@@ -251,9 +255,10 @@ public class TableReader {
 
 				plotable = new Plotable(Plotable.BOTH);
 				plotable.addValueList(AttributeUtilities.TIME, timeList);
-				plotable.addValueList(AttributeUtilities.CONCENTRATION, logcList);
+				plotable.addValueList(AttributeUtilities.CONCENTRATION,
+						logcList);
 
-				PmmXmlDoc misc = row.getPmmXml(TimeSeriesSchema.ATT_MISC);
+				PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 
 				for (PmmXmlElementConvertable el : misc.getElementSet()) {
 					MiscXml element = (MiscXml) el;
@@ -275,47 +280,30 @@ public class TableReader {
 				}
 
 				String dataName;
-				String agent;
-				String matrix;
 
-				PmmXmlDoc agentXml = row.getPmmXml(TimeSeriesSchema.ATT_AGENT);
-				String agentName = ((AgentXml) agentXml.get(0)).getName();
-				String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
-				PmmXmlDoc matrixXml = row
-						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
-				String matrixName = ((MatrixXml) matrixXml.get(0)).getName();
-				String matrixDetail = ((MatrixXml) matrixXml.get(0))
-						.getDetail();
-
-				if (row.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
-					dataName = row.getString(TimeSeriesSchema.ATT_COMBASEID);
+				if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
+					dataName = tuple.getString(TimeSeriesSchema.ATT_COMBASEID);
 				} else {
-					dataName = "" + row.getInt(TimeSeriesSchema.ATT_CONDID);
+					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				if (agentName != null) {
-					agent = agentName + " (" + agentDetail + ")";
-				} else {
-					agent = agentDetail;
-				}
-
-				if (matrixName != null) {
-					matrix = matrixName + " (" + matrixDetail + ")";
-				} else {
-					matrix = matrixDetail;
-				}
-
-				PmmXmlDoc estModelXml = row
+				AgentXml agent = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
+				PmmXmlDoc estModelXml = tuple
 						.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
 				stringColumnValues.get(2).add(dataName);
-				stringColumnValues.get(3).add(agent);
-				stringColumnValues.get(4).add(matrix);
-				stringColumnValues.get(5).add(
-						((MdInfoXml) row.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
+				stringColumnValues.get(3).add(agent.getName());
+				stringColumnValues.get(4).add(agent.getDetail());
+				stringColumnValues.get(5).add(matrix.getName());
+				stringColumnValues.get(6).add(matrix.getDetail());
+				stringColumnValues.get(7).add(
+						((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 								.get(0)).getComment());
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
@@ -364,7 +352,7 @@ public class TableReader {
 					conditionUnits.get(i).add(unit);
 				}
 			} else {
-				PmmXmlDoc estModelXml = row
+				PmmXmlDoc estModelXml = tuple
 						.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 				plotable = new Plotable(Plotable.FUNCTION);

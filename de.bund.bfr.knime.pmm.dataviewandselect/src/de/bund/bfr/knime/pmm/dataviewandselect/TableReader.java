@@ -51,9 +51,12 @@ public class TableReader {
 		ids = new ArrayList<>();
 		plotables = new LinkedHashMap<>();
 		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
-				TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
+				TimeSeriesSchema.ATT_AGENT, AttributeUtilities.AGENT_DETAILS,
+				TimeSeriesSchema.ATT_MATRIX, AttributeUtilities.MATRIX_DETAILS,
 				MdInfoXml.ATT_COMMENT);
 		stringColumnValues = new ArrayList<>();
+		stringColumnValues.add(new ArrayList<String>());
+		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -98,8 +101,6 @@ public class TableReader {
 			String concentrationUnit = Categories.getConcentrationCategories()
 					.get(0).getStandardUnit();
 			String dataName;
-			String agent;
-			String matrix;
 
 			for (PmmXmlElementConvertable el : timeSeriesXml.getElementSet()) {
 				TimeSeriesXml element = (TimeSeriesXml) el;
@@ -117,34 +118,22 @@ public class TableReader {
 				dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 			}
 
-			PmmXmlDoc agentXml = tuple.getPmmXml(TimeSeriesSchema.ATT_AGENT);
-			String agentName = ((AgentXml) agentXml.get(0)).getName();
-			String agentDetail = ((AgentXml) agentXml.get(0)).getDetail();
-			PmmXmlDoc matrixXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
-			String matrixName = ((MatrixXml) matrixXml.get(0)).getName();
-			String matrixDetail = ((MatrixXml) matrixXml.get(0)).getDetail();
-
-			if (agentName != null) {
-				agent = agentName + " (" + agentDetail + ")";
-			} else {
-				agent = agentDetail;
-			}
-
-			if (matrixName != null) {
-				matrix = matrixName + " (" + matrixDetail + ")";
-			} else {
-				matrix = matrixDetail;
-			}
+			AgentXml agent = (AgentXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_AGENT).get(0);
+			MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_MATRIX).get(0);
 
 			stringColumnValues.get(0).add(dataName);
-			stringColumnValues.get(1).add(agent);
-			stringColumnValues.get(2).add(matrix);
-			stringColumnValues.get(3).add(
+			stringColumnValues.get(1).add(agent.getName());
+			stringColumnValues.get(2).add(agent.getDetail());
+			stringColumnValues.get(3).add(matrix.getName());
+			stringColumnValues.get(4).add(matrix.getDetail());
+			stringColumnValues.get(5).add(
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 							.get(0)).getComment());
 			data.add(dataPoints);
 			shortLegend.put(id, dataName);
-			longLegend.put(id, dataName + " " + agent);
+			longLegend.put(id, dataName + " " + agent.getName());
 
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 

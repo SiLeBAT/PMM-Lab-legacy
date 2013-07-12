@@ -389,12 +389,13 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		selectTable.getColumn(FORMULA).setCellRenderer(new ViewRenderer());
 		selectTable.getColumn(PARAMETERS).setCellEditor(new ParameterEditor());
 		selectTable.getColumn(PARAMETERS).setCellRenderer(new ViewRenderer());
+		selectTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		applyColumnSelection(visibleColumns);
 
 		optionsPanel = new SpacePanel(upperPanel);
 		tableScrollPane = new JScrollPane(selectTable,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		setLayout(new BorderLayout());
 		add(optionsPanel, BorderLayout.NORTH);

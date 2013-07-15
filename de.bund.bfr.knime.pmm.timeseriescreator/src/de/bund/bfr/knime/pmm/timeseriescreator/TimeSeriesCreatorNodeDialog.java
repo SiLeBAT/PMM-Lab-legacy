@@ -291,8 +291,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			final DataTableSpec[] specs) throws NotConfigurableException {
 		set = new SettingsHelper();
 		set.loadSettings(settings);
+
 		literatureData = new ArrayList<>();
+
+		for (LiteratureItem item : set.getLiterature()) {
+			literatureData.add(item.getAuthor() + "-" + item.getYear());
+		}
+
 		literatureList.setListData(literatureData.toArray(new String[0]));
+
 		timeBox.setSelectedItem(set.getTimeUnit());
 		logcBox.setSelectedItem(set.getLogcUnit());
 
@@ -397,9 +404,9 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
-					AttributeUtilities.ATT_AW, null,
-					waterActivityField.getValue(), Arrays.asList(Categories
-							.getAw()), (String) awBox.getSelectedItem()));
+					AttributeUtilities.ATT_AW, null, waterActivityField
+							.getValue(), Arrays.asList(Categories.getAw()),
+					(String) awBox.getSelectedItem()));
 		}
 
 		for (int i = 0; i < conditions.size(); i++) {
@@ -513,8 +520,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				Arrays.sort(indices);
 
 				for (int i = indices.length - 1; i >= 0; i--) {
-					set.getLiterature().remove(i);
-					literatureData.remove(i);
+					set.getLiterature().remove(indices[i]);
+					literatureData.remove(indices[i]);
 				}
 
 				literatureList.setListData(literatureData
@@ -789,6 +796,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						condButtons.get(0).setText(name);
 						conditions.set(0, misc);
 						condValueFields.get(0).setValue(value);
+						condUnitFields.get(0).removeAllItems();
+
+						for (String u : Categories.getUnitsFromCategories(misc
+								.getCategories())) {
+							condUnitFields.get(0).addItem(u);
+						}
+
 						condUnitFields.get(0).setSelectedItem(unit);
 					}
 				}
@@ -812,6 +826,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						time = ((TimeSeriesXml) timeSeriesXml.get(i)).getTime();
 						logc = ((TimeSeriesXml) timeSeriesXml.get(i))
 								.getConcentration();
+						timeBox.setSelectedItem(((TimeSeriesXml) timeSeriesXml
+								.get(i)).getTimeUnit());
+						logcBox.setSelectedItem(((TimeSeriesXml) timeSeriesXml
+								.get(i)).getConcentrationUnit());
 					}
 
 					table.setTime(i, time);
@@ -880,9 +898,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.TIME,
 						AttributeUtilities.CONCENTRATION,
 						AttributeUtilities.ATT_TEMPERATURE,
-						AttributeUtilities.ATT_PH,
-						AttributeUtilities.ATT_AW, OTHER_PARAMETER,
-						NO_PARAMETER });
+						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
+						OTHER_PARAMETER, NO_PARAMETER });
 				JButton button = new JButton();
 				JComboBox<String> unitBox = new JComboBox<>();
 
@@ -941,20 +958,43 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		@Override
 		public void itemStateChanged(ItemEvent e) {
 			if (e.getStateChange() == ItemEvent.SELECTED) {
-				for (String column : mappingButtons.keySet()) {
+				for (String column : mappingBoxes.keySet()) {
 					if (e.getSource() == mappingBoxes.get(column)) {
 						JComboBox<String> box = mappingBoxes.get(column);
 						JButton button = mappingButtons.get(column);
 						String selected = (String) box.getSelectedItem();
 
 						if (selected.equals(XLSReader.ID_COLUMN)
-								|| selected.equals(MdInfoXml.ATT_COMMENT)
-								|| selected.equals(AttributeUtilities.TIME)
-								|| selected
-										.equals(AttributeUtilities.CONCENTRATION)) {
+								|| selected.equals(MdInfoXml.ATT_COMMENT)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, selected);
+						} else if (selected.equals(AttributeUtilities.TIME)) {
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+							mappings.put(column, selected);
+							unitBoxes.get(column).removeAllItems();
+
+							for (String unit : Categories.getTimeCategory()
+									.getAllUnits()) {
+								unitBoxes.get(column).addItem(unit);
+							}
+
+							pack();
+						} else if (selected
+								.equals(AttributeUtilities.CONCENTRATION)) {
+							button.setEnabled(false);
+							button.setText(OTHER_PARAMETER);
+							mappings.put(column, selected);
+							unitBoxes.get(column).removeAllItems();
+
+							for (String unit : Categories
+									.getUnitsFromCategories(Categories
+											.getConcentrationCategories())) {
+								unitBoxes.get(column).addItem(unit);
+							}
+
+							pack();
 						} else if (selected
 								.equals(AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);
@@ -965,6 +1005,14 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									null, Arrays.asList(Categories.getTemp()),
 									Categories.getTempCategory()
 											.getStandardUnit()));
+							unitBoxes.get(column).removeAllItems();
+
+							for (String unit : Categories.getTempCategory()
+									.getAllUnits()) {
+								unitBoxes.get(column).addItem(unit);
+							}
+
+							pack();
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
@@ -974,16 +1022,31 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 									Arrays.asList(Categories.getPh()),
 									Categories.getPhCategory()
 											.getStandardUnit()));
-						} else if (selected
-								.equals(AttributeUtilities.ATT_AW)) {
+							unitBoxes.get(column).removeAllItems();
+
+							for (String unit : Categories.getPhCategory()
+									.getAllUnits()) {
+								unitBoxes.get(column).addItem(unit);
+							}
+
+							pack();
+						} else if (selected.equals(AttributeUtilities.ATT_AW)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
-									AttributeUtilities.ATT_AW, null,
-									null, Arrays.asList(Categories.getAw()),
+									AttributeUtilities.ATT_AW, null, null,
+									Arrays.asList(Categories.getAw()),
 									Categories.getAwCategory()
 											.getStandardUnit()));
+							unitBoxes.get(column).removeAllItems();
+
+							for (String unit : Categories.getAwCategory()
+									.getAllUnits()) {
+								unitBoxes.get(column).addItem(unit);
+							}
+
+							pack();
 						} else if (selected.equals(OTHER_PARAMETER)) {
 							button.setEnabled(true);
 							button.setText(OTHER_PARAMETER);
@@ -1161,7 +1224,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			pack();
 
 			setResizable(false);
-			setLocationRelativeTo(owner);			
+			setLocationRelativeTo(owner);
 			UI.adjustDialog(this);
 		}
 

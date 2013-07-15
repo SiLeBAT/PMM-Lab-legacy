@@ -47,8 +47,8 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 			setConcentrationUnit(xmlElement.getAttribute("concentrationUnit").getValue());
 			setConcentrationUnitObjectType(xmlElement.getAttribute("concentrationUnitObjectType") == null ? null : xmlElement.getAttribute("concentrationUnitObjectType").getValue());
 			setOrigConcentrationUnit(xmlElement.getAttribute("origConcentrationUnit") == null ? null : xmlElement.getAttribute("origConcentrationUnit").getValue());
-			if (xmlElement.getAttribute("concentrationConfInterval") != null) {
-				strDbl = xmlElement.getAttribute("concentrationConfInterval").getValue();
+			if (xmlElement.getAttribute("concentrationStdDev") != null) {
+				strDbl = xmlElement.getAttribute("concentrationStdDev").getValue();
 				setConcentrationStdDev(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
 			}
 			if (xmlElement.getAttribute("numberOfMeasurements") != null) {

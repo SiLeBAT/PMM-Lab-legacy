@@ -368,7 +368,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 			if (category == null) {
 				System.err.println(description
 						+ "... unknown Misc parameter...");
-				category = new ArrayList<String>();
+				categories = new ArrayList<String>();
 			} else {
 				categories = Arrays.asList(category.toString().split(","));
 			}

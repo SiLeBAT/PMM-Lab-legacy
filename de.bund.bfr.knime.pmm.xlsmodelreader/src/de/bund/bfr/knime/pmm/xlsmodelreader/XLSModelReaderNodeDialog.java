@@ -1157,31 +1157,32 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		} else {
 			int row = 1;
 			String column = (String) agentBox.getSelectedItem();
+			Set<String> values;
 
 			try {
-				Set<String> values = xlsReader.getValuesInColumn(new File(
-						filePanel.getFileName()), (String) sheetBox
-						.getSelectedItem(), column);
-
-				for (String value : values) {
-					JButton button = new JButton();
-
-					if (set.getAgentMappings().containsKey(value)) {
-						button.setText(set.getAgentMappings().get(value)
-								.getName());
-					} else {
-						button.setText(OTHER_PARAMETER);
-					}
-
-					button.addActionListener(this);
-					agentButtons.put(value, button);
-
-					northPanel.add(new JLabel(value + ":"),
-							createConstraints(0, row));
-					northPanel.add(button, createConstraints(1, row));
-					row++;
-				}
+				values = xlsReader.getValuesInColumn(
+						new File(filePanel.getFileName()),
+						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
+				values = new LinkedHashSet<>();
+			}
+
+			for (String value : values) {
+				JButton button = new JButton();
+
+				if (set.getAgentMappings().get(value) != null) {
+					button.setText(set.getAgentMappings().get(value).getName());
+				} else {
+					button.setText(OTHER_PARAMETER);
+				}
+
+				button.addActionListener(this);
+				agentButtons.put(value, button);
+
+				northPanel.add(new JLabel(value + ":"),
+						createConstraints(0, row));
+				northPanel.add(button, createConstraints(1, row));
+				row++;
 			}
 		}
 
@@ -1229,31 +1230,32 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 		} else {
 			int row = 1;
 			String column = (String) matrixBox.getSelectedItem();
+			Set<String> values;
 
 			try {
-				Set<String> values = xlsReader.getValuesInColumn(new File(
-						filePanel.getFileName()), (String) sheetBox
-						.getSelectedItem(), column);
-
-				for (String value : values) {
-					JButton button = new JButton();
-
-					if (set.getMatrixMappings().containsKey(value)) {
-						button.setText(set.getMatrixMappings().get(value)
-								.getName());
-					} else {
-						button.setText(OTHER_PARAMETER);
-					}
-
-					button.addActionListener(this);
-					matrixButtons.put(value, button);
-
-					northPanel.add(new JLabel(value + ":"),
-							createConstraints(0, row));
-					northPanel.add(button, createConstraints(1, row));
-					row++;
-				}
+				values = xlsReader.getValuesInColumn(
+						new File(filePanel.getFileName()),
+						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
+				values = new LinkedHashSet<>();
+			}
+
+			for (String value : values) {
+				JButton button = new JButton();
+
+				if (set.getMatrixMappings().get(value) != null) {
+					button.setText(set.getMatrixMappings().get(value).getName());
+				} else {
+					button.setText(OTHER_PARAMETER);
+				}
+
+				button.addActionListener(this);
+				matrixButtons.put(value, button);
+
+				northPanel.add(new JLabel(value + ":"),
+						createConstraints(0, row));
+				northPanel.add(button, createConstraints(1, row));
+				row++;
 			}
 		}
 

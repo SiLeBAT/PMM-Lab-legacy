@@ -54,6 +54,15 @@ public class UI {
 		}
 	}
 
+	public static void select(JComboBox<?> box, Object item, Object defaultItem) {
+		box.setSelectedItem(item);
+
+		if (box.getSelectedItem() != null
+				&& !box.getSelectedItem().equals(item)) {
+			box.setSelectedItem(defaultItem);
+		}
+	}
+
 	public static void adjustDialog(JDialog dialog) {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(

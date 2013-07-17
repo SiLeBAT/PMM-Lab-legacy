@@ -39,7 +39,7 @@ import java.util.List;
 
 public class Categories {
 
-	public static final String NO_CATEGORY = "No Category";	
+	public static final String NO_CATEGORY = "No Category";
 
 	public static List<String> getAllCategories() {
 		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());
@@ -115,9 +115,13 @@ public class Categories {
 	}
 
 	public static List<Category> getConcentrationCategories() {
-		return Arrays.asList(getCategory(getConcentrations().get(0)),
-				getCategory(getConcentrations().get(1)),
-				getCategory(getConcentrations().get(2)));
+		List<Category> categories = new ArrayList<>();
+
+		for (String name : getConcentrations()) {
+			categories.add(getCategory(name));
+		}
+		
+		return categories;
 	}
 
 	public static String getTemp() {

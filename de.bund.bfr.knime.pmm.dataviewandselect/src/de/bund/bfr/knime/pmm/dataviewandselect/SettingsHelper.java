@@ -62,6 +62,7 @@ public class SettingsHelper {
 	protected static final String CFG_SHOWLEGEND = "ShowLegend";
 	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
 	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
+	protected static final String CFG_EXPORTASSVG = "ExportAsSvg";
 	protected static final String CFG_UNITX = "UnitX";
 	protected static final String CFG_UNITY = "UnitY";
 	protected static final String CFG_TRANSFORMY = "TransformY";
@@ -78,6 +79,7 @@ public class SettingsHelper {
 	protected static final boolean DEFAULT_SHOWLEGEND = true;
 	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
 	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = false;
+	protected static final boolean DEFAULT_EXPORTASSVG = false;
 	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
 
@@ -94,6 +96,7 @@ public class SettingsHelper {
 	private boolean showLegend;
 	private boolean addLegendInfo;
 	private boolean displayHighlighted;
+	private boolean exportAsSvg;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -114,6 +117,7 @@ public class SettingsHelper {
 		showLegend = DEFAULT_SHOWLEGEND;
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		exportAsSvg = DEFAULT_EXPORTASSVG;
 		unitX = null;
 		unitY = null;
 		transformY = DEFAULT_TRANSFORMY;
@@ -203,6 +207,12 @@ public class SettingsHelper {
 		}
 
 		try {
+			exportAsSvg = settings.getBoolean(CFG_EXPORTASSVG);
+		} catch (InvalidSettingsException e) {
+			exportAsSvg = DEFAULT_EXPORTASSVG;
+		}
+
+		try {
 			unitX = settings.getString(CFG_UNITX);
 		} catch (InvalidSettingsException e) {
 			unitX = null;
@@ -251,6 +261,7 @@ public class SettingsHelper {
 		settings.addBoolean(CFG_SHOWLEGEND, showLegend);
 		settings.addBoolean(CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addBoolean(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addBoolean(CFG_EXPORTASSVG, exportAsSvg);
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
@@ -361,6 +372,14 @@ public class SettingsHelper {
 
 	public void setDisplayHighlighted(boolean displayHighlighted) {
 		this.displayHighlighted = displayHighlighted;
+	}
+
+	public boolean isExportAsSvg() {
+		return exportAsSvg;
+	}
+
+	public void setExportAsSvg(boolean exportAsSvg) {
+		this.exportAsSvg = exportAsSvg;
 	}
 
 	public String getUnitX() {

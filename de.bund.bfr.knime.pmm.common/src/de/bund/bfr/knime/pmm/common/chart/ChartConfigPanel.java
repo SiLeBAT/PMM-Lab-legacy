@@ -260,7 +260,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		JPanel outerParametersPanel = new JPanel();
 
 		outerParametersPanel.setBorder(BorderFactory
-				.createTitledBorder("Parameters"));
+				.createTitledBorder("Variables on Display"));
 		outerParametersPanel.setLayout(new BorderLayout());
 		outerParametersPanel.add(parametersPanel, BorderLayout.WEST);
 		mainPanel.add(outerParametersPanel, createConstraints(2));
@@ -275,7 +275,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		JPanel outerParameterValuesPanel = new JPanel();
 
 		outerParameterValuesPanel.setBorder(BorderFactory
-				.createTitledBorder("Parameter Values"));
+				.createTitledBorder("Other Variables"));
 		outerParameterValuesPanel.setLayout(new BorderLayout());
 		outerParameterValuesPanel.add(parameterValuesPanel, BorderLayout.WEST);
 		mainPanel.add(outerParameterValuesPanel, createConstraints(3));

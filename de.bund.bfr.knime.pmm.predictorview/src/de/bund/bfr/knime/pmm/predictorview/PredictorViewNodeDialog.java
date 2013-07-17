@@ -168,6 +168,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setShowConfidenceInterval(set.isShowConfidence());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
@@ -291,6 +292,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setShowLegend(configPanel.isShowLegend());
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setShowConfidence(configPanel.isShowConfidenceInterval());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
@@ -372,9 +374,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			setLayout(new BorderLayout());
 			add(createPanel(concentrationParameters), BorderLayout.CENTER);
-			setResizable(false);			
+			setResizable(false);
 			pack();
-			
+
 			setLocationRelativeTo(owner);
 			UI.adjustDialog(this);
 		}

@@ -44,7 +44,6 @@ import java.util.Map;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.data.DataTableSpec;
-import org.knime.core.data.image.png.PNGImageContent;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
@@ -57,7 +56,6 @@ import org.knime.core.node.port.PortObject;
 import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
-import org.knime.core.node.port.image.ImagePortObjectSpec;
 
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
@@ -169,10 +167,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			}
 		}
 
-		return new PortObject[] { new ImagePortObject(
-				ChartUtilities.convertToPNGImageContent(
-						creator.getChart(set.getSelectedID()), 640, 480),
-				new ImagePortObjectSpec(PNGImageContent.TYPE)) };
+		return new PortObject[] { ChartUtilities.getImage(
+				creator.getChart(set.getSelectedID()), set.isExportAsSvg()) };
 	}
 
 	/**
@@ -193,8 +189,8 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		return new PortObjectSpec[] { new ImagePortObjectSpec(
-				PNGImageContent.TYPE) };
+		return new PortObjectSpec[] { ChartUtilities.getImageSpec(set
+				.isExportAsSvg()) };
 	}
 
 	/**

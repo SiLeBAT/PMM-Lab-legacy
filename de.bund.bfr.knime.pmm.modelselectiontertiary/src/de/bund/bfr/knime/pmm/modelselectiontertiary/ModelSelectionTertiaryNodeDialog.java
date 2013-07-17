@@ -130,6 +130,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		set.setShowLegend(configPanel.isShowLegend());
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
 		set.setTransformY(configPanel.getTransformY());
@@ -175,6 +176,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setUnitX(set.getUnitX());
 		configPanel.setUnitY(set.getUnitY());
 		configPanel.setTransformY(set.getTransformY());

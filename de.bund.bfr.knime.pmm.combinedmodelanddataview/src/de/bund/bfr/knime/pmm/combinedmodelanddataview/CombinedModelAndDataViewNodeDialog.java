@@ -130,6 +130,7 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		set.setShowLegend(configPanel.isShowLegend());
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
 		set.setTransformY(configPanel.getTransformY());
@@ -172,6 +173,7 @@ public class CombinedModelAndDataViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,

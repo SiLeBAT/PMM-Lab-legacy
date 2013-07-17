@@ -94,6 +94,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JCheckBox showLegendBox;
 	private JCheckBox addInfoInLegendBox;
 	private JCheckBox displayFocusedRowBox;
+	private JCheckBox exportAsSvgBox;
 	private JCheckBox showConfidenceBox;
 
 	private JCheckBox manualRangeBox;
@@ -147,6 +148,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		displayFocusedRowBox = new JCheckBox("Display Highlighted Row");
 		displayFocusedRowBox.setSelected(false);
 		displayFocusedRowBox.addActionListener(this);
+		exportAsSvgBox = new JCheckBox("Export as SVG");
+		exportAsSvgBox.setSelected(false);
 
 		JPanel displayOptionsPanel = new JPanel();
 
@@ -159,13 +162,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		displayOptionsPanel.add(showLegendBox, createConstraints(0, 1, 1, 1));
 		displayOptionsPanel.add(addInfoInLegendBox,
 				createConstraints(1, 1, 1, 1));
+		displayOptionsPanel.add(exportAsSvgBox, createConstraints(0, 2, 1, 1));
 
 		if (allowConfidenceInterval) {
 			showConfidenceBox = new JCheckBox("Show Confidence Interval");
 			showConfidenceBox.setSelected(false);
 			showConfidenceBox.addActionListener(this);
 			displayOptionsPanel.add(showConfidenceBox,
-					createConstraints(0, 2, 2, 1));
+					createConstraints(1, 2, 1, 1));
 		}
 
 		JPanel outerDisplayOptionsPanel = new JPanel();
@@ -404,6 +408,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setDisplayFocusedRow(boolean displayFocusedRow) {
 		displayFocusedRowBox.setSelected(displayFocusedRow);
+	}
+
+	public boolean isExportAsSvg() {
+		return exportAsSvgBox.isSelected();
+	}
+
+	public void setExportAsSvg(boolean exportAsSvg) {
+		exportAsSvgBox.setSelected(exportAsSvg);
 	}
 
 	public boolean isShowConfidenceInterval() {

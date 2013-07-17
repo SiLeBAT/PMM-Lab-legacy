@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.chart;
 
+import java.awt.Dimension;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
@@ -43,12 +44,18 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 
 import org.apache.batik.dom.GenericDOMImplementation;
+import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.svggen.SVGGraphics2DIOException;
 import org.jfree.chart.JFreeChart;
+import org.knime.base.data.xml.SvgCell;
+import org.knime.base.data.xml.SvgImageContent;
 import org.knime.core.data.image.png.PNGImageContent;
+import org.knime.core.node.port.image.ImagePortObject;
+import org.knime.core.node.port.image.ImagePortObjectSpec;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.svg.SVGDocument;
 
 public class ChartUtilities {
 
@@ -92,23 +99,61 @@ public class ChartUtilities {
 	public static PNGImageContent convertToPNGImageContent(JFreeChart chart,
 			int width, int height) {
 		try {
+			BufferedImage img;
+
 			if (chart != null) {
-				byte[] png = org.jfree.chart.ChartUtilities.encodeAsPNG(chart
-						.createBufferedImage(width, height));
-
-				return new PNGImageContent(png);
+				img = chart.createBufferedImage(width, height);
 			} else {
-				BufferedImage img = new BufferedImage(1, 1,
+				img = new BufferedImage(width, height,
 						BufferedImage.TYPE_INT_RGB);
-				byte[] png = org.jfree.chart.ChartUtilities.encodeAsPNG(img);
-
-				return new PNGImageContent(png);
 			}
+
+			return new PNGImageContent(
+					org.jfree.chart.ChartUtilities.encodeAsPNG(img));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 		return null;
+	}
+
+	public static SvgImageContent convertToSVGImageContent(JFreeChart chart,
+			int width, int height) {
+		SVGDOMImplementation domImpl = new SVGDOMImplementation();
+		Document document = domImpl.createDocument(null, "svg", null);
+		SVGGraphics2D svgGenerator = new SVGGraphics2D(document);
+
+		svgGenerator.setSVGCanvasSize(new Dimension(width, height));
+
+		if (chart != null) {
+			chart.draw(svgGenerator,
+					new Rectangle2D.Double(0, 0, width, height));
+		}
+
+		svgGenerator.finalize();
+		document.replaceChild(svgGenerator.getRoot(),
+				document.getDocumentElement());
+
+		return new SvgImageContent((SVGDocument) document, true);
+	}
+
+	public static ImagePortObjectSpec getImageSpec(boolean asSvg) {
+		if (asSvg) {
+			return new ImagePortObjectSpec(SvgCell.TYPE);
+		} else {
+			return new ImagePortObjectSpec(PNGImageContent.TYPE);
+		}
+	}
+
+	public static ImagePortObject getImage(JFreeChart chart, boolean asSvg) {
+		if (asSvg) {
+			return new ImagePortObject(ChartUtilities.convertToSVGImageContent(
+					chart, 640, 480), new ImagePortObjectSpec(SvgCell.TYPE));
+		} else {
+			return new ImagePortObject(ChartUtilities.convertToPNGImageContent(
+					chart, 640, 480), new ImagePortObjectSpec(
+					PNGImageContent.TYPE));
+		}
 	}
 
 }

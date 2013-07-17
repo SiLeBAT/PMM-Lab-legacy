@@ -111,7 +111,13 @@ public class Categories {
 
 	public static List<String> getConcentrations() {
 		return Arrays.asList("Number Content (count/mass)",
-				"Number Concentration (count/vol)", "Number Fraction");
+				"Number Concentration (count/vol)",
+				"Number Aeric (number/area)", "Number",
+				"Number Concentration Difference", "Number Content Difference",
+				"Number Difference", "Number Fraction", "Arbitrary Fraction",
+				"Energy Content", "Energy Content Rate", "Mass",
+				"Mass Concentration", "Mass Ratio", "Mole Content",
+				"True/False Value", "Volume Concentration", "Volume Ratio");
 	}
 
 	public static List<Category> getConcentrationCategories() {
@@ -120,7 +126,7 @@ public class Categories {
 		for (String name : getConcentrations()) {
 			categories.add(getCategory(name));
 		}
-		
+
 		return categories;
 	}
 

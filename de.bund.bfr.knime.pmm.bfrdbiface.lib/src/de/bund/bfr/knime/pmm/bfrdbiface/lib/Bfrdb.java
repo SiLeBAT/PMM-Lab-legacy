@@ -1063,7 +1063,7 @@ public class Bfrdb extends Hsqldbiface {
 						System.err.println("paramId < 0... " + px.getOrigName());
 					}
 					if (!px.getOrigName().equals(px.getName())) hmi.put(px.getName(), paramId);
-					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit());
+					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit(), pm);
 				}
 			}
 
@@ -1077,7 +1077,7 @@ public class Bfrdb extends Hsqldbiface {
 					if (indepId >= 0) {
 						insertMinMaxIndep(estModelId, indepId, ix.getMin(), ix.getMax());	
 						if (!ix.getOrigName().equals(ix.getName())) hmi.put(ix.getName(), indepId);
-						insertEstParam(estModelId, indepId, null, null, ix.getUnit());
+						insertEstParam(estModelId, indepId, null, null, ix.getUnit(), pm);
 					}
 					else {
 						System.err.println("insertEm:\t" + ix.getOrigName() + "\t" + modelId);
@@ -1183,7 +1183,7 @@ public class Bfrdb extends Hsqldbiface {
 				
 				if (agentId == null || agentId <= 0) {
 					ps.setNull( 4, Types.INTEGER );
-						warnings += "Agent not defined (" + agentDetail + ")\n";						
+						warnings += "Agent not defined (" + agentDetail + ") for condition ID " + condId + "\n";						
 				} else {
 					ps.setInt(4, agentId );
 					try {ts.setAgentId(agentId);} catch (PmmException e) {e.printStackTrace();}
@@ -1195,7 +1195,7 @@ public class Bfrdb extends Hsqldbiface {
 				}
 				if (matrixId == null || matrixId <= 0) {
 					ps.setNull( 6, Types.INTEGER );
-						warnings += "Matrix not defined (" + matrixDetail + ")\n";
+						warnings += "Matrix not defined (" + matrixDetail + ") for condition ID " + condId + "\n";
 				} else {
 					ps.setInt(6, matrixId );
 					try {ts.setMatrixId(matrixId);} catch (PmmException e) {e.printStackTrace();}
@@ -1314,11 +1314,11 @@ public class Bfrdb extends Hsqldbiface {
 	    								Double origVal = Categories.getCategoryByUnit(mx.getCategories(), mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
 	    								int valId = insertDouble(origVal);				
 		    							ps.setDouble(3, valId);							
-		    							Integer eid = getID("Einheiten", "Einheit", mx.getOrigUnit());
+		    							Object eid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{mx.getOrigUnit()});
 		    							if (eid == null) {
 		    								ps.setNull(4, Types.INTEGER);
 		    							} else {
-		    								ps.setInt(4, eid);
+		    								ps.setInt(4, (int) eid);
 		    							}
 		    							ps.setBoolean(5, false);
 			    						ps.executeUpdate();
@@ -1864,7 +1864,7 @@ public class Bfrdb extends Hsqldbiface {
 		return false;
 	}
 	
-	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit) {
+	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm) {
 		try {			
 			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\") VALUES(?, ?, ?, ?, ?)");
 			ps.setInt(1, estModelId);
@@ -1879,13 +1879,11 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble(4, paramErr);
 			}
-			Object unitID = DBKernel.getValue(conn, "Einheiten", "Einheit", unit, "ID");
-			if (unitID == null && !unit.trim().isEmpty()) {
-				PreparedStatement psmt = conn.prepareStatement("INSERT INTO \"Einheiten\" (\"Einheit\",\"Beschreibung\") VALUES ('" + unit + "','Inserted via PMM-Lab')", Statement.RETURN_GENERATED_KEYS);
-				psmt.executeUpdate();
-				unitID = DBKernel.getLastInsertedID(psmt);
+			Object unitID = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
+			if (unitID == null) {
+				pm.setWarning(pm.getWarning() + "\n" + unit + " not defined for fitted model with ID " + estModelId + "!");
+				ps.setNull(5, Types.INTEGER);
 			}
-			if (unitID == null) ps.setNull(5, Types.INTEGER);
 			else ps.setInt(5, (int) unitID);
 			ps.executeUpdate();
 			ps.close();

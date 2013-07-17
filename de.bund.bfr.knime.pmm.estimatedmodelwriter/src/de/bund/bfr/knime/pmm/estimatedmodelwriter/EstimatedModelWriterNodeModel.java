@@ -241,6 +241,7 @@ if (true) return null;
 						checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						alreadyInsertedModel.put(rowMcID, ppm);
+						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
 					}
 					try {
 			    		ppm.setRms(rms == null ? Double.NaN : rms);
@@ -275,6 +276,7 @@ if (true) return null;
 				    		//ppm.setEstModelId(newPrimEstID);
 				    		alreadyInsertedEModel.put(rowEstM1ID, ppm.clone());
 			    		}
+						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
 					}
 				}
 				else {
@@ -345,6 +347,7 @@ if (true) return null;
 								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								alreadyInsertedModel.put(rowMcID, spm);
+								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
 							}
 						
 							if (alreadyInsertedEModel.containsKey(rowEstM2ID)) {
@@ -374,6 +377,7 @@ if (true) return null;
 								db.insertEm(spm);
 								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
+								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
 							}
 
 							if (!primEstIDs.containsKey(spm.getEstModelId())) primEstIDs.put(spm.getEstModelId(), new ArrayList<Integer>());

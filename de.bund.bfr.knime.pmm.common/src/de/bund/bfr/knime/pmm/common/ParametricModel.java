@@ -106,6 +106,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private Integer qualityScore;
 		
 	private static final String ATT_LEVEL = "Level";
+	private String warningMsg = "";
 	
 	protected ParametricModel() {
 		initVars();
@@ -336,6 +337,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				}
 			}
 		}
+	}
+	public String getWarning() {
+		return warningMsg;
+	}
+	public void setWarning(String warningMsg) {
+		this.warningMsg = warningMsg;
 	}
 	public void setChecked(Boolean checked) {
 		this.isChecked = checked;

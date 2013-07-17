@@ -122,6 +122,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 
 		int j = 0;
 		List<Integer> alreadySaved = new ArrayList<Integer>();
+		String warnings = "";
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
     		
@@ -163,6 +164,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 					db.insertM(pm);
 					checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 				}
 			}
 			if (model2Conform) {
@@ -203,11 +205,15 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 			    		db.insertM(pm);
 						checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 		    		//}
 	    		}
 			}
 		}
     	
+		if (!warnings.isEmpty()) {
+			this.setWarningMessage(warnings.trim());
+		}			
     	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
     	db.close();
         return null;

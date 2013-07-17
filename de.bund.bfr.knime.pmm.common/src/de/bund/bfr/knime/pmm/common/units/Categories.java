@@ -39,14 +39,7 @@ import java.util.List;
 
 public class Categories {
 
-	public static final String NO_CATEGORY = "No Category";
-
-	@Deprecated
-	public static final String TIME = "Time";
-	@Deprecated
-	public static final String NUMBER_CONTENT = "Number Content";
-	@Deprecated
-	public static final String NUMBER_CONCENTRATION = "Number Concentration";
+	public static final String NO_CATEGORY = "No Category";	
 
 	public static List<String> getAllCategories() {
 		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());

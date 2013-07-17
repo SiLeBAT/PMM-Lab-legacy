@@ -130,6 +130,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		set.setShowLegend(configPanel.isShowLegend());
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setShowConfidence(configPanel.isShowConfidenceInterval());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
@@ -176,6 +177,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setShowConfidenceInterval(set.isShowConfidence());
 		configPanel.setUnitX(set.getUnitX());
 		configPanel.setUnitY(set.getUnitY());

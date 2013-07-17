@@ -7,12 +7,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jgoodies-common-1.4.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgoodies-forms-1.6.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jgoodies-looks-2.5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-xml.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-ext.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-util.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-dom.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-awt-util.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/batik-svggen.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jcommon-1.0.17.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/ext-1.1.1.jar" sourcepath="lib/jep.zip"/>
 	<classpathentry exported="true" kind="lib" path="lib/jep-2.4.1.jar" sourcepath="lib/jep.zip"/>

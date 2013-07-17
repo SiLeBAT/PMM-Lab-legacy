@@ -713,10 +713,12 @@ public class XLSReader {
 		int columnId = columns.get(column);
 
 		for (int i = 1; i < s.getLastRowNum(); i++) {
-			Cell cell = s.getRow(i).getCell(columnId);
+			if (s.getRow(i) != null) {
+				Cell cell = s.getRow(i).getCell(columnId);
 
-			if (hasData(cell)) {
-				valueSet.add(getData(cell));
+				if (hasData(cell)) {
+					valueSet.add(getData(cell));
+				}
 			}
 		}
 

@@ -64,21 +64,12 @@ public class TableReader {
 				tuples = PmmUtilities.getTuples(table,
 						SchemaFactory.createM12Schema());
 			}
-		} else {
-			if (containsData) {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM1DataSchema());
-			} else {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM1Schema());
-			}
-		}
 
-		if (isTertiaryModel) {
 			Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-					.combine(tuples, containsData, false, initParams);
+					.combine(tuples, false, false, initParams);
 
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
+			containsData = false;
 
 			for (KnimeTuple tuple : tuples) {
 				List<KnimeTuple> usedTuples = combinedTuples.get(tuple);
@@ -97,6 +88,21 @@ public class TableReader {
 					}
 				}
 			}
+		} else {
+			if (containsData) {
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM1DataSchema());
+			} else {
+				tuples = PmmUtilities.getTuples(table,
+						SchemaFactory.createM1Schema());
+			}
+
+			if (!tuples.isEmpty()) {
+				if (tuples.get(0).getPmmXml(Model1Schema.ATT_INDEPENDENT)
+						.size() > 1) {
+					containsData = false;
+				}
+			}
 		}
 
 		ids = new ArrayList<String>();
@@ -106,6 +112,16 @@ public class TableReader {
 		longLegend = new LinkedHashMap<>();
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
+		doubleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED,
+				Model1Schema.AIC, Model1Schema.BIC);
+		doubleColumnValues = new ArrayList<List<Double>>();
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		doubleColumnValues.add(new ArrayList<Double>());
+		conditions = null;
+		conditionValues = null;
+		conditionUnits = null;
 
 		if (containsData) {
 			miscParams = PmmUtilities.getMiscParams(tuples);
@@ -115,18 +131,10 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.RMS,
-					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
-			doubleColumnValues = new ArrayList<List<Double>>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS, AttributeUtilities.DATAID);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS, AttributeUtilities.DATAID);
-
 			conditions = new ArrayList<>();
 			conditionValues = new ArrayList<>();
 			conditionUnits = new ArrayList<>();
@@ -142,21 +150,10 @@ public class TableReader {
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.RMS,
-					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
-			doubleColumnValues = new ArrayList<List<Double>>();
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
-			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS);
-
-			conditions = null;
-			conditionValues = null;
-			conditionUnits = null;
 		}
 
 		for (KnimeTuple tuple : tuples) {

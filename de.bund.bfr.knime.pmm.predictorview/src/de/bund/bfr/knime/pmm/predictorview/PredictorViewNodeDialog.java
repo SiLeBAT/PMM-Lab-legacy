@@ -147,7 +147,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.saveSettings(settings);
 	}
 
-	private ChartAllPanel createMainComponent() {
+	public ChartAllPanel createMainComponent() {
 		if (set.isStandardVisibleColumns()) {
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
@@ -256,7 +256,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				samplePanel);
 	}
 
-	private void createChart() {
+	public void createChart() {
 		List<String> selectedIDs = null;
 
 		if (configPanel.isDisplayFocusedRow()) {

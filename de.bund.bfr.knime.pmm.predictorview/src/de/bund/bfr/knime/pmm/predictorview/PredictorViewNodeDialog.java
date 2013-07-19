@@ -121,7 +121,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
-		reader = new TableReader(table, set.getConcentrationParameters());
+		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
 	}
 

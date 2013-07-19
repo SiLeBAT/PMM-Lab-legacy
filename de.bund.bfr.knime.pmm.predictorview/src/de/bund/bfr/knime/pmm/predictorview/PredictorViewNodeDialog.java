@@ -178,6 +178,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		for (String var : paramsX.keySet()) {
+			if (minValues.get(var) != null) {
+				paramsX.put(var, Arrays.asList(minValues.get(var)));
+			}
+		}
+
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
 				true, "Change Init Params");
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
@@ -196,7 +202,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			configPanel.setUnitX(units.get(AttributeUtilities.CONCENTRATION));
 		}
 
-		configPanel.setParamXValues(set.getParamXValues());
+		if (!set.getParamXValues().isEmpty()) {
+			configPanel.setParamXValues(set.getParamXValues());
+		}
+
 		configPanel.setUseManualRange(set.isManualRange());
 		configPanel.setMinX(set.getMinX());
 		configPanel.setMaxX(set.getMaxX());

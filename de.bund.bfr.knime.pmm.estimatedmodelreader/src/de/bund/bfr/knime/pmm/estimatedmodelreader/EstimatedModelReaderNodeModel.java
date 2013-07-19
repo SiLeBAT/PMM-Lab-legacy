@@ -37,6 +37,8 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.DBKernel;
@@ -150,31 +152,18 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         parameter = new LinkedHashMap<String, Double[]>();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
-            final ExecutionContext exec )throws Exception {    	
-        // fetch database connection
-    	Bfrdb db = null;
-    	if (override) {
-			db = new Bfrdb( filename, login, passwd );
-			conn = db.getConnection();
-		} else {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
-			conn = null;
-		}
+    public static HashSet<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "");
+    }
+    public static HashSet<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
+    		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
+    		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
+    		boolean modelFilterEnabled, String modelList) throws SQLException {
     	
+    	HashSet<KnimeTuple> resultSet = new HashSet<KnimeTuple>(); 
+
     	String dbuuid = db.getDBUUID();
-    	
-    	KnimeSchema schema = createSchema();
-		    	
     	ResultSet result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
-   	
-    	// initialize data buffer
-    	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
-    	
     	int i = 0;
     	while (result.next()) {
     		
@@ -306,9 +295,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				result.getArray(Bfrdb.ATT_MAX)));
     		
     		String s = result.getString("LitMID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
+    		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s));
     		s = result.getString("LitEmID");
-    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(s));
+    		if (s != null) tuple.setValue(Model1Schema.ATT_EMLIT, getLiterature(conn, s));
     		
     		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model1Schema.NOTWRITABLE : Model1Schema.WRITABLE);
     		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
@@ -322,7 +311,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO+"2" ));
         		for( String to : varMap.keySet() )	{
         			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
-
         		}
 
     			cmDoc = new PmmXmlDoc();
@@ -364,20 +352,48 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    				result.getArray(Bfrdb.ATT_MAX+"2")));
 
 	    		s = result.getString("LitMID2");
-	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s));
 	    		s = result.getString("LitEmID2");
-	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(s));
+	    		if (s != null) tuple.setValue(Model2Schema.ATT_EMLIT, getLiterature(conn, s));
 
 	    		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, withoutMdData ? Model2Schema.NOTWRITABLE : Model2Schema.WRITABLE);
 	    		tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
     		}
     		
-    		if (EmReaderUi.passesFilter(
+    		if (parameter == null || EmReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-				modelFilterEnabled, modelList, tuple))
-				buf.addRowToTable(new DefaultRow(String.valueOf(i++), tuple));
+				modelFilterEnabled, modelList, tuple)) {
+					if (buf != null) buf.addRowToTable(new DefaultRow(String.valueOf(i++), tuple));
+					else resultSet.add(tuple);
+    			}
     	}
+    	return resultSet;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected BufferedDataTable[] execute( final BufferedDataTable[] inData,
+            final ExecutionContext exec )throws Exception {    	
+        // fetch database connection
+    	Bfrdb db = null;
+    	if (override) {
+			db = new Bfrdb( filename, login, passwd );
+			conn = db.getConnection();
+		} else {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+			conn = null;
+		}
+    	
+    	KnimeSchema schema = createSchema();
+		    	
+    	// initialize data buffer
+    	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
+
+    	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
+    			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
+				modelFilterEnabled, modelList);
     	
     	// close data buffer
     	buf.close();
@@ -385,7 +401,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
         return new BufferedDataTable[]{ buf.getTable() };
     }
-    private PmmXmlDoc getLiterature(String s) {
+    private static PmmXmlDoc getLiterature(Connection conn, String s) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
 		for (String id : ids) {

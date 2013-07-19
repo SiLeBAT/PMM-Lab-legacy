@@ -411,9 +411,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			int divider = mainComponent.getDividerLocation();
 
 			mainComponent = createMainComponent();
-			((JPanel) getTab("Options")).removeAll();
-			((JPanel) getTab("Options")).add(mainComponent);
-			((JPanel) getTab("Options")).revalidate();
+
+			if (getTab("Options") != null) {
+				((JPanel) getTab("Options")).removeAll();
+				((JPanel) getTab("Options")).add(mainComponent);
+				((JPanel) getTab("Options")).revalidate();
+			}
+
 			mainComponent.setDividerLocation(divider);
 		}
 	}

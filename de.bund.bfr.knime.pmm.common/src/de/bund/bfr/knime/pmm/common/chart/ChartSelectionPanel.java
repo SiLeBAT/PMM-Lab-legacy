@@ -110,6 +110,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 
 	private ColorAndShapeCreator colorAndShapes;
 
+	private List<String> invalidIds;
+
 	private List<String> ids;
 	private boolean selectionExlusive;
 	private List<List<TimeSeriesXml>> data;
@@ -198,6 +200,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		this.conditionMaxValues = conditionMaxValues;
 		this.conditionUnits = conditionUnits;
 
+		invalidIds = new ArrayList<>();
 		conditionStandardUnits = new ArrayList<>();
 
 		for (int i = 0; i < conditions.size(); i++) {
@@ -410,6 +413,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		}
 
 		return null;
+	}
+
+	public void setInvalidIds(List<String> invalidIds) {
+		this.invalidIds = invalidIds;
 	}
 
 	public List<String> getSelectedIDs() {
@@ -1425,7 +1432,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 				}
 			}
 
-			if (isSelected) {
+			if (invalidIds.contains(table.getValueAt(row, 0))) {
+				setForeground(Color.RED);
+				setBackground(Color.RED);
+			} else if (isSelected) {
 				setForeground(table.getSelectionForeground());
 				setBackground(table.getSelectionBackground());
 			} else if (statusColumn != -1) {

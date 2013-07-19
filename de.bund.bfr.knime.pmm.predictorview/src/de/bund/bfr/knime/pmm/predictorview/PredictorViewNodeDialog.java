@@ -183,14 +183,25 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
+
+		if (set.getUnitX() != null) {
+			configPanel.setUnitX(set.getUnitX());
+		} else {
+			configPanel.setUnitX(units.get(AttributeUtilities.TIME));
+		}
+
+		if (set.getUnitY() != null) {
+			configPanel.setUnitY(set.getUnitY());
+		} else {
+			configPanel.setUnitX(units.get(AttributeUtilities.CONCENTRATION));
+		}
+
 		configPanel.setParamXValues(set.getParamXValues());
 		configPanel.setUseManualRange(set.isManualRange());
 		configPanel.setMinX(set.getMinX());
 		configPanel.setMaxX(set.getMaxX());
 		configPanel.setMinY(set.getMinY());
 		configPanel.setMaxY(set.getMaxY());
-		configPanel.setUnitX(set.getUnitX());
-		configPanel.setUnitY(set.getUnitY());
 		configPanel.setDrawLines(set.isDrawLines());
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
@@ -244,6 +255,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
+		selectionPanel.setInvalidIds(getInvalidIds(selectedIDs));
+		selectionPanel.repaint();
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
 		chartCreator.setUnitX(configPanel.getUnitX());
@@ -316,6 +329,31 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
 		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
+	}
+
+	private List<String> getInvalidIds(List<String> selectedIDs) {
+		List<String> invalid = new ArrayList<>();
+
+		for (String id : selectedIDs) {
+			Plotable plotable = chartCreator.getPlotables().get(id);
+
+			if (plotable != null) {
+				for (String param : configPanel.getParamsX().keySet()) {
+					if (configPanel.getParamsX().get(param).size() == 1) {
+						double value = configPanel.getParamsX().get(param)
+								.get(0);
+
+						if (value < plotable.getMinArguments().get(param)
+								|| value > plotable.getMaxArguments()
+										.get(param)) {
+							invalid.add(id);
+						}
+					}
+				}
+			}
+		}
+
+		return invalid;
 	}
 
 	@Override

@@ -112,42 +112,45 @@ public class PredictorViewNodeModel extends NodeModel {
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
 
-		if (set.getSelectedID() != null
-				&& reader.getPlotables().get(set.getSelectedID()) != null) {
-			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
-			Map<String, List<Double>> arguments = new LinkedHashMap<>();
+		for (String id : set.getSelectedIDs()) {
+			Plotable plotable = reader.getPlotables().get(id);
 
-			for (Map.Entry<String, Double> entry : set.getParamXValues()
-					.entrySet()) {
-				arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
+			if (plotable != null) {
+				Map<String, List<Double>> arguments = new LinkedHashMap<>();
+
+				for (Map.Entry<String, Double> entry : set.getParamXValues()
+						.entrySet()) {
+					arguments.put(entry.getKey(),
+							Arrays.asList(entry.getValue()));
+				}
+
+				plotable.setSamples(set.getTimeValues());
+				plotable.setFunctionArguments(arguments);
+				container.addRowToTable(createDataTuple(reader, id));
 			}
-
-			plotable.setSamples(set.getTimeValues());
-			plotable.setFunctionArguments(arguments);
-			creator.setParamX(AttributeUtilities.TIME);
-			creator.setParamY(plotable.getFunctionValue());
-			creator.setUseManualRange(set.isManualRange());
-			creator.setMinX(set.getMinX());
-			creator.setMaxX(set.getMaxX());
-			creator.setMinY(set.getMinY());
-			creator.setMaxY(set.getMaxY());
-			creator.setDrawLines(set.isDrawLines());
-			creator.setShowLegend(set.isShowLegend());
-			creator.setAddInfoInLegend(set.isAddLegendInfo());
-			creator.setShowConfidenceInterval(set.isShowConfidence());
-			creator.setUnitX(set.getUnitX());
-			creator.setUnitY(set.getUnitY());
-			creator.setTransformY(set.getTransformY());
-			creator.setColors(set.getColors());
-			creator.setShapes(set.getShapes());
-
-			container.addRowToTable(createDataTuple(reader));
 		}
 
 		container.close();
 
+		creator.setParamX(AttributeUtilities.TIME);
+		creator.setParamY(AttributeUtilities.CONCENTRATION);
+		creator.setUseManualRange(set.isManualRange());
+		creator.setMinX(set.getMinX());
+		creator.setMaxX(set.getMaxX());
+		creator.setMinY(set.getMinY());
+		creator.setMaxY(set.getMaxY());
+		creator.setDrawLines(set.isDrawLines());
+		creator.setShowLegend(set.isShowLegend());
+		creator.setAddInfoInLegend(set.isAddLegendInfo());
+		creator.setShowConfidenceInterval(set.isShowConfidence());
+		creator.setUnitX(set.getUnitX());
+		creator.setUnitY(set.getUnitY());
+		creator.setTransformY(set.getTransformY());
+		creator.setColors(set.getColors());
+		creator.setShapes(set.getShapes());
+
 		ImagePortObject image = ChartUtilities.getImage(
-				creator.getChart(set.getSelectedID()), set.isExportAsSvg());
+				creator.getChart(set.getSelectedIDs()), set.isExportAsSvg());
 
 		return new PortObject[] { container.getTable(), image };
 	}
@@ -218,10 +221,10 @@ public class PredictorViewNodeModel extends NodeModel {
 			CanceledExecutionException {
 	}
 
-	private KnimeTuple createDataTuple(TableReader reader) {
+	private KnimeTuple createDataTuple(TableReader reader, String id) {
 		KnimeTuple dataTuple;
-		KnimeTuple tuple = reader.getTupleMap().get(set.getSelectedID());
-		Plotable plotable = reader.getPlotables().get(set.getSelectedID());
+		KnimeTuple tuple = reader.getTupleMap().get(id);
+		Plotable plotable = reader.getPlotables().get(id);
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
 		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
@@ -247,8 +250,7 @@ public class PredictorViewNodeModel extends NodeModel {
 
 		for (String cond : conditions.keySet()) {
 			if (!allMiscs.contains(cond)
-					&& !cond.equals(set.getConcentrationParameters().get(
-							set.getSelectedID()))) {
+					&& !cond.equals(set.getConcentrationParameters().get(id))) {
 				miscXml.add(new MiscXml(MathUtilities.getRandomNegativeInt(),
 						cond, null, conditions.get(cond).get(0), plotable
 								.getCategories().get(cond), plotable.getUnits()

@@ -81,7 +81,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.UI;
-import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "PredictorView" Node.
@@ -142,28 +141,55 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
-		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				true, "Change Init Params");
+		Map<String, List<Double>> paramsX = new LinkedHashMap<>();
+		Map<String, Double> minValues = new LinkedHashMap<>();
+		Map<String, Double> maxValues = new LinkedHashMap<>();
+		Map<String, List<String>> categories = new LinkedHashMap<>();
+		Map<String, String> units = new LinkedHashMap<>();
 
-		if (set.getSelectedID() != null
-				&& reader.getPlotables().get(set.getSelectedID()) != null) {
-			Plotable plotable = reader.getPlotables().get(set.getSelectedID());
+		for (Plotable plotable : reader.getPlotables().values()) {
+			paramsX.putAll(plotable.getFunctionArguments());
+			categories.putAll(plotable.getCategories());
+			units.putAll(plotable.getUnits());
 
-			configPanel.setParameters(plotable.getFunctionValue(),
-					plotable.getPossibleArgumentValues(true, true),
-					plotable.getMinArguments(), plotable.getMaxArguments(),
-					plotable.getCategories(), plotable.getUnits(),
-					AttributeUtilities.TIME);
-			configPanel.setParamXValues(set.getParamXValues());
-			configPanel.setUnitX(set.getUnitX());
-			configPanel.setUnitY(set.getUnitY());
+			for (Map.Entry<String, Double> min : plotable.getMinArguments()
+					.entrySet()) {
+				Double oldMin = minValues.get(min.getKey());
+
+				if (oldMin == null) {
+					minValues.put(min.getKey(), min.getValue());
+				} else if (min.getValue() != null) {
+					minValues.put(min.getKey(),
+							Math.min(min.getValue(), oldMin));
+				}
+			}
+
+			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
+					.entrySet()) {
+				Double oldMax = minValues.get(max.getKey());
+
+				if (oldMax == null) {
+					maxValues.put(max.getKey(), max.getValue());
+				} else if (max.getValue() != null) {
+					maxValues.put(max.getKey(),
+							Math.max(max.getValue(), oldMax));
+				}
+			}
 		}
 
+		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
+				true, "Change Init Params");
+		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
+				minValues, maxValues, categories, units,
+				AttributeUtilities.TIME);
+		configPanel.setParamXValues(set.getParamXValues());
 		configPanel.setUseManualRange(set.isManualRange());
 		configPanel.setMinX(set.getMinX());
 		configPanel.setMaxX(set.getMaxX());
 		configPanel.setMinY(set.getMinY());
 		configPanel.setMaxY(set.getMaxY());
+		configPanel.setUnitX(set.getUnitX());
+		configPanel.setUnitY(set.getUnitY());
 		configPanel.setDrawLines(set.isDrawLines());
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
@@ -173,7 +199,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
-		selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
+		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
 				reader.getConditions(), reader.getConditionValues(), null,
@@ -197,60 +223,47 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
-		if (set.getSelectedID() != null) {
-			selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
-		}
+		selectionPanel.setSelectedIDs(set.getSelectedIDs());
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
 				samplePanel);
 	}
 
 	private void createChart() {
-		String selectedID = null;
+		List<String> selectedIDs = null;
 
 		if (configPanel.isDisplayFocusedRow()) {
-			selectedID = selectionPanel.getFocusedID();
+			selectedIDs = Arrays.asList(selectionPanel.getFocusedID());
 		} else {
-			if (!selectionPanel.getSelectedIDs().isEmpty()) {
-				selectedID = selectionPanel.getSelectedIDs().get(0);
+			selectedIDs = selectionPanel.getSelectedIDs();
+		}
+
+		for (String id : selectedIDs) {
+			Plotable plotable = chartCreator.getPlotables().get(id);
+
+			if (id != null) {
+				plotable.setSamples(samplePanel.getTimeValues());
+				plotable.setFunctionArguments(configPanel.getParamsX());
 			}
 		}
 
-		if (selectedID != null) {
-			Plotable plotable = chartCreator.getPlotables().get(selectedID);
+		chartCreator.setParamX(configPanel.getParamX());
+		chartCreator.setParamY(configPanel.getParamY());
+		chartCreator.setUnitX(configPanel.getUnitX());
+		chartCreator.setUnitY(configPanel.getUnitY());
+		chartCreator.setTransformY(configPanel.getTransformY());
 
-			configPanel.setParameters(plotable.getFunctionValue(),
-					plotable.getPossibleArgumentValues(true, true),
-					plotable.getMinArguments(), plotable.getMaxArguments(),
-					plotable.getCategories(), plotable.getUnits(),
-					AttributeUtilities.TIME);
-			plotable.setSamples(samplePanel.getTimeValues());
-			plotable.setFunctionArguments(configPanel.getParamsX());
-			chartCreator.setParamX(configPanel.getParamX());
-			chartCreator.setParamY(configPanel.getParamY());
-			chartCreator.setUnitX(configPanel.getUnitX());
-			chartCreator.setUnitY(configPanel.getUnitY());
-			chartCreator.setTransformY(configPanel.getTransformY());
-
-			try {
-				samplePanel.setDataPoints(plotable.getFunctionSamplePoints(
-						AttributeUtilities.TIME,
-						AttributeUtilities.CONCENTRATION,
-						configPanel.getUnitX(), configPanel.getUnitY(),
-						configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
-						Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-						Double.POSITIVE_INFINITY));
-			} catch (ConvertException e) {
-				e.printStackTrace();
-			}
-		} else {
-			configPanel.setParameters(null, null, null, null, null, null, null);
-			chartCreator.setParamX(null);
-			chartCreator.setParamY(null);
-			chartCreator.setUnitX(null);
-			chartCreator.setUnitY(null);
-			chartCreator.setTransformY(null);
-		}
+		// try {
+		// samplePanel.setDataPoints(plotable.getFunctionSamplePoints(
+		// AttributeUtilities.TIME,
+		// AttributeUtilities.CONCENTRATION,
+		// configPanel.getUnitX(), configPanel.getUnitY(),
+		// configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
+		// Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+		// Double.POSITIVE_INFINITY));
+		// } catch (ConvertException e) {
+		// e.printStackTrace();
+		// }
 
 		samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
 				AttributeUtilities.TIME, configPanel.getUnitX()));
@@ -269,16 +282,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
-		chartCreator.createChart(selectedID);
+		chartCreator.createChart(selectedIDs);
 	}
 
 	private void writeSettingsToVariables() {
-		if (!selectionPanel.getSelectedIDs().isEmpty()) {
-			set.setSelectedID(selectionPanel.getSelectedIDs().get(0));
-		} else {
-			set.setSelectedID(null);
-		}
-
+		set.setSelectedIDs(selectionPanel.getSelectedIDs());
 		set.setParamXValues(configPanel.getParamXValues());
 		set.setTimeValues(samplePanel.getTimeValues());
 		set.setColors(selectionPanel.getColors());
@@ -336,7 +344,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (dialog.isApproved()) {
 			writeSettingsToVariables();
 			set.setConcentrationParameters(dialog.getResult());
-			set.setSelectedID(null);
+			set.setSelectedIDs(new ArrayList<String>());
 			reader = new TableReader(table, set.getConcentrationParameters());
 
 			int divider = mainComponent.getDividerLocation();

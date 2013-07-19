@@ -181,12 +181,12 @@ public class TableReader {
 			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
-			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
-			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
-			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, List<Double>> variables = new LinkedHashMap<>();
+			Map<String, Double> varMin = new LinkedHashMap<>();
+			Map<String, Double> varMax = new LinkedHashMap<>();
+			Map<String, Double> parameters = new LinkedHashMap<>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 			String initParam = initParams.get(modelID);
 			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();

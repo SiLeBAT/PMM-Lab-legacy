@@ -49,7 +49,7 @@ import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 
 public class SettingsHelper {
 
-	protected static final String CFG_SELECTEDID = "SelectedID";
+	protected static final String CFG_SELECTEDIDS = "SelectedIDs";
 	protected static final String CFG_PARAMXVALUES = "ParamXValues";
 	protected static final String CFG_TIMEVALUES = "TimeValues";
 	protected static final String CFG_COLORS = "Colors";
@@ -89,7 +89,7 @@ public class SettingsHelper {
 	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
 
-	private String selectedID;
+	private List<String> selectedIDs;
 	private Map<String, Double> paramXValues;
 	private List<Double> timeValues;
 	private Map<String, Color> colors;
@@ -116,7 +116,7 @@ public class SettingsHelper {
 	private Map<String, String> concentrationParameters;
 
 	public SettingsHelper() {
-		selectedID = null;
+		selectedIDs = new ArrayList<>();
 		paramXValues = new LinkedHashMap<>();
 		timeValues = new ArrayList<>();
 		colors = new LinkedHashMap<>();
@@ -145,9 +145,11 @@ public class SettingsHelper {
 
 	public void loadSettings(NodeSettingsRO settings) {
 		try {
-			selectedID = settings.getString(CFG_SELECTEDID);
+			selectedIDs = XmlConverter.xmlToObject(
+					settings.getString(CFG_SELECTEDIDS),
+					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			selectedID = null;
+			selectedIDs = new ArrayList<String>();
 		}
 
 		try {
@@ -305,7 +307,8 @@ public class SettingsHelper {
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
-		settings.addString(CFG_SELECTEDID, selectedID);
+		settings.addString(CFG_SELECTEDIDS,
+				XmlConverter.objectToXml(selectedIDs));
 		settings.addString(CFG_PARAMXVALUES,
 				XmlConverter.objectToXml(paramXValues));
 		settings.addString(CFG_TIMEVALUES, XmlConverter.objectToXml(timeValues));
@@ -335,12 +338,12 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(concentrationParameters));
 	}
 
-	public String getSelectedID() {
-		return selectedID;
+	public List<String> getSelectedIDs() {
+		return selectedIDs;
 	}
 
-	public void setSelectedID(String selectedID) {
-		this.selectedID = selectedID;
+	public void setSelectedIDs(List<String> selectedIDs) {
+		this.selectedIDs = selectedIDs;
 	}
 
 	public Map<String, Double> getParamXValues() {

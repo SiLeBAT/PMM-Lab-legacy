@@ -50,23 +50,19 @@ public class TableReader {
 	private Map<String, String> longLegend;
 
 	public TableReader(DataTable table, Map<String, String> initParams) {
+		this(getTuples(table), initParams);
+	}
+
+	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		List<KnimeTuple> tuples = null;
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = null;
 		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
-				table);
-		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
+				tuples.get(0).getSchema());
+		boolean containsData = SchemaFactory.createDataSchema().conforms(
+				tuples.get(0).getSchema());
 		List<String> miscParams = null;
 
 		if (isTertiaryModel) {
-			if (containsData) {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM12DataSchema());
-			} else {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM12Schema());
-			}
-
 			combinedTuples = ModelCombiner.combine(tuples, false, false,
 					initParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
@@ -90,14 +86,6 @@ public class TableReader {
 				}
 			}
 		} else {
-			if (containsData) {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM1DataSchema());
-			} else {
-				tuples = PmmUtilities.getTuples(table,
-						SchemaFactory.createM1Schema());
-			}
-
 			if (!tuples.isEmpty()) {
 				if (tuples.get(0).getPmmXml(Model1Schema.ATT_INDEPENDENT)
 						.size() > 1) {
@@ -437,5 +425,29 @@ public class TableReader {
 
 	public Map<String, String> getLongLegend() {
 		return longLegend;
+	}
+
+	private static List<KnimeTuple> getTuples(DataTable table) {
+		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
+				table);
+		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
+
+		if (isTertiaryModel) {
+			if (containsData) {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM12DataSchema());
+			} else {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM12Schema());
+			}
+		} else {
+			if (containsData) {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM1DataSchema());
+			} else {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM1Schema());
+			}
+		}
 	}
 }

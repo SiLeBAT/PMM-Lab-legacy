@@ -112,8 +112,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	 * New pane for configuring the ForecastStaticConditions node.
 	 */
 	protected PredictorViewNodeDialog() {
-		set = new SettingsHelper();
-
 		JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
@@ -121,6 +119,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
+		set = new SettingsHelper();
 		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
 	}
@@ -132,6 +131,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
+		set = new SettingsHelper();
 		set.loadSettings(settings);
 		table = input[0];
 		reader = new TableReader(table, set.getConcentrationParameters());

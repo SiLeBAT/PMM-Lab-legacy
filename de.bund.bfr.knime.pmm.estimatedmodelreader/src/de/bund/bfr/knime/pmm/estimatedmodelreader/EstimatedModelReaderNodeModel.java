@@ -38,8 +38,9 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -152,15 +153,15 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         parameter = new LinkedHashMap<String, Double[]>();
     }
 
-    public static HashSet<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
     	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "");
     }
-    public static HashSet<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
     		boolean modelFilterEnabled, String modelList) throws SQLException {
     	
-    	HashSet<KnimeTuple> resultSet = new HashSet<KnimeTuple>(); 
+    	List<KnimeTuple> resultSet = new ArrayList<KnimeTuple>(); 
 
     	String dbuuid = db.getDBUUID();
     	ResultSet result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));

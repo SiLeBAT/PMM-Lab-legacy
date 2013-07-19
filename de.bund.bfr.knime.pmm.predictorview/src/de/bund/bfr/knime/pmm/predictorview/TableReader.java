@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.knime.core.data.DataTable;
-
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -48,10 +46,6 @@ public class TableReader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
-
-	public TableReader(DataTable table, Map<String, String> initParams) {
-		this(getTuples(table), initParams);
-	}
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
@@ -425,29 +419,5 @@ public class TableReader {
 
 	public Map<String, String> getLongLegend() {
 		return longLegend;
-	}
-
-	private static List<KnimeTuple> getTuples(DataTable table) {
-		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
-				table);
-		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
-
-		if (isTertiaryModel) {
-			if (containsData) {
-				return PmmUtilities.getTuples(table,
-						SchemaFactory.createM12DataSchema());
-			} else {
-				return PmmUtilities.getTuples(table,
-						SchemaFactory.createM12Schema());
-			}
-		} else {
-			if (containsData) {
-				return PmmUtilities.getTuples(table,
-						SchemaFactory.createM1DataSchema());
-			} else {
-				return PmmUtilities.getTuples(table,
-						SchemaFactory.createM1Schema());
-			}
-		}
 	}
 }

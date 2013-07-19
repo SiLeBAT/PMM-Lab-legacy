@@ -73,6 +73,7 @@ import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
@@ -104,7 +105,7 @@ public class PredictorViewNodeModel extends NodeModel {
 	protected PortObject[] execute(PortObject[] inObjects, ExecutionContext exec)
 			throws Exception {
 		DataTable table = (DataTable) inObjects[0];
-		TableReader reader = new TableReader(table,
+		TableReader reader = new TableReader(getTuples(table),
 				set.getConcentrationParameters());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
@@ -334,5 +335,29 @@ public class PredictorViewNodeModel extends NodeModel {
 		dataTuple.setValue(TimeSeriesSchema.ATT_MDINFO, infoXml);
 
 		return dataTuple;
+	}
+
+	protected static List<KnimeTuple> getTuples(DataTable table) {
+		boolean isTertiaryModel = SchemaFactory.createM12Schema().conforms(
+				table);
+		boolean containsData = SchemaFactory.createDataSchema().conforms(table);
+
+		if (isTertiaryModel) {
+			if (containsData) {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM12DataSchema());
+			} else {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM12Schema());
+			}
+		} else {
+			if (containsData) {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM1DataSchema());
+			} else {
+				return PmmUtilities.getTuples(table,
+						SchemaFactory.createM1Schema());
+			}
+		}
 	}
 }

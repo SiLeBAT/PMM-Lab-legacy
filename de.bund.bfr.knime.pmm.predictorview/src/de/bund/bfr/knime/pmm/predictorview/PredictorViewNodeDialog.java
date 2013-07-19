@@ -56,7 +56,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
 import org.knime.core.node.InvalidSettingsException;
@@ -75,11 +74,9 @@ import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartSamplePanel;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
-import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeRelationReader;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
@@ -98,7 +95,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
 		ChartConfigPanel.ExtraButtonListener, ChartSamplePanel.EditListener {
 
-	private DataTable table;
+	private List<KnimeTuple> tuples;
 	private TableReader reader;
 	private SettingsHelper set;
 
@@ -119,6 +116,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
+		this.tuples = tuples;
 		set = new SettingsHelper();
 		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
@@ -133,8 +131,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			BufferedDataTable[] input) throws NotConfigurableException {
 		set = new SettingsHelper();
 		set.loadSettings(settings);
-		table = input[0];
-		reader = new TableReader(table, set.getConcentrationParameters());
+		tuples = PredictorViewNodeModel.getTuples(input[0]);
+		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
@@ -399,7 +397,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	@Override
 	public void buttonPressed() {
-		InitParamDialog dialog = new InitParamDialog(getPanel(), table,
+		InitParamDialog dialog = new InitParamDialog(getPanel(), tuples,
 				set.getConcentrationParameters());
 
 		dialog.setVisible(true);
@@ -408,7 +406,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			writeSettingsToVariables();
 			set.setConcentrationParameters(dialog.getResult());
 			set.setSelectedIDs(new ArrayList<String>());
-			reader = new TableReader(table, set.getConcentrationParameters());
+			reader = new TableReader(tuples, set.getConcentrationParameters());
 
 			int divider = mainComponent.getDividerLocation();
 
@@ -437,11 +435,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		private Map<String, String> result;
 
-		public InitParamDialog(JComponent owner, DataTable table,
+		public InitParamDialog(JComponent owner, List<KnimeTuple> tuples,
 				Map<String, String> concentrationParameters) {
 			super(JOptionPane.getFrameForComponent(owner),
 					"Select Initial Parameter", true);
-			readTable(table);
+			readTable(tuples);
 
 			setLayout(new BorderLayout());
 			add(createPanel(concentrationParameters), BorderLayout.CENTER);
@@ -460,15 +458,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			return result != null;
 		}
 
-		private void readTable(DataTable table) {
-			KnimeRelationReader reader = new KnimeRelationReader(
-					SchemaFactory.createM1Schema(), table);
-			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
-
-			while (reader.hasMoreElements()) {
-				tuples.add(reader.nextElement());
-			}
-
+		private void readTable(List<KnimeTuple> tuples) {
 			Set<String> idSet = new LinkedHashSet<String>();
 
 			ids = new ArrayList<String>();

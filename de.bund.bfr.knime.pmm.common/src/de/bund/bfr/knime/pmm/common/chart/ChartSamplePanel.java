@@ -70,6 +70,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	private static final int DEFAULT_TIMESTEPCOUNT = 10;
 	private static final double DEFAULT_TIMESTEPSIZE = 10.0;
 
+	private JScrollPane tablePane;
 	private TimeSeriesTable table;
 	private JButton clearButton;
 	private JButton stepsButton;
@@ -79,8 +80,11 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	public ChartSamplePanel() {
 		listeners = new ArrayList<ChartSamplePanel.EditListener>();
 
-		table = new TimeSeriesTable(ROW_COUNT, true, false);
+		table = new TimeSeriesTable(ROW_COUNT, 1, true, false);
 		table.getTimeColumn().getCellEditor().addCellEditorListener(this);
+		tablePane = new JScrollPane(table,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		stepsButton = new JButton("Set equidistant time steps");
 		stepsButton.addActionListener(this);
 		clearButton = new JButton("Clear");
@@ -93,8 +97,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		buttonPanel.add(clearButton);
 
 		setLayout(new BorderLayout());
-		add(new JScrollPane(table, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		add(tablePane, BorderLayout.CENTER);
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
 
@@ -106,12 +109,12 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		table.setTimeColumnName(timeColumnName);
 	}
 
-	public String getLogcColumnName() {
-		return table.getLogcColumnName();
+	public List<String> getCColumnNames() {
+		return table.getCColumnNames();
 	}
 
-	public void setLogcColumnName(String logcColumnName) {
-		table.setLogcColumnName(logcColumnName);
+	public void setCColumnName(int i, String cColumnName) {
+		table.setCColumnName(i, cColumnName);
 	}
 
 	public void addEditListener(EditListener listener) {
@@ -142,25 +145,56 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		}
 	}
 
-	public void setDataPoints(double[][] points) {
-		Map<Double, Double> logcValues = new LinkedHashMap<Double, Double>();
+	public void setDataPoints(Map<String, double[][]> points) {
+		String timeColumnName = getTimeColumnName();
+		List<Double> timeValues = getTimeValues();
 
-		if (points != null && points.length == 2) {
-			for (int i = 0; i < points[0].length; i++) {
-				if (!Double.isNaN(points[0][i]) && !Double.isNaN(points[1][i])) {
-					logcValues.put(points[0][i], points[1][i]);
+		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<>();
+
+		for (String id : points.keySet()) {
+			Map<Double, Double> values = new LinkedHashMap<>();
+			double[][] ps = points.get(id);
+
+			if (ps != null && ps.length == 2) {
+				for (int i = 0; i < ps[0].length; i++) {
+					if (!Double.isNaN(ps[0][i]) && !Double.isNaN(ps[1][i])) {
+						values.put(ps[0][i], ps[1][i]);
+					}
 				}
 			}
+
+			cValues.put(id, values);
 		}
 
-		for (int i = 0; i < ROW_COUNT; i++) {
-			Double logc = logcValues.get(table.getTime(i));
+		if (table.getCColumns().size() != cValues.size()) {
+			remove(tablePane);
+			table = new TimeSeriesTable(ROW_COUNT, cValues.size(), true, false);
+			table.getTimeColumn().getCellEditor().addCellEditorListener(this);
+			tablePane = new JScrollPane(table,
+					JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+					JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+			add(tablePane, BorderLayout.CENTER);
+			revalidate();
+			setTimeColumnName(timeColumnName);
+			setTimeValues(timeValues);
+		}
 
-			if (logc != null) {
-				table.setLogc(i, logc);
-			} else {
-				table.setLogc(i, null);
+		int count = 0;
+
+		for (String id : cValues.keySet()) {
+			table.setCColumnName(count, id);
+
+			for (int i = 0; i < ROW_COUNT; i++) {
+				Double logc = cValues.get(id).get(table.getTime(i));
+
+				if (logc != null) {
+					table.setLogc(i, count, logc);
+				} else {
+					table.setLogc(i, count, null);
+				}
 			}
+
+			count++;
 		}
 
 		table.repaint();

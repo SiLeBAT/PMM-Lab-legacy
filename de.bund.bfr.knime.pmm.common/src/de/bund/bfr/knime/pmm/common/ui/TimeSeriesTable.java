@@ -38,11 +38,11 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 	private int rowCount;
 	private String timeColumnName;
-	private String logcColumnName;
+	private List<String> cColumnNames;
 
 	public TimeSeriesTable(List<TimeSeriesXml> timeSeries,
 			boolean timeEditable, boolean logcEditable) {
-		this(timeSeries.size(), timeEditable, logcEditable);
+		this(timeSeries.size(), 1, timeEditable, logcEditable);
 
 		for (int i = 0; i < timeSeries.size(); i++) {
 			setTime(i, timeSeries.get(i).getTime());
@@ -50,17 +50,32 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		}
 	}
 
-	public TimeSeriesTable(int rowCount, boolean timeEditable,
-			boolean logcEditable) {
+	public TimeSeriesTable(int rowCount, int cColumnCount,
+			boolean timeEditable, boolean logcEditable) {
 		this.rowCount = rowCount;
 		timeColumnName = AttributeUtilities.getName(AttributeUtilities.TIME);
-		logcColumnName = AttributeUtilities
-				.getName(AttributeUtilities.CONCENTRATION);
-		setModel(new TimeSeriesTableModel(rowCount));
+		cColumnNames = new ArrayList<>();
+
+		for (int i = 0; i < cColumnCount; i++) {
+			String name = AttributeUtilities
+					.getName(AttributeUtilities.CONCENTRATION);
+
+			if (cColumnCount > 1) {
+				name += " " + (i + 1);
+			}
+
+			cColumnNames.add(name);
+		}
+
+		setModel(new TimeSeriesTableModel(rowCount, cColumnCount));
 		getTimeColumn().setCellEditor(new DoubleCellEditor(timeEditable));
-		getLogcColumn().setCellEditor(new DoubleCellEditor(logcEditable));
 		getTimeColumn().setCellRenderer(new DoubleCellRenderer());
-		getLogcColumn().setCellRenderer(new DoubleCellRenderer());
+
+		for (TableColumn column : getCColumns()) {
+			column.setCellEditor(new DoubleCellEditor(logcEditable));
+			column.setCellRenderer(new DoubleCellRenderer());
+		}
+
 		setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		setCellSelectionEnabled(true);
 		registerKeyboardAction(this, "Copy", KeyStroke.getKeyStroke(
@@ -81,22 +96,28 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		this.timeColumnName = timeColumnName;
 	}
 
-	public String getLogcColumnName() {
-		return logcColumnName;
+	public List<String> getCColumnNames() {
+		return cColumnNames;
 	}
 
-	public void setLogcColumnName(String logcColumnName) {
-		getColumn(this.logcColumnName).setHeaderValue(logcColumnName);
+	public void setCColumnName(int i, String cColumnName) {
+		getColumn(cColumnNames.get(i)).setHeaderValue(cColumnName);
 		getTableHeader().repaint();
-		this.logcColumnName = logcColumnName;
+		cColumnNames.set(i, cColumnName);
 	}
 
 	public TableColumn getTimeColumn() {
 		return getColumn(getTimeColumnName());
 	}
 
-	public TableColumn getLogcColumn() {
-		return getColumn(getLogcColumnName());
+	public List<TableColumn> getCColumns() {
+		List<TableColumn> columns = new ArrayList<>();
+
+		for (String name : getCColumnNames()) {
+			columns.add(getColumn(name));
+		}
+
+		return columns;
 	}
 
 	public List<TimeSeriesXml> getTimeSeries() {
@@ -110,20 +131,24 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		return timeSeries;
 	}
 
-	public Double getTime(int i) {
-		return (Double) getValueAt(i, 0);
+	public Double getTime(int row) {
+		return (Double) getValueAt(row, 0);
 	}
 
-	public void setTime(int i, Double time) {
-		setValueAt(time, i, 0);
+	public void setTime(int row, Double time) {
+		setValueAt(time, row, 0);
 	}
 
-	public Double getLogc(int i) {
-		return (Double) getValueAt(i, 1);
+	public Double getLogc(int row) {
+		return (Double) getValueAt(row, 1);
 	}
 
-	public void setLogc(int i, Double logc) {
-		setValueAt(logc, i, 1);
+	public void setLogc(int row, Double logc) {
+		setValueAt(logc, row, 1);
+	}
+
+	public void setLogc(int row, int cColumn, Double logc) {
+		setValueAt(logc, row, cColumn + 1);
 	}
 
 	@Override
@@ -200,18 +225,27 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 		private static final long serialVersionUID = 1L;
 
 		private int rowCount;
+		private int cColumnCount;
 
 		private List<Double> timeList;
-		private List<Double> logcList;
+		private List<List<Double>> concentrationLists;
 
-		public TimeSeriesTableModel(int rowCount) {
+		public TimeSeriesTableModel(int rowCount, int cColumnCount) {
 			this.rowCount = rowCount;
+			this.cColumnCount = cColumnCount;
 			timeList = new ArrayList<Double>(rowCount);
-			logcList = new ArrayList<Double>(rowCount);
+			concentrationLists = new ArrayList<>();
+
+			for (int i = 0; i < cColumnCount; i++) {
+				concentrationLists.add(new ArrayList<Double>());
+			}
 
 			for (int i = 0; i < rowCount; i++) {
 				timeList.add(null);
-				logcList.add(null);
+
+				for (int j = 0; j < cColumnCount; j++) {
+					concentrationLists.get(j).add(null);
+				}
 			}
 		}
 
@@ -222,7 +256,7 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 
 		@Override
 		public int getColumnCount() {
-			return 2;
+			return cColumnCount + 1;
 		}
 
 		@Override
@@ -230,10 +264,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			switch (column) {
 			case 0:
 				return timeColumnName;
-			case 1:
-				return logcColumnName;
 			default:
-				return null;
+				return cColumnNames.get(column - 1);
 			}
 		}
 
@@ -252,10 +284,8 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			switch (columnIndex) {
 			case 0:
 				return timeList.get(rowIndex);
-			case 1:
-				return logcList.get(rowIndex);
 			default:
-				return null;
+				return concentrationLists.get(columnIndex - 1).get(rowIndex);
 			}
 		}
 
@@ -265,8 +295,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 			case 0:
 				timeList.set(rowIndex, (Double) aValue);
 				break;
-			case 1:
-				logcList.set(rowIndex, (Double) aValue);
+			default:
+				concentrationLists.get(columnIndex - 1).set(rowIndex,
+						(Double) aValue);
 				break;
 			}
 		}

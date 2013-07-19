@@ -81,6 +81,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.UI;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
  * <code>NodeDialog</code> for the "PredictorView" Node.
@@ -216,10 +217,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		samplePanel = new ChartSamplePanel();
-		samplePanel.setTimeColumnName(AttributeUtilities
-				.getName(AttributeUtilities.TIME));
-		samplePanel.setLogcColumnName(AttributeUtilities
-				.getName(AttributeUtilities.CONCENTRATION));
 		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
 
@@ -241,7 +238,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
 
-			if (id != null) {
+			if (plotable != null) {
 				plotable.setSamples(samplePanel.getTimeValues());
 				plotable.setFunctionArguments(configPanel.getParamsX());
 			}
@@ -253,23 +250,32 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setUnitY(configPanel.getUnitY());
 		chartCreator.setTransformY(configPanel.getTransformY());
 
-		// try {
-		// samplePanel.setDataPoints(plotable.getFunctionSamplePoints(
-		// AttributeUtilities.TIME,
-		// AttributeUtilities.CONCENTRATION,
-		// configPanel.getUnitX(), configPanel.getUnitY(),
-		// configPanel.getTransformY(), Double.NEGATIVE_INFINITY,
-		// Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-		// Double.POSITIVE_INFINITY));
-		// } catch (ConvertException e) {
-		// e.printStackTrace();
-		// }
+		Map<String, double[][]> points = new LinkedHashMap<>();
 
-		samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
-				AttributeUtilities.TIME, configPanel.getUnitX()));
-		samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
-				AttributeUtilities.CONCENTRATION, configPanel.getUnitY(),
-				configPanel.getTransformY()));
+		for (String id : selectedIDs) {
+			Plotable plotable = chartCreator.getPlotables().get(id);
+
+			if (plotable != null) {
+				try {
+					points.put(id, plotable.getFunctionSamplePoints(
+							AttributeUtilities.TIME,
+							AttributeUtilities.CONCENTRATION,
+							configPanel.getUnitX(), configPanel.getUnitY(),
+							configPanel.getTransformY(),
+							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
+							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		samplePanel.setDataPoints(points);
+		// samplePanel.setTimeColumnName(AttributeUtilities.getNameWithUnit(
+		// AttributeUtilities.TIME, configPanel.getUnitX()));
+		// samplePanel.setLogcColumnName(AttributeUtilities.getNameWithUnit(
+		// AttributeUtilities.CONCENTRATION, configPanel.getUnitY(),
+		// configPanel.getTransformY()));
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
 		chartCreator.setMinY(configPanel.getMinY());

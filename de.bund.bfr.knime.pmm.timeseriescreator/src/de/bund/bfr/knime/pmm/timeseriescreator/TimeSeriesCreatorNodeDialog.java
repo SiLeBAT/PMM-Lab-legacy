@@ -278,7 +278,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		northPanel.setLayout(new BorderLayout());
 		northPanel.add(settingsPanel, BorderLayout.WEST);
 
-		table = new TimeSeriesTable(ROW_COUNT, true, true);
+		table = new TimeSeriesTable(ROW_COUNT, 1, true, true);
 		panel.setLayout(new BorderLayout());
 		panel.add(northPanel, BorderLayout.NORTH);
 		panel.add(new JScrollPane(table), BorderLayout.CENTER);

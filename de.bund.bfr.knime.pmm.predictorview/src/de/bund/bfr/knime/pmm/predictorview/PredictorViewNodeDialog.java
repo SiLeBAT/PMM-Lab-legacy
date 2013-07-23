@@ -359,10 +359,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 					if (configPanel.getParamsX().get(param).size() == 1) {
 						double value = configPanel.getParamsX().get(param)
 								.get(0);
+						Double min = plotable.getMinArguments().get(param);
+						Double max = plotable.getMaxArguments().get(param);
 
-						if (value < plotable.getMinArguments().get(param)
-								|| value > plotable.getMaxArguments()
-										.get(param)) {
+						if ((min != null && value < min)
+								|| (max != null && value > max)) {
 							invalid.add(id);
 						}
 					}

@@ -50,7 +50,7 @@ public class ManualModelEditorNodeFactory extends NodeFactory<ManualModelConfNod
      */
     @Override
     public NodeDialogPane createNodeDialogPane() {
-        return new ManualModelConfNodeDialog(false);
+        return new ManualModelEditorNodeDialog();
     }
 
 }

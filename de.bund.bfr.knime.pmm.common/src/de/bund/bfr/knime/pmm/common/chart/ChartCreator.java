@@ -41,8 +41,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
@@ -274,7 +276,7 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(minY, maxY));
 		}
 
-		boolean conversionFailed = false;
+		Set<String> unconvertable = new LinkedHashSet<>();
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -286,7 +288,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index));
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
@@ -300,7 +302,7 @@ public class ChartCreator extends ChartPanel {
 					plotDataSetStrict(plot, plotable, id);
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
@@ -315,7 +317,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index), usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
@@ -331,7 +333,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index), usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
@@ -346,7 +348,7 @@ public class ChartCreator extends ChartPanel {
 							.getShapeList().get(index), usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
@@ -359,17 +361,24 @@ public class ChartCreator extends ChartPanel {
 					plotBothStrict(plot, plotable, id, usedMinX, usedMaxX);
 					index++;
 				} catch (ConvertException e) {
-					conversionFailed = true;
+					unconvertable.add(e.getFromUnit());
 				}
 			}
 		}
 
-		if (conversionFailed) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							"Some datasets/functions cannot be converted to the desired unit",
-							"Warning", JOptionPane.WARNING_MESSAGE);
+		if (!unconvertable.isEmpty()) {
+			String warning = "Some datasets/functions cannot be converted to the desired unit\n";
+
+			warning += "Uncovertable units: ";
+
+			for (String unit : unconvertable) {
+				warning += unit + ", ";
+			}
+
+			warning = warning.substring(0, warning.length() - 2);
+
+			JOptionPane.showMessageDialog(this, warning, "Warning",
+					JOptionPane.WARNING_MESSAGE);
 		}
 
 		return new JFreeChart(null, JFreeChart.DEFAULT_TITLE_FONT, plot,

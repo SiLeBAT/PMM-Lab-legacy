@@ -34,7 +34,22 @@
 package de.bund.bfr.knime.pmm.common.units;
 
 public class ConvertException extends Exception {
-	
+
 	private static final long serialVersionUID = 1L;
 
+	private String fromUnit;
+	private String toUnit;
+
+	public ConvertException(String fromUnit, String toUnit) {
+		this.fromUnit = fromUnit;
+		this.toUnit = toUnit;
+	}
+
+	public String getFromUnit() {
+		return fromUnit;
+	}
+
+	public String getToUnit() {
+		return toUnit;
+	}
 }

@@ -172,7 +172,7 @@ public class CategoryReader {
 			if (fromUnit == null || toUnit == null
 					|| fromFormulas.get(fromUnit) == null
 					|| toFormulas.get(toUnit) == null) {
-				throw new ConvertException();
+				throw new ConvertException(fromUnit, toUnit);
 			}
 
 			return apply(apply(value, fromFormulas.get(fromUnit)),

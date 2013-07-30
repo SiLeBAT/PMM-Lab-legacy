@@ -200,13 +200,17 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			Plotable plotable = chartCreator.getPlotables().get(id);
 
 			if (configPanel.getUnitX() == null) {
+				configPanel.removeConfigListener(this);
 				configPanel.setUnitX(plotable.getUnits().get(
 						AttributeUtilities.TIME));
+				configPanel.addConfigListener(this);
 			}
 
 			if (configPanel.getUnitY() == null) {
+				configPanel.removeConfigListener(this);
 				configPanel.setUnitY(plotable.getUnits().get(
 						AttributeUtilities.CONCENTRATION));
+				configPanel.addConfigListener(this);
 			}
 		}
 

@@ -77,7 +77,7 @@ public class TableReader {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinations = ModelCombiner.combine(
-				tertiaryTuples, schemaContainsData, false, null);
+				tertiaryTuples, schemaContainsData, null);
 
 		for (Map.Entry<KnimeTuple, List<KnimeTuple>> entry : combinations
 				.entrySet()) {

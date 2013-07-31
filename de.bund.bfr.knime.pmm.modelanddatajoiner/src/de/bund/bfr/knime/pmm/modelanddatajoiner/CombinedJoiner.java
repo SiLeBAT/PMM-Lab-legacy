@@ -453,13 +453,11 @@ public class CombinedJoiner implements Joiner {
 		if (containsData) {
 			tuples = ModelCombiner.combine(
 					PmmUtilities.getTuples(modelTable,
-							SchemaFactory.createM12DataSchema()), true, false,
-					null);
+							SchemaFactory.createM12DataSchema()), true, null);
 		} else {
 			tuples = ModelCombiner.combine(
 					PmmUtilities.getTuples(modelTable,
-							SchemaFactory.createM12Schema()), false, false,
-					null);
+							SchemaFactory.createM12Schema()), false, null);
 		}
 
 		Set<Integer> ids = new LinkedHashSet<Integer>();

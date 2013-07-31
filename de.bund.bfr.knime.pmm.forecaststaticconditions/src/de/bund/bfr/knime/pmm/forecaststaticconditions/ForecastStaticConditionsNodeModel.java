@@ -193,7 +193,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, true, false, set.getConcentrationParameters());
+				.combine(tuples, true, set.getConcentrationParameters());
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());
@@ -431,8 +431,8 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		try {
-			Node f = parser.parse(formula.replaceAll(AttributeUtilities.CONCENTRATION
-					+ "=", ""));
+			Node f = parser.parse(formula.replaceAll(
+					AttributeUtilities.CONCENTRATION + "=", ""));
 			double value = (Double) parser.evaluate(f);
 
 			return value;

@@ -55,7 +55,7 @@ public class ModelCombiner {
 
 	public static Map<KnimeTuple, List<KnimeTuple>> combine(
 			List<KnimeTuple> tuples, boolean containsData,
-			boolean discardPrimaryParams, Map<String, String> doNotReplace) {
+			Map<String, String> doNotReplace) {
 		KnimeSchema outSchema = null;
 
 		if (containsData) {
@@ -65,17 +65,50 @@ public class ModelCombiner {
 		}
 
 		if (doNotReplace == null) {
-			doNotReplace = new LinkedHashMap<String, String>();
+			doNotReplace = new LinkedHashMap<>();
 		}
 
-		Map<String, KnimeTuple> newTuples = new LinkedHashMap<String, KnimeTuple>();
-		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<String, List<KnimeTuple>>();
-		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
+		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
+		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
+		Map<String, Set<String>> replacements = new LinkedHashMap<>();
+		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<>();
+		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
 
 		for (KnimeTuple tuple : tuples) {
-			String id = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID()
-					+ "";
+			int modelId = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+
+			if (!paramValueSums.containsKey(modelId)) {
+				Map<String, Double> sums = new LinkedHashMap<>();
+				Map<String, Integer> counts = new LinkedHashMap<>();
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model1Schema.ATT_PARAMETER).getElementSet()) {
+					ParamXml param = (ParamXml) el;
+
+					sums.put(param.getName(), 0.0);
+					counts.put(param.getName(), 0);
+				}
+
+				paramValueSums.put(modelId, sums);
+				paramCounts.put(modelId, counts);
+			}
+
+			Map<String, Double> sums = paramValueSums.get(modelId);
+			Map<String, Integer> counts = paramCounts.get(modelId);
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_PARAMETER).getElementSet()) {
+				ParamXml param = (ParamXml) el;
+
+				if (param.getValue() != null) {
+					sums.put(param.getName(),
+							sums.get(param.getName()) + param.getValue());
+					counts.put(param.getName(), counts.get(param.getName()) + 1);
+				}
+			}
+
+			String id = modelId + "";
 
 			if (containsData) {
 				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
@@ -90,18 +123,16 @@ public class ModelCombiner {
 					newTuple.setCell(attr, tuple.getCell(attr));
 				}
 
-				if (discardPrimaryParams) {
-					PmmXmlDoc params = newTuple
-							.getPmmXml(Model1Schema.ATT_PARAMETER);
+				PmmXmlDoc params = newTuple
+						.getPmmXml(Model1Schema.ATT_PARAMETER);
 
-					for (PmmXmlElementConvertable el : params.getElementSet()) {
-						ParamXml element = (ParamXml) el;
+				for (PmmXmlElementConvertable el : params.getElementSet()) {
+					ParamXml element = (ParamXml) el;
 
-						element.setValue(null);
-					}
-
-					newTuple.setValue(Model1Schema.ATT_PARAMETER, params);
+					element.setValue(null);
 				}
+
+				newTuple.setValue(Model1Schema.ATT_PARAMETER, params);
 
 				newTuples.put(id, newTuple);
 				usedTupleLists.put(id, new ArrayList<KnimeTuple>());
@@ -120,7 +151,7 @@ public class ModelCombiner {
 			}
 		}
 
-		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<>();
 
 		for (String id : newTuples.keySet()) {
 			KnimeTuple newTuple = newTuples.get(id);
@@ -192,48 +223,32 @@ public class ModelCombiner {
 				newTuple.setValue(Model1Schema.ATT_PARAMETER, newParams);
 			}
 
-			int modelCount = usedTuples.size() + 1;
 			int newID = ((CatalogModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
-					/ modelCount;
+					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 
 			for (KnimeTuple tuple : usedTuples) {
 				newID += ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getID()
-						/ modelCount;
+						Model2Schema.ATT_MODELCATALOG).get(0)).getID();
 			}
 
-			Integer newEstID = ((EstModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+			newID = MathUtilities.generateID(newID);
 
-			if (!usedTuples.isEmpty()) {
-				boolean allParamsReplaced = usedTuples.get(0)
-						.getPmmXml(Model1Schema.ATT_PARAMETER).size() == usedTuples
-						.size();
+			Integer newEstID = 0;
 
-				// if all primary parameters were replaced by secondary models,
-				// the estID of the primary is not used for the new tertiary
-				// estID (catalog id is used instead)
-				if (allParamsReplaced) {
-					newEstID = ((CatalogModelXml) newTuple.getPmmXml(
-							Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			for (KnimeTuple tuple : usedTuples) {
+				Integer estID = ((EstModelXml) tuple.getPmmXml(
+						Model2Schema.ATT_ESTMODEL).get(0)).getID();
+
+				if (estID != null) {
+					newEstID += estID;
+				} else {
+					newEstID = null;
+					break;
 				}
 			}
 
 			if (newEstID != null) {
-				newEstID /= modelCount;
-
-				for (KnimeTuple tuple : usedTuples) {
-					Integer estID = ((EstModelXml) tuple.getPmmXml(
-							Model2Schema.ATT_ESTMODEL).get(0)).getID();
-
-					if (estID != null) {
-						newEstID += estID / modelCount;
-					} else {
-						newEstID = null;
-						break;
-					}
-				}
+				newEstID = MathUtilities.generateID(newEstID);
 			}
 
 			PmmXmlDoc modelXml = newTuple
@@ -255,6 +270,33 @@ public class ModelCombiner {
 					Model1Schema.NOTWRITABLE);
 
 			tupleCombinations.put(newTuple, usedTuples);
+		}
+
+		for (KnimeTuple tuple : tupleCombinations.keySet()) {
+			int id = ((CatalogModelXml) tupleCombinations.get(tuple).get(0)
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
+			Map<String, Double> sums = paramValueSums.get(id);
+			Map<String, Integer> counts = paramCounts.get(id);
+
+			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
+				ParamXml param = (ParamXml) el;
+
+				if (param.getValue() == null
+						&& counts.get(param.getName()) != null) {
+					if (counts.get(param.getName()) != 0) {
+						param.setValue(sums.get(param.getName())
+								/ counts.get(param.getName()));
+					}
+
+					param.getAllCorrelations().clear();
+					param.setError(null);
+					param.sett(null);
+					param.setP(null);
+				}
+			}
+
+			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
 		}
 
 		return tupleCombinations;

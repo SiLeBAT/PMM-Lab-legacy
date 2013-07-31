@@ -50,15 +50,14 @@ public class TableReader {
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = null;
-		boolean isTertiaryModel = tuples.get(0).getSchema().conforms(
-				SchemaFactory.createM12Schema());
-		boolean containsData = tuples.get(0).getSchema().conforms(
-				SchemaFactory.createDataSchema());
+		boolean isTertiaryModel = tuples.get(0).getSchema()
+				.conforms(SchemaFactory.createM12Schema());
+		boolean containsData = tuples.get(0).getSchema()
+				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
 
 		if (isTertiaryModel) {
-			combinedTuples = ModelCombiner.combine(tuples, false, false,
-					initParams);
+			combinedTuples = ModelCombiner.combine(tuples, false, initParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 			containsData = false;
 

@@ -371,4 +371,15 @@ public class MathUtilities {
 		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
 	}
 
+	public static int generateID(int seed) {
+		Random rand = new Random(seed);
+		int id = rand.nextInt();
+
+		if (id > 0) {
+			id = -id;
+		}
+
+		return id;
+	}
+
 }

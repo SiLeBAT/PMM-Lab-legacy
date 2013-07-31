@@ -69,7 +69,7 @@ public class TableReader {
 		}
 
 		tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
-				schemaContainsData, false, null).keySet());
+				schemaContainsData, null).keySet());
 
 		ids = new ArrayList<String>();
 		plotables = new LinkedHashMap<String, Plotable>();
@@ -190,8 +190,8 @@ public class TableReader {
 
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			DepXml depXml = (DepXml) tuple.getPmmXml(Model1Schema.ATT_DEPENDENT)
-					.get(0);
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = modelXml.getName();
 			String formula = modelXml.getFormula();
 			String depVar = depXml.getName();
@@ -303,8 +303,9 @@ public class TableReader {
 				stringColumnValues.get(5).add(matrix.getName());
 				stringColumnValues.get(6).add(matrix.getDetail());
 				stringColumnValues.get(7).add(
-						((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
-								.get(0)).getComment());
+						((MdInfoXml) tuple.getPmmXml(
+								TimeSeriesSchema.ATT_MDINFO).get(0))
+								.getComment());
 				doubleColumnValues.get(0).add(
 						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(1).add(

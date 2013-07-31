@@ -691,7 +691,10 @@ public class XLSReader {
 	}
 
 	public List<String> getColumns(File file, String sheet) throws Exception {
-		Sheet s = getWorkbook(file).getSheet(sheet);
+		Workbook wb = getWorkbook(file);
+		Sheet s = wb.getSheet(sheet);
+
+		evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		if (s == null) {
 			throw new Exception("Sheet not found");
@@ -703,7 +706,10 @@ public class XLSReader {
 	public Set<String> getValuesInColumn(File file, String sheet, String column)
 			throws Exception {
 		Set<String> valueSet = new LinkedHashSet<>();
-		Sheet s = getWorkbook(file).getSheet(sheet);
+		Workbook wb = getWorkbook(file);
+		Sheet s = wb.getSheet(sheet);
+
+		evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		if (s == null) {
 			throw new Exception("Sheet not found");

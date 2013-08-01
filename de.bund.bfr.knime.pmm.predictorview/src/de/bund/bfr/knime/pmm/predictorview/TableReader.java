@@ -17,6 +17,7 @@ import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -57,9 +58,24 @@ public class TableReader {
 		List<String> miscParams = null;
 
 		if (isTertiaryModel) {
-			combinedTuples = ModelCombiner.combine(tuples, false, initParams);
+			combinedTuples = ModelCombiner.combine(tuples, containsData,
+					initParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 			containsData = false;
+
+			try {
+				List<KnimeTuple> newTuples = QualityMeasurementComputation
+						.computePrimary(tuples, false);
+
+				for (int i = 0; i < tuples.size(); i++) {
+					combinedTuples.put(newTuples.get(i),
+							combinedTuples.get(tuples.get(i)));
+					combinedTuples.remove(tuples.get(i));
+				}
+				
+				tuples = newTuples;
+			} catch (Exception e) {
+			}
 
 			for (KnimeTuple tuple : tuples) {
 				List<KnimeTuple> usedTuples = combinedTuples.get(tuple);

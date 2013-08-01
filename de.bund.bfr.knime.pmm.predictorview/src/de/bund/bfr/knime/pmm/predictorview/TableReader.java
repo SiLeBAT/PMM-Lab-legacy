@@ -32,6 +32,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 
 public class TableReader {
 
+	private static final String IDENTIFIER = "Identifier";
+
 	private List<String> ids;
 	private Map<String, KnimeTuple> tupleMap;
 	private List<String> stringColumns;
@@ -127,7 +129,7 @@ public class TableReader {
 		conditionUnits = null;
 
 		if (isTertiaryModel) {
-			stringColumns = Arrays.asList(ChartConstants.STATUS,
+			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
 			stringColumnValues = new ArrayList<List<String>>();
@@ -136,8 +138,10 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model2Schema.MODELNAME, ChartConstants.STATUS);
+			stringColumnValues.add(new ArrayList<String>());
+			standardVisibleColumns = Arrays.asList(IDENTIFIER,
+					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
+					ChartConstants.STATUS);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model2Schema.MODELNAME, ChartConstants.STATUS);
 
@@ -155,9 +159,11 @@ public class TableReader {
 			}
 		} else {
 			if (containsData) {
-				stringColumns = Arrays.asList(ChartConstants.STATUS,
-						Model1Schema.MODELNAME, AttributeUtilities.DATAID);
+				stringColumns = Arrays.asList(IDENTIFIER,
+						ChartConstants.STATUS, Model1Schema.MODELNAME,
+						AttributeUtilities.DATAID);
 				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
@@ -177,31 +183,37 @@ public class TableReader {
 					conditionUnits.add(new ArrayList<String>());
 				}
 			} else {
-				stringColumns = Arrays.asList(ChartConstants.STATUS,
-						Model1Schema.MODELNAME);
+				stringColumns = Arrays.asList(IDENTIFIER,
+						ChartConstants.STATUS, Model1Schema.MODELNAME);
 				stringColumnValues = new ArrayList<List<String>>();
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-						ChartConstants.STATUS);
+				stringColumnValues.add(new ArrayList<String>());
+				standardVisibleColumns = Arrays.asList(IDENTIFIER,
+						Model1Schema.MODELNAME, ChartConstants.STATUS);
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS);
 			}
 		}
 
+		int index = 1;
+
 		for (KnimeTuple tuple : tuples) {
-			String id = ((EstModelXml) tuple.getPmmXml(
+			String testId = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID()
 					+ "";
 
 			if (!isTertiaryModel && containsData) {
-				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+				testId += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
-			if (!idSet.add(id)) {
+			if (!idSet.add(testId)) {
 				continue;
 			}
 
+			String id = index + "";
+
+			index++;
 			ids.add(id);
 			tupleMap.put(id, tuple);
 
@@ -288,7 +300,8 @@ public class TableReader {
 
 			shortLegend.put(id, modelName);
 			longLegend.put(id, modelName + " " + formula);
-			stringColumnValues.get(1).add(modelName);
+			stringColumnValues.get(0).add(id);
+			stringColumnValues.get(2).add(modelName);
 
 			if (isTertiaryModel) {
 				Set<String> secModels = new LinkedHashSet<>();
@@ -320,9 +333,9 @@ public class TableReader {
 					matrixString += "," + s;
 				}
 
-				stringColumnValues.get(2).add(secString.substring(1));
-				stringColumnValues.get(3).add(agentString.substring(1));
-				stringColumnValues.get(4).add(matrixString.substring(1));
+				stringColumnValues.get(3).add(secString.substring(1));
+				stringColumnValues.get(4).add(agentString.substring(1));
+				stringColumnValues.get(5).add(matrixString.substring(1));
 			}
 
 			doubleColumnValues.get(0).add(
@@ -377,7 +390,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(2).add(dataName);
+				stringColumnValues.get(3).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;
@@ -400,13 +413,13 @@ public class TableReader {
 			}
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(0).add(ChartConstants.FAILED);
+				stringColumnValues.get(1).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(0).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(0).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(0).add(ChartConstants.OK);
+				stringColumnValues.get(1).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

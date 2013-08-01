@@ -167,8 +167,9 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-						ChartConstants.STATUS, AttributeUtilities.DATAID);
+				standardVisibleColumns = Arrays.asList(IDENTIFIER,
+						Model1Schema.MODELNAME, ChartConstants.STATUS,
+						AttributeUtilities.DATAID);
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS, AttributeUtilities.DATAID);
 

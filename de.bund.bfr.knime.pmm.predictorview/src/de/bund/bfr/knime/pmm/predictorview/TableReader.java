@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
@@ -63,7 +65,6 @@ public class TableReader {
 			combinedTuples = ModelCombiner.combine(tuples, containsData,
 					initParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
-			containsData = false;
 
 			try {
 				List<KnimeTuple> newTuples = QualityMeasurementComputation
@@ -127,8 +128,11 @@ public class TableReader {
 
 		if (isTertiaryModel) {
 			stringColumns = Arrays.asList(ChartConstants.STATUS,
-					Model1Schema.MODELNAME, Model2Schema.MODELNAME);
+					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -190,7 +194,7 @@ public class TableReader {
 					Model1Schema.ATT_ESTMODEL).get(0)).getID()
 					+ "";
 
-			if (containsData) {
+			if (!isTertiaryModel && containsData) {
 				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
@@ -288,18 +292,37 @@ public class TableReader {
 
 			if (isTertiaryModel) {
 				Set<String> secModels = new LinkedHashSet<>();
-				String secString = "";
+				Set<String> organisms = new LinkedHashSet<>();
+				Set<String> matrices = new LinkedHashSet<>();
 
 				for (KnimeTuple t : combinedTuples.get(tuple)) {
 					secModels.add(((CatalogModelXml) t.getPmmXml(
 							Model2Schema.ATT_MODELCATALOG).get(0)).getName());
+					organisms.add(((AgentXml) t.getPmmXml(
+							TimeSeriesSchema.ATT_AGENT).get(0)).getName());
+					matrices.add(((MatrixXml) t.getPmmXml(
+							TimeSeriesSchema.ATT_MATRIX).get(0)).getName());
 				}
+
+				String secString = "";
+				String agentString = "";
+				String matrixString = "";
 
 				for (String s : secModels) {
 					secString += "," + s;
 				}
 
+				for (String s : organisms) {
+					agentString += "," + s;
+				}
+
+				for (String s : matrices) {
+					matrixString += "," + s;
+				}
+
 				stringColumnValues.get(2).add(secString.substring(1));
+				stringColumnValues.get(3).add(agentString.substring(1));
+				stringColumnValues.get(4).add(matrixString.substring(1));
 			}
 
 			doubleColumnValues.get(0).add(

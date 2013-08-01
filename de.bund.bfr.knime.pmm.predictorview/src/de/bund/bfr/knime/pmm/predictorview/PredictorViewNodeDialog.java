@@ -231,8 +231,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
 				reader.getStringColumns(), reader.getStringColumnValues(),
 				reader.getDoubleColumns(), reader.getDoubleColumnValues(),
-				reader.getConditions(), reader.getConditionValues(), null,
-				null, reader.getConditionUnits(), set.getVisibleColumns(),
+				reader.getConditions(), reader.getConditionValues(),
+				reader.getConditionMinValues(), reader.getConditionMaxValues(),
+				reader.getConditionUnits(), set.getVisibleColumns(),
 				reader.getFilterableStringColumns(), null,
 				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(set.getColors());

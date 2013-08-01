@@ -40,6 +40,8 @@ public class TableReader {
 	private List<Map<String, Double>> parameterData;
 	private List<String> conditions;
 	private List<List<Double>> conditionValues;
+	private List<List<Double>> conditionMinValues;
+	private List<List<Double>> conditionMaxValues;
 	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
@@ -72,7 +74,7 @@ public class TableReader {
 							combinedTuples.get(tuples.get(i)));
 					combinedTuples.remove(tuples.get(i));
 				}
-				
+
 				tuples = newTuples;
 			} catch (Exception e) {
 			}
@@ -119,25 +121,36 @@ public class TableReader {
 		doubleColumnValues.add(new ArrayList<Double>());
 		conditions = null;
 		conditionValues = null;
+		conditionMinValues = null;
+		conditionMaxValues = null;
 		conditionUnits = null;
 
-		if (containsData) {
-			if (isTertiaryModel) {
-				stringColumns = Arrays.asList(ChartConstants.STATUS,
-						Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-						AttributeUtilities.DATAID);
-				stringColumnValues = new ArrayList<List<String>>();
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-						Model2Schema.MODELNAME, ChartConstants.STATUS,
-						AttributeUtilities.DATAID);
-				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-						Model2Schema.MODELNAME, ChartConstants.STATUS,
-						AttributeUtilities.DATAID);
-			} else {
+		if (isTertiaryModel) {
+			stringColumns = Arrays.asList(ChartConstants.STATUS,
+					Model1Schema.MODELNAME, Model2Schema.MODELNAME);
+			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
+					Model2Schema.MODELNAME, ChartConstants.STATUS);
+			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+					Model2Schema.MODELNAME, ChartConstants.STATUS);
+
+			miscParams = PmmUtilities.getMiscParams(tuples);
+			conditions = new ArrayList<>();
+			conditionMinValues = new ArrayList<>();
+			conditionMaxValues = new ArrayList<>();
+			conditionUnits = new ArrayList<>();
+
+			for (String param : miscParams) {
+				conditions.add(param);
+				conditionMinValues.add(new ArrayList<Double>());
+				conditionMaxValues.add(new ArrayList<Double>());
+				conditionUnits.add(new ArrayList<String>());
+			}
+		} else {
+			if (containsData) {
 				stringColumns = Arrays.asList(ChartConstants.STATUS,
 						Model1Schema.MODELNAME, AttributeUtilities.DATAID);
 				stringColumnValues = new ArrayList<List<String>>();
@@ -148,30 +161,17 @@ public class TableReader {
 						ChartConstants.STATUS, AttributeUtilities.DATAID);
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS, AttributeUtilities.DATAID);
-			}
 
-			miscParams = PmmUtilities.getMiscParams(tuples);
-			conditions = new ArrayList<>();
-			conditionValues = new ArrayList<>();
-			conditionUnits = new ArrayList<>();
+				miscParams = PmmUtilities.getMiscParams(tuples);
+				conditions = new ArrayList<>();
+				conditionValues = new ArrayList<>();
+				conditionUnits = new ArrayList<>();
 
-			for (String param : miscParams) {
-				conditions.add(param);
-				conditionValues.add(new ArrayList<Double>());
-				conditionUnits.add(new ArrayList<String>());
-			}
-		} else {
-			if (isTertiaryModel) {
-				stringColumns = Arrays.asList(ChartConstants.STATUS,
-						Model1Schema.MODELNAME, Model2Schema.MODELNAME);
-				stringColumnValues = new ArrayList<List<String>>();
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-						Model2Schema.MODELNAME, ChartConstants.STATUS);
-				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-						Model2Schema.MODELNAME, ChartConstants.STATUS);
+				for (String param : miscParams) {
+					conditions.add(param);
+					conditionValues.add(new ArrayList<Double>());
+					conditionUnits.add(new ArrayList<String>());
+				}
 			} else {
 				stringColumns = Arrays.asList(ChartConstants.STATUS,
 						Model1Schema.MODELNAME);
@@ -323,7 +323,29 @@ public class TableReader {
 			plotable.setCategories(categories);
 			plotable.setUnits(units);
 
-			if (containsData) {
+			if (isTertiaryModel) {
+				for (int i = 0; i < miscParams.size(); i++) {
+					Double min = null;
+					Double max = null;
+					String unit = null;
+
+					for (PmmXmlElementConvertable el : tuple.getPmmXml(
+							Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+						IndepXml element = (IndepXml) el;
+
+						if (miscParams.get(i).equals(element.getName())) {
+							min = element.getMin();
+							max = element.getMax();
+							unit = element.getUnit();
+							break;
+						}
+					}
+
+					conditionMinValues.get(i).add(min);
+					conditionMaxValues.get(i).add(max);
+					conditionUnits.get(i).add(unit);
+				}
+			} else if (containsData) {
 				String dataName;
 
 				if (tuple.getString(TimeSeriesSchema.ATT_COMBASEID) != null) {
@@ -332,11 +354,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				if (isTertiaryModel) {
-					stringColumnValues.get(3).add(dataName);
-				} else {
-					stringColumnValues.get(2).add(dataName);
-				}
+				stringColumnValues.get(2).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;
@@ -414,6 +432,14 @@ public class TableReader {
 
 	public List<List<Double>> getConditionValues() {
 		return conditionValues;
+	}
+
+	public List<List<Double>> getConditionMinValues() {
+		return conditionMinValues;
+	}
+
+	public List<List<Double>> getConditionMaxValues() {
+		return conditionMaxValues;
 	}
 
 	public List<List<String>> getConditionUnits() {

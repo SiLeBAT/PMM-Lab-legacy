@@ -1446,9 +1446,23 @@ public class Bfrdb extends Hsqldbiface {
 			if (el instanceof TimeSeriesXml) {
 				TimeSeriesXml tsx = (TimeSeriesXml) el;
 				try {
-					Double origTime = Categories.getTimeCategory().convert(tsx.getTime(), tsx.getTimeUnit(), tsx.getOrigTimeUnit());
-					Double origConc = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentration(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
-					Double origConcStdDev = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentrationStdDev(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
+					Double origTime = null, origConc = null, origConcStdDev = null;
+					if (tsx.getOrigTimeUnit() == null || tsx.getOrigTimeUnit().trim().isEmpty()) {
+						tsx.setOrigTimeUnit(tsx.getTimeUnit());
+						origTime = tsx.getTime();
+					}
+					else {
+						origTime = Categories.getTimeCategory().convert(tsx.getTime(), tsx.getTimeUnit(), tsx.getOrigTimeUnit());
+					}
+					if (tsx.getOrigConcentrationUnit() == null || tsx.getOrigConcentrationUnit().trim().isEmpty()) {
+						tsx.setOrigConcentrationUnit(tsx.getConcentrationUnit());
+						origConc = tsx.getConcentration();
+						origConcStdDev = tsx.getConcentrationStdDev();
+					}
+					else {
+						origConc = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentration(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
+						origConcStdDev = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentrationStdDev(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());						
+					}
 					int timeId = insertDouble(origTime);				
 					int lognId = insertDouble(origConc, origConcStdDev, tsx.getNumberOfMeasurements());
 					insertData(condId, timeId, lognId, tsx.getOrigTimeUnit(), tsx.getOrigConcentrationUnit(), tsx.getConcentrationUnitObjectType());

@@ -117,7 +117,7 @@ public class MMC_TS extends JPanel {
 			matDoc.add(mx);
 			theTS.setValue(TimeSeriesSchema.ATT_MATRIX, matDoc);
 			
-			PmmXmlDoc agtDoc = theTS.getAgent();
+			PmmXmlDoc agtDoc = new PmmXmlDoc(); //theTS.getAgent();
 			AgentXml ax = new AgentXml(agentID, agentField.getText(), agensDetailField.getText(), null);
 			agtDoc.add(ax);
 			theTS.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);

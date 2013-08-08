@@ -105,6 +105,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private ChartConfigPanel configPanel;
 	private ChartSamplePanel samplePanel;
 
+	private boolean showSamplePanel;
+
 	/**
 	 * New pane for configuring the ForecastStaticConditions node.
 	 */
@@ -113,6 +115,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
+		showSamplePanel = true;
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
@@ -120,6 +123,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set = new SettingsHelper();
 		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = createMainComponent();
+		showSamplePanel = false;
 	}
 
 	public ChartAllPanel getMainComponent() {
@@ -251,8 +255,20 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		selectionPanel.setSelectedIDs(set.getSelectedIDs());
 
-		return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
-				samplePanel);
+		if (showSamplePanel) {
+			return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
+					samplePanel);
+		} else {
+			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
+		}
+	}
+
+	public Map<String, String> getInitParams() {
+		return set.getConcentrationParameters();
+	}
+
+	public void setShowSamplePanel(boolean showSamplePanel) {
+		this.showSamplePanel = showSamplePanel;
 	}
 
 	public void createChart() {

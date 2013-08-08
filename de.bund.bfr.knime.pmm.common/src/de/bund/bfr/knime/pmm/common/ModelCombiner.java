@@ -141,12 +141,8 @@ public class ModelCombiner {
 
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
-			String modelID = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
-					+ "";
 
-			if (!depVarSec.equals(doNotReplace.get(modelID))
-					&& replacements.get(id).add(depVarSec)) {
+			if (replacements.get(id).add(depVarSec)) {
 				usedTupleLists.get(id).add(tuple);
 			}
 		}
@@ -158,10 +154,18 @@ public class ModelCombiner {
 			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
 
 			for (KnimeTuple tuple : usedTuples) {
-				String formulaSec = ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getFormula();
+				String modelID = ((CatalogModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+						+ "";
 				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
+
+				if (depVarSec.equals(doNotReplace.get(modelID))) {
+					continue;
+				}
+
+				String formulaSec = ((CatalogModelXml) tuple.getPmmXml(
+						Model2Schema.ATT_MODELCATALOG).get(0)).getFormula();
 				PmmXmlDoc indepVarsSec = tuple
 						.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 				PmmXmlDoc paramsSec = tuple

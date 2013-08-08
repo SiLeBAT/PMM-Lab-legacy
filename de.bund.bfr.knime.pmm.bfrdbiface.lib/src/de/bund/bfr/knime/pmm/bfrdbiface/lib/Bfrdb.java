@@ -735,7 +735,7 @@ public class Bfrdb extends Hsqldbiface {
 			myWhereCache = " WHERE " + where;
 		}
 
-		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, true); // forceUpdate
+		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, forceUpdate);
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {
 		String sql = "CREATE TABLE " + DBKernel.delimitL(cacheTableneme) + " (";
@@ -761,7 +761,7 @@ public class Bfrdb extends Hsqldbiface {
 	public ResultSet selectTs(boolean forceUpdate) throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
 		//System.err.println(queryTimeSeries9);
-		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", true); // forceUpdate
+		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", forceUpdate);
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
 		boolean dropCacheFirst = false;

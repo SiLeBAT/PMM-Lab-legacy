@@ -125,8 +125,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 	private JButton addLiteratureButton;
 	private JButton removeLiteratureButton;
-	private JList<String> literatureList;
-	private List<String> literatureData;
+	private JList<LiteratureItem> literatureList;
 
 	private JPanel modelPanel;
 	private JButton modelButton;
@@ -312,13 +311,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		literatureData = new ArrayList<>();
-
-		for (LiteratureItem item : set.getLiterature()) {
-			literatureData.add(item.getAuthor() + "-" + item.getYear());
-		}
-
-		literatureList.setListData(literatureData.toArray(new String[0]));
+		literatureList.setListData(set.getLiterature().toArray(
+				new LiteratureItem[0]));
 
 		updateModelPanel();
 		updateAgentPanel();
@@ -505,9 +499,8 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				set.getLiterature().add(
 						new LiteratureItem(author, Integer.parseInt(year),
 								title, mAbstract, id));
-				literatureData.add(author + "-" + year);
-				literatureList.setListData(literatureData
-						.toArray(new String[0]));
+				literatureList.setListData(set.getLiterature().toArray(
+						new LiteratureItem[0]));
 			}
 		} else if (e.getSource() == removeLiteratureButton) {
 			if (literatureList.getSelectedIndices().length > 0) {
@@ -517,11 +510,10 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 				for (int i = indices.length - 1; i >= 0; i--) {
 					set.getLiterature().remove(indices[i]);
-					literatureData.remove(indices[i]);
 				}
 
-				literatureList.setListData(literatureData
-						.toArray(new String[0]));
+				literatureList.setListData(set.getLiterature().toArray(
+						new LiteratureItem[0]));
 			}
 		} else {
 			for (String param : secModelButtons.keySet()) {

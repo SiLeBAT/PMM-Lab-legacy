@@ -142,8 +142,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		creator.setMaxY(set.getMaxY());
 		creator.setDrawLines(set.isDrawLines());
 		creator.setShowLegend(set.isShowLegend());
-		creator.setAddInfoInLegend(set.isAddLegendInfo());
-		creator.setShowConfidenceInterval(set.isShowConfidence());
+		creator.setAddInfoInLegend(set.isAddLegendInfo());		
 		creator.setUnitX(set.getUnitX());
 		creator.setUnitY(set.getUnitY());
 		creator.setTransformY(set.getTransformY());

@@ -64,7 +64,6 @@ public class SettingsHelper {
 	protected static final String CFG_ADDLEGENDINFO = "AddLegendInfo";
 	protected static final String CFG_DISPLAYHIGHLIGHTED = "DisplayHighlighted";
 	protected static final String CFG_EXPORTASSVG = "ExportAsSvg";
-	protected static final String CFG_SHOWCONFIDENCE = "ShowConfidence";
 	protected static final String CFG_UNITX = "UnitX";
 	protected static final String CFG_UNITY = "UnitY";
 	protected static final String CFG_TRANSFORMY = "TransformY";
@@ -85,7 +84,6 @@ public class SettingsHelper {
 	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
 	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = false;
 	protected static final boolean DEFAULT_EXPORTASSVG = false;
-	protected static final boolean DEFAULT_SHOWCONFIDENCE = false;
 	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
 	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
 
@@ -104,7 +102,6 @@ public class SettingsHelper {
 	private boolean addLegendInfo;
 	private boolean displayHighlighted;
 	private boolean exportAsSvg;
-	private boolean showConfidence;
 	private String unitX;
 	private String unitY;
 	private String transformY;
@@ -131,7 +128,6 @@ public class SettingsHelper {
 		addLegendInfo = DEFAULT_ADDLEGENDINFO;
 		displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
 		exportAsSvg = DEFAULT_EXPORTASSVG;
-		showConfidence = DEFAULT_SHOWCONFIDENCE;
 		unitX = null;
 		unitY = null;
 		transformY = DEFAULT_TRANSFORMY;
@@ -241,12 +237,6 @@ public class SettingsHelper {
 		}
 
 		try {
-			showConfidence = settings.getBoolean(CFG_SHOWCONFIDENCE);
-		} catch (InvalidSettingsException e) {
-			showConfidence = DEFAULT_SHOWCONFIDENCE;
-		}
-
-		try {
 			unitX = settings.getString(CFG_UNITX);
 		} catch (InvalidSettingsException e) {
 			unitX = null;
@@ -324,7 +314,6 @@ public class SettingsHelper {
 		settings.addBoolean(CFG_ADDLEGENDINFO, addLegendInfo);
 		settings.addBoolean(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
 		settings.addBoolean(CFG_EXPORTASSVG, exportAsSvg);
-		settings.addBoolean(CFG_SHOWCONFIDENCE, showConfidence);
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
 		settings.addString(CFG_TRANSFORMY, transformY);
@@ -456,14 +445,6 @@ public class SettingsHelper {
 
 	public void setExportAsSvg(boolean exportAsSvg) {
 		this.exportAsSvg = exportAsSvg;
-	}
-
-	public boolean isShowConfidence() {
-		return showConfidence;
-	}
-
-	public void setShowConfidence(boolean showConfidence) {
-		this.showConfidence = showConfidence;
 	}
 
 	public String getUnitX() {

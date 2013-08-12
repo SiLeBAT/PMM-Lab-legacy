@@ -197,7 +197,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				true, "Change Init Params");
+				false, "Change Init Params");
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -228,7 +228,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
 		configPanel.setExportAsSvg(set.isExportAsSvg());
-		configPanel.setShowConfidenceInterval(set.isShowConfidence());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
@@ -354,7 +353,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
 		set.setExportAsSvg(configPanel.isExportAsSvg());
-		set.setShowConfidence(configPanel.isShowConfidenceInterval());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
 		set.setTransformY(configPanel.getTransformY());

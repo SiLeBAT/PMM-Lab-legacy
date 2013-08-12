@@ -11,6 +11,7 @@ import java.util.Set;
 import org.knime.core.node.BufferedDataTable;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -53,8 +54,9 @@ public class TableReader {
 		stringColumns = Arrays.asList(AttributeUtilities.DATAID,
 				TimeSeriesSchema.ATT_AGENT, AttributeUtilities.AGENT_DETAILS,
 				TimeSeriesSchema.ATT_MATRIX, AttributeUtilities.MATRIX_DETAILS,
-				MdInfoXml.ATT_COMMENT);
+				MdInfoXml.ATT_COMMENT, TimeSeriesSchema.ATT_LITMD);
 		stringColumnValues = new ArrayList<>();
+		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -122,6 +124,12 @@ public class TableReader {
 					TimeSeriesSchema.ATT_AGENT).get(0);
 			MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
 					TimeSeriesSchema.ATT_MATRIX).get(0);
+			String literature = "";
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					TimeSeriesSchema.ATT_LITMD).getElementSet()) {
+				literature += "," + (LiteratureItem) el;
+			}
 
 			stringColumnValues.get(0).add(dataName);
 			stringColumnValues.get(1).add(agent.getName());
@@ -131,6 +139,7 @@ public class TableReader {
 			stringColumnValues.get(5).add(
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 							.get(0)).getComment());
+			stringColumnValues.get(6).add(literature.substring(1));
 			data.add(dataPoints);
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent.getName());

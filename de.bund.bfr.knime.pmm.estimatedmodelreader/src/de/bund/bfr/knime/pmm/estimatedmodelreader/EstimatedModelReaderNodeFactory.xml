@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./FittedModelReader.png" type="Source">
-    <name>Fitted Model Reader</name>
+    <name>Model Reader</name>
     
     <shortDescription>
         Loads previously estimated primary or secondary models from a database

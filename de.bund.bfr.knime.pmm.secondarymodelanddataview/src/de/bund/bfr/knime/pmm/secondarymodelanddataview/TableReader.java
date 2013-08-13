@@ -49,6 +49,7 @@ import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -117,8 +118,10 @@ public class TableReader {
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, ChartConstants.STATUS);
+				Model2Schema.MODELNAME, Model2Schema.ATT_EMLIT,
+				ChartConstants.STATUS);
 		stringColumnValues = new ArrayList<List<String>>();
+		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
@@ -208,10 +211,22 @@ public class TableReader {
 					depVarSecDesc += " (" + primModelXml.getName() + ")";
 				}
 
+				String literature = "";
+
+				for (PmmXmlElementConvertable el : tuple.getPmmXml(
+						Model2Schema.ATT_EMLIT).getElementSet()) {
+					literature += "," + (LiteratureItem) el;
+				}
+
+				if (!literature.isEmpty()) {
+					literature = literature.substring(1);
+				}
+
 				idSet.add(id);
 				ids.add(id);
 				stringColumnValues.get(0).add(depVarSecDesc);
 				stringColumnValues.get(1).add(modelNameSec);
+				stringColumnValues.get(2).add(literature);
 				formulas.add(formulaSec);
 				parameterData.add(paramData);
 				shortLegend.put(id, depVarSec);
@@ -399,13 +414,13 @@ public class TableReader {
 			plotable.setUnits(units);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(2).add(ChartConstants.FAILED);
+				stringColumnValues.get(3).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramMap.get(id))) {
-				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(3).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramMap.get(id))) {
-				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(3).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(2).add(ChartConstants.OK);
+				stringColumnValues.get(3).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

@@ -131,6 +131,10 @@ public class TableReader {
 				literature += "," + (LiteratureItem) el;
 			}
 
+			if (!literature.isEmpty()) {
+				literature = literature.substring(1);
+			}
+
 			stringColumnValues.get(0).add(dataName);
 			stringColumnValues.get(1).add(agent.getName());
 			stringColumnValues.get(2).add(agent.getDetail());
@@ -139,7 +143,7 @@ public class TableReader {
 			stringColumnValues.get(5).add(
 					((MdInfoXml) tuple.getPmmXml(TimeSeriesSchema.ATT_MDINFO)
 							.get(0)).getComment());
-			stringColumnValues.get(6).add(literature.substring(1));
+			stringColumnValues.get(6).add(literature);
 			data.add(dataPoints);
 			shortLegend.put(id, dataName);
 			longLegend.put(id, dataName + " " + agent.getName());

@@ -330,8 +330,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setDrawLines(configPanel.isDrawLines());
 		chartCreator.setShowLegend(configPanel.isShowLegend());
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
-		chartCreator.setShowConfidenceInterval(configPanel
-				.isShowConfidenceInterval());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
 		chartCreator.createChart(selectedIDs);

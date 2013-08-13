@@ -153,7 +153,7 @@ public class MMC_M extends JPanel {
 			String depVar = depVarLabel.getText();
 			if (!depVar.isEmpty()) {
 				String formula = pm.getFormula();
-				int index = formula.lastIndexOf("=");
+				int index = formula.indexOf("=");
 				if (index >= 0) {
 					// String oldDepVar = formula.substring(0, index);
 					// System.err.println(oldDepVar + "=" + depVar);

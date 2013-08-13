@@ -16,6 +16,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -86,12 +87,13 @@ public class TableReader {
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS, AttributeUtilities.DATAID,
-					TimeSeriesSchema.ATT_AGENT,
+					Model1Schema.ATT_EMLIT, ChartConstants.STATUS,
+					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
 					AttributeUtilities.AGENT_DETAILS,
 					TimeSeriesSchema.ATT_MATRIX,
 					AttributeUtilities.MATRIX_DETAILS, MdInfoXml.ATT_COMMENT);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -135,8 +137,9 @@ public class TableReader {
 			}
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS);
+					Model1Schema.ATT_EMLIT, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			doubleColumns = Arrays.asList(Model1Schema.RMS,
@@ -301,12 +304,12 @@ public class TableReader {
 				shortLegend.put(id, modelName + " (" + dataName + ")");
 				longLegend
 						.put(id, modelName + " (" + dataName + ") " + formula);
-				stringColumnValues.get(2).add(dataName);
-				stringColumnValues.get(3).add(agent.getName());
-				stringColumnValues.get(4).add(agent.getDetail());
-				stringColumnValues.get(5).add(matrix.getName());
-				stringColumnValues.get(6).add(matrix.getDetail());
-				stringColumnValues.get(7).add(
+				stringColumnValues.get(3).add(dataName);
+				stringColumnValues.get(4).add(agent.getName());
+				stringColumnValues.get(5).add(agent.getDetail());
+				stringColumnValues.get(6).add(matrix.getName());
+				stringColumnValues.get(7).add(matrix.getDetail());
+				stringColumnValues.get(8).add(
 						((MdInfoXml) tuple.getPmmXml(
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
@@ -382,16 +385,28 @@ public class TableReader {
 			plotable.setCategories(categories);
 			plotable.setUnits(units);
 
+			String literature = "";
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_EMLIT).getElementSet()) {
+				literature += "," + (LiteratureItem) el;
+			}
+
+			if (!literature.isEmpty()) {
+				literature = literature.substring(1);
+			}
+
 			stringColumnValues.get(0).add(modelName);
+			stringColumnValues.get(1).add(literature);
 
 			if (!plotable.isPlotable()) {
-				stringColumnValues.get(1).add(ChartConstants.FAILED);
+				stringColumnValues.get(2).add(ChartConstants.FAILED);
 			} else if (PmmUtilities.isOutOfRange(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.OUT_OF_LIMITS);
+				stringColumnValues.get(2).add(ChartConstants.OUT_OF_LIMITS);
 			} else if (PmmUtilities.covarianceMatrixMissing(paramXml)) {
-				stringColumnValues.get(1).add(ChartConstants.NO_COVARIANCE);
+				stringColumnValues.get(2).add(ChartConstants.NO_COVARIANCE);
 			} else {
-				stringColumnValues.get(1).add(ChartConstants.OK);
+				stringColumnValues.get(2).add(ChartConstants.OK);
 			}
 
 			plotables.put(id, plotable);

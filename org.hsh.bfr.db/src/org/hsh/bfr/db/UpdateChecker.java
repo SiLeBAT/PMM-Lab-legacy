@@ -51,7 +51,12 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class UpdateChecker {
 	public static void check4Updates_165_166() {	
-		/*
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("DepVarView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("IndepVarView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("ParamView") + ";", false);
+		
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
 				" DROP COLUMN " + DBKernel.delimitL("Kategorie"), false)) {
 			updateChangeLog("ModellkatalogParameter", 7, true);		
@@ -59,7 +64,12 @@ public class UpdateChecker {
 					" ALTER COLUMN " + DBKernel.delimitL("Einheit") + " INTEGER", false);
 		}
 		refreshFKs("ModellkatalogParameter");
-		*/
+		
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_166.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView_166.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView_166.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_165.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null, false);		
 	}
 	public static void check4Updates_164_165() {	
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

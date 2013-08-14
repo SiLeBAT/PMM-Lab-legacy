@@ -137,7 +137,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.6.5";
+	public static String DBVersion = "1.6.6";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
@@ -2040,6 +2040,10 @@ public class DBKernel {
 		  	if (DBKernel.getDBVersion().equals("1.6.4")) {
 		  		UpdateChecker.check4Updates_164_165(); 
 		  		DBKernel.setDBVersion("1.6.5");
+		  	}
+		  	if (DBKernel.getDBVersion().equals("1.6.5")) {
+		  		UpdateChecker.check4Updates_165_166(); 
+		  		DBKernel.setDBVersion("1.6.6");
 		  	}
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);		  	

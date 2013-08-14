@@ -1246,17 +1246,17 @@ public class MyDBTables {
 				null,null});
 		addTable(Modellkatalog, MyList.PMModelle_LIST);		
 		MyTable ModellkatalogParameter = new MyTable("ModellkatalogParameter", new String[]{"Modell","Parametername","Parametertyp",
-				"ganzzahl","min","max","Kategorie","Einheit","Beschreibung"},
+				"ganzzahl","min","max","Einheit","Beschreibung"},
 				new String[]{"INTEGER","VARCHAR(127)","INTEGER",
-				"BOOLEAN","DOUBLE","DOUBLE","VARCHAR(255)","VARCHAR(255)","VARCHAR(1023)"},
+				"BOOLEAN","DOUBLE","DOUBLE","INTEGER","VARCHAR(1023)"},
 				new String[]{null,null,"1: Kovariable, 2: Parameter, 3: Response, 4: StartParameter",
-				"TRUE, falls der Parameter ganzzahlig sein muss",null,null,null,null,null},
-				new MyTable[]{Modellkatalog,null,null,null,null,null,null,null,null},
+				"TRUE, falls der Parameter ganzzahlig sein muss",null,null,null,null},
+				new MyTable[]{Modellkatalog,null,null,null,null,null,Konzentrationseinheiten,null},
 				null,
-				new LinkedHashMap[]{null,null,hashTyp,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,hashTyp,null,null,null,null,null},
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
-				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null});
+				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null});
 		addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},

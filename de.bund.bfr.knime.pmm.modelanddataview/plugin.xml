@@ -16,10 +16,6 @@
    
    <extension
          point="org.knime.workbench.repository.nodes">
-      <node
-            category-path="/pmmlab/views"
-            factory-class="de.bund.bfr.knime.pmm.modelanddataview.ModelAndDataViewNodeFactory"
-            id="de.bund.bfr.knime.pmm.modelanddataview.ModelAndDataViewNodeFactory"/>
    </extension>
    
 </plugin>

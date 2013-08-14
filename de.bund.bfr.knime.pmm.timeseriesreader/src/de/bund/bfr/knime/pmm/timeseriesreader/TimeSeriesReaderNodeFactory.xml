@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./MicrobialDataReader.png" type="Source">
-    <name>Microbial Data Reader</name>
+    <name>Data Reader</name>
     
     <shortDescription>
     Loads microbial data from a database    

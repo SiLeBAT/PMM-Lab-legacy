@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./MicrobialDataWriter.png" type="Sink">
-    <name>Microbial Data Writer</name>
+    <name>Data Writer</name>
     
     <shortDescription>
         Writes microbial data to a database

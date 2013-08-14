@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE knimeNode PUBLIC "-//UNIKN//DTD KNIME Node 2.0//EN" "http://www.knime.org/Node.dtd">
 <knimeNode icon="./XLSMicrobialDataReader.png" type="Source">
-    <name>XLS Microbial Data Reader</name>
+    <name>XLS Data Reader</name>
     
     <shortDescription>
     Loads microbial data from an Excel spreadsheet file    

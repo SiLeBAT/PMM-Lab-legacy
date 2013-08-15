@@ -103,6 +103,8 @@ public class MMC_M extends JPanel {
 			label4.setVisible(false);
 			label5.setVisible(false);
 			label6.setVisible(false);
+			label12.setVisible(false);
+			fittedModelName.setVisible(false);
 			r2Field.setVisible(false);
 			rmsField.setVisible(false);
 			aicField.setVisible(false);
@@ -150,6 +152,7 @@ public class MMC_M extends JPanel {
 				}
 			}
 			modelnameField.setText(pm.getModelName());
+			fittedModelName.setText(pm.getFittedModelName());
 			String depVar = depVarLabel.getText();
 			if (!depVar.isEmpty()) {
 				String formula = pm.getFormula();
@@ -374,6 +377,7 @@ public class MMC_M extends JPanel {
 		// m_secondaryModels.clear();
 		formulaArea.setText("");
 		modelnameField.setText("");
+		fittedModelName.setText("");
 
 		ParametricModel pm = (ParametricModel) modelNameBox.getSelectedItem();
 		if (pm != null) {
@@ -958,6 +962,23 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void fittedModelNameFocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setFittedModelName(fittedModelName.getText());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private void fittedModelNameKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			fittedModelNameFocusLost(null);
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY
 		// //GEN-BEGIN:initComponents
@@ -978,6 +999,8 @@ public class MMC_M extends JPanel {
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
+		label12 = new JLabel();
+		fittedModelName = new JTextField();
 		label8 = new JLabel();
 		label3 = new JLabel();
 		r2Field = new DoubleTextField(true);
@@ -995,67 +1018,66 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<>(new Color[] { Color.WHITE, Color.GREEN,
-				Color.YELLOW, Color.RED });
+		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
-			private static final long serialVersionUID = 1L;
+					private static final long serialVersionUID = 1L;
 
-			private Color color = Color.WHITE;
-			private boolean isSelected = false;
+					private Color color = Color.WHITE;
+					private boolean isSelected = false;
 
-			@Override
-			public Component getListCellRendererComponent(JList<?> list,
-					Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				color = (Color) value;
-				this.isSelected = isSelected;
+					@Override
+					public Component getListCellRendererComponent(JList<?> list,
+							Object value, int index, boolean isSelected,
+							boolean cellHasFocus) {
+						color = (Color) value;
+						this.isSelected = isSelected;
 
-				return super.getListCellRendererComponent(list, value, index,
-						isSelected, cellHasFocus);
-			}
-
-			@Override
-			protected void paintComponent(Graphics g) {
-				Rectangle rect = g.getClipBounds();
-
-				if (rect != null) {
-					g.setColor(color);
-					g.fillRect(rect.x, rect.y, rect.width, rect.height);
-
-					if (isSelected) {
-						g.setColor(UIManager.getDefaults().getColor(
-								"List.selectionBackground"));
-					} else {
-						g.setColor(UIManager.getDefaults().getColor(
-								"List.background"));
+						return super.getListCellRendererComponent(list, value, index,
+								isSelected, cellHasFocus);
 					}
 
-					((Graphics2D) g).setStroke(new BasicStroke(5));
-					g.drawRect(rect.x, rect.y, rect.width, rect.height);
-				}
-			}
+					@Override
+					protected void paintComponent(Graphics g) {
+						Rectangle rect = g.getClipBounds();
+
+						if (rect != null) {
+							g.setColor(color);
+							g.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+							if (isSelected) {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.selectionBackground"));
+							} else {
+								g.setColor(UIManager.getDefaults().getColor(
+										"List.background"));
+							}
+
+							((Graphics2D) g).setStroke(new BasicStroke(5));
+							g.drawRect(rect.x, rect.y, rect.width, rect.height);
+						}
+					}
 		});
 		checkBox1 = new JCheckBox();
 
-		// ======== this ========
-		setBorder(new CompoundBorder(new TitledBorder("Model Properties"),
-				Borders.DLU2));
+		//======== this ========
+		setBorder(new CompoundBorder(
+			new TitledBorder("Model Properties"),
+			Borders.DLU2));
 		setLayout(new FormLayout(
-				"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-				"default, $rgap, default, $ugap, 2*(default, $pgap), 3*(default, $ugap), default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
-		((FormLayout) getLayout()).setColumnGroups(new int[][] { { 5, 11, 17 },
-				{ 7, 13, 19 }, { 9, 15, 21 } });
+			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
+			"default, $rgap, default, $ugap, 2*(default, $pgap), 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
+		((FormLayout)getLayout()).setColumnGroups(new int[][] {{5, 11, 17}, {7, 13, 19}, {9, 15, 21}});
 
-		// ---- depVarLabel ----
+		//---- depVarLabel ----
 		depVarLabel.setText("Parameter");
 		depVarLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		depVarLabel.setFont(new Font("Tahoma", Font.BOLD, 14));
 		add(depVarLabel, CC.xywh(3, 1, 19, 1));
 
-		// ======== scrollPane3 ========
+		//======== scrollPane3 ========
 		{
 
-			// ---- list1 ----
+			//---- list1 ----
 			list1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			list1.addListSelectionListener(new ListSelectionListener() {
 				@Override
@@ -1065,13 +1087,13 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane3.setViewportView(list1);
 		}
-		add(scrollPane3, CC.xywh(1, 1, 1, 21));
+		add(scrollPane3, CC.xywh(1, 1, 1, 23));
 
-		// ---- label7 ----
+		//---- label7 ----
 		label7.setText("Model type:");
 		add(label7, CC.xy(3, 3));
 
-		// ---- radioButton1 ----
+		//---- radioButton1 ----
 		radioButton1.setText("primary");
 		radioButton1.setSelected(true);
 		radioButton1.addActionListener(new ActionListener() {
@@ -1082,7 +1104,7 @@ public class MMC_M extends JPanel {
 		});
 		add(radioButton1, CC.xywh(5, 3, 5, 1));
 
-		// ---- radioButton2 ----
+		//---- radioButton2 ----
 		radioButton2.setText("secondary");
 		radioButton2.addActionListener(new ActionListener() {
 			@Override
@@ -1092,7 +1114,7 @@ public class MMC_M extends JPanel {
 		});
 		add(radioButton2, CC.xywh(11, 3, 5, 1));
 
-		// ---- radioButton3 ----
+		//---- radioButton3 ----
 		radioButton3.setText("primary (secondary)");
 		radioButton3.addActionListener(new ActionListener() {
 			@Override
@@ -1102,11 +1124,11 @@ public class MMC_M extends JPanel {
 		});
 		add(radioButton3, CC.xywh(17, 3, 5, 1));
 
-		// ---- modelNameLabel ----
+		//---- modelNameLabel ----
 		modelNameLabel.setText("Formula from DB:");
 		add(modelNameLabel, CC.xy(3, 5));
 
-		// ---- modelNameBox ----
+		//---- modelNameBox ----
 		modelNameBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -1115,11 +1137,11 @@ public class MMC_M extends JPanel {
 		});
 		add(modelNameBox, CC.xywh(5, 5, 17, 1));
 
-		// ---- label1 ----
+		//---- label1 ----
 		label1.setText("Formula Name:");
 		add(label1, CC.xy(3, 7));
 
-		// ---- modelnameField ----
+		//---- modelnameField ----
 		modelnameField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -1134,11 +1156,11 @@ public class MMC_M extends JPanel {
 		});
 		add(modelnameField, CC.xywh(5, 7, 17, 1));
 
-		// ---- label2 ----
+		//---- label2 ----
 		label2.setText("Formula:");
 		add(label2, CC.xy(3, 9));
 
-		// ---- formulaArea ----
+		//---- formulaArea ----
 		formulaArea.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -1153,18 +1175,18 @@ public class MMC_M extends JPanel {
 		});
 		add(formulaArea, CC.xywh(5, 9, 15, 1));
 
-		// ---- formulaApply ----
+		//---- formulaApply ----
 		formulaApply.setText("Apply");
 		add(formulaApply, CC.xy(21, 9));
 
-		// ---- tableLabel ----
+		//---- tableLabel ----
 		tableLabel.setText("Parameter Definition:");
 		add(tableLabel, CC.xy(3, 11));
 
-		// ======== scrollPane1 ========
+		//======== scrollPane1 ========
 		{
 
-			// ---- table ----
+			//---- table ----
 			table.setPreferredScrollableViewportSize(new Dimension(450, 175));
 			table.addMouseListener(new MouseAdapter() {
 				@Override
@@ -1176,16 +1198,35 @@ public class MMC_M extends JPanel {
 		}
 		add(scrollPane1, CC.xywh(5, 11, 17, 1));
 
-		// ---- label8 ----
-		label8.setText("Goodness of fit:");
-		add(label8, CC.xywh(3, 13, 1, 3));
+		//---- label12 ----
+		label12.setText("Model Name:");
+		add(label12, CC.xy(3, 13));
 
-		// ---- label3 ----
+		//---- fittedModelName ----
+		fittedModelName.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				fittedModelNameFocusLost(e);
+			}
+		});
+		fittedModelName.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				fittedModelNameKeyReleased(e);
+			}
+		});
+		add(fittedModelName, CC.xywh(5, 13, 17, 1));
+
+		//---- label8 ----
+		label8.setText("Goodness of fit:");
+		add(label8, CC.xywh(3, 15, 1, 3));
+
+		//---- label3 ----
 		label3.setText("R\u00b2:");
 		label3.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label3, CC.xy(5, 13));
+		add(label3, CC.xy(5, 15));
 
-		// ---- r2Field ----
+		//---- r2Field ----
 		r2Field.setColumns(7);
 		r2Field.addFocusListener(new FocusAdapter() {
 			@Override
@@ -1199,14 +1240,14 @@ public class MMC_M extends JPanel {
 				r2FieldKeyReleased(e);
 			}
 		});
-		add(r2Field, CC.xy(7, 13));
+		add(r2Field, CC.xy(7, 15));
 
-		// ---- label4 ----
+		//---- label4 ----
 		label4.setText("RMS:");
 		label4.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label4, CC.xy(11, 13));
+		add(label4, CC.xy(11, 15));
 
-		// ---- rmsField ----
+		//---- rmsField ----
 		rmsField.setColumns(7);
 		rmsField.addFocusListener(new FocusAdapter() {
 			@Override
@@ -1220,13 +1261,13 @@ public class MMC_M extends JPanel {
 				rmsFieldKeyReleased(e);
 			}
 		});
-		add(rmsField, CC.xy(13, 13));
+		add(rmsField, CC.xy(13, 15));
 
-		// ---- label5 ----
+		//---- label5 ----
 		label5.setText("AIC:");
-		add(label5, CC.xy(5, 15));
+		add(label5, CC.xy(5, 17));
 
-		// ---- aicField ----
+		//---- aicField ----
 		aicField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -1239,13 +1280,13 @@ public class MMC_M extends JPanel {
 				aicFieldKeyReleased(e);
 			}
 		});
-		add(aicField, CC.xy(7, 15));
+		add(aicField, CC.xy(7, 17));
 
-		// ---- label6 ----
+		//---- label6 ----
 		label6.setText("BIC:");
-		add(label6, CC.xy(11, 15));
+		add(label6, CC.xy(11, 17));
 
-		// ---- bicField ----
+		//---- bicField ----
 		bicField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -1258,21 +1299,27 @@ public class MMC_M extends JPanel {
 				bicFieldKeyReleased(e);
 			}
 		});
-		add(bicField, CC.xy(13, 15));
+		add(bicField, CC.xy(13, 17));
 
-		// ======== scrollPane2 ========
+		//======== scrollPane2 ========
 		{
 			scrollPane2.setPreferredSize(new Dimension(452, 120));
 
-			// ---- referencesTable ----
-			referencesTable.setModel(new DefaultTableModel(new Object[][] {},
-					new String[] { "Reference" }) {
+			//---- referencesTable ----
+			referencesTable.setModel(new DefaultTableModel(
+				new Object[][] {
+				},
+				new String[] {
+					"Reference"
+				}
+			) {
 				/**
 				 * 
 				 */
-				private static final long serialVersionUID = -8895562718466268745L;
-				boolean[] columnEditable = new boolean[] { false };
-
+				private static final long serialVersionUID = 2440812223838893901L;
+				boolean[] columnEditable = new boolean[] {
+					false
+				};
 				@Override
 				public boolean isCellEditable(int rowIndex, int columnIndex) {
 					return columnEditable[columnIndex];
@@ -1280,13 +1327,13 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane2.setViewportView(referencesTable);
 		}
-		add(scrollPane2, CC.xywh(5, 17, 17, 1));
+		add(scrollPane2, CC.xywh(5, 19, 17, 1));
 
-		// ---- label9 ----
+		//---- label9 ----
 		label9.setText("References:");
-		add(label9, CC.xywh(3, 17, 1, 3));
+		add(label9, CC.xywh(3, 19, 1, 3));
 
-		// ---- button1 ----
+		//---- button1 ----
 		button1.setText("New Reference");
 		button1.addActionListener(new ActionListener() {
 			@Override
@@ -1294,9 +1341,9 @@ public class MMC_M extends JPanel {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xywh(5, 19, 5, 1));
+		add(button1, CC.xywh(5, 21, 5, 1));
 
-		// ---- button3 ----
+		//---- button3 ----
 		button3.setText("Edit Reference");
 		button3.setEnabled(false);
 		button3.addActionListener(new ActionListener() {
@@ -1305,9 +1352,9 @@ public class MMC_M extends JPanel {
 				button3ActionPerformed(e);
 			}
 		});
-		add(button3, CC.xywh(11, 19, 5, 1));
+		add(button3, CC.xywh(11, 21, 5, 1));
 
-		// ---- button2 ----
+		//---- button2 ----
 		button2.setText("Delete Reference");
 		button2.setEnabled(false);
 		button2.addActionListener(new ActionListener() {
@@ -1316,26 +1363,26 @@ public class MMC_M extends JPanel {
 				button2ActionPerformed(e);
 			}
 		});
-		add(button2, CC.xywh(17, 19, 5, 1));
+		add(button2, CC.xywh(17, 21, 5, 1));
 
-		// ---- label10 ----
+		//---- label10 ----
 		label10.setText("Subjective quality:");
-		add(label10, CC.xy(3, 21));
+		add(label10, CC.xy(3, 23));
 
-		// ---- label11 ----
+		//---- label11 ----
 		label11.setText("QualityScore:");
-		add(label11, CC.xywh(5, 21, 3, 1));
+		add(label11, CC.xywh(5, 23, 3, 1));
 
-		// ---- qScoreBox ----
+		//---- qScoreBox ----
 		qScoreBox.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				qScoreBoxActionPerformed(e);
 			}
 		});
-		add(qScoreBox, CC.xy(9, 21));
+		add(qScoreBox, CC.xy(9, 23));
 
-		// ---- checkBox1 ----
+		//---- checkBox1 ----
 		checkBox1.setText("Checked");
 		checkBox1.addActionListener(new ActionListener() {
 			@Override
@@ -1343,14 +1390,13 @@ public class MMC_M extends JPanel {
 				checkBox1ActionPerformed(e);
 			}
 		});
-		add(checkBox1, CC.xy(15, 21));
+		add(checkBox1, CC.xy(15, 23));
 
-		// ---- buttonGroup1 ----
+		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
 		buttonGroup1.add(radioButton1);
 		buttonGroup1.add(radioButton2);
 		buttonGroup1.add(radioButton3);
-		// JFormDesigner - End of component initialization
 		// //GEN-END:initComponents
 	}
 
@@ -1373,6 +1419,8 @@ public class MMC_M extends JPanel {
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;
+	private JLabel label12;
+	private JTextField fittedModelName;
 	private JLabel label8;
 	private JLabel label3;
 	private DoubleTextField r2Field;

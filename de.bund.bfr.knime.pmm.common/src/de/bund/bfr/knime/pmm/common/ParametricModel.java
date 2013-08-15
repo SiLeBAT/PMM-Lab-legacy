@@ -89,6 +89,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private PmmXmlDoc modelLit = null;
 
 	private String modelName;
+	private String fittedModelName;
+	public String getFittedModelName() {
+		return fittedModelName;
+	}
+	public void setFittedModelName(String fittedModelName) {
+		this.fittedModelName = fittedModelName;
+	}
+
 	private String formula;
 
 	private int level;
@@ -190,6 +198,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					this.bic = emx.getBIC();
 					this.qualityScore = emx.getQualityScore();
 					this.isChecked = emx.getChecked();
+					this.fittedModelName = emx.getName();
 					break;
 				}
 			}
@@ -212,6 +221,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		this();
 		
 		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
+		if (modelElement.getAttributeValue("FittedModelName") != null && !modelElement.getAttributeValue("FittedModelName").isEmpty()) fittedModelName = modelElement.getAttributeValue("FittedModelName");
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
@@ -405,6 +415,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		clonedPM.setChecked(isChecked);
 		clonedPM.setQualityScore(qualityScore);
+		clonedPM.setFittedModelName(fittedModelName);
 		
 		if (depXml != null) clonedPM.setDepXml(new DepXml(depXml.toXmlElement()));
 		try {
@@ -891,6 +902,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Element toXmlElement() {
 		Element modelElement = new Element( ELEMENT_PARAMETRICMODEL );
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
+		modelElement.setAttribute("FittedModelName", fittedModelName);
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
 		modelElement.setAttribute( ATT_ESTMODELID, String.valueOf( estModelId ) );

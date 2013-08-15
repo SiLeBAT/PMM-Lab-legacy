@@ -137,6 +137,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     		
     	dbuuid = db.getDBUUID();
     	
+    	String message = "";
+    	
     	if (level == 1) {
     		
     		result = db.selectModel(1);
@@ -176,6 +178,11 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));	    		
 		    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE)));	    		
+		    		
+		    		if (result.getString("DepUnit") == null || result.getString("DepUnit").isEmpty() ||
+		    				result.getString("IndepUnit") == null || result.getString("IndepUnit").isEmpty()) {
+		    			message = "Unit assignment missing for one or more formula(s)";
+		    		}
 		    		
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -275,6 +282,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	buf.close();
     	db.close();
 
+    	if (!message.isEmpty()) exec.setMessage(message);
         return new BufferedDataTable[]{ buf.getTable() };
     }
     

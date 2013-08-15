@@ -132,6 +132,8 @@ public class DBKernel {
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
+	private static HashMap<String, String> adminU = new HashMap<String, String>();
+	private static HashMap<String, String> adminP = new HashMap<String, String>();
 
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
@@ -141,33 +143,38 @@ public class DBKernel {
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
-	public static String getTempSA(String dbPath, boolean other) {
-		String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
-		if (sa.equals("00")) {
-			//if (debug) return "SA";
-			if (other) sa = isKNIME || isKrise ? "defad": "SA";		
-			else sa = isKNIME || isKrise ? "SA" : "defad";
-		}
-		
-		return sa;
-	}
-	public static String getTempSAPass(String dbPath, boolean other) {
-		String pass = DBKernel.prefs.get("DBADMINPASS" + getCRC32(dbPath),"00");
-		if (pass.equals("00")) {
-			//if (debug) return "";
-			if (isServerConnection && isKrise) return "de6!§5ddy";
-				
-			if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
-			else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
-		}
-		
-		return pass;
-	}
 	public static String getTempSA(String dbPath) {
-		return getTempSA(dbPath, false);
+		//String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
+		//if (sa.equals("00")) {
+		if (!adminU.containsKey(dbPath)) getUP(dbPath);
+		return adminU.get(dbPath);
 	}
 	public static String getTempSAPass(String dbPath) {
-		return getTempSAPass(dbPath, false);
+		//String pass = DBKernel.prefs.get("DBADMINPASS" + getCRC32(dbPath),"00");
+		//if (pass.equals("00")) {
+		if (isServerConnection && isKrise) return "de6!§5ddy";
+		if (!adminP.containsKey(dbPath)) getUP(dbPath);
+		return adminP.get(dbPath);
+	}
+	private static String getDefaultSA() {
+		return getDefaultSA(false);
+	}
+	private static String getDefaultSAPass() {
+		return getDefaultSAPass(false);
+	}
+	private static String getDefaultSA(boolean other) {
+		String sa = "";
+		//if (debug) return "SA";
+		if (other) sa = isKNIME || isKrise ? "defad": "SA";		
+		else sa = isKNIME || isKrise ? "SA" : "defad";
+		return sa;		
+	}
+	private static String getDefaultSAPass(boolean other) {
+		String pass = "";
+		//if (debug) return "";
+		if (other) pass = isKNIME || isKrise ? "de6!§5ddy" : "";
+		else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
+	return pass;
 	}
 	public static String getLanguage() {
 		return isKrise || !isKNIME ? "de" : "en";
@@ -183,23 +190,23 @@ public class DBKernel {
 		  		DBKernel.closeDBConnections(false);
 		  		
 		  		try {
-			  		sa = getTempSA(dbPath);
-			  		pass = getTempSAPass(dbPath);
+			  		sa = getDefaultSA();
+			  		pass = getDefaultSAPass();
 			  		Connection conn = getDBConnection(dbPath, sa, pass, false);
 			  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 			  		if (!onlyCheck) {
 				  		if (conn == null) {
-				  			sa = getTempSA(dbPath, true);
+				  			sa = getDefaultSA(true);
 				  			conn = getDBConnection(dbPath, sa, pass, false);
 					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 				  		if (conn == null) {
-				  			pass = getTempSAPass(dbPath, true);
+				  			pass = getDefaultSAPass(true);
 				  			conn = getDBConnection(dbPath, sa, pass, false);
 					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
 				  		if (conn == null) {
-				  			sa = getTempSA(dbPath, false);
+				  			sa = getDefaultSA(false);
 				  			conn = getDBConnection(dbPath, sa, pass, false);
 					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
 				  		}
@@ -233,6 +240,50 @@ public class DBKernel {
 		  byte b[] = str.getBytes();
 		  checksum.update(b,0,b.length);
 		  return checksum.getValue();
+	  }
+	  private static boolean getUP(String dbPath) {
+		  boolean result = false;
+	  		DBKernel.closeDBConnections(false);	  		
+	  		
+		  		String sa = getDefaultSA();
+		  		String pass = getDefaultSAPass();
+		  		Connection conn = null;
+		  		try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+		  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
+		  		if (conn == null) {
+		  			sa = getDefaultSA(true);
+		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
+		  		}
+		  		if (conn == null) {
+		  			pass = getDefaultSAPass(true);
+		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
+		  		}
+		  		if (conn == null) {
+		  			sa = getDefaultSA(false);
+		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
+		  		}
+
+		  		if (conn == null) System.err.println("Admin not found...");
+		  		else {
+					result = true;
+					adminU.put(dbPath, sa);
+					adminP.put(dbPath, pass);
+					//System.err.println("pass combi is: " + sa + "\t" + pass);
+		  		}
+			
+	  		try {
+		  		DBKernel.closeDBConnections(false);
+		  		DBKernel.getDBConnection();
+		  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+		  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+		  		}				
+	  		}
+	  		catch(Exception e) {}
+
+			return result;
 	  }
 	private static boolean different(final Object[] rowBefore, final Object[] rowAfter) {
 		if (rowBefore == null && rowAfter == null) {
@@ -835,7 +886,6 @@ public class DBKernel {
   // newConn wird nur von MergeDBs und Bfrdb benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
 	  Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
-	  if (result == null) result = getDBConnection(dbPath, getTempSA(dbPath, true), getTempSAPass(dbPath, true), newConn);
 	  return result;
   }
   public static Connection getDefaultAdminConn() throws Exception {
@@ -912,7 +962,7 @@ public class DBKernel {
     		}
     	}
     	else {
-    		if (!isKNIME) MyLogger.handleException(e);
+    		if (!isKNIME && adminU.containsKey(dbFile.substring(0, dbFile.length() - 2))) MyLogger.handleException(e);
     	}
     	//LOGGER.log(Level.INFO, dbUsername + " - " + dbPassword + " - " + dbFile, e);
     }
@@ -1922,8 +1972,6 @@ public class DBKernel {
 				  	HSHDB_PATH = internalPath;
 					result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(HSHDB_PATH)),
 							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH)));
-					if (result == null) result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(HSHDB_PATH, true)),
-							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH, true)));
 
 					createGui(result);
 					if (autoUpdate) {
@@ -1947,7 +1995,8 @@ public class DBKernel {
 					e.printStackTrace();
 				}
 			}
-		  	DBKernel.saveUP2PrefsTEMP(HSHDB_PATH);
+		  	//DBKernel.saveUP2PrefsTEMP(HSHDB_PATH);
+		  	DBKernel.getTempSA(HSHDB_PATH);
 		}
 		catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);

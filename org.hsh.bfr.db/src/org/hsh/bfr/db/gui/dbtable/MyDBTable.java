@@ -167,6 +167,8 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		Connection conn = null;
 		try {
 			conn = DBKernel.getDBConnection(username, password);
+			DBKernel.getTempSA(DBKernel.HSHDB_PATH);
+			conn = DBKernel.getDBConnection(username, password);
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);

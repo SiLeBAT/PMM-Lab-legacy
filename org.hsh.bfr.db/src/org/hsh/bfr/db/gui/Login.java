@@ -99,10 +99,12 @@ public class Login extends JFrame {
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);
 		textField2.setText(lastDBPath);
+		/*
 		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA(lastDBPath))) {
 			passwordField1.setText(DBKernel.getTempSAPass(lastDBPath));
 			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
 		}
+		*/
 	}
 
 	private void okButtonActionPerformed(final ActionEvent e) {
@@ -119,7 +121,7 @@ public class Login extends JFrame {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			MyList myList = loadDB();
 		  	if (myList != null) {
-		  		DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
+		  		//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 		  		/*
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher"), false);
@@ -272,7 +274,7 @@ public class Login extends JFrame {
 				}
 			}
 			
-			// Login succeeded: GUI aufbauen
+			// Login succeeded: GUI aufbauen	  		
 			myDBTree = new MyDBTree();
 			myList = new MyList(myDB, myDBTree);
 			DBKernel.myList = myList;
@@ -445,7 +447,8 @@ public class Login extends JFrame {
 					return myList;
 				}
 			}
-		    //DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
+
+			//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
 			if (!myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
 				myList.setSelection(null);
 			}

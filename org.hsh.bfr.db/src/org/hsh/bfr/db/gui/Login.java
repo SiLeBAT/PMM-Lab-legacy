@@ -122,7 +122,9 @@ public class Login extends JFrame {
 		  		DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 		  		/*
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher"), false);
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+			  	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 			  	*/
 		  	}
 
@@ -429,6 +431,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.6.5")) {
 					  		UpdateChecker.check4Updates_165_166(); 
 					  		DBKernel.setDBVersion("1.6.6");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.6.6")) {
+					  		UpdateChecker.check4Updates_166_167(); 
+					  		DBKernel.setDBVersion("1.6.7");
 					  	}
 
 						DBKernel.closeDBConnections(false);

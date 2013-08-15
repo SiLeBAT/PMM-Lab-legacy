@@ -50,6 +50,26 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_166_167() {	
+		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/SonstigeParameter_167.xls", null, false);
+		try {
+			ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Modellkatalog") +
+					" WHERE " + DBKernel.delimitL("Level") + "=1", false); // primary
+			if (rs != null && rs.first())  {
+				do {
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ModellkatalogParameter") +
+							" SET " + DBKernel.delimitL("Einheit") + "=113 WHERE " +
+							DBKernel.delimitL("Modell") + "=" + rs.getInt("ID") + " AND " +
+							DBKernel.delimitL("Parametertyp") + "=1", false); // independent (1) -> Stunde (113)
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ModellkatalogParameter") +
+							" SET " + DBKernel.delimitL("Einheit") + "=1 WHERE " +
+							DBKernel.delimitL("Modell") + "=" + rs.getInt("ID") + " AND " +
+							DBKernel.delimitL("Parametertyp") + "=3", false); // dependent (3) -> log10(count/g)
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();}
+	}
 	public static void check4Updates_165_166() {	
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
@@ -60,6 +80,8 @@ public class UpdateChecker {
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
 				" DROP COLUMN " + DBKernel.delimitL("Kategorie"), false)) {
 			updateChangeLog("ModellkatalogParameter", 7, true);		
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ModellkatalogParameter") +
+					" SET " + DBKernel.delimitL("Einheit") + " = NULL", false);
 			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") +
 					" ALTER COLUMN " + DBKernel.delimitL("Einheit") + " INTEGER", false);
 		}
@@ -69,7 +91,7 @@ public class UpdateChecker {
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView_166.sql", null, false);
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView_166.sql", null, false);
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_165.sql", null, false);
-		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null, false);		
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null, false);
 	}
 	public static void check4Updates_164_165() {	
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

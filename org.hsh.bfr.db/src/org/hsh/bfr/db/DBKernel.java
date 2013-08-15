@@ -137,7 +137,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.6.6";
+	public static String DBVersion = "1.6.7";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
@@ -492,6 +492,11 @@ public class DBKernel {
     catch (Exception e) {
     	MyLogger.handleException(e);
     }
+  }
+  public static boolean deleteBLOB(final String tableName, final String fieldName, final int id) {
+	  String sql = "DELETE FROM " + delimitL("DateiSpeicher") + " WHERE " + delimitL("TabellenID") + "=" + id +
+			  " AND" + delimitL("Tabelle") + "='" + tableName + "' AND " + delimitL("Feld") + "='" + fieldName + "'";
+	  return sendRequest(sql, false);
   }
   public static boolean insertBLOB(final String tableName, final String fieldName, final File fl, final int id) {
   	boolean result = false;
@@ -1237,6 +1242,14 @@ public class DBKernel {
         			String cn = rs.getMetaData().getColumnName(i); 
         			if (cn.equals("Kontaktadresse")) {
       	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
+        			}
+        		}        		
+        	}
+        	else if (foreignTable.equals("Einheiten")) {
+        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
+        			String cn = rs.getMetaData().getColumnName(i); 
+        			if (cn.equals("display in GUI as")) {
+      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
         			}
         		}        		
         	}
@@ -2044,6 +2057,10 @@ public class DBKernel {
 		  	if (DBKernel.getDBVersion().equals("1.6.5")) {
 		  		UpdateChecker.check4Updates_165_166(); 
 		  		DBKernel.setDBVersion("1.6.6");
+		  	}
+		  	if (DBKernel.getDBVersion().equals("1.6.6")) {
+		  		UpdateChecker.check4Updates_166_167(); 
+		  		DBKernel.setDBVersion("1.6.7");
 		  	}
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);		  	

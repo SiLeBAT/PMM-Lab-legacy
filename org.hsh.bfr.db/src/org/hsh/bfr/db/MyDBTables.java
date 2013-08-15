@@ -496,7 +496,7 @@ public class MyDBTables {
 				new String[]{null,null,
 				null,null,null,null,null,
 				null,null,null,null,null});
-		addTable(Konzentrationseinheiten, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
+		addTable(Konzentrationseinheiten, MyList.BasisTabellen_LIST);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
 				new String[]{null,null,null},
@@ -504,7 +504,7 @@ public class MyDBTables {
 				null,
 				new LinkedHashMap[]{null,null,null},
 				new String[]{null,null,null});
-		addTable(SonstigeParameter, -1);
+		addTable(SonstigeParameter, DBKernel.isKNIME ? MyList.BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
 		//min, avg, max

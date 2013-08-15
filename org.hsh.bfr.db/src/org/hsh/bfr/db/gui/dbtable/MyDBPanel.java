@@ -391,6 +391,10 @@ public class MyDBPanel extends JPanel {
 		int selRow = myDBTable1.getSelectedRow();
 		int selCol = myDBTable1.getSelectedColumn(); 
 		myDBTable1.insertNull(selRow, selCol);
+		MyTable myT = myDBTable1.getActualTable();
+		if (myT.getFieldTypes()[selCol - 1].startsWith("BLOB(")) {
+			DBKernel.deleteBLOB(myT.getTablename(), myT.getFieldNames()[selCol - 1], myDBTable1.getSelectedID());
+		}
 	}
 
 	private void textField1KeyReleased(KeyEvent e) {

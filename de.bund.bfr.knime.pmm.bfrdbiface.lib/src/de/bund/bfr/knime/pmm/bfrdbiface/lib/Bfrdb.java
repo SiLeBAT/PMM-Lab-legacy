@@ -1790,10 +1790,10 @@ public class Bfrdb extends Hsqldbiface {
 		try {
 			int paramId = queryParamId(modelId, paramName, paramType);
 			if( paramId <= 0 ) {
-				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Kategorie\",\"Einheit\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
+				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Einheit\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
 			}
 			else {
-				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Kategorie\"= ?, \"Einheit\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
+				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Einheit\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
 			}
 				
 			ps.setInt( 1, modelId );
@@ -1809,15 +1809,18 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble(5, max);
 			}
+			/*
 			if (category == null) {
 				ps.setNull(6, Types.VARCHAR);
 			} else {
 				ps.setString(6, category);
 			}
-			if (unit == null) {
-				ps.setNull(7, Types.VARCHAR);
+			*/
+			Integer unitID = DBKernel.getID("Einheiten", "display in GUI as", unit);
+			if (unit == null || unitID == null) {
+				ps.setNull(6, Types.INTEGER);
 			} else {
-				ps.setString(7, unit);
+				ps.setInt(6, unitID);
 			}
 			
 			if( ps.executeUpdate() < 1 ) {

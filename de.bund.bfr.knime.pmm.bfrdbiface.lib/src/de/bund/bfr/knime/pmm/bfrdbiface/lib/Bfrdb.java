@@ -131,7 +131,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String REL_MISCPARAM = "SonstigeParameter";
 	public static final String REL_MODEL = "Modellkatalog";
 	public static final String REL_MODEL_LITERATURE = "Modell_Referenz";
-	public static final String REL_PARAM = "ModellkatalogParameter";
 	public static final String REL_UNIT = "Einheiten";
 	public static final String REL_VARMAP = "VarParMaps";
 	public static final String VIEW_MISCPARAM = "SonstigesEinfach";
@@ -344,9 +343,10 @@ public class Bfrdb extends Hsqldbiface {
 			+"\n"
 			+"LEFT JOIN(\n"
 			+"    SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\",\n"
-			+"        \"Kategorie\" AS \"DepCategory\",\n"
-			+"        \"Einheit\" AS \"DepUnit\"\n"
-			+"    FROM \""+REL_PARAM+"\"\n"
+			+"        \"kind of property / quantity\" AS \"DepCategory\",\n"
+			+"        \"display in GUI as\" AS \"DepUnit\"\n"
+			+"    FROM \"ModellkatalogParameter\"\n"
+			+" LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\""
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=3 )AS \"D\"\n"
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"D\".\""+ATT_MODELID+"\"\n"
 			+"\n"
@@ -356,9 +356,10 @@ public class Bfrdb extends Hsqldbiface {
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MININDEP+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXINDEP+"\",\n"
-			+"        ARRAY_AGG( \"Kategorie\" )AS \"IndepCategory\",\n"
-			+"        ARRAY_AGG( \"Einheit\" )AS \"IndepUnit\"\n"
-			+"    FROM \""+REL_PARAM+"\"\n"
+			+"        ARRAY_AGG( \"kind of property / quantity\" )AS \"IndepCategory\",\n"
+			+"        ARRAY_AGG( \"display in GUI as\" )AS \"IndepUnit\"\n"
+			+"    FROM \"ModellkatalogParameter\"\n"
+			+" LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\""
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=1\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"I\"\n"
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"I\".\""+ATT_MODELID+"\"\n"
@@ -369,7 +370,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MINVALUE+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXVALUE+"\"\n"
-			+"    FROM \""+REL_PARAM+"\"\n"
+			+"    FROM \"ModellkatalogParameter\"\n"
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=2\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"P\"\n"
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"P\".\""+ATT_MODELID+"\"\n";
@@ -1913,7 +1914,7 @@ public class Bfrdb extends Hsqldbiface {
 	private int queryParamId( final int modelId, final String paramName, final int paramType ) {
 		int ret = -1;
 		try {			
-			PreparedStatement ps = conn.prepareStatement( "SELECT \"ID\" FROM \""+REL_PARAM+"\"  WHERE \""+ATT_MODELID+"\"=? AND \""+ATT_PARAMNAME+"\" LIKE ? AND \""+ATT_PARAMTYPE+"\"=?" );
+			PreparedStatement ps = conn.prepareStatement( "SELECT \"ID\" FROM \"ModellkatalogParameter\"  WHERE \""+ATT_MODELID+"\"=? AND \""+ATT_PARAMNAME+"\" LIKE ? AND \""+ATT_PARAMTYPE+"\"=?" );
 			ps.setInt( 1, modelId );
 			ps.setString( 2, paramName );
 			ps.setInt( 3, paramType );
@@ -2044,7 +2045,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		r += ")";
 		
-		String q = "DELETE FROM \""+REL_PARAM+"\" WHERE \"Modell\"=" + modelId + " AND \"ID\" NOT IN " + r;
+		String q = "DELETE FROM \"ModellkatalogParameter\" WHERE \"Modell\"=" + modelId + " AND \"ID\" NOT IN " + r;
 		
 		try {
 			PreparedStatement ps = conn.prepareStatement( q );

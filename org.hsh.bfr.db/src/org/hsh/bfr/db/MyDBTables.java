@@ -1268,23 +1268,23 @@ public class MyDBTables {
 				new String[] {"not null","not null"});
 		addTable(Modell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		
-		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Versuchsbedingung","Modell",
+		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Name","Versuchsbedingung","Modell",
 				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","BIC","Score",
 				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML","PMMLabWF"},
-				new String[]{"INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
+				new String[]{"VARCHAR(255)","INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
 				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)","INTEGER"},
-				new String[]{null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schätzung",
+				new String[]{null,null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schätzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmaß der Schätzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schätzung",
 				"Referenzen, aus denen diese Modellschätzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschätzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschätzten Parameter","Gültigkeitsbereiche für Sekundärmodelle",null,null},
-				new MyTable[]{tenazity_raw_data,Modellkatalog,
+				new MyTable[]{null,tenazity_raw_data,Modellkatalog,
 				ModellkatalogParameter,null,null,null,null,null,null,null,
 				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,
 				null,null,null,null,null,null},
-				new String[] {null,null,
+				new String[] {null,null,null,
 				null,null,null,null,null,null,null,null,
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null},
-				new String[] {null,null,null,"default FALSE",null,null,null,null,null,null,
+				new String[] {null,null,null,null,"default FALSE",null,null,null,null,null,null,
 				null,null,null,null,null,null});
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
@@ -1339,7 +1339,7 @@ public class MyDBTables {
 				null,
 				null);//new String[] {"not null","not null","not null","not null",null});
 		addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
-		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 12);
+		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 13);
 		MyTable Sekundaermodelle_Primaermodelle = new MyTable("Sekundaermodelle_Primaermodelle",
 				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell"},
 				new String[]{"INTEGER","INTEGER"},

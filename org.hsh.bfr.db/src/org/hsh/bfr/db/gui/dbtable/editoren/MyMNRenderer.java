@@ -452,14 +452,14 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 				//System.err.println(rs + "\t" + sql);
 				if (rs != null && rs.first()) {
 					do {
-						if (selectedColumn==11 && myT.getTablename().equals("GeschaetzteModelle")) {
+						if (selectedColumn==12 && myT.getTablename().equals("GeschaetzteModelle")) {
 							// estimated parameters
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);
 							if (dbl != null) refinedNumber = " = " + DBKernel.getDoubleStr(dbl);		
 							result += rs.getString(2) + refinedNumber + "\n";							
 						}
-						else if (selectedColumn==13 && myT.getTablename().equals("GeschaetzteModelle")) {
+						else if (selectedColumn==14 && myT.getTablename().equals("GeschaetzteModelle")) {
 							// range of validity
 							String refinedNumber = "";
 							Object dbl = rs.getObject(3);

@@ -139,7 +139,7 @@ public class DBKernel {
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
-	public static String DBVersion = "1.6.7";
+	public static String DBVersion = "1.6.8";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 	
@@ -1366,7 +1366,7 @@ public class DBKernel {
         	else if (foreignTable.equals("GeschaetzteModelle")) {
         		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
         			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Versuchsbedingung") || cn.equals("Modell") || cn.equals("ID")) {
+        			if (cn.equals("Name") || cn.equals("Versuchsbedingung") || cn.equals("Modell") || cn.equals("ID")) {
       	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
         			}
         		}        		
@@ -2110,6 +2110,10 @@ public class DBKernel {
 		  	if (DBKernel.getDBVersion().equals("1.6.6")) {
 		  		UpdateChecker.check4Updates_166_167(); 
 		  		DBKernel.setDBVersion("1.6.7");
+		  	}
+		  	if (DBKernel.getDBVersion().equals("1.6.7")) {
+		  		UpdateChecker.check4Updates_167_168(); 
+		  		DBKernel.setDBVersion("1.6.8");
 		  	}
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);		  	

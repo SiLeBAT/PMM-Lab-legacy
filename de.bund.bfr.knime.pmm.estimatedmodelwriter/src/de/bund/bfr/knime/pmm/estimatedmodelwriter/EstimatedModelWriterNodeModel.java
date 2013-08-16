@@ -244,6 +244,7 @@ if (true) return null;
 						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
 					}
 					try {
+						ppm.setFittedModelName(emx.getName());
 			    		ppm.setRms(rms == null ? Double.NaN : rms);
 			    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
 			    		ppm.setAic(aic == null ? Double.NaN : aic);
@@ -355,6 +356,7 @@ if (true) return null;
 							}
 							else {
 								try {
+									spm.setFittedModelName(emx.getName());
 						    		spm.setRms(rms);
 						    		spm.setRsquared(r2);
 						    		spm.setAic(aic);

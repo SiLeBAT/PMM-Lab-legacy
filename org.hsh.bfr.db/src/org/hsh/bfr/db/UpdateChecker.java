@@ -50,6 +50,14 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_167_168() {	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") + " ADD COLUMN " + DBKernel.delimitL("Name") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Versuchsbedingung"), false);
+		updateChangeLog("GeschaetzteModelle", 1, false);		
+		refreshFKs("GeschaetzteModelle");
+
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_168.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_168.sql", null, false);
+	}
 	public static void check4Updates_166_167() {	
 		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/SonstigeParameter_167.xls", null, false);
 		try {

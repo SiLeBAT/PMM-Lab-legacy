@@ -406,6 +406,7 @@ public class Bfrdb extends Hsqldbiface {
 		    +"    \"MicrobialDataView\".\"Einheit\",\n"
 		    +"    \"MicrobialDataView\".\"SonstigesWert\",\n"
 
+		    +"    \"EstModelPrimView\".\"FittedModelName\",\n"
 		    +"    \"EstModelPrimView\".\""+ATT_FORMULA+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_DEP+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_INDEP+"\",\n"
@@ -1039,6 +1040,7 @@ public class Bfrdb extends Hsqldbiface {
 			estModelId = pm.getEstModelId();
 			int condId = pm.getCondId();
 			int modelId = pm.getModelId();
+			String fittedModelName = pm.getFittedModelName();
 			
 			HashMap<String, Integer> hmi = new HashMap<String, Integer>(); 
 			int responseId = queryParamId(modelId, pm.getDepXml().getOrigName(), PARAMTYPE_DEP);
@@ -1049,9 +1051,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-				updateEstModel(estModelId, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
+				updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
 			} else {
-				estModelId = insertEstModel(condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
+				estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId);
 				pm.setEstModelId(estModelId);
 			}
 			
@@ -1935,43 +1937,47 @@ public class Bfrdb extends Hsqldbiface {
 		return ret;
 	}
 	
-	private void updateEstModel( final int estModelId, final int condId, final int modelId,
+	private void updateEstModel( final int estModelId, String name, final int condId, final int modelId,
 		final double rms, final double rsquared, final double aic, final double bic, final int responseId ) {
-		try {
-			
-			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=? WHERE \"ID\"=?");
+		try {			
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=? WHERE \"ID\"=?");
+			if (name == null) {
+				ps.setNull(1, Types.VARCHAR);
+			} else {
+				ps.setString(1, name);
+			}
 			if (condId > 0) {
-				ps.setInt(1, condId);
+				ps.setInt(2, condId);
 			} else {
-				ps.setNull(1, Types.INTEGER);
+				ps.setNull(2, Types.INTEGER);
 			}
-			ps.setInt(2, modelId);
+			ps.setInt(3, modelId);
 			if(Double.isNaN(rms)) {
-				ps.setNull(3, Types.DOUBLE);
-			} else {
-				ps.setDouble(3, rms);
-			}
-			if( Double.isNaN( rsquared ) ) {
 				ps.setNull(4, Types.DOUBLE);
 			} else {
-				ps.setDouble(4, rsquared);
+				ps.setDouble(4, rms);
 			}
-			if (Double.isNaN(aic)) {
+			if( Double.isNaN( rsquared ) ) {
 				ps.setNull(5, Types.DOUBLE);
 			} else {
-				ps.setDouble(5, aic);
+				ps.setDouble(5, rsquared);
 			}
-			if (Double.isNaN(bic)) {
+			if (Double.isNaN(aic)) {
 				ps.setNull(6, Types.DOUBLE);
 			} else {
-				ps.setDouble(6, bic);
+				ps.setDouble(6, aic);
+			}
+			if (Double.isNaN(bic)) {
+				ps.setNull(7, Types.DOUBLE);
+			} else {
+				ps.setDouble(7, bic);
 			}
 			if( responseId > 0 ) {
-				ps.setInt(7, responseId);
+				ps.setInt(8, responseId);
 			} else {
-				ps.setNull(7, Types.INTEGER);
+				ps.setNull(8, Types.INTEGER);
 			}
-			ps.setInt(8, estModelId);
+			ps.setInt(9, estModelId);
 			
 			ps.executeUpdate();
 			ps.close();
@@ -1979,42 +1985,46 @@ public class Bfrdb extends Hsqldbiface {
 		catch(SQLException ex) {ex.printStackTrace();}
 	}
 	
-	private int insertEstModel(final int condId, final int modelId, final Double rms,
+	private int insertEstModel(String name, final int condId, final int modelId, final Double rms,
 		final Double rsquared, final Double aic, final Double bic, final int responseId) {		
 		int ret = -1;
-		try {
-			
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
-			if( condId > 0 ) {
-				ps.setInt( 1, condId );
+		try {			
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\" ) VALUES(?, ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS);
+			if (name == null) {
+				ps.setNull(1, Types.VARCHAR);
 			} else {
-				ps.setNull( 1, Types.INTEGER );
+				ps.setString(1, name);
 			}
-			ps.setInt( 2, modelId );
-			if (rms == null || Double.isNaN(rms)) {
-				ps.setNull( 3, Types.DOUBLE );
+			if( condId > 0 ) {
+				ps.setInt( 2, condId );
 			} else {
-				ps.setDouble(3, rms);
+				ps.setNull( 2, Types.INTEGER );
+			}
+			ps.setInt( 3, modelId );
+			if (rms == null || Double.isNaN(rms)) {
+				ps.setNull( 4, Types.DOUBLE );
+			} else {
+				ps.setDouble(4, rms);
 			}
 			if (rsquared == null || Double.isNaN(rsquared)) {
-				ps.setNull(4, Types.DOUBLE);
-			} else {
-				ps.setDouble(4, rsquared);
-			}
-			if (aic == null || Double.isNaN(aic)) {
 				ps.setNull(5, Types.DOUBLE);
 			} else {
-				ps.setDouble(5, aic);
+				ps.setDouble(5, rsquared);
 			}
-			if (bic == null || Double.isNaN(bic)) {
+			if (aic == null || Double.isNaN(aic)) {
 				ps.setNull(6, Types.DOUBLE);
 			} else {
-				ps.setDouble(6, bic);
+				ps.setDouble(6, aic);
+			}
+			if (bic == null || Double.isNaN(bic)) {
+				ps.setNull(7, Types.DOUBLE);
+			} else {
+				ps.setDouble(7, bic);
 			}
 			if (responseId > 0) {
-				ps.setInt(7, responseId);
+				ps.setInt(8, responseId);
 			} else {
-				ps.setNull(7, Types.INTEGER);
+				ps.setNull(8, Types.INTEGER);
 			}
 
 			ps.executeUpdate();

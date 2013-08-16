@@ -902,7 +902,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Element toXmlElement() {
 		Element modelElement = new Element( ELEMENT_PARAMETRICMODEL );
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
-		modelElement.setAttribute("FittedModelName", fittedModelName);
+		modelElement.setAttribute("FittedModelName", fittedModelName == null ? "" : fittedModelName);
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );
 		modelElement.setAttribute( ATT_ESTMODELID, String.valueOf( estModelId ) );

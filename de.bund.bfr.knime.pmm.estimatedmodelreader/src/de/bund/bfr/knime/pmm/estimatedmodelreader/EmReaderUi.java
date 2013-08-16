@@ -175,6 +175,24 @@ public class EmReaderUi extends JPanel {
 							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
 				}
 			}
+			/*
+	    	try {
+	        	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
+	        			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
+	    				modelFilterEnabled, modelList);
+				List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false);
+		    	if (hs.size() > 0) {
+		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
+		    		pvnd.setShowSamplePanel(false);
+		    		pvnd.getInitParams();
+			    	//ChartAllPanel mainComponent = pvnd.getMainComponent();
+			    	//addTab("Predictor view", mainComponent);
+		    	}
+			}
+	    	catch (SQLException e) {
+				e.printStackTrace();
+			}
+			*/
 			ResultSet rs = null;
 			if (modelReaderUi.isVisible()) {
 				rs = db.selectEstModel(modelReaderUi.getLevel(), -1, where, false);
@@ -507,7 +525,7 @@ public class EmReaderUi extends JPanel {
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		withoutData = new JCheckBox();
-		modelReaderUi = new ModelReaderUi();
+		modelReaderUi = new ModelReaderUi(true);
 		qualityPanel = new JPanel();
 		qualityButtonNone = new JRadioButton();
 		qualityButtonRms = new JRadioButton();

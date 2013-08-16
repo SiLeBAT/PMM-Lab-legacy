@@ -17,6 +17,9 @@ new FormModel {
 			} )
 			add( new FormComponent( "de.bund.bfr.knime.pmm.common.ui.ModelReaderUi" ) {
 				name: "modelReaderUi"
+				auxiliary() {
+					"JavaCodeGenerator.customCreateCode": "new ModelReaderUi(true);"
+				}
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 3

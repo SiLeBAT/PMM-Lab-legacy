@@ -71,6 +71,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	protected static final String LABEL_UNSPEC = "Unspecified only";
 	private static final String LABEL_PRIM = "Primary";
 	private static final String LABEL_SEC = "Secondary";
+	private static final String LABEL_TERT = "Combined Primary/Secondary";
 	private static final int LEVEL_PRIM = 1;
 	private static final int LEVEL_SEC = 2;
 
@@ -85,6 +86,9 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 	private LinkedHashMap<JCheckBox, String> modelBoxSetSec;
 
 	public ModelReaderUi() {
+		this(false);
+	}
+	public ModelReaderUi(boolean fitted) {
 
 		JPanel panel0;
 
@@ -105,7 +109,8 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 
 		panel0.add(new JLabel("Level   "));
 
-		levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_SEC });
+		if (fitted) levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_TERT });
+		else levelBox = new JComboBox<String>(new String[] { LABEL_PRIM, LABEL_SEC });
 		levelBox.addActionListener(this);
 		levelBox.setPreferredSize(new Dimension(50, 25));
 		panel0.add(levelBox);

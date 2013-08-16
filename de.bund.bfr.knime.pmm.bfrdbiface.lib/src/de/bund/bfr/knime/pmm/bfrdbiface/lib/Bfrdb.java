@@ -1317,7 +1317,7 @@ public class Bfrdb extends Hsqldbiface {
 	    								Double origVal = Categories.getCategoryByUnit(mx.getCategories(), mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
 	    								int valId = insertDouble(origVal);				
 		    							ps.setDouble(3, valId);							
-		    							Object eid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{mx.getOrigUnit()});
+		    							Object eid = mx.getOrigUnit() == null || mx.getOrigUnit().isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{mx.getOrigUnit()});
 		    							if (eid == null) {
 		    								ps.setNull(4, Types.INTEGER);
 		    							} else {
@@ -1752,7 +1752,7 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setNull(2, Types.INTEGER);
 			}
 			
-			if (timeUnit != null) {
+			if (timeUnit != null && !timeUnit.isEmpty()) {
 				Integer tid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{timeUnit});
 				if (tid != null) ps.setInt(3, tid);
 				else ps.setNull(3, Types.INTEGER);
@@ -1768,7 +1768,7 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setNull(4, Types.INTEGER);
 			}
 			
-			if (concUnit != null) {
+			if (concUnit != null && !concUnit.isEmpty()) {
 				Integer cid = null;
 				if (concUnitObjectType == null || concUnitObjectType.trim().isEmpty()) cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
 				else cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as","object type"}, new String[]{concUnit,concUnitObjectType});
@@ -1819,7 +1819,7 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setString(6, category);
 			}
 			*/
-			Integer unitID = DBKernel.getID("Einheiten", "display in GUI as", unit);
+			Integer unitID = unit == null || unit.isEmpty() ? null : DBKernel.getID("Einheiten", "display in GUI as", unit);
 			if (unit == null || unitID == null) {
 				ps.setNull(6, Types.INTEGER);
 			} else {
@@ -1899,9 +1899,9 @@ public class Bfrdb extends Hsqldbiface {
 			} else {
 				ps.setDouble(4, paramErr);
 			}
-			Object unitID = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
+			Object unitID = unit == null || unit.isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
 			if (unitID == null) {
-				pm.setWarning(pm.getWarning() + "\n" + unit + " not defined for fitted model with ID " + estModelId + "!");
+				pm.setWarning(pm.getWarning() + "\nUnit not defined for fitted model with ID " + estModelId + "!");
 				ps.setNull(5, Types.INTEGER);
 			}
 			else ps.setInt(5, (int) unitID);

@@ -1099,7 +1099,7 @@ public class DBKernel {
 			if (rs != null && rs.last()) {
 				result = rs.getInt(1);
 				if (rs.getRow() > 1) {
-					System.err.println("Attention! Entry " + feldVal + " occurs " + rs.getRow() + "x in column " + feldname + " of table " + tablename + ", please check!!!");
+					System.err.println("Attention! Entry occurs " + rs.getRow() + "x in table " + tablename + ", please check: '" + where + "'!!!");
 				}
 			}
 		}

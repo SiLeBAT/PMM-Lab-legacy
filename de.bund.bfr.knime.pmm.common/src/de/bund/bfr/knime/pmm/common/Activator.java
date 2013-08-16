@@ -34,6 +34,8 @@
 package de.bund.bfr.knime.pmm.common;
 
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyLogger;
 import org.osgi.framework.BundleContext;
 
 /**
@@ -58,6 +60,10 @@ public class Activator extends AbstractUIPlugin {
 	 * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext)
 	 */
 	public void start(BundleContext context) throws Exception {
+		DBKernel.isKNIME = true;
+		MyLogger.isKNIME = true;
+		DBKernel.getLocalConn(true, false);
+		DBKernel.getTempSA(DBKernel.HSHDB_PATH);
 		super.start(context);
 		plugin = this;
 	}

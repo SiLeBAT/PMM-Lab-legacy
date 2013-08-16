@@ -141,9 +141,9 @@ public class MMC_TS extends JPanel {
 		agensIDField.setText(theTS.getAgentId() == null ? "" : theTS.getAgentId()+"");
 		matrixIDField.setText(theTS.getMatrixId() == null ? "" : theTS.getMatrixId()+"");
 		commentField.setText(theTS.getComment());
-		if (!Double.isNaN(theTS.getTemperature())) temperatureField.setValue(theTS.getTemperature());
-		if (!Double.isNaN(theTS.getPh())) phField.setValue(theTS.getPh());
-		if (!Double.isNaN(theTS.getWaterActivity())) waterActivityField.setValue(theTS.getWaterActivity());		
+		if (theTS.getTemperature() != null && !Double.isNaN(theTS.getTemperature())) temperatureField.setValue(theTS.getTemperature()); else temperatureField.setText("");
+		if (theTS.getPh() != null && !Double.isNaN(theTS.getPh())) phField.setValue(theTS.getPh()); else phField.setText("");
+		if (theTS.getWaterActivity() != null && !Double.isNaN(theTS.getWaterActivity())) waterActivityField.setValue(theTS.getWaterActivity()); else waterActivityField.setText("");		
 	}
 	public void setTS(PmmTimeSeries ts) throws PmmException {
 		theTS = ts;

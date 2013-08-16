@@ -154,17 +154,22 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     }
 
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "");
+    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, null);
+    }
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, String where) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where);
     }
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
-    		boolean modelFilterEnabled, String modelList) throws SQLException {
+    		boolean modelFilterEnabled, String modelList, String where) throws SQLException {
     	
     	List<KnimeTuple> resultSet = new ArrayList<KnimeTuple>(); 
 
     	String dbuuid = db.getDBUUID();
-    	ResultSet result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
+    	ResultSet result = null;
+    	if (where != null)	result = (level == 1 ? db.selectEstModel(1, -1, where, false) : db.selectEstModel(2, -1, where, false));
+    	else result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
     	int i = 0;
     	while (result.next()) {
     		
@@ -394,7 +399,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
     			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-				modelFilterEnabled, modelList);
+				modelFilterEnabled, modelList, null);
     	
     	// close data buffer
     	buf.close();

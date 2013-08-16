@@ -89,13 +89,6 @@ new FormModel {
 					"text": "ApplyAndShowFilterResults"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "doFilterActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
-				add( new FormComponent( "quick.dbtable.DBTable" ) {
-					name: "dbTable"
-					"preferredSize": new java.awt.Dimension( 454, 160 )
-				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
-					"gridX": 1
-					"gridY": 3
-				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 9

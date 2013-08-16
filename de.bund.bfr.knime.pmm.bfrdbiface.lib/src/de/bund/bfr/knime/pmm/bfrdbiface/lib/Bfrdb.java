@@ -732,7 +732,7 @@ public class Bfrdb extends Hsqldbiface {
 				myWhereCache = " WHERE \""+ATT_ESTMODELID+"2\" = " + estimatedModelID;
 			}
 		}		
-		if (!where.isEmpty()) {
+		if (where != null && !where.isEmpty()) {
 			myWhere = " WHERE " + where;
 			myWhereCache = " WHERE " + where;
 		}

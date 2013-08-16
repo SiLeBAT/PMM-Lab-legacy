@@ -8,14 +8,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
@@ -29,12 +27,14 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
+import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.*;
+import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
-import quick.dbtable.*;
 
 /**
  * @author Armin Weiser
@@ -85,7 +85,7 @@ public class EmReaderUi extends JPanel {
 		//if (!showDbTable) dbTable.setVisible(false);
 	}
 
-	private DBTable getDataTable(Bfrdb db) {
+	private void getDataTable(Bfrdb db) {
 		try {
 			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
 			HashMap<String, Integer> codeLength = new HashMap<String, Integer>();
@@ -175,24 +175,26 @@ public class EmReaderUi extends JPanel {
 							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
 				}
 			}
-			/*
+			
 	    	try {
-	        	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
-	        			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-	    				modelFilterEnabled, modelList);
-				List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false);
+				List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
 		    	if (hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
 		    		pvnd.setShowSamplePanel(false);
 		    		pvnd.getInitParams();
-			    	//ChartAllPanel mainComponent = pvnd.getMainComponent();
+		    		if (panel6.getComponentCount() > 1) panel6.remove(1);
+		    		ChartAllPanel mainComponent = pvnd.getMainComponent();
+					panel6.add(mainComponent, CC.xy(1, 3));
+					panel6.revalidate();
+					//this.revalidate();
+					//this.repaint();
 			    	//addTab("Predictor view", mainComponent);
 		    	}
 			}
 	    	catch (SQLException e) {
 				e.printStackTrace();
 			}
-			*/
+			/*
 			ResultSet rs = null;
 			if (modelReaderUi.isVisible()) {
 				rs = db.selectEstModel(modelReaderUi.getLevel(), -1, where, false);
@@ -251,11 +253,11 @@ public class EmReaderUi extends JPanel {
 			    	}
 			    }
 			});
+			*/
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return dbTable;
 	}
 
 	private void qualityButtonActionPerformed(ActionEvent e) {
@@ -266,7 +268,7 @@ public class EmReaderUi extends JPanel {
 	private void doFilterActionPerformed(ActionEvent e) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
-			dbTable.getTable().clearSelection();
+			//dbTable.getTable().clearSelection();
 			chosenModel = null;
 			chosenModel2 = null;
 			doFilter.setText("ApplyAndShowFilterResults");
@@ -535,7 +537,6 @@ public class EmReaderUi extends JPanel {
 		mdReaderUi = new MdReaderUi();
 		panel6 = new JPanel();
 		doFilter = new JButton();
-		dbTable = new DBTable();
 
 		//======== this ========
 		setLayout(new FormLayout(
@@ -613,10 +614,6 @@ public class EmReaderUi extends JPanel {
 				}
 			});
 			panel6.add(doFilter, CC.xy(1, 1));
-
-			//---- dbTable ----
-			dbTable.setPreferredSize(new Dimension(454, 160));
-			panel6.add(dbTable, CC.xy(1, 3));
 		}
 		add(panel6, CC.xy(1, 9));
 
@@ -640,6 +637,5 @@ public class EmReaderUi extends JPanel {
 	private MdReaderUi mdReaderUi;
 	private JPanel panel6;
 	private JButton doFilter;
-	private DBTable dbTable;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

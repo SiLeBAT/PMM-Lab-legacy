@@ -11,9 +11,14 @@ public class ChartAllPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JSplitPane splitPane;
+	private ChartSelectionPanel selectionPanel;
+	private ChartConfigPanel configPanel;
+	private ChartSamplePanel samplePanel;
 
 	public ChartAllPanel(ChartCreator chartCreator,
 			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel) {
+		this.selectionPanel = selectionPanel;
+		this.configPanel = configPanel;
 		JPanel upperPanel = new JPanel();
 
 		upperPanel.setLayout(new BorderLayout());
@@ -32,6 +37,9 @@ public class ChartAllPanel extends JPanel {
 	public ChartAllPanel(ChartCreator chartCreator,
 			ChartSelectionPanel selectionPanel, ChartConfigPanel configPanel,
 			ChartSamplePanel samplePanel) {
+		this.selectionPanel = selectionPanel;
+		this.configPanel = configPanel;
+		this.samplePanel = samplePanel;
 		JPanel upperPanel = new JPanel();
 
 		upperPanel.setLayout(new BorderLayout());
@@ -53,6 +61,15 @@ public class ChartAllPanel extends JPanel {
 		add(splitPane, BorderLayout.CENTER);
 	}
 
+	public ChartSelectionPanel getSelectionPanel() {
+		return selectionPanel;
+	}
+	public ChartConfigPanel getConfigPanel() {
+		return configPanel;
+	}
+	public ChartSamplePanel getSamplePanel() {
+		return samplePanel;
+	}
 	public int getDividerLocation() {
 		return splitPane.getDividerLocation();
 	}

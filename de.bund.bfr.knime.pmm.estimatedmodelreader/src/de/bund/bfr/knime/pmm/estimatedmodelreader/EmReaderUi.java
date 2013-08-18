@@ -177,18 +177,47 @@ public class EmReaderUi extends JPanel {
 			}
 			
 	    	try {
+	    		//System.err.println(where);
 				List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
 		    	if (hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
 		    		pvnd.setShowSamplePanel(false);
 		    		pvnd.getInitParams();
-		    		if (panel6.getComponentCount() > 1) panel6.remove(1);
 		    		ChartAllPanel mainComponent = pvnd.getMainComponent();
-					panel6.add(mainComponent, CC.xy(1, 3));
-					panel6.revalidate();
-					//this.revalidate();
-					//this.repaint();
 			    	//addTab("Predictor view", mainComponent);
+
+		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
+		    		Frame parentFrame = null;
+		    		if (parentWindow instanceof Frame) {
+		    		    parentFrame = (Frame)parentWindow;
+		    		}		    		
+		    		JDialog dialog = new JDialog(parentFrame);
+		    		dialog.setModal(true);
+		    		dialog.add(mainComponent);
+		    		dialog.pack();
+		    		centerOnScreen(dialog, true);
+		    		dialog.setVisible(true);
+		    		
+		    		List<String> ls = mainComponent.getSelectionPanel().getSelectedIDs();
+		    		System.err.println(ls.size());
+		    		/*
+		    		SettingsHelper set = new SettingsHelper();
+		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
+		    		for (String id : ls) {
+		    			Plotable plotable = reader.getPlotables().get(id);
+
+		    			if (plotable != null) {
+		    				Map<String, List<Double>> arguments = new LinkedHashMap<>();
+
+		    				for (Map.Entry<String, Double> entry : mainComponent.getConfigPanel().getParamXValues().entrySet()) {
+		    					arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
+		    				}
+
+		    				plotable.setSamples(mainComponent.getSamplePanel().getTimeValues());
+		    				plotable.setFunctionArguments(arguments);
+		    			}
+		    		}
+		    		*/
 		    	}
 			}
 	    	catch (SQLException e) {
@@ -259,7 +288,18 @@ public class EmReaderUi extends JPanel {
 			e.printStackTrace();
 		}
 	}
-
+	private void centerOnScreen(final Component c, final boolean absolute) {
+	    final int width = c.getWidth();
+	    final int height = c.getHeight();
+	    final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    int x = (screenSize.width / 2) - (width / 2);
+	    int y = (screenSize.height / 2) - (height / 2);
+	    if (!absolute) {
+	        x /= 2;
+	        y /= 2;
+	    }
+	    c.setLocation(x, y);
+	}
 	private void qualityButtonActionPerformed(ActionEvent e) {
 		if (qualityButtonNone.isSelected()) qualityField.setEnabled(false);
 		else qualityField.setEnabled(true);
@@ -600,10 +640,10 @@ public class EmReaderUi extends JPanel {
 
 		//======== panel6 ========
 		{
-			panel6.setBorder(new TitledBorder("Data Table"));
+			panel6.setBorder(new TitledBorder("Results"));
 			panel6.setLayout(new FormLayout(
 				"default:grow",
-				"default, $lgap, fill:default:grow"));
+				"default"));
 
 			//---- doFilter ----
 			doFilter.setText("ApplyAndShowFilterResults");

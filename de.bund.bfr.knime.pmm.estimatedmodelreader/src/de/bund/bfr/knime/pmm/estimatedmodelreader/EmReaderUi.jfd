@@ -80,10 +80,10 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default:grow"
-				"$rowSpecs": "default, linegap, fill:default:grow"
+				"$rowSpecs": "default"
 			} ) {
 				name: "panel6"
-				"border": new javax.swing.border.TitledBorder( "Data Table" )
+				"border": new javax.swing.border.TitledBorder( "Results" )
 				add( new FormComponent( "javax.swing.JButton" ) {
 					name: "doFilter"
 					"text": "ApplyAndShowFilterResults"
@@ -95,7 +95,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 630, 630 )
+			"size": new java.awt.Dimension( 630, 535 )
 		} )
 		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
 			name: "buttonGroup1"

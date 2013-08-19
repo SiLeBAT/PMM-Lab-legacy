@@ -251,7 +251,7 @@ public class EmReaderUi extends JPanel {
 		    				Map<String, String> ip = pvnd.getInitParams();
 		    				for (Map.Entry<String, Double> entry : chartPanel.getConfigPanel().getParamXValues().entrySet()) {
 		    					//arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
-				    			mtm.addRegister(emx.getID(), emx.getName(), entry.getKey(), entry.getValue());
+				    			mtm.addRegister(id, emx.getID(), emx.getName(), entry.getKey(), entry.getValue());
 		    				}
 		    			}
 		    		}
@@ -603,8 +603,8 @@ public class EmReaderUi extends JPanel {
 		 * 
 		 */
 		private static final long serialVersionUID = 6358436149095581889L;
-		private String[] columns = new String[]{"ModelID", "ModelName", "InitParam", "InitParamValue"};
-		private Class<?>[] columnTypes = new Class<?>[] {Integer.class, String.class, String.class, Object.class};
+		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue"};
+		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Object.class};
 		private ArrayList<Register> list = new ArrayList<Register>();
 
 	    @Override
@@ -633,16 +633,17 @@ public class EmReaderUi extends JPanel {
 	    public Object getValueAt(int rowIndex, int columnIndex) {
 	        Register r = list.get(rowIndex);
 	        switch (columnIndex) {
-		        case 0: return r.ModelID; 
-		        case 1: return r.ModelName;
-		        case 2: return r.InitParam; 
-		        case 3: return r.InitParamValue;
+	        	case 0: return r.InternalID; 
+	        	case 1: return r.ModelID; 
+		        case 2: return r.ModelName;
+		        case 3: return r.InitParam; 
+		        case 4: return r.InitParamValue;
 	        }
 	            return null;
 	    }
 
-	    public void addRegister(Integer ModelID, String ModelName, String InitParam, Double InitParamValue){
-	        list.add(new Register(ModelID, ModelName, InitParam, InitParamValue));
+	    public void addRegister(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue){
+	        list.add(new Register(InternalID, ModelID, ModelName, InitParam, InitParamValue));
 	        this.fireTableDataChanged();
 	    }
 	    public void removeAll() {
@@ -651,12 +652,14 @@ public class EmReaderUi extends JPanel {
 	    }
 
 	    class Register{
+	    	String InternalID;
 	        Integer ModelID;
 	        String ModelName;
 	        String InitParam;
 	        Double InitParamValue;
 
-	        public Register(Integer ModelID, String ModelName, String InitParam, Double InitParamValue) {
+	        public Register(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue) {
+	            this.InternalID = InternalID;
 	            this.ModelID = ModelID;
 	            this.ModelName = ModelName;
 	            this.InitParam = InitParam;

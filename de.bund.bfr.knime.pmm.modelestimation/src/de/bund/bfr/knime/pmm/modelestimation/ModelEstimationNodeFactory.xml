@@ -6,9 +6,15 @@
     <shortDescription>Uses primary models and estimates their parameters in order to fit a curve to a time series of microbial concentrations.</shortDescription>
     
     <fullDescription>
-        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to recorded microbial concentrations. The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>
+        <intro>The Model Fitting node uses mathematical formulas (e.g. primary or secondary models) and estimates the parameters in order to fit a curve to data (eg, recorded microbial concentrations). The estimated parameters depend on the formula. In predictive microbiology, important parameters are the maximum growth / inactivation rate (µmax / kmax), the lag phase duration, the maximum cell concentration and the initial cell concentration.</intro>              
+        <option name="Primary Fitting">Fits a primary model to data points. For example, a curve will be fitted to time/concentration data on microbial growth. According to the chosen mathematical model formula, parameters (eg for the maximum growth rate and lag) are estimated.</option>
+        <option name="Secondary Fitting">Fits a secondary model to parameters of primary models. For example, if primary models for microbial growth have been estimated for different temperatures, it is possible to fit a secondary model to the different maximum growth rates. This enables the user to predict the maximum growth rate for any temperature between the minimum and maximum temperatures of the primary model.</option>
+        <option name="One-Step Fitting">Fits data to an omnibus model / to a combined formula of one primary and one or more secondary formulas. Dependent on the amount of data sets the execution of the node may take longer than two minutes.</option>
         <option name="Enforce Limits">Force model fitting within the given parameter limits (min/max). If not checked the fitting may also use parameter values lower than min or higher than max.</option>
-        <option name="Use One Step Method">Fits data to an omnibus model / to a combined formula of one primary and one or more secondary formulas. Dependent on the amount of data sets the execution of the node may take longer than two minutes.</option>
+        <option name="Expert Settings">Tick this option if you would like to have more control over the fitting options or if the fitting failed.<br></br><br></br>
+        <b>Nonlinear Regression Parameters:</b><br></br>Edit the number of <u>Maximal Evaluations to Find Start Values</u> or the <u>Maximal Executions of the Levenberg Algorithm</u> to find a balance between precision and the speed of fitting.<br></br><br></br>
+        <b>Specific Start Values for Fitting Procedure - Optional:</b><br></br>For every model used in the Fitting Node minimum and maximum values can be set. Default values are those saved with the model formula. If the values were changed the button <u>Use Range from Formula Definition</u> can restore the default values. Empty all cells with <u>Clear</u> or auto fill-in ranges from -1 million to +1 million with <u>Fill Empty Fields</u>. 
+        </option>
     </fullDescription>
     
     <ports>

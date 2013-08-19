@@ -31,7 +31,6 @@ import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
-import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.ui.*;
 import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
@@ -85,6 +84,16 @@ public class EmReaderUi extends JPanel {
 		//if (!showDbTable) dbTable.setVisible(false);
 	}
 
+	private LinkedHashMap<String, Double[]> getParams(LinkedHashMap<String, DoubleTextField[]> params) {
+		LinkedHashMap<String, Double[]> parameter = new LinkedHashMap<String, Double[]>();
+		if (params != null && params.size() > 0) {
+    		for (String par : params.keySet()) {
+    			DoubleTextField[] dbl = params.get(par);
+    			parameter.put(par, new Double[]{dbl[0].getValue(), dbl[1].getValue()});
+    		}
+    	}
+		return parameter;
+	}
 	private void getDataTable(Bfrdb db) {
 		try {
 			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
@@ -177,9 +186,23 @@ public class EmReaderUi extends JPanel {
 			}
 			
 	    	try {
+	    		boolean withoutMdData = withoutData.isSelected();
+	    		int level = modelReaderUi.getLevel();
+	    		List<KnimeTuple> hs = null;
+				try {
+					hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(),
+							EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), null, level, withoutMdData,
+							getQualityMode(), getQualityThresh(), mdReaderUi.getMatrixString(), mdReaderUi.getAgentString(), mdReaderUi.getLiteratureString(),
+							mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), getParams(mdReaderUi.getParameter()),
+							modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where);
+				} catch (PmmException e) {
+					e.printStackTrace();
+				} catch (InvalidSettingsException e) {
+					e.printStackTrace();
+				}
 	    		//System.err.println(where);
-				List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
-		    	if (hs.size() > 0) {
+				//List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
+		    	if (hs != null && hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
 		    		pvnd.setShowSamplePanel(false);
 		    		pvnd.getInitParams();

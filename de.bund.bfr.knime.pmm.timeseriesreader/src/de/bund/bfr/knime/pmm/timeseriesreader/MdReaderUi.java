@@ -411,6 +411,36 @@ public class MdReaderUi extends JPanel {
 		}
 	}
 
+	private void agentFieldFocusLost(FocusEvent e) {
+		if (agentField == null || agentField.getText().trim().isEmpty()) agensIDField.setText("");
+	}
+
+	private void matrixFieldFocusLost(FocusEvent e) {
+		if (matrixField == null || matrixField.getText().trim().isEmpty()) matrixIDField.setText("");
+	}
+
+	private void matrixFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			matrixFieldFocusLost(null);
+		}
+	}
+
+	private void agentFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			agentFieldFocusLost(null);
+		}
+	}
+
+	private void literatureFieldFocusLost(FocusEvent e) {
+		if (literatureField == null || literatureField.getText().trim().isEmpty()) literatureIDField.setText("");
+	}
+
+	private void literatureFieldKeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			literatureFieldFocusLost(null);
+		}
+	}
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		panel1 = new JPanel();
@@ -491,6 +521,18 @@ public class MdReaderUi extends JPanel {
 			//---- agentField ----
 			agentField.setColumns(20);
 			agentField.setPreferredSize(new Dimension(50, 20));
+			agentField.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					agentFieldFocusLost(e);
+				}
+			});
+			agentField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					agentFieldKeyReleased(e);
+				}
+			});
 			panel1.add(agentField, CC.xy(1, 3));
 
 			//---- selectAgensButton ----
@@ -506,6 +548,18 @@ public class MdReaderUi extends JPanel {
 			//---- matrixField ----
 			matrixField.setColumns(20);
 			matrixField.setPreferredSize(new Dimension(50, 20));
+			matrixField.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					matrixFieldFocusLost(e);
+				}
+			});
+			matrixField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					matrixFieldKeyReleased(e);
+				}
+			});
 			panel1.add(matrixField, CC.xy(5, 3));
 
 			//---- selectMatrixButton ----
@@ -521,6 +575,18 @@ public class MdReaderUi extends JPanel {
 			//---- literatureField ----
 			literatureField.setColumns(20);
 			literatureField.setPreferredSize(new Dimension(50, 20));
+			literatureField.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusLost(FocusEvent e) {
+					literatureFieldFocusLost(e);
+				}
+			});
+			literatureField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					literatureFieldKeyReleased(e);
+				}
+			});
 			panel1.add(literatureField, CC.xy(9, 3));
 
 			//---- selectLiteratureButton ----

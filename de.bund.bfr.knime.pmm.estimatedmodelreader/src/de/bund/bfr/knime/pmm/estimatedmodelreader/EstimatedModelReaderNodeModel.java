@@ -392,7 +392,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			conn = null;
 		}
     	
-    	KnimeSchema schema = createSchema();
+    	KnimeSchema schema = EstimatedModelReaderNodeModel.createSchema(withoutMdData, level);
 		    	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
@@ -442,7 +442,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	
     	outSpec = null;
     	try {
-    		outSpec = new DataTableSpec[]{ createSchema().createSpec() };
+    		outSpec = new DataTableSpec[]{ EstimatedModelReaderNodeModel.createSchema(withoutMdData, level).createSpec() };
     	}
     	catch( PmmException ex ) {
     		ex.printStackTrace();
@@ -451,7 +451,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	return outSpec;
     }
 
-    private KnimeSchema createSchema() throws PmmException {    	
+    public static KnimeSchema createSchema(boolean withoutMdData, int level) throws PmmException {    	
     	KnimeSchema schema;
     	if (withoutMdData) {
     		schema = new Model1Schema();    		

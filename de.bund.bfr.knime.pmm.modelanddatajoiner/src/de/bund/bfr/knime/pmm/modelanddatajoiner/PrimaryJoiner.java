@@ -48,6 +48,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
@@ -140,7 +141,7 @@ public class PrimaryJoiner implements Joiner {
 
 		panel.add(topPanel, BorderLayout.NORTH);
 
-		return panel;
+		return new JScrollPane(panel);
 	}
 
 	@Override

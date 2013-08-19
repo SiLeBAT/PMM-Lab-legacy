@@ -76,16 +76,21 @@ public class EmReaderUi extends JPanel {
 		this(db,null);
 	}	
 	public EmReaderUi(Bfrdb db, String[] itemListMisc) {								
-		this(db,itemListMisc, true, true, true);
+		this(db,itemListMisc, true, true, true, false);
 	}
 	public EmReaderUi(Bfrdb db, String[] itemListMisc,
-			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions) {		
+			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showFilterResults) {		
 		this.db = db;
 		initComponents();		
 		
 		if (!showModelOptions) modelReaderUi.setVisible(false);
 		if (!showQualityOptions) qualityPanel.setVisible(false);
 		if (!showMDOptions) mdReaderUi.setVisible(false);
+		if (!showFilterResults) {
+			filterResults.getTableHeader().setVisible(false);
+			filterResults.setVisible(false);
+			scrollPane1.setVisible(false);
+		}
 		//if (!showDbTable) dbTable.setVisible(false);
 	}
 

@@ -71,12 +71,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
          version="0.0.0"/>
 
    <plugin
-         id="de.bund.bfr.knime.pmm.combinedmodelanddataview"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="de.bund.bfr.knime.pmm.common"
          download-size="0"
          install-size="0"
@@ -114,12 +108,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
    <plugin
          id="de.bund.bfr.knime.pmm.modelanddatajoiner"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="de.bund.bfr.knime.pmm.modelanddataview"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

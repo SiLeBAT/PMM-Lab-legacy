@@ -3,18 +3,21 @@
 <knimeNode icon="./PMMJoiner.png" type="Manipulator">
     <name>PMM Joiner</name>
     
-    <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (Log10C) to parameter names of the model formulas in preparation for a model estimation or a forecast.</shortDescription>
+    <shortDescription>Joins models and data in one table and assigns time and bacterial concentration (Log10N) to parameter names of the model formulas in preparation for a model estimation or a forecast.</shortDescription>
     
     <fullDescription>
         <intro>Joins models and data in one table so that every microbial data set is assigned to all models. Furthermore, the node assigns time and bacterial concentration (Log10C) to parameter names of the model formulas. Data could be time series of bacterial concentrations from laboratory experiments, needed for a primary estimation. Data could also mean specific time intervals and conditions like temperature, pH and/or water activity in preparation for a forecast.</intro>
         
         
-        <option name="Assign model parameters">Configure this node to assign log10 cell counts, time, pH, temperature and/or aw to every model parameter (number of parameters to assign depend on the type and number of models loaded before). For example, if a formula contains the parameter "t" you can choose from the dropdown menu that this represents "time".</option>     
+        <option name="Primary Join">Joins primary model parameters with time and concentration.</option>
+        <option name="Secondary Join">Joins secondary model parameters with test conditions from data used in the fitting of primary models.</option>
+        <option name="Combined Join">Joins data with an omnibus model / to a combined formula of one primary and one or more secondary formulas. Dependent on the amount of data sets the execution of the node may take longer than two minutes.</option>
+        <option name="Join Options">Assign data to model parameters. For example, if a formula contains the parameter "t" you can choose from the dropdown menu that this represents "time".</option>     
    </fullDescription>
     
     <ports>
-        <inPort index="0" name="Models">The upper port requires models, either from the Model Formula Reader or from the Model Creator.</inPort>
-        <inPort index="1" name="Data">For a primary estimation the lower port requires time series of bacterial concentrations, e.g. from the ComBase Reader or the Microbial Data Reader. For a forecast time and temperature need to be defined which can be done with a Microbial Data Creator or a Table Creator.</inPort>
+        <inPort index="0" name="Models">The upper port requires models. These may come from the Model Reader, the Formula Reader, the XLS Model Reader, the Model Creator or from the Formula Creator.</inPort>
+        <inPort index="1" name="Data">For a primary estimation the lower port requires time series of bacterial concentrations, e.g. from the ComBase Reader, the Data Reader or the XLS Data Reader. For a forecast time and temperature need to be defined which can be done with a Microbial Data Creator or a Table Creator.</inPort>
         <outPort index="0" name="Data and models">A combined table with models and data</outPort>
     </ports>    
 </knimeNode>

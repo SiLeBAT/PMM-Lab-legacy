@@ -141,9 +141,9 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = Arrays.asList(IDENTIFIER,
+			standardVisibleColumns = new ArrayList<>(Arrays.asList(IDENTIFIER,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-					ChartConstants.STATUS);
+					ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model2Schema.MODELNAME, ChartConstants.STATUS);
 
@@ -158,6 +158,7 @@ public class TableReader {
 				conditionMinValues.add(new ArrayList<Double>());
 				conditionMaxValues.add(new ArrayList<Double>());
 				conditionUnits.add(new ArrayList<String>());
+				standardVisibleColumns.add(param);
 			}
 		} else {
 			if (containsData) {
@@ -170,9 +171,9 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(IDENTIFIER,
-						Model1Schema.MODELNAME, ChartConstants.STATUS,
-						AttributeUtilities.DATAID);
+				standardVisibleColumns = new ArrayList<>(Arrays.asList(
+						IDENTIFIER, Model1Schema.MODELNAME,
+						ChartConstants.STATUS, AttributeUtilities.DATAID));
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS, AttributeUtilities.DATAID);
 
@@ -185,6 +186,7 @@ public class TableReader {
 					conditions.add(param);
 					conditionValues.add(new ArrayList<Double>());
 					conditionUnits.add(new ArrayList<String>());
+					standardVisibleColumns.add(param);
 				}
 			} else {
 				stringColumns = Arrays.asList(IDENTIFIER,

@@ -57,6 +57,11 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
 	public static final String PARAM_CHOSENMODEL = "chosenModel";
 	public static final String PARAM_CHOSENMODEL2 = "chosenModel2";
+	public static final String PARAM_TABLECOLInternalID = "TableInternalID";
+	public static final String PARAM_TABLECOLModelID = "TableModelID";
+	public static final String PARAM_TABLECOLModelName = "TableModelName";
+	public static final String PARAM_TABLECOLInitParam = "TableInitParam";
+	public static final String PARAM_TABLECOLInitParamValue = "TableInitParamValue";
 
 	public static final String PARAM_NOMDDATA = "withoutMdData";
 	
@@ -76,7 +81,7 @@ public class EmReaderUi extends JPanel {
 		this(db,null);
 	}	
 	public EmReaderUi(Bfrdb db, String[] itemListMisc) {								
-		this(db,itemListMisc, true, true, true, false);
+		this(db,itemListMisc, true, true, true, true);
 	}
 	public EmReaderUi(Bfrdb db, String[] itemListMisc,
 			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showFilterResults) {		
@@ -237,10 +242,18 @@ public class EmReaderUi extends JPanel {
 		    		
 	    			MyTableModel mtm = (MyTableModel) filterResults.getModel();
 		    		List<String> selectedIDs = new ArrayList<String>();
+		    		Map<String, Double> gpv = new LinkedHashMap<String, Double>();
+		    		String selID = "";
 		    		for (int i=0; i<mtm.getRowCount(); i++) {
-		    			selectedIDs.add(mtm.getValueAt(i, 0).toString());
+		    			if (!selID.equals(mtm.getValueAt(i, 0).toString())) {
+			    			selID = mtm.getValueAt(i, 0).toString();
+			    			selectedIDs.add(selID);
+		    				gpv = new LinkedHashMap<String, Double>();
+		    			}
+		    			gpv.put(mtm.getValueAt(i, 3).toString(), Double.parseDouble(mtm.getValueAt(i, 4).toString()));
 		    		}
 		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
+		    		chartPanel.getConfigPanel().setParamXValues(gpv);
 		    		
 		    		dialog.setVisible(true);
 		    		
@@ -254,7 +267,7 @@ public class EmReaderUi extends JPanel {
 		    			KnimeTuple tuple = tm.get(id);
 		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
-		    			Map<String, Double> gpv = pvnd.getParamValues();
+		    			gpv = pvnd.getParamValues();
 	    				for (String initPar : gpv.keySet()) {
 			    			mtm.addRegister(id, emx.getID(), emx.getName(), initPar, gpv.get(initPar));
 	    				}
@@ -501,7 +514,14 @@ public class EmReaderUi extends JPanel {
     	c.addIntArray(PARAM_CHOSENMODEL, chosenModel);
     	c.addIntArray(PARAM_CHOSENMODEL2, chosenModel2);
     	c.addBoolean(PARAM_NOMDDATA, withoutData.isSelected());
-
+    	
+    	MyTableModel mtm = (MyTableModel) filterResults.getModel();
+    	c.addStringArray(PARAM_TABLECOLInternalID, mtm.getColumnData(0));
+    	c.addStringArray(PARAM_TABLECOLModelID, mtm.getColumnData(1));
+    	c.addStringArray(PARAM_TABLECOLModelName, mtm.getColumnData(2));
+    	c.addStringArray(PARAM_TABLECOLInitParam, mtm.getColumnData(3));
+    	c.addStringArray(PARAM_TABLECOLInitParamValue, mtm.getColumnData(4));
+    	
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
     	if (params != null && params.size() > 0) {
@@ -539,6 +559,21 @@ public class EmReaderUi extends JPanel {
     		doFilter.setText("ApplyAndShowFilterResults" +
     		(chosenModel != null && chosenModel.length > 0 ? " [" + chosenModel[0] +
     				(chosenModel2 != null && chosenModel2.length > 0 ? ", " + chosenModel2[0] : "") + "]" : ""));
+    		
+    		if (c.containsKey(PARAM_TABLECOLInternalID)) {
+    			String[] c1 = c.getStringArray(PARAM_TABLECOLInternalID);
+    			if (c1 != null) {
+        			String[] c2 = c.getStringArray(PARAM_TABLECOLModelID);
+        			String[] c3 = c.getStringArray(PARAM_TABLECOLModelName);
+        			String[] c4 = c.getStringArray(PARAM_TABLECOLInitParam);
+        			String[] c5 = c.getStringArray(PARAM_TABLECOLInitParamValue);
+                	MyTableModel mtm = (MyTableModel) filterResults.getModel();
+        			mtm.removeAll();
+            		for (int i=0;i<c1.length;i++) {
+        	    		mtm.addRegister(c1[i], Integer.parseInt(c2[i]), c3[i], c4[i], Double.parseDouble(c5[i]));
+            		}
+    			}
+    		}
     				
     		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
     		if (c2.containsKey(EmReaderUi.PARAM_PARAMETERNAME)) {
@@ -608,7 +643,7 @@ public class EmReaderUi extends JPanel {
 		 */
 		private static final long serialVersionUID = 6358436149095581889L;
 		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue"};
-		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Object.class};
+		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Double.class};
 		private ArrayList<Register> list = new ArrayList<Register>();
 
 	    @Override
@@ -619,6 +654,16 @@ public class EmReaderUi extends JPanel {
 	    @Override
 	    public int getRowCount() {
 	        return list.size();
+	    }
+	    
+	    public String[] getColumnData(int columnIndex) {
+	    	if (columnIndex >= getColumnCount()) return null;
+	        int nRow = getRowCount();
+	        String[] tableData = new String[nRow];
+	        for (int i = 0 ; i < nRow ; i++) {
+	        	tableData[i] = getValueAt(i, columnIndex).toString();
+	        }
+	        return tableData;
 	    }
 
 		public boolean isCellEditable(final int rowIndex, final int columnIndex) {

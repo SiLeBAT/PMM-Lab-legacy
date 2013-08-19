@@ -124,10 +124,10 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS, AttributeUtilities.DATAID,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-					MdInfoXml.ATT_COMMENT);
+			standardVisibleColumns = new ArrayList<>(Arrays.asList(
+					Model1Schema.MODELNAME, ChartConstants.STATUS,
+					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
+					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
@@ -142,6 +142,7 @@ public class TableReader {
 				conditions.add(param);
 				conditionValues.add(new ArrayList<Double>());
 				conditionUnits.add(new ArrayList<String>());
+				standardVisibleColumns.add(param);
 			}
 		} else {
 			stringColumns = Arrays.asList(Model1Schema.MODELNAME,

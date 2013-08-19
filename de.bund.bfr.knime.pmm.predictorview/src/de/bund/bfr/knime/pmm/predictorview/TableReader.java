@@ -13,6 +13,7 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
@@ -94,7 +95,7 @@ public class TableReader {
 							+ "";
 
 					if (initParams.containsKey(oldID)) {
-						initParams.put(newID, initParams.get(oldID));						
+						initParams.put(newID, initParams.get(oldID));
 					}
 				}
 			}
@@ -129,8 +130,9 @@ public class TableReader {
 
 		if (isTertiaryModel) {
 			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
-					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
+					Model1Schema.MODELNAME, Model1Schema.ATT_EMLIT,
+					Model2Schema.MODELNAME, TimeSeriesSchema.ATT_AGENT,
+					TimeSeriesSchema.ATT_MATRIX);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -138,9 +140,10 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = Arrays.asList(IDENTIFIER,
+			stringColumnValues.add(new ArrayList<String>());
+			standardVisibleColumns = new ArrayList<>(Arrays.asList(IDENTIFIER,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-					ChartConstants.STATUS);
+					ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					Model2Schema.MODELNAME, ChartConstants.STATUS);
 
@@ -155,20 +158,22 @@ public class TableReader {
 				conditionMinValues.add(new ArrayList<Double>());
 				conditionMaxValues.add(new ArrayList<Double>());
 				conditionUnits.add(new ArrayList<String>());
+				standardVisibleColumns.add(param);
 			}
 		} else {
 			if (containsData) {
 				stringColumns = Arrays.asList(IDENTIFIER,
 						ChartConstants.STATUS, Model1Schema.MODELNAME,
-						AttributeUtilities.DATAID);
+						Model1Schema.ATT_EMLIT, AttributeUtilities.DATAID);
 				stringColumnValues = new ArrayList<List<String>>();
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(IDENTIFIER,
-						Model1Schema.MODELNAME, ChartConstants.STATUS,
-						AttributeUtilities.DATAID);
+				stringColumnValues.add(new ArrayList<String>());
+				standardVisibleColumns = new ArrayList<>(Arrays.asList(
+						IDENTIFIER, Model1Schema.MODELNAME,
+						ChartConstants.STATUS, AttributeUtilities.DATAID));
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS, AttributeUtilities.DATAID);
 
@@ -181,6 +186,7 @@ public class TableReader {
 					conditions.add(param);
 					conditionValues.add(new ArrayList<Double>());
 					conditionUnits.add(new ArrayList<String>());
+					standardVisibleColumns.add(param);
 				}
 			} else {
 				stringColumns = Arrays.asList(IDENTIFIER,
@@ -297,11 +303,22 @@ public class TableReader {
 			parameterData.add(paramData);
 
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			String literature = "";
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_EMLIT).getElementSet()) {
+				literature += "," + (LiteratureItem) el;
+			}
+
+			if (!literature.isEmpty()) {
+				literature = literature.substring(1);
+			}
 
 			shortLegend.put(id, modelName);
 			longLegend.put(id, modelName + " " + formula);
 			stringColumnValues.get(0).add(id);
 			stringColumnValues.get(2).add(modelName);
+			stringColumnValues.get(3).add(literature);
 
 			if (isTertiaryModel) {
 				Set<String> secModels = new LinkedHashSet<>();
@@ -333,9 +350,9 @@ public class TableReader {
 					matrixString += "," + s;
 				}
 
-				stringColumnValues.get(3).add(secString.substring(1));
-				stringColumnValues.get(4).add(agentString.substring(1));
-				stringColumnValues.get(5).add(matrixString.substring(1));
+				stringColumnValues.get(4).add(secString.substring(1));
+				stringColumnValues.get(5).add(agentString.substring(1));
+				stringColumnValues.get(6).add(matrixString.substring(1));
 			}
 
 			doubleColumnValues.get(0).add(
@@ -390,7 +407,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(3).add(dataName);
+				stringColumnValues.get(4).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;

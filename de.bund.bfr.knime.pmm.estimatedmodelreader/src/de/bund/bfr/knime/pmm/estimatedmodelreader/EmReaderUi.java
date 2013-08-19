@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -210,7 +211,6 @@ public class EmReaderUi extends JPanel {
 		    	if (hs != null && hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
 		    		pvnd.setShowSamplePanel(false);
-		    		pvnd.getInitParams();
 		    		JPanel mainComponent = pvnd.getMainComponent();
 		    		ChartAllPanel chartPanel = (ChartAllPanel)mainComponent.getComponent(0);
 			    	//addTab("Predictor view", mainComponent);
@@ -225,6 +225,14 @@ public class EmReaderUi extends JPanel {
 		    		dialog.add(mainComponent);
 		    		dialog.pack();
 		    		centerOnScreen(dialog, true);
+		    		
+	    			MyTableModel mtm = (MyTableModel) filterResults.getModel();
+		    		List<String> selectedIDs = new ArrayList<String>();
+		    		for (int i=0; i<mtm.getRowCount(); i++) {
+		    			selectedIDs.add(mtm.getValueAt(i, 0).toString());
+		    		}
+		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
+		    		
 		    		dialog.setVisible(true);
 		    		
 		    		List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
@@ -232,6 +240,7 @@ public class EmReaderUi extends JPanel {
 		    		SettingsHelper set = new SettingsHelper();
 		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
 		    		Map<String, KnimeTuple> tm = reader.getTupleMap();
+	    			mtm.removeAll();
 		    		for (String id : ls) {
 		    			KnimeTuple tuple = tm.get(id);
 		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
@@ -239,12 +248,12 @@ public class EmReaderUi extends JPanel {
 
 		    			Plotable plotable = reader.getPlotables().get(id);
 		    			if (plotable != null) {
+		    				Map<String, String> ip = pvnd.getInitParams();
 		    				for (Map.Entry<String, Double> entry : chartPanel.getConfigPanel().getParamXValues().entrySet()) {
 		    					//arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
-				    			System.err.println(emx.getID() + "\t" + emx.getName() + "\t" + entry.getKey() + "\t" + entry.getValue());
+				    			mtm.addRegister(id, emx.getID(), emx.getName(), entry.getKey(), entry.getValue());
 		    				}
 		    			}
-		    			
 		    		}
 		    	}
 			}
@@ -336,10 +345,6 @@ public class EmReaderUi extends JPanel {
 	private void doFilterActionPerformed(ActionEvent e) {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			getDataTable(db);
-			//dbTable.getTable().clearSelection();
-			chosenModel = null;
-			chosenModel2 = null;
-			doFilter.setText("ApplyAndShowFilterResults");
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 	public void addModelPrim(final int id, final String name, final String modelType) throws PmmException {
@@ -592,6 +597,77 @@ public class EmReaderUi extends JPanel {
 		}
 	}
 
+	class MyTableModel extends AbstractTableModel {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 6358436149095581889L;
+		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue"};
+		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Object.class};
+		private ArrayList<Register> list = new ArrayList<Register>();
+
+	    @Override
+	    public int getColumnCount() {
+	        return columns.length;
+	    }
+
+	    @Override
+	    public int getRowCount() {
+	        return list.size();
+	    }
+
+		public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+			return false;
+		}
+
+        public Class<?> getColumnClass(int columnIndex) {
+        	return columnTypes[columnIndex];
+        }
+
+        public String getColumnName(int columnIndex) {
+        	return columns[columnIndex];
+        }
+
+        @Override
+	    public Object getValueAt(int rowIndex, int columnIndex) {
+	        Register r = list.get(rowIndex);
+	        switch (columnIndex) {
+	        	case 0: return r.InternalID; 
+	        	case 1: return r.ModelID; 
+		        case 2: return r.ModelName;
+		        case 3: return r.InitParam; 
+		        case 4: return r.InitParamValue;
+	        }
+	            return null;
+	    }
+
+	    public void addRegister(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue){
+	        list.add(new Register(InternalID, ModelID, ModelName, InitParam, InitParamValue));
+	        this.fireTableDataChanged();
+	    }
+	    public void removeAll() {
+	    	list.clear();
+	    	this.fireTableDataChanged();
+	    }
+
+	    class Register{
+	    	String InternalID;
+	        Integer ModelID;
+	        String ModelName;
+	        String InitParam;
+	        Double InitParamValue;
+
+	        public Register(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue) {
+	            this.InternalID = InternalID;
+	            this.ModelID = ModelID;
+	            this.ModelName = ModelName;
+	            this.InitParam = InitParam;
+	            this.InitParamValue = InitParamValue;
+	        }
+	    }
+
+	}
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		withoutData = new JCheckBox();
@@ -690,32 +766,7 @@ public class EmReaderUi extends JPanel {
 
 				//---- filterResults ----
 				filterResults.setFillsViewportHeight(true);
-				filterResults.setModel(new DefaultTableModel(
-					new Object[][] {
-					},
-					new String[] {
-						"ModelID", "ModelName", "InitParam", "InitParamValue"
-					}
-				) {
-					/**
-					 * 
-					 */
-					private static final long serialVersionUID = -1958296614036471473L;
-					Class<?>[] columnTypes = new Class<?>[] {
-						Integer.class, String.class, String.class, Object.class
-					};
-					boolean[] columnEditable = new boolean[] {
-						false, false, false, false
-					};
-					@Override
-					public Class<?> getColumnClass(int columnIndex) {
-						return columnTypes[columnIndex];
-					}
-					@Override
-					public boolean isCellEditable(int rowIndex, int columnIndex) {
-						return columnEditable[columnIndex];
-					}
-				});
+				filterResults.setModel(new MyTableModel());
 				scrollPane1.setViewportView(filterResults);
 			}
 			panel6.add(scrollPane1, CC.xy(1, 3));

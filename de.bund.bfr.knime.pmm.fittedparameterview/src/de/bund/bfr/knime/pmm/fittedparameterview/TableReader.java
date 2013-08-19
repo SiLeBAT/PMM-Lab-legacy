@@ -64,7 +64,8 @@ public class TableReader {
 		filterableStringColumns = new ArrayList<>();
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());
-		standardVisibleColumns = Arrays.asList(Model1Schema.ATT_PARAMETER);
+		standardVisibleColumns = new ArrayList<>(
+				Arrays.asList(Model1Schema.ATT_PARAMETER));
 		colorCounts = new ArrayList<Integer>();
 
 		conditions = new ArrayList<>();
@@ -77,6 +78,7 @@ public class TableReader {
 			conditionMinValues.add(new ArrayList<Double>());
 			conditionMaxValues.add(new ArrayList<Double>());
 			conditionUnits.add(new ArrayList<String>());
+			standardVisibleColumns.add(param);
 		}
 
 		for (KnimeTuple tuple : tuples) {

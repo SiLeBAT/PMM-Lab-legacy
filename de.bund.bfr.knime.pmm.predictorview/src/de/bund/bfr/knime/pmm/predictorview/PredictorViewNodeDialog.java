@@ -270,6 +270,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		return set.getConcentrationParameters();
 	}
 
+	public Map<String, Double> getParamValues() {
+		return configPanel.getParamXValues();
+	}
+
 	public void setShowSamplePanel(boolean showSamplePanel) {
 		this.showSamplePanel = showSamplePanel;
 	}

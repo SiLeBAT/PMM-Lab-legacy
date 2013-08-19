@@ -69,9 +69,9 @@ public class TableReader {
 		data = new ArrayList<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
-		standardVisibleColumns = Arrays.asList(AttributeUtilities.DATAID,
-				TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX,
-				MdInfoXml.ATT_COMMENT);
+		standardVisibleColumns = new ArrayList<>(Arrays.asList(
+				AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
+				TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
 
 		Set<String> idSet = new LinkedHashSet<String>();
 		List<String> miscParams = PmmUtilities.getMiscParams(allTuples);
@@ -80,6 +80,7 @@ public class TableReader {
 			conditions.add(param);
 			conditionValues.add(new ArrayList<Double>());
 			conditionUnits.add(new ArrayList<String>());
+			standardVisibleColumns.add(param);
 		}
 
 		for (KnimeTuple tuple : allTuples) {

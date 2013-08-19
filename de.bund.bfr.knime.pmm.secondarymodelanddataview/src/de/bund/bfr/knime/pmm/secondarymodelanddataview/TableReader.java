@@ -133,8 +133,9 @@ public class TableReader {
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
-		standardVisibleColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, ChartConstants.STATUS);
+		standardVisibleColumns = new ArrayList<>(Arrays.asList(
+				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME,
+				ChartConstants.STATUS));
 
 		if (schemaContainsData) {
 			try {
@@ -156,6 +157,7 @@ public class TableReader {
 				conditionMinValues.add(new ArrayList<Double>());
 				conditionMaxValues.add(new ArrayList<Double>());
 				conditionUnits.add(new ArrayList<String>());
+				standardVisibleColumns.add(param);
 			}
 		} else {
 			conditions = null;

@@ -11,9 +11,11 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.table.*;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
@@ -28,11 +30,14 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
+import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.*;
 import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
+import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
+import de.bund.bfr.knime.pmm.predictorview.TableReader;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
 
 /**
@@ -222,25 +227,24 @@ public class EmReaderUi extends JPanel {
 		    		dialog.setVisible(true);
 		    		
 		    		List<String> ls = mainComponent.getSelectionPanel().getSelectedIDs();
-		    		System.err.println(ls.size());
-		    		/*
+		    		
 		    		SettingsHelper set = new SettingsHelper();
 		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
+		    		Map<String, KnimeTuple> tm = reader.getTupleMap();
 		    		for (String id : ls) {
+		    			KnimeTuple tuple = tm.get(id);
+		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
+		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
+
 		    			Plotable plotable = reader.getPlotables().get(id);
-
 		    			if (plotable != null) {
-		    				Map<String, List<Double>> arguments = new LinkedHashMap<>();
-
 		    				for (Map.Entry<String, Double> entry : mainComponent.getConfigPanel().getParamXValues().entrySet()) {
-		    					arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
+		    					//arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
+				    			System.err.println(emx.getID() + "\t" + emx.getName() + "\t" + entry.getKey() + "\t" + entry.getValue());
 		    				}
-
-		    				plotable.setSamples(mainComponent.getSamplePanel().getTimeValues());
-		    				plotable.setFunctionArguments(arguments);
 		    			}
+		    			
 		    		}
-		    		*/
 		    	}
 			}
 	    	catch (SQLException e) {
@@ -600,6 +604,8 @@ public class EmReaderUi extends JPanel {
 		mdReaderUi = new MdReaderUi();
 		panel6 = new JPanel();
 		doFilter = new JButton();
+		scrollPane1 = new JScrollPane();
+		filterResults = new JTable();
 
 		//======== this ========
 		setLayout(new FormLayout(
@@ -666,7 +672,7 @@ public class EmReaderUi extends JPanel {
 			panel6.setBorder(new TitledBorder("Results"));
 			panel6.setLayout(new FormLayout(
 				"default:grow",
-				"default"));
+				"default, $lgap, default"));
 
 			//---- doFilter ----
 			doFilter.setText("ApplyAndShowFilterResults");
@@ -677,6 +683,41 @@ public class EmReaderUi extends JPanel {
 				}
 			});
 			panel6.add(doFilter, CC.xy(1, 1));
+
+			//======== scrollPane1 ========
+			{
+
+				//---- filterResults ----
+				filterResults.setFillsViewportHeight(true);
+				filterResults.setModel(new DefaultTableModel(
+					new Object[][] {
+					},
+					new String[] {
+						"ModelID", "ModelName", "InitParam", "InitParamValue"
+					}
+				) {
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = -1958296614036471473L;
+					Class<?>[] columnTypes = new Class<?>[] {
+						Integer.class, String.class, String.class, Object.class
+					};
+					boolean[] columnEditable = new boolean[] {
+						false, false, false, false
+					};
+					@Override
+					public Class<?> getColumnClass(int columnIndex) {
+						return columnTypes[columnIndex];
+					}
+					@Override
+					public boolean isCellEditable(int rowIndex, int columnIndex) {
+						return columnEditable[columnIndex];
+					}
+				});
+				scrollPane1.setViewportView(filterResults);
+			}
+			panel6.add(scrollPane1, CC.xy(1, 3));
 		}
 		add(panel6, CC.xy(1, 9));
 
@@ -700,5 +741,7 @@ public class EmReaderUi extends JPanel {
 	private MdReaderUi mdReaderUi;
 	private JPanel panel6;
 	private JButton doFilter;
+	private JScrollPane scrollPane1;
+	private JTable filterResults;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

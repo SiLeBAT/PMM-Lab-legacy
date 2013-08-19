@@ -94,27 +94,9 @@ new FormModel {
 					add( new FormComponent( "javax.swing.JTable" ) {
 						name: "filterResults"
 						"fillsViewportHeight": true
-						"model": new com.jformdesigner.model.SwingTableModel( new java.util.Vector, new java.util.Vector {
-							add( "ModelID" )
-							add( "ModelName" )
-							add( "InitParam" )
-							add( "InitParamValue" )
-						}, new java.util.Vector {
-							add( class java.lang.Integer )
-							add( class java.lang.String )
-							add( class java.lang.String )
-							add( null )
-						}, new java.util.Vector {
-							add( false )
-							add( false )
-							add( false )
-							add( false )
-						}, new java.util.Vector {
-							add( null )
-							add( null )
-							add( null )
-							add( null )
-						} )
+						auxiliary() {
+							"JavaCodeGenerator.postInitCode": "filterResults.setModel(new MyTableModel());"
+						}
 					} )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 					"gridX": 1

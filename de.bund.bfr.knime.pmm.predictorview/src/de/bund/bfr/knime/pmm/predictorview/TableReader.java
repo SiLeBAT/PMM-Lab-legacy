@@ -94,8 +94,7 @@ public class TableReader {
 							+ "";
 
 					if (initParams.containsKey(oldID)) {
-						initParams.put(newID, initParams.get(oldID));
-						initParams.remove(oldID);
+						initParams.put(newID, initParams.get(oldID));						
 					}
 				}
 			}

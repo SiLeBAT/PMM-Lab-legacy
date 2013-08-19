@@ -99,7 +99,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private TableReader reader;
 	private SettingsHelper set;
 
-	private ChartAllPanel mainComponent;
+	private JPanel mainComponent;
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
@@ -122,11 +122,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		this.tuples = tuples;
 		set = new SettingsHelper();
 		reader = new TableReader(tuples, set.getConcentrationParameters());
-		mainComponent = createMainComponent();
+		mainComponent = new JPanel();
+		mainComponent.setLayout(new BorderLayout());
+		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		showSamplePanel = false;
 	}
 
-	public ChartAllPanel getMainComponent() {
+	public JPanel getMainComponent() {
 		return mainComponent;
 	}
 
@@ -137,7 +139,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.loadSettings(settings);
 		tuples = PredictorViewNodeModel.getTuples(input[0]);
 		reader = new TableReader(tuples, set.getConcentrationParameters());
-		mainComponent = createMainComponent();
+		mainComponent = new JPanel();
+		mainComponent.setLayout(new BorderLayout());
+		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
 	}
@@ -422,9 +426,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setSelectedIDs(new ArrayList<String>());
 			reader = new TableReader(tuples, set.getConcentrationParameters());
 
-			int divider = mainComponent.getDividerLocation();
+			int divider = ((ChartAllPanel) mainComponent.getComponent(0))
+					.getDividerLocation();
 
-			mainComponent = createMainComponent();
+			ChartAllPanel chartPanel = createMainComponent();
 
 			if (getTab("Options") != null) {
 				((JPanel) getTab("Options")).removeAll();
@@ -432,7 +437,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				((JPanel) getTab("Options")).revalidate();
 			}
 
-			mainComponent.setDividerLocation(divider);
+			chartPanel.setDividerLocation(divider);
+			mainComponent.removeAll();
+			mainComponent.add(chartPanel, BorderLayout.CENTER);
+			mainComponent.revalidate();
 		}
 	}
 

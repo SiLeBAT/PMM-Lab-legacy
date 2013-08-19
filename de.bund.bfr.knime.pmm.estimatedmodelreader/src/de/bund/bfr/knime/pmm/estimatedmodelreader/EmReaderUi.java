@@ -211,7 +211,8 @@ public class EmReaderUi extends JPanel {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
 		    		pvnd.setShowSamplePanel(false);
 		    		pvnd.getInitParams();
-		    		ChartAllPanel mainComponent = pvnd.getMainComponent();
+		    		JPanel mainComponent = pvnd.getMainComponent();
+		    		ChartAllPanel chartPanel = (ChartAllPanel)mainComponent.getComponent(0);
 			    	//addTab("Predictor view", mainComponent);
 
 		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
@@ -226,7 +227,7 @@ public class EmReaderUi extends JPanel {
 		    		centerOnScreen(dialog, true);
 		    		dialog.setVisible(true);
 		    		
-		    		List<String> ls = mainComponent.getSelectionPanel().getSelectedIDs();
+		    		List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
 		    		
 		    		SettingsHelper set = new SettingsHelper();
 		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
@@ -238,7 +239,7 @@ public class EmReaderUi extends JPanel {
 
 		    			Plotable plotable = reader.getPlotables().get(id);
 		    			if (plotable != null) {
-		    				for (Map.Entry<String, Double> entry : mainComponent.getConfigPanel().getParamXValues().entrySet()) {
+		    				for (Map.Entry<String, Double> entry : chartPanel.getConfigPanel().getParamXValues().entrySet()) {
 		    					//arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
 				    			System.err.println(emx.getID() + "\t" + emx.getName() + "\t" + entry.getKey() + "\t" + entry.getValue());
 		    				}

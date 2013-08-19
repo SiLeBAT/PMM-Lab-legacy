@@ -736,7 +736,7 @@ public class Bfrdb extends Hsqldbiface {
 			myWhere = " WHERE " + where;
 			myWhereCache = " WHERE " + where;
 		}
-//System.err.println(q);
+//System.err.println(q + myWhere);
 		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, forceUpdate);
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {

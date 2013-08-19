@@ -31,7 +31,6 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.chart.ChartAllPanel;
-import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
@@ -99,6 +98,17 @@ public class EmReaderUi extends JPanel {
     		}
     	}
 		return parameter;
+	}
+	private String getWhereCondition(int level, String param, String param2, Double min, Double max) {
+		String result =
+				(min != null ? " AND (\"" + param + "\" >= " + min + " OR \"" + param + "\" IS NULL" +
+						(level == 2 ? " OR POSITION_ARRAY('" + param2 + "' IN \"Independent2\") > 0 AND \"maxIndep2\"[POSITION_ARRAY('" + param2 + "' IN \"Independent2\")] >= " + min : "") +
+						")" : "") +
+		
+				(max != null ? " AND (\"" + param + "\" <= " + max + " OR \"" + param + "\" IS NULL" +
+						(level == 2 ? " OR POSITION_ARRAY('" + param2 + "' IN \"Independent2\") > 0 AND \"minIndep2\"[POSITION_ARRAY('" + param2 + "' IN \"Independent2\")] <= " + max : "") +
+						")" : "");		
+		return result;
 	}
 	private void getDataTable(Bfrdb db) {
 		try {
@@ -171,29 +181,23 @@ public class EmReaderUi extends JPanel {
 				where += " AND (\"Matrix\" IS NULL OR \"Matrix\" IN (" + matchingIDs + "))";
 			}
 			
+    		int level = modelReaderUi.getLevel();
 			LinkedHashMap<String, DoubleTextField[]> params = mdReaderUi.getParameter();
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-					where +=
-							(dtf[0].getValue() != null ? " AND (\"Temperatur\" >= " + dtf[0].getValue() + " OR \"Temperatur\" IS NULL)" : "") +
-							(dtf[1].getValue() != null ? " AND (\"Temperatur\" <= " + dtf[1].getValue() + " OR \"Temperatur\" IS NULL)" : "");
+					where += getWhereCondition(level, "Temperatur", "Temperature", dtf[0].getValue(), dtf[1].getValue());							
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
-					where +=
-							(dtf[0].getValue() != null ? " AND (\"pH\" >= " + dtf[0].getValue() + " OR \"pH\" IS NULL)" : "") +
-							(dtf[1].getValue() != null ? " AND (\"pH\" <= " + dtf[1].getValue() + " OR \"pH\" IS NULL)" : "");
+					where += getWhereCondition(level, "pH", "pH", dtf[0].getValue(), dtf[1].getValue());
 				}
 				else if (key.equals(AttributeUtilities.ATT_AW)) {
-					where +=
-							(dtf[0].getValue() != null ? " AND (\"aw\" >= " + dtf[0].getValue() + " OR \"aw\" IS NULL)" : "") +
-							(dtf[1].getValue() != null ? " AND (\"aw\" <= " + dtf[1].getValue() + " OR \"aw\" IS NULL)" : "");
+					where += getWhereCondition(level, "aw", "aw", dtf[0].getValue(), dtf[1].getValue());
 				}
 			}
 			
 	    	try {
 	    		boolean withoutMdData = withoutData.isSelected();
-	    		int level = modelReaderUi.getLevel();
 	    		List<KnimeTuple> hs = null;
 				try {
 					hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(),
@@ -245,15 +249,10 @@ public class EmReaderUi extends JPanel {
 		    			KnimeTuple tuple = tm.get(id);
 		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
-
-		    			Plotable plotable = reader.getPlotables().get(id);
-		    			if (plotable != null) {
-		    				Map<String, String> ip = pvnd.getInitParams();
-		    				for (Map.Entry<String, Double> entry : chartPanel.getConfigPanel().getParamXValues().entrySet()) {
-		    					//arguments.put(entry.getKey(), Arrays.asList(entry.getValue()));
-				    			mtm.addRegister(id, emx.getID(), emx.getName(), entry.getKey(), entry.getValue());
-		    				}
-		    			}
+		    			Map<String, Double> gpv = pvnd.getParamValues();
+	    				for (String initPar : gpv.keySet()) {
+			    			mtm.addRegister(id, emx.getID(), emx.getName(), initPar, gpv.get(initPar));
+	    				}
 		    		}
 		    	}
 			}

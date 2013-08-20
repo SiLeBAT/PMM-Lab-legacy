@@ -190,8 +190,10 @@ public class TableReader {
 				}
 			} else {
 				stringColumns = Arrays.asList(IDENTIFIER,
-						ChartConstants.STATUS, Model1Schema.MODELNAME);
+						ChartConstants.STATUS, Model1Schema.MODELNAME,
+						Model1Schema.ATT_EMLIT);
 				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());

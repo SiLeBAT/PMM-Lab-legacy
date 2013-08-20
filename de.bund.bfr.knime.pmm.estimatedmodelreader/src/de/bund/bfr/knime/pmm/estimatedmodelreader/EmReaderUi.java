@@ -83,7 +83,7 @@ public class EmReaderUi extends JPanel {
 		this(db,null);
 	}	
 	public EmReaderUi(Bfrdb db, String[] itemListMisc) {								
-		this(db,itemListMisc, true, true, true, true);
+		this(db,itemListMisc, true, true, true, false);
 	}
 	public EmReaderUi(Bfrdb db, String[] itemListMisc,
 			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showFilterResults) {		
@@ -98,6 +98,12 @@ public class EmReaderUi extends JPanel {
 			filterResults.setVisible(false);
 			scrollPane1.setVisible(false);
 		}
+		filterResults.getColumnModel().getColumn(1).setMinWidth(0);
+		filterResults.getColumnModel().getColumn(1).setMaxWidth(0);
+		filterResults.getColumnModel().getColumn(1).setWidth(0);
+		filterResults.getColumnModel().getColumn(6).setMinWidth(0);
+		filterResults.getColumnModel().getColumn(6).setMaxWidth(0);
+		filterResults.getColumnModel().getColumn(6).setWidth(0);
 		//if (!showDbTable) dbTable.setVisible(false);
 	}
 

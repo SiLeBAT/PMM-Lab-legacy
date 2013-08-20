@@ -79,7 +79,7 @@ public class VisibilityAction  extends AbstractAction {
 		  myList.updateUI();
 		
 		  DBKernel.prefs.putBoolean("VIS_NODE_" + childName, iChild.isVisible());
-			DBKernel.prefsFlush();
+			DBKernel.prefs.prefsFlush();
 	  }
 	 
 	  

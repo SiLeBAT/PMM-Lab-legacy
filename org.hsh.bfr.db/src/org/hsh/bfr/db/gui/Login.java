@@ -228,7 +228,7 @@ public class Login extends JFrame {
 			}
 			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", DBKernel.HSHDB_PATH);
-			DBKernel.prefsFlush();
+			DBKernel.prefs.prefsFlush();
 			MyLogger.handleMessage("HSHDB_PATH: " + DBKernel.HSHDB_PATH);
 			// Datenbank erstellen
 			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt

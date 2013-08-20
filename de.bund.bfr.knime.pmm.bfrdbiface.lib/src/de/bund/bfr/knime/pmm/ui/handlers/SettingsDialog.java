@@ -82,7 +82,7 @@ public class SettingsDialog extends JFrame {
 			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_USERNAME", username.getText());
 			DBKernel.prefs.put("PMM_LAB_SETTINGS_DB_PASSWORD", String.valueOf(password.getPassword()));
 			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
-			DBKernel.prefsFlush();
+			DBKernel.prefs.prefsFlush();
 			DBKernel.closeDBConnections(true);
 			
 			try {

@@ -93,7 +93,7 @@ public class ExportAction extends AbstractAction {
 	  	File selectedFile = fc.getSelectedFile();
 	  	if (selectedFile != null) {
 	  		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
-			DBKernel.prefsFlush();
+			DBKernel.prefs.prefsFlush();
 	  		if(selectedFile.exists()) {
 	  			returnVal = JOptionPane.showConfirmDialog(progressBar1, "Soll die Datei ersetzt werden?", "Excel Datei bereits vorhanden", JOptionPane.YES_NO_CANCEL_OPTION);
 	  			if (returnVal == JOptionPane.NO_OPTION) {actionPerformed(null); return;}

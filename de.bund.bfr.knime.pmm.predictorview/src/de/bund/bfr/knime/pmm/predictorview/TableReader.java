@@ -63,10 +63,11 @@ public class TableReader {
 		boolean containsData = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
+		Map<String, String> initCopy = new LinkedHashMap<>(initParams);
 
 		if (isTertiaryModel) {
 			combinedTuples = ModelCombiner.combine(tuples, containsData,
-					initParams);
+					initCopy);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 
 			try {
@@ -94,8 +95,8 @@ public class TableReader {
 							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
 							+ "";
 
-					if (initParams.containsKey(oldID)) {
-						initParams.put(newID, initParams.get(oldID));
+					if (initCopy.containsKey(oldID)) {
+						initCopy.put(newID, initCopy.get(oldID));
 					}
 				}
 			}
@@ -240,7 +241,7 @@ public class TableReader {
 			Map<String, Double> parameters = new LinkedHashMap<>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
-			String initParam = initParams.get(modelID);
+			String initParam = initCopy.get(modelID);
 			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);

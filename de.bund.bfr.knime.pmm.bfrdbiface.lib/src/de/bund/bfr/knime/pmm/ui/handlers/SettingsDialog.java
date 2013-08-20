@@ -176,7 +176,11 @@ public class SettingsDialog extends JFrame {
 
 				//---- label2 ----
 				label2.setText("DB Read-only:");
+				label2.setVisible(false);
 				contentPanel.add(label2, CC.xy(1, 7));
+
+				//---- readOnly ----
+				readOnly.setVisible(false);
 				contentPanel.add(readOnly, CC.xywh(3, 7, 3, 1));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);

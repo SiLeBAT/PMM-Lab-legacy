@@ -92,7 +92,7 @@ public class SecDialog extends JDialog {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_GAP_BORDER);
+				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setLayout(new FormLayout(
 					"$lcgap, default, $glue, $button, $rgap, default, $lcgap, $button",
 					"pref"));

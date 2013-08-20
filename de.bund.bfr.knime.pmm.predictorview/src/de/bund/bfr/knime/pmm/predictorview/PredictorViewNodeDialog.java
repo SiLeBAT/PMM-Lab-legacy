@@ -119,8 +119,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
+		this(tuples, new LinkedHashMap<String, String>());
+	}
+
+	public PredictorViewNodeDialog(List<KnimeTuple> tuples,
+			Map<String, String> initParams) {
 		this.tuples = tuples;
 		set = new SettingsHelper();
+		set.setConcentrationParameters(initParams);
 		reader = new TableReader(tuples, set.getConcentrationParameters());
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());

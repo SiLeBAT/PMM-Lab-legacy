@@ -71,6 +71,7 @@ public class Backup extends FileFilter {
 	  	File selectedFile = fc.getSelectedFile();
 	  	if (selectedFile != null) {
 	  		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
+			DBKernel.prefsFlush();
 	    	// siehe BUG: bugs.sun.com/bugdatabase/view_bug.do?bug_id=4847375
 	    	try {
 	      	//System.out.println(fc.getCurrentDirectory());
@@ -175,6 +176,7 @@ public class Backup extends FileFilter {
 		  	File selectedFile = fc.getSelectedFile();
 	  		if (selectedFile != null) {
 				DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
+				DBKernel.prefsFlush();
 			}
 		  	doRestore(myDB, selectedFile, false);
 	  }	  

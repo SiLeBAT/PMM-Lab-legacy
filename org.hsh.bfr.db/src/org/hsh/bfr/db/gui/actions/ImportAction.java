@@ -91,6 +91,7 @@ public class ImportAction extends AbstractAction {
 		  	File selectedFile = fc.getSelectedFile();
 		  	if (selectedFile != null) {
 		  		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
+				DBKernel.prefsFlush();
 		  		if (fc.getFileFilter() instanceof MyImporter) {
 		  			DBKernel.importing = true;
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();

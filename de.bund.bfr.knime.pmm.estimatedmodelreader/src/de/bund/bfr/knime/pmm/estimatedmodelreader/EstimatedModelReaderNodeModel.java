@@ -123,7 +123,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private int matrixID, agentID, literatureID;
 	private int[] chosenModel, chosenModel2;
 	private boolean withoutMdData;
-	private String[] col1, col2, col3, col4, col5;
+	private String[] col1, col2, col3, col4, col5, col6, col7;
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
@@ -507,6 +507,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	c.addStringArray(EmReaderUi.PARAM_TABLECOLModelName, col3);
         	c.addStringArray(EmReaderUi.PARAM_TABLECOLInitParam, col4);
         	c.addStringArray(EmReaderUi.PARAM_TABLECOLInitParamValue, col5);
+        	c.addStringArray(EmReaderUi.PARAM_TABLECOLIsInitParam, col6);
+        	c.addStringArray(EmReaderUi.PARAM_TABLECOLFormulaID, col7);
 
         	Config c2 = c.addConfig(EmReaderUi.PARAM_PARAMETERS);
     		String[] pars = new String[parameter.size()];
@@ -614,7 +616,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		col3 = c.getStringArray(EmReaderUi.PARAM_TABLECOLModelName);
     		col4 = c.getStringArray(EmReaderUi.PARAM_TABLECOLInitParam);
     		col5 = c.getStringArray(EmReaderUi.PARAM_TABLECOLInitParamValue);
-
+    		col6 = c.getStringArray(EmReaderUi.PARAM_TABLECOLIsInitParam);
+    		col7 = c.getStringArray(EmReaderUi.PARAM_TABLECOLFormulaID);
+    		
     		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
     		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);
     		String[] mins = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMIN);

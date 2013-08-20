@@ -40,9 +40,11 @@ public class ChangeMasterPass extends JDialog {
 			if (!newSA.equals(oldSA)) { // first Input of User/Pass, not a Change
 				DBKernel.prefs.put("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newSA);
 				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
+				DBKernel.prefsFlush();
 			}
 			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false, true)) {
 				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
+				DBKernel.prefsFlush();
 			}
 			boolean success = DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH, true);
 			if (success) ibText = "Password successfully changed!";

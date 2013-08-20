@@ -62,6 +62,8 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_TABLECOLModelName = "TableModelName";
 	public static final String PARAM_TABLECOLInitParam = "TableInitParam";
 	public static final String PARAM_TABLECOLInitParamValue = "TableInitParamValue";
+	public static final String PARAM_TABLECOLIsInitParam = "IsInitParam";
+	public static final String PARAM_TABLECOLFormulaID = "FormulaID";
 
 	public static final String PARAM_NOMDDATA = "withoutMdData";
 	
@@ -223,11 +225,30 @@ public class EmReaderUi extends JPanel {
 	    		//System.err.println(where);
 				//List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
 		    	if (hs != null && hs.size() > 0) {
-		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs);
+	    			MyTableModel mtm = (MyTableModel) filterResults.getModel();
+		    		List<String> selectedIDs = new ArrayList<String>();
+		    		Map<String, String> gip = new LinkedHashMap<String, String>();
+		    		Map<String, Double> gpv = new LinkedHashMap<String, Double>();
+		    		String selID = "";
+		    		for (int i=0; i<mtm.getRowCount(); i++) {
+		    			if (!selID.equals(mtm.getValueAt(i, 0).toString())) {
+			    			selID = mtm.getValueAt(i, 0).toString();
+			    			selectedIDs.add(selID);
+			    			gpv = new LinkedHashMap<String, Double>();
+			    			gip = new LinkedHashMap<String, String>();
+		    			}
+		    			gpv.put(mtm.getValueAt(i, 3).toString(), Double.parseDouble(mtm.getValueAt(i, 4).toString()));
+		    			if (Boolean.parseBoolean(mtm.getValueAt(i, 5).toString())) gip.put(mtm.getValueAt(i, 6).toString(), mtm.getValueAt(i, 3).toString());
+		    		}
+
+		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, gip);
 		    		pvnd.setShowSamplePanel(false);
 		    		JPanel mainComponent = pvnd.getMainComponent();
 		    		ChartAllPanel chartPanel = (ChartAllPanel)mainComponent.getComponent(0);
 			    	//addTab("Predictor view", mainComponent);
+
+		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
+		    		chartPanel.getConfigPanel().setParamXValues(gpv);
 
 		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
 		    		Frame parentFrame = null;
@@ -239,22 +260,7 @@ public class EmReaderUi extends JPanel {
 		    		dialog.add(mainComponent);
 		    		dialog.pack();
 		    		centerOnScreen(dialog, true);
-		    		
-	    			MyTableModel mtm = (MyTableModel) filterResults.getModel();
-		    		List<String> selectedIDs = new ArrayList<String>();
-		    		Map<String, Double> gpv = new LinkedHashMap<String, Double>();
-		    		String selID = "";
-		    		for (int i=0; i<mtm.getRowCount(); i++) {
-		    			if (!selID.equals(mtm.getValueAt(i, 0).toString())) {
-			    			selID = mtm.getValueAt(i, 0).toString();
-			    			selectedIDs.add(selID);
-		    				gpv = new LinkedHashMap<String, Double>();
-		    			}
-		    			gpv.put(mtm.getValueAt(i, 3).toString(), Double.parseDouble(mtm.getValueAt(i, 4).toString()));
-		    		}
-		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
-		    		chartPanel.getConfigPanel().setParamXValues(gpv);
-		    		
+		    				    		
 		    		dialog.setVisible(true);
 		    		
 		    		List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
@@ -268,8 +274,19 @@ public class EmReaderUi extends JPanel {
 		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
 		    			gpv = pvnd.getParamValues();
-	    				for (String initPar : gpv.keySet()) {
-			    			mtm.addRegister(id, emx.getID(), emx.getName(), initPar, gpv.get(initPar));
+		    			gip = pvnd.getInitParams();
+	    				for (String param : gpv.keySet()) {
+	    					boolean hasInit = gip.containsValue(param);
+	    					String formulaID = "";
+	    					if (hasInit) {
+	    						for (String fid : gip.keySet()) {
+	    							if (gip.get(fid).equals(param)) {
+	    								formulaID = fid;
+	    								break;
+	    							}
+	    						}
+	    					}
+			    			mtm.addRegister(id, emx.getID(), emx.getName(), param, gpv.get(param), hasInit, formulaID);
 	    				}
 		    		}
 		    	}
@@ -521,7 +538,9 @@ public class EmReaderUi extends JPanel {
     	c.addStringArray(PARAM_TABLECOLModelName, mtm.getColumnData(2));
     	c.addStringArray(PARAM_TABLECOLInitParam, mtm.getColumnData(3));
     	c.addStringArray(PARAM_TABLECOLInitParamValue, mtm.getColumnData(4));
-    	
+    	c.addStringArray(PARAM_TABLECOLIsInitParam, mtm.getColumnData(5));
+    	c.addStringArray(PARAM_TABLECOLFormulaID, mtm.getColumnData(6));
+    	    	
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
     	if (params != null && params.size() > 0) {
@@ -567,10 +586,12 @@ public class EmReaderUi extends JPanel {
         			String[] c3 = c.getStringArray(PARAM_TABLECOLModelName);
         			String[] c4 = c.getStringArray(PARAM_TABLECOLInitParam);
         			String[] c5 = c.getStringArray(PARAM_TABLECOLInitParamValue);
+        			String[] c6 = c.getStringArray(PARAM_TABLECOLIsInitParam);
+        			String[] c7 = c.getStringArray(PARAM_TABLECOLFormulaID);
                 	MyTableModel mtm = (MyTableModel) filterResults.getModel();
         			mtm.removeAll();
             		for (int i=0;i<c1.length;i++) {
-        	    		mtm.addRegister(c1[i], Integer.parseInt(c2[i]), c3[i], c4[i], Double.parseDouble(c5[i]));
+        	    		mtm.addRegister(c1[i], Integer.parseInt(c2[i]), c3[i], c4[i], Double.parseDouble(c5[i]), Boolean.parseBoolean(c6[i]), c7[i]);
             		}
     			}
     		}
@@ -642,8 +663,8 @@ public class EmReaderUi extends JPanel {
 		 * 
 		 */
 		private static final long serialVersionUID = 6358436149095581889L;
-		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue"};
-		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Double.class};
+		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue","isInitParam","FormulaID"};
+		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Double.class, Boolean.class, String.class};
 		private ArrayList<Register> list = new ArrayList<Register>();
 
 	    @Override
@@ -687,12 +708,14 @@ public class EmReaderUi extends JPanel {
 		        case 2: return r.ModelName;
 		        case 3: return r.InitParam; 
 		        case 4: return r.InitParamValue;
+		        case 5: return r.isInitParam;
+		        case 6: return r.FormulaID;
 	        }
 	            return null;
 	    }
 
-	    public void addRegister(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue){
-	        list.add(new Register(InternalID, ModelID, ModelName, InitParam, InitParamValue));
+	    public void addRegister(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue, Boolean isInitParam, String FormulaID) {
+	        list.add(new Register(InternalID, ModelID, ModelName, InitParam, InitParamValue, isInitParam, FormulaID));
 	        this.fireTableDataChanged();
 	    }
 	    public void removeAll() {
@@ -706,13 +729,17 @@ public class EmReaderUi extends JPanel {
 	        String ModelName;
 	        String InitParam;
 	        Double InitParamValue;
+	        Boolean isInitParam;
+	        String FormulaID;
 
-	        public Register(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue) {
+	        public Register(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue, Boolean isInitParam, String FormulaID) {
 	            this.InternalID = InternalID;
 	            this.ModelID = ModelID;
 	            this.ModelName = ModelName;
 	            this.InitParam = InitParam;
 	            this.InitParamValue = InitParamValue;
+	            this.isInitParam = isInitParam;
+	            this.FormulaID = FormulaID;
 	        }
 	    }
 

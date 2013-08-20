@@ -69,7 +69,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
-import java.util.prefs.Preferences;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -79,6 +78,7 @@ import javax.swing.JOptionPane;
 import javax.swing.undo.UndoableEditSupport;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
@@ -90,6 +90,8 @@ import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.prefs.BackingStoreException;
+import org.osgi.service.prefs.Preferences;
 import org.eclipse.core.resources.ResourcesPlugin;
 
 //import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
@@ -118,7 +120,10 @@ public class DBKernel {
 	public static boolean importing = false;
 	public static boolean dontLog = false;
 	
-	public static Preferences prefs = Preferences.userNodeForPackage(Login.class);
+	//public static Preferences prefsOld = Preferences.userNodeForPackage(Login.class);
+	public static Preferences preferences = InstanceScope.INSTANCE.getNode("org.hsh.bfr.db");
+	public static Preferences prefs = preferences.node("db");
+
 	public static MyList myList = null;
 	public static MyDBTable topTable = null;
 	public static MainFrame mainFrame = null;
@@ -215,7 +220,8 @@ public class DBKernel {
 			  		else {
 			  			if (!onlyCheck) {
 							DBKernel.prefs.put("DBADMINUSER" + getCRC32(dbPath), sa);
-							DBKernel.prefs.put("DBADMINPASS" + getCRC32(dbPath), pass);			  				
+							DBKernel.prefs.put("DBADMINPASS" + getCRC32(dbPath), pass);		
+							DBKernel.prefsFlush();
 			  			}
 						result = true;
 						//System.err.println("pass combi is: " + sa + "\t" + pass);
@@ -233,6 +239,14 @@ public class DBKernel {
 		  		catch(Exception e) {}
 			}
 			return result;
+	  }
+	  public static void prefsFlush() {
+			try {
+				DBKernel.preferences.flush();
+			}
+			catch (BackingStoreException e) {
+				e.printStackTrace();
+			}		  
 	  }
 	  public static long getCRC32(String str) {
 		  if (str == null) return 0;
@@ -741,6 +755,7 @@ public class DBKernel {
 					DBKernel.prefs.put("LAST_MainFrame_X", DBKernel.mainFrame.getX()+"");
 					DBKernel.prefs.put("LAST_MainFrame_Y", DBKernel.mainFrame.getY()+"");
 					*/
+					DBKernel.prefsFlush();
 				}
 			}
 			catch (Exception e) {e.printStackTrace();}
@@ -892,6 +907,8 @@ public class DBKernel {
 	  return getDefaultAdminConn(DBKernel.HSHDB_PATH, false);
   }
   private static Connection getNewConnection(final String dbUsername, final String dbPassword, final String path) throws Exception {
+	  // Sicherheitshalber erstmal alles wieder auf Read/Write Access setzen!
+	  DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", false); DBKernel.prefsFlush();
 	  if (isServerConnection) {
 		return getNewServerConnection(dbUsername, dbPassword, path);
 	} else {

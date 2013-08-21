@@ -55,20 +55,15 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_PARAMETERMAX = "parameterMax";
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
-	public static final String PARAM_CHOSENMODEL = "chosenModel";
-	public static final String PARAM_CHOSENMODEL2 = "chosenModel2";
-	public static final String PARAM_TABLECOLInternalID = "TableInternalID";
-	public static final String PARAM_TABLECOLModelID = "TableModelID";
-	public static final String PARAM_TABLECOLModelName = "TableModelName";
-	public static final String PARAM_TABLECOLInitParam = "TableInitParam";
-	public static final String PARAM_TABLECOLInitParamValue = "TableInitParamValue";
-	public static final String PARAM_TABLECOLIsInitParam = "IsInitParam";
-	public static final String PARAM_TABLECOLFormulaID = "FormulaID";
+	public static final String PARAM_TABLECOLInternalID = "TableInternalID"; // Col1
+	public static final String PARAM_TABLECOLModelID = "TableModelID"; // Col2
+	public static final String PARAM_TABLECOLModelName = "TableModelName"; // Col3
+	public static final String PARAM_TABLECOLInitParam = "TableInitParam"; // Col4
+	public static final String PARAM_TABLECOLInitParamValue = "TableInitParamValue"; // Col5
+	public static final String PARAM_TABLECOLIsInitParam = "IsInitParam"; // Col6
+	public static final String PARAM_TABLECOLFormulaID = "FormulaID"; // Col7
 
 	public static final String PARAM_NOMDDATA = "withoutMdData";
-	
-	private int[] chosenModel = null;
-	private int[] chosenModel2 = null;
 	
 	private Bfrdb db;
 	
@@ -534,8 +529,6 @@ public class EmReaderUi extends JPanel {
     	c.addInt( EmReaderUi.PARAM_QUALITYMODE, this.getQualityMode() );
     	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityField.getValue());
     	
-    	c.addIntArray(PARAM_CHOSENMODEL, chosenModel);
-    	c.addIntArray(PARAM_CHOSENMODEL2, chosenModel2);
     	c.addBoolean(PARAM_NOMDDATA, withoutData.isSelected());
     	
     	MyTableModel mtm = (MyTableModel) filterResults.getModel();
@@ -579,11 +572,6 @@ public class EmReaderUi extends JPanel {
     		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
 
     		if (c.containsKey(PARAM_NOMDDATA)) withoutData.setSelected(c.getBoolean(PARAM_NOMDDATA));
-    		if (c.containsKey(PARAM_CHOSENMODEL)) chosenModel = c.getIntArray(PARAM_CHOSENMODEL);
-    		if (c.containsKey(PARAM_CHOSENMODEL2)) chosenModel2 = c.getIntArray(PARAM_CHOSENMODEL2);
-    		doFilter.setText("ApplyAndShowFilterResults" +
-    		(chosenModel != null && chosenModel.length > 0 ? " [" + chosenModel[0] +
-    				(chosenModel2 != null && chosenModel2.length > 0 ? ", " + chosenModel2[0] : "") + "]" : ""));
     		
     		if (c.containsKey(PARAM_TABLECOLInternalID)) {
     			String[] c1 = c.getStringArray(PARAM_TABLECOLInternalID);

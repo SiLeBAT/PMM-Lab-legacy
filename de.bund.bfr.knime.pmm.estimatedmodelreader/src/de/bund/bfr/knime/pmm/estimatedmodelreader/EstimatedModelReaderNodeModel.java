@@ -121,7 +121,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private String agentString;
 	private String literatureString;
 	private int matrixID, agentID, literatureID;
-	private int[] chosenModel, chosenModel2;
 	private boolean withoutMdData;
 	private String[] col1, col2, col3, col4, col5, col6, col7;
 	
@@ -498,8 +497,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	c.addInt( EmReaderUi.PARAM_QUALITYMODE, qualityMode );
         	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityThresh );
 
-        	c.addIntArray(EmReaderUi.PARAM_CHOSENMODEL, chosenModel);
-        	c.addIntArray(EmReaderUi.PARAM_CHOSENMODEL2, chosenModel2);
         	c.addBoolean(EmReaderUi.PARAM_NOMDDATA, withoutMdData);
 
         	c.addStringArray(EmReaderUi.PARAM_TABLECOLInternalID, col1);
@@ -607,8 +604,6 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	qualityMode = c.getInt( EmReaderUi.PARAM_QUALITYMODE );
         	qualityThresh = c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH );
 
-    		chosenModel = c.getIntArray(EmReaderUi.PARAM_CHOSENMODEL);
-    		chosenModel2 = c.getIntArray(EmReaderUi.PARAM_CHOSENMODEL2);
     		withoutMdData = c.getBoolean(EmReaderUi.PARAM_NOMDDATA);
 
     		col1 = c.getStringArray(EmReaderUi.PARAM_TABLECOLInternalID);

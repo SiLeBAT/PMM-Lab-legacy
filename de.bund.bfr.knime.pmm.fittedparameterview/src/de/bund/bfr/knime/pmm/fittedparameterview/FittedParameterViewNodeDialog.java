@@ -151,6 +151,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setTransformX(set.getTransformX());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
@@ -193,6 +194,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
 			chartCreator.setUnitY(configPanel.getUnitY());
+			chartCreator.setTransformX(configPanel.getTransformX());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {
@@ -239,6 +241,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
+		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());

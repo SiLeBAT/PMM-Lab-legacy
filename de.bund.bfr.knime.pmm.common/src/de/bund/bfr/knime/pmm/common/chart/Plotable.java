@@ -221,14 +221,15 @@ public class Plotable {
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String unitX,
-			String unitY, String transformY) throws ConvertException {
-		return getPoints(paramX, paramY, unitX, unitY, transformY,
+			String unitY, String transformX, String transformY)
+			throws ConvertException {
+		return getPoints(paramX, paramY, unitX, unitY, transformX, transformY,
 				getStandardChoice());
 	}
 
 	public double[][] getPoints(String paramX, String paramY, String unitX,
-			String unitY, String transformY, Map<String, Integer> choice)
-			throws ConvertException {
+			String unitY, String transformX, String transformY,
+			Map<String, Integer> choice) throws ConvertException {
 		List<Double> xList = valueLists.get(paramX);
 		List<Double> yList = valueLists.get(paramY);
 
@@ -299,16 +300,17 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) throws ConvertException {
-		return getFunctionPoints(paramX, paramY, unitX, unitY, transformY,
-				minX, maxX, minY, maxY, getStandardChoice());
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY)
+			throws ConvertException {
+		return getFunctionPoints(paramX, paramY, unitX, unitY, transformX,
+				transformY, minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionPoints(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice)
-			throws ConvertException {
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY,
+			Map<String, Integer> choice) throws ConvertException {
 		if (function == null) {
 			return null;
 		}
@@ -381,16 +383,17 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) throws ConvertException {
-		return getFunctionErrors(paramX, paramY, unitX, unitY, transformY,
-				minX, maxX, minY, maxY, getStandardChoice());
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY)
+			throws ConvertException {
+		return getFunctionErrors(paramX, paramY, unitX, unitY, transformX,
+				transformY, minX, maxX, minY, maxY, getStandardChoice());
 	}
 
 	public double[][] getFunctionErrors(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice)
-			throws ConvertException {
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY,
+			Map<String, Integer> choice) throws ConvertException {
 		if (function == null) {
 			return null;
 		}
@@ -514,16 +517,18 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY) throws ConvertException {
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY)
+			throws ConvertException {
 		return getFunctionSamplePoints(paramX, paramY, unitX, unitY,
-				transformY, minX, maxX, minY, maxY, getStandardChoice());
+				transformX, transformY, minX, maxX, minY, maxY,
+				getStandardChoice());
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
-			String unitX, String unitY, String transformY, double minX,
-			double maxX, double minY, double maxY, Map<String, Integer> choice)
-			throws ConvertException {
+			String unitX, String unitY, String transformX, String transformY,
+			double minX, double maxX, double minY, double maxY,
+			Map<String, Integer> choice) throws ConvertException {
 		if (function == null || samples.isEmpty()) {
 			return null;
 		}
@@ -609,17 +614,18 @@ public class Plotable {
 	}
 
 	public double[][] getFunctionSamplePointsErrors(String paramX,
-			String paramY, String unitX, String unitY, String transformY,
-			double minX, double maxX, double minY, double maxY)
-			throws ConvertException {
+			String paramY, String unitX, String unitY, String transformX,
+			String transformY, double minX, double maxX, double minY,
+			double maxY) throws ConvertException {
 		return getFunctionSamplePointsErrors(paramX, paramY, unitX, unitY,
-				transformY, minX, maxX, minY, maxY, getStandardChoice());
+				transformX, transformY, minX, maxX, minY, maxY,
+				getStandardChoice());
 	}
 
 	public double[][] getFunctionSamplePointsErrors(String paramX,
-			String paramY, String unitX, String unitY, String transformY,
-			double minX, double maxX, double minY, double maxY,
-			Map<String, Integer> choice) throws ConvertException {
+			String paramY, String unitX, String unitY, String transformX,
+			String transformY, double minX, double maxX, double minY,
+			double maxY, Map<String, Integer> choice) throws ConvertException {
 		if (function == null) {
 			return null;
 		}

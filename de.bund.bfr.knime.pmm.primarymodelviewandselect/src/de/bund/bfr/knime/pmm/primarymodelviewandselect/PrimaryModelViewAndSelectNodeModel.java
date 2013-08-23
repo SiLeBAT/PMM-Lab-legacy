@@ -54,7 +54,6 @@ import org.knime.core.node.port.PortObjectSpec;
 import org.knime.core.node.port.PortType;
 import org.knime.core.node.port.image.ImagePortObject;
 
-import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartCreator;
 import de.bund.bfr.knime.pmm.common.chart.ChartUtilities;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
@@ -124,7 +123,8 @@ public class PrimaryModelViewAndSelectNodeModel extends NodeModel {
 
 		creator.setParamX(AttributeUtilities.TIME);
 		creator.setParamY(AttributeUtilities.CONCENTRATION);
-		creator.setTransformY(ChartConstants.NO_TRANSFORM);
+		creator.setTransformX(set.getTransformX());
+		creator.setTransformY(set.getTransformY());
 		creator.setColors(set.getColors());
 		creator.setShapes(set.getShapes());
 		creator.setUseManualRange(set.isManualRange());

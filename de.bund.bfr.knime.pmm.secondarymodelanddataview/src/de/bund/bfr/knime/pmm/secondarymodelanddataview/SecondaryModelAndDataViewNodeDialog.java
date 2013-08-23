@@ -157,6 +157,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		set.setShowConfidence(configPanel.isShowConfidenceInterval());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
+		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
@@ -234,6 +235,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
 		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setShowConfidenceInterval(set.isShowConfidence());
+		configPanel.setTransformX(set.getTransformX());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
@@ -268,6 +270,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 			chartCreator.setParamY(configPanel.getParamY());
 			chartCreator.setUnitX(configPanel.getUnitX());
 			chartCreator.setUnitY(configPanel.getUnitY());
+			chartCreator.setTransformX(configPanel.getTransformX());
 			chartCreator.setTransformY(configPanel.getTransformY());
 			plotable.setFunctionArguments(configPanel.getParamsX());
 		} else {

@@ -65,6 +65,7 @@ public class SettingsHelper {
 	protected static final String CFG_EXPORTASSVG = "ExportAsSvg";
 	protected static final String CFG_UNITX = "UnitX";
 	protected static final String CFG_UNITY = "UnitY";
+	protected static final String CFG_TRANSFORMX = "TransformX";
 	protected static final String CFG_TRANSFORMY = "TransformY";
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
@@ -80,7 +81,7 @@ public class SettingsHelper {
 	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
 	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = false;
 	protected static final boolean DEFAULT_EXPORTASSVG = false;
-	protected static final String DEFAULT_TRANSFORMY = ChartConstants.NO_TRANSFORM;
+	protected static final String DEFAULT_TRANSFORM = ChartConstants.NO_TRANSFORM;
 	protected static final boolean DEFAULT_STANDARDVISIBLECOLUMNS = true;
 
 	private List<String> selectedIDs;
@@ -99,6 +100,7 @@ public class SettingsHelper {
 	private boolean exportAsSvg;
 	private String unitX;
 	private String unitY;
+	private String transformX;
 	private String transformY;
 	private boolean standardVisibleColumns;
 	private List<String> visibleColumns;
@@ -120,7 +122,8 @@ public class SettingsHelper {
 		exportAsSvg = DEFAULT_EXPORTASSVG;
 		unitX = null;
 		unitY = null;
-		transformY = DEFAULT_TRANSFORMY;
+		transformX = DEFAULT_TRANSFORM;
+		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		visibleColumns = new ArrayList<>();
 	}
@@ -225,9 +228,15 @@ public class SettingsHelper {
 		}
 
 		try {
+			transformX = settings.getString(CFG_TRANSFORMX);
+		} catch (InvalidSettingsException e) {
+			transformX = DEFAULT_TRANSFORM;
+		}
+
+		try {
 			transformY = settings.getString(CFG_TRANSFORMY);
 		} catch (InvalidSettingsException e) {
-			transformY = DEFAULT_TRANSFORMY;
+			transformY = DEFAULT_TRANSFORM;
 		}
 
 		try {
@@ -264,6 +273,7 @@ public class SettingsHelper {
 		settings.addBoolean(CFG_EXPORTASSVG, exportAsSvg);
 		settings.addString(CFG_UNITX, unitX);
 		settings.addString(CFG_UNITY, unitY);
+		settings.addString(CFG_TRANSFORMX, transformX);
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addBoolean(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
@@ -392,6 +402,14 @@ public class SettingsHelper {
 
 	public String getUnitY() {
 		return unitY;
+	}
+
+	public String getTransformX() {
+		return transformX;
+	}
+
+	public void setTransformX(String transformX) {
+		this.transformX = transformX;
 	}
 
 	public void setUnitY(String unitY) {

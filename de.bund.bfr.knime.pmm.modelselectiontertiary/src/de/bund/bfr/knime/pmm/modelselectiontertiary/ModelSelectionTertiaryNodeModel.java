@@ -140,6 +140,7 @@ public class ModelSelectionTertiaryNodeModel extends NodeModel {
 		creator.setAddInfoInLegend(set.isAddLegendInfo());
 		creator.setUnitX(set.getUnitX());
 		creator.setUnitY(set.getUnitY());
+		creator.setTransformX(set.getTransformX());
 		creator.setTransformY(set.getTransformY());
 
 		ImagePortObject image = ChartUtilities.getImage(creator.getChart(ids),

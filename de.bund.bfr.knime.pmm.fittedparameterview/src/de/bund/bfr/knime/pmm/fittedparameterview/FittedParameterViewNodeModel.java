@@ -130,6 +130,7 @@ public class FittedParameterViewNodeModel extends NodeModel {
 			creator.setAddInfoInLegend(set.isAddLegendInfo());
 			creator.setUnitX(set.getUnitX());
 			creator.setUnitY(set.getUnitY());
+			creator.setTransformX(set.getTransformX());
 			creator.setTransformY(set.getTransformY());
 			creator.setColorLists(set.getColorLists());
 			creator.setShapeLists(set.getShapeLists());

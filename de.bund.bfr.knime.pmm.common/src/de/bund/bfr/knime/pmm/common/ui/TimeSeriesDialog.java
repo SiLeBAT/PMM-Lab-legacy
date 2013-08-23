@@ -84,6 +84,7 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 
 		creator.setParamX(AttributeUtilities.TIME);
 		creator.setParamY(AttributeUtilities.CONCENTRATION);
+		creator.setTransformX(ChartConstants.NO_TRANSFORM);
 		creator.setTransformY(ChartConstants.NO_TRANSFORM);
 		creator.setUseManualRange(false);
 		creator.setDrawLines(false);

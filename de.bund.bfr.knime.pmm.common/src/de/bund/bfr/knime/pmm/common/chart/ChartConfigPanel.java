@@ -107,6 +107,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private JComboBox<String> yBox;
 	private JComboBox<String> xUnitBox;
 	private JComboBox<String> yUnitBox;
+	private JComboBox<String> xTransBox;
 	private JComboBox<String> yTransBox;
 	private JButton extraButton;
 	private String lastParamX;
@@ -235,6 +236,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		xUnitBox.addActionListener(this);
 		yUnitBox = new JComboBox<String>();
 		yUnitBox.addActionListener(this);
+		xTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
+		xTransBox.addActionListener(this);
 		yTransBox = new JComboBox<String>(ChartConstants.TRANSFORMS);
 		yTransBox.addActionListener(this);
 
@@ -251,6 +254,9 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parametersPanel.add(new JLabel("Y Unit:"),
 				createConstraints(2, 1, 1, 1));
 		parametersPanel.add(yUnitBox, createConstraints(3, 1, 1, 1));
+		parametersPanel.add(new JLabel("X Transform:"),
+				createConstraints(0, 2, 1, 1));
+		parametersPanel.add(xTransBox, createConstraints(1, 2, 1, 1));
 		parametersPanel.add(new JLabel("Y Transform:"),
 				createConstraints(2, 2, 1, 1));
 		parametersPanel.add(yTransBox, createConstraints(3, 2, 1, 1));
@@ -460,6 +466,14 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setTransformY(String transformY) {
 		yTransBox.setSelectedItem(transformY);
+	}
+
+	public String getTransformX() {
+		return (String) xTransBox.getSelectedItem();
+	}
+
+	public void setTransformX(String transformX) {
+		xTransBox.setSelectedItem(transformX);
 	}
 
 	public void setParameters(String paramY,

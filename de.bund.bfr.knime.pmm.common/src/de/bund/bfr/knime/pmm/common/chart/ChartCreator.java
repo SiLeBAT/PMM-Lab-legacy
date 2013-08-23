@@ -82,6 +82,7 @@ public class ChartCreator extends ChartPanel {
 	private String paramY;
 	private String unitX;
 	private String unitY;
+	private String transformX;
 	private String transformY;
 	private boolean useManualRange;
 	private double minX;
@@ -149,7 +150,7 @@ public class ChartCreator extends ChartPanel {
 		}
 
 		NumberAxis xAxis = new NumberAxis(AttributeUtilities.getNameWithUnit(
-				paramX, unitX));
+				paramX, unitX, transformX));
 		NumberAxis yAxis = new NumberAxis(AttributeUtilities.getNameWithUnit(
 				paramY, unitY, transformY));
 		XYPlot plot = new XYPlot(null, xAxis, yAxis, null);
@@ -182,7 +183,8 @@ public class ChartCreator extends ChartPanel {
 						for (Map<String, Integer> choice : plotable
 								.getAllChoices()) {
 							double[][] points = plotable.getPoints(paramX,
-									paramY, unitX, unitY, transformY, choice);
+									paramY, unitX, unitY, transformX,
+									transformY, choice);
 
 							if (points != null) {
 								for (int i = 0; i < points[0].length; i++) {
@@ -194,7 +196,7 @@ public class ChartCreator extends ChartPanel {
 					} else if (plotable.getType() == Plotable.DATASET
 							|| plotable.getType() == Plotable.DATASET_STRICT) {
 						double[][] points = plotable.getPoints(paramX, paramY,
-								unitX, unitY, transformY);
+								unitX, unitY, transformX, transformY);
 
 						if (points != null) {
 							for (int i = 0; i < points[0].length; i++) {
@@ -421,6 +423,14 @@ public class ChartCreator extends ChartPanel {
 		this.unitY = unitY;
 	}
 
+	public String getTransformX() {
+		return transformX;
+	}
+
+	public void setTransformX(String transformX) {
+		this.transformX = transformX;
+	}
+
 	public String getTransformY() {
 		return transformY;
 	}
@@ -536,7 +546,7 @@ public class ChartCreator extends ChartPanel {
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
 			Color defaultColor, Shape defaultShape) throws ConvertException {
 		double[][] points = plotable.getPoints(paramX, paramY, unitX, unitY,
-				transformY);
+				transformX, transformY);
 		String legend = shortLegend.get(id);
 		Color color = colors.get(id);
 		Shape shape = shapes.get(id);
@@ -599,7 +609,7 @@ public class ChartCreator extends ChartPanel {
 
 		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
-					unitY, transformY, choiceMap);
+					unitY, transformX, transformY, choiceMap);
 
 			if (dataPoints != null) {
 				DefaultXYDataset dataSet = new DefaultXYDataset();
@@ -643,8 +653,8 @@ public class ChartCreator extends ChartPanel {
 			Color defaultColor, Shape defaultShape, double minX, double maxX)
 			throws ConvertException {
 		double[][] points = plotable.getFunctionPoints(paramX, paramY, unitX,
-				unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				unitY, transformX, transformY, minX, maxX,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] functionErrors = null;
 		String legend = shortLegend.get(id);
 		Color color = colors.get(id);
@@ -652,8 +662,8 @@ public class ChartCreator extends ChartPanel {
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
-					unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
+					unitY, transformX, transformY, minX, maxX,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 
 		if (addInfoInLegend) {
@@ -721,10 +731,10 @@ public class ChartCreator extends ChartPanel {
 			Color defaultColor, Shape defaultShape, double minX, double maxX)
 			throws ConvertException {
 		double[][] functionPoints = plotable.getFunctionPoints(paramX, paramY,
-				unitX, unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				unitX, unitY, transformX, transformY, minX, maxX,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] samplePoints = plotable.getFunctionSamplePoints(paramX,
-				paramY, unitX, unitY, transformY, minX, maxX,
+				paramY, unitX, unitY, transformX, transformY, minX, maxX,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] functionErrors = null;
 		String legend = shortLegend.get(id);
@@ -733,8 +743,8 @@ public class ChartCreator extends ChartPanel {
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
-					unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
+					unitY, transformX, transformY, minX, maxX,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 
 		if (addInfoInLegend) {
@@ -826,10 +836,10 @@ public class ChartCreator extends ChartPanel {
 			Color defaultColor, Shape defaultShape, double minX, double maxX)
 			throws ConvertException {
 		double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
-				unitX, unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-				Double.POSITIVE_INFINITY);
+				unitX, unitY, transformX, transformY, minX, maxX,
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
-				unitY, transformY);
+				unitY, transformX, transformY);
 		double[][] functionErrors = null;
 		String legend = shortLegend.get(id);
 		Color color = colors.get(id);
@@ -837,8 +847,8 @@ public class ChartCreator extends ChartPanel {
 
 		if (showConfidenceInterval) {
 			functionErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
-					unitY, transformY, minX, maxX, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
+					unitY, transformX, transformY, minX, maxX,
+					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		}
 
 		if (addInfoInLegend) {
@@ -957,14 +967,14 @@ public class ChartCreator extends ChartPanel {
 
 		for (Map<String, Integer> choiceMap : plotable.getAllChoices()) {
 			double[][] dataPoints = plotable.getPoints(paramX, paramY, unitX,
-					unitY, transformY, choiceMap);
+					unitY, transformX, transformY, choiceMap);
 
 			if (dataPoints == null) {
 				continue;
 			}
 
 			double[][] modelPoints = plotable.getFunctionPoints(paramX, paramY,
-					unitX, unitY, transformY, minX, maxX,
+					unitX, unitY, transformX, transformY, minX, maxX,
 					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 					choiceMap);
 
@@ -976,7 +986,7 @@ public class ChartCreator extends ChartPanel {
 
 			if (showConfidenceInterval) {
 				modelErrors = plotable.getFunctionErrors(paramX, paramY, unitX,
-						unitY, transformY, minX, maxX,
+						unitY, transformX, transformY, minX, maxX,
 						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 			}
 

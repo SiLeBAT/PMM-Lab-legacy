@@ -123,6 +123,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
+		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.saveSettings(settings);
 	}
@@ -166,6 +167,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setUnitX(set.getUnitX());
 		configPanel.setUnitY(set.getUnitY());
+		configPanel.setTransformX(set.getTransformX());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel = new ChartSelectionPanel(reader.getIds(), false,
@@ -218,6 +220,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		chartCreator.setParamY(configPanel.getParamY());
 		chartCreator.setUnitX(configPanel.getUnitX());
 		chartCreator.setUnitY(configPanel.getUnitY());
+		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
 		chartCreator.setUseManualRange(configPanel.isUseManualRange());
 		chartCreator.setMinX(configPanel.getMinX());
@@ -234,7 +237,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 			chartCreator.createChart(selectionPanel.getFocusedID());
 		} else {
 			chartCreator.createChart(selectionPanel.getSelectedIDs());
-		}		
+		}
 	}
 
 	@Override

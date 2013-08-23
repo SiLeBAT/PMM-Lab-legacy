@@ -265,6 +265,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
 		configPanel.setExportAsSvg(set.isExportAsSvg());
+		configPanel.setTransformX(set.getTransformX());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		configPanel.addExtraButtonListener(this);
@@ -335,6 +336,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setParamY(configPanel.getParamY());
 		chartCreator.setUnitX(configPanel.getUnitX());
 		chartCreator.setUnitY(configPanel.getUnitY());
+		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
 
 		Map<String, double[][]> points = new LinkedHashMap<>();
@@ -348,6 +350,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 							AttributeUtilities.TIME,
 							AttributeUtilities.CONCENTRATION,
 							configPanel.getUnitX(), configPanel.getUnitY(),
+							configPanel.getTransformX(),
 							configPanel.getTransformY(),
 							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
 							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
@@ -394,6 +397,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
+		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());

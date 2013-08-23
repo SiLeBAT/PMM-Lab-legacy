@@ -156,6 +156,7 @@ public class SecondaryModelAndDataViewNodeModel extends NodeModel {
 			creator.setShowConfidenceInterval(set.isShowConfidence());
 			creator.setUnitX(set.getUnitX());
 			creator.setUnitY(set.getUnitY());
+			creator.setTransformX(set.getTransformX());
 			creator.setTransformY(set.getTransformY());
 
 			if (containsData) {

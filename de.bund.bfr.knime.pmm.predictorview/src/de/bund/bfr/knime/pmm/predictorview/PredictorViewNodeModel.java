@@ -142,9 +142,10 @@ public class PredictorViewNodeModel extends NodeModel {
 		creator.setMaxY(set.getMaxY());
 		creator.setDrawLines(set.isDrawLines());
 		creator.setShowLegend(set.isShowLegend());
-		creator.setAddInfoInLegend(set.isAddLegendInfo());		
+		creator.setAddInfoInLegend(set.isAddLegendInfo());
 		creator.setUnitX(set.getUnitX());
 		creator.setUnitY(set.getUnitY());
+		creator.setTransformX(set.getTransformX());
 		creator.setTransformY(set.getTransformY());
 		creator.setColors(set.getColors());
 		creator.setShapes(set.getShapes());
@@ -278,8 +279,9 @@ public class PredictorViewNodeModel extends NodeModel {
 			points = plotable.getFunctionSamplePoints(AttributeUtilities.TIME,
 					AttributeUtilities.CONCENTRATION, set.getUnitX(),
 					set.getUnitY(), ChartConstants.NO_TRANSFORM,
-					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-					Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+					ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
+					Double.POSITIVE_INFINITY);
 		} catch (ConvertException e) {
 			e.printStackTrace();
 		}

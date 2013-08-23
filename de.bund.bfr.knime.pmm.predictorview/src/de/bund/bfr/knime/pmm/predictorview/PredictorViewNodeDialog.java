@@ -147,6 +147,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		writeSettingsToVariables();
 		return set;
 	}
+	public ChartSamplePanel getSamplePanel() {
+		return samplePanel;
+	}
 
 	public JPanel getMainComponent() {
 		return mainComponent;

@@ -101,6 +101,9 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		add(buttonPanel, BorderLayout.SOUTH);
 	}
 
+	public TimeSeriesTable getTimeSeriesTable() {
+		return table;
+	}
 	public String getTimeColumnName() {
 		return table.getTimeColumnName();
 	}
@@ -245,7 +248,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	public void editingCanceled(ChangeEvent e) {
 	}
 
-	private void fireTimeValuesChanged() {
+	public void fireTimeValuesChanged() {
 		for (EditListener listener : listeners) {
 			listener.timeValuesChanged();
 		}

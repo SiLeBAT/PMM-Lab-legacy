@@ -229,6 +229,8 @@ public class EmReaderUi extends JPanel {
 		    	if (hs != null && hs.size() > 0) {
 		    		MyTableModel mtm = (MyTableModel) filterResults.getModel();
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set);
+		    		//Map<String, Double> gpv0 = pvnd.getParamValues();
+		    		//Map<String, String> gip0 = pvnd.getInitParams();
 		    		JPanel mainComponent = pvnd.getMainComponent();
 /*
 		    		List<String> selectedIDs = new ArrayList<String>();

@@ -387,6 +387,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
 		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
+		
+		set.getSelectedTuples().clear();
+		for (String id : set.getSelectedIDs()) {
+			set.getSelectedTuples().add(reader.getTupleMap().get(id));
+		}
 	}
 
 	private List<String> getInvalidIds(List<String> selectedIDs) {

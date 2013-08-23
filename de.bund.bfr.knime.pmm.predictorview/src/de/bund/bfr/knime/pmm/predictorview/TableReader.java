@@ -205,24 +205,19 @@ public class TableReader {
 			}
 		}
 
-		int index = 1;
-
 		for (KnimeTuple tuple : tuples) {
-			String testId = ((EstModelXml) tuple.getPmmXml(
+			String id = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID()
 					+ "";
 
 			if (!isTertiaryModel && containsData) {
-				testId += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
+				id += "(" + tuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			}
 
-			if (!idSet.add(testId)) {
+			if (!idSet.add(id)) {
 				continue;
 			}
 
-			String id = index + "";
-
-			index++;
 			ids.add(id);
 			tupleMap.put(id, tuple);
 

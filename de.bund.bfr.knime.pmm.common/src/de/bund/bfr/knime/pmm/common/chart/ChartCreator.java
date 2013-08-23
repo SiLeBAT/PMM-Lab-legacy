@@ -167,16 +167,20 @@ public class ChartCreator extends ChartPanel {
 				if (plotable != null) {
 					if (plotable.getType() == Plotable.BOTH
 							|| plotable.getType() == Plotable.BOTH_STRICT) {
-						Double minArg = plotable.convertToUnit(paramX, plotable
-								.getMinArguments().get(paramX), unitX);
-						Double maxArg = plotable.convertToUnit(paramX, plotable
-								.getMaxArguments().get(paramX), unitX);
+						Double minArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMinArguments().get(paramX), unitX),
+								transformX);
+						Double maxArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMaxArguments().get(paramX), unitX),
+								transformX);
 
-						if (minArg != null) {
+						if (isValid(minArg)) {
 							usedMinX = Math.min(usedMinX, minArg);
 						}
 
-						if (maxArg != null) {
+						if (isValid(maxArg)) {
 							usedMaxX = Math.max(usedMaxX, maxArg);
 						}
 
@@ -188,8 +192,10 @@ public class ChartCreator extends ChartPanel {
 
 							if (points != null) {
 								for (int i = 0; i < points[0].length; i++) {
-									usedMinX = Math.min(usedMinX, points[0][i]);
-									usedMaxX = Math.max(usedMaxX, points[0][i]);
+									if (isValid(points[0][i])) {
+										usedMinX = Math.min(usedMinX, points[0][i]);
+										usedMaxX = Math.max(usedMaxX, points[0][i]);
+									}
 								}
 							}
 						}
@@ -199,42 +205,54 @@ public class ChartCreator extends ChartPanel {
 								unitX, unitY, transformX, transformY);
 
 						if (points != null) {
-							for (int i = 0; i < points[0].length; i++) {
-								usedMinX = Math.min(usedMinX, points[0][i]);
-								usedMaxX = Math.max(usedMaxX, points[0][i]);
+							for (int i = 0; i < points[0].length; i++) {												
+								if (isValid(points[0][i])) {
+									usedMinX = Math.min(usedMinX, points[0][i]);
+									usedMaxX = Math.max(usedMaxX, points[0][i]);
+								}
 							}
 						}
 					} else if (plotable.getType() == Plotable.FUNCTION) {
-						Double minArg = plotable.convertToUnit(paramX, plotable
-								.getMinArguments().get(paramX), unitX);
-						Double maxArg = plotable.convertToUnit(paramX, plotable
-								.getMaxArguments().get(paramX), unitX);
+						Double minArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMinArguments().get(paramX), unitX),
+								transformX);
+						Double maxArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMaxArguments().get(paramX), unitX),
+								transformX);
 
-						if (minArg != null) {
+						if (isValid(minArg)) {
 							usedMinX = Math.min(usedMinX, minArg);
 						}
 
-						if (maxArg != null) {
+						if (isValid(maxArg)) {
 							usedMaxX = Math.max(usedMaxX, maxArg);
 						}
 					} else if (plotable.getType() == Plotable.FUNCTION_SAMPLE) {
-						Double minArg = plotable.convertToUnit(paramX, plotable
-								.getMinArguments().get(paramX), unitX);
-						Double maxArg = plotable.convertToUnit(paramX, plotable
-								.getMaxArguments().get(paramX), unitX);
+						Double minArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMinArguments().get(paramX), unitX),
+								transformX);
+						Double maxArg = Plotable.transform(plotable
+								.convertToUnit(paramX, plotable
+										.getMaxArguments().get(paramX), unitX),
+								transformX);
 
-						if (minArg != null) {
+						if (isValid(minArg)) {
 							usedMinX = Math.min(usedMinX, minArg);
 						}
 
-						if (maxArg != null) {
+						if (isValid(maxArg)) {
 							usedMaxX = Math.max(usedMaxX, maxArg);
 						}
 
 						for (Double x : plotable.getSamples()) {
 							if (x != null) {
-								usedMinX = Math.min(usedMinX, x);
-								usedMaxX = Math.max(usedMaxX, x);
+								if (isValid(x)) {
+									usedMinX = Math.min(usedMinX, x);
+									usedMaxX = Math.max(usedMaxX, x);
+								}						
 							}
 						}
 					}
@@ -1068,6 +1086,10 @@ public class ChartCreator extends ChartPanel {
 
 			index++;
 		}
+	}
+
+	private boolean isValid(Double value) {
+		return value != null && !value.isInfinite() && !value.isNaN();
 	}
 
 	private class DataAndModelChartSaveAsItem extends JMenuItem implements

@@ -269,11 +269,12 @@ public class Plotable {
 
 			if (x != null) {
 				x = convertToUnit(paramX, x, unitX);
+				x = transform(x, transformX);
 			}
 
 			if (y != null) {
 				y = convertToUnit(paramY, y, unitY);
-				y = transformDouble(y, transformY);
+				y = transform(y, transformY);
 			}
 
 			if (usedPoints.get(i) && isValidValue(x) && isValidValue(y)) {
@@ -351,7 +352,10 @@ public class Plotable {
 			double x = minX + (double) j / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, convertFromUnit(paramX, x, unitX));
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(x, transformX),
+							unitX));
 
 			try {
 				Object number = parser.evaluate(f);
@@ -360,7 +364,7 @@ public class Plotable {
 				if (number instanceof Double) {
 					y = (Double) number;
 					y = convertToUnit(paramY, y, unitY);
-					y = transformDouble(y, transformY);
+					y = transform(y, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
@@ -447,7 +451,10 @@ public class Plotable {
 			double x = minX + (double) n / (double) (FUNCTION_STEPS - 1)
 					* (maxX - minX);
 
-			parser.setVarValue(paramX, convertFromUnit(paramX, x, unitX));
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(x, transformX),
+							unitX));
 
 			try {
 				Double y = 0.0;
@@ -496,7 +503,7 @@ public class Plotable {
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 					y = convertToUnit(paramY, y, unitY);
-					y = transformDouble(y, transformY);
+					y = transform(y, transformY);
 
 					if (y != null) {
 						points[1][n] = y;
@@ -577,7 +584,10 @@ public class Plotable {
 				continue;
 			}
 
-			parser.setVarValue(paramX, convertFromUnit(paramX, x, unitX));
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(x, transformX),
+							unitX));
 
 			try {
 				Object number = parser.evaluate(f);
@@ -586,7 +596,7 @@ public class Plotable {
 				if (number instanceof Double) {
 					y = (Double) number;
 					y = convertToUnit(paramY, y, unitY);
-					y = transformDouble(y, transformY);
+					y = transform(y, transformY);
 
 					if (y == null || y < minY || y > maxY || y.isInfinite()) {
 						y = Double.NaN;
@@ -685,7 +695,10 @@ public class Plotable {
 				continue;
 			}
 
-			parser.setVarValue(paramX, convertFromUnit(paramX, x, unitX));
+			parser.setVarValue(
+					paramX,
+					convertFromUnit(paramX, inverseTransform(x, transformX),
+							unitX));
 
 			try {
 				Double y = 0.0;
@@ -734,7 +747,7 @@ public class Plotable {
 					y = Math.sqrt(y)
 							* dist.inverseCumulativeProbability(1.0 - 0.05 / 2.0);
 					y = convertToUnit(paramY, y, unitY);
-					y = transformDouble(y, transformY);
+					y = transform(y, transformY);
 
 					if (y != null) {
 						points[1][n] = y;
@@ -939,7 +952,7 @@ public class Plotable {
 		return value != null && !value.isNaN() && !value.isInfinite();
 	}
 
-	private Double transformDouble(Double value, String transform) {
+	public static Double transform(Double value, String transform) {
 		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
 			return value;
 		} else if (transform.equals(ChartConstants.SQRT_TRANSFORM)) {
@@ -956,6 +969,28 @@ public class Plotable {
 			return 1 / value;
 		} else if (transform.equals(ChartConstants.DIVX2_TRANSFORM)) {
 			return 1 / value / value;
+		}
+
+		return null;
+	}
+
+	public static Double inverseTransform(Double value, String transform) {
+		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
+			return value;
+		} else if (transform.equals(ChartConstants.SQRT_TRANSFORM)) {
+			return value * value;
+		} else if (transform.equals(ChartConstants.LOG_TRANSFORM)) {
+			return Math.exp(value);
+		} else if (transform.equals(ChartConstants.LOG10_TRANSFORM)) {
+			return Math.pow(10.0, value);
+		} else if (transform.equals(ChartConstants.EXP_TRANSFORM)) {
+			return Math.log(value);
+		} else if (transform.equals(ChartConstants.EXP10_TRANSFORM)) {
+			return Math.log10(value);
+		} else if (transform.equals(ChartConstants.DIVX_TRANSFORM)) {
+			return 1 / value;
+		} else if (transform.equals(ChartConstants.DIVX2_TRANSFORM)) {
+			return 1 / Math.sqrt(value);
 		}
 
 		return null;

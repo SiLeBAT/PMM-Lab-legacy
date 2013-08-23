@@ -139,7 +139,7 @@ public class Categories {
 	}
 
 	public static String getPh() {
-		return "pH";
+		return "Dimensionless quantity";
 	}
 
 	public static Category getPhCategory() {
@@ -147,7 +147,7 @@ public class Categories {
 	}
 
 	public static String getAw() {
-		return "Water Activity";
+		return "Dimensionless quantity";
 	}
 
 	public static Category getAwCategory() {

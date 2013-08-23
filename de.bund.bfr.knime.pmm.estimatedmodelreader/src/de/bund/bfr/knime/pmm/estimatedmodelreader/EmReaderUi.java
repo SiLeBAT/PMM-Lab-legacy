@@ -8,15 +8,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.table.*;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.node.InvalidSettingsException;
@@ -36,7 +33,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.*;
 import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
 import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
-import de.bund.bfr.knime.pmm.predictorview.TableReader;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
 
 /**
@@ -54,13 +50,6 @@ public class EmReaderUi extends JPanel {
 	public static final String PARAM_PARAMETERMAX = "parameterMax";
 	public static final String PARAM_QUALITYMODE = "qualityFilterMode";
 	public static final String PARAM_QUALITYTHRESH = "qualityThreshold";
-	public static final String PARAM_TABLECOLInternalID = "TableInternalID"; // Col1
-	public static final String PARAM_TABLECOLModelID = "TableModelID"; // Col2
-	public static final String PARAM_TABLECOLModelName = "TableModelName"; // Col3
-	public static final String PARAM_TABLECOLInitParam = "TableInitParam"; // Col4
-	public static final String PARAM_TABLECOLInitParamValue = "TableInitParamValue"; // Col5
-	public static final String PARAM_TABLECOLIsInitParam = "IsInitParam"; // Col6
-	public static final String PARAM_TABLECOLFormulaID = "FormulaID"; // Col7
 
 	public static final String PARAM_NOMDDATA = "withoutMdData";
 	
@@ -79,28 +68,16 @@ public class EmReaderUi extends JPanel {
 		this(db,null);
 	}	
 	public EmReaderUi(Bfrdb db, String[] itemListMisc) {								
-		this(db,itemListMisc, true, true, true, false);
+		this(db,itemListMisc, true, true, true);
 	}
 	public EmReaderUi(Bfrdb db, String[] itemListMisc,
-			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions, boolean showFilterResults) {		
+			boolean showModelOptions, boolean showQualityOptions, boolean showMDOptions) {		
 		this.db = db;
 		initComponents();		
 		
 		if (!showModelOptions) modelReaderUi.setVisible(false);
 		if (!showQualityOptions) qualityPanel.setVisible(false);
 		if (!showMDOptions) mdReaderUi.setVisible(false);
-		if (!showFilterResults) {
-			filterResults.getTableHeader().setVisible(false);
-			filterResults.setVisible(false);
-			scrollPane1.setVisible(false);
-		}
-		filterResults.getColumnModel().getColumn(1).setMinWidth(0);
-		filterResults.getColumnModel().getColumn(1).setMaxWidth(0);
-		filterResults.getColumnModel().getColumn(1).setWidth(0);
-		filterResults.getColumnModel().getColumn(6).setMinWidth(0);
-		filterResults.getColumnModel().getColumn(6).setMaxWidth(0);
-		filterResults.getColumnModel().getColumn(6).setWidth(0);
-		//if (!showDbTable) dbTable.setVisible(false);
 	}
 
 	private LinkedHashMap<String, Double[]> getParams(LinkedHashMap<String, DoubleTextField[]> params) {
@@ -224,38 +201,10 @@ public class EmReaderUi extends JPanel {
 				} catch (InvalidSettingsException e) {
 					e.printStackTrace();
 				}
-	    		//System.err.println(where);
-				//List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
+
 		    	if (hs != null && hs.size() > 0) {
-		    		MyTableModel mtm = (MyTableModel) filterResults.getModel();
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false);
-		    		//Map<String, Double> gpv0 = pvnd.getParamValues();
-		    		//Map<String, String> gip0 = pvnd.getInitParams();
 		    		JPanel mainComponent = pvnd.getMainComponent();
-/*
-		    		List<String> selectedIDs = new ArrayList<String>();
-		    		Map<String, String> gip = new LinkedHashMap<String, String>();
-		    		Map<String, Double> gpv = new LinkedHashMap<String, Double>();
-		    		String selID = "";
-		    		for (int i=0; i<mtm.getRowCount(); i++) {
-		    			if (!selID.equals(mtm.getValueAt(i, 0).toString())) {
-			    			selID = mtm.getValueAt(i, 0).toString();
-			    			selectedIDs.add(selID);
-			    			gpv = new LinkedHashMap<String, Double>();
-			    			gip = new LinkedHashMap<String, String>();
-		    			}
-		    			gpv.put(mtm.getValueAt(i, 3).toString(), Double.parseDouble(mtm.getValueAt(i, 4).toString()));
-		    			if (Boolean.parseBoolean(mtm.getValueAt(i, 5).toString())) gip.put(mtm.getValueAt(i, 6).toString(), mtm.getValueAt(i, 3).toString());
-		    		}
-
-		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, gip);
-		    		JPanel mainComponent = pvnd.getMainComponent();
-		    		ChartAllPanel chartPanel = (ChartAllPanel)mainComponent.getComponent(0);
-			    	//addTab("Predictor view", mainComponent);
-
-		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
-		    		chartPanel.getConfigPanel().setParamXValues(gpv);
-		    		*/
 
 		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
 		    		Frame parentFrame = null;
@@ -270,33 +219,7 @@ public class EmReaderUi extends JPanel {
 		    				    		
 		    		dialog.setVisible(true);
 		    		
-		    		//List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
 		    		set = pvnd.getSettings();
-		    		
-		    		//SettingsHelper set = new SettingsHelper();
-		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
-		    		Map<String, KnimeTuple> tm = reader.getTupleMap();
-	    			mtm.removeAll();
-		    		for (String id : set.getSelectedIDs()) {
-		    			KnimeTuple tuple = tm.get(id);
-		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
-		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
-		    			Map<String, Double> gpv = pvnd.getParamValues();
-		    			Map<String, String> gip = pvnd.getInitParams();
-	    				for (String param : gpv.keySet()) {
-	    					boolean hasInit = gip.containsValue(param);
-	    					String formulaID = "";
-	    					if (hasInit) {
-	    						for (String fid : gip.keySet()) {
-	    							if (gip.get(fid).equals(param)) {
-	    								formulaID = fid;
-	    								break;
-	    							}
-	    						}
-	    					}
-			    			mtm.addRegister(id, emx.getID(), emx.getName(), param, gpv.get(param), hasInit, formulaID);
-	    				}
-		    		}
 		    	}
 			}
 	    	catch (SQLException e) {
@@ -539,15 +462,6 @@ public class EmReaderUi extends JPanel {
     	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityField.getValue());
     	
     	c.addBoolean(PARAM_NOMDDATA, withoutData.isSelected());
-    	
-    	MyTableModel mtm = (MyTableModel) filterResults.getModel();
-    	c.addStringArray(PARAM_TABLECOLInternalID, mtm.getColumnData(0));
-    	c.addStringArray(PARAM_TABLECOLModelID, mtm.getColumnData(1));
-    	c.addStringArray(PARAM_TABLECOLModelName, mtm.getColumnData(2));
-    	c.addStringArray(PARAM_TABLECOLInitParam, mtm.getColumnData(3));
-    	c.addStringArray(PARAM_TABLECOLInitParamValue, mtm.getColumnData(4));
-    	c.addStringArray(PARAM_TABLECOLIsInitParam, mtm.getColumnData(5));
-    	c.addStringArray(PARAM_TABLECOLFormulaID, mtm.getColumnData(6));
     	    	
 		Config c2 = c.addConfig(EstimatedModelReaderNodeModel.PARAM_PARAMETERS);
     	LinkedHashMap<String, DoubleTextField[]> params = this.getParameter();
@@ -586,24 +500,7 @@ public class EmReaderUi extends JPanel {
     		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
 
     		if (c.containsKey(PARAM_NOMDDATA)) withoutData.setSelected(c.getBoolean(PARAM_NOMDDATA));
-    		
-    		if (c.containsKey(PARAM_TABLECOLInternalID)) {
-    			String[] c1 = c.getStringArray(PARAM_TABLECOLInternalID);
-    			if (c1 != null) {
-        			String[] c2 = c.getStringArray(PARAM_TABLECOLModelID);
-        			String[] c3 = c.getStringArray(PARAM_TABLECOLModelName);
-        			String[] c4 = c.getStringArray(PARAM_TABLECOLInitParam);
-        			String[] c5 = c.getStringArray(PARAM_TABLECOLInitParamValue);
-        			String[] c6 = c.getStringArray(PARAM_TABLECOLIsInitParam);
-        			String[] c7 = c.getStringArray(PARAM_TABLECOLFormulaID);
-                	MyTableModel mtm = (MyTableModel) filterResults.getModel();
-        			mtm.removeAll();
-            		for (int i=0;i<c1.length;i++) {
-        	    		mtm.addRegister(c1[i], Integer.parseInt(c2[i]), c3[i], c4[i], Double.parseDouble(c5[i]), Boolean.parseBoolean(c6[i]), c7[i]);
-            		}
-    			}
-    		}
-    				
+    		    				
     		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
     		if (c2.containsKey(EmReaderUi.PARAM_PARAMETERNAME)) {
         		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);
@@ -665,93 +562,6 @@ public class EmReaderUi extends JPanel {
 		}
 	}
 
-	class MyTableModel extends AbstractTableModel {
-
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 6358436149095581889L;
-		private String[] columns = new String[]{"InternalID", "ModelID", "ModelName", "InitParam", "InitParamValue","isInitParam","FormulaID"};
-		private Class<?>[] columnTypes = new Class<?>[] {String.class, Integer.class, String.class, String.class, Double.class, Boolean.class, String.class};
-		private ArrayList<Register> list = new ArrayList<Register>();
-
-	    @Override
-	    public int getColumnCount() {
-	        return columns.length;
-	    }
-
-	    @Override
-	    public int getRowCount() {
-	        return list.size();
-	    }
-	    
-	    public String[] getColumnData(int columnIndex) {
-	    	if (columnIndex >= getColumnCount()) return null;
-	        int nRow = getRowCount();
-	        String[] tableData = new String[nRow];
-	        for (int i = 0 ; i < nRow ; i++) {
-	        	tableData[i] = getValueAt(i, columnIndex).toString();
-	        }
-	        return tableData;
-	    }
-
-		public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-			return false;
-		}
-
-        public Class<?> getColumnClass(int columnIndex) {
-        	return columnTypes[columnIndex];
-        }
-
-        public String getColumnName(int columnIndex) {
-        	return columns[columnIndex];
-        }
-
-        @Override
-	    public Object getValueAt(int rowIndex, int columnIndex) {
-	        Register r = list.get(rowIndex);
-	        switch (columnIndex) {
-	        	case 0: return r.InternalID; 
-	        	case 1: return r.ModelID; 
-		        case 2: return r.ModelName;
-		        case 3: return r.InitParam; 
-		        case 4: return r.InitParamValue;
-		        case 5: return r.isInitParam;
-		        case 6: return r.FormulaID;
-	        }
-	            return null;
-	    }
-
-	    public void addRegister(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue, Boolean isInitParam, String FormulaID) {
-	        list.add(new Register(InternalID, ModelID, ModelName, InitParam, InitParamValue, isInitParam, FormulaID));
-	        this.fireTableDataChanged();
-	    }
-	    public void removeAll() {
-	    	list.clear();
-	    	this.fireTableDataChanged();
-	    }
-
-	    class Register{
-	    	String InternalID;
-	        Integer ModelID;
-	        String ModelName;
-	        String InitParam;
-	        Double InitParamValue;
-	        Boolean isInitParam;
-	        String FormulaID;
-
-	        public Register(String InternalID, Integer ModelID, String ModelName, String InitParam, Double InitParamValue, Boolean isInitParam, String FormulaID) {
-	            this.InternalID = InternalID;
-	            this.ModelID = ModelID;
-	            this.ModelName = ModelName;
-	            this.InitParam = InitParam;
-	            this.InitParamValue = InitParamValue;
-	            this.isInitParam = isInitParam;
-	            this.FormulaID = FormulaID;
-	        }
-	    }
-
-	}
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		withoutData = new JCheckBox();
@@ -765,8 +575,6 @@ public class EmReaderUi extends JPanel {
 		mdReaderUi = new MdReaderUi();
 		panel6 = new JPanel();
 		doFilter = new JButton();
-		scrollPane1 = new JScrollPane();
-		filterResults = new JTable();
 
 		//======== this ========
 		setLayout(new FormLayout(
@@ -833,7 +641,7 @@ public class EmReaderUi extends JPanel {
 			panel6.setBorder(new TitledBorder("Results"));
 			panel6.setLayout(new FormLayout(
 				"default:grow",
-				"default, $lgap, default"));
+				"default"));
 
 			//---- doFilter ----
 			doFilter.setText("ApplyAndShowFilterResults");
@@ -844,16 +652,6 @@ public class EmReaderUi extends JPanel {
 				}
 			});
 			panel6.add(doFilter, CC.xy(1, 1));
-
-			//======== scrollPane1 ========
-			{
-
-				//---- filterResults ----
-				filterResults.setFillsViewportHeight(true);
-				filterResults.setModel(new MyTableModel());
-				scrollPane1.setViewportView(filterResults);
-			}
-			panel6.add(scrollPane1, CC.xy(1, 3));
 		}
 		add(panel6, CC.xy(1, 9));
 
@@ -877,7 +675,5 @@ public class EmReaderUi extends JPanel {
 	private MdReaderUi mdReaderUi;
 	private JPanel panel6;
 	private JButton doFilter;
-	private JScrollPane scrollPane1;
-	private JTable filterResults;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

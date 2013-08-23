@@ -76,6 +76,7 @@ public class SettingsHelper {
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
 	protected static final String CFGKEY_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
 	protected static final String CFG_SELECTEDTUPLES = "SelectedTuples";
+	protected static final String CFGKEY_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
 
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
@@ -115,6 +116,7 @@ public class SettingsHelper {
 	private String fittedFilter;
 	private Map<String, String> concentrationParameters;
 	private List<KnimeTuple> selectedTuples;
+	private Map<String, String> newConcentrationParameters;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<>();
@@ -142,6 +144,7 @@ public class SettingsHelper {
 		fittedFilter = null;
 		concentrationParameters = new LinkedHashMap<>();
 		selectedTuples = new ArrayList<>();
+		newConcentrationParameters = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -297,14 +300,22 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<String, String>();
+			concentrationParameters = new LinkedHashMap<>();
 		}
 
 		try {
 			selectedTuples = XmlConverter.xmlToTupleList(settings
 					.getString(CFG_SELECTEDTUPLES));
 		} catch (InvalidSettingsException e) {
-			selectedTuples = new ArrayList<KnimeTuple>();
+			selectedTuples = new ArrayList<>();
+		}
+
+		try {
+			newConcentrationParameters = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_NEWCONCENTRATIONPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			newConcentrationParameters = new LinkedHashMap<>();
 		}
 	}
 
@@ -338,7 +349,9 @@ public class SettingsHelper {
 		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(concentrationParameters));
 		settings.addString(CFG_SELECTEDTUPLES,
-				XmlConverter.tupleListToXml(selectedTuples));		
+				XmlConverter.tupleListToXml(selectedTuples));
+		settings.addString(CFGKEY_NEWCONCENTRATIONPARAMETERS,
+				XmlConverter.objectToXml(newConcentrationParameters));
 	}
 
 	public void loadSettings(Config settings) {
@@ -503,6 +516,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			selectedTuples = new ArrayList<KnimeTuple>();
 		}
+
+		try {
+			newConcentrationParameters = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_NEWCONCENTRATIONPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			newConcentrationParameters = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(Config settings) {
@@ -536,6 +557,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(concentrationParameters));
 		settings.addString(CFG_SELECTEDTUPLES,
 				XmlConverter.tupleListToXml(selectedTuples));
+		settings.addString(CFGKEY_NEWCONCENTRATIONPARAMETERS,
+				XmlConverter.objectToXml(newConcentrationParameters));
 	}
 
 	public List<String> getSelectedIDs() {
@@ -737,5 +760,14 @@ public class SettingsHelper {
 
 	public void setSelectedTuples(List<KnimeTuple> selectedTuples) {
 		this.selectedTuples = selectedTuples;
+	}
+
+	public Map<String, String> getNewConcentrationParameters() {
+		return newConcentrationParameters;
+	}
+
+	public void setNewConcentrationParameters(
+			Map<String, String> newConcentrationParameters) {
+		this.newConcentrationParameters = newConcentrationParameters;
 	}
 }

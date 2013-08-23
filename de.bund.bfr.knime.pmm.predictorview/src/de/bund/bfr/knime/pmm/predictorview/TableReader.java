@@ -50,6 +50,7 @@ public class TableReader {
 	private List<List<String>> conditionUnits;
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
+	private Map<String, String> newInitParams;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -63,11 +64,12 @@ public class TableReader {
 		boolean containsData = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
-		Map<String, String> initCopy = new LinkedHashMap<>(initParams);
+
+		newInitParams = new LinkedHashMap<>();
 
 		if (isTertiaryModel) {
 			combinedTuples = ModelCombiner.combine(tuples, containsData,
-					initCopy);
+					initParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 
 			try {
@@ -95,12 +97,14 @@ public class TableReader {
 							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
 							+ "";
 
-					if (initCopy.containsKey(oldID)) {
-						initCopy.put(newID, initCopy.get(oldID));
+					if (initParams.containsKey(oldID)) {
+						newInitParams.put(newID, initParams.get(oldID));
 					}
 				}
 			}
 		} else {
+			newInitParams.putAll(initParams);
+
 			if (!tuples.isEmpty()) {
 				if (tuples.get(0).getPmmXml(Model1Schema.ATT_INDEPENDENT)
 						.size() > 1) {
@@ -236,7 +240,7 @@ public class TableReader {
 			Map<String, Double> parameters = new LinkedHashMap<>();
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
-			String initParam = initCopy.get(modelID);
+			String initParam = newInitParams.get(modelID);
 			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
@@ -512,4 +516,9 @@ public class TableReader {
 	public Map<String, String> getLongLegend() {
 		return longLegend;
 	}
+
+	public Map<String, String> getNewInitParams() {
+		return newInitParams;
+	}
+
 }

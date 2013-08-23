@@ -133,20 +133,30 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		showSamplePanel = false;
 	}
-	public PredictorViewNodeDialog(List<KnimeTuple> tuples,
-			SettingsHelper set) {
+
+	public PredictorViewNodeDialog(List<KnimeTuple> tuples, SettingsHelper set,
+			boolean newTuples) {
 		this.set = set;
 		this.tuples = tuples;
-		reader = new TableReader(tuples, set.getConcentrationParameters());
+
+		if (newTuples) {
+			reader = new TableReader(tuples,
+					set.getNewConcentrationParameters());
+		} else {
+			reader = new TableReader(tuples, set.getConcentrationParameters());
+		}
+
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		showSamplePanel = false;
 	}
+
 	public SettingsHelper getSettings() {
 		writeSettingsToVariables();
 		return set;
 	}
+
 	public ChartSamplePanel getSamplePanel() {
 		return samplePanel;
 	}
@@ -390,11 +400,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
 		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
-		
+
 		set.getSelectedTuples().clear();
 		for (String id : set.getSelectedIDs()) {
 			set.getSelectedTuples().add(reader.getTupleMap().get(id));
 		}
+		set.setNewConcentrationParameters(reader.getNewInitParams());
 	}
 
 	private List<String> getInvalidIds(List<String> selectedIDs) {
@@ -453,9 +464,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			writeSettingsToVariables();
 			set.setConcentrationParameters(dialog.getResult());
 			set.setSelectedIDs(new ArrayList<String>());
+			writeSettingsToVariables();
 			reader = new TableReader(tuples, set.getConcentrationParameters());
 
 			int divider = ((ChartAllPanel) mainComponent.getComponent(0))

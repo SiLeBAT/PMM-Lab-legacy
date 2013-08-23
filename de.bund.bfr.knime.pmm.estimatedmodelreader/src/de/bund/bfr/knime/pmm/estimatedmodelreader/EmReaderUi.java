@@ -228,7 +228,7 @@ public class EmReaderUi extends JPanel {
 				//List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
 		    	if (hs != null && hs.size() > 0) {
 		    		MyTableModel mtm = (MyTableModel) filterResults.getModel();
-		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set);
+		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, true);
 		    		//Map<String, Double> gpv0 = pvnd.getParamValues();
 		    		//Map<String, String> gip0 = pvnd.getInitParams();
 		    		JPanel mainComponent = pvnd.getMainComponent();

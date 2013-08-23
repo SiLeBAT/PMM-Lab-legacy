@@ -77,6 +77,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
 import de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi;
 
 /**
@@ -123,6 +124,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private int matrixID, agentID, literatureID;
 	private boolean withoutMdData;
 	private String[] col1, col2, col3, col4, col5, col6, col7;
+	private SettingsHelper set;
 	
 	private LinkedHashMap<String, Double[]> parameter;
 	
@@ -151,6 +153,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         literatureString = "";
 
         parameter = new LinkedHashMap<String, Double[]>();
+        set = new SettingsHelper();
     }
 
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
@@ -470,8 +473,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
-        try {
-        	
+        try {        	
           	Config c = settings.addConfig("DbConfigurationUi");
          	c.addString(DbConfigurationUi.PARAM_FILENAME, filename);
          	c.addString(DbConfigurationUi.PARAM_LOGIN, login);
@@ -496,6 +498,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	
         	c.addInt( EmReaderUi.PARAM_QUALITYMODE, qualityMode );
         	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityThresh );
+        	this.set.saveSettings(c.addConfig("PredictorSettings"));
 
         	c.addBoolean(EmReaderUi.PARAM_NOMDDATA, withoutMdData);
 
@@ -603,7 +606,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
         	qualityMode = c.getInt( EmReaderUi.PARAM_QUALITYMODE );
         	qualityThresh = c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH );
-
+        	this.set.loadSettings(c.getConfig("PredictorSettings"));
+        	
     		withoutMdData = c.getBoolean(EmReaderUi.PARAM_NOMDDATA);
 
     		col1 = c.getStringArray(EmReaderUi.PARAM_TABLECOLInternalID);

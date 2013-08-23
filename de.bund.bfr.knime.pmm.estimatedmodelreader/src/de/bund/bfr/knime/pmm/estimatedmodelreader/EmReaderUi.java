@@ -36,6 +36,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.*;
 import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
+import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeModel;
 import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
 import de.bund.bfr.knime.pmm.predictorview.TableReader;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
@@ -70,6 +71,8 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_OFF = 0;
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
+	
+	private SettingsHelper set = null;
 	
 	public EmReaderUi() {
 		this(null);
@@ -226,7 +229,10 @@ public class EmReaderUi extends JPanel {
 	    		//System.err.println(where);
 				//List<KnimeTuple> hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(), SchemaFactory.createM12DataSchema(), null, 2, false, where);
 		    	if (hs != null && hs.size() > 0) {
-	    			MyTableModel mtm = (MyTableModel) filterResults.getModel();
+		    		MyTableModel mtm = (MyTableModel) filterResults.getModel();
+		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set);
+		    		JPanel mainComponent = pvnd.getMainComponent();
+/*
 		    		List<String> selectedIDs = new ArrayList<String>();
 		    		Map<String, String> gip = new LinkedHashMap<String, String>();
 		    		Map<String, Double> gpv = new LinkedHashMap<String, Double>();
@@ -243,13 +249,13 @@ public class EmReaderUi extends JPanel {
 		    		}
 
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, gip);
-		    		pvnd.setShowSamplePanel(false);
 		    		JPanel mainComponent = pvnd.getMainComponent();
 		    		ChartAllPanel chartPanel = (ChartAllPanel)mainComponent.getComponent(0);
 			    	//addTab("Predictor view", mainComponent);
 
 		    		chartPanel.getSelectionPanel().setSelectedIDs(selectedIDs);
 		    		chartPanel.getConfigPanel().setParamXValues(gpv);
+		    		*/
 
 		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
 		    		Frame parentFrame = null;
@@ -264,18 +270,19 @@ public class EmReaderUi extends JPanel {
 		    				    		
 		    		dialog.setVisible(true);
 		    		
-		    		List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
+		    		//List<String> ls = chartPanel.getSelectionPanel().getSelectedIDs();
+		    		set = pvnd.getSettings();
 		    		
-		    		SettingsHelper set = new SettingsHelper();
+		    		//SettingsHelper set = new SettingsHelper();
 		    		TableReader reader = new TableReader(hs, set.getConcentrationParameters());
 		    		Map<String, KnimeTuple> tm = reader.getTupleMap();
 	    			mtm.removeAll();
-		    		for (String id : ls) {
+		    		for (String id : set.getSelectedIDs()) {
 		    			KnimeTuple tuple = tm.get(id);
 		    			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 		    			EstModelXml emx = (EstModelXml) estModelXml.get(0);
-		    			gpv = pvnd.getParamValues();
-		    			gip = pvnd.getInitParams();
+		    			Map<String, Double> gpv = pvnd.getParamValues();
+		    			Map<String, String> gip = pvnd.getInitParams();
 	    				for (String param : gpv.keySet()) {
 	    					boolean hasInit = gip.containsValue(param);
 	    					String formulaID = "";
@@ -523,6 +530,8 @@ public class EmReaderUi extends JPanel {
     }
     
     public void saveSettingsTo(Config c) {
+    	if (set != null) set.saveSettings(c.addConfig("PredictorSettings"));
+    	
      	modelReaderUi.saveSettingsTo(c.addConfig("ModelReaderUi"));
      	mdReaderUi.saveSettingsTo(c.addConfig("MdReaderUi"));
     	
@@ -563,7 +572,12 @@ public class EmReaderUi extends JPanel {
 		setSettings(c, null, null, null, null, null);
 	}
 	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {		
-		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+		if (c.containsKey("PredictorSettings")) {
+			set = new SettingsHelper();
+			set.loadSettings(c.getConfig("PredictorSettings"));
+		}
+
+    	LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 		modelReaderUi.setLevel(1);
      	if (c.containsKey("ModelReaderUi")) modelReaderUi.setSettings(c.getConfig("ModelReaderUi"));
      	if (c.containsKey("MdReaderUi")) mdReaderUi.setSettings(c.getConfig("MdReaderUi"));

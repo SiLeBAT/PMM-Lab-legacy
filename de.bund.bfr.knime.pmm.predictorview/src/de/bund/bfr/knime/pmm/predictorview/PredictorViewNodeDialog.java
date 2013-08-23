@@ -133,6 +133,20 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		showSamplePanel = false;
 	}
+	public PredictorViewNodeDialog(List<KnimeTuple> tuples,
+			SettingsHelper set) {
+		this.set = set;
+		this.tuples = tuples;
+		reader = new TableReader(tuples, set.getConcentrationParameters());
+		mainComponent = new JPanel();
+		mainComponent.setLayout(new BorderLayout());
+		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
+		showSamplePanel = false;
+	}
+	public SettingsHelper getSettings() {
+		writeSettingsToVariables();
+		return set;
+	}
 
 	public JPanel getMainComponent() {
 		return mainComponent;

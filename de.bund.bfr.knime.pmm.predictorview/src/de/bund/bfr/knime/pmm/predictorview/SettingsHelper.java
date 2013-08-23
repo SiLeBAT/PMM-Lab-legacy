@@ -43,6 +43,7 @@ import java.util.Map;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.common.XmlConverter;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -297,6 +298,193 @@ public class SettingsHelper {
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
+		settings.addString(CFG_SELECTEDIDS,
+				XmlConverter.objectToXml(selectedIDs));
+		settings.addString(CFG_PARAMXVALUES,
+				XmlConverter.objectToXml(paramXValues));
+		settings.addString(CFG_TIMEVALUES, XmlConverter.objectToXml(timeValues));
+		settings.addString(CFG_COLORS, XmlConverter.colorMapToXml(colors));
+		settings.addString(CFG_SHAPES, XmlConverter.shapeMapToXml(shapes));
+		settings.addBoolean(CFG_MANUALRANGE, manualRange);
+		settings.addDouble(CFG_MINX, minX);
+		settings.addDouble(CFG_MAXX, maxX);
+		settings.addDouble(CFG_MINY, minY);
+		settings.addDouble(CFG_MAXY, maxY);
+		settings.addBoolean(CFG_DRAWLINES, drawLines);
+		settings.addBoolean(CFG_SHOWLEGEND, showLegend);
+		settings.addBoolean(CFG_ADDLEGENDINFO, addLegendInfo);
+		settings.addBoolean(CFG_DISPLAYHIGHLIGHTED, displayHighlighted);
+		settings.addBoolean(CFG_EXPORTASSVG, exportAsSvg);
+		settings.addString(CFG_UNITX, unitX);
+		settings.addString(CFG_UNITY, unitY);
+		settings.addString(CFG_TRANSFORMY, transformY);
+		settings.addBoolean(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
+		settings.addString(CFG_VISIBLECOLUMNS,
+				XmlConverter.objectToXml(visibleColumns));
+		settings.addString(CFG_MODELFILTER, modelFilter);
+		settings.addString(CFG_DATAFILTER, dataFilter);
+		settings.addString(CFG_FITTEDFILTER, fittedFilter);
+		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
+				XmlConverter.objectToXml(concentrationParameters));
+	}
+	
+	public void loadSettings(Config settings) {
+		try {
+			selectedIDs = XmlConverter.xmlToObject(
+					settings.getString(CFG_SELECTEDIDS),
+					new ArrayList<String>());
+		} catch (InvalidSettingsException e) {
+			selectedIDs = new ArrayList<String>();
+		}
+
+		try {
+			paramXValues = XmlConverter.xmlToObject(
+					settings.getString(CFG_PARAMXVALUES),
+					new LinkedHashMap<String, Double>());
+		} catch (InvalidSettingsException e) {
+			paramXValues = new LinkedHashMap<>();
+		}
+
+		try {
+			timeValues = XmlConverter
+					.xmlToObject(settings.getString(CFG_TIMEVALUES),
+							new ArrayList<Double>());
+		} catch (InvalidSettingsException e1) {
+			timeValues = new ArrayList<>();
+		}
+
+		try {
+			colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
+		} catch (InvalidSettingsException e) {
+			colors = new LinkedHashMap<>();
+		}
+
+		try {
+			shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
+		} catch (InvalidSettingsException e) {
+			shapes = new LinkedHashMap<>();
+		}
+
+		try {
+			manualRange = settings.getBoolean(CFG_MANUALRANGE);
+		} catch (InvalidSettingsException e) {
+			manualRange = DEFAULT_MANUALRANGE;
+		}
+
+		try {
+			minX = settings.getDouble(CFG_MINX);
+		} catch (InvalidSettingsException e) {
+			minX = DEFAULT_MINX;
+		}
+
+		try {
+			maxX = settings.getDouble(CFG_MAXX);
+		} catch (InvalidSettingsException e) {
+			maxX = DEFAULT_MAXX;
+		}
+
+		try {
+			minY = settings.getDouble(CFG_MINY);
+		} catch (InvalidSettingsException e) {
+			minY = DEFAULT_MINY;
+		}
+
+		try {
+			maxY = settings.getDouble(CFG_MAXY);
+		} catch (InvalidSettingsException e) {
+			maxY = DEFAULT_MAXY;
+		}
+
+		try {
+			drawLines = settings.getBoolean(CFG_DRAWLINES);
+		} catch (InvalidSettingsException e) {
+			drawLines = DEFAULT_DRAWLINES;
+		}
+
+		try {
+			showLegend = settings.getBoolean(CFG_SHOWLEGEND);
+		} catch (InvalidSettingsException e) {
+			showLegend = DEFAULT_SHOWLEGEND;
+		}
+
+		try {
+			addLegendInfo = settings.getBoolean(CFG_ADDLEGENDINFO);
+		} catch (InvalidSettingsException e) {
+			addLegendInfo = DEFAULT_ADDLEGENDINFO;
+		}
+
+		try {
+			displayHighlighted = settings.getBoolean(CFG_DISPLAYHIGHLIGHTED);
+		} catch (InvalidSettingsException e) {
+			displayHighlighted = DEFAULT_DISPLAYHIGHLIGHTED;
+		}
+
+		try {
+			exportAsSvg = settings.getBoolean(CFG_EXPORTASSVG);
+		} catch (InvalidSettingsException e) {
+			exportAsSvg = DEFAULT_EXPORTASSVG;
+		}
+
+		try {
+			unitX = settings.getString(CFG_UNITX);
+		} catch (InvalidSettingsException e) {
+			unitX = null;
+		}
+
+		try {
+			unitY = settings.getString(CFG_UNITY);
+		} catch (InvalidSettingsException e) {
+			unitY = null;
+		}
+
+		try {
+			transformY = settings.getString(CFG_TRANSFORMY);
+		} catch (InvalidSettingsException e) {
+			transformY = DEFAULT_TRANSFORMY;
+		}
+
+		try {
+			standardVisibleColumns = settings
+					.getBoolean(CFG_STANDARDVISIBLECOLUMNS);
+		} catch (InvalidSettingsException e) {
+			standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
+		}
+
+		try {
+			visibleColumns = XmlConverter.xmlToObject(
+					settings.getString(CFG_VISIBLECOLUMNS),
+					new ArrayList<String>());
+		} catch (InvalidSettingsException e) {
+			visibleColumns = new ArrayList<>();
+		}
+
+		try {
+			modelFilter = settings.getString(CFG_MODELFILTER);
+		} catch (InvalidSettingsException e) {
+			modelFilter = null;
+		}
+
+		try {
+			dataFilter = settings.getString(CFG_DATAFILTER);
+		} catch (InvalidSettingsException e) {
+			dataFilter = null;
+		}
+
+		try {
+			fittedFilter = settings.getString(CFG_FITTEDFILTER);
+		} catch (InvalidSettingsException e) {
+			fittedFilter = null;
+		}
+
+		try {
+			concentrationParameters = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			concentrationParameters = new LinkedHashMap<String, String>();
+		}
+	}	
+	public void saveSettings(Config settings) {
 		settings.addString(CFG_SELECTEDIDS,
 				XmlConverter.objectToXml(selectedIDs));
 		settings.addString(CFG_PARAMXVALUES,

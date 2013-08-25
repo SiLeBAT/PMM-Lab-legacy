@@ -953,7 +953,9 @@ public class Plotable {
 	}
 
 	public static Double transform(Double value, String transform) {
-		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
+		if (value == null) {
+			return null;
+		} else if (transform.equals(ChartConstants.NO_TRANSFORM)) {
 			return value;
 		} else if (transform.equals(ChartConstants.SQRT_TRANSFORM)) {
 			return Math.sqrt(value);
@@ -975,7 +977,9 @@ public class Plotable {
 	}
 
 	public static Double inverseTransform(Double value, String transform) {
-		if (transform.equals(ChartConstants.NO_TRANSFORM)) {
+		if (value == null) {
+			return null;
+		} else if (transform.equals(ChartConstants.NO_TRANSFORM)) {
 			return value;
 		} else if (transform.equals(ChartConstants.SQRT_TRANSFORM)) {
 			return value * value;

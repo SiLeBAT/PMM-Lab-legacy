@@ -218,46 +218,50 @@ public class MainKernel {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, false);
 	}
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
-		boolean diff = different(rowBefore, rowAfter); 
-	    if (!diff) {
+		if (dontLog) {
 			return true;
 		}
-	    boolean result = false;
-	    try {
-	    	Connection conn = getDefaultConnection();
-	    	String username = getUsername();
-	    	PreparedStatement ps = conn.prepareStatement("INSERT INTO " + delimitL("ChangeLog") +
-		      		" (" + delimitL("ID") + ", " + delimitL("Zeitstempel") + ", " + delimitL("Username") + ", " +
-		      		delimitL("Tabelle") + ", " + delimitL("TabellenID") + ", " +
-		      		delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
-
-		    	ps.setTimestamp(1, new Timestamp(new Date().getTime()));
-		    	ps.setString(2, username);
-		    	ps.setString(3, tablename);
-		    	int tableID;
-		    	if (rowBefore != null && rowBefore.length > 0 && rowBefore[0] != null && rowBefore[0] instanceof Integer) {
-					tableID = (Integer) rowBefore[0];
-				} else if (rowAfter != null && rowAfter.length > 0 && rowAfter[0] != null && rowAfter[0] instanceof Integer) {
-					tableID = (Integer) rowAfter[0];
-				} else {
-					tableID = -1;
-				}
-		    	ps.setInt(4, tableID);
-		    	//System.err.println(eintragAlt2String(rowBefore));
-		    	check4SerializationProblems(rowBefore);
-		    	ps.setObject(5, rowBefore);
-		    	triggerFired = System.currentTimeMillis();
-		    	ps.execute();
+		else {
+			boolean diff = different(rowBefore, rowAfter); 
+		    if (!diff) {
+				return true;
+			}
+		    boolean result = false;
+		    try {
+		    	Connection conn = getDefaultConnection();
+		    	String username = getUsername();
+		    	PreparedStatement ps = conn.prepareStatement("INSERT INTO " + delimitL("ChangeLog") +
+			      		" (" + delimitL("ID") + ", " + delimitL("Zeitstempel") + ", " + delimitL("Username") + ", " +
+			      		delimitL("Tabelle") + ", " + delimitL("TabellenID") + ", " +
+			      		delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
 	
-			result = true;
-	    }
-	    catch (Exception e) {
-	    	if (!suppressWarnings) {
-	    		MyLogger.handleException(e);
-	    	}
-	    }
-	    return result;
-
+			    	ps.setTimestamp(1, new Timestamp(new Date().getTime()));
+			    	ps.setString(2, username);
+			    	ps.setString(3, tablename);
+			    	int tableID;
+			    	if (rowBefore != null && rowBefore.length > 0 && rowBefore[0] != null && rowBefore[0] instanceof Integer) {
+						tableID = (Integer) rowBefore[0];
+					} else if (rowAfter != null && rowAfter.length > 0 && rowAfter[0] != null && rowAfter[0] instanceof Integer) {
+						tableID = (Integer) rowAfter[0];
+					} else {
+						tableID = -1;
+					}
+			    	ps.setInt(4, tableID);
+			    	//System.err.println(eintragAlt2String(rowBefore));
+			    	check4SerializationProblems(rowBefore);
+			    	ps.setObject(5, rowBefore);
+			    	triggerFired = System.currentTimeMillis();
+			    	ps.execute();
+		
+				result = true;
+		    }
+		    catch (Exception e) {
+		    	if (!suppressWarnings) {
+		    		MyLogger.handleException(e);
+		    	}
+		    }
+		    return result;
+		}
 	}
 	private static void check4SerializationProblems(final Object[] rowBefore) {
 		if (rowBefore == null) {

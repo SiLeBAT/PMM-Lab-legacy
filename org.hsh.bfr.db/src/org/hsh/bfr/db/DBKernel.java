@@ -1759,7 +1759,9 @@ public class DBKernel {
 	}
 	public static void doMNs(final MyTable table) {
 		boolean dl = DBKernel.dontLog;
+		boolean dlmk = MainKernel.dontLog;
 		DBKernel.dontLog = true;
+		MainKernel.dontLog = true;
 		  Vector<String> listMNs = table.getListMNs();
 		  if (listMNs != null) {
 			  String tableName  = table.getTablename();
@@ -1773,6 +1775,7 @@ public class DBKernel {
 			  }
 		  }	  
 		DBKernel.dontLog = dl;
+		MainKernel.dontLog = dlmk;
 	  }
 
 	public static int isDBVeraltet(final Login login) {

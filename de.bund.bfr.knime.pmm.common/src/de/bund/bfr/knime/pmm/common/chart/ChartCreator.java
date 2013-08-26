@@ -248,11 +248,13 @@ public class ChartCreator extends ChartPanel {
 						}
 
 						for (Double x : plotable.getSamples()) {
-							if (x != null) {
-								if (isValid(x)) {
-									usedMinX = Math.min(usedMinX, x);
-									usedMaxX = Math.max(usedMaxX, x);
-								}						
+							Double xx = Plotable.transform(
+									plotable.convertToUnit(paramX, x, unitX),
+									transformX);
+
+							if (isValid(xx)) {
+								usedMinX = Math.min(usedMinX, xx);
+								usedMaxX = Math.max(usedMaxX, xx);
 							}
 						}
 					}

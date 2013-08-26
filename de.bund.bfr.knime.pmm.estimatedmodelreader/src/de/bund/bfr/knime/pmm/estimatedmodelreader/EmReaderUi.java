@@ -453,7 +453,7 @@ public class EmReaderUi extends JPanel {
     }
     
     public void saveSettingsTo(Config c) {
-    	if (set != null) set.saveSettings(c.addConfig("PredictorSettings"));
+    	if (set != null) set.saveConfig(c.addConfig("PredictorSettings"));
     	
      	modelReaderUi.saveSettingsTo(c.addConfig("ModelReaderUi"));
      	mdReaderUi.saveSettingsTo(c.addConfig("MdReaderUi"));
@@ -488,7 +488,7 @@ public class EmReaderUi extends JPanel {
 	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {		
 		if (c.containsKey("PredictorSettings")) {
 			set = new SettingsHelper();
-			set.loadSettings(c.getConfig("PredictorSettings"));
+			set.loadConfig(c.getConfig("PredictorSettings"));
 		}
 
     	LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();

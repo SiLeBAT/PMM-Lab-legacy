@@ -501,7 +501,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         	
         	c.addInt( EmReaderUi.PARAM_QUALITYMODE, qualityMode );
         	c.addDouble( EmReaderUi.PARAM_QUALITYTHRESH, qualityThresh );
-        	this.set.saveSettings(c.addConfig("PredictorSettings"));
+        	this.set.saveConfig(c.addConfig("PredictorSettings"));
 
         	c.addBoolean(EmReaderUi.PARAM_NOMDDATA, withoutMdData);
 
@@ -601,7 +601,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
         	qualityMode = c.getInt( EmReaderUi.PARAM_QUALITYMODE );
         	qualityThresh = c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH );
-        	this.set.loadSettings(c.getConfig("PredictorSettings"));
+        	this.set.loadConfig(c.getConfig("PredictorSettings"));
         	
     		withoutMdData = c.getBoolean(EmReaderUi.PARAM_NOMDDATA);
 

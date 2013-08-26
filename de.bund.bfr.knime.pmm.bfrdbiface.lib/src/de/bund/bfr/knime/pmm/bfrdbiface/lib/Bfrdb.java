@@ -1066,7 +1066,7 @@ public class Bfrdb extends Hsqldbiface {
 						System.err.println("paramId < 0... " + px.getOrigName());
 					}
 					if (!px.getOrigName().equals(px.getName())) hmi.put(px.getName(), paramId);
-					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit(), pm, true);
+					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit(), pm, false, px.getName());
 				}
 			}
 
@@ -1080,7 +1080,7 @@ public class Bfrdb extends Hsqldbiface {
 					if (indepId >= 0) {
 						insertMinMaxIndep(estModelId, indepId, ix.getMin(), ix.getMax());	
 						if (!ix.getOrigName().equals(ix.getName())) hmi.put(ix.getName(), indepId);
-						insertEstParam(estModelId, indepId, null, null, ix.getUnit(), pm, false);
+						insertEstParam(estModelId, indepId, null, null, ix.getUnit(), pm, true, ix.getName());
 					}
 					else {
 						System.err.println("insertEm:\t" + ix.getOrigName() + "\t" + modelId);
@@ -1886,7 +1886,7 @@ public class Bfrdb extends Hsqldbiface {
 		return false;
 	}
 	
-	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm, boolean isDepIndep) {
+	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm, boolean isDepIndep, String paramName) {
 		try {			
 			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\") VALUES(?, ?, ?, ?, ?)");
 			ps.setInt(1, estModelId);
@@ -1903,7 +1903,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			Object unitID = unit == null || unit.isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
 			if (unitID == null) {
-				if (isDepIndep) pm.setWarning(pm.getWarning() + "\nUnit not defined for fitted model with ID " + estModelId + "!");
+				if (isDepIndep) pm.setWarning(pm.getWarning() + "\nUnit not defined for variable '" + paramName + "' in fitted model with ID " + estModelId + "!");
 				ps.setNull(5, Types.INTEGER);
 			}
 			else ps.setInt(5, (int) unitID);

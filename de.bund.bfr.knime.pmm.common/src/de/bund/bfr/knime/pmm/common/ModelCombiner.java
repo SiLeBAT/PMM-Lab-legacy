@@ -55,7 +55,7 @@ public class ModelCombiner {
 
 	public static Map<KnimeTuple, List<KnimeTuple>> combine(
 			List<KnimeTuple> tuples, boolean containsData,
-			Map<String, String> doNotReplace) {
+			Map<String, String> initParams, Map<String, String> lagParams) {
 		KnimeSchema outSchema = null;
 
 		if (containsData) {
@@ -64,8 +64,12 @@ public class ModelCombiner {
 			outSchema = SchemaFactory.createM1Schema();
 		}
 
-		if (doNotReplace == null) {
-			doNotReplace = new LinkedHashMap<>();
+		if (initParams == null) {
+			initParams = new LinkedHashMap<>();
+		}
+
+		if (lagParams == null) {
+			lagParams = new LinkedHashMap<>();
 		}
 
 		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
@@ -160,7 +164,8 @@ public class ModelCombiner {
 				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 
-				if (depVarSec.equals(doNotReplace.get(modelID))) {
+				if (depVarSec.equals(initParams.get(modelID))
+						|| depVarSec.equals(lagParams.get(modelID))) {
 					continue;
 				}
 

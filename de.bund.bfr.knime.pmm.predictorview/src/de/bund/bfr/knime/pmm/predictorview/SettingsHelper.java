@@ -75,9 +75,11 @@ public class SettingsHelper {
 	protected static final String CFG_MODELFILTER = "ModelFilter";
 	protected static final String CFG_DATAFILTER = "DataFilter";
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
-	protected static final String CFGKEY_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
+	protected static final String CFG_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
+	protected static final String CFG_LAGPARAMETERS = "LagParameters";
 	protected static final String CFG_SELECTEDTUPLES = "SelectedTuples";
-	protected static final String CFGKEY_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
+	protected static final String CFG_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
+	protected static final String CFG_NEWLAGPARAMETERS = "NewLagParameters";
 
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
@@ -117,8 +119,10 @@ public class SettingsHelper {
 	private String dataFilter;
 	private String fittedFilter;
 	private Map<String, String> concentrationParameters;
+	private Map<String, String> lagParameters;
 	private List<KnimeTuple> selectedTuples;
 	private Map<String, String> newConcentrationParameters;
+	private Map<String, String> newLagParameters;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<>();
@@ -146,8 +150,10 @@ public class SettingsHelper {
 		dataFilter = null;
 		fittedFilter = null;
 		concentrationParameters = new LinkedHashMap<>();
+		lagParameters = new LinkedHashMap<>();
 		selectedTuples = new ArrayList<>();
 		newConcentrationParameters = new LinkedHashMap<>();
+		newLagParameters = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -306,10 +312,18 @@ public class SettingsHelper {
 
 		try {
 			concentrationParameters = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
+					settings.getString(CFG_CONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<>();
+		}
+
+		try {
+			lagParameters = XmlConverter.xmlToObject(
+					settings.getString(CFG_LAGPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			lagParameters = new LinkedHashMap<>();
 		}
 
 		try {
@@ -321,10 +335,18 @@ public class SettingsHelper {
 
 		try {
 			newConcentrationParameters = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_NEWCONCENTRATIONPARAMETERS),
+					settings.getString(CFG_NEWCONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			newConcentrationParameters = new LinkedHashMap<>();
+		}
+
+		try {
+			newLagParameters = XmlConverter.xmlToObject(
+					settings.getString(CFG_NEWLAGPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			newLagParameters = new LinkedHashMap<>();
 		}
 	}
 
@@ -356,12 +378,16 @@ public class SettingsHelper {
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
-		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
+		settings.addString(CFG_CONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(concentrationParameters));
+		settings.addString(CFG_LAGPARAMETERS,
+				XmlConverter.objectToXml(lagParameters));
 		settings.addString(CFG_SELECTEDTUPLES,
 				XmlConverter.tupleListToXml(selectedTuples));
-		settings.addString(CFGKEY_NEWCONCENTRATIONPARAMETERS,
+		settings.addString(CFG_NEWCONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(newConcentrationParameters));
+		settings.addString(CFG_NEWLAGPARAMETERS,
+				XmlConverter.objectToXml(newLagParameters));
 	}
 
 	public void loadSettings(Config settings) {
@@ -472,7 +498,7 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			unitY = null;
 		}
-		
+
 		try {
 			transformX = settings.getString(CFG_TRANSFORMX);
 		} catch (InvalidSettingsException e) {
@@ -520,10 +546,18 @@ public class SettingsHelper {
 
 		try {
 			concentrationParameters = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_CONCENTRATIONPARAMETERS),
+					settings.getString(CFG_CONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			concentrationParameters = new LinkedHashMap<String, String>();
+		}
+
+		try {
+			lagParameters = XmlConverter.xmlToObject(
+					settings.getString(CFG_LAGPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			lagParameters = new LinkedHashMap<>();
 		}
 
 		try {
@@ -535,10 +569,18 @@ public class SettingsHelper {
 
 		try {
 			newConcentrationParameters = XmlConverter.xmlToObject(
-					settings.getString(CFGKEY_NEWCONCENTRATIONPARAMETERS),
+					settings.getString(CFG_NEWCONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
 			newConcentrationParameters = new LinkedHashMap<>();
+		}
+
+		try {
+			newLagParameters = XmlConverter.xmlToObject(
+					settings.getString(CFG_NEWLAGPARAMETERS),
+					new LinkedHashMap<String, String>());
+		} catch (InvalidSettingsException e) {
+			newLagParameters = new LinkedHashMap<>();
 		}
 	}
 
@@ -570,12 +612,16 @@ public class SettingsHelper {
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
-		settings.addString(CFGKEY_CONCENTRATIONPARAMETERS,
+		settings.addString(CFG_CONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(concentrationParameters));
+		settings.addString(CFG_LAGPARAMETERS,
+				XmlConverter.objectToXml(lagParameters));
 		settings.addString(CFG_SELECTEDTUPLES,
 				XmlConverter.tupleListToXml(selectedTuples));
-		settings.addString(CFGKEY_NEWCONCENTRATIONPARAMETERS,
+		settings.addString(CFG_NEWCONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(newConcentrationParameters));
+		settings.addString(CFG_NEWLAGPARAMETERS,
+				XmlConverter.objectToXml(newLagParameters));
 	}
 
 	public List<String> getSelectedIDs() {
@@ -779,6 +825,14 @@ public class SettingsHelper {
 		this.concentrationParameters = concentrationParameters;
 	}
 
+	public Map<String, String> getLagParameters() {
+		return lagParameters;
+	}
+
+	public void setLagParameters(Map<String, String> lagParameters) {
+		this.lagParameters = lagParameters;
+	}
+
 	public List<KnimeTuple> getSelectedTuples() {
 		return selectedTuples;
 	}
@@ -795,4 +849,14 @@ public class SettingsHelper {
 			Map<String, String> newConcentrationParameters) {
 		this.newConcentrationParameters = newConcentrationParameters;
 	}
+
+	public Map<String, String> getNewLagParameters() {
+		return newLagParameters;
+	}
+
+	public void setNewLagParameters(Map<String, String> newLagParameters) {
+		this.newLagParameters = newLagParameters;
+	}
+
+	
 }

@@ -51,12 +51,14 @@ public class TableReader {
 	private List<String> standardVisibleColumns;
 	private List<String> filterableStringColumns;
 	private Map<String, String> newInitParams;
+	private Map<String, String> newLagParams;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
 
-	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams) {
+	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
+			Map<String, String> lagParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = null;
 		boolean isTertiaryModel = tuples.get(0).getSchema()
@@ -66,10 +68,11 @@ public class TableReader {
 		List<String> miscParams = null;
 
 		newInitParams = new LinkedHashMap<>();
+		newLagParams = new LinkedHashMap<>();
 
 		if (isTertiaryModel) {
 			combinedTuples = ModelCombiner.combine(tuples, containsData,
-					initParams);
+					initParams, lagParams);
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 
 			try {
@@ -100,10 +103,15 @@ public class TableReader {
 					if (initParams.containsKey(oldID)) {
 						newInitParams.put(newID, initParams.get(oldID));
 					}
+
+					if (lagParams.containsKey(oldID)) {
+						newLagParams.put(newID, lagParams.get(oldID));
+					}
 				}
 			}
 		} else {
 			newInitParams.putAll(initParams);
+			newLagParams.putAll(lagParams);
 
 			if (!tuples.isEmpty()) {
 				if (tuples.get(0).getPmmXml(Model1Schema.ATT_INDEPENDENT)
@@ -241,6 +249,7 @@ public class TableReader {
 			Map<String, Double> paramData = new LinkedHashMap<>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
 			String initParam = newInitParams.get(modelID);
+			String lagParam = newLagParams.get(modelID);
 			Map<String, List<String>> categories = new LinkedHashMap<>();
 			Map<String, String> units = new LinkedHashMap<>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
@@ -264,7 +273,8 @@ public class TableReader {
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
-				if (element.getName().equals(initParam)) {
+				if (element.getName().equals(initParam)
+						|| element.getName().equals(lagParam)) {
 					variables.put(element.getName(), new ArrayList<Double>());
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
@@ -288,7 +298,7 @@ public class TableReader {
 							element.getP());
 				}
 
-				if (initParam == null) {
+				if (initParam == null && lagParam == null) {
 					Map<String, Double> cov = new LinkedHashMap<String, Double>();
 
 					for (PmmXmlElementConvertable el2 : paramXml
@@ -519,6 +529,10 @@ public class TableReader {
 
 	public Map<String, String> getNewInitParams() {
 		return newInitParams;
+	}
+	
+	public Map<String, String> getNewLagParams() {
+		return newLagParams;
 	}
 
 }

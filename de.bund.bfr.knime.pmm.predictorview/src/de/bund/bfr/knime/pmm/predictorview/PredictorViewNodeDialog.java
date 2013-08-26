@@ -127,7 +127,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		this.tuples = tuples;
 		set = new SettingsHelper();
 		set.setConcentrationParameters(initParams);
-		reader = new TableReader(tuples, set.getConcentrationParameters());
+		reader = new TableReader(tuples, set.getConcentrationParameters(),
+				set.getLagParameters());
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
@@ -141,9 +142,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		if (newTuples) {
 			reader = new TableReader(tuples,
-					set.getNewConcentrationParameters());
+					set.getNewConcentrationParameters(),
+					set.getNewLagParameters());
 		} else {
-			reader = new TableReader(tuples, set.getConcentrationParameters());
+			reader = new TableReader(tuples, set.getConcentrationParameters(),
+					set.getLagParameters());
 		}
 
 		mainComponent = new JPanel();
@@ -171,7 +174,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set = new SettingsHelper();
 		set.loadSettings(settings);
 		tuples = PredictorViewNodeModel.getTuples(input[0]);
-		reader = new TableReader(tuples, set.getConcentrationParameters());
+		reader = new TableReader(tuples, set.getConcentrationParameters(),
+				set.getLagParameters());
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
@@ -234,7 +238,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false, "Change Init Params");
+				false, "Change Init/Lag Params");
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -410,6 +414,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.getSelectedTuples().add(reader.getTupleMap().get(id));
 		}
 		set.setNewConcentrationParameters(reader.getNewInitParams());
+		set.setNewLagParameters(reader.getNewLagParams());
 	}
 
 	private List<String> getInvalidIds(List<String> selectedIDs) {
@@ -463,15 +468,17 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	public void buttonPressed() {
 		InitParamDialog dialog = new InitParamDialog(getPanel(), tuples,
-				set.getConcentrationParameters());
+				set.getConcentrationParameters(), set.getLagParameters());
 
 		dialog.setVisible(true);
 
 		if (dialog.isApproved()) {
-			set.setConcentrationParameters(dialog.getResult());
+			set.setConcentrationParameters(dialog.getInitParams());
+			set.setLagParameters(dialog.getLagParams());
 			set.setSelectedIDs(new ArrayList<String>());
 			writeSettingsToVariables();
-			reader = new TableReader(tuples, set.getConcentrationParameters());
+			reader = new TableReader(tuples, set.getConcentrationParameters(),
+					set.getLagParameters());
 
 			int divider = ((ChartAllPanel) mainComponent.getComponent(0))
 					.getDividerLocation();
@@ -502,20 +509,24 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		private Map<String, String> modelNames;
 		private Map<String, String> formulas;
 		private Map<String, List<String>> availableParams;
-		private Map<String, JComboBox<String>> paramBoxes;
+		private Map<String, JComboBox<String>> initBoxes;
+		private Map<String, JComboBox<String>> lagBoxes;
 		private JButton okButton;
 		private JButton cancelButton;
 
-		private Map<String, String> result;
+		private Map<String, String> initParams;
+		private Map<String, String> lagParams;
 
 		public InitParamDialog(JComponent owner, List<KnimeTuple> tuples,
-				Map<String, String> concentrationParameters) {
+				Map<String, String> concentrationParameters,
+				Map<String, String> lagParameters) {
 			super(JOptionPane.getFrameForComponent(owner),
-					"Select Initial Parameter", true);
+					"Select Initial/Lag Parameter", true);
 			readTable(tuples);
 
 			setLayout(new BorderLayout());
-			add(createPanel(concentrationParameters), BorderLayout.CENTER);
+			add(createPanel(concentrationParameters, lagParameters),
+					BorderLayout.CENTER);
 			setResizable(false);
 			pack();
 
@@ -523,12 +534,16 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			UI.adjustDialog(this);
 		}
 
-		public Map<String, String> getResult() {
-			return result;
+		public Map<String, String> getInitParams() {
+			return initParams;
+		}
+
+		public Map<String, String> getLagParams() {
+			return lagParams;
 		}
 
 		public boolean isApproved() {
-			return result != null;
+			return initParams != null && lagParams != null;
 		}
 
 		private void readTable(List<KnimeTuple> tuples) {
@@ -563,8 +578,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		private JPanel createPanel(Map<String, String> concentrationParameters) {
-			paramBoxes = new LinkedHashMap<String, JComboBox<String>>();
+		private JPanel createPanel(Map<String, String> concentrationParameters,
+				Map<String, String> lagParameters) {
+			initBoxes = new LinkedHashMap<>();
+			lagBoxes = new LinkedHashMap<>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");
@@ -573,26 +590,40 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			JPanel leftPanel = new JPanel();
 			JPanel rightPanel = new JPanel();
 
-			leftPanel.setLayout(new GridLayout(ids.size(), 1, 5, 5));
+			leftPanel.setLayout(new GridLayout(ids.size() + 1, 1, 5, 5));
 			leftPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-			rightPanel.setLayout(new GridLayout(ids.size(), 1, 5, 5));
+			rightPanel.setLayout(new GridLayout(ids.size() + 1, 2, 5, 5));
 			rightPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
+			leftPanel.add(new JLabel());
+			rightPanel.add(new JLabel("Initial Concentration"));
+			rightPanel.add(new JLabel("Lag"));
+
 			for (String id : ids) {
-				JComboBox<String> box = new JComboBox<String>(availableParams
-						.get(id).toArray(new String[0]));
+				JComboBox<String> initBox = new JComboBox<String>(
+						availableParams.get(id).toArray(new String[0]));
+				JComboBox<String> lagBox = new JComboBox<String>(
+						availableParams.get(id).toArray(new String[0]));
 				JLabel label = new JLabel(modelNames.get(id) + ":");
 
 				if (concentrationParameters.get(id) != null) {
-					box.setSelectedItem(concentrationParameters.get(id));
+					initBox.setSelectedItem(concentrationParameters.get(id));
 				}
 
-				box.setPreferredSize(new Dimension(150,
-						box.getPreferredSize().height));
+				if (lagParameters.get(id) != null) {
+					lagBox.setSelectedItem(lagParameters.get(id));
+				}
+
+				initBox.setPreferredSize(new Dimension(150, initBox
+						.getPreferredSize().height));
+				lagBox.setPreferredSize(new Dimension(150, initBox
+						.getPreferredSize().height));
 				label.setToolTipText(formulas.get(id));
-				paramBoxes.put(id, box);
+				initBoxes.put(id, initBox);
+				lagBoxes.put(id, lagBox);
 				leftPanel.add(label);
-				rightPanel.add(box);
+				rightPanel.add(initBox);
+				rightPanel.add(lagBox);
 			}
 
 			JPanel parameterPanel = new JPanel();
@@ -616,12 +647,27 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			return panel;
 		}
 
-		private Map<String, String> getParameterMap() {
+		private Map<String, String> getInitMap() {
 			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
 
 			for (String id : ids) {
-				if (!paramBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
-					parameterMap.put(id, (String) paramBoxes.get(id)
+				if (!initBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
+					parameterMap.put(id, (String) initBoxes.get(id)
+							.getSelectedItem());
+				} else {
+					parameterMap.put(id, null);
+				}
+			}
+
+			return parameterMap;
+		}
+
+		private Map<String, String> getLagMap() {
+			Map<String, String> parameterMap = new LinkedHashMap<String, String>();
+
+			for (String id : ids) {
+				if (!lagBoxes.get(id).getSelectedItem().equals(NO_PARAM)) {
+					parameterMap.put(id, (String) lagBoxes.get(id)
 							.getSelectedItem());
 				} else {
 					parameterMap.put(id, null);
@@ -634,7 +680,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
-				result = getParameterMap();
+				initParams = getInitMap();
+				lagParams = getLagMap();
 				dispose();
 			} else if (e.getSource() == cancelButton) {
 				dispose();

@@ -193,7 +193,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 		}
 
 		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = ModelCombiner
-				.combine(tuples, true, set.getConcentrationParameters());
+				.combine(tuples, true, set.getConcentrationParameters(), null);
 		Set<String> idSet = new LinkedHashSet<String>();
 		BufferedDataContainer container = exec.createDataContainer(schema
 				.createSpec());

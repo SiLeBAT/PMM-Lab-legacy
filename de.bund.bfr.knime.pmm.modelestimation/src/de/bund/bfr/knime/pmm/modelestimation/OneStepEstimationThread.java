@@ -184,8 +184,7 @@ public class OneStepEstimationThread implements Runnable {
 			}
 
 			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(ModelCombiner
-					.combine(seiTuples, true,
-							new LinkedHashMap<String, String>()).keySet());
+					.combine(seiTuples, true, null, null).keySet());
 			Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 			Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
 

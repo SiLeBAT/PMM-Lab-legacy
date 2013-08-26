@@ -106,7 +106,7 @@ public class PredictorViewNodeModel extends NodeModel {
 			throws Exception {
 		DataTable table = (DataTable) inObjects[0];
 		TableReader reader = new TableReader(getTuples(table),
-				set.getConcentrationParameters());
+				set.getConcentrationParameters(), set.getLagParameters());
 		ChartCreator creator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
 		BufferedDataContainer container = exec

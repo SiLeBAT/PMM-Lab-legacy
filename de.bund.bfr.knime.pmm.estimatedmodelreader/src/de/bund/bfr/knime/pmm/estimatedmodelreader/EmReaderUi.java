@@ -195,7 +195,7 @@ public class EmReaderUi extends JPanel {
 							EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), null, level, withoutMdData,
 							getQualityMode(), getQualityThresh(), mdReaderUi.getMatrixString(), mdReaderUi.getAgentString(), mdReaderUi.getLiteratureString(),
 							mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), getParams(mdReaderUi.getParameter()),
-							modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where);
+							modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where, null);
 				} catch (PmmException e) {
 					e.printStackTrace();
 				} catch (InvalidSettingsException e) {

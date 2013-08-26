@@ -1066,7 +1066,7 @@ public class Bfrdb extends Hsqldbiface {
 						System.err.println("paramId < 0... " + px.getOrigName());
 					}
 					if (!px.getOrigName().equals(px.getName())) hmi.put(px.getName(), paramId);
-					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit(), pm);
+					insertEstParam(estModelId, paramId, px.getValue(), px.getError(), px.getUnit(), pm, true);
 				}
 			}
 
@@ -1080,7 +1080,7 @@ public class Bfrdb extends Hsqldbiface {
 					if (indepId >= 0) {
 						insertMinMaxIndep(estModelId, indepId, ix.getMin(), ix.getMax());	
 						if (!ix.getOrigName().equals(ix.getName())) hmi.put(ix.getName(), indepId);
-						insertEstParam(estModelId, indepId, null, null, ix.getUnit(), pm);
+						insertEstParam(estModelId, indepId, null, null, ix.getUnit(), pm, false);
 					}
 					else {
 						System.err.println("insertEm:\t" + ix.getOrigName() + "\t" + modelId);
@@ -1539,6 +1539,7 @@ public class Bfrdb extends Hsqldbiface {
 		DepXml depXml = m.getDepXml();
 		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit());
 		paramIdSet.add(paramId);
+		if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
 		
 		// insert independent variable set
 		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
@@ -1546,6 +1547,7 @@ public class Bfrdb extends Hsqldbiface {
 				IndepXml ix = (IndepXml) el;
 				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit());
 				paramIdSet.add(paramId);
+				if (ix.getUnit() == null || ix.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
 			}
 		}
 
@@ -1884,7 +1886,7 @@ public class Bfrdb extends Hsqldbiface {
 		return false;
 	}
 	
-	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm) {
+	private void insertEstParam(final int estModelId, final int paramId, final Double value, final Double paramErr, String unit, ParametricModel pm, boolean isDepIndep) {
 		try {			
 			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteParameter\" (\"GeschaetztesModell\", \"Parameter\", \"Wert\", \"StandardError\", \"Einheit\") VALUES(?, ?, ?, ?, ?)");
 			ps.setInt(1, estModelId);
@@ -1901,7 +1903,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			Object unitID = unit == null || unit.isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
 			if (unitID == null) {
-				pm.setWarning(pm.getWarning() + "\nUnit not defined for fitted model with ID " + estModelId + "!");
+				if (isDepIndep) pm.setWarning(pm.getWarning() + "\nUnit not defined for fitted model with ID " + estModelId + "!");
 				ps.setNull(5, Types.INTEGER);
 			}
 			else ps.setInt(5, (int) unitID);

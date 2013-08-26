@@ -49,6 +49,7 @@ public class PmmXmlDoc {
 	private static final String ELEMENT_PMMDOC = "PmmDoc";
 	
 	private List<PmmXmlElementConvertable> elementSet;
+	private String warning = "";
 	
 	public PmmXmlDoc() {
 		elementSet = new ArrayList<PmmXmlElementConvertable>();
@@ -112,6 +113,12 @@ public class PmmXmlDoc {
 				elementSet.add(new PmmTimeSeries(el));
 			}	
 		}					
+	}
+	public void addWarning(String warning) {
+		this.warning += warning;
+	}
+	public String getWarning() {
+		return warning;
 	}
 	public void add(PmmXmlElementConvertable el) {
 		elementSet.add(el);

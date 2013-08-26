@@ -155,16 +155,16 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         set = new SettingsHelper();
     }
 
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, null);
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, EstimatedModelReaderNodeModel emrnm) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, null, emrnm);
     }
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, String where) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where);
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where, emrnm);
     }
     public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
-    		boolean modelFilterEnabled, String modelList, String where) throws SQLException {
+    		boolean modelFilterEnabled, String modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
     	
     	List<KnimeTuple> resultSet = new ArrayList<KnimeTuple>(); 
 
@@ -277,6 +277,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		}
     		depDoc.add(dx);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
+			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!");
     		
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -296,9 +297,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
-    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
-    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit")));
-    		tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
+			PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
+    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit"));
+    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
+			if (emrnm != null && !ixml.getWarning().isEmpty()) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!");
+
+			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
     				result.getArray(Bfrdb.ATT_MAX)));
     		
@@ -401,7 +405,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
     			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-				modelFilterEnabled, modelList, null);
+				modelFilterEnabled, modelList, null, this);
     	
     	// close data buffer
     	buf.close();

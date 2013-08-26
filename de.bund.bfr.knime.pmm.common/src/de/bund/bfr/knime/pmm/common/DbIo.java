@@ -132,6 +132,7 @@ public class DbIo {
 						IndepXml ix = new IndepXml(onas,mid,mad,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						ix.setName(nas);
 						indepDoc.add(ix);
+						if (ix.getUnit() == null || ix.getUnit().isEmpty()) indepDoc.addWarning("\nUnit not defined for independant variable '" + ix.getName() + "'\n");
 					}					
 				}
 			}

@@ -325,24 +325,28 @@ public class Bfrdb extends Hsqldbiface {
 			+"\""+REL_MODEL+"\".\""+ATT_NAME+"\",\n"
 			+"\""+ATT_MINVALUE+"\",\n"
 			+"\""+ATT_MAXVALUE+"\",\n"
+			+"\"ParamDescription\",\n"
 			+"\"DepCategory\",\n"
 			+"\"DepUnit\",\n"
+			+"\"DepDescription\",\n"
 			+"\"IndepCategory\",\n"
 			+"\"IndepUnit\",\n"
 			+"\""+ATT_MININDEP+"\",\n"
 			+"\""+ATT_MAXINDEP+"\",\n"
+			+"\"IndepDescription\",\n"
 			+"\"LitMID\",\n"
 			+"\"LitM\",\n"
-			+"\""+REL_MODEL+"\".\""+ATT_LEVEL+"\",\n"
-			+"\""+REL_MODEL+"\".\"Klasse\"\n"
+			+"\"Modellkatalog\".\""+ATT_LEVEL+"\",\n"
+			+"\"Modellkatalog\".\"Klasse\"\n"
 			+"\n"
-			+"FROM \""+REL_MODEL+"\"\n"
+			+"FROM \"Modellkatalog\"\n"
 			+"\n"
 			+"LEFT JOIN \"LitMView\"\n"
-			+"ON \""+REL_MODEL+"\".\"ID\"=\"LitMView\".\""+ATT_MODELID+"\"\n"
+			+"ON \"Modellkatalog\".\"ID\"=\"LitMView\".\""+ATT_MODELID+"\"\n"
 			+"\n"
 			+"LEFT JOIN(\n"
 			+"    SELECT \""+ATT_MODELID+"\", \""+ATT_PARAMNAME+"\",\n"
+			+"        \"Beschreibung\" AS \"DepDescription\",\n"
 			+"        \"kind of property / quantity\" AS \"DepCategory\",\n"
 			+"        \"display in GUI as\" AS \"DepUnit\"\n"
 			+"    FROM \"ModellkatalogParameter\"\n"
@@ -356,20 +360,22 @@ public class Bfrdb extends Hsqldbiface {
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MININDEP+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXINDEP+"\",\n"
+			+"        ARRAY_AGG( \"Beschreibung\" )AS \"IndepDescription\",\n"
 			+"        ARRAY_AGG( \"kind of property / quantity\" )AS \"IndepCategory\",\n"
 			+"        ARRAY_AGG( \"display in GUI as\" )AS \"IndepUnit\"\n"
 			+"    FROM \"ModellkatalogParameter\"\n"
 			+" LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\""
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=1\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"I\"\n"
-			+"ON \""+REL_MODEL+"\".\"ID\"=\"I\".\""+ATT_MODELID+"\"\n"
+			+"ON \"Modellkatalog\".\"ID\"=\"I\".\""+ATT_MODELID+"\"\n"
 			+"\n"
 			+"LEFT JOIN(\n"
 			+"    SELECT\n"
 			+"        \""+ATT_MODELID+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MINVALUE+"\",\n"
-			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXVALUE+"\"\n"
+			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXVALUE+"\",\n"
+			+"        ARRAY_AGG( \"Beschreibung\" )AS \"ParamDescription\"\n"
 			+"    FROM \"ModellkatalogParameter\"\n"
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=2\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"P\"\n"
@@ -416,10 +422,13 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\"Einheiten\",\n"
 			+"    \"EstModelPrimView\".\"DepCategory\",\n"
 			+"    \"EstModelPrimView\".\"DepUnit\",\n"
+			+"    \"EstModelPrimView\".\"DepDescription\",\n"
 			+"    \"EstModelPrimView\".\"IndepCategory\",\n"
 			+"    \"EstModelPrimView\".\"IndepUnit\",\n"
+			+"    \"EstModelPrimView\".\"IndepDescription\",\n"
 			+"    \"EstModelPrimView\".\"ParCategory\",\n"
 			+"    \"EstModelPrimView\".\"ParUnit\",\n"
+			+"    \"EstModelPrimView\".\"ParamDescription\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_NAME+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MODELID+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_ESTMODELID+"\",\n"
@@ -543,7 +552,9 @@ public class Bfrdb extends Hsqldbiface {
 					tuple.setValue( Model1Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();
-		    		doc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
+		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
+		    		dx.setDescription(result.getString("DepDescription"));
+		    		doc.add(dx);
 		    		tuple.setValue( Model1Schema.ATT_DEPENDENT, doc );
 		    		
 		    		tuple.setValue(
@@ -552,7 +563,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
-		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));
+		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription")));
 		    		
 		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -562,7 +573,8 @@ public class Bfrdb extends Hsqldbiface {
 		    				null,null,
 		    				null,null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
-		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
+		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
+		    				result.getArray("ParamDescription")) );	
 		    		
 					doc = new PmmXmlDoc();
 					doc.add( new EstModelXml(
@@ -618,7 +630,9 @@ public class Bfrdb extends Hsqldbiface {
 					tuple.setValue( Model2Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();
-		    		doc.add(new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit")));
+		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
+		    		dx.setDescription(result.getString("DepDescription"));
+		    		doc.add(dx);
 		    		tuple.setValue( Model2Schema.ATT_DEPENDENT, doc );
 		    		
 		    		tuple.setValue(
@@ -627,7 +641,8 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
-		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit")));
+		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"),
+		    				result.getArray("IndepDescription")));
 		    		
 		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -637,7 +652,8 @@ public class Bfrdb extends Hsqldbiface {
 		    				null,null,
 		    				null,null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
-		    				result.getArray( Bfrdb.ATT_MAXVALUE ) ) );	
+		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
+		    				result.getArray("ParamDescription")) );	
 		    		
 					doc = new PmmXmlDoc();
 					doc.add( new EstModelXml(

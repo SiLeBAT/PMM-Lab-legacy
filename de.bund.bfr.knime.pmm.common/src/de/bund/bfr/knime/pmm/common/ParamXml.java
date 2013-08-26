@@ -25,6 +25,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	private Double maxGuess = null;
 	private String category = null;
 	private String unit = null;
+	private String description = null;
 	
 	private HashMap<String, Double> correlations = new HashMap<String, Double>();
 	
@@ -70,6 +71,8 @@ public class ParamXml implements PmmXmlElementConvertable {
 			setCategory(strDbl.isEmpty() ? null : strDbl);
 			strDbl = xmlElement.getAttribute("unit") != null ? xmlElement.getAttribute("unit").getValue().trim() : "";
 			setUnit(strDbl.isEmpty() ? null : strDbl);
+			strDbl = xmlElement.getAttribute("description") != null ? xmlElement.getAttribute("description").getValue().trim() : "";
+			setDescription(strDbl.isEmpty() ? null : strDbl);
 			
 			for (Element el : xmlElement.getChildren()) {
 				if (el.getName().equals("correlation")) {
@@ -104,6 +107,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public Double gett() {return t;}
 	public String getCategory() {return category;}
 	public String getUnit() {return unit;}
+	public String getDescription() {return description;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
 	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
@@ -115,6 +119,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 	public void sett(Double t) {this.t = (t == null) ? null : t;}	
 	public void setCategory(String category) {this.category = category;}
 	public void setUnit(String unit) {this.unit = unit;}
+	public void setDescription(String description) {this.description = description;}
 
 	public Double getMinGuess() {
 		return minGuess;
@@ -144,6 +149,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 		modelElement.setAttribute("maxGuess", "" + (maxGuess == null || Double.isNaN(maxGuess) ? "" : maxGuess));
 		modelElement.setAttribute("category", category == null ? "" : category);
 		modelElement.setAttribute("unit", unit == null ? "" : unit);
+		modelElement.setAttribute("description", description == null ? "" : description);
 
 		for (String origname : correlations.keySet()) {
 			Element element = new Element("correlation");
@@ -170,6 +176,7 @@ public class ParamXml implements PmmXmlElementConvertable {
         list.add("MaxGuess");
         list.add("Category");
         list.add("Unit");
+        list.add("Description");
         return list;
 	}
 	public static DataType getDataType(String element) {
@@ -207,6 +214,9 @@ public class ParamXml implements PmmXmlElementConvertable {
 			return StringCell.TYPE;
 		}
 		else if (element.equalsIgnoreCase("unit")) {
+			return StringCell.TYPE;
+		}
+		else if (element.equalsIgnoreCase("description")) {
 			return StringCell.TYPE;
 		}
 		return null;

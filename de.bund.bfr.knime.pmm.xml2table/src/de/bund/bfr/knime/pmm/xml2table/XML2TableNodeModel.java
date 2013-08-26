@@ -456,6 +456,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("t", px.gett() == null ? CellIO.createMissingCell() : new DoubleCell(px.gett()));
 		                			addCells.put("category", px.getCategory() == null ? CellIO.createMissingCell() : new StringCell(px.getCategory()));
 		                			addCells.put("unit", px.getUnit() == null ? CellIO.createMissingCell() : new StringCell(px.getUnit()));
+		                			addCells.put("description", px.getDescription() == null ? CellIO.createMissingCell() : new StringCell(px.getDescription()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof IndepXml) {
@@ -466,6 +467,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("max", ix.getMax() == null ? CellIO.createMissingCell() : new DoubleCell(ix.getMax()));
 		                			addCells.put("category", ix.getCategory() == null ? CellIO.createMissingCell() : new StringCell(ix.getCategory()));
 		                			addCells.put("unit", ix.getUnit() == null ? CellIO.createMissingCell() : new StringCell(ix.getUnit()));
+		                			addCells.put("description", ix.getDescription() == null ? CellIO.createMissingCell() : new StringCell(ix.getDescription()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof DepXml) {
@@ -474,6 +476,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                			addCells.put("origname", dx.getOrigName() == null ? CellIO.createMissingCell() : new StringCell(dx.getOrigName())); 
 		                			addCells.put("category", dx.getCategory() == null ? CellIO.createMissingCell() : new StringCell(dx.getCategory()));
 		                			addCells.put("unit", dx.getUnit() == null ? CellIO.createMissingCell() : new StringCell(dx.getUnit()));
+		                			addCells.put("description", dx.getDescription() == null ? CellIO.createMissingCell() : new StringCell(dx.getDescription()));
 		                			v.add(addCells);
 		                		}
 		                		else if (el instanceof TimeSeriesXml) {

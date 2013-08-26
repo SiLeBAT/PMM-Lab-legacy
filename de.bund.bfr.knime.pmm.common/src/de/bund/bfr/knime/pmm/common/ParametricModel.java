@@ -472,6 +472,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		parameter.add(px);
 	}
 		
+	public void setIndepDescription(final String name, final String description) {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				if (ix.getName().equals(name)) {
+					ix.setDescription(description);
+					break;
+				}
+			}
+		}
+	}
 	public void setIndepMax(final String name, final Double max) {
 		for (PmmXmlElementConvertable el : independent.getElementSet()) {
 			if (el instanceof IndepXml) {
@@ -549,6 +560,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}	
+	public void setParamDescription(final String name, final String description) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					px.setDescription(description);
+					break;
+				}
+			}
+		}
+	}
 	public void setParamMax( final String name, final Double max ) {
 		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 			if (el instanceof ParamXml) {
@@ -706,6 +728,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		return null;
 	}
 	
+	public String getParamDescription( final String name ) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(name)) {
+					return px.getDescription();
+				}
+			}
+		}
+		return null;
+	}
 	public Double getParamMax( final String name ) {
 		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 			if (el instanceof ParamXml) {
@@ -777,6 +810,17 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		return null;
 	}
 
+	public String getIndepDescription(final String name) {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				if (ix.getName().equals(name)) {
+					return ix.getDescription();
+				}
+			}
+		}
+		return null;
+	}
 	public Double getIndepMax( final String name ) {
 		for (PmmXmlElementConvertable el : independent.getElementSet()) {
 			if (el instanceof IndepXml) {
@@ -810,6 +854,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 		return null;
+	}
+	public void setDepDescription(String description) {
+		if (depXml != null) depXml.setDescription(description);
+	}
+	public String getDepDescription() {
+		return depXml == null ? null : depXml.getDescription();
 	}
 	public String getDepCategory() {
 		return depXml == null ? null : depXml.getCategory();

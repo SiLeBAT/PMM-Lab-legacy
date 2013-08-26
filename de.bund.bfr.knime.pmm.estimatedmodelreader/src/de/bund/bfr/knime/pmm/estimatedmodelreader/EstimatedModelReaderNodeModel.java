@@ -275,6 +275,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		else {
     			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
     		}
+			dx.setDescription(result.getString("DepDescription"));
     		depDoc.add(dx);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!");
@@ -298,13 +299,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
 			PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
-    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit"));
+    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"));
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
 			if (emrnm != null && !ixml.getWarning().isEmpty()) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!");
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
-    				result.getArray(Bfrdb.ATT_MAX)));
+    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription")));
     		
     		String s = result.getString("LitMID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s));
@@ -338,6 +339,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		else {
 	    			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
 	    		}
+    			dx.setDescription(result.getString("DepDescription"));
 	    		depDoc.add(dx);
 	    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
 	    		
@@ -358,10 +360,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP+"2"),
-	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"), result.getArray("IndepUnit2")));
+	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"), result.getArray("IndepUnit2"), result.getArray("IndepDescription2")));
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("ZeitEinheit2"), null, result.getArray("Einheiten2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
-	    				result.getArray(Bfrdb.ATT_MAX+"2")));
+	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2")));
 
 	    		s = result.getString("LitMID2");
 	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s));

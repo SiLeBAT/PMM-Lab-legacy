@@ -65,7 +65,7 @@ public class ModelTableModel extends JTable {
 	private static final long serialVersionUID = -6782674430592418376L;
 		
 	// If changing here: please look at: getValueAt(), setValueAt(), isCellEditable(), getColumnClass(), MyTableCellRenderer
-	private String[] columns = new String[]{"Parameter", "Unit", "Independent", "Value", "StandardErr", "Min", "Max"};
+	private String[] columns = new String[]{"Parameter", "Unit", "Independent", "Value", "StandardErr", "Min", "Max", "Description"};
 	private HashMap<String, ParametricModel> m_secondaryModels = null;
 	private JRadioButton radioButton3 = null;
 	private ParametricModel thePM;
@@ -168,6 +168,7 @@ public class ModelTableModel extends JTable {
         	if (thePM == null) return null;
         	if (rowIndex == 0) {
         		if (columnIndex < 2) return thePM.getDepVar();
+        		else if (columnIndex > 6) return thePM.getDepDescription();
         		else return null;
         	}
         	SortedMap<String, Boolean> sm = thePM.getAllParVars();
@@ -186,6 +187,8 @@ public class ModelTableModel extends JTable {
             		(thePM.getParamMin(rowID) == null || Double.isNaN(thePM.getParamMin(rowID)) ? null : thePM.getParamMin(rowID));
             	if (columnIndex == 6) return isIndep ? (thePM.getIndepMax(rowID) == null || Double.isNaN(thePM.getIndepMax(rowID)) ? null : thePM.getIndepMax(rowID)) :
             		(thePM.getParamMax(rowID) == null || Double.isNaN(thePM.getParamMax(rowID)) ? null : thePM.getParamMax(rowID));
+            	if (columnIndex == 7) return isIndep ? (thePM.getIndepDescription(rowID) == null ? null : thePM.getIndepDescription(rowID)) :
+            		(thePM.getParamDescription(rowID) == null ? null : thePM.getParamDescription(rowID));
         	}
         	return null;
         }
@@ -195,6 +198,11 @@ public class ModelTableModel extends JTable {
         	if (rowIndex == 0) {
         		if (columnIndex == 1) {
         			rowHasChanged.put(thePM.getDepVar(), true);
+        		}
+        		else if (columnIndex == 7) {
+            		thePM.setDepDescription(o == null ? "" : o.toString());
+        			rowHasChanged.put(thePM.getDepVar(), true);
+            		hasChanged = true;
         		}
         		else return;
         	}
@@ -226,6 +234,10 @@ public class ModelTableModel extends JTable {
                 	if (isIndep) {
                     	if (columnIndex == 5 && (o == null || o instanceof Double)) thePM.setIndepMin(paramName, (Double) o);
                     	if (columnIndex == 6 && (o == null || o instanceof Double)) thePM.setIndepMax(paramName, (Double) o);
+                    	if (columnIndex == 7) {
+                    		thePM.setIndepDescription(paramName, o == null ? "" : o.toString());
+                    		hasChanged = true;
+                    	}
                 	}
                 	else {
                     	if (columnIndex == 3 && (o == null || o instanceof Double)) thePM.setParamValue(paramName, (Double) o);
@@ -236,6 +248,10 @@ public class ModelTableModel extends JTable {
                     	}
                     	if (columnIndex == 6 && (o == null || o instanceof Double)) {
                     		thePM.setParamMax(paramName, (Double) o);
+                    		hasChanged = true;
+                    	}
+                    	if (columnIndex == 7) {
+                    		thePM.setParamDescription(paramName, o == null ? "" : o.toString());
                     		hasChanged = true;
                     	}
                 	}
@@ -264,6 +280,7 @@ public class ModelTableModel extends JTable {
         	else if (columnIndex == 4) return Double.class;
         	else if (columnIndex == 5) return Double.class;
         	else if (columnIndex == 6) return Double.class;
+        	else if (columnIndex == 7) return String.class;
         	else return Object.class;
         }
     }
@@ -323,6 +340,13 @@ public class ModelTableModel extends JTable {
 				  checkbox.setSelected(value == null ? false : (Boolean) value);
 				  checkbox.setBackground(Color.WHITE);
 				  c = checkbox;
+			  }
+			  else if (columnIndex == 7) {
+				  JTextField text = new JTextField();
+				  text.setEnabled(true);
+				  text.setText(value == null ? "" : value.toString());
+				  text.setBackground(Color.WHITE);
+				  c = text;
 			  }
 			  else {
 				    DoubleTextField editor = new DoubleTextField(true);

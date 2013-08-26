@@ -251,14 +251,14 @@ public class MMC_M extends JPanel {
 					String modelName = result.getString(Bfrdb.ATT_NAME);
 					String formula = result.getString(Bfrdb.ATT_FORMULA);
 					int modelID = result.getInt(Bfrdb.ATT_MODELID);
+					String depDesc = result.getString("DepDescription");
 
-					pm = new ParametricModel(modelName, formula, new DepXml(
-							result.getString(Bfrdb.ATT_DEP)), level, modelID);
+					pm = new ParametricModel(modelName, formula, new DepXml(result.getString(Bfrdb.ATT_DEP)), level, modelID);
+					pm.setDepDescription(depDesc);
 					String s = result.getString("LitMID");
-					if (s != null)
-						pm.setMLit(db.getLiteratureXml(s));
+					if (s != null) pm.setMLit(db.getLiteratureXml(s));
 					manageDBMinMax(result, pm);
-					manageIndep(pm, result.getArray(Bfrdb.ATT_INDEP));
+					manageIndep(pm, result);
 
 					modelNameBox.addItem(pm);
 					// System.err.println("added2:" + pm + "\t" +
@@ -278,11 +278,13 @@ public class MMC_M extends JPanel {
 		Array array = result.getArray(Bfrdb.ATT_PARAMNAME);
 		Array arrayMin = result.getArray(Bfrdb.ATT_MINVALUE);
 		Array arrayMax = result.getArray(Bfrdb.ATT_MAXVALUE);
+		Array arrayDesc = result.getArray("ParamDescription");
 		if (array != null && arrayMin != null && arrayMax != null) {
 			try {
 				Object[] o = (Object[]) array.getArray();
 				Object[] oMin = (Object[]) arrayMin.getArray();
 				Object[] oMax = (Object[]) arrayMax.getArray();
+				Object[] oDesc = (Object[]) arrayDesc.getArray();
 				if (o != null && o.length > 0) {
 					for (int ii = 0; ii < o.length; ii++) {
 						pm.addParam(o[ii].toString(), Double.NaN, Double.NaN);
@@ -296,6 +298,10 @@ public class MMC_M extends JPanel {
 							pm.setParamMax(o[ii].toString(),
 									Double.parseDouble(oMax[ii].toString()));
 						}
+						if (oDesc != null && oDesc.length > ii
+								&& oDesc[ii] != null) {
+							pm.setParamDescription(o[ii].toString(), oDesc[ii].toString());
+						}
 					}
 				}
 			} catch (SQLException e) {
@@ -304,14 +310,25 @@ public class MMC_M extends JPanel {
 		}
 	}
 
-	private String manageIndep(ParametricModel pm, Array array) {
+	private String manageIndep(ParametricModel pm, ResultSet rs) throws SQLException {
 		String result = null;
+		Array array = rs.getArray(Bfrdb.ATT_INDEP);
+		Array min = rs.getArray(Bfrdb.ATT_MININDEP);
+		Array max = rs.getArray(Bfrdb.ATT_MAXINDEP);
+		Array unit = rs.getArray("IndepUnit");
+		Array desc = rs.getArray("IndepDescription");
 		if (array != null) {
 			try {
 				Object[] o = (Object[]) array.getArray();
+				Object[] mi = (Object[]) min.getArray();
+				Object[] ma = (Object[]) max.getArray();
+				Object[] u = (Object[]) unit.getArray();
+				Object[] d = (Object[]) desc.getArray();
 				if (o != null && o.length > 0) {
-					for (int i = 0; i < o.length; i++) {
-						pm.addIndepVar(o[i].toString());
+					for (int i = 0; i < o.length; i++) {						
+						pm.addIndepVar(o[i].toString(), mi == null || mi[i] == null ? null : Double.parseDouble(mi[i].toString()),
+								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), null, u == null || u[i] == null ? null : u[i].toString());
+						pm.setIndepDescription(o[i].toString(), d[i] == null ? null : d[i].toString());
 					}
 				}
 			} catch (SQLException e) {

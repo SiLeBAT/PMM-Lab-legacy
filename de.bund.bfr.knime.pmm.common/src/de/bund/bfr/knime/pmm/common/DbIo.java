@@ -6,7 +6,24 @@ import java.util.LinkedHashMap;
 
 public class DbIo {
 
-    public static String convertArray2String(Array array) {
+	public static String stripNonValidXMLCharacters(String in) {
+	      StringBuffer out = new StringBuffer(); // Used to hold the output.
+	      char current; // Used to reference the current character.
+
+	      if (in == null || ("".equals(in))) return ""; // vacancy test.
+	      for (int i = 0; i < in.length(); i++) {
+	          current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
+	          if ((current == 0x9) ||
+	              (current == 0xA) ||
+	              (current == 0xD) ||
+	              ((current >= 0x20) && (current <= 0xD7FF)) ||
+	              ((current >= 0xE000) && (current <= 0xFFFD)) ||
+	              ((current >= 0x10000) && (current <= 0x10FFFF)))
+	              out.append(current);
+	      }
+	      return out.toString();
+	} 
+	public static String convertArray2String(Array array) {
     	String result = null;
 	    if (array != null) {
 		    try {
@@ -63,7 +80,7 @@ public class DbIo {
 		return tsDoc;    	
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
-    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max) {
+    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -75,6 +92,7 @@ public class DbIo {
 				Object[] er = (error == null) ? null : (Object[])error.getArray();
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
+				Object[] cd = (Object[])desc.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
@@ -103,6 +121,7 @@ public class DbIo {
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
 						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						px.setName(nas);
+						if (cd != null && cd[i] != null) px.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
 						paramDoc.add(px);
 					}					
 				}
@@ -113,7 +132,7 @@ public class DbIo {
 	    }
 		return paramDoc;
     }
-    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array categories, Array units) {
+    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array categories, Array units, Array desc) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -122,6 +141,7 @@ public class DbIo {
 				Object[] ma = (max == null) ? null : (Object[])max.getArray();
 				Object[] cc = (categories == null) ? null : (Object[])categories.getArray();
 				Object[] cu = (units == null) ? null : (Object[])units.getArray();
+				Object[] cd = (desc == null) ? null : (Object[])desc.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
@@ -131,6 +151,7 @@ public class DbIo {
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
 						IndepXml ix = new IndepXml(onas,mid,mad,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						ix.setName(nas);
+						if (cd != null && cd[i] != null) ix.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
 						indepDoc.add(ix);
 						if (ix.getUnit() == null || ix.getUnit().isEmpty()) indepDoc.addWarning("\nUnit not defined for independant variable '" + ix.getName() + "'\n");
 					}					

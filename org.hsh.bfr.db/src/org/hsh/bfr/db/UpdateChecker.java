@@ -87,7 +87,7 @@ public class UpdateChecker {
 					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ModellkatalogParameter") +
 							" SET " + DBKernel.delimitL("Einheit") + "=1 WHERE " +
 							DBKernel.delimitL("Modell") + "=" + rs.getInt("ID") + " AND " +
-							DBKernel.delimitL("Parametertyp") + "=3", false); // dependent (3) -> log10(count/g)
+							DBKernel.delimitL("Parametertyp") + "=3", false); // dependent (3) -> log10(count/g) (1)
 				} while (rs.next());
 			}
 		}

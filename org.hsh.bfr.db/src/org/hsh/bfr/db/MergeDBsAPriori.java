@@ -42,7 +42,8 @@ public class MergeDBsAPriori {
 			try {
 				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
-				String folder = "C:/Users/Armin/Desktop/KHB/";
+				//String folder = "C:/Users/Armin/Desktop/KHB/";
+				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
 				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Agenzien_Matrices"), DBKernel.myList.getTable("Krankheitsbilder")};
 				idConverter = new Hashtable<String, Integer>();
 				go4It(folder, "defad", "de6!§5ddy", myTs);
@@ -166,7 +167,7 @@ public class MergeDBsAPriori {
 						else ps.setNull(i, java.sql.Types.DATE);
 					}
 					else {
-						if (sql != null) sql += " AND " + DBKernel.delimitL(fn[i-1]) + "=" + rs.getDate(i+1);
+						if (sql != null) sql += " AND " + DBKernel.delimitL(fn[i-1]) + "='" + rs.getString(i+1) + "'"; // besser rs.getDate(i+1) ???
 						else ps.setDate(i, rs.getDate(i+1));
 					}
 				}

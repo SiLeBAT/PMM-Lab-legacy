@@ -259,7 +259,7 @@ public class MyTable {
 	}
 	public boolean isReadOnly() {
 		return tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
-				tableName.equals("Einheiten") || tableName.equals("Matrices") || tableName.equals("Agenzien") || 
+				tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
 				tableName.equals("ICD10_Kodes") || 
 				DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);
 	}

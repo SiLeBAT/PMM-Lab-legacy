@@ -146,21 +146,7 @@ public class DBKernel {
 	public static String DBVersion = "1.7.0";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
-	/*
-	select * from "ChangeLog" WHERE "Tabelle" = 'Matrices' ID=33 checken -> rückgängig machen!!! Fleisch warmblütiger Tiere auch tiefgefroren - In Agenzien_Matrices 2 Einträge ändern!
-	Agenskatalog: 0104 ersetzt
-	select * from "ChangeLog" WHERE "Tabelle" = 'Agenzien' ID=20 (10 Änderungen notwendig),63 (0 Änderungen notwendig),178 (0 Änderung notwendig),756 (14 Änderungen notwendig),3605 (0104)
-	
-	Agenzien_Matrices
-	DoubleKennzahlen
-	Krankheitsbilder
-	Krankheitsbilder_Risikogruppen
-	Krankheitsbilder_Symptome
-	Risikogruppen
-	Symptome
-	Literatur
-	ICD10_Kodes
-	*/
+
 	public static String getTempSA(String dbPath) {
 		//String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
 		//if (sa.equals("00")) {

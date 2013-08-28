@@ -40,6 +40,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import org.hsh.bfr.db.MergeDBs;
+import org.hsh.bfr.db.MergeDBsAPriori;
 
 /**
  * @author Armin
@@ -61,6 +62,7 @@ public MergeAction(String name, Icon icon, String toolTip) {
 
   public void actionPerformed(ActionEvent e) {
  // Zusammenführung
-	  new MergeDBs();
+	  //new MergeDBs();
+	  new MergeDBsAPriori();
 	}
 }

@@ -39,7 +39,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
-import org.hsh.bfr.db.MergeDBs;
 import org.hsh.bfr.db.MergeDBsAPriori;
 
 /**

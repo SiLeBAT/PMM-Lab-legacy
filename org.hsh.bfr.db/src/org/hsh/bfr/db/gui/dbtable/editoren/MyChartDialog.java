@@ -46,6 +46,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.*;
 
+import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.imports.InfoBox;
 import org.jfree.chart.ChartFactory;
@@ -129,6 +130,13 @@ public class MyChartDialog extends JDialog {
 			"Außerdem ist es möglich verschiedene Einheiten für Zeiten anzugeben, z.B. 3d 13h 13m 5s\n" +
 			"Für die y-Achse können einfache Zahlen angegeben werden oder auch Funktionen (mit x als Variable),\n" +
 			"z.B. x^2, 2*x, exp(x), log10(x), ln(x)";
+		if (DBKernel.getLanguage().equals("en")) {
+			hilfe = "In this table values for time (x-axis) and conditions (e.g. temperature; y-axis) can be entered.\n" +
+					"Define time intervals using ‘-‘ (e.g. 3-5).\n" +
+					"Assign time units using d (day), h (hour), m (minute) or s (second), e.g. 3d 13h 13m 5s.\n" +
+					"Values on the y-axis may be numerical data or functions with x as variable, e.g. x^2, 2*x, exp(x), log10(x), ln(x).\n" +
+					"Please note that it is necessary to use ‘*’ to indicate that x is multiplied.";
+		}
 		InfoBox ib = new InfoBox(this, hilfe, true, new Dimension(750, 300), null, true);
 		ib.setVisible(true);    				  										        			
 	}

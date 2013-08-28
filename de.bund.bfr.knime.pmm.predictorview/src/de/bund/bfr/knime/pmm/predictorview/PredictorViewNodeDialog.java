@@ -350,14 +350,17 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			if (plotable != null) {
 				try {
-					points.put(id, plotable.getFunctionSamplePoints(
-							AttributeUtilities.TIME,
-							AttributeUtilities.CONCENTRATION,
-							configPanel.getUnitX(), configPanel.getUnitY(),
-							configPanel.getTransformX(),
-							configPanel.getTransformY(),
-							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-							Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY));
+					points.put(reader.getShortIds().get(id), plotable
+							.getFunctionSamplePoints(AttributeUtilities.TIME,
+									AttributeUtilities.CONCENTRATION,
+									configPanel.getUnitX(),
+									configPanel.getUnitY(),
+									configPanel.getTransformX(),
+									configPanel.getTransformY(),
+									Double.NEGATIVE_INFINITY,
+									Double.POSITIVE_INFINITY,
+									Double.NEGATIVE_INFINITY,
+									Double.POSITIVE_INFINITY));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}

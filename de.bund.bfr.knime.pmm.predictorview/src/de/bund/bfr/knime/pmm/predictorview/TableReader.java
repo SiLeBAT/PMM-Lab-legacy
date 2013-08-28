@@ -56,6 +56,7 @@ public class TableReader {
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
 	private Map<String, String> longLegend;
+	private Map<String, String> shortIds;
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
 			Map<String, String> lagParams) {
@@ -126,6 +127,7 @@ public class TableReader {
 		plotables = new LinkedHashMap<>();
 		shortLegend = new LinkedHashMap<>();
 		longLegend = new LinkedHashMap<>();
+		shortIds = new LinkedHashMap<>();
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
 		doubleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED,
@@ -216,6 +218,8 @@ public class TableReader {
 						ChartConstants.STATUS);
 			}
 		}
+
+		int index = 1;
 
 		for (KnimeTuple tuple : tuples) {
 			String id = ((EstModelXml) tuple.getPmmXml(
@@ -326,11 +330,13 @@ public class TableReader {
 				literature = literature.substring(1);
 			}
 
-			shortLegend.put(id, modelName);
-			longLegend.put(id, modelName + " " + formula);
-			stringColumnValues.get(0).add(id);
+			shortLegend.put(id, index + "");
+			longLegend.put(id, index + "");
+			shortIds.put(id, index + "");
+			stringColumnValues.get(0).add(index + "");
 			stringColumnValues.get(2).add(modelName);
 			stringColumnValues.get(3).add(literature);
+			index++;
 
 			if (isTertiaryModel) {
 				Set<String> secModels = new LinkedHashSet<>();
@@ -467,6 +473,10 @@ public class TableReader {
 		return plotables;
 	}
 
+	public Map<String, String> getShortIds() {
+		return shortIds;
+	}
+
 	public List<String> getStringColumns() {
 		return stringColumns;
 	}
@@ -530,7 +540,7 @@ public class TableReader {
 	public Map<String, String> getNewInitParams() {
 		return newInitParams;
 	}
-	
+
 	public Map<String, String> getNewLagParams() {
 		return newLagParams;
 	}

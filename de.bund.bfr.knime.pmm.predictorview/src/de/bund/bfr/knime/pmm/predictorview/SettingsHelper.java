@@ -72,9 +72,7 @@ public class SettingsHelper {
 	protected static final String CFG_TRANSFORMX = "TransformX";
 	protected static final String CFG_TRANSFORMY = "TransformY";
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
-	protected static final String CFG_MODELFILTER = "ModelFilter";
-	protected static final String CFG_DATAFILTER = "DataFilter";
+	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";	
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
 	protected static final String CFG_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
 	protected static final String CFG_LAGPARAMETERS = "LagParameters";
@@ -115,9 +113,7 @@ public class SettingsHelper {
 	private String transformX;
 	private String transformY;
 	private boolean standardVisibleColumns;
-	private List<String> visibleColumns;
-	private String modelFilter;
-	private String dataFilter;
+	private List<String> visibleColumns;	
 	private String fittedFilter;
 	private Map<String, String> concentrationParameters;
 	private Map<String, String> lagParameters;
@@ -146,9 +142,7 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
-		modelFilter = null;
-		dataFilter = null;
+		visibleColumns = new ArrayList<>();		
 		fittedFilter = null;
 		concentrationParameters = new LinkedHashMap<>();
 		lagParameters = new LinkedHashMap<>();
@@ -291,19 +285,7 @@ public class SettingsHelper {
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
-		}
-
-		try {
-			modelFilter = settings.getString(CFG_MODELFILTER);
-		} catch (InvalidSettingsException e) {
-			modelFilter = null;
-		}
-
-		try {
-			dataFilter = settings.getString(CFG_DATAFILTER);
-		} catch (InvalidSettingsException e) {
-			dataFilter = null;
-		}
+		}		
 
 		try {
 			fittedFilter = settings.getString(CFG_FITTEDFILTER);
@@ -375,9 +357,7 @@ public class SettingsHelper {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addBoolean(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));
-		settings.addString(CFG_MODELFILTER, modelFilter);
-		settings.addString(CFG_DATAFILTER, dataFilter);
+				XmlConverter.objectToXml(visibleColumns));		
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
 		settings.addString(CFG_CONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(concentrationParameters));
@@ -565,22 +545,6 @@ public class SettingsHelper {
 
 	public void setVisibleColumns(List<String> visibleColumns) {
 		this.visibleColumns = visibleColumns;
-	}
-
-	public String getModelFilter() {
-		return modelFilter;
-	}
-
-	public void setModelFilter(String modelFilter) {
-		this.modelFilter = modelFilter;
-	}
-
-	public String getDataFilter() {
-		return dataFilter;
-	}
-
-	public void setDataFilter(String dataFilter) {
-		this.dataFilter = dataFilter;
 	}
 
 	public String getFittedFilter() {

@@ -159,8 +159,7 @@ public class TableReader {
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(IDENTIFIER,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
 					ChartConstants.STATUS));
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-					Model2Schema.MODELNAME, ChartConstants.STATUS);
+			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
 			conditions = new ArrayList<>();
@@ -189,8 +188,7 @@ public class TableReader {
 				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						IDENTIFIER, Model1Schema.MODELNAME,
 						ChartConstants.STATUS, AttributeUtilities.DATAID));
-				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
-						ChartConstants.STATUS, AttributeUtilities.DATAID);
+				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
 				conditions = new ArrayList<>();

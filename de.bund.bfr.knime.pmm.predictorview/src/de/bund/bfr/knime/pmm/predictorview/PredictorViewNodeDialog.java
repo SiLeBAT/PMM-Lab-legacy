@@ -282,10 +282,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				reader.getFilterableStringColumns(), null,
 				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
-		selectionPanel.setShapes(set.getShapes());
-		selectionPanel.setFilter(Model1Schema.MODELNAME, set.getModelFilter());
-		selectionPanel
-				.setFilter(AttributeUtilities.DATAID, set.getDataFilter());
+		selectionPanel.setShapes(set.getShapes());		
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
@@ -407,9 +404,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
-		set.setVisibleColumns(selectionPanel.getVisibleColumns());
-		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
-		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());		
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 
 		set.getSelectedTuples().clear();

@@ -25,10 +25,10 @@ public class MergeDBsAPriori {
 	select * from "ChangeLog" WHERE "Tabelle" = 'Agenzien' ID=20 (10 Änderungen notwendig),63 (0 Änderungen notwendig),178 (0 Änderung notwendig),756 (14 Änderungen notwendig),3605 (0104)
 	
 	Agenzien_Matrices
-	Krankheitsbilder
-
 	Krankheitsbilder_Risikogruppen
 	Krankheitsbilder_Symptome
+
+	Krankheitsbilder
 	Risikogruppen
 	Symptome
 	DoubleKennzahlen
@@ -44,7 +44,9 @@ public class MergeDBsAPriori {
 	
 				//String folder = "C:/Users/Armin/Desktop/KHB/";
 				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
-				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Agenzien_Matrices"), DBKernel.myList.getTable("Krankheitsbilder")};
+				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Agenzien_Matrices"),
+						DBKernel.myList.getTable("Krankheitsbilder_Risikogruppen"),
+						DBKernel.myList.getTable("Krankheitsbilder_Symptome")};
 				idConverter = new Hashtable<String, Integer>();
 				go4It(folder, "defad", "de6!§5ddy", myTs);
 
@@ -233,50 +235,48 @@ public class MergeDBsAPriori {
   	    Integer cid = convertID(foreignTable.getTablename(), foreignID);
 		if (cid != null) return cid;
 		Integer result = null;
-		if (anfrage != null) {
-			ResultSet rs1 = DBKernel.getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(foreignTable.getTablename()) + " WHERE " + DBKernel.delimitL("ID") + "=" + foreignID, false);
-			ResultSet rs2 = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(foreignTable.getTablename()) + " WHERE " + DBKernel.delimitL("ID") + "=" + foreignID, false);
-			
-			boolean gleich = forceNewEntry ? false : compareDBEntries(rs1, rs2);
-			if (forceNewEntry || !gleich) {
-				if (!forceNewEntry) System.err.println("\t" + foreignID + "\t" + foreignTable.getTablename());
-				result = findID(foreignTable, rs1);
-				if (result == null) {
-					PreparedStatement ps = null;
-					try {
-						ps = DBKernel.getDBConnection().prepareStatement(foreignTable.getInsertSQL1(), Statement.RETURN_GENERATED_KEYS);
-						doFields(ps, foreignTable, rs1, anfrage, null);						
-						if (ps.executeUpdate() > 0) {
-							result = DBKernel.getLastInsertedID(ps);
-						}
-						ps.close();
+		ResultSet rs1 = DBKernel.getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(foreignTable.getTablename()) + " WHERE " + DBKernel.delimitL("ID") + "=" + foreignID, false);
+		ResultSet rs2 = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(foreignTable.getTablename()) + " WHERE " + DBKernel.delimitL("ID") + "=" + foreignID, false);
+		
+		boolean gleich = forceNewEntry ? false : compareDBEntries(rs1, rs2);
+		if (forceNewEntry || !gleich) {
+			if (!forceNewEntry) System.err.println("\t" + foreignID + "\t" + foreignTable.getTablename());
+			result = findID(foreignTable, rs1, anfrage);
+			if (result == null) {
+				PreparedStatement ps = null;
+				try {
+					ps = DBKernel.getDBConnection().prepareStatement(foreignTable.getInsertSQL1(), Statement.RETURN_GENERATED_KEYS);
+					doFields(ps, foreignTable, rs1, anfrage, null);						
+					if (ps.executeUpdate() > 0) {
+						result = DBKernel.getLastInsertedID(ps);
 					}
-					catch (Exception e) {
-						System.err.println(ps); e.printStackTrace();
-					}
+					ps.close();
+				}
+				catch (Exception e) {
+					System.err.println(ps); e.printStackTrace();
 				}
 			}
-			else {
-				result = foreignID;
-			}
-			idConverter.put(foreignTable.getTablename() + "_" + foreignID, result);						
 		}
+		else {
+			result = foreignID;
+		}
+		if (result == null) {
+			handleForeignKey(foreignID, foreignTable, anfrage, forceNewEntry);
+		}
+		idConverter.put(foreignTable.getTablename() + "_" + foreignID, result);						
 		return result;
 	}
-	private Integer findID(MyTable myT, ResultSet rs) {
+	private Integer findID(MyTable myT, ResultSet rs, final Statement anfrage) {
 		Integer result = null;
 		try {
 			String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(myT.getTablename()) + " WHERE TRUE ";// + myT.getUpdateSQL1().substring(myT.getUpdateSQL1().indexOf(" SET ") + 5);
-			//sql = sql.replace("\"=?,\"", "\"=? AND \"");
-			//sql = sql.substring(0, sql.lastIndexOf("=? WHERE \"ID\"=?") + 2);
-			//sql = "SELECT \"ID\" FROM \"Literatur\" WHERE COALESCE(\"Seite\", '232') = COALESCE(?, '232')";
-			sql = doFields(null, myT, rs, null, sql);
+			sql = doFields(null, myT, rs, anfrage, sql);
 			ResultSet rsq = DBKernel.getResultSet(sql, false);
-			if (rsq.next()) {
+			if (rsq != null && rsq.first()) {
 				result = rsq.getInt("ID");
-			}
-			if (rsq.next()) {
-				System.err.println("Mehr als einen Eintrag????\n" + sql);
+				if (rsq.next()) {
+					System.err.println("Mehr als einen Eintrag????\n" + sql);
+				}
 			}
 			rsq.close();
 		}

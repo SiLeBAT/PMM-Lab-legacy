@@ -117,7 +117,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
 		}
 		catch (Exception e) {} // e.printStackTrace();
 		
-		if (tsStr != null) m_mmcts.setTS(tsStr);
+		if (tsStr != null && !tsStr.isEmpty()) m_mmcts.setTS(tsStr);
 		if (mStr != null) m_mmcm.setFromXmlString(mStr);		
 	}
 }

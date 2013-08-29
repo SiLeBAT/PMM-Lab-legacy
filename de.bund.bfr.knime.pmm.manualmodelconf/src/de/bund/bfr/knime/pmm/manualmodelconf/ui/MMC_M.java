@@ -327,8 +327,8 @@ public class MMC_M extends JPanel {
 				if (o != null && o.length > 0) {
 					for (int i = 0; i < o.length; i++) {						
 						pm.addIndepVar(o[i].toString(), mi == null || mi[i] == null ? null : Double.parseDouble(mi[i].toString()),
-								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), null, u == null || u[i] == null ? null : u[i].toString());
-						pm.setIndepDescription(o[i].toString(), d[i] == null ? null : d[i].toString());
+								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), null,
+										u == null || u[i] == null ? null : u[i].toString(), d[i] == null ? null : d[i].toString());
 					}
 				}
 			} catch (SQLException e) {

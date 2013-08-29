@@ -213,7 +213,7 @@ public class ModelTableModel extends JTable {
             	if (columnIndex == 2 && o instanceof Boolean) {
             		boolean isIndep = (Boolean) o;
             		if (isIndep) {
-            			thePM.addIndepVar(paramName, thePM.getParamMin(paramName), thePM.getParamMax(paramName), thePM.getParamCategory(paramName), thePM.getParamUnit(paramName));
+            			thePM.addIndepVar(paramName, thePM.getParamMin(paramName), thePM.getParamMax(paramName), thePM.getParamCategory(paramName), thePM.getParamUnit(paramName), thePM.getParamDescription(paramName));
             			thePM.removeParam(paramName);
                 		if (thePM.getLevel() == 1) { // only one indepVar allowed
                 			for (int i=1;i<this.getRowCount();i++) {
@@ -224,7 +224,7 @@ public class ModelTableModel extends JTable {
                 		}
             		}
             		else {
-            			thePM.addParam(paramName, Double.NaN, Double.NaN, thePM.getIndepMin(paramName), thePM.getIndepMax(paramName), thePM.getIndepCategory(paramName), thePM.getIndepUnit(paramName));
+            			thePM.addParam(paramName, Double.NaN, Double.NaN, thePM.getIndepMin(paramName), thePM.getIndepMax(paramName), thePM.getIndepCategory(paramName), thePM.getIndepUnit(paramName), thePM.getIndepDescription(paramName));
             			thePM.removeIndepVar(paramName);
             		}
                 	hasChanged = true;

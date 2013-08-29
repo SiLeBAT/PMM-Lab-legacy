@@ -465,10 +465,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public void addParam( final String paramName, final Double value, final Double error, final Double min, final Double max ) {
-		addParam(paramName, value, error, min, max, null, null);
+		addParam(paramName, value, error, min, max, null, null, null);
 	}
-	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String category, String unit) {
+	public void addParam(final String paramName, final Double value, final Double error, final Double min, final Double max, String category, String unit, String description) {
 		ParamXml px = new ParamXml(paramName, value, error, min, max, null, null, category, unit);
+		if (description != null) px.setDescription(description);
 		parameter.add(px);
 	}
 		
@@ -652,10 +653,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}
 	public void addIndepVar( final String varName, final Double min, final Double max ) {
-		addIndepVar(varName, min, max, null, null);
+		addIndepVar(varName, min, max, null, null, null);
 	}
-	public void addIndepVar(final String varName, final Double min, final Double max, String category, String unit) {
+	public void addIndepVar(final String varName, final Double min, final Double max, String category, String unit, String description) {
 		IndepXml ix = new IndepXml(varName, min, max, category, unit);
+		if (description != null) ix.setDescription(description);
 		independent.add(ix);
 	}
 	

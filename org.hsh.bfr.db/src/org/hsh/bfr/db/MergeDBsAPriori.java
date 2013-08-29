@@ -24,15 +24,15 @@ public class MergeDBsAPriori {
 	select * from "ChangeLog" WHERE "Tabelle" = 'Matrices' ID=33 checken -> rückgängig machen!!! Fleisch warmblütiger Tiere auch tiefgefroren - In Agenzien_Matrices 2 Einträge ändern!
 	select * from "ChangeLog" WHERE "Tabelle" = 'Agenzien' ID=20 (10 Änderungen notwendig),63 (0 Änderungen notwendig),178 (0 Änderung notwendig),756 (14 Änderungen notwendig),3605 (0104)
 	
+	Literatur
 	Agenzien_Matrices
-	Krankheitsbilder_Risikogruppen
-	Krankheitsbilder_Symptome
-
 	Krankheitsbilder
 	Risikogruppen
 	Symptome
+	Krankheitsbilder_Risikogruppen
+	Krankheitsbilder_Symptome
+
 	DoubleKennzahlen
-	Literatur
 	ICD10_Kodes
 	*/
 	public MergeDBsAPriori () {
@@ -44,11 +44,16 @@ public class MergeDBsAPriori {
 	
 				//String folder = "C:/Users/Armin/Desktop/KHB/";
 				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
-				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Agenzien_Matrices"),
+				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Literatur"),
+						DBKernel.myList.getTable("Agenzien_Matrices"),
+						DBKernel.myList.getTable("Krankheitsbilder"),
+						DBKernel.myList.getTable("Risikogruppen"),
+						DBKernel.myList.getTable("Symptome"),
 						DBKernel.myList.getTable("Krankheitsbilder_Risikogruppen"),
 						DBKernel.myList.getTable("Krankheitsbilder_Symptome")};
+				Integer[] myFromIDs = new Integer[]{242, null, null, null, null, null, null};
 				idConverter = new Hashtable<String, Integer>();
-				go4It(folder, "defad", "de6!§5ddy", myTs);
+				go4It(folder, "defad", "de6!§5ddy", myTs, myFromIDs);
 
 				LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
 				for(String key : myTables.keySet()) {
@@ -65,7 +70,7 @@ public class MergeDBsAPriori {
 			}
 		}
 	}
-	private void go4It(final String dbPath, String username, String password, MyTable[] myTs) {
+	private void go4It(final String dbPath, String username, String password, MyTable[] myTs, Integer[] myFromIDs) {
 		System.out.println(dbPath);
 		//boolean dl = DBKernel.dontLog;
 		//DBKernel.dontLog = true;
@@ -75,7 +80,7 @@ public class MergeDBsAPriori {
 			else conn = DBKernel.getDefaultAdminConn(dbPath, true);
 		    Statement anfrage = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		    checkeDoppeltVergebeneDKZs(anfrage);
-		    go4Tables(anfrage, myTs);
+		    go4Tables(anfrage, myTs, myFromIDs);
 			go4Dateispeicher(anfrage);
 			anfrage.execute("SHUTDOWN");
 			anfrage.close();
@@ -86,17 +91,23 @@ public class MergeDBsAPriori {
 		}		
 		//DBKernel.dontLog = dl;		
 	}
-	private void go4Tables(final Statement anfrage, MyTable[] myTs) {
+	private void go4Tables(final Statement anfrage, MyTable[] myTs, Integer[] myFromIDs) {
+		int i=0;
 		for (MyTable myT : myTs) {
 			try {
-				ResultSet rs = DBKernel.getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(myT.getTablename()), false);
+				ResultSet rs = DBKernel.getResultSet(anfrage, "SELECT * FROM " + DBKernel.delimitL(myT.getTablename()) +
+						(myFromIDs[i] != null ? " WHERE " + DBKernel.delimitL("ID") + ">=" + myFromIDs[i] : ""), false);
+				i++;
 				if (rs != null && rs.first()) {
 					do {
 						PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(myT.getInsertSQL1(), Statement.RETURN_GENERATED_KEYS);
-						doFields(ps, myT, rs, anfrage, null);						
-						if (ps.executeUpdate() > 0) {
-							idConverter.put(myT.getTablename() + "_" + rs.getInt("ID"), DBKernel.getLastInsertedID(ps));						
+						doFields(ps, myT, rs, anfrage, null);
+						try {
+							if (ps.executeUpdate() > 0) {
+								idConverter.put(myT.getTablename() + "_" + rs.getInt("ID"), DBKernel.getLastInsertedID(ps));						
+							}
 						}
+						catch (Exception e) {e.printStackTrace();}
 						ps.close();
 					} while (rs.next());
 				}

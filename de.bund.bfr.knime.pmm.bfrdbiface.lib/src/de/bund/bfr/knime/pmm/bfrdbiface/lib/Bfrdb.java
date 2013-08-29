@@ -1500,7 +1500,7 @@ public class Bfrdb extends Hsqldbiface {
 		Integer fID = getId4Formula(m.getFormula());
 		boolean iop = isObjectPresent("Modellkatalog", modelId); 
 		
-		if (iop || fID != null) {
+		if (iop) { //  || fID != null
 			//Date date = new Date( System.currentTimeMillis() );		
 			if (!iop) {
 				modelId = fID;
@@ -1553,7 +1553,7 @@ public class Bfrdb extends Hsqldbiface {
 		
 		// insert dependent variable
 		DepXml depXml = m.getDepXml();
-		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit());
+		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit(), depXml.getDescription());
 		paramIdSet.add(paramId);
 		if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
 		
@@ -1561,7 +1561,7 @@ public class Bfrdb extends Hsqldbiface {
 		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
 			if (el instanceof IndepXml) {
 				IndepXml ix = (IndepXml) el;
-				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit());
+				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit(), ix.getDescription());
 				paramIdSet.add(paramId);
 				if (ix.getUnit() == null || ix.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
 			}
@@ -1571,7 +1571,7 @@ public class Bfrdb extends Hsqldbiface {
 		for (PmmXmlElementConvertable el : m.getParameter().getElementSet()) {
 			if (el instanceof ParamXml) {
 				ParamXml px = (ParamXml) el;
-				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax(), px.getCategory(), px.getUnit());
+				paramId = insertParam(modelId, px.getOrigName(), PARAMTYPE_PARAM, px.getMin(), px.getMax(), px.getCategory(), px.getUnit(), px.getDescription());
 				paramIdSet.add(paramId);
 			}
 		}
@@ -1804,17 +1804,17 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private int insertParam(final int modelId, final String paramName, final int paramType,
-			final Double min, final Double max, final String category, final String unit) {		
+			final Double min, final Double max, final String category, final String unit, final String description) {		
 		PreparedStatement ps;
 				
 		int id = -1;
 		try {
 			int paramId = queryParamId(modelId, paramName, paramType);
 			if( paramId <= 0 ) {
-				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Einheit\" ) VALUES( ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
+				ps = conn.prepareStatement( "INSERT INTO \"ModellkatalogParameter\" ( \"Modell\", \"Parametername\", \"Parametertyp\", \"min\",\"max\",\"Einheit\",\"Beschreibung\" ) VALUES( ?, ?, ?, ?, ?, ?, ? )", Statement.RETURN_GENERATED_KEYS );				
 			}
 			else {
-				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Einheit\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
+				ps = conn.prepareStatement( "UPDATE \"ModellkatalogParameter\" SET \"Modell\" = ?, \"Parametername\" = ?, \"Parametertyp\" = ?, \"min\"= ?, \"max\" = ?, \"Einheit\" = ?, \"Beschreibung\" = ? WHERE \"ID\"=" + paramId, Statement.RETURN_GENERATED_KEYS );								
 			}
 				
 			ps.setInt( 1, modelId );
@@ -1842,6 +1842,11 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setNull(6, Types.INTEGER);
 			} else {
 				ps.setInt(6, unitID);
+			}
+			if (description == null) {
+				ps.setNull(7, Types.VARCHAR);
+			} else {
+				ps.setString(7, description);
 			}
 			
 			if( ps.executeUpdate() < 1 ) {

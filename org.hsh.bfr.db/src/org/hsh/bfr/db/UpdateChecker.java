@@ -175,7 +175,7 @@ public class UpdateChecker {
 		refreshFKs("Einheiten");
 		
 		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_New.xls", null, false);
-/*
+
 		// sync der firstDB with SiLeBAT - DB!!!
   		for (int i=112;i>=94;i--) {
 	  		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Einheiten") +
@@ -200,7 +200,7 @@ public class UpdateChecker {
 	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-2), false);
   		}
 		// sync der firstDB with SiLeBAT - DB!!!
-*/
+
   		Integer idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
   		Integer idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
   		Integer idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});

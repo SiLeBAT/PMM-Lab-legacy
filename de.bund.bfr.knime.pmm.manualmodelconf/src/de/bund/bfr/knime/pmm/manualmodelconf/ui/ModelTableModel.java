@@ -198,13 +198,14 @@ public class ModelTableModel extends JTable {
         	if (rowIndex == 0) {
         		if (columnIndex == 1) {
         			rowHasChanged.put(thePM.getDepVar(), true);
+            		hasChanged = true;
         		}
         		else if (columnIndex == 7) {
             		thePM.setDepDescription(o == null ? "" : o.toString());
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
         		}
-        		else return;
+        		return;
         	}
         	SortedMap<String, Boolean> sm = thePM.getAllParVars();
         	Object[] oa = sm.keySet().toArray();
@@ -266,7 +267,7 @@ public class ModelTableModel extends JTable {
         }
  
 		public boolean isCellEditable(final int rowIndex, final int columnIndex) {
-			if (rowIndex == 0) return false;
+			if (rowIndex == 0) return (columnIndex == 7);
 		    Boolean indep = (Boolean) this.getValueAt(rowIndex, 2);
 		    if (indep == null) indep = false;
 			return columnIndex == 2 || columnIndex > 4 || (!indep && (columnIndex == 4 || columnIndex == 3));

@@ -119,8 +119,9 @@ public class MMC_M extends JPanel {
 			table.getColumnModel().getColumn(4).setWidth(0);
 		}
 		table.getColumnModel().getColumn(0).setPreferredWidth(100);
-		table.getColumnModel().getColumn(1).setPreferredWidth(400);
+		table.getColumnModel().getColumn(1).setPreferredWidth(150);
 		table.getColumnModel().getColumn(2).setPreferredWidth(100);
+		table.getColumnModel().getColumn(7).setPreferredWidth(400);
 
 		referencesTable.getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {

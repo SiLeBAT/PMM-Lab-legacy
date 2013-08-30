@@ -468,7 +468,15 @@ public class Login extends JFrame {
 
 			this.dispose();
 			mf.pack();
-			mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
+			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
+			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+			DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
+			DBKernel.mainFrame.setBounds(x, y, w, h);
+			if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			else mf.setExtendedState(JFrame.NORMAL);
 			mf.setVisible(true);
 			mf.toFront();
 			myDB.grabFocus();//myDB.selectCell(0, 0);

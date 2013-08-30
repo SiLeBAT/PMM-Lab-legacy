@@ -740,12 +740,12 @@ public class DBKernel {
 					
 					DBKernel.prefs.put("LAST_MainFrame_FULL", DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE" : "FALSE");
 					//DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
-					/*
+					
 					DBKernel.prefs.put("LAST_MainFrame_WIDTH", DBKernel.mainFrame.getWidth()+"");
 					DBKernel.prefs.put("LAST_MainFrame_HEIGHT", DBKernel.mainFrame.getHeight()+"");
 					DBKernel.prefs.put("LAST_MainFrame_X", DBKernel.mainFrame.getX()+"");
 					DBKernel.prefs.put("LAST_MainFrame_Y", DBKernel.mainFrame.getY()+"");
-					*/
+					
 					DBKernel.prefs.prefsFlush();
 				}
 			}
@@ -814,7 +814,8 @@ public class DBKernel {
 									}
 						          }
 						          if (pathname.length() > 0) {
-						        	  Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler \"" + new File(pathname) + "\"");
+						        	  //Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler \"" + new File(pathname) + "\"");
+						        	  Runtime.getRuntime().exec(new String[] {"rundll32", "url.dll,FileProtocolHandler", new File(pathname).getAbsolutePath()});
 						          }
 										}
 		    					}
@@ -2166,14 +2167,14 @@ public class DBKernel {
 				myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
 				try {
 					boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-					/*
+					
 					int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "1020"));
 					int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "700"));
 					int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
 					int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
 					DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
 					DBKernel.mainFrame.setBounds(x, y, w, h);
-					*/
+					
 					DBKernel.mainFrame.pack();
 					DBKernel.mainFrame.setLocationRelativeTo(null);
 					if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);

@@ -398,6 +398,8 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void textField1KeyReleased(KeyEvent e) {
+		//if (e != null) searchBuffer += e.getKeyChar();
+		//System.err.println(System.currentTimeMillis() + "\t" + textField1.getText() + "\t" + (e != null ? e.getKeyChar() : "") + "\t" + searchBuffer);
 		handleSuchfeldChange(e);
 	}
 	public void handleSuchfeldChange(KeyEvent e) {
@@ -406,7 +408,7 @@ public class MyDBPanel extends JPanel {
 		}
 		handleSuchfeldChange(e, true);
 	}
-	public void handleSuchfeldChange(KeyEvent e, boolean doFilter) {
+	public void handleSuchfeldChange(final KeyEvent e, final boolean doFilter) {
 		if (!filterChangeAllowed) return;
 		if (isFormVisible()) {
 			return;
@@ -425,14 +427,7 @@ public class MyDBPanel extends JPanel {
 				myDBTable1.refreshSort();
 				if (id < 0 || !myDBTable1.setSelectedID(id)) myDBTable1.clearSelection();
 			}
-			//deselectRowSelectCell(0, 0); Wenn auskommentiert, dann funktioniert CTRL+F nicht mehr...
 		}
-		/*
-		else if (e != null && e.getKeyCode() == KeyEvent.VK_ENTER) { // Enter
-			if (e.isShiftDown()) button6ActionPerformed(null);
-			else button7ActionPerformed(null);
-		}
-		*/
 		else {
 			if (doFilter) {
 				myDBTable1.checkUnsavedStuff(false);
@@ -444,22 +439,9 @@ public class MyDBPanel extends JPanel {
 				//myDBTable1.setReadOnly(true);
 				myDBTable1.refreshSort();
 				if (id < 0 || !myDBTable1.setSelectedID(id)) myDBTable1.clearSelection();
-			}
-			
-			// Kann das hier drin bleiben??? Oder kommt es bei der Suche öfter mal zu Abstürzen????
-			/*
-			if (mft != null) {mft.stop = true;}
-			mft = new MyFindThread(myDBTable1, textField1.getText(), this);
-			mft.start();
-			
-			if (mfit == null) {
-				mfit = new MyFilterThread(myDBTree1, textField1.getText());
-				mfit.start();
-				mfit = null;
-			}
-			*/
+			}			
 		}		
-		if (e!= null) {
+		if (e != null) {
 			if (!textField1.hasFocus()) textField1.requestFocus();
 			tf1LastFocus = System.currentTimeMillis();
 		}

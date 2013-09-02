@@ -366,12 +366,13 @@ public class ParameterOptimizer {
 
 	private void useCurrentResults(List<Double> startValues) {
 		parameterValues = new ArrayList<Double>(parameters.size());
-		rms = optimizer.getRMS();
-		rSquare = MathUtilities.getRSquared(rms, targetValues);
+		rms = MathUtilities.getRMSE(optimizer.getChiSquare(),
+				parameters.size(), targetValues.size());
+		rSquare = MathUtilities.getRSquared(optimizer.getChiSquare(),
+				targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
-				targetValues.size(), rms);
-		bic = MathUtilities.bayesCriterion(parameters.size(),
-				targetValues.size(), rms);
+				targetValues.size(), optimizer.getChiSquare());
+		bic = null;
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);

@@ -297,7 +297,15 @@ public class MathUtilities {
 
 	}
 
-	public static Double getRSquared(double rms, List<Double> targetValues) {
+	public static Double getRMSE(double sse, double numParam, double numSample) {
+		if (numParam >= numSample) {
+			return null;
+		}
+
+		return Math.sqrt(sse / (numSample - numParam));
+	}
+
+	public static Double getRSquared(double sse, List<Double> targetValues) {
 		double targetMean = MathUtilities.computeSum(targetValues)
 				/ targetValues.size();
 		double targetTotalSumOfSquares = 0.0;
@@ -307,8 +315,7 @@ public class MathUtilities {
 					- targetMean, 2.0);
 		}
 
-		double rSquared = 1 - rms * rms * targetValues.size()
-				/ targetTotalSumOfSquares;
+		double rSquared = 1 - sse / targetTotalSumOfSquares;
 
 		// rSquare < 0 möglich, siehe hier:
 		// http://mars.wiwi.hu-berlin.de/mediawiki/sk/index.php/Bestimmtheitsmass
@@ -316,50 +323,33 @@ public class MathUtilities {
 	}
 
 	public static Double akaikeCriterion(final int numParam,
-			final int numSample, final double rms) {
-
-		if (Double.isNaN(rms) || Double.isInfinite(rms)) {
-			return null;
-		}
-
-		if (rms < 0) {
-			return null;
-		}
-
-		if (numParam <= 0) {
-			return null;
-		}
-
-		if (numSample <= 0) {
-			return null;
-		}
-
+			final int numSample, final double sse) {
 		if (numSample <= numParam + 2) {
 			return null;
 		}
 
 		// return numSample * Math.log(rms * rms) + 2 * numParam;
-		return numSample * Math.log(rms * rms) + 2 * (numParam + 1) + 2
+		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1) + 2
 				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
 	}
 
-	public static Double bayesCriterion(final int numParam,
-			final int numSample, final double rms) {
-
-		if (Double.isNaN(rms) || Double.isInfinite(rms))
-			return null;
-
-		if (rms < 0)
-			return null;
-
-		if (numParam <= 0)
-			return null;
-
-		if (numSample <= 0)
-			return null;
-
-		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
-	}
+//	public static Double bayesCriterion(final int numParam,
+//			final int numSample, final double sse) {
+//
+//		if (Double.isNaN(rms) || Double.isInfinite(rms))
+//			return null;
+//
+//		if (rms < 0)
+//			return null;
+//
+//		if (numParam <= 0)
+//			return null;
+//
+//		if (numSample <= 0)
+//			return null;
+//
+//		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
+//	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
 		TDistribution dist = new TDistribution(degreesOfFreedom);

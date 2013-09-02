@@ -156,7 +156,7 @@ public class QualityMeasurementComputation {
 				parser.addVariable(var, 0.0);
 			}
 
-			double rms = 0.0;
+			double sse = 0.0;
 			List<Double> usedTargetValues = new ArrayList<Double>();
 
 			for (int i = 0; i < targetValues.size(); i++) {
@@ -176,20 +176,19 @@ public class QualityMeasurementComputation {
 						&& !((Double) value).isInfinite()) {
 					double diff = targetValues.get(i) - (Double) value;
 
-					rms += diff * diff;
+					sse += diff * diff;
 					usedTargetValues.add(targetValues.get(i));
 				}
 			}
 
 			if (!usedTargetValues.isEmpty()) {
-				rms = Math.sqrt(rms / usedTargetValues.size());
-
-				Double rSquared = MathUtilities.getRSquared(rms,
+				Double rms = MathUtilities.getRMSE(sse, paramXml
+						.getElementSet().size(), usedTargetValues.size());
+				Double rSquared = MathUtilities.getRSquared(sse,
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramXml
-						.getElementSet().size(), usedTargetValues.size(), rms);
-				Double bic = MathUtilities.bayesCriterion(paramXml
-						.getElementSet().size(), usedTargetValues.size(), rms);
+						.getElementSet().size(), usedTargetValues.size(), sse);
+				Double bic = null;
 
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
@@ -352,7 +351,7 @@ public class QualityMeasurementComputation {
 				parser.addVariable(var, 0.0);
 			}
 
-			double rms = 0.0;
+			double sse = 0.0;
 			List<Double> usedTargetValues = new ArrayList<Double>();
 
 			for (int i = 0; i < depVarData.size(); i++) {
@@ -371,20 +370,19 @@ public class QualityMeasurementComputation {
 						&& !((Double) value).isInfinite()) {
 					double diff = depVarData.get(i) - (Double) value;
 
-					rms += diff * diff;
+					sse += diff * diff;
 					usedTargetValues.add(depVarData.get(i));
 				}
 			}
 
 			if (!usedTargetValues.isEmpty()) {
-				rms = Math.sqrt(rms / usedTargetValues.size());
-
-				Double rSquared = MathUtilities.getRSquared(rms,
+				Double rms = MathUtilities.getRMSE(sse, paramMap.get(id)
+						.getElementSet().size(), usedTargetValues.size());
+				Double rSquared = MathUtilities.getRSquared(sse,
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramMap.get(id)
-						.getElementSet().size(), usedTargetValues.size(), rms);
-				Double bic = MathUtilities.bayesCriterion(paramMap.get(id)
-						.getElementSet().size(), usedTargetValues.size(), rms);
+						.getElementSet().size(), usedTargetValues.size(), sse);
+				Double bic = null;
 
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);

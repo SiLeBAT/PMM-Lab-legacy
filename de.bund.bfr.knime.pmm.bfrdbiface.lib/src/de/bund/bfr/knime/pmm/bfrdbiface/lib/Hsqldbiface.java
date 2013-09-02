@@ -187,11 +187,8 @@ public class Hsqldbiface {
 	  	return conn;
 	}
 	*/
-	private void createUser(String path, String login, String pw) throws Exception {
-		
-		Connection conn;
-		
-		conn = DBKernel.getDefaultAdminConn(path, false);
+	private void createUser(String path, String login, String pw) throws Exception {		
+		Connection conn = DBKernel.getDefaultAdminConn(path, true);
 		if (DBKernel.countUsers(conn, false) == 0) {
 			conn.setReadOnly(false);
 			pushUpdate("INSERT INTO " + DBKernel.delimitL("Users") +
@@ -215,19 +212,14 @@ public class Hsqldbiface {
 	
 	private void pushUpdate(String[] query, Connection conn) throws SQLException {		
 		Statement statement = conn.createStatement();
-		for( String q : query ) {
+		for (String q : query) {
 			//System.out.println( q );
 			statement.addBatch( q );
 		}
 		conn.setAutoCommit( false );
 		statement.executeBatch();
 		conn.setAutoCommit( true );
-		/* for( String q : query )
-			statement.execute( q ); */
-		
-
-		statement.close();
-			
+		statement.close();			
 	}
 	
 	public ResultSet pushQuery(String query) throws SQLException {	

@@ -372,7 +372,8 @@ public class ParameterOptimizer {
 				targetValues);
 		aic = MathUtilities.akaikeCriterion(parameters.size(),
 				targetValues.size(), optimizer.getChiSquare());
-		bic = null;
+		bic = MathUtilities.bayesCriterion(parameters.size(),
+				targetValues.size(), optimizer.getChiSquare());		
 
 		for (int i = 0; i < parameters.size(); i++) {
 			parameterValues.add(optimizerValues.getPoint()[i]);

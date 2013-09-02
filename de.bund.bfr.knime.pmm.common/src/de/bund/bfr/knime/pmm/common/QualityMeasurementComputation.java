@@ -188,7 +188,8 @@ public class QualityMeasurementComputation {
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramXml
 						.getElementSet().size(), usedTargetValues.size(), sse);
-				Double bic = null;
+				Double bic = MathUtilities.bayesCriterion(paramXml
+						.getElementSet().size(), usedTargetValues.size(), sse);
 
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);
@@ -382,7 +383,8 @@ public class QualityMeasurementComputation {
 						usedTargetValues);
 				Double aic = MathUtilities.akaikeCriterion(paramMap.get(id)
 						.getElementSet().size(), usedTargetValues.size(), sse);
-				Double bic = null;
+				Double bic = MathUtilities.bayesCriterion(paramMap.get(id)
+						.getElementSet().size(), usedTargetValues.size(), sse);
 
 				rmsMap.put(id, rms);
 				rSquaredMap.put(id, rSquared);

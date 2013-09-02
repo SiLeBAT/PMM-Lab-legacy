@@ -328,28 +328,15 @@ public class MathUtilities {
 			return null;
 		}
 
-		// return numSample * Math.log(rms * rms) + 2 * numParam;
 		return numSample * Math.log(sse / numSample) + 2 * (numParam + 1) + 2
 				* (numParam + 1) * (numParam + 2) / (numSample - numParam - 2);
 	}
 
-//	public static Double bayesCriterion(final int numParam,
-//			final int numSample, final double sse) {
-//
-//		if (Double.isNaN(rms) || Double.isInfinite(rms))
-//			return null;
-//
-//		if (rms < 0)
-//			return null;
-//
-//		if (numParam <= 0)
-//			return null;
-//
-//		if (numSample <= 0)
-//			return null;
-//
-//		return numSample * Math.log(rms * rms) + numParam * Math.log(numSample);
-//	}
+	public static Double bayesCriterion(final int numParam,
+			final int numSample, final double sse) {
+		return numSample * Math.log(sse / numSample) + numParam
+				* Math.log(numSample);
+	}
 
 	public static double getPValue(double tValue, int degreesOfFreedom) {
 		TDistribution dist = new TDistribution(degreesOfFreedom);

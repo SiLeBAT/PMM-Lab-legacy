@@ -23,7 +23,6 @@ import org.knime.core.data.xml.XMLCell;
 import org.knime.core.node.BufferedDataContainer;
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.ExecutionContext;
@@ -62,7 +61,6 @@ public class XML2TableNodeModel extends NodeModel {
 	static final String CFGKEY_SELXMLENTRY = "SelectXMLEntry";
 
     private final SettingsModelString m_col = new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "");
-    private final SettingsModelBoolean m_append = new SettingsModelBoolean(XML2TableNodeModel.CFGKEY_APPENDDATA, true);
     private final SettingsModelStringArray m_xmlsel = new SettingsModelStringArray(XML2TableNodeModel.CFGKEY_SELXMLENTRY, null);
         
 
@@ -370,24 +368,14 @@ public class XML2TableNodeModel extends NodeModel {
             }
         }
     	DataColumnSpec[] fullColSpecs;
-    	if (m_append.getBooleanValue()) {
-        	fullColSpecs = new DataColumnSpec[oldColSpecs.length + addColSpecs.size()];
-        	for (int i=0;i<oldColSpecs.length;i++) {
-        		fullColSpecs[i] = oldColSpecs[i];
-        	}
-        	int i=0;
-        	for (DataColumnSpec colSpec : addColSpecs.values()) {
-        		fullColSpecs[i+oldColSpecs.length] = colSpec;
-        		i++;
-        	}
+    	fullColSpecs = new DataColumnSpec[oldColSpecs.length + addColSpecs.size()];
+    	for (int i=0;i<oldColSpecs.length;i++) {
+    		fullColSpecs[i] = oldColSpecs[i];
     	}
-    	else {
-        	fullColSpecs = new DataColumnSpec[addColSpecs.size()];
-        	int i=0;
-        	for (DataColumnSpec colSpec : addColSpecs.values()) {
-        		fullColSpecs[i] = colSpec;
-        		i++;
-        	}
+    	int i=0;
+    	for (DataColumnSpec colSpec : addColSpecs.values()) {
+    		fullColSpecs[i+oldColSpecs.length] = colSpec;
+    		i++;
     	}
     	return new DataTableSpec(fullColSpecs);
     }
@@ -409,7 +397,7 @@ public class XML2TableNodeModel extends NodeModel {
                 DataRow row = it.next();
             	for (int i = 0; i < inSpec.getNumColumns(); i++) {
                     DataCell cell = row.getCell(i);
-                    if (m_append.getBooleanValue()) cells[i] = cell;
+                    cells[i] = cell;
 	                DataColumnSpec cspec = inSpec.getColumnSpec(i);
 	                String colName = cspec.getName();
 	                if (colName.equals(m_col.getStringValue()) && cspec.getType().equals(XMLCell.TYPE)) {
@@ -530,40 +518,33 @@ public class XML2TableNodeModel extends NodeModel {
                 }
     			String[] sarr = m_xmlsel.getStringArrayValue();
     			if (sarr != null && sarr.length > 0) {
-                	if (m_append.getBooleanValue()) {
-                		for (int k=0;k<outSpec.getNumColumns()-inSpec.getNumColumns();k++) {
-                			cells[k+inSpec.getNumColumns()] = CellIO.createMissingCell();
-                		}
-                    	for (LinkedHashMap<String, DataCell> addCells : v) {
-            				for (int j=0;j<sarr.length;j++) {
-            					for (int k=0;k<outSpec.getNumColumns()-inSpec.getNumColumns();k++) {
-            						if (sarr.length == 1 && outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
-            								m_col.getStringValue()+"_"+sarr[j])) {
-            							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
-            							break;
-            						}
-            						else if (outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
-            								m_col.getStringValue()+"_"+addCells.get("name")+"_"+sarr[j])) {
-            							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
-            							break;
-            						}
-            					}
-            				}
-                    	}
-                        container.addRowToTable(new DefaultRow(row.getKey(), cells));
+            		for (int k=0;k<outSpec.getNumColumns()-inSpec.getNumColumns();k++) {
+            			cells[k+inSpec.getNumColumns()] = CellIO.createMissingCell();
+            		}
+                	for (LinkedHashMap<String, DataCell> addCells : v) {
+        				for (int j=0;j<sarr.length;j++) {
+        					for (int k=0;k<outSpec.getNumColumns()-inSpec.getNumColumns();k++) {
+        						if (sarr.length == 1 && outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
+        								m_col.getStringValue()+"_"+sarr[j])) {
+        							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
+        							break;
+        						}
+        						else if (outSpec.getColumnNames()[k+inSpec.getNumColumns()].equalsIgnoreCase(
+        								m_col.getStringValue()+"_"+addCells.get("name")+"_"+sarr[j])) {
+        							cells[k+inSpec.getNumColumns()] = addCells.get(sarr[j].toLowerCase());
+        							break;
+        						}
+        					}
+        				}
                 	}
+                    container.addRowToTable(new DefaultRow(row.getKey(), cells));
     			}
     			else {
                 	int countResult = 0;
                 	for (LinkedHashMap<String, DataCell> addCells : v) {
                 		int i=0;
                         for (DataCell dataCell : addCells.values()) {
-                        	if (m_append.getBooleanValue()) {
-                            	cells[i+inSpec.getNumColumns()] = dataCell;
-                        	}
-                        	else {
-                        		cells[i] = dataCell;
-                        	}
+                        	cells[i+inSpec.getNumColumns()] = dataCell;
                         	i++;
                         }
                         RowKey key = new RowKey(row.getKey().getString() + "." + countResult);
@@ -606,7 +587,6 @@ public class XML2TableNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
     	m_col.saveSettingsTo(settings);
-    	m_append.saveSettingsTo(settings);
     	m_xmlsel.saveSettingsTo(settings);
     }
 
@@ -617,7 +597,6 @@ public class XML2TableNodeModel extends NodeModel {
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	m_col.loadSettingsFrom(settings);
-    	m_append.loadSettingsFrom(settings);
     	m_xmlsel.loadSettingsFrom(settings);
     }
 
@@ -628,7 +607,6 @@ public class XML2TableNodeModel extends NodeModel {
     protected void validateSettings(final NodeSettingsRO settings)
             throws InvalidSettingsException {
     	m_col.validateSettings(settings);
-    	m_append.validateSettings(settings);
     	m_xmlsel.validateSettings(settings);
     }
     

@@ -8,10 +8,8 @@ import javax.swing.event.ChangeListener;
 import org.knime.core.data.DataColumnSpec;
 import org.knime.core.data.xml.XMLCell;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
-import org.knime.core.node.defaultnodesettings.DialogComponentBoolean;
 import org.knime.core.node.defaultnodesettings.DialogComponentColumnNameSelection;
 import org.knime.core.node.defaultnodesettings.DialogComponentStringListSelection;
-import org.knime.core.node.defaultnodesettings.SettingsModelBoolean;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 import org.knime.core.node.defaultnodesettings.SettingsModelStringArray;
 import org.knime.core.node.util.ColumnFilter;
@@ -49,7 +47,6 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
      */
 	private final DialogComponentStringListSelection xmlseldialog;
     private final SettingsModelString m_col = new SettingsModelString(XML2TableNodeModel.CFGKEY_COLNAME, "");
-    private final SettingsModelBoolean m_append = new SettingsModelBoolean(XML2TableNodeModel.CFGKEY_APPENDDATA, true);
     private final SettingsModelStringArray m_xmlsel = new SettingsModelStringArray(XML2TableNodeModel.CFGKEY_SELXMLENTRY, null);
 	
     protected XML2TableNodeDialog() {
@@ -72,8 +69,6 @@ public class XML2TableNodeDialog extends DefaultNodeSettingsPane implements Chan
         	        }
         	    }));
         stateChanged(null);
-
-        addDialogComponent(new DialogComponentBoolean(m_append, "Append data to table"));
         
         addDialogComponent(xmlseldialog);
     }

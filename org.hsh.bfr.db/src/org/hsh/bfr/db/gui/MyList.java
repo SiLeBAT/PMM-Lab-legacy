@@ -529,6 +529,7 @@ if (dbForm != null || owner != null) {
 					if (!mnTable[col - 1].equals("INT")) {
 						String tname = myT.getTablename();
 						String mntname = mnTable[col - 1];
+						// Bitte auch schauen in MyDBTable, ca. Zeile 451 (insertNull)
 						if (tname.equals("GeschaetzteModelle")) {
 							tname = "GeschaetztesModell";
 						} else if (tname.equals("Modellkatalog")) {

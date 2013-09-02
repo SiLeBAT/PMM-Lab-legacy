@@ -448,8 +448,9 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					sql = "";				// todo - oder auch nicht... Lieber nicht löschen! Is gut so! Wenn da was gelöscht werden soll, dann sollte das Fremdfenster geöffnet werden und dort die Zeile (Beispiel: Zutat) gelöscht werden!!!
 				}
 				else {
-					sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) +
-					" WHERE " + DBKernel.delimitL(tablename) + "=" + this.getValueAt(selRow, 0);									
+					if (tablename.equals("Modellkatalog")) sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL("Modell") + "=" + this.getValueAt(selRow, 0);
+					else if (tablename.equals("GeschaetzteModelle")) sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + this.getValueAt(selRow, 0);
+					else sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL(tablename) + "=" + this.getValueAt(selRow, 0);									
 				}
 				if (sql.length() > 0) {
 					DBKernel.sendRequest(sql, false);

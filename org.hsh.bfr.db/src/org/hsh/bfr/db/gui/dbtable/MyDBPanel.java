@@ -388,12 +388,14 @@ public class MyDBPanel extends JPanel {
 		if (isFormVisible()) {
 			return;
 		}
-		int selRow = myDBTable1.getSelectedRow();
 		int selCol = myDBTable1.getSelectedColumn(); 
-		myDBTable1.insertNull(selRow, selCol);
-		MyTable myT = myDBTable1.getActualTable();
-		if (myT.getFieldTypes()[selCol - 1].startsWith("BLOB(")) {
-			DBKernel.deleteBLOB(myT.getTablename(), myT.getFieldNames()[selCol - 1], myDBTable1.getSelectedID());
+		if (selCol > 0) {
+			int selRow = myDBTable1.getSelectedRow();
+			myDBTable1.insertNull(selRow, selCol);
+			MyTable myT = myDBTable1.getActualTable();
+			if (myT.getFieldTypes()[selCol - 1].startsWith("BLOB(")) {
+				DBKernel.deleteBLOB(myT.getTablename(), myT.getFieldNames()[selCol - 1], myDBTable1.getSelectedID());
+			}
 		}
 	}
 

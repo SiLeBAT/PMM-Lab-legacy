@@ -565,7 +565,7 @@ public class MMC_M extends JPanel {
 					}
 
 					String categoryStr = (String) JOptionPane.showInputDialog(
-							null, "Bitte eine Einheitenkategorie angeben für "
+							table, "Bitte eine Einheitenkategorie angeben für "
 									+ param + ":", "Einheit des Parameters "
 									+ param, JOptionPane.QUESTION_MESSAGE,
 							null, Categories.getAllCategories().toArray(), defCategory);

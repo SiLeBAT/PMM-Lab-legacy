@@ -152,6 +152,27 @@ public class UpdateChecker {
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_165.sql", null, false);		
 	}
 	public static void check4Updates_163_164() {	
+		/*
+		// für Krisen EHEC-DB, da wurde wohl ein Update mitten "im Übergang" von check4Updates_162_163 gemacht
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach"), false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("name"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("kind of quantity"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("print"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("c/s"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("c/i"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("M"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("definition value"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("definition unit"), false);
+		updateChangeLog("Einheiten", 3, true);		
+		check4Updates_162_163();
+		*/
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql", null, false);
 	}
 	public static void check4Updates_162_163() {	
@@ -203,14 +224,14 @@ public class UpdateChecker {
 	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-2), false);
   		}
 		// sync der firstDB with SiLeBAT - DB!!!
-*/
+  		*/
   		Integer idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
   		Integer idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
   		Integer idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
   		Integer idMo = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"mo_j", "Time"});
   		Integer idJ = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"a_j", "Time"});
-		
-		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach") + ";", false);
+
+  		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("MesswerteEinfach") + ";", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
 				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idS + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Sekunde'", false);
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Messwerte") +
@@ -227,7 +248,7 @@ public class UpdateChecker {
 				" SET " + DBKernel.delimitL("ZeitEinheit") + "='" + idJ + "'  WHERE " + DBKernel.delimitL("ZeitEinheit") + "='Jahr'", false);
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Messwerte") + " ALTER COLUMN " + DBKernel.delimitL("ZeitEinheit") + " INTEGER", false);
 		refreshFKs("Messwerte");
-		
+
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_163.sql", null, false);
 	}
 	public static void check4Updates_161_162() {		

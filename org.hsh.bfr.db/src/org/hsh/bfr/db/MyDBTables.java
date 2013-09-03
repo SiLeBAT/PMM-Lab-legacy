@@ -740,7 +740,7 @@ public class MyDBTables {
 					null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					"Messwerte_Sonstiges"});
-		addTable(tenazity_measured_vals, DBKernel.isKNIME ? MyList.Tenazitaet_LIST : 66);
+		addTable(tenazity_measured_vals, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.Tenazitaet_LIST : 66));
 		tenazity_raw_data.setForeignField(tenazity_measured_vals, 6);
 
 		MyTable Versuchsbedingungen_Sonstiges = new MyTable("Versuchsbedingungen_Sonstiges",

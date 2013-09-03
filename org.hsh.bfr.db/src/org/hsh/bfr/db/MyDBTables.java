@@ -159,9 +159,11 @@ public class MyDBTables {
 		LinkedHashMap<Integer, String> hPM = new LinkedHashMap<Integer, String>();
 	  hPM.put(new Integer(1), "+");	hPM.put(new Integer(2), "-");
 		LinkedHashMap<Integer, String> hYN = new LinkedHashMap<Integer, String>();
-		hYN.put(new Integer(1), "ja");	hYN.put(new Integer(0), "nein");
+		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYN.put(new Integer(1), "yes");	hYN.put(new Integer(0), "no");}
+		else {hYN.put(new Integer(1), "ja");	hYN.put(new Integer(0), "nein");}
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
-		hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");
+		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
+		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 		LinkedHashMap<Integer, String> hYNT = new LinkedHashMap<Integer, String>();
 		hYNT.put(new Integer(1), "mit Therapie");hYNT.put(new Integer(0), "ohne Therapie");hYNT.put(new Integer(2), "Keine Angabe");
 		MyTable agenzien = new MyTable("Agenzien",
@@ -987,7 +989,8 @@ public class MyDBTables {
 	@SuppressWarnings("unchecked")
 	private static void doLieferkettenTabellen(final MyTable adressen, final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
-		hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");
+		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
+		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 		MyTable Knoten = new MyTable("Station", new String[]{"Kontaktadresse","Betriebsnummer","Betriebsart","VATnumber","Code",
 				"FallErfuellt","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Produktkatalog"},
 				new String[]{"INTEGER","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
@@ -1009,10 +1012,10 @@ public class MyDBTables {
 				new LinkedHashMap[]{null,null,hYNB,null});
 		addTable(Agensnachweis, -1);
 		LinkedHashMap<String, String> proce = new LinkedHashMap<String, String>();
-		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
-		proce.put("erhitzt und verzehrsfertig (fast alles)", "erhitzt und verzehrsfertig (fast alles)");
-		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
-		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
+		proce.put("nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and ready-to-eat (e.g. salads)" : "nicht erhitzt und verzehrsfertig (Salate, rohe Produkte)");
+		proce.put("erhitzt und verzehrsfertig (fast alles)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and ready-to-eat" : "erhitzt und verzehrsfertig (fast alles)");
+		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
+		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
 				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER"},

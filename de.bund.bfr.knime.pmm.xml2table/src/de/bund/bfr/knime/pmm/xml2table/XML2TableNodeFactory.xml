@@ -12,7 +12,6 @@
         
         
         <option name="Select a column">Select the XML column which contains the needed parameters. In order to transform the content of more than one XML column place several "XML 2 Table" nodes one after another.</option>
-        <option name="Append to data table">Check this box to append the XML parameters to the outport table.</option>
         <option name="Cols from XML 2 add to table">Choose the XML parameters to be added to the outport table. To choose two or more XML parameters press Ctrl or Shift and then click.</option>
     </fullDescription>
     

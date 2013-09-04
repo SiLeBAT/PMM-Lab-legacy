@@ -33,6 +33,7 @@
  ******************************************************************************/
 package org.hsh.bfr.db.gui.actions;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedInputStream;
@@ -104,65 +105,67 @@ public class PlausibleAction extends AbstractAction {
 		  	Runnable runnable = new Runnable() {
 		        @Override
 				public void run() {
-		  		    try {
-		        		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
-		        		if (progress != null) {
-		        			progress.setVisible(true);
-		        			progress.setStringPainted(true);
-		        			progress.setString("Plausibilitätstests laufen...");
-		        			progress.setMinimum(0);
-		        			progress.setMaximum(myTables.size());
-		        			progress.setValue(0);
+		  		    try {		  
+		        		if (DBKernel.isKrise) {
+		        			go4ISM();
 		        		}
-		  
-		        		int lfd = 0;
-		        	  	boolean showOnlyDataFromCurrentUser = pd.checkBox1.isSelected();
-		        		//String result = "";
-	        			String selectedTN = myDB.getActualTable().getTablename();
-		        		Vector<String> result = new Vector<String>();
-		        		for(String key : myTables.keySet()) {
-		        			MyTable myT = myTables.get(key);
-		        			String tn = myT.getTablename();
-		        	  		if (pd.radioButton1.isSelected()) { // Alle Datensätze
-		        	  			go4Table(tn, result, -1, -1, myT, showOnlyDataFromCurrentUser);
-		        	  		}
-		        	  		else if (pd.radioButton2.isSelected()) { // Nur sichtbare Tabelle
-		        	  			if (tn.equals(selectedTN)) {
-		        	  				go4Table(tn, result, -1, -1, myT, showOnlyDataFromCurrentUser);
-		        	  			}
-		        	  		}
-		        	  		else if (pd.radioButton3.isSelected()) { // nur IDs der sichtbaren Tabelle
-		        	  			if (tn.equals(selectedTN)) {
-		        	  				go4Table(tn, result, ids.get(0)[0], ids.get(0)[1], myT, showOnlyDataFromCurrentUser);
-		        	  			}
-		        	  		}
-		        	  		else if (pd.radioButton4.isSelected()) { // nur selektierte Zeile der sichtbaren Tabelle
-			        			int selID = myDB.getSelectedID();
-		        	  			if (tn.equals(selectedTN)) {
-		        	  				go4Table(tn, result, selID, selID, myT, showOnlyDataFromCurrentUser);
-		        	  			}
-		        	  		}
-		        	  		/*
-		        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur für Messwerte bzw. Versuchsbedingungen
-    	  						go4Table("Messwerte", result, -1, -1, MyDBTables.getTable("Messwerte"),
-    	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ähnlich vielleicht???
-		        	  		}
-		        	  		*/
-		        	  		progress.setValue(++lfd);		
-		        		}	        		
-		        		
-		    			if (progress != null) {
-		    				progress.setVisible(false);
-		    			}
-		    			String log = "Alles tutti!";
-		        		if (result.size() > 0) {
-		        			Collections.sort(result);
-		        			log = vectorToString(result, "\n");
+		        		else {
+			        		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+			        		if (progress != null) {
+			        			progress.setVisible(true);
+			        			progress.setStringPainted(true);
+			        			progress.setString("Plausibilitätstests laufen...");
+			        			progress.setMinimum(0);
+			        			progress.setMaximum(myTables.size());
+			        			progress.setValue(0);
+			        		}
+			        		int lfd = 0;
+			        	  	boolean showOnlyDataFromCurrentUser = pd.checkBox1.isSelected();
+			        		//String result = "";
+		        			String selectedTN = myDB.getActualTable().getTablename();
+			        		Vector<String> result = new Vector<String>();
+			        		for(String key : myTables.keySet()) {
+			        			MyTable myT = myTables.get(key);
+			        			String tn = myT.getTablename();
+			        	  		if (pd.radioButton1.isSelected()) { // Alle Datensätze
+			        	  			go4Table(tn, result, -1, -1, myT, showOnlyDataFromCurrentUser);
+			        	  		}
+			        	  		else if (pd.radioButton2.isSelected()) { // Nur sichtbare Tabelle
+			        	  			if (tn.equals(selectedTN)) {
+			        	  				go4Table(tn, result, -1, -1, myT, showOnlyDataFromCurrentUser);
+			        	  			}
+			        	  		}
+			        	  		else if (pd.radioButton3.isSelected()) { // nur IDs der sichtbaren Tabelle
+			        	  			if (tn.equals(selectedTN)) {
+			        	  				go4Table(tn, result, ids.get(0)[0], ids.get(0)[1], myT, showOnlyDataFromCurrentUser);
+			        	  			}
+			        	  		}
+			        	  		else if (pd.radioButton4.isSelected()) { // nur selektierte Zeile der sichtbaren Tabelle
+				        			int selID = myDB.getSelectedID();
+			        	  			if (tn.equals(selectedTN)) {
+			        	  				go4Table(tn, result, selID, selID, myT, showOnlyDataFromCurrentUser);
+			        	  			}
+			        	  		}
+			        	  		/*
+			        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur für Messwerte bzw. Versuchsbedingungen
+	    	  						go4Table("Messwerte", result, -1, -1, MyDBTables.getTable("Messwerte"),
+	    	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ähnlich vielleicht???
+			        	  		}
+			        	  		*/
+			        	  		progress.setValue(++lfd);		
+			        		}	        		
+			        		
+			    			if (progress != null) {
+			    				progress.setVisible(false);
+			    			}
+			    			String log = "Alles tutti!";
+			        		if (result.size() > 0) {
+			        			Collections.sort(result);
+			        			log = vectorToString(result, "\n");
+			        		}
+			        		InfoBox ib = new InfoBox(log, true, new Dimension(800, 500), null, false);
+			        		ib.setVisible(true);   
 		        		}
-		        		InfoBox ib = new InfoBox(log, true, new Dimension(800, 500), null, false);
-		        		ib.setVisible(true);   
-		        		
-		        		if (DBKernel.isKrise) go4ISM();
 				    }
 				    catch (Exception e) {MyLogger.handleException(e);}
 		      }
@@ -188,6 +191,9 @@ public class PlausibleAction extends AbstractAction {
 	    				"GRANT EXECUTE ON FUNCTION LD TO " +
 	    		DBKernel.delimitL("WRITE_ACCESS") + "," + DBKernel.delimitL("SUPER_WRITE_ACCESS"),
 	    		false, true)) {
+			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			/*
 			DBKernel.sendRequest(
 		    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
@@ -210,6 +216,10 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
 					null, null, null);		
 
+			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			
 			int total = vals1.size() + vals2.size() + vals3.size() + vals4.size();
 			if (showAndFilterVals("Station", vals1, 6, 0, total)) {
 				if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {

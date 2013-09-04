@@ -2149,9 +2149,15 @@ public void keyTyped(final KeyEvent keyEvent) {
 	}
 	private void merging() {
 		int oldID = this.getSelectedID();
+		String msg = "Bitte die ID des Datensatzes eingeben, der ID '" + oldID + "' ersetzen soll (" + oldID + " -> ?):";
+		String titel = "ID '" + oldID + "' ersetzen durch andere ID!";
+		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {
+			msg = "Please insert the ID of the dataset that shall replace ID='" + oldID + "' (" + oldID + " -> ?):";
+			titel = "Replacing dataset '" + oldID + "'!";
+		}
     	String response = JOptionPane.showInputDialog(this,
-    			  "Bitte die ID eingeben, die ID " + oldID + " ersetzen soll:",
-    			  "ID " + oldID + " ersetzen durch andere ID!",
+    			  msg,
+    			  titel,
     			  JOptionPane.QUESTION_MESSAGE);
     	try {
     		int newID = Integer.parseInt(response);

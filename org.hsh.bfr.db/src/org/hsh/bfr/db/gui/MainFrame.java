@@ -200,7 +200,7 @@ public class MainFrame extends JFrame {
 		button7.getAction().setEnabled(!isRO);
 		button6.getAction().setEnabled(!isRO);
 		button11.setEnabled(isEnabable);
-		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isServerConnection);
+		button4.getAction().setEnabled(isEnabable && DBKernel.debug && !DBKernel.isKNIME && !DBKernel.isServerConnection);
 		if (isRO && !DBKernel.isKNIME) {
 			SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss");
 			this.setTitle("OriginalDB ist von anderem Benutzer geöffnet. ReadOnly Modus... " +

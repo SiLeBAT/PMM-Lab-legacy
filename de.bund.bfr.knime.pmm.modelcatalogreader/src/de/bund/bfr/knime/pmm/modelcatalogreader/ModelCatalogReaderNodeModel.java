@@ -149,7 +149,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	
 	    	int i = 0;
 	    	while (result.next()) {
-	    		boolean takeIt = modelFilterEnabled || modelClass == null || modelClass.equals("All");
+	    		boolean takeIt = !modelFilterEnabled || modelClass == null || modelClass.equals("All");
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
 		    		String mcls = DBKernel.hashModelType.get(cls);
@@ -161,7 +161,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple = new KnimeTuple( schema );
 		    		
 		    		// fill row
-		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		formula = result.getString(Bfrdb.ATT_FORMULA);
 		    		if( formula != null ) {
 						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 					}

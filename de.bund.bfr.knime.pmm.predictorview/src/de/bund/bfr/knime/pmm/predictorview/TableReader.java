@@ -24,6 +24,7 @@ import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
@@ -130,9 +131,10 @@ public class TableReader {
 		shortIds = new LinkedHashMap<>();
 		formulas = new ArrayList<>();
 		parameterData = new ArrayList<>();
-		doubleColumns = Arrays.asList(Model1Schema.RMS, Model1Schema.RSQUARED,
-				Model1Schema.AIC, Model1Schema.BIC);
+		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
+				Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
 		doubleColumnValues = new ArrayList<List<Double>>();
+		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
@@ -372,13 +374,18 @@ public class TableReader {
 			}
 
 			doubleColumnValues.get(0).add(
-					((EstModelXml) estModelXml.get(0)).getRMS());
+					MathUtilities.getSSE(
+							((EstModelXml) estModelXml.get(0)).getRMS(),
+							((EstModelXml) estModelXml.get(0)).getDOF()));
 			doubleColumnValues.get(1).add(
-					((EstModelXml) estModelXml.get(0)).getR2());
+					MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
+							.getRMS()));
 			doubleColumnValues.get(2).add(
-					((EstModelXml) estModelXml.get(0)).getAIC());
+					((EstModelXml) estModelXml.get(0)).getRMS());
 			doubleColumnValues.get(3).add(
-					((EstModelXml) estModelXml.get(0)).getBIC());
+					((EstModelXml) estModelXml.get(0)).getR2());
+			doubleColumnValues.get(4).add(
+					((EstModelXml) estModelXml.get(0)).getAIC());
 
 			plotable.setFunction(formula);
 			plotable.setFunctionValue(depVar);

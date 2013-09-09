@@ -297,6 +297,22 @@ public class MathUtilities {
 
 	}
 
+	public static Double getSSE(Double rmse, Integer dof) {
+		if (rmse == null || dof == null) {
+			return null;
+		}
+
+		return rmse * rmse * dof;
+	}
+
+	public static Double getMSE(Double rmse) {
+		if (rmse == null) {
+			return null;
+		}
+
+		return rmse * rmse;
+	}
+
 	public static Double getRMSE(double sse, double numParam, double numSample) {
 		if (numParam >= numSample) {
 			return null;

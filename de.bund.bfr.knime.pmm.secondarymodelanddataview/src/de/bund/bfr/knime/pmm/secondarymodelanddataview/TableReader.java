@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -125,9 +126,10 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
 		stringColumnValues.add(new ArrayList<String>());
-		doubleColumns = Arrays.asList(Model2Schema.RMS, Model2Schema.RSQUARED,
-				Model2Schema.AIC, Model2Schema.BIC);
+		doubleColumns = Arrays.asList(Model2Schema.SSE, Model2Schema.MSE,
+				Model2Schema.RMSE, Model2Schema.RSQUARED, Model2Schema.AIC);
 		doubleColumnValues = new ArrayList<>();
+		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
@@ -345,10 +347,12 @@ public class TableReader {
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(dofMap.get(id));
 
-			doubleColumnValues.get(0).add(rmsMap.get(id));
-			doubleColumnValues.get(1).add(rSquaredMap.get(id));
-			doubleColumnValues.get(2).add(bicMap.get(id));
-			doubleColumnValues.get(3).add(aicMap.get(id));
+			doubleColumnValues.get(0).add(
+					MathUtilities.getSSE(rmsMap.get(id), dofMap.get(id)));
+			doubleColumnValues.get(1).add(MathUtilities.getMSE(rmsMap.get(id)));
+			doubleColumnValues.get(2).add(rmsMap.get(id));
+			doubleColumnValues.get(3).add(rSquaredMap.get(id));
+			doubleColumnValues.get(4).add(aicMap.get(id));
 
 			if (schemaContainsData) {
 				List<Double> depVarData = depVarDataMap.get(id);

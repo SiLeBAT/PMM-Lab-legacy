@@ -56,10 +56,11 @@ public class Model2Schema extends KnimeSchema {
 	public static final int NOTWRITABLE = 0;
 	public static final String MODELNAME = "ModelNameSec";
 	public static final String FORMULA = "FormulaSec";
-	public static final String RMS = "RMSESec";
-	public static final String RSQUARED = "RsquaredSec";
-	public static final String AIC = "AICSec";
-	public static final String BIC = "BICSec";
+	public static final String SSE = "SSE";
+	public static final String MSE = "MSE";
+	public static final String RMSE = "RMSE";
+	public static final String RSQUARED = "Rsquared";
+	public static final String AIC = "AIC";	
 	
 	public Model2Schema() {
 		

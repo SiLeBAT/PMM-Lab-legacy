@@ -56,10 +56,11 @@ public class Model1Schema extends KnimeSchema {
 	public static final String MODEL = "Primary Model";
 	public static final String MODELNAME = "ModelName";
 	public static final String FORMULA = "Formula";
-	public static final String RMS = "RMSE";
+	public static final String SSE = "SSE";
+	public static final String MSE = "MSE";
+	public static final String RMSE = "RMSE";
 	public static final String RSQUARED = "Rsquared";
-	public static final String AIC = "AIC";
-	public static final String BIC = "BIC";
+	public static final String AIC = "AIC";	
 
 	public Model1Schema() {
 		try {

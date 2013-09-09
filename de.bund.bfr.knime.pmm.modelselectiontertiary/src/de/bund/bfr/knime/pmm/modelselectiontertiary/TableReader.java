@@ -29,6 +29,7 @@ import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
@@ -124,12 +125,15 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.RMS,
-					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC,
-					Model1Schema.RMS + " (Local)", Model1Schema.RSQUARED
-							+ " (Local)", Model1Schema.AIC + " (Local)",
-					Model1Schema.BIC + " (Local)");
+			doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
+					Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC,
+					Model1Schema.SSE + " (Local)", Model1Schema.MSE
+							+ " (Local)", Model1Schema.RMSE + " (Local)",
+					Model1Schema.RSQUARED + " (Local)", Model1Schema.AIC
+							+ " (Local)");
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -165,9 +169,10 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			doubleColumns = Arrays.asList(Model1Schema.RMS,
-					Model1Schema.RSQUARED, Model1Schema.AIC, Model1Schema.BIC);
+			doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
+					Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
 			doubleColumnValues = new ArrayList<List<Double>>();
+			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
@@ -326,32 +331,44 @@ public class TableReader {
 								TimeSeriesSchema.ATT_MDINFO).get(0))
 								.getComment());
 				doubleColumnValues.get(0).add(
-						((EstModelXml) estModelXml.get(0)).getRMS());
+						MathUtilities.getSSE(
+								((EstModelXml) estModelXml.get(0)).getRMS(),
+								((EstModelXml) estModelXml.get(0)).getDOF()));
 				doubleColumnValues.get(1).add(
-						((EstModelXml) estModelXml.get(0)).getR2());
+						MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
+								.getRMS()));
 				doubleColumnValues.get(2).add(
-						((EstModelXml) estModelXml.get(0)).getAIC());
+						((EstModelXml) estModelXml.get(0)).getRMS());
 				doubleColumnValues.get(3).add(
-						((EstModelXml) estModelXml.get(0)).getBIC());
+						((EstModelXml) estModelXml.get(0)).getR2());
+				doubleColumnValues.get(4).add(
+						((EstModelXml) estModelXml.get(0)).getAIC());
 				data.add(dataPoints);
 
 				if (newTuples != null) {
 					PmmXmlDoc newEstModelXml = newTuples.get(nr).getPmmXml(
 							Model1Schema.ATT_ESTMODEL);
 
-					doubleColumnValues.get(4).add(
-							((EstModelXml) newEstModelXml.get(0)).getRMS());
 					doubleColumnValues.get(5).add(
-							((EstModelXml) newEstModelXml.get(0)).getR2());
+							MathUtilities.getSSE(((EstModelXml) newEstModelXml
+									.get(0)).getRMS(),
+									((EstModelXml) newEstModelXml.get(0))
+											.getDOF()));
 					doubleColumnValues.get(6).add(
-							((EstModelXml) newEstModelXml.get(0)).getAIC());
+							MathUtilities.getMSE(((EstModelXml) newEstModelXml
+									.get(0)).getRMS()));
 					doubleColumnValues.get(7).add(
-							((EstModelXml) newEstModelXml.get(0)).getBIC());
+							((EstModelXml) newEstModelXml.get(0)).getRMS());
+					doubleColumnValues.get(8).add(
+							((EstModelXml) newEstModelXml.get(0)).getR2());
+					doubleColumnValues.get(9).add(
+							((EstModelXml) newEstModelXml.get(0)).getAIC());
 				} else {
-					doubleColumnValues.get(4).add(null);
 					doubleColumnValues.get(5).add(null);
 					doubleColumnValues.get(6).add(null);
 					doubleColumnValues.get(7).add(null);
+					doubleColumnValues.get(8).add(null);
+					doubleColumnValues.get(9).add(null);
 				}
 
 				for (int i = 0; i < miscParams.size(); i++) {

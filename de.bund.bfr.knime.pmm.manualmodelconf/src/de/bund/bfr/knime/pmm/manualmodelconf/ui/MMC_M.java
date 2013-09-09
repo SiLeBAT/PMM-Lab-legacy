@@ -359,6 +359,8 @@ public class MMC_M extends JPanel {
 		formulaArea.setText(formula);
 		String depVar = formula.substring(0, index).trim();
 		newPM.setDepVar(depVar);
+		newPM.setDepCategory(oldPM.getDepCategory());
+		newPM.setDepDescription(oldPM.getDepDescription());
 
 		DJep parser = MathUtilities.createParser();
 		try {
@@ -369,11 +371,13 @@ public class MMC_M extends JPanel {
 				if (!os.equals(depVar)) {
 					if (oldPM.containsIndep(os)) {
 						newPM.addIndepVar(os, oldPM.getIndepMin(os),
-								oldPM.getIndepMax(os));
+								oldPM.getIndepMax(os), oldPM.getIndepCategory(os),
+								oldPM.getIndepUnit(os), oldPM.getIndepDescription(os));
 					} else if (oldPM.containsParam(os)) {
 						newPM.addParam(os, oldPM.getParamValue(os),
 								oldPM.getParamError(os), oldPM.getParamMin(os),
-								oldPM.getParamMax(os));
+								oldPM.getParamMax(os), oldPM.getParamCategory(os),
+								oldPM.getParamUnit(os), oldPM.getParamDescription(os));
 					} else {
 						newPM.addParam(os);
 					}
@@ -551,14 +555,29 @@ public class MMC_M extends JPanel {
 					String defCategory, defUnit;
 					Object isIndep = table.getValueAt(row, 2);
 					if (row == 0) {
+						if (e.isShiftDown()) {
+							pm.setDepCategory(null);
+							pm.setDepUnit(null);
+							return;
+						}
 						defCategory = pm.getDepCategory();
 						defUnit = pm.getDepUnit();
 					} else {
 						if (isIndep != null && isIndep instanceof Boolean
 								&& ((Boolean) isIndep)) {
+							if (e.isShiftDown()) {
+								pm.setIndepCategory(param, null);
+								pm.setIndepUnit(param, null);
+								return;
+							}
 							defCategory = pm.getIndepCategory(param);
 							defUnit = pm.getIndepUnit(param);
 						} else {
+							if (e.isShiftDown()) {
+								pm.setParamCategory(param, null);
+								pm.setParamUnit(param, null);
+								return;
+							}
 							defCategory = pm.getParamCategory(param);
 							defUnit = pm.getParamUnit(param);
 						}
@@ -581,7 +600,7 @@ public class MMC_M extends JPanel {
 								defUnit != null && !defUnit.isEmpty() ? defUnit
 										: category.getStandardUnit());
 
-						if (unit != null) {
+						//if (unit != null) {
 							if (row == 0) {
 								pm.setDepCategory(categoryStr);
 								pm.setDepUnit(unit);
@@ -594,15 +613,13 @@ public class MMC_M extends JPanel {
 								pm.setParamCategory(param, categoryStr);
 								pm.setParamUnit(param, unit);
 							}
-						}
+						//}
 					}
 				}
 			}
-			else if (row > 0 && radioButton3.isSelected()) {
+			else if (col == 0 && row > 0 && radioButton3.isSelected()) {
 				Object isIndep = table.getValueAt(row, 2);
-				if (col == 0
-						&& (isIndep == null || isIndep instanceof Boolean
-								&& !((Boolean) isIndep))) {
+				if (isIndep == null || isIndep instanceof Boolean && !((Boolean) isIndep)) {
 					SecDialog secondaryDialog = new SecDialog(m_parentFrame);
 					secondaryDialog.setModal(true);
 					secondaryDialog.setIconImage(Resources.getInstance()

@@ -351,13 +351,13 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 			modelNameSwitch.doClick();
 	}
 
-	public static boolean passesFilter(final String modelList, final KnimeTuple tuple) throws PmmException {
+	public static boolean passesFilter(final String modelList, final KnimeTuple tuple, final int level) throws PmmException {
 
 		if (modelList.isEmpty())
 			return false;
 
 		Integer id = null;
-		PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, tuple.getSchema().conforms(new Model1Schema()) ? 1 : 2));
+		PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_MODELCATALOG, level));
 		if (x != null) {
 			for (PmmXmlElementConvertable el : x.getElementSet()) {
 				if (el instanceof CatalogModelXml) {

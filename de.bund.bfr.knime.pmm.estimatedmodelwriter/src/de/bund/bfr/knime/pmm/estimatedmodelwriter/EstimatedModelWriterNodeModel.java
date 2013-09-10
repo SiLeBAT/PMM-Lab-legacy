@@ -165,9 +165,9 @@ if (true) return null;
 						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 				
-				checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
+				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
 				newTsID = db.insertTs(ts);				
-				checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
+				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
 				
 				//ts.setCondId(newTsID);
 				alreadyInsertedTs.put(rowTsID, ts);
@@ -236,9 +236,9 @@ if (true) return null;
 						String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						db.insertM(ppm);
-						checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						alreadyInsertedModel.put(rowMcID, ppm);
 						if (!ppm.getWarning().trim().isEmpty()) warnings += ppm.getWarning();
@@ -269,9 +269,9 @@ if (true) return null;
 			    		String[] attrs = new String[] {Model1Schema.ATT_ESTMODEL, Model1Schema.ATT_EMLIT};
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-						checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 						newPrimEstID = db.insertEm(ppm);
-						checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
 				    		//ppm.setEstModelId(newPrimEstID);
@@ -343,9 +343,9 @@ if (true) return null;
 								String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 								String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 								
-								checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 					    		db.insertM(spm);
-								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+					    		foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 
 								alreadyInsertedModel.put(rowMcID, spm);
 								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
@@ -375,9 +375,9 @@ if (true) return null;
 					    		String[] attrs = new String[] {Model2Schema.ATT_ESTMODEL, Model2Schema.ATT_EMLIT};
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
-								checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								db.insertEm(spm);
-								checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+								foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
 							}
@@ -418,7 +418,7 @@ if (true) return null;
     }
 
     // Modelle
-    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
@@ -427,15 +427,18 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (rowuuid != null && before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
-				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
-				if (rowuuid != null && !before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				HashMap<Integer, Integer> h = CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
+				d.put(dbTablename[i], h);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
+			foreignDbIds.put(dbuuid, d);
 		}    	
+		return foreignDbIds;
     }
     
     // TimeSeries
-    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
+    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
@@ -444,11 +447,14 @@ if (true) return null;
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (rowuuid != null && before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
-				CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
-				if (rowuuid != null && !before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				HashMap<Integer, Integer> h = CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
+				d.put(dbTablename[i], h);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
+			foreignDbIds.put(dbuuid, d);
 		}    	
+		return foreignDbIds;
     }
 
     /**

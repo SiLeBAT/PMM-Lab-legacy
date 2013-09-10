@@ -418,7 +418,7 @@ public class EmReaderUi extends JPanel {
 				agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple ) )
     			return false;
     	
-    	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple ) )
+    	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple, level) )
     		return false;
     		
     		

@@ -161,9 +161,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					String[] attrs = new String[] {Model1Schema.ATT_MODELCATALOG, Model1Schema.ATT_MLIT};
 					String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 					
-					checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 					db.insertM(pm);
-					checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
+					foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 					if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 				}
 			}
@@ -202,9 +202,9 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						String[] attrs = new String[] {Model2Schema.ATT_MODELCATALOG, Model2Schema.ATT_MLIT};
 						String[] dbTablenames = new String[] {"Modellkatalog", "Literatur"};
 						
-						checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+						foreignDbIds = checkIDs(conn, true, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 			    		db.insertM(pm);
-						checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
+			    		foreignDbIds = checkIDs(conn, false, dbuuid, row, pm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 						if (!pm.getWarning().trim().isEmpty()) warnings += pm.getWarning();
 		    		//}
 	    		}
@@ -219,7 +219,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
         return null;
     }
 
-    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
+    // Modelle
+    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
@@ -228,11 +229,14 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (rowuuid != null && before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
-				CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
-				if (rowuuid != null && !before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				HashMap<Integer, Integer> h = CellIO.setMIDs(before, schemaAttr[i], dbTablename[i], d.get(dbTablename[i]), row, pm);
+				d.put(dbTablename[i], h);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
+			foreignDbIds.put(dbuuid, d);
 		}    	
+		return foreignDbIds;
     }
 
     /**

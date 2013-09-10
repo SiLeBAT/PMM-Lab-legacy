@@ -378,7 +378,7 @@ public class CellIO {
 
 		return names;
 	}
-	public static void setMIDs(boolean before, String attr, String dbTablename, HashMap<Integer, Integer> foreignDbIdsTable,
+	public static HashMap<Integer, Integer> setMIDs(boolean before, String attr, String dbTablename, HashMap<Integer, Integer> foreignDbIdsTable,
     		KnimeTuple row, ParametricModel pm) throws PmmException {
     	if (dbTablename.equals("Literatur")) {
         	PmmXmlDoc lili = row.getPmmXml(attr);
@@ -481,8 +481,9 @@ public class CellIO {
     			}
     		}
     	}
+    	return foreignDbIdsTable;
     }
-	public static void setTsIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds,
+	public static HashMap<Integer, Integer> setTsIDs(boolean before, String attr, HashMap<Integer, Integer> foreignDbIds,
 			KnimeTuple row, KnimeTuple schemaTuple) throws PmmException {
     	int type = schemaTuple.getSchema().getType(row.getIndex(attr));
     	if (type == KnimeAttribute.TYPE_XML) {
@@ -597,6 +598,7 @@ public class CellIO {
         		}
         	}
     	}
+    	return foreignDbIds;
     }
 
 }

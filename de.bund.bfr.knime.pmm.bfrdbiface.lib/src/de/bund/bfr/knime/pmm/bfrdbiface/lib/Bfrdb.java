@@ -782,7 +782,7 @@ public class Bfrdb extends Hsqldbiface {
 		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", forceUpdate);
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
-		//forceUpdate=true;
+		forceUpdate=true;
 		boolean dropCacheFirst = false;
 		if (forceUpdate || System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*60) { // 60 mins
 			dropCacheFirst = true;
@@ -1880,9 +1880,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private boolean isObjectPresent( final String tablename, final int id ) {
 		
-		if( id <= 0 ) {
-			return false;
-		}
+		if (id <= 0) return false;
 		
 		int cnt = 0;
 		try {

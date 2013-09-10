@@ -128,9 +128,9 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 						TimeSeriesSchema.ATT_MATRIX, TimeSeriesSchema.ATT_LITMD};
 				String[] dbTablenames = new String[] {"Versuchsbedingungen", "Sonstiges", "Agenzien", "Matrices", "Literatur"};
 
-				checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
+				foreignDbIds = checkIDs(conn, true, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));				
 				db.insertTs(ts);				
-				checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
+				foreignDbIds = checkIDs(conn, false, dbuuid, row, ts, foreignDbIds, attrs, dbTablenames, row.getString(TimeSeriesSchema.ATT_DBUUID));
 				
 				alreadyInsertedTs.put(rowTsID, ts);
 				
@@ -148,7 +148,8 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
     	db.close();
         return null;
     }
-    private void checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
+    // TimeSeries
+    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, KnimeTuple ts,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,
     		String[] schemaAttr, String[] dbTablename, String rowuuid) throws PmmException {
 		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
@@ -157,11 +158,14 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 			
 			for (int i=0;i<schemaAttr.length;i++) {
 				if (!d.containsKey(dbTablename[i])) d.put(dbTablename[i], new HashMap<Integer, Integer>());
-				if (rowuuid != null && before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
-				CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
-				if (rowuuid != null && !before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
+				HashMap<Integer, Integer> h = CellIO.setTsIDs(before, schemaAttr[i], d.get(dbTablename[i]), row, ts);
+				d.put(dbTablename[i], h);
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get(dbTablename[i]), dbTablename[i], rowuuid);
 			}
+			foreignDbIds.put(dbuuid, d);
 		}    	
+		return foreignDbIds;
     }
     /**
      * {@inheritDoc}

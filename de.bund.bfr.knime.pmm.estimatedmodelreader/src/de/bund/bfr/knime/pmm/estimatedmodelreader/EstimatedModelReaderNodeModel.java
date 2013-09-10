@@ -137,7 +137,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
      */
     protected EstimatedModelReaderNodeModel() {
     	
-        super( 0, 1 );
+        super(0, 1);
         
         filename = "";
         login = "";

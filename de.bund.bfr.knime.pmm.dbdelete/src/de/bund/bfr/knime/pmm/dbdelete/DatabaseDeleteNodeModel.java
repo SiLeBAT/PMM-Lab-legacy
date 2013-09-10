@@ -144,8 +144,9 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		}
 		return numDBSuccesses;
     }
-    private boolean checkTimeSeriesDeletion(Connection conn, int tsID) {
+    private boolean checkTimeSeriesDeletion(Connection conn, Integer tsID) {
     	boolean result = true;
+    	if (tsID == null) return false;
 		String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("GeschaetzteModelle") +
 				" WHERE " + DBKernel.delimitL("Versuchsbedingung") + "=" + tsID;
 		ResultSet rs = DBKernel.getResultSet(conn, sql, false);
@@ -162,8 +163,9 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		catch (Exception e) {MyLogger.handleException(e);}   
     	return result;
     }
-    private boolean checkPrimaryDeletion(Connection conn, int estID) {
+    private boolean checkPrimaryDeletion(Connection conn, Integer estID) {
     	boolean result = true;
+    	if (estID == null) return false;
 		String sql = "SELECT " + DBKernel.delimitL("GeschaetztesSekundaermodell") + " FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") +
 				" WHERE " + DBKernel.delimitL("GeschaetztesPrimaermodell") + "=" + estID;
 		ResultSet rs = DBKernel.getResultSet(conn, sql, false);

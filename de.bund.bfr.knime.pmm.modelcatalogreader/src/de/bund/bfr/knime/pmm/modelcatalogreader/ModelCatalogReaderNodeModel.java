@@ -206,7 +206,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue( Model1Schema.ATT_DBUUID, dbuuid );
 		    		
 		    		// add row to data buffer
-					if (!modelFilterEnabled || ModelReaderUi.passesFilter(modelList, tuple)) {
+					if (!modelFilterEnabled || ModelReaderUi.passesFilter(modelList, tuple, level)) {
 						buf.addRowToTable(new DefaultRow(String.valueOf( i++ ), tuple));
 					}
 	    		}
@@ -282,7 +282,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple.setValue( Model2Schema.ATT_DBUUID, dbuuid );
 
 		    		// add row to data buffer
-					if (!modelFilterEnabled || ModelReaderUi.passesFilter( modelList, tuple)) {
+					if (!modelFilterEnabled || ModelReaderUi.passesFilter( modelList, tuple, level)) {
 						buf.addRowToTable(new DefaultRow( String.valueOf( i++ ), tuple));
 					}
 	    		}

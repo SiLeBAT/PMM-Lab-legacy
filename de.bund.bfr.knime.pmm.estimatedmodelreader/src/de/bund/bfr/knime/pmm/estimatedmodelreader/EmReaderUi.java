@@ -220,6 +220,22 @@ public class EmReaderUi extends JPanel {
 		    		dialog.setVisible(true);
 		    		
 		    		set = pvnd.getSettings();
+		    		String labelText = "<html>";
+		    		List<KnimeTuple> kts = set.getSelectedTuples();
+		    		for (KnimeTuple kt : kts) {
+						PmmXmlDoc estModel = kt.getPmmXml(Model1Schema.ATT_ESTMODEL);
+						if (estModel != null) {
+							for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+								if (el instanceof EstModelXml) {
+									EstModelXml emx = (EstModelXml) el;
+									labelText += emx.getID() + " -> " + emx.getName() + "<br>";
+									break;
+								}
+							}
+						}
+		    		}
+		    		labelText += "</html>";
+		    		selectedFilterResults.setText(labelText); // "<html>Hello World!<br>blahblahblah</html>"
 		    	}
 			}
 	    	catch (SQLException e) {
@@ -575,6 +591,7 @@ public class EmReaderUi extends JPanel {
 		mdReaderUi = new MdReaderUi();
 		panel6 = new JPanel();
 		doFilter = new JButton();
+		selectedFilterResults = new JLabel();
 
 		//======== this ========
 		setLayout(new FormLayout(
@@ -641,7 +658,7 @@ public class EmReaderUi extends JPanel {
 			panel6.setBorder(new TitledBorder("Results"));
 			panel6.setLayout(new FormLayout(
 				"default:grow",
-				"default"));
+				"default, $lgap, default"));
 
 			//---- doFilter ----
 			doFilter.setText("ApplyAndShowFilterResults");
@@ -652,6 +669,7 @@ public class EmReaderUi extends JPanel {
 				}
 			});
 			panel6.add(doFilter, CC.xy(1, 1));
+			panel6.add(selectedFilterResults, CC.xy(1, 3));
 		}
 		add(panel6, CC.xy(1, 9));
 
@@ -675,5 +693,6 @@ public class EmReaderUi extends JPanel {
 	private MdReaderUi mdReaderUi;
 	private JPanel panel6;
 	private JButton doFilter;
+	private JLabel selectedFilterResults;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

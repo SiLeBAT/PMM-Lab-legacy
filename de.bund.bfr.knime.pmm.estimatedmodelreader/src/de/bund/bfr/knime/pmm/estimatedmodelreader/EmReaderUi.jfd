@@ -80,7 +80,7 @@ new FormModel {
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 				"$columnSpecs": "default:grow"
-				"$rowSpecs": "default"
+				"$rowSpecs": "default, linegap, default"
 			} ) {
 				name: "panel6"
 				"border": new javax.swing.border.TitledBorder( "Results" )
@@ -89,6 +89,12 @@ new FormModel {
 					"text": "ApplyAndShowFilterResults"
 					addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "doFilterActionPerformed", true ) )
 				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) )
+				add( new FormComponent( "javax.swing.JLabel" ) {
+					name: "selectedFilterResults"
+				}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+					"gridX": 1
+					"gridY": 3
+				} )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 1
 				"gridY": 9

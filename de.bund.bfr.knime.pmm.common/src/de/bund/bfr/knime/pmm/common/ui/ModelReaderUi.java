@@ -128,7 +128,7 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		panel.setPreferredSize(new Dimension(250, 150));
 		add(panel, BorderLayout.CENTER);
 
-		modelNameSwitch = new JCheckBox("Filter by model name");
+		modelNameSwitch = new JCheckBox("Filter by formula");
 		modelNameSwitch.addActionListener(this);
 		panel.add(modelNameSwitch, BorderLayout.NORTH);
 

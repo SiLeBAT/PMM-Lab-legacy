@@ -1071,6 +1071,6 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public String toString() {
-		return modelName + " (" + this.getEstModelId() + ")";
+		return (fittedModelName != null && !fittedModelName.isEmpty()) ? fittedModelName : modelName;
 	}
 }

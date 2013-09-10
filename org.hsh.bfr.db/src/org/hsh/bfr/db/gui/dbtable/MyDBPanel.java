@@ -62,6 +62,8 @@ import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 import org.hsh.bfr.db.gui.dbtree.*;
 import org.hsh.bfr.db.imports.InfoBox;
 
+import quick.dbtable.Filter;
+
 /**
  * @author Armin Weiser
  */
@@ -87,6 +89,7 @@ public class MyDBPanel extends JPanel {
 	private MyDBForm myDBForm1;
 	private boolean isParameterTyp = false;
 	private boolean filterChangeAllowed = true;
+	private Filter defaultFilter = null;
 	
 	public MyDBPanel() {
 		this(null, null);
@@ -332,6 +335,9 @@ public class MyDBPanel extends JPanel {
 		this.getSuchfeld().setEnabled(false);
 		this.getSuchIchCheckBox().setEnabled(false);
   }
+  public void setDefaultFilter(Filter filter) {
+	  defaultFilter = filter;
+  }
   public void disableAdding() {
 	  disableAdding = true;
   }
@@ -424,7 +430,8 @@ public class MyDBPanel extends JPanel {
 			if (doFilter) { //  && myDBTable1.getRowCount() > 0
 				myDBTable1.checkUnsavedStuff(false);
 				int id = myDBTable1.getSelectedID();
-				myDBTable1.filter(new MyFilter(myDBTable1, textField1.getText(), null, e != null ? textField1 : null));				
+				if (defaultFilter != null)  myDBTable1.filter(defaultFilter);
+				else myDBTable1.filter(new MyFilter(myDBTable1, textField1.getText(), null, e != null ? textField1 : null));				
 				//myDBTable1.setReadOnly(true);
 				myDBTable1.refreshSort();
 				if (id < 0 || !myDBTable1.setSelectedID(id)) myDBTable1.clearSelection();

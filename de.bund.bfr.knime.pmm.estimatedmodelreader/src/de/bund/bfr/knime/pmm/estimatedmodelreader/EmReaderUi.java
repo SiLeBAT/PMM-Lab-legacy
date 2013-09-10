@@ -220,91 +220,34 @@ public class EmReaderUi extends JPanel {
 		    		dialog.setVisible(true);
 		    		
 		    		set = pvnd.getSettings();
-		    		String labelText = "<html>";
-		    		List<KnimeTuple> kts = set.getSelectedTuples();
-		    		for (KnimeTuple kt : kts) {
-						PmmXmlDoc estModel = kt.getPmmXml(Model1Schema.ATT_ESTMODEL);
-						if (estModel != null) {
-							for (PmmXmlElementConvertable el : estModel.getElementSet()) {
-								if (el instanceof EstModelXml) {
-									EstModelXml emx = (EstModelXml) el;
-									labelText += emx.getID() + " -> " + emx.getName() + "<br>";
-									break;
-								}
-							}
-						}
-		    		}
-		    		labelText += "</html>";
-		    		selectedFilterResults.setText(labelText); // "<html>Hello World!<br>blahblahblah</html>"
+		    		setSelectedFilterResults();
 		    	}
 			}
 	    	catch (SQLException e) {
 				e.printStackTrace();
 			}
-			/*
-			ResultSet rs = null;
-			if (modelReaderUi.isVisible()) {
-				rs = db.selectEstModel(modelReaderUi.getLevel(), -1, where, false);
-			}
-			else {
-				rs = db.selectEstModel(1, -1, where);
-			}
-			dbTable.refresh(rs);
-			final JTable table = dbTable.getTable(); 
-    		for (int i=0;i<table.getColumnCount();i++) {
-    			Column c = dbTable.getColumn(i);
-    			String cn = c.getColumnName(); 
-    			if (cn.equals("GeschaetztesModell2") || cn.equals("GeschaetztesModell") || cn.equals("Temperatur") || cn.equals("pH") || cn.equals("aw")
-    					 || cn.equals("Agensname") || cn.equals("AgensDetail") || cn.equals("Matrixname")
-    					 || cn.equals("MatrixDetail") || cn.equals("Kommentar") || cn.equals("MDGeprueft") || cn.equals("MDGuetescore")
-    					 || cn.equals("Parameter") || cn.equals("Parametername")  || cn.equals("Parametername2") || cn.equals("Wert") || cn.equals("Wert2")
-    					 || cn.equals("ZeitEinheit") || cn.equals("ZeitEinheit") || cn.equals("Rsquared") || cn.equals("Rsquared2")
-    					 || cn.equals("Geprueft") || cn.equals("Geprueft2") || cn.equals("Guetescore") || cn.equals("Guetescore2")) {
-    				c.setVisible(true);
-    			}
-    			else c.setVisible(false);
-    		}
-			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			    public void valueChanged(ListSelectionEvent e) {
-			    	if (!e.getValueIsAdjusting()) {
-			    		chosenModel = null; chosenModel2 = null;
-			    		java.util.List<Integer> c1 = new ArrayList<Integer>();
-			    		java.util.List<Integer> c2 = new ArrayList<Integer>();
-			    		int[] selRows = table.getSelectedRows();
-			    		if (dbTable.getRowCount() > 0) {
-			    			for (int ii=0;ii<selRows.length;ii++) {
-			    				if (selRows[ii] >= 0) {
-						    		for (int i=0;i<table.getColumnCount();i++) {
-						    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell")) {
-						    				Object o = dbTable.getValueAt(selRows[ii], i);
-						    				if (o != null && o instanceof Integer) {
-										        c1.add((Integer) o);
-						    				}
-									        if (getLevel() != 2) break;
-						    			}
-						    			if (dbTable.getColumn(i).getColumnName().equals("GeschaetztesModell2")) {
-						    				Object o = dbTable.getValueAt(selRows[ii], i);
-						    				if (o != null && o instanceof Integer) {
-										        c2.add((Integer) o);
-						    				}
-									        break;
-						    			}
-						    		}
-			    				}
-			    			}
-			    		}
-			    		chosenModel = new int[c1.size()];
-			    		chosenModel2 = new int[c2.size()];
-			    		int i=0; for (int c : c1) {chosenModel[i] = c;i++;}
-			    		i=0; for (int c : c2) {chosenModel2[i] = c;i++;}
-			    	}
-			    }
-			});
-			*/
 		}
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	private void setSelectedFilterResults() {
+		String labelText = "<html>";
+		List<KnimeTuple> kts = set.getSelectedTuples();
+		for (KnimeTuple kt : kts) {
+			PmmXmlDoc estModel = kt.getPmmXml(Model1Schema.ATT_ESTMODEL);
+			if (estModel != null) {
+				for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+					if (el instanceof EstModelXml) {
+						EstModelXml emx = (EstModelXml) el;
+						labelText += emx.getID() + " -> " + emx.getName() + "<br>";
+						break;
+					}
+				}
+			}
+		}
+		labelText += "</html>";
+		selectedFilterResults.setText(labelText); // "<html>Hello World!<br>blahblahblah</html>"
 	}
 	private void centerOnScreen(final Component c, final boolean absolute) {
 	    final int width = c.getWidth();
@@ -505,6 +448,7 @@ public class EmReaderUi extends JPanel {
 		if (c.containsKey("PredictorSettings")) {
 			set = new SettingsHelper();
 			set.loadConfig(c.getConfig("PredictorSettings"));
+			setSelectedFilterResults();
 		}
 
     	LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();

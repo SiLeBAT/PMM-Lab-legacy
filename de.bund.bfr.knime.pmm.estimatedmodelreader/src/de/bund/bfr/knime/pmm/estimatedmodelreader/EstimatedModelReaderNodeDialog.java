@@ -185,7 +185,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 					if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
 					params.put(pars[i], dbl);
 				}
-				estmodelui.setParameter(params);				
+				estmodelui.setParameter(params);	
 			}
 		}
 		catch( InvalidSettingsException e ) {			

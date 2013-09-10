@@ -480,10 +480,11 @@ if (dbForm != null || owner != null) {
 			final MyDBPanel myP = new MyDBPanel(newDBTable, newDBTree, disableButtons);
 			
 			if (mf != null) {
-				//newDBTable.setReadOnly(true);
+				newDBTable.setReadOnly(true);
 				newDBTable.setFilter(mf);
 				myP.disableAdding();
-				myP.disableFilter();
+				myP.setDefaultFilter(mf);
+				//myP.disableFilter();
 			}
 			
 	  		if (value != null && value instanceof Integer) {

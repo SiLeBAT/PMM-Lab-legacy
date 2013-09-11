@@ -1274,12 +1274,11 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						MdInfoXml.ATT_COMMENT,
+						DO_NOT_USE, OTHER_PARAMETER, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,
-						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
-						OTHER_PARAMETER, DO_NOT_USE });
+						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW });
 				JButton button = new JButton();
 
 				if (set.getColumnMappings().containsKey(column)) {

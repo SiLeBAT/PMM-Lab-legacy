@@ -838,16 +838,18 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 			for (String column : fileColumnList) {
 				JComboBox<String> box = new JComboBox<>(new String[] {
-						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
+						DO_NOT_USE,
+						OTHER_PARAMETER,
+						XLSReader.ID_COLUMN,
+						MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME,
 						AttributeUtilities.CONCENTRATION,
-						XLSReader.CONCENTRATION_STDDEV_COLUMN,
-						XLSReader.CONCENTRATION_MEASURE_NUMBER,
+						// XLSReader.CONCENTRATION_STDDEV_COLUMN,
+						// XLSReader.CONCENTRATION_MEASURE_NUMBER,
 						AttributeUtilities.AGENT_DETAILS,
 						AttributeUtilities.MATRIX_DETAILS,
 						AttributeUtilities.ATT_TEMPERATURE,
-						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
-						OTHER_PARAMETER, DO_NOT_USE });
+						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW });
 				JButton button = new JButton();
 
 				if (set.getColumnMappings().containsKey(column)) {

@@ -1842,6 +1842,27 @@ public class DBKernel {
 		//System.out.println(result);
 		return result;
 	}
+	public static long getLastRelevantChange(Connection conn, String[] relevantTables) {
+		long result = 0;
+		if (relevantTables.length > 0) {
+			String where = delimitL("Tabelle") + " = '" + relevantTables[0] + "'";
+			for (int i=1;i<relevantTables.length;i++) {
+				where += " OR " + delimitL("Tabelle") + " = '" + relevantTables[i] + "'";
+			}
+			String sql = "SELECT TOP 1 " + delimitL("Zeitstempel") + " FROM " + delimitL("ChangeLog") + " WHERE " + where + " ORDER BY " + delimitL("Zeitstempel") + " DESC";
+			ResultSet rs = getResultSet(conn, sql, true);
+			try {
+				if (rs != null && rs.first()) {
+					result = rs.getTimestamp(1).getTime();
+				}
+			}
+			catch (Exception e) {
+				MyLogger.handleException(e);
+			}
+		}
+		//System.out.println(result);
+		return result;
+	}
 	public static void setLastCache(Connection conn, String tablename, long newCacheTime) {
 		try {
 			boolean ro = conn.isReadOnly();

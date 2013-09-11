@@ -753,7 +753,10 @@ public class Bfrdb extends Hsqldbiface {
 			myWhereCache = " WHERE " + where;
 		}
 //System.err.println(q + myWhere);
-		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache, forceUpdate);
+		return getCachedTable("CACHE_selectEstModel" + level, q, myWhere, myWhereCache,
+				new String[]{"GeschaetzteModelle","Modellkatalog","ModellkatalogParameter","GeschaetzteParameter","GueltigkeitsBereiche",
+				"Modell_Referenz","Literatur","GeschaetztesModell_Referenz","Sekundaermodelle_Primaermodelle",
+				"Einheiten","Versuchsbedingungen_Sonstiges","SonstigeParameter","DoubleKennzahlen","Messwerte","Versuchsbedingungen"});
 	}
 	private String prepareCaching(ResultSet rs, String cacheTableneme) throws SQLException {
 		String sql = "CREATE TABLE " + DBKernel.delimitL(cacheTableneme) + " (";
@@ -779,12 +782,15 @@ public class Bfrdb extends Hsqldbiface {
 	public ResultSet selectTs(boolean forceUpdate) throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
 		//System.err.println(queryTimeSeries9);
-		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", forceUpdate);
+		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", new String[]{"Einheiten","Versuchsbedingungen_Sonstiges","SonstigeParameter","DoubleKennzahlen","Messwerte","Versuchsbedingungen"});
 	}
-	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, boolean forceUpdate) throws SQLException {
-		forceUpdate=true;
+	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, String[] relevantTables) throws SQLException {
 		boolean dropCacheFirst = false;
-		if (forceUpdate || System.currentTimeMillis() - DBKernel.getLastCache(conn, cacheTable) > 60000*60) { // 60 mins
+		long lastCaching = DBKernel.getLastCache(conn, cacheTable);
+		//long ttt = System.currentTimeMillis();
+		long lastRelevantChange = DBKernel.getLastRelevantChange(conn, relevantTables);
+		//System.err.println(System.currentTimeMillis() - ttt);
+		if (lastRelevantChange > lastCaching) {
 			dropCacheFirst = true;
 			DBKernel.setLastCache(conn, cacheTable, System.currentTimeMillis()); 
 		}

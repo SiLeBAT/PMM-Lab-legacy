@@ -233,11 +233,11 @@ public void valueChanged(final TreeSelectionEvent event) {
     		if (DBKernel.showHierarchic(myT.getTablename())) {
     			myDBTree.setTable(myT);  
     			myDBTree.setSelectedID(myDB.getSelectedID());
-    			myDB.getMyDBPanel().setTreeVisible(true);  
+    			myDB.getMyDBPanel().setTreeVisible(true, null);  
     			//myDBTree.grabFocus();
     		}
     		else {
-    			myDB.getMyDBPanel().setTreeVisible(false);     
+    			myDB.getMyDBPanel().setTreeVisible(false, null);     
     		}
     		myDB.grabFocus();
     	}
@@ -424,6 +424,9 @@ if (dbForm != null || owner != null) {
 	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, mf, null);
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent) {
+	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, mf, parent, null);
+  }
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent, String level1Expansion) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
   	//JDialog.setDefaultLookAndFeelDecorated(true);
@@ -510,7 +513,7 @@ if (dbForm != null || owner != null) {
 			if (dbTable != null || fromMMC) {
 				myP.setParentDialog(f, true);
 			}  
-			myP.setTreeVisible(isHierarchic);  
+			myP.setTreeVisible(isHierarchic, level1Expansion);  
 			f.setMinimumSize(new Dimension(1000, 500)); // sonst ist der OK Knopf möglicherweise nicht zu sehen...
 			f.getContentPane().add(myP);
 			f.pack();

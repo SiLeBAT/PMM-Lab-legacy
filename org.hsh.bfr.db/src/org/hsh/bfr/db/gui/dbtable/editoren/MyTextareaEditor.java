@@ -156,6 +156,6 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
 	    }
   }
 	private boolean isVariableCharacter(char ch) {
-		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$';
+		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$' || ch == '\b';
 	}
 }

@@ -260,7 +260,11 @@ public class MyTable {
 	public boolean isReadOnly() {
 		return tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
 				tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
-				tableName.equals("ICD10_Kodes") || 
+				tableName.equals("ICD10_Kodes") || tableName.equals("Modellkatalog") || 
+				tableName.equals("Parametertyp") || tableName.equals("DataSource") || tableName.equals("ModellkatalogParameter") || 
+				tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter") || 
+				tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
+				tableName.equals("GueltigkeitsBereiche") || tableName.equals("Modell_Referenz") || tableName.equals("LinkedTestConditions") ||
 				DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);
 	}
 	public Vector<Integer> getMyBLOBs() {

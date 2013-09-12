@@ -148,9 +148,10 @@ public class TableReader {
 		if (isTertiaryModel) {
 			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
 					Model1Schema.MODELNAME, Model1Schema.ATT_EMLIT,
-					Model2Schema.MODELNAME, TimeSeriesSchema.ATT_AGENT,
-					TimeSeriesSchema.ATT_MATRIX);
+					Model1Schema.FITTEDMODELNAME, Model2Schema.MODELNAME,
+					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
 			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
@@ -160,7 +161,7 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			standardVisibleColumns = new ArrayList<>(Arrays.asList(IDENTIFIER,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-					ChartConstants.STATUS));
+					Model1Schema.FITTEDMODELNAME, ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
@@ -180,8 +181,10 @@ public class TableReader {
 			if (containsData) {
 				stringColumns = Arrays.asList(IDENTIFIER,
 						ChartConstants.STATUS, Model1Schema.MODELNAME,
-						Model1Schema.ATT_EMLIT, AttributeUtilities.DATAID);
+						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME,
+						AttributeUtilities.DATAID);
 				stringColumnValues = new ArrayList<List<String>>();
+				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
@@ -189,7 +192,8 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				standardVisibleColumns = new ArrayList<>(Arrays.asList(
 						IDENTIFIER, Model1Schema.MODELNAME,
-						ChartConstants.STATUS, AttributeUtilities.DATAID));
+						ChartConstants.STATUS, Model1Schema.FITTEDMODELNAME,
+						AttributeUtilities.DATAID));
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
@@ -206,14 +210,16 @@ public class TableReader {
 			} else {
 				stringColumns = Arrays.asList(IDENTIFIER,
 						ChartConstants.STATUS, Model1Schema.MODELNAME,
-						Model1Schema.ATT_EMLIT);
+						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME);
 				stringColumnValues = new ArrayList<List<String>>();
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
+				stringColumnValues.add(new ArrayList<String>());
 				standardVisibleColumns = Arrays.asList(IDENTIFIER,
-						Model1Schema.MODELNAME, ChartConstants.STATUS);
+						Model1Schema.MODELNAME, Model1Schema.FITTEDMODELNAME,
+						ChartConstants.STATUS);
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS);
 			}
@@ -336,6 +342,8 @@ public class TableReader {
 			stringColumnValues.get(0).add(index + "");
 			stringColumnValues.get(2).add(modelName);
 			stringColumnValues.get(3).add(literature);
+			stringColumnValues.get(4).add(
+					((EstModelXml) estModelXml.get(0)).getName());
 			index++;
 
 			if (isTertiaryModel) {
@@ -368,9 +376,9 @@ public class TableReader {
 					matrixString += "," + s;
 				}
 
-				stringColumnValues.get(4).add(secString.substring(1));
-				stringColumnValues.get(5).add(agentString.substring(1));
-				stringColumnValues.get(6).add(matrixString.substring(1));
+				stringColumnValues.get(5).add(secString.substring(1));
+				stringColumnValues.get(6).add(agentString.substring(1));
+				stringColumnValues.get(7).add(matrixString.substring(1));
 			}
 
 			doubleColumnValues.get(0).add(
@@ -430,7 +438,7 @@ public class TableReader {
 					dataName = "" + tuple.getInt(TimeSeriesSchema.ATT_CONDID);
 				}
 
-				stringColumnValues.get(4).add(dataName);
+				stringColumnValues.get(5).add(dataName);
 
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double value = null;

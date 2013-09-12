@@ -38,6 +38,8 @@ package org.hsh.bfr.db.gui.dbtree;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Enumeration;
+
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -97,6 +99,16 @@ private MyTable myT = null;
 		}
 	}
 	
+	public void expandPath(String nodeName) {
+	    @SuppressWarnings("unchecked")
+		Enumeration<DefaultMutableTreeNode> e = ((DefaultMutableTreeNode) this.getModel().getRoot()).depthFirstEnumeration();
+	    while (e.hasMoreElements()) {
+	        DefaultMutableTreeNode node = e.nextElement();
+	        if (node.getLevel() == 1 && node.toString().equalsIgnoreCase(nodeName)) {
+	            this.expandPath(new TreePath(node.getPath()));
+	        }
+	    }
+	}
 	@Override
 	public void valueChanged(TreeSelectionEvent event) {
 		if (catchEvent) { // !event.getValueIsAdjusting()    				

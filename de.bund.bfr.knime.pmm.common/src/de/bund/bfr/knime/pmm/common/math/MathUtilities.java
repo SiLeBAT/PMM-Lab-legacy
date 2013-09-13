@@ -119,16 +119,9 @@ public class MathUtilities {
 	}
 
 	public static int getRandomNegativeInt() {
-		if (random == null) {
-			random = new Random();
-		}
-
+		if (random == null) random = new Random();
 		int value = random.nextInt();
-
-		if (value > 0) {
-			value = -value;
-		}
-
+		if (value > 0) value = -value;
 		return value;
 	}
 

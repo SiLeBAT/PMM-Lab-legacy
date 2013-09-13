@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.generictablemodel;
 
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import org.knime.core.data.DataColumnSpec;
@@ -50,9 +51,11 @@ import de.bund.bfr.knime.pmm.common.PmmException;
 public class KnimeSchema {
 	
 	private LinkedList<KnimeAttribute> attributeSet;
+	private LinkedHashMap<String, Integer> attributeMap;
 	
 	public KnimeSchema() {
 		attributeSet = new LinkedList<KnimeAttribute>();
+		attributeMap = new LinkedHashMap<String, Integer>();
 	}
 	
 	/** Merges the two schemata a and b to a new schema.
@@ -61,24 +64,24 @@ public class KnimeSchema {
 	 * @param b
 	 * @throws PmmException 
 	 */
-	public KnimeSchema( KnimeSchema a, KnimeSchema b ) throws PmmException {
-				
-		int i, j, m, n;
+	public KnimeSchema(KnimeSchema a, KnimeSchema b) throws PmmException {
+		if (a == null || b == null) throw new PmmException( "Schema must not be null." );
 		
-		if( a == null || b == null )
-			throw new PmmException( "Schema must not be null." );
+		int m = a.size();
+		int n = b.size();
 		
-		m = a.size();
-		n = b.size();
-		
-		for( i = 0; i < m; i++ )
-			for( j = 0; j < n; j++ )
-				if( a.getName( i ).equals( b.getName( j ) ) )
-					throw new PmmException( "Duplicate names are not allowed." );
+		for (int i = 0; i < m; i++)
+			for (int j = 0; j < n; j++)
+				if (a.getName(i).equals(b.getName(j))) throw new PmmException( "Duplicate names are not allowed." );
 		
 		attributeSet = new LinkedList<KnimeAttribute>();
-		attributeSet.addAll( a.attributeSet );
-		attributeSet.addAll( b.attributeSet );
+		attributeSet.addAll(a.attributeSet);
+		attributeSet.addAll(b.attributeSet);
+		
+		attributeMap = new LinkedHashMap<String, Integer>();
+		for (int i=0;i<attributeSet.size();i++) {
+			attributeMap.put(attributeSet.get(i).getName(), i);
+		}
 	}
 	
 	public static KnimeSchema merge( KnimeSchema a, KnimeSchema b ) throws PmmException {
@@ -117,7 +120,7 @@ public class KnimeSchema {
 		return conforms( table.getDataTableSpec() );
 	}
 	
-	public boolean conforms( DataTableSpec tspec ) throws PmmException {
+	public boolean conforms(DataTableSpec tspec) throws PmmException {
 		if (tspec == null) return false;
 		
 		int n = tspec.getNumColumns();
@@ -187,52 +190,50 @@ public class KnimeSchema {
 		
 		spec = new DataColumnSpec[ size() ];
 		for( i = 0; i < size(); i++  ) {			
-			col = attributeSet.get( i );			
+			col = attributeSet.get(i);			
 			switch(col.getType()) {			
 				case KnimeAttribute.TYPE_INT :
 					t = IntCell.TYPE; break;					
 				case KnimeAttribute.TYPE_DOUBLE :
 					t = DoubleCell.TYPE; break;
 				case KnimeAttribute.TYPE_XML :
-					t = XMLCell.TYPE; break;
+					t = XMLCell.TYPE; break; // XMLCell StringCell
 				default :
 					t = StringCell.TYPE;
 			}
 			
-			spec[ i ] = new DataColumnSpecCreator( col.getName(), t ).createSpec();
+			spec[i] = new DataColumnSpecCreator(col.getName(), t).createSpec();
 		}
 		
 		return new DataTableSpec( spec );
 	}
 	
-	public int getIndex( String attName ) throws PmmException {
-		
-		int i;
-		
-		for( i = 0; i < size(); i++ )
-			if( attributeSet.get( i ).getName().equals( attName ) )
-				return i;
-		
-		throw new PmmException( "An attribute with the name "
-			+attName+" is not part of the schema." );
+	public int getIndex(String attName) throws PmmException {
+		return attributeMap.get(attName);
+		/*
+		else {
+			throw new PmmException("An attribute with the name " +attName+" is not part of the schema.");
+		}
+		for (int i = 0; i < size(); i++) {
+			if (attributeSet.get(i).getName().equals(attName)) return i;
+		}
+		*/
 	}
 	
-	public String getName( final int i ) {
-		return attributeSet.get( i ).getName();
+	public String getName(final int i) {
+		return attributeSet.get(i).getName();
 	}
 	
-	public int getType( final int i ) { return attributeSet.get( i ).getType(); }
+	public int getType(final int i) { return attributeSet.get(i).getType(); }
 	
 	public int size() {
 		return attributeSet.size();
 	}
 	
-	private void addAttribute( final KnimeAttribute col ) throws PmmException {
-		
-		if( col == null )
-			throw new PmmException( "Attribute must not be null." );
-		
-		attributeSet.add( col );
+	private void addAttribute(final KnimeAttribute col) throws PmmException {		
+		if (col == null) throw new PmmException("Attribute must not be null.");		
+		attributeSet.add(col);
+		attributeMap.put(col.getName(), attributeMap.size());
 	}
 	
 	private void addAttribute( final String name, final int type ) throws PmmException {

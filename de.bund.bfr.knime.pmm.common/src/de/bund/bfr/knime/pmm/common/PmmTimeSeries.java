@@ -57,10 +57,10 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		PmmXmlDoc mdInfo = new PmmXmlDoc();
 		mdInfo.add(new MdInfoXml(null, null, null, null, null));
 				
-		setCondId( MathUtilities.getRandomNegativeInt() );
-		setMatrixId( MathUtilities.getRandomNegativeInt() );
-		setAgentId( MathUtilities.getRandomNegativeInt() );
-		setMdInfo( mdInfo );
+		setCondId(MathUtilities.getRandomNegativeInt());
+		setMatrixId(MathUtilities.getRandomNegativeInt());
+		setAgentId(MathUtilities.getRandomNegativeInt());
+		setMdInfo(mdInfo);
 	}
 	
 	public PmmTimeSeries(final int condId) throws PmmException {

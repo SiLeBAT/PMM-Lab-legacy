@@ -57,14 +57,11 @@ public class KnimeTuple implements DataRow {
 	private DataCell[] cell;
 
 	public KnimeTuple(KnimeSchema schema) throws PmmException {
-
-		int i;
-
 		setSchema(schema);
-
 		cell = new DataCell[schema.size()];
-		for (i = 0; i < schema.size(); i++)
-			cell[i] = CellIO.createMissingCell();
+		for (int i = 0; i < schema.size(); i++) {
+			cell[i] = CellIO.createMissingCell();			
+		}
 	}
 
 	public KnimeTuple( KnimeSchema schema, DataTableSpec spec, DataRow row )
@@ -193,8 +190,7 @@ public class KnimeTuple implements DataRow {
 		this.schema = schema;
 	}
 
-	public void setValue(final String attName, final Object obj)
-			throws PmmException {
+	public void setValue(final String attName, final Object obj) throws PmmException {
 		setValue(getIndex(attName), obj);
 	}
 
@@ -386,63 +382,39 @@ public class KnimeTuple implements DataRow {
 	}
 
 	private void setValue(final int i, final Object obj) throws PmmException {
-
-		if (obj == null)
-			cell[i] = CellIO.createMissingCell();
-		else
-
-			switch (schema.getType(i)) {
-
+		if (obj == null) cell[i] = CellIO.createMissingCell();
+		else switch (schema.getType(i)) {
 			case KnimeAttribute.TYPE_INT:
-
-				if ( obj instanceof Integer ) {
-
-					cell[ i ] = CellIO.createCell( ( Integer )obj );
+				if (obj instanceof Integer) {
+					cell[i] = CellIO.createCell((Integer) obj);
 					break;
 				}
-				
-				if( obj instanceof String ) {
-					
-					cell[ i ] = CellIO.createIntCell( ( String )obj );
+				if (obj instanceof String) {
+					cell[i] = CellIO.createIntCell((String) obj);
 					break;
 				}
-				
 				throw new PmmException("Value must be integer.");
-
 			case KnimeAttribute.TYPE_DOUBLE:
-				
-				if( obj instanceof String ) {
-					
-					cell[ i ] = CellIO.createDoubleCell( ( String )obj );
+				if (obj instanceof String) {
+					cell[i] = CellIO.createDoubleCell((String) obj);
 					break;
 				}
-
-				if ( obj instanceof Double ) {
-
-					cell[ i ] = CellIO.createCell( ( Double )obj );
+				if (obj instanceof Double) {
+					cell[i] = CellIO.createCell((Double) obj);
 					break;
 				}
-				
 				throw new PmmException("Value must be Double or parsable String.");
-
 			case KnimeAttribute.TYPE_STRING:
-
 				if (!(obj instanceof String))
 					throw new PmmException("Value must be string.");
-
 				cell[i] = CellIO.createCell((String) obj);
-
 				break;			
-
 			case KnimeAttribute.TYPE_XML :
-				
-				if( obj instanceof PmmXmlDoc ) {
-					cell[ i ] = CellIO.createXmlCell((PmmXmlDoc) obj);
+				if (obj instanceof PmmXmlDoc) {
+					cell[i] = CellIO.createXmlCell((PmmXmlDoc) obj);
 					break;
 				}
-
-				throw new PmmException( "Bad value type" );
-
+				throw new PmmException("Bad value type");
 			default:
 				throw new PmmException("Unknown datatype.");
 			}

@@ -33,16 +33,12 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.XMLStreamException;
 
 import org.knime.core.data.DataCell;
 import org.knime.core.data.DataType;
@@ -51,7 +47,6 @@ import org.knime.core.data.def.DoubleCell;
 import org.knime.core.data.def.IntCell;
 import org.knime.core.data.def.StringCell;
 import org.knime.core.data.xml.XMLCellFactory;
-import org.xml.sax.SAXException;
 
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
@@ -60,6 +55,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 
 public class CellIO {
 
+	public static long tttxcmldoc = 0;
 	public static String getString(DataCell cell) {
 		if (cell.isMissing()) {
 			return null;
@@ -212,25 +208,12 @@ public class CellIO {
 		return new StringCell(s.substring(0, s.length() - 1));
 	}
 
-	public static DataCell createXmlCell(PmmXmlDoc xml) {
-		if (xml == null)
-			return null;
+	public static DataCell createXmlCell(PmmXmlDoc xmlDoc) {
+		if (xmlDoc == null) return null;
 		DataCell xmlCell = null;
-		try {
-			xmlCell = XMLCellFactory.create(xml.toXmlString());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ParserConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SAXException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (XMLStreamException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		long ttt = System.currentTimeMillis();
+		xmlCell = XMLCellFactory.create(xmlDoc.getW3C());
+		tttxcmldoc += (System.currentTimeMillis() - ttt);
 		return xmlCell;
 	}
 

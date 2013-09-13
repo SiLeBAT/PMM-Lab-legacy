@@ -54,6 +54,7 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -146,8 +147,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());
     	int i = 0;//, j=0;
-    	long ttt,tt1=0,tt2=0,tt3=0,tt4=0,tt5=0;
-
+CellIO.tttxcmldoc = 0;
     	while (result.next()) {
     		//System.err.println(j+"\t"+i);
     		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getArray("Zeit"), result.getArray("ZeitEinheit"),
@@ -155,11 +155,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     				result.getArray("Standardabweichung"), result.getArray("Wiederholungen"));
 
     		if (tsDoc.size() > 0) {
-ttt = System.currentTimeMillis();        		
         		// initialize row
     			PmmTimeSeries tuple = new PmmTimeSeries();
-//11020	3295	2068	10734	2540
-        		tt1 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     			// fill row
     			int condID = result.getInt(Bfrdb.ATT_CONDITIONID);
         		tuple.setCondId(condID);
@@ -183,7 +180,6 @@ ttt = System.currentTimeMillis();
         			miscDoc.add(mx);
         		}
         		tuple.addMiscs(miscDoc);
-        		tt2 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 
         		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();
         		Boolean checked = null;
@@ -193,16 +189,13 @@ ttt = System.currentTimeMillis();
         		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
         		mdInfoDoc.add(mdix);
         		tuple.setMdInfo(mdInfoDoc);
-        		tt3 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
 
 				tuple.setAgent(result.getInt( Bfrdb.ATT_AGENTID ), result.getString( Bfrdb.ATT_AGENTNAME ), result.getString( Bfrdb.ATT_AGENTDETAIL ));
 				tuple.setMatrix(result.getInt( Bfrdb.ATT_MATRIXID ), result.getString( Bfrdb.ATT_MATRIXNAME ), result.getString( Bfrdb.ATT_MATRIXDETAIL ));
-        		tt4 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
         		tuple.setMdData(tsDoc);
         		//tuple.setComment( result.getString( Bfrdb.ATT_COMMENT ) );
         		tuple.setValue( TimeSeriesSchema.ATT_DBUUID, dbuuid );
         		
-        		tt5 += System.currentTimeMillis() - ttt; ttt = System.currentTimeMillis(); 
     	    	String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
         			PmmXmlDoc l = new PmmXmlDoc();
@@ -228,7 +221,7 @@ ttt = System.currentTimeMillis();
         		//j++;
     		}
     	}
-System.err.println("PmmTimeSeries: " + tt1 + "\tMiscXml: " + tt2 + "\tMdInfoXml: " + tt3 + "\tsetAgent/Matrix: " + tt4 + "\tsetMdData: " + tt5);    	
+System.err.println("PmmTimeSeries: xmlDocCreation: " + CellIO.tttxcmldoc);
     	// close data buffer
     	buf.close();
     	result.close();

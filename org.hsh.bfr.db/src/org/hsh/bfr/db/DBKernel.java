@@ -1951,7 +1951,7 @@ public class DBKernel {
 		StartApp.go(connection);
 	}
 	public static String getInternalDefaultDBPath() {
-		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() +
+		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) +
 				System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
 	}
 	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate) {
@@ -1973,9 +1973,15 @@ public class DBKernel {
 			else {
 				File incFileInternalDBFolder = new File(internalPath);
 				if (!incFileInternalDBFolder.exists()) {
-					if (!incFileInternalDBFolder.mkdirs()) return null;
+					if (!incFileInternalDBFolder.mkdirs()) {
+						System.err.println("Creation of folder for internal database not succeeded.");
+						return null;//throw new IllegalStateException("Creation of folder for internal database not succeeded.", null);//return null;
+					}
 				}
-				if (incFileInternalDBFolder.list() == null) return null;
+				if (incFileInternalDBFolder.list() == null) {
+					System.err.println("Creation of folderlist for internal database not succeeded.");
+					return null;//throw new IllegalStateException("Creation of folderlist for internal database not succeeded.", null);//return null;
+				}
 				// folder is empty? Create database!
 				if (incFileInternalDBFolder.list().length == 0) {
 					// Get the bundle this class belongs to.

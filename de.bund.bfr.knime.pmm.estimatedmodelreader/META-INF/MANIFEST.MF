@@ -19,5 +19,6 @@ Export-Package: de.bund.bfr.knime.pmm.estimatedmodelreader
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: de.bund.bfr.knime.pmm.predictorview,
  org.hsh.bfr.db,
+ org.hsh.bfr.db.imports,
  quick.dbtable
 

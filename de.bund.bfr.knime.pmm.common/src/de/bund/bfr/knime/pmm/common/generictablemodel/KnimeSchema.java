@@ -78,10 +78,7 @@ public class KnimeSchema {
 		attributeSet.addAll(a.attributeSet);
 		attributeSet.addAll(b.attributeSet);
 		
-		attributeMap = new LinkedHashMap<String, Integer>();
-		for (int i=0;i<attributeSet.size();i++) {
-			attributeMap.put(attributeSet.get(i).getName(), i);
-		}
+		generateMap();
 	}
 	
 	public static KnimeSchema merge( KnimeSchema a, KnimeSchema b ) throws PmmException {
@@ -208,7 +205,16 @@ public class KnimeSchema {
 		return new DataTableSpec( spec );
 	}
 	
+	private void generateMap() {
+		attributeMap = new LinkedHashMap<String, Integer>();
+		for (int i=0;i<attributeSet.size();i++) {
+			attributeMap.put(attributeSet.get(i).getName(), i);
+		}		
+	}
 	public int getIndex(String attName) throws PmmException {
+		if (attributeMap == null) {
+			generateMap();
+		}
 		return attributeMap.get(attName);
 		/*
 		else {

@@ -61,6 +61,9 @@ public class EmReaderUi extends JPanel {
 	
 	private SettingsHelper set = null;
 	
+	public SettingsHelper getSet() {
+		return set;
+	}
 	public EmReaderUi() {
 		this(null);
 	}
@@ -78,6 +81,7 @@ public class EmReaderUi extends JPanel {
 		if (!showModelOptions) modelReaderUi.setVisible(false);
 		if (!showQualityOptions) qualityPanel.setVisible(false);
 		if (!showMDOptions) mdReaderUi.setVisible(false);
+		set = new SettingsHelper();
 	}
 
 	private LinkedHashMap<String, Double[]> getParams(LinkedHashMap<String, DoubleTextField[]> params) {
@@ -202,15 +206,15 @@ public class EmReaderUi extends JPanel {
 					e.printStackTrace();
 				}
 
+	    		Window parentWindow = SwingUtilities.windowForComponent(this); 
+	    		Frame parentFrame = null;
+	    		if (parentWindow instanceof Frame) {
+	    		    parentFrame = (Frame)parentWindow;
+	    		}		    		
 		    	if (hs != null && hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false);
 		    		JPanel mainComponent = pvnd.getMainComponent();
 
-		    		Window parentWindow = SwingUtilities.windowForComponent(this); 
-		    		Frame parentFrame = null;
-		    		if (parentWindow instanceof Frame) {
-		    		    parentFrame = (Frame)parentWindow;
-		    		}		    		
 		    		JDialog dialog = new JDialog(parentFrame);
 		    		dialog.setModal(true);
 		    		dialog.add(mainComponent);
@@ -221,6 +225,9 @@ public class EmReaderUi extends JPanel {
 		    		
 		    		set = pvnd.getSettings();
 		    		setSelectedFilterResults();
+		    	}
+		    	else {
+		  		    JOptionPane.showMessageDialog(parentFrame, "No models found for defined filter!", "No models found", JOptionPane.INFORMATION_MESSAGE);
 		    	}
 			}
 	    	catch (SQLException e) {
@@ -279,6 +286,15 @@ public class EmReaderUi extends JPanel {
 		modelReaderUi.addModelSec(id, name, modelType);
 	}
 	
+	public void setMatrixID(Integer id) throws InvalidSettingsException {
+		mdReaderUi.setMatrixID(id);
+	}
+	public void setAgentID(Integer id) throws InvalidSettingsException {
+		mdReaderUi.setAgensID(id);
+	}
+	public void setLiteratureID(Integer id) throws InvalidSettingsException {
+		mdReaderUi.setLiteratureID(id);
+	}
 	public void setMatrixString( final String str ) throws InvalidSettingsException {
 		mdReaderUi.setMatrixString(str);
 	}
@@ -294,6 +310,9 @@ public class EmReaderUi extends JPanel {
 	public void clearModelSet() { modelReaderUi.clearModelSet(); }
 	public void enableModelList( String idList ) { modelReaderUi.enableModelList( idList ); }
 	public String getAgentString() { return mdReaderUi.getAgentString(); }
+	public Integer getAgentID() {return mdReaderUi.getAgentID();}
+	public Integer getMatrixID() {return mdReaderUi.getMatrixID();}
+	public Integer getLiteratureID() {return mdReaderUi.getLiteratureID();}
 	public String getLiteratureString() { return mdReaderUi.getLiteratureString(); }
 	public LinkedHashMap<String, DoubleTextField[]> getParameter() { return mdReaderUi.getParameter(); }
 	public int getLevel() { return modelReaderUi.getLevel(); }
@@ -444,42 +463,44 @@ public class EmReaderUi extends JPanel {
 	public void setSettings(Config c) throws InvalidSettingsException {		
 		setSettings(c, null, null, null, null, null);
 	}
-	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {		
-		if (c.containsKey("PredictorSettings")) {
-			set = new SettingsHelper();
-			set.loadConfig(c.getConfig("PredictorSettings"));
-			setSelectedFilterResults();
-		}
-
+	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {
     	LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
-		modelReaderUi.setLevel(1);
-     	if (c.containsKey("ModelReaderUi")) modelReaderUi.setSettings(c.getConfig("ModelReaderUi"));
-     	if (c.containsKey("MdReaderUi")) mdReaderUi.setSettings(c.getConfig("MdReaderUi"));
+		if (c != null) {
+			if (c.containsKey("PredictorSettings")) {
+				set = new SettingsHelper();
+				set.loadConfig(c.getConfig("PredictorSettings"));
+				setSelectedFilterResults();
+			}
 
-    		this.setQualityMode( c.getInt( EmReaderUi.PARAM_QUALITYMODE ) );
-    		this.setQualityThresh( c.getDouble( EmReaderUi.PARAM_QUALITYTHRESH ) );
+			modelReaderUi.setLevel(1);
+	     	if (c.containsKey("ModelReaderUi")) modelReaderUi.setSettings(c.getConfig("ModelReaderUi"));
+	     	if (c.containsKey("MdReaderUi")) mdReaderUi.setSettings(c.getConfig("MdReaderUi"));
 
-    		if (c.containsKey(PARAM_NOMDDATA)) withoutData.setSelected(c.getBoolean(PARAM_NOMDDATA));
-    		    				
-    		Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
-    		if (c2.containsKey(EmReaderUi.PARAM_PARAMETERNAME)) {
-        		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);
-        		String[] mins = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMIN);
-        		String[] maxs = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMAX);
+			this.setQualityMode(c.getInt(EmReaderUi.PARAM_QUALITYMODE));
+			this.setQualityThresh(c.getDouble(EmReaderUi.PARAM_QUALITYTHRESH));
 
-        		for (int i=0;i<pars.length;i++) {
-        			DoubleTextField[] dbl = new DoubleTextField[2];
-        			dbl[0] = new DoubleTextField(true);
-        			dbl[1] = new DoubleTextField(true);
-        			if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
-        			if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
-        			params.put(pars[i], dbl);
-        		}
-    		}
-    		if (params.size() == 0) fillWithDefaults(c, defAgent, defMatrix, defTemp, defPh, defAw, params);     		
-    		this.setParameter(params);     		
+			if (c.containsKey(PARAM_NOMDDATA)) withoutData.setSelected(c.getBoolean(PARAM_NOMDDATA));
+			    				
+			Config c2 = c.getConfig(EmReaderUi.PARAM_PARAMETERS);
+			if (c2.containsKey(EmReaderUi.PARAM_PARAMETERNAME)) {
+	    		String[] pars = c2.getStringArray(EmReaderUi.PARAM_PARAMETERNAME);
+	    		String[] mins = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMIN);
+	    		String[] maxs = c2.getStringArray(EmReaderUi.PARAM_PARAMETERMAX);
+
+	    		for (int i=0;i<pars.length;i++) {
+	    			DoubleTextField[] dbl = new DoubleTextField[2];
+	    			dbl[0] = new DoubleTextField(true);
+	    			dbl[1] = new DoubleTextField(true);
+	    			if (!mins[i].equals("null")) dbl[0].setValue(Double.parseDouble(mins[i]));
+	    			if (!maxs[i].equals("null")) dbl[1].setValue(Double.parseDouble(maxs[i]));
+	    			params.put(pars[i], dbl);
+	    		}
+			}
+		}
+		if (params.size() == 0) fillWithDefaults(defAgent, defMatrix, defTemp, defPh, defAw, params);     		
+		this.setParameter(params);     		
 	}
-	private void fillWithDefaults(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, LinkedHashMap<String, DoubleTextField[]> params) throws InvalidSettingsException {
+	private void fillWithDefaults(Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, LinkedHashMap<String, DoubleTextField[]> params) throws InvalidSettingsException {
 		if (defAgent != null) {
 			//c.getConfig("MdReaderUi").addInt(MdReaderUi.PARAM_AGENTID, defAgent);
 			mdReaderUi.setAgensID(defAgent);
@@ -490,7 +511,7 @@ public class EmReaderUi extends JPanel {
 			mdReaderUi.setMatrixID(defMatrix);
 			mdReaderUi.setMatrixString(""+DBKernel.getValue(db.getConnection(), "Matrices", "ID", defMatrix+"", "Matrixname"));
 		}
-		if (defTemp != null) {
+		if (defTemp != null && !defTemp.isNaN() && !defTemp.isInfinite()) {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_TEMPERATURE);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
@@ -500,7 +521,7 @@ public class EmReaderUi extends JPanel {
 			dtf[0].setValue(defTemp - 10);
 			dtf[1].setValue(defTemp + 10);
 		}
-		if (defPh != null) {
+		if (defPh != null && !defPh.isNaN() && !defPh.isInfinite()) {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_PH);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];
@@ -510,7 +531,7 @@ public class EmReaderUi extends JPanel {
 			dtf[0].setValue(defPh - 1);
 			dtf[1].setValue(defPh + 1);
 		}
-		if (defAw != null) {
+		if (defAw != null && !defAw.isNaN() && !defAw.isInfinite()) {
 			DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_AW);
 			if (dtf == null) {
 				dtf = new DoubleTextField[2];

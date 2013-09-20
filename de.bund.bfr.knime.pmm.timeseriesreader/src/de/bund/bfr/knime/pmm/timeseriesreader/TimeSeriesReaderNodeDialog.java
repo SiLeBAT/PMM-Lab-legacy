@@ -100,7 +100,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	panel.add(tsui);
     	
     	addTab("MD Filter", panel);
-    	addTab("Database connection", dbui);
+    	//addTab("Database connection", dbui);
     }
         
 	@Override

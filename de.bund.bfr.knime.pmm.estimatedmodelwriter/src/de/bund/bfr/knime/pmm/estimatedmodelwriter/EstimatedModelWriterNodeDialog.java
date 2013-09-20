@@ -63,7 +63,7 @@ public class EstimatedModelWriterNodeDialog extends NodeDialogPane {
     protected EstimatedModelWriterNodeDialog() {
     	
     	dbui = new DbConfigurationUi();    	
-    	addTab("Database connection", dbui);
+    	//addTab("Database connection", dbui);
     }
     
 	@Override

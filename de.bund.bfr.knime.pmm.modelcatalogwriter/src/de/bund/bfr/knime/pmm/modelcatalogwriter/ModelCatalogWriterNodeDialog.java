@@ -63,7 +63,7 @@ public class ModelCatalogWriterNodeDialog extends NodeDialogPane {
      */
     protected ModelCatalogWriterNodeDialog() {
     	dbui = new DbConfigurationUi();    	
-    	addTab("Database connection", dbui);
+    	//addTab("Database connection", dbui);
 
     }
     

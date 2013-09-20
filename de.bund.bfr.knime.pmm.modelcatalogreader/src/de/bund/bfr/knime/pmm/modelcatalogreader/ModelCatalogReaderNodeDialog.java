@@ -89,7 +89,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	panel.add(filterui, BorderLayout.CENTER);
     	
     	addTab("MC Filter", panel);
-    	addTab("Database connection", dbui);
+    	//addTab("Database connection", dbui);
     	
     	try {
     		updateModelName();

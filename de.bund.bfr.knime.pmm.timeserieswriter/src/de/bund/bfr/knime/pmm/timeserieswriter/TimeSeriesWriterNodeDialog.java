@@ -63,7 +63,7 @@ public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
      */
     protected TimeSeriesWriterNodeDialog() {
     	dbui = new DbConfigurationUi();    	
-    	addTab("Database connection", dbui);
+    	//addTab("Database connection", dbui);
 
     }
 

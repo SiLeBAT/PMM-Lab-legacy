@@ -2520,7 +2520,7 @@ public class DBKernel {
 	}
 	private static void setDBUUID(Connection conn, final String uuid) throws SQLException {
 		conn.setReadOnly(false);
-		sendRequest("INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", true);
+		sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", true, false);
 		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
 	}
     private static String getBL(String strVal) {

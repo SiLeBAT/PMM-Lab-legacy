@@ -61,17 +61,17 @@ public class MainKernel {
 	private static boolean isServer = false;
 	private static Server s = null;
 	
-	private static String dbFolder = "/opt/data/HSQLDB/data/";
-	private static String bkpFolder = "/opt/data/HSQLDB/backup/";
-	private static String logFolder = "/var/log/BfR_Server/";
+	private static String dbFolder = "/opt/hsqldb/data/";
+	private static String bkpFolder = "/opt/hsqldb/backup/";
+	private static String logFolder = "/var/log/hsqldb/";
 	/*
 	private static String dbFolder = "C:/Dokumente und Einstellungen/Weiser/Desktop/";
 	private static String bkpFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
 	private static String logFolder = "C:/Dokumente und Einstellungen/Weiser/.localHSH/BfR/LOGs/";
 	*/
 	private static String[][] dbDefs = new String[][] {
-		{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_146","silebat_146","defad","de6!§5ddy"}//,
+		//{"krise_145","krise_145","SA","de6!§5ddy"},
+		{"silebat_DB","silebat_DB","defad","de6!§5ddy"}//,
 //		{"silebat_test_146","silebat_test_146","defad","de6!§5ddy"}
 	};
 	

@@ -147,7 +147,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    root 		= new InvisibleNode(".");
 		    children[SystemTabellen_LIST] = new InvisibleNode(GuiMessages.getString("System-Tabellen"));
 		    children[BasisTabellen_LIST] = new InvisibleNode(GuiMessages.getString("Basis-Tabellen"));
-		    children[Tenazitaet_LIST] = new InvisibleNode(GuiMessages.getString("Tenazität"));
+		    children[Tenazitaet_LIST] = new InvisibleNode(GuiMessages.getString("Tenazitaet"));
 		    children[PMModelle_LIST] = new InvisibleNode(GuiMessages.getString("PMModelle"));
 		    children[Krankheitsbilder_LIST] = new InvisibleNode(GuiMessages.getString("Krankheitsbilder"));
 		    children[Prozessdaten_LIST] = new InvisibleNode(GuiMessages.getString("Prozessdaten"));

@@ -520,7 +520,7 @@ public class MyDBPanel extends JPanel {
 	private void button8ActionPerformed(ActionEvent e) {
 		//myDBTable1.myPrint();
   	String tt = "";
-  	tt += "ID\t" + GuiMessages.getString("Benutzer") + "\t" + GuiMessages.getString("Letzte Änderung") + "\n"; 
+  	tt += "ID\t" + GuiMessages.getString("Benutzer") + "\t" + GuiMessages.getString("Letzte Aenderung") + "\n"; 
   	tt += "-----------------------------\n\n"; 
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -600,10 +600,10 @@ public class MyDBPanel extends JPanel {
 						  ib.setVisible(true);
 						  int retVal = JOptionPane.showConfirmDialog(this,
 								  GuiMessages.getString("Die Plausibilitaetspruefung wurde nicht bestanden") + ".\n" +
-								  GuiMessages.getString("Ihr solltet die eingegebenen Daten erst noch einmal überprüfen") + ".\n" +
-								  GuiMessages.getString("Falls ihr das zu einem späteren Zeitpunkt machen wollt, könnt ihr das Fenster aber auch schließen") + ".\n" +
-								  GuiMessages.getString("Fenster schließen?"),
-								  GuiMessages.getString("Plausibilitätstest nicht bestanden... Trotzdem schliessen?"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+								  GuiMessages.getString("Ihr solltet die eingegebenen Daten erst noch einmal ueberpruefen") + ".\n" +
+								  GuiMessages.getString("Falls ihr das zu einem spaeteren Zeitpunkt machen wollt, koennt ihr das Fenster aber auch schliessen") + ".\n" +
+								  GuiMessages.getString("Fenster schliessen?"),
+								  GuiMessages.getString("Plausibilitaetstest nicht bestanden... Trotzdem schliessen?"), JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 						  if (retVal == JOptionPane.NO_OPTION) {
 							  return;
 						  }

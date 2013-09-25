@@ -93,7 +93,7 @@ public class PlausibleDialog extends JDialog {
 		cancelButton = new JButton();
 
 		//======== this ========
-		setTitle(GuiMessages.getString("Welche Datensätze sollen einer Plausibilitätsprüfung unterzogen werden?"));
+		setTitle(GuiMessages.getString("Welche Datensaetze sollen einer Plausibilitaetspruefung unterzogen werden?"));
 		setModal(true);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -132,7 +132,7 @@ public class PlausibleDialog extends JDialog {
 				contentPanel.add(radioButton4, CC.xy(1, 7));
 
 				//---- checkBox1 ----
-				checkBox1.setText(GuiMessages.getString("nur Datensätze des angemeldeten Benutzers anzeigen"));
+				checkBox1.setText(GuiMessages.getString("nur Datensaetze des angemeldeten Benutzers anzeigen"));
 				checkBox1.setSelected(true);
 				contentPanel.add(checkBox1, CC.xywh(1, 9, 3, 1));
 			}

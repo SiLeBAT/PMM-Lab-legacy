@@ -599,7 +599,7 @@ public class MyDBPanel extends JPanel {
 						  InfoBox ib = new InfoBox(toShow, true, new Dimension(1000, 600), null, true);
 						  ib.setVisible(true);
 						  int retVal = JOptionPane.showConfirmDialog(this,
-								  GuiMessages.getString("Die Plausibilitätsprüfung wurde nicht bestanden") + ".\n" +
+								  GuiMessages.getString("Die Plausibilitaetspruefung wurde nicht bestanden") + ".\n" +
 								  GuiMessages.getString("Ihr solltet die eingegebenen Daten erst noch einmal überprüfen") + ".\n" +
 								  GuiMessages.getString("Falls ihr das zu einem späteren Zeitpunkt machen wollt, könnt ihr das Fenster aber auch schließen") + ".\n" +
 								  GuiMessages.getString("Fenster schließen?"),

@@ -579,7 +579,7 @@ public class MyDBPanel extends JPanel {
 				//System.out.println(firstSelectedID);
 				if (firstSelectedID >= 0 && firstSelectedID != getSelectedID()) {
 				    int retVal = JOptionPane.showConfirmDialog(parentDialog, // DBKernel.mainFrame
-				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "!\n" + GuiMessages.getString("Sicher, daﬂ das so sein soll???"),
+				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "!\n" + GuiMessages.getString("Sicher, dass das so sein soll???"),
 				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 				    if (retVal == JOptionPane.NO_OPTION) {
 				    	return;

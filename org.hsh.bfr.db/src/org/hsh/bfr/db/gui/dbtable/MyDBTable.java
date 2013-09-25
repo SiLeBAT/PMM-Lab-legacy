@@ -949,7 +949,7 @@ if (myDBPanel1 != null) {
 				  }
 				else if (fieldTypes[i].equals("BOOLEAN")) {
 			    	String fname = actualTable.getFieldNames()[i];
-					if (fname.startsWith("geschätzt")) {
+					if (fname.startsWith("geschaetzt")) {
 						c.setPreferredWidth(105);
 					} else if (fname.equals("Aufkonzentrierung")) {
 						c.setPreferredWidth(120);
@@ -1263,7 +1263,7 @@ if (myDBPanel1 != null) {
 				      h.put(new Integer(2), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/yellow.gif")));
 				      h.put(new Integer(3), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/red.gif")));
 				      this.setCellComponent(c, Column.IMAGE_CELL, h);
-					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Hier kann eine SUBJEKTIVE Einschätzung der Güte des Datensatzes (des Experiments, der Methode, ...) abgegeben werden\nACHTUNG: nicht vergessen diese Einschätzung zu kommentieren im Feld Kommentar"));
+					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Hier kann eine SUBJEKTIVE Einschaetzung der Guete des Datensatzes (des Experiments, der Methode, ...) abgegeben werden\nACHTUNG: nicht vergessen diese Einschaetzung zu kommentieren im Feld Kommentar"));
 					    //if (actualTable.getHideScore()) c.setVisible(false);
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyIntegerSorter());
@@ -1291,7 +1291,7 @@ if (myDBPanel1 != null) {
 					    c.setPreferredWidth(70);
 				      c.setUserCellEditor(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit ueberprueft"), this, true));
 				      c.setUserCellRenderer(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit ueberprueft"), this, true));
-					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Datensätze können von einem anderen Benutzer auf Richtigkeit hin geprüft werden.\nDies erhöht die Güte des Eintrages."));
+					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Datensaetze koennen von einem anderen Benutzer auf Richtigkeit hin geprueft werden.\nDies erhoeht die Guete des Eintrages."));
 					    //if (actualTable.getHideTested()) c.setVisible(false);
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyBooleanSorter());
@@ -2254,14 +2254,6 @@ public void keyTyped(final KeyEvent keyEvent) {
 			    	this.setSelectedID(sr);
 			    }
 			}
-				
-	    /*
-	    	String[] mnTable = actualTable.getMNTable();
-	    	if (mnTable != null && lastClickedCol - 1 < mnTable.length && mnTable[lastClickedCol - 1] != null && mnTable[lastClickedCol - 1].equals("DBL")) {
-				MyDoubleEditor mde = new MyDoubleEditor(this, lastClickedCol, x, y, ch);		
-				mde.setVisible(true);
-	    	}	
-	    	*/
 		}		
 	}
 	private int getLastClickedCol(final MouseEvent e) {

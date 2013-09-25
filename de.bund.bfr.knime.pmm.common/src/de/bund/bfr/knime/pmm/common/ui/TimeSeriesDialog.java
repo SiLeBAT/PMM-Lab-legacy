@@ -10,9 +10,9 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
@@ -26,8 +26,9 @@ public class TimeSeriesDialog extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	public TimeSeriesDialog(JComponent owner, List<TimeSeriesXml> timeSeries,
-			boolean showChart, boolean modal) {
-		super(JOptionPane.getFrameForComponent(owner), "Data Points", modal);
+			boolean showChart) {
+		super(SwingUtilities.getWindowAncestor(owner), "Data Points",
+				DEFAULT_MODALITY_TYPE);
 
 		JButton okButton = new JButton("OK");
 		JPanel bottomPanel = new JPanel();

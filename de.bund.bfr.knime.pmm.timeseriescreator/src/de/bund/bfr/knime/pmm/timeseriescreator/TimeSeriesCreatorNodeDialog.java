@@ -64,6 +64,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.DBKernel;
@@ -869,7 +870,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 		public XLSDialog(Component owner, File file, String sheet)
 				throws Exception {
-			super(JOptionPane.getFrameForComponent(owner), "XLS File", true);
+			super(SwingUtilities.getWindowAncestor(owner), "XLS File",
+					DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 
@@ -1174,7 +1176,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		private JButton cancelButton;
 
 		public TimeStepDialog(Component owner) {
-			super(JOptionPane.getFrameForComponent(owner), "Time Steps", true);
+			super(SwingUtilities.getWindowAncestor(owner), "Time Steps",
+					DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			numberOfSteps = 0;

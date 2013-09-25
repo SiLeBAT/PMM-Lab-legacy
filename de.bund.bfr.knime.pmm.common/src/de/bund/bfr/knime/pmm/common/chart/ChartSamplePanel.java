@@ -49,9 +49,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 
@@ -104,6 +104,7 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 	public TimeSeriesTable getTimeSeriesTable() {
 		return table;
 	}
+
 	public String getTimeColumnName() {
 		return table.getTimeColumnName();
 	}
@@ -276,7 +277,8 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		private JButton cancelButton;
 
 		public TimeStepDialog(Component owner) {
-			super(JOptionPane.getFrameForComponent(owner), "Time Steps", true);
+			super(SwingUtilities.getWindowAncestor(owner), "Time Steps",
+					DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			numberOfSteps = 0;

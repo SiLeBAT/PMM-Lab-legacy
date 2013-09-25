@@ -59,9 +59,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -971,8 +971,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		public SelectDialog(String title, List<Double> values,
 				List<Boolean> initialSelected) {
-			super(JOptionPane.getFrameForComponent(ChartConfigPanel.this),
-					title, true);
+			super(SwingUtilities.getWindowAncestor(ChartConfigPanel.this),
+					title, DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			selected = null;

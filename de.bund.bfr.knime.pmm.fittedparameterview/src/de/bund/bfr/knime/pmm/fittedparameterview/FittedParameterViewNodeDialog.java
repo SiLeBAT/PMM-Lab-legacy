@@ -48,6 +48,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 
 import org.knime.core.data.DataTable;
 import org.knime.core.node.BufferedDataTable;
@@ -305,8 +306,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 
 		public UsedConditionsDialog(JComponent owner, DataTable table,
 				List<String> usedConditions) {
-			super(JOptionPane.getFrameForComponent(owner),
-					"Conditions to use (for x-axis)", true);
+			super(SwingUtilities.getWindowAncestor(owner),
+					"Conditions to use (for x-axis)", DEFAULT_MODALITY_TYPE);
 			approved = false;
 			this.allConditions = PmmUtilities.getMiscParams(PmmUtilities
 					.getTuples(table, SchemaFactory.createDataSchema()));
@@ -352,9 +353,9 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 			setLayout(new BorderLayout());
 			add(mainPanel, BorderLayout.CENTER);
 			add(okCancelPanel, BorderLayout.SOUTH);
-			setResizable(false);			
+			setResizable(false);
 			pack();
-			
+
 			setLocationRelativeTo(owner);
 			UI.adjustDialog(this);
 		}

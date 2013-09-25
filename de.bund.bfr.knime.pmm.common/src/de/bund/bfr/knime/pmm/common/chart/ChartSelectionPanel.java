@@ -63,13 +63,13 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.CellEditorListener;
@@ -1331,7 +1331,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
 			TimeSeriesDialog dialog = new TimeSeriesDialog(button, timeSeries,
-					false, false);
+					false);
 
 			dialog.setVisible(true);
 		}
@@ -1555,8 +1555,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private JButton cancelButton;
 
 		public ColorListDialog(List<Color> initialColors) {
-			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Color Palette", true);
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Color Palette", DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			colorList = null;
@@ -1649,8 +1649,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private JButton cancelButton;
 
 		public ShapeListDialog(List<String> initialShapes) {
-			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Shape Palette", true);
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Shape Palette", DEFAULT_MODALITY_TYPE);
 
 			approved = false;
 			shapeList = null;
@@ -1727,8 +1727,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private JButton okButton;
 
 		public FormulaDialog(String formula) {
-			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Formula", false);
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Formula", DEFAULT_MODALITY_TYPE);
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
@@ -1774,8 +1774,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private JButton okButton;
 
 		public ParameterDialog(Map<String, Double> parameters) {
-			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Parameters", false);
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Parameters", DEFAULT_MODALITY_TYPE);
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
@@ -1847,8 +1847,8 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		private JButton cancelButton;
 
 		public ColumnSelectionDialog(List<String> initialSelection) {
-			super(JOptionPane.getFrameForComponent(ChartSelectionPanel.this),
-					"Column Selection", true);
+			super(SwingUtilities.getWindowAncestor(ChartSelectionPanel.this),
+					"Column Selection", DEFAULT_MODALITY_TYPE);
 			approved = false;
 			selection = null;
 			selectionBoxes = new LinkedHashMap<>();

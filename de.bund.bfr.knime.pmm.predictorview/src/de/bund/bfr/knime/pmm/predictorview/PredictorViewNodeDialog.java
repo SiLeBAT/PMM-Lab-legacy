@@ -53,8 +53,8 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.DataAwareNodeDialogPane;
@@ -282,7 +282,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				reader.getFilterableStringColumns(), null,
 				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
-		selectionPanel.setShapes(set.getShapes());		
+		selectionPanel.setShapes(set.getShapes());
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
@@ -404,7 +404,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
-		set.setVisibleColumns(selectionPanel.getVisibleColumns());		
+		set.setVisibleColumns(selectionPanel.getVisibleColumns());
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 
 		set.getSelectedTuples().clear();
@@ -518,8 +518,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		public InitParamDialog(JComponent owner, List<KnimeTuple> tuples,
 				Map<String, String> concentrationParameters,
 				Map<String, String> lagParameters) {
-			super(JOptionPane.getFrameForComponent(owner),
-					"Select Initial/Lag Parameter", true);
+			super(SwingUtilities.getWindowAncestor(owner),
+					"Select Initial/Lag Parameter", DEFAULT_MODALITY_TYPE);
 			readTable(tuples);
 
 			setLayout(new BorderLayout());

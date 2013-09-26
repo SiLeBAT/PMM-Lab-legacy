@@ -916,7 +916,7 @@ public class DBKernel {
 	    String connStr = "jdbc:hsqldb:hsql://" + serverPath;// + (isKNIME ? ";readonly=true" : "");// + ";hsqldb.cache_rows=1000000;hsqldb.cache_size=1000000";
 	    try {
 	    	result = DriverManager.getConnection(connStr, dbUsername, dbPassword);	    		
-	    	if (isKNIME) result.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+	    	result.setReadOnly(DBKernel.isReadOnly());
 	    }
 	    catch(Exception e) {
 	    	passFalse = e.getMessage().startsWith("invalid authorization specification");
@@ -956,7 +956,7 @@ public class DBKernel {
     	result = DriverManager.getConnection(connStr
     			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
     			,dbUsername, dbPassword);  
-    	if (isKNIME) result.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+    	result.setReadOnly(DBKernel.isReadOnly());
     }
     catch(Exception e) {
     	// Database lock acquisition failure: lockFile: org.hsqldb.persist.LockFile@137939d4[file =C:\Dokumente und Einstellungen\Weiser\.localHSH\BfR\DBs\DB.lck, exists=true, locked=false, valid=false, ] method: checkHeartbeat read: 2010-12-08 09:08:12 heartbeat - read: -4406 ms.
@@ -1940,7 +1940,7 @@ public class DBKernel {
 	public static void openDBGUI() {
 		final Connection connection = getLocalConn(true);
 		try {
-			connection.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+			connection.setReadOnly(DBKernel.isReadOnly());
 		  	if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
 		  		DBKernel.myList.getMyDBTable().setConnection(connection);
 		  	}
@@ -2518,10 +2518,14 @@ public class DBKernel {
 		}
 		return result;
 	}
+	public static boolean isReadOnly() {
+		return DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) ||
+				!DBKernel.isKNIME && DBKernel.prefs.getBoolean("DB_READONLY", true);
+	}
 	private static void setDBUUID(Connection conn, final String uuid) throws SQLException {
 		conn.setReadOnly(false);
 		sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", true, false);
-		conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+		conn.setReadOnly(DBKernel.isReadOnly());
 	}
     private static String getBL(String strVal) {
     	if (strVal == null) return strVal;

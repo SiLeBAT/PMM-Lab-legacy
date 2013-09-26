@@ -187,6 +187,8 @@ public class Login extends JFrame {
 			// Login fehlgeschlagen
 			String username = textField1.getText();
 			String password = new String(passwordField1.getPassword()); // DBKernel.isStatUp ? new String(passwordField1.getPassword()) : MD5.encode(new String(passwordField1.getPassword()), "UTF-8");
+			DBKernel.prefs.putBoolean("DB_READONLY", checkBox2.isSelected());
+			DBKernel.prefs.prefsFlush();
 			//MD5.encode(password, "UTF-8");
 			if (!myDB.initConn(username, password)) {
 				if (DBKernel.passFalse) {
@@ -583,6 +585,7 @@ public class Login extends JFrame {
 		passwordField1 = new JPasswordField();
 		button1 = new JButton();
 		textField2 = new JTextField();
+		checkBox2 = new JCheckBox();
 		checkBox1 = new JCheckBox();
 		label3 = new JLabel();
 		passwordField2 = new JPasswordField();
@@ -599,11 +602,11 @@ public class Login extends JFrame {
 		setFont(new Font("Tahoma", Font.PLAIN, 13));
 		addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(final WindowEvent e) {
+			public void windowClosing(WindowEvent e) {
 				thisWindowClosing(e);
 			}
 			@Override
-			public void windowOpened(final WindowEvent e) {
+			public void windowOpened(WindowEvent e) {
 				thisWindowOpened(e);
 			}
 		});
@@ -632,7 +635,7 @@ public class Login extends JFrame {
 				textField1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				textField1.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						textField1KeyReleased(e);
 					}
 				});
@@ -647,7 +650,7 @@ public class Login extends JFrame {
 				passwordField1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				passwordField1.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						passwordField1KeyReleased(e);
 					}
 				});
@@ -658,7 +661,7 @@ public class Login extends JFrame {
 				button1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				button1.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(final ActionEvent e) {
+					public void actionPerformed(ActionEvent e) {
 						button1ActionPerformed(e);
 					}
 				});
@@ -668,24 +671,29 @@ public class Login extends JFrame {
 				textField2.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				textField2.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						textField2KeyReleased(e);
 					}
 				});
 				contentPanel.add(textField2, CC.xy(3, 5));
+
+				//---- checkBox2 ----
+				checkBox2.setText(bundle.getString("Login.checkBox2.text"));
+				checkBox2.setSelected(true);
+				contentPanel.add(checkBox2, CC.xy(1, 7));
 
 				//---- checkBox1 ----
 				checkBox1.setText(bundle.getString("Login.checkBox1.text"));
 				checkBox1.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				checkBox1.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(final ActionEvent e) {
+					public void actionPerformed(ActionEvent e) {
 						checkBox1ActionPerformed(e);
 					}
 				});
 				checkBox1.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						checkBox1KeyReleased(e);
 					}
 				});
@@ -701,7 +709,7 @@ public class Login extends JFrame {
 				passwordField2.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				passwordField2.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						passwordField2KeyReleased(e);
 					}
 				});
@@ -717,7 +725,7 @@ public class Login extends JFrame {
 				passwordField3.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				passwordField3.addKeyListener(new KeyAdapter() {
 					@Override
-					public void keyReleased(final KeyEvent e) {
+					public void keyReleased(KeyEvent e) {
 						passwordField3KeyReleased(e);
 					}
 				});
@@ -727,7 +735,7 @@ public class Login extends JFrame {
 
 			//======== buttonBar ========
 			{
-				buttonBar.setBorder(Borders.BUTTON_BAR_PAD); // BUTTON_BAR_GAP_BORDER
+				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				buttonBar.setLayout(new FormLayout(
 					"$glue, $button, $rgap, $button",
@@ -738,7 +746,7 @@ public class Login extends JFrame {
 				okButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				okButton.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(final ActionEvent e) {
+					public void actionPerformed(ActionEvent e) {
 						okButtonActionPerformed(e);
 					}
 				});
@@ -750,7 +758,7 @@ public class Login extends JFrame {
 				cancelButton.setFont(new Font("Tahoma", Font.PLAIN, 13));
 				cancelButton.addActionListener(new ActionListener() {
 					@Override
-					public void actionPerformed(final ActionEvent e) {
+					public void actionPerformed(ActionEvent e) {
 						cancelButtonActionPerformed(e);
 					}
 				});
@@ -773,6 +781,7 @@ public class Login extends JFrame {
 	private JPasswordField passwordField1;
 	private JButton button1;
 	private JTextField textField2;
+	private JCheckBox checkBox2;
 	private JCheckBox checkBox1;
 	private JLabel label3;
 	private JPasswordField passwordField2;

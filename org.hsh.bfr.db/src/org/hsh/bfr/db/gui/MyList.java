@@ -441,10 +441,7 @@ if (dbForm != null || owner != null) {
 	  	}
   	}
   	@SuppressWarnings("unused")
-	boolean isRO = false;
-  	if (DBKernel.isKNIME) {
-  		isRO = DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);  		
-  	}
+	boolean isRO = DBKernel.isReadOnly();
   	JDialog f = new JDialog(parentFrame, titel, (dbTable != null || fromMMC)); // !isRO && 
 
 		MyDBTable newDBTable = new MyDBTable(); 

@@ -331,6 +331,7 @@ public class MyDBForm extends JPanel {
 		return false; // scrollBar1.getValue() == scrollBar1.getMaximum() - scrollBar1.getVisibleAmount();
 	}
 	private void updateRow() {
+		if (DBKernel.isReadOnly()) return;
 	      try {
 	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,
 	    	  // weil hier so nur false gespeichert werden kann und nicht NULL. Es sind aber viele NULLen in der DB drin
@@ -353,6 +354,7 @@ public class MyDBForm extends JPanel {
 		}					
 	}
 	private boolean insertNewRow() {
+		if (DBKernel.isReadOnly()) return false;
 		boolean allNull = true;
 	      try {
 	    	  // Geprüft erstmal nicht berücksichtigen, das gibt nur Ärger: dauernd Update der DB,

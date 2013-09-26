@@ -265,7 +265,7 @@ public class MyTable {
 				tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter") || 
 				tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
 				tableName.equals("GueltigkeitsBereiche") || tableName.equals("Modell_Referenz") || tableName.equals("LinkedTestConditions") ||
-				DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true);
+				DBKernel.isReadOnly();
 	}
 	public Vector<Integer> getMyBLOBs() {
 		Vector<Integer> myBLOBs = new Vector<Integer>();

@@ -68,6 +68,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.UpdateChecker;
+import org.hsh.bfr.db.VersionComprator;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
@@ -242,6 +243,20 @@ public class Login extends JFrame {
 				}
 				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
+					return null;
+				}
+			}
+			else {
+				String dbVersion = DBKernel.getDBVersion();
+				String softwareVersion = DBKernel.DBVersion;
+				VersionComprator cmp = new VersionComprator();
+				int result = cmp.compare(dbVersion, softwareVersion);
+				if (result != 0) {
+					String msg = "Login rejected!\n";
+					if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
+					else msg += "Bitte Software aktualisieren!!!";
+					InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
+					ib.setVisible(true);
 					return null;
 				}
 			}

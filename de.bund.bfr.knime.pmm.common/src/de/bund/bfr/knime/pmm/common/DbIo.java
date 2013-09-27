@@ -4,6 +4,8 @@ import java.sql.Array;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
+import org.hsh.bfr.db.DBKernel;
+
 public class DbIo {
 
 	public static String stripNonValidXMLCharacters(String in) {
@@ -87,8 +89,8 @@ public class DbIo {
 				Object[] na = (Object[])name.getArray();
 				Object[] va = (value == null) ? null : (Object[])value.getArray();
 				//Object[] tu = (timeUnit == null) ? null : (Object[])timeUnit.getArray();
-				Object[] cc = (categories == null) ? null : (Object[])categories.getArray();
 				Object[] cu = (units == null) ? null : (Object[])units.getArray();
+				Object[] cc = (categories == null) ? (cu == null ? null : new Object[cu.length]) : (Object[])categories.getArray();
 				Object[] er = (error == null) ? null : (Object[])error.getArray();
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
@@ -119,6 +121,9 @@ public class DbIo {
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						String onas = nas;
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
+			    		if (cc[i] == null && cu[i] != null) {
+			    			cc[i] = DBKernel.getValue("Einheiten", "display in GUI as", (String) cu[i], "kind of property / quantity");
+			    		}
 						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						px.setName(nas);
 						if (cd != null && cd[i] != null) px.setDescription(stripNonValidXMLCharacters(cd[i].toString()));

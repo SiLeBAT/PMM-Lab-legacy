@@ -164,7 +164,8 @@ public class TableReader {
 					Model1Schema.FITTEDMODELNAME, ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
-			miscParams = PmmUtilities.getMiscParams(tuples);
+			miscParams = PmmUtilities.getIndeps(tuples);
+			miscParams.remove(AttributeUtilities.TIME);
 			conditions = new ArrayList<>();
 			conditionMinValues = new ArrayList<>();
 			conditionMaxValues = new ArrayList<>();

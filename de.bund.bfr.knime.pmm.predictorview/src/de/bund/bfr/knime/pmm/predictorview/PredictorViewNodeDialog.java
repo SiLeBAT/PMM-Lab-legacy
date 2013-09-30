@@ -220,7 +220,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
 					.entrySet()) {
-				Double oldMax = minValues.get(max.getKey());
+				Double oldMax = maxValues.get(max.getKey());				
 
 				if (oldMax == null) {
 					maxValues.put(max.getKey(), max.getValue());
@@ -229,7 +229,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 							Math.max(max.getValue(), oldMax));
 				}
 			}
-		}
+		}		
 
 		for (String var : paramsX.keySet()) {
 			if (minValues.get(var) != null) {
@@ -331,7 +331,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		selectionPanel.setInvalidIds(getInvalidIds(selectedIDs));
+		List<String> invalidIds = getInvalidIds(reader.getIds());
+		List<String> validIds = new ArrayList<>(selectedIDs);
+
+		validIds.removeAll(invalidIds);
+
+		selectionPanel.setInvalidIds(invalidIds);
 		selectionPanel.repaint();
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
@@ -342,7 +347,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		Map<String, double[][]> points = new LinkedHashMap<>();
 
-		for (String id : selectedIDs) {
+		for (String id : validIds) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
 
 			if (plotable != null) {
@@ -380,7 +385,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setAddInfoInLegend(configPanel.isAddInfoInLegend());
 		chartCreator.setColors(selectionPanel.getColors());
 		chartCreator.setShapes(selectionPanel.getShapes());
-		chartCreator.createChart(selectedIDs);
+		chartCreator.createChart(validIds);
 	}
 
 	private void writeSettingsToVariables() {

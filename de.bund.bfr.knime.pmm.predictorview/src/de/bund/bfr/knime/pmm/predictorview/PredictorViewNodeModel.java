@@ -112,24 +112,43 @@ public class PredictorViewNodeModel extends NodeModel {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
+		List<String> validIds = new ArrayList<>();		
 
 		for (String id : set.getSelectedIDs()) {
 			Plotable plotable = reader.getPlotables().get(id);
 
 			if (plotable != null) {
 				Map<String, List<Double>> arguments = new LinkedHashMap<>();
+				boolean valid = true;
 
 				for (Map.Entry<String, Double> entry : set.getParamXValues()
 						.entrySet()) {
 					arguments.put(entry.getKey(),
 							Arrays.asList(entry.getValue()));
-				}
 
-				plotable.setSamples(set.getTimeValues());
-				plotable.setFunctionArguments(arguments);
-				container.addRowToTable(createDataTuple(reader, id));
+					if (entry.getValue() != null) {
+						double value = entry.getValue();
+						Double min = plotable.getMinArguments().get(
+								entry.getKey());
+						Double max = plotable.getMaxArguments().get(
+								entry.getKey());
+
+						if ((min != null && value < min)
+								|| (max != null && value > max)) {
+							valid = false;
+							break;
+						}
+					}
+				}				
+
+				if (valid) {
+					validIds.add(id);
+					plotable.setSamples(set.getTimeValues());
+					plotable.setFunctionArguments(arguments);
+					container.addRowToTable(createDataTuple(reader, id));
+				}
 			}
-		}
+		}		
 
 		container.close();
 
@@ -151,7 +170,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		creator.setShapes(set.getShapes());
 
 		ImagePortObject image = ChartUtilities.getImage(
-				creator.getChart(set.getSelectedIDs()), set.isExportAsSvg());
+				creator.getChart(validIds), set.isExportAsSvg());
 
 		return new PortObject[] { container.getTable(), image };
 	}

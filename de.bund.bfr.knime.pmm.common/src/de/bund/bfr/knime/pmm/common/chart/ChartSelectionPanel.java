@@ -1433,9 +1433,12 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 			}
 
 			if (invalidIds.contains(table.getValueAt(row, 0))) {
-				setForeground(Color.RED);
-				setBackground(Color.RED);
-			} else if (isSelected) {
+				setEnabled(false);
+			} else {
+				setEnabled(true);
+			}
+
+			if (isSelected) {
 				setForeground(table.getSelectionForeground());
 				setBackground(table.getSelectionBackground());
 			} else if (statusColumn != -1) {

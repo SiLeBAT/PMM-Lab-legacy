@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.knime.core.data.DataTable;
 
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -28,6 +29,22 @@ public class PmmUtilities {
 		}
 
 		return tuples;
+	}
+
+	public static List<String> getIndeps(List<KnimeTuple> tuples) {
+		Set<String> indepSet = new LinkedHashSet<String>();
+
+		for (KnimeTuple tuple : tuples) {
+			PmmXmlDoc indep = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+			for (PmmXmlElementConvertable el : indep.getElementSet()) {
+				IndepXml element = (IndepXml) el;
+
+				indepSet.add(element.getName());
+			}
+		}
+
+		return new ArrayList<String>(indepSet);
 	}
 
 	public static List<String> getMiscParams(List<KnimeTuple> tuples) {

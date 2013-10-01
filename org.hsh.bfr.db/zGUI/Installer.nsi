@@ -7,7 +7,7 @@ RequestExecutionLevel user
 
 # General Symbol Definitions
 !define REGKEY "SOFTWARE\$(^Name)"
-!define VERSION 1.7.0
+!define VERSION 1.7.2
 !define COMPANY ""
 !define URL ""
 !define GET_JAVA_URL "http://www.java.com"
@@ -34,7 +34,7 @@ Page instfiles
 LoadLanguageFile "${NSISDIR}\Contrib\Language files\German.nlf"
 
 # Installer attributes
-OutFile D:\workspaces\SiLeBAT_jars\silebatSetup_${VERSION}.exe
+OutFile Q:\BfR\D_Workspaces\SiLeBAT_jars\silebatSetup_${VERSION}.exe
 InstallDir $LOCALAPPDATA\SiLeBAT-DB
 CRCCheck on
 XPStyle on
@@ -59,7 +59,7 @@ Section -Main SEC0000
     Success:
         SetOutPath $INSTDIR
         SetOverwrite on
-        File D:\workspaces\SiLeBAT_jars\SiLeBAT_${VERSION}.jar
+        File Q:\BfR\D_Workspaces\SiLeBAT_jars\SiLeBAT_${VERSION}.jar
         File SiLeBAT.ico
         SetOutPath $SMPROGRAMS\$StartMenuGroup
         CreateShortcut $SMPROGRAMS\$StartMenuGroup\SiLeBAT-DB.lnk '"$JAVA_HOME\bin\javaw.exe"' '-Xms512m -Xmx768M -jar "$INSTDIR\SiLeBAT_${VERSION}.jar"' "$INSTDIR\SiLeBAT.ico" 0

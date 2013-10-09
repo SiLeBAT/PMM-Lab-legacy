@@ -121,7 +121,7 @@ public class DbIo {
 						Double mad = (ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
 						String onas = nas;
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
-			    		if (cc[i] == null && cu[i] != null) {
+			    		if (cc != null && cc[i] == null && cu[i] != null) {
 			    			cc[i] = DBKernel.getValue("Einheiten", "display in GUI as", (String) cu[i], "kind of property / quantity");
 			    		}
 						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);

@@ -410,20 +410,31 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
+		List<String> paramList = new ArrayList<String>(
+				covariances.keySet());
 
 		for (String param : functionParameters.keySet()) {
-			if (functionParameters.get(param) == null
-					|| covariances.get(param) == null) {
+			if (functionParameters.get(param) == null) {
 				return null;
 			}
 
-			for (String param2 : functionParameters.keySet()) {
+			parser.addConstant(param, functionParameters.get(param));
+		}
+
+		if (paramList.isEmpty()) {
+			return null;
+		}
+
+		for (String param : paramList) {
+			if (covariances.get(param) == null) {
+				return null;
+			}
+
+			for (String param2 : paramList) {
 				if (covariances.get(param).get(param2) == null) {
 					return null;
 				}
 			}
-
-			parser.addConstant(param, functionParameters.get(param));
 		}
 
 		for (String param : functionArguments.keySet()) {
@@ -440,7 +451,7 @@ public class Plotable {
 		try {
 			f = parser.parse(function.replace(paramY + "=", ""));
 
-			for (String param : functionParameters.keySet()) {
+			for (String param : paramList) {
 				derivatives.put(param, parser.differentiate(f, param));
 			}
 		} catch (ParseException e) {
@@ -458,9 +469,7 @@ public class Plotable {
 
 			try {
 				Double y = 0.0;
-				boolean failed = false;
-				List<String> paramList = new ArrayList<String>(
-						functionParameters.keySet());
+				boolean failed = false;				
 
 				for (String param : paramList) {
 					Object obj = parser.evaluate(derivatives.get(param));

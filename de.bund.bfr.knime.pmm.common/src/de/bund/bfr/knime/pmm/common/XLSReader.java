@@ -287,6 +287,7 @@ public class XLSReader {
 						misc.setValue(null);
 					}
 
+					misc.setOrigUnit(misc.getUnit());
 					miscXML.add(misc);
 				}
 
@@ -506,6 +507,7 @@ public class XLSReader {
 					}
 				}
 
+				misc.setOrigUnit(misc.getUnit());
 				miscXML.add(misc);
 			}
 

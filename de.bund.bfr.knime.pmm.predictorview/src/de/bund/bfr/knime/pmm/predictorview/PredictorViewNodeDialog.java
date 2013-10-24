@@ -116,24 +116,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
 		showSamplePanel = true;
-	}
-
-	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
-		this(tuples, new LinkedHashMap<String, String>());
-	}
-
-	public PredictorViewNodeDialog(List<KnimeTuple> tuples,
-			Map<String, String> initParams) {
-		this.tuples = tuples;
-		set = new SettingsHelper();
-		set.setConcentrationParameters(initParams);
-		reader = new TableReader(tuples, set.getConcentrationParameters(),
-				set.getLagParameters());
-		mainComponent = new JPanel();
-		mainComponent.setLayout(new BorderLayout());
-		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		showSamplePanel = false;
-	}
+	}	
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples, SettingsHelper set,
 			boolean newTuples) {
@@ -300,15 +283,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 		}
 	}
-
-	public Map<String, String> getInitParams() {
-		return set.getConcentrationParameters();
-	}
-
-	public Map<String, Double> getParamValues() {
-		return configPanel.getParamXValues();
-	}
-
+	
 	public void setShowSamplePanel(boolean showSamplePanel) {
 		this.showSamplePanel = showSamplePanel;
 	}

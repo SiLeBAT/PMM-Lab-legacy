@@ -196,7 +196,7 @@ public class EmReaderUi extends JPanel {
 	    		List<KnimeTuple> hs = null;
 				try {
 					hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(),
-							EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), null, level, withoutMdData,
+							EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), level, withoutMdData,
 							getQualityMode(), getQualityThresh(), mdReaderUi.getMatrixString(), mdReaderUi.getAgentString(), mdReaderUi.getLiteratureString(),
 							mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), getParams(mdReaderUi.getParameter()),
 							modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where, null);

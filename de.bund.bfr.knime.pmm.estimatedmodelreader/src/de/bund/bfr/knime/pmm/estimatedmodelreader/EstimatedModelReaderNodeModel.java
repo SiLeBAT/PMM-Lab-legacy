@@ -41,6 +41,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hsh.bfr.db.DBKernel;
 import org.knime.core.data.DataTableSpec;
@@ -62,21 +63,27 @@ import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmException;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeSchema;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
 import de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi;
 
@@ -155,13 +162,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         set = new SettingsHelper();
     }
 
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, EstimatedModelReaderNodeModel emrnm) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, null, emrnm);
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, int level, boolean withoutMdData, EstimatedModelReaderNodeModel emrnm) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, level, withoutMdData, null, emrnm);
     }
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
-    	return getKnimeTuples(db, conn, schema, buf, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where, emrnm);
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, int level, boolean withoutMdData, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
+    	return getKnimeTuples(db, conn, schema, level, withoutMdData, -1, 0, "", "", "", -1, -1, -1, null, false, "", where, emrnm);
     }
-    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema, BufferedDataContainer buf,
+    public static List<KnimeTuple> getKnimeTuples(Bfrdb db, Connection conn, KnimeSchema schema,
     		int level, boolean withoutMdData, int qualityMode, double qualityThresh,
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
     		boolean modelFilterEnabled, String modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
@@ -172,7 +179,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	ResultSet result = null;
     	if (where != null)	result = (level == 1 ? db.selectEstModel(1, -1, where, false) : db.selectEstModel(2, -1, where, false));
     	else result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
-    	int i = 0;
+    	
     	while (result.next()) {
     		
     		// initialize row
@@ -377,11 +384,58 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		if (parameter == null || EmReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
-				modelFilterEnabled, modelList, tuple)) {
-					if (buf != null) buf.addRowToTable(new DefaultRow(String.valueOf(i++), tuple));
-					else resultSet.add(tuple);
+				modelFilterEnabled, modelList, tuple)) {					
+					resultSet.add(tuple);
     			}
     	}
+    	
+    	if (level == 2) {    		
+    		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<>();
+    		
+    		for (KnimeTuple tuple : resultSet) {
+    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getID();
+    			
+    			if (!tuplesBySecEstId.containsKey(secEstId)) {
+    				tuplesBySecEstId.put(secEstId, new ArrayList<KnimeTuple>());
+    			}
+    			
+    			tuplesBySecEstId.get(secEstId).add(tuple);
+    		}
+    		
+    		for (KnimeTuple tuple : resultSet) {
+    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getID();
+    			Map<String, String> units = PmmUtilities.getMiscUnits(tuplesBySecEstId.get(secEstId));
+    			
+    			for (PmmXmlElementConvertable xml : tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+    				IndepXml indep = (IndepXml) xml;
+    				
+    				if (indep.getUnit() != null) {
+    					units.put(indep.getName(), indep.getUnit());
+    				}
+    			}
+    			
+    			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+    			
+    			for (PmmXmlElementConvertable xml : miscXml.getElementSet()) {
+    				MiscXml misc = (MiscXml) xml;
+    				String unit = units.get(misc.getName());
+    				
+    				if (misc.getUnit() != null && !misc.getUnit().equals(unit)) {
+    					Category cat = Categories.getCategoryByUnit(Categories.getAllCategories(), misc.getUnit());
+    					
+    					try {
+							misc.setValue(cat.convert(misc.getValue(), misc.getUnit(), unit));							
+							misc.setUnit(unit);
+						} catch (ConvertException e) {
+							e.printStackTrace();
+						}    					
+    				}
+    			}
+    			
+    			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+    		}    		
+    	}
+    	
     	return resultSet;
     }
     /**
@@ -404,10 +458,13 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		    	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(schema.createSpec());
-
-    	EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, buf, level, withoutMdData,
+    	List<KnimeTuple> tuples = EstimatedModelReaderNodeModel.getKnimeTuples(db, conn, schema, level, withoutMdData,
     			qualityMode, qualityThresh,	matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
 				modelFilterEnabled, modelList, null, this);
+    	
+    	for (int i = 0; i < tuples.size(); i++) {
+    		buf.addRowToTable(new DefaultRow(String.valueOf(i++), tuples.get(i)));
+    	}
     	
     	// close data buffer
     	buf.close();

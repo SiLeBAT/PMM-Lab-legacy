@@ -46,6 +46,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -618,6 +619,35 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		return visibleColumns;
 	}
 
+	public Map<String, Integer> getColumnWidths() {
+		Map<String, Integer> widths = new LinkedHashMap<>();
+		Enumeration<TableColumn> columns = selectTable.getColumnModel()
+				.getColumns();
+
+		while (columns.hasMoreElements()) {
+			TableColumn column = columns.nextElement();
+
+			if (column.getWidth() != 0) {
+				widths.put((String) column.getHeaderValue(), column.getWidth());
+			}
+		}
+
+		return widths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> widths) {
+		Enumeration<TableColumn> columns = selectTable.getColumnModel()
+				.getColumns();
+
+		while (columns.hasMoreElements()) {
+			TableColumn column = columns.nextElement();
+
+			if (widths.containsKey(column.getHeaderValue())) {
+				column.setPreferredWidth(widths.get(column.getHeaderValue()));
+			}
+		}
+	}
+
 	public void addSelectionListener(SelectionListener listener) {
 		listeners.add(listener);
 	}
@@ -753,8 +783,11 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		if (value) {
 			selectTable.getColumn(column).setMinWidth(MIN_COLUMN_WIDTH);
 			selectTable.getColumn(column).setMaxWidth(MAX_COLUMN_WIDTH);
-			selectTable.getColumn(column).setPreferredWidth(
-					PREFERRED_COLUMN_WIDTH);
+
+			if (selectTable.getColumn(column).getPreferredWidth() == 0) {
+				selectTable.getColumn(column).setPreferredWidth(
+						PREFERRED_COLUMN_WIDTH);
+			}
 		} else {
 			selectTable.getColumn(column).setMinWidth(0);
 			selectTable.getColumn(column).setMaxWidth(0);

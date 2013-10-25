@@ -170,11 +170,12 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		displayOptionsPanel.add(exportAsSvgBox, createConstraints(0, 2, 1, 1));
 
 		if (allowConfidenceInterval) {
-			showConfidenceBox = new JCheckBox("Show Confidence Interval");
+			showConfidenceBox = new JCheckBox(
+					"Show Confidence Interval (Takes some time!)");
 			showConfidenceBox.setSelected(false);
 			showConfidenceBox.addActionListener(this);
 			displayOptionsPanel.add(showConfidenceBox,
-					createConstraints(1, 2, 1, 1));
+					createConstraints(0, 3, 2, 1));
 		}
 
 		JPanel outerDisplayOptionsPanel = new JPanel();

@@ -70,6 +70,7 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 import de.bund.bfr.knime.pmm.common.ui.TextListener;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 
 public class ChartConfigPanel extends JPanel implements ActionListener,
 		TextListener, ChangeListener, MouseListener {
@@ -119,16 +120,19 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private Map<String, String> units;
 
 	private JPanel parameterValuesPanel;
+	private List<String> parameterNames;
 	private List<JButton> parameterButtons;
 	private List<JLabel> parameterLabels;
 	private List<DoubleTextField> parameterFields;
 	private List<JSlider> parameterSliders;
 
 	private int type;
+	private boolean stdUnitForFields;
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
-			String extraButtonLabel) {
+			String extraButtonLabel, boolean stdUnitForFields) {
 		this.type = type;
+		this.stdUnitForFields = stdUnitForFields;
 		configListeners = new ArrayList<>();
 		buttonListeners = new ArrayList<>();
 		lastParamX = null;
@@ -277,6 +281,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setLayout(new GridBagLayout());
+		parameterNames = new ArrayList<>();
 		parameterFields = new ArrayList<>();
 		parameterButtons = new ArrayList<>();
 		parameterLabels = new ArrayList<>();
@@ -597,9 +602,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		if (type == PARAMETER_FIELDS) {
 			for (int i = 0; i < parameterFields.size(); i++) {
 				DoubleTextField field = (DoubleTextField) parameterFields
-						.get(i);
-				String paramName = parameterLabels.get(i).getText()
-						.replace(":", "");
+						.get(i);				
+				String paramName = parameterNames.get(i);
 
 				if (field.getValue() != null) {
 					valueLists.put(
@@ -652,9 +656,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setParamXValues(Map<String, Double> paramXValues) {
 		for (int i = 0; i < parameterFields.size(); i++) {
-			DoubleTextField field = (DoubleTextField) parameterFields.get(i);
-			String paramName = parameterLabels.get(i).getText()
-					.replace(":", "");
+			DoubleTextField field = (DoubleTextField) parameterFields.get(i);			
+			String paramName = parameterNames.get(i);
 
 			field.setValue(paramXValues.get(paramName));
 		}
@@ -704,6 +707,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		}
 
 		parameterValuesPanel.removeAll();
+		parameterNames.clear();
 		parameterFields.clear();
 		parameterButtons.clear();
 		parameterLabels.clear();
@@ -716,8 +720,21 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				continue;
 			}
 
+			parameterNames.add(param);
+
 			if (type == PARAMETER_FIELDS) {
-				JLabel label = new JLabel(param + ":");
+				JLabel label;
+
+				if (stdUnitForFields) {
+					Category cat = Categories.getCategoryByUnit(
+							Categories.getAllCategories(), units.get(param));
+
+					label = new JLabel(param + " (" + cat.getStandardUnit()
+							+ "):");
+				} else {
+					label = new JLabel(param + ":");
+				}
+
 				DoubleTextField input = new DoubleTextField();
 				JSlider slider = null;
 				Double value = null;
@@ -861,7 +878,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			fireButtonPressed();
 		} else if (parameterButtons.contains(e.getSource())) {
 			JButton button = (JButton) e.getSource();
-			String param = button.getText().replace(" Values", "");
+			String param = parameterNames.get(parameterButtons.indexOf(button));
 			SelectDialog dialog = new SelectDialog(param,
 					parametersX.get(param), selectedValuesX.get(param));
 
@@ -878,8 +895,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());
-		String paramName = parameterLabels.get(i).getText().replace(":", "");
+		int i = parameterSliders.indexOf(e.getSource());		
+		String paramName = parameterNames.get(i);
 		JSlider slider = parameterSliders.get(i);
 		DoubleTextField field = parameterFields.get(i);
 
@@ -893,8 +910,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	public void textChanged(Object source) {
 		if (parameterFields.contains(source)) {
 			int i = parameterFields.indexOf(source);
-			String paramName = parameterLabels.get(i).getText()
-					.replace(":", "");
+			String paramName = parameterNames.get(i);
 			DoubleTextField field = parameterFields.get(i);
 			JSlider slider = parameterSliders.get(i);
 
@@ -938,8 +954,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());
-		String paramName = parameterLabels.get(i).getText().replace(":", "");
+		int i = parameterSliders.indexOf(e.getSource());		
+		String paramName = parameterNames.get(i);
 		JSlider slider = parameterSliders.get(i);
 		DoubleTextField field = parameterFields.get(i);
 

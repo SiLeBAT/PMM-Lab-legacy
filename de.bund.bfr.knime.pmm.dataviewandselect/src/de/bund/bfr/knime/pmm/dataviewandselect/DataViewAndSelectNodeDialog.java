@@ -152,7 +152,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				false, null);
+				false, null, false);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				null, null, categories, units, null);
 		configPanel.setUseManualRange(set.isManualRange());

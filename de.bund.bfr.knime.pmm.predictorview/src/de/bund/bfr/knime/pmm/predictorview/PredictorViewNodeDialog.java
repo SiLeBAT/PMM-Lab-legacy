@@ -116,7 +116,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
 		showSamplePanel = true;
-	}	
+	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples, SettingsHelper set,
 			boolean newTuples) {
@@ -203,7 +203,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
 					.entrySet()) {
-				Double oldMax = maxValues.get(max.getKey());				
+				Double oldMax = maxValues.get(max.getKey());
 
 				if (oldMax == null) {
 					maxValues.put(max.getKey(), max.getValue());
@@ -212,7 +212,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 							Math.max(max.getValue(), oldMax));
 				}
 			}
-		}		
+		}
 
 		for (String var : paramsX.keySet()) {
 			if (minValues.get(var) != null) {
@@ -221,7 +221,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false, "Change Init/Lag Params");
+				false, "Change Init/Lag Params", true);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -283,7 +283,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 		}
 	}
-	
+
 	public void setShowSamplePanel(boolean showSamplePanel) {
 		this.showSamplePanel = showSamplePanel;
 	}

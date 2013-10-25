@@ -127,7 +127,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_BOXES,
-				false, "Conditions");
+				false, "Conditions", false);
 
 		if (set.getSelectedID() != null
 				&& reader.getPlotables().get(set.getSelectedID()) != null) {

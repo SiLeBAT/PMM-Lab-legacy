@@ -77,6 +77,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
@@ -112,7 +113,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
-		List<String> validIds = new ArrayList<>();		
+		List<String> validIds = new ArrayList<>();
 
 		for (String id : set.getSelectedIDs()) {
 			Plotable plotable = reader.getPlotables().get(id);
@@ -139,16 +140,17 @@ public class PredictorViewNodeModel extends NodeModel {
 							break;
 						}
 					}
-				}				
+				}
 
 				if (valid) {
 					validIds.add(id);
 					plotable.setSamples(set.getTimeValues());
-					plotable.setFunctionArguments(arguments);
+					plotable.setFunctionArguments(convertToUnits(arguments,
+							plotable.getUnits()));
 					container.addRowToTable(createDataTuple(reader, id));
 				}
 			}
-		}		
+		}
 
 		container.close();
 
@@ -379,5 +381,25 @@ public class PredictorViewNodeModel extends NodeModel {
 						SchemaFactory.createM1Schema());
 			}
 		}
+	}
+
+	protected static Map<String, List<Double>> convertToUnits(
+			Map<String, List<Double>> arguments, Map<String, String> units) {
+		Map<String, List<Double>> converted = new LinkedHashMap<>();
+
+		for (String arg : arguments.keySet()) {
+			String unit = units.get(arg);
+			Category cat = Categories.getCategoryByUnit(unit);
+			String stdUnit = cat.getStandardUnit();
+
+			try {
+				converted.put(arg, Arrays.asList(cat.convert(arguments.get(arg)
+						.get(0), stdUnit, unit)));
+			} catch (ConvertException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return converted;
 	}
 }

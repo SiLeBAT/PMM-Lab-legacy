@@ -78,6 +78,8 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.UI;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
@@ -189,27 +191,47 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			categories.putAll(plotable.getCategories());
 			units.putAll(plotable.getUnits());
 
-			for (Map.Entry<String, Double> min : plotable.getMinArguments()
-					.entrySet()) {
-				Double oldMin = minValues.get(min.getKey());
+			for (String arg : plotable.getMinArguments().keySet()) {
+				Double oldMin = minValues.get(arg);
+				String unit = plotable.getUnits().get(arg);
+				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
+						.get(arg));
+				String stdUnit = cat.getStandardUnit();
+				Double newMin = null;
+
+				try {
+					newMin = cat.convert(plotable.getMinArguments().get(arg),
+							unit, stdUnit);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
 
 				if (oldMin == null) {
-					minValues.put(min.getKey(), min.getValue());
-				} else if (min.getValue() != null) {
-					minValues.put(min.getKey(),
-							Math.min(min.getValue(), oldMin));
+					minValues.put(arg, newMin);
+				} else if (newMin != null) {
+					minValues.put(arg, Math.min(newMin, oldMin));
 				}
 			}
 
-			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
-					.entrySet()) {
-				Double oldMax = maxValues.get(max.getKey());
+			for (String arg : plotable.getMaxArguments().keySet()) {
+				Double oldMax = maxValues.get(arg);
+				String unit = plotable.getUnits().get(arg);
+				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
+						.get(arg));
+				String stdUnit = cat.getStandardUnit();
+				Double newMax = null;
+
+				try {
+					newMax = cat.convert(plotable.getMaxArguments().get(arg),
+							unit, stdUnit);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
 
 				if (oldMax == null) {
-					maxValues.put(max.getKey(), max.getValue());
-				} else if (max.getValue() != null) {
-					maxValues.put(max.getKey(),
-							Math.max(max.getValue(), oldMax));
+					maxValues.put(arg, newMax);
+				} else if (newMax != null) {
+					maxValues.put(arg, Math.max(newMax, oldMax));
 				}
 			}
 		}
@@ -302,7 +324,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			if (plotable != null) {
 				plotable.setSamples(samplePanel.getTimeValues());
-				plotable.setFunctionArguments(configPanel.getParamsX());
+				plotable.setFunctionArguments(PredictorViewNodeModel
+						.convertToUnits(configPanel.getParamsX(),
+								plotable.getUnits()));
 			}
 		}
 

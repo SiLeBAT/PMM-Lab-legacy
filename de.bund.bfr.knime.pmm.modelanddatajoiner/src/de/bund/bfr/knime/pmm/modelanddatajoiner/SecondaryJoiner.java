@@ -401,7 +401,6 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 								Category cat = Categories
 										.getCategory(Categories
 												.getCategoryByUnit(
-														element.getCategories(),
 														element.getUnit())
 												.getName());
 								String unit = paramsConvertTo.get(element
@@ -524,10 +523,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					TimeSeriesSchema.ATT_MISC).getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				independentParameterCategories.put(
-						element.getName(),
-						Categories.getCategoryByUnit(element.getCategories(),
-								element.getUnit()).getName());
+				independentParameterCategories.put(element.getName(),
+						Categories.getCategoryByUnit(element.getUnit())
+								.getName());
 			}
 		}
 	}

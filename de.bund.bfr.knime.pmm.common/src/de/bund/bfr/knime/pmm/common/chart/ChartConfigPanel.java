@@ -602,7 +602,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		if (type == PARAMETER_FIELDS) {
 			for (int i = 0; i < parameterFields.size(); i++) {
 				DoubleTextField field = (DoubleTextField) parameterFields
-						.get(i);				
+						.get(i);
 				String paramName = parameterNames.get(i);
 
 				if (field.getValue() != null) {
@@ -656,7 +656,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public void setParamXValues(Map<String, Double> paramXValues) {
 		for (int i = 0; i < parameterFields.size(); i++) {
-			DoubleTextField field = (DoubleTextField) parameterFields.get(i);			
+			DoubleTextField field = (DoubleTextField) parameterFields.get(i);
 			String paramName = parameterNames.get(i);
 
 			field.setValue(paramXValues.get(paramName));
@@ -726,8 +726,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 				JLabel label;
 
 				if (stdUnitForFields) {
-					Category cat = Categories.getCategoryByUnit(
-							Categories.getAllCategories(), units.get(param));
+					Category cat = Categories.getCategoryByUnit(units
+							.get(param));
 
 					label = new JLabel(param + " (" + cat.getStandardUnit()
 							+ "):");
@@ -895,7 +895,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	@Override
 	public void stateChanged(ChangeEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());		
+		int i = parameterSliders.indexOf(e.getSource());
 		String paramName = parameterNames.get(i);
 		JSlider slider = parameterSliders.get(i);
 		DoubleTextField field = parameterFields.get(i);
@@ -954,7 +954,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		int i = parameterSliders.indexOf(e.getSource());		
+		int i = parameterSliders.indexOf(e.getSource());
 		String paramName = parameterNames.get(i);
 		JSlider slider = parameterSliders.get(i);
 		DoubleTextField field = parameterFields.get(i);

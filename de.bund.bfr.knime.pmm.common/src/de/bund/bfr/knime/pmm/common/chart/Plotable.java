@@ -410,8 +410,7 @@ public class Plotable {
 		double[][] points = new double[2][FUNCTION_STEPS];
 		DJep parser = MathUtilities.createParser();
 		Node f = null;
-		List<String> paramList = new ArrayList<String>(
-				covariances.keySet());
+		List<String> paramList = new ArrayList<String>(covariances.keySet());
 
 		for (String param : functionParameters.keySet()) {
 			if (functionParameters.get(param) == null) {
@@ -469,7 +468,7 @@ public class Plotable {
 
 			try {
 				Double y = 0.0;
-				boolean failed = false;				
+				boolean failed = false;
 
 				for (String param : paramList) {
 					Object obj = parser.evaluate(derivatives.get(param));
@@ -886,8 +885,7 @@ public class Plotable {
 	public Double convertToUnit(String param, Double value, String unit)
 			throws ConvertException {
 		String currentUnit = units.get(param);
-		Category category = Categories.getCategoryByUnit(categories.get(param),
-				currentUnit);
+		Category category = Categories.getCategoryByUnit(currentUnit);
 
 		return category.convert(value, currentUnit, unit);
 	}
@@ -895,8 +893,7 @@ public class Plotable {
 	public Double convertFromUnit(String param, Double value, String unit)
 			throws ConvertException {
 		String newUnit = units.get(param);
-		Category category = Categories.getCategoryByUnit(categories.get(param),
-				newUnit);
+		Category category = Categories.getCategoryByUnit(newUnit);
 
 		return category.convert(value, unit, newUnit);
 	}

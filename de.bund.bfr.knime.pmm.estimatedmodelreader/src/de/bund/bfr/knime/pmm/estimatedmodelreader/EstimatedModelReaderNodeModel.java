@@ -421,7 +421,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				String unit = units.get(misc.getName());
     				
     				if (misc.getUnit() != null && !misc.getUnit().equals(unit)) {
-    					Category cat = Categories.getCategoryByUnit(Categories.getAllCategories(), misc.getUnit());
+    					Category cat = Categories.getCategoryByUnit(misc.getUnit());
     					
     					try {
 							misc.setValue(cat.convert(misc.getValue(), misc.getUnit(), unit));							

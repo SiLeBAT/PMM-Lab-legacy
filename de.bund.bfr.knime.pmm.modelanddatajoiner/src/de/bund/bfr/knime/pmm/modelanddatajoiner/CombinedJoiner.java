@@ -352,9 +352,8 @@ public class CombinedJoiner implements Joiner {
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
 						.get(AttributeUtilities.CONCENTRATION);
-				Category concentrationCategory = Categories.getCategoryByUnit(
-						Categories.getConcentrationCategories(),
-						concentrationUnit);
+				Category concentrationCategory = Categories
+						.getCategoryByUnit(concentrationUnit);
 
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
@@ -379,8 +378,8 @@ public class CombinedJoiner implements Joiner {
 					MiscXml element = (MiscXml) el;
 
 					if (paramsConvertTo.containsKey(element.getName())) {
-						Category cat = Categories.getCategoryByUnit(
-								element.getCategories(), element.getUnit());
+						Category cat = Categories.getCategoryByUnit(element
+								.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
 						try {
@@ -437,10 +436,8 @@ public class CombinedJoiner implements Joiner {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				secondaryParameterCategories.put(
-						element.getName(),
-						Categories.getCategoryByUnit(element.getCategories(),
-								element.getUnit()).getName());
+				secondaryParameterCategories.put(element.getName(), Categories
+						.getCategoryByUnit(element.getUnit()).getName());
 			}
 		}
 	}
@@ -541,11 +538,9 @@ public class CombinedJoiner implements Joiner {
 
 						if (categories.containsKey(element.getName())
 								&& categories.get(element.getName()) == null) {
-							categories.put(
-									element.getName(),
-									Categories.getCategoryByUnit(
-											element.getCategories(),
-											element.getUnit()).getName());
+							categories.put(element.getName(), Categories
+									.getCategoryByUnit(element.getUnit())
+									.getName());
 							units.put(element.getName(), element.getUnit());
 						}
 					}

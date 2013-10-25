@@ -142,9 +142,8 @@ public class TableReader {
 						if (param.equals(element2.getName())) {
 							String unit = miscUnits.get(modelXml.getID()).get(
 									element2.getName());
-							Category category = Categories.getCategoryByUnit(
-									miscCategories.get(element2.getName()),
-									unit);
+							Category category = Categories
+									.getCategoryByUnit(unit);
 
 							try {
 								paramValue = category.convert(

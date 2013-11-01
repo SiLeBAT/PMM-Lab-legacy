@@ -79,6 +79,7 @@ public class SettingsHelper {
 	protected static final String CFG_SELECTEDTUPLES = "SelectedTuples";
 	protected static final String CFG_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
 	protected static final String CFG_NEWLAGPARAMETERS = "NewLagParameters";
+	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
@@ -120,6 +121,7 @@ public class SettingsHelper {
 	private List<KnimeTuple> selectedTuples;
 	private Map<String, String> newConcentrationParameters;
 	private Map<String, String> newLagParameters;
+	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<>();
@@ -149,6 +151,7 @@ public class SettingsHelper {
 		selectedTuples = new ArrayList<>();
 		newConcentrationParameters = new LinkedHashMap<>();
 		newLagParameters = new LinkedHashMap<>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -331,6 +334,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			newLagParameters = new LinkedHashMap<>();
 		}
+		
+		try {
+			columnWidths = XmlConverter.xmlToObject(
+					settings.getString(CFG_COLUMNWIDTHS),
+					new LinkedHashMap<String, Integer>());
+		} catch (InvalidSettingsException e) {
+			columnWidths = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -369,6 +380,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(newConcentrationParameters));
 		settings.addString(CFG_NEWLAGPARAMETERS,
 				XmlConverter.objectToXml(newLagParameters));
+		settings.addString(CFG_COLUMNWIDTHS,
+				XmlConverter.objectToXml(columnWidths));
 	}
 
 	public void loadConfig(Config settings) {
@@ -597,4 +610,11 @@ public class SettingsHelper {
 		this.newLagParameters = newLagParameters;
 	}
 
+	public Map<String, Integer> getColumnWidths() {
+		return columnWidths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> columnWidths) {
+		this.columnWidths = columnWidths;
+	}
 }

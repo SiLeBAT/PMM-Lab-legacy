@@ -165,6 +165,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				reader.getColorCounts());
 		selectionPanel.setColorLists(set.getColorLists());
 		selectionPanel.setShapeLists(set.getShapeLists());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
@@ -246,6 +247,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 	}
 
 	@Override

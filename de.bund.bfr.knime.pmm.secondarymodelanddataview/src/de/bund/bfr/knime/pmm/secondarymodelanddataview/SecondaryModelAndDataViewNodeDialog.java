@@ -161,6 +161,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 		set.saveSettings(settings);
 	}
@@ -239,6 +240,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),

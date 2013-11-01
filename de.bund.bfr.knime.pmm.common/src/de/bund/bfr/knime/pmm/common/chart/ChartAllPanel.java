@@ -105,6 +105,7 @@ public class ChartAllPanel extends JPanel implements ComponentListener {
 
 		if (!adjusted && pane.getWidth() > 0 && pane.getHeight() > 0) {
 			pane.setDividerLocation(0.5);
+			adjusted = true;
 		}
 	}
 

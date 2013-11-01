@@ -130,7 +130,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 	private boolean stdUnitForFields;
 
 	public ChartConfigPanel(int type, boolean allowConfidenceInterval,
-			String extraButtonLabel, boolean stdUnitForFields) {
+			String extraButtonLabel, boolean stdUnitForFields,
+			boolean varsChangeable) {
 		this.type = type;
 		this.stdUnitForFields = stdUnitForFields;
 		configListeners = new ArrayList<>();
@@ -288,13 +289,16 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		parameterLabels = new ArrayList<>();
 		parameterSliders = new ArrayList<>();
 
-		JPanel outerParameterValuesPanel = new JPanel();
+		if (varsChangeable) {
+			JPanel outerParameterValuesPanel = new JPanel();
 
-		outerParameterValuesPanel.setBorder(BorderFactory
-				.createTitledBorder("Other Variables"));
-		outerParameterValuesPanel.setLayout(new BorderLayout());
-		outerParameterValuesPanel.add(parameterValuesPanel, BorderLayout.WEST);
-		mainPanel.add(outerParameterValuesPanel, createConstraints(3));
+			outerParameterValuesPanel.setBorder(BorderFactory
+					.createTitledBorder("Other Variables"));
+			outerParameterValuesPanel.setLayout(new BorderLayout());
+			outerParameterValuesPanel.add(parameterValuesPanel,
+					BorderLayout.WEST);
+			mainPanel.add(outerParameterValuesPanel, createConstraints(3));
+		}
 
 		setLayout(new BorderLayout());
 		add(mainPanel, BorderLayout.NORTH);

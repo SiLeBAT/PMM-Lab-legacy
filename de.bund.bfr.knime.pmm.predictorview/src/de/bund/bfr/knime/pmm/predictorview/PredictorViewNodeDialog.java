@@ -243,7 +243,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false, "Change Init/Lag Params", true);
+				false, "Change Init/Lag Params", true, true);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);

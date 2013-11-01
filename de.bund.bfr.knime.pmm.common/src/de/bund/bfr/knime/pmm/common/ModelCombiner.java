@@ -47,6 +47,9 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class ModelCombiner {
 
@@ -202,8 +205,6 @@ public class ModelCombiner {
 						+ formulaSec.replace(depVarSec + "=", "") + ")";
 				String formula = ((CatalogModelXml) newTuple.getPmmXml(
 						Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-				String newFormula = MathUtilities.replaceVariable(formula,
-						depVarSec, replacement);
 				PmmXmlDoc newParams = newTuple
 						.getPmmXml(Model1Schema.ATT_PARAMETER);
 				PmmXmlDoc newIndepVars = newTuple
@@ -219,13 +220,44 @@ public class ModelCombiner {
 					if (!CellIO.getNameList(newIndepVars).contains(
 							element.getName())) {
 						newIndepVars.getElementSet().add(element);
+					} else {
+						IndepXml original = null;
+
+						for (PmmXmlElementConvertable el2 : newIndepVars
+								.getElementSet()) {
+							if (((IndepXml) el2).getName().equals(
+									element.getName())) {
+								original = (IndepXml) el2;
+								break;
+							}
+						}
+
+						String fromUnit = original.getUnit();
+						String toUnit = element.getUnit();
+						Category cat = Categories.getCategoryByUnit(fromUnit);
+
+						if (fromUnit != null && !fromUnit.equals(toUnit)) {
+							try {
+								String conversion = "("
+										+ cat.getConversionString(
+												element.getName(), fromUnit,
+												toUnit) + ")";
+
+								replacement = MathUtilities.replaceVariable(
+										replacement, element.getName(),
+										conversion);
+							} catch (ConvertException e) {
+								e.printStackTrace();
+							}
+						}
 					}
 				}
 
 				PmmXmlDoc modelXml = tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 
-				((CatalogModelXml) modelXml.get(0)).setFormula(newFormula);
+				((CatalogModelXml) modelXml.get(0)).setFormula(MathUtilities
+						.replaceVariable(formula, depVarSec, replacement));
 
 				newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 				newTuple.setValue(Model1Schema.ATT_INDEPENDENT, newIndepVars);

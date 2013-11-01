@@ -63,4 +63,10 @@ public class NoCategory implements Category {
 		return value;
 	}
 
+	@Override
+	public String getConversionString(String var, String fromUnit, String toUnit)
+			throws ConvertException {
+		return var;
+	}
+
 }

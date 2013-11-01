@@ -119,9 +119,11 @@ public class MathUtilities {
 	}
 
 	public static int getRandomNegativeInt() {
-		if (random == null) random = new Random();
+		if (random == null)
+			random = new Random();
 		int value = random.nextInt();
-		if (value > 0) value = -value;
+		if (value > 0)
+			value = -value;
 		return value;
 	}
 
@@ -175,28 +177,20 @@ public class MathUtilities {
 		}
 
 		String newFormular = " " + formula + " ";
-		boolean foundReplacement = true;
 
-		while (foundReplacement) {
-			foundReplacement = false;
+		for (int i = 1; i < newFormular.length() - var.length(); i++) {
+			boolean matches = newFormular.substring(i, i + var.length())
+					.equals(var);
+			boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
+			boolean end = !isVariableCharacter(newFormular.charAt(i
+					+ var.length()));
 
-			for (int i = 1; i < newFormular.length() - var.length(); i++) {
-				boolean matches = newFormular.substring(i, i + var.length())
-						.equals(var);
-				boolean start = !isVariableCharacter(newFormular.charAt(i - 1));
-				boolean end = !isVariableCharacter(newFormular.charAt(i
-						+ var.length()));
+			if (matches && start && end) {
+				String prefix = newFormular.substring(0, i);
+				String postfix = newFormular.substring(i + var.length());
 
-				if (matches && start && end) {
-					String orginal = newFormular.substring(i - 1,
-							i + var.length() + 1);
-					String replacement = newFormular.charAt(i - 1) + newVar
-							+ newFormular.charAt(i + var.length());
-
-					newFormular = newFormular.replace(orginal, replacement);
-					foundReplacement = true;
-					break;
-				}
+				newFormular = prefix + newVar + postfix;
+				i = prefix.length() + newVar.length();
 			}
 		}
 

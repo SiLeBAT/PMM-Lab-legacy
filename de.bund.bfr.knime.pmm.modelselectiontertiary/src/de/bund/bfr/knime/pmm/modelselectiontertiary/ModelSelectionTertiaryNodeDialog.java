@@ -120,6 +120,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		set.setShapes(selectionPanel.getShapes());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 		set.setSelectAllIDs(false);
 		set.setManualRange(configPanel.isUseManualRange());
 		set.setMinX(configPanel.getMinX());
@@ -165,7 +166,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				false, null);
+				false, null, false, false);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				null, null, categories, units, null);
 		configPanel.setUseManualRange(set.isManualRange());
@@ -192,6 +193,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.setFilter(Model1Schema.MODELNAME, set.getModelFilter());
 		selectionPanel
 				.setFilter(AttributeUtilities.DATAID, set.getDataFilter());

@@ -27,6 +27,7 @@ import de.bund.bfr.knime.pmm.common.units.Category;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
+import org.knime.core.node.InvalidSettingsException;
 import org.lsmp.djep.djep.DJep;
 import org.nfunk.jep.ParseException;
 import org.nfunk.jep.SymbolTable;
@@ -687,7 +688,7 @@ public class MMC_M extends JPanel {
 		return pm;
 	}
 
-	public String listToXmlString() {
+	public String listToXmlString() throws InvalidSettingsException  {
 		if (listModel == null || listModel.size() == 0) {
 			if (m_mmcts != null && m_mmcts.getCondId() != null)
 				getPM().setCondId(m_mmcts.getCondId());
@@ -698,6 +699,11 @@ public class MMC_M extends JPanel {
 			if (list1.isSelectedIndex(i))
 				finalizePM(i);
 			ParametricModel pm1 = listModel.get(i);
+			
+			if (pm1.getIndependent().getElementSet().isEmpty()) {
+				throw new InvalidSettingsException("No Independent Variable is specified");
+			}
+			
 			doc.add(pm1);
 			if (m_secondaryModels.containsKey(pm1)) {
 				for (Map.Entry<String, ParametricModel> entry : m_secondaryModels.get(pm1).entrySet()) {
@@ -727,10 +733,15 @@ public class MMC_M extends JPanel {
 		return doc.toXmlString();
 	}
 
-	private String toXmlString() {
+	private String toXmlString() throws InvalidSettingsException {
 		PmmXmlDoc doc = new PmmXmlDoc();
 
 		ParametricModel pm = finalizePM(-1);
+		
+		if (pm.getIndependent().getElementSet().isEmpty()) {
+			throw new InvalidSettingsException("No Independent Variable is specified");
+		}
+		
 		doc.add(pm);
 
 		if (radioButton3.isSelected()) {

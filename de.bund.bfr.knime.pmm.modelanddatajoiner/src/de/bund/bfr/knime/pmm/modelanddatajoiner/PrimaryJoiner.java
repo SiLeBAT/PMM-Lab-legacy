@@ -245,9 +245,8 @@ public class PrimaryJoiner implements Joiner {
 				String timeUnit = paramsConvertTo.get(AttributeUtilities.TIME);
 				String concentrationUnit = paramsConvertTo
 						.get(AttributeUtilities.CONCENTRATION);
-				Category concentrationCategory = Categories.getCategoryByUnit(
-						Categories.getConcentrationCategories(),
-						concentrationUnit);
+				Category concentrationCategory = Categories
+						.getCategoryByUnit(concentrationUnit);
 
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
@@ -272,8 +271,8 @@ public class PrimaryJoiner implements Joiner {
 					MiscXml element = (MiscXml) el;
 
 					if (paramsConvertTo.containsKey(element.getName())) {
-						Category cat = Categories.getCategoryByUnit(
-								element.getCategories(), element.getUnit());
+						Category cat = Categories.getCategoryByUnit(element
+								.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
 						try {
@@ -398,10 +397,8 @@ public class PrimaryJoiner implements Joiner {
 			for (PmmXmlElementConvertable el : misc.getElementSet()) {
 				MiscXml element = (MiscXml) el;
 
-				parameterCategories.put(
-						element.getName(),
-						Categories.getCategoryByUnit(element.getCategories(),
-								element.getUnit()).getName());
+				parameterCategories.put(element.getName(), Categories
+						.getCategoryByUnit(element.getUnit()).getName());
 			}
 		}
 	}

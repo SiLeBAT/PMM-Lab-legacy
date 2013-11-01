@@ -46,4 +46,7 @@ public interface Category {
 	public Double convert(Double value, String fromUnit, String toUnit)
 			throws ConvertException;
 
+	public String getConversionString(String var, String fromUnit, String toUnit)
+			throws ConvertException;
+
 }

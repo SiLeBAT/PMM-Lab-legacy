@@ -373,7 +373,9 @@ public class TableReader {
 				for (String param : miscParams) {
 					plotable.addValueList(param, miscs.get(param));
 
-					if (categories.get(param) == null) {
+					if (categories.get(param) == null
+							|| categories.get(param).equals(
+									Arrays.asList((String) null))) {
 						categories.put(param, miscCategories.get(param));
 					}
 

@@ -428,7 +428,28 @@ public class TableReader {
 
 					conditionMinValues.get(i).add(min);
 					conditionMaxValues.get(i).add(max);
-					conditionUnits.get(i).add(unit);
+
+					if (!containsData) {
+						conditionUnits.get(i).add(unit);
+					}
+				}
+
+				if (containsData) {
+					for (int i = 0; i < miscParams.size(); i++) {
+						String unit = null;
+
+						for (PmmXmlElementConvertable el : tuple.getPmmXml(
+								TimeSeriesSchema.ATT_MISC).getElementSet()) {
+							MiscXml element = (MiscXml) el;
+
+							if (miscParams.get(i).equals(element.getName())) {
+								unit = element.getUnit();
+								break;
+							}
+						}
+
+						conditionUnits.get(i).add(unit);
+					}
 				}
 			} else if (containsData) {
 				String dataName;

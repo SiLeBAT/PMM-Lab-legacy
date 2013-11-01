@@ -161,6 +161,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 		set.saveSettings(settings);
 	}
@@ -172,7 +173,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 
 		if (containsData) {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_BOXES, true, null);
+					ChartConfigPanel.PARAMETER_BOXES, true, null, false, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
@@ -185,7 +186,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 					reader.getColorCounts());
 		} else {
 			configPanel = new ChartConfigPanel(
-					ChartConfigPanel.PARAMETER_FIELDS, true, null);
+					ChartConfigPanel.PARAMETER_FIELDS, true, null, false, true);
 			selectionPanel = new ChartSelectionPanel(reader.getIds(), true,
 					reader.getStringColumns(), reader.getStringColumnValues(),
 					reader.getDoubleColumns(), reader.getDoubleColumnValues(),
@@ -239,6 +240,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.setSelectedIDs(Arrays.asList(set.getSelectedID()));
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),

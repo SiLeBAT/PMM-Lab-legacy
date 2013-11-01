@@ -75,6 +75,7 @@ public class SettingsHelper {
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
+	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
@@ -116,6 +117,7 @@ public class SettingsHelper {
 	private boolean standardVisibleColumns;
 	private List<String> visibleColumns;
 	private String fittedFilter;
+	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
 		selectedID = null;
@@ -144,6 +146,7 @@ public class SettingsHelper {
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		visibleColumns = new ArrayList<>();
 		fittedFilter = null;
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -311,6 +314,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			fittedFilter = null;
 		}
+		
+		try {
+			columnWidths = XmlConverter.xmlToObject(
+					settings.getString(CFG_COLUMNWIDTHS),
+					new LinkedHashMap<String, Integer>());
+		} catch (InvalidSettingsException e) {
+			columnWidths = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -345,6 +356,8 @@ public class SettingsHelper {
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
+		settings.addString(CFG_COLUMNWIDTHS,
+				XmlConverter.objectToXml(columnWidths));
 	}
 
 	public String getSelectedID() {
@@ -553,5 +566,13 @@ public class SettingsHelper {
 
 	public void setFittedFilter(String fittedFilter) {
 		this.fittedFilter = fittedFilter;
+	}
+	
+	public Map<String, Integer> getColumnWidths() {
+		return columnWidths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> columnWidths) {
+		this.columnWidths = columnWidths;
 	}
 }

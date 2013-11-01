@@ -1337,7 +1337,7 @@ public class Bfrdb extends Hsqldbiface {
 	    						}
 	    						else {
 	    							try {
-	    								Double origVal = Categories.getCategoryByUnit(mx.getCategories(), mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
+	    								Double origVal = Categories.getCategoryByUnit(mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
 	    								int valId = insertDouble(origVal);				
 		    							ps.setDouble(3, valId);							
 		    							Object eid = mx.getOrigUnit() == null || mx.getOrigUnit().isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{mx.getOrigUnit()});
@@ -1486,8 +1486,8 @@ public class Bfrdb extends Hsqldbiface {
 						origConcStdDev = tsx.getConcentrationStdDev();
 					}
 					else {
-						origConc = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentration(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
-						origConcStdDev = Categories.getCategoryByUnit(Categories.getConcentrationCategories(), tsx.getConcentrationUnit()).convert(tsx.getConcentrationStdDev(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());						
+						origConc = Categories.getCategoryByUnit(tsx.getConcentrationUnit()).convert(tsx.getConcentration(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());
+						origConcStdDev = Categories.getCategoryByUnit(tsx.getConcentrationUnit()).convert(tsx.getConcentrationStdDev(), tsx.getConcentrationUnit(), tsx.getOrigConcentrationUnit());						
 					}
 					int timeId = insertDouble(origTime);				
 					int lognId = insertDouble(origConc, origConcStdDev, tsx.getNumberOfMeasurements());

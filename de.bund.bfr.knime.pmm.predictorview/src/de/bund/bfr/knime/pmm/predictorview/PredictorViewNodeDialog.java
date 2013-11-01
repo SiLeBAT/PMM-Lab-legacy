@@ -78,6 +78,8 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.UI;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 /**
@@ -116,23 +118,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
 		showSamplePanel = true;
-	}
-
-	public PredictorViewNodeDialog(List<KnimeTuple> tuples) {
-		this(tuples, new LinkedHashMap<String, String>());
-	}
-
-	public PredictorViewNodeDialog(List<KnimeTuple> tuples,
-			Map<String, String> initParams) {
-		this.tuples = tuples;
-		set = new SettingsHelper();
-		set.setConcentrationParameters(initParams);
-		reader = new TableReader(tuples, set.getConcentrationParameters(),
-				set.getLagParameters());
-		mainComponent = new JPanel();
-		mainComponent.setLayout(new BorderLayout());
-		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		showSamplePanel = false;
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples, SettingsHelper set,
@@ -206,30 +191,50 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			categories.putAll(plotable.getCategories());
 			units.putAll(plotable.getUnits());
 
-			for (Map.Entry<String, Double> min : plotable.getMinArguments()
-					.entrySet()) {
-				Double oldMin = minValues.get(min.getKey());
+			for (String arg : plotable.getMinArguments().keySet()) {
+				Double oldMin = minValues.get(arg);
+				String unit = plotable.getUnits().get(arg);
+				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
+						.get(arg));
+				String stdUnit = cat.getStandardUnit();
+				Double newMin = null;
+
+				try {
+					newMin = cat.convert(plotable.getMinArguments().get(arg),
+							unit, stdUnit);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
 
 				if (oldMin == null) {
-					minValues.put(min.getKey(), min.getValue());
-				} else if (min.getValue() != null) {
-					minValues.put(min.getKey(),
-							Math.min(min.getValue(), oldMin));
+					minValues.put(arg, newMin);
+				} else if (newMin != null) {
+					minValues.put(arg, Math.min(newMin, oldMin));
 				}
 			}
 
-			for (Map.Entry<String, Double> max : plotable.getMaxArguments()
-					.entrySet()) {
-				Double oldMax = maxValues.get(max.getKey());				
+			for (String arg : plotable.getMaxArguments().keySet()) {
+				Double oldMax = maxValues.get(arg);
+				String unit = plotable.getUnits().get(arg);
+				Category cat = Categories.getCategoryByUnit(plotable.getUnits()
+						.get(arg));
+				String stdUnit = cat.getStandardUnit();
+				Double newMax = null;
+
+				try {
+					newMax = cat.convert(plotable.getMaxArguments().get(arg),
+							unit, stdUnit);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
 
 				if (oldMax == null) {
-					maxValues.put(max.getKey(), max.getValue());
-				} else if (max.getValue() != null) {
-					maxValues.put(max.getKey(),
-							Math.max(max.getValue(), oldMax));
+					maxValues.put(arg, newMax);
+				} else if (newMax != null) {
+					maxValues.put(arg, Math.max(newMax, oldMax));
 				}
 			}
-		}		
+		}
 
 		for (String var : paramsX.keySet()) {
 			if (minValues.get(var) != null) {
@@ -238,7 +243,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.PARAMETER_FIELDS,
-				false, "Change Init/Lag Params");
+				false, "Change Init/Lag Params", true, true);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				minValues, maxValues, categories, units,
 				AttributeUtilities.TIME);
@@ -283,6 +288,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				reader.getParameterData(), reader.getFormulas());
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
@@ -299,14 +305,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else {
 			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 		}
-	}
-
-	public Map<String, String> getInitParams() {
-		return set.getConcentrationParameters();
-	}
-
-	public Map<String, Double> getParamValues() {
-		return configPanel.getParamXValues();
 	}
 
 	public void setShowSamplePanel(boolean showSamplePanel) {
@@ -327,7 +325,9 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 			if (plotable != null) {
 				plotable.setSamples(samplePanel.getTimeValues());
-				plotable.setFunctionArguments(configPanel.getParamsX());
+				plotable.setFunctionArguments(PredictorViewNodeModel
+						.convertToUnits(configPanel.getParamsX(),
+								plotable.getUnits()));
 			}
 		}
 
@@ -410,6 +410,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setTransformY(configPanel.getTransformY());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 
 		set.getSelectedTuples().clear();

@@ -59,25 +59,23 @@ public class Categories {
 		return category;
 	}
 
-	public static Category getCategoryByUnit(List<?> categories, String unit) {
+	public static Category getCategoryByUnit(String unit) {
 		Category category = new NoCategory();
 
-		if (categories != null) {
-			for (Object o : categories) {
-				Category cat;
+		for (Object o : getAllCategories()) {
+			Category cat;
 
-				if (o instanceof Category) {
-					cat = (Category) o;
-				} else if (o instanceof String) {
-					cat = Categories.getCategory((String) o);
-				} else {
-					continue;
-				}
+			if (o instanceof Category) {
+				cat = (Category) o;
+			} else if (o instanceof String) {
+				cat = Categories.getCategory((String) o);
+			} else {
+				continue;
+			}
 
-				if (cat.getAllUnits().contains(unit)) {
-					category = cat;
-					break;
-				}
+			if (cat.getAllUnits().contains(unit)) {
+				category = cat;
+				break;
 			}
 		}
 

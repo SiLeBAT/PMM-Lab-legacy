@@ -69,6 +69,7 @@ public class SettingsHelper {
 	protected static final String CFG_TRANSFORMY = "TransformY";
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
+	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
 	protected static final boolean DEFAULT_SELECTALLIDS = false;
 	protected static final boolean DEFAULT_MANUALRANGE = false;
@@ -104,6 +105,7 @@ public class SettingsHelper {
 	private String transformY;
 	private boolean standardVisibleColumns;
 	private List<String> visibleColumns;
+	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<String>();
@@ -126,6 +128,7 @@ public class SettingsHelper {
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		visibleColumns = new ArrayList<>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -253,6 +256,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<>();
 		}
+
+		try {
+			columnWidths = XmlConverter.xmlToObject(
+					settings.getString(CFG_COLUMNWIDTHS),
+					new LinkedHashMap<String, Integer>());
+		} catch (InvalidSettingsException e) {
+			columnWidths = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -278,6 +289,8 @@ public class SettingsHelper {
 		settings.addBoolean(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
 				XmlConverter.objectToXml(visibleColumns));
+		settings.addString(CFG_COLUMNWIDTHS,
+				XmlConverter.objectToXml(columnWidths));		
 	}
 
 	public List<String> getSelectedIDs() {
@@ -438,5 +451,13 @@ public class SettingsHelper {
 
 	public void setVisibleColumns(List<String> visibleColumns) {
 		this.visibleColumns = visibleColumns;
+	}
+
+	public Map<String, Integer> getColumnWidths() {
+		return columnWidths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> columnWidths) {
+		this.columnWidths = columnWidths;
 	}
 }

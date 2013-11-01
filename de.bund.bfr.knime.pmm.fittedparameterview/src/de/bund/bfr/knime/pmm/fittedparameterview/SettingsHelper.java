@@ -70,6 +70,7 @@ public class SettingsHelper {
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
 	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	protected static final String CFG_USEDCONDITIONS = "UsedConditions";
+	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
@@ -104,6 +105,7 @@ public class SettingsHelper {
 	private boolean standardVisibleColumns;
 	private List<String> visibleColumns;
 	private List<String> usedConditions;
+	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
 		selectedID = null;
@@ -127,6 +129,7 @@ public class SettingsHelper {
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
 		visibleColumns = new ArrayList<>();
 		usedConditions = new ArrayList<>();
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -264,6 +267,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			usedConditions = new ArrayList<>();
 		}
+		
+		try {
+			columnWidths = XmlConverter.xmlToObject(
+					settings.getString(CFG_COLUMNWIDTHS),
+					new LinkedHashMap<String, Integer>());
+		} catch (InvalidSettingsException e) {
+			columnWidths = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -293,6 +304,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_USEDCONDITIONS,
 				XmlConverter.objectToXml(usedConditions));
+		settings.addString(CFG_COLUMNWIDTHS,
+				XmlConverter.objectToXml(columnWidths));
 	}
 
 	public String getSelectedID() {
@@ -461,5 +474,13 @@ public class SettingsHelper {
 
 	public void setUsedConditions(List<String> usedConditions) {
 		this.usedConditions = usedConditions;
+	}
+	
+	public Map<String, Integer> getColumnWidths() {
+		return columnWidths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> columnWidths) {
+		this.columnWidths = columnWidths;
 	}
 }

@@ -110,6 +110,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		set.setShapes(selectionPanel.getShapes());
 		set.setStandardVisibleColumns(false);
 		set.setVisibleColumns(selectionPanel.getVisibleColumns());
+		set.setColumnWidths(selectionPanel.getColumnWidths());
 		set.setSelectAllIDs(false);
 		set.setManualRange(configPanel.isUseManualRange());
 		set.setMinX(configPanel.getMinX());
@@ -152,7 +153,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		configPanel = new ChartConfigPanel(ChartConfigPanel.NO_PARAMETER_INPUT,
-				false, null);
+				false, null, false, false);
 		configPanel.setParameters(AttributeUtilities.CONCENTRATION, paramsX,
 				null, null, categories, units, null);
 		configPanel.setUseManualRange(set.isManualRange());
@@ -178,6 +179,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 				new ArrayList<String>(), reader.getData(), null, null);
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
+		selectionPanel.setColumnWidths(set.getColumnWidths());
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());

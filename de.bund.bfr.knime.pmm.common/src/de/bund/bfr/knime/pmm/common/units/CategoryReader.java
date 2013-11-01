@@ -86,6 +86,8 @@ public class CategoryReader {
 		DJep parser = MathUtilities.createParser();
 		Map<String, Node> fromFormulas = new LinkedHashMap<>();
 		Map<String, Node> toFormulas = new LinkedHashMap<>();
+		Map<String, String> fromFormulaStrings = new LinkedHashMap<>();
+		Map<String, String> toFormulaStrings = new LinkedHashMap<>();
 		String standardUnit = null;
 
 		parser.addVariable("x", 0.0);
@@ -106,6 +108,8 @@ public class CategoryReader {
 				try {
 					fromFormulas.put(unitName,
 							parser.parse(unit.getConversion_function_factor()));
+					fromFormulaStrings.put(unitName,
+							unit.getConversion_function_factor());
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
@@ -115,6 +119,8 @@ public class CategoryReader {
 				try {
 					toFormulas.put(unitName, parser.parse(unit
 							.getInverse_conversion_function_factor()));
+					toFormulaStrings.put(unitName,
+							unit.getInverse_conversion_function_factor());
 				} catch (ParseException e) {
 					e.printStackTrace();
 				}
@@ -122,7 +128,7 @@ public class CategoryReader {
 		}
 
 		return new DBCategory(categoryName, standardUnit, fromFormulas,
-				toFormulas, parser);
+				toFormulas, fromFormulaStrings, toFormulaStrings, parser);
 	}
 
 	private static class DBCategory implements Category {
@@ -131,15 +137,20 @@ public class CategoryReader {
 		private String standardUnit;
 		private Map<String, Node> fromFormulas;
 		private Map<String, Node> toFormulas;
+		private Map<String, String> fromFormulaStrings;
+		private Map<String, String> toFormulaStrings;
 		private DJep parser;
 
 		public DBCategory(String name, String standardUnit,
 				Map<String, Node> fromFormulas, Map<String, Node> toFormulas,
-				DJep parser) {
+				Map<String, String> fromFormulaStrings,
+				Map<String, String> toFormulaStrings, DJep parser) {
 			this.name = name;
 			this.standardUnit = standardUnit;
 			this.fromFormulas = fromFormulas;
 			this.toFormulas = toFormulas;
+			this.fromFormulaStrings = fromFormulaStrings;
+			this.toFormulaStrings = toFormulaStrings;
 			this.parser = parser;
 		}
 
@@ -177,6 +188,22 @@ public class CategoryReader {
 
 			return apply(apply(value, fromFormulas.get(fromUnit)),
 					toFormulas.get(toUnit));
+		}
+
+		@Override
+		public String getConversionString(String var, String fromUnit,
+				String toUnit) throws ConvertException {
+			String from = fromFormulaStrings.get(fromUnit);
+			String to = toFormulaStrings.get(toUnit);
+
+			if (from == null || to == null) {
+				throw new ConvertException(fromUnit, toUnit);
+			}
+
+			from = MathUtilities.replaceVariable(from, "x", var);
+			to = MathUtilities.replaceVariable(to, "x", "(" + from + ")");
+
+			return to;
 		}
 
 		private Double apply(Double value, Node formula) {

@@ -72,6 +72,7 @@ public class SettingsHelper {
 	protected static final String CFG_MODELFILTER = "ModelFilter";
 	protected static final String CFG_DATAFILTER = "DataFilter";
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
+	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
 	protected static final boolean DEFAULT_SELECTALLIDS = false;
 	protected static final boolean DEFAULT_MANUALRANGE = false;
@@ -110,6 +111,7 @@ public class SettingsHelper {
 	private String modelFilter;
 	private String dataFilter;
 	private String fittedFilter;
+	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
 		selectedIDs = new ArrayList<String>();
@@ -135,6 +137,7 @@ public class SettingsHelper {
 		modelFilter = null;
 		dataFilter = null;
 		fittedFilter = null;
+		columnWidths = new LinkedHashMap<>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -280,6 +283,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			fittedFilter = null;
 		}
+		
+		try {
+			columnWidths = XmlConverter.xmlToObject(
+					settings.getString(CFG_COLUMNWIDTHS),
+					new LinkedHashMap<String, Integer>());
+		} catch (InvalidSettingsException e) {
+			columnWidths = new LinkedHashMap<>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -308,6 +319,8 @@ public class SettingsHelper {
 		settings.addString(CFG_MODELFILTER, modelFilter);
 		settings.addString(CFG_DATAFILTER, dataFilter);
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
+		settings.addString(CFG_COLUMNWIDTHS,
+				XmlConverter.objectToXml(columnWidths));
 	}
 
 	public List<String> getSelectedIDs() {
@@ -492,5 +505,13 @@ public class SettingsHelper {
 
 	public void setFittedFilter(String fittedFilter) {
 		this.fittedFilter = fittedFilter;
+	}
+	
+	public Map<String, Integer> getColumnWidths() {
+		return columnWidths;
+	}
+
+	public void setColumnWidths(Map<String, Integer> columnWidths) {
+		this.columnWidths = columnWidths;
 	}
 }

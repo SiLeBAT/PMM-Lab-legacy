@@ -69,7 +69,7 @@ public class UpdateChecker {
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_172.sql", null, false);
 	}
 	public static void check4Updates_170_171() {	
-		boolean isBios = true;
+		boolean isBios = false;
 		if (isBios) {
 			new GeneralXLSImporter(true).doImport("/org/hsh/bfr/db/res/Einheiten_130902.xls", null, false);
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=102", false);

@@ -48,6 +48,13 @@ import org.hsh.bfr.db.gui.dbtree.MyDBTree;
  *
  */
 public class GeneralXLSImporter extends FileFilter implements MyImporter {
+	
+	private boolean takecareofID = false;
+	public GeneralXLSImporter() {
+	}
+	public GeneralXLSImporter(boolean takecareofID) {
+		this.takecareofID = takecareofID;
+	}
   /**
   This is the one of the methods that is declared in 
   the abstract class
@@ -136,25 +143,25 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 				      	String fieldName = row.getCell(j).getStringCellValue();
 			      		fieldNames[j] = fieldName;
 			      		int ffe;
-			      		String dbFieldName = getDBFieldName(fieldName, myT);
+			      		String dbFieldName = getDBFieldName(fieldName, myT, takecareofID);
 				      	if (dbFieldName != null) {
 					      	String ft = getForeignTable(dbFieldName, myT);
-	      		    	if (ft != null && ft.equals("DoubleKennzahlen")) {
-	      		    		kzS[j] = getKZ(fieldName, dbFieldName);
-	      		    		dbFieldnames[j] = dbFieldName;
-	      		    	}
-	      		    	else if (!dbFieldNames.containsKey(dbFieldName)) {
+		      		    	if (ft != null && ft.equals("DoubleKennzahlen")) {
+		      		    		kzS[j] = getKZ(fieldName, dbFieldName);
+		      		    		dbFieldnames[j] = dbFieldName;
+		      		    	}
+		      		    	else if (!dbFieldNames.containsKey(dbFieldName)) {
 				      			dbFieldNames.put(dbFieldName, dbFieldName);
 						      	sql1 += DBKernel.delimitL(dbFieldName) + ",";
 						      	sql2 += "?,";
 						      	sql3 += DBKernel.delimitL(dbFieldName) + "=?,";
 						      	lfdCol++;
 				      		}
-					      	fieldTypes[j] = getType(dbFieldName, myT);
+					      	fieldTypes[j] = getType(dbFieldName, myT, takecareofID);
 				      	}
 				      	else if ((ffe = foreignFieldExists(fieldName, myT)) >= 0) {
 				      		if (!foreignTables.containsKey(myT.getForeignFields()[ffe])) foreignTables.put(myT.getForeignFields()[ffe], new Vector<Integer>());
-					      	ffieldTypes[j] = getType(fieldName, myT.getForeignFields()[ffe]);
+					      	ffieldTypes[j] = getType(fieldName, myT.getForeignFields()[ffe], false);
 				      		foreignTables.get(myT.getForeignFields()[ffe]).add(j); 
 				      		myForeignTables[j] = myT.getForeignFields()[ffe];
 				      	}
@@ -409,7 +416,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	*/
-	private String getType(String fieldName, MyTable myT) {
+	private String getType(String fieldName, MyTable myT, boolean takecareofID) {
+		if (takecareofID && fieldName.equalsIgnoreCase("id")) return "INTEGER";
 		String result = null;
 		String[] tFieldNames = myT.getFieldNames();
 		String[] tFieldTypes = myT.getFieldTypes();
@@ -447,7 +455,8 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		return result;
 	}
 	
-	private String getDBFieldName(String fieldName, MyTable myT) {
+	private String getDBFieldName(String fieldName, MyTable myT, boolean takecareofID) {
+		if (takecareofID && fieldName.equalsIgnoreCase("id")) return "ID";
 		String[] tFieldNames = myT.getFieldNames();
 		MyTable[] myFs = myT.getForeignFields();
 		for (int j=0;j<tFieldNames.length;j++) {
@@ -513,7 +522,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		MyTable[] foreignTs = myT.getForeignFields(); 
 		for (int i=0;i<foreignTs.length;i++) {
 			if (foreignTs[i] != null) {
-				if (getDBFieldName(fieldName, foreignTs[i]) != null) return i;
+				if (getDBFieldName(fieldName, foreignTs[i], false) != null) return i;
 			}
 		}
 		return -1;

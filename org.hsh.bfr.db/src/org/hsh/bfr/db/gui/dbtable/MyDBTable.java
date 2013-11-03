@@ -481,9 +481,12 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		if (this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount() &&
 				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
 			int id = this.getSelectedID();
-			int numForeignCounts = DBKernel.getUsagecountOfID(tablename, id);
+			List<String> fkids = DBKernel.getUsageListOfID(tablename, id);
+			int numForeignCounts = fkids.size();//DBKernel.getUsagecountOfID(tablename, id);
 			if (numForeignCounts > 0) {
-    			InfoBox ib = new InfoBox("Please delete referencing data sets first.\n" + "numForeignCounts=" + numForeignCounts + " for Table " + tablename + ", ID " + id, true, new Dimension(700, 150), null, true);
+				String info = "Please delete referencing data sets first.\n" + "numForeignCounts=" + numForeignCounts + " for Table " + tablename + ", ID " + id + "\n";
+				for (String str : fkids) info += "\n" + str;
+    			InfoBox ib = new InfoBox(info, true, new Dimension(700, 500), null, true);
     			ib.setVisible(true);    				    			
 			}
 			else {

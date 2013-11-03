@@ -61,6 +61,7 @@ import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2269,7 +2270,32 @@ public class DBKernel {
 		    		//System.err.println(tableName + " wird in " + fkt + "->" + fkc + " referenziert");
 			    	ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) +
 			    			" WHERE " + DBKernel.delimitL(fkc) + "=" + id, false);
-			    	if (rs2 != null && rs2.last()) result += rs2.getRow();
+			    	if (rs2 != null && rs2.last()) {
+			    		result += rs2.getRow();
+			    	}
+		    	} while (rs.next());
+		    }
+	    }
+	    catch (Exception e) {MyLogger.handleException(e);}		
+		return result;
+	}
+    public static List<String> getUsageListOfID(final String tableName, int id) {
+    	List<String> result = new ArrayList<String>();
+		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " +
+				" WHERE PKTABLE_NAME = '" + tableName + "'", false);
+		try {
+		    if (rs != null && rs.first()) {
+		    	do {
+		    		String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
+		    		String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
+		    		//System.err.println(tableName + " wird in " + fkt + "->" + fkc + " referenziert");
+			    	ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) +
+			    			" WHERE " + DBKernel.delimitL(fkc) + "=" + id, false);
+			    	if (rs2 != null && rs2.first()) {
+			    		do {
+			    			result.add(fkt + ": " + rs2.getInt("ID"));
+			    		} while (rs.next());
+			    	}
 		    	} while (rs.next());
 		    }
 	    }

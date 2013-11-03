@@ -52,13 +52,62 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 public class UpdateChecker {
 	public static void check4Updates_172_173() {	
 		// Tonne in die Einnheitentabelle rein...
+		/*
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (44,'°Bé','Grad Baumé')", false); // 31 -> 44
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (46,'U/min','Umdrehungen pro Minute')", false); // 32 -> 46
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
+		 */
 	}
 	public static void check4Updates_171_172() {	
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_172.sql", null, false);
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_172.sql", null, false);
 	}
 	public static void check4Updates_170_171() {	
-		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_130902.xls", null, false);
+		boolean isBios = true;
+		if (isBios) {
+			new GeneralXLSImporter(true).doImport("/org/hsh/bfr/db/res/Einheiten_130902.xls", null, false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=102", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=101", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=100", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=84", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=70", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=46", false);
+			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Einheiten") + " WHERE " + DBKernel.delimitL("ID") + "=44", false);
+			// 34 -> 35, 33 -> 31
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (44,'°Bé','Grad Baumé')", false); // 31 -> 44
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (46,'U/min','Umdrehungen pro Minute')", false); // 32 -> 46
+			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
+					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
+					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
+			// 35 -> 70
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
+					" SET " + DBKernel.delimitL("Einheit") + "=70 WHERE " + DBKernel.delimitL("Einheit") + "=35", false);
+			// 32 -> 46
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
+					" SET " + DBKernel.delimitL("Einheit") + "=46 WHERE " + DBKernel.delimitL("Einheit") + "=32", false);
+			// 31 -> 44
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
+					" SET " + DBKernel.delimitL("Einheit") + "=44 WHERE " + DBKernel.delimitL("Einheit") + "=31", false);
+			// 33 -> 31
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
+					" SET " + DBKernel.delimitL("Einheit") + "=31 WHERE " + DBKernel.delimitL("Einheit") + "=33", false);
+			// 34 -> 35
+			DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
+					" SET " + DBKernel.delimitL("Einheit") + "=35 WHERE " + DBKernel.delimitL("Einheit") + "=34", false);
+		}
+		else {
+			new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_130902.xls", null, false);
+		}
 	}
 	public static void check4Updates_169_170() {	
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

@@ -181,6 +181,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	else result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
     	
     	while (result.next()) {
+			String addWarningMsg = "";
     		
     		// initialize row
     		KnimeTuple tuple = new KnimeTuple(schema);
@@ -285,7 +286,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			dx.setDescription(result.getString("DepDescription"));
     		depDoc.add(dx);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!");
+			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!";
     		
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -308,7 +309,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
     				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"));
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
-			if (emrnm != null && !ixml.getWarning().isEmpty()) emrnm.setWarningMessage(emrnm.getWarningMessage() + "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!");
+			if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
@@ -386,6 +387,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
 				modelFilterEnabled, modelList, tuple)) {					
 					resultSet.add(tuple);
+					if (!addWarningMsg.isEmpty()) emrnm.setWarningMessage(emrnm.getWarningMessage() + addWarningMsg);
     			}
     	}
     	

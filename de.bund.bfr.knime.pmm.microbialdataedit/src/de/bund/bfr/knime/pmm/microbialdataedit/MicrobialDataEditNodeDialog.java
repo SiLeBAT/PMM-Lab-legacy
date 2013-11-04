@@ -112,9 +112,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	private JList<String> addedConditionsList;
 	private JTable table;
 
-	private List<Integer> addedConditionIDs;
-	private List<String> addedConditionNames;
-	private Set<Integer> usedMiscIDs;
+	private Map<Integer, String> addedConditionNames;
+	private Map<Integer, List<String>> addedConditionCategories;
+	private Map<Integer, String> usedConditionNames;
+	private Map<Integer, List<String>> usedConditionCategories;
 
 	/**
 	 * New pane for configuring the MicrobialDataEdit node.
@@ -177,9 +178,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		List<List<Double>> usedMiscValues = new ArrayList<>();
 		List<List<String>> usedMiscUnits = new ArrayList<>();
 
-		usedMiscIDs = new LinkedHashSet<>();
-		addedConditionIDs = new ArrayList<>();
-		addedConditionNames = new ArrayList<>();
+		usedConditionNames = new LinkedHashMap<>();
+		usedConditionCategories = new LinkedHashMap<>();
+		addedConditionNames = new LinkedHashMap<>();
+		addedConditionCategories = new LinkedHashMap<>();
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -190,7 +192,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					TimeSeriesSchema.ATT_MISC).getElementSet()) {
 				MiscXml misc = (MiscXml) el;
 
-				if (usedMiscIDs.add(misc.getID())) {
+				if (!usedConditionNames.containsKey(misc.getID())) {
+					usedConditionNames.put(misc.getID(), misc.getName());
+					usedConditionCategories.put(misc.getID(),
+							misc.getCategories());
 					usedMiscs.add(misc);
 					usedMiscValues.add(new ArrayList<Double>());
 					usedMiscUnits.add(new ArrayList<String>());
@@ -299,20 +304,21 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			}
 		}
 
-		for (int id : usedMiscIDs) {
+		for (int id : usedConditionNames.keySet()) {
 			set.getAddedConditions().remove(id);
 			set.getAddedConditionValues().remove(id);
 			set.getAddedConditionUnits().remove(id);
 		}
 
 		for (int miscID : set.getAddedConditions().keySet()) {
-			addedConditionIDs.add(miscID);
-			addedConditionNames.add(set.getAddedConditions().get(miscID)
-					.getName());
+			addedConditionNames.put(miscID, set.getAddedConditions()
+					.get(miscID).getName());
+			addedConditionCategories.put(miscID,
+					set.getAddedConditions().get(miscID).getCategories());
 		}
 
-		addedConditionsList.setListData(addedConditionNames
-				.toArray(new String[0]));
+		addedConditionsList.setListData(addedConditionNames.values().toArray(
+				new String[0]));
 
 		EditTable tableModel = new EditTable(ids, agentList, agentDetailList,
 				matrixList, matrixDetailList, commentList, qualityScoreList,
@@ -326,47 +332,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		table.setModel(tableModel);
-		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellRenderer(
-				new AgentRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellEditor(
-				new AgentEditor());
-		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellRenderer(
-				new MatrixRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellEditor(
-				new MatrixEditor());
-		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellRenderer(
-				new QualityScoreRenderer());
-		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(
-				new QualityScoreEditor());
-		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(
-				new TimeSeriesRenderer());
-		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
-				new TimeSeriesEditor());
-		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
-
-		for (MiscXml cond : usedMiscs) {
-			List<String> units = new ArrayList<>();
-
-			for (String cat : cond.getCategories()) {
-				units.addAll(Categories.getCategory(cat).getAllUnits());
-			}
-
-			table.getColumn(cond.getName() + " Unit").setCellEditor(
-					new DefaultCellEditor(new JComboBox<>(units
-							.toArray(new String[0]))));
-		}
-
-		for (MiscXml cond : set.getAddedConditions().values()) {
-			List<String> units = new ArrayList<>();
-
-			for (String cat : cond.getCategories()) {
-				units.addAll(Categories.getCategory(cat).getAllUnits());
-			}
-
-			table.getColumn(cond.getName() + " Unit").setCellEditor(
-					new DefaultCellEditor(new JComboBox<>(units
-							.toArray(new String[0]))));
-		}
+		setEditorsAndRenderers();
 	}
 
 	@Override
@@ -392,12 +358,58 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		set.saveSettings(settings);
 	}
 
+	private void setEditorsAndRenderers() {
+		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellRenderer(
+				new AgentRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_AGENT).setCellEditor(
+				new AgentEditor());
+		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellRenderer(
+				new MatrixRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_MATRIX).setCellEditor(
+				new MatrixEditor());
+		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellRenderer(
+				new QualityScoreRenderer());
+		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(
+				new QualityScoreEditor());
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(
+				new TimeSeriesRenderer());
+		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
+				new TimeSeriesEditor());
+		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
+
+		for (int id : usedConditionNames.keySet()) {
+			List<String> units = new ArrayList<>();
+
+			for (String cat : usedConditionCategories.get(id)) {
+				units.addAll(Categories.getCategory(cat).getAllUnits());
+			}
+
+			table.getColumn(usedConditionNames.get(id) + " Unit")
+					.setCellEditor(
+							new DefaultCellEditor(new JComboBox<>(units
+									.toArray(new String[0]))));
+		}
+
+		for (int id : addedConditionNames.keySet()) {
+			List<String> units = new ArrayList<>();
+
+			for (String cat : addedConditionCategories.get(id)) {
+				units.addAll(Categories.getCategory(cat).getAllUnits());
+			}
+
+			table.getColumn(addedConditionNames.get(id) + " Unit")
+					.setCellEditor(
+							new DefaultCellEditor(new JComboBox<>(units
+									.toArray(new String[0]))));
+		}
+	}
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addButton) {
 			Integer id = DBKernel.openMiscDBWindow(null);
 
-			if (id != null && !addedConditionIDs.contains(id)) {
+			if (id != null) {
 				String name = DBKernel.getValue("SonstigeParameter", "ID", id
 						+ "", "Parameter")
 						+ "";
@@ -407,16 +419,12 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						.getValue("SonstigeParameter", "ID", id + "",
 								"Kategorie").toString().split(","));
 
-				if (!usedMiscIDs.contains(id)) {
-					List<String> units = new ArrayList<>();
-
-					for (String cat : categories) {
-						units.addAll(Categories.getCategory(cat).getAllUnits());
-					}
-
-					addedConditionNames.add(name);
+				if (!usedConditionNames.keySet().contains(id)
+						&& !addedConditionNames.keySet().contains(id)) {
+					addedConditionNames.put(id, name);
+					addedConditionCategories.put(id, categories);
 					addedConditionsList.setListData(addedConditionNames
-							.toArray(new String[0]));
+							.values().toArray(new String[0]));
 					((EditTable) table.getModel())
 							.addCondition(
 									new MiscXml(id, name, description, null,
@@ -424,10 +432,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 													.getLocalDBUUID()),
 									new LinkedHashMap<String, Double>(),
 									new LinkedHashMap<String, String>());
-					table.getColumn(name + " Unit").setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units
-									.toArray(new String[0]))));
-
+					setEditorsAndRenderers();
 					table.repaint();
 				} else {
 					JOptionPane.showMessageDialog(addButton,
@@ -436,24 +441,27 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				}
 			}
 		} else if (e.getSource() == removeButton) {
-			int[] indices = addedConditionsList.getSelectedIndices();
 			Set<Integer> removedIDs = new LinkedHashSet<>();
 
-			Arrays.sort(indices);
+			for (String nameToRemove : addedConditionsList
+					.getSelectedValuesList()) {
+				for (int id : addedConditionNames.keySet()) {
+					String name = addedConditionNames.get(id);
 
-			for (int i = indices.length - 1; i >= 0; i--) {
-				removedIDs.add(addedConditionIDs.get(indices[i]));
-				addedConditionIDs.remove(indices[i]);
-				addedConditionNames.remove(indices[i]);
+					if (name.equals(nameToRemove)) {
+						removedIDs.add(id);
+						break;
+					}
+				}
 			}
 
-			addedConditionsList.setListData(addedConditionNames
-					.toArray(new String[0]));
-
 			for (int id : removedIDs) {
+				addedConditionNames.remove(id);
 				((EditTable) table.getModel()).removeCondition(id);
 			}
 
+			addedConditionsList.setListData(addedConditionNames.values()
+					.toArray(new String[0]));
 			table.repaint();
 		}
 	}

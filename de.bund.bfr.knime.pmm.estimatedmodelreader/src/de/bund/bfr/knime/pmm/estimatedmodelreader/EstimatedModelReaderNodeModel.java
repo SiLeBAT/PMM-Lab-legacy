@@ -132,6 +132,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	private boolean withoutMdData;
 	private SettingsHelper set;
 	
+	private static Config estModelReaderUiSettings;
+	
 	private LinkedHashMap<String, Double[]> parameter;
 	
 	private Connection conn = null;
@@ -173,9 +175,20 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		String matrixString, String agentString, String literatureString, int matrixID, int agentID, int literatureID, LinkedHashMap<String, Double[]> parameter,
     		boolean modelFilterEnabled, String modelList, String where, EstimatedModelReaderNodeModel emrnm) throws SQLException {
     	
+    	if (emrnm != null) {
+         	try {
+             	EmReaderUi emrui = new EmReaderUi();                 	
+             	emrui.setSettings(estModelReaderUiSettings);
+            	SettingsHelper set = emrui.getSet();
+            	List <KnimeTuple> kts = set.getSelectedTuples();
+            	if (kts.size() > 0) return kts;
+    		}
+         	catch (InvalidSettingsException e1) {}
+    	}
+
     	List<KnimeTuple> resultSet = new ArrayList<KnimeTuple>(); 
 
-    	String dbuuid = db.getDBUUID();
+     	String dbuuid = db.getDBUUID();
     	ResultSet result = null;
     	if (where != null)	result = (level == 1 ? db.selectEstModel(1, -1, where, false) : db.selectEstModel(2, -1, where, false));
     	else result = (level == 1 ? db.selectEstModel(1) : db.selectEstModel(2));
@@ -644,7 +657,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     }
     private void loadEstModelGui(final NodeSettingsRO settings) throws InvalidSettingsException {
     	try {
-        	Config c = settings.getConfig("EstModelReaderUi");
+    		Config c = settings.getConfig("EstModelReaderUi");
+    		estModelReaderUiSettings = c;
 
     		Config c3 = c.getConfig("ModelReaderUi");
         	level = c3.getInt( ModelReaderUi.PARAM_LEVEL );

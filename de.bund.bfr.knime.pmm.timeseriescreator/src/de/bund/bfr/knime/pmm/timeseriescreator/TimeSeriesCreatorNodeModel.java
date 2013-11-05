@@ -119,6 +119,7 @@ public class TimeSeriesCreatorNodeModel extends NodeModel {
 		tuple.setValue(TimeSeriesSchema.ATT_CONDID, id);
 		tuple.setValue(TimeSeriesSchema.ATT_AGENT, agentXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MATRIX, matrixXml);
+		tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, set.getId());
 		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, dataInfo);
 		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXML);

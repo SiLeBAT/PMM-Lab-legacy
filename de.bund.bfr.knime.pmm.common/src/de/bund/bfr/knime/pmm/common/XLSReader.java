@@ -225,6 +225,7 @@ public class XLSReader {
 
 				id = getData(idCell);
 				tuple = new KnimeTuple(SchemaFactory.createDataSchema());
+				tuple.setValue(TimeSeriesSchema.ATT_COMBASEID, id);
 				tuple.setValue(TimeSeriesSchema.ATT_CONDID,
 						MathUtilities.getRandomNegativeInt());
 				timeSeriesXml = new PmmXmlDoc();

@@ -53,6 +53,7 @@ public class SettingsHelper {
 	protected static final String CFGKEY_LITERATURE = "Literature";
 	protected static final String CFGKEY_AGENT = "Agent";
 	protected static final String CFGKEY_MATRIX = "Matrix";
+	protected static final String CFGKEY_ID = "ID";
 	protected static final String CFGKEY_COMMENT = "Comment";
 	protected static final String CFGKEY_MISC = "Misc";
 	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
@@ -67,6 +68,7 @@ public class SettingsHelper {
 	private List<LiteratureItem> literature;
 	private AgentXml agent;
 	private MatrixXml matrix;
+	private String id;
 	private String comment;
 	private List<TimeSeriesXml> timeSeries;
 	private String timeUnit;
@@ -77,6 +79,7 @@ public class SettingsHelper {
 		literature = new ArrayList<>();
 		agent = null;
 		matrix = null;
+		id = null;
 		comment = null;
 		timeSeries = new ArrayList<>();
 		timeUnit = DEFAULT_TIMEUNIT;
@@ -106,6 +109,12 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIX), null);
 		} catch (InvalidSettingsException e) {
 			matrix = null;
+		}
+
+		try {
+			id = settings.getString(CFGKEY_ID);
+		} catch (InvalidSettingsException e) {
+			id = null;
 		}
 
 		try {
@@ -148,6 +157,7 @@ public class SettingsHelper {
 		settings.addString(CFGKEY_AGENT, XmlConverter.objectToXml(agent));
 		settings.addString(CFGKEY_MATRIX, XmlConverter.objectToXml(matrix));
 		settings.addString(CFGKEY_COMMENT, comment);
+		settings.addString(CFGKEY_ID, id);
 		settings.addString(CFGKEY_TIMESERIES,
 				XmlConverter.objectToXml(timeSeries));
 		settings.addString(CFGKEY_TIMEUNIT, timeUnit);
@@ -185,6 +195,14 @@ public class SettingsHelper {
 
 	public void setComment(String comment) {
 		this.comment = comment;
+	}	
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public List<TimeSeriesXml> getTimeSeries() {

@@ -133,6 +133,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private List<String> literatureData;
 	private JButton agentButton;
 	private JButton matrixButton;
+	private StringTextField idField;
 	private StringTextField commentField;
 	private DoubleTextField temperatureField;
 	private DoubleTextField phField;
@@ -185,6 +186,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
 		matrixButton.addActionListener(this);
+		idField = new StringTextField();
 		commentField = new StringTextField(true);
 		temperatureField = new DoubleTextField(true);
 		temperatureField.setPreferredSize(new Dimension(100, temperatureField
@@ -221,27 +223,28 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				new JLabel(AttributeUtilities
 						.getName(TimeSeriesSchema.ATT_MATRIX) + ":"),
 				createConstraints(0, 3));
+		settingsPanel.add(new JLabel("ID:"), createConstraints(0, 4));
 		settingsPanel.add(new JLabel(MdInfoXml.ATT_COMMENT + ":"),
-				createConstraints(0, 4));
+				createConstraints(0, 5));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities.getName(AttributeUtilities.TIME)
-						+ ":"), createConstraints(0, 5));
+						+ ":"), createConstraints(0, 6));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
 						.getName(AttributeUtilities.CONCENTRATION) + ":"),
-				createConstraints(0, 6));
-		settingsPanel.add(
-				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
 				createConstraints(0, 7));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_PH) + ":"),
+						.getName(AttributeUtilities.ATT_TEMPERATURE) + ":"),
 				createConstraints(0, 8));
 		settingsPanel.add(
 				new JLabel(AttributeUtilities
-						.getName(AttributeUtilities.ATT_AW) + ":"),
+						.getName(AttributeUtilities.ATT_PH) + ":"),
 				createConstraints(0, 9));
+		settingsPanel.add(
+				new JLabel(AttributeUtilities
+						.getName(AttributeUtilities.ATT_AW) + ":"),
+				createConstraints(0, 10));
 
 		settingsPanel.add(new JScrollPane(literatureList),
 				new GridBagConstraints(1, 0, 2, 2, 0, 2,
@@ -249,21 +252,22 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						new Insets(3, 3, 3, 3), 0, 0));
 		settingsPanel.add(agentButton, createConstraints(1, 2));
 		settingsPanel.add(matrixButton, createConstraints(1, 3));
-		settingsPanel.add(commentField, createConstraints(1, 4));
-		settingsPanel.add(temperatureField, createConstraints(1, 7));
-		settingsPanel.add(phField, createConstraints(1, 8));
-		settingsPanel.add(waterActivityField, createConstraints(1, 9));
+		settingsPanel.add(idField, createConstraints(1, 4));
+		settingsPanel.add(commentField, createConstraints(1, 5));
+		settingsPanel.add(temperatureField, createConstraints(1, 8));
+		settingsPanel.add(phField, createConstraints(1, 9));
+		settingsPanel.add(waterActivityField, createConstraints(1, 10));
 
-		settingsPanel.add(timeBox, createConstraints(2, 5));
-		settingsPanel.add(logcBox, createConstraints(2, 6));
-		settingsPanel.add(tempBox, createConstraints(2, 7));
-		settingsPanel.add(phBox, createConstraints(2, 8));
-		settingsPanel.add(awBox, createConstraints(2, 9));
+		settingsPanel.add(timeBox, createConstraints(2, 6));
+		settingsPanel.add(logcBox, createConstraints(2, 7));
+		settingsPanel.add(tempBox, createConstraints(2, 8));
+		settingsPanel.add(phBox, createConstraints(2, 9));
+		settingsPanel.add(awBox, createConstraints(2, 10));
 
 		settingsPanel.add(addLiteratureButton, createConstraints(3, 0));
 		settingsPanel.add(removeLiteratureButton, createConstraints(4, 0));
 
-		settingsPanelRows = 10;
+		settingsPanelRows = 11;
 
 		addButtons(0);
 
@@ -316,6 +320,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			commentField.setText(set.getComment());
 		} else {
 			commentField.setText("");
+		}
+
+		if (set.getId() != null) {
+			idField.setText(set.getId());
+		} else {
+			idField.setText("");
 		}
 
 		for (int i = 0; i < set.getTimeSeries().size(); i++) {
@@ -433,6 +443,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		set.setComment(commentField.getValue());
+		set.setId(idField.getValue());
 		set.setTimeSeries(timeSeries);
 		set.setTimeUnit((String) timeBox.getSelectedItem());
 		set.setLogcUnit((String) logcBox.getSelectedItem());
@@ -758,6 +769,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				set.setAgent(null);
 				matrixButton.setText(SELECT);
 				set.setMatrix(null);
+				idField.setValue(tuple
+						.getString(TimeSeriesSchema.ATT_COMBASEID));
 				commentField.setValue(((MdInfoXml) tuple.getPmmXml(
 						TimeSeriesSchema.ATT_MDINFO).get(0)).getComment());
 

@@ -465,7 +465,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				modelFilterEnabled, modelList, null, this);
     	
     	for (int i = 0; i < tuples.size(); i++) {
-    		buf.addRowToTable(new DefaultRow(String.valueOf(i++), tuples.get(i)));
+    		buf.addRowToTable(new DefaultRow(String.valueOf(i), tuples.get(i)));
     	}
     	
     	// close data buffer

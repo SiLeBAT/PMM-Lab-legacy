@@ -254,21 +254,21 @@ public class DBKernel {
 		  		String sa = getDefaultSA();
 		  		String pass = getDefaultSAPass();
 		  		Connection conn = null;
-		  		try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+		  		try {conn = getDBConnection(dbPath, sa, pass, false, true);}catch(Exception e) {}
 		  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
 		  		if (conn == null) {
 		  			sa = getDefaultSA(true);
-		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+		  			try {conn = getDBConnection(dbPath, sa, pass, false, true);}catch(Exception e) {}
 			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
 		  		}
 		  		if (conn == null) {
 		  			pass = getDefaultSAPass(true);
-		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+		  			try {conn = getDBConnection(dbPath, sa, pass, false, true);}catch(Exception e) {}
 			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
 		  		}
 		  		if (conn == null) {
 		  			sa = getDefaultSA(false);
-		  			try {conn = getDBConnection(dbPath, sa, pass, false);}catch(Exception e) {}
+		  			try {conn = getDBConnection(dbPath, sa, pass, false, true);}catch(Exception e) {}
 			  		if (conn != null && !isAdmin(conn, sa)) {try {conn.close();}catch(Exception e) {} conn = null;}
 		  		}
 
@@ -883,11 +883,14 @@ public class DBKernel {
   }
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
+	  return getDBConnection(dbPath, theUsername, thePassword,newConn, false);
+  }
+  private static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn, final boolean suppressWarnings) throws Exception {
 	  if (newConn) {
-		  return getNewConnection(theUsername, thePassword, dbPath);
+		  return getNewConnection(theUsername, thePassword, dbPath, suppressWarnings);
 	  }
 	  else if (localConn == null || localConn.isClosed()) { 
-		  localConn = getNewConnection(theUsername, thePassword, dbPath);
+		  localConn = getNewConnection(theUsername, thePassword, dbPath, suppressWarnings);
 	  }
 	  return localConn;
   }
@@ -899,16 +902,19 @@ public class DBKernel {
   public static Connection getDefaultAdminConn() throws Exception {
 	  return getDefaultAdminConn(DBKernel.HSHDB_PATH, false);
   }
-  private static Connection getNewConnection(final String dbUsername, final String dbPassword, final String path) throws Exception {
+  private static Connection getNewConnection(final String dbUsername, final String dbPassword, final String path, final boolean suppressWarnings) throws Exception {
 	  // Sicherheitshalber erstmal alles wieder auf Read/Write Access setzen!
 	  DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", false); DBKernel.prefs.prefsFlush();
 	  if (isServerConnection) {
-		return getNewServerConnection(dbUsername, dbPassword, path);
+		return getNewServerConnection(dbUsername, dbPassword, path, suppressWarnings);
 	} else {
-		return getNewLocalConnection(dbUsername, dbPassword, path + "DB");
+		return getNewLocalConnection(dbUsername, dbPassword, path + "DB", suppressWarnings);
 	}
   }
   public static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath) throws Exception {
+	  return getNewServerConnection(dbUsername, dbPassword, serverPath, false);
+  }
+  private static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath, final boolean suppressWarnings) throws Exception {
 	  //serverPath = "192.168.212.54/silebat";
 	    Connection result = null;
 	    passFalse = false;
@@ -921,7 +927,7 @@ public class DBKernel {
 	    }
 	    catch(Exception e) {
 	    	passFalse = e.getMessage().startsWith("invalid authorization specification");
-	    	MyLogger.handleException(e);
+	    	if (!suppressWarnings) MyLogger.handleException(e);
 	    }
 	    return result;
   }
@@ -945,7 +951,10 @@ public class DBKernel {
 		//System.err.println(checkURL + "\t" + result + "\t" + host);
 		return result;
 	}
-  public static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
+	  public static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
+		  return getNewLocalConnection(dbUsername, dbPassword, dbFile, false);
+	  }
+  private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile, final boolean suppressWarnings) throws Exception {
   	  //startHsqldbServer("c:/tmp/DB", "DB");
     Connection result = null;
     passFalse = false;
@@ -972,7 +981,7 @@ public class DBKernel {
     		}
     	}
     	else {
-    		if (!isKNIME && adminU.containsKey(dbFile.substring(0, dbFile.length() - 2))) MyLogger.handleException(e);
+    		if (!suppressWarnings || !isKNIME && adminU.containsKey(dbFile.substring(0, dbFile.length() - 2))) MyLogger.handleException(e);
     	}
     	//LOGGER.log(Level.INFO, dbUsername + " - " + dbPassword + " - " + dbFile, e);
     }
@@ -2195,6 +2204,11 @@ public class DBKernel {
 	  	    	MyDBTree myDBTree = new MyDBTree();
 				MyList myList = new MyList(myDB, myDBTree);
 				DBKernel.myList = myList;
+				if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
+					if (myDB.getConnection() == null || myDB.getConnection().isClosed()) {
+						DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+					}
+				}
 				myList.addAllTables();
 		    	//login.loadMyTables(myList, null);
 		    	

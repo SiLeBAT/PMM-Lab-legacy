@@ -2019,8 +2019,10 @@ public class DBKernel {
 
 				try {
 				  	HSHDB_PATH = internalPath;
-					result = getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", getTempSA(HSHDB_PATH)),
-							DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", getTempSAPass(HSHDB_PATH)));
+				  	String un = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", null);
+				  	String pw = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", null);
+					result = getDBConnection(un != null ? un : getTempSA(HSHDB_PATH),
+							pw != null ? pw : getTempSAPass(HSHDB_PATH));
 
 					createGui(result);
 					if (autoUpdate) {

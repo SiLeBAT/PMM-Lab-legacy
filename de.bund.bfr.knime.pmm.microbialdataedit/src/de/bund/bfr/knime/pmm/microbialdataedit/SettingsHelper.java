@@ -80,20 +80,20 @@ public class SettingsHelper {
 	private Map<String, List<TimeSeriesXml>> timeSeries;
 
 	public SettingsHelper() {
-		addedConditions = new LinkedHashMap<>();
-		addedConditionValues = new LinkedHashMap<>();
-		addedConditionUnits = new LinkedHashMap<>();
-		conditions = new LinkedHashMap<>();
-		conditionValues = new LinkedHashMap<>();
-		conditionUnits = new LinkedHashMap<>();
-		agents = new LinkedHashMap<>();
-		agentDetails = new LinkedHashMap<>();
-		matrices = new LinkedHashMap<>();
-		matrixDetails = new LinkedHashMap<>();
-		comments = new LinkedHashMap<>();
-		qualityScores = new LinkedHashMap<>();
-		checks = new LinkedHashMap<>();
-		timeSeries = new LinkedHashMap<>();
+		addedConditions = new LinkedHashMap<Integer, MiscXml>();
+		addedConditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
+		addedConditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
+		conditions = new LinkedHashMap<Integer, MiscXml>();
+		conditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
+		conditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
+		agents = new LinkedHashMap<String, AgentXml>();
+		agentDetails = new LinkedHashMap<String, String>();
+		matrices = new LinkedHashMap<String, MatrixXml>();
+		matrixDetails = new LinkedHashMap<String, String>();
+		comments = new LinkedHashMap<String, String>();
+		qualityScores = new LinkedHashMap<String, Integer>();
+		checks = new LinkedHashMap<String, Boolean>();
+		timeSeries = new LinkedHashMap<String, List<TimeSeriesXml>>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -102,35 +102,35 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_ADDEDCONDITIONS),
 					new LinkedHashMap<Integer, MiscXml>());
 		} catch (InvalidSettingsException e) {
-			addedConditions = new LinkedHashMap<>();
+			addedConditions = new LinkedHashMap<Integer, MiscXml>();
 		}
 		try {
 			addedConditionValues = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_ADDEDCONDITIONVALUES),
 					new LinkedHashMap<Integer, Map<String, Double>>());
 		} catch (InvalidSettingsException e) {
-			addedConditionValues = new LinkedHashMap<>();
+			addedConditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
 		}
 		try {
 			addedConditionUnits = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_ADDEDCONDITIONUNITS),
 					new LinkedHashMap<Integer, Map<String, String>>());
 		} catch (InvalidSettingsException e2) {
-			addedConditionUnits = new LinkedHashMap<>();
+			addedConditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
 		}
 		try {
 			conditions = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_CONDITIONS),
 					new LinkedHashMap<Integer, MiscXml>());
 		} catch (InvalidSettingsException e) {
-			conditions = new LinkedHashMap<>();
+			conditions = new LinkedHashMap<Integer, MiscXml>();
 		}
 		try {
 			conditionValues = XmlConverter.xmlToObject(
 					settings.getString(CFGKEY_CONDITIONVALUES),
 					new LinkedHashMap<Integer, Map<String, Double>>());
 		} catch (InvalidSettingsException e) {
-			conditionValues = new LinkedHashMap<>();
+			conditionValues = new LinkedHashMap<Integer, Map<String, Double>>();
 		}
 
 		try {
@@ -138,7 +138,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_CONDITIONUNITS),
 					new LinkedHashMap<Integer, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			conditionUnits = new LinkedHashMap<>();
+			conditionUnits = new LinkedHashMap<Integer, Map<String, String>>();
 		}
 
 		try {
@@ -146,7 +146,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
-			agents = new LinkedHashMap<>();
+			agents = new LinkedHashMap<String, AgentXml>();
 		}
 
 		try {
@@ -154,7 +154,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTDETAILS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e1) {
-			agentDetails = new LinkedHashMap<>();
+			agentDetails = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -162,7 +162,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRICES),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
-			matrices = new LinkedHashMap<>();
+			matrices = new LinkedHashMap<String, MatrixXml>();
 		}
 
 		try {
@@ -170,7 +170,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIXDETAILS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e1) {
-			matrixDetails = new LinkedHashMap<>();
+			matrixDetails = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -178,7 +178,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_COMMENTS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			comments = new LinkedHashMap<>();
+			comments = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -186,7 +186,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_QUALITYSCORES),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			qualityScores = new LinkedHashMap<>();
+			qualityScores = new LinkedHashMap<String, Integer>();
 		}
 
 		try {
@@ -194,7 +194,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_CHECKS),
 					new LinkedHashMap<String, Boolean>());
 		} catch (InvalidSettingsException e) {
-			checks = new LinkedHashMap<>();
+			checks = new LinkedHashMap<String, Boolean>();
 		}
 
 		try {
@@ -202,7 +202,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_TIMESERIES),
 					new LinkedHashMap<String, List<TimeSeriesXml>>());
 		} catch (InvalidSettingsException e) {
-			timeSeries = new LinkedHashMap<>();
+			timeSeries = new LinkedHashMap<String, List<TimeSeriesXml>>();
 		}
 	}
 

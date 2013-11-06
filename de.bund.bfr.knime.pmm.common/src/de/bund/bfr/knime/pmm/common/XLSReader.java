@@ -72,7 +72,7 @@ public class XLSReader {
 	private FormulaEvaluator evaluator;
 
 	public XLSReader() {
-		warnings = new ArrayList<>();
+		warnings = new ArrayList<String>();
 		evaluator = null;
 	}
 
@@ -93,7 +93,7 @@ public class XLSReader {
 
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> columns = getColumns(s);
-		Map<String, Integer> miscColumns = new LinkedHashMap<>();
+		Map<String, Integer> miscColumns = new LinkedHashMap<String, Integer>();
 		Integer idColumn = null;
 		Integer commentColumn = null;
 		Integer timeColumn = null;
@@ -381,7 +381,7 @@ public class XLSReader {
 
 		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 		Map<String, Integer> columns = getColumns(s);
-		Map<String, Integer> miscColumns = new LinkedHashMap<>();
+		Map<String, Integer> miscColumns = new LinkedHashMap<String, Integer>();
 		Integer commentColumn = null;
 		Integer agentDetailsColumn = null;
 		Integer matrixDetailsColumn = null;
@@ -683,7 +683,7 @@ public class XLSReader {
 	}
 
 	public List<String> getSheets(File file) throws Exception {
-		List<String> sheets = new ArrayList<>();
+		List<String> sheets = new ArrayList<String>();
 		Workbook workbook = getWorkbook(file);
 
 		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -703,12 +703,12 @@ public class XLSReader {
 			throw new Exception("Sheet not found");
 		}
 
-		return new ArrayList<>(getColumns(s).keySet());
+		return new ArrayList<String>(getColumns(s).keySet());
 	}
 
 	public Set<String> getValuesInColumn(File file, String sheet, String column)
 			throws Exception {
-		Set<String> valueSet = new LinkedHashSet<>();
+		Set<String> valueSet = new LinkedHashSet<String>();
 		Workbook wb = getWorkbook(file);
 		Sheet s = wb.getSheet(sheet);
 

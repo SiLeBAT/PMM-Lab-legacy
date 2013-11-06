@@ -62,11 +62,11 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 
 	private BufferedReader reader;
 	private PmmTimeSeries next;
-	private Map<String, Integer> newAgentIDs = new LinkedHashMap<>();
-	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<>();
-	private Map<String, Integer> newIDs = new LinkedHashMap<>();
-	private Map<String, String> newParams = new LinkedHashMap<>();
-	private Map<String, List<String>> newCategories = new LinkedHashMap<>();
+	private Map<String, Integer> newAgentIDs = new LinkedHashMap<String, Integer>();
+	private Map<String, Integer> newMatrixIDs = new LinkedHashMap<String, Integer>();
+	private Map<String, Integer> newIDs = new LinkedHashMap<String, Integer>();
+	private Map<String, String> newParams = new LinkedHashMap<String, String>();
+	private Map<String, List<String>> newCategories = new LinkedHashMap<String, List<String>>();
 
 	public CombaseReader(final String filename) throws FileNotFoundException,
 			IOException, Exception {

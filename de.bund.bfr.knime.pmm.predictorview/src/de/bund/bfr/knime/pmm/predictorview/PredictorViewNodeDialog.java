@@ -180,11 +180,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
 
-		Map<String, List<Double>> paramsX = new LinkedHashMap<>();
-		Map<String, Double> minValues = new LinkedHashMap<>();
-		Map<String, Double> maxValues = new LinkedHashMap<>();
-		Map<String, List<String>> categories = new LinkedHashMap<>();
-		Map<String, String> units = new LinkedHashMap<>();
+		Map<String, List<Double>> paramsX = new LinkedHashMap<String, List<Double>>();
+		Map<String, Double> minValues = new LinkedHashMap<String, Double>();
+		Map<String, Double> maxValues = new LinkedHashMap<String, Double>();
+		Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
+		Map<String, String> units = new LinkedHashMap<String, String>();
 
 		for (Plotable plotable : reader.getPlotables().values()) {
 			paramsX.putAll(plotable.getFunctionArguments());
@@ -332,7 +332,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		List<String> invalidIds = getInvalidIds(reader.getIds());
-		List<String> validIds = new ArrayList<>(selectedIDs);
+		List<String> validIds = new ArrayList<String>(selectedIDs);
 
 		validIds.removeAll(invalidIds);
 
@@ -345,7 +345,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		chartCreator.setTransformX(configPanel.getTransformX());
 		chartCreator.setTransformY(configPanel.getTransformY());
 
-		Map<String, double[][]> points = new LinkedHashMap<>();
+		Map<String, double[][]> points = new LinkedHashMap<String, double[][]>();
 
 		for (String id : validIds) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -422,7 +422,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	}
 
 	private List<String> getInvalidIds(List<String> selectedIDs) {
-		List<String> invalid = new ArrayList<>();
+		List<String> invalid = new ArrayList<String>();
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -584,8 +584,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		private JPanel createPanel(Map<String, String> concentrationParameters,
 				Map<String, String> lagParameters) {
-			initBoxes = new LinkedHashMap<>();
-			lagBoxes = new LinkedHashMap<>();
+			initBoxes = new LinkedHashMap<String, JComboBox<String>>();
+			lagBoxes = new LinkedHashMap<String, JComboBox<String>>();
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
 			cancelButton = new JButton("Cancel");

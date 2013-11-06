@@ -33,7 +33,7 @@ public class XmlConverter {
 	}
 
 	public static String tupleToXml(KnimeTuple tuple) {
-		List<Object> list = new ArrayList<>();
+		List<Object> list = new ArrayList<Object>();
 
 		if (tuple == null) {
 			return objectToXml(list);
@@ -63,7 +63,7 @@ public class XmlConverter {
 	}
 
 	public static String tupleListToXml(List<KnimeTuple> tuples) {
-		List<String> stringList = new ArrayList<>();
+		List<String> stringList = new ArrayList<String>();
 
 		for (KnimeTuple tuple : tuples) {
 			stringList.add(tupleToXml(tuple));
@@ -73,7 +73,7 @@ public class XmlConverter {
 	}
 
 	public static String tupleMapToXml(Map<String, KnimeTuple> tuples) {
-		Map<String, String> stringMap = new LinkedHashMap<>();
+		Map<String, String> stringMap = new LinkedHashMap<String, String>();
 
 		for (String key : tuples.keySet()) {
 			stringMap.put(key, tupleToXml(tuples.get(key)));
@@ -117,7 +117,7 @@ public class XmlConverter {
 
 	public static List<KnimeTuple> xmlToTupleList(String xml) {
 		List<String> stringList = xmlToObject(xml, new ArrayList<String>());
-		List<KnimeTuple> tuples = new ArrayList<>();
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 
 		for (String s : stringList) {
 			tuples.add(xmlToTuple(s));
@@ -129,7 +129,7 @@ public class XmlConverter {
 	public static Map<String, KnimeTuple> xmlToTupleMap(String xml) {
 		Map<String, String> stringMap = xmlToObject(xml,
 				new LinkedHashMap<String, String>());
-		Map<String, KnimeTuple> tuples = new LinkedHashMap<>();
+		Map<String, KnimeTuple> tuples = new LinkedHashMap<String, KnimeTuple>();
 
 		for (String key : stringMap.keySet()) {
 			tuples.put(key, xmlToTuple(stringMap.get(key)));
@@ -160,7 +160,7 @@ public class XmlConverter {
 
 	private static Map<String, String> colorMapToStringMap(
 			Map<String, Color> map) {
-		Map<String, String> newMap = new LinkedHashMap<>();
+		Map<String, String> newMap = new LinkedHashMap<String, String>();
 
 		for (Map.Entry<String, Color> entry : map.entrySet()) {
 			String colorString = "#"
@@ -175,7 +175,7 @@ public class XmlConverter {
 
 	private static Map<String, Color> stringMapToColorMap(
 			Map<String, String> map) {
-		Map<String, Color> newMap = new LinkedHashMap<>();
+		Map<String, Color> newMap = new LinkedHashMap<String, Color>();
 
 		for (Map.Entry<String, String> entry : map.entrySet()) {
 			newMap.put(entry.getKey(), Color.decode(entry.getValue()));
@@ -186,7 +186,7 @@ public class XmlConverter {
 
 	private static Map<String, String> shapeMapToStringMap(
 			Map<String, Shape> map) {
-		Map<String, String> newMap = new LinkedHashMap<>();
+		Map<String, String> newMap = new LinkedHashMap<String, String>();
 		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
 				.getNameByShapeMap();
 
@@ -199,7 +199,7 @@ public class XmlConverter {
 
 	private static Map<String, Shape> stringMapToShapeMap(
 			Map<String, String> map) {
-		Map<String, Shape> newMap = new LinkedHashMap<>();
+		Map<String, Shape> newMap = new LinkedHashMap<String, Shape>();
 		Map<String, Shape> shapeMap = (new ColorAndShapeCreator(0))
 				.getShapeByNameMap();
 
@@ -212,10 +212,10 @@ public class XmlConverter {
 
 	private static Map<String, List<String>> colorListMapToStringMap(
 			Map<String, List<Color>> map) {
-		Map<String, List<String>> newMap = new LinkedHashMap<>();
+		Map<String, List<String>> newMap = new LinkedHashMap<String, List<String>>();
 
 		for (Map.Entry<String, List<Color>> entry : map.entrySet()) {
-			List<String> list = new ArrayList<>();
+			List<String> list = new ArrayList<String>();
 
 			for (Color color : entry.getValue()) {
 				list.add("#" + Integer.toHexString(color.getRGB()).substring(2));
@@ -229,10 +229,10 @@ public class XmlConverter {
 
 	private static Map<String, List<Color>> stringMapToColorListMap(
 			Map<String, List<String>> map) {
-		Map<String, List<Color>> newMap = new LinkedHashMap<>();
+		Map<String, List<Color>> newMap = new LinkedHashMap<String, List<Color>>();
 
 		for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-			List<Color> list = new ArrayList<>();
+			List<Color> list = new ArrayList<Color>();
 
 			for (String s : entry.getValue()) {
 				list.add(Color.decode(s));
@@ -246,12 +246,12 @@ public class XmlConverter {
 
 	private static Map<String, List<String>> shapeListMapToStringMap(
 			Map<String, List<Shape>> map) {
-		Map<String, List<String>> newMap = new LinkedHashMap<>();
+		Map<String, List<String>> newMap = new LinkedHashMap<String, List<String>>();
 		Map<Shape, String> shapeMap = (new ColorAndShapeCreator(0))
 				.getNameByShapeMap();
 
 		for (Map.Entry<String, List<Shape>> entry : map.entrySet()) {
-			List<String> list = new ArrayList<>();
+			List<String> list = new ArrayList<String>();
 
 			for (Shape shape : entry.getValue()) {
 				list.add(shapeMap.get(shape));
@@ -265,12 +265,12 @@ public class XmlConverter {
 
 	private static Map<String, List<Shape>> stringMapToShapeListMap(
 			Map<String, List<String>> map) {
-		Map<String, List<Shape>> newMap = new LinkedHashMap<>();
+		Map<String, List<Shape>> newMap = new LinkedHashMap<String, List<Shape>>();
 		Map<String, Shape> shapeMap = (new ColorAndShapeCreator(0))
 				.getShapeByNameMap();
 
 		for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-			List<Shape> list = new ArrayList<>();
+			List<Shape> list = new ArrayList<Shape>();
 
 			for (String s : entry.getValue()) {
 				list.add(shapeMap.get(s));

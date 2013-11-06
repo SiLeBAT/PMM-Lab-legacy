@@ -229,10 +229,10 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	@Override
 	public String getAssignments() {
-		Map<String, List<Map<String, String>>> assignmentsMap = new LinkedHashMap<>();
+		Map<String, List<Map<String, String>>> assignmentsMap = new LinkedHashMap<String, List<Map<String, String>>>();
 
 		for (String model : comboBoxes.keySet()) {
-			List<Map<String, String>> modelAssignments = new ArrayList<>();
+			List<Map<String, String>> modelAssignments = new ArrayList<Map<String, String>>();
 
 			for (Map<String, JComboBox<String>> modelBoxes : comboBoxes
 					.get(model)) {
@@ -266,7 +266,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
 				KnimeRelationReader modelReader = new KnimeRelationReader(
 						SchemaFactory.createM2Schema(), modelTable);
-				Set<Integer> usedEstIDs = new LinkedHashSet<>();
+				Set<Integer> usedEstIDs = new LinkedHashSet<Integer>();
 
 				while (modelReader.hasMoreElements()) {
 					KnimeTuple modelTuple = modelReader.nextElement();
@@ -290,7 +290,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					PmmXmlDoc indepVarsSec = modelTuple
 							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
 					PmmXmlDoc newIndepVarsSec = new PmmXmlDoc();
-					List<String> oldIndepVars = new ArrayList<>();
+					List<String> oldIndepVars = new ArrayList<String>();
 
 					if (!replace.containsKey(depVarSecName)) {
 						continue;
@@ -340,8 +340,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 					List<KnimeTuple> dataTuples = PmmUtilities.getTuples(
 							dataTable, SchemaFactory.createM1DataSchema());
-					Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<>();
-					Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<>();
+					Map<Integer, List<KnimeTuple>> tuplesByPrimID = new LinkedHashMap<Integer, List<KnimeTuple>>();
+					Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<Integer, Map<String, String>>();
 
 					for (KnimeTuple dataTuple : dataTuples) {
 						CatalogModelXml modelXml = (CatalogModelXml) dataTuple
@@ -373,7 +373,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 								.getPmmXml(Model1Schema.ATT_PARAMETER);
 						PmmXmlDoc miscs = dataTuple
 								.getPmmXml(TimeSeriesSchema.ATT_MISC);
-						Map<String, String> paramsConvertTo = new LinkedHashMap<>();
+						Map<String, String> paramsConvertTo = new LinkedHashMap<String, String>();
 
 						if (!CellIO.getNameList(params).contains(
 								newDepVarSecName)) {
@@ -448,12 +448,12 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readModelTable() {
-		models = new ArrayList<>();
-		modelNames = new LinkedHashMap<>();
-		modelFormulas = new LinkedHashMap<>();
-		dependentVariables = new LinkedHashMap<>();
-		independentVariableCategories = new LinkedHashMap<>();
-		independentVariableUnits = new LinkedHashMap<>();
+		models = new ArrayList<String>();
+		modelNames = new LinkedHashMap<String, String>();
+		modelFormulas = new LinkedHashMap<String, String>();
+		dependentVariables = new LinkedHashMap<String, String>();
+		independentVariableCategories = new LinkedHashMap<String, Map<String, String>>();
+		independentVariableUnits = new LinkedHashMap<String, Map<String, String>>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM2Schema(), modelTable);
@@ -476,8 +476,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					((CatalogModelXml) modelXml.get(0)).getFormula());
 			dependentVariables.put(modelID, depXml.getName());
 
-			Map<String, String> indepCategories = new LinkedHashMap<>();
-			Map<String, String> indepUnits = new LinkedHashMap<>();
+			Map<String, String> indepCategories = new LinkedHashMap<String, String>();
+			Map<String, String> indepUnits = new LinkedHashMap<String, String>();
 
 			for (PmmXmlElementConvertable el : row.getPmmXml(
 					Model2Schema.ATT_INDEPENDENT).getElementSet()) {
@@ -493,9 +493,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private void readDataTable() {
-		dependentParameters = new LinkedHashMap<>();
-		primaryModelNames = new LinkedHashMap<>();
-		independentParameterCategories = new LinkedHashMap<>();
+		dependentParameters = new LinkedHashMap<Integer, List<String>>();
+		primaryModelNames = new LinkedHashMap<Integer, String>();
+		independentParameterCategories = new LinkedHashMap<String, String>();
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createM1DataSchema(), dataTable);
@@ -506,7 +506,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					Model1Schema.ATT_MODELCATALOG).get(0);
 
 			if (!primaryModelNames.containsKey(modelXml.getID())) {
-				List<String> params = new ArrayList<>();
+				List<String> params = new ArrayList<String>();
 
 				for (PmmXmlElementConvertable el : row.getPmmXml(
 						Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -531,7 +531,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getDepParams() {
-		List<String> params = new ArrayList<>();
+		List<String> params = new ArrayList<String>();
 
 		for (int modelID : dependentParameters.keySet()) {
 			for (String param : dependentParameters.get(modelID)) {
@@ -543,7 +543,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 	}
 
 	private List<String> getIndepParamsFromCategory(String category) {
-		List<String> params = new ArrayList<>();
+		List<String> params = new ArrayList<String>();
 
 		for (String param : independentParameterCategories.keySet()) {
 			if (category == null

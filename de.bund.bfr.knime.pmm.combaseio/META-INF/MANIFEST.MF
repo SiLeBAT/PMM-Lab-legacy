@@ -14,6 +14,6 @@ Require-Bundle: org.eclipse.core.runtime,
  de.bund.bfr.knime.pmm.bfrdbiface.lib
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.combaseio
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Import-Package: org.hsh.bfr.db
 

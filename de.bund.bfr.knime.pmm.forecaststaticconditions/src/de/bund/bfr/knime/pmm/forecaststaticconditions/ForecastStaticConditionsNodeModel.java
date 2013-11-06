@@ -227,9 +227,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc misc = newTuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			String formula = ((CatalogModelXml) newTuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-			Map<String, Double> variables = new LinkedHashMap<>();
-			Map<String, Double> parameters = new LinkedHashMap<>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			Map<String, Double> variables = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			// int degreesOfFreedom = ((EstModelXml) newTuple.getPmmXml(
 			// Model1Schema.ATT_ESTMODEL).get(0)).getDOF();
 
@@ -346,9 +346,9 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			String formula = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getFormula();
-			Map<String, Double> parameters = new LinkedHashMap<>();
-			Map<String, Double> variables = new LinkedHashMap<>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Double> variables = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			// int degreesOfFreedom = ((EstModelXml) tuple.getPmmXml(
 			// Model1Schema.ATT_ESTMODEL).get(0)).getDOF();
 

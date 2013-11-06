@@ -200,9 +200,12 @@ public class MMC_TS extends JPanel {
 				}
 			}
 		}
-		catch (IOException | JDOMException e) {
+		catch (IOException  e) {
 			e.printStackTrace();
-		}	
+		} 
+		catch (JDOMException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {

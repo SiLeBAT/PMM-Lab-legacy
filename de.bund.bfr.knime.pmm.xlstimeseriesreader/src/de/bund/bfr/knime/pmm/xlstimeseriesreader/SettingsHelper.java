@@ -78,16 +78,16 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		fileName = null;
 		sheetName = null;
-		columnMappings = new LinkedHashMap<>();
+		columnMappings = new LinkedHashMap<String, Object>();
 		timeUnit = null;
 		concentrationUnit = null;
 		agentColumn = null;
-		agentMappings = new LinkedHashMap<>();
+		agentMappings = new LinkedHashMap<String, AgentXml>();
 		matrixColumn = null;
-		matrixMappings = new LinkedHashMap<>();
+		matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		agent = null;
 		matrix = null;
-		literature = new ArrayList<>();
+		literature = new ArrayList<LiteratureItem>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -108,7 +108,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_COLUMNMAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
-			columnMappings = new LinkedHashMap<>();
+			columnMappings = new LinkedHashMap<String, Object>();
 		}
 
 		try {
@@ -134,7 +134,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTMAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
-			agentMappings = new LinkedHashMap<>();
+			agentMappings = new LinkedHashMap<String, AgentXml>();
 		}
 
 		try {
@@ -148,7 +148,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIXMAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
-			matrixMappings = new LinkedHashMap<>();
+			matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		}
 
 		try {
@@ -170,7 +170,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<>();
+			literature = new ArrayList<LiteratureItem>();
 		}
 	}
 

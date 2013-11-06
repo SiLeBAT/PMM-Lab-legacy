@@ -142,16 +142,16 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		filePanel.setAcceptAllFiles(false);
 		filePanel.addFileFilter(".xls", "Excel Spreadsheat (*.xls)");
 		filePanel.addFileListener(this);
-		sheetBox = new JComboBox<>();
+		sheetBox = new JComboBox<String>();
 		sheetBox.addItemListener(this);
-		fileSheetList = new ArrayList<>();
-		fileColumnList = new ArrayList<>();
+		fileSheetList = new ArrayList<String>();
+		fileColumnList = new ArrayList<String>();
 
 		addLiteratureButton = new JButton("Add");
 		addLiteratureButton.addActionListener(this);
 		removeLiteratureButton = new JButton("Remove");
 		removeLiteratureButton.addActionListener(this);
-		literatureList = new JList<>();
+		literatureList = new JList<LiteratureItem>();
 
 		noLabel = new JLabel();
 		noLabel.setPreferredSize(new Dimension(100, 50));
@@ -161,22 +161,22 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						.getName(TimeSeriesSchema.ATT_AGENT)));
 		agentPanel.setLayout(new BorderLayout());
 		agentPanel.add(noLabel, BorderLayout.CENTER);
-		agentButtons = new LinkedHashMap<>();
+		agentButtons = new LinkedHashMap<String, JButton>();
 		matrixPanel = new JPanel();
 		matrixPanel.setBorder(BorderFactory
 				.createTitledBorder(AttributeUtilities
 						.getName(TimeSeriesSchema.ATT_MATRIX)));
 		matrixPanel.setLayout(new BorderLayout());
 		matrixPanel.add(noLabel, BorderLayout.CENTER);
-		matrixButtons = new LinkedHashMap<>();
+		matrixButtons = new LinkedHashMap<String, JButton>();
 		columnsPanel = new JPanel();
 		columnsPanel.setBorder(BorderFactory
 				.createTitledBorder("XLS Column -> PMM-Lab assignments"));
 		columnsPanel.setLayout(new BorderLayout());
 		columnsPanel.add(noLabel, BorderLayout.CENTER);
-		columnBoxes = new LinkedHashMap<>();
-		columnButtons = new LinkedHashMap<>();
-		columnUnitBoxes = new LinkedHashMap<>();
+		columnBoxes = new LinkedHashMap<String, JComboBox<String>>();
+		columnButtons = new LinkedHashMap<String, JButton>();
+		columnUnitBoxes = new LinkedHashMap<String, JComboBox<String>>();
 
 		JPanel northLiteraturePanel = new JPanel();
 
@@ -235,7 +235,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		try {
 			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
 		} catch (Exception e) {
-			fileSheetList = new ArrayList<>();
+			fileSheetList = new ArrayList<String>();
 		}
 
 		sheetBox.removeItemListener(this);
@@ -253,7 +253,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					new File(filePanel.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
-			fileColumnList = new ArrayList<>();
+			fileColumnList = new ArrayList<String>();
 		}
 
 		if (set.getAgentColumn() == null) {
@@ -311,7 +311,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					+ TimeSeriesSchema.ATT_MATRIX);
 		}
 
-		Set<Object> assignments = new LinkedHashSet<>();
+		Set<Object> assignments = new LinkedHashSet<Object>();
 
 		for (String column : set.getColumnMappings().keySet()) {
 			Object assignment = set.getColumnMappings().get(column);
@@ -398,7 +398,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			}
 		} else if (e.getSource() == addLiteratureButton) {
 			Integer id = DBKernel.openLiteratureDBWindow(null);
-			Set<Integer> ids = new LinkedHashSet<>();
+			Set<Integer> ids = new LinkedHashSet<Integer>();
 
 			for (LiteratureItem item : set.getLiterature()) {
 				ids.add(item.getID());
@@ -543,7 +543,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				fileColumnList = xlsReader.getColumns(
 						new File(filePanel.getFileName()), set.getSheetName());
 			} catch (Exception ex) {
-				fileColumnList = new ArrayList<>();
+				fileColumnList = new ArrayList<String>();
 			}
 
 			updateColumnsPanel();
@@ -649,7 +649,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 		try {
 			fileSheetList = xlsReader.getSheets(new File(set.getFileName()));
 		} catch (Exception e) {
-			fileSheetList = new ArrayList<>();
+			fileSheetList = new ArrayList<String>();
 		}
 
 		sheetBox.removeItemListener(this);
@@ -670,7 +670,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			fileColumnList = xlsReader.getColumns(new File(set.getFileName()),
 					(String) sheetBox.getSelectedItem());
 		} catch (Exception e) {
-			fileColumnList = new ArrayList<>();
+			fileColumnList = new ArrayList<String>();
 		}
 
 		updateColumnsPanel();
@@ -681,7 +681,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateAgentPanel() {
 		agentButtons.clear();
-		agentBox = new JComboBox<>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
+		agentBox = new JComboBox<String>(new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		agentButton = new JButton(OTHER_PARAMETER);
 
 		for (String column : fileColumnList) {
@@ -719,7 +719,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						new File(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
-				values = new LinkedHashSet<>();
+				values = new LinkedHashSet<String>();
 			}
 
 			for (String value : values) {
@@ -754,7 +754,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 	private void updateMatrixPanel() {
 		matrixButtons.clear();
-		matrixBox = new JComboBox<>(
+		matrixBox = new JComboBox<String>(
 				new String[] { DO_NOT_USE, OTHER_PARAMETER });
 		matrixButton = new JButton(OTHER_PARAMETER);
 
@@ -793,7 +793,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						new File(filePanel.getFileName()),
 						(String) sheetBox.getSelectedItem(), column);
 			} catch (Exception e) {
-				values = new LinkedHashSet<>();
+				values = new LinkedHashSet<String>();
 			}
 
 			for (String value : values) {
@@ -837,7 +837,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			northPanel.setLayout(new GridBagLayout());
 
 			for (String column : fileColumnList) {
-				JComboBox<String> box = new JComboBox<>(new String[] {
+				JComboBox<String> box = new JComboBox<String>(new String[] {
 						DO_NOT_USE,
 						OTHER_PARAMETER,
 						XLSReader.ID_COLUMN,
@@ -903,14 +903,14 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 				if (set.getColumnMappings().get(column) instanceof MiscXml) {
 					MiscXml condition = (MiscXml) set.getColumnMappings().get(
 							column);
-					List<String> allUnits = new ArrayList<>();
+					List<String> allUnits = new ArrayList<String>();
 
 					for (String cat : condition.getCategories()) {
 						allUnits.addAll(Categories.getCategory(cat)
 								.getAllUnits());
 					}
 
-					JComboBox<String> unitBox = new JComboBox<>(
+					JComboBox<String> unitBox = new JComboBox<String>(
 							allUnits.toArray(new String[0]));
 
 					UI.select(unitBox, condition.getUnit());
@@ -922,7 +922,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 							column);
 
 					if (mapping.equals(AttributeUtilities.TIME)) {
-						JComboBox<String> unitBox = new JComboBox<>(Categories
+						JComboBox<String> unitBox = new JComboBox<String>(Categories
 								.getTimeCategory().getAllUnits()
 								.toArray(new String[0]));
 
@@ -931,7 +931,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						columnUnitBoxes.put(column, unitBox);
 						northPanel.add(unitBox, createConstraints(3, row));
 					} else if (mapping.equals(AttributeUtilities.CONCENTRATION)) {
-						JComboBox<String> unitBox = new JComboBox<>(
+						JComboBox<String> unitBox = new JComboBox<String>(
 								Categories
 										.getUnitsFromCategories(
 												Categories
@@ -971,9 +971,9 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 	}
 
 	private void cleanMaps() {
-		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<>();
-		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<>();
-		Map<String, Object> newColumnMappings = new LinkedHashMap<>();
+		Map<String, AgentXml> newAgentMappings = new LinkedHashMap<String, AgentXml>();
+		Map<String, MatrixXml> newMatrixMappings = new LinkedHashMap<String, MatrixXml>();
+		Map<String, Object> newColumnMappings = new LinkedHashMap<String, Object>();
 
 		for (String agent : agentButtons.keySet()) {
 			newAgentMappings.put(agent, set.getAgentMappings().get(agent));

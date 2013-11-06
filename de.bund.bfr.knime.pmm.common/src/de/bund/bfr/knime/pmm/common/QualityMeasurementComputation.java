@@ -236,17 +236,17 @@ public class QualityMeasurementComputation {
 	}
 
 	public static List<KnimeTuple> computeSecondary(List<KnimeTuple> tuples) {
-		Set<String> idSet = new LinkedHashSet<>();
-		Map<String, String> formulaMap = new LinkedHashMap<>();
-		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
-		Map<String, String> depVarMap = new LinkedHashMap<>();
-		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
-		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
-		Map<String, Double> rmsMap = new LinkedHashMap<>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();
-		Map<String, Double> bicMap = new LinkedHashMap<>();
+		Set<String> idSet = new LinkedHashSet<String>();
+		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
+		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
 		List<String> miscParams = PmmUtilities.getMiscParams(tuples);
 
 		for (KnimeTuple tuple : tuples) {

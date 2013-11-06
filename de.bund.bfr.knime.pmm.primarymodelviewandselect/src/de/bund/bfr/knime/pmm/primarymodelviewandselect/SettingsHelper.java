@@ -137,11 +137,11 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
+		visibleColumns = new ArrayList<String>();
 		modelFilter = null;
 		dataFilter = null;
 		fittedFilter = null;
-		columnWidths = new LinkedHashMap<>();
+		columnWidths = new LinkedHashMap<String, Integer>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -273,7 +273,7 @@ public class SettingsHelper {
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
+			visibleColumns = new ArrayList<String>();
 		}
 
 		try {
@@ -299,7 +299,7 @@ public class SettingsHelper {
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			columnWidths = new LinkedHashMap<>();
+			columnWidths = new LinkedHashMap<String, Integer>();
 		}
 	}
 

@@ -204,7 +204,7 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 				do {
 					Object o = rs.getObject("Referenz");
 					if (o != null) {
-						int numForeignCounts = DBKernel.getUsagecountOfID("Literatur", (int) o);
+						int numForeignCounts = DBKernel.getUsagecountOfID("Literatur", (Integer) o);
 						if (numForeignCounts == 1) {
 							numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Literatur") + " WHERE " + DBKernel.delimitL("ID") + "=" + o, false, false);							
 						}

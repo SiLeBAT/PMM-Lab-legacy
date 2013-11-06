@@ -113,13 +113,13 @@ public class PredictorViewNodeModel extends NodeModel {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createDataSchema()
 						.createSpec());
-		List<String> validIds = new ArrayList<>();
+		List<String> validIds = new ArrayList<String>();
 
 		for (String id : set.getSelectedIDs()) {
 			Plotable plotable = reader.getPlotables().get(id);
 
 			if (plotable != null) {
-				Map<String, List<Double>> arguments = new LinkedHashMap<>();
+				Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
 				boolean valid = true;
 
 				for (Map.Entry<String, Double> entry : set.getParamXValues()
@@ -250,7 +250,7 @@ public class PredictorViewNodeModel extends NodeModel {
 		Map<String, List<Double>> conditions = plotable.getFunctionArguments();
 		PmmXmlDoc miscXml;
 		PmmXmlDoc timeSeriesXml = new PmmXmlDoc();
-		Set<String> allMiscs = new LinkedHashSet<>();
+		Set<String> allMiscs = new LinkedHashSet<String>();
 
 		if (tuple.getSchema().conforms(SchemaFactory.createDataSchema())) {
 			miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -280,7 +280,7 @@ public class PredictorViewNodeModel extends NodeModel {
 			}
 		}
 
-		List<Double> values = new ArrayList<>();
+		List<Double> values = new ArrayList<Double>();
 
 		for (Double t : set.getTimeValues()) {
 			try {
@@ -385,7 +385,7 @@ public class PredictorViewNodeModel extends NodeModel {
 
 	protected static Map<String, List<Double>> convertToUnits(
 			Map<String, List<Double>> arguments, Map<String, String> units) {
-		Map<String, List<Double>> converted = new LinkedHashMap<>();
+		Map<String, List<Double>> converted = new LinkedHashMap<String, List<Double>>();
 
 		for (String arg : arguments.keySet()) {
 			String unit = units.get(arg);

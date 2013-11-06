@@ -76,15 +76,15 @@ public class SettingsHelper {
 	private List<MiscXml> misc;
 
 	public SettingsHelper() {
-		literature = new ArrayList<>();
+		literature = new ArrayList<LiteratureItem>();
 		agent = null;
 		matrix = null;
 		id = null;
 		comment = null;
-		timeSeries = new ArrayList<>();
+		timeSeries = new ArrayList<TimeSeriesXml>();
 		timeUnit = DEFAULT_TIMEUNIT;
 		logcUnit = DEFAULT_LOGCUNIT;
-		misc = new ArrayList<>();
+		misc = new ArrayList<MiscXml>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -93,7 +93,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<>();
+			literature = new ArrayList<LiteratureItem>();
 
 		}
 
@@ -128,7 +128,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_TIMESERIES),
 					new ArrayList<TimeSeriesXml>());
 		} catch (InvalidSettingsException e) {
-			timeSeries = new ArrayList<>();
+			timeSeries = new ArrayList<TimeSeriesXml>();
 		}
 
 		try {
@@ -147,7 +147,7 @@ public class SettingsHelper {
 			misc = XmlConverter.xmlToObject(settings.getString(CFGKEY_MISC),
 					new ArrayList<MiscXml>());
 		} catch (InvalidSettingsException e) {
-			misc = new ArrayList<>();
+			misc = new ArrayList<MiscXml>();
 		}
 	}
 

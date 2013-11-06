@@ -134,8 +134,8 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 			boolean varsChangeable) {
 		this.type = type;
 		this.stdUnitForFields = stdUnitForFields;
-		configListeners = new ArrayList<>();
-		buttonListeners = new ArrayList<>();
+		configListeners = new ArrayList<ConfigListener>();
+		buttonListeners = new ArrayList<ExtraButtonListener>();
 		lastParamX = null;
 
 		JPanel mainPanel = new JPanel();
@@ -283,11 +283,11 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		parameterValuesPanel = new JPanel();
 		parameterValuesPanel.setLayout(new GridBagLayout());
-		parameterNames = new ArrayList<>();
-		parameterFields = new ArrayList<>();
-		parameterButtons = new ArrayList<>();
-		parameterLabels = new ArrayList<>();
-		parameterSliders = new ArrayList<>();
+		parameterNames = new ArrayList<String>();
+		parameterFields = new ArrayList<DoubleTextField>();
+		parameterButtons = new ArrayList<JButton>();
+		parameterLabels = new ArrayList<JLabel>();
+		parameterSliders = new ArrayList<JSlider>();
 
 		if (varsChangeable) {
 			JPanel outerParameterValuesPanel = new JPanel();
@@ -495,23 +495,23 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 		boolean parametersChanged = false;
 
 		if (parametersX == null) {
-			parametersX = new LinkedHashMap<>();
+			parametersX = new LinkedHashMap<String, List<Double>>();
 		}
 
 		if (minParamXValues == null) {
-			minParamXValues = new LinkedHashMap<>();
+			minParamXValues = new LinkedHashMap<String, Double>();
 		}
 
 		if (maxParamXValues == null) {
-			maxParamXValues = new LinkedHashMap<>();
+			maxParamXValues = new LinkedHashMap<String, Double>();
 		}
 
 		if (categories == null) {
-			categories = new LinkedHashMap<>();
+			categories = new LinkedHashMap<String, List<String>>();
 		}
 
 		if (units == null) {
-			units = new LinkedHashMap<>();
+			units = new LinkedHashMap<String, String>();
 		}
 
 		if (this.parametersX == null
@@ -648,7 +648,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 	public Map<String, Double> getParamXValues() {
 		Map<String, List<Double>> paramsX = getParamsX();
-		Map<String, Double> paramXValues = new LinkedHashMap<>();
+		Map<String, Double> paramXValues = new LinkedHashMap<String, Double>();
 
 		for (Map.Entry<String, List<Double>> entry : paramsX.entrySet()) {
 			if (!entry.getValue().isEmpty()) {

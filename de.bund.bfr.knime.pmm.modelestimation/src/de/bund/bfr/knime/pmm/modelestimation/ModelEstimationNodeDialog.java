@@ -235,10 +235,10 @@ public class ModelEstimationNodeDialog extends DataAwareNodeDialogPane
 			throw new InvalidSettingsException("");
 		}
 
-		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<>();
+		Map<String, Map<String, Point2D.Double>> guessMap = new LinkedHashMap<String, Map<String, java.awt.geom.Point2D.Double>>();
 
 		for (String modelName : parameters.keySet()) {
-			Map<String, Point2D.Double> guesses = new LinkedHashMap<>();
+			Map<String, Point2D.Double> guesses = new LinkedHashMap<String, java.awt.geom.Point2D.Double>();
 
 			for (String param : parameters.get(modelName)) {
 				Double min = minimumFields.get(modelName).get(param).getValue();

@@ -42,7 +42,7 @@ public class Categories {
 	public static final String NO_CATEGORY = "No Category";
 
 	public static List<String> getAllCategories() {
-		return new ArrayList<>(CategoryReader.getInstance().getMap().keySet());
+		return new ArrayList<String>(CategoryReader.getInstance().getMap().keySet());
 	}
 
 	public static Category getCategory(String id) {
@@ -83,7 +83,7 @@ public class Categories {
 	}
 
 	public static List<String> getUnitsFromCategories(List<?> categories) {
-		List<String> units = new ArrayList<>();
+		List<String> units = new ArrayList<String>();
 
 		if (categories != null) {
 			for (Object o : categories) {
@@ -119,7 +119,7 @@ public class Categories {
 	}
 
 	public static List<Category> getConcentrationCategories() {
-		List<Category> categories = new ArrayList<>();
+		List<Category> categories = new ArrayList<Category>();
 
 		for (String name : getConcentrations()) {
 			categories.add(getCategory(name));

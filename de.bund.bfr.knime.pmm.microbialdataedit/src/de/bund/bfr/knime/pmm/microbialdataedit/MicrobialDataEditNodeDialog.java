@@ -125,7 +125,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		addButton.addActionListener(this);
 		removeButton = new JButton("Remove");
 		removeButton.addActionListener(this);
-		addedConditionsList = new JList<>();
+		addedConditionsList = new JList<String>();
 		table = new JTable();
 
 		JPanel buttonPanel = new JPanel();
@@ -164,24 +164,24 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		KnimeRelationReader reader = new KnimeRelationReader(
 				SchemaFactory.createDataSchema(), input[0]);
-		List<KnimeTuple> tuples = new ArrayList<>();
-		List<String> ids = new ArrayList<>();
-		List<AgentXml> agentList = new ArrayList<>();
-		List<String> agentDetailList = new ArrayList<>();
-		List<MatrixXml> matrixList = new ArrayList<>();
-		List<String> matrixDetailList = new ArrayList<>();
-		List<String> commentList = new ArrayList<>();
-		List<Integer> qualityScoreList = new ArrayList<>();
-		List<Boolean> checkedList = new ArrayList<>();
-		List<List<TimeSeriesXml>> timeSeriesList = new ArrayList<>();
-		List<MiscXml> usedMiscs = new ArrayList<>();
-		List<List<Double>> usedMiscValues = new ArrayList<>();
-		List<List<String>> usedMiscUnits = new ArrayList<>();
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		List<String> ids = new ArrayList<String>();
+		List<AgentXml> agentList = new ArrayList<AgentXml>();
+		List<String> agentDetailList = new ArrayList<String>();
+		List<MatrixXml> matrixList = new ArrayList<MatrixXml>();
+		List<String> matrixDetailList = new ArrayList<String>();
+		List<String> commentList = new ArrayList<String>();
+		List<Integer> qualityScoreList = new ArrayList<Integer>();
+		List<Boolean> checkedList = new ArrayList<Boolean>();
+		List<List<TimeSeriesXml>> timeSeriesList = new ArrayList<List<TimeSeriesXml>>();
+		List<MiscXml> usedMiscs = new ArrayList<MiscXml>();
+		List<List<Double>> usedMiscValues = new ArrayList<List<Double>>();
+		List<List<String>> usedMiscUnits = new ArrayList<List<String>>();
 
-		usedConditionNames = new LinkedHashMap<>();
-		usedConditionCategories = new LinkedHashMap<>();
-		addedConditionNames = new LinkedHashMap<>();
-		addedConditionCategories = new LinkedHashMap<>();
+		usedConditionNames = new LinkedHashMap<Integer, String>();
+		usedConditionCategories = new LinkedHashMap<Integer, List<String>>();
+		addedConditionNames = new LinkedHashMap<Integer, String>();
+		addedConditionCategories = new LinkedHashMap<Integer, List<String>>();
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -209,7 +209,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			MdInfoXml infoXml = (MdInfoXml) tuple.getPmmXml(
 					TimeSeriesSchema.ATT_MDINFO).get(0);
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-			List<TimeSeriesXml> series = new ArrayList<>();
+			List<TimeSeriesXml> series = new ArrayList<TimeSeriesXml>();
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
@@ -378,7 +378,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 
 		for (int id : usedConditionNames.keySet()) {
-			List<String> units = new ArrayList<>();
+			List<String> units = new ArrayList<String>();
 
 			for (String cat : usedConditionCategories.get(id)) {
 				units.addAll(Categories.getCategory(cat).getAllUnits());
@@ -386,12 +386,12 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			table.getColumn(usedConditionNames.get(id) + " Unit")
 					.setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units
+							new DefaultCellEditor(new JComboBox<String>(units
 									.toArray(new String[0]))));
 		}
 
 		for (int id : addedConditionNames.keySet()) {
-			List<String> units = new ArrayList<>();
+			List<String> units = new ArrayList<String>();
 
 			for (String cat : addedConditionCategories.get(id)) {
 				units.addAll(Categories.getCategory(cat).getAllUnits());
@@ -399,7 +399,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			table.getColumn(addedConditionNames.get(id) + " Unit")
 					.setCellEditor(
-							new DefaultCellEditor(new JComboBox<>(units
+							new DefaultCellEditor(new JComboBox<String>(units
 									.toArray(new String[0]))));
 		}
 	}
@@ -441,7 +441,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				}
 			}
 		} else if (e.getSource() == removeButton) {
-			Set<Integer> removedIDs = new LinkedHashSet<>();
+			Set<Integer> removedIDs = new LinkedHashSet<Integer>();
 
 			for (String nameToRemove : addedConditionsList
 					.getSelectedValuesList()) {
@@ -505,15 +505,15 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			this.conditions = conditions;
 			this.conditionValues = conditionValues;
 			this.conditionUnits = conditionUnits;
-			addedConditions = new ArrayList<>();
-			addedConditionValues = new ArrayList<>();
-			addedConditionUnits = new ArrayList<>();
+			addedConditions = new ArrayList<MiscXml>();
+			addedConditionValues = new ArrayList<List<Double>>();
+			addedConditionUnits = new ArrayList<List<String>>();
 		}
 
 		public void addCondition(MiscXml condition, Map<String, Double> values,
 				Map<String, String> units) {
-			List<Double> valueList = new ArrayList<>();
-			List<String> unitList = new ArrayList<>();
+			List<Double> valueList = new ArrayList<Double>();
+			List<String> unitList = new ArrayList<String>();
 			String standardUnit = null;
 
 			if (!condition.getCategories().isEmpty()) {
@@ -551,7 +551,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, MiscXml> getAddedConditionMap() {
-			Map<Integer, MiscXml> map = new LinkedHashMap<>();
+			Map<Integer, MiscXml> map = new LinkedHashMap<Integer, MiscXml>();
 
 			for (MiscXml cond : addedConditions) {
 				map.put(cond.getID(), cond);
@@ -561,7 +561,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, Map<String, Double>> getAddedConditionValueMap() {
-			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<>();
+			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<Integer, Map<String, Double>>();
 
 			for (int i = 0; i < addedConditions.size(); i++) {
 				valueMap.put(addedConditions.get(i).getID(),
@@ -577,7 +577,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, Map<String, String>> getAddedConditionUnitMap() {
-			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<>();
+			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<Integer, Map<String, String>>();
 
 			for (int i = 0; i < addedConditions.size(); i++) {
 				unitMap.put(addedConditions.get(i).getID(),
@@ -593,7 +593,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, MiscXml> getConditionMap() {
-			Map<Integer, MiscXml> map = new LinkedHashMap<>();
+			Map<Integer, MiscXml> map = new LinkedHashMap<Integer, MiscXml>();
 
 			for (MiscXml cond : conditions) {
 				map.put(cond.getID(), cond);
@@ -603,7 +603,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, Map<String, Double>> getConditionValueMap() {
-			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<>();
+			Map<Integer, Map<String, Double>> valueMap = new LinkedHashMap<Integer, Map<String, Double>>();
 
 			for (int i = 0; i < conditions.size(); i++) {
 				valueMap.put(conditions.get(i).getID(),
@@ -619,7 +619,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<Integer, Map<String, String>> getConditionUnitMap() {
-			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<>();
+			Map<Integer, Map<String, String>> unitMap = new LinkedHashMap<Integer, Map<String, String>>();
 
 			for (int i = 0; i < conditions.size(); i++) {
 				unitMap.put(conditions.get(i).getID(),
@@ -635,7 +635,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, AgentXml> getAgentMap() {
-			Map<String, AgentXml> map = new LinkedHashMap<>();
+			Map<String, AgentXml> map = new LinkedHashMap<String, AgentXml>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), agents.get(i));
@@ -645,7 +645,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, String> getAgentDetailMap() {
-			Map<String, String> map = new LinkedHashMap<>();
+			Map<String, String> map = new LinkedHashMap<String, String>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), agentDetails.get(i));
@@ -655,7 +655,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, MatrixXml> getMatrixMap() {
-			Map<String, MatrixXml> map = new LinkedHashMap<>();
+			Map<String, MatrixXml> map = new LinkedHashMap<String, MatrixXml>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), matrices.get(i));
@@ -665,7 +665,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, String> getMatrixDetailMap() {
-			Map<String, String> map = new LinkedHashMap<>();
+			Map<String, String> map = new LinkedHashMap<String, String>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), matrixDetails.get(i));
@@ -675,7 +675,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, String> getCommentMap() {
-			Map<String, String> map = new LinkedHashMap<>();
+			Map<String, String> map = new LinkedHashMap<String, String>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), comments.get(i));
@@ -685,7 +685,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, Integer> getQualityScoreMap() {
-			Map<String, Integer> map = new LinkedHashMap<>();
+			Map<String, Integer> map = new LinkedHashMap<String, Integer>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), qualityScores.get(i));
@@ -695,7 +695,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, Boolean> getCheckedMap() {
-			Map<String, Boolean> map = new LinkedHashMap<>();
+			Map<String, Boolean> map = new LinkedHashMap<String, Boolean>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), checks.get(i));
@@ -705,7 +705,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		public Map<String, List<TimeSeriesXml>> getTimeSeriesMap() {
-			Map<String, List<TimeSeriesXml>> map = new LinkedHashMap<>();
+			Map<String, List<TimeSeriesXml>> map = new LinkedHashMap<String, List<TimeSeriesXml>>();
 
 			for (int i = 0; i < getRowCount(); i++) {
 				map.put(ids.get(i), timeSeries.get(i));
@@ -1118,7 +1118,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				color = Color.RED;
 			}
 
-			JComboBox<Color> box = new JComboBox<>(new Color[] { Color.WHITE,
+			JComboBox<Color> box = new JComboBox<Color>(new Color[] { Color.WHITE,
 					Color.GREEN, Color.YELLOW, Color.RED });
 
 			box.setSelectedItem(color);
@@ -1218,7 +1218,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		public TimeSeriesEditor() {
 			button = new JButton("View");
 			button.addActionListener(this);
-			timeSeries = new ArrayList<>();
+			timeSeries = new ArrayList<TimeSeriesXml>();
 		}
 
 		@SuppressWarnings("unchecked")

@@ -528,11 +528,13 @@ public class Bfrdb extends Hsqldbiface {
 		String formula;
 		
 		tuple = null;
-		try( PreparedStatement stat = conn.prepareStatement(
-			queryModelView + " WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" ) ) {
+		PreparedStatement stat = conn.prepareStatement(
+				queryModelView + " WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" );
+		try {
 			
 			stat.setInt( 1, id );
-			try( ResultSet result = stat.executeQuery() ) {
+			ResultSet result = stat.executeQuery();
+			try {
 				
 				if( result.next() ) {
 					
@@ -589,7 +591,11 @@ public class Bfrdb extends Hsqldbiface {
 		    		tuple.setValue( Model1Schema.ATT_DBUUID, getDBUUID() );
 				}
 				
+			} finally {
+				result.close();
 			}
+		} finally {
+			stat.close();
 		}
 		
 		return tuple;
@@ -604,13 +610,15 @@ public class Bfrdb extends Hsqldbiface {
 
 		
 		tuple = null;
-		try( PreparedStatement stat = conn.prepareStatement(
-			queryModelView + " WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" ) ) {
+		PreparedStatement stat = conn.prepareStatement(
+				queryModelView + " WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" );
+		try {
 			
 			
 			
 			stat.setInt( 1, id );
-			try( ResultSet result = stat.executeQuery() ) {
+			ResultSet result = stat.executeQuery();
+			try {
 				
 				if( result.next() ) {
 					
@@ -668,7 +676,11 @@ public class Bfrdb extends Hsqldbiface {
 		    		tuple.setValue( Model2Schema.ATT_DBUUID, getDBUUID() );
 				}
 				
+			} finally {
+				result.close();
 			}
+		} finally {
+			stat.close();
 		}
 		
 		return tuple;
@@ -1345,7 +1357,7 @@ public class Bfrdb extends Hsqldbiface {
 		    							if (eid == null) {
 		    								ps.setNull(4, Types.INTEGER);
 		    							} else {
-		    								ps.setInt(4, (int) eid);
+		    								ps.setInt(4, (Integer) eid);
 		    							}
 		    							ps.setBoolean(5, false);
 			    						ps.executeUpdate();
@@ -1933,7 +1945,7 @@ public class Bfrdb extends Hsqldbiface {
 				if (isDepIndep) pm.setWarning(pm.getWarning() + "\nUnit not defined for variable '" + paramName + "' in fitted model with ID " + estModelId + "!");
 				ps.setNull(5, Types.INTEGER);
 			}
-			else ps.setInt(5, (int) unitID);
+			else ps.setInt(5, (Integer) unitID);
 			ps.executeUpdate();
 			ps.close();
 		}

@@ -160,12 +160,12 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	protected TimeSeriesCreatorNodeDialog() {
 		xlsReader = new XLSReader();
 
-		condButtons = new ArrayList<>();
-		conditions = new ArrayList<>();
-		condValueFields = new ArrayList<>();
-		condUnitFields = new ArrayList<>();
-		addButtons = new ArrayList<>();
-		removeButtons = new ArrayList<>();
+		condButtons = new ArrayList<JButton>();
+		conditions = new ArrayList<MiscXml>();
+		condValueFields = new ArrayList<DoubleTextField>();
+		condUnitFields = new ArrayList<JComboBox<String>>();
+		addButtons = new ArrayList<JButton>();
+		removeButtons = new ArrayList<JButton>();
 
 		panel = new JPanel();
 		settingsPanel = new JPanel();
@@ -181,7 +181,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		addLiteratureButton.addActionListener(this);
 		removeLiteratureButton = new JButton("-");
 		removeLiteratureButton.addActionListener(this);
-		literatureList = new JList<>();
+		literatureList = new JList<String>();
 		agentButton = new JButton(SELECT);
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
@@ -297,7 +297,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		set = new SettingsHelper();
 		set.loadSettings(settings);
 
-		literatureData = new ArrayList<>();
+		literatureData = new ArrayList<String>();
 
 		for (LiteratureItem item : set.getLiterature()) {
 			literatureData.add(item.getAuthor() + "-" + item.getYear());
@@ -394,10 +394,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		}
 
-		List<TimeSeriesXml> timeSeries = new ArrayList<>();
+		List<TimeSeriesXml> timeSeries = new ArrayList<TimeSeriesXml>();
 		String timeUnit = (String) timeBox.getSelectedItem();
 		String concentrationUnit = (String) logcBox.getSelectedItem();
-		List<MiscXml> miscValues = new ArrayList<>();
+		List<MiscXml> miscValues = new ArrayList<MiscXml>();
 
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
@@ -502,7 +502,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			}
 		} else if (event.getSource() == addLiteratureButton) {
 			Integer id = DBKernel.openLiteratureDBWindow(null);
-			Set<Integer> ids = new LinkedHashSet<>();
+			Set<Integer> ids = new LinkedHashSet<Integer>();
 
 			for (LiteratureItem item : set.getLiterature()) {
 				ids.add(item.getID());
@@ -632,7 +632,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			JButton removeButton = new JButton("-");
 			JButton button = new JButton(OTHER_PARAMETER);
 			DoubleTextField valueField = new DoubleTextField(true);
-			JComboBox<String> unitBox = new JComboBox<>();
+			JComboBox<String> unitBox = new JComboBox<String>();
 
 			addButton.addActionListener(this);
 			removeButton.addActionListener(this);
@@ -888,13 +888,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 			approved = false;
 
-			mappings = new LinkedHashMap<>();
+			mappings = new LinkedHashMap<String, Object>();
 			timeUnit = null;
 			concentrationUnit = null;
 
-			mappingBoxes = new LinkedHashMap<>();
-			mappingButtons = new LinkedHashMap<>();
-			unitBoxes = new LinkedHashMap<>();
+			mappingBoxes = new LinkedHashMap<String, JComboBox<String>>();
+			mappingButtons = new LinkedHashMap<String, JButton>();
+			unitBoxes = new LinkedHashMap<String, JComboBox<String>>();
 
 			okButton = new JButton("OK");
 			okButton.addActionListener(this);
@@ -908,7 +908,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			northPanel.setLayout(new GridBagLayout());
 
 			for (String column : columnList) {
-				JComboBox<String> box = new JComboBox<>(new String[] {
+				JComboBox<String> box = new JComboBox<String>(new String[] {
 						XLSReader.ID_COLUMN, MdInfoXml.ATT_COMMENT,
 						AttributeUtilities.TIME,
 						AttributeUtilities.CONCENTRATION,
@@ -916,7 +916,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_AW,
 						OTHER_PARAMETER, NO_PARAMETER });
 				JButton button = new JButton();
-				JComboBox<String> unitBox = new JComboBox<>();
+				JComboBox<String> unitBox = new JComboBox<String>();
 
 				box.setSelectedItem(NO_PARAMETER);
 				button.setEnabled(false);

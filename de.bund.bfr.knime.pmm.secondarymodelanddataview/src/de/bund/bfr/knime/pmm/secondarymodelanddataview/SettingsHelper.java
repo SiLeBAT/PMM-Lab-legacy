@@ -122,12 +122,12 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		selectedID = null;
 		currentParamX = null;
-		paramXValues = new LinkedHashMap<>();
-		selectedValuesX = new LinkedHashMap<>();
-		colors = new LinkedHashMap<>();
-		shapes = new LinkedHashMap<>();
-		colorLists = new LinkedHashMap<>();
-		shapeLists = new LinkedHashMap<>();
+		paramXValues = new LinkedHashMap<String, Double>();
+		selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
+		colorLists = new LinkedHashMap<String, List<Color>>();
+		shapeLists = new LinkedHashMap<String, List<Shape>>();
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
 		maxX = DEFAULT_MAXX;
@@ -144,9 +144,9 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
+		visibleColumns = new ArrayList<String>();
 		fittedFilter = null;
-		columnWidths = new LinkedHashMap<>();
+		columnWidths = new LinkedHashMap<String, Integer>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -167,7 +167,7 @@ public class SettingsHelper {
 					settings.getString(CFG_PARAMXVALUES),
 					new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
-			paramXValues = new LinkedHashMap<>();
+			paramXValues = new LinkedHashMap<String, Double>();
 		}
 
 		try {
@@ -175,33 +175,33 @@ public class SettingsHelper {
 					settings.getString(CFG_SELECTEDVALUESX),
 					new LinkedHashMap<String, List<Boolean>>());
 		} catch (InvalidSettingsException e) {
-			selectedValuesX = new LinkedHashMap<>();
+			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
 		}
 
 		try {
 			colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<>();
+			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
 			shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<>();
+			shapes = new LinkedHashMap<String, Shape>();
 		}
 
 		try {
 			colorLists = XmlConverter.xmlToColorListMap(settings
 					.getString(CFG_COLORLISTS));
 		} catch (InvalidSettingsException e) {
-			colorLists = new LinkedHashMap<>();
+			colorLists = new LinkedHashMap<String, List<Color>>();
 		}
 
 		try {
 			shapeLists = XmlConverter.xmlToShapeListMap(settings
 					.getString(CFG_SHAPELISTS));
 		} catch (InvalidSettingsException e) {
-			shapeLists = new LinkedHashMap<>();
+			shapeLists = new LinkedHashMap<String, List<Shape>>();
 		}
 
 		try {
@@ -306,7 +306,7 @@ public class SettingsHelper {
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
+			visibleColumns = new ArrayList<String>();
 		}
 
 		try {
@@ -320,7 +320,7 @@ public class SettingsHelper {
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			columnWidths = new LinkedHashMap<>();
+			columnWidths = new LinkedHashMap<String, Integer>();
 		}
 	}
 

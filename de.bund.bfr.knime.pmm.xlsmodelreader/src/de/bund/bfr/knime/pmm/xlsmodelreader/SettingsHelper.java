@@ -90,20 +90,20 @@ public class SettingsHelper {
 		fileName = null;
 		sheetName = null;
 		modelTuple = null;
-		secModelTuples = new LinkedHashMap<>();
-		modelMappings = new LinkedHashMap<>();
-		secModelMappings = new LinkedHashMap<>();
-		secModelIndepMins = new LinkedHashMap<>();
-		secModelIndepMaxs = new LinkedHashMap<>();
-		secModelIndepUnits = new LinkedHashMap<>();
-		columnMappings = new LinkedHashMap<>();
+		secModelTuples = new LinkedHashMap<String, KnimeTuple>();
+		modelMappings = new LinkedHashMap<String, String>();
+		secModelMappings = new LinkedHashMap<String, Map<String, String>>();
+		secModelIndepMins = new LinkedHashMap<String, Map<String, String>>();
+		secModelIndepMaxs = new LinkedHashMap<String, Map<String, String>>();
+		secModelIndepUnits = new LinkedHashMap<String, Map<String, String>>();
+		columnMappings = new LinkedHashMap<String, Object>();
 		agentColumn = null;
-		agentMappings = new LinkedHashMap<>();
+		agentMappings = new LinkedHashMap<String, AgentXml>();
 		matrixColumn = null;
-		matrixMappings = new LinkedHashMap<>();
+		matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		agent = null;
 		matrix = null;
-		literature = new ArrayList<>();
+		literature = new ArrayList<LiteratureItem>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -130,7 +130,7 @@ public class SettingsHelper {
 			secModelTuples = XmlConverter.xmlToTupleMap(settings
 					.getString(CFGKEY_SECMODELTUPLES));
 		} catch (InvalidSettingsException e) {
-			secModelTuples = new LinkedHashMap<>();
+			secModelTuples = new LinkedHashMap<String, KnimeTuple>();
 		}
 
 		try {
@@ -138,7 +138,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MODELMAPPINGS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			modelMappings = new LinkedHashMap<>();
+			modelMappings = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -146,7 +146,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELMAPPINGS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelMappings = new LinkedHashMap<>();
+			secModelMappings = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -154,7 +154,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPMINS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepMins = new LinkedHashMap<>();
+			secModelIndepMins = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -162,7 +162,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPMAXS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepMaxs = new LinkedHashMap<>();
+			secModelIndepMaxs = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -170,7 +170,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_SECMODELINDEPUNITS),
 					new LinkedHashMap<String, Map<String, String>>());
 		} catch (InvalidSettingsException e) {
-			secModelIndepUnits = new LinkedHashMap<>();
+			secModelIndepUnits = new LinkedHashMap<String, Map<String, String>>();
 		}
 
 		try {
@@ -178,7 +178,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_COLUMNMAPPINGS),
 					new LinkedHashMap<String, Object>());
 		} catch (InvalidSettingsException e) {
-			columnMappings = new LinkedHashMap<>();
+			columnMappings = new LinkedHashMap<String, Object>();
 		}
 
 		try {
@@ -192,7 +192,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_AGENTMAPPINGS),
 					new LinkedHashMap<String, AgentXml>());
 		} catch (InvalidSettingsException e) {
-			agentMappings = new LinkedHashMap<>();
+			agentMappings = new LinkedHashMap<String, AgentXml>();
 		}
 
 		try {
@@ -206,7 +206,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_MATRIXMAPPINGS),
 					new LinkedHashMap<String, MatrixXml>());
 		} catch (InvalidSettingsException e) {
-			matrixMappings = new LinkedHashMap<>();
+			matrixMappings = new LinkedHashMap<String, MatrixXml>();
 		}
 
 		try {
@@ -228,7 +228,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_LITERATURE),
 					new ArrayList<LiteratureItem>());
 		} catch (InvalidSettingsException e) {
-			literature = new ArrayList<>();
+			literature = new ArrayList<LiteratureItem>();
 		}
 	}
 

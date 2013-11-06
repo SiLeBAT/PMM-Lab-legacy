@@ -153,9 +153,12 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
 					}
 				}
 			}
-			catch (IOException | JDOMException e) {
+			catch (IOException e) {
 				e.printStackTrace();
-			}	
+			}
+			catch (JDOMException e) {
+				e.printStackTrace();
+			}
 		    DataTableSpec inSpec = inData[0].getDataTableSpec();
 		    try {
 			    KnimeSchema tsSchema = new TimeSeriesSchema();

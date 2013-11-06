@@ -68,26 +68,26 @@ public class ModelCombiner {
 		}
 
 		if (initParams == null) {
-			initParams = new LinkedHashMap<>();
+			initParams = new LinkedHashMap<String, String>();
 		}
 
 		if (lagParams == null) {
-			lagParams = new LinkedHashMap<>();
+			lagParams = new LinkedHashMap<String, String>();
 		}
 
-		Map<String, KnimeTuple> newTuples = new LinkedHashMap<>();
-		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<>();
-		Map<String, Set<String>> replacements = new LinkedHashMap<>();
-		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<>();
-		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<>();
+		Map<String, KnimeTuple> newTuples = new LinkedHashMap<String, KnimeTuple>();
+		Map<String, List<KnimeTuple>> usedTupleLists = new LinkedHashMap<String, List<KnimeTuple>>();
+		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
+		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<Integer, Map<String, Double>>();
+		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<Integer, Map<String, Integer>>();
 
 		for (KnimeTuple tuple : tuples) {
 			int modelId = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
 
 			if (!paramValueSums.containsKey(modelId)) {
-				Map<String, Double> sums = new LinkedHashMap<>();
-				Map<String, Integer> counts = new LinkedHashMap<>();
+				Map<String, Double> sums = new LinkedHashMap<String, Double>();
+				Map<String, Integer> counts = new LinkedHashMap<String, Integer>();
 
 				for (PmmXmlElementConvertable el : tuple.getPmmXml(
 						Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -154,7 +154,7 @@ public class ModelCombiner {
 			}
 		}
 
-		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<>();
+		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
 
 		for (String id : newTuples.keySet()) {
 			KnimeTuple newTuple = newTuples.get(id);

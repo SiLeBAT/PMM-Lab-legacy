@@ -61,7 +61,7 @@ public class MiscXml implements PmmXmlElementConvertable {
 				setDbuuid(xmlElement.getAttribute("dbuuid").getValue());				
 			}
 			
-			List<String> categories = new ArrayList<>();
+			List<String> categories = new ArrayList<String>();
 			
 			for (int i = 0; ; i++) {
 				if (xmlElement.getAttribute("category" + i) == null) {

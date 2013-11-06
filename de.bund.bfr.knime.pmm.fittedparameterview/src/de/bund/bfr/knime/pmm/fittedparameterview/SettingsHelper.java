@@ -110,9 +110,9 @@ public class SettingsHelper {
 	public SettingsHelper() {
 		selectedID = null;
 		currentParamX = null;
-		selectedValuesX = new LinkedHashMap<>();
-		colorLists = new LinkedHashMap<>();
-		shapeLists = new LinkedHashMap<>();
+		selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
+		colorLists = new LinkedHashMap<String, List<Color>>();
+		shapeLists = new LinkedHashMap<String, List<Shape>>();
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
 		maxX = DEFAULT_MAXX;
@@ -127,9 +127,9 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();
-		usedConditions = new ArrayList<>();
-		columnWidths = new LinkedHashMap<>();
+		visibleColumns = new ArrayList<String>();
+		usedConditions = new ArrayList<String>();
+		columnWidths = new LinkedHashMap<String, Integer>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -150,21 +150,21 @@ public class SettingsHelper {
 					settings.getString(CFG_SELECTEDVALUESX),
 					new LinkedHashMap<String, List<Boolean>>());
 		} catch (InvalidSettingsException e) {
-			selectedValuesX = new LinkedHashMap<>();
+			selectedValuesX = new LinkedHashMap<String, List<Boolean>>();
 		}
 
 		try {
 			colorLists = XmlConverter.xmlToColorListMap(settings
 					.getString(CFG_COLORLISTS));
 		} catch (InvalidSettingsException e) {
-			colorLists = new LinkedHashMap<>();
+			colorLists = new LinkedHashMap<String, List<Color>>();
 		}
 
 		try {
 			shapeLists = XmlConverter.xmlToShapeListMap(settings
 					.getString(CFG_SHAPELISTS));
 		} catch (InvalidSettingsException e) {
-			shapeLists = new LinkedHashMap<>();
+			shapeLists = new LinkedHashMap<String, List<Shape>>();
 		}
 
 		try {
@@ -257,7 +257,7 @@ public class SettingsHelper {
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
+			visibleColumns = new ArrayList<String>();
 		}
 
 		try {
@@ -265,7 +265,7 @@ public class SettingsHelper {
 					settings.getString(CFG_USEDCONDITIONS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			usedConditions = new ArrayList<>();
+			usedConditions = new ArrayList<String>();
 		}
 		
 		try {
@@ -273,7 +273,7 @@ public class SettingsHelper {
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			columnWidths = new LinkedHashMap<>();
+			columnWidths = new LinkedHashMap<String, Integer>();
 		}
 	}
 

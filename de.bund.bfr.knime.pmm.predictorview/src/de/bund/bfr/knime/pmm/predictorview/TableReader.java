@@ -69,8 +69,8 @@ public class TableReader {
 				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
 
-		newInitParams = new LinkedHashMap<>();
-		newLagParams = new LinkedHashMap<>();
+		newInitParams = new LinkedHashMap<String, String>();
+		newLagParams = new LinkedHashMap<String, String>();
 
 		if (isTertiaryModel) {
 			combinedTuples = ModelCombiner.combine(tuples, containsData,
@@ -124,13 +124,13 @@ public class TableReader {
 		}
 
 		ids = new ArrayList<String>();
-		tupleMap = new LinkedHashMap<>();
-		plotables = new LinkedHashMap<>();
-		shortLegend = new LinkedHashMap<>();
-		longLegend = new LinkedHashMap<>();
-		shortIds = new LinkedHashMap<>();
-		formulas = new ArrayList<>();
-		parameterData = new ArrayList<>();
+		tupleMap = new LinkedHashMap<String, KnimeTuple>();
+		plotables = new LinkedHashMap<String, Plotable>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
+		shortIds = new LinkedHashMap<String, String>();
+		formulas = new ArrayList<String>();
+		parameterData = new ArrayList<Map<String, Double>>();
 		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
 				Model1Schema.RMSE, Model1Schema.RSQUARED, Model1Schema.AIC);
 		doubleColumnValues = new ArrayList<List<Double>>();
@@ -159,17 +159,17 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = new ArrayList<>(Arrays.asList(IDENTIFIER,
+			standardVisibleColumns = new ArrayList<String>(Arrays.asList(IDENTIFIER,
 					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
 					Model1Schema.FITTEDMODELNAME, ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 			miscParams = PmmUtilities.getIndeps(tuples);
 			miscParams.remove(AttributeUtilities.TIME);
-			conditions = new ArrayList<>();
-			conditionMinValues = new ArrayList<>();
-			conditionMaxValues = new ArrayList<>();
-			conditionUnits = new ArrayList<>();
+			conditions = new ArrayList<String>();
+			conditionMinValues = new ArrayList<List<Double>>();
+			conditionMaxValues = new ArrayList<List<Double>>();
+			conditionUnits = new ArrayList<List<String>>();
 
 			for (String param : miscParams) {
 				conditions.add(param);
@@ -191,16 +191,16 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<>(Arrays.asList(
+				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
 						IDENTIFIER, Model1Schema.MODELNAME,
 						ChartConstants.STATUS, Model1Schema.FITTEDMODELNAME,
 						AttributeUtilities.DATAID));
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
-				conditions = new ArrayList<>();
-				conditionValues = new ArrayList<>();
-				conditionUnits = new ArrayList<>();
+				conditions = new ArrayList<String>();
+				conditionValues = new ArrayList<List<Double>>();
+				conditionUnits = new ArrayList<List<String>>();
 
 				for (String param : miscParams) {
 					conditions.add(param);
@@ -253,16 +253,16 @@ public class TableReader {
 			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
-			Map<String, List<Double>> variables = new LinkedHashMap<>();
-			Map<String, Double> varMin = new LinkedHashMap<>();
-			Map<String, Double> varMax = new LinkedHashMap<>();
-			Map<String, Double> parameters = new LinkedHashMap<>();
-			Map<String, Double> paramData = new LinkedHashMap<>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
+			Map<String, List<Double>> variables = new LinkedHashMap<String, List<Double>>();
+			Map<String, Double> varMin = new LinkedHashMap<String, Double>();
+			Map<String, Double> varMax = new LinkedHashMap<String, Double>();
+			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
+			Map<String, Double> paramData = new LinkedHashMap<String, Double>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
 			String initParam = newInitParams.get(modelID);
 			String lagParam = newLagParams.get(modelID);
-			Map<String, List<String>> categories = new LinkedHashMap<>();
-			Map<String, String> units = new LinkedHashMap<>();
+			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
+			Map<String, String> units = new LinkedHashMap<String, String>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
 
 			categories.put(depXml.getName(),
@@ -293,7 +293,7 @@ public class TableReader {
 					if (element.getValue() != null) {
 						plotable.addValueList(
 								element.getName(),
-								new ArrayList<>(Arrays.asList(element
+								new ArrayList<Double>(Arrays.asList(element
 										.getValue())));
 					} else {
 						plotable.addValueList(element.getName(),
@@ -348,9 +348,9 @@ public class TableReader {
 			index++;
 
 			if (isTertiaryModel) {
-				Set<String> secModels = new LinkedHashSet<>();
-				Set<String> organisms = new LinkedHashSet<>();
-				Set<String> matrices = new LinkedHashSet<>();
+				Set<String> secModels = new LinkedHashSet<String>();
+				Set<String> organisms = new LinkedHashSet<String>();
+				Set<String> matrices = new LinkedHashSet<String>();
 
 				for (KnimeTuple t : combinedTuples.get(tuple)) {
 					secModels.add(((CatalogModelXml) t.getPmmXml(

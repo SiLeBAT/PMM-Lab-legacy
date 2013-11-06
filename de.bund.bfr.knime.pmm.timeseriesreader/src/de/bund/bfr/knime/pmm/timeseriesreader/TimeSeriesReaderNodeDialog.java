@@ -88,7 +88,10 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 				db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
 				conn = db.getConnection();
 			}
-			catch (ClassNotFoundException | SQLException e) {
+			catch (ClassNotFoundException e) {
+				e.printStackTrace();
+			}
+			catch (SQLException e) {
 				e.printStackTrace();
 			}
 		} else {

@@ -97,9 +97,9 @@ public class ChartCreator extends ChartPanel {
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
 		getPopupMenu().insert(new DataAndModelChartSaveAsItem(), 4);
-		plotables = new LinkedHashMap<>();
-		shortLegend = new LinkedHashMap<>();
-		longLegend = new LinkedHashMap<>();
+		plotables = new LinkedHashMap<String, Plotable>();
+		shortLegend = new LinkedHashMap<String, String>();
+		longLegend = new LinkedHashMap<String, String>();
 		colors = new LinkedHashMap<String, Color>();
 		shapes = new LinkedHashMap<String, Shape>();
 		colorLists = new LinkedHashMap<String, List<Color>>();
@@ -298,7 +298,7 @@ public class ChartCreator extends ChartPanel {
 			yAxis.setRange(new Range(minY, maxY));
 		}
 
-		Set<String> unconvertable = new LinkedHashSet<>();
+		Set<String> unconvertable = new LinkedHashSet<String>();
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);

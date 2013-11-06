@@ -769,7 +769,7 @@ public class MMC_M extends JPanel {
 		this.tss = tss;
 		this.m_secondaryModels = m_secondaryModels;
 		dontFireList = true;
-		listModel = new DefaultListModel<>();
+		listModel = new DefaultListModel<ParametricModel>();
 		list1.setModel(listModel);
 		for (ParametricModel pm : m1s) {
 			listModel.addElement(pm);
@@ -1052,13 +1052,13 @@ public class MMC_M extends JPanel {
 		// Generated using JFormDesigner Evaluation license - Christian Thoens
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
-		list1 = new JList<>();
+		list1 = new JList<ParametricModel>();
 		label7 = new JLabel();
 		radioButton1 = new JRadioButton();
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
 		modelNameLabel = new JLabel();
-		modelNameBox = new JComboBox<>();
+		modelNameBox = new JComboBox<ParametricModel>();
 		button4 = new JButton();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
@@ -1090,7 +1090,7 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
+		qScoreBox = new JComboBox<Color>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
 					private static final long serialVersionUID = 1L;
 

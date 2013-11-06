@@ -124,11 +124,11 @@ public class SettingsHelper {
 	private Map<String, Integer> columnWidths;
 
 	public SettingsHelper() {
-		selectedIDs = new ArrayList<>();
-		paramXValues = new LinkedHashMap<>();
-		timeValues = new ArrayList<>();
-		colors = new LinkedHashMap<>();
-		shapes = new LinkedHashMap<>();
+		selectedIDs = new ArrayList<String>();
+		paramXValues = new LinkedHashMap<String, Double>();
+		timeValues = new ArrayList<Double>();
+		colors = new LinkedHashMap<String, Color>();
+		shapes = new LinkedHashMap<String, Shape>();
 		manualRange = DEFAULT_MANUALRANGE;
 		minX = DEFAULT_MINX;
 		maxX = DEFAULT_MAXX;
@@ -144,14 +144,14 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<>();		
+		visibleColumns = new ArrayList<String>();		
 		fittedFilter = null;
-		concentrationParameters = new LinkedHashMap<>();
-		lagParameters = new LinkedHashMap<>();
-		selectedTuples = new ArrayList<>();
-		newConcentrationParameters = new LinkedHashMap<>();
-		newLagParameters = new LinkedHashMap<>();
-		columnWidths = new LinkedHashMap<>();
+		concentrationParameters = new LinkedHashMap<String, String>();
+		lagParameters = new LinkedHashMap<String, String>();
+		selectedTuples = new ArrayList<KnimeTuple>();
+		newConcentrationParameters = new LinkedHashMap<String, String>();
+		newLagParameters = new LinkedHashMap<String, String>();
+		columnWidths = new LinkedHashMap<String, Integer>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -168,7 +168,7 @@ public class SettingsHelper {
 					settings.getString(CFG_PARAMXVALUES),
 					new LinkedHashMap<String, Double>());
 		} catch (InvalidSettingsException e) {
-			paramXValues = new LinkedHashMap<>();
+			paramXValues = new LinkedHashMap<String, Double>();
 		}
 
 		try {
@@ -176,19 +176,19 @@ public class SettingsHelper {
 					.xmlToObject(settings.getString(CFG_TIMEVALUES),
 							new ArrayList<Double>());
 		} catch (InvalidSettingsException e1) {
-			timeValues = new ArrayList<>();
+			timeValues = new ArrayList<Double>();
 		}
 
 		try {
 			colors = XmlConverter.xmlToColorMap(settings.getString(CFG_COLORS));
 		} catch (InvalidSettingsException e) {
-			colors = new LinkedHashMap<>();
+			colors = new LinkedHashMap<String, Color>();
 		}
 
 		try {
 			shapes = XmlConverter.xmlToShapeMap(settings.getString(CFG_SHAPES));
 		} catch (InvalidSettingsException e) {
-			shapes = new LinkedHashMap<>();
+			shapes = new LinkedHashMap<String, Shape>();
 		}
 
 		try {
@@ -287,7 +287,7 @@ public class SettingsHelper {
 					settings.getString(CFG_VISIBLECOLUMNS),
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
-			visibleColumns = new ArrayList<>();
+			visibleColumns = new ArrayList<String>();
 		}		
 
 		try {
@@ -301,7 +301,7 @@ public class SettingsHelper {
 					settings.getString(CFG_CONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			concentrationParameters = new LinkedHashMap<>();
+			concentrationParameters = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -309,14 +309,14 @@ public class SettingsHelper {
 					settings.getString(CFG_LAGPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			lagParameters = new LinkedHashMap<>();
+			lagParameters = new LinkedHashMap<String, String>();
 		}
 
 		try {
 			selectedTuples = XmlConverter.xmlToTupleList(settings
 					.getString(CFG_SELECTEDTUPLES));
 		} catch (InvalidSettingsException e) {
-			selectedTuples = new ArrayList<>();
+			selectedTuples = new ArrayList<KnimeTuple>();
 		}
 
 		try {
@@ -324,7 +324,7 @@ public class SettingsHelper {
 					settings.getString(CFG_NEWCONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			newConcentrationParameters = new LinkedHashMap<>();
+			newConcentrationParameters = new LinkedHashMap<String, String>();
 		}
 
 		try {
@@ -332,7 +332,7 @@ public class SettingsHelper {
 					settings.getString(CFG_NEWLAGPARAMETERS),
 					new LinkedHashMap<String, String>());
 		} catch (InvalidSettingsException e) {
-			newLagParameters = new LinkedHashMap<>();
+			newLagParameters = new LinkedHashMap<String, String>();
 		}
 		
 		try {
@@ -340,7 +340,7 @@ public class SettingsHelper {
 					settings.getString(CFG_COLUMNWIDTHS),
 					new LinkedHashMap<String, Integer>());
 		} catch (InvalidSettingsException e) {
-			columnWidths = new LinkedHashMap<>();
+			columnWidths = new LinkedHashMap<String, Integer>();
 		}
 	}
 

@@ -88,18 +88,18 @@ public class TableReader {
 
 	public TableReader(DataTable table, boolean schemaContainsData) {
 		Set<String> idSet = new LinkedHashSet<String>();
-		Map<String, String> formulaMap = new LinkedHashMap<>();
-		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<>();
-		Map<String, String> depVarMap = new LinkedHashMap<>();
-		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<>();
-		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<>();
-		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<>();
-		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<>();
-		Map<String, Double> rmsMap = new LinkedHashMap<>();
-		Map<String, Double> rSquaredMap = new LinkedHashMap<>();
-		Map<String, Double> aicMap = new LinkedHashMap<>();
-		Map<String, Double> bicMap = new LinkedHashMap<>();
-		Map<String, Integer> dofMap = new LinkedHashMap<>();
+		Map<String, String> formulaMap = new LinkedHashMap<String, String>();
+		Map<String, PmmXmlDoc> paramMap = new LinkedHashMap<String, PmmXmlDoc>();
+		Map<String, String> depVarMap = new LinkedHashMap<String, String>();
+		Map<String, PmmXmlDoc> indepVarMap = new LinkedHashMap<String, PmmXmlDoc>();
+		Map<String, List<Double>> depVarDataMap = new LinkedHashMap<String, List<Double>>();
+		Map<String, Map<String, List<Double>>> miscDataMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
+		Map<String, Map<String, String>> miscUnitMaps = new LinkedHashMap<String, Map<String, String>>();
+		Map<String, Double> rmsMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> rSquaredMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
+		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
+		Map<String, Integer> dofMap = new LinkedHashMap<String, Integer>();
 		List<String> miscParams = null;
 		Map<String, List<String>> miscCategories = null;
 		List<KnimeTuple> tuples;
@@ -116,8 +116,8 @@ public class TableReader {
 		plotables = new LinkedHashMap<String, Plotable>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		formulas = new ArrayList<>();
-		parameterData = new ArrayList<>();
+		formulas = new ArrayList<String>();
+		parameterData = new ArrayList<Map<String, Double>>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
 				Model2Schema.MODELNAME, Model2Schema.ATT_EMLIT,
 				ChartConstants.STATUS);
@@ -128,14 +128,14 @@ public class TableReader {
 		stringColumnValues.add(new ArrayList<String>());
 		doubleColumns = Arrays.asList(Model2Schema.SSE, Model2Schema.MSE,
 				Model2Schema.RMSE, Model2Schema.RSQUARED, Model2Schema.AIC);
-		doubleColumnValues = new ArrayList<>();
+		doubleColumnValues = new ArrayList<List<Double>>();
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		doubleColumnValues.add(new ArrayList<Double>());
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
-		standardVisibleColumns = new ArrayList<>(Arrays.asList(
+		standardVisibleColumns = new ArrayList<String>(Arrays.asList(
 				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME,
 				ChartConstants.STATUS));
 
@@ -149,10 +149,10 @@ public class TableReader {
 			miscCategories = PmmUtilities.getMiscCategories(tuples);
 
 			colorCounts = new ArrayList<Integer>();
-			conditions = new ArrayList<>();
-			conditionMinValues = new ArrayList<>();
-			conditionMaxValues = new ArrayList<>();
-			conditionUnits = new ArrayList<>();
+			conditions = new ArrayList<String>();
+			conditionMinValues = new ArrayList<List<Double>>();
+			conditionMaxValues = new ArrayList<List<Double>>();
+			conditionUnits = new ArrayList<List<String>>();
 
 			for (String param : miscParams) {
 				conditions.add(param);
@@ -193,7 +193,7 @@ public class TableReader {
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
-				Map<String, Double> paramData = new LinkedHashMap<>();
+				Map<String, Double> paramData = new LinkedHashMap<String, Double>();
 
 				for (PmmXmlElementConvertable el : paramXmlSec.getElementSet()) {
 					ParamXml element = (ParamXml) el;
@@ -297,9 +297,9 @@ public class TableReader {
 			Map<String, Double> minArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> maxArg = new LinkedHashMap<String, Double>();
 			Map<String, Double> constants = new LinkedHashMap<String, Double>();
-			Map<String, Map<String, Double>> covariances = new LinkedHashMap<>();
-			Map<String, List<String>> categories = new LinkedHashMap<>();
-			Map<String, String> units = new LinkedHashMap<>();
+			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
+			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
+			Map<String, String> units = new LinkedHashMap<String, String>();
 			boolean hasArguments = !indepVarMap.get(id).getElementSet()
 					.isEmpty();
 

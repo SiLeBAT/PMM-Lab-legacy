@@ -80,7 +80,7 @@ public class SettingsHelper {
 		nParameterSpace = DEFAULT_NPARAMETERSPACE;
 		nLevenberg = DEFAULT_NLEVENBERG;
 		stopWhenSuccessful = DEFAULT_STOPWHENSUCCESSFUL;
-		parameterGuesses = new LinkedHashMap<>();
+		parameterGuesses = new LinkedHashMap<String, Map<String, Point2D.Double>>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -125,7 +125,7 @@ public class SettingsHelper {
 					settings.getString(CFGKEY_PARAMETERGUESSES),
 					new LinkedHashMap<String, Map<String, Point2D.Double>>());
 		} catch (InvalidSettingsException e) {
-			parameterGuesses = new LinkedHashMap<>();
+			parameterGuesses = new LinkedHashMap<String, Map<String, Point2D.Double>>();
 		}
 	}
 

@@ -54,7 +54,7 @@ public class SettingsHelper {
 
 	public SettingsHelper() {
 		concentration = DEFAULT_CONCENTRATION;
-		concentrationParameters = new LinkedHashMap<>();
+		concentrationParameters = new LinkedHashMap<String, String>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {

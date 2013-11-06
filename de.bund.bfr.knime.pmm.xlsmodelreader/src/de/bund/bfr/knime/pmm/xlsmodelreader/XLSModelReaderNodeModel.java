@@ -94,7 +94,7 @@ public class XLSModelReaderNodeModel extends NodeModel {
 		KnimeTuple modelTuple = new KnimeTuple(set.getModelTuple().getSchema(),
 				set.getModelTuple().getSchema().createSpec(),
 				set.getModelTuple());
-		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<>();
+		Map<String, KnimeTuple> secModelTuples = new LinkedHashMap<String, KnimeTuple>();
 
 		for (String key : set.getSecModelTuples().keySet()) {
 			KnimeTuple tuple = set.getSecModelTuples().get(key);

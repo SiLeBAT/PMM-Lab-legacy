@@ -407,7 +407,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	}
     	
     	if (level == 2) {    		
-    		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<>();
+    		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<Integer, List<KnimeTuple>>();
     		
     		for (KnimeTuple tuple : resultSet) {
     			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getID();

@@ -81,14 +81,14 @@ public class Plotable {
 
 	public Plotable(int type) {
 		this.type = type;
-		valueLists = new LinkedHashMap<>();
-		functionArguments = new LinkedHashMap<>();
-		minArguments = new LinkedHashMap<>();
-		maxArguments = new LinkedHashMap<>();
-		categories = new LinkedHashMap<>();
-		units = new LinkedHashMap<>();
-		functionParameters = new LinkedHashMap<>();
-		covariances = new LinkedHashMap<>();
+		valueLists = new LinkedHashMap<String, List<Double>>();
+		functionArguments = new LinkedHashMap<String, List<Double>>();
+		minArguments = new LinkedHashMap<String, Double>();
+		maxArguments = new LinkedHashMap<String, Double>();
+		categories = new LinkedHashMap<String, List<String>>();
+		units = new LinkedHashMap<String, String>();
+		functionParameters = new LinkedHashMap<String, Double>();
+		covariances = new LinkedHashMap<String, Map<String, Double>>();
 		samples = new ArrayList<Double>();
 		degreesOfFreedom = null;
 	}
@@ -127,7 +127,7 @@ public class Plotable {
 
 	public Map<String, List<Double>> getPossibleArgumentValues(boolean useData,
 			boolean useMinMax) {
-		Map<String, List<Double>> args = new LinkedHashMap<>();
+		Map<String, List<Double>> args = new LinkedHashMap<String, List<Double>>();
 
 		for (String var : functionArguments.keySet()) {
 			Double min = minArguments.get(var);
@@ -853,7 +853,7 @@ public class Plotable {
 		int nMax = 0;
 
 		if (functionArguments.size() == 1) {
-			String arg = new ArrayList<>(functionArguments.keySet()).get(0);
+			String arg = new ArrayList<String>(functionArguments.keySet()).get(0);
 
 			if (valueLists.containsKey(arg) && valueLists.get(arg).size() != 0) {
 				return 1;

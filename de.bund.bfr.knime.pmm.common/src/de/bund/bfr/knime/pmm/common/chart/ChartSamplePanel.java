@@ -153,10 +153,10 @@ public class ChartSamplePanel extends JPanel implements ActionListener,
 		String timeColumnName = getTimeColumnName();
 		List<Double> timeValues = getTimeValues();
 
-		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<>();
+		Map<String, Map<Double, Double>> cValues = new LinkedHashMap<String, Map<Double, Double>>();
 
 		for (String id : points.keySet()) {
-			Map<Double, Double> values = new LinkedHashMap<>();
+			Map<Double, Double> values = new LinkedHashMap<Double, Double>();
 			double[][] ps = points.get(id);
 
 			if (ps != null && ps.length == 2) {

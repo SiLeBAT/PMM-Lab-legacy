@@ -22,7 +22,7 @@ public class PmmUtilities {
 
 	public static List<KnimeTuple> getTuples(DataTable table, KnimeSchema schema) {
 		KnimeRelationReader reader = new KnimeRelationReader(schema, table);
-		List<KnimeTuple> tuples = new ArrayList<>();
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
 
 		while (reader.hasMoreElements()) {
 			tuples.add(reader.nextElement());
@@ -65,7 +65,7 @@ public class PmmUtilities {
 
 	public static Map<String, List<String>> getMiscCategories(
 			List<KnimeTuple> tuples) {
-		Map<String, List<String>> map = new LinkedHashMap<>();
+		Map<String, List<String>> map = new LinkedHashMap<String, List<String>>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
@@ -81,8 +81,8 @@ public class PmmUtilities {
 	}
 
 	public static Map<String, String> getMiscUnits(List<KnimeTuple> tuples) {
-		Map<String, Map<String, Integer>> occurences = new LinkedHashMap<>();
-		Map<String, String> map = new LinkedHashMap<>();
+		Map<String, Map<String, Integer>> occurences = new LinkedHashMap<String, Map<String, Integer>>();
+		Map<String, String> map = new LinkedHashMap<String, String>();
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);

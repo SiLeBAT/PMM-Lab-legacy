@@ -180,7 +180,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					if (dx.getUnit() == null || dx.getUnit().isEmpty()) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!";
 
 					PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"));
+		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
 		    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);	    		
 					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
 
@@ -261,7 +261,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		//tuple.setValue( Model2Schema.ATT_MINVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MINVALUE ) ));
 		    		//tuple.setValue( Model2Schema.ATT_MAXVALUE, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_MAXVALUE ) ));
 					PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
-		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"));
+		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), false);
 		    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, ixml);	    		
 					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
 

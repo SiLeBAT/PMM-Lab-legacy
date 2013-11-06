@@ -276,12 +276,14 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     		// Time=t,Log10C=LOG10N
     		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
-    		varMap.put(AttributeUtilities.TIME, "t"); varMap.put(AttributeUtilities.CONCENTRATION, "LOG10N");
+    		//varMap.put(AttributeUtilities.TIME, "t"); varMap.put(AttributeUtilities.CONCENTRATION, "LOG10N");
     		//varMap.put("t", AttributeUtilities.TIME); varMap.put("LOG10N", AttributeUtilities.CONCENTRATION);
 
     		for (String to : varMap.keySet())	{
     			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
     		}
+			if (!varMap.containsKey(AttributeUtilities.TIME)) formula = MathUtilities.replaceVariable(formula, "t", AttributeUtilities.TIME);
+			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION)) formula = MathUtilities.replaceVariable(formula, "LOG10N", AttributeUtilities.CONCENTRATION);
     		
 			PmmXmlDoc cmDoc = new PmmXmlDoc();
 			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
@@ -290,6 +292,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     		PmmXmlDoc depDoc = new PmmXmlDoc();
     		String dep = result.getString(Bfrdb.ATT_DEP);
+			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION) && dep.equals("LOG10N")) dep = AttributeUtilities.CONCENTRATION;
     		DepXml dx;
     		if (varMap.containsKey(dep)) {
     			dx = new DepXml(varMap.get(dep), result.getString("DepCategory"), result.getString("DepUnit"));
@@ -322,7 +325,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
 			PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP),
-    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"));
+    				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"),
+    				result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
 			if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
 
@@ -383,7 +387,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP+"2"),
-	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"), result.getArray("IndepUnit2"), result.getArray("IndepDescription2")));
+	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"),
+	    				result.getArray("IndepUnit2"), result.getArray("IndepDescription2"), false));
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("ZeitEinheit2"), null, result.getArray("Einheiten2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
 	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2")));

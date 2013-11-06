@@ -565,7 +565,7 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
-		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription")));
+		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), true));
 		    		
 		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
@@ -650,7 +650,7 @@ public class Bfrdb extends Hsqldbiface {
     						result.getArray(Bfrdb.ATT_INDEP),
 		    				null,
 		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"),
-		    				result.getArray("IndepDescription")));
+		    				result.getArray("IndepDescription"), false));
 		    		
 		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(

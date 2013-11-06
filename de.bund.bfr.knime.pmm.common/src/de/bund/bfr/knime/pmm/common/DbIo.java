@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.DBKernel;
 
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+
 public class DbIo {
 
 	public static String stripNonValidXMLCharacters(String in) {
@@ -137,7 +139,7 @@ public class DbIo {
 	    }
 		return paramDoc;
     }
-    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array categories, Array units, Array desc) {
+    public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array categories, Array units, Array desc, boolean isPrimary) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -152,6 +154,7 @@ public class DbIo {
 						String nas = na[i].toString();
 						Double mid = (mi == null || mi[i] == null) ? Double.NaN : Double.parseDouble(mi[i].toString());
 						Double mad = (ma == null || ma[i] == null) ? Double.NaN : Double.parseDouble(ma[i].toString());
+						if (isPrimary && varMap != null && !varMap.containsKey(AttributeUtilities.TIME) && nas.equals("t")) nas = AttributeUtilities.TIME;
 						String onas = nas;
 			    		if (varMap != null && varMap.containsKey(nas)) onas = varMap.get(nas);
 						IndepXml ix = new IndepXml(onas,mid,mad,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);

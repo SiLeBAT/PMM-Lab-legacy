@@ -50,6 +50,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;
@@ -129,6 +130,24 @@ public class Login extends JFrame {
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
 			  	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 			  	*/
+		  		/*
+				try {
+					ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("GeschaetzteModelle") + "." + DBKernel.delimitL("ID") +
+							"," + DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("Referenz") +
+							" FROM " + DBKernel.delimitL("GeschaetzteModelle") + " LEFT JOIN " + DBKernel.delimitL("Versuchsbedingungen") +
+							" ON " + DBKernel.delimitL("GeschaetzteModelle") + "." + DBKernel.delimitL("Versuchsbedingung") + "=" +
+							DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("ID") +
+							" WHERE " + DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("Referenz") + " IS NOT NULL", false);
+					if (rs != null && rs.first())  {
+						do {
+							DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("GeschaetztesModell_Referenz") +
+									" (" + DBKernel.delimitL("GeschaetztesModell") + "," + DBKernel.delimitL("Literatur") + ") VALUES (" +
+									rs.getInt("ID") + "," + rs.getInt("Referenz") + ")", false);
+						} while (rs.next());
+					}
+				}
+				catch (Exception e1) {e1.printStackTrace();}
+				*/
 		  	}
 
 			//UpdateChecker.check4Updates_148_149(null);

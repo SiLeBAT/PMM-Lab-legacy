@@ -276,6 +276,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     		// Time=t,Log10C=LOG10N
     		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
+    		varMap.put(AttributeUtilities.TIME, "t"); varMap.put(AttributeUtilities.CONCENTRATION, "LOG10N");
+    		//varMap.put("t", AttributeUtilities.TIME); varMap.put("LOG10N", AttributeUtilities.CONCENTRATION);
 
     		for (String to : varMap.keySet())	{
     			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);

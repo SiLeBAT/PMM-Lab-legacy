@@ -36,6 +36,8 @@ package de.bund.bfr.knime.pmm.common.math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.math3.distribution.TDistribution;
 import org.lsmp.djep.djep.DJep;
@@ -362,4 +364,39 @@ public class MathUtilities {
 		return id;
 	}
 
+	public static String getBoundaryCondition(String formula) {
+		Pattern p = Pattern.compile("\\*\\(\\(.+\\)\\)$");
+		Matcher m = p.matcher(formula);
+
+		if (m.find()) {
+			String s = m.group();
+
+			return s.substring(3, s.length() - 2);
+		} else {
+			return null;
+		}
+	}
+
+	public static String getAllButBoundaryCondition(String formula) {
+		String cond = getBoundaryCondition(formula);
+
+		if (cond != null) {
+			return formula.replace("*((" + cond + "))", "");
+		} else {
+			return formula;
+		}
+	}
+
+	public static String getFormula(String formula, String boundaryCondition) {
+		if (boundaryCondition != null && !boundaryCondition.isEmpty()) {
+			return formula + "*((" + boundaryCondition + "))";
+		} else {
+			return formula;
+		}
+	}
+
+	public static void main(String[] args) {
+		System.out.println(getBoundaryCondition("a+b*((a>b))"));
+		System.out.println(getAllButBoundaryCondition("a+b*((a>b))"));
+	}
 }

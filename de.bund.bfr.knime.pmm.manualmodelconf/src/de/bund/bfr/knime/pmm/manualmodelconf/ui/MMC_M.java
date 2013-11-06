@@ -174,7 +174,8 @@ public class MMC_M extends JPanel {
 					pm.setFormula(formula);
 				}
 			}
-			formulaArea.setText(pm.getFormula());
+			formulaArea.setText(MathUtilities.getAllButBoundaryCondition(pm.getFormula()));
+			boundaryArea.setText(MathUtilities.getBoundaryCondition(pm.getFormula()));
 			table.setPM(pm, m_secondaryModels.get(pm), radioButton3);
 			setDblTextVal(rmsField, pm.getRms());
 			setDblTextVal(r2Field, pm.getRsquared());
@@ -316,7 +317,7 @@ public class MMC_M extends JPanel {
 	}
 
 	private void parseFormula(ParametricModel oldPM, ParametricModel newPM) {
-		String formula = formulaArea.getText();
+		String formula = MathUtilities.getFormula(formulaArea.getText(), boundaryArea.getText());		
 		formula = formula.replaceAll("\n", "");
 		formula = formula.replaceAll("\\s", "");
 		formula = formula.replace("~", "=").trim();
@@ -325,8 +326,9 @@ public class MMC_M extends JPanel {
 		if (index < 0) {
 			return;
 		}
-
-		formulaArea.setText(formula);
+		
+		formulaArea.setText(MathUtilities.getAllButBoundaryCondition(formula));
+		boundaryArea.setText(MathUtilities.getBoundaryCondition(formula));		
 		String depVar = formula.substring(0, index).trim();
 		newPM.setDepVar(depVar);
 		newPM.setDepCategory(oldPM.getDepCategory());
@@ -368,6 +370,7 @@ public class MMC_M extends JPanel {
 		// if (!dontRemoveSec && m_secondaryModels != null)
 		// m_secondaryModels.clear();
 		formulaArea.setText("");
+		boundaryArea.setText("");
 		modelnameField.setText("");
 		fittedModelName.setText("");
 
@@ -411,10 +414,12 @@ public class MMC_M extends JPanel {
 
 	private void formulaAreaFocusLost(FocusEvent e) {
 		ParametricModel pm = table.getPM();
-		if (pm != null && !pm.getFormula().equals(formulaArea.getText())) {
+		String newFormula = MathUtilities.getFormula(formulaArea.getText(), boundaryArea.getText());
+		
+		if (pm != null && !pm.getFormula().equals(newFormula)) {
 			String newMN = getNewModelname(pm);
 			ParametricModel newPM = new ParametricModel(newMN,
-					formulaArea.getText(), pm.getDepXml(), pm.getLevel(),
+					newFormula, pm.getDepXml(), pm.getLevel(),
 					MathUtilities.getRandomNegativeInt());
 			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
@@ -1044,6 +1049,7 @@ public class MMC_M extends JPanel {
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY
 		// //GEN-BEGIN:initComponents
+		// Generated using JFormDesigner Evaluation license - Christian Thoens
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
 		list1 = new JList<>();
@@ -1059,6 +1065,9 @@ public class MMC_M extends JPanel {
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		formulaApply = new JButton();
+		label13 = new JLabel();
+		boundaryArea = new JTextField();
+		boundaryApply = new JButton();
 		tableLabel = new JLabel();
 		scrollPane1 = new JScrollPane();
 		table = new ModelTableModel();
@@ -1125,10 +1134,18 @@ public class MMC_M extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Model Properties"),
-			Borders.DLU2));
+			Borders.DLU2_BORDER));
+
+		// JFormDesigner evaluation mark
+		setBorder(new javax.swing.border.CompoundBorder(
+			new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0),
+				"JFormDesigner Evaluation", javax.swing.border.TitledBorder.CENTER,
+				javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12),
+				java.awt.Color.red), getBorder())); addPropertyChangeListener(new java.beans.PropertyChangeListener(){public void propertyChange(java.beans.PropertyChangeEvent e){if("border".equals(e.getPropertyName()))throw new RuntimeException();}});
+
 		setLayout(new FormLayout(
 			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
-			"default, $rgap, default, $ugap, 2*(default, $pgap), 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
+			"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
 		((FormLayout)getLayout()).setColumnGroups(new int[][] {{5, 11, 17}, {7, 13, 19}, {9, 15, 21}});
 
 		//---- depVarLabel ----
@@ -1150,7 +1167,7 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane3.setViewportView(list1);
 		}
-		add(scrollPane3, CC.xywh(1, 1, 1, 23));
+		add(scrollPane3, CC.xywh(1, 1, 1, 25));
 
 		//---- label7 ----
 		label7.setText("Model type:");
@@ -1252,9 +1269,32 @@ public class MMC_M extends JPanel {
 		formulaApply.setText("Apply");
 		add(formulaApply, CC.xy(21, 9));
 
+		//---- label13 ----
+		label13.setText("Boundary Conditions:");
+		add(label13, CC.xy(3, 11));
+
+		//---- boundaryArea ----
+		boundaryArea.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				formulaAreaFocusLost(e);
+			}
+		});
+		boundaryArea.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				formulaAreaKeyReleased(e);
+			}
+		});
+		add(boundaryArea, CC.xywh(5, 11, 15, 1));
+
+		//---- boundaryApply ----
+		boundaryApply.setText("Apply");
+		add(boundaryApply, CC.xy(21, 11));
+
 		//---- tableLabel ----
 		tableLabel.setText("Parameter Definition:");
-		add(tableLabel, CC.xy(3, 11));
+		add(tableLabel, CC.xy(3, 13));
 
 		//======== scrollPane1 ========
 		{
@@ -1269,11 +1309,11 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane1.setViewportView(table);
 		}
-		add(scrollPane1, CC.xywh(5, 11, 17, 1));
+		add(scrollPane1, CC.xywh(5, 13, 17, 1));
 
 		//---- label12 ----
 		label12.setText("Model Name:");
-		add(label12, CC.xy(3, 13));
+		add(label12, CC.xy(3, 15));
 
 		//---- fittedModelName ----
 		fittedModelName.addFocusListener(new FocusAdapter() {
@@ -1288,16 +1328,16 @@ public class MMC_M extends JPanel {
 				fittedModelNameKeyReleased(e);
 			}
 		});
-		add(fittedModelName, CC.xywh(5, 13, 17, 1));
+		add(fittedModelName, CC.xywh(5, 15, 17, 1));
 
 		//---- label8 ----
 		label8.setText("Goodness of fit:");
-		add(label8, CC.xywh(3, 15, 1, 3));
+		add(label8, CC.xywh(3, 17, 1, 3));
 
 		//---- label3 ----
 		label3.setText("R\u00b2:");
 		label3.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label3, CC.xy(5, 15));
+		add(label3, CC.xy(5, 17));
 
 		//---- r2Field ----
 		r2Field.setColumns(7);
@@ -1313,12 +1353,12 @@ public class MMC_M extends JPanel {
 				r2FieldKeyReleased(e);
 			}
 		});
-		add(r2Field, CC.xy(7, 15));
+		add(r2Field, CC.xy(7, 17));
 
 		//---- label4 ----
 		label4.setText("RMS:");
 		label4.setHorizontalAlignment(SwingConstants.CENTER);
-		add(label4, CC.xy(11, 15));
+		add(label4, CC.xy(11, 17));
 
 		//---- rmsField ----
 		rmsField.setColumns(7);
@@ -1334,11 +1374,11 @@ public class MMC_M extends JPanel {
 				rmsFieldKeyReleased(e);
 			}
 		});
-		add(rmsField, CC.xy(13, 15));
+		add(rmsField, CC.xy(13, 17));
 
 		//---- label5 ----
 		label5.setText("AIC:");
-		add(label5, CC.xy(5, 17));
+		add(label5, CC.xy(5, 19));
 
 		//---- aicField ----
 		aicField.addFocusListener(new FocusAdapter() {
@@ -1353,11 +1393,11 @@ public class MMC_M extends JPanel {
 				aicFieldKeyReleased(e);
 			}
 		});
-		add(aicField, CC.xy(7, 17));
+		add(aicField, CC.xy(7, 19));
 
 		//---- label6 ----
 		label6.setText("BIC:");
-		add(label6, CC.xy(11, 17));
+		add(label6, CC.xy(11, 19));
 
 		//---- bicField ----
 		bicField.addFocusListener(new FocusAdapter() {
@@ -1372,7 +1412,7 @@ public class MMC_M extends JPanel {
 				bicFieldKeyReleased(e);
 			}
 		});
-		add(bicField, CC.xy(13, 17));
+		add(bicField, CC.xy(13, 19));
 
 		//======== scrollPane2 ========
 		{
@@ -1386,10 +1426,6 @@ public class MMC_M extends JPanel {
 					"Reference"
 				}
 			) {
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = -3012458597843601912L;
 				boolean[] columnEditable = new boolean[] {
 					false
 				};
@@ -1400,11 +1436,11 @@ public class MMC_M extends JPanel {
 			});
 			scrollPane2.setViewportView(referencesTable);
 		}
-		add(scrollPane2, CC.xywh(5, 19, 17, 1));
+		add(scrollPane2, CC.xywh(5, 21, 17, 1));
 
 		//---- label9 ----
 		label9.setText("References:");
-		add(label9, CC.xywh(3, 19, 1, 3));
+		add(label9, CC.xywh(3, 21, 1, 3));
 
 		//---- button1 ----
 		button1.setText("New Reference");
@@ -1414,7 +1450,7 @@ public class MMC_M extends JPanel {
 				button1ActionPerformed(e);
 			}
 		});
-		add(button1, CC.xywh(5, 21, 5, 1));
+		add(button1, CC.xywh(5, 23, 5, 1));
 
 		//---- button3 ----
 		button3.setText("Edit Reference");
@@ -1425,7 +1461,7 @@ public class MMC_M extends JPanel {
 				button3ActionPerformed(e);
 			}
 		});
-		add(button3, CC.xywh(11, 21, 5, 1));
+		add(button3, CC.xywh(11, 23, 5, 1));
 
 		//---- button2 ----
 		button2.setText("Delete Reference");
@@ -1436,15 +1472,15 @@ public class MMC_M extends JPanel {
 				button2ActionPerformed(e);
 			}
 		});
-		add(button2, CC.xywh(17, 21, 5, 1));
+		add(button2, CC.xywh(17, 23, 5, 1));
 
 		//---- label10 ----
 		label10.setText("Subjective quality:");
-		add(label10, CC.xy(3, 23));
+		add(label10, CC.xy(3, 25));
 
 		//---- label11 ----
 		label11.setText("QualityScore:");
-		add(label11, CC.xywh(5, 23, 3, 1));
+		add(label11, CC.xywh(5, 25, 3, 1));
 
 		//---- qScoreBox ----
 		qScoreBox.addActionListener(new ActionListener() {
@@ -1453,7 +1489,7 @@ public class MMC_M extends JPanel {
 				qScoreBoxActionPerformed(e);
 			}
 		});
-		add(qScoreBox, CC.xy(9, 23));
+		add(qScoreBox, CC.xy(9, 25));
 
 		//---- checkBox1 ----
 		checkBox1.setText("Checked");
@@ -1463,7 +1499,7 @@ public class MMC_M extends JPanel {
 				checkBox1ActionPerformed(e);
 			}
 		});
-		add(checkBox1, CC.xy(15, 23));
+		add(checkBox1, CC.xy(15, 25));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1475,6 +1511,7 @@ public class MMC_M extends JPanel {
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY
 	// //GEN-BEGIN:variables
+	// Generated using JFormDesigner Evaluation license - Christian Thoens
 	private JLabel depVarLabel;
 	private JScrollPane scrollPane3;
 	private JList<ParametricModel> list1;
@@ -1490,6 +1527,9 @@ public class MMC_M extends JPanel {
 	private JLabel label2;
 	private JTextField formulaArea;
 	private JButton formulaApply;
+	private JLabel label13;
+	private JTextField boundaryArea;
+	private JButton boundaryApply;
 	private JLabel tableLabel;
 	private JScrollPane scrollPane1;
 	private ModelTableModel table;

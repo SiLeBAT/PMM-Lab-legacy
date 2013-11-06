@@ -1300,12 +1300,13 @@ public class Bfrdb extends Hsqldbiface {
 					String n = mx.getName();
 					String d = mx.getDescription();
 					if (n == null || n.isEmpty()) n = d;
-					if (d == null || d.isEmpty()) d = n;
-					if (n == null ||
-							!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
-							!n.equals(AttributeUtilities.ATT_PH) &&
-							!n.equals(AttributeUtilities.ATT_AW)) {
-	    				Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Parameter Beschreibung
+					if (d == null || d.isEmpty() || d.equals("null")) d = n;
+					if (n != null &&
+						!n.equals(AttributeUtilities.ATT_TEMPERATURE) &&
+						!n.equals(AttributeUtilities.ATT_PH) &&
+						!n.equals(AttributeUtilities.ATT_AW)) {
+	    				//Integer paramID = getID("SonstigeParameter", "Beschreibung", d.toLowerCase()); // Beschreibung
+	    				Integer paramID = getID("SonstigeParameter", "Parameter", n); // Parameter
 	    				if (paramID == null) {
 							try {
 								if (n != null && d != null && !n.isEmpty() && !d.isEmpty()) {

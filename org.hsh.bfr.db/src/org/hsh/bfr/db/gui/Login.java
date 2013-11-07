@@ -50,7 +50,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.sql.ResultSet;
 import java.util.ResourceBundle;
 
 import javax.swing.ImageIcon;

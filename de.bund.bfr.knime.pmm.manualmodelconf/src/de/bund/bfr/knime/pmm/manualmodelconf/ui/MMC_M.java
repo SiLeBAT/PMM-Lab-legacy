@@ -1046,19 +1046,20 @@ public class MMC_M extends JPanel {
 		if (addPreviousSelectedPM) modelNameBox.setSelectedItem(ppm);
 	}
 
+
+	@SuppressWarnings({ "serial", "deprecation" })
 	private void initComponents() {
-		// JFormDesigner - Component initialization - DO NOT MODIFY
-		// //GEN-BEGIN:initComponents
+		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		// Generated using JFormDesigner Evaluation license - Christian Thoens
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
-		list1 = new JList<ParametricModel>();
+		list1 = new JList<>();
 		label7 = new JLabel();
 		radioButton1 = new JRadioButton();
 		radioButton2 = new JRadioButton();
 		radioButton3 = new JRadioButton();
 		modelNameLabel = new JLabel();
-		modelNameBox = new JComboBox<ParametricModel>();
+		modelNameBox = new JComboBox<>();
 		button4 = new JButton();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
@@ -1090,7 +1091,7 @@ public class MMC_M extends JPanel {
 		button2 = new JButton();
 		label10 = new JLabel();
 		label11 = new JLabel();
-		qScoreBox = new JComboBox<Color>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
+		qScoreBox = new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});
 		qScoreBox.setRenderer(new DefaultListCellRenderer() {
 					private static final long serialVersionUID = 1L;
 
@@ -1506,11 +1507,10 @@ public class MMC_M extends JPanel {
 		buttonGroup1.add(radioButton1);
 		buttonGroup1.add(radioButton2);
 		buttonGroup1.add(radioButton3);
-		// //GEN-END:initComponents
+		// JFormDesigner - End of component initialization  //GEN-END:initComponents
 	}
 
-	// JFormDesigner - Variables declaration - DO NOT MODIFY
-	// //GEN-BEGIN:variables
+	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 	// Generated using JFormDesigner Evaluation license - Christian Thoens
 	private JLabel depVarLabel;
 	private JScrollPane scrollPane3;
@@ -1554,6 +1554,5 @@ public class MMC_M extends JPanel {
 	private JLabel label11;
 	private JComboBox<Color> qScoreBox;
 	private JCheckBox checkBox1;
-	// JFormDesigner - End of variables declaration //GEN-END:variables
-
+	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

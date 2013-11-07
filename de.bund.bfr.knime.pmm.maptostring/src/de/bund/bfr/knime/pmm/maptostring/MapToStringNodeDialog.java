@@ -50,8 +50,8 @@ public class MapToStringNodeDialog extends NodeDialogPane {
 		nameField = new StringTextField(false);
 		nameField.setPreferredSize(new Dimension(100, nameField
 				.getPreferredSize().height));
-		keyFields = new ArrayList<>();
-		valueFields = new ArrayList<>();
+		keyFields = new ArrayList<StringTextField>();
+		valueFields = new ArrayList<DoubleTextField>();
 
 		JPanel namePanel = new JPanel();
 

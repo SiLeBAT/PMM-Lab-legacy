@@ -45,7 +45,7 @@ public class MapToStringNodeModel extends NodeModel {
 	@Override
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
-		Map<String, Double> map = new LinkedHashMap<>();
+		Map<String, Double> map = new LinkedHashMap<String, Double>();
 
 		for (int i = 0; i < 5; i++) {
 			String key = set.getKeys().get(i);

@@ -395,8 +395,4 @@ public class MathUtilities {
 		}
 	}
 
-	public static void main(String[] args) {
-		System.out.println(getBoundaryCondition("a+b*((a>b))"));
-		System.out.println(getAllButBoundaryCondition("a+b*((a>b))"));
-	}
 }

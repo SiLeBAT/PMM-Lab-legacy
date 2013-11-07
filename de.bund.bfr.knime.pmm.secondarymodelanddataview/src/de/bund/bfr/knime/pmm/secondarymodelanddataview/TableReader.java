@@ -181,14 +181,13 @@ public class TableReader {
 			}
 
 			if (!idSet.contains(id)) {
-				PmmXmlDoc modelXmlSec = tuple
-						.getPmmXml(Model2Schema.ATT_MODELCATALOG);
+				CatalogModelXml modelXmlSec = (CatalogModelXml) tuple
+						.getPmmXml(Model2Schema.ATT_MODELCATALOG).get(0);
 				PmmXmlDoc estModelXmlSec = tuple
 						.getPmmXml(Model2Schema.ATT_ESTMODEL);
-				String modelNameSec = ((CatalogModelXml) modelXmlSec.get(0))
-						.getName();
-				String formulaSec = ((CatalogModelXml) modelXmlSec.get(0))
-						.getFormula();
+				String modelNameSec = modelXmlSec.getName();
+				String formulaSec = MathUtilities
+						.getAllButBoundaryCondition(modelXmlSec.getFormula());
 				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
 				PmmXmlDoc paramXmlSec = tuple
@@ -236,7 +235,7 @@ public class TableReader {
 				shortLegend.put(id, depVarSec);
 				longLegend.put(id, depVarSec + " (" + modelNameSec + ")");
 
-				formulaMap.put(id, formulaSec);
+				formulaMap.put(id, modelXmlSec.getFormula());
 				depVarMap.put(id, depVarSec);
 				indepVarMap.put(id,
 						tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));

@@ -223,7 +223,8 @@ public class TableReader {
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = modelXml.getName();
-			String formula = modelXml.getFormula();
+			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
+					.getFormula());
 			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			List<String> indepVars = CellIO.getNameList(indepXml);
@@ -421,7 +422,7 @@ public class TableReader {
 			units.put(AttributeUtilities.TIME, timeUnit);
 			units.put(AttributeUtilities.CONCENTRATION, concentrationUnit);
 
-			plotable.setFunction(formula);
+			plotable.setFunction(modelXml.getFormula());
 			plotable.setFunctionParameters(parameters);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);

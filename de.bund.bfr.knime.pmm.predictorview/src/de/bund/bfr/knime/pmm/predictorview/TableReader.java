@@ -159,8 +159,8 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = new ArrayList<String>(Arrays.asList(IDENTIFIER,
-					Model1Schema.MODELNAME, Model2Schema.MODELNAME,
+			standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+					IDENTIFIER, Model1Schema.MODELNAME, Model2Schema.MODELNAME,
 					Model1Schema.FITTEDMODELNAME, ChartConstants.STATUS));
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
@@ -244,12 +244,14 @@ public class TableReader {
 			ids.add(id);
 			tupleMap.put(id, tuple);
 
-			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
-			String modelName = ((CatalogModelXml) modelXml.get(0)).getName();
-			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
+			String modelID = modelXml.getID() + "";
+			String modelName = modelXml.getName();
+			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
+					.getFormula());
 			String depVar = depXml.getName();
 			PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
@@ -396,7 +398,7 @@ public class TableReader {
 			doubleColumnValues.get(4).add(
 					((EstModelXml) estModelXml.get(0)).getAIC());
 
-			plotable.setFunction(formula);
+			plotable.setFunction(modelXml.getFormula());
 			plotable.setFunctionValue(depVar);
 			plotable.setFunctionArguments(variables);
 			plotable.setMinArguments(varMin);

@@ -433,6 +433,12 @@ public class TableReader {
 
 					if (!containsData) {
 						conditionUnits.get(i).add(unit);
+					} else {
+						List<String> cu = conditionUnits.get(i);
+
+						if (!cu.isEmpty() && cu.get(cu.size() - 1) == null) {
+							cu.set(cu.size() - 1, unit);
+						}
 					}
 				}
 

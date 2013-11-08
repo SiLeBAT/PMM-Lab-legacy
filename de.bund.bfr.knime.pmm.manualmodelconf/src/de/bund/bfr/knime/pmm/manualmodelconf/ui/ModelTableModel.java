@@ -379,8 +379,8 @@ public class ModelTableModel extends JTable {
 			  catch (Exception e) {}
 			  
 			  c.setBorder(null);
-			  table.repaint();
-			  table.revalidate();
+//			  table.repaint();
+//			  table.revalidate();
 			  return c;
 		  }
 		}

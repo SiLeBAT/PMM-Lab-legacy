@@ -250,9 +250,27 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 		}
 		return defaultValue;
 	}
+	private String getMiscUnit(String attribute, String defaultValue) throws PmmException {
+		PmmXmlDoc miscXmlDoc = getMisc();
+		if (miscXmlDoc != null) {
+			MiscXml mx = null;
+	    	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+	    		if (el instanceof MiscXml) {
+	    			mx = (MiscXml) el;
+	    			if (mx.getName().equalsIgnoreCase(attribute)) {
+	    				return mx.getUnit();
+	    			}
+	    		}
+	    	}
+		}
+		return defaultValue;
+	}
 	
 	public Double getTemperature() throws PmmException {
 		return getMiscValue(AttributeUtilities.ATT_TEMPERATURE, Double.NaN); // return Double.NaN; // getDouble( TimeSeriesSchema.ATT_TEMPERATURE )
+	}
+	public String getTemperatureUnit() throws PmmException {
+		return getMiscUnit(AttributeUtilities.ATT_TEMPERATURE, "°C"); // return Double.NaN; // getDouble( TimeSeriesSchema.ATT_TEMPERATURE )
 	}
 
 	public Double getPh() throws PmmException {

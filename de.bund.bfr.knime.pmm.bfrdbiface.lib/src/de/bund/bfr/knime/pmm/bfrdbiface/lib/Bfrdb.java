@@ -68,6 +68,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class Bfrdb extends Hsqldbiface {
@@ -1447,10 +1448,21 @@ public class Bfrdb extends Hsqldbiface {
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
 		
+    private Double convert(Category cat, String fromUnit, Double value, String toUnit) {
+    	Double newValue;
+		try {
+			newValue = cat.convert(value, fromUnit, toUnit);
+		}
+		catch (ConvertException e) {
+			newValue = value;
+		}
+		return newValue;
+    }
 	public Integer insertTs(final PmmTimeSeries ts) throws PmmException {		
 		Integer condId = ts.getCondId();
 		Double ph = ts.getPh();
 		Double temp = ts.getTemperature();
+		temp = convert(Categories.getTempCategory(), "°C", temp, ts.getTemperatureUnit());
 		Double aw = ts.getWaterActivity();
 		String organism = ts.getAgentName();
 		String environment = ts.getMatrixName();

@@ -71,8 +71,8 @@ public class MainKernel {
 	*/
 	private static String[][] dbDefs = new String[][] {
 		//{"krise_145","krise_145","SA","de6!§5ddy"},
-		{"silebat_DB","silebat_DB","defad","de6!§5ddy"}//,
-//		{"silebat_test_146","silebat_test_146","defad","de6!§5ddy"}
+		{"silebat_DB","silebat_DB","defad","de6!§5ddy"},
+		{"silebat_DB_test","silebat_DB_test","defad","de6!§5ddy"}//,
 	};
 	
 	public static void main(final String[] args) { // Servervariante

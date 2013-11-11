@@ -212,7 +212,8 @@ public class CellIO {
 		if (xmlDoc == null) return null;
 		DataCell xmlCell = null;
 		long ttt = System.currentTimeMillis();
-		xmlCell = XMLCellFactory.create(xmlDoc.getW3C());
+		org.w3c.dom.Document doc = xmlDoc.getW3C();
+		xmlCell = XMLCellFactory.create(doc);
 		tttxcmldoc += (System.currentTimeMillis() - ttt);
 		return xmlCell;
 	}

@@ -130,7 +130,8 @@ public class PmmXmlDoc {
 	
 	public org.w3c.dom.Document getW3C() {
 		try {
-			return new DOMOutputter().output(toXmlDocument());
+			Document doc = toXmlDocument();
+			return new DOMOutputter().output(doc);
 		}
 		catch (JDOMException e) {
 			e.printStackTrace();

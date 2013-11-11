@@ -387,15 +387,12 @@ public class EmReaderUi extends JPanel {
     		final KnimeTuple tuple )
     throws PmmException {
 
-    	if( level == 1 )
-    		if( !MdReaderUi.passesFilter( matrixString,
-				agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple ) )
-    			return false;
-    	
-    	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple, level) )
+		if (!MdReaderUi.passesFilter(matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter, tuple)) {
+			return false;
+		}    	
+    	if (modelFilterEnabled && !ModelReaderUi.passesFilter(modelList, tuple, level)) {
     		return false;
-    		
-    		
+    	}
         	
 		PmmXmlDoc x = tuple.getPmmXml(Model1Schema.getAttribute(Model1Schema.ATT_ESTMODEL, level));
 		EstModelXml emx = null;

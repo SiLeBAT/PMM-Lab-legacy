@@ -55,6 +55,7 @@ import org.knime.core.node.config.Config;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CellIO;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -198,16 +199,8 @@ CellIO.tttxcmldoc = 0;
         		
     	    	String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
-        			PmmXmlDoc l = new PmmXmlDoc();
-        			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
-        			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
-        			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
-        			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
-        			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-        					(Integer) (year == null ? null : year),
-        					title == null ? null : title.toString(),
-        					abstrac == null ? null : abstrac.toString(),
-        					Integer.valueOf(s)); 
+        			PmmXmlDoc l = new PmmXmlDoc();        			
+        			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s));
         			l.add(li);
     				tuple.setLiterature(l);
     			}

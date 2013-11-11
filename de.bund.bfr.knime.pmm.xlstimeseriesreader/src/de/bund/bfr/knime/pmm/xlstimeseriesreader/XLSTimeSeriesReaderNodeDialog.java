@@ -71,6 +71,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -401,22 +402,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			Set<Integer> ids = new LinkedHashSet<Integer>();
 
 			for (LiteratureItem item : set.getLiterature()) {
-				ids.add(item.getID());
+				ids.add(item.getId());
 			}
 
 			if (id != null && !ids.contains(id)) {
-				String author = DBKernel.getValue("Literatur", "ID", id + "",
-						"Erstautor") + "";
-				String year = DBKernel.getValue("Literatur", "ID", id + "",
-						"Jahr") + "";
-				String title = DBKernel.getValue("Literatur", "ID", id + "",
-						"Titel") + "";
-				String mAbstract = DBKernel.getValue("Literatur", "ID",
-						id + "", "Abstract") + "";
+				LiteratureItem l = DBUtilities.getLiteratureItem(id);
 
-				set.getLiterature().add(
-						new LiteratureItem(author, Integer.parseInt(year),
-								title, mAbstract, id));
+				set.getLiterature().add(l);	
 				literatureList.setListData(set.getLiterature().toArray(
 						new LiteratureItem[0]));
 			}

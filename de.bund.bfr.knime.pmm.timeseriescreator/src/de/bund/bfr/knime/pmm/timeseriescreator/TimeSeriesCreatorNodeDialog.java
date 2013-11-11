@@ -77,6 +77,7 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
@@ -129,8 +130,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 	private TimeSeriesTable table;
 	private JButton addLiteratureButton;
 	private JButton removeLiteratureButton;
-	private JList<String> literatureList;
-	private List<String> literatureData;
+	private JList<LiteratureItem> literatureList;
 	private JButton agentButton;
 	private JButton matrixButton;
 	private StringTextField idField;
@@ -181,7 +181,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		addLiteratureButton.addActionListener(this);
 		removeLiteratureButton = new JButton("-");
 		removeLiteratureButton.addActionListener(this);
-		literatureList = new JList<String>();
+		literatureList = new JList<LiteratureItem>();
 		agentButton = new JButton(SELECT);
 		agentButton.addActionListener(this);
 		matrixButton = new JButton(SELECT);
@@ -297,13 +297,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		set = new SettingsHelper();
 		set.loadSettings(settings);
 
-		literatureData = new ArrayList<String>();
-
-		for (LiteratureItem item : set.getLiterature()) {
-			literatureData.add(item.getAuthor() + "-" + item.getYear());
-		}
-
-		literatureList.setListData(literatureData.toArray(new String[0]));
+		literatureList.setListData(set.getLiterature().toArray(
+				new LiteratureItem[0]));
 
 		timeBox.setSelectedItem(set.getTimeUnit());
 		logcBox.setSelectedItem(set.getLogcUnit());
@@ -505,25 +500,15 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Set<Integer> ids = new LinkedHashSet<Integer>();
 
 			for (LiteratureItem item : set.getLiterature()) {
-				ids.add(item.getID());
+				ids.add(item.getId());
 			}
 
 			if (id != null && !ids.contains(id)) {
-				String author = DBKernel.getValue("Literatur", "ID", id + "",
-						"Erstautor") + "";
-				String year = DBKernel.getValue("Literatur", "ID", id + "",
-						"Jahr") + "";
-				String title = DBKernel.getValue("Literatur", "ID", id + "",
-						"Titel") + "";
-				String mAbstract = DBKernel.getValue("Literatur", "ID",
-						id + "", "Abstract") + "";
+				LiteratureItem l = DBUtilities.getLiteratureItem(id);
 
-				set.getLiterature().add(
-						new LiteratureItem(author, Integer.parseInt(year),
-								title, mAbstract, id));
-				literatureData.add(author + "-" + year);
-				literatureList.setListData(literatureData
-						.toArray(new String[0]));
+				set.getLiterature().add(l);
+				literatureList.setListData(set.getLiterature().toArray(
+						new LiteratureItem[0]));
 			}
 		} else if (event.getSource() == removeLiteratureButton) {
 			if (literatureList.getSelectedIndices().length > 0) {
@@ -533,11 +518,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				for (int i = indices.length - 1; i >= 0; i--) {
 					set.getLiterature().remove(indices[i]);
-					literatureData.remove(indices[i]);
 				}
 
-				literatureList.setListData(literatureData
-						.toArray(new String[0]));
+				literatureList.setListData(set.getLiterature().toArray(
+						new LiteratureItem[0]));
 			}
 		} else if (event.getSource() == agentButton) {
 			Integer id;

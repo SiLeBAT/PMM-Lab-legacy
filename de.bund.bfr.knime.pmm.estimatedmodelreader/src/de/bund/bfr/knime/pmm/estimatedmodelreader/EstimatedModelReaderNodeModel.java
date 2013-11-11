@@ -60,6 +60,7 @@ import org.knime.core.node.config.Config;
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -250,16 +251,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		
         		String s = result.getString(Bfrdb.ATT_LITERATUREID);
         		if (s != null) {
-        			PmmXmlDoc l = new PmmXmlDoc();
-        			Object author = DBKernel.getValue(conn,"Literatur", "ID", s, "Erstautor");
-        			Object year = DBKernel.getValue(conn,"Literatur", "ID", s, "Jahr");
-        			Object title = DBKernel.getValue(conn,"Literatur", "ID", s, "Titel");
-        			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", s, "Abstract");
-        			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-        					(Integer) (year == null ? null : year),
-        					title == null ? null : title.toString(),
-        					abstrac == null ? null : abstrac.toString(),
-        					Integer.valueOf(s)); 
+        			PmmXmlDoc l = new PmmXmlDoc();        			
+        			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(s));
         			l.add(li);
     				tuple.setValue(TimeSeriesSchema.ATT_LITMD,l);
     			}
@@ -497,16 +490,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     private static PmmXmlDoc getLiterature(Connection conn, String s) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
-		for (String id : ids) {
-			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
-			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-					(Integer) (year == null ? null : year),
-					title == null ? null : title.toString(),
-					abstrac == null ? null : abstrac.toString(),
-					Integer.valueOf(id)); 
+		for (String id : ids) {			
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id));
 			l.add(li);
 		}    
 		return l;

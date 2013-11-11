@@ -36,6 +36,7 @@ import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.ParametricModel;
@@ -871,23 +872,11 @@ public class MMC_M extends JPanel {
 	private void doLit(LiteratureItem oldLi) {
 		MyTable lit = MyDBTables.getTable("Literatur");
 		Integer litID = (oldLi != null && (dbuuid != null && dbuuid
-				.equals(oldLi.getDbuuid()))) ? oldLi.getID() : null;
-		Object newVal = DBKernel.myList.openNewWindow(lit, litID,
+				.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
+		Integer newVal = (Integer) DBKernel.myList.openNewWindow(lit, litID,
 				(Object) "Literatur", null, 1, 1, null, true, null, this);
-		if (newVal != null && newVal instanceof Integer) {
-			Object author = DBKernel.getValue("Literatur", "ID",
-					newVal.toString(), "Erstautor");
-			Object year = DBKernel.getValue("Literatur", "ID",
-					newVal.toString(), "Jahr");
-			Object title = DBKernel.getValue("Literatur", "ID",
-					newVal.toString(), "Titel");
-			Object mAbstract = DBKernel.getValue("Literatur", "ID",
-					newVal.toString(), "Abstract");
-			LiteratureItem li = new LiteratureItem(author == null ? "?"
-					: author.toString(), year == null ? null : (Integer) year,
-					title == null ? "?" : title.toString(),
-					mAbstract == null ? "?" : mAbstract.toString(),
-					(Integer) newVal, dbuuid);
+		if (newVal != null && newVal instanceof Integer) {			
+			LiteratureItem li = DBUtilities.getLiteratureItem(newVal);
 			Vector<LiteratureItem> vli = new Vector<LiteratureItem>();
 			vli.add(li);
 			if (oldLi != null) {

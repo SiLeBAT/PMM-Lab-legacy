@@ -291,7 +291,7 @@ public class MdReaderUi extends JPanel {
         		if (el instanceof LiteratureItem) {
         			LiteratureItem lit = (LiteratureItem) el;
         			if (literatureID > 0) {
-        				int id = lit.getID();
+        				int id = lit.getId();
         				if (literatureID != id) return false;
         			}
         			else {

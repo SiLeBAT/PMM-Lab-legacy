@@ -51,119 +51,299 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	private static final String ATT_YEAR = "year";
 	private static final String ATT_TITLE = "title";
 	private static final String ATT_ABSTRACT = "abstract";
+	private static final String ATT_JOURNAL = "journal";
+	private static final String ATT_VOLUME = "volume";
+	private static final String ATT_ISSUE = "issue";
+	private static final String ATT_PAGE = "page";
+	private static final String ATT_APPROVAL_MODE = "approvalMode";
+	private static final String ATT_WEBSITE = "website";
+	private static final String ATT_TYPE = "type";
+	private static final String ATT_COMMENT = "comment";
 	private static final String ATT_ID = "id";
-	
+	private static final String ATT_DBUUID = "dbuuid";
+
 	private Integer id;
-	private String name;
 	private String author;
 	private String title;
-	private String m_abstract;
+	private String abstractText;
 	private Integer year;
+	private String journal;
+	private String volume;
+	private String issue;
+	private Integer page;
+	private Integer approvalMode;
+	private String website;
+	private Integer type;
+	private String comment;
 	private String dbuuid = null;
-	
-	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id, String dbuuid) {
+
+	public LiteratureItem(final String author, final Integer year,
+			final String title, final String abstractText, String journal,
+			String volume, String issue, Integer page, Integer approvalMode,
+			String website, Integer type, String comment, final Integer id,
+			String dbuuid) {
 		this.author = author;
-		this.title = title;
-		this.m_abstract = m_abstract;
 		this.year = year;
+		this.title = title;
+		this.abstractText = abstractText;
+		this.journal = journal;
+		this.volume = volume;
+		this.issue = issue;
+		this.page = page;
+		this.approvalMode = approvalMode;
+		this.website = website;
+		this.type = type;
+		this.comment = comment;
 		this.id = id;
 		this.dbuuid = dbuuid;
-		setName();
 	}
-	
-	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract, final Integer id) {
-		this(author, year, title, m_abstract, id, null);
+
+	public LiteratureItem(final String author, final Integer year,
+			final String title, final String abstractText, String journal,
+			String volume, String issue, Integer page, Integer approvalMode,
+			String website, Integer type, String comment, final Integer id) {
+		this(author, year, title, abstractText, journal, volume, issue, page,
+				approvalMode, website, type, comment, id, null);
 	}
-	public LiteratureItem(final String author, final Integer year, final String title, final String m_abstract) {
-		this(author, year, title, m_abstract, MathUtilities.getRandomNegativeInt(), null);
+
+	public LiteratureItem(final String author, final Integer year,
+			final String title, final String abstractText, String journal,
+			String volume, String issue, Integer page, Integer approvalMode,
+			String website, Integer type, String comment) {
+		this(author, year, title, abstractText, journal, volume, issue, page,
+				approvalMode, website, type, comment, MathUtilities
+						.getRandomNegativeInt(), null);
 	}
-	
+
 	public LiteratureItem(final Element el) {
-		this(el.getAttributeValue(ATT_AUTHOR).isEmpty() ? null : el.getAttributeValue(ATT_AUTHOR),
-			el.getAttributeValue(ATT_YEAR).isEmpty() ? null : Integer.valueOf(el.getAttributeValue(ATT_YEAR)),
-			el.getAttributeValue(ATT_TITLE).isEmpty() ? null : el.getAttributeValue(ATT_TITLE),
-			el.getAttributeValue(ATT_ABSTRACT).isEmpty() ? null : el.getAttributeValue(ATT_ABSTRACT),
-			Integer.valueOf(el.getAttributeValue(ATT_ID)),
-			el.getAttribute("dbuuid") == null ? null : el.getAttribute("dbuuid").getValue());
+		this(getString(el, ATT_AUTHOR), getInt(el, ATT_YEAR), getString(el,
+				ATT_TITLE), getString(el, ATT_ABSTRACT), getString(el,
+				ATT_JOURNAL), getString(el, ATT_VOLUME), getString(el,
+				ATT_ISSUE), getInt(el, ATT_PAGE),
+				getInt(el, ATT_APPROVAL_MODE), getString(el, ATT_WEBSITE),
+				getInt(el, ATT_TYPE), getString(el, ATT_COMMENT), getInt(el,
+						ATT_ID), getString(el, ATT_DBUUID));
 	}
-	
+
 	@Override
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_LITERATURE);
-		ret.setAttribute(ATT_AUTHOR, author == null ? "" : author);
-		ret.setAttribute(ATT_YEAR, year == null ? "" : String.valueOf(year));
+		ret.setAttribute(ATT_AUTHOR, getNonNull(author));
+		ret.setAttribute(ATT_YEAR, getNonNull(year));
 		ret.setAttribute(ATT_TITLE, removeDirt(title));
-		ret.setAttribute(ATT_ABSTRACT, removeDirt(m_abstract));
-		ret.setAttribute(ATT_ID, String.valueOf(id));		
-		ret.setAttribute("dbuuid", dbuuid == null ? "" : dbuuid);
+		ret.setAttribute(ATT_ABSTRACT, removeDirt(abstractText));
+		ret.setAttribute(ATT_JOURNAL, getNonNull(journal));
+		ret.setAttribute(ATT_VOLUME, getNonNull(volume));
+		ret.setAttribute(ATT_ISSUE, getNonNull(issue));
+		ret.setAttribute(ATT_PAGE, getNonNull(page));
+		ret.setAttribute(ATT_APPROVAL_MODE, getNonNull(approvalMode));
+		ret.setAttribute(ATT_WEBSITE, getNonNull(website));
+		ret.setAttribute(ATT_TYPE, getNonNull(type));
+		ret.setAttribute(ATT_COMMENT, getNonNull(comment));
+		ret.setAttribute(ATT_ID, getNonNull(id));
+		ret.setAttribute("dbuuid", getNonNull(dbuuid));
 		return ret;
 	}
+
 	private String removeDirt(String toClean) {
 		String cleaned = (toClean == null ? "" : toClean);
-		cleaned = cleaned.toString().replace("&amp;", "&"); //.replace("\n", " "); //.replaceAll("[^A-Za-zäöüßÄÖÜ0-9+-.,;': ()°%?&=<>/]", "");
+		cleaned = cleaned.toString().replace("&amp;", "&"); // .replace("\n",
+															// " ");
+															// //.replaceAll("[^A-Za-zäöüßÄÖÜ0-9+-.,;': ()°%?&=<>/]",
+															// "");
 		cleaned = cleanInvalidXmlChars(cleaned);
 		/*
-		if (toClean != null && !toClean.equals(cleaned)) {
-			System.err.println(toClean);
-			System.err.println(cleaned);
-		}
-		*/
+		 * if (toClean != null && !toClean.equals(cleaned)) {
+		 * System.err.println(toClean); System.err.println(cleaned); }
+		 */
 		return cleaned;
 	}
-    private String cleanInvalidXmlChars(String text) {        
-        String re = "[^^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD]";
-        return text.replaceAll(re, " ");
-    }
-	
-	public String getName() {return name;}
-	public String getAuthor() {return author;}
-	public String getTitle() {return title;}
-	public String getAbstract() {return m_abstract;}
-	public Integer getYear() {return year;}
-	public Integer getID() {return id;}
-	public String getDbuuid() {return dbuuid;}
 
-	public void setAuthor(String author) {this.author = (author == null) ? "" : author;}
-	public void setTitle(String title) {this.title = title;}
-	public void setAbstract(String m_abstract) {this.m_abstract = m_abstract;}
-	public void setYear(Integer year) {this.year = year;}
-	public void setId(Integer id) {this.id = id;}
-	public void setName(String name) {this.name = name;}
-	public void setName() {name = author+"_"+year+"_"+title;}
-	public void setDbuuid(String dbuuid) {this.dbuuid = dbuuid;}
+	private String cleanInvalidXmlChars(String text) {
+		String re = "[^^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD]";
+		return text.replaceAll(re, " ");
+	}
+
+	private static String getString(Element el, String attr) {
+		if (el == null || el.getAttributeValue(attr) == null
+				|| el.getAttributeValue(attr).isEmpty()) {
+			return null;
+		}
+
+		return el.getAttributeValue(attr);
+	}
+
+	private static Integer getInt(Element el, String attr) {
+		if (el == null || el.getAttributeValue(attr) == null
+				|| el.getAttributeValue(attr).isEmpty()) {
+			return null;
+		}
+
+		try {
+			return Integer.valueOf(el.getAttributeValue(attr));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	private static String getNonNull(String s) {
+		if (s == null) {
+			return "";
+		}
+
+		return s;
+	}
+
+	private static String getNonNull(Integer i) {
+		if (i == null) {
+			return "";
+		}
+
+		return i + "";
+	}
 
 	@Override
-	public String toString() {setName(); return name;}
-	
-	public static List<String> getElements() {
-        List<String> list = new ArrayList<String>();
-        list.add("ID");
-        list.add("Author");
-        list.add("Year");
-        list.add("Title");
-        list.add("Abstract");
-        list.add("Dbuuid");
-        return list;
+	public String toString() {
+		return author + "_" + year + "_" + title;
 	}
+
+	public static List<String> getElements() {
+		List<String> list = new ArrayList<String>();
+		list.add("ID");
+		list.add("Author");
+		list.add("Year");
+		list.add("Title");
+		list.add("Abstract");
+		list.add("Dbuuid");
+		return list;
+	}
+
 	public static DataType getDataType(String element) {
 		if (element.equalsIgnoreCase("id")) {
 			return IntCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("author")) {
+		} else if (element.equalsIgnoreCase("author")) {
 			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("year")) {
+		} else if (element.equalsIgnoreCase("year")) {
 			return IntCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("title")) {
+		} else if (element.equalsIgnoreCase("title")) {
 			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("abstract")) {
+		} else if (element.equalsIgnoreCase("abstract")) {
 			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("dbuuid")) {
+		} else if (element.equalsIgnoreCase("dbuuid")) {
 			return StringCell.TYPE;
 		}
 		return null;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getAbstractText() {
+		return abstractText;
+	}
+
+	public void setAbstractText(String abstractText) {
+		this.abstractText = abstractText;
+	}
+
+	public Integer getYear() {
+		return year;
+	}
+
+	public void setYear(Integer year) {
+		this.year = year;
+	}
+
+	public String getJournal() {
+		return journal;
+	}
+
+	public void setJournal(String journal) {
+		this.journal = journal;
+	}
+
+	public String getVolume() {
+		return volume;
+	}
+
+	public void setVolume(String volume) {
+		this.volume = volume;
+	}
+
+	public String getIssue() {
+		return issue;
+	}
+
+	public void setIssue(String issue) {
+		this.issue = issue;
+	}
+
+	public Integer getPage() {
+		return page;
+	}
+
+	public void setPage(Integer page) {
+		this.page = page;
+	}
+
+	public Integer getApprovalMode() {
+		return approvalMode;
+	}
+
+	public void setApprovalMode(Integer approvalMode) {
+		this.approvalMode = approvalMode;
+	}
+
+	public String getWebsite() {
+		return website;
+	}
+
+	public void setWebsite(String website) {
+		this.website = website;
+	}
+
+	public Integer getType() {
+		return type;
+	}
+
+	public void setType(Integer type) {
+		this.type = type;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+
+	public String getDbuuid() {
+		return dbuuid;
+	}
+
+	public void setDbuuid(String dbuuid) {
+		this.dbuuid = dbuuid;
 	}
 }

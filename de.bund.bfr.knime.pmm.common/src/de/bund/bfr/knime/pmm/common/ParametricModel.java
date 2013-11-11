@@ -670,26 +670,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void removeEstModelLits() {
 		estLit = new PmmXmlDoc();
 	}
-	public void addEstModelLit(final String author, final Integer year) {
-		addEstModelLit(author, year, null);
-	}	
-	public void addEstModelLit(final String author, final Integer year, final Integer id) {
-		LiteratureItem li = new LiteratureItem(author, year, null, null, id);
-		addEstModelLit(li);
-	}	
 	public void addEstModelLit(final LiteratureItem item) {
 		estLit.add(item);
 	}
 	
 	public void removeModelLits() {
 		modelLit = new PmmXmlDoc();
-	}
-	public void addModelLit(final String author, final Integer year) {
-		addModelLit(author, year, null);
-	}
-	public void addModelLit(final String author, final Integer year, final Integer id) {
-		LiteratureItem li = new LiteratureItem(author, year, null, null, id);
-		addModelLit(li);
 	}
 	public void addModelLit(final LiteratureItem item) {
 		modelLit.add(item);

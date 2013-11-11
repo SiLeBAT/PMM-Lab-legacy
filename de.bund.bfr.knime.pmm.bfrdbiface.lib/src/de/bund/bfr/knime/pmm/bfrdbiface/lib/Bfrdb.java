@@ -50,6 +50,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
 import de.bund.bfr.knime.pmm.common.DbIo;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
@@ -690,16 +691,8 @@ public class Bfrdb extends Hsqldbiface {
     public PmmXmlDoc getLiteratureXml(String s) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
-		for (String id : ids) {
-			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
-			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-					(Integer) (year == null ? null : year),
-					title == null ? null : title.toString(),
-					abstrac == null ? null : abstrac.toString(),
-					Integer.valueOf(id)); 
+		for (String id : ids) {			
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id)); 
 			l.add(li);
 		}    
 		return l;
@@ -1262,7 +1255,7 @@ public class Bfrdb extends Hsqldbiface {
 				List<PmmXmlElementConvertable> l = lit.getElementSet();
 				if (l.size() > 0) {
 					LiteratureItem li = (LiteratureItem) l.get(0);
-					ps.setInt(10, li.getID());
+					ps.setInt(10, li.getId());
 				}
 				else {
 					ps.setNull(10, Types.INTEGER);					
@@ -1388,15 +1381,15 @@ public class Bfrdb extends Hsqldbiface {
 			for (PmmXmlElementConvertable el : lit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getID() <= 0) {
+					if (li.getId() <= 0) {
 						if (li.getAuthor() == null) psm.setNull(1, Types.VARCHAR);
 						else psm.setString(1, li.getAuthor());
 						if (li.getYear() == null) psm.setNull(2, Types.INTEGER);
 						else psm.setInt(2, li.getYear());
 						if (li.getTitle() == null) psm.setNull(3, Types.VARCHAR);
 						else psm.setString(3, li.getTitle());
-						if (li.getAbstract() == null) psm.setNull(4, Types.VARCHAR);						
-						else psm.setString(4, li.getAbstract());
+						if (li.getAbstractText() == null) psm.setNull(4, Types.VARCHAR);						
+						else psm.setString(4, li.getAbstractText());
 						int newID = 0;
 						try {
 							if (psm.executeUpdate() > 0) {
@@ -1630,15 +1623,15 @@ public class Bfrdb extends Hsqldbiface {
 			for (PmmXmlElementConvertable el : modelLit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getID() >= 0) {
+					if (li.getId() >= 0) {
 						if (!estimatedModels) {
 							psm.setInt(1, modelId);
-							psm.setInt(2, li.getID());
+							psm.setInt(2, li.getId());
 							psm.executeUpdate();
 						}
 						else {
 							psgm.setInt(1, modelId);
-							psgm.setInt(2, li.getID());
+							psgm.setInt(2, li.getId());
 							psgm.executeUpdate();
 						}
 					}
@@ -2123,16 +2116,8 @@ public class Bfrdb extends Hsqldbiface {
     private PmmXmlDoc getLiterature( String s ) {
 		PmmXmlDoc l = new PmmXmlDoc();
 		String [] ids = s.split(",");
-		for (String id : ids) {
-			Object author = DBKernel.getValue(conn,"Literatur", "ID", id, "Erstautor");
-			Object year = DBKernel.getValue(conn,"Literatur", "ID", id, "Jahr");
-			Object title = DBKernel.getValue(conn,"Literatur", "ID", id, "Titel");
-			Object abstrac = DBKernel.getValue(conn,"Literatur", "ID", id, "Abstract");
-			LiteratureItem li = new LiteratureItem(author == null ? null : author.toString(),
-					(Integer) (year == null ? null : year),
-					title == null ? null : title.toString(),
-					abstrac == null ? null : abstrac.toString(),
-					Integer.valueOf(id)); 
+		for (String id : ids) {			
+			LiteratureItem li = DBUtilities.getLiteratureItem(conn, Integer.valueOf(id)); 
 			l.add(li);
 		}    
 		return l;

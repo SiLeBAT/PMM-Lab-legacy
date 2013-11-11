@@ -298,9 +298,9 @@ public class XML2TableNodeModel extends NodeModel {
                     				}
                     				else {
 	                    				for (int j=0;j<sarr.length;j++) {
-	                    					if (!addColSpecs.containsKey(selColumn+"_"+li.getName()+"_"+sarr[j]))
-	                    						addColSpecs.put(selColumn+"_"+li.getName()+"_"+sarr[j],
-	                    								new DataColumnSpecCreator(selColumn+"_"+li.getName()+"_"+sarr[j], LiteratureItem.getDataType(sarr[j])).createSpec());                				                					
+	                    					if (!addColSpecs.containsKey(selColumn+"_"+li.toString()+"_"+sarr[j]))
+	                    						addColSpecs.put(selColumn+"_"+li.toString()+"_"+sarr[j],
+	                    								new DataColumnSpecCreator(selColumn+"_"+li.toString()+"_"+sarr[j], LiteratureItem.getDataType(sarr[j])).createSpec());                				                					
 	                    				}
                     				}
                     			}
@@ -485,11 +485,11 @@ public class XML2TableNodeModel extends NodeModel {
 		                		}
 		                		else if (el instanceof LiteratureItem) {
 		                			LiteratureItem li = (LiteratureItem) el;
-		                			addCells.put("id", li.getID() == null ? CellIO.createMissingCell() : new IntCell(li.getID()));
+		                			addCells.put("id", li.getId() == null ? CellIO.createMissingCell() : new IntCell(li.getId()));
 		                			addCells.put("author", li.getAuthor() == null ? CellIO.createMissingCell() : new StringCell(li.getAuthor()));
 		                			addCells.put("year", li.getYear() == null ? CellIO.createMissingCell() : new IntCell(li.getYear()));
 		                			addCells.put("title", li.getTitle() == null ? CellIO.createMissingCell() : new StringCell(li.getTitle()));
-		                			addCells.put("abstract", li.getAbstract() == null ? CellIO.createMissingCell() : new StringCell(li.getAbstract()));
+		                			addCells.put("abstract", li.getAbstractText() == null ? CellIO.createMissingCell() : new StringCell(li.getAbstractText()));
 		                			addCells.put("dbuuid", li.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(li.getDbuuid()));
 		                			v.add(addCells);
 		                		}

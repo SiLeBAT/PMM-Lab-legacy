@@ -68,7 +68,7 @@ public class MicrobialDataEditNodeFactory extends
 	@Override
 	public NodeView<MicrobialDataEditNodeModel> createNodeView(
 			final int viewIndex, final MicrobialDataEditNodeModel nodeModel) {
-		return new MicrobialDataEditNodeView(nodeModel);
+		return null;
 	}
 
 	/**

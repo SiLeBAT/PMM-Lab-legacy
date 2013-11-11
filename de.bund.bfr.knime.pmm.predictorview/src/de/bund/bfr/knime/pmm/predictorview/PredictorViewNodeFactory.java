@@ -59,7 +59,7 @@ public class PredictorViewNodeFactory extends
 	 */
 	@Override
 	public int getNrNodeViews() {
-		return 1;
+		return 0;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class PredictorViewNodeFactory extends
 	@Override
 	public NodeView<PredictorViewNodeModel> createNodeView(final int viewIndex,
 			final PredictorViewNodeModel nodeModel) {
-		return new PredictorViewNodeView(nodeModel);
+		return null;
 	}
 
 	/**

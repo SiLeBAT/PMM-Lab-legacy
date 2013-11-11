@@ -68,7 +68,7 @@ public class ModelCatalogReaderNodeFactory
     @Override
     public NodeView<ModelCatalogReaderNodeModel> createNodeView(final int viewIndex,
             final ModelCatalogReaderNodeModel nodeModel) {
-        return new ModelCatalogReaderNodeView(nodeModel);
+        return null;
     }
 
     /**

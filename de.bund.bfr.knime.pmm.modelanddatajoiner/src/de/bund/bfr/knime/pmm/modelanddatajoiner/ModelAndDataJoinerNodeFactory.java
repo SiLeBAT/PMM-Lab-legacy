@@ -68,7 +68,7 @@ public class ModelAndDataJoinerNodeFactory
     @Override
     public NodeView<ModelAndDataJoinerNodeModel> createNodeView(final int viewIndex,
             final ModelAndDataJoinerNodeModel nodeModel) {
-        return new ModelAndDataJoinerNodeView(nodeModel);
+        return null;
     }
 
     /**

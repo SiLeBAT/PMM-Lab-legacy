@@ -68,7 +68,7 @@ public class EstimatedModelReaderNodeFactory
     @Override
     public NodeView<EstimatedModelReaderNodeModel> createNodeView(final int viewIndex,
             final EstimatedModelReaderNodeModel nodeModel) {
-        return new EstimatedModelReaderNodeView(nodeModel);
+        return null;
     }
 
     /**

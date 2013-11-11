@@ -68,7 +68,7 @@ public class FittedParameterViewNodeFactory extends
 	@Override
 	public NodeView<FittedParameterViewNodeModel> createNodeView(
 			final int viewIndex, final FittedParameterViewNodeModel nodeModel) {
-		return new FittedParameterViewNodeView(nodeModel);
+		return null;
 	}
 
 	/**

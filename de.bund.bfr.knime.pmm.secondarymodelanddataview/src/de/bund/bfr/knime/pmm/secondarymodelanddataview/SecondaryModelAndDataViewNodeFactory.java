@@ -69,7 +69,7 @@ public class SecondaryModelAndDataViewNodeFactory extends
 	public NodeView<SecondaryModelAndDataViewNodeModel> createNodeView(
 			final int viewIndex,
 			final SecondaryModelAndDataViewNodeModel nodeModel) {
-		return new SecondaryModelAndDataViewNodeView(nodeModel);
+		return null;
 	}
 
 	/**

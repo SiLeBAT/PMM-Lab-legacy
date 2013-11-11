@@ -68,7 +68,7 @@ public class TimeSeriesWriterNodeFactory
     @Override
     public NodeView<TimeSeriesWriterNodeModel> createNodeView(final int viewIndex,
             final TimeSeriesWriterNodeModel nodeModel) {
-        return new TimeSeriesWriterNodeView(nodeModel);
+        return null;
     }
 
     /**

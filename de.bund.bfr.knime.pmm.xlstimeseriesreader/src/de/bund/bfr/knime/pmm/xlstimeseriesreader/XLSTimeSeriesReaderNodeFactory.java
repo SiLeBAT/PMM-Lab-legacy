@@ -68,7 +68,7 @@ public class XLSTimeSeriesReaderNodeFactory
     @Override
     public NodeView<XLSTimeSeriesReaderNodeModel> createNodeView(final int viewIndex,
             final XLSTimeSeriesReaderNodeModel nodeModel) {
-        return new XLSTimeSeriesReaderNodeView(nodeModel);
+        return null;
     }
 
     /**

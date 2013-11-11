@@ -68,7 +68,7 @@ public class ModelCatalogWriterNodeFactory
     @Override
     public NodeView<ModelCatalogWriterNodeModel> createNodeView(final int viewIndex,
             final ModelCatalogWriterNodeModel nodeModel) {
-        return new ModelCatalogWriterNodeView(nodeModel);
+        return null;
     }
 
     /**

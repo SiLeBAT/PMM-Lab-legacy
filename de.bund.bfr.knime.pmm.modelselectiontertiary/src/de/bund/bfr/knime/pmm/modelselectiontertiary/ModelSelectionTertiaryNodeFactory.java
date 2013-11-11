@@ -68,7 +68,7 @@ public class ModelSelectionTertiaryNodeFactory extends
 	@Override
 	public NodeView<ModelSelectionTertiaryNodeModel> createNodeView(
 			final int viewIndex, final ModelSelectionTertiaryNodeModel nodeModel) {
-		return new ModelSelectionTertiaryNodeView(nodeModel);
+		return null;
 	}
 
 	/**

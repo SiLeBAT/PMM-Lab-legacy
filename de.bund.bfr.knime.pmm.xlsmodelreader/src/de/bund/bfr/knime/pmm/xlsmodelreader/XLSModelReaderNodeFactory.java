@@ -68,7 +68,7 @@ public class XLSModelReaderNodeFactory extends
 	@Override
 	public NodeView<XLSModelReaderNodeModel> createNodeView(
 			final int viewIndex, final XLSModelReaderNodeModel nodeModel) {
-		return new XLSModelReaderNodeView(nodeModel);
+		return null;
 	}
 
 	/**

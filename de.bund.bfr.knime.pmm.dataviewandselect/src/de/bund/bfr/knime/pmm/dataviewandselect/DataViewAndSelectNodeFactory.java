@@ -68,7 +68,7 @@ public class DataViewAndSelectNodeFactory
     @Override
     public NodeView<DataViewAndSelectNodeModel> createNodeView(final int viewIndex,
             final DataViewAndSelectNodeModel nodeModel) {
-        return new DataViewAndSelectNodeView(nodeModel);
+        return null;
     }
 
     /**

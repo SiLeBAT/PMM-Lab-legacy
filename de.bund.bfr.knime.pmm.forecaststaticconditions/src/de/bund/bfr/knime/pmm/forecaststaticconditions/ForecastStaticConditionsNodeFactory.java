@@ -40,52 +40,52 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "ForecastStaticConditions" Node.
  * 
- *
+ * 
  * @author Christian Thoens
  */
-public class ForecastStaticConditionsNodeFactory 
-        extends NodeFactory<ForecastStaticConditionsNodeModel> {
+public class ForecastStaticConditionsNodeFactory extends
+		NodeFactory<ForecastStaticConditionsNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ForecastStaticConditionsNodeModel createNodeModel() {
-        return new ForecastStaticConditionsNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ForecastStaticConditionsNodeModel createNodeModel() {
+		return new ForecastStaticConditionsNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<ForecastStaticConditionsNodeModel> createNodeView(final int viewIndex,
-            final ForecastStaticConditionsNodeModel nodeModel) {
-        return new ForecastStaticConditionsNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<ForecastStaticConditionsNodeModel> createNodeView(
+			final int viewIndex,
+			final ForecastStaticConditionsNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new ForecastStaticConditionsNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new ForecastStaticConditionsNodeDialog();
+	}
 
 }
-

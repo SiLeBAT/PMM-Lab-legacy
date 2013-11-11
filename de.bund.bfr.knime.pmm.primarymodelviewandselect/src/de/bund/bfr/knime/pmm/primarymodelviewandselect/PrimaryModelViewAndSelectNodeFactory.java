@@ -68,7 +68,7 @@ public class PrimaryModelViewAndSelectNodeFactory
     @Override
     public NodeView<PrimaryModelViewAndSelectNodeModel> createNodeView(final int viewIndex,
             final PrimaryModelViewAndSelectNodeModel nodeModel) {
-        return new PrimaryModelViewAndSelectNodeView(nodeModel);
+        return null;
     }
 
     /**

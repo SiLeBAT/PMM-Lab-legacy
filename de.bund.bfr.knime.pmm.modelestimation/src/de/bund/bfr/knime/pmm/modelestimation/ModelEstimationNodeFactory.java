@@ -68,7 +68,7 @@ public class ModelEstimationNodeFactory
     @Override
     public NodeView<ModelEstimationNodeModel> createNodeView(final int viewIndex,
             final ModelEstimationNodeModel nodeModel) {
-        return new ModelEstimationNodeView(nodeModel);
+        return null;
     }
 
     /**

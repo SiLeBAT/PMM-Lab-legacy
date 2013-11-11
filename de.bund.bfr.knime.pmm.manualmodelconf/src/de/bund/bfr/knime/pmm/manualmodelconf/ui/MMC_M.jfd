@@ -110,7 +110,26 @@ new FormModel {
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 5
 				"gridY": 7
-				"gridWidth": 17
+				"gridWidth": 11
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "typeLabel"
+				"text": "Type:"
+				"horizontalAlignment": 11
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 17
+				"gridY": 7
+			} )
+			add( new FormComponent( "javax.swing.JComboBox" ) {
+				name: "typeBox"
+				auxiliary() {
+					"JavaCodeGenerator.typeParameters": "String"
+					"JavaCodeGenerator.customCreateCode": "new JComboBox<String>(new String[] {\"Growth\",\"Inactivation\",\"Survival\"});"
+				}
+			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+				"gridX": 19
+				"gridY": 7
+				"gridWidth": 3
 			} )
 			add( new FormComponent( "javax.swing.JLabel" ) {
 				name: "label2"
@@ -353,7 +372,7 @@ new FormModel {
 				name: "qScoreBox"
 				auxiliary() {
 					"JavaCodeGenerator.typeParameters": "Color"
-					"JavaCodeGenerator.customCreateCode": "new JComboBox<>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});"
+					"JavaCodeGenerator.customCreateCode": "new JComboBox<Color>(new Color[] {Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED});"
 					"JavaCodeGenerator.postCreateCode": "${field}.setRenderer(new DefaultListCellRenderer() {\n\t\t\tprivate static final long serialVersionUID = 1L;\n\n\t\t\tprivate Color color = Color.WHITE;\n\t\t\tprivate boolean isSelected = false;\n\n\t\t\t@Override\n\t\t\tpublic Component getListCellRendererComponent(JList<?> list,\n\t\t\t\t\tObject value, int index, boolean isSelected,\n\t\t\t\t\tboolean cellHasFocus) {\n\t\t\t\tcolor = (Color) value;\n\t\t\t\tthis.isSelected = isSelected;\n\n\t\t\t\treturn super.getListCellRendererComponent(list, value, index,\n\t\t\t\t\t\tisSelected, cellHasFocus);\n\t\t\t}\n\n\t\t\t@Override\n\t\t\tprotected void paintComponent(Graphics g) {\n\t\t\t\tRectangle rect = g.getClipBounds();\n\n\t\t\t\tif (rect != null) {\n\t\t\t\t\tg.setColor(color);\n\t\t\t\t\tg.fillRect(rect.x, rect.y, rect.width, rect.height);\n\n\t\t\t\t\tif (isSelected) {\n\t\t\t\t\t\tg.setColor(UIManager.getDefaults().getColor(\n\t\t\t\t\t\t\t\t\"List.selectionBackground\"));\n\t\t\t\t\t} else {\n\t\t\t\t\t\tg.setColor(UIManager.getDefaults().getColor(\n\t\t\t\t\t\t\t\t\"List.background\"));\n\t\t\t\t\t}\n\n\t\t\t\t\t((Graphics2D) g).setStroke(new BasicStroke(5));\n\t\t\t\t\tg.drawRect(rect.x, rect.y, rect.width, rect.height);\n\t\t\t\t}\n\t\t\t}\n});"
 				}
 				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "qScoreBoxActionPerformed", true ) )

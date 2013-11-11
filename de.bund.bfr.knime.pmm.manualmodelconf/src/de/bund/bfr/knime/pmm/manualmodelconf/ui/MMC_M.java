@@ -97,6 +97,11 @@ public class MMC_M extends JPanel {
 			radioButton2.setEnabled(false);
 			radioButton3.setEnabled(false);
 		}
+		
+		if (level == 2) {
+			typeLabel.setVisible(false);
+			typeBox.setVisible(false);
+		}
 
 		scrollPane3.setVisible(false); // List1
 		if (formulaCreator) {
@@ -627,6 +632,15 @@ public class MMC_M extends JPanel {
 			 * //if (!radioButton3.isSelected()) m_secondaryModels.clear(); if
 			 * (level != pm.getLevel())
 			 */
+			
+			if (radioButton2.isSelected()) {
+				typeLabel.setVisible(false);
+				typeBox.setVisible(false);	
+			} else {
+				typeLabel.setVisible(true);
+				typeBox.setVisible(true);
+			}
+			
 			setComboBox();
 			modelNameBox.repaint();
 			this.revalidate();
@@ -1044,7 +1058,7 @@ public class MMC_M extends JPanel {
 			e.printStackTrace();
 		}		
 		if (addPreviousSelectedPM) modelNameBox.setSelectedItem(ppm);
-	}
+	}	
 
 	@SuppressWarnings({ "deprecation", "serial" })
 	private void initComponents() {
@@ -1062,6 +1076,8 @@ public class MMC_M extends JPanel {
 		button4 = new JButton();
 		label1 = new JLabel();
 		modelnameField = new JTextField();
+		typeLabel = new JLabel();
+		typeBox = new JComboBox<String>(new String[] {"Growth","Inactivation","Survival"});
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		formulaApply = new JButton();
@@ -1244,7 +1260,13 @@ public class MMC_M extends JPanel {
 				modelnameFieldKeyReleased(e);
 			}
 		});
-		add(modelnameField, CC.xywh(5, 7, 17, 1));
+		add(modelnameField, CC.xywh(5, 7, 11, 1));
+
+		//---- typeLabel ----
+		typeLabel.setText("Type:");
+		typeLabel.setHorizontalAlignment(SwingConstants.TRAILING);
+		add(typeLabel, CC.xy(17, 7));
+		add(typeBox, CC.xywh(19, 7, 3, 1));
 
 		//---- label2 ----
 		label2.setText("Formula:");
@@ -1523,6 +1545,8 @@ public class MMC_M extends JPanel {
 	private JButton button4;
 	private JLabel label1;
 	private JTextField modelnameField;
+	private JLabel typeLabel;
+	private JComboBox<String> typeBox;
 	private JLabel label2;
 	private JTextField formulaArea;
 	private JButton formulaApply;

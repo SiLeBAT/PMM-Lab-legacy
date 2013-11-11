@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.hsh.bfr.db.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.knime.core
+ org.knime.core,
+ org.eclipse.core.resources
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.hsh.bfr.db,
@@ -31,4 +32,3 @@ Bundle-ClassPath: .,
  lib/jcm1.0-config.jar,
  lib/jcommon-1.0.17.jar
 Bundle-Vendor: BfR
-Import-Package: org.eclipse.core.resources

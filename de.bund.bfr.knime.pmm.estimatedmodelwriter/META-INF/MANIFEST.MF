@@ -12,9 +12,9 @@ Require-Bundle: org.eclipse.core.runtime,
  org.knime.base,
  de.bund.bfr.knime.pmm.common,
  de.bund.bfr.knime.pmm.bfrdbiface.lib,
- de.bund.bfr.knime.pmm.modelcatalogreader
+ de.bund.bfr.knime.pmm.modelcatalogreader,
+ org.hsh.bfr.db
 Bundle-ActivationPolicy: lazy
 Export-Package: de.bund.bfr.knime.pmm.estimatedmodelwriter
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Import-Package: org.hsh.bfr.db
 

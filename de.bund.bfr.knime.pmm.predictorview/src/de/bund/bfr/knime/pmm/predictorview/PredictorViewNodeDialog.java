@@ -417,6 +417,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		for (String id : set.getSelectedIDs()) {
 			set.getSelectedTuples().add(reader.getTupleMap().get(id));
 		}
+		set.getSelectedOldTuples().clear();
+		for (KnimeTuple tuple : set.getSelectedTuples()) {
+			set.getSelectedOldTuples().addAll(
+					reader.getCombinedTuples().get(tuple));
+		}
 		set.setNewConcentrationParameters(reader.getNewInitParams());
 		set.setNewLagParameters(reader.getNewLagParams());
 	}

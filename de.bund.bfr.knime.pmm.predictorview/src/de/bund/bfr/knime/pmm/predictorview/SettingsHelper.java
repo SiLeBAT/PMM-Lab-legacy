@@ -72,11 +72,12 @@ public class SettingsHelper {
 	protected static final String CFG_TRANSFORMX = "TransformX";
 	protected static final String CFG_TRANSFORMY = "TransformY";
 	protected static final String CFG_STANDARDVISIBLECOLUMNS = "StandardVisibleColumns";
-	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";	
+	protected static final String CFG_VISIBLECOLUMNS = "VisibleColumns";
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
 	protected static final String CFG_CONCENTRATIONPARAMETERS = "ConcentrationParameters";
 	protected static final String CFG_LAGPARAMETERS = "LagParameters";
 	protected static final String CFG_SELECTEDTUPLES = "SelectedTuples";
+	protected static final String CFG_SELECTEDOLDTUPLES = "SelectedOldTuples";
 	protected static final String CFG_NEWCONCENTRATIONPARAMETERS = "NewConcentrationParameters";
 	protected static final String CFG_NEWLAGPARAMETERS = "NewLagParameters";
 	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
@@ -114,11 +115,12 @@ public class SettingsHelper {
 	private String transformX;
 	private String transformY;
 	private boolean standardVisibleColumns;
-	private List<String> visibleColumns;	
+	private List<String> visibleColumns;
 	private String fittedFilter;
 	private Map<String, String> concentrationParameters;
 	private Map<String, String> lagParameters;
 	private List<KnimeTuple> selectedTuples;
+	private List<KnimeTuple> selectedOldTuples;
 	private Map<String, String> newConcentrationParameters;
 	private Map<String, String> newLagParameters;
 	private Map<String, Integer> columnWidths;
@@ -144,11 +146,12 @@ public class SettingsHelper {
 		transformX = DEFAULT_TRANSFORM;
 		transformY = DEFAULT_TRANSFORM;
 		standardVisibleColumns = DEFAULT_STANDARDVISIBLECOLUMNS;
-		visibleColumns = new ArrayList<String>();		
+		visibleColumns = new ArrayList<String>();
 		fittedFilter = null;
 		concentrationParameters = new LinkedHashMap<String, String>();
 		lagParameters = new LinkedHashMap<String, String>();
 		selectedTuples = new ArrayList<KnimeTuple>();
+		selectedOldTuples = new ArrayList<KnimeTuple>();
 		newConcentrationParameters = new LinkedHashMap<String, String>();
 		newLagParameters = new LinkedHashMap<String, String>();
 		columnWidths = new LinkedHashMap<String, Integer>();
@@ -288,7 +291,7 @@ public class SettingsHelper {
 					new ArrayList<String>());
 		} catch (InvalidSettingsException e) {
 			visibleColumns = new ArrayList<String>();
-		}		
+		}
 
 		try {
 			fittedFilter = settings.getString(CFG_FITTEDFILTER);
@@ -320,6 +323,13 @@ public class SettingsHelper {
 		}
 
 		try {
+			selectedOldTuples = XmlConverter.xmlToTupleList(settings
+					.getString(CFG_SELECTEDOLDTUPLES));
+		} catch (InvalidSettingsException e) {
+			selectedOldTuples = new ArrayList<KnimeTuple>();
+		}
+
+		try {
 			newConcentrationParameters = XmlConverter.xmlToObject(
 					settings.getString(CFG_NEWCONCENTRATIONPARAMETERS),
 					new LinkedHashMap<String, String>());
@@ -334,7 +344,7 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			newLagParameters = new LinkedHashMap<String, String>();
 		}
-		
+
 		try {
 			columnWidths = XmlConverter.xmlToObject(
 					settings.getString(CFG_COLUMNWIDTHS),
@@ -368,7 +378,7 @@ public class SettingsHelper {
 		settings.addString(CFG_TRANSFORMY, transformY);
 		settings.addBoolean(CFG_STANDARDVISIBLECOLUMNS, standardVisibleColumns);
 		settings.addString(CFG_VISIBLECOLUMNS,
-				XmlConverter.objectToXml(visibleColumns));		
+				XmlConverter.objectToXml(visibleColumns));
 		settings.addString(CFG_FITTEDFILTER, fittedFilter);
 		settings.addString(CFG_CONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(concentrationParameters));
@@ -376,6 +386,8 @@ public class SettingsHelper {
 				XmlConverter.objectToXml(lagParameters));
 		settings.addString(CFG_SELECTEDTUPLES,
 				XmlConverter.tupleListToXml(selectedTuples));
+		settings.addString(CFG_SELECTEDOLDTUPLES,
+				XmlConverter.tupleListToXml(selectedOldTuples));
 		settings.addString(CFG_NEWCONCENTRATIONPARAMETERS,
 				XmlConverter.objectToXml(newConcentrationParameters));
 		settings.addString(CFG_NEWLAGPARAMETERS,
@@ -616,5 +628,13 @@ public class SettingsHelper {
 
 	public void setColumnWidths(Map<String, Integer> columnWidths) {
 		this.columnWidths = columnWidths;
+	}
+
+	public List<KnimeTuple> getSelectedOldTuples() {
+		return selectedOldTuples;
+	}
+
+	public void setSelectedOldTuples(List<KnimeTuple> selectedOldTuples) {
+		this.selectedOldTuples = selectedOldTuples;
 	}
 }

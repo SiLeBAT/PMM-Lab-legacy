@@ -53,6 +53,7 @@ public class TableReader {
 	private List<String> filterableStringColumns;
 	private Map<String, String> newInitParams;
 	private Map<String, String> newLagParams;
+	private Map<KnimeTuple, List<KnimeTuple>> combinedTuples;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -61,8 +62,7 @@ public class TableReader {
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
 			Map<String, String> lagParams) {
-		Set<String> idSet = new LinkedHashSet<String>();
-		Map<KnimeTuple, List<KnimeTuple>> combinedTuples = null;
+		Set<String> idSet = new LinkedHashSet<String>();		
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		boolean containsData = tuples.get(0).getSchema()
@@ -587,5 +587,9 @@ public class TableReader {
 	public Map<String, String> getNewLagParams() {
 		return newLagParams;
 	}
+
+	public Map<KnimeTuple, List<KnimeTuple>> getCombinedTuples() {
+		return combinedTuples;
+	}	
 
 }

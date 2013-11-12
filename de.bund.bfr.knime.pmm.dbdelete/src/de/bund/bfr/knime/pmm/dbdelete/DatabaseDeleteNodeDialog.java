@@ -46,7 +46,7 @@ public class DatabaseDeleteNodeDialog extends NodeDialogPane {
     	delSM = new JCheckBox(); delSM.setText("Delete secondary models?"); panel2.add(delSM);
     	panel.add(panel2, BorderLayout.SOUTH);    	
 
-    	//addTab("Database settings", panel);
+    	addTab("Database settings", panel2);
     }
 
 	@Override

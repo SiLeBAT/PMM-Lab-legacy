@@ -181,7 +181,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
              	EmReaderUi emrui = new EmReaderUi();                 	
              	emrui.setSettings(estModelReaderUiSettings);
             	SettingsHelper set = emrui.getSet();
-            	List <KnimeTuple> kts = set.getSelectedTuples();
+            	List <KnimeTuple> kts = set.getSelectedOldTuples();
             	if (kts.size() > 0) return kts;
     		}
          	catch (InvalidSettingsException e1) {}

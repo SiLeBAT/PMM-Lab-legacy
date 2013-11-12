@@ -406,25 +406,25 @@ public class CellIO {
     				if (el instanceof CatalogModelXml) {
     					CatalogModelXml cmx = (CatalogModelXml) el;
     					CatalogModelXml cmxDB = ((CatalogModelXml) fromToXmlDB.get(i));
-    					Integer key = cmx.getID();
+    					Integer key = cmx.getId();
 		        		if (key != null && foreignDbIdsTable.containsKey(key)) {
 		        			if (before) {
 		        				pm.setModelId(foreignDbIdsTable.get(key));
-		        				cmxDB.setID(foreignDbIdsTable.get(key));
+		        				cmxDB.setId(foreignDbIdsTable.get(key));
                 				fromToXmlDB.set(i, cmxDB);
 		        			}
-		        			else if (foreignDbIdsTable.get(key).intValue() != cmxDB.getID().intValue()) {
-		        				System.err.println("checkIDs, CatalogModelXml ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + cmxDB.getID().intValue());
+		        			else if (foreignDbIdsTable.get(key).intValue() != cmxDB.getId().intValue()) {
+		        				System.err.println("checkIDs, CatalogModelXml ... shouldn't happen - " + foreignDbIdsTable.get(key).intValue() + "\t" + cmxDB.getId().intValue());
 		        			}
 		        		}
 		        		else {
 		        			if (before) {
 		        				int rn = MathUtilities.getRandomNegativeInt();
 		        				pm.setModelId(rn);
-		        				cmxDB.setID(rn);
+		        				cmxDB.setId(rn);
                 				fromToXmlDB.set(i, cmxDB);
 		        			}
-		        			else foreignDbIdsTable.put(key, cmxDB.getID());
+		        			else foreignDbIdsTable.put(key, cmxDB.getId());
 		        		}
     				}
             		i++;

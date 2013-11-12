@@ -153,7 +153,7 @@ public class CombaseReaderNodeModel extends NodeModel {
 				CatalogModelXml cmx = new CatalogModelXml(
 						MathUtilities.getRandomNegativeInt(), "D-Value",
 						AttributeUtilities.CONCENTRATION + "=LogC0+mumax*"
-								+ AttributeUtilities.TIME);
+								+ AttributeUtilities.TIME, null);
 				cmDoc.add(cmx);
 				modelTuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 

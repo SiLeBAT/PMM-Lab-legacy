@@ -85,12 +85,12 @@ public class TableReader {
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 
-			if (!tuplesByPrimID.containsKey(modelXml.getID())) {
-				tuplesByPrimID.put(modelXml.getID(),
+			if (!tuplesByPrimID.containsKey(modelXml.getId())) {
+				tuplesByPrimID.put(modelXml.getId(),
 						new ArrayList<KnimeTuple>());
 			}
 
-			tuplesByPrimID.get(modelXml.getID()).add(tuple);
+			tuplesByPrimID.get(modelXml.getId()).add(tuple);
 		}
 
 		Map<Integer, Map<String, String>> miscUnits = new LinkedHashMap<Integer, Map<String, String>>();
@@ -107,14 +107,14 @@ public class TableReader {
 
 			for (PmmXmlElementConvertable el1 : paramXml.getElementSet()) {
 				ParamXml element1 = (ParamXml) el1;
-				String id = element1.getName() + " (" + modelXml.getID() + ")";
+				String id = element1.getName() + " (" + modelXml.getId() + ")";
 				String name = element1.getName() + " (" + modelXml.getName()
 						+ ")";
 
 				if (idSet.add(id)) {
 					paramNames.put(id, element1.getName());
 					ids.add(id);
-					primModelIDs.put(id, modelXml.getID());
+					primModelIDs.put(id, modelXml.getId());
 					stringColumnValues.get(0).add(name);
 					shortLegend.put(id, name);
 					longLegend.put(id, name);
@@ -140,7 +140,7 @@ public class TableReader {
 						MiscXml element2 = (MiscXml) el2;
 
 						if (param.equals(element2.getName())) {
-							String unit = miscUnits.get(modelXml.getID()).get(
+							String unit = miscUnits.get(modelXml.getId()).get(
 									element2.getName());
 							Category category = Categories
 									.getCategoryByUnit(unit);

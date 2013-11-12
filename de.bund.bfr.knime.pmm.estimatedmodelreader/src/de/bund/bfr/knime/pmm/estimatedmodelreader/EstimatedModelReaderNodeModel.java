@@ -279,7 +279,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			if (!varMap.containsKey(AttributeUtilities.CONCENTRATION)) formula = MathUtilities.replaceVariable(formula, "LOG10N", AttributeUtilities.CONCENTRATION);
     		
 			PmmXmlDoc cmDoc = new PmmXmlDoc();
-			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
 			cmDoc.add(cmx);
 			tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
@@ -297,7 +297,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			dx.setDescription(result.getString("DepDescription"));
     		depDoc.add(dx);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!";
+			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
     		
     		int emid = result.getInt(Bfrdb.ATT_ESTMODELID);
 			PmmXmlDoc emDoc = new PmmXmlDoc();
@@ -321,7 +321,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     				result.getArray(Bfrdb.ATT_MININDEP), result.getArray(Bfrdb.ATT_MAXINDEP), result.getArray("IndepCategory"),
     				result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
     		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);
-			if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
+			if (emrnm != null && !ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
@@ -347,7 +347,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		}
 
     			cmDoc = new PmmXmlDoc();
-    			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula); 
+    			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula, null); 
     			cmDoc.add(cmx);
     			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 	    		depDoc = new PmmXmlDoc();

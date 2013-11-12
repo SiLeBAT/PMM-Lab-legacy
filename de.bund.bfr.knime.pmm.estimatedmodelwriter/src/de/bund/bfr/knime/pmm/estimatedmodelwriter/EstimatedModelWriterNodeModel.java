@@ -205,7 +205,7 @@ if (true) return null;
 						}
 					}
 
-					Integer rowMcID = cmx.getID();//row.getInt(Model1Schema.ATT_MODELID);
+					Integer rowMcID = cmx.getId();//row.getInt(Model1Schema.ATT_MODELID);
 		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
 		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
@@ -312,7 +312,7 @@ if (true) return null;
 								}
 							}
 						}
-			    		Integer rowMcID = cmx.getID();//row.getInt(Model2Schema.ATT_MODELID);
+			    		Integer rowMcID = cmx.getId();//row.getInt(Model2Schema.ATT_MODELID);
 			    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
 			    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 						PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);

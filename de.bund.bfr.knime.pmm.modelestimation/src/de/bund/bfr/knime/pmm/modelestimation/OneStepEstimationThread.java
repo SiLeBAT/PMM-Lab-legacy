@@ -110,7 +110,7 @@ public class OneStepEstimationThread implements Runnable {
 			for (KnimeTuple tuple : seiTuples) {
 				PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 				String primID = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+						Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 						+ "";
 				Map<String, Point2D.Double> primaryGuesses = parameterGuesses
 						.get(ModelEstimationNodeModel.PRIMARY + primID);
@@ -144,7 +144,7 @@ public class OneStepEstimationThread implements Runnable {
 				}
 
 				String secID = ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getID()
+						Model2Schema.ATT_MODELCATALOG).get(0)).getId()
 						+ "";
 				PmmXmlDoc secParams = tuple
 						.getPmmXml(Model2Schema.ATT_PARAMETER);
@@ -190,7 +190,7 @@ public class OneStepEstimationThread implements Runnable {
 
 			for (KnimeTuple tuple : tuples) {
 				int id = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+						Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 				PmmXmlDoc indepXml = tuple
 						.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 				List<String> arguments = CellIO.getNameList(indepXml);
@@ -249,7 +249,7 @@ public class OneStepEstimationThread implements Runnable {
 				KnimeTuple tuple = tuples.get(i);
 				PmmXmlDoc modelXml = tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-				int id = ((CatalogModelXml) modelXml.get(0)).getID();
+				int id = ((CatalogModelXml) modelXml.get(0)).getId();
 
 				if (!paramMap.containsKey(id)) {
 					String formula = ((CatalogModelXml) modelXml.get(0))

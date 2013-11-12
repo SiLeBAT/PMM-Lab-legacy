@@ -495,7 +495,7 @@ public class XML2TableNodeModel extends NodeModel {
 		                		}
 		                		else if (el instanceof CatalogModelXml) {
 		                			CatalogModelXml cmx = (CatalogModelXml) el;
-		                			addCells.put("id", cmx.getID() == null ? CellIO.createMissingCell() : new IntCell(cmx.getID()));
+		                			addCells.put("id", cmx.getId() == null ? CellIO.createMissingCell() : new IntCell(cmx.getId()));
 		                			addCells.put("name", cmx.getName() == null ? CellIO.createMissingCell() : new StringCell(cmx.getName())); 
 		                			addCells.put("formula", cmx.getFormula() == null ? CellIO.createMissingCell() : new StringCell(cmx.getFormula()));
 		                			addCells.put("dbuuid", cmx.getDbuuid() == null ? CellIO.createMissingCell() : new StringCell(cmx.getDbuuid()));

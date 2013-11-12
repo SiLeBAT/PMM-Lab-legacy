@@ -88,6 +88,7 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_ESTMODELID = "GeschaetztesModell";
 	public static final String ATT_FIRSTAUTHOR = "Erstautor";
 	public static final String ATT_FORMULA = "Formel";
+	public static final String ATT_MODEL_CLASS = "Klasse";
 	public static final String ATT_INDEP = "Independent";
 	public static final String ATT_LEVEL = "Level";
 	public static final String ATT_LITERATUREID = "Literatur";
@@ -104,7 +105,7 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_MISC = "Sonstiges";
 	public static final String ATT_MISCID = "SonstigesID";
 	public static final String ATT_MODELID = "Modell";
-	public static final String ATT_NAME = "Name";
+	public static final String ATT_NAME = "Name";	
 	public static final String ATT_NAMESHORT = "Kurzbezeichnung";
 	public static final String ATT_PARAMID = "Parameter";
 	public static final String ATT_PARAMNAME = "Parametername";
@@ -552,7 +553,7 @@ public class Bfrdb extends Hsqldbiface {
 						new CatalogModelXml(
 							result.getInt( Bfrdb.ATT_MODELID ),
 							result.getString( Bfrdb.ATT_NAME ),
-							formula) );
+							formula, null) );
 					tuple.setValue( Model1Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();
@@ -636,7 +637,7 @@ public class Bfrdb extends Hsqldbiface {
 						new CatalogModelXml(
 							result.getInt( Bfrdb.ATT_MODELID ),
 							result.getString( Bfrdb.ATT_NAME ),
-							formula) );
+							formula, null) );
 					tuple.setValue( Model2Schema.ATT_MODELCATALOG, doc );
 					
 		    		doc = new PmmXmlDoc();

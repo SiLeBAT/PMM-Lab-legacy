@@ -414,7 +414,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 				id = DBKernel.openPrimModelDBWindow(((CatalogModelXml) set
 						.getModelTuple()
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
-						.getID());
+						.getId());
 			} else {
 				id = DBKernel.openPrimModelDBWindow(null);
 			}
@@ -432,7 +432,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 		} else if (e.getSource() == modelReloadButton) {
 			Integer id = ((CatalogModelXml) set.getModelTuple()
-					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (id != null) {
 				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
@@ -519,7 +519,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								.openSecModelDBWindow(((CatalogModelXml) secModelTuple
 										.getPmmXml(
 												Model2Schema.ATT_MODELCATALOG)
-										.get(0)).getID());
+										.get(0)).getId());
 					} else {
 						id = DBKernel.openSecModelDBWindow(null);
 					}
@@ -545,7 +545,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					KnimeTuple secModelTuple = set.getSecModelTuples().get(
 							param);
 					Integer id = ((CatalogModelXml) secModelTuple.getPmmXml(
-							Model2Schema.ATT_MODELCATALOG).get(0)).getID();
+							Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 
 					if (id != null) {
 						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));

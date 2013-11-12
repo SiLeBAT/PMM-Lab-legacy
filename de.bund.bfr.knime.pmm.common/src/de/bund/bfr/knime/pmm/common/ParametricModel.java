@@ -166,7 +166,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			for (PmmXmlElementConvertable el : x.getElementSet()) {
 				if (el instanceof CatalogModelXml) {
 					CatalogModelXml cmx = (CatalogModelXml) el;
-					this.modelId = cmx.getID();
+					this.modelId = cmx.getId();
 					this.modelName = cmx.getName();
 					setFormula(cmx.getFormula());
 					break;
@@ -378,7 +378,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getModelLit() {return modelLit;}
 	public PmmXmlDoc getCatModel() {
 		PmmXmlDoc catModel = new PmmXmlDoc();
-		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula()); 
+		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula(), null); 
 		catModel.add(cmx);
 		return catModel;
 	}

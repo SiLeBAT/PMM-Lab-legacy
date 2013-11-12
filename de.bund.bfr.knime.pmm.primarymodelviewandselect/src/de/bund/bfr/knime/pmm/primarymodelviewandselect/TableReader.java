@@ -179,7 +179,7 @@ public class TableReader {
 		for (int nr = 0; nr < tuples.size(); nr++) {
 			KnimeTuple tuple = tuples.get(nr);
 			Integer catID = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			Integer estID = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 			String id = "";

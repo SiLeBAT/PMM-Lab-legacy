@@ -168,7 +168,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					}
 		    		
 					PmmXmlDoc cmDoc = new PmmXmlDoc();
-					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
 					cmDoc.add(cmx);
 					tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
@@ -177,12 +177,12 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					dx.setDescription(result.getString("DepDescription"));
 		    		depDoc.add(dx);
 		    		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
-					if (dx.getUnit() == null || dx.getUnit().isEmpty()) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!";
+					if (dx.getUnit() == null || dx.getUnit().isEmpty()) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
 
 					PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
 		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), true);
 		    		tuple.setValue(Model1Schema.ATT_INDEPENDENT, ixml);	    		
-					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
+					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
 
 					tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		
@@ -242,7 +242,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					}
 
 					PmmXmlDoc cmDoc = new PmmXmlDoc();
-					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula); 
+					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
 					cmDoc.add(cmx);
 					tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 
@@ -254,7 +254,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					dx.setDescription(result.getString("DepDescription"));
 		    		depDoc.add(dx);
 		    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
-					if (dx.getUnit() == null || dx.getUnit().isEmpty()) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getID() + "!";
+					if (dx.getUnit() == null || dx.getUnit().isEmpty()) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
 		    		//tuple.setValue( Model2Schema.ATT_INDEPVAR, DbIo.convertArray2String(result.getArray( Bfrdb.ATT_INDEP ) ));
 		    		//tuple.setValue( Model2Schema.ATT_MODELNAME, result.getString( Bfrdb.ATT_NAME ) );
 		    		//tuple.setValue( Model2Schema.ATT_MODELID, result.getInt( Bfrdb.ATT_MODELID ) );
@@ -263,7 +263,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					PmmXmlDoc ixml = DbIo.convertArrays2IndepXmlDoc(null, result.getArray(Bfrdb.ATT_INDEP),
 		    				null, null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), false);
 		    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, ixml);	    		
-					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getID() + "!";
+					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
 
 					tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
 		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		

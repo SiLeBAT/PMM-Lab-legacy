@@ -83,7 +83,7 @@ public class ModelCombiner {
 
 		for (KnimeTuple tuple : tuples) {
 			int modelId = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (!paramValueSums.containsKey(modelId)) {
 				Map<String, Double> sums = new LinkedHashMap<String, Double>();
@@ -162,7 +162,7 @@ public class ModelCombiner {
 
 			for (KnimeTuple tuple : usedTuples) {
 				String modelID = ((CatalogModelXml) tuple.getPmmXml(
-						Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+						Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 						+ "";
 				String depVarSec = ((DepXml) tuple.getPmmXml(
 						Model2Schema.ATT_DEPENDENT).get(0)).getName();
@@ -265,11 +265,11 @@ public class ModelCombiner {
 			}
 
 			int newID = ((CatalogModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			for (KnimeTuple tuple : usedTuples) {
 				newID += ((CatalogModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_MODELCATALOG).get(0)).getID();
+						Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 			}
 
 			newID = MathUtilities.generateID(newID);
@@ -297,7 +297,7 @@ public class ModelCombiner {
 			PmmXmlDoc estModelXml = newTuple
 					.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
-			((CatalogModelXml) modelXml.get(0)).setID(newID);
+			((CatalogModelXml) modelXml.get(0)).setId(newID);
 			((EstModelXml) estModelXml.get(0)).setID(newEstID);
 			((EstModelXml) estModelXml.get(0)).setRMS(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
@@ -315,7 +315,7 @@ public class ModelCombiner {
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
 			int id = ((CatalogModelXml) tupleCombinations.get(tuple).get(0)
-					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Map<String, Double> sums = paramValueSums.get(id);
 			Map<String, Integer> counts = paramCounts.get(id);

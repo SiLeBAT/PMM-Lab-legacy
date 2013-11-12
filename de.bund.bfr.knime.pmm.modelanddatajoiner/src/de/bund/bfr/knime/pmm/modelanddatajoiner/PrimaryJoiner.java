@@ -178,7 +178,7 @@ public class PrimaryJoiner implements Joiner {
 			KnimeTuple modelTuple = modelTuples.get(i);
 			PmmXmlDoc modelXml = modelTuple
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			int id = ((CatalogModelXml) modelXml.get(0)).getID();
+			int id = ((CatalogModelXml) modelXml.get(0)).getId();
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
 			String depVarName = ((DepXml) depVar.get(0)).getName();
@@ -329,7 +329,7 @@ public class PrimaryJoiner implements Joiner {
 		while (reader.hasMoreElements()) {
 			KnimeTuple tuple = reader.nextElement();
 			int id = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			Integer estID = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
@@ -351,7 +351,7 @@ public class PrimaryJoiner implements Joiner {
 		for (KnimeTuple tuple : modelTuples) {
 			CatalogModelXml modelXml = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0));
-			int id = modelXml.getID();
+			int id = modelXml.getId();
 
 			if (modelNames.containsKey(id)) {
 				continue;

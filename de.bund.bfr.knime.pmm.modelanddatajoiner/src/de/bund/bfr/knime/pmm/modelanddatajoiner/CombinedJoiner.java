@@ -243,7 +243,7 @@ public class CombinedJoiner implements Joiner {
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 			String depVarSecName = ((DepXml) modelTuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
-			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
+			String modelID = ((CatalogModelXml) modelXml.get(0)).getId() + "";
 			String modelIDSec = depVarSecName + " (" + modelID + ")";
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc depVar = modelTuple.getPmmXml(Model1Schema.ATT_DEPENDENT);
@@ -467,7 +467,7 @@ public class CombinedJoiner implements Joiner {
 
 		for (KnimeTuple tuple : tuples.keySet()) {
 			int id = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID();
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			Integer estID = ((EstModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_ESTMODEL).get(0)).getID();
 
@@ -494,8 +494,8 @@ public class CombinedJoiner implements Joiner {
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			String depVarSec = ((DepXml) tuple.getPmmXml(
 					Model2Schema.ATT_DEPENDENT).get(0)).getName();
-			String modelID = modelXml.getID() + "";
-			String modelIDSec = depVarSec + " (" + modelXml.getID() + ")";
+			String modelID = modelXml.getId() + "";
+			String modelIDSec = depVarSec + " (" + modelXml.getId() + ")";
 
 			if (!primaryModelNames.containsKey(modelID)) {
 				Map<String, String> categories = new LinkedHashMap<String, String>();

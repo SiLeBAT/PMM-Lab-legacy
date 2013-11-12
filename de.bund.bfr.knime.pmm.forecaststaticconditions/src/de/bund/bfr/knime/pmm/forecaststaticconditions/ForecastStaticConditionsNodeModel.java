@@ -201,11 +201,11 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 		for (KnimeTuple newTuple : combinedTuples.keySet()) {
 			String id = ((CatalogModelXml) newTuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 					+ "(" + newTuple.getInt(TimeSeriesSchema.ATT_CONDID) + ")";
 			String oldID = ((CatalogModelXml) combinedTuples.get(newTuple)
 					.get(0).getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
-					.getID() + "";
+					.getId() + "";
 
 			if (!idSet.add(id)) {
 				continue;
@@ -322,7 +322,7 @@ public class ForecastStaticConditionsNodeModel extends NodeModel {
 
 		for (KnimeTuple tuple : tuples) {
 			String id = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 					+ "";
 			PmmXmlDoc params = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc timeSeriesXml = tuple

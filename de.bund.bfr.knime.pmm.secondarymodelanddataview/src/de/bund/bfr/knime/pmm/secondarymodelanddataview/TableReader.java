@@ -177,7 +177,7 @@ public class TableReader {
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
 
-				id += " (" + primModelXml.getID() + ")";
+				id += " (" + primModelXml.getId() + ")";
 			}
 
 			if (!idSet.contains(id)) {

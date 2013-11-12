@@ -139,8 +139,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						}
 					}
 				}
-				if (cmx.getID() != null && !alreadySaved.contains(cmx.getID())) {
-					alreadySaved.add(cmx.getID());
+				if (cmx.getId() != null && !alreadySaved.contains(cmx.getId())) {
+					alreadySaved.add(cmx.getId());
 		    		String modelName = cmx.getName();//row.getString(Model1Schema.ATT_MODELNAME);
 		    		String formula = cmx.getFormula();//row.getString(Model1Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model1Schema.ATT_DEPENDENT);
@@ -151,7 +151,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
 
-		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getID());
+		    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 1, cmx.getId());
 		    		pm.setParameter(paramXml);
 		    		pm.setIndependent(indepXml);
 		    		pm.setFormula(pm.revertFormula());
@@ -179,8 +179,8 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						}
 					}
 				}
-				if (cmx.getID() != null && !alreadySaved.contains(cmx.getID())) {
-					alreadySaved.add(cmx.getID());
+				if (cmx.getId() != null && !alreadySaved.contains(cmx.getId())) {
+					alreadySaved.add(cmx.getId());
 		    		String modelName = cmx.getName();//row.getString(Model2Schema.ATT_MODELNAME);
 		    		String formula = cmx.getFormula();//row.getString(Model2Schema.ATT_FORMULA);
 					PmmXmlDoc depXml = row.getPmmXml(Model2Schema.ATT_DEPENDENT);
@@ -192,7 +192,7 @@ public class ModelCatalogWriterNodeModel extends NodeModel {
 						PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
 						PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getID());
+			    		ParametricModel pm = new ParametricModel(modelName, formula, dx, 2, cmx.getId());
 			    		pm.setParameter(paramXml);
 			    		pm.setIndependent(indepXml);
 			    		pm.setFormula(pm.revertFormula());

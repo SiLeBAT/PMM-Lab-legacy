@@ -151,7 +151,7 @@ public class ForecastStaticConditionsNodeDialog extends DataAwareNodeDialogPane 
 
 		for (KnimeTuple tuple : tuples) {
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			String id = ((CatalogModelXml) modelXml.get(0)).getID() + "";
+			String id = ((CatalogModelXml) modelXml.get(0)).getId() + "";
 
 			if (!idSet.add(id)) {
 				continue;

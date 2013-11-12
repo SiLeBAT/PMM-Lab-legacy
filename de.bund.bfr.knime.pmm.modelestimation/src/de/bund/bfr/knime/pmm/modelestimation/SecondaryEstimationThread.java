@@ -117,7 +117,7 @@ public class SecondaryEstimationThread implements Runnable {
 						Model2Schema.ATT_DEPENDENT).get(0);
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
-				String id = depXml.getName() + " (" + primModelXml.getID()
+				String id = depXml.getName() + " (" + primModelXml.getId()
 						+ ")";
 
 				if (ids.add(id)) {
@@ -188,7 +188,7 @@ public class SecondaryEstimationThread implements Runnable {
 						Model2Schema.ATT_DEPENDENT).get(0);
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
-				String id = depXml.getName() + " (" + primModelXml.getID()
+				String id = depXml.getName() + " (" + primModelXml.getId()
 						+ ")";
 
 				if (!paramMap.containsKey(id)) {
@@ -209,7 +209,7 @@ public class SecondaryEstimationThread implements Runnable {
 					List<String> arguments = CellIO.getNameList(indepXml);
 					List<List<Double>> argumentValues = new ArrayList<List<Double>>();
 					String modelID = ((CatalogModelXml) modelXml.get(0))
-							.getID() + "";
+							.getId() + "";
 					Map<String, Point2D.Double> modelGuesses = parameterGuesses
 							.get(ModelEstimationNodeModel.SECONDARY + modelID);
 

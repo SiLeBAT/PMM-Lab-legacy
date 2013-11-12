@@ -97,9 +97,9 @@ public class TableReader {
 				if (!usedTuples.isEmpty()) {
 					String oldID = ((CatalogModelXml) usedTuples.get(0)
 							.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
-							.getID() + "";
+							.getId() + "";
 					String newID = ((CatalogModelXml) tuple.getPmmXml(
-							Model1Schema.ATT_MODELCATALOG).get(0)).getID()
+							Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 							+ "";
 
 					if (initParams.containsKey(oldID)) {
@@ -248,7 +248,7 @@ public class TableReader {
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-			String modelID = modelXml.getID() + "";
+			String modelID = modelXml.getId() + "";
 			String modelName = modelXml.getName();
 			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
 					.getFormula());

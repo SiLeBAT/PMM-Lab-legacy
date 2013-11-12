@@ -90,7 +90,7 @@ public class PrimaryEstimationThread implements Runnable {
 	public void run() {
 		try {
 			PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
-			String modelID = ((CatalogModelXml) modelXml.get(0)).getID() + "";
+			String modelID = ((CatalogModelXml) modelXml.get(0)).getId() + "";
 			String formula = ((CatalogModelXml) modelXml.get(0)).getFormula();
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			List<String> parameters = new ArrayList<String>();

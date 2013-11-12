@@ -254,7 +254,7 @@ public class QualityMeasurementComputation {
 					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
 			CatalogModelXml primModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			String id = depXml.getName() + " (" + primModelXml.getID() + ")";
+			String id = depXml.getName() + " (" + primModelXml.getId() + ")";
 
 			if (!idSet.contains(id)) {
 				PmmXmlDoc modelXmlSec = tuple
@@ -402,7 +402,7 @@ public class QualityMeasurementComputation {
 					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
 			CatalogModelXml primModelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
-			String id = depXml.getName() + " (" + primModelXml.getID() + ")";
+			String id = depXml.getName() + " (" + primModelXml.getId() + ")";
 
 			if (rmsMap.containsKey(id)) {
 				PmmXmlDoc estModelXml = newTuple

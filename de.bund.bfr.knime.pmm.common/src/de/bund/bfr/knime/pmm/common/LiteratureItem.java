@@ -141,7 +141,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 		ret.setAttribute(ATT_TYPE, getNonNull(type));
 		ret.setAttribute(ATT_COMMENT, getNonNull(comment));
 		ret.setAttribute(ATT_ID, getNonNull(id));
-		ret.setAttribute("dbuuid", getNonNull(dbuuid));
+		ret.setAttribute(ATT_DBUUID, getNonNull(dbuuid));
 		return ret;
 	}
 
@@ -209,27 +209,27 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 
 	public static List<String> getElements() {
 		List<String> list = new ArrayList<String>();
-		list.add("ID");
-		list.add("Author");
-		list.add("Year");
-		list.add("Title");
-		list.add("Abstract");
-		list.add("Dbuuid");
+		list.add(ATT_ID);
+		list.add(ATT_AUTHOR);
+		list.add(ATT_YEAR);
+		list.add(ATT_TITLE);
+		list.add(ATT_ABSTRACT);
+		list.add(ATT_DBUUID);
 		return list;
 	}
 
 	public static DataType getDataType(String element) {
-		if (element.equalsIgnoreCase("id")) {
+		if (element.equalsIgnoreCase(ATT_ID)) {
 			return IntCell.TYPE;
-		} else if (element.equalsIgnoreCase("author")) {
+		} else if (element.equalsIgnoreCase(ATT_AUTHOR)) {
 			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase("year")) {
+		} else if (element.equalsIgnoreCase(ATT_YEAR)) {
 			return IntCell.TYPE;
-		} else if (element.equalsIgnoreCase("title")) {
+		} else if (element.equalsIgnoreCase(ATT_TITLE)) {
 			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase("abstract")) {
+		} else if (element.equalsIgnoreCase(ATT_ABSTRACT)) {
 			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase("dbuuid")) {
+		} else if (element.equalsIgnoreCase(ATT_DBUUID)) {
 			return StringCell.TYPE;
 		}
 		return null;

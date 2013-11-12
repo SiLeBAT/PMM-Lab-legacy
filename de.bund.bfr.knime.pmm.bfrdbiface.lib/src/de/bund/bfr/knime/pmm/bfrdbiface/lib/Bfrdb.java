@@ -1376,7 +1376,7 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertLiteratureInCase(PmmXmlDoc lit) {
 		try {
-			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\") VALUES (?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\", \"Journal\", \"Volume\", \"Issue\", \"Seite\", \"FreigabeModus\", \"Webseite\", \"Literaturtyp\", \"Kommentar\") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			int i=0;
 			for (PmmXmlElementConvertable el : lit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
@@ -1390,6 +1390,22 @@ public class Bfrdb extends Hsqldbiface {
 						else psm.setString(3, li.getTitle());
 						if (li.getAbstractText() == null) psm.setNull(4, Types.VARCHAR);						
 						else psm.setString(4, li.getAbstractText());
+						if (li.getJournal() == null) psm.setNull(5, Types.VARCHAR);
+						else psm.setString(5, li.getJournal());
+						if (li.getVolume() == null) psm.setNull(6, Types.VARCHAR);
+						else psm.setString(6, li.getVolume());
+						if (li.getIssue() == null) psm.setNull(7, Types.VARCHAR);
+						else psm.setString(7, li.getIssue());
+						if (li.getPage() == null) psm.setNull(8, Types.INTEGER);						
+						else psm.setInt(8, li.getPage());
+						if (li.getApprovalMode() == null) psm.setNull(9, Types.INTEGER);
+						else psm.setInt(9, li.getApprovalMode());
+						if (li.getWebsite() == null) psm.setNull(10, Types.VARCHAR);
+						else psm.setString(10, li.getWebsite());
+						if (li.getType() == null) psm.setNull(11, Types.INTEGER);
+						else psm.setInt(11, li.getType());
+						if (li.getComment() == null) psm.setNull(12, Types.VARCHAR);						
+						else psm.setString(12, li.getComment());
 						int newID = 0;
 						try {
 							if (psm.executeUpdate() > 0) {

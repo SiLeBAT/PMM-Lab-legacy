@@ -395,7 +395,8 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	
 
 	public ParametricModel clone() {
-		ParametricModel clonedPM = new ParametricModel(modelName, formula, depXml, level, modelId, estModelId); 
+		ParametricModel clonedPM = new ParametricModel(modelName, formula, depXml, level, modelId, estModelId);
+		clonedPM.setModelClass(modelClass);
 
 		try {
 			clonedPM.setRms(rms);

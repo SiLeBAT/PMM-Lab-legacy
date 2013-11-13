@@ -431,6 +431,7 @@ public class MMC_M extends JPanel {
 			ParametricModel newPM = new ParametricModel(newMN,
 					newFormula, pm.getDepXml(), pm.getLevel(),
 					MathUtilities.getRandomNegativeInt());
+			newPM.setModelClass(pm.getModelClass());
 			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
 			cloneSecondary(pm, newPM);
@@ -1025,6 +1026,7 @@ public class MMC_M extends JPanel {
 				String depDesc = result.getString("DepDescription");
 
 				pm = new ParametricModel(modelName, formula, new DepXml(result.getString(Bfrdb.ATT_DEP)), level, modelID);
+				pm.setModelClass(result.getInt("Klasse"));
 				pm.setDepDescription(depDesc);
 				String s = result.getString("LitMID");
 				if (s != null) pm.setMLit(db.getLiteratureXml(s));

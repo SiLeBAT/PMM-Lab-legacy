@@ -62,7 +62,8 @@ public class TableReader {
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
 			Map<String, String> lagParams) {
-		Set<String> idSet = new LinkedHashSet<String>();		
+		System.out.println(tuples.size());
+		Set<String> idSet = new LinkedHashSet<String>();
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		boolean containsData = tuples.get(0).getSchema()
@@ -73,8 +74,19 @@ public class TableReader {
 		newLagParams = new LinkedHashMap<String, String>();
 
 		if (isTertiaryModel) {
-			combinedTuples = ModelCombiner.combine(tuples, containsData,
-					initParams, lagParams);
+			Map<KnimeTuple, List<KnimeTuple>> combined = ModelCombiner.combine(
+					tuples, containsData, initParams, lagParams);
+
+			combinedTuples = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+
+			for (KnimeTuple t1 : combined.keySet()) {
+				combinedTuples.put(t1, new ArrayList<KnimeTuple>());
+
+				for (KnimeTuple t2 : combined.get(t1)) {
+					combinedTuples.get(t1).addAll(getAllDataTuples(t2, tuples));
+				}
+			}
+
 			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
 
 			try {
@@ -590,6 +602,28 @@ public class TableReader {
 
 	public Map<KnimeTuple, List<KnimeTuple>> getCombinedTuples() {
 		return combinedTuples;
-	}	
+	}
+
+	private List<KnimeTuple> getAllDataTuples(KnimeTuple current,
+			List<KnimeTuple> all) {
+		List<KnimeTuple> tuples = new ArrayList<KnimeTuple>();
+		Integer primId = ((CatalogModelXml) current.getPmmXml(
+				Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+		Integer secEstId = ((EstModelXml) current.getPmmXml(
+				Model2Schema.ATT_ESTMODEL).get(0)).getID();
+
+		for (KnimeTuple tuple : all) {
+			Integer pId = ((CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+			Integer sId = ((EstModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_ESTMODEL).get(0)).getID();
+
+			if (primId.equals(pId) && secEstId.equals(sId)) {
+				tuples.add(tuple);
+			}
+		}
+
+		return tuples;
+	}
 
 }

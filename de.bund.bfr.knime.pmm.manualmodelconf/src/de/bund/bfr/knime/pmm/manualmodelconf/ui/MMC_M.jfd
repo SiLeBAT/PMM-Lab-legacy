@@ -124,8 +124,8 @@ new FormModel {
 				name: "typeBox"
 				auxiliary() {
 					"JavaCodeGenerator.typeParameters": "String"
-					"JavaCodeGenerator.customCreateCode": "new JComboBox<String>(new String[] {\"Growth\",\"Inactivation\",\"Survival\"});"
 				}
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "typeBoxActionPerformed", true ) )
 			}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 				"gridX": 19
 				"gridY": 7

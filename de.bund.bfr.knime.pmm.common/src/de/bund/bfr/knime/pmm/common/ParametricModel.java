@@ -61,6 +61,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private static final String ATT_VALUE = "Value";
 	private static final String ATT_MODELNAME = "ModelName";
 	private static final String ATT_MODELID = "ModelCatalogId";
+	private static final String ATT_MODELCLASS = "ModelClass";
 	private static final String ATT_ESTMODELID = "EstModelId";
 	private static final String ATT_RMS = "RMS";
 	private static final String ATT_RSS = "RSS";
@@ -89,6 +90,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	private PmmXmlDoc modelLit = null;
 
 	private String modelName;
+	private Integer modelClass;
 	private String fittedModelName;
 	public String getFittedModelName() {
 		return fittedModelName;
@@ -222,6 +224,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		
 		modelName = modelElement.getAttributeValue( ATT_MODELNAME );
 		if (modelElement.getAttributeValue("FittedModelName") != null && !modelElement.getAttributeValue("FittedModelName").isEmpty()) fittedModelName = modelElement.getAttributeValue("FittedModelName");
+		modelClass = XmlHelper.getInt(modelElement, ATT_MODELCLASS);
 		level = Integer.valueOf( modelElement.getAttributeValue( ATT_LEVEL ) );
 		modelId = Integer.valueOf( modelElement.getAttributeValue( ATT_MODELID ) );
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
@@ -376,9 +379,9 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public PmmXmlDoc getParameter() {return parameter;}
 	public PmmXmlDoc getEstModelLit() {return estLit;}
 	public PmmXmlDoc getModelLit() {return modelLit;}
-	public PmmXmlDoc getCatModel() {
+	public PmmXmlDoc getCatModel() {		
 		PmmXmlDoc catModel = new PmmXmlDoc();
-		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula(), null); 
+		CatalogModelXml cmx = new CatalogModelXml(getModelId(), getModelName(), getFormula(), getModelClass()); 
 		catModel.add(cmx);
 		return catModel;
 	}
@@ -924,6 +927,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public int getModelId() { return modelId; }
 	public void setModelId(final int modelId) {this.modelId = modelId;}
 	public void setModelName(final String modelName) {this.modelName = modelName;}
+	public void setModelClass(final Integer modelClass) {this.modelClass = modelClass;}
 	public int getEstModelId() { return estModelId; }
 	public void setEstModelId(final int estModelId) {this.estModelId = estModelId;}
 	public int getCondId() { return condId; }
@@ -933,6 +937,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Double getAic() { return aic; }
 	public Double getBic() { return bic; }
 	public String getModelName() { return modelName; }
+	public Integer getModelClass() { return modelClass; }
 	
 	public String getDepVar() {return depXml == null ? null : depXml.getName();}
 	
@@ -940,6 +945,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public Element toXmlElement() {
 		Element modelElement = new Element( ELEMENT_PARAMETRICMODEL );
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
+		modelElement.setAttribute( ATT_MODELCLASS, XmlHelper.getNonNull(modelClass) );
 		modelElement.setAttribute("FittedModelName", fittedModelName == null ? "" : fittedModelName);
 		modelElement.setAttribute( ATT_LEVEL, String.valueOf( level ) );
 		modelElement.setAttribute( ATT_MODELID, String.valueOf( modelId ) );

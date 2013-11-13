@@ -97,14 +97,13 @@ public class MMC_M extends JPanel {
 			radioButton1.setEnabled(false);
 			radioButton2.setEnabled(false);
 			radioButton3.setEnabled(false);
-		}
-		
-		if (level == 2) {
-			typeLabel.setVisible(false);
-			typeBox.setVisible(false);
-		}
+		}				
 
+		for (String s : DBKernel.hashModelType.values()) {
+			typeBox.addItem(s);
+		}
 		scrollPane3.setVisible(false); // List1
+			
 		if (formulaCreator) {
 			label8.setVisible(false);
 			label3.setVisible(false);
@@ -161,6 +160,11 @@ public class MMC_M extends JPanel {
 				}
 			}
 			modelnameField.setText(pm.getModelName());
+			if (pm.getModelClass() != null) {
+				typeBox.setSelectedItem(DBKernel.hashModelType.get(pm.getModelClass()));
+			} else {
+				typeBox.setSelectedItem(null);
+			}
 			fittedModelName.setText(pm.getFittedModelName());
 			String depVar = depVarLabel.getText();
 			if (!depVar.isEmpty()) {
@@ -634,14 +638,6 @@ public class MMC_M extends JPanel {
 			 * (level != pm.getLevel())
 			 */
 			
-			if (radioButton2.isSelected()) {
-				typeLabel.setVisible(false);
-				typeBox.setVisible(false);	
-			} else {
-				typeLabel.setVisible(true);
-				typeBox.setVisible(true);
-			}
-			
 			setComboBox();
 			modelNameBox.repaint();
 			this.revalidate();
@@ -1049,6 +1045,21 @@ public class MMC_M extends JPanel {
 		if (addPreviousSelectedPM) modelNameBox.setSelectedItem(ppm);
 	}	
 
+	private void typeBoxActionPerformed(ActionEvent e) {
+		String typeString = (String) typeBox.getSelectedItem();
+		Integer type = null;
+		
+		for (Map.Entry<Object, String> entry : DBKernel.hashModelType.entrySet()) {
+			if (entry.getValue().equals(typeString)) {
+				type = (Integer) entry.getKey();
+			}
+		}
+				
+		if (table != null && table.getPM() != null) {
+			table.getPM().setModelClass(type);
+		}
+	}
+
 	@SuppressWarnings({ "deprecation", "serial" })
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -1066,7 +1077,7 @@ public class MMC_M extends JPanel {
 		label1 = new JLabel();
 		modelnameField = new JTextField();
 		typeLabel = new JLabel();
-		typeBox = new JComboBox<String>(new String[] {"Growth","Inactivation","Survival"});
+		typeBox = new JComboBox<String>();
 		label2 = new JLabel();
 		formulaArea = new JTextField();
 		formulaApply = new JButton();
@@ -1255,6 +1266,14 @@ public class MMC_M extends JPanel {
 		typeLabel.setText("Type:");
 		typeLabel.setHorizontalAlignment(SwingConstants.TRAILING);
 		add(typeLabel, CC.xy(17, 7));
+
+		//---- typeBox ----
+		typeBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				typeBoxActionPerformed(e);
+			}
+		});
 		add(typeBox, CC.xywh(19, 7, 3, 1));
 
 		//---- label2 ----

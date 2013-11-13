@@ -36,61 +36,25 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 		setId(id == null ? MathUtilities.getRandomNegativeInt() : id);
 		setName(name);
 		setFormula(formula);
+		setModelClass(modelClass);
 		setDbuuid(dbuuid);
 	}
 
 	public CatalogModelXml(Element el) {
-		this(getInt(el, ATT_ID), getString(el, ATT_NAME), getString(el,
-				ATT_FORMULA), getInt(el, ATT_MODEL_CLASS), getString(el,
-				ATT_DBUUID));
-	}
-
-	private static String getString(Element el, String attr) {
-		if (el == null || el.getAttributeValue(attr) == null
-				|| el.getAttributeValue(attr).isEmpty()) {
-			return null;
-		}
-
-		return el.getAttributeValue(attr);
-	}
-
-	private static Integer getInt(Element el, String attr) {
-		if (el == null || el.getAttributeValue(attr) == null
-				|| el.getAttributeValue(attr).isEmpty()) {
-			return null;
-		}
-
-		try {
-			return Integer.valueOf(el.getAttributeValue(attr));
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-	
-	private static String getNonNull(String s) {
-		if (s == null) {
-			return "";
-		}
-
-		return s;
-	}
-
-	private static String getNonNull(Integer i) {
-		if (i == null) {
-			return "";
-		}
-
-		return i + "";
+		this(XmlHelper.getInt(el, ATT_ID), XmlHelper.getString(el, ATT_NAME),
+				XmlHelper.getString(el, ATT_FORMULA), XmlHelper.getInt(el,
+						ATT_MODEL_CLASS), XmlHelper.getString(el, ATT_DBUUID));
 	}
 
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_CATALOGMODEL);
-		modelElement.setAttribute(ATT_ID, getNonNull(id));
-		modelElement.setAttribute(ATT_NAME, getNonNull(name));
-		modelElement.setAttribute(ATT_FORMULA, getNonNull(formula));
-		modelElement.setAttribute(ATT_MODEL_CLASS, getNonNull(modelClass));
-		modelElement.setAttribute(ATT_DBUUID, getNonNull(dbuuid));
+		modelElement.setAttribute(ATT_ID, XmlHelper.getNonNull(id));
+		modelElement.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
+		modelElement.setAttribute(ATT_FORMULA, XmlHelper.getNonNull(formula));
+		modelElement.setAttribute(ATT_MODEL_CLASS,
+				XmlHelper.getNonNull(modelClass));
+		modelElement.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
 		return modelElement;
 	}
 

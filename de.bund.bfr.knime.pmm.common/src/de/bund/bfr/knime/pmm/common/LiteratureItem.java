@@ -116,90 +116,36 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	}
 
 	public LiteratureItem(final Element el) {
-		this(getString(el, ATT_AUTHOR), getInt(el, ATT_YEAR), getString(el,
-				ATT_TITLE), getString(el, ATT_ABSTRACT), getString(el,
-				ATT_JOURNAL), getString(el, ATT_VOLUME), getString(el,
-				ATT_ISSUE), getInt(el, ATT_PAGE),
-				getInt(el, ATT_APPROVAL_MODE), getString(el, ATT_WEBSITE),
-				getInt(el, ATT_TYPE), getString(el, ATT_COMMENT), getInt(el,
-						ATT_ID), getString(el, ATT_DBUUID));
+		this(XmlHelper.getString(el, ATT_AUTHOR), XmlHelper
+				.getInt(el, ATT_YEAR), XmlHelper.getString(el, ATT_TITLE),
+				XmlHelper.getString(el, ATT_ABSTRACT), XmlHelper.getString(el,
+						ATT_JOURNAL), XmlHelper.getString(el, ATT_VOLUME),
+				XmlHelper.getString(el, ATT_ISSUE), XmlHelper.getInt(el,
+						ATT_PAGE), XmlHelper.getInt(el, ATT_APPROVAL_MODE),
+				XmlHelper.getString(el, ATT_WEBSITE), XmlHelper.getInt(el,
+						ATT_TYPE), XmlHelper.getString(el, ATT_COMMENT),
+				XmlHelper.getInt(el, ATT_ID), XmlHelper.getString(el,
+						ATT_DBUUID));
 	}
 
 	@Override
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_LITERATURE);
-		ret.setAttribute(ATT_AUTHOR, getNonNull(author));
-		ret.setAttribute(ATT_YEAR, getNonNull(year));
-		ret.setAttribute(ATT_TITLE, removeDirt(title));
-		ret.setAttribute(ATT_ABSTRACT, removeDirt(abstractText));
-		ret.setAttribute(ATT_JOURNAL, getNonNull(journal));
-		ret.setAttribute(ATT_VOLUME, getNonNull(volume));
-		ret.setAttribute(ATT_ISSUE, getNonNull(issue));
-		ret.setAttribute(ATT_PAGE, getNonNull(page));
-		ret.setAttribute(ATT_APPROVAL_MODE, getNonNull(approvalMode));
-		ret.setAttribute(ATT_WEBSITE, getNonNull(website));
-		ret.setAttribute(ATT_TYPE, getNonNull(type));
-		ret.setAttribute(ATT_COMMENT, getNonNull(comment));
-		ret.setAttribute(ATT_ID, getNonNull(id));
-		ret.setAttribute(ATT_DBUUID, getNonNull(dbuuid));
+		ret.setAttribute(ATT_AUTHOR, XmlHelper.getNonNull(author));
+		ret.setAttribute(ATT_YEAR, XmlHelper.getNonNull(year));
+		ret.setAttribute(ATT_TITLE, XmlHelper.removeDirt(title));
+		ret.setAttribute(ATT_ABSTRACT, XmlHelper.removeDirt(abstractText));
+		ret.setAttribute(ATT_JOURNAL, XmlHelper.getNonNull(journal));
+		ret.setAttribute(ATT_VOLUME, XmlHelper.getNonNull(volume));
+		ret.setAttribute(ATT_ISSUE, XmlHelper.getNonNull(issue));
+		ret.setAttribute(ATT_PAGE, XmlHelper.getNonNull(page));
+		ret.setAttribute(ATT_APPROVAL_MODE, XmlHelper.getNonNull(approvalMode));
+		ret.setAttribute(ATT_WEBSITE, XmlHelper.getNonNull(website));
+		ret.setAttribute(ATT_TYPE, XmlHelper.getNonNull(type));
+		ret.setAttribute(ATT_COMMENT, XmlHelper.getNonNull(comment));
+		ret.setAttribute(ATT_ID, XmlHelper.getNonNull(id));
+		ret.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
 		return ret;
-	}
-
-	private String removeDirt(String toClean) {
-		String cleaned = (toClean == null ? "" : toClean);
-		cleaned = cleaned.toString().replace("&amp;", "&"); // .replace("\n",
-															// " ");
-															// //.replaceAll("[^A-Za-zäöüßÄÖÜ0-9+-.,;': ()°%?&=<>/]",
-															// "");
-		cleaned = cleanInvalidXmlChars(cleaned);
-		/*
-		 * if (toClean != null && !toClean.equals(cleaned)) {
-		 * System.err.println(toClean); System.err.println(cleaned); }
-		 */
-		return cleaned;
-	}
-
-	private String cleanInvalidXmlChars(String text) {
-		String re = "[^^\u0009\r\n\u0020-\uD7FF\uE000-\uFFFD]";
-		return text.replaceAll(re, " ");
-	}
-
-	private static String getString(Element el, String attr) {
-		if (el == null || el.getAttributeValue(attr) == null
-				|| el.getAttributeValue(attr).isEmpty()) {
-			return null;
-		}
-
-		return el.getAttributeValue(attr);
-	}
-
-	private static Integer getInt(Element el, String attr) {
-		if (el == null || el.getAttributeValue(attr) == null
-				|| el.getAttributeValue(attr).isEmpty()) {
-			return null;
-		}
-
-		try {
-			return Integer.valueOf(el.getAttributeValue(attr));
-		} catch (NumberFormatException e) {
-			return null;
-		}
-	}
-
-	private static String getNonNull(String s) {
-		if (s == null) {
-			return "";
-		}
-
-		return s;
-	}
-
-	private static String getNonNull(Integer i) {
-		if (i == null) {
-			return "";
-		}
-
-		return i + "";
 	}
 
 	@Override

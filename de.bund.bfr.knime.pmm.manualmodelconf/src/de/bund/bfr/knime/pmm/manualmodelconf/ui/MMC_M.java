@@ -1020,7 +1020,7 @@ public class MMC_M extends JPanel {
 			ResultSet result = db.selectModel(level);
 			while (result.next()) {
 				String modelName = result.getString(Bfrdb.ATT_NAME);
-				String formula = result.getString(Bfrdb.ATT_FORMULA);
+				String formula = result.getString("Formel");
 				int modelID = result.getInt(Bfrdb.ATT_MODELID);
 				String depDesc = result.getString("DepDescription");
 

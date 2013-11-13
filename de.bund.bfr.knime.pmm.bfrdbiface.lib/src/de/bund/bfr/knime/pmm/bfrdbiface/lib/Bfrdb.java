@@ -87,8 +87,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_DESCRIPTION = "Beschreibung";
 	public static final String ATT_ESTMODELID = "GeschaetztesModell";
 	public static final String ATT_FIRSTAUTHOR = "Erstautor";
-	public static final String ATT_FORMULA = "Formel";
-	public static final String ATT_MODEL_CLASS = "Klasse";
 	public static final String ATT_INDEP = "Independent";
 	public static final String ATT_LEVEL = "Level";
 	public static final String ATT_LITERATUREID = "Literatur";
@@ -320,7 +318,7 @@ public class Bfrdb extends Hsqldbiface {
 	
 	private static final String queryModelView = "SELECT\n"
 			+"\n"
-			+"\""+REL_MODEL+"\".\""+ATT_FORMULA+"\",\n"
+			+"\""+REL_MODEL+"\".\"Formel\",\n"
 			+"\""+REL_MODEL+"\".\"ID\" AS \""+ATT_MODELID+"\",\n"
 			+"\"P\".\""+ATT_PARAMNAME+"\",\n"
 			+"\"D\".\""+ATT_PARAMNAME+"\" AS \""+ATT_DEP+"\",\n"
@@ -416,7 +414,7 @@ public class Bfrdb extends Hsqldbiface {
 		    +"    \"MicrobialDataView\".\"SonstigesWert\",\n"
 
 		    +"    \"EstModelPrimView\".\"FittedModelName\",\n"
-		    +"    \"EstModelPrimView\".\""+ATT_FORMULA+"\",\n"
+		    +"    \"EstModelPrimView\".\"Formel\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_DEP+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_INDEP+"\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_PARAMNAME+"\",\n"
@@ -541,7 +539,7 @@ public class Bfrdb extends Hsqldbiface {
 				
 				if( result.next() ) {
 					
-		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		formula = result.getString("Formel");
 		    		if( formula != null )
 						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 
@@ -625,7 +623,7 @@ public class Bfrdb extends Hsqldbiface {
 				
 				if( result.next() ) {
 					
-		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		formula = result.getString("Formel");
 		    		if( formula != null )
 						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 
@@ -1574,7 +1572,8 @@ public class Bfrdb extends Hsqldbiface {
 				ps.setDate( 3, date );
 				ps.setString( 4, m.getFormula() );
 				ps.setString( 5, m.getModelName().toLowerCase().replaceAll( "\\s", "_") );
-				ps.setInt(6, 0); // erstmal Unknown!
+				if (m.getModelClass() == null) ps.setNull(6, java.sql.Types.INTEGER);
+				else ps.setInt(6, m.getModelClass());
 				
 				modelId = -1;
 				if( ps.executeUpdate() > 0) {
@@ -1672,6 +1671,7 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
+	@SuppressWarnings("unused")
 	private Integer combaseDataAlreadyIn(final String combaseId) {
 		Integer res = null;
 		try {

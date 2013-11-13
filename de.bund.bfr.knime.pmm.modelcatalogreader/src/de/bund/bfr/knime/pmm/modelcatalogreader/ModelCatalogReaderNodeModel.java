@@ -162,13 +162,14 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple = new KnimeTuple( schema );
 		    		
 		    		// fill row
-		    		formula = result.getString(Bfrdb.ATT_FORMULA);
+		    		formula = result.getString("Formel");
 		    		if( formula != null ) {
 						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 					}
 		    		
 					PmmXmlDoc cmDoc = new PmmXmlDoc();
 					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
+					cmx.setModelClass(result.getInt("Klasse"));
 					cmDoc.add(cmx);
 					tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
@@ -236,13 +237,14 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 		    		tuple = new KnimeTuple( schema );
 		    		
 		    		// fill row
-		    		formula = result.getString( Bfrdb.ATT_FORMULA );
+		    		formula = result.getString("Formel");
 		    		if( formula != null ) {
 						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 					}
 
 					PmmXmlDoc cmDoc = new PmmXmlDoc();
 					CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
+					cmx.setModelClass(result.getInt("Klasse"));
 					cmDoc.add(cmx);
 					tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 

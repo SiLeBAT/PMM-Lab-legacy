@@ -262,7 +262,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		
     		// fill m1
-    		String formula = result.getString(Bfrdb.ATT_FORMULA);
+    		String formula = result.getString("Formel");
     		if( formula != null ) {
 				formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 			}
@@ -280,6 +280,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
 			PmmXmlDoc cmDoc = new PmmXmlDoc();
 			CatalogModelXml cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), formula, null); 
+    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
+    		cmx.setModelClass((Integer) cls);
 			cmDoc.add(cmx);
 			tuple.setValue(Model1Schema.ATT_MODELCATALOG, cmDoc);
 
@@ -337,7 +339,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m2
     		if (level == 2) {
-        		formula = result.getString( Bfrdb.ATT_FORMULA+"2" );
+        		formula = result.getString("Formel2" );
 	    		if( formula != null ) {
 					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 				}
@@ -348,6 +350,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
     			cmDoc = new PmmXmlDoc();
     			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula, null); 
+        		cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID+"2")+"", "Klasse");
+        		cmx.setModelClass((Integer) cls);
     			cmDoc.add(cmx);
     			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
 	    		depDoc = new PmmXmlDoc();

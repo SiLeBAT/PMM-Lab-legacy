@@ -228,6 +228,7 @@ if (true) return null;
 					}
 					else {
 			    		ppm = new ParametricModel(modelName, formula, dx, 1, rowMcID); // , rowEstM1ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM1ID
+			    		ppm.setModelClass(cmx.getModelClass());
 			    		ppm.setParameter(paramXml);
 			    		ppm.setIndependent(indepXml);
 			    		ppm.setFormula(ppm.revertFormula());
@@ -335,6 +336,7 @@ if (true) return null;
 							}
 							else {
 					    		spm = new ParametricModel( modelName, formula, dx, 2, rowMcID, rowEstM2ID == null ? MathUtilities.getRandomNegativeInt() : rowEstM2ID );
+					    		spm.setModelClass(cmx.getModelClass());
 					    		spm.setParameter(paramXml);
 					    		spm.setIndependent(indepXml);
 					    		spm.setFormula(spm.revertFormula());

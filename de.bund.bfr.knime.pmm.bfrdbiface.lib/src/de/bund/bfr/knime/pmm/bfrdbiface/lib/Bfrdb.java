@@ -1174,11 +1174,14 @@ public class Bfrdb extends Hsqldbiface {
 		String warnings = "";
 		
 			boolean doUpdate = isObjectPresent("Versuchsbedingungen", condId);
-			Integer cdai = combaseDataAlreadyIn(combaseId);
+			Integer cdai = null;
+			/*
+			cdai = combaseDataAlreadyIn(combaseId);
 			if (!doUpdate && cdai != null) {
 				condId = cdai;//return null;
 				doUpdate = true;
 			}
+			*/
 			Integer resultID = null;
 			PreparedStatement ps;
 
@@ -1281,7 +1284,7 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			catch( SQLException ex ) { ex.printStackTrace(); }
 			
-			if( cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
+			if (cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
 				insertCondComb(resultID, combaseId);
 			}
 			String hcWarnings = handleConditions(resultID, misc, ts);

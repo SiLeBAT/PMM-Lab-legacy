@@ -350,6 +350,28 @@ public class XLSReader {
 					}
 				}
 
+				for (String column : miscColumns.keySet()) {
+					PmmXmlDoc misc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+					Cell cell = row.getCell(miscColumns.get(column));
+
+					if (hasData(cell)) {
+						try {
+							String param = ((MiscXml) columnMappings
+									.get(column)).getName();
+							double value = Double.parseDouble(getData(cell)
+									.replace(",", "."));
+
+							if (!hasSameValue(param, value, misc)) {
+								warnings.add("Variable conditions cannot be imported: "
+										+ "Only first value for "
+										+ column
+										+ " is used");
+							}
+						} catch (NumberFormatException e) {
+						}
+					}
+				}
+
 				timeSeriesXml.add(new TimeSeriesXml(null, time, timeUnit, logc,
 						concentrationUnit, stdDev, nMeasure));
 			}
@@ -816,4 +838,15 @@ public class XLSReader {
 		return null;
 	}
 
+	private boolean hasSameValue(String param, Double value, PmmXmlDoc miscs) {
+		for (PmmXmlElementConvertable el : miscs.getElementSet()) {
+			MiscXml misc = (MiscXml) el;
+
+			if (misc.getName().equals(param) && !value.equals(misc.getValue())) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

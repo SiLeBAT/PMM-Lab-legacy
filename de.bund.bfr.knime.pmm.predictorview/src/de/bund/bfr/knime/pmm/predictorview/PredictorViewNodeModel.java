@@ -126,9 +126,16 @@ public class PredictorViewNodeModel extends NodeModel {
 						.entrySet()) {
 					arguments.put(entry.getKey(),
 							Arrays.asList(entry.getValue()));
+				}
 
-					if (entry.getValue() != null) {
-						double value = entry.getValue();
+				Map<String, List<Double>> converted = convertToUnits(arguments,
+						plotable.getUnits());
+
+				for (Map.Entry<String, List<Double>> entry : converted
+						.entrySet()) {
+					if (entry.getValue() != null
+							&& entry.getValue().get(0) != null) {
+						double value = entry.getValue().get(0);
 						Double min = plotable.getMinArguments().get(
 								entry.getKey());
 						Double max = plotable.getMaxArguments().get(
@@ -145,8 +152,7 @@ public class PredictorViewNodeModel extends NodeModel {
 				if (valid) {
 					validIds.add(id);
 					plotable.setSamples(set.getTimeValues());
-					plotable.setFunctionArguments(convertToUnits(arguments,
-							plotable.getUnits()));
+					plotable.setFunctionArguments(converted);
 					container.addRowToTable(createDataTuple(reader, id));
 				}
 			}

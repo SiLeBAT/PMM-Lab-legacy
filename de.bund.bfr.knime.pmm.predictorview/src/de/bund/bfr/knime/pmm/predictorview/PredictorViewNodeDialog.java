@@ -433,10 +433,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			Plotable plotable = chartCreator.getPlotables().get(id);
 
 			if (plotable != null) {
-				for (String param : configPanel.getParamsX().keySet()) {
-					if (configPanel.getParamsX().get(param).size() == 1) {
-						double value = configPanel.getParamsX().get(param)
-								.get(0);
+				Map<String, List<Double>> converted = PredictorViewNodeModel
+						.convertToUnits(configPanel.getParamsX(),
+								plotable.getUnits());
+
+				for (String param : converted.keySet()) {
+					if (converted.get(param).size() == 1) {
+						double value = converted.get(param).get(0);
 						Double min = plotable.getMinArguments().get(param);
 						Double max = plotable.getMaxArguments().get(param);
 

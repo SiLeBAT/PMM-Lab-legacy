@@ -61,8 +61,7 @@ public class TableReader {
 	private Map<String, String> shortIds;
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
-			Map<String, String> lagParams) {
-		System.out.println(tuples.size());
+			Map<String, String> lagParams) {		
 		Set<String> idSet = new LinkedHashSet<String>();
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());

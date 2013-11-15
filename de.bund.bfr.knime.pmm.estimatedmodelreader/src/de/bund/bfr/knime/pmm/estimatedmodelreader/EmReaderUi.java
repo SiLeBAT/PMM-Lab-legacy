@@ -238,13 +238,15 @@ public class EmReaderUi extends JPanel {
 		String labelText = "<html>";
 		List<KnimeTuple> kts = set.getSelectedTuples();
 		for (KnimeTuple kt : kts) {
-			PmmXmlDoc estModel = kt.getPmmXml(Model1Schema.ATT_ESTMODEL);
-			if (estModel != null) {
-				for (PmmXmlElementConvertable el : estModel.getElementSet()) {
-					if (el instanceof EstModelXml) {
-						EstModelXml emx = (EstModelXml) el;
-						labelText += emx.getID() + " -> " + emx.getName() + "<br>";
-						break;
+			if (kt != null) {
+				PmmXmlDoc estModel = kt.getPmmXml(Model1Schema.ATT_ESTMODEL);
+				if (estModel != null) {
+					for (PmmXmlElementConvertable el : estModel.getElementSet()) {
+						if (el instanceof EstModelXml) {
+							EstModelXml emx = (EstModelXml) el;
+							labelText += emx.getID() + " -> " + emx.getName() + "<br>";
+							break;
+						}
 					}
 				}
 			}

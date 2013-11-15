@@ -368,13 +368,17 @@ public class MathUtilities {
 		Pattern p = Pattern.compile("\\*\\(\\(.+\\)\\)$");
 		Matcher m = p.matcher(formula);
 
-		if (m.find()) {
+		while (m.find()) {
 			String s = m.group();
 
-			return s.substring(3, s.length() - 2);
-		} else {
-			return null;
+			s = s.substring(3, s.length() - 2);
+			
+			if (countOccurences(s, '(') == countOccurences(s, ')')) {
+				return s;
+			}
 		}
+		
+		return null;
 	}
 
 	public static String getAllButBoundaryCondition(String formula) {
@@ -393,6 +397,18 @@ public class MathUtilities {
 		} else {
 			return formula;
 		}
+	}
+	
+	private static int countOccurences(String s, char c) {
+		int n = 0;
+		
+		for (int i = 0; i < s.length(); i++) {
+			if (s.charAt(i) == c) {
+				n++;
+			}
+		}
+		
+		return n;
 	}
 
 }

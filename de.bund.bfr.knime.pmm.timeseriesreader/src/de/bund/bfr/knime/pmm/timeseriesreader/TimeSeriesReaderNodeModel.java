@@ -119,6 +119,45 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
         parameter = new LinkedHashMap<String, Double[]>();
     }
 
+    private String getWhere() {
+    	String result = " WHERE TRUE";
+
+		if (agentID > 0) result += " AND \"Agens\" = " + agentID;
+		if (agentString != null && !agentString.trim().isEmpty()) {
+			result += " AND (INSTR(LCASE(\"Agensname\"), '" + agentString.toLowerCase() + "') > 0" +
+					" OR INSTR(LCASE(\"AgensDetail\"), '" + agentString.toLowerCase() + "') > 0)";
+		}
+		if (matrixID > 0) result += " AND \"Matrix\" = " + matrixID;
+		if (matrixString != null && !matrixString.trim().isEmpty()) {
+			result += " AND (INSTR(LCASE(\"Matrixname\"), '" + matrixString.toLowerCase() + "') > 0" +
+					" OR INSTR(LCASE(\"MatrixDetail\"), '" + matrixString.toLowerCase() + "') > 0)";
+		}
+		if (literatureID > 0) result += " AND \"Literatur\" = " + literatureID;
+		if (literatureString != null && !literatureString.trim().isEmpty()) {
+			// passesFilter sollte diesen Part erstmal übernehmen... System.err.println("Literature Check to be implemented!!!");
+		}
+		for (String par : parameter.keySet()) {
+			Double[] dbl = parameter.get(par);
+			if (dbl[0] == null && dbl[1] == null) continue;
+			if (par.equalsIgnoreCase(AttributeUtilities.ATT_TEMPERATURE)) {
+				if (dbl[0] != null) result += " AND (\"Temperatur\" >= " + dbl[0] + " OR \"Temperatur\" IS NULL)";
+				if (dbl[1] != null) result += " AND (\"Temperatur\" <= " + dbl[1] + " OR \"Temperatur\" IS NULL)";
+			}
+			else if (par.equalsIgnoreCase(AttributeUtilities.ATT_PH)) {
+				if (dbl[0] != null) result += " AND (\"pH\" >= " + dbl[0] + " OR \"pH\" IS NULL)";
+				if (dbl[1] != null) result += " AND (\"pH\" <= " + dbl[1] + " OR \"pH\" IS NULL)";
+			}
+			else if (par.equalsIgnoreCase(AttributeUtilities.ATT_AW)) {
+				if (dbl[0] != null) result += " AND (\"aw\" >= " + dbl[0] + " OR \"aw\" IS NULL)";
+				if (dbl[1] != null) result += " AND (\"aw\" <= " + dbl[1] + " OR \"aw\" IS NULL)";
+			}
+			else {
+				// passesFilter sollte diesen Part erstmal übernehmen... System.err.println("Literature Check to be implemented!!!");
+			}
+		}
+		//System.err.println(result);
+    	return result;
+    }
     /**
      * {@inheritDoc}
      */
@@ -143,7 +182,8 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 
     	String dbuuid = db.getDBUUID();
     
-    	ResultSet result = db.selectTs();
+    	String where = getWhere();
+    	ResultSet result = db.selectTs(where);
     	
     	// initialize data buffer
     	BufferedDataContainer buf = exec.createDataContainer(new TimeSeriesSchema().createSpec());

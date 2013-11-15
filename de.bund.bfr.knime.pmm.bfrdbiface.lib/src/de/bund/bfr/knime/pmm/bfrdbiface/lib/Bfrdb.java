@@ -782,12 +782,15 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	public ResultSet selectTs() throws SQLException {
-		return selectTs(false);
+		return selectTs("");
 	}
-	public ResultSet selectTs(boolean forceUpdate) throws SQLException {
+	public ResultSet selectTs(String where) throws SQLException {
+		return selectTs(where, false);
+	}
+	private ResultSet selectTs(String where, boolean forceUpdate) throws SQLException {
 		//return pushQuery(queryTimeSeries9, true);
 		//System.err.println(queryTimeSeries9);
-		return getCachedTable("CACHE_TS", queryTimeSeries9, "", "", new String[]{"Einheiten","Versuchsbedingungen_Sonstiges","SonstigeParameter","DoubleKennzahlen","Messwerte","Versuchsbedingungen"});
+		return getCachedTable("CACHE_TS", queryTimeSeries9, where, where, new String[]{"Einheiten","Versuchsbedingungen_Sonstiges","SonstigeParameter","DoubleKennzahlen","Messwerte","Versuchsbedingungen"});
 	}
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, String[] relevantTables) throws SQLException {
 		boolean dropCacheFirst = false;

@@ -50,7 +50,7 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void check4Updates_172_173() {	
+	public static void check4Updates_173_174() {	
 		// Tonne in die Einnheitentabelle rein...
 		/*
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
@@ -63,6 +63,71 @@ public class UpdateChecker {
 					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
 					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
 		 */
+	}
+	public static void check4Updates_172_173() {	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Name") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 1, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Strasse") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 2, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Hausnummer") + " VARCHAR(10) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 3, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Postfach") + " VARCHAR(20) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 4, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("PLZ") + " VARCHAR(10) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 5, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Ort") + " VARCHAR(60) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 6, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Bundesland") + " VARCHAR(30) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 7, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Land") + " VARCHAR(100) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 8, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Ansprechpartner") + " VARCHAR(100) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 9, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Telefon") + " VARCHAR(30) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 10, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Fax") + " VARCHAR(30) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 11, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("EMail") + " VARCHAR(100) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 12, false);		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Webseite") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 13, false);	
+		try {
+			ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Kontaktadresse") + "," + DBKernel.delimitL("Kontakte") + ".* FROM " + DBKernel.delimitL("Station") + " LEFT JOIN " + DBKernel.delimitL("Kontakte") +
+					" ON " + DBKernel.delimitL("Kontakte") + "." + DBKernel.delimitL("ID") + "=" + DBKernel.delimitL("Station") + "." + DBKernel.delimitL("Kontaktadresse"), false);
+			if (rs != null && rs.first())  {
+				do {
+					String sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " +
+							(rs.getObject("Name") != null ? DBKernel.delimitL("Name") + "='" + rs.getString("Name").replace("'", "''") + "'," : "") +
+							(rs.getObject("Strasse") != null ? DBKernel.delimitL("Strasse") + "='" + rs.getString("Strasse").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Hausnummer") != null ? DBKernel.delimitL("Hausnummer") + "='" + rs.getString("Hausnummer").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Postfach") != null ? DBKernel.delimitL("Postfach") + "='" + rs.getString("Postfach").replace("'", "''") + "',"  : "") +
+							(rs.getObject("PLZ") != null ? DBKernel.delimitL("PLZ") + "='" + rs.getString("PLZ").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Ort") != null ? DBKernel.delimitL("Ort") + "='" + rs.getString("Ort").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Bundesland") != null ? DBKernel.delimitL("Bundesland") + "='" + rs.getString("Bundesland").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Land") != null ? DBKernel.delimitL("Land") + "='" + rs.getString("Land").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Ansprechpartner") != null ? DBKernel.delimitL("Ansprechpartner") + "='" + rs.getString("Ansprechpartner").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Telefon") != null ? DBKernel.delimitL("Telefon") + "='" + rs.getString("Telefon").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Fax") != null ? DBKernel.delimitL("Fax") + "='" + rs.getString("Fax").replace("'", "''") + "',"  : "") +
+							(rs.getObject("EMail") != null ? DBKernel.delimitL("EMail") + "='" + rs.getString("EMail").replace("'", "''") + "',"  : "") +
+							(rs.getObject("Webseite") != null ? DBKernel.delimitL("Webseite") + "='" + rs.getString("Webseite").replace("'", "''") + "',"  : "") +
+							DBKernel.delimitL("Kontaktadresse") + "=" + rs.getString("Kontaktadresse") +
+							" WHERE " + DBKernel.delimitL("Kontaktadresse") + "=" + rs.getInt("Kontaktadresse");
+					//System.err.println(sql);
+					DBKernel.sendRequest(sql, false);
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();}		
+		
+		refreshFKs("Station", true);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " DROP COLUMN " + DBKernel.delimitL("Kontaktadresse"), false);
+		updateChangeLog("Station", 14, true);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " DROP COLUMN " + DBKernel.delimitL("Produktkatalog"), false);
+		updateChangeLog("Station", 26, true);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Produktkatalog") + " INTEGER BEFORE " + DBKernel.delimitL("Name"), false);
+		updateChangeLog("Station", 1, false);
+		refreshFKs("Station");
+		DBKernel.doMNs(DBKernel.myList.getTable("Station"));
 	}
 	public static void check4Updates_171_172() {	
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_172.sql", null, false);

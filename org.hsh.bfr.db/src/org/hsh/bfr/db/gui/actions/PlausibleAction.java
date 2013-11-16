@@ -204,8 +204,8 @@ public class PlausibleAction extends AbstractAction {
 		    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
 		    		, false);
 	*/
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Kontakte", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
-					"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
+					null, null, null);		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
 						"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
@@ -221,7 +221,7 @@ public class PlausibleAction extends AbstractAction {
 			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			
 			int total = vals1.size() + vals2.size() + vals3.size() + vals4.size();
-			if (showAndFilterVals("Station", vals1, 6, 0, total)) {
+			if (showAndFilterVals("Station", vals1, 0, 0, total)) {
 				if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
 					if (showAndFilterVals("Chargen", vals3, 0, vals1.size() + vals2.size(), total)) {
 						showAndFilterVals("Lieferungen", vals4, 0, vals1.size() + vals2.size() + vals3.size(), total);

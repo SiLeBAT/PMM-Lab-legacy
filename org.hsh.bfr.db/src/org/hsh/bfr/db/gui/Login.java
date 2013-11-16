@@ -267,15 +267,20 @@ public class Login extends JFrame {
 			else {
 				String dbVersion = DBKernel.getDBVersion();
 				String softwareVersion = DBKernel.DBVersion;
-				VersionComprator cmp = new VersionComprator();
-				int result = cmp.compare(dbVersion, softwareVersion);
-				if (result != 0) {
-					String msg = "Login rejected!\n";
-					if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
-					else msg += "Bitte Software aktualisieren!!!";
-					InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
-					ib.setVisible(true);
-					return null;
+				if (softwareVersion.equals("1.7.3") && dbVersion.equals("1.7.2")) {
+					; // only Krisenupdate
+				}
+				else {
+					VersionComprator cmp = new VersionComprator();
+					int result = cmp.compare(dbVersion, softwareVersion);
+					if (result != 0) {
+						String msg = "Login rejected!\n";
+						if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
+						else msg += "Bitte Software aktualisieren!!!";
+						InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
+						ib.setVisible(true);
+						return null;
+					}
 				}
 			}
 			
@@ -493,6 +498,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.7.1")) {
 					  		UpdateChecker.check4Updates_171_172(); 
 					  		DBKernel.setDBVersion("1.7.2");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.7.2")) {
+					  		UpdateChecker.check4Updates_172_173(); 
+					  		DBKernel.setDBVersion("1.7.3");
 					  	}
 
 						DBKernel.closeDBConnections(false);

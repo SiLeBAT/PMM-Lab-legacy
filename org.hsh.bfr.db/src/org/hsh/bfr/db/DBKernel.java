@@ -182,7 +182,7 @@ public class DBKernel {
 	return pass;
 	}
 	public static String getLanguage() {
-		return !isKNIME ? "de" : "en"; // isKrise || 
+		return !isKNIME && !isKrise ? "de" : "en"; // isKrise || 
 	}
 	  public static boolean saveUP2PrefsTEMP(String dbPath) {
 		  return saveUP2PrefsTEMP(dbPath, false);

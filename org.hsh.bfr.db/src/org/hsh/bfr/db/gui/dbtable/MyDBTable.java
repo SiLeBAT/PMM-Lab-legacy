@@ -1046,7 +1046,7 @@ if (myDBPanel1 != null) {
 						} else if (fname.equals("VATnumber")) {
 							c.setPreferredWidth(90);
 						} else if (fname.equals("Betriebsart")) {
-							c.setPreferredWidth(80);
+							c.setPreferredWidth(120);
 						} else if (fname.equals("Betriebsnummer")) {
 							c.setPreferredWidth(110);
 						} else if (fname.startsWith("BezUnits")) {
@@ -1097,7 +1097,7 @@ if (myDBPanel1 != null) {
 					    c.setUserCellEditor(new MyCellEditorDate());
 				    	String fname = actualTable.getFieldNames()[i];
 					    if (fname.equals("MHD")) {
-					    	c.setPreferredWidth(70);
+					    	c.setPreferredWidth(110);
 					    }
 					    else if (fname.equals("Lieferdatum")) {
 					    	c.setPreferredWidth(90);
@@ -1109,7 +1109,7 @@ if (myDBPanel1 != null) {
 					    	c.setPreferredWidth(120);
 					    }
 					    else if (fname.equals("Herstellungsdatum")) {
-					    	c.setPreferredWidth(120);
+					    	c.setPreferredWidth(140);
 					    }
 					    else {
 					    	c.setPreferredWidth(100); // datum

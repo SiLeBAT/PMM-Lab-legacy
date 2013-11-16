@@ -244,7 +244,7 @@ public class MyDBTables {
 		MyTable adressen = new MyTable("Kontakte",
 				new String[]{"Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
-				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zunahme",null,null,null,null},
+				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new LinkedHashMap[]{null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null});
 		addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
@@ -996,8 +996,8 @@ public class MyDBTables {
 				"FallErfuellt","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
 				"BOOLEAN","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER"},
-				new String[]{null,"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zunahme",null,null,null,null,"Betriebsnummer aus BALVI-System sofern vorhanden",
-				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", "Steuernummer", "interner Code, z.B. NI00",
+				new String[]{null,null, null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
+				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
 				"Falldefinition erfüllt (z.B. laut RKI)",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien},
 				null,

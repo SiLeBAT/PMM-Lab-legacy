@@ -192,7 +192,7 @@ public class MainFrame extends JFrame {
 		button8.getAction().setEnabled(true);
 		button10.getAction().setEnabled(isEnabable);
 		button1.getAction().setEnabled(!DBKernel.isServerConnection);
-		button12.getAction().setEnabled(true);
+		button12.getAction().setEnabled(false);
 		button2.getAction().setEnabled(!DBKernel.isServerConnection);
 		button3.getAction().setEnabled(isEnabable);
 		button5.getAction().setEnabled(isEnabable);

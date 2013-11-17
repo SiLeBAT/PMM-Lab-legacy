@@ -1048,7 +1048,7 @@ if (myDBPanel1 != null) {
 						} else if (fname.equals("Betriebsart")) {
 							c.setPreferredWidth(120);
 						} else if (fname.equals("Betriebsnummer")) {
-							c.setPreferredWidth(110);
+							c.setPreferredWidth(120);
 						} else if (fname.startsWith("BezUnits")) {
 							c.setPreferredWidth(70);
 						} else if (fname.equals("UnitEinheit")) {
@@ -1158,7 +1158,7 @@ if (myDBPanel1 != null) {
 							} else if (fname.equals("Unitmenge")) {
 								c.setPreferredWidth(80);
 							} else if (fname.startsWith("#Units")) {
-								c.setPreferredWidth(60);
+								c.setPreferredWidth(70);
 							} else {
 								c.setPreferredWidth(100);
 							}

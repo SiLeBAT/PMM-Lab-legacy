@@ -365,19 +365,19 @@ public class MathUtilities {
 	}
 
 	public static String getBoundaryCondition(String formula) {
-		Pattern p = Pattern.compile("\\*\\(\\(.+\\)\\)$");
+		Pattern p = Pattern.compile("\\*\\(\\(\\(\\(\\(.+\\)\\)\\)\\)\\)$");
 		Matcher m = p.matcher(formula);
 
 		while (m.find()) {
 			String s = m.group();
 
-			s = s.substring(3, s.length() - 2);
-			
+			s = s.substring(6, s.length() - 5);
+
 			if (countOccurences(s, '(') == countOccurences(s, ')')) {
 				return s;
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -385,7 +385,7 @@ public class MathUtilities {
 		String cond = getBoundaryCondition(formula);
 
 		if (cond != null) {
-			return formula.replace("*((" + cond + "))", "");
+			return formula.replace("*(((((" + cond + ")))))", "");
 		} else {
 			return formula;
 		}
@@ -393,21 +393,21 @@ public class MathUtilities {
 
 	public static String getFormula(String formula, String boundaryCondition) {
 		if (boundaryCondition != null && !boundaryCondition.isEmpty()) {
-			return formula + "*((" + boundaryCondition + "))";
+			return formula + "*(((((" + boundaryCondition + ")))))";
 		} else {
 			return formula;
 		}
 	}
-	
+
 	private static int countOccurences(String s, char c) {
 		int n = 0;
-		
+
 		for (int i = 0; i < s.length(); i++) {
 			if (s.charAt(i) == c) {
 				n++;
 			}
 		}
-		
+
 		return n;
 	}
 

@@ -45,6 +45,7 @@ import javax.swing.JProgressBar;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
+import org.hsh.bfr.db.imports.LieferkettenImporterEFSA;
 import org.hsh.bfr.db.imports.MyImporter;
 import org.hsh.bfr.db.imports.MyProzessXMLImporter;
 import org.hsh.bfr.db.imports.MyRisImporter;
@@ -77,7 +78,7 @@ public class ImportAction extends AbstractAction {
 	  fc.addChoosableFileFilter(myRis);
 	  if (DBKernel.isAdmin()) fc.addChoosableFileFilter(new GeneralXLSImporter()); //  && !DBKernel.isKNIME
 	  fc.setFileFilter(myRis);
-	  //if (DBKernel.isKrise) fc.addChoosableFileFilter(new LieferkettenImporterNew());
+	  if (DBKernel.isKrise) {LieferkettenImporterEFSA efsa = new LieferkettenImporterEFSA(); fc.addChoosableFileFilter(efsa); fc.setFileFilter(efsa);}
 	  
 	  //fc.addChoosableFileFilter(new LieferkettenImporter());	  
 	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());

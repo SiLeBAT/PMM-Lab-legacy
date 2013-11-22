@@ -422,6 +422,24 @@ public class TableReader {
 			plotable.setUnits(units);
 
 			if (isTertiaryModel) {
+				if (containsData) {
+					for (int i = 0; i < miscParams.size(); i++) {
+						String unit = null;
+
+						for (PmmXmlElementConvertable el : tuple.getPmmXml(
+								TimeSeriesSchema.ATT_MISC).getElementSet()) {
+							MiscXml element = (MiscXml) el;
+
+							if (miscParams.get(i).equals(element.getName())) {
+								unit = element.getUnit();
+								break;
+							}
+						}
+
+						conditionUnits.get(i).add(unit);
+					}
+				}
+				
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double min = null;
 					Double max = null;
@@ -450,24 +468,6 @@ public class TableReader {
 						if (!cu.isEmpty() && cu.get(cu.size() - 1) == null) {
 							cu.set(cu.size() - 1, unit);
 						}
-					}
-				}
-
-				if (containsData) {
-					for (int i = 0; i < miscParams.size(); i++) {
-						String unit = null;
-
-						for (PmmXmlElementConvertable el : tuple.getPmmXml(
-								TimeSeriesSchema.ATT_MISC).getElementSet()) {
-							MiscXml element = (MiscXml) el;
-
-							if (miscParams.get(i).equals(element.getName())) {
-								unit = element.getUnit();
-								break;
-							}
-						}
-
-						conditionUnits.get(i).add(unit);
 					}
 				}
 			} else if (containsData) {

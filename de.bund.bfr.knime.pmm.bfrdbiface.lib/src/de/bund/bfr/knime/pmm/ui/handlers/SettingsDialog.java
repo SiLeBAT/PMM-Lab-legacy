@@ -89,6 +89,8 @@ public class SettingsDialog extends JFrame {
 				Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
 				Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
 				DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
+				if (!isServer) DBKernel.getUP(dbt);
+				conn = DBKernel.getLocalConn(true);
 				if (conn != null) {
 					DBKernel.createGui(conn);
 			  		DBKernel.myList.getMyDBTable().initConn(conn);

@@ -247,7 +247,7 @@ public class DBKernel {
 		  checksum.update(b,0,b.length);
 		  return checksum.getValue();
 	  }
-	  private static boolean getUP(String dbPath) {
+	  public static boolean getUP(String dbPath) {
 		  boolean result = false;
 	  		DBKernel.closeDBConnections(false);	  		
 	  		
@@ -720,15 +720,23 @@ public class DBKernel {
 					if (kompakt && !isAdmin()) { // kompakt ist nur beim Programm schliessen true
 						closeDBConnections(false);
 						try {
-							localConn = getDefaultAdminConn();
+							localConn = getDefaultAdminConn(HSHDB_PATH, false, true);
 						}
 						catch (Exception e) {e.printStackTrace();}
+						if (localConn == null) {
+							getUP(HSHDB_PATH);
+							if (localConn != null) localConn.close();
+							try {
+								localConn = getDefaultAdminConn(HSHDB_PATH, false, true);
+							}
+							catch (Exception e) {e.printStackTrace();}							
+						}
 					}
 					Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY
 					MyLogger.handleMessage("vor SHUTDOWN");
     	      	    stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
 				}
-				catch (SQLException e) {result = false;} // e.printStackTrace();
+				catch (SQLException e) {result = false;if (kompakt) e.printStackTrace();} // e.printStackTrace();
 			}
 			MyLogger.handleMessage("vor close");
 			localConn.close();
@@ -894,6 +902,10 @@ public class DBKernel {
 	  }
 	  return localConn;
   }
+  public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn, final boolean suppressWarnings) throws Exception {
+	  Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn, suppressWarnings);
+	  return result;
+  }
   // newConn wird nur von MergeDBs und Bfrdb benötigt
   public static Connection getDefaultAdminConn(final String dbPath, final boolean newConn) throws Exception {
 	  Connection result = getDBConnection(dbPath, getTempSA(dbPath), getTempSAPass(dbPath), newConn);
@@ -981,7 +993,8 @@ public class DBKernel {
     		}
     	}
     	else {
-    		if (!suppressWarnings || !isKNIME && adminU.containsKey(dbFile.substring(0, dbFile.length() - 2))) MyLogger.handleException(e);
+    		if (!suppressWarnings) MyLogger.handleException(e);
+    		//if (!suppressWarnings || !isKNIME && adminU.containsKey(dbFile.substring(0, dbFile.length() - 2))) MyLogger.handleException(e);
     	}
     	//LOGGER.log(Level.INFO, dbUsername + " - " + dbPassword + " - " + dbFile, e);
     }

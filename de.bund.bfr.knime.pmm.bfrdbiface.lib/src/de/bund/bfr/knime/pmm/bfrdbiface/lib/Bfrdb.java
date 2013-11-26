@@ -809,6 +809,8 @@ public class Bfrdb extends Hsqldbiface {
 			return ps.executeQuery();
 		}
 		String selectWhereSQL = selectSQL;
+		int whereIndex = selectSQL.lastIndexOf("WHERE ");
+		if (whereIndex > 0) whereSQL = " AND " + whereSQL.substring(whereSQL.indexOf("WHERE") + 5);
 		int orderIndex = selectSQL.lastIndexOf("ORDER BY "); 
 		if (orderIndex > 0) selectWhereSQL = selectSQL.substring(0, orderIndex) + " " + whereSQL + " " + selectSQL.substring(orderIndex);
 		else selectWhereSQL = selectSQL + " " + whereSQL;

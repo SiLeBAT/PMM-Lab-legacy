@@ -39,6 +39,8 @@ import org.knime.core.node.BufferedDataTable;
 import org.knime.core.node.CanceledExecutionException;
 import org.knime.core.node.ExecutionContext;
 
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
+
 public interface Joiner {
 
 	public JComponent createPanel(String assignments);
@@ -46,7 +48,8 @@ public interface Joiner {
 	public String getAssignments();
 
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws CanceledExecutionException;
+			ExecutionContext exec) throws CanceledExecutionException,
+			ConvertException;
 
 	public boolean isValid();
 }

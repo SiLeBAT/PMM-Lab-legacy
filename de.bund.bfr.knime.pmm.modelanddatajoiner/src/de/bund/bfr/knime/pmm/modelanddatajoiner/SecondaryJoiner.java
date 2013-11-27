@@ -255,7 +255,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws CanceledExecutionException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			ConvertException {
 		BufferedDataContainer buf = exec.createDataContainer(SchemaFactory
 				.createM12DataSchema().createSpec());
 
@@ -406,14 +407,9 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 								String unit = paramsConvertTo.get(element
 										.getName());
 
-								try {
-									element.setValue(cat.convert(
-											element.getValue(),
-											element.getUnit(), unit));
-								} catch (ConvertException e) {
-									e.printStackTrace();
-								}
-
+								element.setValue(cat.convert(
+										element.getValue(), element.getUnit(),
+										unit));
 								element.setUnit(unit);
 							}
 						}

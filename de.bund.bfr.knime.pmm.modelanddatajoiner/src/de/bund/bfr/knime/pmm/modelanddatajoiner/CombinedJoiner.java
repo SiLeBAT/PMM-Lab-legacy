@@ -228,7 +228,8 @@ public class CombinedJoiner implements Joiner {
 
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws CanceledExecutionException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			ConvertException {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createM12DataSchema()
 						.createSpec());
@@ -358,18 +359,11 @@ public class CombinedJoiner implements Joiner {
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					try {
-						element.setTime(Categories.getTimeCategory().convert(
-								element.getTime(), element.getTimeUnit(),
-								timeUnit));
-						element.setConcentration(concentrationCategory.convert(
-								element.getConcentration(),
-								element.getConcentrationUnit(),
-								concentrationUnit));
-					} catch (ConvertException e) {
-						e.printStackTrace();
-					}
-
+					element.setTime(Categories.getTimeCategory().convert(
+							element.getTime(), element.getTimeUnit(), timeUnit));
+					element.setConcentration(concentrationCategory.convert(
+							element.getConcentration(),
+							element.getConcentrationUnit(), concentrationUnit));
 					element.setTimeUnit(timeUnit);
 					element.setConcentrationUnit(concentrationUnit);
 				}
@@ -382,13 +376,8 @@ public class CombinedJoiner implements Joiner {
 								.getUnit());
 						String unit = paramsConvertTo.get(element.getName());
 
-						try {
-							element.setValue(cat.convert(element.getValue(),
-									element.getUnit(), unit));
-						} catch (ConvertException e) {
-							e.printStackTrace();
-						}
-
+						element.setValue(cat.convert(element.getValue(),
+								element.getUnit(), unit));
 						element.setUnit(unit);
 					}
 				}

@@ -164,7 +164,8 @@ public class PrimaryJoiner implements Joiner {
 
 	@Override
 	public BufferedDataTable getOutputTable(String assignments,
-			ExecutionContext exec) throws CanceledExecutionException {
+			ExecutionContext exec) throws CanceledExecutionException,
+			ConvertException {
 		BufferedDataContainer container = exec
 				.createDataContainer(SchemaFactory.createM1DataSchema()
 						.createSpec());
@@ -251,18 +252,11 @@ public class PrimaryJoiner implements Joiner {
 				for (PmmXmlElementConvertable el : timeSeries.getElementSet()) {
 					TimeSeriesXml element = (TimeSeriesXml) el;
 
-					try {
-						element.setTime(Categories.getTimeCategory().convert(
-								element.getTime(), element.getTimeUnit(),
-								timeUnit));
-						element.setConcentration(concentrationCategory.convert(
-								element.getConcentration(),
-								element.getConcentrationUnit(),
-								concentrationUnit));
-					} catch (ConvertException e) {
-						e.printStackTrace();
-					}
-
+					element.setTime(Categories.getTimeCategory().convert(
+							element.getTime(), element.getTimeUnit(), timeUnit));
+					element.setConcentration(concentrationCategory.convert(
+							element.getConcentration(),
+							element.getConcentrationUnit(), concentrationUnit));
 					element.setTimeUnit(timeUnit);
 					element.setConcentrationUnit(concentrationUnit);
 				}

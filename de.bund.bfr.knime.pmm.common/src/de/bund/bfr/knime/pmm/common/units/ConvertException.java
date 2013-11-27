@@ -52,4 +52,9 @@ public class ConvertException extends Exception {
 	public String getToUnit() {
 		return toUnit;
 	}
+
+	@Override
+	public String getMessage() {
+		return "Cannot convert from " + fromUnit + " to " + toUnit;
+	}
 }

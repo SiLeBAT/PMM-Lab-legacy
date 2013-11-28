@@ -31,6 +31,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class TableReader {
 
@@ -61,7 +62,7 @@ public class TableReader {
 	private Map<String, String> shortIds;
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
-			Map<String, String> lagParams) {		
+			Map<String, String> lagParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
@@ -437,9 +438,17 @@ public class TableReader {
 						}
 
 						conditionUnits.get(i).add(unit);
+
+						if (unit != null) {
+							units.put(miscParams.get(i), unit);
+							categories.put(
+									miscParams.get(i),
+									Arrays.asList(Categories.getCategoryByUnit(
+											unit).getName()));
+						}
 					}
 				}
-				
+
 				for (int i = 0; i < miscParams.size(); i++) {
 					Double min = null;
 					Double max = null;

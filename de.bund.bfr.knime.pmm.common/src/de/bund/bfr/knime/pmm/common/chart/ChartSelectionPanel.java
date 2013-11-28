@@ -998,7 +998,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 						if (i3 % 3 == 0) {
 							return conditionMinValues.get(i3 / 3).get(row);
 						} else if (i3 % 3 == 1) {
-							return conditionMinValues.get(i3 / 3).get(row);
+							return conditionMaxValues.get(i3 / 3).get(row);
 						} else {
 							return conditionUnits.get(i3 / 3).get(row);
 						}

@@ -234,8 +234,8 @@ public class Login extends JFrame {
 			if (!DBKernel.isServerConnection) {
 				long fs = DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data");
 		    	if (fs > 300000000) {
-					InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
-					ib.setVisible(true);    				  										        									    		
+					//InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
+					//ib.setVisible(true);    				  										        									    		
 		    	}
 				MyLogger.handleMessage(username + " logged in!" + "\nDB.data (size): " + fs);
 				/*

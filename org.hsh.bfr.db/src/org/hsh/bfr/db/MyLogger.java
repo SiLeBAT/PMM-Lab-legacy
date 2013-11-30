@@ -82,8 +82,8 @@ public class MyLogger {
 			if (!MainKernel.isServer()) {
 				checkOOM(e.getMessage());
 				if (forceMessage) {
-					InfoBox ib = new InfoBox("Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)\n" + e.getMessage(), true, new Dimension(750, 300), null, false);
-					ib.setVisible(true);    				  										        												
+					//InfoBox ib = new InfoBox("Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)\n" + e.getMessage(), true, new Dimension(750, 300), null, false);
+					//ib.setVisible(true);    				  										        												
 				}
 			}
 		}
@@ -98,12 +98,12 @@ public class MyLogger {
 		
 		if (msg != null) {			
 			if (msg.indexOf("emory") >= 0) {
-				InfoBox ib = new InfoBox("OutOfMemory!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
-				ib.setVisible(true);    				  										        								
+				//InfoBox ib = new InfoBox("OutOfMemory!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
+				//ib.setVisible(true);    				  										        								
 			}
 			else if (msg.indexOf("logSevereEvent") >= 0) {
-				InfoBox ib = new InfoBox("logSevereEvent!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
-				ib.setVisible(true);    				  										        								
+				//InfoBox ib = new InfoBox("logSevereEvent!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
+				//ib.setVisible(true);    				  										        								
 			}
 		}
 		

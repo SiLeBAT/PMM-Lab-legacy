@@ -6,6 +6,8 @@ package de.bund.bfr.knime.pmm.manualmodelconf.ui;
 
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -129,7 +131,9 @@ public class MMC_TS extends JPanel {
 			mdInfoDoc.add(mdix);
 			theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 			
-			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),null,"°C");
+			List<String> cl = new ArrayList<String>();
+			cl.add("Temperature");
+			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),cl,tempUnit.getSelectedIndex() >= 0 ? tempUnit.getSelectedItem().toString() : "°C");
 			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),null,null);
 			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),null,null);
 	}
@@ -142,6 +146,7 @@ public class MMC_TS extends JPanel {
 		matrixIDField.setText(theTS.getMatrixId() == null ? "" : theTS.getMatrixId()+"");
 		commentField.setText(theTS.getComment());
 		if (theTS.getTemperature() != null && !Double.isNaN(theTS.getTemperature())) temperatureField.setValue(theTS.getTemperature()); else temperatureField.setText("");
+		if (theTS.getTemperatureUnit() != null) tempUnit.setSelectedItem(theTS.getTemperatureUnit()); else tempUnit.setSelectedIndex(-1);
 		if (theTS.getPh() != null && !Double.isNaN(theTS.getPh())) phField.setValue(theTS.getPh()); else phField.setText("");
 		if (theTS.getWaterActivity() != null && !Double.isNaN(theTS.getWaterActivity())) waterActivityField.setValue(theTS.getWaterActivity()); else waterActivityField.setText("");		
 	}
@@ -150,7 +155,7 @@ public class MMC_TS extends JPanel {
 		fillFields();
 	}
 	public void setTS(String agent, String agentDetail, Integer agentID, String matrix, String matrixDetail, Integer matrixID,
-			String comment, double temperature, double ph, double aw) throws PmmException {
+			String comment, double temperature, String tempUnit, double ph, double aw) throws PmmException {
 		
 		theTS = new PmmTimeSeries();
 		
@@ -170,7 +175,9 @@ public class MMC_TS extends JPanel {
 		theTS.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
 		theTS.setValue(TimeSeriesSchema.ATT_LITMD, new PmmXmlDoc());
 		theTS.setCondId(ri);
-		theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,null,"°C");
+		List<String> cl = new ArrayList<String>();
+		cl.add("Temperature");
+		theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperature,cl,tempUnit);
 		theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,ph,null,null);
 		theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,aw,null,null);
 		
@@ -278,6 +285,7 @@ public class MMC_TS extends JPanel {
 		commentField = new StringTextField(true);
 		tempLabel = new JLabel();
 		temperatureField = new DoubleTextField(true);
+		tempUnit = new JComboBox<String>();
 		phLabel = new JLabel();
 		phField = new DoubleTextField(PmmConstants.MIN_PH, PmmConstants.MAX_PH, true);
 		awLabel = new JLabel();
@@ -286,7 +294,7 @@ public class MMC_TS extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Microbial Data Properties"),
-			Borders.DLU2));
+			Borders.DLU2_BORDER));
 		setLayout(new FormLayout(
 			"default, $lcgap, default:grow, $lcgap, default, $lcgap, default:grow, $lcgap, default",
 			"5*(default, $lgap), default"));
@@ -357,7 +365,15 @@ public class MMC_TS extends JPanel {
 		tempLabel.setText("Temperature:");
 		tempLabel.setText(AttributeUtilities.getName(AttributeUtilities.ATT_TEMPERATURE) + ":");
 		add(tempLabel, CC.xy(1, 7));
-		add(temperatureField, CC.xywh(3, 7, 5, 1));
+		add(temperatureField, CC.xywh(3, 7, 3, 1));
+
+		//---- tempUnit ----
+		tempUnit.setModel(new DefaultComboBoxModel(new String[] {
+			"\u00b0C",
+			"\u00b0F",
+			"K"
+		}));
+		add(tempUnit, CC.xy(7, 7));
 
 		//---- phLabel ----
 		phLabel.setText("pH:");
@@ -388,6 +404,7 @@ public class MMC_TS extends JPanel {
 	private StringTextField commentField;
 	private JLabel tempLabel;
 	private DoubleTextField temperatureField;
+	private JComboBox<String> tempUnit;
 	private JLabel phLabel;
 	private DoubleTextField phField;
 	private JLabel awLabel;

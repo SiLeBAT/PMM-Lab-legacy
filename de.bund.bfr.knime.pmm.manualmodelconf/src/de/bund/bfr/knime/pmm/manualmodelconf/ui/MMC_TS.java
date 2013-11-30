@@ -294,7 +294,7 @@ public class MMC_TS extends JPanel {
 		//======== this ========
 		setBorder(new CompoundBorder(
 			new TitledBorder("Microbial Data Properties"),
-			Borders.DLU2_BORDER));
+			Borders.DLU2));
 		setLayout(new FormLayout(
 			"default, $lcgap, default:grow, $lcgap, default, $lcgap, default:grow, $lcgap, default",
 			"5*(default, $lgap), default"));
@@ -368,7 +368,7 @@ public class MMC_TS extends JPanel {
 		add(temperatureField, CC.xywh(3, 7, 3, 1));
 
 		//---- tempUnit ----
-		tempUnit.setModel(new DefaultComboBoxModel(new String[] {
+		tempUnit.setModel(new DefaultComboBoxModel<String>(new String[] {
 			"\u00b0C",
 			"\u00b0F",
 			"K"

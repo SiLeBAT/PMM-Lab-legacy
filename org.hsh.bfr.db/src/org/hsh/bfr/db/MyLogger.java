@@ -40,15 +40,12 @@ package org.hsh.bfr.db;
  * @author Armin
  *
  */
-import java.awt.Dimension;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import org.hsh.bfr.db.imports.InfoBox;
 
 public class MyLogger {
 

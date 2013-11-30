@@ -327,6 +327,8 @@ public class Bfrdb extends Hsqldbiface {
 			+"\""+ATT_MINVALUE+"\",\n"
 			+"\""+ATT_MAXVALUE+"\",\n"
 			+"\"ParamDescription\",\n"
+			+"\"ParCategory\",\n"
+			+"\"ParUnit\",\n"
 			+"\"DepCategory\",\n"
 			+"\"DepUnit\",\n"
 			+"\"DepDescription\",\n"
@@ -376,8 +378,11 @@ public class Bfrdb extends Hsqldbiface {
 			+"        ARRAY_AGG( \""+ATT_PARAMNAME+"\" )AS \""+ATT_PARAMNAME+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MIN+"\" )AS \""+ATT_MINVALUE+"\",\n"
 			+"        ARRAY_AGG( \""+ATT_MAX+"\" )AS \""+ATT_MAXVALUE+"\",\n"
-			+"        ARRAY_AGG( \"Beschreibung\" )AS \"ParamDescription\"\n"
+			+"        ARRAY_AGG( \"Beschreibung\" )AS \"ParamDescription\",\n"
+			+"        ARRAY_AGG( \"kind of property / quantity\" )AS \"ParCategory\",\n"
+			+"        ARRAY_AGG( \"display in GUI as\" )AS \"ParUnit\"\n"
 			+"    FROM \"ModellkatalogParameter\"\n"
+			+" LEFT JOIN \"Einheiten\" ON \"Einheiten\".\"ID\" = \"ModellkatalogParameter\".\"Einheit\""
 			+"    WHERE \""+ATT_PARAMTYPE+"\"=2\n"
 			+"    GROUP BY \""+ATT_MODELID+"\" )AS \"P\"\n"
 			+"ON \""+REL_MODEL+"\".\"ID\"=\"P\".\""+ATT_MODELID+"\"\n";
@@ -573,8 +578,8 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
-		    				null,null,
-		    				null,null,
+		    				null,result.getArray("ParCategory"),
+		    				result.getArray("ParUnit"),null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
 		    				result.getArray("ParamDescription")) );	
@@ -658,8 +663,8 @@ public class Bfrdb extends Hsqldbiface {
     						null,
     						result.getArray( Bfrdb.ATT_PARAMNAME ),
 		    				null,
-		    				null,null,
-		    				null,null,
+		    				null,result.getArray("ParCategory"),
+		    				result.getArray("ParUnit"),null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
 		    				result.getArray("ParamDescription")) );	
@@ -1080,7 +1085,7 @@ public class Bfrdb extends Hsqldbiface {
 			if (!pm.getDepXml().getOrigName().equals(pm.getDepXml().getName())) hmi.put(pm.getDepXml().getName(), responseId);
 
 			if (responseId < 0) {
-				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + pm.getDepVar());
+				System.err.println("responseId < 0..." + pm.getDepVar() + "\t" + pm.getDepXml().getOrigName());
 			}
 
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {

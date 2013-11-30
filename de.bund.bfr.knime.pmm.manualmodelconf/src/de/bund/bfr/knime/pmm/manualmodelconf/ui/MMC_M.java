@@ -260,12 +260,16 @@ public class MMC_M extends JPanel {
 		Array array = result.getArray(Bfrdb.ATT_PARAMNAME);
 		Array arrayMin = result.getArray(Bfrdb.ATT_MINVALUE);
 		Array arrayMax = result.getArray(Bfrdb.ATT_MAXVALUE);
+		Array arrayCat = result.getArray("ParCategory");
+		Array arrayUnit = result.getArray("ParUnit");
 		Array arrayDesc = result.getArray("ParamDescription");
 		if (array != null && arrayMin != null && arrayMax != null) {
 			try {
 				Object[] o = (Object[]) array.getArray();
 				Object[] oMin = (Object[]) arrayMin.getArray();
 				Object[] oMax = (Object[]) arrayMax.getArray();
+				Object[] oCat = (Object[]) arrayCat.getArray();
+				Object[] oUnit = (Object[]) arrayUnit.getArray();
 				Object[] oDesc = (Object[]) arrayDesc.getArray();
 				if (o != null && o.length > 0) {
 					for (int ii = 0; ii < o.length; ii++) {
@@ -279,6 +283,14 @@ public class MMC_M extends JPanel {
 								&& oMax[ii] != null) {
 							pm.setParamMax(o[ii].toString(),
 									Double.parseDouble(oMax[ii].toString()));
+						}
+						if (oCat != null && oCat.length > ii
+								&& oCat[ii] != null) {
+							pm.setParamCategory(o[ii].toString(), oCat[ii].toString());
+						}
+						if (oUnit != null && oUnit.length > ii
+								&& oUnit[ii] != null) {
+							pm.setParamUnit(o[ii].toString(), oUnit[ii].toString());
 						}
 						if (oDesc != null && oDesc.length > ii
 								&& oDesc[ii] != null) {
@@ -297,6 +309,7 @@ public class MMC_M extends JPanel {
 		Array array = rs.getArray(Bfrdb.ATT_INDEP);
 		Array min = rs.getArray(Bfrdb.ATT_MININDEP);
 		Array max = rs.getArray(Bfrdb.ATT_MAXINDEP);
+		Array category = rs.getArray("IndepCategory");
 		Array unit = rs.getArray("IndepUnit");
 		Array desc = rs.getArray("IndepDescription");
 		if (array != null) {
@@ -304,12 +317,13 @@ public class MMC_M extends JPanel {
 				Object[] o = (Object[]) array.getArray();
 				Object[] mi = (Object[]) min.getArray();
 				Object[] ma = (Object[]) max.getArray();
+				Object[] c = (Object[]) category.getArray();
 				Object[] u = (Object[]) unit.getArray();
 				Object[] d = (Object[]) desc.getArray();
 				if (o != null && o.length > 0) {
 					for (int i = 0; i < o.length; i++) {						
 						pm.addIndepVar(o[i].toString(), mi == null || mi[i] == null ? null : Double.parseDouble(mi[i].toString()),
-								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), null,
+								ma == null || ma[i] == null ? null : Double.parseDouble(ma[i].toString()), c == null || c[i] == null ? null : c[i].toString(),
 										u == null || u[i] == null ? null : u[i].toString(), d[i] == null ? null : d[i].toString());
 					}
 				}
@@ -1025,7 +1039,9 @@ public class MMC_M extends JPanel {
 				int modelID = result.getInt(Bfrdb.ATT_MODELID);
 				String depDesc = result.getString("DepDescription");
 
-				pm = new ParametricModel(modelName, formula, new DepXml(result.getString(Bfrdb.ATT_DEP)), level, modelID);
+	    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
+				dx.setDescription(depDesc);
+				pm = new ParametricModel(modelName, formula, dx, level, modelID);
 				pm.setModelClass(result.getInt("Klasse"));
 				pm.setDepDescription(depDesc);
 				String s = result.getString("LitMID");

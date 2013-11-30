@@ -186,7 +186,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
 
 					tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		
+		    				null, null, result.getArray("ParCategory"), result.getArray("ParUnit"), null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		
 		    		
 		    		if (result.getString("DepUnit") == null || result.getString("DepUnit").isEmpty() ||
 		    				result.getString("IndepUnit") == null || result.getString("IndepUnit").isEmpty()) {
@@ -268,7 +268,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					if (!ixml.getWarning().isEmpty()) addWarningMsg += "\n" + ixml.getWarning() + "in model with ID " + cmx.getId() + "!";
 
 					tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(null, result.getArray(Bfrdb.ATT_PARAMNAME),
-		    				null, null, null, null, null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		
+		    				null, null, result.getArray("ParCategory"), result.getArray("ParUnit"), null, result.getArray(Bfrdb.ATT_MINVALUE), result.getArray(Bfrdb.ATT_MAXVALUE), result.getArray("ParamDescription")));	    		
 
 		    		//int ri = MathUtilities.getRandomNegativeInt();
 					PmmXmlDoc emDoc = new PmmXmlDoc();

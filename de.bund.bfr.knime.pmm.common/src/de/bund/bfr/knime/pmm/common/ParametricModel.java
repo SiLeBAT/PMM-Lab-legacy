@@ -277,7 +277,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 				rMap.put(el.getAttributeValue("NEW"), el.getAttributeValue("OLD"));
 			}
 			else if (el.getName().equals(ATT_DEPVAR)) {
-				depXml = new DepXml(el.getAttributeValue(ATT_PARAMNAME));
+				depXml = new DepXml(el.getAttributeValue(ATT_PARAMNAME), el.getAttributeValue("Category"), el.getAttributeValue("Unit"));
 			}
 			else if (el.getName().equals(ATT_MLIT)) {
 				try {
@@ -1008,7 +1008,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			
 			//tuple.setValue( Model1Schema.ATT_FORMULA, getFormula() );
     		PmmXmlDoc depDoc = new PmmXmlDoc();
-    		depDoc.add(depXml == null ? new DepXml(getDepVar()) : depXml);
+    		depDoc.add(depXml == null ? new DepXml(getDepVar(), getDepCategory(), getDepUnit()) : depXml);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 			//tuple.setValue( Model1Schema.ATT_MODELNAME, getModelName() );
 			//tuple.setValue( Model1Schema.ATT_MODELID, getModelId() );
@@ -1038,7 +1038,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			//tuple.setValue( Model2Schema.ATT_FORMULA, getFormula() );
 
     		PmmXmlDoc depDoc = new PmmXmlDoc();
-    		depDoc.add(depXml == null ? new DepXml(getDepVar()) : depXml);
+    		depDoc.add(depXml == null ? new DepXml(getDepVar(), getDepCategory(), getDepUnit()) : depXml);
     		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
     		/*
 			tuple.setValue( Model2Schema.ATT_MODELNAME, getModelName() );

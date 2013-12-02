@@ -85,23 +85,24 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		BufferedDataContainer container = exec.createDataContainer(outSpec);
 		DataCell[] cells = new DataCell[outSpec.getNumColumns()];
 		
-    	boolean tsConform = new TimeSeriesSchema().conforms(inData[0].getDataTableSpec());
-    	boolean m1Conform = new Model1Schema().conforms(inData[0].getDataTableSpec());
-    	boolean m2Conform = new Model2Schema().conforms(inData[0].getDataTableSpec());
     	warnings = "";
-    	for (DataRow row : inData[0]) {
-			for (int ii=0;ii<row.getNumCells();ii++) {
-				cells[outSpec.findColumnIndex(outSpec.getColumnNames()[ii])] = row.getCell(outSpec.findColumnIndex(outSpec.getColumnNames()[ii]));
-			}
+    	for (int level = 2;level>=0;level--) {
+    		boolean conform =
+    				level == 0 ? new TimeSeriesSchema().conforms(inData[0].getDataTableSpec()) :
+    					(level == 1 ? new Model1Schema().conforms(inData[0].getDataTableSpec()) :
+    						new Model2Schema().conforms(inData[0].getDataTableSpec()));
+        	for (DataRow row : inData[0]) {
+    			for (int ii=0;ii<row.getNumCells();ii++) {
+    				cells[outSpec.findColumnIndex(outSpec.getColumnNames()[ii])] = row.getCell(outSpec.findColumnIndex(outSpec.getColumnNames()[ii]));
+    			}
 
-			int numDBSuccesses = 0;
-			numDBSuccesses += getNumDBSuccesses(m2Conform, 2, dbuuid, row, outSpec, conn);
-			numDBSuccesses += getNumDBSuccesses(m1Conform, 1, dbuuid, row, outSpec, conn);
-			numDBSuccesses += getNumDBSuccesses(tsConform, 0, dbuuid, row, outSpec, conn);
-			
-			cells[cells.length-1] = new IntCell(numDBSuccesses);
-			container.addRowToTable(new DefaultRow(row.getKey(), cells));
-		}
+    			int numDBSuccesses = 0;
+    			numDBSuccesses += getNumDBSuccesses(conform, level, dbuuid, row, outSpec, conn);
+    			
+    			cells[cells.length-1] = new IntCell(numDBSuccesses);
+    			container.addRowToTable(new DefaultRow(row.getKey().toString() + "_" + level, cells));
+    		}
+    	}
     			    			
     	if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());

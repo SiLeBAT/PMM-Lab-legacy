@@ -208,7 +208,7 @@ public class EmReaderUi extends JPanel {
 
 	    		Frame parentFrame = JOptionPane.getFrameForComponent(this);
 		    	if (hs != null && hs.size() > 0) {
-		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false);
+		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false, true);
 		    		JPanel mainComponent = pvnd.getMainComponent();
 
 		    		JDialog dialog = new JDialog(parentFrame);

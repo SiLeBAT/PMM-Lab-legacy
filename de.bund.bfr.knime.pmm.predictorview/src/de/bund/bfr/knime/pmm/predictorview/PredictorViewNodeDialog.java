@@ -108,6 +108,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private ChartSamplePanel samplePanel;
 
 	private boolean showSamplePanel;
+	private boolean removeInvalid;
+	private List<String> warnings;
 
 	/**
 	 * New pane for configuring the ForecastStaticConditions node.
@@ -118,12 +120,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
 		showSamplePanel = true;
+		removeInvalid = true;
 	}
 
 	public PredictorViewNodeDialog(List<KnimeTuple> tuples, SettingsHelper set,
-			boolean newTuples) {
+			boolean newTuples, boolean removeInvalid) {
 		this.set = set;
 		this.tuples = tuples;
+		this.removeInvalid = removeInvalid;
 
 		if (newTuples) {
 			reader = new TableReader(tuples,
@@ -331,12 +335,20 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			}
 		}
 
-		List<String> invalidIds = getInvalidIds(reader.getIds());
 		List<String> validIds = new ArrayList<String>(selectedIDs);
+		
+		warnings = new ArrayList<String>();
 
-		validIds.removeAll(invalidIds);
+		if (removeInvalid) {
+			List<String> invalidIds = new ArrayList<String>(getInvalidIds(
+					reader.getIds()).keySet());
 
-		selectionPanel.setInvalidIds(invalidIds);
+			validIds.removeAll(invalidIds);
+			selectionPanel.setInvalidIds(invalidIds);
+		} else {
+			warnings.addAll(getInvalidIds(selectedIDs).values());			
+		}
+
 		selectionPanel.repaint();
 		chartCreator.setParamX(configPanel.getParamX());
 		chartCreator.setParamY(configPanel.getParamY());
@@ -428,8 +440,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setNewLagParameters(reader.getNewLagParams());
 	}
 
-	private List<String> getInvalidIds(List<String> selectedIDs) {
-		List<String> invalid = new ArrayList<String>();
+	private Map<String, String> getInvalidIds(List<String> selectedIDs) {
+		Map<String, String> invalid = new LinkedHashMap<String, String>();
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -444,10 +456,13 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 						double value = converted.get(param).get(0);
 						Double min = plotable.getMinArguments().get(param);
 						Double max = plotable.getMaxArguments().get(param);
+						String unit = plotable.getUnits().get(param);
 
 						if ((min != null && value < min)
 								|| (max != null && value > max)) {
-							invalid.add(id);
+							invalid.put(id, param + " of " + value + " " + unit
+									+ " is not in range of model " + min + " "
+									+ unit + " to " + max + " unit");
 						}
 					}
 				}
@@ -701,6 +716,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 				dispose();
 			}
 		}
+	}
+
+	public List<String> getWarnings() {
+		return warnings;
 	}
 
 }

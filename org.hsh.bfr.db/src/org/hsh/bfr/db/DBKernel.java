@@ -612,6 +612,21 @@ public class DBKernel {
     }
   	return result;
   }
+  public static List<Integer> getLastChangeLogEntries(final String tablename, int fromID) {
+	  List<Integer> result = new ArrayList<Integer>();
+	  String sql = "SELECT " + delimitL("TabellenID") + " FROM " + delimitL("ChangeLog") +
+			  	" WHERE " + delimitL("Tabelle") + " = '" + tablename + "' AND " + delimitL("ID") + " >= " + fromID;	  	
+				ResultSet rs = getResultSet(sql, false);
+				try {
+					if (rs != null && rs.first()) {
+						do {
+							result.add(rs.getInt(1));
+						} while (rs.next());
+					}
+				}
+				catch (Exception e) {MyLogger.handleException(e);}
+	  return result;
+  }
   public static LinkedHashMap<String, Timestamp> getFirstUserFromChangeLog(final String tablename, final Integer tableID) {
 	  LinkedHashMap<String, Timestamp> result = new LinkedHashMap<String, Timestamp>();
 	  String sql = "SELECT " + delimitL("Username") + "," + delimitL("Zeitstempel") + " FROM " + delimitL("ChangeLog") +
@@ -1111,6 +1126,18 @@ public class DBKernel {
 		return result;
   }
   */
+  public static Integer getMaxID(final String tablename) {
+	  Integer result = null;
+	  String sql = "SELECT TOP 1 " + delimitL("ID") + " FROM " + delimitL(tablename) + " ORDER BY " + delimitL("ID") + " DESC";
+		ResultSet rs = getResultSet(sql, false);
+		try {
+			if (rs != null && rs.first()) {
+				result = rs.getInt(1);
+			}
+		}
+		catch (Exception e) {MyLogger.handleException(e);}
+		return result;
+  }
   public static Integer getID(final String tablename, final String[] feldname, final String[] feldVal) {
 	  Integer result = null;
 	  String sql = "SELECT " + delimitL("ID") + " FROM " + delimitL(tablename) + " WHERE ";

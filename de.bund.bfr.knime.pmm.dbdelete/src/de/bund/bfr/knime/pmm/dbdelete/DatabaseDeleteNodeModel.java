@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
@@ -185,13 +186,37 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     }
     private int deleteFMID(Connection conn, int level, Object rowEstMID) {
     	int numDBSuccesses = 0;
+    	Integer firstCLID = DBKernel.getMaxID("ChangeLog");
+    	if (firstCLID == null) firstCLID = 0; else firstCLID += 1;
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("VarParMaps") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		List<Integer> lid = DBKernel.getLastChangeLogEntries("VarParMaps", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='VarParMaps' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+		
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetztesModell_Referenz") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		lid = DBKernel.getLastChangeLogEntries("GeschaetztesModell_Referenz", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GeschaetztesModell_Referenz' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+		
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		lid = DBKernel.getLastChangeLogEntries("GeschaetzteParameterCovCor", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GeschaetzteParameterCovCor' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+		
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GueltigkeitsBereiche") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
+		lid = DBKernel.getLastChangeLogEntries("GueltigkeitsBereiche", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GueltigkeitsBereiche' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+		
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteParameter") + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + rowEstMID, false, false);
-		if (level == 2) numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
+		lid = DBKernel.getLastChangeLogEntries("GeschaetzteParameter", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GeschaetzteParameter' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+
+		if (level == 2) {
+			numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " WHERE " + DBKernel.delimitL("GeschaetztesSekundaermodell") + "=" + rowEstMID, false, false);
+			lid = DBKernel.getLastChangeLogEntries("Sekundaermodelle_Primaermodelle", firstCLID);
+			for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='Sekundaermodelle_Primaermodelle' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
+		}
+
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("GeschaetzteModelle") + " WHERE " + DBKernel.delimitL("ID") + "=" + rowEstMID, false, false);
+		lid = DBKernel.getLastChangeLogEntries("GeschaetzteModelle", firstCLID);
+		for (int id : lid) DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL("DataSource") + " WHERE " + DBKernel.delimitL("Table") + "='GeschaetzteModelle' AND " + DBKernel.delimitL("TableID") + "=" + id, false, false);
 		
 		return numDBSuccesses;
     }

@@ -981,7 +981,7 @@ public class DBKernel {
 	  public static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
 		  return getNewLocalConnection(dbUsername, dbPassword, dbFile, false);
 	  }
-  private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile, final boolean suppressWarnings) throws Exception {
+  public static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile, final boolean suppressWarnings) throws Exception {
   	  //startHsqldbServer("c:/tmp/DB", "DB");
     Connection result = null;
     passFalse = false;

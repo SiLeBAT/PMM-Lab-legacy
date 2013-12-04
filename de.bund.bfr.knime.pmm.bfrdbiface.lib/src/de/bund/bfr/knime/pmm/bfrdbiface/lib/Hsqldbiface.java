@@ -81,7 +81,7 @@ public class Hsqldbiface {
 						
 					}
 				}
-				conn = DBKernel.getNewLocalConnection(login, pw, path + "DB");
+				conn = DBKernel.getNewLocalConnection(login, pw, path + "DB", true);
 				if (conn == null) {
 					createUser(path, login, pw);
 					conn = DBKernel.getNewLocalConnection(login, pw, path + "DB");

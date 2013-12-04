@@ -48,7 +48,7 @@ public class SecDialog extends JDialog {
 	private void okButtonActionPerformed(ActionEvent e) {
 		ParametricModel pm = m_m2.getPM();
 		if (!pm.getFormula().isEmpty()) {
-			pm.setDepVar(m_depVar);
+			pm.setDepVar(m_depVar, true);
 			m_secondaryModels.put(m_depVar, pm);
 		}
 		this.dispose();

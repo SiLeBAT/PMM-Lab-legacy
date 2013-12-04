@@ -48,7 +48,7 @@ public class DepXml implements PmmXmlElementConvertable {
 	public String getDescription() {return description;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
+	public void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
 	public void setCategory(String category) {this.category = category;}
 	public void setUnit(String unit) {this.unit = unit;}
 	public void setDescription(String description) {this.description = description;}

@@ -164,11 +164,13 @@ public class ManualModelConfNodeModel extends NodeModel {
     		if (depVar.size() == 1) {
     			formula = MathUtilities.replaceVariable(formula, ((DepXml) depVar.get(0)).getName(), AttributeUtilities.CONCENTRATION);
     			((DepXml) depVar.get(0)).setName(AttributeUtilities.CONCENTRATION);        			
+    			((DepXml) depVar.get(0)).setOrigName(AttributeUtilities.CONCENTRATION);        			
     		}
     		
     		if (indepVar.size() == 1) {
     			formula = MathUtilities.replaceVariable(formula, ((IndepXml) indepVar.get(0)).getName(), AttributeUtilities.TIME);
     			((IndepXml) indepVar.get(0)).setName(AttributeUtilities.TIME);
+    			((IndepXml) indepVar.get(0)).setOrigName(AttributeUtilities.TIME);
     		}
     		
     		((CatalogModelXml) modelXml.get(0)).setFormula(formula);

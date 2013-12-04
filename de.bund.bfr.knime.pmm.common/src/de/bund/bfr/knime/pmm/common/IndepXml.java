@@ -59,7 +59,7 @@ public class IndepXml implements PmmXmlElementConvertable {
 	public String getDescription() {return description;}
 	
 	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	private void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
+	public void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
 	public void setMin(Double min) {this.min = min;}
 	public void setMax(Double max) {this.max = max;}
 	public void setCategory(String category) {this.category = category;}

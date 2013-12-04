@@ -611,8 +611,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	}
 	
 	public void setDepVar(final String depVar) {
+		setDepVar(depVar, false);
+	}
+	public void setDepVar(final String depVar, boolean origNameAlso) {
 		if (depXml == null) depXml = new DepXml(depVar);
-		else depXml.setName(depVar);
+		else {
+			depXml.setName(depVar);
+			if (origNameAlso) depXml.setOrigName(depVar);
+		}
 	}
 	public void setRms( final Double rms ) throws PmmException {		
 		if (rms == null) this.rms = Double.NaN;

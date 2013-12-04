@@ -180,7 +180,7 @@ public class MMC_M extends JPanel {
 					// MathUtilities.replaceVariable(formula.substring(index),
 					// depVar, depVar+depVar);
 					formula = depVar + formula.substring(index);
-					pm.setDepVar(depVar);
+					pm.setDepVar(depVar, true);
 					pm.setFormula(formula);
 				}
 			}
@@ -354,7 +354,7 @@ public class MMC_M extends JPanel {
 		formulaArea.setText(MathUtilities.getAllButBoundaryCondition(formula));
 		boundaryArea.setText(MathUtilities.getBoundaryCondition(formula));		
 		String depVar = formula.substring(0, index).trim();
-		newPM.setDepVar(depVar);
+		newPM.setDepVar(depVar, true);
 		newPM.setDepCategory(oldPM.getDepCategory());
 		newPM.setDepDescription(oldPM.getDepDescription());
 

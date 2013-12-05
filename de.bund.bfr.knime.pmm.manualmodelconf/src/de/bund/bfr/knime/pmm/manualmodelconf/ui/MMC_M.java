@@ -81,6 +81,10 @@ public class MMC_M extends JPanel {
 
 	public MMC_M(final Frame parentFrame, final int level,
 			final String paramName, boolean formulaCreator, MMC_TS m_mmcts) {
+		this(parentFrame, level, paramName, formulaCreator, m_mmcts, false);
+	}
+	public MMC_M(final Frame parentFrame, final int level,
+			final String paramName, boolean formulaCreator, MMC_TS m_mmcts, boolean isEditor) {
 		this.m_parentFrame = parentFrame;
 		this.formulaCreator = formulaCreator;
 		this.m_mmcts = m_mmcts;

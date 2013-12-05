@@ -85,7 +85,7 @@ public class ManualModelEditorNodeDialog extends DataAwareNodeDialogPane {
     protected ManualModelEditorNodeDialog() {
     	try {    
     		m_mmcts = new MMC_TS();
-    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", false, m_mmcts);
+    		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", false, m_mmcts, true);
     		m_mmcm.setConnection(DBKernel.getLocalConn(true));
     		this.addTab("Model Definition", m_mmcm);    	    		
         	this.addTab("Microbial Data", m_mmcts);        			    		

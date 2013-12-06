@@ -171,7 +171,9 @@ public class TableReader {
 		for (KnimeTuple tuple : tuples) {
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
-			String id = depXml.getName();
+			EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
+					Model2Schema.ATT_ESTMODEL).get(0);
+			String id = depXml.getName() + estXml.getID();
 
 			if (schemaContainsData) {
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple

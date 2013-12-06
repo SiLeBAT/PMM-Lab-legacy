@@ -2287,7 +2287,7 @@ public class DBKernel {
     		String sql = "SELECT " + DBKernel.delimitL("Parameter") + " FROM " + DBKernel.delimitL("SonstigeParameter");
     		rs = DBKernel.getResultSet(conn, sql, false);
 			do {
-				hs.add(rs.getString("Parameter"));    		
+				if (rs.getObject("Parameter") != null) hs.add(rs.getString("Parameter"));    		
 			} while (rs.next());
 		}
     	catch (Exception e) {

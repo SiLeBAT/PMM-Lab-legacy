@@ -336,7 +336,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		}
 
 		List<String> validIds = new ArrayList<String>(selectedIDs);
-		
+
 		warnings = new ArrayList<String>();
 
 		if (removeInvalid) {
@@ -346,7 +346,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			validIds.removeAll(invalidIds);
 			selectionPanel.setInvalidIds(invalidIds);
 		} else {
-			warnings.addAll(getInvalidIds(selectedIDs).values());			
+			warnings.addAll(getInvalidIds(selectedIDs).values());
 		}
 
 		selectionPanel.repaint();
@@ -462,7 +462,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 								|| (max != null && value > max)) {
 							invalid.put(id, param + " of " + value + " " + unit
 									+ " is not in range of model " + min + " "
-									+ unit + " to " + max + " unit");
+									+ unit + " to " + max + " " + unit);
 						}
 					}
 				}

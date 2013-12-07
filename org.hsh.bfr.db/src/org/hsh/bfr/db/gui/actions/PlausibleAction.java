@@ -366,9 +366,9 @@ public class PlausibleAction extends AbstractAction {
         		
                 sql = "SELECT " + DBKernel.delimitL("ID");
         		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
-        		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
+        		for (int i=0;i<fieldnames.length;i++) sql += fieldVals[i] == null ? ",0 AS SCORE" + i : "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
                 sql += " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + ">" + id;
-        		for (int i=0;i<fieldnames.length;i++) sql += " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
+        		for (int i=0;i<fieldnames.length;i++) sql += fieldVals[i] == null ? " AND TRUE" : " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {

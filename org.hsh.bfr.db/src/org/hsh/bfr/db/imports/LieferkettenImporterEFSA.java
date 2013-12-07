@@ -17,10 +17,9 @@ import java.net.URLConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
@@ -44,6 +43,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
   This is the one of the methods that is declared in 
   the abstract class
  */
+	private Calendar calendar = Calendar.getInstance();
+	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 	public boolean accept(File f) {
 	  if (f.isDirectory()) return true;
 	
@@ -76,149 +78,193 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       		}
 
       		InputStream is = null;
-		    	if (filename.startsWith("http://")) {
-		    		URL url = new URL(filename);
-		    		URLConnection uc = url.openConnection();
-		    		is = uc.getInputStream();
-		    	}
-		    	else if (filename.startsWith("/org/hsh/bfr/db/res/")) {
-						is = getClass().getResourceAsStream(filename);		    		
-		    	}
-		    	else {
-		    		is = new FileInputStream(filename);
-		    	}
+		    if (filename.startsWith("http://")) {
+		    	URL url = new URL(filename);
+		    	URLConnection uc = url.openConnection();
+		    	is = uc.getInputStream();
+		    }
+		    else if (filename.startsWith("/org/hsh/bfr/db/res/")) {
+				is = getClass().getResourceAsStream(filename);		    		
+		    }
+		    else {
+		    	is = new FileInputStream(filename);
+		    }
 		
-		    	POIFSFileSystem fs = new POIFSFileSystem(is);
-		      HSSFWorkbook wb = new HSSFWorkbook(fs);
-		      HSSFSheet sheet;
-		      HSSFRow row;
+		    POIFSFileSystem fs = new POIFSFileSystem(is);
+		    HSSFWorkbook wb = new HSSFWorkbook(fs);
 
-		      int numSuccess = 0;
-		      int numFails = 0;
-		      sheet = wb.getSheetAt(0); 
-				  int numRows = sheet.getLastRowNum() + 1;
-				  progress.setMaximum(numRows);
+		    HSSFSheet transactionSheet = wb.getSheet("Transactions"); 
+		    HSSFSheet businessSheet = wb.getSheet("Business_List"); 
+		    int numSuccess = 0;
+		    int numFails = 0;
+			int numRows = transactionSheet.getLastRowNum() + 1;
+			progress.setMaximum(numRows);
 	      	progress.setValue(0);
 				      
 	      	for (int i=1;i<numRows;i++) {
-			    row = sheet.getRow(i);
+	      		HSSFRow row = transactionSheet.getRow(i);
 				if (row != null) {
-				      String lfdNr = getStrVal(row.getCell(0)); // Serial_number
-				      if (lfdNr.trim().length() == 0) {
-				      	//continue;//break;
-				      }
+				      String serial = getStrVal(row.getCell(0)); // Serial_number
 				      //String BL0 = getStrVal(row.getCell(1)); // Contact_Region
 				      //String KP = getStrVal(row.getCell(2)); // Contact_person
-				      String firma1 = getStrVal(row.getCell(3)); // Name_Receiver
-				      String adress1 = getStrVal(row.getCell(4)); // Address_ Receiver
-				      String plz1 = getStrVal(row.getCell(5)); // Postcode_Receiver
-				      String ort1 = getStrVal(row.getCell(6)); // Town_Receiver
-				      String BL1 = getStrVal(row.getCell(7)); // Region_Receiver
-				      String country1 = getStrVal(row.getCell(8)); // Country_Reciever
-				      String vat1 = getStrVal(row.getCell(9)); // VATNo_Reciever
 				      
-				      String bez1 = getStrVal(row.getCell(10)); // ProductName_Receiver
-				      String proc1 = getStrVal(row.getCell(11)); // Processing_BusinessInspected
-				      String use1 = getStrVal(row.getCell(12)); // IntendedUse_BusinessInspected
-				      String num1 = getStrVal(row.getCell(13)); // ProductNo_BusinessInspected
-				      String date1 = getStrVal(row.getCell(14)); // Date_To_Receiver
-				      String m11 = getStrVal(row.getCell(15)); // No_LPU_BusinessInspected
-				      String m21 = getStrVal(row.getCell(16)); // Type_ LPU_BusinessInspected
-				      String m31 = getStrVal(row.getCell(17)); // No_ SPU_BusinessInspected
-				      String m41 = getStrVal(row.getCell(18)); // Type_ SPU_BusinessInspected
-				      String m51 = getStrVal(row.getCell(19)); // Amount_ SPU_BusinessInspected
-				      String m61 = getStrVal(row.getCell(20)); // Amount_Unit_BusinessInspected
-				      if (m61.endsWith(".")) m61 = m61.substring(0, m61.length() - 1); // keine Abkürzungszeichen erlaubt!
-				      String lot1 = getStrVal(row.getCell(21)); // LotNo_BusinessInspected
-				      String exp1 = getStrVal(row.getCell(22)); // ExpirationDate_BusinessInspected
-				      String prod1 = "";
-				      if (exp1.toLowerCase().indexOf("mhd") >= 0 || exp1.toLowerCase().indexOf("date") >= 0) {
-				    	  exp1 = ""; prod1 = "";
-				      }
-				      else {
-					      if (exp1.toLowerCase().startsWith("best before")) exp1 = exp1.substring(11).trim();
-					      if (exp1.toLowerCase().startsWith("production")) {
-					    	  prod1 = exp1.substring(10).trim();
-					    	  exp1 = "";
+				      String idRec = getStrVal(row.getCell(3)); // ID_Address
+				      String adressRec = getStrVal(row.getCell(4)); // Address
+				      if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
+					      	continue;//break;
 					      }
+				      String activityRec = getStrVal(row.getCell(5)); // Activity				      
+				      String nameRec = adressRec;
+				      String streetRec = null;
+				      String streetNoRec = null;
+				      String zipRec = null;
+				      String cityRec = null;
+				      String countyRec = null;
+				      String countryRec = null;
+				      String vatRec = null;
+				      HSSFRow busRow = getRow(businessSheet, idRec, 0);
+				      if (busRow != null) {
+					      nameRec = getStrVal(busRow.getCell(1)); //
+					      streetRec = getStrVal(busRow.getCell(2)); //
+					      streetNoRec = getStrVal(busRow.getCell(3)); //
+					      zipRec = getStrVal(busRow.getCell(4)); //
+					      cityRec = getStrVal(busRow.getCell(5)); //
+					      countyRec = getStrVal(busRow.getCell(6)); 
+					      countryRec = getStrVal(busRow.getCell(7)); // 
+					      vatRec = getStrVal(busRow.getCell(8)); //
 				      }
-				      if (exp1.toLowerCase().indexOf("production") > 0) exp1 = "";
-				      String info1 = getStrVal(row.getCell(23)); // Source_Info_BusinessInspected
-
-				      String firma2 = getStrVal(row.getCell(24)); // Name_BusinessInspected
-				      String adress2 = getStrVal(row.getCell(25)); // Address_BusinessInspected
-				      String plz2 = getStrVal(row.getCell(26)); // Postcode_BusinessInspected
-				      String ort2 = getStrVal(row.getCell(27)); // Town_BusinessInspected
-				      String BL2 = getStrVal(row.getCell(28)); // Region_BusinessInspected
-				      String country2 = getStrVal(row.getCell(29)); // Country_BusinessInspected
-				      String vat2 = getStrVal(row.getCell(30)); // VATNo_BusinessInspected
-
-				      String bez2 = getStrVal(row.getCell(31)); // ProductName_Supplier
-				      String num2 = getStrVal(row.getCell(32)); // ProductNo_Supplier
-				      String date2 = getStrVal(row.getCell(33)); // Date_From_Supplier
-				      String m12 = getStrVal(row.getCell(34)); // No_LPU_Supplier
-				      String m22 = getStrVal(row.getCell(35)); // Type_ LPU_Supplier
-				      String m32 = getStrVal(row.getCell(36)); // No_ SPU_Supplier
-				      String m42 = getStrVal(row.getCell(37)); // Type_ SPU_Supplier
-				      String m52 = getStrVal(row.getCell(38)); // Amount_ SPU_Supplier
-				      String m62 = getStrVal(row.getCell(39)); // Amount_Unit_Supplier
-				      if (m62.endsWith(".")) m62 = m62.substring(0, m62.length() - 1); // keine Abkürzungszeichen erlaubt!
-				      String lot2 = getStrVal(row.getCell(40)); // LotNo_Supplier
-				      String exp2 = getStrVal(row.getCell(41)); // ExpirationDate_Supplier
-				      String prod2 = "";
-				      if (exp2.toLowerCase().indexOf("mhd") >= 0 || exp2.toLowerCase().indexOf("date") >= 0) {
-				    	  exp2 = ""; prod2 = "";
-				      }
-				      else {
-					      if (exp2.toLowerCase().startsWith("best before")) exp2 = exp2.substring(11).trim();
-					      if (exp2.toLowerCase().startsWith("production")) {
-					    	  prod2 = exp2.substring(10).trim();
-					    	  exp2 = "";
-					      }
-				      }
-				      if (exp2.toLowerCase().indexOf("production") > 0) exp2 = "";
-				      String info2 = getStrVal(row.getCell(42)); // Source_Info_Supplier
-
-				      String firma3 = getStrVal(row.getCell(43)); // Name_Supplier
-				      String adress3 = getStrVal(row.getCell(44)); // Address_ Supplier
-				      String plz3 = getStrVal(row.getCell(45)); // Postcode_Supplier
-				      String ort3 = getStrVal(row.getCell(46)); // Town_Supplier
-				      String BL3 = getStrVal(row.getCell(47)); // Region_Supplier
-				      String country3 = getStrVal(row.getCell(48)); // Country_Supplier
-				      String vat3 = getStrVal(row.getCell(49)); // VATNo_Supplier
 				      
-				      //String ec = getStrVal(row.getCell(50)); // EndChain
-				      //String ece = getStrVal(row.getCell(51)); // Explanation_EndChaim
-				      //String rem = getStrVal(row.getCell(52)); // Remarks
-				      //String oc = getStrVal(row.getCell(53)); // OriginCountry
-				      //String cq = getStrVal(row.getCell(54)); // Contact_Questions
-				      //String ft = getStrVal(row.getCell(55)); // Further_Traceback
-				      //String ms = getStrVal(row.getCell(56)); // MicrobiologicalSample
+				      String prodNameOut = getStrVal(row.getCell(6)); // ProductName
+				      String prodNumOut = getStrVal(row.getCell(7)); // ProductNo
+				      String dayOut = getStrVal(row.getCell(8)); // Day
+				      String monthOut = getStrVal(row.getCell(9)); // Month
+				      String yearOut = getStrVal(row.getCell(10)); // Year
+				      String amountKG_Out = getStrVal(row.getCell(11)); // amountKG
+				      String typePUOut = getStrVal(row.getCell(12)); // typePU
+				      String numPUOut = getStrVal(row.getCell(13)); // numPU
+				      String lotNo_Out = getStrVal(row.getCell(14)); // 
+				      String dayMHDOut = getStrVal(row.getCell(15)); 
+				      String monthMHDOut = getStrVal(row.getCell(16)); 
+				      String yearMHDOut = getStrVal(row.getCell(17)); // 
+				      String dayPDOut = getStrVal(row.getCell(18)); 
+				      String monthPDOut = getStrVal(row.getCell(19)); 
+				      String yearPDOut = getStrVal(row.getCell(20)); 
+				      Date dateOut = getDate(dayOut, monthOut, yearOut);
+				      Date dateMHDOut = getDate(dayMHDOut, monthMHDOut, yearMHDOut);
+				      Date datePDOut = getDate(dayPDOut, monthPDOut, yearPDOut);
+				      
+				      String idInsp = getStrVal(row.getCell(21)); // ID_Address
+				      String adressInsp = getStrVal(row.getCell(22)); // Address
+				      String activityInsp = getStrVal(row.getCell(23)); // Activity
+				      String nameInsp = adressInsp;
+				      String streetInsp = null;
+				      String streetNoInsp = null;
+				      String zipInsp = null;
+				      String cityInsp = null;
+				      String countyInsp = null;
+				      String countryInsp = null;
+				      String vatInsp = null;
+				      busRow = getRow(businessSheet, idInsp, 0);
+				      if (busRow != null) {
+					      nameInsp = getStrVal(busRow.getCell(1)); //
+					      streetInsp = getStrVal(busRow.getCell(2)); //
+					      streetNoInsp = getStrVal(busRow.getCell(3)); //
+					      zipInsp = getStrVal(busRow.getCell(4)); //
+					      cityInsp = getStrVal(busRow.getCell(5)); //
+					      countyInsp = getStrVal(busRow.getCell(6)); 
+					      countryInsp = getStrVal(busRow.getCell(7)); // 
+					      vatInsp = getStrVal(busRow.getCell(8)); //
+				      }
+
+				      String prodNameIn = getStrVal(row.getCell(24)); // ProductName
+				      String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
+				      String dayIn = getStrVal(row.getCell(26)); // Day
+				      String monthIn = getStrVal(row.getCell(27)); // Month
+				      String yearIn = getStrVal(row.getCell(28)); // Year
+				      String amountKG_In = getStrVal(row.getCell(29)); // amountKG
+				      String typePUIn = getStrVal(row.getCell(30)); // typePU
+				      String numPUIn = getStrVal(row.getCell(31)); // numPU
+				      String lotNo_In = getStrVal(row.getCell(32)); // 
+				      String dayMHDIn = getStrVal(row.getCell(33)); 
+				      String monthMHDIn = getStrVal(row.getCell(34)); 
+				      String yearMHDIn = getStrVal(row.getCell(35)); // 
+				      String dayPDIn = getStrVal(row.getCell(36)); 
+				      String monthPDIn = getStrVal(row.getCell(37)); 
+				      String yearPDIn = getStrVal(row.getCell(38)); 
+				      Date dateIn = getDate(dayIn, monthIn, yearIn);
+				      Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
+				      Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
+				      
+				      String idSup = getStrVal(row.getCell(39)); // ID_Address
+				      String adressSup = getStrVal(row.getCell(40)); // Address
+				      String activitySup = getStrVal(row.getCell(41)); // Activity
+				      String nameSup = adressSup;
+				      String streetSup = null;
+				      String streetNoSup = null;
+				      String zipSup = null;
+				      String citySup = null;
+				      String countySup = null;
+				      String countrySup = null;
+				      String vatSup = null;
+				      busRow = getRow(businessSheet, idSup, 0);
+				      if (busRow != null) {
+					      nameSup = getStrVal(busRow.getCell(1)); //
+					      streetSup = getStrVal(busRow.getCell(2)); //
+					      streetNoSup = getStrVal(busRow.getCell(3)); //
+					      zipSup = getStrVal(busRow.getCell(4)); //
+					      citySup = getStrVal(busRow.getCell(5)); //
+					      countySup = getStrVal(busRow.getCell(6)); 
+					      countrySup = getStrVal(busRow.getCell(7)); // 
+					      vatSup = getStrVal(busRow.getCell(8)); //
+				      }
+
+				      //String ec = getStrVal(row.getCell(42)); // EndChain
+				      //String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
+				      String oc = getStrVal(row.getCell(44)); // OriginCountry
+				      String comment = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
+				      //String ft = getStrVal(row.getCell(46)); // Further_Traceback
+				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+
+				      if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
+				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("dateOut < dateIn!!! Row " + i + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
 
 				      Integer c1 = null;
 				      Integer c2 = null;
-				      if (firma2.trim().length() > 0) c1 = getCharge_Lieferung(firma2, adress2, plz2, ort2, BL2, country2, num1, lot1, exp1, info1, bez1, date1, m11, m21, m31, m41, m51, m61, firma1, adress1, plz1, ort1, BL1, country1, proc1, use1, true);
-				      if (firma3.trim().length() > 0) c2 = getCharge_Lieferung(firma3, adress3, plz3, ort3, BL3, country3, num2, lot2, exp2, info2, bez2, date2, m12, m22, m32, m42, m52, m62, firma2, adress2, plz2, ort2, BL2, country2, "", "", false);
+				      if (nameInsp != null && !nameInsp.trim().isEmpty()) {
+				    	  c1 = getCharge_Lieferung(nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
+				    			  prodNameOut, prodNumOut, lotNo_Out, dateMHDOut, datePDOut, oc, dateOut, amountKG_Out, typePUOut, numPUOut,
+				    			  nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, activityRec, vatRec,
+				    			  comment, true);
+				      }
+				      if (nameSup != null && !nameSup.trim().isEmpty()) {
+				    	  c2 = getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
+					    		  prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
+					    		  nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
+					    		  comment, false);
+				      }
 				      if (c1 == null) {
-				      	System.err.println("Fehlerchenchen_1!!");
+				      	System.err.println("Fehlerchenchen_1!! Row " + i);
 				      	numFails++;
 				      }
 				      else if (c2 == null) {
-				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined?");
-				      	getCharge_Lieferung(firma3, adress3, plz3, ort3, BL3, country3, num2, lot2, exp2, info2, bez2, date2, m12, m22, m32, m42, m52, m62, firma2, adress2, plz2, ort2, BL2, country2, "", "", false);
+				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row " + i);
+				      	getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
+					    		prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
+				      			nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activityInsp, vatInsp,
+				      			comment, false);
 				      	numFails++;
 				      }
 				      else {
 				      	if (c2 != null) {
 					      	if (c1.intValue() == c2.intValue()) {
-					      		System.err.println("Fehlerchenchen_3!!");
+					      		System.err.println("Fehlerchenchen_3!! Row " + i);
 						      	numFails++;
 					      	}
 					      	else if (getID("ChargenVerbindungen",
 		    							new String[]{"Zutat","Produkt"},
 		    							new String[]{c2.toString(), c1.toString()},
 		    							null) == null) {
-						      	System.err.println("Fehlerchenchen_4!!");
+						      	System.err.println("Fehlerchenchen_4!! Row " + i);
 						      	numFails++;
 						      }
 						      else {
@@ -265,13 +311,41 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
     	MyLogger.handleException(e);
 		}
   }
-	
+	private Date getDate(String day, String month, String year) {
+		calendar.clear();
+		if (day != null && !day.trim().isEmpty()) calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day));
+		if (month != null && !month.trim().isEmpty()) calendar.set(Calendar.MONTH, Integer.parseInt(month) - 1);
+		if (year != null && !year.trim().isEmpty()) calendar.set(Calendar.YEAR, Integer.parseInt(year));
+		Date date = calendar.getTime();
+		if (date.getTime() > 0) return date;
+		else return null;
+	}
+	private HSSFRow getRow(HSSFSheet sheet, String value, int column) {
+		HSSFRow result = null;
+		if (value != null && !value.trim().isEmpty()) {
+			int numRows = sheet.getLastRowNum() + 1;
+	      	for (int i=1;i<numRows;i++) {
+	      		HSSFRow row = sheet.getRow(i);
+				if (row != null) {
+			      String val = getStrVal(row.getCell(column));
+			      if (val != null && !val.trim().isEmpty()) {
+				      if (value.trim().equals(val.trim())) {
+				    	  result = row;
+				    	  break;
+				      }
+			      }
+				}
+	      	}
+		}
+		return result;
+	}
   private String getStrVal(HSSFCell cell) {
-  	String result = "";
+  	String result = null;
 		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
 		}
 		else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
 			result = cell.getStringCellValue();
+			if (result.equals(".")) result = null;
 		}
 		else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
 			double dbl = cell.getNumericCellValue();
@@ -283,53 +357,43 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		}
   	return result;
   }
-	private Integer getCharge_Lieferung(String firma2, String adress2, String plz2, String ort2, String bl2
-			, String country2, String an1, String cn1, String mhd1, String info1, String LM1, String ld1
-			, String m11, String m12, String m13, String m14, String m15, String m16,
-			String firma1, String adress1, String plz1, String ort1, String bl1
-			, String country1, String proc1, String use1, boolean returnCharge) {
+	private Integer getCharge_Lieferung(String name, String street, String streetNumber, String zip, String city, String county, String country, String kind, String vat,
+			String article, String articleNumber, String charge, Date mhd, Date prod, String originCountry, Date delivery, String amountKG, String typePU, String numPU,
+			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
+			String comment, boolean returnCharge) {
 		Integer result = null;
 
-			try {
-			    String dtf = determineDateFormat(mhd1);
-				if (dtf != null) mhd1 = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat(dtf).parse(mhd1));
-			    dtf = determineDateFormat(ld1);
-			    if (dtf != null) ld1 = new SimpleDateFormat("yyyy-MM-dd").format(new SimpleDateFormat(dtf).parse(ld1));
-				if (dtf == null && !ld1.isEmpty()) {
-					System.err.println("");
-				}
-			}
-	      catch (ParseException e) {
-				e.printStackTrace();
-			}
+		String mhdS = mhd == null ? null : sdf.format(mhd);
+		String prodS = prod == null ? null : sdf.format(prod);
+		String deliveryS = delivery == null ? null : sdf.format(delivery);
 		Integer lastID = getID("Station",
-					new String[]{"Name","Strasse","PLZ","Ort","Bundesland","Land"},
-					new String[]{firma2, adress2, plz2, ort2, bl2, country2},
+					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber"},
+					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat},
 					null);
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
-							new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse"},
-							new String[]{lastID.toString(), an1, LM1, proc1, use1},
+							new String[]{"Station","Artikelnummer","Bezeichnung"},
+							new String[]{lastID.toString(), articleNumber, article},
 							null);
 					if (lastID != null) {
 						lastID = getID("Chargen",
-								new String[]{"Artikel","ChargenNr","MHD"},
-								new String[]{lastID.toString(), cn1, mhd1},
-								null);
+								new String[]{"Artikel","ChargenNr","MHD","Herstellungsdatum","Kommentar"},
+								new String[]{lastID.toString(), charge, mhdS, prodS, originCountry},
+								new boolean[]{true,true,true,true,false});
 						if (returnCharge) result = lastID;
 						if (lastID != null) {
 							Integer empf = null;
-							if (firma1.trim().length() > 0) {
+							if (nameTo != null && !nameTo.trim().isEmpty()) {
 								empf = getID("Station",
-										new String[]{"Name","Strasse","PLZ","Ort","Bundesland","Land"},
-										new String[]{firma1, adress1, plz1, ort1, bl1, country1},
+										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber"},
+										new String[]{nameTo, streetTo, streetNumberTo, zipTo, cityTo, countyTo, countryTo, kindTo, vatTo},
 										null);
 							}
-							if (cn1.trim().length() == 0) cn1 = an1 + "; " + mhd1;
+							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;
 							lastID = getID("Lieferungen",
-									new String[]{"Charge","Lieferdatum","#Units1","BezUnits1","#Units2","BezUnits2","Unitmenge","UnitEinheit","Empfänger"},
-									new String[]{lastID.toString(), ld1, m11, m12, m13, m14, m15, m16, empf == null ? null : empf.toString()},
-									null);
+									new String[]{"Charge","Lieferdatum","Unitmenge","UnitEinheit","Empfänger","Kommentar"}, // "#Units2","BezUnits2",
+									new String[]{lastID.toString(), deliveryS, amountKG, "kg", empf == null ? null : empf.toString(),comment}, // numPU, typePU, 
+									new boolean[]{true,true,true,true,true,false});
 							if (!returnCharge) result = lastID;
 						}
 					}
@@ -342,18 +406,17 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	  String fns = "";
 	  String fvs = "";
 	  for (int i=0;i<feldnames.length;i++) {
-	  	if (feldVals[i] != null && feldVals[i].trim().length() > 0) {
-		  	feldVals[i] = feldVals[i].replaceAll("'", "\\apos");
+		  if (feldVals[i] != null && feldVals[i].trim().isEmpty()) feldVals[i] = null;
+		  	if (feldVals[i] != null) feldVals[i] = feldVals[i].replaceAll("'", "\\apos");
 		  	fns += "," + DBKernel.delimitL(feldnames[i]);
-		  	fvs += ",'" + feldVals[i] + "'";
+		  	fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
 			if (key == null || key[i]) {
-				sql += " AND " + DBKernel.delimitL(feldnames[i]) + "='" + feldVals[i] + "'";	  
-				if (feldVals[i].trim().length() == 0 && key != null && i + 1 < key.length) key[i+1] = true; // wichtig, falls die Artikelnummer nicht angegeben ist -> dann soll die Bezeichnung der Identifier sein
+				sql += " AND " + DBKernel.delimitL(feldnames[i]) + (feldVals[i] != null ? "='" + feldVals[i] + "'" : " IS NULL");	  
 			}
-	  	}
 	  }
 	  if (!fns.isEmpty() && !fvs.isEmpty()) {
 		  ResultSet rs = null;
+		  //System.err.println(sql);
 		  rs = DBKernel.getResultSet(sql, true);		  
 		  try {
 				if (rs != null && rs.last() && rs.getRow() == 1) result = rs.getInt(1);
@@ -375,42 +438,4 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		
 		return result;
 	}
-    private final Map<String, String> DATE_FORMAT_REGEXPS = new HashMap<String, String>() {{
-        //put("^\\d{8}$", "yyyyMMdd");
-        //put("^\\d{1,2}-\\d{1,2}-\\d{4}$", "dd-MM-yyyy");
-        put("^\\d{1,2}.\\d{1,2}.\\d{4}$", "dd.MM.yyyy");
-        put("^\\d{4}-\\d{1,2}-\\d{1,2}$", "yyyy-MM-dd");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}$", "dd/MM/yyyy");
-        put("^\\d{4}/\\d{1,2}/\\d{1,2}$", "yyyy/MM/dd");
-        /*
-        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}$", "dd MMM yyyy");
-        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}$", "dd MMMM yyyy");
-        put("^\\d{12}$", "yyyyMMddHHmm");
-        put("^\\d{8}\\s\\d{4}$", "yyyyMMdd HHmm");
-        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}$", "dd-MM-yyyy HH:mm");
-        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy-MM-dd HH:mm");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}$", "MM/dd/yyyy HH:mm");
-        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}$", "yyyy/MM/dd HH:mm");
-        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMM yyyy HH:mm");
-        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}$", "dd MMMM yyyy HH:mm");
-        put("^\\d{14}$", "yyyyMMddHHmmss");
-        put("^\\d{8}\\s\\d{6}$", "yyyyMMdd HHmmss");
-        put("^\\d{1,2}-\\d{1,2}-\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd-MM-yyyy HH:mm:ss");
-        put("^\\d{4}-\\d{1,2}-\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy-MM-dd HH:mm:ss");
-        put("^\\d{1,2}/\\d{1,2}/\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "MM/dd/yyyy HH:mm:ss");
-        put("^\\d{4}/\\d{1,2}/\\d{1,2}\\s\\d{1,2}:\\d{2}:\\d{2}$", "yyyy/MM/dd HH:mm:ss");
-        put("^\\d{1,2}\\s[a-z]{3}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMM yyyy HH:mm:ss");
-        put("^\\d{1,2}\\s[a-z]{4,}\\s\\d{4}\\s\\d{1,2}:\\d{2}:\\d{2}$", "dd MMMM yyyy HH:mm:ss");
-        */
-        put("^\\d{1,2}/\\d{4}$", "MM/yyyy");
-        put("^\\d{1,2}/\\d{1,2}/\\d{2}$", "dd/MM/yy");
-    }};
-    private String determineDateFormat(String dateString) {
-        for (String regexp : DATE_FORMAT_REGEXPS.keySet()) {
-            if (dateString.toLowerCase().matches(regexp)) {
-                return DATE_FORMAT_REGEXPS.get(regexp);
-            }
-        }
-        return null; // Unknown format.
-    }
 }

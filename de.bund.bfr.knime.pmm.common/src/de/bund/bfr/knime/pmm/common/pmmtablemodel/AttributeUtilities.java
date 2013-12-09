@@ -40,7 +40,7 @@ public class AttributeUtilities {
 	public static final String DATAID = "DataID";
 
 	public static final String TIME = "Time";
-	public static final String CONCENTRATION = "Concentration";
+	public static final String CONCENTRATION = "Value";
 	public static final String ATT_TEMPERATURE = "Temperature";
 	public static final String ATT_PH = "pH";
 	public static final String ATT_AW = "aw";
@@ -57,14 +57,8 @@ public class AttributeUtilities {
 	}
 
 	public static String getName(String attr) {
-		if (attr.equals(ATT_TEMPERATURE)) {
-			return "Temperature";
-		} else if (attr.equals(ATT_PH)) {
-			return "pH";
-		} else if (attr.equals(ATT_AW)) {
-			return "Water Activity";
-		} else if (attr.equals(CONCENTRATION)) {
-			return "Concentration";
+		if (attr.equals(ATT_AW)) {
+			return "Water Activity";		
 		} else {
 			return attr;
 		}

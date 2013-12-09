@@ -65,8 +65,8 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 public class XLSReader {
 
 	public static String ID_COLUMN = "ID";
-	public static String CONCENTRATION_STDDEV_COLUMN = "Concentration StdDev";
-	public static String CONCENTRATION_MEASURE_NUMBER = "Concentration Measurements";
+	public static String CONCENTRATION_STDDEV_COLUMN = "Value StdDev";
+	public static String CONCENTRATION_MEASURE_NUMBER = "Value Measurements";
 
 	private List<String> warnings;
 	private FormulaEvaluator evaluator;

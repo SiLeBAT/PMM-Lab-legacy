@@ -1201,9 +1201,12 @@ public class DBKernel {
 	  return getValue(null, tablename, feldname, feldVal, desiredColumn);
   }
   public static Object getValue(Connection conn, final String tablename, final String feldname, final String feldVal, final String desiredColumn) {
-	  return getValue(conn, tablename, new String[] {feldname}, new String[] {feldVal}, desiredColumn);
+	  return getValue(conn, tablename, new String[] {feldname}, new String[] {feldVal}, desiredColumn, true);
   }
   public static Object getValue(Connection conn, final String tablename, final String[] feldname, final String[] feldVal, final String desiredColumn) {
+	  return getValue(conn, tablename, feldname, feldVal, desiredColumn, false);
+  }
+  public static Object getValue(Connection conn, final String tablename, final String[] feldname, final String[] feldVal, final String desiredColumn, boolean suppressWarnings) {
 	  	Object result = null;
 		  String sql = "SELECT " + delimitL(desiredColumn) + " FROM " + delimitL(tablename) + " WHERE ";
 		  String where = " ";
@@ -1222,7 +1225,7 @@ public class DBKernel {
 			try {
 				if (rs != null && rs.last()) { //  && rs.getRow() == 1
 					result = rs.getObject(1);
-					if (rs.getRow() > 1) {
+					if (!suppressWarnings && rs.getRow() > 1) {
 						System.err.println("Attention! '" + where + "' results in " + rs.getRow() + " entries in table " + tablename + ", please check (getValue)!!!");
 					}
 				}

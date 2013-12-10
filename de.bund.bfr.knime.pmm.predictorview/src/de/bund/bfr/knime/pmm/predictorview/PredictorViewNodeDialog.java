@@ -53,6 +53,7 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -374,7 +375,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 									Double.NEGATIVE_INFINITY,
 									Double.POSITIVE_INFINITY,
 									Double.NEGATIVE_INFINITY,
-									Double.POSITIVE_INFINITY));
+									Double.POSITIVE_INFINITY, null));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
@@ -492,6 +493,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	public void timeValuesChanged() {
 		createChart();
+
+		if (!chartCreator.getWarnings().isEmpty()) {
+			JOptionPane.showMessageDialog(chartCreator,
+					"Some sample values are out of model range", "Warning",
+					JOptionPane.WARNING_MESSAGE);
+		}
 	}
 
 	@Override

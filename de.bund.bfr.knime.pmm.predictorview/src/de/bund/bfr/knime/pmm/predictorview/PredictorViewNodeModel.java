@@ -303,12 +303,18 @@ public class PredictorViewNodeModel extends NodeModel {
 		double[][] points = null;
 
 		try {
+			List<String> warnings = new ArrayList<String>();
+
 			points = plotable.getFunctionSamplePoints(AttributeUtilities.TIME,
 					AttributeUtilities.CONCENTRATION, set.getUnitX(),
 					set.getUnitY(), ChartConstants.NO_TRANSFORM,
 					ChartConstants.NO_TRANSFORM, Double.NEGATIVE_INFINITY,
 					Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-					Double.POSITIVE_INFINITY);
+					Double.POSITIVE_INFINITY, warnings);
+
+			for (String w : warnings) {
+				setWarningMessage(w + " (ID: " + id + ")");
+			}
 		} catch (ConvertException e) {
 			e.printStackTrace();
 		}

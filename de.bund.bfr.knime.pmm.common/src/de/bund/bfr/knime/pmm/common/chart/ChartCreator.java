@@ -93,6 +93,8 @@ public class ChartCreator extends ChartPanel {
 	private boolean showLegend;
 	private boolean addInfoInLegend;
 	private boolean showConfidenceInterval;
+	
+	private List<String> warnings;
 
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
@@ -193,8 +195,10 @@ public class ChartCreator extends ChartPanel {
 							if (points != null) {
 								for (int i = 0; i < points[0].length; i++) {
 									if (isValid(points[0][i])) {
-										usedMinX = Math.min(usedMinX, points[0][i]);
-										usedMaxX = Math.max(usedMaxX, points[0][i]);
+										usedMinX = Math.min(usedMinX,
+												points[0][i]);
+										usedMaxX = Math.max(usedMaxX,
+												points[0][i]);
 									}
 								}
 							}
@@ -205,7 +209,7 @@ public class ChartCreator extends ChartPanel {
 								unitX, unitY, transformX, transformY);
 
 						if (points != null) {
-							for (int i = 0; i < points[0].length; i++) {												
+							for (int i = 0; i < points[0].length; i++) {
 								if (isValid(points[0][i])) {
 									usedMinX = Math.min(usedMinX, points[0][i]);
 									usedMaxX = Math.max(usedMaxX, points[0][i]);
@@ -344,6 +348,8 @@ public class ChartCreator extends ChartPanel {
 			}
 		}
 
+		warnings = new ArrayList<String>();
+
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
 
@@ -352,13 +358,14 @@ public class ChartCreator extends ChartPanel {
 				try {
 					plotFunctionSample(plot, plotable, id, colorAndShapeCreator
 							.getColorList().get(index), colorAndShapeCreator
-							.getShapeList().get(index), usedMinX, usedMaxX);
+							.getShapeList().get(index), usedMinX, usedMaxX,
+							warnings);
 					index++;
 				} catch (ConvertException e) {
 					unconvertable.add(e.getFromUnit());
 				}
 			}
-		}
+		}		
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -563,6 +570,10 @@ public class ChartCreator extends ChartPanel {
 		this.shapeLists = shapeLists;
 	}
 
+	public List<String> getWarnings() {
+		return warnings;
+	}
+
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
 			Color defaultColor, Shape defaultShape) throws ConvertException {
 		double[][] points = plotable.getPoints(paramX, paramY, unitX, unitY,
@@ -748,14 +759,14 @@ public class ChartCreator extends ChartPanel {
 	}
 
 	private void plotFunctionSample(XYPlot plot, Plotable plotable, String id,
-			Color defaultColor, Shape defaultShape, double minX, double maxX)
-			throws ConvertException {
+			Color defaultColor, Shape defaultShape, double minX, double maxX,
+			List<String> warnings) throws ConvertException {
 		double[][] functionPoints = plotable.getFunctionPoints(paramX, paramY,
 				unitX, unitY, transformX, transformY, minX, maxX,
 				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double[][] samplePoints = plotable.getFunctionSamplePoints(paramX,
 				paramY, unitX, unitY, transformX, transformY, minX, maxX,
-				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+				Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, warnings);
 		double[][] functionErrors = null;
 		String legend = shortLegend.get(id);
 		Color color = colors.get(id);

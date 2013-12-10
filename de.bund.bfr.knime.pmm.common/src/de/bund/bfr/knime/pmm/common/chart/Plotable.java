@@ -50,6 +50,7 @@ import org.nfunk.jep.Node;
 import org.nfunk.jep.ParseException;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
@@ -533,17 +534,18 @@ public class Plotable {
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
 			String unitX, String unitY, String transformX, String transformY,
-			double minX, double maxX, double minY, double maxY)
-			throws ConvertException {
+			double minX, double maxX, double minY, double maxY,
+			List<String> warnings) throws ConvertException {
 		return getFunctionSamplePoints(paramX, paramY, unitX, unitY,
 				transformX, transformY, minX, maxX, minY, maxY,
-				getStandardChoice());
+				getStandardChoice(), warnings);
 	}
 
 	public double[][] getFunctionSamplePoints(String paramX, String paramY,
 			String unitX, String unitY, String transformX, String transformY,
 			double minX, double maxX, double minY, double maxY,
-			Map<String, Integer> choice) throws ConvertException {
+			Map<String, Integer> choice, List<String> warnings)
+			throws ConvertException {
 		if (function == null || samples.isEmpty()) {
 			return null;
 		}
@@ -626,6 +628,21 @@ public class Plotable {
 
 		if (!containsValidPoint) {
 			return null;
+		}
+
+		if (warnings != null) {
+			for (Double d : samples) {
+				if (d != null) {
+					Double min = minArguments.get(AttributeUtilities.TIME);
+					Double max = maxArguments.get(AttributeUtilities.TIME);
+
+					if (min != null && d < min) {
+						warnings.add(d + " is smaller than min value " + min);
+					} else if (max != null && d > max) {
+						warnings.add(d + " is larger than max value " + max);
+					}
+				}
+			}
 		}
 
 		return points;
@@ -853,7 +870,8 @@ public class Plotable {
 		int nMax = 0;
 
 		if (functionArguments.size() == 1) {
-			String arg = new ArrayList<String>(functionArguments.keySet()).get(0);
+			String arg = new ArrayList<String>(functionArguments.keySet())
+					.get(0);
 
 			if (valueLists.containsKey(arg) && valueLists.get(arg).size() != 0) {
 				return 1;

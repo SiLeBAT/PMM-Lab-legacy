@@ -134,7 +134,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      vatRec = getStrVal(busRow.getCell(8)); //
 				      }
 				      else if (idRec != null) {
-				    	  System.err.println("business not there??? Row: " + i + "\tid" + idRec);
+				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidReceived: " + idRec);
 				      }
 				      
 				      String prodNameOut = getStrVal(row.getCell(6)); // ProductName
@@ -179,7 +179,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      vatInsp = getStrVal(busRow.getCell(8)); //
 				      }
 				      else if (idInsp != null) {
-				    	  System.err.println("business not there??? Row: " + i + "\tid" + idInsp);
+				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidInspected: " + idInsp);
 				      }
 
 				      String prodNameIn = getStrVal(row.getCell(24)); // ProductName
@@ -224,7 +224,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      vatSup = getStrVal(busRow.getCell(8)); //
 				      }
 				      else if (idSup != null) {
-				    	  System.err.println("business not there??? Row: " + i + "\tid" + idSup);
+				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
 				    	  getStrVal(row.getCell(39));
 				      }
 
@@ -235,8 +235,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      //String ft = getStrVal(row.getCell(46)); // Further_Traceback
 				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
-				      if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("dateOut < dateIn!!! Row " + i + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
+				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
+				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
 
 				      Integer c1 = null;
 				      Integer c2 = null;
@@ -253,11 +253,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					    		  comment, false);
 				      }
 				      if (c1 == null) {
-				      	System.err.println("Fehlerchenchen_1!! Row " + i);
+				      	System.err.println("Fehlerchenchen_1!! Row: " + (i+1));
 				      	numFails++;
 				      }
 				      else if (c2 == null) {
-				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row " + i);
+				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row: " + (i+1));
 				      	
 				      	getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
 					    		prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
@@ -269,14 +269,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      else {
 				      	if (c2 != null) {
 					      	if (c1.intValue() == c2.intValue()) {
-					      		System.err.println("Fehlerchenchen_3!! Row " + i);
+					      		System.err.println("Fehlerchenchen_3!! Row: " + (i+1));
 						      	numFails++;
 					      	}
 					      	else if (getID("ChargenVerbindungen",
 		    							new String[]{"Zutat","Produkt"},
 		    							new String[]{c2.toString(), c1.toString()},
 		    							null) == null) {
-						      	System.err.println("Fehlerchenchen_4!! Row " + i);
+						      	System.err.println("Fehlerchenchen_4!! Row: " + (i+1));
 						      	numFails++;
 						      }
 						      else {

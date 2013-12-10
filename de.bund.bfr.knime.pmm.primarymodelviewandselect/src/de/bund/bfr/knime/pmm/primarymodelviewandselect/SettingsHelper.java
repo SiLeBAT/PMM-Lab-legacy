@@ -75,7 +75,7 @@ public class SettingsHelper {
 	protected static final String CFG_FITTEDFILTER = "FittedFilter";
 	protected static final String CFG_COLUMNWIDTHS = "ColumnWidths";
 
-	protected static final boolean DEFAULT_SELECTALLIDS = false;
+	protected static final boolean DEFAULT_SELECTALLIDS = true;
 	protected static final boolean DEFAULT_MANUALRANGE = false;
 	protected static final double DEFAULT_MINX = 0.0;
 	protected static final double DEFAULT_MAXX = 100.0;

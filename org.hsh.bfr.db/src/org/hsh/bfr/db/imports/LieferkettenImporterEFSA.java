@@ -133,6 +133,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      countryRec = getStrVal(busRow.getCell(7)); // 
 					      vatRec = getStrVal(busRow.getCell(8)); //
 				      }
+				      else if (idRec != null) {
+				    	  System.err.println("business not there??? Row: " + i + "\tid" + idRec);
+				      }
 				      
 				      String prodNameOut = getStrVal(row.getCell(6)); // ProductName
 				      String prodNumOut = getStrVal(row.getCell(7)); // ProductNo
@@ -174,6 +177,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      countyInsp = getStrVal(busRow.getCell(6)); 
 					      countryInsp = getStrVal(busRow.getCell(7)); // 
 					      vatInsp = getStrVal(busRow.getCell(8)); //
+				      }
+				      else if (idInsp != null) {
+				    	  System.err.println("business not there??? Row: " + i + "\tid" + idInsp);
 				      }
 
 				      String prodNameIn = getStrVal(row.getCell(24)); // ProductName
@@ -217,6 +223,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      countrySup = getStrVal(busRow.getCell(7)); // 
 					      vatSup = getStrVal(busRow.getCell(8)); //
 				      }
+				      else if (idSup != null) {
+				    	  System.err.println("business not there??? Row: " + i + "\tid" + idSup);
+				    	  getStrVal(row.getCell(39));
+				      }
 
 				      //String ec = getStrVal(row.getCell(42)); // EndChain
 				      //String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
@@ -248,10 +258,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      }
 				      else if (c2 == null) {
 				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row " + i);
+				      	
 				      	getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
 					    		prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
 				      			nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activityInsp, vatInsp,
 				      			comment, false);
+				      			
 				      	numFails++;
 				      }
 				      else {
@@ -347,10 +359,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			result = cell.getStringCellValue();
 			if (result.equals(".")) result = null;
 		}
-		else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-			double dbl = cell.getNumericCellValue();
-			if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
-			else result = "" + cell.getNumericCellValue();
+		else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
+			try {
+				double dbl = cell.getNumericCellValue();
+				if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
+				else result = "" + cell.getNumericCellValue();
+			}
+			catch (Exception e) {}
 		}
 		else {
 			result = cell.toString();
@@ -361,6 +376,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String article, String articleNumber, String charge, Date mhd, Date prod, String originCountry, Date delivery, String amountKG, String typePU, String numPU,
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
 			String comment, boolean returnCharge) {
+		if (name == null) return null;
 		Integer result = null;
 
 		String mhdS = mhd == null ? null : sdf.format(mhd);

@@ -225,7 +225,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      }
 				      else if (idSup != null) {
 				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
-				    	  getStrVal(row.getCell(39));
 				      }
 
 				      //String ec = getStrVal(row.getCell(42)); // EndChain
@@ -258,12 +257,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      }
 				      else if (c2 == null) {
 				      	System.err.println("Fehlerchenchen_2!! E.g. Station not defined? Row: " + (i+1));
-				      	
+				      	/*
 				      	getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
 					    		prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
 				      			nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activityInsp, vatInsp,
 				      			comment, false);
-				      			
+				      		*/	
 				      	numFails++;
 				      }
 				      else {

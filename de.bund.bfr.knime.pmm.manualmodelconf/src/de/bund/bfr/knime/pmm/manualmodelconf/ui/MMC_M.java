@@ -681,8 +681,7 @@ public class MMC_M extends JPanel {
 		pm.removeEstModelLits();
 		pm.removeModelLits();
 		for (int i = 0; i < referencesTable.getRowCount(); i++) {
-			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i,
-					0);
+			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
 			if (formulaCreator || !table.isEstimated())
 				pm.addModelLit(li);
 			else
@@ -880,8 +879,20 @@ public class MMC_M extends JPanel {
 	}
 
 	private void deleteSelLitRow() {
-		((DefaultTableModel) referencesTable.getModel())
-				.removeRow(referencesTable.getSelectedRow());
+		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());
+		refreshRefsInPM();
+	}
+	private void refreshRefsInPM() {
+		ParametricModel pm = getPM();
+		pm.removeEstModelLits();
+		pm.removeModelLits();
+		for (int i = 0; i < referencesTable.getRowCount(); i++) {
+			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
+			if (formulaCreator || !table.isEstimated())
+				pm.addModelLit(li);
+			else
+				pm.addEstModelLit(li);
+		}		
 	}
 
 	private void doLit(LiteratureItem oldLi) {
@@ -903,6 +914,7 @@ public class MMC_M extends JPanel {
 				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
 			}
 		}
+		refreshRefsInPM();
 	}
 
 	private void r2FieldFocusLost(FocusEvent e) {

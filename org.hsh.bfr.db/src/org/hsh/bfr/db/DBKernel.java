@@ -181,6 +181,10 @@ public class DBKernel {
 		else pass = isKNIME || isKrise ? "" : "de6!§5ddy";
 	return pass;
 	}
+	public static void removeAdminInfo(String dbPath) {
+		if (adminU.containsKey(dbPath)) adminU.remove(dbPath);
+		if (adminP.containsKey(dbPath)) adminP.remove(dbPath);
+	}
 	public static String getLanguage() {
 		return !isKNIME && !isKrise ? "de" : "en"; // isKrise || 
 	}

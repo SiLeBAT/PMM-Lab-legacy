@@ -197,6 +197,7 @@ public class Backup extends FileFilter {
 				return result;
 			}  			
   		}
+			DBKernel.removeAdminInfo(path);
 			
 			// Also los!
 			String answerErr = "";

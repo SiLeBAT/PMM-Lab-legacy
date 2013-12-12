@@ -4,9 +4,9 @@ import org.jdom2.Element;
 
 public class XmlHelper {
 
-	private XmlHelper() {		
+	private XmlHelper() {
 	}
-	
+
 	public static String getString(Element el, String attr) {
 		if (el == null || el.getAttributeValue(attr) == null
 				|| el.getAttributeValue(attr).isEmpty()) {
@@ -28,23 +28,28 @@ public class XmlHelper {
 			return null;
 		}
 	}
-	
-	public static String getNonNull(String s) {
-		if (s == null) {
+
+	public static Double getDouble(Element el, String attr) {
+		if (el == null || el.getAttributeValue(attr) == null
+				|| el.getAttributeValue(attr).isEmpty()) {
+			return null;
+		}
+
+		try {
+			return Double.valueOf(el.getAttributeValue(attr));
+		} catch (NumberFormatException e) {
+			return null;
+		}
+	}
+
+	public static String getNonNull(Object o) {
+		if (o == null) {
 			return "";
 		}
 
-		return s;
+		return o.toString();
 	}
 
-	public static String getNonNull(Integer i) {
-		if (i == null) {
-			return "";
-		}
-
-		return i + "";
-	}
-	
 	public static String removeDirt(String toClean) {
 		String cleaned = (toClean == null ? "" : toClean);
 		cleaned = cleaned.toString().replace("&amp;", "&"); // .replace("\n",

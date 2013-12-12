@@ -814,8 +814,7 @@ public class Bfrdb extends Hsqldbiface {
 			return ps.executeQuery();
 		}
 		String selectWhereSQL = selectSQL;
-		int whereIndex = selectSQL.lastIndexOf("WHERE ");
-		if (whereIndex > 0) whereSQL = " AND " + whereSQL.substring(whereSQL.indexOf("WHERE") + 5);
+		if (whereSQL.indexOf("WHERE") >= 0) whereSQL = " AND " + whereSQL.substring(whereSQL.indexOf("WHERE") + 5);
 		int orderIndex = selectSQL.lastIndexOf("ORDER BY "); 
 		if (orderIndex > 0) selectWhereSQL = selectSQL.substring(0, orderIndex) + " " + whereSQL + " " + selectSQL.substring(orderIndex);
 		else selectWhereSQL = selectSQL + " " + whereSQL;
@@ -1388,12 +1387,12 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	private void insertLiteratureInCase(PmmXmlDoc lit) {
 		try {
-			PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\", \"Journal\", \"Volume\", \"Issue\", \"Seite\", \"FreigabeModus\", \"Webseite\", \"Literaturtyp\", \"Kommentar\") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 			int i=0;
 			for (PmmXmlElementConvertable el : lit.getElementSet()) {
 				if (el instanceof LiteratureItem) {
 					LiteratureItem li = (LiteratureItem) el;
-					if (li.getId() <= 0) {
+					if (li.getId() <= 0 || DBKernel.getValue(conn, "Literatur", "ID", ""+li.getId(), "ID") == null) {
+						PreparedStatement psm = conn.prepareStatement("INSERT INTO \"Literatur\" (\"Erstautor\", \"Jahr\", \"Titel\", \"Abstract\", \"Journal\", \"Volume\", \"Issue\", \"Seite\", \"FreigabeModus\", \"Webseite\", \"Literaturtyp\", \"Kommentar\") VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", Statement.RETURN_GENERATED_KEYS);
 						if (li.getAuthor() == null) psm.setNull(1, Types.VARCHAR);
 						else psm.setString(1, li.getAuthor());
 						if (li.getYear() == null) psm.setNull(2, Types.INTEGER);
@@ -1451,11 +1450,11 @@ public class Bfrdb extends Hsqldbiface {
 						else {
 							MyLogger.handleMessage("insertLiteratureInCase failed... " + psm);
 						}
+						psm.close();
 					}
 				}
 				i++;
 			}
-			psm.close();
 		}
 		catch(SQLException ex) {ex.printStackTrace();}
 	}

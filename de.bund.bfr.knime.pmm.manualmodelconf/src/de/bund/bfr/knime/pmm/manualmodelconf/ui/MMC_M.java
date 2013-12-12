@@ -450,6 +450,8 @@ public class MMC_M extends JPanel {
 					newFormula, pm.getDepXml(), pm.getLevel(),
 					MathUtilities.getRandomNegativeInt());
 			newPM.setModelClass(pm.getModelClass());
+			refreshRefsInPM(newPM);
+
 			insertNselectPMintoBox(newPM);
 			parseFormula(pm, newPM);
 			cloneSecondary(pm, newPM);
@@ -678,15 +680,7 @@ public class MMC_M extends JPanel {
 				pm = (ParametricModel) modelNameBox.getSelectedItem();
 			}
 		}
-		pm.removeEstModelLits();
-		pm.removeModelLits();
-		for (int i = 0; i < referencesTable.getRowCount(); i++) {
-			LiteratureItem li = (LiteratureItem) referencesTable.getValueAt(i, 0);
-			if (formulaCreator || !table.isEstimated())
-				pm.addModelLit(li);
-			else
-				pm.addEstModelLit(li);
-		}
+		refreshRefsInPM(pm);
 
 		if (listModel != null && lastSelIndex >= 0
 				&& lastSelIndex < listModel.size()) {
@@ -880,10 +874,9 @@ public class MMC_M extends JPanel {
 
 	private void deleteSelLitRow() {
 		((DefaultTableModel) referencesTable.getModel()).removeRow(referencesTable.getSelectedRow());
-		refreshRefsInPM();
+		refreshRefsInPM(getPM());
 	}
-	private void refreshRefsInPM() {
-		ParametricModel pm = getPM();
+	private void refreshRefsInPM(ParametricModel pm) {
 		pm.removeEstModelLits();
 		pm.removeModelLits();
 		for (int i = 0; i < referencesTable.getRowCount(); i++) {
@@ -914,7 +907,7 @@ public class MMC_M extends JPanel {
 				((DefaultTableModel) referencesTable.getModel()).addRow(vli);
 			}
 		}
-		refreshRefsInPM();
+		refreshRefsInPM(getPM());
 	}
 
 	private void r2FieldFocusLost(FocusEvent e) {

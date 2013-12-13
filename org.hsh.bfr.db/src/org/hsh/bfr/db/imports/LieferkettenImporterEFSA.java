@@ -235,7 +235,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
+				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
 
 				      Integer c1 = null;
 				      Integer c2 = null;
@@ -267,11 +267,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      }
 				      else {
 				      	if (c2 != null) {
-					      	if (c1.intValue() == c2.intValue()) {
-					      		System.err.println("Fehlerchenchen_3!! Row: " + (i+1));
-						      	numFails++;
-					      	}
-					      	else if (getID("ChargenVerbindungen",
+					      	if (getID("ChargenVerbindungen",
 		    							new String[]{"Zutat","Produkt"},
 		    							new String[]{c2.toString(), c1.toString()},
 		    							null) == null) {

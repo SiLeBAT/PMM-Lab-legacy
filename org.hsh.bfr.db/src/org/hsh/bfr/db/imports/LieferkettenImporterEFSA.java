@@ -126,8 +126,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      if (busRow != null) {
 					      nameRec = getStrVal(busRow.getCell(1)); //
 					      streetRec = getStrVal(busRow.getCell(2)); //
-					      streetNoRec = getStrVal(busRow.getCell(3)); //
-					      zipRec = getStrVal(busRow.getCell(4)); //
+					      streetNoRec = getStrVal(busRow.getCell(3), 10); //
+					      zipRec = getStrVal(busRow.getCell(4), 10); //
 					      cityRec = getStrVal(busRow.getCell(5)); //
 					      countyRec = getStrVal(busRow.getCell(6)); 
 					      countryRec = getStrVal(busRow.getCell(7)); // 
@@ -171,8 +171,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      if (busRow != null) {
 					      nameInsp = getStrVal(busRow.getCell(1)); //
 					      streetInsp = getStrVal(busRow.getCell(2)); //
-					      streetNoInsp = getStrVal(busRow.getCell(3)); //
-					      zipInsp = getStrVal(busRow.getCell(4)); //
+					      streetNoInsp = getStrVal(busRow.getCell(3), 10); //
+					      zipInsp = getStrVal(busRow.getCell(4), 10); //
 					      cityInsp = getStrVal(busRow.getCell(5)); //
 					      countyInsp = getStrVal(busRow.getCell(6)); 
 					      countryInsp = getStrVal(busRow.getCell(7)); // 
@@ -216,8 +216,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      if (busRow != null) {
 					      nameSup = getStrVal(busRow.getCell(1)); //
 					      streetSup = getStrVal(busRow.getCell(2)); //
-					      streetNoSup = getStrVal(busRow.getCell(3)); //
-					      zipSup = getStrVal(busRow.getCell(4)); //
+					      streetNoSup = getStrVal(busRow.getCell(3), 10); //
+					      zipSup = getStrVal(busRow.getCell(4), 10); //
 					      citySup = getStrVal(busRow.getCell(5)); //
 					      countySup = getStrVal(busRow.getCell(6)); 
 					      countrySup = getStrVal(busRow.getCell(7)); // 
@@ -346,7 +346,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		}
 		return result;
 	}
-  private String getStrVal(HSSFCell cell) {
+	  private String getStrVal(HSSFCell cell) {
+		  return getStrVal(cell, 1023);
+	  }
+	  private String getStrVal(HSSFCell cell, int maxChars) {
   	String result = null;
 		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
 		}
@@ -364,6 +367,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		}
 		else {
 			result = cell.toString();
+		}
+		if (result != null && result.length() > maxChars) {
+			System.err.println("string too long - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars) + "'");
+			result = result.substring(0, maxChars);
 		}
   	return result;
   }

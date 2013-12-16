@@ -50,7 +50,7 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void check4Updates_173_174() {	
+	public static void check4Updates_174_175() {
 		// Tonne in die Einnheitentabelle rein...
 		/*
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
@@ -63,6 +63,15 @@ public class UpdateChecker {
 					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
 					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
 		 */
+	}
+	public static void check4Updates_173_174() {
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("CasePriority") + " DOUBLE BEFORE " + DBKernel.delimitL("FallErfuellt"), false);
+		updateChangeLog("Station", 19, false);		
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("CasePriority") + "=1 WHERE " + DBKernel.delimitL("FallErfuellt"), false);
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " DROP COLUMN " + DBKernel.delimitL("FallErfuellt"), false);
+		updateChangeLog("Station", 20, true);
+		refreshFKs("Station");
+		DBKernel.doMNs(DBKernel.myList.getTable("Station"));
 	}
 	public static void check4Updates_172_173() {	
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Name") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);

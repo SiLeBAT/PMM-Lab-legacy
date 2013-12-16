@@ -385,8 +385,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		String prodS = prod == null ? null : sdf.format(prod);
 		String deliveryS = delivery == null ? null : sdf.format(delivery);
 		Integer lastID = getID("Station",
-					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","FallErfuellt"},
-					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, (name != null && (name.indexOf("Case") >= 0)) ? "true" : null},
+					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority"},
+					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null},
 					null);
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
@@ -402,9 +402,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						if (lastID != null) {
 							Integer empf = null;
 							if (nameTo != null && !nameTo.trim().isEmpty()) {
+								boolean isCase = nameTo != null && (nameTo.indexOf("Case") >= 0 || name.indexOf("Conf Lot ") >= 0);
 								empf = getID("Station",
-										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","FallErfuellt"},
-										new String[]{nameTo, streetTo, streetNumberTo, zipTo, cityTo, countyTo, countryTo, kindTo, vatTo, (nameTo != null && (nameTo.indexOf("Case") >= 0)) ? "true" : null},
+										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority"},
+										new String[]{isCase ? name : nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? "1" : null},
 										null);
 							}
 							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;

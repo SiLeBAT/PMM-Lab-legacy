@@ -267,7 +267,7 @@ public class Login extends JFrame {
 			else {
 				String dbVersion = DBKernel.getDBVersion();
 				String softwareVersion = DBKernel.DBVersion;
-				if (softwareVersion.equals("1.7.3") && dbVersion.equals("1.7.2")) {
+				if ((softwareVersion.equals("1.7.3") || softwareVersion.equals("1.7.4")) && dbVersion.equals("1.7.2")) {
 					; // only Krisenupdate
 				}
 				else {
@@ -502,6 +502,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.7.2")) {
 					  		UpdateChecker.check4Updates_172_173(); 
 					  		DBKernel.setDBVersion("1.7.3");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.7.3")) {
+					  		UpdateChecker.check4Updates_173_174(); 
+					  		DBKernel.setDBVersion("1.7.4");
 					  	}
 
 						DBKernel.closeDBConnections(false);

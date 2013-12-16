@@ -993,15 +993,15 @@ public class MyDBTables {
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 		
 		MyTable Knoten = new MyTable("Station", new String[]{"Produktkatalog","Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite","Betriebsnummer","Betriebsart","VATnumber","Code",
-				"FallErfuellt","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis"},
+				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
-				"BOOLEAN","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER"},
+				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER"},
 				new String[]{null,null, null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
 				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
-				"Falldefinition erfüllt (z.B. laut RKI)",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null},
+				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null,null,null,null,null,hYNB,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien"});
 		addTable(Knoten, MyList.Lieferketten_LIST);
 /*

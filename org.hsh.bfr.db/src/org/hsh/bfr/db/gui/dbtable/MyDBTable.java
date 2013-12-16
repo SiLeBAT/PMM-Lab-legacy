@@ -994,7 +994,7 @@ if (myDBPanel1 != null) {
 						c.setPreferredWidth(120);
 					} else if (fname.equals("Labornachweis")) {
 						c.setPreferredWidth(80);
-					} else if (fname.equals("FallErfuellt")) {
+					} else if (fname.equals("CasePriority")) {
 						c.setPreferredWidth(80);
 					} else {
 						c.setPreferredWidth(50);

@@ -231,6 +231,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      //String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
 				      String oc = getStrVal(row.getCell(44)); // OriginCountry
 				      String comment = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
+				      if (comment == null) comment = serial; else comment += "\n" + serial;
 				      //String ft = getStrVal(row.getCell(46)); // Further_Traceback
 				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
@@ -402,10 +403,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						if (lastID != null) {
 							Integer empf = null;
 							if (nameTo != null && !nameTo.trim().isEmpty()) {
-								boolean isCase = nameTo != null && (nameTo.indexOf("Case") >= 0 || name.indexOf("Conf Lot ") >= 0);
+								boolean isCase = nameTo != null && (nameTo.indexOf("Case") >= 0 || nameTo.indexOf("Conf Lot ") >= 0);
+								boolean isLot = isCase && nameTo.indexOf("Conf Lot ") >= 0;
 								empf = getID("Station",
 										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority"},
-										new String[]{isCase ? name : nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? "1" : null},
+										new String[]{nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null},
 										null);
 							}
 							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;
@@ -438,7 +440,18 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  //System.err.println(sql);
 		  rs = DBKernel.getResultSet(sql, true);		  
 		  try {
-				if (rs != null && rs.last() && rs.getRow() == 1) result = rs.getInt(1);
+				if (rs != null && rs.last() && rs.getRow() == 1) {
+					result = rs.getInt(1);
+					if (key != null) {
+						int i=0;
+						for (boolean b : key) {
+							if (!b) { // Kommentar in Charge or Delivery
+								sql = "UPDATE " + DBKernel.delimitL(tablename) + " SET " + DBKernel.delimitL(feldnames[i]) + "=IFNULL(CONCAT" + DBKernel.delimitL(feldnames[i]) + ",'\n','" + feldVals[i] + "'),'" + feldVals[i] + "')";
+							}
+							i++;
+						}
+					}
+				}
 
 				if (result == null) {
 					sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";

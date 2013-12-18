@@ -193,8 +193,16 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		for (Plotable plotable : reader.getPlotables().values()) {
 			paramsX.putAll(plotable.getFunctionArguments());
-			categories.putAll(plotable.getCategories());
 			units.putAll(plotable.getUnits());
+
+			for (String param : plotable.getCategories().keySet()) {
+				if (!categories.containsKey(param)) {
+					categories.put(param, new ArrayList<String>());
+				}
+
+				categories.get(param).addAll(
+						plotable.getCategories().get(param));
+			}
 
 			for (String arg : plotable.getMinArguments().keySet()) {
 				Double oldMin = minValues.get(arg);

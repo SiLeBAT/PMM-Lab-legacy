@@ -74,6 +74,7 @@ public class MMC_M extends JPanel {
 
 	private boolean modelNameChangedManually = false;
 	private boolean formulaCreator;
+	private boolean isEditor = false;
 
 	public MMC_M() {
 		this(null, 1, "", false, null);
@@ -81,10 +82,6 @@ public class MMC_M extends JPanel {
 
 	public MMC_M(final Frame parentFrame, final int level,
 			final String paramName, boolean formulaCreator, MMC_TS m_mmcts) {
-		this(parentFrame, level, paramName, formulaCreator, m_mmcts, false);
-	}
-	public MMC_M(final Frame parentFrame, final int level,
-			final String paramName, boolean formulaCreator, MMC_TS m_mmcts, boolean isEditor) {
 		this.m_parentFrame = parentFrame;
 		this.formulaCreator = formulaCreator;
 		this.m_mmcts = m_mmcts;
@@ -798,6 +795,7 @@ public class MMC_M extends JPanel {
 			listModel.addElement(pm);
 		}
 		scrollPane3.setVisible(true);
+		isEditor = true;
 		dontFireList = false;
 		if (listModel.getSize() > 0)
 			list1.setSelectedIndex(0);
@@ -1013,6 +1011,7 @@ public class MMC_M extends JPanel {
 		ParametricModel pm = table.getPM();
 		if (pm != null) {
 			try {
+				if (!isEditor) pm.setEstModelId(MathUtilities.getRandomNegativeInt());
 				pm.setFittedModelName(fittedModelName.getText());
 			} catch (PmmException e1) {
 				e1.printStackTrace();

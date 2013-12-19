@@ -159,7 +159,7 @@ public class CellIO {
 	}
 
 	public static DataCell createCell(Object o) {
-		if (o instanceof String && ((String) o).isEmpty()) {
+		if (o instanceof String && !((String) o).isEmpty()) {
 			return new StringCell((String) o);
 		} else if (o instanceof Integer) {
 			return new IntCell((Integer) o);

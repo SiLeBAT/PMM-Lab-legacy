@@ -136,9 +136,9 @@ public class MMC_TS extends JPanel {
 			cl.add("Temperature");
 			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),cl,tempUnit.getSelectedIndex() >= 0 ? tempUnit.getSelectedItem().toString() : "°C");
 			cl = new ArrayList<String>();cl.add(Categories.getPh());
-			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),cl,Categories.getPhCategory().getStandardUnit());
+			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),cl,Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
 			cl = new ArrayList<String>();cl.add(Categories.getAw());
-			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getStandardUnit());
+			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getAllUnits().toArray(new String[0])[0]);
 	}
 	private void fillFields() {
 		agentField.setText(theTS.getAgentName() == null ? "" : theTS.getAgentName());

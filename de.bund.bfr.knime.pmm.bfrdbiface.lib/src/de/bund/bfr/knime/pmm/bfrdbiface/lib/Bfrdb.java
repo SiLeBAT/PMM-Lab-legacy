@@ -527,43 +527,34 @@ public class Bfrdb extends Hsqldbiface {
 		return ps.executeQuery();
 	}	
 	
-	public KnimeTuple getPrimModelById(int id) throws SQLException {
-		
-		KnimeTuple tuple;
-		PmmXmlDoc doc;
-		String formula;
-		
-		tuple = null;
-		PreparedStatement stat = conn.prepareStatement(
-				queryModelView + " WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?" );
-		try {
-			
-			stat.setInt( 1, id );
+	public KnimeTuple getPrimModelById(int id) throws SQLException {		
+		KnimeTuple tuple = null;
+		PreparedStatement stat = conn.prepareStatement(queryModelView + " WHERE \""+ATT_LEVEL+"\"=1 AND \"Modellkatalog\".\"ID\"=?");
+		try {			
+			stat.setInt(1, id);
 			ResultSet result = stat.executeQuery();
-			try {
-				
-				if( result.next() ) {
+			try {				
+				String dbuuid = getDBUUID();
+				if (result.next()) {
+		    		String formula = result.getString("Formel");
+		    		if (formula != null) formula = formula.replaceAll("~", "=").replaceAll("\\s", "");
 					
-		    		formula = result.getString("Formel");
-		    		if( formula != null )
-						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
-
+					tuple = new KnimeTuple(new Model1Schema());
 					
-					tuple = new KnimeTuple( new Model1Schema() );
-					
-					doc = new PmmXmlDoc();
-					doc.add(
-						new CatalogModelXml(
-							result.getInt( Bfrdb.ATT_MODELID ),
-							result.getString( Bfrdb.ATT_NAME ),
-							formula, null) );
-					tuple.setValue( Model1Schema.ATT_MODELCATALOG, doc );
+					PmmXmlDoc doc = new PmmXmlDoc();
+					CatalogModelXml cm = new CatalogModelXml(
+							result.getInt(Bfrdb.ATT_MODELID),
+							result.getString(Bfrdb.ATT_NAME),
+							formula, null);
+					cm.setDbuuid(dbuuid);
+					doc.add(cm);
+					tuple.setValue(Model1Schema.ATT_MODELCATALOG, doc);
 					
 		    		doc = new PmmXmlDoc();
 		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
 		    		dx.setDescription(result.getString("DepDescription"));
 		    		doc.add(dx);
-		    		tuple.setValue( Model1Schema.ATT_DEPENDENT, doc );
+		    		tuple.setValue(Model1Schema.ATT_DEPENDENT, doc);
 		    		
 		    		tuple.setValue(
 	    				Model1Schema.ATT_INDEPENDENT,
@@ -573,28 +564,28 @@ public class Bfrdb extends Hsqldbiface {
 		    				null,
 		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"), result.getArray("IndepDescription"), true));
 		    		
-		    		tuple.setValue( Model1Schema.ATT_PARAMETER,
+		    		tuple.setValue(Model1Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
     						null,
-    						result.getArray( Bfrdb.ATT_PARAMNAME ),
+    						result.getArray(Bfrdb.ATT_PARAMNAME),
 		    				null,
 		    				null,result.getArray("ParCategory"),
 		    				result.getArray("ParUnit"),null,
-		    				result.getArray( Bfrdb.ATT_MINVALUE ),
-		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
-		    				result.getArray("ParamDescription")) );	
+		    				result.getArray(Bfrdb.ATT_MINVALUE),
+		    				result.getArray(Bfrdb.ATT_MAXVALUE),
+		    				result.getArray("ParamDescription")));	
 		    		
 					doc = new PmmXmlDoc();
-					doc.add( new EstModelXml(
-						null, null, null, null, null, null, null ) );
+					doc.add(new EstModelXml(
+						null, null, null, null, null, null, null));
 					tuple.setValue(Model1Schema.ATT_ESTMODEL, doc);
 					
 					String s = result.getString("LitMID");
 		    		if (s != null)
-						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(  s ) );
+						tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(s));
 					
-		    		tuple.setValue( Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE );
-		    		tuple.setValue( Model1Schema.ATT_DBUUID, getDBUUID() );
+		    		tuple.setValue(Model1Schema.ATT_DATABASEWRITABLE, Model1Schema.WRITABLE);
+		    		tuple.setValue(Model1Schema.ATT_DBUUID, dbuuid);
 				}
 				
 			} finally {
@@ -607,47 +598,37 @@ public class Bfrdb extends Hsqldbiface {
 		return tuple;
 	}
 	
-	public KnimeTuple getSecModelById( int id )throws SQLException {
-		
-		KnimeTuple tuple;
-		PmmXmlDoc doc;
-		String formula;
-		
-
-		
-		tuple = null;
+	public KnimeTuple getSecModelById(int id)throws SQLException {
+		KnimeTuple tuple = null;
 		PreparedStatement stat = conn.prepareStatement(
-				queryModelView + " WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?" );
+				queryModelView + " WHERE \""+ATT_LEVEL+"\"=2 AND \"Modellkatalog\".\"ID\"=?");
 		try {
-			
-			
-			
-			stat.setInt( 1, id );
+			stat.setInt(1, id);
 			ResultSet result = stat.executeQuery();
 			try {
-				
-				if( result.next() ) {
-					
-		    		formula = result.getString("Formel");
-		    		if( formula != null )
-						formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+				String dbuuid = getDBUUID();
+				if (result.next()) {					
+		    		String formula = result.getString("Formel");
+		    		if (formula != null)
+						formula = formula.replaceAll("~", "=").replaceAll("\\s", "");
 
 					
-					tuple = new KnimeTuple( new Model2Schema() );
+					tuple = new KnimeTuple(new Model2Schema());
 					
-					doc = new PmmXmlDoc();
-					doc.add(
-						new CatalogModelXml(
-							result.getInt( Bfrdb.ATT_MODELID ),
-							result.getString( Bfrdb.ATT_NAME ),
-							formula, null) );
-					tuple.setValue( Model2Schema.ATT_MODELCATALOG, doc );
+					PmmXmlDoc doc = new PmmXmlDoc();
+					CatalogModelXml cm = new CatalogModelXml(
+							result.getInt(Bfrdb.ATT_MODELID),
+							result.getString(Bfrdb.ATT_NAME),
+							formula, null);
+					cm.setDbuuid(dbuuid);
+					doc.add(cm);
+					tuple.setValue(Model2Schema.ATT_MODELCATALOG, doc);
 					
 		    		doc = new PmmXmlDoc();
 		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
 		    		dx.setDescription(result.getString("DepDescription"));
 		    		doc.add(dx);
-		    		tuple.setValue( Model2Schema.ATT_DEPENDENT, doc );
+		    		tuple.setValue(Model2Schema.ATT_DEPENDENT, doc);
 		    		
 		    		tuple.setValue(
 	    				Model2Schema.ATT_INDEPENDENT,
@@ -658,28 +639,28 @@ public class Bfrdb extends Hsqldbiface {
 		    				null, result.getArray("IndepCategory"), result.getArray("IndepUnit"),
 		    				result.getArray("IndepDescription"), false));
 		    		
-		    		tuple.setValue( Model2Schema.ATT_PARAMETER,
+		    		tuple.setValue(Model2Schema.ATT_PARAMETER,
 	    				DbIo.convertArrays2ParamXmlDoc(
     						null,
-    						result.getArray( Bfrdb.ATT_PARAMNAME ),
+    						result.getArray( Bfrdb.ATT_PARAMNAME),
 		    				null,
 		    				null,result.getArray("ParCategory"),
 		    				result.getArray("ParUnit"),null,
 		    				result.getArray( Bfrdb.ATT_MINVALUE ),
 		    				result.getArray( Bfrdb.ATT_MAXVALUE ),
-		    				result.getArray("ParamDescription")) );	
+		    				result.getArray("ParamDescription")));	
 		    		
 					doc = new PmmXmlDoc();
 					doc.add( new EstModelXml(
-						null, null, null, null, null, null, null ) );
+						null, null, null, null, null, null, null));
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, doc);
 					
 					String s = result.getString("LitMID");
 		    		if (s != null)
-						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(  s ) );
+						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
 					
-		    		tuple.setValue( Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE );
-		    		tuple.setValue( Model2Schema.ATT_DBUUID, getDBUUID() );
+		    		tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE, Model2Schema.WRITABLE);
+		    		tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
 				}
 				
 			} finally {

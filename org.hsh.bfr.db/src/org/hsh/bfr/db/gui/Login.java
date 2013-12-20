@@ -267,10 +267,12 @@ public class Login extends JFrame {
 			else {
 				String dbVersion = DBKernel.getDBVersion();
 				String softwareVersion = DBKernel.DBVersion;
+				/*
 				if ((softwareVersion.equals("1.7.3") || softwareVersion.equals("1.7.4")) && dbVersion.equals("1.7.2")) {
 					; // only Krisenupdate
 				}
 				else {
+				*/
 					VersionComprator cmp = new VersionComprator();
 					int result = cmp.compare(dbVersion, softwareVersion);
 					if (result != 0) {
@@ -281,7 +283,7 @@ public class Login extends JFrame {
 						ib.setVisible(true);
 						return null;
 					}
-				}
+				//}
 			}
 			
 			// Passwort ändern
@@ -506,6 +508,10 @@ public class Login extends JFrame {
 					  	if (DBKernel.getDBVersion().equals("1.7.3")) {
 					  		UpdateChecker.check4Updates_173_174(); 
 					  		DBKernel.setDBVersion("1.7.4");
+					  	}
+					  	if (DBKernel.getDBVersion().equals("1.7.4")) {
+					  		UpdateChecker.check4Updates_174_175(); 
+					  		DBKernel.setDBVersion("1.7.5");
 					  	}
 
 						DBKernel.closeDBConnections(false);

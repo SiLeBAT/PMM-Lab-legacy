@@ -50,7 +50,7 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
-	public static void check4Updates_174_175() {
+	public static void check4Updates_175_176() {
 		// Tonne in die Einnheitentabelle rein...
 		/*
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
@@ -63,6 +63,14 @@ public class UpdateChecker {
 					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
 					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
 		 */
+	}
+	public static void check4Updates_174_175() {
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("ParamView") + ";", false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_175.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_175.sql", null, false);
+		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_175.sql", null, false);
 	}
 	public static void check4Updates_173_174() {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("CasePriority") + " DOUBLE BEFORE " + DBKernel.delimitL("FallErfuellt"), false);

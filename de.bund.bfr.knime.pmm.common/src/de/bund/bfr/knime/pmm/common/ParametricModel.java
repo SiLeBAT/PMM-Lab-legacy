@@ -691,6 +691,28 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelLit.add(item);
 	}
 	
+	public Double getParamP(final String paramName) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(paramName)) {
+					return px.getP();
+				}
+			}
+		}
+		return null;
+	}
+	public Double getParamT(final String paramName) {
+		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
+			if (el instanceof ParamXml) {
+				ParamXml px = (ParamXml) el;
+				if (px.getName().equals(paramName)) {
+					return px.gett();
+				}
+			}
+		}
+		return null;
+	}
 	public Double getParamValue( final String paramName ) {
 		for (PmmXmlElementConvertable el : parameter.getElementSet()) {
 			if (el instanceof ParamXml) {
@@ -950,7 +972,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	
 	@Override
 	public Element toXmlElement() {
-		Element modelElement = new Element( ELEMENT_PARAMETRICMODEL );
+		Element modelElement = new Element(ELEMENT_PARAMETRICMODEL);
 		modelElement.setAttribute( ATT_MODELNAME, modelName );
 		modelElement.setAttribute( ATT_MODELCLASS, XmlHelper.getNonNull(modelClass) );
 		modelElement.setAttribute("FittedModelName", fittedModelName == null ? "" : fittedModelName);

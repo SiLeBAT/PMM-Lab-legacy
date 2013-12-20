@@ -378,7 +378,7 @@ if (true) return null;
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-								db.insertEm(spm);
+								db.insertEm(spm, ppm);
 								foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();

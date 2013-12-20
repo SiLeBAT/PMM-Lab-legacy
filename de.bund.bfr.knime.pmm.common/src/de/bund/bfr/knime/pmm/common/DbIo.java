@@ -1,6 +1,7 @@
 package de.bund.bfr.knime.pmm.common;
 
 import java.sql.Array;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
@@ -84,7 +85,7 @@ public class DbIo {
 		return tsDoc;    	
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
-    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc) {
+    		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc, Array P, Array t, Integer modelId, Integer emid) {
 		PmmXmlDoc paramDoc = new PmmXmlDoc();
 	    if (name != null) {
 		    try {
@@ -97,6 +98,8 @@ public class DbIo {
 				Object[] mi = (Object[])min.getArray();
 				Object[] ma = (Object[])max.getArray();
 				Object[] cd = (Object[])desc.getArray();
+				Object[] cp = (P == null) ? null : (Object[])P.getArray();
+				Object[] ct = (t == null) ? null : (Object[])t.getArray();
 				if (na != null && na.length > 0) {
 					for (int i=0;i<na.length;i++) {
 						String nas = na[i].toString();
@@ -129,6 +132,9 @@ public class DbIo {
 						ParamXml px = new ParamXml(onas,vad,erd,mid,mad,null,null,cc==null?null:(String) cc[i],cu==null?null:(String) cu[i]);
 						px.setName(nas);
 						if (cd != null && cd[i] != null) px.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
+						if (cp != null && cp[i] != null) px.setP(Double.parseDouble(cp[i].toString()));
+						if (ct != null && ct[i] != null) px.sett(Double.parseDouble(ct[i].toString()));
+						if (emid != null) px = addCorrs(px, modelId, emid);
 						paramDoc.add(px);
 					}					
 				}
@@ -138,6 +144,21 @@ public class DbIo {
 			}
 	    }
 		return paramDoc;
+    }
+    private static ParamXml addCorrs(ParamXml px, int modelId, int emid) throws SQLException {
+		Integer paramId = DBKernel.getID("ModellkatalogParameter", new String[]{"Modell", "Parametername", "Parametertyp"}, new String[]{modelId+"", px.getOrigName(), "2"}); // Bfrdb.PARAMTYPE_PARAM
+		if (paramId == null) System.err.println("paramId = null... " + px.getOrigName());
+		Integer estParamId = DBKernel.getID("GeschaetzteParameter", new String[]{"GeschaetztesModell", "Parameter"}, new String[]{emid+"", paramId+""});
+    	ResultSet rs = DBKernel.getResultSet("SELECT \"param2\",\"Wert\" FROM \"GeschaetzteParameterCovCor\" WHERE \"param1\" = " + estParamId + " AND \"GeschaetztesModell\" = " + emid, false);
+    	if (rs != null && rs.first()) {
+    		do {
+    			int estParam2Id = rs.getInt("param2");
+    			Object param2 = DBKernel.getValue(null,"GeschaetzteParameter", new String[]{"GeschaetztesModell", "ID"}, new String[]{emid+"", estParam2Id+""}, "Parameter");
+    			Object o = DBKernel.getValue(null,"ModellkatalogParameter", new String[]{"Modell", "ID", "Parametertyp"}, new String[]{modelId+"", param2+"", "2"}, "Parametername");
+    	    	if (o != null && rs.getObject("Wert") != null) px.addCorrelation(o.toString(), rs.getDouble("Wert"));
+    		} while(rs.next());
+    	}
+    	return px;
     }
     public static PmmXmlDoc convertArrays2IndepXmlDoc(LinkedHashMap<String, String> varMap, Array name, Array min, Array max, Array categories, Array units, Array desc, boolean isPrimary) {
 		PmmXmlDoc indepDoc = new PmmXmlDoc();

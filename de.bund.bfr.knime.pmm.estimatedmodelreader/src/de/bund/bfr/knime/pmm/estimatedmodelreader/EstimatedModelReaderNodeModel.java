@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.estimatedmodelreader;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -263,9 +264,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m1
     		String formula = result.getString("Formel");
-    		if( formula != null ) {
-				formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
-			}
+    		if (formula != null) formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
 
     		// Time=t,Log10C=LOG10N
     		LinkedHashMap<String, String> varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO));
@@ -296,7 +295,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		else {
     			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
     		}
-			dx.setDescription(result.getString("DepDescription"));
+    		Array a = result.getArray("DepDescription");
+    		Object[] da = (Object[])a.getArray();
+			if (da != null && da[0] != null) dx.setDescription(da[0].toString());
     		depDoc.add(dx);
     		tuple.setValue(Model1Schema.ATT_DEPENDENT, depDoc);
 			if (emrnm != null && (dx.getUnit() == null || dx.getUnit().isEmpty())) addWarningMsg += "\nUnit not defined for dependant variable '" + dx.getName() + "' in model with ID " + cmx.getId() + "!";
@@ -327,7 +328,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME),
     				result.getArray(Bfrdb.ATT_VALUE), result.getArray("ZeitEinheit"), null, result.getArray("Einheiten"), result.getArray("StandardError"), result.getArray(Bfrdb.ATT_MIN),
-    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription")));
+    				result.getArray(Bfrdb.ATT_MAX), result.getArray("ParamDescription"), result.getArray("ParamP"), result.getArray("Paramt"), cmx.getId(), emid));
     		
     		String s = result.getString("LitMID");
     		if (s != null) tuple.setValue(Model1Schema.ATT_MLIT, getLiterature(conn, s));
@@ -340,34 +341,51 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		// fill m2
     		if (level == 2) {
         		formula = result.getString("Formel2" );
-	    		if( formula != null ) {
-					formula = formula.replaceAll( "~", "=" ).replaceAll( "\\s", "" );
+	    		if (formula != null) {
+					formula = formula.replaceAll("~", "=").replaceAll("\\s", "");
 				}
-        		varMap = DbIo.getVarParMap(result.getString( Bfrdb.ATT_VARMAPTO+"2" ));
-        		for( String to : varMap.keySet() )	{
-        			formula = MathUtilities.replaceVariable( formula, varMap.get( to ), to );
+        		varMap = DbIo.getVarParMap(result.getString(Bfrdb.ATT_VARMAPTO+"2"));
+        		for (String to : varMap.keySet())	{
+        			formula = MathUtilities.replaceVariable(formula, varMap.get(to), to);
         		}
 
     			cmDoc = new PmmXmlDoc();
     			cmx = new CatalogModelXml(result.getInt(Bfrdb.ATT_MODELID+"2"), result.getString(Bfrdb.ATT_NAME+"2"), formula, null); 
         		cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID+"2")+"", "Klasse");
         		cmx.setModelClass((Integer) cls);
-    			cmDoc.add(cmx);
-    			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
+    			   			
+	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID+"2");
 	    		depDoc = new PmmXmlDoc();
 	    		dep = result.getString(Bfrdb.ATT_DEP+"2");
 	    		if (varMap.containsKey(dep)) {
-	    			dx = new DepXml(varMap.get(dep), result.getString("DepCategory"), result.getString("DepUnit"));
+	    			dx = new DepXml(varMap.get(dep), result.getString("DepCategory2"), result.getString("DepUnit2"));
 	    			dx.setName(dep);
 	    		}
 	    		else {
-	    			dx = new DepXml(dep, result.getString("DepCategory"), result.getString("DepUnit"));
+	    			dx = new DepXml(dep, result.getString("DepCategory2"), result.getString("DepUnit2"));
 	    		}
-    			dx.setDescription(result.getString("DepDescription"));
+	    		if (!varMap.containsKey(dep)) {
+		    		Object responseId = DBKernel.getValue("GeschaetzteModelle", "ID", ""+emid, "Response");
+		    		if (responseId != null) {
+		    			Object pname = DBKernel.getValue("ModellkatalogParameter", "ID", ""+responseId, "Parametername");
+		    			if (pname != null) {
+	    					formula = MathUtilities.replaceVariable(formula, dep, pname.toString());
+	    					cmx.setFormula(formula);
+		    				dx.setName(pname.toString());
+		    			}
+		    		}
+	    		}
+	    		//dx.setName(dep);
+	    		a = result.getArray("DepDescription2");
+	    		da = (Object[])a.getArray();
+				if (da != null && da[0] != null) dx.setDescription(da[0].toString());
+    			//dx.setDescription(result.getString("DepDescription"));
 	    		depDoc.add(dx);
 	    		tuple.setValue(Model2Schema.ATT_DEPENDENT, depDoc);
-	    		
-	    		emid = result.getInt(Bfrdb.ATT_ESTMODELID+"2");
+
+    			cmDoc.add(cmx);
+    			tuple.setValue(Model2Schema.ATT_MODELCATALOG, cmDoc);
+
 				emDoc = new PmmXmlDoc();
 		    	rms = null;
 				if (result.getObject(Bfrdb.ATT_RMS+"2") != null) rms = result.getDouble(Bfrdb.ATT_RMS+"2");
@@ -388,7 +406,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    				result.getArray("IndepUnit2"), result.getArray("IndepDescription2"), false));
 	    		tuple.setValue(Model2Schema.ATT_PARAMETER, DbIo.convertArrays2ParamXmlDoc(varMap, result.getArray(Bfrdb.ATT_PARAMNAME+"2"),
 	    				result.getArray(Bfrdb.ATT_VALUE+"2"), result.getArray("ZeitEinheit2"), null, result.getArray("Einheiten2"), result.getArray("StandardError2"), result.getArray(Bfrdb.ATT_MIN+"2"),
-	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2")));
+	    				result.getArray(Bfrdb.ATT_MAX+"2"), result.getArray("ParamDescription2"), result.getArray("ParamP2"), result.getArray("Paramt2"), cmx.getId(), emid));
 
 	    		s = result.getString("LitMID2");
 	    		if (s != null) tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(conn, s));

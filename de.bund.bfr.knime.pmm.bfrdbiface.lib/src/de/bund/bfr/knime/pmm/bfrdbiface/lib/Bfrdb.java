@@ -1059,10 +1059,10 @@ public class Bfrdb extends Hsqldbiface {
 		}
 		catch( SQLException ex ) { ex.printStackTrace(); }
 	}
-	public Integer insertEm(final ParametricModel pm) { // , HashMap<String, String> hm
-		return insertEm(pm, null);
+	public Integer insertEm(final ParametricModel pm, Integer workflowID) { // , HashMap<String, String> hm
+		return insertEm(pm, workflowID, null);
 	}
-	public Integer insertEm(final ParametricModel pm, final ParametricModel ppm) { // , HashMap<String, String> hm
+	public Integer insertEm(final ParametricModel pm, Integer workflowID, final ParametricModel ppm) { // , HashMap<String, String> hm
 		Integer estModelId = null;
 
 		Double rms = pm.getRms();
@@ -1083,9 +1083,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-				updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore());
+				updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID);
 			} else {
-				estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore());
+				estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID);
 				pm.setEstModelId(estModelId);
 			}
 			
@@ -2069,9 +2069,9 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private void updateEstModel( final int estModelId, String name, final int condId, final int modelId,
-		final double rms, final double rsquared, final double aic, final double bic, final int responseId, Integer qualityScore) {
+		final double rms, final double rsquared, final double aic, final double bic, final int responseId, Integer qualityScore, Integer workflowID) {
 		try {			
-			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=? WHERE \"ID\"=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -2114,7 +2114,12 @@ public class Bfrdb extends Hsqldbiface {
 			else {
 				ps.setInt(9, qualityScore);
 			}
-			ps.setInt(10, estModelId);
+			if (workflowID != null && workflowID > 0) {
+				ps.setInt(10, workflowID);
+			} else {
+				ps.setNull(10, Types.INTEGER);
+			}
+			ps.setInt(11, estModelId);
 			
 			ps.executeUpdate();
 			ps.close();
@@ -2123,10 +2128,10 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private int insertEstModel(String name, final int condId, final int modelId, final Double rms,
-		final Double rsquared, final Double aic, final Double bic, final int responseId, Integer qualityScore) {		
+		final Double rsquared, final Double aic, final Double bic, final int responseId, Integer qualityScore, Integer workflowID) {		
 		int ret = -1;
 		try {			
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -2168,6 +2173,11 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			else {
 				ps.setInt(9, qualityScore);
+			}
+			if (workflowID != null && workflowID > 0) {
+				ps.setInt(10, workflowID);
+			} else {
+				ps.setNull(10, Types.INTEGER);
 			}
 			
 			ps.executeUpdate();

@@ -34,11 +34,17 @@
 package de.bund.bfr.knime.pmm.estimatedmodelwriter;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
@@ -51,6 +57,8 @@ import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeModel;
 import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
+import org.knime.core.node.workflow.NodeContainer;
+import org.knime.core.node.workflow.WorkflowManager;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
@@ -147,6 +155,7 @@ if (true) return null;
 		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
 		boolean M1Writable = false, M2Writable = false;
 		String warnings = "";
+		Integer wfID = saveWF(exec);
 		while (reader.hasMoreElements()) {
     		exec.setProgress( ( double )j++/n );
 
@@ -271,7 +280,7 @@ if (true) return null;
 						String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 						foreignDbIds = checkIDs(conn, true, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
-						newPrimEstID = db.insertEm(ppm);
+						newPrimEstID = db.insertEm(ppm, wfID);
 						foreignDbIds = checkIDs(conn, false, dbuuid, row, ppm, foreignDbIds, attrs, dbTablenames, row.getString(Model1Schema.ATT_DBUUID));
 
 						if (newPrimEstID != null) {
@@ -378,7 +387,7 @@ if (true) return null;
 								String[] dbTablenames = new String[] {"GeschaetzteModelle", "Literatur"};
 
 								foreignDbIds = checkIDs(conn, true, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
-								db.insertEm(spm, ppm);
+								db.insertEm(spm, wfID, ppm);
 								foreignDbIds = checkIDs(conn, false, dbuuid, row, spm, foreignDbIds, attrs, dbTablenames, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedEModel.put(rowEstM2ID, spm.clone());
 								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
@@ -457,6 +466,74 @@ if (true) return null;
 			foreignDbIds.put(dbuuid, d);
 		}    	
 		return foreignDbIds;
+    }
+    
+    private Integer saveWF(final ExecutionContext exec) throws Exception {
+    	Integer result = null;
+        for (NodeContainer nc : WorkflowManager.ROOT.getNodeContainers()) {
+            if (nc instanceof WorkflowManager) {
+                WorkflowManager wfm = (WorkflowManager)nc;
+                for (EstimatedModelWriterNodeModel m : wfm.findNodes(EstimatedModelWriterNodeModel.class, true).values()) {
+                    if (m == this) {
+                        File wfdir = wfm.getWorkingDir().getFile();
+                        wfm.save(wfdir, exec, true);
+                        String wfname = wfdir.getName();
+                        String zipfile = System.getProperty("java.io.tmpdir") + "/" + wfname + "_" + System.currentTimeMillis() + ".zip";
+                        zipDirectory(wfdir, zipfile);
+                        
+                        String sql = "INSERT INTO " + DBKernel.delimitL("PMMLabWorkflows") + " (" + DBKernel.delimitL("Workflow") + ") VALUES ('" + wfname + "');";
+                    	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            	  	    if (psmt.executeUpdate() > 0) {
+            	  	    	result = DBKernel.getLastInsertedID(psmt);
+                        	File zipFile = new File(zipfile);
+            	  	    	DBKernel.insertBLOB("PMMLabWorkflows", "Workflow", zipFile, result);
+            	  	    }
+            	  	    psmt.close();
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    private void zipDirectory(File dir, String zipDirName) {
+        try {
+        	List<String> filesListInDir = populateFilesList(null, dir);
+            //now zip files one by one
+            //create ZipOutputStream to write to the zip file
+            FileOutputStream fos = new FileOutputStream(zipDirName);
+            ZipOutputStream zos = new ZipOutputStream(fos);
+            for(String filePath : filesListInDir){
+                //for ZipEntry we need to keep only relative file path, so we used substring on absolute path
+                ZipEntry ze = new ZipEntry(filePath.substring(dir.getParentFile().getAbsolutePath().length()+1, filePath.length()));
+                zos.putNextEntry(ze);
+                //read the file and write to ZipOutputStream
+                FileInputStream fis = new FileInputStream(filePath);
+                byte[] buffer = new byte[1024];
+                int len;
+                while ((len = fis.read(buffer)) > 0) {
+                    zos.write(buffer, 0, len);
+                }
+                zos.closeEntry();
+                fis.close();
+            }
+            zos.close();
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private List<String> populateFilesList(List<String> filesListInDir, File dir) throws IOException {
+    	if (filesListInDir == null) filesListInDir = new ArrayList<String>();
+        File[] files = dir.listFiles();
+        for(File file : files) {
+            if (file.isFile()) {
+            	if (!file.getName().equals(".knimeLock")) filesListInDir.add(file.getAbsolutePath());
+            }
+            else {
+            	filesListInDir = populateFilesList(filesListInDir, file);
+            }
+        }
+        return filesListInDir;
     }
 
     /**

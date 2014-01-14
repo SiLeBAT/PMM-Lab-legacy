@@ -13,6 +13,7 @@
     
     <ports>
         <inPort index="0" name="Secondary model and parameters">Secondary model and parameters (e.g. from the Model Fitting node or the Fitted Model Reader node)</inPort>
+        <outPort index="0" name="Selected models graph">Graph containing selected secondary model</outPort>
     </ports>    
     <views>
         <view index="0" name="Secondary Models and Parameters"><br></br>

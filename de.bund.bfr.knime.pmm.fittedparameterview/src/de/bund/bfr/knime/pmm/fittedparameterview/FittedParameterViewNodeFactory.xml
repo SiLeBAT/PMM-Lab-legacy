@@ -16,6 +16,7 @@
     
     <ports>
         <inPort index="0" name="Models/microbial data">Primary and secondary models as well as microbial data (e.g. from the Model Fitting node)</inPort>
+        <outPort index="0" name="Fitted Parameter Graph">Graph containing selected secondary model</outPort>
     </ports>
     <views>
         <view index="0" name="Fitted Parameters and experimental conditions"><br></br>

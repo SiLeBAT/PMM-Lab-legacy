@@ -385,7 +385,15 @@ public class MathUtilities {
 		String cond = getBoundaryCondition(formula);
 
 		if (cond != null) {
-			return formula.replace("*(((((" + cond + ")))))", "");
+			String f = formula.replace("*(((((" + cond + ")))))", "");
+
+			int i = f.indexOf("=");
+
+			if (f.charAt(i + 1) == '(' && f.endsWith(")")) {
+				f = f.substring(0, i + 1) + f.substring(i + 2, f.length() - 1);
+			}
+
+			return f;
 		} else {
 			return formula;
 		}
@@ -393,7 +401,10 @@ public class MathUtilities {
 
 	public static String getFormula(String formula, String boundaryCondition) {
 		if (boundaryCondition != null && !boundaryCondition.isEmpty()) {
-			return formula + "*(((((" + boundaryCondition + ")))))";
+			int i = formula.indexOf("=");
+
+			return formula.substring(0, i + 1) + "(" + formula.substring(i + 1)
+					+ ")*(((((" + boundaryCondition + ")))))";
 		} else {
 			return formula;
 		}

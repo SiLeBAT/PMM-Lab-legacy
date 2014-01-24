@@ -107,6 +107,7 @@ public class SecondaryEstimationThread implements Runnable {
 			Map<String, List<Double>> depVarMap = new LinkedHashMap<String, List<Double>>();
 			Map<String, Map<String, List<Double>>> miscMaps = new LinkedHashMap<String, Map<String, List<Double>>>();
 			Set<String> ids = new LinkedHashSet<String>();
+			Map<Integer, Integer> globalIds = new LinkedHashMap<Integer, Integer>();
 
 			for (String param : miscParams) {
 				miscMaps.put(param, new LinkedHashMap<String, List<Double>>());
@@ -119,6 +120,11 @@ public class SecondaryEstimationThread implements Runnable {
 						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0);
 				String id = depXml.getName() + " (" + primModelXml.getId()
 						+ ")";
+
+				if (!globalIds.containsKey(primModelXml.getId())) {
+					globalIds.put(primModelXml.getId(),
+							MathUtilities.getRandomNegativeInt());
+				}
 
 				if (ids.add(id)) {
 					depVarMap.put(id, new ArrayList<Double>());
@@ -357,6 +363,8 @@ public class SecondaryEstimationThread implements Runnable {
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, estModelMap.get(id));
 				tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 						Model2Schema.WRITABLE);
+				tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+						globalIds.get(primModelXml.getId()));
 
 				container.addRowToTable(tuple);
 			}

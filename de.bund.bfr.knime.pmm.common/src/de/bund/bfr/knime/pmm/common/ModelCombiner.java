@@ -82,8 +82,7 @@ public class ModelCombiner {
 		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<Integer, Map<String, Integer>>();
 
 		for (KnimeTuple tuple : tuples) {
-			int modelId = ((CatalogModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+			int modelId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 
 			if (!paramValueSums.containsKey(modelId)) {
 				Map<String, Double> sums = new LinkedHashMap<String, Double>();
@@ -315,8 +314,8 @@ public class ModelCombiner {
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
-			int id = ((CatalogModelXml) tupleCombinations.get(tuple).get(0)
-					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId();
+			int id = tupleCombinations.get(tuple).get(0)
+					.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
 			PmmXmlDoc paramXml = tuple.getPmmXml(Model1Schema.ATT_PARAMETER);
 			Map<String, Double> sums = paramValueSums.get(id);
 			Map<String, Integer> counts = paramCounts.get(id);

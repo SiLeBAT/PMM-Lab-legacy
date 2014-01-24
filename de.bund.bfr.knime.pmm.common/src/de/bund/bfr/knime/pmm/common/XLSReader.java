@@ -441,6 +441,7 @@ public class XLSReader {
 				break;
 			}
 
+			int globalID = MathUtilities.getRandomNegativeInt();
 			KnimeTuple dataTuple = new KnimeTuple(
 					SchemaFactory.createDataSchema());
 			Row row = s.getRow(rowNumber);
@@ -685,6 +686,8 @@ public class XLSReader {
 					secTuple.setValue(Model2Schema.ATT_DEPENDENT, secDepXml);
 					secTuple.setValue(Model2Schema.ATT_ESTMODEL, secEstXml);
 					secTuple.setValue(Model2Schema.ATT_INDEPENDENT, secIndepXml);
+					secTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+							globalID);
 
 					tuples.put(
 							index + "",

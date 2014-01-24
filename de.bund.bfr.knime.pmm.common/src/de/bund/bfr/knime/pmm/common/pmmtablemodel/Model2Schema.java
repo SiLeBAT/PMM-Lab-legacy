@@ -51,6 +51,8 @@ public class Model2Schema extends KnimeSchema {
 
 	public static final String ATT_DATABASEWRITABLE = getAttribute(Model1Schema.ATT_DATABASEWRITABLE, 2);
 	public static final String ATT_DBUUID = getAttribute(Model1Schema.ATT_DBUUID, 2);
+	
+	public static final String ATT_GLOBAL_MODEL_ID = "GlobalModelID";
 
 	public static final int WRITABLE = 1;
 	public static final int NOTWRITABLE = 0;
@@ -79,7 +81,8 @@ public class Model2Schema extends KnimeSchema {
 			addXmlAttribute(ATT_EMLIT);
 			
 			addIntAttribute( ATT_DATABASEWRITABLE );
-			addStringAttribute( ATT_DBUUID );					
+			addStringAttribute( ATT_DBUUID );	
+			addIntAttribute(ATT_GLOBAL_MODEL_ID);
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace( System.err );

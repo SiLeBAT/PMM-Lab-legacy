@@ -329,6 +329,8 @@ public class CombinedJoiner implements Joiner {
 			modelTuple.setValue(Model2Schema.ATT_INDEPENDENT, newIndepVarSec);
 			modelTuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
+			modelTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+					MathUtilities.getRandomNegativeInt());
 
 			KnimeRelationReader dataReader = new KnimeRelationReader(
 					SchemaFactory.createDataSchema(), dataTable);

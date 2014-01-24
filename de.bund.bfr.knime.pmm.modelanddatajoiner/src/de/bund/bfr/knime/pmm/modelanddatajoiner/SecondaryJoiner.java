@@ -263,6 +263,8 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 		assignmentsMap = XmlConverter.xmlToObject(assignments,
 				new LinkedHashMap<String, List<Map<String, String>>>());
 
+		Map<Integer, Integer> globalIds = new LinkedHashMap<Integer, Integer>();
+
 		for (String model : assignmentsMap.keySet()) {
 			for (Map<String, String> replace : assignmentsMap.get(model)) {
 				KnimeRelationReader modelReader = new KnimeRelationReader(
@@ -427,6 +429,14 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 								newIndepVarsSec);
 						tuple.setValue(Model2Schema.ATT_DATABASEWRITABLE,
 								Model2Schema.NOTWRITABLE);
+
+						if (!globalIds.containsKey(id)) {
+							globalIds.put(id,
+									MathUtilities.getRandomNegativeInt());
+						}
+
+						tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID,
+								globalIds.get(id));
 
 						buf.addRowToTable(tuple);
 					}

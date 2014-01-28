@@ -37,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.DBKernel;
@@ -64,6 +65,7 @@ import de.bund.bfr.knime.pmm.common.PmmTimeSeries;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 /**
  * This is the model implementation of TimeSeriesReader.
@@ -212,12 +214,12 @@ CellIO.tttxcmldoc = 0;
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_PH);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPh()),Categories.getPhCategory().getStandardUnit());
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,null,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAw()),Categories.getAwCategory().getStandardUnit());
         			miscDoc.add(mx);
         		}
         		tuple.addMiscs(miscDoc);

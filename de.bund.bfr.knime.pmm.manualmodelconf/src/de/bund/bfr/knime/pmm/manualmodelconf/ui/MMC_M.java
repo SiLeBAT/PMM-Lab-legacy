@@ -106,7 +106,8 @@ public class MMC_M extends JPanel {
 		scrollPane3.setVisible(false); // List1
 			
 		if (formulaCreator) {
-			label8.setVisible(false);
+			label11.setVisible(false);
+			label10.setVisible(false);
 			label3.setVisible(false);
 			label4.setVisible(false);
 			label5.setVisible(false);
@@ -1042,24 +1043,27 @@ public class MMC_M extends JPanel {
 			Bfrdb db = new Bfrdb(m_conn);
 			ResultSet result = db.selectModel(level);
 			while (result.next()) {
-				String modelName = result.getString(Bfrdb.ATT_NAME);
-				String formula = result.getString("Formel");
 				int modelID = result.getInt(Bfrdb.ATT_MODELID);
-				String depDesc = result.getString("DepDescription");
+				Object visible = DBKernel.getValue(db.getConnection(), "Modellkatalog", "ID", ""+modelID, "visible");
+				if (visible == null || (visible instanceof Boolean && (Boolean) visible)) {					
+					String modelName = result.getString(Bfrdb.ATT_NAME);
+					String formula = result.getString("Formel");
+					String depDesc = result.getString("DepDescription");
 
-	    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
-				dx.setDescription(depDesc);
-				pm = new ParametricModel(modelName, formula, dx, level, modelID);
-				pm.setModelClass(result.getInt("Klasse"));
-				pm.setDepDescription(depDesc);
-				String s = result.getString("LitMID");
-				if (s != null) pm.setMLit(db.getLiteratureXml(s));
-				manageDBMinMax(result, pm);
-				manageIndep(pm, result);
+		    		DepXml dx = new DepXml(result.getString(Bfrdb.ATT_DEP), result.getString("DepCategory"), result.getString("DepUnit"));
+					dx.setDescription(depDesc);
+					pm = new ParametricModel(modelName, formula, dx, level, modelID);
+					pm.setModelClass(result.getInt("Klasse"));
+					pm.setDepDescription(depDesc);
+					String s = result.getString("LitMID");
+					if (s != null) pm.setMLit(db.getLiteratureXml(s));
+					manageDBMinMax(result, pm);
+					manageIndep(pm, result);
 
-				modelNameBox.addItem(pm);
-				// System.err.println("added2:" + pm + "\t" +
-				// pm.hashCode());
+					modelNameBox.addItem(pm);
+					// System.err.println("added2:" + pm + "\t" +
+					// pm.hashCode());
+				}
 			}
 			result.getStatement().close();
 			result.close();
@@ -1089,7 +1093,6 @@ public class MMC_M extends JPanel {
 	@SuppressWarnings({ "deprecation", "serial" })
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
-		// Generated using JFormDesigner Evaluation license - Christian Thoens
 		depVarLabel = new JLabel();
 		scrollPane3 = new JScrollPane();
 		list1 = new JList<ParametricModel>();
@@ -1177,14 +1180,6 @@ public class MMC_M extends JPanel {
 		setBorder(new CompoundBorder(
 			new TitledBorder("Model Properties"),
 			Borders.DLU2_BORDER));
-
-		// JFormDesigner evaluation mark
-		setBorder(new javax.swing.border.CompoundBorder(
-			new javax.swing.border.TitledBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 0),
-				"JFormDesigner Evaluation", javax.swing.border.TitledBorder.CENTER,
-				javax.swing.border.TitledBorder.BOTTOM, new java.awt.Font("Dialog", java.awt.Font.BOLD, 12),
-				java.awt.Color.red), getBorder())); addPropertyChangeListener(new java.beans.PropertyChangeListener(){public void propertyChange(java.beans.PropertyChangeEvent e){if("border".equals(e.getPropertyName()))throw new RuntimeException();}});
-
 		setLayout(new FormLayout(
 			"4*(default, $lcgap), default:grow, 2*($lcgap, default), $lcgap, default:grow, 2*($lcgap, default), $lcgap, default:grow",
 			"default, $rgap, default, $ugap, 2*(default, $pgap), default, $lgap, 2*(default, $ugap), default, $lgap, default, $ugap, default, $lgap, fill:default:grow, 1dlu, default, $pgap, default"));
@@ -1566,7 +1561,6 @@ public class MMC_M extends JPanel {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-	// Generated using JFormDesigner Evaluation license - Christian Thoens
 	private JLabel depVarLabel;
 	private JScrollPane scrollPane3;
 	private JList<ParametricModel> list1;

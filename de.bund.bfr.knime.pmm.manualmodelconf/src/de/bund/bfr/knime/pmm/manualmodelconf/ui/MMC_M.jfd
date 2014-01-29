@@ -1,4 +1,4 @@
-JFDML JFormDesigner: "5.1.1.0.120" Java: "1.7.0_07" encoding: "UTF-8"
+JFDML JFormDesigner: "5.1.2.0.134" Java: "1.7.0_07" encoding: "UTF-8"
 
 new FormModel {
 	contentType: "form/swing"
@@ -390,7 +390,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 690, 470 )
+			"size": new java.awt.Dimension( 690, 490 )
 		} )
 		add( new FormNonVisual( "javax.swing.ButtonGroup" ) {
 			name: "buttonGroup1"

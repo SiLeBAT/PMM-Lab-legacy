@@ -254,7 +254,7 @@ public class Login extends JFrame {
 			// Datenbank erstellen
 			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt
 			}
-			else if (!DBKernel.isServerConnection) { // !DBKernel.isKrise && 
+			else if (!DBKernel.isServerConnection) { // true || !DBKernel.isKrise && 
 				int dbAlt = DBKernel.isDBVeraltet(this);
 				if (dbAlt == JOptionPane.YES_OPTION) {// UPDATE Funktionalität ist jetzt angesagt
 					doUpdates = true;

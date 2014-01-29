@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="C:/Dokumente und Einstellungen/Weiser/Server_1.7.2.jar"/>
+    <jar path="C:/Dokumente und Einstellungen/Weiser/Server_1.7.6.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/org.hsh.bfr.db/zGUI/Server.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>

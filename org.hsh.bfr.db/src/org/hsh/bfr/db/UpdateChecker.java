@@ -51,18 +51,19 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class UpdateChecker {
 	public static void check4Updates_175_176() {
-		// Tonne in die Einnheitentabelle rein...
-		/*
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
-					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
-					") VALUES (44,'°Bé','Grad Baumé')", false); // 31 -> 44
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
-					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
-					") VALUES (46,'U/min','Umdrehungen pro Minute')", false); // 32 -> 46
-			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Einheiten") +
-					" (" + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Einheit") + "," + DBKernel.delimitL("Beschreibung") +
-					") VALUES (70,'mm','Millimeter')", false); // 35 -> 70
-		 */
+		MyDBTables.getTable("GlobalModels").createTable();
+		DBKernel.grantDefaults("GlobalModels");
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " ADD COLUMN " + DBKernel.delimitL("GlobalModel") + " INTEGER", false);
+		updateChangeLog("Sekundaermodelle_Primaermodelle", 3, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") + " ADD COLUMN " + DBKernel.delimitL("FreigabeModus") + " INTEGER", false);
+		updateChangeLog("GeschaetzteModelle", 18, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("ModellkatalogParameter") + " ADD COLUMN " + DBKernel.delimitL("optimalValue") + " DOUBLE BEFORE " + DBKernel.delimitL("Einheit"), false);
+		updateChangeLog("ModellkatalogParameter", 7, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GueltigkeitsBereiche") + " ADD COLUMN " + DBKernel.delimitL("Gueltig_optimal") + " DOUBLE", false);
+		updateChangeLog("GueltigkeitsBereiche", 5, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Modellkatalog") + " ADD COLUMN " + DBKernel.delimitL("visible") + " BOOLEAN BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Modellkatalog", 14, false);	
+		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Modellkatalog") + " SET " + DBKernel.delimitL("visible") + "=TRUE", false);
 	}
 	public static void check4Updates_174_175() {
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);

@@ -981,7 +981,7 @@ public class MyDBTables {
 				null);
 		addTable(LinkedTestConditions, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 
-		generateStatUpModellTables(literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten);
+		generateStatUpModellTables(literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten, hYNB);
 
 		doLieferkettenTabellen(agenzien, matrix, h4);
 
@@ -1207,7 +1207,7 @@ public class MyDBTables {
 		DBKernel.hashModelType.put(14, "T/pH/aw");	
 	}
 	@SuppressWarnings("unchecked")
-	private static void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten) {
+	private static void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
 		MyTable PMMLabWorkflows = new MyTable("PMMLabWorkflows", new String[]{"Workflow"},
 				new String[]{"BLOB(100M)"},
 				new String[]{null},
@@ -1244,36 +1244,36 @@ public class MyDBTables {
 		addTable(Parametertyp, -1);
 		MyTable Modellkatalog = new MyTable("Modellkatalog", new String[]{"Name","Notation","Level","Klasse","Typ","Eingabedatum",
 				"eingegeben_von","Beschreibung","Formel","Ableitung","Software",
-				"Parameter","Referenzen"},
+				"Parameter","Referenzen","visible"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","INTEGER","INTEGER","VARCHAR(255)","DATE",
 				"VARCHAR(255)","VARCHAR(1023)","VARCHAR(511)","INTEGER","VARCHAR(255)",
-				"INTEGER","INTEGER"},
+				"INTEGER","INTEGER","BOOLEAN"},
 				new String[]{null,null,"1: primary, 2:secondary","1:growth, 2:inactivation, 3:survival,\n4:growth/inactivation, 5:inactivation/survival, 6: growth/survival,\n7:growth/inactivation/survival\n8: T, 9: pH, 10:aw, 11:T/pH, 12:T/aw, 13:pH/aw, 14:T/pH/aw",null,null,"Ersteller des Datensatzes","Beschreibung des Modells","zugrundeliegende Formel für das Modell","Ableitung","schreibt den Schaetzknoten vor",
-				"Parameterdefinitionen, die dem Modell zugrunde liegen: abhaengige Variable, unabhaengige Variable, Parameter","Referenzen, die dem Modell zugrunde liegen"},
+				"Parameterdefinitionen, die dem Modell zugrunde liegen: abhaengige Variable, unabhaengige Variable, Parameter","Referenzen, die dem Modell zugrunde liegen",null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,
-				Parametertyp,literatur},
+				Parametertyp,literatur,null},
 				null,
 				new LinkedHashMap[]{null,null,hashLevel,DBKernel.hashModelType,null,null,null,null,null,null,null,
-				null,null},
+				null,null,hYNB},
 				new String[] {null,null,null,null,null,null,null,null,null,null,null,
-						"ModellkatalogParameter","Modell_Referenz"},
+						"ModellkatalogParameter","Modell_Referenz",null},
 				//new String[] {"not null","not null",null,null,null,"not null",
 				new String[] {null,null,null,null,null,null,null,
 				null,null,null,null,
-				null,null});
+				null,null,null});
 		addTable(Modellkatalog, MyList.PMModelle_LIST);		
 		MyTable ModellkatalogParameter = new MyTable("ModellkatalogParameter", new String[]{"Modell","Parametername","Parametertyp",
-				"ganzzahl","min","max","Einheit","Beschreibung"},
+				"ganzzahl","min","max","optimalValue","Einheit","Beschreibung"},
 				new String[]{"INTEGER","VARCHAR(127)","INTEGER",
-				"BOOLEAN","DOUBLE","DOUBLE","INTEGER","VARCHAR(1023)"},
+				"BOOLEAN","DOUBLE","DOUBLE","DOUBLE","INTEGER","VARCHAR(1023)"},
 				new String[]{null,null,"1: Kovariable, 2: Parameter, 3: Response, 4: StartParameter",
-				"TRUE, falls der Parameter ganzzahlig sein muss",null,null,null,null},
-				new MyTable[]{Modellkatalog,null,null,null,null,null,Konzentrationseinheiten,null},
+				"TRUE, falls der Parameter ganzzahlig sein muss",null,null,null,null,null},
+				new MyTable[]{Modellkatalog,null,null,null,null,null,null,Konzentrationseinheiten,null},
 				null,
-				new LinkedHashMap[]{null,null,hashTyp,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,hashTyp,null,null,null,null,null,null},
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
-				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null});
+				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null});
 		addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
@@ -1287,22 +1287,22 @@ public class MyDBTables {
 		
 		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Name","Versuchsbedingung","Modell",
 				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","BIC","Score",
-				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML","PMMLabWF"},
+				"Referenzen","GeschaetzteParameter","GeschaetzteParameterCovCor","GueltigkeitsBereiche","PMML","PMMLabWF","FreigabeModus"},
 				new String[]{"VARCHAR(255)","INTEGER","INTEGER","INTEGER","BOOLEAN","DOUBLE","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER",
-				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)","INTEGER"},
+				"INTEGER","INTEGER","INTEGER","INTEGER","BLOB(10M)","INTEGER","INTEGER"},
 				new String[]{null,null,null,"Response, verweist auf die Tabelle ModellkatalogParameter","wurde das Modell manuell eingetragen oder ist es eine eigene Schaetzung basierend auf den internen Algorithmen und den in den Messwerten hinterlegten Rohdaten","r^2 oder Bestimmtheitsmass der Schaetzung","Variation der Residuen",null,null,null,"subjektiver Score zur Bewertung der Schaetzung",
-				"Referenzen, aus denen diese Modellschaetzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschaetzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschaetzten Parameter","Gültigkeitsbereiche für Sekundaermodelle",null,null},
+				"Referenzen, aus denen diese Modellschaetzung entnommen wurde","Verweis auf die Tabelle ModellkatalogParameter mit den geschaetzten Parametern","Verweis auf die Tabelle ModellkatalogParameterCovCor mit den Korrelationen der geschaetzten Parameter","Gültigkeitsbereiche für Sekundaermodelle",null,null,null},
 				new MyTable[]{null,tenazity_raw_data,Modellkatalog,
 				ModellkatalogParameter,null,null,null,null,null,null,null,
-				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows},
+				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,
-				null,null,null,null,null,null},
+				null,null,null,null,null,null,hashFreigabe},
 				new String[] {null,null,null,
 				null,null,null,null,null,null,null,null,
-				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null},
+				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null,null},
 				new String[] {null,null,null,null,"default FALSE",null,null,null,null,null,null,
-				null,null,null,null,null,null});
+				null,null,null,null,null,null,null});
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
 		addTable(GeschaetzteModelle, MyList.PMModelle_LIST);		
@@ -1327,15 +1327,15 @@ public class MyDBTables {
 				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null});
 		addTable(GeschaetzteParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable GueltigkeitsBereiche = new MyTable("GueltigkeitsBereiche", new String[]{"GeschaetztesModell","Parameter",
-				"Gueltig_von","Gueltig_bis"},
+				"Gueltig_von","Gueltig_bis","Gueltig_optimal"},
 				new String[]{"INTEGER","INTEGER",
-				"DOUBLE","DOUBLE"},
-				new String[]{null,null,null,null},
-				new MyTable[]{GeschaetzteModelle,ModellkatalogParameter,null,null},
+				"DOUBLE","DOUBLE","DOUBLE"},
+				new String[]{null,null,null,null,null},
+				new MyTable[]{GeschaetzteModelle,ModellkatalogParameter,null,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null},
 				null,
-				new String[] {"not null","not null",null,null});
+				new String[] {"not null","not null",null,null,null});
 		addTable(GueltigkeitsBereiche, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable VarParMaps = new MyTable("VarParMaps", new String[]{"GeschaetztesModell","VarPar","VarParMap"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
@@ -1357,15 +1357,25 @@ public class MyDBTables {
 				null);//new String[] {"not null","not null","not null","not null",null});
 		addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 13);
+		MyTable GlobalModels = new MyTable("GlobalModels",
+				new String[]{"Modellname"},
+				new String[]{"VARCHAR(255)"},
+				new String[]{null},
+				new MyTable[]{null},
+				null,
+				new LinkedHashMap[]{null},
+				null,
+				null);
+		addTable(GlobalModels, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 		MyTable Sekundaermodelle_Primaermodelle = new MyTable("Sekundaermodelle_Primaermodelle",
-				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell"},
-				new String[]{"INTEGER","INTEGER"},
-				new String[]{null,null},
-				new MyTable[]{GeschaetzteModelle,GeschaetzteModelle},
+				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell","GlobalModel"},
+				new String[]{"INTEGER","INTEGER","INTEGER"},
+				new String[]{null,null,null},
+				new MyTable[]{GeschaetzteModelle,GeschaetzteModelle,GlobalModels},
 				null,
-				new LinkedHashMap[]{null,null},
+				new LinkedHashMap[]{null,null,null},
 				null,
-				new String[] {"not null","not null"});
+				new String[] {"not null","not null",null});
 		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 	}
   

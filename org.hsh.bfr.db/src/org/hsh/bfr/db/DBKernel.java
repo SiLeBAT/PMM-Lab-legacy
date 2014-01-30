@@ -2247,6 +2247,8 @@ public class DBKernel {
 		  	}
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);		  	
+			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false, true);	
+			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false, true);	
 		  	
 		  	if (!isAdmin) {
 		  		DBKernel.closeDBConnections(false);

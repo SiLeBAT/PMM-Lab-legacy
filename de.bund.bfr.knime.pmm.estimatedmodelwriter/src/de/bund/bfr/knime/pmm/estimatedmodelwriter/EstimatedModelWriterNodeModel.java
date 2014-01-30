@@ -42,6 +42,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -146,12 +147,14 @@ if (true) return null;
 		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds = new HashMap<String, HashMap<String, HashMap<Integer, Integer>>>();
     	String dbuuid = db.getDBUUID();
 		
-		HashMap<Integer, List<Integer>> primEstIDs = new HashMap<Integer, List<Integer>>();
+		HashMap<Integer, List<Integer>> secModels = new HashMap<Integer, List<Integer>>();
+		HashMap<Integer, HashSet<Integer>> globalModels = new HashMap<Integer, HashSet<Integer>>();
 		ParametricModel ppm = null, spm;
 		
 		int j = 0;
 		HashMap<Integer, ParametricModel> alreadyInsertedModel = new HashMap<Integer, ParametricModel>();
 		HashMap<Integer, ParametricModel> alreadyInsertedEModel = new HashMap<Integer, ParametricModel>();
+		HashMap<Integer, Integer> alreadyInsertedGModel = new HashMap<Integer, Integer>();
 		HashMap<Integer, PmmTimeSeries> alreadyInsertedTs = new HashMap<Integer, PmmTimeSeries>();
 		boolean M1Writable = false, M2Writable = false;
 		String warnings = "";
@@ -393,8 +396,21 @@ if (true) return null;
 								if (!spm.getWarning().trim().isEmpty()) warnings += spm.getWarning();
 							}
 
-							if (!primEstIDs.containsKey(spm.getEstModelId())) primEstIDs.put(spm.getEstModelId(), new ArrayList<Integer>());
-							primEstIDs.get(spm.getEstModelId()).add(newPrimEstID);
+							if (!secModels.containsKey(spm.getEstModelId())) secModels.put(spm.getEstModelId(), new ArrayList<Integer>());
+							secModels.get(spm.getEstModelId()).add(newPrimEstID);
+							Integer gmSchemaID = row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+							Integer newGlobalModelId;
+							if (alreadyInsertedGModel.containsKey(gmSchemaID)) {
+								newGlobalModelId = alreadyInsertedGModel.get(gmSchemaID);
+							}
+							else {
+								foreignDbIds = checkID(conn, true, dbuuid, row, gmSchemaID, null, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
+								newGlobalModelId = db.insertGm(foreignDbIds.get(dbuuid).get("GlobalModels").get(gmSchemaID));
+								foreignDbIds = checkID(conn, false, dbuuid, row, gmSchemaID, newGlobalModelId, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
+								alreadyInsertedGModel.put(gmSchemaID, newGlobalModelId);
+							}
+							if (!globalModels.containsKey(newGlobalModelId)) globalModels.put(newGlobalModelId, new HashSet<Integer>());
+							globalModels.get(newGlobalModelId).add(spm.getEstModelId());
 						//}
 		    		}
 					else {
@@ -410,8 +426,11 @@ if (true) return null;
 		}
 		if (model2Conform) {
 			if (M2Writable) {
-				for (Integer estModelId : primEstIDs.keySet()) {
-					db.insertEm2(estModelId, primEstIDs.get(estModelId));
+				for (Integer gmId : globalModels.keySet()) {
+					HashSet<Integer> secModelIDs = globalModels.get(gmId);
+					for (Integer estModelId : secModelIDs) {
+						db.insertEm2(estModelId, secModels.get(estModelId), gmId);
+					}
 				}
 			}
 			else {
@@ -428,6 +447,36 @@ if (true) return null;
         return null;
     }
 
+    // GlobalModels
+    private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkID(Connection conn, boolean before, String dbuuid, KnimeTuple row, Integer oldID, Integer newID,
+    		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds, String rowuuid) throws PmmException {
+		if (rowuuid == null || !rowuuid.equals(dbuuid)) {
+			if (!foreignDbIds.containsKey(dbuuid)) foreignDbIds.put(dbuuid, new HashMap<String, HashMap<Integer, Integer>>());
+			HashMap<String, HashMap<Integer, Integer>> d = foreignDbIds.get(dbuuid);
+			
+				if (!d.containsKey("GlobalModels")) d.put("GlobalModels", new HashMap<Integer, Integer>());
+				if (before) DBKernel.getKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
+				
+				if (oldID != null) {
+					if (d.get("GlobalModels").containsKey(oldID)) {
+						if (before) ;//schemaTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(id));
+						else if (d.get("GlobalModels").get(oldID).intValue() != row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID).intValue()) {
+							System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
+						}
+					}
+					else {
+						if (before) d.get("GlobalModels").put(oldID, MathUtilities.getRandomNegativeInt());
+						else d.get("GlobalModels").put(oldID, newID);
+					}
+				}
+				
+				if (!before) DBKernel.setKnownIDs4PMM(conn, d.get("GlobalModels"), "GlobalModels", rowuuid);
+
+			foreignDbIds.put(dbuuid, d);
+		}    	
+		return foreignDbIds;
+    }
+    
     // Modelle
     private HashMap<String, HashMap<String, HashMap<Integer, Integer>>> checkIDs(Connection conn, boolean before, String dbuuid, KnimeTuple row, ParametricModel pm,
     		HashMap<String, HashMap<String, HashMap<Integer, Integer>>> foreignDbIds,

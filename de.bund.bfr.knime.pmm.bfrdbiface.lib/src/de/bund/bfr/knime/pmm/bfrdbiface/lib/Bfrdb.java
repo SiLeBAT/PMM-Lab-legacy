@@ -621,7 +621,7 @@ public class Bfrdb extends Hsqldbiface {
 					
 					tuple = new KnimeTuple(new Model2Schema());
 					
-					PmmXmlDoc doc = new PmmXmlDoc();
+		    		PmmXmlDoc doc = new PmmXmlDoc();
 					CatalogModelXml cm = new CatalogModelXml(
 							result.getInt(Bfrdb.ATT_MODELID),
 							result.getString(Bfrdb.ATT_NAME),
@@ -665,7 +665,9 @@ public class Bfrdb extends Hsqldbiface {
 						null, null, null, null, null, null, null));
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, doc);
 					
-					String s = result.getString("LitMID");
+		    		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);
+
+		    		String s = result.getString("LitMID");
 		    		if (s != null)
 						tuple.setValue(Model2Schema.ATT_MLIT, getLiterature(s));
 					
@@ -791,6 +793,7 @@ public class Bfrdb extends Hsqldbiface {
 	private ResultSet getCachedTable(String cacheTable, String selectSQL, String whereSQL, String cacheWhereSQL, String[] relevantTables) throws SQLException {
 		boolean dropCacheFirst = false;
 		long lastCaching = DBKernel.getLastCache(conn, cacheTable);
+		//System.err.println(selectSQL + whereSQL);
 		//long ttt = System.currentTimeMillis();
 		long lastRelevantChange = DBKernel.getLastRelevantChange(conn, relevantTables);
 		//System.err.println(System.currentTimeMillis() - ttt);
@@ -1045,13 +1048,15 @@ public class Bfrdb extends Hsqldbiface {
 		return resultt;
 	}
 	
-	public void insertEm2(final Integer secID, final List<Integer> primIDs) {
+	public void insertEm2(final Integer secID, final List<Integer> primIDs, Integer gmId) {
 		try {
-			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Sekundaermodelle_Primaermodelle\" (\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\")VALUES(?,?)");
+			PreparedStatement ps = conn.prepareStatement( "INSERT INTO \"Sekundaermodelle_Primaermodelle\" (\"GeschaetztesPrimaermodell\", \"GeschaetztesSekundaermodell\", \"GlobalModel\")VALUES(?,?,?)");
 			for (Integer id : primIDs) {
 				if (id != null && id >= 0) {
-					ps.setInt( 1, id);
-					ps.setInt( 2, secID);
+					ps.setInt(1, id);
+					ps.setInt(2, secID);
+					if (gmId == null) ps.setNull(3, java.sql.Types.INTEGER);
+					else ps.setInt(3, gmId);
 					ps.executeUpdate();			
 				}
 			}
@@ -1061,6 +1066,33 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	public Integer insertEm(final ParametricModel pm, Integer workflowID) { // , HashMap<String, String> hm
 		return insertEm(pm, workflowID, null);
+	}
+	public Integer insertGm(Integer gmID) {
+		Integer resultID = null;
+		try {				
+			if (isObjectPresent("GlobalModels", gmID)) {
+				resultID = gmID;
+				/*
+				PreparedStatement ps = conn.prepareStatement("UPDATE \"GlobalModels\" SET \"Modellname\" = ? WHERE \"ID\"="+gmID);
+				ps.setString(1, "GM_" + gmID);
+				ps.executeUpdate();
+				ps.close();
+				*/
+			}
+			else {
+				PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GlobalModels\" (\"Modellname\") VALUES(?)", Statement.RETURN_GENERATED_KEYS);
+				ps.setString(1, "GM_" + gmID);				
+				if (ps.executeUpdate() > 0) {
+					ResultSet result = ps.getGeneratedKeys();
+					result.next();
+					resultID = result.getInt(1);					
+					result.close();
+				}				
+				ps.close();
+			}
+		}
+		catch(SQLException ex) {ex.printStackTrace();}
+		return resultID;
 	}
 	public Integer insertEm(final ParametricModel pm, Integer workflowID, final ParametricModel ppm) { // , HashMap<String, String> hm
 		Integer estModelId = null;
@@ -1944,29 +1976,21 @@ public class Bfrdb extends Hsqldbiface {
 		return o;
 	}
 	private boolean isObjectPresent( final String tablename, final int id ) {
-		
 		if (id <= 0) return false;
 		
 		int cnt = 0;
 		try {
-			PreparedStatement ps = conn.prepareStatement( "SELECT COUNT( * )FROM \""+tablename+"\" WHERE \"ID\"=?" );
-			ps.setInt( 1, id );
-			
+			PreparedStatement ps = conn.prepareStatement("SELECT COUNT( * )FROM \""+tablename+"\" WHERE \"ID\"=?");
+			ps.setInt(1, id);			
 			ResultSet result = ps.executeQuery();
-			
 			result.next();
-				
-			
-			cnt = result.getInt( 1 );
-						
+			cnt = result.getInt(1);
 			result.close();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace(); }
+		catch(SQLException ex) {ex.printStackTrace();}
 		
-		if( cnt > 0 ) {
-			return true;
-		}
+		if (cnt > 0) return true;
 		
 		return false;
 	}

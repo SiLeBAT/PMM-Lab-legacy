@@ -127,6 +127,10 @@ public class Login extends JFrame {
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
 			  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher"), false);
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
+				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
+				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);	
+				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false, true);	
+				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false, true);	
 			  	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
 			  	*/
 		  		/*

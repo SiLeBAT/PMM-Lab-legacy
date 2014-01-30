@@ -275,6 +275,8 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 					EstModelXml emx = new EstModelXml(null, null, null, null, null, null, null);
 					emDoc.add(emx);
 					tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
+					
+		    		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, null);
 
 					String s = result.getString("LitMID");
 		    		if (s != null) {

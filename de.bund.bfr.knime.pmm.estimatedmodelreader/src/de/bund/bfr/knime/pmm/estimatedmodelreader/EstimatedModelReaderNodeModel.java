@@ -340,7 +340,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		
     		// fill m2
     		if (level == 2) {
-        		formula = result.getString("Formel2" );
+	    		formula = result.getString("Formel2");
 	    		if (formula != null) {
 					formula = formula.replaceAll("~", "=").replaceAll("\\s", "");
 				}
@@ -400,6 +400,9 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
+				
+    			Object gmid = result.getObject("GlobalModel");
+	    		tuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, gmid);//gmid == null ? MathUtilities.getRandomNegativeInt() : (Integer) gmid);
 
 	    		tuple.setValue(Model2Schema.ATT_INDEPENDENT, DbIo.convertArrays2IndepXmlDoc(varMap, result.getArray(Bfrdb.ATT_INDEP+"2"),
 	    				result.getArray(Bfrdb.ATT_MININDEP+"2"), result.getArray(Bfrdb.ATT_MAXINDEP+"2"), result.getArray("IndepCategory2"),

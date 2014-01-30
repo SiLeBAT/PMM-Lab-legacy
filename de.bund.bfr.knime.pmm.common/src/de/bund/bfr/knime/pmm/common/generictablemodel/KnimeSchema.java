@@ -180,14 +180,11 @@ public class KnimeSchema {
 	}
 	
 	public DataTableSpec createSpec() {		
-		DataColumnSpec[] spec;
-		KnimeAttribute col;
-		int i;
 		DataType t;
 		
-		spec = new DataColumnSpec[ size() ];
-		for( i = 0; i < size(); i++  ) {			
-			col = attributeSet.get(i);			
+		DataColumnSpec[] spec = new DataColumnSpec[size()];
+		for (int i = 0; i < size(); i++ ) {			
+			KnimeAttribute col = attributeSet.get(i);			
 			switch(col.getType()) {			
 				case KnimeAttribute.TYPE_INT :
 					t = IntCell.TYPE; break;					

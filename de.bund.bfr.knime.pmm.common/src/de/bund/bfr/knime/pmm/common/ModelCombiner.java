@@ -82,7 +82,13 @@ public class ModelCombiner {
 		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<Integer, Map<String, Integer>>();
 
 		for (KnimeTuple tuple : tuples) {
-			int modelId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			int modelId = -1;
+
+			try {
+				modelId = tuple.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID);
+			} catch (Exception e) {
+				continue;
+			}
 
 			if (!paramValueSums.containsKey(modelId)) {
 				Map<String, Double> sums = new LinkedHashMap<String, Double>();

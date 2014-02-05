@@ -8,15 +8,27 @@
     </shortDescription>
     
     <fullDescription>
-        <intro>Define a new set of microbial data with assay conditions (for primary estimations) or simply create time steps (for predictions). There are three ways to enter your own laboratory data: Time series and concentrations can be copied and pasted, they can be imported via an XLS file or entered manually. In the latter case and for predictions the setting of equidistant time steps accelerates entering a time series.</intro>
+        <intro>Define a new set of microbial data with assay conditions. There are three ways to enter your own laboratory data: Time series and concentrations can be copied and pasted, they can be imported via an XLS file or entered manually. In the latter case the setting of equidistant time steps accelerates entering a time series.</intro>
         
         
-        <option name="Experimental conditions">Enter details about the experimental conditions leading to the data. Define units for time (seconds to weeks), microbial concentrations (log10 cell count, ln cell count or cell count) and temperature (°C or °F). The <b>values will automatically be converted</b> to the units used internally by PMM-Lab: Time [h], conc [log10 cfu/g], temperature [°C].</option>
-        <option name="Time and Concentration">There are <b>four ways</b> to enter microbial data:<br></br><br></br>
+        <option name="Options">
+        <b>References</b><br></br>
+        Click on the '+' symbol to choose one or more references from the database. To add a reference to the database, exit this node dialog, go to the Knime menu 'PMM-Lab', select 'Open DB GUI...' and select the references table. References can be either imported as *.ris or *.txt file via the table import (Ctrl+F1) or they can be entered manually by clicking the green '+' button in the database.<br></br><br></br>
+        <b>Experimental conditions</b><br></br>
+        <u>Organism and Matrix:</u> Click the 'Select' button to get to the correspondent database tables and assign the appropriate entries.<br></br>
+        <u>ID:</u> The ID can be a number or a character or a combination (e.g. 'Table A.1'). If no ID is given, PMM-Lab will create a negative 10-digit number as ID.<br></br>
+        <u>Comment:</u> Any string as comment to the experimental conditions.<br></br>
+        <u>Time:</u> Choose the time unit for the time series. These are d (day), wk (week), s (second), min (minute), h (hour), mo (month) and a (year).<br></br>
+        <u>Value:</u> Assign the unit to your values. In case of bacterial concentrations this might be 'cfu/g'; for other datasets '%' or 'ppm' might be more appropriate.<br></br>
+        <u>Temperature:</u> Type in the temperature value of your time series and define in which temperature scale it was measured.<br></br>
+        <u>pH and aw:</u> pH and water activity do not have a unit.<br></br>
+        <u>Additional experimental conditions:</u> For more experimental conditions click the '+' buttton and choose other parameters from the database (e.g. 'acetic acid' or 'pressure').<br></br></option>
+        <option name="Table: Time and Value">There are <u>four ways</u> to enter microbial data:<br></br><br></br>
         	1) <b>Type</b> time and concentration <b>manually</b>. To navigate use Tab and Enter or the arrow keys.<br></br><br></br>
-        	2) If the time steps always have the same step size the button <b>'Set equidistant time steps'</b> can help. Define the 'number of time steps' and the 'step size'. This is also useful if a time series without concentrations are needed, e.g. for a <u>prediction</u>. Example: If the unit for time is minutes, the number of time steps is 4 and the step size is 15 you will create the time series '15, 30, 45, 60'. <u>Please note</u> that the internally used time unit is one hour so that after the execution of the node the table in the outport will say '0.25, 0.5, 0.75, 1.0'.<br></br><br></br>  
+        	2) If the time steps always have the same step size the button <b>'Set equidistant time steps'</b> can help. Define the 'number of time steps' and the 'step size'. Example: If the unit for time is minutes, the number of time steps is 4 and the step size is 15 you will create the time series '15, 30, 45, 60'. <u>Please note</u> that the internally used <u>time unit is one hour</u> so that after the execution of the node the table in the outport will say '0.25, 0.5, 0.75, 1.0'.<br></br><br></br>  
         	3) <b>Copy and paste:</b> Open a spreadsheet, copy the appropriate columns and paste them in the Microbial Data Creator by clicking one cell in the time column and pressing Ctrl+V. This is especially useful if an experiment was done in replicates and the time series starts several times anew from 0.<br></br><br></br>
-        	4) <b>Read from XLS file:</b> Import microbial data from a Microsoft Excel Spreadsheet.The <u>column order</u> in the file should be "ID", "AgentName", "MatrixName", "Comment", "Temperature", "pH", "aw", "Time" and "LogC".<br></br><br></br>
+        	4) <b>Read from XLS file:</b> Import microbial data from a Microsoft Excel spreadsheet.The table should at least have olumns for ID, time and value (value: e.g. log10(cfu/g)). Without an ID no time series can be imported. Every Excel column needs a headline (the first row). Rows with the same ID belong to one time series.<br></br>
+        	   Open the path to the XLS file, select the Excel sheet and assign columns to ID, time and value. IF the spreadsheet also contains columns for temperature, pH, aw and a comment, these can also be assigned, here. Otherwise, they can be assigned as stated under 'Experimental conditions'.<br></br><br></br>
         	To delete the whole table click <b>'Clear'</b>.</option>
     </fullDescription>
     

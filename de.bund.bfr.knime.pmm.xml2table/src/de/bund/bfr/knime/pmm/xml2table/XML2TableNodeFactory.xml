@@ -4,19 +4,19 @@
     <name>XML To Table</name>
     
     <shortDescription>
-    Transforms parameters in the XML cells to one parameter per column    
+    Extracts a parameter from an XML cell and copies it to a new column    
     </shortDescription>
     
     <fullDescription>
-        <intro>Transforms parameters in the XML cells to one parameter per column and adds these columns to the end of the table in the outport.</intro>
+        <intro>In PMM-Lab often several parameters are saved in one XML cell. If a specific parameter is needed (e.g. a model formula), this can be copied to a new column containing only one formula per cell. This new column can be found at the end of the table in the outport.</intro>
         
         
-        <option name="Select a column">Select the XML column which contains the needed parameters. In order to transform the content of more than one XML column place several "XML 2 Table" nodes one after another.</option>
-        <option name="Cols from XML 2 add to table">Choose the XML parameters to be added to the outport table. To choose two or more XML parameters press Ctrl or Shift and then click.</option>
+        <option name="Select a column">Select the XML column which contains the needed parameter. In order to transform the content of more than one XML column place several "XML 2 Table" nodes one after another.</option>
+        <option name="Cols from XML 2 add to table">Choose the XML parameter(s) to be added to the outport table. To choose two or more XML parameters press Ctrl or Shift and highlight all.</option>
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="Models/data">Put this node anyhwere in the workflow where there are parameters in XML columns in the outport.</inPort>
-        <outPort index="0" name="Models/data plus additional columns">Models/data plus additional parameters from XML columns.</outPort>
+        <inPort index="0" name="Models/data">Attach this node to any PMM-Lab node in the workflow.</inPort>
+        <outPort index="0" name="Models/data plus chosen parameter(s)">Models/data plus chosen parameter(s) from an XML column.</outPort>
     </ports>    
 </knimeNode>

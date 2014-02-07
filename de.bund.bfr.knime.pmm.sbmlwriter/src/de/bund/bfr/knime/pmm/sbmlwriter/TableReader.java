@@ -33,6 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.sbmlwriter;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -40,10 +41,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.ListOf;
+import org.sbml.jsbml.Model;
+import org.sbml.jsbml.Parameter;
+import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.text.parser.FormulaParser;
+import org.sbml.jsbml.text.parser.ParseException;
 
+import de.bund.bfr.knime.pmm.common.CatalogModelXml;
+import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
+import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
+import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
@@ -55,7 +68,7 @@ public class TableReader {
 	public TableReader(List<KnimeTuple> tuples) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
-		Set<String> idSet = new LinkedHashSet<String>();
+		Set<Integer> idSet = new LinkedHashSet<Integer>();
 
 		if (isTertiaryModel) {
 			tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
@@ -65,23 +78,59 @@ public class TableReader {
 		documents = new LinkedHashMap<String, SBMLDocument>();
 
 		for (KnimeTuple tuple : tuples) {
-			String id = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID()
-					+ "";
+			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_MODELCATALOG).get(0);
+			EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
+					Model1Schema.ATT_ESTMODEL).get(0);
+			DepXml depXml = (DepXml) tuple
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
+
+			Integer id = estXml.getID();
 
 			if (!idSet.add(id)) {
 				continue;
 			}
 
-			EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0);
 			String modelID = "Model_Test" + Math.abs(estXml.getID());
-
 			SBMLDocument doc = new SBMLDocument(2, 4);
+			Model model = doc.createModel(modelID);
+			Parameter depParam = model.createParameter(depXml.getName());
 
-			doc.createModel(modelID);
+			depParam.setConstant(false);
 
-			documents.put(modelID, doc);
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_PARAMETER).getElementSet()) {
+				ParamXml paramXml = (ParamXml) el;
+				Parameter param = model.createParameter(paramXml.getName());
+
+				param.setConstant(true);
+
+				if (paramXml.getValue() != null) {
+					param.setValue(paramXml.getValue());
+				}
+			}
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
+				IndepXml indepXml = (IndepXml) el;
+				Parameter param = model.createParameter(indepXml.getName());
+
+				param.setConstant(false);
+			}
+
+			FormulaParser parser = new FormulaParser(new StringReader(modelXml
+					.getFormula().substring(
+							modelXml.getFormula().indexOf("=") + 1)));
+
+			try {
+				ListOf<Rule> rules = new ListOf<Rule>(2, 4);
+
+				rules.add(new AssignmentRule(depParam, parser.parse()));
+				model.setListOfRules(rules);
+				documents.put(modelID, doc);
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

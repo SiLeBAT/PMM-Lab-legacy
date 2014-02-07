@@ -58,6 +58,7 @@ import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 
@@ -96,6 +97,7 @@ public class TableReader {
 			Model model = doc.createModel(modelID);
 			Parameter depParam = model.createParameter(depXml.getName());
 
+			depParam.setValue(0.0);
 			depParam.setConstant(false);
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
@@ -107,15 +109,21 @@ public class TableReader {
 
 				if (paramXml.getValue() != null) {
 					param.setValue(paramXml.getValue());
+				} else {
+					param.setValue(0.0);
 				}
 			}
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indepXml = (IndepXml) el;
-				Parameter param = model.createParameter(indepXml.getName());
 
-				param.setConstant(false);
+				if (!indepXml.getName().equals(AttributeUtilities.TIME)) {
+					Parameter param = model.createParameter(indepXml.getName());
+
+					param.setValue(0.0);
+					param.setConstant(false);
+				}
 			}
 
 			FormulaParser parser = new FormulaParser(new StringReader(modelXml

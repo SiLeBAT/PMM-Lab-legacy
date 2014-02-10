@@ -156,9 +156,8 @@ public class FittedParameterViewNodeModel extends NodeModel {
 			throw new InvalidSettingsException("Wrong input!");
 		}
 
-		return new PortObjectSpec[] {
-				SchemaFactory.createDataSchema().createSpec(),
-				ChartUtilities.getImageSpec(set.isExportAsSvg()) };
+		return new PortObjectSpec[] { ChartUtilities.getImageSpec(set
+				.isExportAsSvg()) };
 	}
 
 	/**

@@ -152,6 +152,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		configPanel.setShowLegend(set.isShowLegend());
 		configPanel.setAddInfoInLegend(set.isAddLegendInfo());
 		configPanel.setDisplayFocusedRow(set.isDisplayHighlighted());
+		configPanel.setExportAsSvg(set.isExportAsSvg());
 		configPanel.setTransformX(set.getTransformX());
 		configPanel.setTransformY(set.getTransformY());
 		configPanel.addConfigListener(this);
@@ -241,6 +242,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		set.setShowLegend(configPanel.isShowLegend());
 		set.setAddLegendInfo(configPanel.isAddInfoInLegend());
 		set.setDisplayHighlighted(configPanel.isDisplayFocusedRow());
+		set.setExportAsSvg(configPanel.isExportAsSvg());
 		set.setUnitX(configPanel.getUnitX());
 		set.setUnitY(configPanel.getUnitY());
 		set.setTransformX(configPanel.getTransformX());
@@ -321,7 +323,8 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				}
 			}
 
-			conditionList = new JList<String>(usedConditions.toArray(new String[0]));
+			conditionList = new JList<String>(
+					usedConditions.toArray(new String[0]));
 			addButton = new JButton("Add");
 			addButton.addActionListener(this);
 			removeButton = new JButton("Remove");

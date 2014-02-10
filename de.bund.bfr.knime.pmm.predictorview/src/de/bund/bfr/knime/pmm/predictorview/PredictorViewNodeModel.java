@@ -120,7 +120,6 @@ public class PredictorViewNodeModel extends NodeModel {
 
 			if (plotable != null) {
 				Map<String, List<Double>> arguments = new LinkedHashMap<String, List<Double>>();
-				boolean valid = true;
 
 				for (Map.Entry<String, Double> entry : set.getParamXValues()
 						.entrySet()) {
@@ -143,18 +142,17 @@ public class PredictorViewNodeModel extends NodeModel {
 
 						if ((min != null && value < min)
 								|| (max != null && value > max)) {
-							valid = false;
-							break;
+							setWarningMessage(entry.getKey() + " = "
+									+ entry.getValue() + " is not in range "
+									+ min + " -> " + max);
 						}
 					}
 				}
 
-				if (valid) {
-					validIds.add(id);
-					plotable.setSamples(set.getTimeValues());
-					plotable.setFunctionArguments(converted);
-					container.addRowToTable(createDataTuple(reader, id));
-				}
+				validIds.add(id);
+				plotable.setSamples(set.getTimeValues());
+				plotable.setFunctionArguments(converted);
+				container.addRowToTable(createDataTuple(reader, id));
 			}
 		}
 

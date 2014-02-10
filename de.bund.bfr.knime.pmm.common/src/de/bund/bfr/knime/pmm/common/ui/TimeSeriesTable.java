@@ -144,7 +144,9 @@ public class TimeSeriesTable extends JTable implements ActionListener {
 	}
 
 	public void setLogc(int row, Double logc) {
-		setValueAt(logc, row, 1);
+		if (!cColumnNames.isEmpty()) {
+			setValueAt(logc, row, 1);
+		}
 	}
 
 	public void setLogc(int row, int cColumn, Double logc) {

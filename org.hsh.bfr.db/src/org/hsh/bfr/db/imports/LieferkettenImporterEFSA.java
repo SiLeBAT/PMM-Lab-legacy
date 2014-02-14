@@ -69,7 +69,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
   	Runnable runnable = new Runnable() {
       public void run() {
-		    try {
+    	  System.err.println("Importing " + filename);
+		  try {
       		if (progress != null) {
       			progress.setVisible(true);
       			progress.setStringPainted(true);
@@ -236,7 +237,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime()) System.err.println("Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + dateOut + "; dateIn: " + dateIn);
+				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime() &&
+				    		  (!yearOut.equals(yearIn) || monthOut != null && !monthOut.equals(monthIn) || dayOut != null)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + sdf.format(dateOut) + "; dateIn: " + sdf.format(dateIn));
 
 				      Integer c1 = null;
 				      Integer c2 = null;
@@ -411,6 +413,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 										null);
 							}
 							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;
+							//System.err.println(deliveryS);
 							lastID = getID("Lieferungen",
 									new String[]{"Charge","Lieferdatum","Unitmenge","UnitEinheit","Empfänger","Kommentar"}, // "#Units2","BezUnits2",
 									new String[]{lastID.toString(), deliveryS, amountKG, "kg", empf == null ? null : empf.toString(),comment}, // numPU, typePU, 

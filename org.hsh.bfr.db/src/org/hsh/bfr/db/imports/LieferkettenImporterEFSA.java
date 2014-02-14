@@ -323,7 +323,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
   }
 	private Date getDate(String day, String month, String year) {
 		calendar.clear();
-		if (day != null && !day.trim().isEmpty()) calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day));
+		if (day != null && !day.trim().isEmpty()) {calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day)); calendar.set(Calendar.HOUR_OF_DAY, 12);}
 		if (month != null && !month.trim().isEmpty()) calendar.set(Calendar.MONTH, Integer.parseInt(month) - 1);
 		if (year != null && !year.trim().isEmpty()) calendar.set(Calendar.YEAR, Integer.parseInt(year));
 		Date date = calendar.getTime();

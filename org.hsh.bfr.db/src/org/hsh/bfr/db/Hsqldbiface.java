@@ -31,7 +31,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ******************************************************************************/
-package de.bund.bfr.knime.pmm.bfrdbiface.lib;
+package org.hsh.bfr.db;
 
 import java.io.File;
 import java.sql.Connection;
@@ -41,9 +41,6 @@ import java.sql.Statement;
 import java.sql.SQLWarning;
 import java.util.UUID;
 
-import org.hsh.bfr.db.Backup;
-import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.Users;
 
 public class Hsqldbiface {
 	

@@ -47,6 +47,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.Hsqldbiface;
 import org.hsh.bfr.db.MyLogger;
 
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;

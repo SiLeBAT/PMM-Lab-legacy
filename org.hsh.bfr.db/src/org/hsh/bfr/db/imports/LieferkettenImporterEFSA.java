@@ -353,30 +353,35 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  return getStrVal(cell, 1023);
 	  }
 	  private String getStrVal(HSSFCell cell, int maxChars) {
-  	String result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		}
-		else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-			result = cell.getStringCellValue();
-			if (result.equals(".")) result = null;
-		}
-		else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
-			try {
-				double dbl = cell.getNumericCellValue();
-				if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
-				else result = "" + cell.getNumericCellValue();
+		  String result = null;
+			if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
 			}
-			catch (Exception e) {}
-		}
-		else {
-			result = cell.toString();
-		}
-		if (result != null && result.length() > maxChars) {
-			System.err.println("string too long - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars) + "'");
-			result = result.substring(0, maxChars);
-		}
-  	return result;
-  }
+			else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
+				result = cell.getStringCellValue();
+				if (result.equals(".")) result = null;
+			}
+			else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
+				try {
+					double dbl = cell.getNumericCellValue();
+					if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
+					else result = "" + cell.getNumericCellValue();
+				}
+				catch (Exception e) {}
+			}
+			else {
+				result = cell.toString();
+			}
+			if (result != null) {
+				if (result.equals("#N/A")) {
+					result = null;
+				}
+				else if (result.length() > maxChars) {
+					System.err.println("string too long - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars) + "'");
+					result = result.substring(0, maxChars);
+				}
+			}
+	  	return result;
+	  }
 	private Integer getCharge_Lieferung(String name, String street, String streetNumber, String zip, String city, String county, String country, String kind, String vat,
 			String article, String articleNumber, String charge, Date mhd, Date prod, String originCountry, Date delivery, String amountKG, String typePU, String numPU,
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,

@@ -210,22 +210,22 @@ public class PlausibleAction extends AbstractAction {
 	*/
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
 					pd4.cs.isSelected() ?
-							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"},
-								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort","VATnumber"},
+								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue(),(Integer)pd4.sv.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
 					pd4.cp.isSelected() ?
-							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"},
-								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"})
+							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung","Artikelnummer"},
+								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"})
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 =
 					pd4.cl.isSelected() ?
-							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD"},
-								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue()}, null, null, null)
+							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD","Herstellungsdatum"},
+								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue()}, null, null, null)
 							:
 							null;
 

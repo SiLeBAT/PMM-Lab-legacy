@@ -57,12 +57,16 @@ public class PlausibleDialog4Krise extends JDialog {
 		snum = new JSpinner();
 		label9 = new JLabel();
 		sc = new JSpinner();
+		label19 = new JLabel();
+		sv = new JSpinner();
 		label2 = new JLabel();
 		cp = new JCheckBox();
 		label10 = new JLabel();
 		ps = new JSpinner();
 		label11 = new JLabel();
 		pd = new JSpinner();
+		label6 = new JLabel();
+		pi = new JSpinner();
 		label3 = new JLabel();
 		cl = new JCheckBox();
 		label12 = new JLabel();
@@ -71,6 +75,8 @@ public class PlausibleDialog4Krise extends JDialog {
 		ll = new JSpinner();
 		label14 = new JLabel();
 		lb = new JSpinner();
+		label18 = new JLabel();
+		ld = new JSpinner();
 		label4 = new JLabel();
 		cd = new JCheckBox();
 		label15 = new JLabel();
@@ -97,9 +103,9 @@ public class PlausibleDialog4Krise extends JDialog {
 			//======== contentPanel ========
 			{
 				contentPanel.setLayout(new FormLayout(
-					"11*(default, $lcgap), default",
+					"13*(default, $lcgap), default",
 					"3*(default, $lgap), default"));
-				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{5, 9, 13, 17, 21}, {7, 11, 15, 19, 23}});
+				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{5, 9, 13, 17, 21, 25}, {7, 11, 15, 19, 23, 27}});
 
 				//---- label1 ----
 				label1.setText("Station:");
@@ -151,6 +157,14 @@ public class PlausibleDialog4Krise extends JDialog {
 				sc.setModel(new SpinnerNumberModel(3, 0, null, 1));
 				contentPanel.add(sc, CC.xy(23, 1));
 
+				//---- label19 ----
+				label19.setText("VATnumber:");
+				contentPanel.add(label19, CC.xy(25, 1));
+
+				//---- sv ----
+				sv.setModel(new SpinnerNumberModel(0, 0, null, 1));
+				contentPanel.add(sv, CC.xy(27, 1));
+
 				//---- label2 ----
 				label2.setText("Product:");
 				contentPanel.add(label2, CC.xy(1, 3));
@@ -174,6 +188,14 @@ public class PlausibleDialog4Krise extends JDialog {
 				//---- pd ----
 				pd.setModel(new SpinnerNumberModel(3, 0, null, 1));
 				contentPanel.add(pd, CC.xy(11, 3));
+
+				//---- label6 ----
+				label6.setText("Item number:");
+				contentPanel.add(label6, CC.xy(13, 3));
+
+				//---- pi ----
+				pi.setModel(new SpinnerNumberModel(0, 0, null, 1));
+				contentPanel.add(pi, CC.xy(15, 3));
 
 				//---- label3 ----
 				label3.setText("Lot:");
@@ -207,6 +229,14 @@ public class PlausibleDialog4Krise extends JDialog {
 				//---- lb ----
 				lb.setModel(new SpinnerNumberModel(0, 0, null, 1));
 				contentPanel.add(lb, CC.xy(15, 5));
+
+				//---- label18 ----
+				label18.setText("DateManufactor:");
+				contentPanel.add(label18, CC.xy(17, 5));
+
+				//---- ld ----
+				ld.setModel(new SpinnerNumberModel(0, 0, null, 1));
+				contentPanel.add(ld, CC.xy(19, 5));
 
 				//---- label4 ----
 				label4.setText("Delivery:");
@@ -294,12 +324,16 @@ public class PlausibleDialog4Krise extends JDialog {
 	public JSpinner snum;
 	private JLabel label9;
 	public JSpinner sc;
+	private JLabel label19;
+	public JSpinner sv;
 	private JLabel label2;
 	public JCheckBox cp;
 	private JLabel label10;
 	public JSpinner ps;
 	private JLabel label11;
 	public JSpinner pd;
+	private JLabel label6;
+	public JSpinner pi;
 	private JLabel label3;
 	public JCheckBox cl;
 	private JLabel label12;
@@ -308,6 +342,8 @@ public class PlausibleDialog4Krise extends JDialog {
 	public JSpinner ll;
 	private JLabel label14;
 	public JSpinner lb;
+	private JLabel label18;
+	public JSpinner ld;
 	private JLabel label4;
 	public JCheckBox cd;
 	private JLabel label15;

@@ -11,9 +11,9 @@ new FormModel {
 				name: "dialogPane"
 				"border": sfield com.jgoodies.forms.factories.Borders DIALOG_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
-					"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default"
+					"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default"
 					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default"
-					"$columnGroupIds": "0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2"
+					"$columnGroupIds": "0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2"
 				} ) {
 					name: "contentPanel"
 					add( new FormComponent( "javax.swing.JLabel" ) {
@@ -138,6 +138,25 @@ new FormModel {
 						"gridY": 1
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label19"
+						"text": "VATnumber:"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 25
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JSpinner" ) {
+						name: "sv"
+						"model": new javax.swing.SpinnerNumberModel {
+							minimum: 0
+						}
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 27
+						"gridY": 1
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
 						name: "label2"
 						"text": "Product:"
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
@@ -191,6 +210,25 @@ new FormModel {
 						}
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 11
+						"gridY": 3
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label6"
+						"text": "Item number:"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 13
+						"gridY": 3
+					} )
+					add( new FormComponent( "javax.swing.JSpinner" ) {
+						name: "pi"
+						"model": new javax.swing.SpinnerNumberModel {
+							minimum: 0
+						}
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 15
 						"gridY": 3
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
@@ -267,6 +305,25 @@ new FormModel {
 						}
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 15
+						"gridY": 5
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label18"
+						"text": "DateManufactor:"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 17
+						"gridY": 5
+					} )
+					add( new FormComponent( "javax.swing.JSpinner" ) {
+						name: "ld"
+						"model": new javax.swing.SpinnerNumberModel {
+							minimum: 0
+						}
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 19
 						"gridY": 5
 					} )
 					add( new FormComponent( "javax.swing.JLabel" ) {
@@ -376,7 +433,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 685, 190 )
+			"size": new java.awt.Dimension( 870, 190 )
 		} )
 	}
 }

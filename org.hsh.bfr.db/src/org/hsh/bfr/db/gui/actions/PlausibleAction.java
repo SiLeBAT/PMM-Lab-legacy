@@ -67,6 +67,7 @@ import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
 import org.hsh.bfr.db.gui.PlausibleDialog;
+import org.hsh.bfr.db.gui.PlausibleDialog4Krise;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
 import org.hsh.bfr.db.imports.InfoBox;
@@ -99,15 +100,17 @@ public class PlausibleAction extends AbstractAction {
 	@Override
 	public void actionPerformed(final ActionEvent e) {
 	  	final PlausibleDialog pd = new PlausibleDialog(DBKernel.mainFrame); 
-	  	pd.setVisible(true);
+	  	final PlausibleDialog4Krise pd4 = new PlausibleDialog4Krise(DBKernel.mainFrame); 
+	  	if (DBKernel.isKrise) pd4.setVisible(true);
+	  	else pd.setVisible(true);
 	  	final Vector<int[]> ids = parseIDs(pd.textField1.getText());
-	  	if (pd.okPressed && (!pd.radioButton3.isSelected() || ids != null)) {
+	  	if (DBKernel.isKrise && pd4.okPressed || !DBKernel.isKrise && pd.okPressed && (!pd.radioButton3.isSelected() || ids != null)) {
 		  	Runnable runnable = new Runnable() {
 		        @Override
 				public void run() {
 		  		    try {		  
 		        		if (DBKernel.isKrise) {
-		        			go4ISM();
+		        			go4ISM(pd4);
 		        		}
 		        		else {
 			        		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
@@ -178,7 +181,8 @@ public class PlausibleAction extends AbstractAction {
 	  		doSpecialThings();
 	  	}
 	}
-	private void go4ISM() throws SQLException {
+	private void go4ISM(PlausibleDialog4Krise pd4) throws SQLException {
+		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
 		if (DBKernel.sendRequest(
 	    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
 	    		"RETURNS INT\n" + 
@@ -204,27 +208,47 @@ public class PlausibleAction extends AbstractAction {
 		    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
 		    		, false);
 	*/
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 = checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"}, new int[]{3,1,3,1,3},
-					null, null, null);		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
+					pd4.cs.isSelected() ?
+							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort"},
+								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+							:
+							null;
 
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 = checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"}, new int[]{0,3},
-						"Chargen", "Artikel", new String[]{"Herstellungsdatum"});
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
+					pd4.cp.isSelected() ?
+							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung"},
+								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"})
+							:
+							null;
 
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 = checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD"}, new int[]{0,1,0},
-					null, null, null);		
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 =
+					pd4.cl.isSelected() ?
+							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD"},
+								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue()}, null, null, null)
+							:
+							null;
 
-			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 = checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"}, new int[]{0,0,0},
-					null, null, null);		
+			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
+					pd4.cd.isSelected() ?
+							checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"},
+								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null)
+							:
+							null;
 
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			
-			int total = vals1.size() + vals2.size() + vals3.size() + vals4.size();
-			if (showAndFilterVals("Station", vals1, 0, 0, total)) {
-				if (showAndFilterVals("Produktkatalog", vals2, 0, vals1.size(), total)) {
-					if (showAndFilterVals("Chargen", vals3, 0, vals1.size() + vals2.size(), total)) {
-						showAndFilterVals("Lieferungen", vals4, 0, vals1.size() + vals2.size() + vals3.size(), total);
+			int v1 = vals1 == null ? 0 : vals1.size();
+			int v2 = vals2 == null ? 0 : vals2.size();
+			int v3 = vals3 == null ? 0 : vals3.size();
+			int v4 = vals4 == null ? 0 : vals4.size();
+			int total = v1 + v2 + v3 + v4;
+			if (vals1 == null || showAndFilterVals("Station", vals1, 0, 0, total)) {
+				if (vals2 == null || showAndFilterVals("Produktkatalog", vals2, 0, v1, total)) {
+					if (vals3 == null || showAndFilterVals("Chargen", vals3, 0, v1 + v2, total)) {
+						if (vals4 != null) showAndFilterVals("Lieferungen", vals4, 0, v1 + v2 + v3, total);
 					}
 				}
 			}
@@ -259,7 +283,7 @@ public class PlausibleAction extends AbstractAction {
 			}
 			*/
 		}
-		DBKernel.sendRequest("DROP FUNCTION LD", false, true);
+		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
 	}
 	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn,
 			int lfd, int total) {

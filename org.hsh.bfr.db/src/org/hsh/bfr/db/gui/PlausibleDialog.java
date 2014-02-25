@@ -168,7 +168,7 @@ public class PlausibleDialog extends JDialog {
 			dialogPane.add(buttonBar, BorderLayout.SOUTH);
 		}
 		contentPane.add(dialogPane, BorderLayout.CENTER);
-		setSize(465, 210);
+		setSize(480, 235);
 		setLocationRelativeTo(getOwner());
 
 		//---- buttonGroup1 ----

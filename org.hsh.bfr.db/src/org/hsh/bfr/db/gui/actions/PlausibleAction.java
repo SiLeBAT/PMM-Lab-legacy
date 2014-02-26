@@ -338,11 +338,12 @@ public class PlausibleAction extends AbstractAction {
 			System.err.println("fieldnames and simScores with different size...");
 			return null;
 		}
+		/*
 		System.err.print(tablename);
 		for (int i=0;i<fieldnames.length;i++) System.err.print("\t" + fieldnames[i]);
 		for (int i=0;i<maxScores.length;i++) System.err.print("\t" + maxScores[i]);
 		System.err.println();
-		
+		*/
 		String sql = "SELECT " + DBKernel.delimitL("ID");
 		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
 		sql += " FROM " + DBKernel.delimitL(tablename);
@@ -437,8 +438,8 @@ public class PlausibleAction extends AbstractAction {
                 		result += "\n";
                 		
                 	} while(rs2.next());
-                    System.err.println(result);
                     ldResult.put(resRowFirst, resSetOther);
+                    if (ldResult.size() == 0) System.err.println(result);
                 }
         	} while(rs.next());
         }		

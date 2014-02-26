@@ -228,13 +228,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
 				      }
 
-				      //String ec = getStrVal(row.getCell(42)); // EndChain
-				      //String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
+				      String ec = getStrVal(row.getCell(42)); // EndChain
+				      String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
 				      String oc = getStrVal(row.getCell(44)); // OriginCountry
 				      String comment = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
 				      if (comment == null) comment = serial; else comment += "\n" + serial;
-				      //String ft = getStrVal(row.getCell(46)); // Further_Traceback
-				      //String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
+				      String ft = getStrVal(row.getCell(46)); // Further_Traceback
+				      String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
 				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime() &&
@@ -246,13 +246,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				    	  c1 = getCharge_Lieferung(nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
 				    			  prodNameOut, prodNumOut, lotNo_Out, dateMHDOut, datePDOut, oc, dateOut, amountKG_Out, typePUOut, numPUOut,
 				    			  nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, activityRec, vatRec,
-				    			  comment, true);
+				    			  comment, true, null, null, null, null);
 				      }
 				      if (nameSup != null && !nameSup.trim().isEmpty()) {
 				    	  c2 = getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
 					    		  prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
 					    		  nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
-					    		  comment, false);
+					    		  comment, false, ec, ece, ft, ms);
 				      }
 				      if (c1 == null) {
 				      	System.err.println("Fehlerchenchen_1!! Row: " + (i+1));
@@ -385,17 +385,25 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	private Integer getCharge_Lieferung(String name, String street, String streetNumber, String zip, String city, String county, String country, String kind, String vat,
 			String article, String articleNumber, String charge, Date mhd, Date prod, String originCountry, Date delivery, String amountKG, String typePU, String numPU,
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
-			String comment, boolean returnCharge) {
+			String comment, boolean returnCharge,
+			String EndChain, String Explanation_EndChain, String Further_Traceback, String MicrobiologicalSample) {
 		if (name == null) return null;
 		Integer result = null;
 
 		String mhdS = mhd == null ? null : sdf.format(mhd);
 		String prodS = prod == null ? null : sdf.format(prod);
 		String deliveryS = delivery == null ? null : sdf.format(delivery);
+		String sComment = EndChain != null ? "EndChain:" + EndChain : null;
+		String tmp = Explanation_EndChain != null ? "Expl:" + Explanation_EndChain : null;
+		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
+		tmp = Further_Traceback != null ? "FurtherTB:" + Further_Traceback : null;
+		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
+		tmp = MicrobiologicalSample != null ? "Micro:" + MicrobiologicalSample : null;
+		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
 		Integer lastID = getID("Station",
-					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority"},
-					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null},
-					null);
+					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Kommentar"},
+					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null, sComment},
+					new boolean[]{true,true,true,true,true,true,true,false,true,false,false});
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
 							new String[]{"Station","Artikelnummer","Bezeichnung"},
@@ -450,21 +458,45 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  try {
 				if (rs != null && rs.last() && rs.getRow() == 1) {
 					result = rs.getInt(1);
-					if (key != null) {
+					if (key != null && result != null) {
+						boolean doExec = false;
+						sql = "UPDATE " + DBKernel.delimitL(tablename) + " SET ";
 						int i=0;
 						for (boolean b : key) {
-							if (!b) { // Kommentar in Charge or Delivery
-								sql = "UPDATE " + DBKernel.delimitL(tablename) + " SET " + DBKernel.delimitL(feldnames[i]) + "=IFNULL(CONCAT" + DBKernel.delimitL(feldnames[i]) + ",'\n','" + feldVals[i] + "'),'" + feldVals[i] + "')";
+							if (!b && i == key.length - 1) { // Kommentar in Charge or Delivery or Station
+								if (feldVals[i] != null && !feldVals[i].equalsIgnoreCase("null")) {
+									if (sql.endsWith(")")) sql += ",";
+									if (tablename.equals("Station")) {
+										if (feldVals[i].startsWith("EndChain") || feldVals[i].startsWith("Expl") ||
+												feldVals[i].startsWith("FurtherTB") || feldVals[i].startsWith("Micro")) {
+											sql += DBKernel.delimitL(feldnames[i]) + "='" + feldVals[i] + "'";
+											doExec = true;
+										}
+									}
+									else {
+										sql += DBKernel.delimitL(feldnames[i]) + "=IFNULL(CONCAT(" + DBKernel.delimitL(feldnames[i]) + ",'\\n','" + feldVals[i] + "'),'" + feldVals[i] + "')";
+										doExec = true;
+									}
+								}
 							}
 							i++;
+						}
+						if (doExec) {
+							sql += " WHERE " + DBKernel.delimitL("ID") + "=" + result;
+							//System.err.println(sql);
+							PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);
+							ps.executeUpdate();
 						}
 					}
 				}
 
 				if (result == null) {
+					//System.out.println("result is null\t" + sql);
+					
 					sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";
 					PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);					
 					if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+					
 				}
 				else {
 					//System.out.println(result + "\t" + sql);

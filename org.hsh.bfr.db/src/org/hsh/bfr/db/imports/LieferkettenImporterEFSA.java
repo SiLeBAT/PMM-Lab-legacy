@@ -421,9 +421,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 								boolean isCase = nameTo != null && (nameTo.indexOf("Case") >= 0 || nameTo.indexOf("Conf Lot ") >= 0);
 								boolean isLot = isCase && nameTo.indexOf("Conf Lot ") >= 0;
 								empf = getID("Station",
-										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority"},
-										new String[]{nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null},
-										null);
+										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Kommentar"},
+										new String[]{nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null, null},
+										new boolean[]{true,true,true,true,true,true,true,false,true,false,false});
 							}
 							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;
 							//System.err.println(deliveryS);
@@ -453,10 +453,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	  }
 	  if (!fns.isEmpty() && !fvs.isEmpty()) {
 		  ResultSet rs = null;
-		  //System.err.println(sql);
+		  //System.err.println(sql);rs.last()
 		  rs = DBKernel.getResultSet(sql, true);		  
 		  try {
-				if (rs != null && rs.last() && rs.getRow() == 1) {
+				if (rs != null && rs.first()) {//rs.last() && rs.getRow() == 1) {
 					result = rs.getInt(1);
 					if (key != null && result != null) {
 						boolean doExec = false;
@@ -503,8 +503,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				}
 			}
 			catch (Exception e) {
-				System.err.println(sql);
-				MyLogger.handleException(e);
+				if (sql.startsWith("UPDATE") && e.getMessage().startsWith("data exception: string data, right truncation")) ;
+				else {
+					System.err.println(sql);
+					MyLogger.handleException(e);					
+				}
 			}
 	  }
 		

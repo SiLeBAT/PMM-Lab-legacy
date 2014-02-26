@@ -137,6 +137,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      else if (idRec != null) {
 				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidReceived: " + idRec);
 				      }
+				      else {
+				    	  System.err.println("idRec is null??? Row: " + (i+1) + "\t" + adressRec);
+				      }
 				      
 				      String prodNameOut = getStrVal(row.getCell(6)); // ProductName
 				      String prodNumOut = getStrVal(row.getCell(7)); // ProductNo
@@ -182,6 +185,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      else if (idInsp != null) {
 				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidInspected: " + idInsp);
 				      }
+				      else {
+				    	  System.err.println("idInsp is null??? Row: " + (i+1) + "\t" + adressInsp);
+				      }
 
 				      String prodNameIn = getStrVal(row.getCell(24)); // ProductName
 				      String prodNumIn = getStrVal(row.getCell(25)); // ProductNo
@@ -226,6 +232,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      }
 				      else if (idSup != null) {
 				    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
+				      }
+				      else {
+				    	  System.err.println("idSup is null??? Row: " + (i+1) + "\t" + adressSup);
 				      }
 
 				      String ec = getStrVal(row.getCell(42)); // EndChain

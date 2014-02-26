@@ -85,6 +85,7 @@ public class PlausibleDialog4Krise extends JDialog {
 		dd = new JSpinner();
 		label17 = new JLabel();
 		dr = new JSpinner();
+		gentle = new JCheckBox();
 		buttonBar = new JPanel();
 		okButton = new JButton();
 		cancelButton = new JButton();
@@ -104,7 +105,7 @@ public class PlausibleDialog4Krise extends JDialog {
 			{
 				contentPanel.setLayout(new FormLayout(
 					"13*(default, $lcgap), default",
-					"3*(default, $lgap), default"));
+					"4*(default, $lgap), default"));
 				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{5, 9, 13, 17, 21, 25}, {7, 11, 15, 19, 23, 27}});
 
 				//---- label1 ----
@@ -271,6 +272,11 @@ public class PlausibleDialog4Krise extends JDialog {
 				dr.setModel(new SpinnerNumberModel(0, 0, 0, 1));
 				dr.setEnabled(false);
 				contentPanel.add(dr, CC.xy(15, 7));
+
+				//---- gentle ----
+				gentle.setText("gentle");
+				gentle.setSelected(true);
+				contentPanel.add(gentle, CC.xy(1, 9));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -352,6 +358,7 @@ public class PlausibleDialog4Krise extends JDialog {
 	public JSpinner dd;
 	private JLabel label17;
 	public JSpinner dr;
+	public JCheckBox gentle;
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;

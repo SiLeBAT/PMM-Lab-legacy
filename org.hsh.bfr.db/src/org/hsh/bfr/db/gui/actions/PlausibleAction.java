@@ -211,28 +211,28 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
 					pd4.cs.isSelected() ?
 							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort","VATnumber"},
-								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue(),(Integer)pd4.sv.getValue()}, null, null, null) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
+								new int[]{(Integer)pd4.sn.getValue(),(Integer)pd4.sz.getValue(),(Integer)pd4.ss.getValue(),(Integer)pd4.snum.getValue(),(Integer)pd4.sc.getValue(),(Integer)pd4.sv.getValue()}, null, null, null, pd4.gentle.isSelected()) 		//"Station", "Kontaktadresse", new String[]{"FallErfuellt","AnzahlFaelle"});
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
 					pd4.cp.isSelected() ?
 							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung","Artikelnummer"},
-								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"})
+								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"}, pd4.gentle.isSelected())
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 =
 					pd4.cl.isSelected() ?
 							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD","Herstellungsdatum"},
-								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue()}, null, null, null)
+								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
 					pd4.cd.isSelected() ?
 							checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"},
-								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null)
+								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 
@@ -332,7 +332,8 @@ public class PlausibleAction extends AbstractAction {
 		}		
 		return true;
 	}
-	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores, String otherTable, String otherTableField, String[] otherTableDesires) throws SQLException {
+	private LinkedHashMap<String[], LinkedHashSet<String[]>> checkTable4ISM(String tablename, String[] fieldnames, int[] maxScores,
+			String otherTable, String otherTableField, String[] otherTableDesires, boolean gentle) throws SQLException {
 		LinkedHashMap<String[], LinkedHashSet<String[]>> ldResult = new LinkedHashMap<String[], LinkedHashSet<String[]>>();
 		if (maxScores.length != fieldnames.length) {
 			System.err.println("fieldnames and simScores with different size...");
@@ -391,9 +392,9 @@ public class PlausibleAction extends AbstractAction {
         		
                 sql = "SELECT " + DBKernel.delimitL("ID");
         		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
-        		for (int i=0;i<fieldnames.length;i++) sql += fieldVals[i] == null ? ",0 AS SCORE" + i : "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
+        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? ",0 AS SCORE" + i : "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
                 sql += " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + ">" + id;
-        		for (int i=0;i<fieldnames.length;i++) sql += fieldVals[i] == null ? " AND TRUE" : " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
+        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? " AND TRUE" : " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {

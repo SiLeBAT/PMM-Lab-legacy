@@ -146,7 +146,7 @@ public class DBKernel {
 
 	public static String DBVersion = "1.7.6";
 	public static boolean debug = true;
-	public static boolean isKrise = false;
+	public static boolean isKrise = true;
 
 	public static String getTempSA(String dbPath) {
 		//String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");

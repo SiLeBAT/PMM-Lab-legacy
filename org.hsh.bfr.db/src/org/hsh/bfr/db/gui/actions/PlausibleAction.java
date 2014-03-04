@@ -36,21 +36,9 @@ package org.hsh.bfr.db.gui.actions;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -71,9 +59,6 @@ import org.hsh.bfr.db.gui.PlausibleDialog4Krise;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
 import org.hsh.bfr.db.imports.InfoBox;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 /**
  * @author Armin
@@ -573,7 +558,7 @@ public class PlausibleAction extends AbstractAction {
 	    catch(Exception e) {MyLogger.handleException(e);}	
   		
   	}
-  	
+  	/*
   	@SuppressWarnings("unused")
 	private void downloadCombase() {
   		String folder = "Q:/BfR/Desktop/combaseFetch/websites/";
@@ -629,6 +614,7 @@ public class PlausibleAction extends AbstractAction {
 	    }
 	    System.out.println("sumEntriesInCB: " + sumEntriesInCB);  		
   	}
+
   	private void getCSVFile(final String folder2Save, final String baseURL, final String urlString, final int numRecords) {
 		try {
 			File csvFile = new File(folder2Save + urlString.substring(urlString.indexOf("?") + 1) + "&numRecords=" + numRecords + ".csv");
@@ -654,7 +640,7 @@ End Sub
 				Sausage fehlt und:
 				
 http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Other%2fmix
-				*/
+				
 				
 				URL myUrl = new URL(baseURL + "/" + urlString);
 				URLConnection urlConn = myUrl.openConnection();
@@ -799,6 +785,7 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
 		}
 		System.out.println("Fertig");
   	}
+  	*/
   	private void doSpecialThings() {
   		/*
   		DBKernel.dontLog = true;

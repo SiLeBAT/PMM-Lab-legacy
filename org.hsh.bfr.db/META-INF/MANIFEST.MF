@@ -22,6 +22,5 @@ Bundle-ClassPath: .,
  lib/jcalendar.jar,
  lib/MyJabRef-2.6.jar,
  lib/quicktable2swing11.jar,
- lib/jsoup-1.6.1.jar,
  lib/jcm1.0-config.jar
 Bundle-Vendor: BfR

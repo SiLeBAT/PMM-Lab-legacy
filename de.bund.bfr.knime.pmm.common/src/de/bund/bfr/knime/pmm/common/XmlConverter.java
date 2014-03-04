@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.core.ClassLoaderReference;
+import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import de.bund.bfr.knime.pmm.common.chart.ColorAndShapeCreator;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeAttribute;
@@ -19,14 +21,19 @@ public class XmlConverter {
 	private XmlConverter() {
 	}
 
+	public static XStream getXStream() {
+		return new XStream(null, new XppDriver(), new ClassLoaderReference(
+				Activator.class.getClassLoader()));
+	}
+
 	public static String objectToXml(Object obj) {
-		return new XStream().toXML(obj);
+		return getXStream().toXML(obj);
 	}
 
 	@SuppressWarnings("unchecked")
 	public static <T> T xmlToObject(String xml, T obj) {
 		try {
-			return (T) new XStream().fromXML(xml);
+			return (T) getXStream().fromXML(xml);
 		} catch (Exception e) {
 			return obj;
 		}

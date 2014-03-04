@@ -6,28 +6,22 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: org.hsh.bfr.db.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- org.eclipse.core.resources
+ org.eclipse.core.resources,
+ org.apache.poi,
+ org.knime.ext.jfreechart,
+ org.hsqldb,
+ com.jgoodies
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.hsh.bfr.db,
  org.hsh.bfr.db.gui,
  org.hsh.bfr.db.gui.dbtable,
- org.hsh.bfr.db.imports,
- org.hsqldb,
+ org.hsh.bfr.db.imports, 
  quick.dbtable
 Bundle-ClassPath: .,
- lib/poi-3.8-20120326.jar,
- lib/poi-ooxml-3.8-20120326.jar,
- lib/poi-scratchpad-3.8-20120326.jar,
- lib/hsqldb.jar,
- lib/jgoodies-common-1.4.0.jar,
- lib/jgoodies-forms-1.6.0.jar,
- lib/jgoodies-looks-2.5.2.jar,
  lib/jcalendar.jar,
  lib/MyJabRef-2.6.jar,
  lib/quicktable2swing11.jar,
  lib/jsoup-1.6.1.jar,
- lib/jfreechart-1.0.14.jar,
- lib/jcm1.0-config.jar,
- lib/jcommon-1.0.17.jar
+ lib/jcm1.0-config.jar
 Bundle-Vendor: BfR

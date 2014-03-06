@@ -15,10 +15,10 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 	private static final String ATT_DBUUID = "dbuuid";
 
 	private Integer id;
-	private String name = null;
-	private String formula = null;
-	private Integer modelClass = null;
-	private String dbuuid = null;
+	private String name;
+	private String formula;
+	private Integer modelClass;
+	private String dbuuid;
 
 	public CatalogModelXml(Integer id, String name, String formula,
 			Integer modelClass) {

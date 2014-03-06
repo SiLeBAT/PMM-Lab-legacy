@@ -42,6 +42,15 @@ public class XmlHelper {
 		}
 	}
 
+	public static Boolean getBoolean(Element el, String attr) {
+		if (el == null || el.getAttributeValue(attr) == null
+				|| el.getAttributeValue(attr).isEmpty()) {
+			return null;
+		}
+
+		return Boolean.valueOf(el.getAttributeValue(attr));
+	}
+
 	public static String getNonNull(Object o) {
 		if (o == null) {
 			return "";

@@ -12,11 +12,11 @@ public class DepXml implements PmmXmlElementConvertable {
 	private static final String ATT_UNIT = "unit";
 	private static final String ATT_DESCRIPTION = "description";
 
-	private String name = null;
-	private String origName = null;
-	private String category = null;
-	private String unit = null;
-	private String description = null;
+	private String name;
+	private String origName;
+	private String category;
+	private String unit;
+	private String description;
 
 	public DepXml(String name) {
 		this(name, null, null, null, null);
@@ -44,16 +44,15 @@ public class DepXml implements PmmXmlElementConvertable {
 
 	@Override
 	public Element toXmlElement() {
-		Element modelElement = new Element(ELEMENT_DEPENDENT);
+		Element ret = new Element(ELEMENT_DEPENDENT);
 
-		modelElement.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
-		modelElement.setAttribute(ATT_ORIGNAME, XmlHelper.getNonNull(origName));
-		modelElement.setAttribute(ATT_CATEGORY, XmlHelper.getNonNull(category));
-		modelElement.setAttribute(ATT_UNIT, XmlHelper.getNonNull(unit));
-		modelElement.setAttribute(ATT_DESCRIPTION,
-				XmlHelper.getNonNull(description));		
+		ret.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
+		ret.setAttribute(ATT_ORIGNAME, XmlHelper.getNonNull(origName));
+		ret.setAttribute(ATT_CATEGORY, XmlHelper.getNonNull(category));
+		ret.setAttribute(ATT_UNIT, XmlHelper.getNonNull(unit));
+		ret.setAttribute(ATT_DESCRIPTION, XmlHelper.getNonNull(description));
 
-		return modelElement;
+		return ret;
 	}
 
 	public String getName() {

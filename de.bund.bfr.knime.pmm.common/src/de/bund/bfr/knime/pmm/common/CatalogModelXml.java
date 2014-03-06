@@ -1,12 +1,6 @@
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom2.Element;
-import org.knime.core.data.DataType;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
@@ -49,35 +43,15 @@ public class CatalogModelXml implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element modelElement = new Element(ELEMENT_CATALOGMODEL);
+
 		modelElement.setAttribute(ATT_ID, XmlHelper.getNonNull(id));
 		modelElement.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
 		modelElement.setAttribute(ATT_FORMULA, XmlHelper.getNonNull(formula));
 		modelElement.setAttribute(ATT_MODEL_CLASS,
 				XmlHelper.getNonNull(modelClass));
 		modelElement.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
+
 		return modelElement;
-	}
-
-	public static List<String> getElements() {
-		List<String> list = new ArrayList<String>();
-		list.add(ATT_ID);
-		list.add(ATT_NAME);
-		list.add(ATT_FORMULA);
-		list.add(ATT_DBUUID);
-		return list;
-	}
-
-	public static DataType getDataType(String element) {
-		if (element.equalsIgnoreCase(ATT_ID)) {
-			return IntCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_NAME)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_FORMULA)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_DBUUID)) {
-			return StringCell.TYPE;
-		}
-		return null;
 	}
 
 	public Integer getId() {

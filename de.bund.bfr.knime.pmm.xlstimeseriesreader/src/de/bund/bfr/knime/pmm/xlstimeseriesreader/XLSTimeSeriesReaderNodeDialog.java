@@ -486,7 +486,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 					if (set.getColumnMappings().get(column) instanceof MiscXml) {
 						id = DBKernel.openMiscDBWindow(((MiscXml) set
-								.getColumnMappings().get(column)).getID());
+								.getColumnMappings().get(column)).getId());
 					} else {
 						id = DBKernel.openMiscDBWindow(null);
 					}
@@ -856,7 +856,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 						button.setEnabled(false);
 						button.setText(OTHER_PARAMETER);
 					} else if (mapping instanceof MiscXml) {
-						int id = ((MiscXml) mapping).getID();
+						int id = ((MiscXml) mapping).getId();
 
 						if (id == AttributeUtilities.ATT_TEMPERATURE_ID) {
 							UI.select(box, AttributeUtilities.ATT_TEMPERATURE);

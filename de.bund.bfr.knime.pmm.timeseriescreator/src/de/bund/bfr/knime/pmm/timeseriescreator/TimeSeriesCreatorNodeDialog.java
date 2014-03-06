@@ -335,13 +335,13 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		}
 
 		for (MiscXml misc : set.getMisc()) {
-			if (misc.getID() == AttributeUtilities.ATT_TEMPERATURE_ID) {
+			if (misc.getId() == AttributeUtilities.ATT_TEMPERATURE_ID) {
 				temperatureField.setValue(misc.getValue());
 				tempBox.setSelectedItem(misc.getUnit());
-			} else if (misc.getID() == AttributeUtilities.ATT_PH_ID) {
+			} else if (misc.getId() == AttributeUtilities.ATT_PH_ID) {
 				phField.setValue(misc.getValue());
 				phBox.setSelectedItem(misc.getUnit());
-			} else if (misc.getID() == AttributeUtilities.ATT_AW_ID) {
+			} else if (misc.getId() == AttributeUtilities.ATT_AW_ID) {
 				waterActivityField.setValue(misc.getValue());
 				awBox.setSelectedItem(misc.getUnit());
 			} else {
@@ -568,7 +568,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (conditions.get(i) != null) {
-				id = DBKernel.openMiscDBWindow(conditions.get(i).getID());
+				id = DBKernel.openMiscDBWindow(conditions.get(i).getId());
 			} else {
 				id = DBKernel.openMiscDBWindow(null);
 			}
@@ -771,7 +771,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 
 				for (int i = 0; i < miscXML.getElementSet().size(); i++) {
 					MiscXml misc = (MiscXml) miscXML.getElementSet().get(i);
-					int id = misc.getID();
+					int id = misc.getId();
 					String name = misc.getName();
 					Double value = misc.getValue();
 					String unit = misc.getUnit();
@@ -1108,7 +1108,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						Integer oldID = null;
 
 						if (mappings.get(column) instanceof MiscXml) {
-							oldID = ((MiscXml) mappings.get(column)).getID();
+							oldID = ((MiscXml) mappings.get(column)).getId();
 						}
 
 						Integer id = DBKernel.openMiscDBWindow(oldID);

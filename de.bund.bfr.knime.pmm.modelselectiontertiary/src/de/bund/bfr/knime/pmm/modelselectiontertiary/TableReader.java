@@ -258,7 +258,7 @@ public class TableReader {
 				paramValues.add(element.getValue());
 				paramData.put(element.getName(), element.getValue());
 				paramData.put(element.getName() + ": SE", element.getError());
-				paramData.put(element.getName() + ": t", element.gett());
+				paramData.put(element.getName() + ": t", element.getT());
 				paramData.put(element.getName() + ": Pr > |t|", element.getP());
 			}
 

@@ -133,7 +133,7 @@ public class DbIo {
 						px.setName(nas);
 						if (cd != null && cd[i] != null) px.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
 						if (cp != null && cp[i] != null) px.setP(Double.parseDouble(cp[i].toString()));
-						if (ct != null && ct[i] != null) px.sett(Double.parseDouble(ct[i].toString()));
+						if (ct != null && ct[i] != null) px.setT(Double.parseDouble(ct[i].toString()));
 						if (emid != null) px = addCorrs(px, modelId, emid);
 						paramDoc.add(px);
 					}					

@@ -338,7 +338,7 @@ public class ModelCombiner {
 
 					param.getAllCorrelations().clear();
 					param.setError(null);
-					param.sett(null);
+					param.setT(null);
 					param.setP(null);
 				}
 			}

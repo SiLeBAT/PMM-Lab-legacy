@@ -707,7 +707,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			if (el instanceof ParamXml) {
 				ParamXml px = (ParamXml) el;
 				if (px.getName().equals(paramName)) {
-					return px.gett();
+					return px.getT();
 				}
 			}
 		}

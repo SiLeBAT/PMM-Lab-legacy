@@ -349,7 +349,7 @@ public class OneStepEstimationThread implements Runnable {
 
 						element.setValue(parameterValues.get(j));
 						element.setError(parameterErrors.get(j));
-						element.sett(parameterTValues.get(j));
+						element.setT(parameterTValues.get(j));
 						element.setP(parameterPValues.get(j));
 
 						for (int k = 0; k < paramXml.getElementSet().size(); k++) {

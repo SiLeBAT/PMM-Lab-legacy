@@ -204,7 +204,7 @@ public class PrimaryEstimationThread implements Runnable {
 
 				element.setValue(parameterValues.get(i));
 				element.setError(parameterErrors.get(i));
-				element.sett(parameterTValues.get(i));
+				element.setT(parameterTValues.get(i));
 				element.setP(parameterPValues.get(i));
 
 				for (int j = 0; j < paramXml.getElementSet().size(); j++) {

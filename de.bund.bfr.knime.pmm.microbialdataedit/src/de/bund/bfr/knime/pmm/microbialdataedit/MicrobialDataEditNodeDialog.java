@@ -1035,7 +1035,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Integer id;
 
 			if (matrix != null) {
-				id = DBKernel.openMatrixDBWindow(matrix.getID());
+				id = DBKernel.openMatrixDBWindow(matrix.getId());
 			} else {
 				id = DBKernel.openMatrixDBWindow(null);
 			}

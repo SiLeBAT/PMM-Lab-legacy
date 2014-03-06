@@ -433,25 +433,25 @@ public class CellIO {
 					} else if (el instanceof MatrixXml) {
 						MatrixXml matx = (MatrixXml) el;
 						MatrixXml matxDB = ((MatrixXml) fromToXmlDB.get(i));
-						Integer key = matx.getID();
+						Integer key = matx.getId();
 						if (key != null && foreignDbIds.containsKey(key)) {
 							if (before) {
-								matxDB.setID(foreignDbIds.get(key)); // schemaTuple.addValue(attr,
+								matxDB.setId(foreignDbIds.get(key)); // schemaTuple.addValue(attr,
 																		// foreignDbIds.get(key));
 								fromToXmlDB.set(i, matxDB);
 							} else if (foreignDbIds.get(key).intValue() != matxDB
-									.getID()) {
+									.getId()) {
 								System.err
 										.println("fillNewIDsIntoForeign ... shouldn't happen...MatrixXml");
 							}
 						} else {
 							if (before) {
-								matxDB.setID(MathUtilities
+								matxDB.setId(MathUtilities
 										.getRandomNegativeInt()); // schemaTuple.addValue(attr,
 																	// MathUtilities.getRandomNegativeInt());
 								fromToXmlDB.set(i, matxDB);
 							} else
-								foreignDbIds.put(key, matxDB.getID()); // schemaTuple.getIntList(attr).get(i));
+								foreignDbIds.put(key, matxDB.getId()); // schemaTuple.getIntList(attr).get(i));
 						}
 					} else if (el instanceof AgentXml) {
 						AgentXml ax = (AgentXml) el;

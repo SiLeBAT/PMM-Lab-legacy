@@ -33,13 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom2.Element;
-import org.knime.core.data.DataType;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 
@@ -75,7 +69,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	private String website;
 	private Integer type;
 	private String comment;
-	private String dbuuid = null;
+	private String dbuuid;
 
 	public LiteratureItem(final String author, final Integer year,
 			final String title, final String abstractText, String journal,
@@ -131,6 +125,7 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_LITERATURE);
+		
 		ret.setAttribute(ATT_AUTHOR, XmlHelper.getNonNull(author));
 		ret.setAttribute(ATT_YEAR, XmlHelper.getNonNull(year));
 		ret.setAttribute(ATT_TITLE, XmlHelper.removeDirt(title));
@@ -145,40 +140,13 @@ public class LiteratureItem implements PmmXmlElementConvertable {
 		ret.setAttribute(ATT_COMMENT, XmlHelper.getNonNull(comment));
 		ret.setAttribute(ATT_ID, XmlHelper.getNonNull(id));
 		ret.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
+		
 		return ret;
 	}
 
 	@Override
 	public String toString() {
 		return author + "_" + year + "_" + title;
-	}
-
-	public static List<String> getElements() {
-		List<String> list = new ArrayList<String>();
-		list.add(ATT_ID);
-		list.add(ATT_AUTHOR);
-		list.add(ATT_YEAR);
-		list.add(ATT_TITLE);
-		list.add(ATT_ABSTRACT);
-		list.add(ATT_DBUUID);
-		return list;
-	}
-
-	public static DataType getDataType(String element) {
-		if (element.equalsIgnoreCase(ATT_ID)) {
-			return IntCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_AUTHOR)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_YEAR)) {
-			return IntCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_TITLE)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_ABSTRACT)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_DBUUID)) {
-			return StringCell.TYPE;
-		}
-		return null;
 	}
 
 	public Integer getId() {

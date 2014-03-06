@@ -251,7 +251,7 @@ public class MdReaderUi extends JPanel {
         		if (el instanceof MatrixXml) {
         			MatrixXml mx = (MatrixXml) el;
         			if (matrixID > 0) {
-        				int id = mx.getID();
+        				int id = mx.getId();
         				if (matrixID != id) return false;
         			}
         			else {

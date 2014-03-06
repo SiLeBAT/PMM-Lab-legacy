@@ -466,7 +466,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getMatrix() != null) {
-				id = DBKernel.openMatrixDBWindow(set.getMatrix().getID());
+				id = DBKernel.openMatrixDBWindow(set.getMatrix().getId());
 			} else {
 				id = DBKernel.openMatrixDBWindow(null);
 			}
@@ -596,7 +596,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 
 					if (set.getMatrixMappings().get(value) != null) {
 						id = DBKernel.openMatrixDBWindow(set
-								.getMatrixMappings().get(value).getID());
+								.getMatrixMappings().get(value).getId());
 					} else {
 						id = DBKernel.openMatrixDBWindow(null);
 					}

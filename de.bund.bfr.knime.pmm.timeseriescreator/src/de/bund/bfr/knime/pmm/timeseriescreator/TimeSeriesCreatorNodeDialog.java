@@ -544,7 +544,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getMatrix() != null) {
-				id = DBKernel.openMatrixDBWindow(set.getMatrix().getID());
+				id = DBKernel.openMatrixDBWindow(set.getMatrix().getId());
 			} else {
 				id = DBKernel.openMatrixDBWindow(null);
 			}

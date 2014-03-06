@@ -113,7 +113,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				PmmXmlDoc matrixXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_MATRIX);
 
-				((MatrixXml) matrixXml.get(0)).setID(set.getMatrix().getID());
+				((MatrixXml) matrixXml.get(0)).setId(set.getMatrix().getId());
 				((MatrixXml) matrixXml.get(0)).setName(set.getMatrix()
 						.getName());
 				((MatrixXml) matrixXml.get(0)).setDbuuid(set.getMatrix()

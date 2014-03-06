@@ -81,11 +81,11 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		return ret;
 	}
 
-	public Integer getID() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setID(Integer id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 
@@ -97,11 +97,11 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		this.name = name;
 	}
 
-	public Double getRMS() {
+	public Double getRms() {
 		return rms;
 	}
 
-	public void setRMS(Double rms) {
+	public void setRms(Double rms) {
 		this.rms = rms;
 	}
 
@@ -113,27 +113,27 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		this.r2 = r2;
 	}
 
-	public Double getAIC() {
+	public Double getAic() {
 		return aic;
 	}
 
-	public void setAIC(Double aic) {
+	public void setAic(Double aic) {
 		this.aic = aic;
 	}
 
-	public Double getBIC() {
+	public Double getBic() {
 		return bic;
 	}
 
-	public void setBIC(Double bic) {
+	public void setBic(Double bic) {
 		this.bic = bic;
 	}
 
-	public Integer getDOF() {
+	public Integer getDof() {
 		return dof;
 	}
 
-	public void setDOF(Integer dof) {
+	public void setDof(Integer dof) {
 		this.dof = dof;
 	}
 

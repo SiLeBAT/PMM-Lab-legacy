@@ -433,7 +433,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		Map<Integer,List<KnimeTuple>> tuplesBySecEstId = new LinkedHashMap<Integer, List<KnimeTuple>>();
     		
     		for (KnimeTuple tuple : resultSet) {
-    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getID();
+    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
     			
     			if (!tuplesBySecEstId.containsKey(secEstId)) {
     				tuplesBySecEstId.put(secEstId, new ArrayList<KnimeTuple>());
@@ -443,7 +443,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     		}
     		
     		for (KnimeTuple tuple : resultSet) {
-    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getID();
+    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
     			Map<String, String> units = PmmUtilities.getMiscUnits(tuplesBySecEstId.get(secEstId));
     			
     			for (PmmXmlElementConvertable xml : tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT).getElementSet()) {

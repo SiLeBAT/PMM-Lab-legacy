@@ -202,7 +202,7 @@ if (true) return null;
 						}
 					}
 				}
-				Integer rowEstM1ID = emx.getID();//row.getInt(Model1Schema.ATT_ESTMODELID);
+				Integer rowEstM1ID = emx.getId();//row.getInt(Model1Schema.ATT_ESTMODELID);
 				Integer dw = row.getInt(Model1Schema.ATT_DATABASEWRITABLE);
 				M1Writable = (dw != null && dw == 1);
 				if (M1Writable) {
@@ -229,10 +229,10 @@ if (true) return null;
 					PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model1Schema.ATT_MLIT);
 					PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model1Schema.ATT_EMLIT);
 					
-		    		Double rms = emx.getRMS();//row.getDouble(Model1Schema.ATT_RMS);
+		    		Double rms = emx.getRms();//row.getDouble(Model1Schema.ATT_RMS);
 		    		Double r2 = emx.getR2();//row.getDouble(Model1Schema.ATT_RSQUARED);
-		    		Double aic = emx.getAIC();//row.getDouble(Model1Schema.ATT_AIC);
-		    		Double bic = emx.getBIC();//row.getDouble(Model1Schema.ATT_BIC);
+		    		Double aic = emx.getAic();//row.getDouble(Model1Schema.ATT_AIC);
+		    		Double bic = emx.getBic();//row.getDouble(Model1Schema.ATT_BIC);
 
 		    		// Modellkatalog primary
 					if (alreadyInsertedModel.containsKey(rowMcID)) {
@@ -312,7 +312,7 @@ if (true) return null;
 							}
 						}
 					}
-					rowEstM2ID = emx.getID();
+					rowEstM2ID = emx.getId();
 					//System.err.println(newPrimEstID + "\t" + rowEstM2ID);
 					if (M2Writable) {
 						CatalogModelXml cmx = null;
@@ -337,10 +337,10 @@ if (true) return null;
 							PmmXmlDoc mLitXmlDoc = row.getPmmXml(Model2Schema.ATT_MLIT);
 							PmmXmlDoc emLitXmlDoc = row.getPmmXml(Model2Schema.ATT_EMLIT);
 
-				    		Double rms = emx.getRMS();//row.getDouble(Model2Schema.ATT_RMS);
+				    		Double rms = emx.getRms();//row.getDouble(Model2Schema.ATT_RMS);
 				    		Double r2 = emx.getR2();//row.getDouble(Model2Schema.ATT_RSQUARED);
-				    		Double aic = emx.getAIC();//row.getDouble(Model2Schema.ATT_AIC);
-				    		Double bic = emx.getBIC();//row.getDouble(Model2Schema.ATT_BIC);
+				    		Double aic = emx.getAic();//row.getDouble(Model2Schema.ATT_AIC);
+				    		Double bic = emx.getBic();//row.getDouble(Model2Schema.ATT_BIC);
 				    						    		
 				    		// Modellkatalog secondary
 							if (alreadyInsertedModel.containsKey(rowMcID)) {

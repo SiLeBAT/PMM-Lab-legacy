@@ -360,29 +360,29 @@ public class CellIO {
 					if (el instanceof EstModelXml) {
 						EstModelXml emx = (EstModelXml) el;
 						EstModelXml emxDB = ((EstModelXml) fromToXmlDB.get(i));
-						Integer key = emx.getID();
+						Integer key = emx.getId();
 						if (key != null && foreignDbIdsTable.containsKey(key)) {
 							if (before) {
 								pm.setEstModelId(foreignDbIdsTable.get(key));
-								emxDB.setID(foreignDbIdsTable.get(key));
+								emxDB.setId(foreignDbIdsTable.get(key));
 								fromToXmlDB.set(i, emxDB);
 							} else if (foreignDbIdsTable.get(key).intValue() != emxDB
-									.getID().intValue()) {
+									.getId().intValue()) {
 								System.err
 										.println("checkIDs, EstModelXml ... shouldn't happen - "
 												+ foreignDbIdsTable.get(key)
 														.intValue()
 												+ "\t"
-												+ emxDB.getID().intValue());
+												+ emxDB.getId().intValue());
 							}
 						} else {
 							if (before) {
 								int rn = MathUtilities.getRandomNegativeInt();
 								pm.setEstModelId(rn);
-								emxDB.setID(rn);
+								emxDB.setId(rn);
 								fromToXmlDB.set(i, emxDB);
 							} else
-								foreignDbIdsTable.put(key, emxDB.getID());
+								foreignDbIdsTable.put(key, emxDB.getId());
 						}
 					}
 					i++;

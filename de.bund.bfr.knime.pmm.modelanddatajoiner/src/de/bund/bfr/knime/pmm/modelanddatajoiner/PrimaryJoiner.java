@@ -325,7 +325,7 @@ public class PrimaryJoiner implements Joiner {
 			int id = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			Integer estID = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID();
+					Model1Schema.ATT_ESTMODEL).get(0)).getId();
 
 			if (estID != null) {
 				if (estIDs.add(estID)) {

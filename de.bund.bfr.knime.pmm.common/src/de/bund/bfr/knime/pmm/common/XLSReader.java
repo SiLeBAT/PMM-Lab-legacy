@@ -541,7 +541,7 @@ public class XLSReader {
 					.getPmmXml(Model1Schema.ATT_PARAMETER);
 			PmmXmlDoc estXml = modelTuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
-			((EstModelXml) estXml.get(0)).setID(MathUtilities
+			((EstModelXml) estXml.get(0)).setId(MathUtilities
 					.getRandomNegativeInt());
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -593,7 +593,7 @@ public class XLSReader {
 							((DepXml) secDepXml.get(0)).getName(), param);
 					((CatalogModelXml) secModelXml.get(0)).setFormula(formula);
 					((DepXml) secDepXml.get(0)).setName(param);
-					((EstModelXml) secEstXml.get(0)).setID(MathUtilities
+					((EstModelXml) secEstXml.get(0)).setId(MathUtilities
 							.getRandomNegativeInt());
 
 					for (PmmXmlElementConvertable el : secParamXml

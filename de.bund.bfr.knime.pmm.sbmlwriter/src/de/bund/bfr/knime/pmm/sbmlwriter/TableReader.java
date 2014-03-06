@@ -86,13 +86,13 @@ public class TableReader {
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 
-			Integer id = estXml.getID();
+			Integer id = estXml.getId();
 
 			if (!idSet.add(id)) {
 				continue;
 			}
 
-			String modelID = "Model_Test" + Math.abs(estXml.getID());
+			String modelID = "Model_Test" + Math.abs(estXml.getId());
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 			Parameter depParam = model.createParameter(depXml.getName());

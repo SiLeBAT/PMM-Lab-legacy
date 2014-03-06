@@ -278,7 +278,7 @@ public class SecondaryJoiner implements Joiner, ActionListener {
 					String modelIDSec = ((CatalogModelXml) modelXmlSec.get(0))
 							.getId() + "";
 					Integer estIDSec = ((EstModelXml) modelTuple.getPmmXml(
-							Model2Schema.ATT_ESTMODEL).get(0)).getID();
+							Model2Schema.ATT_ESTMODEL).get(0)).getId();
 
 					if (!model.equals(modelIDSec) || !usedEstIDs.add(estIDSec)) {
 						continue;

@@ -242,7 +242,7 @@ public class TableReader {
 
 		for (KnimeTuple tuple : tuples) {
 			String id = ((EstModelXml) tuple.getPmmXml(
-					Model1Schema.ATT_ESTMODEL).get(0)).getID()
+					Model1Schema.ATT_ESTMODEL).get(0)).getId()
 					+ "";
 
 			if (!isTertiaryModel && containsData) {
@@ -398,17 +398,17 @@ public class TableReader {
 
 			doubleColumnValues.get(0).add(
 					MathUtilities.getSSE(
-							((EstModelXml) estModelXml.get(0)).getRMS(),
-							((EstModelXml) estModelXml.get(0)).getDOF()));
+							((EstModelXml) estModelXml.get(0)).getRms(),
+							((EstModelXml) estModelXml.get(0)).getDof()));
 			doubleColumnValues.get(1).add(
 					MathUtilities.getMSE(((EstModelXml) estModelXml.get(0))
-							.getRMS()));
+							.getRms()));
 			doubleColumnValues.get(2).add(
-					((EstModelXml) estModelXml.get(0)).getRMS());
+					((EstModelXml) estModelXml.get(0)).getRms());
 			doubleColumnValues.get(3).add(
 					((EstModelXml) estModelXml.get(0)).getR2());
 			doubleColumnValues.get(4).add(
-					((EstModelXml) estModelXml.get(0)).getAIC());
+					((EstModelXml) estModelXml.get(0)).getAic());
 
 			plotable.setFunction(modelXml.getFormula());
 			plotable.setFunctionValue(depVar);
@@ -418,7 +418,7 @@ public class TableReader {
 			plotable.setFunctionParameters(parameters);
 			plotable.setCovariances(covariances);
 			plotable.setDegreesOfFreedom(((EstModelXml) estModelXml.get(0))
-					.getDOF());
+					.getDof());
 			plotable.setCategories(categories);
 			plotable.setUnits(units);
 
@@ -618,13 +618,13 @@ public class TableReader {
 		Integer primId = ((CatalogModelXml) current.getPmmXml(
 				Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 		Integer secEstId = ((EstModelXml) current.getPmmXml(
-				Model2Schema.ATT_ESTMODEL).get(0)).getID();
+				Model2Schema.ATT_ESTMODEL).get(0)).getId();
 
 		for (KnimeTuple tuple : all) {
 			Integer pId = ((CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 			Integer sId = ((EstModelXml) tuple.getPmmXml(
-					Model2Schema.ATT_ESTMODEL).get(0)).getID();
+					Model2Schema.ATT_ESTMODEL).get(0)).getId();
 
 			if (primId.equals(pId) && secEstId.equals(sId)) {
 				tuples.add(tuple);

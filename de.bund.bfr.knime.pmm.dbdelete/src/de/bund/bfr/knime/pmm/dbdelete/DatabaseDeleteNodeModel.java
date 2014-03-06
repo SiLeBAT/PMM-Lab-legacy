@@ -130,7 +130,7 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 									break;
 								}
 							}
-							if (level == 2 || checkPrimaryDeletion(conn, emx.getID())) numDBSuccesses += deleteFMID(conn, level, emx.getID());
+							if (level == 2 || checkPrimaryDeletion(conn, emx.getId())) numDBSuccesses += deleteFMID(conn, level, emx.getId());
 						}
 					}
 				}					

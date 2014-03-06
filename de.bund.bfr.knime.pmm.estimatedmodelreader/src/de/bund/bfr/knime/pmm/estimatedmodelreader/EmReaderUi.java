@@ -244,7 +244,7 @@ public class EmReaderUi extends JPanel {
 					for (PmmXmlElementConvertable el : estModel.getElementSet()) {
 						if (el instanceof EstModelXml) {
 							EstModelXml emx = (EstModelXml) el;
-							labelText += emx.getID() + " -> " + emx.getName() + "<br>";
+							labelText += emx.getId() + " -> " + emx.getName() + "<br>";
 							break;
 						}
 					}
@@ -413,7 +413,7 @@ public class EmReaderUi extends JPanel {
     			return true;
     			
     		case MODE_RMS :    			
-    			if (emx != null && emx.getRMS() <= qualityThresh) return true;    			
+    			if (emx != null && emx.getRms() <= qualityThresh) return true;    			
     			else return false;
     			
     		case MODE_R2 :    			

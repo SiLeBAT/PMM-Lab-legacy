@@ -284,7 +284,7 @@ public class ModelCombiner {
 
 			for (KnimeTuple tuple : usedTuples) {
 				Integer estID = ((EstModelXml) tuple.getPmmXml(
-						Model2Schema.ATT_ESTMODEL).get(0)).getID();
+						Model2Schema.ATT_ESTMODEL).get(0)).getId();
 
 				if (estID != null) {
 					newEstID += estID;
@@ -304,11 +304,11 @@ public class ModelCombiner {
 					.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
 			((CatalogModelXml) modelXml.get(0)).setId(newID);
-			((EstModelXml) estModelXml.get(0)).setID(newEstID);
-			((EstModelXml) estModelXml.get(0)).setRMS(null);
+			((EstModelXml) estModelXml.get(0)).setId(newEstID);
+			((EstModelXml) estModelXml.get(0)).setRms(null);
 			((EstModelXml) estModelXml.get(0)).setR2(null);
-			((EstModelXml) estModelXml.get(0)).setAIC(null);
-			((EstModelXml) estModelXml.get(0)).setBIC(null);
+			((EstModelXml) estModelXml.get(0)).setAic(null);
+			((EstModelXml) estModelXml.get(0)).setBic(null);
 
 			newTuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 			newTuple.setValue(Model1Schema.ATT_ESTMODEL, estModelXml);

@@ -173,7 +173,7 @@ public class TableReader {
 					.getPmmXml(Model2Schema.ATT_DEPENDENT).get(0);
 			EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
 					Model2Schema.ATT_ESTMODEL).get(0);
-			String id = depXml.getName() + estXml.getID();
+			String id = depXml.getName() + estXml.getId();
 
 			if (schemaContainsData) {
 				CatalogModelXml primModelXml = (CatalogModelXml) tuple
@@ -243,12 +243,12 @@ public class TableReader {
 						tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT));
 				paramMap.put(id, paramXmlSec);
 				depVarDataMap.put(id, new ArrayList<Double>());
-				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRMS());
+				rmsMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getRms());
 				rSquaredMap.put(id,
 						((EstModelXml) estModelXmlSec.get(0)).getR2());
-				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAIC());
-				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBIC());
-				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDOF());
+				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());
+				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBic());
+				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDof());
 
 				if (schemaContainsData) {
 					miscDataMaps.put(id,

@@ -1,117 +1,123 @@
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom2.Element;
-import org.knime.core.data.DataType;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.StringCell;
 
 public class IndepXml implements PmmXmlElementConvertable {
 
 	public static final String ELEMENT_INDEP = "indep";
 
-	private String name = null;
-	private String origName = null;
-	private Double min = null;
-	private Double max = null;
-	private String category = null;
-	private String unit = null;
-	private String description = null;
-	
+	private static final String ATT_NAME = "name";
+	private static final String ATT_ORIGNAME = "origname";
+	private static final String ATT_MIN = "min";
+	private static final String ATT_MAX = "max";
+	private static final String ATT_CATEGORY = "category";
+	private static final String ATT_UNIT = "unit";
+	private static final String ATT_DESCRIPTION = "description";
+
+	private String name;
+	private String origName;
+	private Double min;
+	private Double max;
+	private String category;
+	private String unit;
+	private String description;
+
 	public IndepXml(String name, Double min, Double max) {
 		this(name, min, max, null, null);
 	}
-	public IndepXml(String name, Double min, Double max, String category, String unit) {
-		setName(name);
-		setOrigName(name);
-		setMin(min);
-		setMax(max);
-		setCategory(category);
-		setUnit(unit);
+
+	public IndepXml(String name, Double min, Double max, String category,
+			String unit) {
+		this(name, name, min, max, category, unit, null);
 	}
-	public IndepXml(Element xmlElement) {
-		try {
-			setName(xmlElement.getAttribute("name").getValue());
-			setOrigName(xmlElement.getAttribute("origname").getValue());
-			String strDbl = xmlElement.getAttribute("min").getValue();
-			setMin(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));
-			strDbl = xmlElement.getAttribute("max").getValue();
-			setMax(strDbl.trim().isEmpty() ? null : Double.parseDouble(strDbl));			
-			strDbl = xmlElement.getAttribute("category") != null ? xmlElement.getAttribute("category").getValue().trim() : "";
-			setCategory(strDbl.isEmpty() ? null : strDbl);
-			strDbl = xmlElement.getAttribute("unit").getValue().trim();
-			setUnit(strDbl.isEmpty() ? null : strDbl);
-			strDbl = xmlElement.getAttribute("description") != null ? xmlElement.getAttribute("description").getValue().trim() : "";
-			setDescription(strDbl.isEmpty() ? null : strDbl);
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+
+	public IndepXml(String name, String origName, Double min, Double max,
+			String category, String unit, String description) {
+		this.name = name;
+		this.origName = origName;
+		this.min = min;
+		this.max = max;
+		this.category = category;
+		this.unit = unit;
+		this.description = description;
 	}
-	public String getName() {return name;}
-	public String getOrigName() {return origName;}
-	public Double getMin() {return min;}
-	public Double getMax() {return max;}
-	public String getCategory() {return category;}
-	public String getUnit() {return unit;}
-	public String getDescription() {return description;}
-	
-	public void setName(String name) {this.name = (name == null) ? "" : name;}
-	public void setOrigName(String origName) {this.origName = (origName == null) ? "" : origName;}
-	public void setMin(Double min) {this.min = min;}
-	public void setMax(Double max) {this.max = max;}
-	public void setCategory(String category) {this.category = category;}
-	public void setUnit(String unit) {this.unit = unit;}
-	public void setDescription(String description) {this.description = description;}
+
+	public IndepXml(Element el) {
+		this(XmlHelper.getString(el, ATT_NAME), XmlHelper.getString(el,
+				ATT_ORIGNAME), XmlHelper.getDouble(el, ATT_MIN), XmlHelper
+				.getDouble(el, ATT_MAX), XmlHelper.getString(el, ATT_CATEGORY),
+				XmlHelper.getString(el, ATT_UNIT), XmlHelper.getString(el,
+						ATT_DESCRIPTION));
+	}
 
 	@Override
 	public Element toXmlElement() {
-		Element modelElement = new Element(ELEMENT_INDEP);
-		modelElement.setAttribute("name", name);
-		modelElement.setAttribute("origname", origName);
-		modelElement.setAttribute("min", "" + (min == null || Double.isNaN(min) ? "" : min));
-		modelElement.setAttribute("max", "" + (max == null || Double.isNaN(max) ? "" : max));
-		modelElement.setAttribute("category", category == null ? "" : category);
-		modelElement.setAttribute("unit", unit == null ? "" : unit);
-		modelElement.setAttribute("description", description == null ? "" : description);
-		return modelElement;
+		Element ret = new Element(ELEMENT_INDEP);
+
+		ret.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
+		ret.setAttribute(ATT_ORIGNAME, XmlHelper.getNonNull(origName));
+		ret.setAttribute(ATT_MIN, XmlHelper.getNonNull(min));
+		ret.setAttribute(ATT_MAX, XmlHelper.getNonNull(max));
+		ret.setAttribute(ATT_CATEGORY, XmlHelper.getNonNull(category));
+		ret.setAttribute(ATT_UNIT, XmlHelper.getNonNull(unit));
+		ret.setAttribute(ATT_DESCRIPTION, XmlHelper.getNonNull(description));
+
+		return ret;
 	}
 
-	public static List<String> getElements() {
-        List<String> list = new ArrayList<String>();
-        list.add("Name");
-        list.add("Origname");
-        list.add("Min");
-        list.add("Max");
-        list.add("Category");
-        list.add("Unit");
-        list.add("Description");
-        return list;
+	public String getName() {
+		return name;
 	}
-	public static DataType getDataType(String element) {
-		if (element.equalsIgnoreCase("name")) {
-			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("origname")) {
-			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("min")) {
-			return DoubleCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("max")) {
-			return DoubleCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("category")) {
-			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("unit")) {
-			return StringCell.TYPE;
-		}
-		else if (element.equalsIgnoreCase("description")) {
-			return StringCell.TYPE;
-		}
-		return null;
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getOrigName() {
+		return origName;
+	}
+
+	public void setOrigName(String origName) {
+		this.origName = origName;
+	}
+
+	public Double getMin() {
+		return min;
+	}
+
+	public void setMin(Double min) {
+		this.min = min;
+	}
+
+	public Double getMax() {
+		return max;
+	}
+
+	public void setMax(Double max) {
+		this.max = max;
+	}
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 }

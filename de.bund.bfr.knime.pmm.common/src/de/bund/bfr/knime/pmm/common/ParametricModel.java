@@ -193,11 +193,11 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			for (PmmXmlElementConvertable el : x.getElementSet()) {
 				if (el instanceof EstModelXml) {
 					EstModelXml emx = (EstModelXml) el;
-					this.setEstModelId(emx.getID());
-					this.rms = emx.getRMS();
+					this.setEstModelId(emx.getId());
+					this.rms = emx.getRms();
 					this.rsquared = emx.getR2();
-					this.aic = emx.getAIC();
-					this.bic = emx.getBIC();
+					this.aic = emx.getAic();
+					this.bic = emx.getBic();
 					this.qualityScore = emx.getQualityScore();
 					this.isChecked = emx.getChecked();
 					this.fittedModelName = emx.getName();

@@ -369,12 +369,12 @@ public class OneStepEstimationThread implements Runnable {
 					PmmXmlDoc estModelXml = tuple
 							.getPmmXml(Model1Schema.ATT_ESTMODEL);
 
-					((EstModelXml) estModelXml.get(0)).setID(estID);
-					((EstModelXml) estModelXml.get(0)).setRMS(rms);
+					((EstModelXml) estModelXml.get(0)).setId(estID);
+					((EstModelXml) estModelXml.get(0)).setRms(rms);
 					((EstModelXml) estModelXml.get(0)).setR2(rSquared);
-					((EstModelXml) estModelXml.get(0)).setAIC(aic);
-					((EstModelXml) estModelXml.get(0)).setBIC(bic);
-					((EstModelXml) estModelXml.get(0)).setDOF(dof);
+					((EstModelXml) estModelXml.get(0)).setAic(aic);
+					((EstModelXml) estModelXml.get(0)).setBic(bic);
+					((EstModelXml) estModelXml.get(0)).setDof(dof);
 
 					paramMap.put(id, paramXml);
 					indepMap.put(id, indepXml);

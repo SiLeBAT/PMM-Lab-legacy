@@ -527,7 +527,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getAgent() != null) {
-				id = DBKernel.openAgentDBWindow(set.getAgent().getID());
+				id = DBKernel.openAgentDBWindow(set.getAgent().getId());
 			} else {
 				id = DBKernel.openAgentDBWindow(null);
 			}

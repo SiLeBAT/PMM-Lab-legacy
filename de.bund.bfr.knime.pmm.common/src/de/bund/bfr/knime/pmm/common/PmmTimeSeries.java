@@ -227,7 +227,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     	for (PmmXmlElementConvertable el : agentXmlDoc.getElementSet()) {
     		if (el instanceof AgentXml) {
     			ax = (AgentXml) el;
-    			if (id) return ax.getID();
+    			if (id) return ax.getId();
     			if (name) return ax.getName();
     			if (detail) return ax.getDetail();
     			break;
@@ -443,7 +443,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
     	for (PmmXmlElementConvertable el : agentXmlDoc.getElementSet()) {
     		if (el instanceof AgentXml) {
     			ax = (AgentXml) el;
-    			if (id != null) ax.setID(id);
+    			if (id != null) ax.setId(id);
     			if (name != null) ax.setName(name);
     			if (detail != null) ax.setDetail(detail);
     			break;

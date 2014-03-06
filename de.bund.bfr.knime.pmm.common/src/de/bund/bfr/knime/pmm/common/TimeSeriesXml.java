@@ -1,13 +1,6 @@
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.jdom2.Element;
-import org.knime.core.data.DataType;
-import org.knime.core.data.def.DoubleCell;
-import org.knime.core.data.def.IntCell;
-import org.knime.core.data.def.StringCell;
 
 public class TimeSeriesXml implements PmmXmlElementConvertable {
 
@@ -22,18 +15,18 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	private static final String ATT_CONCENTRATION_UNIT_OBJECT_TYPE = "concentrationUnitObjectType";
 	private static final String ATT_ORIG_CONCENTRATION_UNIT = "origConcentrationUnit";
 	private static final String ATT_CONCENTRATION_STDDEV = "concentrationStdDev";
-	private static final String ATT_NUMBER_OF_MEASUREMENTS = "numberOfMeasurements";
+	private static final String ATT_NUMBER_OF_MEASUREMENTS = "numberOfMeasurements";	
 
-	private String name = null;
-	private Double time = null;
-	private String timeUnit = null;
-	private String origTimeUnit = null;
-	private Double concentration = null;
-	private String concentrationUnit = null;
-	private String concentrationUnitObjectType = null;
-	private String origConcentrationUnit = null;
-	private Double concentrationStdDev = null;
-	private Integer numberOfMeasurements = null;
+	private String name;
+	private Double time;
+	private String timeUnit;
+	private String origTimeUnit;
+	private Double concentration;
+	private String concentrationUnit;
+	private String concentrationUnitObjectType;
+	private String origConcentrationUnit;
+	private Double concentrationStdDev;
+	private Integer numberOfMeasurements;
 
 	public TimeSeriesXml(String name, Double time, String timeUnit,
 			String origTimeUnit, Double concentration,
@@ -75,77 +68,24 @@ public class TimeSeriesXml implements PmmXmlElementConvertable {
 	@Override
 	public Element toXmlElement() {
 		Element ret = new Element(ELEMENT_TIMESERIES);
-		
-		for (String el : getElements()) {
-			ret.setAttribute(el, XmlHelper.getNonNull(getValue(el)));
-		}		
+
+		ret.setAttribute(ATT_NAME, XmlHelper.getNonNull(name));
+		ret.setAttribute(ATT_TIME, XmlHelper.getNonNull(time));
+		ret.setAttribute(ATT_TIME_UNIT, XmlHelper.getNonNull(timeUnit));
+		ret.setAttribute(ATT_ORIG_TIME_UNIT, XmlHelper.getNonNull(origTimeUnit));
+		ret.setAttribute(ATT_CONCENTRATION, XmlHelper.getNonNull(concentration));
+		ret.setAttribute(ATT_CONCENTRATION_UNIT,
+				XmlHelper.getNonNull(concentrationUnit));
+		ret.setAttribute(ATT_CONCENTRATION_UNIT_OBJECT_TYPE,
+				XmlHelper.getNonNull(concentrationUnitObjectType));
+		ret.setAttribute(ATT_ORIG_CONCENTRATION_UNIT,
+				XmlHelper.getNonNull(origConcentrationUnit));
+		ret.setAttribute(ATT_CONCENTRATION_STDDEV,
+				XmlHelper.getNonNull(concentrationStdDev));
+		ret.setAttribute(ATT_NUMBER_OF_MEASUREMENTS,
+				XmlHelper.getNonNull(numberOfMeasurements));
 
 		return ret;
-	}
-
-	public static DataType getDataType(String element) {
-		if (element.equalsIgnoreCase(ATT_NAME)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_TIME)) {
-			return DoubleCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_TIME_UNIT)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_ORIG_TIME_UNIT)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION)) {
-			return DoubleCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_UNIT)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_UNIT_OBJECT_TYPE)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_ORIG_CONCENTRATION_UNIT)) {
-			return StringCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_STDDEV)) {
-			return DoubleCell.TYPE;
-		} else if (element.equalsIgnoreCase(ATT_NUMBER_OF_MEASUREMENTS)) {
-			return IntCell.TYPE;
-		}
-		return null;
-	}
-
-	public static List<String> getElements() {
-		List<String> list = new ArrayList<String>();
-		list.add(ATT_NAME);
-		list.add(ATT_TIME);
-		list.add(ATT_TIME_UNIT);
-		list.add(ATT_ORIG_TIME_UNIT);
-		list.add(ATT_CONCENTRATION);
-		list.add(ATT_CONCENTRATION_UNIT);
-		list.add(ATT_CONCENTRATION_UNIT_OBJECT_TYPE);
-		list.add(ATT_ORIG_CONCENTRATION_UNIT);
-		list.add(ATT_CONCENTRATION_STDDEV);
-		list.add(ATT_NUMBER_OF_MEASUREMENTS);
-		return list;
-	}
-
-	public Object getValue(String element) {
-		if (element.equalsIgnoreCase(ATT_NAME)) {
-			return name;
-		} else if (element.equalsIgnoreCase(ATT_TIME)) {
-			return time;
-		} else if (element.equalsIgnoreCase(ATT_TIME_UNIT)) {
-			return timeUnit;
-		} else if (element.equalsIgnoreCase(ATT_ORIG_TIME_UNIT)) {
-			return origTimeUnit;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION)) {
-			return concentration;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_UNIT)) {
-			return concentrationUnit;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_UNIT_OBJECT_TYPE)) {
-			return concentrationUnitObjectType;
-		} else if (element.equalsIgnoreCase(ATT_ORIG_CONCENTRATION_UNIT)) {
-			return origConcentrationUnit;
-		} else if (element.equalsIgnoreCase(ATT_CONCENTRATION_STDDEV)) {
-			return concentrationStdDev;
-		} else if (element.equalsIgnoreCase(ATT_NUMBER_OF_MEASUREMENTS)) {
-			return numberOfMeasurements;
-		}
-		return null;
 	}
 
 	public String getName() {

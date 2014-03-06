@@ -271,7 +271,7 @@ public class MdReaderUi extends JPanel {
         		if (el instanceof AgentXml) {
         			AgentXml ax = (AgentXml) el;
         			if (agentID > 0) {
-        				int id = ax.getID();
+        				int id = ax.getId();
         				if (agentID != id) return false;
         			}
         			else {

@@ -100,7 +100,7 @@ public class XLSTimeSeriesReaderNodeModel extends NodeModel {
 				PmmXmlDoc agentXml = tuple
 						.getPmmXml(TimeSeriesSchema.ATT_AGENT);
 
-				((AgentXml) agentXml.get(0)).setID(set.getAgent().getID());
+				((AgentXml) agentXml.get(0)).setId(set.getAgent().getId());
 				((AgentXml) agentXml.get(0)).setName(set.getAgent().getName());
 				((AgentXml) agentXml.get(0)).setDbuuid(set.getAgent()
 						.getDbuuid());

@@ -367,7 +367,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getAgent() != null) {
-				id = DBKernel.openAgentDBWindow(set.getAgent().getID());
+				id = DBKernel.openAgentDBWindow(set.getAgent().getId());
 			} else {
 				id = DBKernel.openAgentDBWindow(null);
 			}
@@ -432,7 +432,7 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 
 					if (set.getAgentMappings().get(value) != null) {
 						id = DBKernel.openAgentDBWindow(set.getAgentMappings()
-								.get(value).getID());
+								.get(value).getId());
 					} else {
 						id = DBKernel.openAgentDBWindow(null);
 					}

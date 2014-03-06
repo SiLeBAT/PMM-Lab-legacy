@@ -964,7 +964,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Integer id;
 
 			if (agent != null) {
-				id = DBKernel.openAgentDBWindow(agent.getID());
+				id = DBKernel.openAgentDBWindow(agent.getId());
 			} else {
 				id = DBKernel.openAgentDBWindow(null);
 			}

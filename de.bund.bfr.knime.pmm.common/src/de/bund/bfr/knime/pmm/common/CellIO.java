@@ -456,24 +456,24 @@ public class CellIO {
 					} else if (el instanceof AgentXml) {
 						AgentXml ax = (AgentXml) el;
 						AgentXml axDB = ((AgentXml) fromToXmlDB.get(i));
-						Integer key = ax.getID();
+						Integer key = ax.getId();
 						if (key != null && foreignDbIds.containsKey(key)) {
 							if (before) {
-								axDB.setID(foreignDbIds.get(key)); // schemaTuple.addValue(attr,
+								axDB.setId(foreignDbIds.get(key)); // schemaTuple.addValue(attr,
 																	// foreignDbIds.get(key));
 								fromToXmlDB.set(i, ax);
 							} else if (foreignDbIds.get(key).intValue() != axDB
-									.getID()) {
+									.getId()) {
 								System.err
 										.println("fillNewIDsIntoForeign ... shouldn't happen...AgentXml");
 							}
 						} else {
 							if (before) {
-								axDB.setID(MathUtilities.getRandomNegativeInt()); // schemaTuple.addValue(attr,
+								axDB.setId(MathUtilities.getRandomNegativeInt()); // schemaTuple.addValue(attr,
 																					// MathUtilities.getRandomNegativeInt());
 								fromToXmlDB.set(i, ax);
 							} else
-								foreignDbIds.put(key, axDB.getID()); // schemaTuple.getIntList(attr).get(i));
+								foreignDbIds.put(key, axDB.getId()); // schemaTuple.getIntList(attr).get(i));
 						}
 					} else if (el instanceof LiteratureItem) {
 						LiteratureItem li = (LiteratureItem) el;

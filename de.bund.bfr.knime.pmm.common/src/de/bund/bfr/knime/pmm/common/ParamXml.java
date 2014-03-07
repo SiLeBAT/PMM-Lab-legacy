@@ -88,7 +88,7 @@ public class ParamXml implements PmmXmlElementConvertable {
 
 		for (Element e : el.getChildren()) {
 			if (e.getName().equals(ATT_CORRELATION)) {
-				String n = e.getAttributeValue(ATT_ORIGNAME);				
+				String n = e.getAttributeValue(ATT_ORIGNAME);
 				Double d = XmlHelper.getDouble(e, ATT_VALUE);
 
 				correlations.put(n, d);
@@ -114,13 +114,15 @@ public class ParamXml implements PmmXmlElementConvertable {
 		ret.setAttribute(ATT_UNIT, XmlHelper.getNonNull(unit));
 		ret.setAttribute(ATT_DESCRIPTION, XmlHelper.getNonNull(description));
 
-		for (String origname : correlations.keySet()) {
-			Element element = new Element(ATT_CORRELATION);
-			Double d = correlations.get(origname);
+		if (correlations != null) {
+			for (String origname : correlations.keySet()) {
+				Element element = new Element(ATT_CORRELATION);
+				Double d = correlations.get(origname);
 
-			element.setAttribute(ATT_ORIGNAME, origname);
-			element.setAttribute(ATT_VALUE, XmlHelper.getNonNull(d));
-			ret.addContent(element);
+				element.setAttribute(ATT_ORIGNAME, origname);
+				element.setAttribute(ATT_VALUE, XmlHelper.getNonNull(d));
+				ret.addContent(element);
+			}
 		}
 
 		return ret;

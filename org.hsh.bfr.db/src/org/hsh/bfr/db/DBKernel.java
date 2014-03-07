@@ -286,9 +286,9 @@ public class DBKernel {
 			
 	  		try {
 		  		DBKernel.closeDBConnections(false);
-		  		DBKernel.getDBConnection();
+		  		DBKernel.getDBConnection(true);
 		  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
-		  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
+		  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection(true));
 		  		}				
 	  		}
 	  		catch(Exception e) {}
@@ -882,9 +882,12 @@ public class DBKernel {
 	    }
 	    return result;
   }
+  public static Connection getDBConnection(boolean suppressWarnings) throws Exception {
+	  	return getDBConnection(HSHDB_PATH, DBKernel.m_Username, DBKernel.m_Password, false, suppressWarnings);
+	  }
   public static Connection getDBConnection() throws Exception {
-  	return getDBConnection(HSHDB_PATH, DBKernel.m_Username, DBKernel.m_Password, false);
-  }
+	  	return getDBConnection(false);
+	  }
   public static Connection getDBConnection(final String username, final String password) throws Exception {
   	DBKernel.m_Username = username; 
   	DBKernel.m_Password = password; 
@@ -2049,7 +2052,7 @@ public class DBKernel {
 					}
 					File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
 					try {
-						org.hsqldb.lib.tar.DbBackup.main(new String[]{
+						org.hsqldb.lib.tar.DbBackupMain.main(new String[]{
 								"--extract",
 								incFilefirstDB.getAbsolutePath(),
 								incFileInternalDBFolder.getAbsolutePath()});

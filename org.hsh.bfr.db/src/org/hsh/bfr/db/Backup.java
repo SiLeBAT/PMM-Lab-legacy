@@ -219,7 +219,7 @@ public class Backup extends FileFilter {
 			System.gc();
 			//org.hsqldb.lib.tar.DbBackup dbb = new org.hsqldb.lib.tar.DbBackup(scriptFile, DBKernel.HSHDB_PATH + "DB");
 			try {
-				org.hsqldb.lib.tar.DbBackup.main(new String[]{
+				org.hsqldb.lib.tar.DbBackupMain.main(new String[]{
 						"--extract", scriptFile.getAbsolutePath(), path});
 			}
 			catch (Exception e) {
@@ -271,7 +271,7 @@ public class Backup extends FileFilter {
   private static Connection getDBConnectionYOrCreateUser() {
 	  Connection conn = null;	  
 	  try {
-		  conn = DBKernel.getDBConnection();
+		  conn = DBKernel.getDBConnection(true);
 		  if (conn == null) {
 				DBKernel.getDefaultAdminConn();
 				if (DBKernel.countUsers(false) == 0) {

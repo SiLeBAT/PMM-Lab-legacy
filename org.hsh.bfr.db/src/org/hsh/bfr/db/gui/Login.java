@@ -72,7 +72,6 @@ import org.hsh.bfr.db.VersionComprator;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
-import org.hsqldb.lib.MD5;
 
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
@@ -214,9 +213,9 @@ public class Login extends JFrame {
 			DBKernel.prefs.prefsFlush();
 			//MD5.encode(password, "UTF-8");
 			if (!myDB.initConn(username, password)) {
-				if (DBKernel.passFalse) {
-					String md5Password = MD5.encode(password, "UTF-8");
-					if (!myDB.initConn(username, md5Password)) {
+				//if (DBKernel.passFalse) {
+					//String md5Password = MD5.encode(password, "UTF-8");
+					//if (!myDB.initConn(username, md5Password)) {
 						if (DBKernel.passFalse) {
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
@@ -224,11 +223,11 @@ public class Login extends JFrame {
 							passwordField1.requestFocus();																				
 						}
 						return null;
-					}
-					else {
-						changePasswort(myDB, username, password);
-					}
-				}
+					//}
+					//else {
+					//	changePasswort(myDB, username, password);
+					//}
+				//}
 			}
 						
 			//DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(textField1.getText()) + " SET PASSWORD ''", false);

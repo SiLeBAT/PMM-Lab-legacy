@@ -138,7 +138,7 @@ public class MMC_TS extends JPanel {
 			cl = new ArrayList<String>();cl.add(Categories.getPh());
 			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),cl,Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
 			cl = new ArrayList<String>();cl.add(Categories.getAw());
-			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getAllUnits().toArray(new String[0])[0]);
+			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
 	}
 	private void fillFields() {
 		agentField.setText(theTS.getAgentName() == null ? "" : theTS.getAgentName());

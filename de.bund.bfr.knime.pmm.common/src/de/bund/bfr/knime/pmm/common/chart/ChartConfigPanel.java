@@ -810,7 +810,7 @@ public class ChartConfigPanel extends JPanel implements ActionListener,
 
 		while (container != null) {
 			if (container instanceof JPanel) {
-				container.revalidate();
+				((JPanel) container).revalidate();
 				break;
 			}
 

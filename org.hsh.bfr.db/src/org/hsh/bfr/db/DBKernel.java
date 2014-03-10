@@ -2043,7 +2043,18 @@ public class DBKernel {
 					return null;//throw new IllegalStateException("Creation of folderlist for internal database not succeeded.", null);//return null;
 				}
 				// folder is empty? Create database!
-				if (incFileInternalDBFolder.list().length == 0) {
+				String[] fl = incFileInternalDBFolder.list();
+				boolean folderEmpty = (fl.length == 0);
+				if (!folderEmpty) {
+					folderEmpty = true;
+					for (String f : fl) {
+						if (f.startsWith("DB.")) {
+							folderEmpty = false;
+							break;
+						}
+					}
+				}
+				if (folderEmpty) {
 					// Get the bundle this class belongs to.
 					Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
 					URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");

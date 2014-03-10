@@ -11,6 +11,7 @@ package org.hsh.bfr.db.imports;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -20,6 +21,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
@@ -45,6 +47,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
  */
 	private Calendar calendar = Calendar.getInstance();
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	private HashMap<String, Integer> nodeIDs = null;
 
 	public boolean accept(File f) {
 	  if (f.isDirectory()) return true;
@@ -66,11 +69,40 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	}
 
 
+	private HashMap<String, Integer> loadExternalXLS4StationMapping(String filename) throws IOException {
+		HashMap<String, Integer> result = new HashMap<String, Integer>();
+		FileInputStream is = new FileInputStream(filename);
+	    POIFSFileSystem fs = new POIFSFileSystem(is);
+	    HSSFWorkbook wb = new HSSFWorkbook(fs);
+
+	    HSSFSheet defaultSheet = wb.getSheet("default"); 		
+		int numRows = defaultSheet.getLastRowNum() + 1;
+      	for (int i=1;i<numRows;i++) {
+      		//System.err.println(i);
+      		HSSFRow row = defaultSheet.getRow(i);
+			if (row != null) {
+				HSSFCell cell = row.getCell(0); // ID
+				Integer id = (int) cell.getNumericCellValue();
+				String val = "";
+				cell = row.getCell(1); // Name
+				val += cell.getStringCellValue() + ";;;";
+				cell = row.getCell(2); // ZIP
+				val += cell.getStringCellValue() + ";;;";
+				cell = row.getCell(3); // City
+				val += cell.getStringCellValue() + ";;;";
+				cell = row.getCell(4); // Country
+				val += cell.getStringCellValue() + ";;;";
+			    result.put(val, id);
+			}
+      	}
+      	return result;
+	}
 	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
   	Runnable runnable = new Runnable() {
       public void run() {
     	  System.err.println("Importing " + filename);
 		  try {
+			  //nodeIDs = loadExternalXLS4StationMapping("C:/Users/Armin/Desktop/AllKrisen/EFSA/nodes_ids.xls");
       		if (progress != null) {
       			progress.setVisible(true);
       			progress.setStringPainted(true);
@@ -502,9 +534,26 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				if (result == null) {
 					//System.out.println("result is null\t" + sql);
 					
-					sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";
-					PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);					
-					if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+					if (tablename.equals("Station") && nodeIDs != null) {
+						String stationKey = (feldVals[0] == null ? "" : feldVals[0]) + ";;;" + 
+											(feldVals[3] == null ? "" : feldVals[3]) + ";;;" + 
+											(feldVals[4] == null ? "" : feldVals[4]) + ";;;" + 
+											(feldVals[6] == null ? "" : feldVals[6]) + ";;;"; //"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land"
+						if (nodeIDs.containsKey(stationKey)) {
+							Integer id = nodeIDs.get(stationKey);
+							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (ID," + fns.substring(1) +	") VALUES (" + id + "," + fvs.substring(1) + ")";						
+							PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);					
+							if (ps.executeUpdate() > 0) result = id;
+						}
+						else {
+							System.err.println("Station id not found???? -> " + stationKey);
+						}
+					}
+					else {
+						sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";						
+						PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);					
+						if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+					}
 					
 				}
 				else {

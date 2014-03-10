@@ -58,12 +58,15 @@ import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
+import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
+import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class TableReader {
 
@@ -82,6 +85,8 @@ public class TableReader {
 		documents = new LinkedHashMap<String, SBMLDocument>();
 
 		for (KnimeTuple tuple : tuples) {
+			replaceCelsius(tuple);
+
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			EstModelXml estXml = (EstModelXml) tuple.getPmmXml(
@@ -182,5 +187,34 @@ public class TableReader {
 
 	public Map<String, SBMLDocument> getDocuments() {
 		return documents;
+	}
+
+	private static void replaceCelsius(KnimeTuple tuple) {
+		final String CELSIUS = "°C";
+		final String KELVIN = "K";
+
+		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+
+		for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
+			IndepXml indep = (IndepXml) el;
+
+			if (indep.getUnit().equals(CELSIUS)) {
+				try {
+					model.setFormula(MathUtilities.replaceVariable(
+							model.getFormula(),
+							indep.getName(),
+							Categories.getTempCategory().getConversionString(
+									indep.getName(), CELSIUS, KELVIN)));
+					indep.setUnit(KELVIN);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+
+		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
 	}
 }

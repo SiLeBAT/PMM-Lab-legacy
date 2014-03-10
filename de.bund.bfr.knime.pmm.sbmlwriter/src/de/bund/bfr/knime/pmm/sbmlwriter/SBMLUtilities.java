@@ -10,6 +10,7 @@ import org.sbml.jsbml.SBMLDocument;
 import org.sbml.jsbml.SBMLException;
 import org.sbml.jsbml.SBMLReader;
 import org.sbml.jsbml.SBMLWriter;
+import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 
 public class SBMLUtilities {
@@ -62,7 +63,7 @@ public class SBMLUtilities {
 		UnitDefinition u = model.createUnitDefinition(unit.getId());
 
 		for (int i = 0; i < unit.getNumUnits(); i++) {
-			u.addUnit(unit.getUnit(i));
+			u.addUnit(new Unit(unit.getUnit(i)));
 		}
 
 		return u;

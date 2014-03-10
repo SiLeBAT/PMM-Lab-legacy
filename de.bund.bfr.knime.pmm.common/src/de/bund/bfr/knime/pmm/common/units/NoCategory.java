@@ -69,4 +69,9 @@ public class NoCategory implements Category {
 		return var;
 	}
 
+	@Override
+	public String getSBML(String unit) {
+		return null;
+	}
+
 }

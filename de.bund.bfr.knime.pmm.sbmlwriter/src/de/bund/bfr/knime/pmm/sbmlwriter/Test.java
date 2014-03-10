@@ -27,6 +27,8 @@ public class Test extends JFrame implements ActionListener {
 	private static final int LEVEL = 2;
 	private static final int VERSION = 4;
 
+	private JTextField idField;
+
 	private List<JComboBox<Unit.Kind>> kindBoxes;
 	private List<JTextField> scaleFields;
 	private List<JTextField> exponentFields;
@@ -38,6 +40,14 @@ public class Test extends JFrame implements ActionListener {
 
 	public Test() {
 		super("Units to SBML");
+
+		idField = new JTextField();
+
+		JPanel northPanel = new JPanel();
+
+		northPanel.setLayout(new GridLayout(1, 1));
+		northPanel.add(new JLabel("ID"));
+		northPanel.add(idField);
 
 		kindBoxes = new ArrayList<JComboBox<Unit.Kind>>();
 		scaleFields = new ArrayList<JTextField>();
@@ -91,6 +101,7 @@ public class Test extends JFrame implements ActionListener {
 		southPanel.add(sbmlField);
 
 		setLayout(new BorderLayout());
+		add(northPanel, BorderLayout.NORTH);
 		add(centerPanel, BorderLayout.CENTER);
 		add(southPanel, BorderLayout.SOUTH);
 		pack();
@@ -104,7 +115,8 @@ public class Test extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == computeButton) {
-			UnitDefinition unit = new UnitDefinition(LEVEL, VERSION);
+			UnitDefinition unit = new UnitDefinition(idField.getText().trim(),
+					LEVEL, VERSION);
 
 			for (int i = 0; i < 4; i++) {
 				Unit.Kind kind = (Unit.Kind) kindBoxes.get(i).getSelectedItem();

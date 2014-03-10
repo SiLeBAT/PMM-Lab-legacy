@@ -48,6 +48,7 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
 
@@ -62,6 +63,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.units.Categories;
 
 public class TableReader {
 
@@ -97,9 +99,21 @@ public class TableReader {
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 			Parameter depParam = model.createParameter(depXml.getName());
+			String depSbmlUnit = Categories.getCategoryByUnit(depXml.getUnit())
+					.getSBML(depXml.getUnit());
 
 			depParam.setValue(0.0);
 			depParam.setConstant(false);
+
+			if (depSbmlUnit != null) {
+				UnitDefinition unit = SBMLUtilities.fromXml(depSbmlUnit);
+
+				if (model.getUnitDefinition(unit.getId()) == null) {
+					model.addUnitDefinition(unit);
+				}
+
+				depParam.setUnits(unit);
+			}
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					Model1Schema.ATT_PARAMETER).getElementSet()) {
@@ -121,9 +135,21 @@ public class TableReader {
 
 				if (!indepXml.getName().equals(AttributeUtilities.TIME)) {
 					Parameter param = model.createParameter(indepXml.getName());
+					String sbmlUnit = Categories.getCategoryByUnit(
+							indepXml.getUnit()).getSBML(indepXml.getUnit());
 
 					param.setValue(0.0);
 					param.setConstant(false);
+
+					if (sbmlUnit != null) {
+						UnitDefinition unit = SBMLUtilities.fromXml(sbmlUnit);
+
+						if (model.getUnitDefinition(unit.getId()) == null) {
+							model.addUnitDefinition(unit);
+						}
+
+						param.setUnits(unit);
+					}
 				}
 			}
 

@@ -48,5 +48,7 @@ public interface Category {
 
 	public String getConversionString(String var, String fromUnit, String toUnit)
 			throws ConvertException;
+	
+	public String getSBML(String unit);
 
 }

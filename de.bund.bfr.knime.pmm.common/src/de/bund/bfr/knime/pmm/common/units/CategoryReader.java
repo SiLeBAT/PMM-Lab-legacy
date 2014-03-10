@@ -88,6 +88,7 @@ public class CategoryReader {
 		Map<String, Node> toFormulas = new LinkedHashMap<String, Node>();
 		Map<String, String> fromFormulaStrings = new LinkedHashMap<String, String>();
 		Map<String, String> toFormulaStrings = new LinkedHashMap<String, String>();
+		Map<String, String> sbmlStrings = new LinkedHashMap<String, String>();
 		String standardUnit = null;
 
 		parser.addVariable("x", 0.0);
@@ -98,6 +99,8 @@ public class CategoryReader {
 			}
 
 			String unitName = unit.getDisplay_in_GUI_as();
+
+			sbmlStrings.put(unitName, unit.getMathML_string());
 
 			if (unit.getPriority_for_display_in_GUI() != null
 					&& unit.getPriority_for_display_in_GUI().equals("TRUE")) {
@@ -128,7 +131,8 @@ public class CategoryReader {
 		}
 
 		return new DBCategory(categoryName, standardUnit, fromFormulas,
-				toFormulas, fromFormulaStrings, toFormulaStrings, parser);
+				toFormulas, fromFormulaStrings, toFormulaStrings, sbmlStrings,
+				parser);
 	}
 
 	private static class DBCategory implements Category {
@@ -139,18 +143,21 @@ public class CategoryReader {
 		private Map<String, Node> toFormulas;
 		private Map<String, String> fromFormulaStrings;
 		private Map<String, String> toFormulaStrings;
+		private Map<String, String> sbmlStrings;
 		private DJep parser;
 
 		public DBCategory(String name, String standardUnit,
 				Map<String, Node> fromFormulas, Map<String, Node> toFormulas,
 				Map<String, String> fromFormulaStrings,
-				Map<String, String> toFormulaStrings, DJep parser) {
+				Map<String, String> toFormulaStrings,
+				Map<String, String> sbmlStrings, DJep parser) {
 			this.name = name;
 			this.standardUnit = standardUnit;
 			this.fromFormulas = fromFormulas;
 			this.toFormulas = toFormulas;
 			this.fromFormulaStrings = fromFormulaStrings;
 			this.toFormulaStrings = toFormulaStrings;
+			this.sbmlStrings = sbmlStrings;
 			this.parser = parser;
 		}
 
@@ -215,6 +222,11 @@ public class CategoryReader {
 				e.printStackTrace();
 				return null;
 			}
+		}
+
+		@Override
+		public String getSBML(String unit) {
+			return sbmlStrings.get(unit);
 		}
 	}
 }

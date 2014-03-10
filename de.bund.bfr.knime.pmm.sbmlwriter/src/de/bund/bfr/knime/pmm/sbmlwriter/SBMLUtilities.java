@@ -14,8 +14,7 @@ import org.sbml.jsbml.UnitDefinition;
 
 public class SBMLUtilities {
 
-	public static String toXml(UnitDefinition unit) throws SBMLException,
-			XMLStreamException, UnsupportedEncodingException {
+	public static String toXml(UnitDefinition unit) {
 		SBMLDocument doc = new SBMLDocument(unit.getLevel(), unit.getVersion());
 		Model model = doc.createModel("ID");
 
@@ -23,24 +22,40 @@ public class SBMLUtilities {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-		SBMLWriter.write(doc, out, "test", "1.0", ' ', (short) 0);
+		try {
+			SBMLWriter.write(doc, out, "test", "1.0", ' ', (short) 0);
 
-		String xml = out.toString("UTF-8");
-		String from = "<listOfUnitDefinitions>";
-		String to = "</listOfUnitDefinitions>";
+			String xml = out.toString("UTF-8");
+			String from = "<listOfUnitDefinitions>";
+			String to = "</listOfUnitDefinitions>";
 
-		return xml
-				.substring(xml.indexOf(from) + from.length(), xml.indexOf(to))
-				.replace("\n", "");
+			return xml.substring(xml.indexOf(from) + from.length(),
+					xml.indexOf(to)).replace("\n", "");
+		} catch (SBMLException e) {
+			e.printStackTrace();
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
-	public static UnitDefinition fromXml(String xml) throws XMLStreamException {
+	public static UnitDefinition fromXml(String xml) {
 		String preXml = "<?xml version='1.0' encoding='UTF-8' standalone='no'?>"
 				+ "<sbml xmlns=\"http://www.sbml.org/sbml/level2/version4\" level=\"2\" version=\"4\">"
 				+ "<model id=\"ID\">" + "<listOfUnitDefinitions>";
 		String postXml = "</listOfUnitDefinitions>" + "</model>" + "</sbml>";
-		SBMLDocument doc = SBMLReader.read(preXml + xml + postXml);
 
-		return doc.getModel().getUnitDefinition(0);
+		try {
+			return SBMLReader.read(preXml + xml + postXml).getModel()
+					.getUnitDefinition(0);
+		} catch (XMLStreamException e) {
+			e.printStackTrace();
+
+		}
+
+		return null;
 	}
 }

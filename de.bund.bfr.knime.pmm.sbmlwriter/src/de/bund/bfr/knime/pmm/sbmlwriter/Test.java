@@ -106,6 +106,7 @@ public class Test extends JFrame implements ActionListener {
 		add(southPanel, BorderLayout.SOUTH);
 		pack();
 		setVisible(true);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public static void main(String[] args) {

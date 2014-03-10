@@ -107,12 +107,14 @@ public class TableReader {
 
 			if (depSbmlUnit != null) {
 				UnitDefinition unit = SBMLUtilities.fromXml(depSbmlUnit);
+				UnitDefinition modelUnit = model
+						.getUnitDefinition(unit.getId());
 
-				if (model.getUnitDefinition(unit.getId()) == null) {
-					model.addUnitDefinition(unit);
+				if (modelUnit != null) {
+					depParam.setUnits(modelUnit);
+				} else {
+					depParam.setUnits(SBMLUtilities.addUnitToModel(model, unit));
 				}
-
-				depParam.setUnits(unit);
 			}
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
@@ -143,12 +145,15 @@ public class TableReader {
 
 					if (sbmlUnit != null) {
 						UnitDefinition unit = SBMLUtilities.fromXml(sbmlUnit);
+						UnitDefinition modelUnit = model.getUnitDefinition(unit
+								.getId());
 
-						if (model.getUnitDefinition(unit.getId()) == null) {
-							model.addUnitDefinition(unit);
+						if (modelUnit != null) {
+							param.setUnits(modelUnit);
+						} else {
+							param.setUnits(SBMLUtilities.addUnitToModel(model,
+									unit));
 						}
-
-						param.setUnits(unit);
 					}
 				}
 			}
@@ -159,9 +164,14 @@ public class TableReader {
 
 			try {
 				ListOf<Rule> rules = new ListOf<Rule>(2, 4);
+				ASTNode depNode = new ASTNode(depParam);
 
-				rules.add(new AlgebraicRule(ASTNode.eq(new ASTNode(depParam),
-						parser.parse()), 2, 4));
+				if (depXml.getUnit().startsWith("log10")) {
+					depNode = ASTNode.log(depNode);
+				}
+
+				rules.add(new AlgebraicRule(
+						ASTNode.eq(depNode, parser.parse()), 2, 4));
 				model.setListOfRules(rules);
 				documents.put(modelID, doc);
 			} catch (ParseException e) {

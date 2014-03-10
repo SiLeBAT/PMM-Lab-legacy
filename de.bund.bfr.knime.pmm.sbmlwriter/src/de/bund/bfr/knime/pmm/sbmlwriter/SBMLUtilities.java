@@ -53,9 +53,18 @@ public class SBMLUtilities {
 					.getUnitDefinition(0);
 		} catch (XMLStreamException e) {
 			e.printStackTrace();
-
 		}
 
 		return null;
+	}
+
+	public static UnitDefinition addUnitToModel(Model model, UnitDefinition unit) {
+		UnitDefinition u = model.createUnitDefinition(unit.getId());
+
+		for (int i = 0; i < unit.getNumUnits(); i++) {
+			u.addUnit(unit.getUnit(i));
+		}
+
+		return u;
 	}
 }

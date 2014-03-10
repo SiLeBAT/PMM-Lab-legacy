@@ -41,7 +41,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sbml.jsbml.AssignmentRule;
+import org.sbml.jsbml.ASTNode;
+import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
@@ -133,7 +134,8 @@ public class TableReader {
 			try {
 				ListOf<Rule> rules = new ListOf<Rule>(2, 4);
 
-				rules.add(new AssignmentRule(depParam, parser.parse()));
+				rules.add(new AlgebraicRule(ASTNode.eq(new ASTNode(depParam),
+						parser.parse()), 2, 4));
 				model.setListOfRules(rules);
 				documents.put(modelID, doc);
 			} catch (ParseException e) {

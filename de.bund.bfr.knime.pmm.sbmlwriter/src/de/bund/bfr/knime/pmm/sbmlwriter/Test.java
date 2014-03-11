@@ -32,6 +32,7 @@ public class Test extends JFrame implements ActionListener {
 	private List<JComboBox<Unit.Kind>> kindBoxes;
 	private List<JTextField> scaleFields;
 	private List<JTextField> exponentFields;
+	private List<JTextField> multiplierFields;
 
 	private JButton computeButton;
 	private JTextField stringField;
@@ -53,13 +54,15 @@ public class Test extends JFrame implements ActionListener {
 		kindBoxes = new ArrayList<JComboBox<Unit.Kind>>();
 		scaleFields = new ArrayList<JTextField>();
 		exponentFields = new ArrayList<JTextField>();
+		multiplierFields = new ArrayList<JTextField>();
 
 		JPanel centerPanel = new JPanel();
 
-		centerPanel.setLayout(new GridLayout(5, 3));
+		centerPanel.setLayout(new GridLayout(5, 4));
 		centerPanel.add(new JLabel("Kind"));
 		centerPanel.add(new JLabel("Scale"));
 		centerPanel.add(new JLabel("Exponent"));
+		centerPanel.add(new JLabel("Multiplier"));
 
 		for (int i = 0; i < 4; i++) {
 			List<Unit.Kind> units = new ArrayList<Unit.Kind>();
@@ -74,14 +77,17 @@ public class Test extends JFrame implements ActionListener {
 					units.toArray(new Unit.Kind[0]));
 			JTextField scaleField = new JTextField();
 			JTextField expField = new JTextField();
+			JTextField mulField = new JTextField();
 
 			centerPanel.add(box);
 			centerPanel.add(scaleField);
 			centerPanel.add(expField);
+			centerPanel.add(mulField);
 
 			kindBoxes.add(box);
 			scaleFields.add(scaleField);
 			exponentFields.add(expField);
+			multiplierFields.add(mulField);
 		}
 
 		computeButton = new JButton("Compute");
@@ -129,6 +135,7 @@ public class Test extends JFrame implements ActionListener {
 
 				int scale = 0;
 				double exponent = 1.0;
+				double multiplier = 1.0;
 
 				try {
 					scale = Integer.parseInt(scaleFields.get(i).getText()
@@ -142,15 +149,27 @@ public class Test extends JFrame implements ActionListener {
 				} catch (Exception ex) {
 				}
 
-				if (scale != 0 && exponent != 1.0) {
-					unit.addUnit(new Unit(scale, kind, exponent, LEVEL, VERSION));
-				} else if (scale != 0) {
-					unit.addUnit(new Unit(scale, kind, LEVEL, VERSION));
-				} else if (exponent != 1.0) {
-					unit.addUnit(new Unit(kind, exponent, LEVEL, VERSION));
-				} else {
-					unit.addUnit(new Unit(kind, LEVEL, VERSION));
+				try {
+					multiplier = Double.parseDouble(multiplierFields.get(i)
+							.getText().trim());
+				} catch (Exception ex) {
 				}
+				
+				Unit u = new Unit(kind, LEVEL, VERSION);
+
+				if (scale != 0) {
+					u.setScale(scale);
+				}
+				
+				if (exponent != 1.0) {
+					u.setExponent(exponent);
+				}				
+				
+				if (multiplier != 1.0) {
+					u.setMultiplier(multiplier);
+				}
+				
+				unit.addUnit(u);
 			}
 
 			stringField.setText(unit.toString());

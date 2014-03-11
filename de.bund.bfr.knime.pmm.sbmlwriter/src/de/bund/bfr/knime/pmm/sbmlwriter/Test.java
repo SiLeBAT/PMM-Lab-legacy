@@ -38,6 +38,7 @@ public class Test extends JFrame implements ActionListener {
 	private JButton copyButton;
 	private JTextField sbmlField;
 
+	@SuppressWarnings("deprecation")
 	public Test() {
 		super("Units to SBML");
 

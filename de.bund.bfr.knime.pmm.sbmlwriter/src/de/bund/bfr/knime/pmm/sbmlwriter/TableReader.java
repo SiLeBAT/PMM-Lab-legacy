@@ -85,7 +85,8 @@ public class TableReader {
 		documents = new LinkedHashMap<String, SBMLDocument>();
 
 		for (KnimeTuple tuple : tuples) {
-			replaceCelsius(tuple);
+			replaceCelsiusAndFahrenheit(tuple);
+			renameLog(tuple);
 
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
@@ -189,8 +190,18 @@ public class TableReader {
 		return documents;
 	}
 
-	private static void replaceCelsius(KnimeTuple tuple) {
+	private static void renameLog(KnimeTuple tuple) {
+		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
+		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+
+		model.setFormula(MathUtilities.replaceVariable(model.getFormula(),
+				"log", "log10"));
+		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	}
+
+	private static void replaceCelsiusAndFahrenheit(KnimeTuple tuple) {
 		final String CELSIUS = "°C";
+		final String FAHRENHEIT = "°F";
 		final String KELVIN = "K";
 
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
@@ -202,12 +213,25 @@ public class TableReader {
 
 			if (indep.getUnit().equals(CELSIUS)) {
 				try {
+					String replacement = "("
+							+ Categories.getTempCategory().getConversionString(
+									indep.getName(), KELVIN, CELSIUS) + ")";
+
 					model.setFormula(MathUtilities.replaceVariable(
-							model.getFormula(),
-							indep.getName(),
-							Categories.getTempCategory().getConversionString(
-									indep.getName(), CELSIUS, KELVIN)));
+							model.getFormula(), indep.getName(), replacement));
 					indep.setUnit(KELVIN);
+				} catch (ConvertException e) {
+					e.printStackTrace();
+				}
+			} else if (indep.getUnit().equals(FAHRENHEIT)) {
+				try {
+					String replacement = "("
+							+ Categories.getTempCategory().getConversionString(
+									indep.getName(), KELVIN, FAHRENHEIT) + ")";
+
+					model.setFormula(MathUtilities.replaceVariable(
+							model.getFormula(), indep.getName(), replacement));
+					indep.setUnit(FAHRENHEIT);
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}

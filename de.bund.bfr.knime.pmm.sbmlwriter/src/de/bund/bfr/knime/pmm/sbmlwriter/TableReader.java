@@ -43,20 +43,24 @@ import java.util.Set;
 
 import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
+import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
 import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.Species;
 import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.ModelCombiner;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -66,6 +70,7 @@ import de.bund.bfr.knime.pmm.common.math.MathUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
+import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
@@ -81,7 +86,7 @@ public class TableReader {
 
 		if (isTertiaryModel) {
 			tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
-					false, null, null).keySet());
+					true, null, null).keySet());
 		}
 
 		documents = new LinkedHashMap<String, SBMLDocument>();
@@ -96,7 +101,10 @@ public class TableReader {
 					Model1Schema.ATT_ESTMODEL).get(0);
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-
+			AgentXml organismXml = (AgentXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_AGENT).get(0);
+			MatrixXml matrixXml = (MatrixXml) tuple.getPmmXml(
+					TimeSeriesSchema.ATT_MATRIX).get(0);
 			Integer id = estXml.getId();
 
 			if (!idSet.add(id)) {
@@ -106,6 +114,18 @@ public class TableReader {
 			String modelID = "Model_Test" + Math.abs(estXml.getId());
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
+
+			Compartment compartment = model.createCompartment("matrix");
+			Species species = model.createSpecies("organism", compartment);
+
+			if (matrixXml.getName() != null) {
+				compartment.setName(matrixXml.getName());
+			}
+
+			if (organismXml.getName() != null) {
+				species.setName(organismXml.getName());
+			}
+
 			ListOf<Rule> rules = new ListOf<Rule>(2, 4);
 			Parameter depParam = model.createParameter(depXml.getName());
 			String depSbmlUnit = Categories.getCategoryByUnit(depXml.getUnit())

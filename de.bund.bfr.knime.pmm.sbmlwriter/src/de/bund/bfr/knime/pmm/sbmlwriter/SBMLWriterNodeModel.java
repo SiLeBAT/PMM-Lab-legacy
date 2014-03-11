@@ -108,12 +108,12 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (SchemaFactory.createM12Schema()
-				.conforms((DataTableSpec) inSpecs[0])) {
-			schema = SchemaFactory.createM12Schema();
-		} else if (SchemaFactory.createM1Schema().conforms(
+		if (SchemaFactory.createM12DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
-			schema = SchemaFactory.createM1Schema();
+			schema = SchemaFactory.createM12DataSchema();
+		} else if (SchemaFactory.createM1DataSchema().conforms(
+				(DataTableSpec) inSpecs[0])) {
+			schema = SchemaFactory.createM1DataSchema();
 		} else {
 			throw new InvalidSettingsException("Invalid Input");
 		}

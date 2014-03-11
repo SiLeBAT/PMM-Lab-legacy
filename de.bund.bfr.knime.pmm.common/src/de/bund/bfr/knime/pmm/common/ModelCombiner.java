@@ -80,6 +80,8 @@ public class ModelCombiner {
 		Map<String, Set<String>> replacements = new LinkedHashMap<String, Set<String>>();
 		Map<Integer, Map<String, Double>> paramValueSums = new LinkedHashMap<Integer, Map<String, Double>>();
 		Map<Integer, Map<String, Integer>> paramCounts = new LinkedHashMap<Integer, Map<String, Integer>>();
+		Map<Integer, Set<String>> organisms = new LinkedHashMap<Integer, Set<String>>();
+		Map<Integer, Set<String>> matrices = new LinkedHashMap<Integer, Set<String>>();
 
 		for (KnimeTuple tuple : tuples) {
 			int modelId = -1;
@@ -104,6 +106,23 @@ public class ModelCombiner {
 
 				paramValueSums.put(modelId, sums);
 				paramCounts.put(modelId, counts);
+				organisms.put(modelId, new LinkedHashSet<String>());
+				matrices.put(modelId, new LinkedHashSet<String>());
+			}
+
+			if (containsData) {
+				String organism = ((AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0)).getName();
+				String matrix = ((MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0)).getName();
+
+				if (organism != null) {
+					organisms.get(modelId).add(organism);
+				}
+
+				if (matrix != null) {
+					matrices.get(modelId).add(matrix);
+				}
 			}
 
 			Map<String, Double> sums = paramValueSums.get(modelId);
@@ -344,6 +363,27 @@ public class ModelCombiner {
 			}
 
 			tuple.setValue(Model1Schema.ATT_PARAMETER, paramXml);
+
+			if (containsData) {
+				AgentXml organismXml = new AgentXml();
+				MatrixXml matrixXml = new MatrixXml();
+
+				if (organisms.get(id).size() == 1) {
+					organismXml
+							.setName(new ArrayList<String>(organisms.get(id))
+									.get(0));
+				}
+
+				if (matrices.get(id).size() == 1) {
+					matrixXml.setName(new ArrayList<String>(matrices.get(id))
+							.get(0));
+				}
+
+				tuple.setValue(TimeSeriesSchema.ATT_AGENT, new PmmXmlDoc(
+						organismXml));
+				tuple.setValue(TimeSeriesSchema.ATT_MATRIX, new PmmXmlDoc(
+						matrixXml));
+			}
 		}
 
 		return tupleCombinations;

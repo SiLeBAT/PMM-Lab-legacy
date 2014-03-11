@@ -56,8 +56,9 @@ public class PmmXmlDoc {
 		elementSet = new ArrayList<PmmXmlElementConvertable>();
 	}
 	
-	public PmmXmlDoc(Element rootElement) throws IOException, JDOMException {		
-		parseElement(rootElement);
+	public PmmXmlDoc(PmmXmlElementConvertable rootElement) {		
+		elementSet = new ArrayList<PmmXmlElementConvertable>();
+		elementSet.add(rootElement);
 	}
 	public PmmXmlDoc(String xmlString) throws IOException, JDOMException {		
 		this();

@@ -20,6 +20,7 @@ import com.jgoodies.forms.layout.*;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.resources.Resources;
+import de.bund.bfr.knime.pmm.common.units.CategoryReader;
 
 /**
  * @author Armin Weiser
@@ -97,6 +98,7 @@ public class SettingsDialog extends JFrame {
 					DBKernel.myList.getMyDBTable().setTable();
 					//DBKernel.myList.setSelection("Matrices");
 					//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
+	        		CategoryReader.killInstance();
 				}
 			}
 			catch (Exception e1) {

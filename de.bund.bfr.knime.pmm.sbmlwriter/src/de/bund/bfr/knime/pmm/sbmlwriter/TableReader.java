@@ -67,6 +67,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class TableReader {
@@ -105,6 +106,7 @@ public class TableReader {
 			String modelID = "Model_Test" + Math.abs(estXml.getId());
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
+			ListOf<Rule> rules = new ListOf<Rule>(2, 4);
 			Parameter depParam = model.createParameter(depXml.getName());
 			String depSbmlUnit = Categories.getCategoryByUnit(depXml.getUnit())
 					.getSBML(depXml.getUnit());
@@ -126,7 +128,26 @@ public class TableReader {
 					depParam.setUnits(SBMLUtilities.addUnitToModel(model, unit));
 				}
 			} else {
-				depParam.setUnits(Unit.Kind.DIMENSIONLESS);
+				depParam.setUnits(Unit.Kind.INVALID);
+			}
+
+			FormulaParser parser = new FormulaParser(new StringReader(modelXml
+					.getFormula().substring(
+							modelXml.getFormula().indexOf("=") + 1)));
+			ASTNode depNode = new ASTNode(depParam);
+
+			if (depXml.getUnit().startsWith("log")) {
+				depNode = ASTNode.log(depNode);
+			} else if (depXml.getUnit().startsWith("ln")) {
+				depNode = ASTNode.log(depNode, new ASTNode(
+						ASTNode.Type.CONSTANT_E));
+			}
+
+			try {
+				rules.add(new AlgebraicRule(
+						ASTNode.eq(depNode, parser.parse()), 2, 4));
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
@@ -147,56 +168,68 @@ public class TableReader {
 					Model1Schema.ATT_INDEPENDENT).getElementSet()) {
 				IndepXml indepXml = (IndepXml) el;
 
-				if (!indepXml.getName().equals(AttributeUtilities.TIME)) {
-					Parameter param = model.createParameter(indepXml.getName());
-					String sbmlUnit = Categories.getCategoryByUnit(
-							indepXml.getUnit()).getSBML(indepXml.getUnit());
+				if (indepXml.getName().equals(AttributeUtilities.TIME)) {
+					indepXml.setName("time");
+				}
 
-					param.setValue(0.0);
-					param.setConstant(false);
+				String name = indepXml.getName();
+				Parameter param = model.createParameter(name);
+				String sbmlUnit = Categories.getCategoryByUnit(
+						indepXml.getUnit()).getSBML(indepXml.getUnit());
 
-					if (sbmlUnit != null) {
-						UnitDefinition unit = SBMLUtilities.fromXml(sbmlUnit);
-						Unit.Kind kind = SBMLUtilities.simplify(unit);
-						UnitDefinition modelUnit = model.getUnitDefinition(unit
-								.getId());
+				param.setValue(0.0);
+				param.setConstant(false);
 
-						if (kind != null) {
-							param.setUnits(kind);
-						} else if (modelUnit != null) {
-							param.setUnits(modelUnit);
-						} else {
-							param.setUnits(SBMLUtilities.addUnitToModel(model,
-									unit));
-						}
-					} else {
-						param.setUnits(Unit.Kind.DIMENSIONLESS);
+				Double min = indepXml.getMin();
+				Double max = indepXml.getMax();
+
+				if (min != null && max != null) {
+					try {
+						rules.add(new AlgebraicRule(
+								new FormulaParser(new StringReader(min + "<="
+										+ name + "<=" + max)).parse(), 2, 4));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else if (min != null) {
+					try {
+						rules.add(new AlgebraicRule(new FormulaParser(
+								new StringReader(name + ">=" + min)).parse(),
+								2, 4));
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+				} else if (max != null) {
+					try {
+						rules.add(new AlgebraicRule(new FormulaParser(
+								new StringReader(name + "<=" + max)).parse(),
+								2, 4));
+					} catch (ParseException e) {
+						e.printStackTrace();
 					}
 				}
-			}
 
-			FormulaParser parser = new FormulaParser(new StringReader(modelXml
-					.getFormula().substring(
-							modelXml.getFormula().indexOf("=") + 1)));
+				if (sbmlUnit != null) {
+					UnitDefinition unit = SBMLUtilities.fromXml(sbmlUnit);
+					Unit.Kind kind = SBMLUtilities.simplify(unit);
+					UnitDefinition modelUnit = model.getUnitDefinition(unit
+							.getId());
 
-			try {
-				ListOf<Rule> rules = new ListOf<Rule>(2, 4);
-				ASTNode depNode = new ASTNode(depParam);
-
-				if (depXml.getUnit().startsWith("log")) {
-					depNode = ASTNode.log(depNode);
-				} else if (depXml.getUnit().startsWith("ln")) {
-					depNode = ASTNode.log(depNode, new ASTNode(
-							ASTNode.Type.CONSTANT_E));
+					if (kind != null) {
+						param.setUnits(kind);
+					} else if (modelUnit != null) {
+						param.setUnits(modelUnit);
+					} else {
+						param.setUnits(SBMLUtilities
+								.addUnitToModel(model, unit));
+					}
+				} else {
+					param.setUnits(Unit.Kind.INVALID);
 				}
-
-				rules.add(new AlgebraicRule(
-						ASTNode.eq(depNode, parser.parse()), 2, 4));
-				model.setListOfRules(rules);
-				documents.put(modelID, doc);
-			} catch (ParseException e) {
-				e.printStackTrace();
 			}
+
+			model.setListOfRules(rules);
+			documents.put(modelID, doc);
 		}
 	}
 
@@ -221,6 +254,7 @@ public class TableReader {
 		PmmXmlDoc indepXml = tuple.getPmmXml(Model1Schema.ATT_INDEPENDENT);
 		PmmXmlDoc modelXml = tuple.getPmmXml(Model1Schema.ATT_MODELCATALOG);
 		CatalogModelXml model = (CatalogModelXml) modelXml.get(0);
+		Category temp = Categories.getTempCategory();
 
 		for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 			IndepXml indep = (IndepXml) el;
@@ -228,24 +262,30 @@ public class TableReader {
 			if (indep.getUnit().equals(CELSIUS)) {
 				try {
 					String replacement = "("
-							+ Categories.getTempCategory().getConversionString(
-									indep.getName(), KELVIN, CELSIUS) + ")";
+							+ temp.getConversionString(indep.getName(), KELVIN,
+									CELSIUS) + ")";
 
 					model.setFormula(MathUtilities.replaceVariable(
 							model.getFormula(), indep.getName(), replacement));
 					indep.setUnit(KELVIN);
+					indep.setMin(temp.convert(indep.getMin(), CELSIUS, KELVIN));
+					indep.setMax(temp.convert(indep.getMax(), CELSIUS, KELVIN));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
 			} else if (indep.getUnit().equals(FAHRENHEIT)) {
 				try {
 					String replacement = "("
-							+ Categories.getTempCategory().getConversionString(
-									indep.getName(), KELVIN, FAHRENHEIT) + ")";
+							+ temp.getConversionString(indep.getName(), KELVIN,
+									FAHRENHEIT) + ")";
 
 					model.setFormula(MathUtilities.replaceVariable(
 							model.getFormula(), indep.getName(), replacement));
 					indep.setUnit(FAHRENHEIT);
+					indep.setMin(temp.convert(indep.getMin(), FAHRENHEIT,
+							KELVIN));
+					indep.setMax(temp.convert(indep.getMax(), FAHRENHEIT,
+							KELVIN));
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}

@@ -48,6 +48,7 @@ import org.sbml.jsbml.Model;
 import org.sbml.jsbml.Parameter;
 import org.sbml.jsbml.Rule;
 import org.sbml.jsbml.SBMLDocument;
+import org.sbml.jsbml.Unit;
 import org.sbml.jsbml.UnitDefinition;
 import org.sbml.jsbml.text.parser.FormulaParser;
 import org.sbml.jsbml.text.parser.ParseException;
@@ -113,14 +114,19 @@ public class TableReader {
 
 			if (depSbmlUnit != null) {
 				UnitDefinition unit = SBMLUtilities.fromXml(depSbmlUnit);
+				Unit.Kind kind = SBMLUtilities.simplify(unit);
 				UnitDefinition modelUnit = model
 						.getUnitDefinition(unit.getId());
 
-				if (modelUnit != null) {
+				if (kind != null) {
+					depParam.setUnits(kind);
+				} else if (modelUnit != null) {
 					depParam.setUnits(modelUnit);
 				} else {
 					depParam.setUnits(SBMLUtilities.addUnitToModel(model, unit));
 				}
+			} else {
+				depParam.setUnits(Unit.Kind.DIMENSIONLESS);
 			}
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
@@ -151,15 +157,20 @@ public class TableReader {
 
 					if (sbmlUnit != null) {
 						UnitDefinition unit = SBMLUtilities.fromXml(sbmlUnit);
+						Unit.Kind kind = SBMLUtilities.simplify(unit);
 						UnitDefinition modelUnit = model.getUnitDefinition(unit
 								.getId());
 
-						if (modelUnit != null) {
+						if (kind != null) {
+							param.setUnits(kind);
+						} else if (modelUnit != null) {
 							param.setUnits(modelUnit);
 						} else {
 							param.setUnits(SBMLUtilities.addUnitToModel(model,
 									unit));
 						}
+					} else {
+						param.setUnits(Unit.Kind.DIMENSIONLESS);
 					}
 				}
 			}
@@ -172,8 +183,11 @@ public class TableReader {
 				ListOf<Rule> rules = new ListOf<Rule>(2, 4);
 				ASTNode depNode = new ASTNode(depParam);
 
-				if (depXml.getUnit().startsWith("log10")) {
+				if (depXml.getUnit().startsWith("log")) {
 					depNode = ASTNode.log(depNode);
+				} else if (depXml.getUnit().startsWith("ln")) {
+					depNode = ASTNode.log(depNode, new ASTNode(
+							ASTNode.Type.CONSTANT_E));
 				}
 
 				rules.add(new AlgebraicRule(

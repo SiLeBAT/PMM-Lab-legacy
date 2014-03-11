@@ -68,14 +68,14 @@ public class SBMLUtilities {
 
 		return u;
 	}
-	
+
 	public static Unit.Kind simplify(UnitDefinition unit) {
-		unit = unit.simplify();
-		
+		unit = unit.clone().simplify();
+
 		if (unit.isUnitKind()) {
 			return unit.getUnit(0).getKind();
 		}
-		
+
 		return null;
 	}
 }

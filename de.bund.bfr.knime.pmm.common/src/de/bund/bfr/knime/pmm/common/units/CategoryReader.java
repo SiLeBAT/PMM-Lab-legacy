@@ -76,6 +76,10 @@ public class CategoryReader {
 
 		return instance;
 	}
+	
+	public static void killInstance() {
+		instance = null;
+	}
 
 	public Map<String, Category> getMap() {
 		return categories;

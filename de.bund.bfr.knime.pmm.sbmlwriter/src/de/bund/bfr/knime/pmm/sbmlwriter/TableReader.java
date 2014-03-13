@@ -147,8 +147,6 @@ public class TableReader {
 				} else {
 					depParam.setUnits(SBMLUtilities.addUnitToModel(model, unit));
 				}
-			} else {
-				depParam.setUnits(Unit.Kind.INVALID);
 			}
 
 			FormulaParser parser = new FormulaParser(new StringReader(modelXml
@@ -203,7 +201,7 @@ public class TableReader {
 				Double min = indepXml.getMin();
 				Double max = indepXml.getMax();
 
-				if (min != null && max != null) {
+				if (MathUtilities.isValid(min) && MathUtilities.isValid(max)) {
 					try {
 						rules.add(new AlgebraicRule(
 								new FormulaParser(new StringReader(min + "<="
@@ -211,7 +209,7 @@ public class TableReader {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-				} else if (min != null) {
+				} else if (MathUtilities.isValid(min)) {
 					try {
 						rules.add(new AlgebraicRule(new FormulaParser(
 								new StringReader(name + ">=" + min)).parse(),
@@ -219,7 +217,7 @@ public class TableReader {
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
-				} else if (max != null) {
+				} else if (MathUtilities.isValid(max)) {
 					try {
 						rules.add(new AlgebraicRule(new FormulaParser(
 								new StringReader(name + "<=" + max)).parse(),
@@ -243,8 +241,6 @@ public class TableReader {
 						param.setUnits(SBMLUtilities
 								.addUnitToModel(model, unit));
 					}
-				} else {
-					param.setUnits(Unit.Kind.INVALID);
 				}
 			}
 

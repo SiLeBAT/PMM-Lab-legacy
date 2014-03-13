@@ -410,6 +410,10 @@ public class MathUtilities {
 		}
 	}
 
+	public static boolean isValid(Double value) {
+		return value != null && !value.isNaN() && !value.isInfinite();
+	}
+
 	private static int countOccurences(String s, char c) {
 		int n = 0;
 

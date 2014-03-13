@@ -746,7 +746,7 @@ public class XLSReader {
 		Map<String, Integer> columns = getColumns(s);
 		int columnId = columns.get(column);
 
-		for (int i = 1; i < s.getLastRowNum(); i++) {
+		for (int i = 1; i <= s.getLastRowNum(); i++) {
 			if (s.getRow(i) != null) {
 				Cell cell = s.getRow(i).getCell(columnId);
 

@@ -49,7 +49,7 @@ import org.hsh.bfr.db.gui.dbtree.MyDBTree;
  */
 public class GeneralXLSImporter extends FileFilter implements MyImporter {
 	
-	private boolean takecareofID = false;
+	private boolean takecareofID = false; // in case of INSERTs!!!
 	public GeneralXLSImporter() {
 	}
 	public GeneralXLSImporter(boolean takecareofID) {

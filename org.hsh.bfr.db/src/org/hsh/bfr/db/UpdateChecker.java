@@ -38,6 +38,9 @@ package org.hsh.bfr.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.text.DecimalFormat;
+import java.util.Calendar;
+import java.util.regex.Pattern;
 
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
 import org.hsh.bfr.db.imports.SQLScriptImporter;
@@ -50,6 +53,185 @@ import org.hsh.bfr.db.imports.SQLScriptImporter;
 // ACHTUNG: beim MERGEN sind sowohl KZ2NKZ als auch moveDblIntoDoubleKZ ohne Effekt!!! Da sie nicht im ChangeLog drin stehen!!!! Da muss KZ2NKZ nachträglich ausgeführt werden (solange die Tabelle Kennzahlen noch existiert). Bei moveDblIntoDoubleKZ???
 
 public class UpdateChecker {
+	public static void check4Updates_176_177() {
+		new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_140312.xls", null, false);		
+		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Serial") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Station", 27, false);	
+		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Produktkatalog") + " ADD COLUMN " + DBKernel.delimitL("Serial") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Produktkatalog", 9, false);	
+		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("Serial") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Chargen", 9, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("OriginCountry") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Chargen", 10, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("MicrobioSample") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Chargen", 11, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("MHD_day") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 9, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("MHD_month") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 10, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("MHD_year") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 11, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("pd_day") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 12, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("pd_month") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 13, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " ADD COLUMN " + DBKernel.delimitL("pd_year") + " INTEGER BEFORE " + DBKernel.delimitL("Serial"), false);
+		updateChangeLog("Chargen", 14, false);	
+
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("Serial") + " VARCHAR(16383) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Lieferungen", 10, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("EndChain") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Lieferungen", 11, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Lieferungen", 12, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(1023) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Lieferungen", 13, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("Further_Traceback") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kommentar"), false);
+		updateChangeLog("Lieferungen", 14, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("dd_day") + " INTEGER BEFORE " + DBKernel.delimitL("Unitmenge"), false);
+		updateChangeLog("Lieferungen", 7, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("dd_month") + " INTEGER BEFORE " + DBKernel.delimitL("Unitmenge"), false);
+		updateChangeLog("Lieferungen", 8, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("dd_year") + " INTEGER BEFORE " + DBKernel.delimitL("Unitmenge"), false);
+		updateChangeLog("Lieferungen", 9, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("numPU") + " DOUBLE BEFORE " + DBKernel.delimitL("Unitmenge"), false);
+		updateChangeLog("Lieferungen", 10, false);	
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ADD COLUMN " + DBKernel.delimitL("typePU") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Unitmenge"), false);
+		updateChangeLog("Lieferungen", 11, false);	
+		
+		try {
+			String sql = "UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("OriginCountry") + "=LEFT(" + DBKernel.delimitL("Kommentar") + ",CASEWHEN(INSTR(" + DBKernel.delimitL("Kommentar") + ", '\\n')>0,INSTR(" + DBKernel.delimitL("Kommentar") + ", '\\n')-1,0))";
+			DBKernel.sendRequest(sql, false);
+			sql = "UPDATE " + DBKernel.delimitL("Chargen") + " SET " + DBKernel.delimitL("Kommentar") + "=NULL";
+			DBKernel.sendRequest(sql, false);
+			
+			sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Kommentar") + " FROM " + DBKernel.delimitL("Lieferungen");
+			ResultSet rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first())  {
+				do {
+					if (rs.getObject("Kommentar") != null) {
+						String str = rs.getString("Kommentar");
+						String [] strsp = str.split(Pattern.quote("\\n"));
+						String cqr = "";
+						String ser = "";
+						for (String s : strsp) {
+							String [] strsp2 = s.split(Pattern.quote("\n"));
+							for (String s2 : strsp2) {
+								if (s2.indexOf("_") >= 0 && s2.indexOf(".") < 0) {if (!ser.isEmpty()) ser += "\n"; ser += s2;}
+								else {if (!cqr.isEmpty()) cqr += "\n"; cqr += s2;}
+							}
+						}
+						sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " +
+								DBKernel.delimitL("Contact_Questions_Remarks") + "=" + (cqr.isEmpty() ? "NULL" : "'" + cqr + "'") + "," +
+								DBKernel.delimitL("Serial") + "='" + ser + "'" +
+								" WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+						DBKernel.sendRequest(sql, false);
+					}
+				} while (rs.next());
+			}
+			/*
+			sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Contact_Questions_Remarks") + "=" + DBKernel.delimitL("Kommentar");
+			DBKernel.sendRequest(sql, false);
+			sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Serial") + "=" + DBKernel.delimitL("Kommentar");
+			DBKernel.sendRequest(sql, false);
+			*/
+			sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " + DBKernel.delimitL("Kommentar") + "=NULL";
+			DBKernel.sendRequest(sql, false);
+			
+			sql = "UPDATE " + DBKernel.delimitL("Station") + " SET " + DBKernel.delimitL("Kommentar") + "=NULL";
+			DBKernel.sendRequest(sql, false);
+
+			Calendar cal = Calendar.getInstance();
+			sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("MHD") + "," + DBKernel.delimitL("Herstellungsdatum") + " FROM " + DBKernel.delimitL("Chargen");
+			rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first())  {
+				do {
+					if (rs.getObject("MHD") != null) {
+						cal.setTimeInMillis(rs.getTimestamp("MHD").getTime());
+						sql = "UPDATE " + DBKernel.delimitL("Chargen") + " SET " +
+								DBKernel.delimitL("MHD_day") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 ? "NULL" : cal.get(Calendar.DAY_OF_MONTH)) + "," +
+								DBKernel.delimitL("MHD_month") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 && cal.get(Calendar.MONTH) == 0 ? "NULL" : cal.get(Calendar.MONTH) + 1) + "," +
+								DBKernel.delimitL("MHD_year") + "=" + cal.get(Calendar.YEAR) +
+								" WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+						DBKernel.sendRequest(sql, false);
+					}
+					if (rs.getObject("Herstellungsdatum") != null) {
+						cal.setTimeInMillis(rs.getTimestamp("Herstellungsdatum").getTime());
+						sql = "UPDATE " + DBKernel.delimitL("Chargen") + " SET " +
+								DBKernel.delimitL("pd_day") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 ? "NULL" : cal.get(Calendar.DAY_OF_MONTH)) + "," +
+								DBKernel.delimitL("pd_month") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 && cal.get(Calendar.MONTH) == 0 ? "NULL" : cal.get(Calendar.MONTH) + 1) + "," +
+								DBKernel.delimitL("pd_year") + "=" + cal.get(Calendar.YEAR) +
+								" WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+						DBKernel.sendRequest(sql, false);
+					}
+				} while (rs.next());
+			}
+
+			sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Lieferdatum") + " FROM " + DBKernel.delimitL("Lieferungen");
+			rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first())  {
+				do {
+					if (rs.getObject("Lieferdatum") != null) {
+						cal.setTimeInMillis(rs.getTimestamp("Lieferdatum").getTime());
+						sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " +
+								DBKernel.delimitL("dd_day") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 ? "NULL" : cal.get(Calendar.DAY_OF_MONTH)) + "," +
+								DBKernel.delimitL("dd_month") + "=" + (cal.get(Calendar.HOUR_OF_DAY) == 12 && cal.get(Calendar.MONTH) == 0 ? "NULL" : cal.get(Calendar.MONTH) + 1) + "," +
+								DBKernel.delimitL("dd_year") + "=" + cal.get(Calendar.YEAR) +
+								" WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+						DBKernel.sendRequest(sql, false);
+					}
+				} while (rs.next());
+			}
+		
+			sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("#Units1") + "," + DBKernel.delimitL("#Units2") + "," + DBKernel.delimitL("BezUnits2") +
+					"," + DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") + " FROM " + DBKernel.delimitL("Lieferungen");
+			rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first())  {
+	    		DecimalFormat f = new DecimalFormat("#0.##"); 
+				do {
+					if (rs.getObject("Unitmenge") != null) {
+						String cm = calcMenge(null, rs.getObject("#Units1"), rs.getObject("#Units2"));
+						sql = "UPDATE " + DBKernel.delimitL("Lieferungen") + " SET " +
+								DBKernel.delimitL("Unitmenge") + "=" + calcMenge(rs.getObject("#Units1"), rs.getObject("#Units2"), rs.getObject("Unitmenge")) + "," +
+								DBKernel.delimitL("numPU") + "=" + cm + "," +
+								DBKernel.delimitL("typePU") + "=" + (cm.equalsIgnoreCase("null") ? "NULL" : "'" + rs.getString("BezUnits2") + " a " + f.format(rs.getDouble("Unitmenge")) + " " + rs.getString("UnitEinheit") + "'") +
+								" WHERE " + DBKernel.delimitL("ID") + "=" + rs.getInt("ID");
+						DBKernel.sendRequest(sql, false);
+					}
+				} while (rs.next());
+			}
+		}
+		catch (Exception e) {e.printStackTrace();}		
+		
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " DROP COLUMN " + DBKernel.delimitL("MHD"), false);
+		updateChangeLog("Chargen", 4, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Chargen") + " DROP COLUMN " + DBKernel.delimitL("Herstellungsdatum"), false);
+		updateChangeLog("Chargen", 4, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Lieferdatum"), false);
+		updateChangeLog("Lieferungen", 2, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("#Units1"), false);
+		updateChangeLog("Lieferungen", 2, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("BezUnits1"), false);
+		updateChangeLog("Lieferungen", 2, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("#Units2"), false);
+		updateChangeLog("Lieferungen", 2, true);			
+		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("BezUnits2"), false);
+		updateChangeLog("Lieferungen", 2, true);	
+		
+	}
+    private static String calcMenge(Object u1, Object u2, Object u3) {
+    	String result = "NULL";
+    	if (u3 != null) {
+    		double dbl = (Double) u3;
+    		if (u2 != null) dbl *= (Double) u2;
+    		if (u1 != null) dbl *= (Double) u1;
+    		result = dbl+"";
+    	}
+    	return result;
+    }
 	public static void check4Updates_175_176() {
 		MyDBTables.getTable("GlobalModels").createTable();
 		DBKernel.grantDefaults("GlobalModels");

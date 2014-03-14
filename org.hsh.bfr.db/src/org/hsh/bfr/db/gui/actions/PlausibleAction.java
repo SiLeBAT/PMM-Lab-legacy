@@ -203,21 +203,21 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals2 =
 					pd4.cp.isSelected() ?
 							checkTable4ISM("Produktkatalog", new String[]{"Station","Bezeichnung","Artikelnummer"},
-								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"Herstellungsdatum"}, pd4.gentle.isSelected())
+								new int[]{(Integer)pd4.ps.getValue(),(Integer)pd4.pd.getValue(),(Integer)pd4.pi.getValue()}, "Chargen", "Artikel", new String[]{"pd_day","pd_month","pd_year"}, pd4.gentle.isSelected())
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals3 =
 					pd4.cl.isSelected() ?
-							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD","Herstellungsdatum"},
-								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue()}, null, null, null, pd4.gentle.isSelected())
+							checkTable4ISM("Chargen", new String[]{"Artikel","ChargenNr","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year"},
+								new int[]{(Integer)pd4.la.getValue(),(Integer)pd4.ll.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.lb.getValue(),(Integer)pd4.ld.getValue(),(Integer)pd4.ld.getValue(),(Integer)pd4.ld.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals4 =
 					pd4.cd.isSelected() ?
-							checkTable4ISM("Lieferungen", new String[]{"Charge","Lieferdatum","Empfänger"},
-								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
+							checkTable4ISM("Lieferungen", new String[]{"Charge","dd_day","dd_month","dd_year","Empfänger"},
+								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
 
@@ -236,37 +236,7 @@ public class PlausibleAction extends AbstractAction {
 						if (vals4 != null) showAndFilterVals("Lieferungen", vals4, 0, v1 + v2 + v3, total);
 					}
 				}
-			}
-			
-			/*
-			MyTreeTable mtt = new MyTreeTable(new String[]{"ID","Charge","Lieferdatum","Empfänger"}, vals);
-			TreePath[] tps = mtt.getCheckedPaths();
-			for (TreePath tp : tps) {
-				int idTop = 0;
-				HashSet<Integer> idDowns = new HashSet<Integer>();
-				TreeNode node = (TreeNode) tp.getLastPathComponent();		
-				if (node instanceof MyTreeTableNode) {
-					MyTreeTableNode mttn = (MyTreeTableNode) node;
-					idTop = Integer.parseInt(mttn.getValueAt(0).toString());
-					if (tp.getPathCount() == 3) { // unterste Ebene
-						idDowns.add(idTop);
-						mttn = (MyTreeTableNode) tp.getParentPath().getLastPathComponent();
-						idTop = Integer.parseInt(mttn.getValueAt(0).toString());
-					}
-					else if (tp.getPathCount() == 2) { // obere Ebene
-						for (int i=0;i<mtt.getTheModel().getChildCount(node);i++) {
-							mttn = (MyTreeTableNode) mtt.getTheModel().getChild(node, i);
-							idDowns.add(Integer.parseInt(mttn.getValueAt(0).toString()));
-						}
-					}
-					System.out.print("IdTop=" + idTop + "\tIdDowns=");
-					for (int id : idDowns) {
-						System.out.print(" " + id);
-					}
-					System.out.println();
-				}
-			}
-			*/
+			}			
 		}
 		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
 	}

@@ -993,16 +993,16 @@ public class MyDBTables {
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
 		
 		MyTable Knoten = new MyTable("Station", new String[]{"Produktkatalog","Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite","Betriebsnummer","Betriebsart","VATnumber","Code",
-				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis"},
+				"CasePriority","AnzahlFaelle","AlterMin","AlterMax","DatumBeginn","DatumHoehepunkt","DatumEnde","Erregernachweis","Serial"},
 				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)",
-				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER"},
+				"DOUBLE","INTEGER","INTEGER","INTEGER","DATE","DATE","DATE","INTEGER","VARCHAR(16383)"},
 				new String[]{null,null, null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null,null,
 				"z.B. Endverbraucher, Erzeuger, Einzelhändler, Großhändler, Gastronomie, Mensch. Siehe weitere Beispiele ADV Katalog", null, "interner Code, z.B. NI00",
-				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null},
-				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien},
+				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
+				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien"});
+				new LinkedHashMap[]{null,null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null});
 		addTable(Knoten, MyList.Lieferketten_LIST);
 /*
 		MyTable Knoten = new MyTable("Station", new String[]{"Kontaktadresse","Betriebsnummer","Betriebsart","VATnumber","Code",
@@ -1031,13 +1031,13 @@ public class MyDBTables {
 		proce.put("erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "heated and not-ready-to-eat (e.g. frozen cake)" : "erhitzt und nicht verzehrsfähig (Vorprodukte wie eingefrorene Kuchen)");
 		proce.put("nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)", DBKernel.getLanguage().equalsIgnoreCase("en") ? "not heated and not-ready-to-eat (meat, eggs)" : "nicht erhitzt und nicht verzehrsfähig (Rohwaren, die nicht zum Rohverzehr bestimmt sind wie Fleisch oder Eier)");
 		MyTable Produzent_Artikel = new MyTable("Produktkatalog", // Produzent_Artikel
-				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen"},
-				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER"},
-				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null},
-				new MyTable[]{Knoten,null,null,null,null,null,matrix,null},
+				new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","IntendedUse","Code","Matrices","Chargen","Serial"},
+				new String[]{"INTEGER","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)","VARCHAR(255)","VARCHAR(25)","INTEGER","INTEGER","VARCHAR(16383)"},
+				new String[]{null,null,null,"gekocht? geschüttelt? gerührt?","wozu ist der Artikel gedacht? Was soll damit geschehen?","interner Code",null,null,null},
+				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,proce,null,null,null,null},
-				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT"});
+				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null},
+				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null});
 		addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
 		Knoten.setForeignField(Produzent_Artikel, 0);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
@@ -1049,28 +1049,28 @@ public class MyDBTables {
 		addTable(Produktmatrices, -1);
 		
 		MyTable Chargen = new MyTable("Chargen",
-				new String[]{"Artikel","Zutaten","ChargenNr","MHD","Herstellungsdatum","Menge","Einheit","Lieferungen"},
-				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DATE","DATE","DOUBLE","VARCHAR(50)","INTEGER"},
-				new String[]{null,null,null,null,null,null,null,null},
-				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null},
+				new String[]{"Artikel","Zutaten","ChargenNr","Menge","Einheit","Lieferungen","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year","Serial","OriginCountry","MicrobioSample"},
+				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DOUBLE","VARCHAR(50)","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(255)"},
+				new String[]{null,null,null,null,null,null,"Best before - day","Best before - month","Best before - year","production date - day","production date - month","production date - year",null,null,null},
+				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null},
-				new String[]{null,"INT",null,null,null,null,null,"INT"});
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null});
 		addTable(Chargen, MyList.Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
 		MyTable Artikel_Lieferung = new MyTable("Lieferungen", // Artikel_Lieferung
-				new String[]{"Charge","Lieferdatum","#Units1","BezUnits1","#Units2","BezUnits2", // "Artikel","ChargenNr","MHD",
-					"Unitmenge","UnitEinheit","Empfänger"}, // ,"Vorprodukt","Zielprodukt"
-				new String[]{"INTEGER","DATE","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)",
-					"DOUBLE","VARCHAR(50)","INTEGER"}, // ,"INTEGER","INTEGER"
-				new String[]{null,"Lieferdatum (arrival)",null,null,null,null,null,null,null}, // ,null,null
-				new MyTable[]{Chargen,null,null,null,null,null,null,null,Knoten}, // ,null,null
+				new String[]{"Charge","dd_day","dd_month","dd_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
+					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
+				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
+					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)"}, // ,"INTEGER","INTEGER"
+				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null}, // ,null,null
+				new MyTable[]{Chargen,null,null,null,null,null,null,null,Knoten,null,null,null,null,null}, // ,null,null
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null}, // ,null,null
-				new String[]{null,null,null,null,null,null,null,null,null}); // ,"INT","INT"
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}, // ,null,null
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}); // ,"INT","INT"
 		addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
-		Chargen.setForeignField(Artikel_Lieferung, 7);
+		Chargen.setForeignField(Artikel_Lieferung, 5);
 		
 		MyTable ChargenVerbindungen = new MyTable("ChargenVerbindungen",
 				new String[]{"Zutat","Produkt","MixtureRatio"}, // man könnte hier sowas machen wie: ,"#Units","Unitmenge","UnitEinheit", um zu notieren wieviel der vorgelieferten Menge in das Produkt gegangen sind

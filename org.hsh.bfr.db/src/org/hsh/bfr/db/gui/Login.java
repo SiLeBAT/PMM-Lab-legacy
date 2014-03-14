@@ -520,6 +520,10 @@ public class Login extends JFrame {
 					  		UpdateChecker.check4Updates_175_176(); 
 					  		DBKernel.setDBVersion("1.7.6");
 					  	}
+					  	if (DBKernel.getDBVersion().equals("1.7.6")) {
+					  		UpdateChecker.check4Updates_176_177(); 
+					  		DBKernel.setDBVersion("1.7.7");
+					  	}
 
 						DBKernel.closeDBConnections(false);
 					}

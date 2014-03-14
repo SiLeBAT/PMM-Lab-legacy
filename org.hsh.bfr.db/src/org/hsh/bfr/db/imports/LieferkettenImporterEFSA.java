@@ -18,9 +18,6 @@ import java.net.URLConnection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 import javax.swing.JProgressBar;
@@ -45,8 +42,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
   This is the one of the methods that is declared in 
   the abstract class
  */
-	private Calendar calendar = Calendar.getInstance();
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private HashMap<String, Integer> nodeIDs = null;
 
 	public boolean accept(File f) {
@@ -67,7 +62,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	  if (i > 0 &&  i < s.length() - 1) return s.substring(i+1).toLowerCase();
 	  return "";
 	}
-
 
 	private HashMap<String, Integer> loadExternalXLS4StationMapping(String filename) throws IOException {
 		HashMap<String, Integer> result = new HashMap<String, Integer>();
@@ -188,9 +182,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      String dayPDOut = getStrVal(row.getCell(18)); 
 				      String monthPDOut = getStrVal(row.getCell(19)); 
 				      String yearPDOut = getStrVal(row.getCell(20)); 
-				      Date dateOut = getDate(dayOut, monthOut, yearOut);
-				      Date dateMHDOut = getDate(dayMHDOut, monthMHDOut, yearMHDOut);
-				      Date datePDOut = getDate(dayPDOut, monthPDOut, yearPDOut);
+				      //Date dateOut = getDate(dayOut, monthOut, yearOut);
+				      //Date dateMHDOut = getDate(dayMHDOut, monthMHDOut, yearMHDOut);
+				      //Date datePDOut = getDate(dayPDOut, monthPDOut, yearPDOut);
 				      
 				      String idInsp = getStrVal(row.getCell(21)); // ID_Address
 				      String adressInsp = getStrVal(row.getCell(22)); // Address
@@ -236,9 +230,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      String dayPDIn = getStrVal(row.getCell(36)); 
 				      String monthPDIn = getStrVal(row.getCell(37)); 
 				      String yearPDIn = getStrVal(row.getCell(38)); 
-				      Date dateIn = getDate(dayIn, monthIn, yearIn);
-				      Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
-				      Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
+				      //Date dateIn = getDate(dayIn, monthIn, yearIn);
+				      //Date dateMHDIn = getDate(dayMHDIn, monthMHDIn, yearMHDIn);
+				      //Date datePDIn = getDate(dayPDIn, monthPDIn, yearPDIn);
 				      
 				      String idSup = getStrVal(row.getCell(39)); // ID_Address
 				      String adressSup = getStrVal(row.getCell(40)); // Address
@@ -272,28 +266,26 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      String ec = getStrVal(row.getCell(42)); // EndChain
 				      String ece = getStrVal(row.getCell(43)); // Explanation_EndChain
 				      String oc = getStrVal(row.getCell(44)); // OriginCountry
-				      String comment = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
-				      if (comment == null) comment = serial; else comment += "\n" + serial;
+				      String cqr = getStrVal(row.getCell(45)); // Contact_Questions_Remarks
 				      String ft = getStrVal(row.getCell(46)); // Further_Traceback
 				      String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				      if (dateOut != null && dateIn != null && dateOut.getTime() < dateIn.getTime() &&
-				    		  (!yearOut.equals(yearIn) || monthOut != null && !monthOut.equals(monthIn) || dayOut != null)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + sdf.format(dateOut) + "; dateIn: " + sdf.format(dateIn));
+				      if (is1Newer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
 
 				      Integer c1 = null;
 				      Integer c2 = null;
 				      if (nameInsp != null && !nameInsp.trim().isEmpty()) {
 				    	  c1 = getCharge_Lieferung(nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
-				    			  prodNameOut, prodNumOut, lotNo_Out, dateMHDOut, datePDOut, oc, dateOut, amountKG_Out, typePUOut, numPUOut,
+				    			  prodNameOut, prodNumOut, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out, typePUOut, numPUOut,
 				    			  nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, activityRec, vatRec,
-				    			  comment, true, null, null, null, null);
+				    			  serial, cqr, true, null, null, null, null);
 				      }
 				      if (nameSup != null && !nameSup.trim().isEmpty()) {
 				    	  c2 = getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, activitySup, vatSup,
-					    		  prodNameIn, prodNumIn, lotNo_In, dateMHDIn, datePDIn, oc, dateIn, amountKG_In, typePUIn, numPUIn,
+					    		  prodNameIn, prodNumIn, lotNo_In, dayMHDIn, monthMHDIn, yearMHDIn, dayPDIn, monthPDIn, yearPDIn, oc, dayIn, monthIn, yearIn, amountKG_In, typePUIn, numPUIn,
 					    		  nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
-					    		  comment, false, ec, ece, ft, ms);
+					    		  serial, cqr, false, ec, ece, ft, ms);
 				      }
 				      if (c1 == null) {
 				      	System.err.println("Fehlerchenchen_1!! Row: " + (i+1));
@@ -314,7 +306,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					      	if (getID("ChargenVerbindungen",
 		    							new String[]{"Zutat","Produkt"},
 		    							new String[]{c2.toString(), c1.toString()},
-		    							null) == null) {
+		    							null,null) == null) {
 						      	System.err.println("Fehlerchenchen_4!! Row: " + (i+1));
 						      	numFails++;
 						      }
@@ -362,15 +354,17 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
     	MyLogger.handleException(e);
 		}
   }
-	private Date getDate(String day, String month, String year) {
-		calendar.clear();
-		if (day != null && !day.trim().isEmpty()) {calendar.set(Calendar.DAY_OF_MONTH, Integer.parseInt(day)); calendar.set(Calendar.HOUR_OF_DAY, 12);}
-		if (month != null && !month.trim().isEmpty()) calendar.set(Calendar.MONTH, Integer.parseInt(month) - 1);
-		if (year != null && !year.trim().isEmpty()) calendar.set(Calendar.YEAR, Integer.parseInt(year));
-		Date date = calendar.getTime();
-		if (date.getTime() > 0) return date;
-		else return null;
+	private boolean is1Newer(String day1, String month1, String year1, String day2, String month2, String year2) {
+		boolean result = false;
+		if (year1 != null && year2 != null && Integer.parseInt(year1) > Integer.parseInt(year2)) result = true;
+		if (!result && month1 != null && month2 != null && Integer.parseInt(month1) > Integer.parseInt(month2)) result = true;
+		if (!result && day1 != null && day2 != null && Integer.parseInt(day1) > Integer.parseInt(day2)) result = true;
+	    return result;
 	}
+	private String sdfFormat(String day, String month, String year) {
+		return day + "." + month + "." + year;
+	}
+
 	private HSSFRow getRow(HSSFSheet sheet, String value, int column) {
 		HSSFRow result = null;
 		if (value != null && !value.trim().isEmpty()) {
@@ -424,16 +418,17 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	  	return result;
 	  }
 	private Integer getCharge_Lieferung(String name, String street, String streetNumber, String zip, String city, String county, String country, String kind, String vat,
-			String article, String articleNumber, String charge, Date mhd, Date prod, String originCountry, Date delivery, String amountKG, String typePU, String numPU,
+			String article, String articleNumber, String charge, String dayMHD, String monthMHD, String yearMHD, String dayP, String monthP, String yearP, String originCountry, String dayD, String monthD, String yearD, String amountKG, String typePU, String numPU,
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
-			String comment, boolean returnCharge,
+			String serial, String cqr, boolean returnCharge,
 			String EndChain, String Explanation_EndChain, String Further_Traceback, String MicrobiologicalSample) {
 		if (name == null) return null;
 		Integer result = null;
 
-		String mhdS = mhd == null ? null : sdf.format(mhd);
-		String prodS = prod == null ? null : sdf.format(prod);
-		String deliveryS = delivery == null ? null : sdf.format(delivery);
+		//String mhdS = mhd == null ? null : sdf.format(mhd);
+		//String prodS = prod == null ? null : sdf.format(prod);
+		//String deliveryS = delivery == null ? null : sdf.format(delivery);
+		/*
 		String sComment = EndChain != null ? "EndChain:" + EndChain : null;
 		String tmp = Explanation_EndChain != null ? "Expl:" + Explanation_EndChain : null;
 		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
@@ -441,20 +436,24 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
 		tmp = MicrobiologicalSample != null ? "Micro:" + MicrobiologicalSample : null;
 		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
+		*/
 		Integer lastID = getID("Station",
-					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Kommentar"},
-					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null, sComment},
-					new boolean[]{true,true,true,true,true,true,true,false,true,false,false});
+					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Serial"},
+					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null, serial},
+					new boolean[]{true,true,true,true,true,true,true,false,true,false,false},
+					new boolean[]{true,true,true,true,true,true,true,true,true,false,true});
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
-							new String[]{"Station","Artikelnummer","Bezeichnung"},
-							new String[]{lastID.toString(), articleNumber, article},
-							null);
+							new String[]{"Station","Artikelnummer","Bezeichnung","Serial"},
+							new String[]{lastID.toString(), articleNumber, article,serial},
+							new boolean[]{true,true,true,false},
+							new boolean[]{true,true,true,true});
 					if (lastID != null) {
 						lastID = getID("Chargen",
-								new String[]{"Artikel","ChargenNr","MHD","Herstellungsdatum","Kommentar"},
-								new String[]{lastID.toString(), charge, mhdS, prodS, originCountry},
-								new boolean[]{true,true,true,true,false});
+								new String[]{"Artikel","ChargenNr","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year","OriginCountry","Serial","MicrobioSample"},
+								new String[]{lastID.toString(), charge, dayMHD, monthMHD, yearMHD, dayP, monthP, yearP, originCountry,serial,MicrobiologicalSample},
+								new boolean[]{true,true,true,true,true,true,true,true,false,false,false},
+								new boolean[]{true,true,false,false,false,false,false,false,true,true,true});
 						if (returnCharge) result = lastID;
 						if (lastID != null) {
 							Integer empf = null;
@@ -462,23 +461,26 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 								boolean isCase = nameTo != null && (nameTo.indexOf("Case") >= 0 || nameTo.indexOf("Conf Lot ") >= 0);
 								boolean isLot = isCase && nameTo.indexOf("Conf Lot ") >= 0;
 								empf = getID("Station",
-										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Kommentar"},
-										new String[]{nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null, null},
-										new boolean[]{true,true,true,true,true,true,true,false,true,false,false});
+										new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Serial"},
+										//new String[]{nameTo, isCase ? street : streetTo, isCase ? streetNumber : streetNumberTo, isCase ? zip : zipTo, isCase ? city : cityTo, isCase ? county : countyTo, isCase ? country : countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null, serial},
+										new String[]{nameTo, streetTo, streetNumberTo, zipTo, cityTo, countyTo, countryTo, kindTo, vatTo, isCase ? (isLot ? "1" : "0.1") : null, serial},
+										new boolean[]{true,true,true,true,true,true,true,false,true,false,false},
+										new boolean[]{true,true,true,true,true,true,true,true,true,false,true});
 							}
-							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + mhd;
+							if (charge == null || charge.trim().isEmpty()) charge = articleNumber + "; " + sdfFormat(dayMHD, monthMHD, yearMHD);;
 							//System.err.println(deliveryS);
 							lastID = getID("Lieferungen",
-									new String[]{"Charge","Lieferdatum","Unitmenge","UnitEinheit","Empfänger","Kommentar"}, // "#Units2","BezUnits2",
-									new String[]{lastID.toString(), deliveryS, amountKG, "kg", empf == null ? null : empf.toString(),comment}, // numPU, typePU, 
-									new boolean[]{true,true,true,true,true,false});
+									new String[]{"Charge","dd_day","dd_month","dd_year","Unitmenge","UnitEinheit","Empfänger","Serial","Contact_Questions_Remarks","numPU","typePU","EndChain","Explanation_EndChain","Further_Traceback"},
+									new String[]{lastID.toString(), dayD, monthD, yearD, amountKG, "kg", empf == null ? null : empf.toString(),serial, cqr, numPU, typePU, EndChain, Explanation_EndChain, Further_Traceback},
+									new boolean[]{true,true,true,true,true,true,true,false,false,true,true,false,false,false},
+									new boolean[]{true,false,false,false,false,true,false,true,true,false,true,true,true,true});
 							if (!returnCharge) result = lastID;
 						}
 					}
 			}
 		return result;
 	}
-	private Integer getID(String tablename, String[] feldnames, String[] feldVals, boolean[] key) {
+	private Integer getID(String tablename, String[] feldnames, String[] feldVals, boolean[] key, boolean[] isStringType) {
 	  Integer result = null;
 	  String sql = "SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(tablename) + " WHERE TRUE";
 	  String fns = "";
@@ -504,20 +506,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						sql = "UPDATE " + DBKernel.delimitL(tablename) + " SET ";
 						int i=0;
 						for (boolean b : key) {
-							if (!b && i == key.length - 1) { // Kommentar in Charge or Delivery or Station
+							if (!b) {
 								if (feldVals[i] != null && !feldVals[i].equalsIgnoreCase("null")) {
 									if (sql.endsWith(")")) sql += ",";
-									if (tablename.equals("Station")) {
-										if (feldVals[i].startsWith("EndChain") || feldVals[i].startsWith("Expl") ||
-												feldVals[i].startsWith("FurtherTB") || feldVals[i].startsWith("Micro")) {
-											sql += DBKernel.delimitL(feldnames[i]) + "='" + feldVals[i] + "'";
-											doExec = true;
-										}
-									}
-									else {
-										sql += DBKernel.delimitL(feldnames[i]) + "=IFNULL(CONCAT(" + DBKernel.delimitL(feldnames[i]) + ",'\\n','" + feldVals[i] + "'),'" + feldVals[i] + "')";
-										doExec = true;
-									}
+									if (isStringType != null && isStringType[i]) sql += DBKernel.delimitL(feldnames[i]) + "=CASEWHEN(" + DBKernel.delimitL(feldnames[i]) + "='" + feldVals[i] + "' OR INSTR(" + DBKernel.delimitL(feldnames[i]) + ",'\n" + feldVals[i] + "')>0," + DBKernel.delimitL(feldnames[i]) + ",IFNULL(CONCAT(" + DBKernel.delimitL(feldnames[i]) + ",'\n','" + feldVals[i] + "'),'" + feldVals[i] + "'))";
+									else sql += DBKernel.delimitL(feldnames[i]) + "=('" + feldVals[i] + "')";
+									doExec = true;
 								}
 							}
 							i++;

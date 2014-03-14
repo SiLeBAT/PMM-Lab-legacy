@@ -129,7 +129,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 	    			}
 	    			else if (ft.equals("Chargen")) {
 						sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
-						DBKernel.delimitL("Herstellungsdatum") + " FROM " + DBKernel.delimitL(ft) +
+								DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + " FROM " + DBKernel.delimitL(ft) +
 						" WHERE " + DBKernel.delimitL("Artikel") + "=" + value;
 	    			}
 	    			else if (ft.equals("Lieferungen")) {
@@ -137,7 +137,8 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 	    				//System.err.println(fn);
 	    				if (tn.equals("Produktkatalog")) {
 							sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
-							DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
+									DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
+									DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
 							" FROM " + DBKernel.delimitL(ft) +
 							" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
 							" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
@@ -146,7 +147,8 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 	    				}
 	    				else if (tn.equals("Chargen")) {
 							sql = "SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("ChargenNr") + "," +
-							DBKernel.delimitL("Lieferdatum") + "," + DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
+									DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
+									DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") +
 							" FROM " + DBKernel.delimitL(ft) +
 							" LEFT JOIN " + DBKernel.delimitL("Chargen") +
 							" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" +
@@ -154,22 +156,9 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 							" WHERE " + DBKernel.delimitL("Charge") + "=" + value;
 	    				}
 	    			}
-	    			else if (ft.equals("LieferungVerbindungen")) {
-	    				String fn = myT.getFieldNames()[selectedColumn];
-						sql = "SELECT " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL("ID") + "," +
-						DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Lieferdatum") + "," +
-						DBKernel.delimitL("ChargenNr") + " FROM " + DBKernel.delimitL(ft) +
-						" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
-						" ON " + DBKernel.delimitL("LieferungVerbindungen") + "." + DBKernel.delimitL(fn) + "=" +
-						DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("ID") +
-						" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
-						" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel") + "=" +
-						DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
-						" WHERE " + DBKernel.delimitL(fn.equals("Vorprodukt") ? "Zielprodukt" : "Vorprodukt") + "=" + value;
-	    			}
 	    			else if (ft.equals("ChargenVerbindungen")) {
 						sql = "SELECT " + DBKernel.delimitL(ft) + "." + DBKernel.delimitL("ID") + "," +
-						DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("Herstellungsdatum") + "," +
+						DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + "," +
 						DBKernel.delimitL("ChargenNr") + " FROM " + DBKernel.delimitL(ft) +
 						" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
 						" ON " + DBKernel.delimitL(ft) + "." + DBKernel.delimitL("Zutat") + "=" +

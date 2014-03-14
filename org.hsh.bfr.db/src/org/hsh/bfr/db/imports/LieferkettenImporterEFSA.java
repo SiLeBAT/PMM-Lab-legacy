@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
 
+import javax.swing.JFileChooser;
 import javax.swing.JProgressBar;
 import javax.swing.filechooser.FileFilter;
 
@@ -44,6 +45,31 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
  */
 	private HashMap<String, Integer> nodeIDs = null;
 
+	public void importNodeIDs() {
+		if (nodeIDs == null) {
+		  	String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
+		  	  JFileChooser fc = new JFileChooser(lastOutDir);
+		  	  FileFilter ff = new XlsFileFilter();
+		  	  fc.addChoosableFileFilter(ff);
+		  	  fc.setFileFilter(ff);
+		  	fc.setAcceptAllFileFilterUsed(false);
+		  	fc.setMultiSelectionEnabled(false);
+		  	fc.setDialogTitle("Import Node-Ids to use...");
+				  int returnVal = fc.showOpenDialog(null);
+				  if (returnVal == JFileChooser.APPROVE_OPTION) {
+					  	File selectedSingleFile = fc.getSelectedFile();
+				  		if (selectedSingleFile != null) {
+							  //nodeIDs = loadExternalXLS4StationMapping("C:/Users/Armin/Desktop/AllKrisen/EFSA/nodes_ids.xls");
+							  try {
+								nodeIDs = loadExternalXLS4StationMapping(selectedSingleFile.getAbsolutePath());
+							}
+							  catch (IOException e) {
+								e.printStackTrace();
+							}
+				  		}
+				  }
+		}
+	}
 	public boolean accept(File f) {
 	  if (f.isDirectory()) return true;
 	
@@ -96,7 +122,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       public void run() {
     	  System.err.println("Importing " + filename);
 		  try {
-			  //nodeIDs = loadExternalXLS4StationMapping("C:/Users/Armin/Desktop/AllKrisen/EFSA/nodes_ids.xls");
       		if (progress != null) {
       			progress.setVisible(true);
       			progress.setStringPainted(true);
@@ -344,7 +369,6 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		    catch (Exception e) {MyLogger.handleException(e);}
       }
     };
-    
     Thread thread = new Thread(runnable);
     thread.start();
     try {
@@ -565,4 +589,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		
 		return result;
 	}
-}
+	class XlsFileFilter extends FileFilter {
+	    public boolean accept(File f) {
+	        return f.isDirectory() || f.getName().toLowerCase().endsWith(".xls");
+	    }
+	    
+	    public String getDescription() {
+	        return ".xls files";
+	    }
+	}}

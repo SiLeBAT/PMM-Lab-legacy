@@ -84,23 +84,29 @@ public class ImportAction extends AbstractAction {
 	  //fc.addChoosableFileFilter(new MethodenADVImporterDOC());
 	  //fc.addChoosableFileFilter(new SymptomeImporterDOC());
 	  fc.setAcceptAllFileFilterUsed(false);
-	  fc.setMultiSelectionEnabled(false);
+	  fc.setMultiSelectionEnabled(DBKernel.isKrise);
 	  fc.setDialogTitle("Import");
 	  try {
 		  int returnVal = fc.showOpenDialog(progressBar1); // this
 		  if (returnVal == JFileChooser.APPROVE_OPTION) {
-		  	File selectedFile = fc.getSelectedFile();
-		  	if (selectedFile != null) {
-		  		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
-				DBKernel.prefs.prefsFlush();
 		  		if (fc.getFileFilter() instanceof MyImporter) {
-		  			DBKernel.importing = true;
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();
-		  			mi.doImport(selectedFile.getAbsolutePath(), progressBar1, true);
-		  			DBKernel.importing = false;
-		  			MyLogger.handleMessage("Importing - Fin!");
-		  		}
-		  	}
+					if (mi instanceof LieferkettenImporterEFSA) ((LieferkettenImporterEFSA)mi).importNodeIDs();
+				  	File[] selectedFiles = fc.getSelectedFiles();
+				  	if (selectedFiles != null && selectedFiles.length > 0) {
+				  		for (File selectedFile : selectedFiles) {
+						  	if (selectedFile != null) {
+						  		doTheImport(mi, selectedFile, false);
+						  	}
+				  		}
+			  		}
+				  	else {
+					  	File selectedSingleFile = fc.getSelectedFile();
+				  		if (selectedSingleFile != null) {
+					  		doTheImport(mi, selectedSingleFile, true);
+				  		}
+				  	}
+			  	}
 		  }	  
 	  }
 	  catch (Exception e1) {
@@ -109,4 +115,12 @@ public class ImportAction extends AbstractAction {
 	  }
 		MyLogger.handleMessage("Importing - FinFin!");
 	}
+  private void doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
+		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
+		DBKernel.prefs.prefsFlush();
+		DBKernel.importing = true;
+		mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
+		DBKernel.importing = false;
+		MyLogger.handleMessage("Importing - Fin!");
+  }
 }

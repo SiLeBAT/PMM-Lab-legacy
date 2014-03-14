@@ -442,38 +442,40 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			tuplesBySecEstId.get(secEstId).add(tuple);
     		}
     		
-    		for (KnimeTuple tuple : resultSet) {
-    			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
-    			Map<String, String> units = PmmUtilities.getMiscUnits(tuplesBySecEstId.get(secEstId));
-    			
-    			for (PmmXmlElementConvertable xml : tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT).getElementSet()) {
-    				IndepXml indep = (IndepXml) xml;
-    				
-    				if (indep.getUnit() != null) {
-    					units.put(indep.getName(), indep.getUnit());
-    				}
-    			}
-    			
-    			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-    			
-    			for (PmmXmlElementConvertable xml : miscXml.getElementSet()) {
-    				MiscXml misc = (MiscXml) xml;
-    				String unit = units.get(misc.getName());
-    				
-    				if (misc.getUnit() != null && !misc.getUnit().equals(unit)) {
-    					Category cat = Categories.getCategoryByUnit(misc.getUnit());
-    					
-    					try {
-							misc.setValue(cat.convert(misc.getValue(), misc.getUnit(), unit));							
-							misc.setUnit(unit);
-						} catch (ConvertException e) {
-							e.printStackTrace();
-						}    					
-    				}
-    			}
-    			
-    			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
-    		}    		
+    		if (!withoutMdData) {
+        		for (KnimeTuple tuple : resultSet) {
+        			int secEstId = ((EstModelXml) tuple.getPmmXml(Model2Schema.ATT_ESTMODEL).get(0)).getId();
+        			Map<String, String> units = PmmUtilities.getMiscUnits(tuplesBySecEstId.get(secEstId));
+        			
+        			for (PmmXmlElementConvertable xml : tuple.getPmmXml(Model2Schema.ATT_INDEPENDENT).getElementSet()) {
+        				IndepXml indep = (IndepXml) xml;
+        				
+        				if (indep.getUnit() != null) {
+        					units.put(indep.getName(), indep.getUnit());
+        				}
+        			}
+        			
+        			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+        			
+        			for (PmmXmlElementConvertable xml : miscXml.getElementSet()) {
+        				MiscXml misc = (MiscXml) xml;
+        				String unit = units.get(misc.getName());
+        				
+        				if (misc.getUnit() != null && !misc.getUnit().equals(unit)) {
+        					Category cat = Categories.getCategoryByUnit(misc.getUnit());
+        					
+        					try {
+    							misc.setValue(cat.convert(misc.getValue(), misc.getUnit(), unit));							
+    							misc.setUnit(unit);
+    						} catch (ConvertException e) {
+    							e.printStackTrace();
+    						}    					
+        				}
+        			}
+        			
+        			tuple.setValue(TimeSeriesSchema.ATT_MISC, miscXml);
+        		}    		
+    		}
     	}
     	
     	return resultSet;

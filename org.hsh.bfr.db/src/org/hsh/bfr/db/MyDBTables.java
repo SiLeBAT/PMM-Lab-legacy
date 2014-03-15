@@ -1063,7 +1063,7 @@ public class MyDBTables {
 				new String[]{"Charge","dd_day","dd_month","dd_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
 					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
 				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
-					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(255)","VARCHAR(1023)","VARCHAR(255)"}, // ,"INTEGER","INTEGER"
+					"DOUBLE","VARCHAR(50)","INTEGER","VARCHAR(16383)","VARCHAR(255)","VARCHAR(16383)","VARCHAR(16383)","VARCHAR(255)"}, // ,"INTEGER","INTEGER"
 				new String[]{null,"Delivery date - day","Delivery date - month","Delivery date - year","number of packing units","type of packing units","total amount","total amount unit",null,null,null,null,null,null}, // ,null,null
 				new MyTable[]{Chargen,null,null,null,null,null,null,null,Knoten,null,null,null,null,null}, // ,null,null
 				null,

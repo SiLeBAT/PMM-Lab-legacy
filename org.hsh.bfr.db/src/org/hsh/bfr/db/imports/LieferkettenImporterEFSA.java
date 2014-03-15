@@ -44,6 +44,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
   the abstract class
  */
 	private HashMap<String, Integer> nodeIDs = null;
+	private int maxNodeID = 0;
 
 	public void importNodeIDs() {
 		if (nodeIDs == null) {
@@ -98,22 +99,26 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	    HSSFSheet defaultSheet = wb.getSheet("default"); 		
 		int numRows = defaultSheet.getLastRowNum() + 1;
       	for (int i=1;i<numRows;i++) {
-      		//System.err.println(i);
-      		HSSFRow row = defaultSheet.getRow(i);
-			if (row != null) {
-				HSSFCell cell = row.getCell(0); // ID
-				Integer id = (int) cell.getNumericCellValue();
-				String val = "";
-				cell = row.getCell(1); // Name
-				val += cell.getStringCellValue() + ";;;";
-				cell = row.getCell(2); // ZIP
-				val += cell.getStringCellValue() + ";;;";
-				cell = row.getCell(3); // City
-				val += cell.getStringCellValue() + ";;;";
-				cell = row.getCell(4); // Country
-				val += cell.getStringCellValue() + ";;;";
-			    result.put(val, id);
-			}
+      		try {
+          		//System.err.println(i);
+          		HSSFRow row = defaultSheet.getRow(i);
+    			if (row != null) {
+    				HSSFCell cell = row.getCell(0); // ID
+    				Integer id = (int) cell.getNumericCellValue();
+    				if (id > maxNodeID) maxNodeID = id;
+    				String val = "";
+    				cell = row.getCell(1); // Name
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(2); // ZIP
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(3); // City
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(4); // Country
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    			    result.put(val, id);
+    			}
+      		}
+      		catch (Exception e) {System.err.println(e.getMessage() + "\t" + i);}
       	}
       	return result;
 	}
@@ -551,7 +556,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 				if (result == null) {
 					//System.out.println("result is null\t" + sql);
-					
+					boolean alreadyInserted = false;
 					if (tablename.equals("Station") && nodeIDs != null) {
 						String stationKey = (feldVals[0] == null ? "" : feldVals[0]) + ";;;" + 
 											(feldVals[3] == null ? "" : feldVals[3]) + ";;;" + 
@@ -561,16 +566,27 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							Integer id = nodeIDs.get(stationKey);
 							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (ID," + fns.substring(1) +	") VALUES (" + id + "," + fvs.substring(1) + ")";						
 							PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);					
-							if (ps.executeUpdate() > 0) result = id;
+							if (ps.executeUpdate() > 0) {
+								result = id;
+								alreadyInserted = true;
+							}
 						}
 						else {
 							System.err.println("Station id not found???? -> " + stationKey);
 						}
 					}
-					else {
-						sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";						
-						PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);					
-						if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+					if (!alreadyInserted) {
+						if (tablename.equals("Station") && nodeIDs != null) {
+							maxNodeID++;
+							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (ID, " + fns.substring(1) + ") VALUES (" + maxNodeID + "," + fvs.substring(1) + ")";						
+							PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql);					
+							if (ps.executeUpdate() > 0) result = maxNodeID;
+						}
+						else {
+							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (" + fns.substring(1) +	") VALUES (" + fvs.substring(1) + ")";						
+							PreparedStatement ps = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);					
+							if (ps.executeUpdate() > 0) result = DBKernel.getLastInsertedID(ps);
+						}
 					}
 					
 				}

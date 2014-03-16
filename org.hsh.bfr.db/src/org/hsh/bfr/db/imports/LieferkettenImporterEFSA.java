@@ -301,7 +301,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      String ms = getStrVal(row.getCell(47)); // MicrobiologicalSample
 
 				      //if (amountKG_Out != null && amountKG_In != null && Integer.parseInt(amountKG_Out) > Integer.parseInt(amountKG_In)) System.err.println("amountOut > aomountIn!!! Row " + i + "; amountKG_Out: " + amountKG_Out + "; amountKG_In: " + amountKG_In);
-				      if (is1Newer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
+				      if (is1SurelyNewer(dayIn, monthIn, yearIn, dayOut, monthOut, yearOut)) System.err.println("- Dates not in temporal order, dateOut < dateIn!!! Row: " + (i+1) + "; dateOut: " + sdfFormat(dayOut, monthOut, yearOut) + "; dateIn: " + sdfFormat(dayIn, monthIn, yearIn));
 
 				      Integer c1 = null;
 				      Integer c2 = null;
@@ -383,12 +383,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
     	MyLogger.handleException(e);
 		}
   }
-	private boolean is1Newer(String day1, String month1, String year1, String day2, String month2, String year2) {
-		boolean result = false;
-		if (year1 != null && year2 != null && Integer.parseInt(year1) > Integer.parseInt(year2)) result = true;
-		if (!result && month1 != null && month2 != null && Integer.parseInt(month1) > Integer.parseInt(month2)) result = true;
-		if (!result && day1 != null && day2 != null && Integer.parseInt(day1) > Integer.parseInt(day2)) result = true;
-	    return result;
+	private boolean is1SurelyNewer(String day1, String month1, String year1, String day2, String month2, String year2) {
+		if (year1 == null || year2 == null) return false;
+		if (Integer.parseInt(year1) > Integer.parseInt(year2)) return true;
+		if (month1 == null || month2 == null || Integer.parseInt(year1) < Integer.parseInt(year2)) return false;
+		if (Integer.parseInt(month1) > Integer.parseInt(month2)) return true;
+		if (day1 == null || day2 == null || Integer.parseInt(month1) < Integer.parseInt(month2)) return false;
+		if (Integer.parseInt(day1) > Integer.parseInt(day2)) return true;
+	    return false;
 	}
 	private String sdfFormat(String day, String month, String year) {
 		return day + "." + month + "." + year;

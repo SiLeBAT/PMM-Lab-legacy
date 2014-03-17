@@ -8,6 +8,9 @@ import java.util.LinkedHashMap;
 import org.hsh.bfr.db.DBKernel;
 
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
+import de.bund.bfr.knime.pmm.common.units.Categories;
+import de.bund.bfr.knime.pmm.common.units.Category;
+import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class DbIo {
 
@@ -46,7 +49,7 @@ public class DbIo {
 	    }
     	return result;
     }
-    public static PmmXmlDoc convertStringLists2TSXmlDoc(Array t, Array tu, Array l, Array lu, Array lot, Array stddevs, Array wdhs) {
+    public static PmmXmlDoc convertStringLists2TSXmlDoc(Array t, Array tu, Array l, Array lu, Array lot, Array stddevs, Array wdhs, String modelUnit) {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
 		if (t != null) {
 			try {
@@ -58,15 +61,17 @@ public class DbIo {
 				Object[] toksSd = (stddevs == null) ? null : (Object[])stddevs.getArray();
 				Object[] toksWdh = (wdhs == null) ? null : (Object[])wdhs.getArray();
 				if (toksT.length > 0) {
+					Category modelUnitCat = modelUnit == null ? null : Categories.getCategoryByUnit(modelUnit);
 					int i=0;
 					for (Object time : toksT) {
 						try {
+							String toksLui = toksLu == null || toksLu[i] == null ? null : toksLu[i].toString();
 							TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
 									time == null ? null : Double.parseDouble(time.toString()),
 											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
-											toksL == null || toksL[i] == null ? null : Double.parseDouble(toksL[i].toString()),
-											toksLu == null || toksLu[i] == null ? null : toksLu[i].toString(),
-											toksSd == null || toksSd[i] == null ? null : Double.parseDouble(toksSd[i].toString()),
+											toksL == null || toksL[i] == null ? null : convert(Double.parseDouble(toksL[i].toString()), toksLui, modelUnit, modelUnitCat),
+													modelUnit != null && toksLui != null ? modelUnit : toksLui,
+											toksSd == null || toksSd[i] == null ? null : convert(Double.parseDouble(toksSd[i].toString()), toksLui, modelUnit, modelUnitCat),
 											toksWdh == null || toksWdh[i] == null ? null : (int) Double.parseDouble(toksWdh[i].toString()));
 							if (toksLot != null && toksLot[i] != null) tsx.setConcentrationUnitObjectType(toksLot[i].toString());
 							tsDoc.add(tsx);
@@ -83,6 +88,18 @@ public class DbIo {
 			}
 		}
 		return tsDoc;    	
+    }
+    private static double convert(double value, String unit, String newUnit, Category newUnitCat) {
+		if (newUnit != null && unit != null && !newUnit.equals(unit)) {
+			
+			try {
+				return newUnitCat.convert(value, unit, newUnit);
+			}
+			catch (ConvertException e) {
+				e.printStackTrace();
+			}    					
+		}
+    	return value;
     }
     public static PmmXmlDoc convertArrays2ParamXmlDoc(LinkedHashMap<String, String> varMap, Array name,
     		Array value, Array timeUnit, Array categories, Array units, Array error, Array min, Array max, Array desc, Array P, Array t, Integer modelId, Integer emid) {

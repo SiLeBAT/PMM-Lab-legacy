@@ -153,14 +153,12 @@ public class TableReader {
 
 			String formula = modelXml.getFormula().substring(
 					modelXml.getFormula().indexOf("=") + 1);
-			String dep;
+			String dep = depXml.getName();
 
 			if (depXml.getUnit().startsWith("log")) {
-				dep = "log(depParam)";
+				dep = "log(" + dep + ")";
 			} else if (depXml.getUnit().startsWith("ln")) {
-				dep = "ln(depParam)";
-			} else {
-				dep = "depParam";
+				dep = "ln(" + dep + ")";
 			}
 
 			try {

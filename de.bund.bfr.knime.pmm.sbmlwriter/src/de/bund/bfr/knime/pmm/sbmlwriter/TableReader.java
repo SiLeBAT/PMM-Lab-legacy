@@ -115,15 +115,18 @@ public class TableReader {
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
 
-			Compartment compartment = model.createCompartment("matrix");
-			Species species = model.createSpecies("organism", compartment);
+			if (organismXml.getName() != null) {
+				Species s = model
+						.createSpecies(createId(organismXml.getName()));
 
-			if (matrixXml.getName() != null) {
-				compartment.setName(matrixXml.getName());
+				s.setName(organismXml.getName());
 			}
 
-			if (organismXml.getName() != null) {
-				species.setName(organismXml.getName());
+			if (matrixXml.getName() != null) {
+				Compartment c = model.createCompartment(createId(matrixXml
+						.getName()));
+
+				c.setName(matrixXml.getName());
 			}
 
 			ListOf<Rule> rules = new ListOf<Rule>(2, 4);
@@ -310,5 +313,9 @@ public class TableReader {
 
 		tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepXml);
 		tuple.setValue(Model1Schema.ATT_MODELCATALOG, modelXml);
+	}
+
+	private static String createId(String s) {
+		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
 	}
 }

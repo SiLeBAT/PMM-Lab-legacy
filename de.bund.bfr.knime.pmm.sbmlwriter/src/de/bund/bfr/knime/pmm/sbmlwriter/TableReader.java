@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
@@ -152,21 +151,21 @@ public class TableReader {
 				}
 			}
 
-			FormulaParser parser = new FormulaParser(new StringReader(modelXml
-					.getFormula().substring(
-							modelXml.getFormula().indexOf("=") + 1)));
-			ASTNode depNode = new ASTNode(depParam);
+			String formula = modelXml.getFormula().substring(
+					modelXml.getFormula().indexOf("=") + 1);
+			String dep;
 
 			if (depXml.getUnit().startsWith("log")) {
-				depNode = ASTNode.log(depNode);
+				dep = "log(depParam)";
 			} else if (depXml.getUnit().startsWith("ln")) {
-				depNode = ASTNode.log(depNode, new ASTNode(
-						ASTNode.Type.CONSTANT_E));
+				dep = "ln(depParam)";
+			} else {
+				dep = "depParam";
 			}
 
 			try {
-				rules.add(new AlgebraicRule(
-						ASTNode.eq(depNode, parser.parse()), 2, 4));
+				rules.add(new AlgebraicRule(new FormulaParser(new StringReader(
+						dep + "==" + formula)).parse(), 2, 4));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}

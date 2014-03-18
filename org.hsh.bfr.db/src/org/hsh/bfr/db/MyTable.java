@@ -400,13 +400,6 @@ public class MyTable {
 		    	}
 	    	}
 	    }
-	  	// "alles" UNIQUE machen
-	  	/*
-	  	if (uFsAll.length() > 0) {
-			indexSQL.add("ALTER TABLE " + DBKernel.delimitL(tableName) + " ADD CONSTRAINT " + DBKernel.delimitL(tableName + "_uni_all") +
-	        		" UNIQUE (" + uFsAll.substring(1) + ");");	  		
-	  	}
-	  	*/
 	  	if (!hideScore) fieldDefs += "," + DBKernel.delimitL("Guetescore") + " " + "INTEGER";
 	  	if (!hideKommentar) fieldDefs += "," + DBKernel.delimitL("Kommentar") + " " + "VARCHAR(1023)";
 	  	if (!hideTested) fieldDefs += "," + DBKernel.delimitL("Geprueft") + " " + "BOOLEAN";

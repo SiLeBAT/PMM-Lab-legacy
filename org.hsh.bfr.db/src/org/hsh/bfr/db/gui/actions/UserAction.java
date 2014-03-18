@@ -59,6 +59,6 @@ public UserAction(String name, Icon icon, String toolTip) {
   }    
 
   public void actionPerformed(ActionEvent e) {
-  	DBKernel.myList.setSelection(DBKernel.users.getTablename());
+  	DBKernel.myList.setSelection("Users");
 	}
 }

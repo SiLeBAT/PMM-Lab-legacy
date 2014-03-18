@@ -621,7 +621,7 @@ public class MergeDBs {
 						Timestamp ts = rs.getTimestamp("Zeitstempel");
 						// Ausnahmen, aber mal schauen. In jedem Fall auf Agenzien und Matrices achten!
 						// die anderen dürften noch keine Daten enthalten...
-						MyTable myT = MyDBTables.getTable(tablename);
+						MyTable myT = DBKernel.myDBi.getTable(tablename);
 						if (!isBrandt &&
 								(myT == null
 								|| tablename.equals("Matrices")
@@ -730,7 +730,7 @@ public class MergeDBs {
 	}	
     private void checkeDoppeltVergebeneDKZs(final Statement anfrage) {
     	System.err.println("checkeDoppeltVergebeneDKZs - Start");
-		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 		Hashtable<Integer, String> hash = new Hashtable<Integer, String>();
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);
@@ -765,7 +765,7 @@ public class MergeDBs {
     	System.err.println("checkeDoppeltVergebeneDKZs - Fin");
     }
     private void insertRowDeNovo(final String tablename, final Object[] eintragNeu, final Integer tID) {
-    	MyTable myT = MyDBTables.getTable(tablename);
+    	MyTable myT = DBKernel.myDBi.getTable(tablename);
 		PreparedStatement ps;
 		try {
 			ps = DBKernel.getDBConnection().prepareStatement(myT.getInsertSQL1(), Statement.RETURN_GENERATED_KEYS);

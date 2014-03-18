@@ -1,51 +1,85 @@
 package org.hsh.bfr.db;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.concurrent.Callable;
 
 import org.hsh.bfr.db.gui.MyList;
 
-public class MyDBTables {
+public class MyDBTablesNew extends MyDBI {
 
-	private static LinkedHashMap<String, MyTable> myTables = new LinkedHashMap<String, MyTable>();
-	private static LinkedHashMap<Object, String> hashZeit = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashGeld = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashGewicht = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashSpeed = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashDosis = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashFreigabe = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<String, MyTable> myTables = new LinkedHashMap<String, MyTable>();
 
-	public static LinkedHashMap<Object, String> getHashModelTypes() {
-		return hashModelType;
+	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
+	
+	private LinkedHashMap<Object, String> hashZeit = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashGeld = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashGewicht = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashSpeed = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashDosis = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashFreigabe = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
+	/*
+	 * Still todo:
+	 *   DateiSpeicher -> FileStorage
+	@Override
+	public String getCommentTerm() {
+		return "Kommentar";
 	}
-	public static LinkedHashMap<Object, String> getHashCounties() {
-		return hashBundesland;
+
+	@Override
+	public String getTestedTerm() {
+		return "Geprueft";
 	}
-	public static LinkedHashMap<String, MyTable> getAllTables() {
+
+	@Override
+	public String getScoreTerm() {
+		return "Guetescore";
+	}
+
+	 */
+	public MyDBTablesNew() {
+		loadHashes();
+		loadMyTables();
+	}
+
+	@Override
+	public String getDBVersion() {
+		return "1.7.8";
+	}
+
+	@Override
+	public LinkedHashMap<Object, String> getHashMap(final String key) {
+		if (allHashes.containsKey(key)) {
+			return allHashes.get(key);
+		}
+		return null;
+	}
+	
+	@Override
+	public LinkedHashMap<String, MyTable> getAllTables() {
 		return myTables;
 	}
-	public static MyTable getTable(final String tableName) {
-		if (myTables.containsKey(tableName)) return myTables.get(tableName);
-		else return null;
-	}
-	public static void recreateTriggers() {
+
+	@Override
+	public void recreateTriggers() {
 		for(String key : myTables.keySet()) {
-				String tableName = myTables.get(key).getTablename();
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
-				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-				}
+			String tableName = myTables.get(key).getTablename();
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
+			if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+			}
 		}
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), false);
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), false);
@@ -60,10 +94,126 @@ public class MyDBTables {
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
 	}
-	@SuppressWarnings("unchecked")
-	public static void loadMyTables() {
-		fillHashes();
 
+	@Override
+	public void updateCheck(String fromVersion, String toVersion) {
+		if (fromVersion.equals("1.7.7") && toVersion.equals("1.7.8")) {
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(16383)", false);
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(16383)", false);
+		}
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return false;
+	}
+	@Override
+	public boolean isReadOnly(String tableName) {
+		return tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
+				tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
+				tableName.equals("ICD10_Kodes") || 
+				tableName.equals("Parametertyp") || tableName.equals("DataSource") ||
+				(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||
+				tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") ||
+				tableName.equals("GeschaetzteParameter") || 
+				tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
+				tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") ||
+				isReadOnly();
+	}
+
+	@Override
+	public boolean hasCommentColumn(String tableName) {
+		boolean hideComment = tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") || tableName.equals("ComBaseImport")
+				 || tableName.equals("Nachweisverfahren_Kits") || tableName.equals("Aufbereitungsverfahren_Kits") || tableName.equals("Methoden_Normen")
+				 || tableName.equals("Methodennormen") || tableName.equals("Labore_Methodiken") || tableName.equals("Labore_Matrices")
+				 || tableName.equals("Labore_Agenzien") || tableName.equals("Labore_Agenzien_Methodiken")
+				 || tableName.startsWith("ICD10_") || tableName.equals("DoubleKennzahlen")
+				 || tableName.equals("SonstigeParameter") || tableName.equals("Einheiten")
+				 || tableName.equals("Infotabelle") || tableName.equals("ToxinUrsprung")
+				   || tableName.equals("Prozessdaten_Messwerte")
+				   || tableName.equals("Verpackungsmaterial")
+				   || tableName.equals("ImportedCombaseData")
+				   || tableName.equals("Parametertyp")
+				   || tableName.equals("Prozessdaten_Literatur") || tableName.equals("ProzessWorkflow_Literatur")
+				 || tableName.equals("Produzent_Artikel") || tableName.equals("Artikel_Lieferung") || tableName.equals("Lieferung_Lieferungen")
+				 // StatUp 
+				  || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
+				  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
+				  || tableName.equals("VarParMaps") || tableName.equals("DataSource");
+		return hideComment;
+	}
+
+	@Override
+	public boolean hasTestedColumn(String tableName) {
+		 boolean hideTested = hasCommentColumn(tableName) || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
+		 || tableName.equals("Zutatendaten_Sonstiges") || tableName.equals("Versuchsbedingungen_Sonstiges") || tableName.equals("Messwerte_Sonstiges")
+		  || tableName.equals("Prozessdaten_Sonstiges") || tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || tableName.equals("Agens_Matrices")
+		 || tableName.equals("Kontakte") || tableName.equals("Codes_Agenzien") || tableName.equals("Literatur")
+		 || tableName.equals("Codes_Matrices") || tableName.equals("Methoden") || tableName.equals("Codes_Methoden")
+		 || tableName.equals("Methodiken") || tableName.equals("Codes_Methodiken")|| tableName.equals("Nachweisverfahren_Testanbieter")
+		 || tableName.equals("Produzent") || tableName.equals("Labore") || tableName.equals("Testanbieter")
+		 || tableName.equals("Matrices") || tableName.equals("Agenzien") || tableName.equals("Einheiten")
+		 || tableName.equals("Symptome") || tableName.equals("Risikogruppen") || tableName.equals("Tierkrankheiten") || tableName.equals("Zertifizierungssysteme")
+		 || tableName.equals("ProzessElemente") //|| tableName.equals("Prozessdaten_Workflow")
+		 || tableName.equals("GueltigkeitsBereiche")
+		 || tableName.equals("Kostenkatalog") || tableName.equals("Kostenkatalogpreise")
+		 || tableName.equals("Prozessdaten_Kosten") || tableName.equals("Zutatendaten_Kosten")
+		 || tableName.equals("LinkedTestConditions")
+		 // StatUp
+		  || tableName.equals("Modellkatalog")
+		  // Jans Tabellen
+		 || tableName.equals("Exposition") || tableName.equals("Risikocharakterisierung") || tableName.equals("Verwendung") 
+		 || tableName.equals("Transport")  || tableName.equals("Methoden_Software") || tableName.equals("Produkt")
+		 // Krise
+		 || tableName.equals("LieferungVerbindungen") || tableName.equals("ChargenVerbindungen") || tableName.equals("Lieferungen") || tableName.equals("Produktkatalog")
+		 || tableName.equals("Station") || tableName.equals("Chargen") || tableName.equals("Station_Agenzien") || tableName.equals("Produktkatalog_Matrices");
+		return hideTested;
+	}
+
+	@Override
+	public boolean hasScoreColumn(String tableName) {
+		boolean hideScore = hasTestedColumn(tableName)
+				 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");
+		return hideScore;
+	}
+
+	@Override
+	public boolean hasODSN(String tableName) {
+		boolean odsn = true;
+		if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")
+				|| tableName.equals("Modell_Referenz") || tableName.equals("GeschaetzteModelle")
+				|| tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter")
+				|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
+				 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
+		return odsn;
+	}
+
+	@Override
+	public Callable<Void> getCaller4Trigger(String tableName) {
+		/*
+		if (tableName != null && tableName.equals("Einheiten")) {
+			return new MyUnitCaller();
+		}
+		*/
+		return null;
+	}
+
+	@Override
+	public HashMap<String, String> getProbableSAs() {
+		HashMap<String, String> probableSAs = new HashMap<String, String>();
+		probableSAs.put("SA", "");
+		probableSAs.put("defad", "de6!§5ddy");
+		probableSAs.put("SA", "de6!§5ddy");
+		return probableSAs;
+	}
+
+	@Override
+	public String getPath4FirstDB() {
+		return "org/hsh/bfr/db/res/firstDB.tar.gz";
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadMyTables() {
 		MyTable cl = new MyTable("ChangeLog",
 				new String[]{"Zeitstempel","Username","Tabelle","TabellenID","Alteintrag"},
 				new String[]{"DATETIME","VARCHAR(60)","VARCHAR(100)","INTEGER","OTHER"},
@@ -995,7 +1145,7 @@ public class MyDBTables {
 
 	}
 	@SuppressWarnings("unchecked")
-	private static void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
+	private void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
 		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
@@ -1095,7 +1245,7 @@ public class MyDBTables {
 
 		//DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Bundesland") + " = 'NI' WHERE " + DBKernel.delimitL("ID") + " = 167", false);
 	}
-	private static MyTable generateICD10Tabellen() {
+	private MyTable generateICD10Tabellen() {
 		MyTable ICD10_Kapitel = new MyTable("ICD10_Kapitel", new String[]{"KapNr","KapTi"},
 				new String[]{"VARCHAR(2)","VARCHAR(110)"},
 				new String[]{"Kapitelnummer, 2 Zeichen","Kapiteltitel, bis zu 110 Zeichen"},
@@ -1197,25 +1347,8 @@ public class MyDBTables {
 		addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}	
-	private static void fillHashModelTypes() {
-		hashModelType.put(0, "unknown");					
-		hashModelType.put(1, "growth");					
-		hashModelType.put(2, "inactivation");	
-		hashModelType.put(3, "survival");					
-		hashModelType.put(4, "growth/inactivation");	
-		hashModelType.put(5, "inactivation/survival");					
-		hashModelType.put(6, "growth/survival");	
-		hashModelType.put(7, "growth/inactivation/survival");					
-		hashModelType.put(8, "T");	
-		hashModelType.put(9, "pH");	
-		hashModelType.put(10, "aw");	
-		hashModelType.put(11, "T/pH");	
-		hashModelType.put(12, "T/aw");	
-		hashModelType.put(13, "pH/aw");	
-		hashModelType.put(14, "T/pH/aw");	
-	}
 	@SuppressWarnings("unchecked")
-	private static void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
+	private void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
 		MyTable PMMLabWorkflows = new MyTable("PMMLabWorkflows", new String[]{"Workflow"},
 				new String[]{"BLOB(100M)"},
 				new String[]{null},
@@ -1236,7 +1369,7 @@ public class MyDBTables {
 		LinkedHashMap<Object, String> hashLevel = new LinkedHashMap<Object, String>();
 		hashLevel.put(1, "primary");					
 		hashLevel.put(2, "secondary");	
-		fillHashModelTypes();
+
 		LinkedHashMap<Object, String> hashTyp = new LinkedHashMap<Object, String>();
 		hashTyp.put(1, "Kovariable");			// independent ?		
 		hashTyp.put(2, "Parameter");	
@@ -1387,7 +1520,12 @@ public class MyDBTables {
 		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 	}
   
-  private static void fillHashes() {
+	private void addTable(MyTable myT, int child) {
+		myT.setChild(child);
+		myTables.put(myT.getTablename(), myT);
+	}
+
+	private void loadHashes() {		
 		hashZeit.put("Sekunde", DBKernel.getLanguage().equals("en") ? "Second(s)" : "Sekunde(n) [s][sec]");					
 		hashZeit.put("Minute", DBKernel.getLanguage().equals("en") ? "Minute(s)" : "Minute(n)");					
 		hashZeit.put("Stunde", DBKernel.getLanguage().equals("en") ? "Hour(s)" : "Stunde(n)");		
@@ -1437,9 +1575,24 @@ public class MyDBTables {
 		hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
 		hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
 		hashBundesland.put("Thüringen", "Thüringen");
-  }
-	private static void addTable(MyTable myT, int child) {
-		myT.setChild(child);
-		myTables.put(myT.getTablename(), myT);
+
+		hashModelType.put(0, "unknown");					
+		hashModelType.put(1, "growth");					
+		hashModelType.put(2, "inactivation");	
+		hashModelType.put(3, "survival");					
+		hashModelType.put(4, "growth/inactivation");	
+		hashModelType.put(5, "inactivation/survival");					
+		hashModelType.put(6, "growth/survival");	
+		hashModelType.put(7, "growth/inactivation/survival");					
+		hashModelType.put(8, "T");	
+		hashModelType.put(9, "pH");	
+		hashModelType.put(10, "aw");	
+		hashModelType.put(11, "T/pH");	
+		hashModelType.put(12, "T/aw");	
+		hashModelType.put(13, "pH/aw");	
+		hashModelType.put(14, "T/pH/aw");	
+
+		allHashes.put("ModelType", hashModelType);
+		allHashes.put("County", hashBundesland);
 	}
 }

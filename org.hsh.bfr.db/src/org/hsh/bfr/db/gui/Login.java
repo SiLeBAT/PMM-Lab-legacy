@@ -65,7 +65,7 @@ import javax.swing.JTextField;
 
 import org.hsh.bfr.db.Backup;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
+import org.hsh.bfr.db.MyDBTablesNew;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.UpdateChecker;
 import org.hsh.bfr.db.VersionComprator;
@@ -339,13 +339,15 @@ public class Login extends JFrame {
 						return null;
 					}
 
-					MyDBTables.loadMyTables();
+					//MyDBTables.loadMyTables();
+					DBKernel.myDBi = new MyDBTablesNew();
 					myList.addAllTables();
 
 				DBKernel.importing = false;
 			}
 			else {
-				MyDBTables.loadMyTables();		
+				//MyDBTables.loadMyTables();
+				DBKernel.myDBi = new MyDBTablesNew();
 				myList.addAllTables();
 
 				if (doUpdates) {

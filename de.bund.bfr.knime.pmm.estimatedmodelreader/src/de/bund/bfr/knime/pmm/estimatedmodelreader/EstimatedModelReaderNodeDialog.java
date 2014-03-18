@@ -43,7 +43,6 @@ import java.util.LinkedHashMap;
 import javax.swing.JPanel;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -219,11 +218,11 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	
     	ResultSet result = db.selectModel(1);    	    	
     	while (result.next()) {
-    		estmodelui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), MyDBTables.getHashModelTypes().get(result.getInt("Klasse")));
+    		estmodelui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
     	}
     	result = db.selectModel(2);    	
     	while (result.next()) {
-    		estmodelui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), MyDBTables.getHashModelTypes().get(result.getInt("Klasse")));
+    		estmodelui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
     	}
 	}
 }

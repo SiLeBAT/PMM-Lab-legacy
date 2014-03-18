@@ -115,16 +115,14 @@ public class DBKernel {
 	
 	public static MyPreferences prefs = new MyPreferences();
 
+	public static MyDBI myDBi = null;
 	public static MyList myList = null;
-	public static MyDBTables myDBT = null;
 	public static MyDBTable topTable = null;
 	public static MainFrame mainFrame = null;
 	public static Login login = null;
+	
 	public static boolean passFalse = false;
-	public static MyTable users = null;
-	public static MyTable changeLog = null;
-	public static MyTable blobSpeicher = null;
-	public static long tempROZeit = 0;
+
 	public static long triggerFired = System.currentTimeMillis();
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
@@ -1011,7 +1009,6 @@ public class DBKernel {
 	    			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
 	    			,dbUsername, dbPassword);
 	    	result.setReadOnly(true);
-	    	tempROZeit = System.currentTimeMillis();
 	    }
 	    catch(Exception e1) {
 	    	MyLogger.handleException(e1);
@@ -2252,7 +2249,8 @@ public class DBKernel {
 	  	}		
 	}
 	public static void createGui(Connection conn) {
-		MyDBTables.loadMyTables();
+		//MyDBTables.loadMyTables();
+		DBKernel.myDBi = new MyDBTablesNew();
 		try {
 			if (DBKernel.myList == null && conn != null) {
 	    	  	//Login login = new Login();

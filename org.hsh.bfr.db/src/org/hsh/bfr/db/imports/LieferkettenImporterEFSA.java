@@ -30,7 +30,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
@@ -348,10 +347,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	      	}
 	      }
 
-	      		DBKernel.doMNs(MyDBTables.getTable("Station"));
-			    DBKernel.doMNs(MyDBTables.getTable("Produktkatalog"));
-			    DBKernel.doMNs(MyDBTables.getTable("Chargen"));
-			    DBKernel.doMNs(MyDBTables.getTable("Lieferungen"));
+	      		DBKernel.doMNs(DBKernel.myDBi.getTable("Station"));
+			    DBKernel.doMNs(DBKernel.myDBi.getTable("Produktkatalog"));
+			    DBKernel.doMNs(DBKernel.myDBi.getTable("Chargen"));
+			    DBKernel.doMNs(DBKernel.myDBi.getTable("Lieferungen"));
     			if (progress != null) {
   	  			// Refreshen:
     				MyDBTable myDB = DBKernel.myList.getMyDBTable();

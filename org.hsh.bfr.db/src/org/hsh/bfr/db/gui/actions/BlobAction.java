@@ -59,6 +59,6 @@ public BlobAction(String name, Icon icon, String toolTip) {
   }    
 
   public void actionPerformed(ActionEvent e) {
-  	DBKernel.myList.setSelection(DBKernel.blobSpeicher.getTablename());
+  	DBKernel.myList.setSelection("DateiSpeicher");
 	}
 }

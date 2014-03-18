@@ -50,7 +50,6 @@ import javax.swing.Icon;
 import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
@@ -98,7 +97,7 @@ public class PlausibleAction extends AbstractAction {
 		        			go4ISM(pd4);
 		        		}
 		        		else {
-			        		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+			        		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 			        		if (progress != null) {
 			        			progress.setVisible(true);
 			        			progress.setStringPainted(true);
@@ -136,7 +135,7 @@ public class PlausibleAction extends AbstractAction {
 			        	  		}
 			        	  		/*
 			        	  		if (analysedIDs != null && tn.equals("Versuchsbedingungen")) {// erstmal nur für Messwerte bzw. Versuchsbedingungen
-	    	  						go4Table("Messwerte", result, -1, -1, MyDBTables.getTable("Messwerte"),
+	    	  						go4Table("Messwerte", result, -1, -1, DBKernel.myDBi.getTable("Messwerte"),
 	    	  								null, showOnlyDataFromCurrentUser); // analysedIDs oder WHERE Versuchsbedingungen=5 oder so ähnlich vielleicht???
 			        	  		}
 			        	  		*/
@@ -266,7 +265,7 @@ public class PlausibleAction extends AbstractAction {
 					}
 					if (!filterIDs.contains(lastShownID)) {
 						lastShownID = (Integer) filterIDs.toArray()[filterIDs.size() - 1];
-						MyTable theTable = MyDBTables.getTable(tablename);
+						MyTable theTable = DBKernel.myDBi.getTable(tablename);
 						MyIDFilter mf = new MyIDFilter(filterIDs);
 						Object val = DBKernel.myList.openNewWindow(
 								theTable,
@@ -432,7 +431,7 @@ public class PlausibleAction extends AbstractAction {
 			LinkedHashMap<String, Vector<String[]>> sqlsAll = new LinkedHashMap<String, Vector<String[]>>();
 			sqlsAll.put(null, PlausibilityChecker.getPlausibilityRow(null, myT, 0, "ID"));
 			if (myT.getTablename().equals("Versuchsbedingungen")) {
-				sqlsAll.put("Messwerte", PlausibilityChecker.getPlausibilityRow(null, MyDBTables.getTable("Messwerte"), 0, "Versuchsbedingungen"));
+				sqlsAll.put("Messwerte", PlausibilityChecker.getPlausibilityRow(null, DBKernel.myDBi.getTable("Messwerte"), 0, "Versuchsbedingungen"));
 			}
 			LinkedHashMap<Integer, Vector<String>> v = showOnlyDataFromCurrentUser ? DBKernel.getUsersFromChangeLog(tn, DBKernel.getUsername()) : null;   
 			for (Map.Entry<String, Vector<String[]>> entry : sqlsAll.entrySet()) {
@@ -686,7 +685,7 @@ http://browser.combase.cc/ResultSummary.aspx?SourceID=O%27Mahony_01&Foodtype=Oth
   	}
   	@SuppressWarnings("unused")
 	private void checkAllEntriesIfOthersAlreadyEditedUpdates() {
-		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);

@@ -42,7 +42,6 @@ import java.sql.SQLException;
 import javax.swing.JPanel;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.NodeDialogPane;
 import org.knime.core.node.NodeSettingsRO;
@@ -153,11 +152,11 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	result = db.selectModel(1);    	    	
     	while (result.next()) {
     		//System.err.println(result.getString(Bfrdb.ATT_NAME) + "\t" + result.getInt("Klasse"));
-    		filterui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), MyDBTables.getHashModelTypes().get(result.getInt("Klasse")));
+    		filterui.addModelPrim(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
     	}
     	result = db.selectModel(2);    	
     	while (result.next()) {
-    		filterui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), MyDBTables.getHashModelTypes().get(result.getInt("Klasse")));
+    		filterui.addModelSec(result.getInt(Bfrdb.ATT_MODELID), result.getString(Bfrdb.ATT_NAME), DBKernel.myDBi.getHashMap("ModelType").get(result.getInt("Klasse")));
     	}    	
 	}
 

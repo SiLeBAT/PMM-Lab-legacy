@@ -56,6 +56,11 @@ public class XmlHelper {
 			return "";
 		}
 
+		if (o instanceof Double
+				&& (((Double) o).isNaN() || ((Double) o).isNaN())) {
+			return "";
+		}
+
 		return o.toString();
 	}
 

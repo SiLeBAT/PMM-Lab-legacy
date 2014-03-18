@@ -36,7 +36,10 @@
  */
 package org.hsh.bfr.db;
 
+import java.util.concurrent.Callable;
+
 import org.hsqldb.Trigger;
+
 /**
  * @author Armin
  *
@@ -134,6 +137,13 @@ public void fire(final int triggerType, final String triggerName, final String t
 		          	}	          		
 	          	}
 	          	
+        	}
+        	if (DBKernel.callers != null && DBKernel.callers.containsKey(tableName)) {
+        		Callable<Void> caller = DBKernel.callers.get(tableName);
+	      		  if (caller != null) {
+	    			  try {caller.call();}
+	    			  catch (Exception e) {e.printStackTrace();}
+	    		  }
         	}
         }
         catch (Exception e) {

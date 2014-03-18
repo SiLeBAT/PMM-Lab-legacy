@@ -68,6 +68,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
@@ -137,6 +138,8 @@ public class DBKernel {
 	public static boolean isKNIME = false;
 	private static HashMap<String, String> adminU = new HashMap<String, String>();
 	private static HashMap<String, String> adminP = new HashMap<String, String>();
+	
+	public static HashMap<String, Callable<Void>> callers;
 
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
@@ -900,7 +903,8 @@ public class DBKernel {
   public static Connection getLocalConn(boolean try2Boot) {
 	  return getLocalConn(try2Boot, true);
   }
-  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
+  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate, HashMap<String, Callable<Void>> callers) {
+	  if (callers != null) DBKernel.callers = callers;
 	  try {
 		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
 	}
@@ -908,6 +912,9 @@ public class DBKernel {
 		e.printStackTrace();
 	}
 	  return localConn;
+  }
+  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
+	  return getLocalConn(try2Boot, autoUpdate, null);
   }
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {

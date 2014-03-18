@@ -1959,18 +1959,6 @@ if (myDBPanel1 != null) {
     	myPrint();
     	return;
     }
-    else if (keyEvent.getKeyCode() == KeyEvent.VK_Z && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
-    	this.save();
-    	keyEvent.consume();
-    	DBKernel.undoManager.undo();    	
-     	return;
-    }
-    else if (keyEvent.getKeyCode() == KeyEvent.VK_Y && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
-    	this.save();
-    	keyEvent.consume();
-    	DBKernel.undoManager.redo();
-     	return;
-    }
     else if (keyEvent.getKeyCode() == KeyEvent.VK_INSERT) {
     	if (getMyDBPanel().addingDisabled()) keyEvent.consume();
     	else this.insertNewRow(keyEvent.isAltDown() || keyEvent.isControlDown(), null);

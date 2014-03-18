@@ -75,23 +75,18 @@ import java.util.zip.Checksum;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.undo.UndoableEditSupport;
 
-import org.eclipse.core.runtime.FileLocator;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
-import org.hsh.bfr.db.gui.dbtable.undoredo.BfRUndoManager;
-import org.hsh.bfr.db.gui.dbtable.undoredo.TableCellEdit;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
+import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 import org.eclipse.core.resources.ResourcesPlugin;
-
-//import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 
 /**
  * @author Armin
@@ -103,27 +98,25 @@ public class DBKernel {
 	 * @param args
 	 */
 	
-	public final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR" + System.getProperty("file.separator");
-	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
+	private static HashMap<String, String> adminU = new HashMap<String, String>();
+	private static HashMap<String, String> adminP = new HashMap<String, String>();
+	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 
 	private static Connection localConn = null;
 	private static String m_Username = "";
 	private static String m_Password = "";
+
 	
-	public static BfRUndoManager undoManager = new BfRUndoManager();
-	private static UndoableEditSupport undoSupport = new UndoableEditSupport();
-	private static TableCellEdit lastCellEdit = null;
-	public static long undoredoStart = 0;
+	public final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR" + System.getProperty("file.separator");
+	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
+	
 	public static boolean importing = false;
 	public static boolean dontLog = false;
-	
-	//public static Preferences prefsOld = Preferences.userNodeForPackage(Login.class);
-	//public static Preferences preferences = InstanceScope.INSTANCE.getNode("org.hsh.bfr.db");
-	//public static Preferences prefs = preferences.node("db");
 	
 	public static MyPreferences prefs = new MyPreferences();
 
 	public static MyList myList = null;
+	public static MyDBTables myDBT = null;
 	public static MyDBTable topTable = null;
 	public static MainFrame mainFrame = null;
 	public static Login login = null;
@@ -136,14 +129,8 @@ public class DBKernel {
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
-	private static HashMap<String, String> adminU = new HashMap<String, String>();
-	private static HashMap<String, String> adminP = new HashMap<String, String>();
 	
-	public static HashMap<String, Callable<Void>> callers;
-
-	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
-	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
-	public static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
+	public static HashMap<String, Callable<Void>> caller4Trigger;
 
 	public static String DBVersion = "1.7.8";
 	public static boolean debug = true;
@@ -402,23 +389,6 @@ public class DBKernel {
 		    		//System.err.println("getLastInsertedID: " + getLastInsertedID(ps));
 		    	}
 		
-		    	if (!importing && System.currentTimeMillis() - undoredoStart >= 50) {// Falls ein Foreign Key gelöscht wird, das dauert in der Regel 0 ms, aber wir gehen einfach mal auf Nummer sicher
-		  			TableCellEdit cellEdit = new TableCellEdit(tablename, rowBefore, rowAfter);
-		    		if (lastCellEdit != null && System.currentTimeMillis() - lastCellEdit.getEditTime() < 50 && !lastCellEdit.getTableName().equals(tablename)) { // Hier wurde wohl ein Foreign Key gelöscht. !lastCellEdit.getTableName().equals(tablename) ist notwendig, ansonsten werden hier auch 2 Datensätze derselben Datenbank gleichzeitig upgedatet (z.B. save des aktuell selektierten Datensatzes und Einfügen eines neuen Datensatzes).
-		    			lastCellEdit.addForeignDelete(cellEdit);
-			  			if (debug) {
-							MyLogger.handleMessage("Foreign\t" + tableID + "\t" + lastCellEdit.getEditTime() + "\t" + tablename);
-						}    		  
-			    	}
-			    	else {
-						undoSupport.postEdit(cellEdit);  
-						lastCellEdit = cellEdit;
-						if (debug) {
-							MyLogger.handleMessage("New\t" + tableID + "\t" + cellEdit.getEditTime() + "\t" + tablename);
-						}    		  
-			    	}
-			    }
-			
 				result = true;
 		    }
 		    catch (Exception e) {
@@ -903,8 +873,7 @@ public class DBKernel {
   public static Connection getLocalConn(boolean try2Boot) {
 	  return getLocalConn(try2Boot, true);
   }
-  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate, HashMap<String, Callable<Void>> callers) {
-	  if (callers != null) DBKernel.callers = callers;
+  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
 	  try {
 		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
 	}
@@ -913,9 +882,9 @@ public class DBKernel {
 	}
 	  return localConn;
   }
-  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
-	  return getLocalConn(try2Boot, autoUpdate, null);
-  }
+	public static void setCaller4Trigger(HashMap<String, Callable<Void>> caller4Trigger) {
+		DBKernel.caller4Trigger = caller4Trigger;
+	}
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 	  return getDBConnection(dbPath, theUsername, thePassword,newConn, false);
@@ -1847,12 +1816,6 @@ public class DBKernel {
 	public static int isDBVeraltet(final Login login) {
 		//if (true) return JOptionPane.NO_OPTION;
 		int result = JOptionPane.NO_OPTION;
-		if (undoSupport.getUndoableEditListeners().length == 0) {
-			if (debug) {
-				MyLogger.handleMessage("UndoableEditListener added");
-			}
-			undoSupport.addUndoableEditListener(undoManager);
-		}
 
 		String dbVersion = getDBVersion();
 		MyLogger.handleMessage("DBVersion: " + dbVersion);

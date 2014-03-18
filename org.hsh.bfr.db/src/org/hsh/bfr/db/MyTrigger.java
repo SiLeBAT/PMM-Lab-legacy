@@ -138,8 +138,8 @@ public void fire(final int triggerType, final String triggerName, final String t
 	          	}
 	          	
         	}
-        	if (DBKernel.callers != null && DBKernel.callers.containsKey(tableName)) {
-        		Callable<Void> caller = DBKernel.callers.get(tableName);
+        	if (DBKernel.caller4Trigger != null && DBKernel.caller4Trigger.containsKey(tableName)) {
+        		Callable<Void> caller = DBKernel.caller4Trigger.get(tableName);
 	      		  if (caller != null) {
 	    			  try {caller.call();}
 	    			  catch (Exception e) {e.printStackTrace();}

@@ -231,7 +231,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 					      		for (int j=0;j<numCols;j++) {
 					      			if (fieldTypes[j] != null) {
 					      				if (fieldNames[j].equals("Bundesland")) {
-					      					hashBL = DBKernel.hashBundesland;
+					      					hashBL = MyDBTables.getHashCounties();
 					      				}
 					      				else {
 					      					hashBL = null;

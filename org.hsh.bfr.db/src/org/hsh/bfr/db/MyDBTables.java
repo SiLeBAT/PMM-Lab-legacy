@@ -13,7 +13,15 @@ public class MyDBTables {
 	private static LinkedHashMap<Object, String> hashSpeed = new LinkedHashMap<Object, String>();
 	private static LinkedHashMap<Object, String> hashDosis = new LinkedHashMap<Object, String>();
 	private static LinkedHashMap<Object, String> hashFreigabe = new LinkedHashMap<Object, String>();
+	private static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
+	private static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
 
+	public static LinkedHashMap<Object, String> getHashModelTypes() {
+		return hashModelType;
+	}
+	public static LinkedHashMap<Object, String> getHashCounties() {
+		return hashBundesland;
+	}
 	public static LinkedHashMap<String, MyTable> getAllTables() {
 		return myTables;
 	}
@@ -246,7 +254,7 @@ public class MyDBTables {
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
 				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new LinkedHashMap[]{null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null});
+				new LinkedHashMap[]{null,null,null,null,null,null,hashBundesland,null,null,null,null,null,null});
 		addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
@@ -1001,7 +1009,7 @@ public class MyDBTables {
 				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,DBKernel.hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null});
 		addTable(Knoten, MyList.Lieferketten_LIST);
 /*
@@ -1190,21 +1198,21 @@ public class MyDBTables {
 		return ICD10_Kodes;
 	}	
 	private static void fillHashModelTypes() {
-		DBKernel.hashModelType.put(0, "unknown");					
-		DBKernel.hashModelType.put(1, "growth");					
-		DBKernel.hashModelType.put(2, "inactivation");	
-		DBKernel.hashModelType.put(3, "survival");					
-		DBKernel.hashModelType.put(4, "growth/inactivation");	
-		DBKernel.hashModelType.put(5, "inactivation/survival");					
-		DBKernel.hashModelType.put(6, "growth/survival");	
-		DBKernel.hashModelType.put(7, "growth/inactivation/survival");					
-		DBKernel.hashModelType.put(8, "T");	
-		DBKernel.hashModelType.put(9, "pH");	
-		DBKernel.hashModelType.put(10, "aw");	
-		DBKernel.hashModelType.put(11, "T/pH");	
-		DBKernel.hashModelType.put(12, "T/aw");	
-		DBKernel.hashModelType.put(13, "pH/aw");	
-		DBKernel.hashModelType.put(14, "T/pH/aw");	
+		hashModelType.put(0, "unknown");					
+		hashModelType.put(1, "growth");					
+		hashModelType.put(2, "inactivation");	
+		hashModelType.put(3, "survival");					
+		hashModelType.put(4, "growth/inactivation");	
+		hashModelType.put(5, "inactivation/survival");					
+		hashModelType.put(6, "growth/survival");	
+		hashModelType.put(7, "growth/inactivation/survival");					
+		hashModelType.put(8, "T");	
+		hashModelType.put(9, "pH");	
+		hashModelType.put(10, "aw");	
+		hashModelType.put(11, "T/pH");	
+		hashModelType.put(12, "T/aw");	
+		hashModelType.put(13, "pH/aw");	
+		hashModelType.put(14, "T/pH/aw");	
 	}
 	@SuppressWarnings("unchecked")
 	private static void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
@@ -1253,7 +1261,7 @@ public class MyDBTables {
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,
 				Parametertyp,literatur,null},
 				null,
-				new LinkedHashMap[]{null,null,hashLevel,DBKernel.hashModelType,null,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,hashLevel,hashModelType,null,null,null,null,null,null,null,
 				null,null,hYNB},
 				new String[] {null,null,null,null,null,null,null,null,null,null,null,
 						"ModellkatalogParameter","Modell_Referenz",null},
@@ -1413,368 +1421,25 @@ public class MyDBTables {
 		hashFreigabe.put(1, DBKernel.getLanguage().equals("en") ? "crisis" : "Krise");					
 		hashFreigabe.put(2, DBKernel.getLanguage().equals("en") ? "always" : "immer");					
 		
-		DBKernel.hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
-		DBKernel.hashBundesland.put("Bayern", "Bayern");
-		DBKernel.hashBundesland.put("Berlin", "Berlin");
-		DBKernel.hashBundesland.put("Brandenburg", "Brandenburg");
-		DBKernel.hashBundesland.put("Bremen", "Bremen");
-		DBKernel.hashBundesland.put("Hamburg", "Hamburg");
-		DBKernel.hashBundesland.put("Hessen", "Hessen");
-		DBKernel.hashBundesland.put("Mecklenburg-Vorpommern", "Mecklenburg-Vorpommern");
-		DBKernel.hashBundesland.put("Niedersachsen", "Niedersachsen");
-		DBKernel.hashBundesland.put("Nordrhein-Westfalen", "Nordrhein-Westfalen");
-		DBKernel.hashBundesland.put("Rheinland-Pfalz", "Rheinland-Pfalz");
-		DBKernel.hashBundesland.put("Saarland", "Saarland");
-		DBKernel.hashBundesland.put("Sachsen", "Sachsen");
-		DBKernel.hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
-		DBKernel.hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
-		DBKernel.hashBundesland.put("Thüringen", "Thüringen");
+		hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
+		hashBundesland.put("Bayern", "Bayern");
+		hashBundesland.put("Berlin", "Berlin");
+		hashBundesland.put("Brandenburg", "Brandenburg");
+		hashBundesland.put("Bremen", "Bremen");
+		hashBundesland.put("Hamburg", "Hamburg");
+		hashBundesland.put("Hessen", "Hessen");
+		hashBundesland.put("Mecklenburg-Vorpommern", "Mecklenburg-Vorpommern");
+		hashBundesland.put("Niedersachsen", "Niedersachsen");
+		hashBundesland.put("Nordrhein-Westfalen", "Nordrhein-Westfalen");
+		hashBundesland.put("Rheinland-Pfalz", "Rheinland-Pfalz");
+		hashBundesland.put("Saarland", "Saarland");
+		hashBundesland.put("Sachsen", "Sachsen");
+		hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
+		hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
+		hashBundesland.put("Thüringen", "Thüringen");
   }
 	private static void addTable(MyTable myT, int child) {
 		myT.setChild(child);
 		myTables.put(myT.getTablename(), myT);
 	}
-  /*
-	private void importKataloge() {
-		try {
-	    	PreparedStatement ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Matrices") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "TOP"); ps.setString(2, "01"); ps.setInt(3, 17024); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "02"); ps.setInt(3, 17033); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "03"); ps.setInt(3, 17042); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "04"); ps.setInt(3, 17075); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "05"); ps.setInt(3, 17084); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "06"); ps.setInt(3, 17093); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "07"); ps.setInt(3, 17346); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "08"); ps.setInt(3, 17495); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "09"); ps.setInt(3, 17501); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "10"); ps.setInt(3, 17507); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "11"); ps.setInt(3, 17513); ps.execute();
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Agenzien") +
-					" (" + DBKernel.delimitL("Agensname") + ") VALUES (?)");
-			ps.setString(1, "Bakterien"); ps.execute(); // Bakterien
-			ps.setString(1, "Toxine"); ps.execute(); // Toxine
-			ps.setString(1, "Hepatitis E-Virus"); ps.execute(); // Hepatitis E
-			ps.setString(1, "Krim-Kongo-Hämorraghisches-Fieber-Virus"); ps.execute(); // Krim-Kongo-Hämorraghisches-Fieber-Virus
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Agenzien") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "TOP"); ps.setString(2, "00"); ps.setInt(3, DBKernel.getID("Agenzien", "Agensname", "Bakterien")); ps.execute(); // Bakterien
-			ps.setString(1, "TOP"); ps.setString(2, "0001"); ps.setInt(3, 90); ps.execute(); // Bacillus Anthracis
-			ps.setString(1, "TOP"); ps.setString(2, "0002"); ps.setInt(3, 161); ps.execute(); // Salmonella Typhi
-			ps.setString(1, "TOP"); ps.setString(2, "0003"); ps.setInt(3, 31); ps.execute(); // Genus Brucella
-			ps.setString(1, "TOP"); ps.setString(2, "0004"); ps.setInt(3, 273); ps.execute(); // Vibrio Cholerae
-			ps.setString(1, "TOP"); ps.setString(2, "0005"); ps.setInt(3, 14); ps.execute(); // Enterohämorrhagische E. coli
-			ps.setString(1, "TOP"); ps.setString(2, "0006"); ps.setInt(3, 2973); ps.execute(); // Francisella tularensis
-			ps.setString(1, "TOP"); ps.setString(2, "0007"); ps.setInt(3, 156); ps.execute(); // Shigella dysenteriae
-			ps.setString(1, "TOP"); ps.setString(2, "01"); ps.setInt(3, DBKernel.getID("Agenzien", "Agensname", "Toxine")); ps.execute(); // Toxine
-			ps.setString(1, "TOP"); ps.setString(2, "0101"); ps.setInt(3, 3328); ps.execute(); // Botulinumtoxin
-			ps.setString(1, "TOP"); ps.setString(2, "0102"); ps.setInt(3, 3329); ps.execute(); // Botulinumtoxin A
-			ps.setString(1, "TOP"); ps.setString(2, "0103"); ps.setInt(3, 3330); ps.execute(); // Botulinumtoxin B
-			ps.setString(1, "TOP"); ps.setString(2, "0104"); ps.setInt(3, 3331); ps.execute(); // Botulinumtoxin C
-			ps.setString(1, "TOP"); ps.setString(2, "0105"); ps.setInt(3, 3332); ps.execute(); // Botulinumtoxin D
-			ps.setString(1, "TOP"); ps.setString(2, "0106"); ps.setInt(3, 3333); ps.execute(); // Botulinumtoxin E
-			ps.setString(1, "TOP"); ps.setString(2, "0107"); ps.setInt(3, 3334); ps.execute(); // Botulinumtoxin F
-			ps.setString(1, "TOP"); ps.setString(2, "0108"); ps.setInt(3, 3335); ps.execute(); // Botulinumtoxin G
-			ps.setString(1, "TOP"); ps.setString(2, "0109"); ps.setInt(3, 3253); ps.execute(); // Rizin
-			ps.setString(1, "TOP"); ps.setString(2, "02"); ps.setInt(3, 62); ps.execute(); // Viren
-			ps.setString(1, "TOP"); ps.setString(2, "0201"); ps.setInt(3, DBKernel.getID("Agenzien", "Agensname", "Hepatitis E-Virus")); ps.execute();
-			ps.setString(1, "TOP"); ps.setString(2, "0202"); ps.setInt(3, DBKernel.getID("Agenzien", "Agensname", "Krim-Kongo-Hämorraghisches-Fieber-Virus")); ps.execute();
-	    	
-			
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Matrices") +
-					" (" + DBKernel.delimitL("Matrixname") + ") VALUES (?)");
-			ps.setString(1, "Brucella-Bouillon"); ps.execute();
-			ps.setString(1, "feste Nährmedien"); ps.execute();
-			ps.setString(1, "Butterfield's Phosphate Buffer"); ps.execute();
-			ps.setString(1, "flüssige Nährmedien"); ps.execute();
-			ps.setString(1, "Brucella-Agar"); ps.execute();
-			ps.setString(1, "Brucella-Selektiv-Agar"); ps.execute();
-			
-	    	ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Matrices") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0100"); ps.setInt(3, 19986); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "00"); ps.setInt(3, 19987); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0101"); ps.setInt(3, 19988); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "01"); ps.setInt(3, 19989); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0000"); ps.setInt(3, 19990); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0001"); ps.setInt(3, 19991); ps.execute();
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Agenzien") +
-					" (" + DBKernel.delimitL("Agensname") + ") VALUES (?)");
-			ps.setString(1, "Gruppe fakultativ anaerober gramnegativer Stäbchen"); ps.execute();
-			ps.setString(1, "Genus Escherichia"); ps.execute();
-			ps.setString(1, "Escherichia coli O104:H4"); ps.execute();
-	    	ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Agenzien") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "00"); ps.setInt(3, 3603); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0000"); ps.setInt(3, 3604); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "000000"); ps.setInt(3, 3605); ps.execute();
-			
-			DBKernel.doMNs(getTable("Matrices"));
-			DBKernel.doMNs(getTable("Agenzien"));
-	
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Methoden") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "TOP"); ps.setString(2, "01"); ps.setInt(3, 697); ps.execute();
-	
-	
-	    	ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Methodennormen") +
-					" (" + DBKernel.delimitL("Name") + ") VALUES (?)");
-	    	ps.setString(1, "WHO"); ps.execute(); 
-	    	ps.setString(1, "ISO"); ps.execute(); 
-	    	ps.setString(1, "DIN"); ps.execute(); 
-	    	ps.setString(1, "CEN"); ps.execute(); 
-	    	ps.setString(1, "OIE"); ps.execute(); 
-	    	ps.setString(1, "IDF"); ps.execute(); 
-
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Risikogruppen") +
-					" (" + DBKernel.delimitL("Bezeichnung") + ") VALUES (?)");
-			ps.setString(1, "Senioren"); ps.execute();
-			ps.setString(1, "Kinder"); ps.execute();
-			ps.setString(1, "Jugendliche"); ps.execute();
-			ps.setString(1, "Immunsupprimierte Menschen"); ps.execute();
-			ps.setString(1, "Schwangere"); ps.execute();
-			ps.setString(1, "Kleinkinder/Säuglinge"); ps.execute();		
-			
-			// neue Daten ab 1.3.7
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Matrices") +
-					" (" + DBKernel.delimitL("Matrixname") + ") VALUES (?)");
-			ps.setString(1, "Sprossensamen"); ps.execute();
-			ps.setString(1, "Bockshornkleesamen"); ps.execute();
-			ps.setString(1, "Alfalfasamen"); ps.execute();
-			ps.setString(1, "Mungobohnensamen"); ps.execute();
-			ps.setString(1, "Rettichsamen"); ps.execute();
-			ps.setString(1, "Linsensamen"); ps.execute();
-			ps.setString(1, "Zwiebelsamen"); ps.execute();
-
-			ps.setString(1, "Frischgemüse"); ps.execute();
-			ps.setString(1, "Sprossgemüse"); ps.execute();
-			ps.setString(1, "Bockshornkleesprossen"); ps.execute();
-			ps.setString(1, "Alfalfasprossen"); ps.execute();
-			ps.setString(1, "Mungobohnensprossen"); ps.execute();
-			ps.setString(1, "Rettichsprossen"); ps.execute();
-			ps.setString(1, "Linsensprossen"); ps.execute();
-			ps.setString(1, "Zwiebelsprossen"); ps.execute();
-			
-	    	ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Codes_Matrices") +
-					" (" + DBKernel.delimitL("CodeSystem") + "," + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + ") VALUES (?,?,?)");
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "02"); ps.setInt(3, 19992); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0200"); ps.setInt(3, 19993); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0201"); ps.setInt(3, 19994); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0202"); ps.setInt(3, 19995); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0203"); ps.setInt(3, 19996); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0204"); ps.setInt(3, 19997); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0205"); ps.setInt(3, 19998); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "03"); ps.setInt(3, 19999); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "0301"); ps.setInt(3, 20000); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030100"); ps.setInt(3, 20001); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030101"); ps.setInt(3, 20002); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030102"); ps.setInt(3, 20003); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030103"); ps.setInt(3, 20004); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030104"); ps.setInt(3, 20005); ps.execute();
-			ps.setString(1, "SiLeBAT"); ps.setString(2, "030105"); ps.setInt(3, 20006); ps.execute();
-			
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Modellkatalog") +
-					" (" + DBKernel.delimitL("Name") + "," + DBKernel.delimitL("Notation") + "," +
-					DBKernel.delimitL("Level") + "," + DBKernel.delimitL("Klasse") + "," +
-					DBKernel.delimitL("Formel") + "," + DBKernel.delimitL("Eingabedatum") + "," +
-					DBKernel.delimitL("Software") + ") VALUES (?,?,?,?,?,?,?)");
-			ps.setString(1, "D-Wert (Bigelow)"); 
-			ps.setString(2, "d_wert");
-			ps.setInt(3, 1);
-			ps.setInt(4, 2);
-			ps.setString(5, "LOG10N ~ LOG10N0 - t / D");
-			ps.setDate(6, new java.sql.Date(System.currentTimeMillis()));
-			ps.setString(7, "R");
-			ps.execute();
-
-			ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("ModellkatalogParameter") +
-					" (" + DBKernel.delimitL("Modell") + "," + DBKernel.delimitL("Parametername") + "," +
-					DBKernel.delimitL("Parametertyp") + "," + DBKernel.delimitL("ganzzahl") + ") VALUES (?,?,?,?)");
-			ps.setInt(1, 44); 
-			ps.setString(2, "D");
-			ps.setInt(3, 2);
-			ps.setBoolean(4, false);
-			ps.execute();
-			ps.setInt(1, 44); 
-			ps.setString(2, "LOG10N0");
-			ps.setInt(3, 2);
-			ps.setBoolean(4, false);
-			ps.execute();
-			ps.setInt(1, 44); 
-			ps.setString(2, "t");
-			ps.setInt(3, 1);
-			ps.setBoolean(4, false);
-			ps.execute();
-			ps.setInt(1, 44); 
-			ps.setString(2, "LOG10N");
-			ps.setInt(3, 3);
-			ps.setBoolean(4, false);
-			ps.execute();
-			
-			// neue Tabelle seit 1.4.1
-			try {
-				ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Parametertyp") +
-						" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (?)");
-				ps.setInt(1, 1); ps.execute();
-				ps.setInt(1, 2); ps.execute();
-				ps.setInt(1, 3); ps.execute();
-				// neu seit 1.4.4
-				ps.setInt(1, 4); ps.execute();
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}			
-			
-		}
-		catch (Exception e) {e.printStackTrace();}
-		
-	}
-	private void importEinheiten() {
-		try {
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("Einheiten") +
-					" (" + DBKernel.delimitL("Beschreibung") + "," + DBKernel.delimitL("Einheit") + ") VALUES (?,?)");
-	    	ps.setString(1, "log Anzahl (Zellen, Partikel, ...) pro Gramm (log Anzahl/g)"); ps.setString(2, "log Anzahl pro g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "log Anzahl (Zellen, Partikel, ...) pro 25 Gramm (log Anzahl/25g)"); ps.setString(2, "log Anzahl pro 25g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "log Anzahl (Zellen, Partikel, ...) pro 100 Gramm (log Anzahl/100g)"); ps.setString(2, "log Anzahl pro 100g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "log Anzahl (Zellen, Partikel, ...) pro Milliliter (log Anzahl/ml)"); ps.setString(2, "log Anzahl pro ml"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "log KBE (cfu) pro Gramm (log KBE/g)"); ps.setString(2, "log KBE pro g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "log KBE (cfu) pro 25 Gramm (log KBE/25g)"); ps.setString(2, "log KBE pro 25g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "log KBE (cfu) pro 100 Gramm (log KBE/100g)"); ps.setString(2, "log KBE pro 100g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "log KBE (cfu) pro Milliliter (log KBE/ml)"); ps.setString(2, "log KBE pro ml"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "log KBE (cfu) pro Quadratzentimeter (log KBE/cm^2)"); ps.setString(2, "log KBE pro cm^2"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "log PBE (pfu) pro Gramm (log PBE/g)"); ps.setString(2, "log PBE pro g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "log PBE (pfu) pro 25 Gramm (log PBE/25g)"); ps.setString(2, "log PBE pro 25g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "log PBE (pfu) pro 100 Gramm (log PBE/100g)"); ps.setString(2, "log PBE pro 100g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "log PBE (pfu) pro Milliliter (log PBE/ml)"); ps.setString(2, "log PBE pro ml"); ps.execute(); 	// Viren
-	    	ps.setString(1, "log Nanogramm pro Gramm (log ng/g)"); ps.setString(2, "log ng pro g"); ps.execute(); 	// Toxine
-	    	ps.setString(1, "log Nanogramm pro Milliliter (log ng/ml)"); ps.setString(2, "log ng pro ml"); ps.execute(); 	// Toxine
-	    	ps.setString(1, "Anzahl (Zellen, Partikel, ...) pro Gramm (Anzahl/g)"); ps.setString(2, "Anzahl pro g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "Anzahl (Zellen, Partikel, ...) pro 25 Gramm (Anzahl/25g)"); ps.setString(2, "Anzahl pro 25g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "Anzahl (Zellen, Partikel, ...) pro 100 Gramm (Anzahl/100g)"); ps.setString(2, "Anzahl pro 100g"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "Anzahl (Zellen, Partikel, ...) pro Milliliter (Anzahl/ml)"); ps.setString(2, "Anzahl pro ml"); ps.execute(); 	// Viren, Bakterien
-	    	ps.setString(1, "KBE (cfu) pro Gramm (KBE/g)"); ps.setString(2, "KBE pro g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "KBE (cfu) pro 25 Gramm (KBE/25g)"); ps.setString(2, "KBE pro 25g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "KBE (cfu) pro 100 Gramm (KBE/100g)"); ps.setString(2, "KBE pro 100g"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "KBE (cfu) pro Milliliter (KBE/ml)"); ps.setString(2, "KBE pro ml"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "KBE (cfu) pro Quadratzentimeter (KBE/cm^2)"); ps.setString(2, "KBE pro cm^2"); ps.execute(); 	// Bakterien
-	    	ps.setString(1, "PBE (pfu) pro Gramm (PBE/g)"); ps.setString(2, "PBE pro g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "PBE (pfu) pro 25 Gramm (PBE/25g)"); ps.setString(2, "PBE pro 25g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "PBE (pfu) pro 100 Gramm (PBE/100g)"); ps.setString(2, "PBE pro 100g"); ps.execute(); 	// Viren
-	    	ps.setString(1, "PBE (pfu) pro Milliliter (PBE/ml)"); ps.setString(2, "PBE pro ml"); ps.execute(); 	// Viren
-	    	ps.setString(1, "Nanogramm pro Gramm (ng/g)"); ps.setString(2, "ng pro g"); ps.execute(); 	// Toxine
-	    	ps.setString(1, "Nanogramm pro Milliliter (ng/ml)"); ps.setString(2, "ng pro ml"); ps.execute(); 	// Toxine		
-		}
-		catch (Exception e) {e.printStackTrace();}
-	}
-	private void importSP() {
-		try {
-			PreparedStatement ps = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("SonstigeParameter") +
-					" (" + DBKernel.delimitL("Parameter") + "," + DBKernel.delimitL("Beschreibung") + ") VALUES (?,?)");
-	    	ps.setString(1, "ALTA"); ps.setString(2, "alta fermentation product in the environment"); ps.execute();
-	    	ps.setString(1, "acetic_acid"); ps.setString(2, "acetic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "anaerobic"); ps.setString(2, "anaerobic environment"); ps.execute();
-	    	ps.setString(1, "ascorbic_acid"); ps.setString(2, "ascorbic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "benzoic_acid"); ps.setString(2, "benzoic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "citric_acid"); ps.setString(2, "citric acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "CO_2"); ps.setString(2, "carbon-dioxide in the environment"); ps.execute();
-	    	ps.setString(1, "competition"); ps.setString(2, "other species in the environment"); ps.execute();
-	    	ps.setString(1, "cut"); ps.setString(2, "cut (minced, chopped, ground, etc)"); ps.execute();
-	    	ps.setString(1, "dried"); ps.setString(2, "dried food"); ps.execute();
-	    	ps.setString(1, "EDTA"); ps.setString(2, "ethylenenediaminetetraacetic acid in the environment"); ps.execute();
-	    	ps.setString(1, "ethanol"); ps.setString(2, "ethanol in the environment"); ps.execute();
-	    	ps.setString(1, "fat"); ps.setString(2, "fat in the environment"); ps.execute();
-	    	ps.setString(1, "frozen"); ps.setString(2, "frozen food"); ps.execute();
-	    	ps.setString(1, "fructose"); ps.setString(2, "fructose in the environment"); ps.execute();
-	    	ps.setString(1, "glucose"); ps.setString(2, "glucose in the environment"); ps.execute();
-	    	ps.setString(1, "glycerol"); ps.setString(2, "glycerol in the environment"); ps.execute();
-	    	ps.setString(1, "HCl"); ps.setString(2, "hydrochloric acid in the environment"); ps.execute();
-	    	ps.setString(1, "heated"); ps.setString(2, "inoculation in/on previously heated (cooked, baked, pasteurized, etc) but not sterilised food/medium"); ps.execute();
-	    	ps.setString(1, "irradiated"); ps.setString(2, "in an environment that has been irradiated"); ps.execute();
-	    	ps.setString(1, "irradiation"); ps.setString(2, "irradiation at constant rate during the observation time"); ps.execute();
-	    	ps.setString(1, "lactic_acid"); ps.setString(2, "lactic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "lactic_bacteria_fermented"); ps.setString(2, "food fermented by lactic acid bacteria"); ps.execute();
-	    	ps.setString(1, "Modified_Atmosphere"); ps.setString(2, "modified atmosphere environment"); ps.execute();
-	    	ps.setString(1, "malic_acid"); ps.setString(2, "malic acid in the environment"); ps.execute();
-	    	ps.setString(1, "moisture"); ps.setString(2, "moisture in the environment"); ps.execute();
-	    	ps.setString(1, "monolaurin"); ps.setString(2, "glycerol monolaurate (emulsifier) in the environment"); ps.execute();
-	    	ps.setString(1, "N_2"); ps.setString(2, "nitrogen in the environment"); ps.execute();
-	    	ps.setString(1, "NaCl"); ps.setString(2, "sodium chloride in the environment"); ps.execute();
-	    	ps.setString(1, "nisin"); ps.setString(2, "nisin in the environment"); ps.execute();
-	    	ps.setString(1, "nitrite"); ps.setString(2, "sodium or potassium nitrite in the environment"); ps.execute();
-	    	ps.setString(1, "O_2"); ps.setString(2, "oxygen (aerobic conditions) in the environment"); ps.execute();
-	    	ps.setString(1, "propionic_acid"); ps.setString(2, "propionic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "raw"); ps.setString(2, "raw"); ps.execute();
-	    	ps.setString(1, "shaken"); ps.setString(2, "shaken (agitated, stirred)"); ps.execute();
-	    	ps.setString(1, "smoked"); ps.setString(2, "smoked food"); ps.execute();
-	    	ps.setString(1, "sorbic_acid"); ps.setString(2, "sorbic acid (possibly as salt) in the environment"); ps.execute();
-	    	ps.setString(1, "sterile"); ps.setString(2, "sterilised before inoculation"); ps.execute();
-	    	ps.setString(1, "sucrose"); ps.setString(2, "sucrose in the environment"); ps.execute();
-	    	ps.setString(1, "sugar"); ps.setString(2, "sugar in the environment"); ps.execute();
-	    	ps.setString(1, "vacuum"); ps.setString(2, "vacuum-packed"); ps.execute();
-	    	ps.setString(1, "oregano"); ps.setString(2, "oregano essential oil in the environment"); ps.execute();
-	    	ps.setString(1, "indigenous_flora"); ps.setString(2, "with the indigenous flora in the environment (but not counted)"); ps.execute();
-	    	ps.setString(1, "pressure"); ps.setString(2, "pressure controlled"); ps.execute();
-	    	ps.setString(1, "diacetic_acid"); ps.setString(2, "in presence of diacetic acid (possibly as salt)"); ps.execute();
-	    	ps.setString(1, "betaine"); ps.setString(2, "in presence of betaine"); ps.execute();
-		}
-		catch (Exception e) {e.printStackTrace();}
-	}
-	*/
-
-
-	/*
-	public void createAllTablesInDB() {
-		//if (myDB != null) {
-			createTables();				
-			if (!DBKernel.isKrise) {
-				fillWithDataAndGrants();
-				UpdateChecker.doStatUpGrants();
-			}
-		//}				
-	}
-	private void createTables() {
-		for(String key : myTables.keySet()) {
-			if (!DBKernel.isKrise || key.equals("Produzent_Artikel") || key.equals("Artikel_Lieferung")
-					 || key.equals("Lieferung_Lieferungen") || key.equals("Produzent")
-					 || key.equals("Kontakte")) {
-				myTables.get(key).createTable();
-			}	
-		}
-	}
-  private void fillWithDataAndGrants() {
-	
-    try {
-      // für den Defaultwert bei Zugriffsrecht
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_I") + " BEFORE INSERT ON " +
-      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-      // Zur Überwachung, damit immer mindestens ein Admin übrig bleibt; dasselbe gibts im MyDataChangeListener für Delete Operations!
-      // Außerdem zur Überwachung, daß der eingeloggte User seine Kennung nicht ändert
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_Users_U") + " BEFORE UPDATE ON " +
-      		DBKernel.delimitL("Users") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-      // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
-      DBKernel.getDBConnection().createStatement().execute("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
-      		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()));    	
-    }
-    catch (Exception e) {MyLogger.handleException(e);}
-    
-    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), true);
-    DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), true);
-
-		for(String key : myTables.keySet()) {
-			String tableName = myTables.get(key).getTablename();
-			if (!tableName.equals("Users") && !tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher")) {
-				DBKernel.grantDefaults(tableName);
-			}
-		}
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("ChangeLog") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);				
-    DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL("DateiSpeicher") + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);				
-
-    try {
-	      DBKernel.getDBConnection().createStatement().execute("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)) + " PASSWORD '" + DBKernel.getTempSAPass(DBKernel.HSHDB_PATH) + "' ADMIN"); // MD5.encode("de6!§5ddy", "UTF-8")
-    }
-    catch (Exception e) {MyLogger.handleException(e);}
-  }
-	*/
 }

@@ -100,7 +100,7 @@ public class MMC_M extends JPanel {
 			radioButton3.setEnabled(false);
 		}				
 
-		for (String s : DBKernel.hashModelType.values()) {
+		for (String s : MyDBTables.getHashModelTypes().values()) {
 			typeBox.addItem(s);
 		}
 		scrollPane3.setVisible(false); // List1
@@ -163,7 +163,7 @@ public class MMC_M extends JPanel {
 			}
 			modelnameField.setText(pm.getModelName());
 			if (pm.getModelClass() != null) {
-				typeBox.setSelectedItem(DBKernel.hashModelType.get(pm.getModelClass()));
+				typeBox.setSelectedItem(MyDBTables.getHashModelTypes().get(pm.getModelClass()));
 			} else {
 				typeBox.setSelectedItem(null);
 			}
@@ -1079,7 +1079,7 @@ public class MMC_M extends JPanel {
 		String typeString = (String) typeBox.getSelectedItem();
 		Integer type = null;
 		
-		for (Map.Entry<Object, String> entry : DBKernel.hashModelType.entrySet()) {
+		for (Map.Entry<Object, String> entry : MyDBTables.getHashModelTypes().entrySet()) {
 			if (entry.getValue().equals(typeString)) {
 				type = (Integer) entry.getKey();
 			}

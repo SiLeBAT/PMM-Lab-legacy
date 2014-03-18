@@ -139,7 +139,7 @@ public class DBKernel {
 	private static HashMap<String, String> adminU = new HashMap<String, String>();
 	private static HashMap<String, String> adminP = new HashMap<String, String>();
 	
-	public static HashMap<String, Callable<Void>> callers;
+	public static HashMap<String, Callable<Void>> caller4Trigger;
 
 	private static LinkedHashMap<Object, LinkedHashMap<Object, String>> filledHashtables = new LinkedHashMap<Object, LinkedHashMap<Object, String>>();
 	public static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
@@ -903,8 +903,7 @@ public class DBKernel {
   public static Connection getLocalConn(boolean try2Boot) {
 	  return getLocalConn(try2Boot, true);
   }
-  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate, HashMap<String, Callable<Void>> callers) {
-	  if (callers != null) DBKernel.callers = callers;
+  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
 	  try {
 		if ((localConn == null || localConn.isClosed()) && try2Boot && isKNIME) localConn = getInternalKNIMEDB_LoadGui(autoUpdate);
 	}
@@ -913,9 +912,9 @@ public class DBKernel {
 	}
 	  return localConn;
   }
-  public static Connection getLocalConn(boolean try2Boot, boolean autoUpdate) {
-	  return getLocalConn(try2Boot, autoUpdate, null);
-  }
+	public static void setCaller4Trigger(HashMap<String, Callable<Void>> caller4Trigger) {
+		DBKernel.caller4Trigger = caller4Trigger;
+	}
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
 	  return getDBConnection(dbPath, theUsername, thePassword,newConn, false);

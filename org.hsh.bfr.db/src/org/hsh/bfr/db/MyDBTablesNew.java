@@ -140,12 +140,12 @@ public class MyDBTablesNew extends MyDBI {
 				  || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz") || tableName.equals("GeschaetztesModell_Referenz")
 				  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 				  || tableName.equals("VarParMaps") || tableName.equals("DataSource");
-		return hideComment;
+		return !hideComment;
 	}
 
 	@Override
 	public boolean hasTestedColumn(String tableName) {
-		 boolean hideTested = hasCommentColumn(tableName) || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
+		 boolean hideTested = !hasCommentColumn(tableName) || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
 		 || tableName.equals("Zutatendaten_Sonstiges") || tableName.equals("Versuchsbedingungen_Sonstiges") || tableName.equals("Messwerte_Sonstiges")
 		  || tableName.equals("Prozessdaten_Sonstiges") || tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || tableName.equals("Agens_Matrices")
 		 || tableName.equals("Kontakte") || tableName.equals("Codes_Agenzien") || tableName.equals("Literatur")
@@ -167,14 +167,14 @@ public class MyDBTablesNew extends MyDBI {
 		 // Krise
 		 || tableName.equals("LieferungVerbindungen") || tableName.equals("ChargenVerbindungen") || tableName.equals("Lieferungen") || tableName.equals("Produktkatalog")
 		 || tableName.equals("Station") || tableName.equals("Chargen") || tableName.equals("Station_Agenzien") || tableName.equals("Produktkatalog_Matrices");
-		return hideTested;
+		return !hideTested;
 	}
 
 	@Override
 	public boolean hasScoreColumn(String tableName) {
-		boolean hideScore = hasTestedColumn(tableName)
+		boolean hideScore = !hasTestedColumn(tableName)
 				 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");
-		return hideScore;
+		return !hideScore;
 	}
 
 	@Override

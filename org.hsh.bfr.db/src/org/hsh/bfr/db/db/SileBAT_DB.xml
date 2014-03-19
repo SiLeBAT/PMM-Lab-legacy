@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MyDBI Version="" ReadOnly="" SAUser="" SAPass="">
+  <MyTable Name="" ReadOnly="" HasComment="" HasTested="" HasScore="" HasOSDN="" ListAsociation="">
+    <Column Name="" type="" Default="" UniqueID="" Comments="" FieldList="" ForeignTable="" MNTable="" />
+  </MyTable>
+  <MyTable Name="" ReadOnly="" HasComment="" HasTested="" HasScore="" HasOSDN="" ListAsociation="">
+    <Column Name="" type="" Default="" UniqueID="" Comments="" FieldList="" ForeignTable="" MNTable="" />
+  </MyTable>
+</MyDBI>

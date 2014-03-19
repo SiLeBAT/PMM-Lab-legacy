@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
@@ -162,8 +163,8 @@ public class TableReader {
 			}
 
 			try {
-				rules.add(new AlgebraicRule(new FormulaParser(new StringReader(
-						dep + "==" + formula)).parse(), 2, 4));
+				rules.add(new AlgebraicRule(ASTNode.eq(parse(dep),
+						parse(formula)), 2, 4));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -314,5 +315,9 @@ public class TableReader {
 
 	private static String createId(String s) {
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
+
+	private static ASTNode parse(String s) throws ParseException {
+		return new FormulaParser(new StringReader(s)).parse();
 	}
 }

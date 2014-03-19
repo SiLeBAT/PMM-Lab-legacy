@@ -1400,7 +1400,7 @@ public class Bfrdb extends Hsqldbiface {
 	    									ps.setNull(3, Types.DOUBLE);
 	    								}
 	    								else {
-	    									Double origVal = Categories.getCategoryByUnit(mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit());
+	    									Double origVal = (mx.getOrigUnit() == null ? mx.getValue() : Categories.getCategoryByUnit(mx.getUnit()).convert(mx.getValue(), mx.getUnit(), mx.getOrigUnit()));
 		    								int valId = insertDouble(origVal);				
 			    							ps.setDouble(3, valId);							
 	    								}

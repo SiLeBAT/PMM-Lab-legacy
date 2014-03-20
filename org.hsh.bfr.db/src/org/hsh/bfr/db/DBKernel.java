@@ -128,8 +128,6 @@ public class DBKernel {
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 	
-	public static HashMap<String, Callable<Void>> caller4Trigger;
-
 	public static String DBVersion = "1.7.8";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
@@ -880,8 +878,9 @@ public class DBKernel {
 	}
 	  return localConn;
   }
-	public static void setCaller4Trigger(HashMap<String, Callable<Void>> caller4Trigger) {
-		DBKernel.caller4Trigger = caller4Trigger;
+	public static void setCaller4Trigger(String tableName, Callable<Void> caller4Trigger) {
+		MyTable myT = DBKernel.myDBi.getTable(tableName);
+		if (myT != null) myT.setCaller4Trigger(caller4Trigger);
 	}
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {

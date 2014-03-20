@@ -798,7 +798,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 										AttributeUtilities.ATT_TEMPERATURE_ID,
 										AttributeUtilities.ATT_TEMPERATURE,
 										null, null, Arrays.asList(Categories
-												.getTemp()), Categories
+												.getTempCategory().getName()), Categories
 												.getTempCategory()
 												.getStandardUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_PH)) {
@@ -806,17 +806,15 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 								column,
 								new MiscXml(AttributeUtilities.ATT_PH_ID,
 										AttributeUtilities.ATT_PH, null, null,
-										Arrays.asList(Categories.getPh()),
-										Categories.getPhCategory()
-												.getStandardUnit()));
+										Arrays.asList(Categories.getPhCategory().getName()),
+										Categories.getPhUnit()));
 					} else if (selected.equals(AttributeUtilities.ATT_AW)) {
 						set.getColumnMappings().put(
 								column,
 								new MiscXml(AttributeUtilities.ATT_AW_ID,
 										AttributeUtilities.ATT_AW, null, null,
-										Arrays.asList(Categories.getAw()),
-										Categories.getAwCategory()
-												.getStandardUnit()));
+										Arrays.asList(Categories.getAwCategory().getName()),
+										Categories.getAwUnit()));
 					} else if (selected.equals(OTHER_PARAMETER)) {
 						set.getColumnMappings().put(column, null);
 					} else if (selected.equals(DO_NOT_USE)) {

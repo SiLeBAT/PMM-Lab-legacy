@@ -134,9 +134,9 @@ public class MMC_TS extends JPanel {
 			List<String> cl = new ArrayList<String>();
 			cl.add("Temperature");
 			theTS.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,temperatureField.getValue(),cl,tempUnit.getSelectedIndex() >= 0 ? tempUnit.getSelectedItem().toString() : "°C");
-			cl = new ArrayList<String>();cl.add(Categories.getPh());
+			cl = new ArrayList<String>();cl.add(Categories.getPhCategory().getName());
 			theTS.addMisc(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,phField.getValue(),cl,Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
-			cl = new ArrayList<String>();cl.add(Categories.getAw());
+			cl = new ArrayList<String>();cl.add(Categories.getAwCategory().getName());
 			theTS.addMisc(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,waterActivityField.getValue(),cl,Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
 	}
 	private void fillFields() {

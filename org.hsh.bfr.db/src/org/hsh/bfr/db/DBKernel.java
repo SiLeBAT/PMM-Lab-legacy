@@ -76,6 +76,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.hsh.bfr.db.db.XmlLoader;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
@@ -879,6 +880,7 @@ public class DBKernel {
 	  return localConn;
   }
 	public static void setCaller4Trigger(String tableName, Callable<Void> caller4Trigger) {
+		XmlLoader.doTest();
 		MyTable myT = DBKernel.myDBi.getTable(tableName);
 		if (myT != null) myT.setCaller4Trigger(caller4Trigger);
 	}

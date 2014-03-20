@@ -10,7 +10,6 @@ public abstract class MyDBI {
 	public abstract void updateCheck(final String fromVersion, final String toVersion);
 	public abstract boolean isReadOnly();
 	public abstract HashMap<String, String> getProbableSAs();
-	public abstract String getPath4FirstDB();
 	public abstract String getDBVersion();
 	public abstract LinkedHashMap<Object, String> getHashMap(final String key);
 

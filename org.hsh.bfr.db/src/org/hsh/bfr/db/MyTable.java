@@ -103,9 +103,19 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null);		
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults) {
-		this.tableName = tableName;
+		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
+		/*
+		for (int i=0;i<fieldNames.length;i++) {
+			fieldNames[i] = GuiMessages.getString(fieldNames[i]).trim();
+		}
+		*/
 		this.fieldNames = fieldNames;
 		this.fieldTypes = fieldTypes;
+		/*
+		for (int i=0;i<fieldComments.length;i++) {
+			fieldComments[i] = fieldComments[i] == null ? null : GuiMessages.getString(fieldComments[i]).trim();
+		}
+		*/
 		this.fieldComments = fieldComments;
 		this.foreignFields = foreignFields;
 		this.uniqueFields = uniqueFields;

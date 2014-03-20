@@ -24,7 +24,6 @@ public class XmlLoader {
 		xstream.omitField(MyTable.class, "horizontalScrollerPosition");
 		xstream.omitField(MyTable.class, "form_SelectedID");
 		xstream.omitField(MyTable.class, "caller4Trigger");
-
 		return xstream;
 	}
 	public static String getXml() {
@@ -33,5 +32,16 @@ public class XmlLoader {
 	}
 	public static Object getObject(String xml) {
 		return xstream.fromXML(xml);
+	}
+	public static void doTest() {
+		/*
+		try {
+	  		String xml = XmlLoader.getXml();
+	  		System.err.println(xml);
+	  		Object o = XmlLoader.getObject(xml);
+	  		System.err.println(o instanceof MyDBI);		
+		}
+		catch (Exception e) {e.printStackTrace();}
+		*/
 	}
 }

@@ -183,15 +183,18 @@ public class EmReaderUi extends JPanel {
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-		    		set.getParamXValues().put(AttributeUtilities.ATT_TEMPERATURE, dtf[0].getValue());
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_TEMPERATURE, val);
 					where += getWhereCondition(level, "Temperatur", "Temperature", dtf[0].getValue(), dtf[1].getValue());							
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
-		    		set.getParamXValues().put(AttributeUtilities.ATT_PH, dtf[0].getValue());
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_PH, val);
 					where += getWhereCondition(level, "pH", "pH", dtf[0].getValue(), dtf[1].getValue());
 				}
 				else if (key.equals(AttributeUtilities.ATT_AW)) {
-		    		set.getParamXValues().put(AttributeUtilities.ATT_AW, dtf[0].getValue());
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_AW, val);
 					where += getWhereCondition(level, "aw", "aw", dtf[0].getValue(), dtf[1].getValue());
 				}
 			}

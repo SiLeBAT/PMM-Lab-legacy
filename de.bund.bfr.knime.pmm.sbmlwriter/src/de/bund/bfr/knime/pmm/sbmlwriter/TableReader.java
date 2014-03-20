@@ -79,10 +79,11 @@ public class TableReader {
 
 	private Map<String, SBMLDocument> documents;
 
-	public TableReader(List<KnimeTuple> tuples) {
+	public TableReader(List<KnimeTuple> tuples, String modelName) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
+		int index = 1;
 
 		if (isTertiaryModel) {
 			tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
@@ -111,9 +112,11 @@ public class TableReader {
 				continue;
 			}
 
-			String modelID = "Model_Test" + Math.abs(estXml.getId());
+			String modelID = createId(modelName) + "_" + index;
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
+			
+			model.setName(modelName);
 
 			if (organismXml.getName() != null) {
 				Species s = model
@@ -245,6 +248,7 @@ public class TableReader {
 
 			model.setListOfRules(rules);
 			documents.put(modelID, doc);
+			index++;
 		}
 	}
 

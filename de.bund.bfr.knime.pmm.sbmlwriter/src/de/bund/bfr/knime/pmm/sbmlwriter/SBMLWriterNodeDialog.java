@@ -37,6 +37,7 @@ import javax.swing.JFileChooser;
 
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.defaultnodesettings.DialogComponentFileChooser;
+import org.knime.core.node.defaultnodesettings.DialogComponentString;
 import org.knime.core.node.defaultnodesettings.SettingsModelString;
 
 /**
@@ -51,8 +52,8 @@ import org.knime.core.node.defaultnodesettings.SettingsModelString;
  * @author Christian Thoens
  */
 public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
-	
-	private static final String OUT_HISTORY = "Out History";	
+
+	private static final String OUT_HISTORY = "Out History";
 
 	/**
 	 * New pane for configuring the SBMLWriter node.
@@ -61,9 +62,13 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentFileChooser outComp = new DialogComponentFileChooser(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_OUT_PATH, null),
 				OUT_HISTORY, JFileChooser.SAVE_DIALOG, true);
+		DialogComponentString nameComp = new DialogComponentString(
+				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
+						null), "Model Name");
 
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
+		addDialogComponent(nameComp);
 	}
 }

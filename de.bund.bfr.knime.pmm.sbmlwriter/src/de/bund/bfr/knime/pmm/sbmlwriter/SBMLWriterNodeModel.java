@@ -62,9 +62,12 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 public class SBMLWriterNodeModel extends NodeModel {
 
 	protected static final String CFG_OUT_PATH = "outPath";
+	protected static final String CFG_MODEL_NAME = "modelName";
 
 	private SettingsModelString outPath = new SettingsModelString(CFG_OUT_PATH,
 			null);
+	private SettingsModelString modelName = new SettingsModelString(
+			CFG_MODEL_NAME, null);
 
 	private KnimeSchema schema;
 
@@ -83,11 +86,11 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
 			final ExecutionContext exec) throws Exception {
 		TableReader reader = new TableReader(PmmUtilities.getTuples(inData[0],
-				schema));
+				schema), modelName.getStringValue());
 
 		for (String name : reader.getDocuments().keySet()) {
 			SBMLDocument doc = reader.getDocuments().get(name);
-			File file = new File(outPath.getStringValue() + "/" + name + ".xml");
+			File file = new File(outPath.getStringValue() + "/" + name + ".sbml.xml");
 
 			SBMLWriter.write(doc, file, name, "1.0");
 		}
@@ -114,6 +117,9 @@ public class SBMLWriterNodeModel extends NodeModel {
 		} else if (SchemaFactory.createM1DataSchema().conforms(
 				(DataTableSpec) inSpecs[0])) {
 			schema = SchemaFactory.createM1DataSchema();
+		} else if (outPath.getStringValue() == null
+				|| modelName.getStringValue() == null) {
+			throw new InvalidSettingsException("Node must be configured");
 		} else {
 			throw new InvalidSettingsException("Invalid Input");
 		}
@@ -127,6 +133,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	@Override
 	protected void saveSettingsTo(final NodeSettingsWO settings) {
 		outPath.saveSettingsTo(settings);
+		modelName.saveSettingsTo(settings);
 	}
 
 	/**
@@ -136,6 +143,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.loadSettingsFrom(settings);
+		modelName.loadSettingsFrom(settings);
 	}
 
 	/**
@@ -145,6 +153,7 @@ public class SBMLWriterNodeModel extends NodeModel {
 	protected void validateSettings(final NodeSettingsRO settings)
 			throws InvalidSettingsException {
 		outPath.validateSettings(settings);
+		modelName.validateSettings(settings);
 	}
 
 	/**

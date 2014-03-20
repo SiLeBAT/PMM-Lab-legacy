@@ -33,9 +33,6 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common;
 
-import java.util.HashMap;
-import java.util.concurrent.Callable;
-
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
@@ -67,9 +64,7 @@ public class Activator extends AbstractUIPlugin {
 	public void start(BundleContext context) throws Exception {
 		DBKernel.isKNIME = true;
 		MyLogger.isKNIME = true;
-		HashMap<String, Callable<Void>> callers = new HashMap<String, Callable<Void>>();
-		callers.put("Einheiten", new MyUnitCaller());
-		DBKernel.setCaller4Trigger(callers);
+		DBKernel.setCaller4Trigger("Einheiten", new MyUnitCaller());
 		DBKernel.getLocalConn(true, false);
 		DBKernel.getTempSA(DBKernel.HSHDB_PATH);
 		super.start(context);

@@ -36,8 +36,6 @@
  */
 package org.hsh.bfr.db;
 
-import java.util.concurrent.Callable;
-
 import org.hsqldb.Trigger;
 
 /**
@@ -138,12 +136,10 @@ public void fire(final int triggerType, final String triggerName, final String t
 	          	}
 	          	
         	}
-        	if (DBKernel.caller4Trigger != null && DBKernel.caller4Trigger.containsKey(tableName)) {
-        		Callable<Void> caller = DBKernel.caller4Trigger.get(tableName);
-	      		  if (caller != null) {
-	    			  try {caller.call();}
-	    			  catch (Exception e) {e.printStackTrace();}
-	    		  }
+    		MyTable myT = DBKernel.myDBi.getTable(tableName);
+        	if (myT != null && myT.getCaller4Trigger() != null) {
+    			  try {myT.getCaller4Trigger().call();}
+    			  catch (Exception e) {e.printStackTrace();}
         	}
         }
         catch (Exception e) {

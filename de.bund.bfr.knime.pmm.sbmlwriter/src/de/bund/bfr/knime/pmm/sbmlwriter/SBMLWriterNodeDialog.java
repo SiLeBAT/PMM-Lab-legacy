@@ -65,10 +65,15 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentString nameComp = new DialogComponentString(
 				new SettingsModelString(SBMLWriterNodeModel.CFG_MODEL_NAME,
 						null), "Model Name");
+		DialogComponentString varParamComp = new DialogComponentString(
+				new SettingsModelString(
+						SBMLWriterNodeModel.CFG_VARIABLE_PARAMS, null),
+				"Variable Parameters");
 
 		outComp.setBorderTitle("Output Path");
 
 		addDialogComponent(outComp);
 		addDialogComponent(nameComp);
+		addDialogComponent(varParamComp);
 	}
 }

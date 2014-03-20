@@ -79,7 +79,8 @@ public class TableReader {
 
 	private Map<String, SBMLDocument> documents;
 
-	public TableReader(List<KnimeTuple> tuples, String modelName) {
+	public TableReader(List<KnimeTuple> tuples, String modelName,
+			String varParams) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
@@ -115,7 +116,7 @@ public class TableReader {
 			String modelID = createId(modelName) + "_" + index;
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
-			
+
 			model.setName(modelName);
 
 			if (organismXml.getName() != null) {
@@ -177,7 +178,11 @@ public class TableReader {
 				ParamXml paramXml = (ParamXml) el;
 				Parameter param = model.createParameter(paramXml.getName());
 
-				param.setConstant(true);
+				if (paramXml.getName().equals(varParams)) {
+					param.setConstant(false);
+				} else {
+					param.setConstant(true);
+				}
 
 				if (paramXml.getValue() != null) {
 					param.setValue(paramXml.getValue());

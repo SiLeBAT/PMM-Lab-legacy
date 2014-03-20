@@ -204,24 +204,22 @@ public class TableReader {
 
 				if (MathUtilities.isValid(min) && MathUtilities.isValid(max)) {
 					try {
-						rules.add(new AlgebraicRule(
-								new FormulaParser(new StringReader(min + "<="
-										+ name + "<=" + max)).parse(), 2, 4));
+						rules.add(new AlgebraicRule(and(
+								parse(name + ">=" + min), parse(name + "<="
+										+ max)), 2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				} else if (MathUtilities.isValid(min)) {
 					try {
-						rules.add(new AlgebraicRule(new FormulaParser(
-								new StringReader(name + ">=" + min)).parse(),
+						rules.add(new AlgebraicRule(parse(name + ">=" + min),
 								2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				} else if (MathUtilities.isValid(max)) {
 					try {
-						rules.add(new AlgebraicRule(new FormulaParser(
-								new StringReader(name + "<=" + max)).parse(),
+						rules.add(new AlgebraicRule(parse(name + "<=" + max),
 								2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
@@ -319,5 +317,15 @@ public class TableReader {
 
 	private static ASTNode parse(String s) throws ParseException {
 		return new FormulaParser(new StringReader(s)).parse();
+	}
+
+	private static ASTNode and(ASTNode left, ASTNode right) {
+		ASTNode relational = new ASTNode(ASTNode.Type.LOGICAL_AND,
+				left.getParentSBMLObject());
+
+		relational.addChild(left);
+		relational.addChild(right);
+
+		return relational;
 	}
 }

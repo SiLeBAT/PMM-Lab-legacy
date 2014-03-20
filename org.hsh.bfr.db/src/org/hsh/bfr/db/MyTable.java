@@ -73,6 +73,7 @@ public class MyTable {
 	private boolean readOnly = false;
 	private boolean odsn = false; // "ON DELETE SET NULL" for FOREIGN Keys (in MyTable)
 	private int child = -1; // Where to show in list
+	
 	private Callable<Void> caller4Trigger = null;
 	
 	// Parameter zum Abspeichern

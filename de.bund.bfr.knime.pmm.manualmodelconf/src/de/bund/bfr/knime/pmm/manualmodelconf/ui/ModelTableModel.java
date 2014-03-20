@@ -336,9 +336,10 @@ public class ModelTableModel extends JTable {
 			  else if (columnIndex == 2) {
 				  JCheckBox checkbox = new JCheckBox();
 				  checkbox.setHorizontalAlignment(SwingConstants.CENTER);
-				  if (rowIndex == 0) checkbox.setEnabled(false);
-				  else checkbox.setEnabled(true);
+				  if (rowIndex == 0) {checkbox.setEnabled(false); if (thePM.getLevel() == 1) checkbox.setText("Concentration");}
+				  else {checkbox.setEnabled(true); checkbox.setText("");}
 				  checkbox.setSelected(value == null ? false : (Boolean) value);
+				  if (checkbox.isSelected() && thePM.getLevel() == 1) checkbox.setText("Time");
 				  checkbox.setBackground(Color.WHITE);
 				  c = checkbox;
 			  }

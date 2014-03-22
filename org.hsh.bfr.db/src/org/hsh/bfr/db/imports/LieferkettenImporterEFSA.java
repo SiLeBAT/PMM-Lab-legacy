@@ -97,6 +97,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 	    HSSFSheet defaultSheet = wb.getSheet("default"); 		
 		int numRows = defaultSheet.getLastRowNum() + 1;
+		Integer dbmid = DBKernel.getMaxID("Station");
+		if (dbmid != null) maxNodeID = dbmid;
       	for (int i=1;i<numRows;i++) {
       		try {
           		//System.err.println(i);

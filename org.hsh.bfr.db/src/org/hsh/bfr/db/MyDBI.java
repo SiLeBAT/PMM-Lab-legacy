@@ -1,6 +1,5 @@
 package org.hsh.bfr.db;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 
@@ -9,7 +8,6 @@ public abstract class MyDBI {
 	public abstract void recreateTriggers();
 	public abstract void updateCheck(final String fromVersion, final String toVersion);
 	public abstract boolean isReadOnly();
-	public abstract HashMap<String, String> getProbableSAs();
 	public abstract String getDBVersion();
 	public abstract LinkedHashMap<Object, String> getHashMap(final String key);
 

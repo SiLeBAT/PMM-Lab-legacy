@@ -9,6 +9,8 @@ public class MyDBTablesNew extends MyDBI {
 
 	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<String, MyTable>();
 	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
+	private final String saUser = "defad";
+	private final String saPass = "de6!§5ddy";
 	
 	/*
 	 * Still todo:
@@ -99,15 +101,6 @@ public class MyDBTablesNew extends MyDBI {
 	@Override
 	public boolean isReadOnly() {
 		return false;
-	}
-
-	@Override
-	public HashMap<String, String> getProbableSAs() {
-		HashMap<String, String> probableSAs = new HashMap<String, String>();
-		probableSAs.put("SA", "");
-		probableSAs.put("defad", "de6!§5ddy");
-		probableSAs.put("SA", "de6!§5ddy");
-		return probableSAs;
 	}
 
 	@SuppressWarnings("unchecked")

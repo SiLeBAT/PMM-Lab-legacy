@@ -40,6 +40,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -212,17 +213,17 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,"°C");
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,Categories.getTempCategory().getStandardUnit());//"°C"); // Categories.getTempCategory().getStandardUnit()
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_PH);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,null,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPhCategory().getName()),Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,null,null);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
         			miscDoc.add(mx);
         		}
         		tuple.setValue(TimeSeriesSchema.ATT_MISC, miscDoc);

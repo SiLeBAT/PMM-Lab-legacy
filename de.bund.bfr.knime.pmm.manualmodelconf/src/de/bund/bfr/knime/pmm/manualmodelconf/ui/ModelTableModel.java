@@ -70,6 +70,7 @@ public class ModelTableModel extends JTable {
 	private JRadioButton radioButton3 = null;
 	private ParametricModel thePM;
 	private boolean hasChanged = false;
+	private boolean repaintAgain = false;
 	private HashMap<String, Boolean> rowHasChanged;
 	
 	private boolean isBlankEditor = false;
@@ -199,11 +200,13 @@ public class ModelTableModel extends JTable {
         		if (columnIndex == 1) {
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
+            		repaintAgain = true;
         		}
         		else if (columnIndex == 7) {
             		thePM.setDepDescription(o == null ? "" : o.toString());
         			rowHasChanged.put(thePM.getDepVar(), true);
             		hasChanged = true;
+            		repaintAgain = true;
         		}
         		return;
         	}
@@ -229,6 +232,7 @@ public class ModelTableModel extends JTable {
             			thePM.removeIndepVar(paramName);
             		}
                 	hasChanged = true;
+            		repaintAgain = true;
             	}
             	else {
                 	boolean isIndep = sm.get(paramName);
@@ -238,6 +242,7 @@ public class ModelTableModel extends JTable {
                     	if (columnIndex == 7) {
                     		thePM.setIndepDescription(paramName, o == null ? "" : o.toString());
                     		hasChanged = true;
+                    		repaintAgain = true;
                     	}
                 	}
                 	else {
@@ -246,14 +251,17 @@ public class ModelTableModel extends JTable {
                     	if (columnIndex == 5 && (o == null || o instanceof Double)) {
                     		thePM.setParamMin(paramName, (Double) o);
                         	hasChanged = true;
+                    		repaintAgain = true;
                     	}
                     	if (columnIndex == 6 && (o == null || o instanceof Double)) {
                     		thePM.setParamMax(paramName, (Double) o);
                     		hasChanged = true;
+                    		repaintAgain = true;
                     	}
                     	if (columnIndex == 7) {
                     		thePM.setParamDescription(paramName, o == null ? "" : o.toString());
                     		hasChanged = true;
+                    		repaintAgain = true;
                     	}
                 	}
             	}
@@ -336,8 +344,9 @@ public class ModelTableModel extends JTable {
 			  else if (columnIndex == 2) {
 				  JCheckBox checkbox = new JCheckBox();
 				  checkbox.setHorizontalAlignment(SwingConstants.CENTER);
-				  if (rowIndex == 0) {checkbox.setEnabled(false); if (thePM.getLevel() == 1) checkbox.setText("Concentration");}
-				  else {checkbox.setEnabled(true); checkbox.setText("");}
+				  checkbox.setText("");
+				  if (rowIndex == 0) {checkbox.setEnabled(false); if (thePM.getLevel() == 1) checkbox.setText("Value");}
+				  else {checkbox.setEnabled(true); }
 				  checkbox.setSelected(value == null ? false : (Boolean) value);
 				  if (checkbox.isSelected() && thePM.getLevel() == 1) checkbox.setText("Time");
 				  checkbox.setBackground(Color.WHITE);
@@ -380,8 +389,10 @@ public class ModelTableModel extends JTable {
 			  catch (Exception e) {}
 			  
 			  c.setBorder(null);
-//			  table.repaint();
-//			  table.revalidate();
+			  if (repaintAgain) {
+				  table.repaint();
+				  if (rowIndex == getRowCount() - 1 && columnIndex == getColumnCount() - 1) repaintAgain = false;
+			  }
 			  return c;
 		  }
 		}

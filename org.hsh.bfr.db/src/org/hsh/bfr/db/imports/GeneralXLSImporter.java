@@ -37,7 +37,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Row;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.Levenshtein;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
@@ -115,7 +114,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 		      for (int i=0;i<wb.getNumberOfSheets();i++) {
 			      sheet = wb.getSheetAt(i); 
 			      String tableName = sheet.getSheetName();
-			      MyTable myT = MyDBTables.getTable(tableName);
+			      MyTable myT = DBKernel.myDBi.getTable(tableName);
 			      if (myT != null) {
 				      int numRows = sheet.getLastRowNum();
 				      if (progress != null) {
@@ -231,7 +230,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 					      		for (int j=0;j<numCols;j++) {
 					      			if (fieldTypes[j] != null) {
 					      				if (fieldNames[j].equals("Bundesland")) {
-					      					hashBL = MyDBTables.getHashCounties();
+					      					hashBL = DBKernel.myDBi.getHashMap("County");
 					      				}
 					      				else {
 					      					hashBL = null;

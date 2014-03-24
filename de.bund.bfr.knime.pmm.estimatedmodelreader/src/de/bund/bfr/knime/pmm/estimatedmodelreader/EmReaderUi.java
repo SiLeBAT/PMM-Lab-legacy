@@ -59,6 +59,8 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_R2 = 1;
 	public static final int MODE_RMS = 2;
 	
+	private Double agentConc;
+	
 	private SettingsHelper set = null;
 	
 	public SettingsHelper getSet() {
@@ -181,15 +183,22 @@ public class EmReaderUi extends JPanel {
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_TEMPERATURE, val);
 					where += getWhereCondition(level, "Temperatur", "Temperature", dtf[0].getValue(), dtf[1].getValue());							
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_PH, val);
 					where += getWhereCondition(level, "pH", "pH", dtf[0].getValue(), dtf[1].getValue());
 				}
 				else if (key.equals(AttributeUtilities.ATT_AW)) {
+					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
+		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_AW, val);
 					where += getWhereCondition(level, "aw", "aw", dtf[0].getValue(), dtf[1].getValue());
 				}
 			}
+			if (agentConc != null) set.getParamXValues().put("LOG10N0", agentConc);
 			
 	    	try {
 	    		boolean withoutMdData = withoutData.isSelected();
@@ -456,10 +465,11 @@ public class EmReaderUi extends JPanel {
     	}
     }	
 	public void setSettings(Config c) throws InvalidSettingsException {		
-		setSettings(c, null, null, null, null, null);
+		setSettings(c, null, null, null, null, null, null);
 	}
-	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw) throws InvalidSettingsException {
-    	LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
+	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc) throws InvalidSettingsException {
+    	this.agentConc = agentConc;
+		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 		if (c != null) {
 			if (c.containsKey("PredictorSettings")) {
 				set = new SettingsHelper();

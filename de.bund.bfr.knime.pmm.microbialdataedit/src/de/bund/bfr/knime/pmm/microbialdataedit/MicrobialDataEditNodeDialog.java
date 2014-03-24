@@ -91,6 +91,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
+import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 
 /**
@@ -127,6 +128,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		removeButton.addActionListener(this);
 		addedConditionsList = new JList<String>();
 		table = new JTable();
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		JPanel buttonPanel = new JPanel();
 
@@ -148,9 +150,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		panel.setLayout(new BorderLayout());
 		panel.add(listPanel, BorderLayout.NORTH);
-		panel.add(new JScrollPane(table,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
 		addTab("Options", panel);
 	}
@@ -333,6 +333,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		table.setModel(tableModel);
 		setEditorsAndRenderers();
+		UI.packColumns(table);
 	}
 
 	@Override
@@ -433,7 +434,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 									new LinkedHashMap<String, Double>(),
 									new LinkedHashMap<String, String>());
 					setEditorsAndRenderers();
-					table.repaint();
+					UI.packColumns(table);
+					table.repaint();					
 				} else {
 					JOptionPane.showMessageDialog(addButton,
 							"Data already contains " + name, "Error",
@@ -462,7 +464,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			addedConditionsList.setListData(addedConditionNames.values()
 					.toArray(new String[0]));
-			table.repaint();
+			UI.packColumns(table);
+			table.repaint();		
 		}
 	}
 
@@ -1118,8 +1121,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				color = Color.RED;
 			}
 
-			JComboBox<Color> box = new JComboBox<Color>(new Color[] { Color.WHITE,
-					Color.GREEN, Color.YELLOW, Color.RED });
+			JComboBox<Color> box = new JComboBox<Color>(new Color[] {
+					Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED });
 
 			box.setSelectedItem(color);
 			box.setRenderer(new ColorListRenderer());

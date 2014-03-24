@@ -214,12 +214,12 @@ CellIO.tttxcmldoc = 0;
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_PH);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPh()),Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_PH_ID,AttributeUtilities.ATT_PH,AttributeUtilities.ATT_PH,dbl,Arrays.asList(Categories.getPhCategory().getName()),Categories.getPhCategory().getAllUnits().toArray(new String[0])[0]);
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_AW) != null) {
         			double dbl = result.getDouble(Bfrdb.ATT_AW);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAw()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_AW_ID,AttributeUtilities.ATT_AW,AttributeUtilities.ATT_AW,dbl,Arrays.asList(Categories.getAwCategory().getName()),Categories.getAwCategory().getAllUnits().toArray(new String[0])[1]);
         			miscDoc.add(mx);
         		}
         		tuple.addMiscs(miscDoc);

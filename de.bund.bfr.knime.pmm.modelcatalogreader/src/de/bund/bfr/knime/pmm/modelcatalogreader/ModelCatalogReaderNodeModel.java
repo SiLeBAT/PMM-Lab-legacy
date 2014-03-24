@@ -39,7 +39,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.knime.core.data.DataTableSpec;
 import org.knime.core.data.def.DefaultRow;
 import org.knime.core.node.BufferedDataContainer;
@@ -153,7 +152,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		boolean takeIt = !modelFilterEnabled || modelClass == null || modelClass.equals("All");
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
-		    		String mcls = MyDBTables.getHashModelTypes().get(cls);
+		    		String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
 		    		//takeIt = (modelClass.indexOf(mcls) >= 0);
 		    		takeIt = (mcls != null && mcls.indexOf(modelClass) >= 0);
 	    		}
@@ -228,7 +227,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	    		boolean takeIt = modelFilterEnabled || modelClass.equals("All");
 	    		if (!takeIt) {
 		    		Object cls = DBKernel.getValue(conn,"Modellkatalog", "ID", result.getInt(Bfrdb.ATT_MODELID)+"", "Klasse");
-		    		String mcls = MyDBTables.getHashModelTypes().get(cls);
+		    		String mcls = DBKernel.myDBi.getHashMap("ModelType").get(cls);
 		    		//takeIt = (modelClass.indexOf(mcls) >= 0);
 		    		takeIt = (mcls.indexOf(modelClass) >= 0);
 	    		}

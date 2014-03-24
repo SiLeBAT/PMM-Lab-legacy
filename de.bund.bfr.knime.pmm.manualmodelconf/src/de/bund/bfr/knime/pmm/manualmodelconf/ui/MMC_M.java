@@ -25,7 +25,6 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.lsmp.djep.djep.DJep;
@@ -100,7 +99,7 @@ public class MMC_M extends JPanel {
 			radioButton3.setEnabled(false);
 		}				
 
-		for (String s : MyDBTables.getHashModelTypes().values()) {
+		for (String s : DBKernel.myDBi.getHashMap("ModelType").values()) {
 			typeBox.addItem(s);
 		}
 		scrollPane3.setVisible(false); // List1
@@ -163,7 +162,7 @@ public class MMC_M extends JPanel {
 			}
 			modelnameField.setText(pm.getModelName());
 			if (pm.getModelClass() != null) {
-				typeBox.setSelectedItem(MyDBTables.getHashModelTypes().get(pm.getModelClass()));
+				typeBox.setSelectedItem(DBKernel.myDBi.getHashMap("ModelType").get(pm.getModelClass()));
 			} else {
 				typeBox.setSelectedItem(null);
 			}
@@ -888,7 +887,7 @@ public class MMC_M extends JPanel {
 	}
 
 	private void doLit(LiteratureItem oldLi) {
-		MyTable lit = MyDBTables.getTable("Literatur");
+		MyTable lit = DBKernel.myDBi.getTable("Literatur");
 		Integer litID = (oldLi != null && (dbuuid != null && dbuuid
 				.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
 		Integer newVal = (Integer) DBKernel.myList.openNewWindow(lit, litID,
@@ -1079,7 +1078,7 @@ public class MMC_M extends JPanel {
 		String typeString = (String) typeBox.getSelectedItem();
 		Integer type = null;
 		
-		for (Map.Entry<Object, String> entry : MyDBTables.getHashModelTypes().entrySet()) {
+		for (Map.Entry<Object, String> entry : DBKernel.myDBi.getHashMap("ModelType").entrySet()) {
 			if (entry.getValue().equals(typeString)) {
 				type = (Integer) entry.getKey();
 			}

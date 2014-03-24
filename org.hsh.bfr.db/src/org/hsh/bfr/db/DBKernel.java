@@ -76,6 +76,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.hsh.bfr.db.db.XmlLoader;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
@@ -115,23 +116,19 @@ public class DBKernel {
 	
 	public static MyPreferences prefs = new MyPreferences();
 
+	public static MyDBI myDBi = null;
 	public static MyList myList = null;
-	public static MyDBTables myDBT = null;
 	public static MyDBTable topTable = null;
 	public static MainFrame mainFrame = null;
 	public static Login login = null;
+	
 	public static boolean passFalse = false;
-	public static MyTable users = null;
-	public static MyTable changeLog = null;
-	public static MyTable blobSpeicher = null;
-	public static long tempROZeit = 0;
+
 	public static long triggerFired = System.currentTimeMillis();
 	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 	
-	public static HashMap<String, Callable<Void>> caller4Trigger;
-
 	public static String DBVersion = "1.7.8";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
@@ -882,8 +879,10 @@ public class DBKernel {
 	}
 	  return localConn;
   }
-	public static void setCaller4Trigger(HashMap<String, Callable<Void>> caller4Trigger) {
-		DBKernel.caller4Trigger = caller4Trigger;
+	public static void setCaller4Trigger(String tableName, Callable<Void> caller4Trigger) {
+		XmlLoader.doTest();
+		MyTable myT = DBKernel.myDBi.getTable(tableName);
+		if (myT != null) myT.setCaller4Trigger(caller4Trigger);
 	}
   // newConn wird nur von MergeDBs benötigt
   public static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn) throws Exception {
@@ -1011,7 +1010,6 @@ public class DBKernel {
 	    			//+ ";crypt_key=65898eaeb54a0bc34097cae57259e8f9;crypt_type=blowfish"
 	    			,dbUsername, dbPassword);
 	    	result.setReadOnly(true);
-	    	tempROZeit = System.currentTimeMillis();
 	    }
 	    catch(Exception e1) {
 	    	MyLogger.handleException(e1);
@@ -2252,7 +2250,8 @@ public class DBKernel {
 	  	}		
 	}
 	public static void createGui(Connection conn) {
-		MyDBTables.loadMyTables();
+		//MyDBTables.loadMyTables();
+		DBKernel.myDBi = new MyDBTablesNew();
 		try {
 			if (DBKernel.myList == null && conn != null) {
 	    	  	//Login login = new Login();

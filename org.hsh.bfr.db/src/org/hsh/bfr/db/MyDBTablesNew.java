@@ -1,51 +1,80 @@
 package org.hsh.bfr.db;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.gui.MyList;
 
-public class MyDBTables {
+public class MyDBTablesNew extends MyDBI {
 
-	private static LinkedHashMap<String, MyTable> myTables = new LinkedHashMap<String, MyTable>();
-	private static LinkedHashMap<Object, String> hashZeit = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashGeld = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashGewicht = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashSpeed = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashDosis = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashFreigabe = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
-	private static LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
+	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<String, MyTable>();
+	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
+	private final String saUser = "defad";
+	private final String saPass = "de6!§5ddy";
+	
+	/*
+	 * Still todo:
+	 *   DateiSpeicher -> FileStorage
+	@Override
+	public String getCommentTerm() {
+		return "Kommentar";
+	}
 
-	public static LinkedHashMap<Object, String> getHashModelTypes() {
-		return hashModelType;
+	@Override
+	public String getTestedTerm() {
+		return "Geprueft";
 	}
-	public static LinkedHashMap<Object, String> getHashCounties() {
-		return hashBundesland;
+
+	@Override
+	public String getScoreTerm() {
+		return "Guetescore";
 	}
-	public static LinkedHashMap<String, MyTable> getAllTables() {
-		return myTables;
+
+		if (tableName != null && tableName.equals("Einheiten")) {
+			return new MyUnitCaller();
+		}
+	 */
+	public MyDBTablesNew() {
+		loadHashes();
+		loadMyTables();
 	}
-	public static MyTable getTable(final String tableName) {
-		if (myTables.containsKey(tableName)) return myTables.get(tableName);
-		else return null;
+
+	@Override
+	public String getDBVersion() {
+		return "1.7.8";
 	}
-	public static void recreateTriggers() {
-		for(String key : myTables.keySet()) {
-				String tableName = myTables.get(key).getTablename();
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
-				DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
-				if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-					DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
-							DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
-				}
+
+	@Override
+	public LinkedHashMap<Object, String> getHashMap(final String key) {
+		if (allHashes.containsKey(key)) {
+			return allHashes.get(key);
+		}
+		return null;
+	}
+	
+	@Override
+	public LinkedHashMap<String, MyTable> getAllTables() {
+		return allTables;
+	}
+
+	@Override
+	public void recreateTriggers() {
+		for(String key : allTables.keySet()) {
+			String tableName = allTables.get(key).getTablename();
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_U"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_D"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_" + tableName + "_I"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
+			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
+			if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +    
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+				DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " +
+						DBKernel.delimitL(tableName) + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false); // (oneThread ? "QUEUE 0" : "") +
+			}
 		}
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_U"), false);
 		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_USERS_D"), false);
@@ -60,10 +89,22 @@ public class MyDBTables {
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
 	}
-	@SuppressWarnings("unchecked")
-	public static void loadMyTables() {
-		fillHashes();
 
+	@Override
+	public void updateCheck(String fromVersion, String toVersion) {
+		if (fromVersion.equals("1.7.7") && toVersion.equals("1.7.8")) {
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(16383)", false);
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(16383)", false);
+		}
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	private void loadMyTables() {
 		MyTable cl = new MyTable("ChangeLog",
 				new String[]{"Zeitstempel","Username","Tabelle","TabellenID","Alteintrag"},
 				new String[]{"DATETIME","VARCHAR(60)","VARCHAR(100)","INTEGER","OTHER"},
@@ -109,7 +150,7 @@ public class MyDBTables {
 				new String[]{"Erstautor der Publikation","Veröffentlichungsjahr","Titel des Artikels","Abstract/Zusammenfassung des Artikels","Journal / Buchtitel / ggf. Webseite / Veranstaltung etc.",null,null,"Seitenzahl_Beginn","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",null,"Auswahl zwischen Paper, SOP, LA, Handbuch/Manual, Laborbuch","Originaldatei"},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[][]{{"Erstautor","Jahr","Titel"}},
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,hashFreigabe,null,lt,null});
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null});
 		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.BasisTabellen_LIST : 66));
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
@@ -254,7 +295,7 @@ public class MyDBTables {
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
 				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new LinkedHashMap[]{null,null,null,null,null,null,hashBundesland,null,null,null,null,null,null});
+				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null});
 		addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
@@ -374,15 +415,15 @@ public class MyDBTables {
 				h1,h2,h3,
 				null,
 				null,null,
-				null,hashZeit,
-				null,hashZeit,
-				null,hashDosis,
-				null,hashDosis,h1,h2,
-				null,hashDosis,h1,h2,
+				null,allHashes.get("Time"),
+				null,allHashes.get("Time"),
+				null,allHashes.get("Dosis"),
+				null,allHashes.get("Dosis"),h1,h2,
+				null,allHashes.get("Dosis"),h1,h2,
 				hYNB,
 				null,null,
-				null,hYNT,hashZeit,
-				hYNB,hYNB,hYNB,hYNB,hashZeit,
+				null,hYNT,allHashes.get("Time"),
+				hYNB,hYNB,hYNB,hYNB,allHashes.get("Time"),
 				null,null},
 				new String[]{null,null,null,null,null,
 				null,"Krankheitsbilder_Symptome",
@@ -548,7 +589,7 @@ public class MyDBTables {
 				methodiken,matrix,null,agenzien,null,
 				null,null,
 				null,null},
-				new LinkedHashMap[]{null,null,null,null,null,null,null,hashGeld,
+				new LinkedHashMap[]{null,null,null,null,null,null,null,allHashes.get("Currency"),
 				null,null,hYNB,hYNB,
 				null,null,null,null,null,
 				hYNB,hYNB,hYNB,
@@ -588,8 +629,8 @@ public class MyDBTables {
 				null,null,null,null,
 				null,null,
 				null,null,null,null,
-				null,null,hashZeit,null,hashZeit,
-				null,hashGeld,
+				null,null,allHashes.get("Time"),null,allHashes.get("Time"),
+				null,allHashes.get("Currency"),
 				null,null,null,null,null},
 				new String[]{null,null,null,
 				null,null,null,null,
@@ -652,8 +693,8 @@ public class MyDBTables {
 				null,
 				null,null,
 				null,null,
-				null,null,hashZeit,null,hashZeit,
-				null,hashGeld,null,null,null},
+				null,null,allHashes.get("Time"),null,allHashes.get("Time"),
+				null,allHashes.get("Currency"),null,null,null},
 				new String[]{null,
 				null,null,null,
 				null,
@@ -690,7 +731,7 @@ public class MyDBTables {
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)","DATE","INTEGER","DOUBLE","VARCHAR(50)","DOUBLE","VARCHAR(50)","INTEGER","BOOLEAN","BOOLEAN","BLOB(10M)"},
 				new String[]{"Verweis zum Eintrag in Labor-Tabelle","Verweis zum Eintrag in Kombi-Tabelle Aufbereitungs_Nachweisverfahren","Zertifikatnummer - falls vorhanden","Gültigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Angaben zum Durchsatz des Labors für das Verfahren - sollte im LaborAngebot angegeben sein","Einheit des Durchsatzes - Auswahlbox","Kosten pro Probe/Einzelansatz - ohne Rabatte - sollte im LaborAngebot angegeben sein","Waehrung für die Kosten - Auswahlbox","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox","Nimmt das Labor auch externe Auftraege an?","Existiert eine SOP zu dem Verfahren bei dem Labor?","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Labors sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots"},
 				new MyTable[]{labore,aufbereitungs_nachweisverfahren,null,null,zertifikate,null,null,null,null,null,null,null,null},
-				new LinkedHashMap[]{null,null,null,null,null,null,hashSpeed,null,hashGeld,hashFreigabe,null,null,null});
+				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("Speed"),null,allHashes.get("Currency"),allHashes.get("Freigabe"),null,null,null});
 		addTable(labor_aufbereitungs_nachweisverfahren, MyList.Nachweissysteme_LIST);
 
 	
@@ -726,7 +767,7 @@ public class MyDBTables {
 				null,null,null,null,null},
 				new String[][]{{"ID_CB"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,
-					null,h1,null,null,hashFreigabe,null,null,null,null,null},
+					null,h1,null,null,allHashes.get("Freigabe"),null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,"INT",null,null,null,null,null,null,
 					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null});
 		addTable(tenazity_raw_data, MyList.Tenazitaet_LIST);
@@ -791,7 +832,7 @@ public class MyDBTables {
 				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DOUBLE","VARCHAR(50)","INTEGER","DOUBLE","BOOLEAN"},
 				new String[]{"Verweis auf die Basistabelle der Betriebe","Verweis auf die Matricestabelle","EAN-Nummer aus SA2-Datenbank - falls bekannt","Produktionsmenge des Lebensmittels","Verweis auf Basistabelle Masseinheiten","Verweis auf Literaturstelle","Anteil in %",null},
 				new MyTable[]{betriebe,matrix,null,null,null,literatur,null,null},
-				new LinkedHashMap[]{null,null,null,null,hashGewicht,null,null,null});
+				new LinkedHashMap[]{null,null,null,null,allHashes.get("Weight"),null,null,null});
 		addTable(betrieb_matrix_produktion, -1);
 		MyTable prozessElemente = new MyTable("ProzessElemente",
 				new String[]{"Prozess_ID","ProzessElement","ProzessElementKategorie","ProzessElementSubKategorie","ProzessElement_engl","ProzessElementKategorie_engl","ProzessElementSubKategorie_engl"},
@@ -844,7 +885,7 @@ public class MyDBTables {
 				new String[]{null,null,"Preis wurde erhoben am...",null,null},
 				new MyTable[]{Kostenkatalog,betriebe,null,newDoubleTable,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,hashGeld},
+				new LinkedHashMap[]{null,null,null,null,allHashes.get("Currency")},
 				new String[]{null,null,null,null,null});
 		addTable(Kostenkatalogpreise, DBKernel.getUsername().equals("burchardi") || DBKernel.getUsername().equals("defad") ? 66 : -1);
 
@@ -876,8 +917,8 @@ public class MyDBTables {
 				SonstigeParameter, agenzien, Kostenkatalog},
 				null,
 				new LinkedHashMap[]{null,null,h1,null,null,
-				null,h4,hashZeit,
-				null,hashZeit,
+				null,h4,allHashes.get("Time"),
+				null,allHashes.get("Time"),
 				null,
 				null,null,null,null,null,null,
 				null,null,null},
@@ -911,7 +952,7 @@ public class MyDBTables {
 				new String[]{null,null,null,"Zeitpunkt der Messung relativ zum Prozessschritt,\nd.h. falls die Messung z.B. gleich zu Beginn des Prozessschrittes gemacht wird,\ndann ist hier 0 einzutragen!\nUnabhaengig davon wie lange der gesamte Prozess schon laeuft!",null,"Konzentration des Agens","Konzentration - Einheit","Gesamtkeimzahl","Gesamtkeimzahl-Einheit"},
 				new MyTable[]{prozessdaten,null,agenzien,newDoubleTable,null,newDoubleTable,Konzentrationseinheiten,newDoubleTable,Konzentrationseinheiten},
 				null,
-				new LinkedHashMap[]{null,null,null,null,hashZeit,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,allHashes.get("Time"),null,null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null});
 		addTable(Prozessdaten_Messwerte, -1);
 		MyTable Prozessdaten_Kosten = new MyTable("Prozessdaten_Kosten",
@@ -989,13 +1030,13 @@ public class MyDBTables {
 				null);
 		addTable(LinkedTestConditions, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 
-		generateStatUpModellTables(literatur, tenazity_raw_data, hashZeit, Konzentrationseinheiten, hYNB);
+		generateStatUpModellTables(literatur, tenazity_raw_data, allHashes.get("Time"), Konzentrationseinheiten, hYNB);
 
 		doLieferkettenTabellen(agenzien, matrix, h4);
 
 	}
 	@SuppressWarnings("unchecked")
-	private static void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
+	private void doLieferkettenTabellen(final MyTable agenzien, final MyTable matrix, final LinkedHashMap<Object, String> h4) {
 		LinkedHashMap<Boolean, String> hYNB = new LinkedHashMap<Boolean, String>();
 		if (DBKernel.getLanguage().equalsIgnoreCase("en")) {hYNB.put(new Boolean(true), "yes");	hYNB.put(new Boolean(false), "no");}
 		else {hYNB.put(new Boolean(true), "ja");	hYNB.put(new Boolean(false), "nein");}
@@ -1009,7 +1050,7 @@ public class MyDBTables {
 				"Falldefinition erfüllt (z.B. laut RKI) - Priorität: Wert zwischen 0 und 1",null,null,null,"Datum frühester Erkrankungsbeginn","Datum des Höhepunkt an Neuerkrankungen","Datum letzter Erkrankungsbeginn",null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,agenzien,null},
 				null,
-				new LinkedHashMap[]{null,null,null,null,null,null,null,hashBundesland,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				new LinkedHashMap[]{null,null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null});
 		addTable(Knoten, MyList.Lieferketten_LIST);
 /*
@@ -1095,7 +1136,7 @@ public class MyDBTables {
 
 		//DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("Kontakte") + " SET " + DBKernel.delimitL("Bundesland") + " = 'NI' WHERE " + DBKernel.delimitL("ID") + " = 167", false);
 	}
-	private static MyTable generateICD10Tabellen() {
+	private MyTable generateICD10Tabellen() {
 		MyTable ICD10_Kapitel = new MyTable("ICD10_Kapitel", new String[]{"KapNr","KapTi"},
 				new String[]{"VARCHAR(2)","VARCHAR(110)"},
 				new String[]{"Kapitelnummer, 2 Zeichen","Kapiteltitel, bis zu 110 Zeichen"},
@@ -1197,25 +1238,8 @@ public class MyDBTables {
 		addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}	
-	private static void fillHashModelTypes() {
-		hashModelType.put(0, "unknown");					
-		hashModelType.put(1, "growth");					
-		hashModelType.put(2, "inactivation");	
-		hashModelType.put(3, "survival");					
-		hashModelType.put(4, "growth/inactivation");	
-		hashModelType.put(5, "inactivation/survival");					
-		hashModelType.put(6, "growth/survival");	
-		hashModelType.put(7, "growth/inactivation/survival");					
-		hashModelType.put(8, "T");	
-		hashModelType.put(9, "pH");	
-		hashModelType.put(10, "aw");	
-		hashModelType.put(11, "T/pH");	
-		hashModelType.put(12, "T/aw");	
-		hashModelType.put(13, "pH/aw");	
-		hashModelType.put(14, "T/pH/aw");	
-	}
 	@SuppressWarnings("unchecked")
-	private static void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
+	private void generateStatUpModellTables(final MyTable literatur, final MyTable tenazity_raw_data, final LinkedHashMap<Object, String> hashZeit, final MyTable Konzentrationseinheiten, LinkedHashMap<Boolean, String> hYNB) {
 		MyTable PMMLabWorkflows = new MyTable("PMMLabWorkflows", new String[]{"Workflow"},
 				new String[]{"BLOB(100M)"},
 				new String[]{null},
@@ -1236,7 +1260,7 @@ public class MyDBTables {
 		LinkedHashMap<Object, String> hashLevel = new LinkedHashMap<Object, String>();
 		hashLevel.put(1, "primary");					
 		hashLevel.put(2, "secondary");	
-		fillHashModelTypes();
+
 		LinkedHashMap<Object, String> hashTyp = new LinkedHashMap<Object, String>();
 		hashTyp.put(1, "Kovariable");			// independent ?		
 		hashTyp.put(2, "Parameter");	
@@ -1261,7 +1285,7 @@ public class MyDBTables {
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,
 				Parametertyp,literatur,null},
 				null,
-				new LinkedHashMap[]{null,null,hashLevel,hashModelType,null,null,null,null,null,null,null,
+				new LinkedHashMap[]{null,null,hashLevel,allHashes.get("ModelType"),null,null,null,null,null,null,null,
 				null,null,hYNB},
 				new String[] {null,null,null,null,null,null,null,null,null,null,null,
 						"ModellkatalogParameter","Modell_Referenz",null},
@@ -1305,7 +1329,7 @@ public class MyDBTables {
 				literatur,ModellkatalogParameter,null,ModellkatalogParameter,null,PMMLabWorkflows,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,
-				null,null,null,null,null,null,hashFreigabe},
+				null,null,null,null,null,null,allHashes.get("Freigabe")},
 				new String[] {null,null,null,
 				null,null,null,null,null,null,null,null,
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null,null},
@@ -1387,7 +1411,13 @@ public class MyDBTables {
 		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
 	}
   
-  private static void fillHashes() {
+	private void addTable(MyTable myT, int child) {
+		myT.setChild(child);
+		allTables.put(myT.getTablename(), myT);
+	}
+
+	private void loadHashes() {		
+		LinkedHashMap<Object, String> hashZeit = new LinkedHashMap<Object, String>();
 		hashZeit.put("Sekunde", DBKernel.getLanguage().equals("en") ? "Second(s)" : "Sekunde(n) [s][sec]");					
 		hashZeit.put("Minute", DBKernel.getLanguage().equals("en") ? "Minute(s)" : "Minute(n)");					
 		hashZeit.put("Stunde", DBKernel.getLanguage().equals("en") ? "Hour(s)" : "Stunde(n)");		
@@ -1395,18 +1425,26 @@ public class MyDBTables {
 		hashZeit.put("Woche", DBKernel.getLanguage().equals("en") ? "Week(s)" : "Woche(n)");		
 		hashZeit.put("Monat", DBKernel.getLanguage().equals("en") ? "Month(s)" : "Monat(e)");		
 		hashZeit.put("Jahr", DBKernel.getLanguage().equals("en") ? "Year(s)" : "Jahr(e)");			  
+		allHashes.put("Time", hashZeit);
 
+		LinkedHashMap<Object, String> hashGeld = new LinkedHashMap<Object, String>();
 		hashGeld.put("Dollar", "Dollar ($)");					
 		hashGeld.put("Euro", "Euro (€)");					
+		allHashes.put("Currency", hashGeld);
 
+		LinkedHashMap<Object, String> hashGewicht = new LinkedHashMap<Object, String>();
 		hashGewicht.put("Milligramm", DBKernel.getLanguage().equals("en") ? "Milligrams (mg)" : "Milligramm (mg)");					
 		hashGewicht.put("Gramm", DBKernel.getLanguage().equals("en") ? "Grams (g)" : "Gramm (g)");					
 		hashGewicht.put("Kilogramm", DBKernel.getLanguage().equals("en") ? "Kilograms (kg)" : "Kilogramm (kg)");					
 		hashGewicht.put("Tonne", DBKernel.getLanguage().equals("en") ? "Tons (t)" : "Tonne (t)");					
+		allHashes.put("Weight", hashGewicht);
 
+		LinkedHashMap<Object, String> hashSpeed = new LinkedHashMap<Object, String>();
 		hashSpeed.put("pro Stunde", DBKernel.getLanguage().equals("en") ? "per hour (1/h)" : "pro Stunde (1/h)");					
 		hashSpeed.put("pro Tag", DBKernel.getLanguage().equals("en") ? "per day (1/d)" : "pro Tag (1/d)");							
+		allHashes.put("Speed", hashSpeed);
 
+		LinkedHashMap<Object, String> hashDosis = new LinkedHashMap<Object, String>();
 		hashDosis.put("Sporenzahl", "Sporenzahl");					
 		hashDosis.put("KBE pro g", "KBE (cfu) pro Gramm (KBE/g)");					
 		hashDosis.put("KBE pro ml", "KBE (cfu) pro Milliliter (KBE/ml)");					
@@ -1416,11 +1454,15 @@ public class MyDBTables {
 		hashDosis.put("Mikrogramm", "Mikrogramm (\u00B5g)");							
 		hashDosis.put("\u00B5g/kg/KG", "\u00B5g/kg/KG");							
 		hashDosis.put("Anzahl", "Anzahl (Viren, Bakterien, Parasiten, Organismen, ...)");	
+		allHashes.put("Dosis", hashDosis);
 
+		LinkedHashMap<Object, String> hashFreigabe = new LinkedHashMap<Object, String>();
 		hashFreigabe.put(0, DBKernel.getLanguage().equals("en") ? "never" : "gar nicht");					
 		hashFreigabe.put(1, DBKernel.getLanguage().equals("en") ? "crisis" : "Krise");					
 		hashFreigabe.put(2, DBKernel.getLanguage().equals("en") ? "always" : "immer");					
+		allHashes.put("Freigabe", hashFreigabe);
 		
+		LinkedHashMap<Object, String> hashBundesland = new LinkedHashMap<Object, String>();
 		hashBundesland.put("Baden-Württemberg", "Baden-Württemberg");
 		hashBundesland.put("Bayern", "Bayern");
 		hashBundesland.put("Berlin", "Berlin");
@@ -1437,9 +1479,24 @@ public class MyDBTables {
 		hashBundesland.put("Sachsen-Anhalt", "Sachsen-Anhalt");
 		hashBundesland.put("Schleswig-Holstein", "Schleswig-Holstein");
 		hashBundesland.put("Thüringen", "Thüringen");
-  }
-	private static void addTable(MyTable myT, int child) {
-		myT.setChild(child);
-		myTables.put(myT.getTablename(), myT);
+		allHashes.put("County", hashBundesland);
+
+		LinkedHashMap<Object, String> hashModelType = new LinkedHashMap<Object, String>();
+		hashModelType.put(0, "unknown");					
+		hashModelType.put(1, "growth");					
+		hashModelType.put(2, "inactivation");	
+		hashModelType.put(3, "survival");					
+		hashModelType.put(4, "growth/inactivation");	
+		hashModelType.put(5, "inactivation/survival");					
+		hashModelType.put(6, "growth/survival");	
+		hashModelType.put(7, "growth/inactivation/survival");					
+		hashModelType.put(8, "T");	
+		hashModelType.put(9, "pH");	
+		hashModelType.put(10, "aw");	
+		hashModelType.put(11, "T/pH");	
+		hashModelType.put(12, "T/aw");	
+		hashModelType.put(13, "pH/aw");	
+		hashModelType.put(14, "T/pH/aw");	
+		allHashes.put("ModelType", hashModelType);
 	}
 }

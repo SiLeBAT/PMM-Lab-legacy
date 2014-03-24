@@ -14,7 +14,6 @@ import javax.swing.border.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyTable;
 import org.knime.core.node.InvalidSettingsException;
 import org.knime.core.node.config.Config;
@@ -334,7 +333,7 @@ public class MdReaderUi extends JPanel {
 		return true;
 	}
 	private void selectMatrixButtonActionPerformed(ActionEvent e) {
-		MyTable mat = MyDBTables.getTable("Matrices");
+		MyTable mat = DBKernel.myDBi.getTable("Matrices");
 		Integer matrixID = null;
 		try {matrixID = Integer.parseInt(matrixIDField.getText());}
 		catch (Exception e1) {}
@@ -360,7 +359,7 @@ public class MdReaderUi extends JPanel {
 
 	
 	private void selectAgensButtonActionPerformed(ActionEvent e) {
-		MyTable age = MyDBTables.getTable("Agenzien");
+		MyTable age = DBKernel.myDBi.getTable("Agenzien");
 		Integer agensID = null;
 		try {agensID = Integer.parseInt(agensIDField.getText());}
 		catch (Exception e1) {}
@@ -385,7 +384,7 @@ public class MdReaderUi extends JPanel {
 	}
 
 	private void selectLiteratureButtonActionPerformed(ActionEvent e) {
-		MyTable lit = MyDBTables.getTable("Literatur");
+		MyTable lit = DBKernel.myDBi.getTable("Literatur");
 		Integer litID = null;
 		try {litID = Integer.parseInt(literatureIDField.getText());}
 		catch (Exception e1) {}

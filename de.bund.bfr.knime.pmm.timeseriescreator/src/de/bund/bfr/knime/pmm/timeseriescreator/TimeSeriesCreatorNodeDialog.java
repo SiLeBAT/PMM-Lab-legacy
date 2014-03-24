@@ -397,21 +397,21 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
-							.getValue(), Arrays.asList(Categories.getTemp()),
+							.getValue(), Arrays.asList(Categories.getTempCategory().getName()),
 					(String) tempBox.getSelectedItem()));
 		}
 
 		if (phField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
 					AttributeUtilities.ATT_PH, null, phField.getValue(), Arrays
-							.asList(Categories.getPh()), (String) phBox
+							.asList(Categories.getPhCategory().getName()), (String) phBox
 							.getSelectedItem()));
 		}
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 					AttributeUtilities.ATT_AW, null, waterActivityField
-							.getValue(), Arrays.asList(Categories.getAw()),
+							.getValue(), Arrays.asList(Categories.getAwCategory().getName()),
 					(String) awBox.getSelectedItem()));
 		}
 
@@ -1001,7 +1001,7 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_TEMPERATURE_ID,
 									AttributeUtilities.ATT_TEMPERATURE, null,
-									null, Arrays.asList(Categories.getTemp()),
+									null, Arrays.asList(Categories.getTempCategory().getName()),
 									Categories.getTempCategory()
 											.getStandardUnit()));
 							unitBoxes.get(column).removeAllItems();
@@ -1018,9 +1018,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_PH_ID,
 									AttributeUtilities.ATT_PH, null, null,
-									Arrays.asList(Categories.getPh()),
-									Categories.getPhCategory()
-											.getStandardUnit()));
+									Arrays.asList(Categories.getPhCategory().getName()),
+									Categories.getPhUnit()));
 							unitBoxes.get(column).removeAllItems();
 
 							for (String unit : Categories.getPhCategory()
@@ -1035,9 +1034,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							mappings.put(column, new MiscXml(
 									AttributeUtilities.ATT_AW_ID,
 									AttributeUtilities.ATT_AW, null, null,
-									Arrays.asList(Categories.getAw()),
-									Categories.getAwCategory()
-											.getStandardUnit()));
+									Arrays.asList(Categories.getAwCategory().getName()),
+									Categories.getAwUnit()));
 							unitBoxes.get(column).removeAllItems();
 
 							for (String unit : Categories.getAwCategory()

@@ -128,27 +128,23 @@ public class Categories {
 		return categories;
 	}
 
-	public static String getTemp() {
-		return "Temperature";
-	}
-
 	public static Category getTempCategory() {
-		return getCategory(getTemp());
-	}
-
-	public static String getPh() {
-		return "Dimensionless quantity";
+		return getCategory("Temperature");
 	}
 
 	public static Category getPhCategory() {
-		return getCategory(getPh());
-	}
-
-	public static String getAw() {
-		return "Dimensionless quantity";
+		return getCategory("Dimensionless quantity");
 	}
 
 	public static Category getAwCategory() {
-		return getCategory(getAw());
+		return getCategory("Dimensionless quantity");
+	}
+	
+	public static String getPhUnit() {
+		return "[pH]";
+	}
+	
+	public static String getAwUnit() {
+		return "[aw]";
 	}
 }

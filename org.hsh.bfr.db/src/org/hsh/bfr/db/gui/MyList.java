@@ -66,7 +66,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.dbtable.MyDBForm;
@@ -278,7 +277,7 @@ public void valueChanged(final TreeSelectionEvent event) {
     return false;
   } 
 	public void addAllTables() {
-		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);
 
@@ -305,11 +304,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 	}
 	
 	public MyTable getTable(final String tableName) {
-		if (MyDBTables.getAllTables().containsKey(tableName)) {
-			return MyDBTables.getAllTables().get(tableName);
-		} else {
-			return null;
-		}
+		return DBKernel.myDBi.getTable(tableName);
 	}
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final String mnTable, final String mnID, final MyDBForm dbForm) {
 	  return openNewWindow(theNewTable, value, headerValue, mnTable, mnID, dbForm, null);

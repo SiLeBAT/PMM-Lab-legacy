@@ -23,7 +23,6 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.ParseCarverXML;
@@ -204,8 +203,8 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	    			if (progress != null) {
 	    				progress.setVisible(false);
 	  	  			// Refreshen:
-    					DBKernel.doMNs(MyDBTables.getTable("ProzessWorkflow"));
-    					DBKernel.doMNs(MyDBTables.getTable("Prozessdaten"));
+    					DBKernel.doMNs(DBKernel.myDBi.getTable("ProzessWorkflow"));
+    					DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten"));
 	    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
 	    				MyTable myActT = myDB.getActualTable();
 	    				if (myActT != null) {

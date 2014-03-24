@@ -175,7 +175,7 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				next.addMisc(AttributeUtilities.ATT_TEMPERATURE_ID,
 						AttributeUtilities.ATT_TEMPERATURE,
 						AttributeUtilities.ATT_TEMPERATURE, value, Arrays
-								.asList(Categories.getTemp()), Categories
+								.asList(Categories.getTempCategory().getName()), Categories
 								.getTempCategory().getStandardUnit());
 				continue;
 			}
@@ -186,8 +186,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				// next.setPh(value);
 				next.addMisc(AttributeUtilities.ATT_PH_ID,
 						AttributeUtilities.ATT_PH, AttributeUtilities.ATT_PH,
-						value, Arrays.asList(Categories.getPh()), Categories
-								.getPhCategory().getStandardUnit());
+						value, Arrays.asList(Categories.getPhCategory().getName()), Categories
+								.getPhUnit());
 				continue;
 			}
 
@@ -198,8 +198,8 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 				next.addMisc(AttributeUtilities.ATT_AW_ID,
 						AttributeUtilities.ATT_AW,
 						AttributeUtilities.ATT_AW, value, Arrays
-								.asList(Categories.getAw()), Categories
-								.getAwCategory().getStandardUnit());
+								.asList(Categories.getAwCategory().getName()), Categories
+								.getAwUnit());
 				continue;
 			}
 

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sbml.jsbml.ASTNode;
 import org.sbml.jsbml.AlgebraicRule;
 import org.sbml.jsbml.Compartment;
 import org.sbml.jsbml.ListOf;
@@ -78,10 +79,12 @@ public class TableReader {
 
 	private Map<String, SBMLDocument> documents;
 
-	public TableReader(List<KnimeTuple> tuples) {
+	public TableReader(List<KnimeTuple> tuples, String modelName,
+			String varParams) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
+		int index = 1;
 
 		if (isTertiaryModel) {
 			tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
@@ -110,9 +113,11 @@ public class TableReader {
 				continue;
 			}
 
-			String modelID = "Model_Test" + Math.abs(estXml.getId());
+			String modelID = createId(modelName) + "_" + index;
 			SBMLDocument doc = new SBMLDocument(2, 4);
 			Model model = doc.createModel(modelID);
+
+			model.setName(modelName);
 
 			if (organismXml.getName() != null) {
 				Species s = model
@@ -162,8 +167,8 @@ public class TableReader {
 			}
 
 			try {
-				rules.add(new AlgebraicRule(new FormulaParser(new StringReader(
-						dep + "==" + formula)).parse(), 2, 4));
+				rules.add(new AlgebraicRule(ASTNode.eq(parse(dep),
+						parse(formula)), 2, 4));
 			} catch (ParseException e) {
 				e.printStackTrace();
 			}
@@ -173,7 +178,11 @@ public class TableReader {
 				ParamXml paramXml = (ParamXml) el;
 				Parameter param = model.createParameter(paramXml.getName());
 
-				param.setConstant(true);
+				if (paramXml.getName().equals(varParams)) {
+					param.setConstant(false);
+				} else {
+					param.setConstant(true);
+				}
 
 				if (paramXml.getValue() != null) {
 					param.setValue(paramXml.getValue());
@@ -203,24 +212,22 @@ public class TableReader {
 
 				if (MathUtilities.isValid(min) && MathUtilities.isValid(max)) {
 					try {
-						rules.add(new AlgebraicRule(
-								new FormulaParser(new StringReader(min + "<="
-										+ name + "<=" + max)).parse(), 2, 4));
+						rules.add(new AlgebraicRule(and(
+								parse(name + ">=" + min), parse(name + "<="
+										+ max)), 2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				} else if (MathUtilities.isValid(min)) {
 					try {
-						rules.add(new AlgebraicRule(new FormulaParser(
-								new StringReader(name + ">=" + min)).parse(),
+						rules.add(new AlgebraicRule(parse(name + ">=" + min),
 								2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 				} else if (MathUtilities.isValid(max)) {
 					try {
-						rules.add(new AlgebraicRule(new FormulaParser(
-								new StringReader(name + "<=" + max)).parse(),
+						rules.add(new AlgebraicRule(parse(name + "<=" + max),
 								2, 4));
 					} catch (ParseException e) {
 						e.printStackTrace();
@@ -246,6 +253,7 @@ public class TableReader {
 
 			model.setListOfRules(rules);
 			documents.put(modelID, doc);
+			index++;
 		}
 	}
 
@@ -314,5 +322,19 @@ public class TableReader {
 
 	private static String createId(String s) {
 		return s.replaceAll("\\W+", " ").trim().replace(" ", "_");
+	}
+
+	private static ASTNode parse(String s) throws ParseException {
+		return new FormulaParser(new StringReader(s)).parse();
+	}
+
+	private static ASTNode and(ASTNode left, ASTNode right) {
+		ASTNode relational = new ASTNode(ASTNode.Type.LOGICAL_AND,
+				left.getParentSBMLObject());
+
+		relational.addChild(left);
+		relational.addChild(right);
+
+		return relational;
 	}
 }

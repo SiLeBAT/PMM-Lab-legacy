@@ -33,16 +33,48 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.ui;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.Toolkit;
 
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JTable;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 public class UI {
 
 	private UI() {
+	}
+	
+	public static void packColumns(JTable table) {
+		for (int c = 0; c < table.getColumnCount(); c++) {
+			TableColumn col = table.getColumnModel().getColumn(c);
+
+			if (col.getPreferredWidth() == 0) {
+				continue;
+			}
+
+			TableCellRenderer renderer = col.getHeaderRenderer();
+			Component comp = table
+					.getTableHeader()
+					.getDefaultRenderer()
+					.getTableCellRendererComponent(table, col.getHeaderValue(),
+							false, false, 0, 0);
+			int width = comp.getPreferredSize().width + 20;
+
+			for (int r = 0; r < table.getRowCount(); r++) {
+				renderer = table.getCellRenderer(r, c);
+				comp = renderer.getTableCellRendererComponent(table,
+						table.getValueAt(r, c), false, false, r, c);
+				width = Math.max(width, comp.getPreferredSize().width);
+			}
+
+			width += 5;
+			col.setPreferredWidth(width);
+		}
 	}
 
 	public static void select(JComboBox<?> box, Object item) {

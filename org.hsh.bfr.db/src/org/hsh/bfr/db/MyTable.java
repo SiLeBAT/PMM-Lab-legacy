@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.Callable;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -68,9 +69,13 @@ public class MyTable {
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
 	private boolean hideScore = false;
 	private boolean hideTested = false;
-	private boolean hideKommentar = false;
-	private int child = -1;
-
+	private boolean hideComment = false;
+	private boolean readOnly = false;
+	private boolean odsn = false; // "ON DELETE SET NULL" for FOREIGN Keys (in MyTable)
+	private int child = -1; // Where to show in list
+	
+	private Callable<Void> caller4Trigger = null;
+	
 	// Parameter zum Abspeichern
 	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<Integer, Integer>();
 	private int[] colWidths = null;
@@ -98,9 +103,19 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null);		
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults) {
-		this.tableName = tableName;
+		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
+		/*
+		for (int i=0;i<fieldNames.length;i++) {
+			fieldNames[i] = GuiMessages.getString(fieldNames[i]).trim();
+		}
+		*/
 		this.fieldNames = fieldNames;
 		this.fieldTypes = fieldTypes;
+		/*
+		for (int i=0;i<fieldComments.length;i++) {
+			fieldComments[i] = fieldComments[i] == null ? null : GuiMessages.getString(fieldComments[i]).trim();
+		}
+		*/
 		this.fieldComments = fieldComments;
 		this.foreignFields = foreignFields;
 		this.uniqueFields = uniqueFields;
@@ -118,7 +133,7 @@ public class MyTable {
 			}			
 		}
 		catch (Exception e) {MyLogger.handleException(e);}
-		hideKommentar = tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") || tableName.equals("ComBaseImport")
+		hideComment = tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") || tableName.equals("ComBaseImport")
 		 || tableName.equals("Nachweisverfahren_Kits") || tableName.equals("Aufbereitungsverfahren_Kits") || tableName.equals("Methoden_Normen")
 		 || tableName.equals("Methodennormen") || tableName.equals("Labore_Methodiken") || tableName.equals("Labore_Matrices")
 		 || tableName.equals("Labore_Agenzien") || tableName.equals("Labore_Agenzien_Methodiken")
@@ -136,7 +151,7 @@ public class MyTable {
 		  || tableName.equals("GeschaetzteParameter") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 		  || tableName.equals("VarParMaps") || tableName.equals("DataSource");
 
-		 hideTested = hideKommentar || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
+		 hideTested = hideComment || tableName.equals("Users") || tableName.equals("Prozess_Verbindungen")
 		 || tableName.equals("Zutatendaten_Sonstiges") || tableName.equals("Versuchsbedingungen_Sonstiges") || tableName.equals("Messwerte_Sonstiges")
 		  || tableName.equals("Prozessdaten_Sonstiges") || tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || tableName.equals("Agens_Matrices")
 		 || tableName.equals("Kontakte") || tableName.equals("Codes_Agenzien") || tableName.equals("Literatur")
@@ -161,6 +176,30 @@ public class MyTable {
 
 		 hideScore = hideTested
 			 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");
+		 
+		readOnly = tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
+					tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
+					tableName.equals("ICD10_Kodes") || 
+					tableName.equals("Parametertyp") || tableName.equals("DataSource") ||
+					(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||
+					tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") ||
+					tableName.equals("GeschaetzteParameter") || 
+					tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
+					tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") || tableName.equals("GlobalModels") || 
+					DBKernel.isReadOnly();
+
+		odsn = true;
+		if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")
+				|| tableName.equals("Modell_Referenz") || tableName.equals("GeschaetzteModelle")
+				|| tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter")
+				|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
+				 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
+	}
+	public Callable<Void> getCaller4Trigger() {
+		return caller4Trigger;
+	}
+	public void setCaller4Trigger(Callable<Void> caller4Trigger) {
+		this.caller4Trigger = caller4Trigger;
 	}
 	public void setChild(int child) {
 		this.child = child;
@@ -255,19 +294,10 @@ public class MyTable {
 		return hideTested;
 	}
 	public boolean getHideKommentar() {
-		return hideKommentar;
+		return hideComment;
 	}
 	public boolean isReadOnly() {
-		return tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
-				tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
-				tableName.equals("ICD10_Kodes") || 
-				tableName.equals("Parametertyp") || tableName.equals("DataSource") ||
-				(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||
-				tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") ||
-				tableName.equals("GeschaetzteParameter") || 
-				tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
-				tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") ||
-				DBKernel.isReadOnly();
+		return readOnly || DBKernel.isReadOnly();
 	}
 	public Vector<Integer> getMyBLOBs() {
 		Vector<Integer> myBLOBs = new Vector<Integer>();
@@ -308,7 +338,7 @@ public class MyTable {
 	public int getNumFields() {
 		int add = 1; // ID
 		if (!hideScore) add++;
-		if (!hideKommentar) add++;
+		if (!hideComment) add++;
 		if (!hideTested) add++;
 		return fieldNames.length + add; // + ID + Kommentar + Guetescore + Geprueft
 	}
@@ -323,7 +353,7 @@ public class MyTable {
 	    	fieldDefs += "," + DBKernel.delimitL(fieldNames[i]);    		
 	    }
 	    if (!hideScore) fieldDefs += "," + DBKernel.delimitL("Guetescore");
-	    if (!hideKommentar) fieldDefs += "," + DBKernel.delimitL("Kommentar");
+	    if (!hideComment) fieldDefs += "," + DBKernel.delimitL("Kommentar");
 	    if (!hideTested) fieldDefs += "," + DBKernel.delimitL("Geprueft");
 		return "SELECT " + fieldDefs + " FROM " + DBKernel.delimitL(tableName);
 	}
@@ -354,12 +384,6 @@ public class MyTable {
     for (int i=0;i<fieldNames.length;i++) {
     	if (foreignFields[i] != null) {
     		if (mnTable == null || mnTable[i] == null || mnTable[i].length() == 0) {
-    			boolean odsn = true;
-    			if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")
-    					|| tableName.equals("Modell_Referenz") || tableName.equals("GeschaetzteModelle")
-    					|| tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter")
-    					|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
-    					 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
     			indexSQL.add("ALTER TABLE " + DBKernel.delimitL(tableName) + " ADD CONSTRAINT " + DBKernel.delimitL(tableName + "_fk_" + fieldNames[i] + "_" + i) +
     	        		" FOREIGN KEY (" + DBKernel.delimitL(fieldNames[i]) + ")" +
     	        		" REFERENCES " + DBKernel.delimitL(foreignFields[i].getTablename()) + " (" + DBKernel.delimitL("ID") + ") " + (odsn ? "ON DELETE SET NULL;" : ";"));
@@ -401,7 +425,7 @@ public class MyTable {
 	    	}
 	    }
 	  	if (!hideScore) fieldDefs += "," + DBKernel.delimitL("Guetescore") + " " + "INTEGER";
-	  	if (!hideKommentar) fieldDefs += "," + DBKernel.delimitL("Kommentar") + " " + "VARCHAR(1023)";
+	  	if (!hideComment) fieldDefs += "," + DBKernel.delimitL("Kommentar") + " " + "VARCHAR(1023)";
 	  	if (!hideTested) fieldDefs += "," + DBKernel.delimitL("Geprueft") + " " + "BOOLEAN";
 	    DBKernel.createTable(tableName, fieldDefs, getIndexSQL(), true, true);		
 	}
@@ -412,7 +436,7 @@ public class MyTable {
     	result += DBKernel.delimitL(fieldNames[i]) + "=?,";
     }
     if (!hideScore) result += DBKernel.delimitL("Guetescore") + "=?,";
-    if (!hideKommentar) result += DBKernel.delimitL("Kommentar") + "=?,";
+    if (!hideComment) result += DBKernel.delimitL("Kommentar") + "=?,";
     if (!hideTested) result += DBKernel.delimitL("Geprueft") + "=?,";
     if (result.length() > 0) result = result.substring(0, result.length() - 1); // letztes Komma weg!
     result += " WHERE " + DBKernel.delimitL("ID") + "=?";
@@ -437,7 +461,7 @@ public class MyTable {
       qms += "?,";
     }
     if (!hideScore) {result += DBKernel.delimitL("Guetescore") + ","; qms += "?,";}
-    if (!hideKommentar) {result += DBKernel.delimitL("Kommentar") + ","; qms += "?,";}
+    if (!hideComment) {result += DBKernel.delimitL("Kommentar") + ","; qms += "?,";}
     if (!hideTested) {result += DBKernel.delimitL("Geprueft") + ","; qms += "?,";}
     if (result.length() > 0) result = result.substring(0, result.length() - 1); // letztes Komma weg!
     if (qms.length() > 0) qms = qms.substring(0, qms.length() - 1); // letztes Komma weg!

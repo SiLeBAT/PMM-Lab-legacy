@@ -55,7 +55,7 @@ public class MergeDBsAPriori {
 				idConverter = new Hashtable<String, Integer>();
 				go4It(folder, "defad", "de6!§5ddy", myTs, myFromIDs);
 
-				LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+				LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 				for(String key : myTables.keySet()) {
 					DBKernel.doMNs(myTables.get(key));
 				}
@@ -325,7 +325,7 @@ public class MergeDBsAPriori {
 	}
     private void checkeDoppeltVergebeneDKZs(final Statement anfrage) {
     	System.err.println("checkeDoppeltVergebeneDKZs - Start");
-		LinkedHashMap<String, MyTable> myTables = MyDBTables.getAllTables();
+		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 		Hashtable<Integer, String> hash = new Hashtable<Integer, String>();
 		for(String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);

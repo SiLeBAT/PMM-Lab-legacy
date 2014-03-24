@@ -92,7 +92,6 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MyDBTables;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.SendMail;
@@ -659,7 +658,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 						    if (rs != null && rs.first()) {
 						    	do  {
 						    		Integer oldfID = rs.getInt("ID");
-						    		MyTable myfT = MyDBTables.getTable(fTablename);
+						    		MyTable myfT = DBKernel.myDBi.getTable(fTablename);
 						    		System.out.println(tablename + "-" + fTablename + " - oldfID: " + oldfID + "\toldID = " + oldID);
 						    		ResultSet rs2 = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(fTablename) +
 								    		" WHERE " + DBKernel.delimitL("ID") + "=" + oldfID, false);
@@ -678,7 +677,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 						    }
 						}					    		
 			    		else {//if (!mnTable[i].equals("DBL")) { // wurde ja schon bei copyKennzahlen gemacht, oder?
-				    		MyTable myMNT = MyDBTables.getTable(mnTable[i]);
+				    		MyTable myMNT = DBKernel.myDBi.getTable(mnTable[i]);
 				    		String sql = "SELECT * FROM " + DBKernel.delimitL(mnTable[i]) + " WHERE ";
 				    		if (tablename.equals("GeschaetzteModelle")) {
 				    			sql += DBKernel.delimitL("GeschaetztesModell");
@@ -1900,14 +1899,14 @@ if (myDBPanel1 != null) {
 			// Zutaten???
 			this.save(); // jetzt ja eigentlich nicht mehr notwendigm da ja toRow an copyKennzahlen übergeben wird - doppelt gemoppelt, ok, hält besser
 			// alle Kenzahlen
-			MyTable pd = MyDBTables.getTable("Prozessdaten");
+			MyTable pd = DBKernel.myDBi.getTable("Prozessdaten");
 			try {
 				copyKennzahlen(pd,(Integer)fromID,(Integer)toID, toRow);
 			}
 			catch (Exception e1) {e1.printStackTrace();}
 			//manageKZ("Prozessdaten", fromID, toID);
 			// Sonstiges
-			DBKernel.doMNs(MyDBTables.getTable("Prozessdaten_Sonstiges"));
+			DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten_Sonstiges"));
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
 					" WHERE " + DBKernel.delimitL("Prozessdaten") + "=" + toID, false);				
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
@@ -1920,7 +1919,7 @@ if (myDBPanel1 != null) {
 					DBKernel.delimitL("Prozessdaten_Sonstiges") +	" WHERE " + DBKernel.delimitL("Prozessdaten") + "=" + toID, false);
 			try {
 				if (rs != null && rs.first()) {
-					MyTable ps = MyDBTables.getTable("Prozessdaten_Sonstiges");
+					MyTable ps = DBKernel.myDBi.getTable("Prozessdaten_Sonstiges");
 					do {
 						try {
 							copyKennzahlen(ps,rs.getInt("ID"),rs.getInt("ID"));
@@ -1930,7 +1929,7 @@ if (myDBPanel1 != null) {
 				}
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
-			DBKernel.doMNs(MyDBTables.getTable("Prozessdaten_Sonstiges"));
+			DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten_Sonstiges"));
 		}
 	}
 	@Override

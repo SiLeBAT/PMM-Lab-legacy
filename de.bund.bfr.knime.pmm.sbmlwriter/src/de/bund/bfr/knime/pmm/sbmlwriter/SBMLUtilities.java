@@ -73,7 +73,12 @@ public class SBMLUtilities {
 		unit = unit.clone().simplify();
 
 		if (unit.isUnitKind()) {
-			return unit.getUnit(0).getKind();
+			Unit u = unit.getUnit(0);
+
+			if (u.getScale() == 0 && u.getExponent() == 1
+					&& u.getMultiplier() == 1) {
+				return unit.getUnit(0).getKind();
+			}
 		}
 
 		return null;

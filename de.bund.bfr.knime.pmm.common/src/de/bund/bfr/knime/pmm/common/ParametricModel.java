@@ -659,6 +659,14 @@ public class ParametricModel implements PmmXmlElementConvertable {
 			}
 		}
 	}
+	public void validateParams() {
+		for (PmmXmlElementConvertable el : independent.getElementSet()) {
+			if (el instanceof IndepXml) {
+				IndepXml ix = (IndepXml) el;
+				removeParam(ix.getName());
+			}
+		}
+	}
 	public void addIndepVar( final String varName ) {
 		addIndepVar(varName, Double.NaN, Double.NaN);
 	}

@@ -91,6 +91,7 @@ public class ModelTableModel extends JTable {
 		thePM = pm;
 		m_secondaryModels = secondaryModels;
 		this.radioButton3 = radioButton3;
+		thePM.validateParams();
 		this.revalidate();
 		hasChanged = false;
 		rowHasChanged = new HashMap<String, Boolean>();

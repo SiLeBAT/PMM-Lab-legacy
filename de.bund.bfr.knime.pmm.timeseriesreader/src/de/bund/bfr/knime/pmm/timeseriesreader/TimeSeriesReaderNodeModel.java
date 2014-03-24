@@ -229,7 +229,7 @@ CellIO.tttxcmldoc = 0;
         		Integer qualityScore = null;
     			if (result.getObject("Geprueft") != null) checked = result.getBoolean("Geprueft");
     			if (result.getObject("Guetescore") != null) qualityScore = result.getInt("Guetescore");
-        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
+        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString("Kommentar"), qualityScore, checked);
         		mdInfoDoc.add(mdix);
         		tuple.setMdInfo(mdInfoDoc);
 

@@ -1089,6 +1089,23 @@ public class MMC_M extends JPanel {
 		}
 	}
 
+	private void textField1FocusLost(FocusEvent e) {
+		ParametricModel pm = table.getPM();
+		if (pm != null) {
+			try {
+				pm.setComment(textField1.getText());
+			} catch (PmmException e1) {
+				e1.printStackTrace();
+			}
+		}
+	}
+
+	private void textField1KeyReleased(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			textField1FocusLost(null);
+		}
+	}
+
 	@SuppressWarnings({ "deprecation", "serial" })
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
@@ -1174,6 +1191,8 @@ public class MMC_M extends JPanel {
 					}
 		});
 		checkBox1 = new JCheckBox();
+		label14 = new JLabel();
+		textField1 = new JTextField();
 
 		//======== this ========
 		setBorder(new CompoundBorder(
@@ -1549,7 +1568,27 @@ public class MMC_M extends JPanel {
 				checkBox1ActionPerformed(e);
 			}
 		});
-		add(checkBox1, CC.xy(15, 25));
+		add(checkBox1, CC.xy(13, 25));
+
+		//---- label14 ----
+		label14.setText("Comment:");
+		label14.setHorizontalAlignment(SwingConstants.RIGHT);
+		add(label14, CC.xywh(15, 25, 3, 1));
+
+		//---- textField1 ----
+		textField1.addFocusListener(new FocusAdapter() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				textField1FocusLost(e);
+			}
+		});
+		textField1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				textField1KeyReleased(e);
+			}
+		});
+		add(textField1, CC.xywh(19, 25, 3, 1));
 
 		//---- buttonGroup1 ----
 		ButtonGroup buttonGroup1 = new ButtonGroup();
@@ -1604,5 +1643,7 @@ public class MMC_M extends JPanel {
 	private JLabel label11;
 	private JComboBox<Color> qScoreBox;
 	private JCheckBox checkBox1;
+	private JLabel label14;
+	private JTextField textField1;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 }

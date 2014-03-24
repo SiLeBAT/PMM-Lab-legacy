@@ -262,6 +262,8 @@ if (true) return null;
 			    		ppm.setRsquared(r2 == null ? Double.NaN : r2);
 			    		ppm.setAic(aic == null ? Double.NaN : aic);
 			    		ppm.setBic(bic == null ? Double.NaN : bic);
+			    		ppm.setQualityScore(emx.getQualityScore());
+			    		ppm.setComment(emx.getComment());
 					}
 					catch (Exception e) {
 						warnings += e.getMessage() + " -> ID: " + rowEstM1ID;
@@ -375,6 +377,8 @@ if (true) return null;
 						    		spm.setRsquared(r2);
 						    		spm.setAic(aic);
 						    		spm.setBic(bic);
+						    		spm.setQualityScore(emx.getQualityScore());
+						    		spm.setComment(emx.getComment());
 								}
 								catch (Exception e) {
 									warnings += e.getMessage() + " -> ID: " + rowEstM2ID;

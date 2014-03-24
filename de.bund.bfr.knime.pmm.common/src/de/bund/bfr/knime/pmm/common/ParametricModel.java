@@ -82,6 +82,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 
 	private static final String ATT_CHECKED = "ModelChecked";
 	private static final String ATT_QSCORE = "ModelQualityScore";
+	private static final String ATT_COMMENT = "ModelComment";
 
 	private DepXml depXml = null;
 	private PmmXmlDoc independent = null;
@@ -114,6 +115,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	
 	private Boolean isChecked;
 	private Integer qualityScore;
+	private String comment;
 		
 	private static final String ATT_LEVEL = "Level";
 	private String warningMsg = "";
@@ -129,6 +131,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		bic = Double.NaN;
 		isChecked = null;
 		qualityScore = null;
+		comment = null;
 		modelId = MathUtilities.getRandomNegativeInt();
 		estModelId = MathUtilities.getRandomNegativeInt();
 		
@@ -200,6 +203,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 					this.bic = emx.getBic();
 					this.qualityScore = emx.getQualityScore();
 					this.isChecked = emx.getChecked();
+					this.comment = emx.getComment();
 					this.fittedModelName = emx.getName();
 					break;
 				}
@@ -230,6 +234,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		estModelId = Integer.valueOf( modelElement.getAttributeValue( ATT_ESTMODELID ) );
 		
 		if (modelElement.getAttributeValue(ATT_CHECKED) != null && !modelElement.getAttributeValue(ATT_CHECKED).isEmpty()) isChecked = Boolean.valueOf( modelElement.getAttributeValue(ATT_CHECKED) );
+		if (modelElement.getAttributeValue(ATT_COMMENT) != null && !modelElement.getAttributeValue(ATT_COMMENT).isEmpty()) comment = modelElement.getAttributeValue(ATT_COMMENT);
 		if (modelElement.getAttributeValue(ATT_QSCORE) != null && !modelElement.getAttributeValue(ATT_QSCORE).isEmpty()) qualityScore = Integer.valueOf( modelElement.getAttributeValue(ATT_QSCORE) );
 		if (modelElement.getAttributeValue(ATT_RSS) != null) rss = Double.valueOf( modelElement.getAttributeValue(ATT_RSS) );
 		if (modelElement.getAttributeValue(ATT_RMS) != null) rms = Double.valueOf( modelElement.getAttributeValue(ATT_RMS) );
@@ -357,6 +362,12 @@ public class ParametricModel implements PmmXmlElementConvertable {
 	public void setWarning(String warningMsg) {
 		this.warningMsg = warningMsg;
 	}
+	public void setComment(String comment) {
+		this.comment = comment;
+	}
+	public String getComment() {
+		return comment;
+	}
 	public void setChecked(Boolean checked) {
 		this.isChecked = checked;
 	}
@@ -389,6 +400,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		PmmXmlDoc emDoc = new PmmXmlDoc();
 		int emid = getEstModelId();
 		EstModelXml emx = new EstModelXml(emid, fittedModelName, getRms(), getRsquared(), getAic(), getBic(), null, isChecked, qualityScore); // "EM_" + emid
+		emx.setComment(comment);
 		emDoc.add(emx);
 		return emDoc;
 	}
@@ -418,6 +430,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		clonedPM.setCondId(condId);
 		
 		clonedPM.setChecked(isChecked);
+		clonedPM.setComment(comment);
 		clonedPM.setQualityScore(qualityScore);
 		clonedPM.setFittedModelName(fittedModelName);
 		
@@ -993,6 +1006,7 @@ public class ParametricModel implements PmmXmlElementConvertable {
 		modelElement.setAttribute( ATT_AIC, String.valueOf( aic ) );
 		modelElement.setAttribute( ATT_BIC, String.valueOf( bic ) );
 		modelElement.setAttribute(ATT_CHECKED, isChecked == null ? "" : String.valueOf( isChecked ) );
+		modelElement.setAttribute(ATT_COMMENT, comment == null ? "" : comment);
 		modelElement.setAttribute( ATT_QSCORE, qualityScore == null ? "" : String.valueOf( qualityScore ) );
 
 		

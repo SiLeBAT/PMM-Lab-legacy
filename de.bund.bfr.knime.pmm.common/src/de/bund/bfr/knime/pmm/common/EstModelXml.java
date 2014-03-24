@@ -15,6 +15,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private static final String ATT_DOF = "dof";
 	private static final String ATT_QUALITYSCORE = "qualityScore";
 	private static final String ATT_CHECKED = "checked";
+	private static final String ATT_COMMENT = "comment";
 	private static final String ATT_DBUUID = "dbuuid";
 
 	private Integer id;
@@ -26,6 +27,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 	private Integer dof;
 	private Integer qualityScore;
 	private Boolean checked;
+	private String comment;
 	private String dbuuid;
 
 	public EstModelXml(Integer id, String name, Double rms, Double r2,
@@ -61,6 +63,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 						.getDouble(el, ATT_BIC), XmlHelper.getInt(el, ATT_DOF),
 				XmlHelper.getBoolean(el, ATT_CHECKED), XmlHelper.getInt(el,
 						ATT_QUALITYSCORE), XmlHelper.getString(el, ATT_DBUUID));
+		this.setComment(XmlHelper.getString(el, ATT_COMMENT));
 	}
 
 	@Override
@@ -76,6 +79,7 @@ public class EstModelXml implements PmmXmlElementConvertable {
 		ret.setAttribute(ATT_DOF, XmlHelper.getNonNull(dof));
 		ret.setAttribute(ATT_QUALITYSCORE, XmlHelper.getNonNull(qualityScore));
 		ret.setAttribute(ATT_CHECKED, XmlHelper.getNonNull(checked));
+		ret.setAttribute(ATT_COMMENT, XmlHelper.getNonNull(comment));
 		ret.setAttribute(ATT_DBUUID, XmlHelper.getNonNull(dbuuid));
 
 		return ret;
@@ -151,6 +155,14 @@ public class EstModelXml implements PmmXmlElementConvertable {
 
 	public void setChecked(Boolean checked) {
 		this.checked = checked;
+	}
+
+	public String getComment() {
+		return comment;
+	}
+
+	public void setComment(String comment) {
+		this.comment = comment;
 	}
 
 	public String getDbuuid() {

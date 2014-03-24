@@ -129,7 +129,7 @@ public class DBKernel {
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 	
-	public static String DBVersion = "1.7.8";
+	public static String DBVersion = "1.7.9";
 	public static boolean debug = true;
 	public static boolean isKrise = false;
 
@@ -2232,6 +2232,10 @@ public class DBKernel {
 		  	if (DBKernel.getDBVersion().equals("1.7.7")) {
 		  		UpdateChecker.check4Updates_177_178(); 
 		  		DBKernel.setDBVersion("1.7.8");
+		  	}
+		  	if (DBKernel.getDBVersion().equals("1.7.8")) {
+		  		UpdateChecker.check4Updates_178_179(); 
+		  		DBKernel.setDBVersion("1.7.9");
 		  	}
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
 			DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);		  	

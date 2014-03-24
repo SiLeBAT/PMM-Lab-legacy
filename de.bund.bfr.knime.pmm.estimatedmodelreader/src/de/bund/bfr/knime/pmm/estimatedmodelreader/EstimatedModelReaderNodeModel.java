@@ -248,7 +248,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
         		Integer qualityScore = null;
     			if (result.getObject("MDGeprueft") != null) checked = result.getBoolean("MDGeprueft");
     			if (result.getObject("MDGuetescore") != null) qualityScore = result.getInt("MDGuetescore");
-        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString(Bfrdb.ATT_COMMENT), qualityScore, checked);
+        		MdInfoXml mdix = new MdInfoXml(condID, "i"+condID, result.getString("MDKommentar"), qualityScore, checked);
         		mdInfoDoc.add(mdix);
         		tuple.setValue(TimeSeriesSchema.ATT_MDINFO, mdInfoDoc);
         		
@@ -319,6 +319,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			EstModelXml emx = new EstModelXml(emid, result.getString("FittedModelName"), rms, r2, aic, bic, null); // "EM_" + emid
 			if (result.getObject("Geprueft") != null) emx.setChecked(result.getBoolean("Geprueft"));
 			if (result.getObject("Guetescore") != null) emx.setQualityScore(result.getInt("Guetescore"));
+			if (result.getObject("Kommentar") != null) emx.setComment(result.getString("Kommentar"));
+			/*
+    		Object cmt = DBKernel.getValue(conn,"GeschaetzteModelle", "ID", ""+emid, "Kommentar");
+    		if (cmt != null) emx.setComment((String) cmt);
+*/
 			emDoc.add(emx);
 			tuple.setValue(Model1Schema.ATT_ESTMODEL, emDoc);
 
@@ -400,6 +405,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 				emx = new EstModelXml(emid, result.getString("FittedModelName2"), rms, r2, aic, bic, null);
 				if (result.getObject("Geprueft2") != null) emx.setChecked(result.getBoolean("Geprueft2"));
 				if (result.getObject("Guetescore2") != null) emx.setQualityScore(result.getInt("Guetescore2"));
+				if (result.getObject("Kommentar2") != null) emx.setQualityScore(result.getInt("Kommentar2"));
+				/*
+	    		cmt = DBKernel.getValue(conn,"GeschaetzteModelle", "ID", ""+emid, "Kommentar");
+	    		if (cmt != null) emx.setComment((String) cmt);
+	    		*/
 				emDoc.add(emx);
 				tuple.setValue(Model2Schema.ATT_ESTMODEL, emDoc);
 				

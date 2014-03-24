@@ -80,7 +80,6 @@ public class Bfrdb extends Hsqldbiface {
 	public static final String ATT_AGENTNAME = "Agensname";
 	public static final String ATT_AW = "aw";
 	public static final String ATT_COMBASEID = "ID_CB";
-	public static final String ATT_COMMENT = "Kommentar";
 	public static final String ATT_CONDITIONID = "Versuchsbedingung";
 	public static final String ATT_CONDITIONS = "b_f_details_CB";
 	public static final String ATT_CONDITION_MISCPARAM = "Versuchsbedingungen_Sonstiges";
@@ -150,7 +149,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXID+"\",\n"
 			+"    \""+REL_MATRIX+"\".\""+ATT_MATRIXNAME+"\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\""+ATT_MATRIXDETAIL+"\",\n"
-			+"    \"VersuchsbedingungenEinfach\".\""+ATT_COMMENT+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Kommentar\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Guetescore\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Geprueft\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
@@ -197,7 +196,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"DataView\".\"KonzentrationsObjectType\",\n"
 			+"    \"DataView\".\"Standardabweichung\",\n"
 			+"    \"DataView\".\"Wiederholungen\",\n"
-			+"    \"VersuchsbedingungenEinfach\".\""+ATT_COMMENT+"\",\n"
+			+"    \"VersuchsbedingungenEinfach\".\"Kommentar\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Guetescore\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Geprueft\",\n"
 			+"    \"VersuchsbedingungenEinfach\".\"Referenz\" AS \""+ATT_LITERATUREID+"\",\n"
@@ -409,7 +408,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"DataView\".\"KonzentrationsObjectType\",\n"
 			+"    \"DataView\".\"Standardabweichung\",\n"
 			+"    \"DataView\".\"Wiederholungen\",\n"
-			+"    \"MicrobialDataView\".\""+ATT_COMMENT+"\",\n"
+			+"    \"MicrobialDataView\".\"Kommentar\" AS \"MDKommentar\",\n"
 			+"    \"MicrobialDataView\".\"Guetescore\" AS \"MDGuetescore\",\n"
 			+"    \"MicrobialDataView\".\"Geprueft\" AS \"MDGeprueft\",\n"
 			+"    \"MicrobialDataView\".\""+ATT_LITERATUREID+"\",\n"
@@ -445,6 +444,7 @@ public class Bfrdb extends Hsqldbiface {
 			+"    \"EstModelPrimView\".\""+ATT_RSQUARED+"\",\n"
 			+"    \"EstModelPrimView\".\"AIC\",\n"
 			+"    \"EstModelPrimView\".\"BIC\",\n"
+			+"    \"EstModelPrimView\".\"Kommentar\",\n"
 			+"    \"EstModelPrimView\".\"Guetescore\",\n"
 			+"    \"EstModelPrimView\".\"Geprueft\",\n"
 			+"    \"EstModelPrimView\".\""+ATT_MIN+"\",\n"
@@ -1116,9 +1116,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 
 			if (isObjectPresent(REL_ESTMODEL, estModelId)) {
-				updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID);
+				updateEstModel(estModelId, fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID, pm.getComment());
 			} else {
-				estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID);
+				estModelId = insertEstModel(fittedModelName, condId, modelId, rms, r2, pm.getAic(), pm.getBic(), responseId, pm.getQualityScore(), workflowID, pm.getComment());
 				pm.setEstModelId(estModelId);
 			}
 			
@@ -2094,9 +2094,9 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private void updateEstModel( final int estModelId, String name, final int condId, final int modelId,
-		final double rms, final double rsquared, final double aic, final double bic, final int responseId, Integer qualityScore, Integer workflowID) {
+		final double rms, final double rsquared, final double aic, final double bic, final int responseId, Integer qualityScore, Integer workflowID, String comment) {
 		try {			
-			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE \"GeschaetzteModelle\" SET \"Name\"=?, \"Versuchsbedingung\"=?, \"Modell\"=?, \"RMS\"=?, \"Rsquared\"=?, \"AIC\"=?, \"BIC\"=?, \"Response\"=?, \"Guetescore\"=?, \"Kommentar\"=?, \"PMMLabWF\"=? WHERE \"ID\"=?");
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -2139,12 +2139,18 @@ public class Bfrdb extends Hsqldbiface {
 			else {
 				ps.setInt(9, qualityScore);
 			}
-			if (workflowID != null && workflowID > 0) {
-				ps.setInt(10, workflowID);
-			} else {
-				ps.setNull(10, Types.INTEGER);
+			if (comment == null) {
+				ps.setNull(10, Types.VARCHAR);
 			}
-			ps.setInt(11, estModelId);
+			else {
+				ps.setString(10, comment);
+			}
+			if (workflowID != null && workflowID > 0) {
+				ps.setInt(11, workflowID);
+			} else {
+				ps.setNull(11, Types.INTEGER);
+			}
+			ps.setInt(12, estModelId);
 			
 			ps.executeUpdate();
 			ps.close();
@@ -2153,10 +2159,10 @@ public class Bfrdb extends Hsqldbiface {
 	}
 	
 	private int insertEstModel(String name, final int condId, final int modelId, final Double rms,
-		final Double rsquared, final Double aic, final Double bic, final int responseId, Integer qualityScore, Integer workflowID) {		
+		final Double rsquared, final Double aic, final Double bic, final int responseId, Integer qualityScore, Integer workflowID, String comment) {		
 		int ret = -1;
 		try {			
-			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+			PreparedStatement ps = conn.prepareStatement("INSERT INTO \"GeschaetzteModelle\" (\"Name\", \"Versuchsbedingung\", \"Modell\", \"RMS\", \"Rsquared\", \"AIC\", \"BIC\", \"Response\", \"Guetescore\", \"Kommentar\", \"PMMLabWF\") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
 			if (name == null) {
 				ps.setNull(1, Types.VARCHAR);
 			} else {
@@ -2199,10 +2205,16 @@ public class Bfrdb extends Hsqldbiface {
 			else {
 				ps.setInt(9, qualityScore);
 			}
+			if (comment == null) {
+				ps.setNull(10, Types.VARCHAR);
+			}
+			else {
+				ps.setString(10, comment);
+			}
 			if (workflowID != null && workflowID > 0) {
-				ps.setInt(10, workflowID);
+				ps.setInt(11, workflowID);
 			} else {
-				ps.setNull(10, Types.INTEGER);
+				ps.setNull(11, Types.INTEGER);
 			}
 			
 			ps.executeUpdate();

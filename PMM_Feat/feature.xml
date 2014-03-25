@@ -14,11 +14,11 @@
    </copyright>
 
    <license>
-      PMM-Lab © 2013, Federal Institute for Risk Assessment (BfR),
+      PMM-Lab © 2014, Federal Institute for Risk Assessment (BfR),
 Germany
 PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within
 the KNIME software plattform (http://www.knime.org.).
-PMM-Lab © 2013, Federal Institute for Risk Assessment (BfR),
+PMM-Lab © 2014, Federal Institute for Risk Assessment (BfR),
 Germany
 Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de
 Developers and contributors to the PMM-Lab project are 
@@ -67,8 +67,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       <import plugin="org.knime.base"/>
       <import plugin="org.knime.core"/>
       <import plugin="org.knime.ext.svg"/>
-      <import plugin="org.knime.ext.jep"/>
       <import plugin="org.knime.ext.jfreechart"/>
+      <import plugin="org.knime.ext.jep"/>
+      <import plugin="com.thoughtworks.xstream" version="1.4.7" match="greaterOrEqual"/>
+      <import plugin="org.apache.xmlbeans" version="2.5.0" match="greaterOrEqual"/>
+      <import plugin="org.apache.commons.logging" version="1.0.4" match="greaterOrEqual"/>
+      <import plugin="org.apache.log4j" version="1.2.15" match="greaterOrEqual"/>
    </requires>
 
    <plugin

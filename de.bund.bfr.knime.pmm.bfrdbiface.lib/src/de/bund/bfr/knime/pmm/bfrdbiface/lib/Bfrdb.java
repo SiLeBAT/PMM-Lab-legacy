@@ -1386,6 +1386,7 @@ public class Bfrdb extends Hsqldbiface {
 	    						ps = conn.prepareStatement("INSERT INTO \"Versuchsbedingungen_Sonstiges\" (\"Versuchsbedingungen\", \"SonstigeParameter\", \"Wert\", \"Einheit\", \"Ja_Nein\") VALUES (?,?,?,?,?)");
 	    						ps.setInt(1, condId);
 	    						ps.setInt(2, paramID);
+	    						if (mx.getOrigUnit() == null) mx.setOrigUnit(mx.getUnit());
     							Object eid = mx.getOrigUnit() == null || mx.getOrigUnit().isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{mx.getOrigUnit()});
 	    						if (eid == null && (mx.getValue() == null || Double.isNaN(mx.getValue()))) {
 	    							ps.setNull(3, Types.DOUBLE);

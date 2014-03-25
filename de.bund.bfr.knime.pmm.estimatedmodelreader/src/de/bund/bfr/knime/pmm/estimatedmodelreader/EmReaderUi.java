@@ -60,6 +60,7 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_RMS = 2;
 	
 	private Double agentConc;
+	private Double defTemp, defPh, defAw;
 	
 	private SettingsHelper set = null;
 	
@@ -183,23 +184,24 @@ public class EmReaderUi extends JPanel {
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
 				if (key.equals(AttributeUtilities.ATT_TEMPERATURE)) {
-					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
-		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_TEMPERATURE, val);
-					where += getWhereCondition(level, "Temperatur", "Temperature", dtf[0].getValue(), dtf[1].getValue());							
+		    		if (defTemp != null) set.getParamXValues().put(AttributeUtilities.ATT_TEMPERATURE, defTemp); // temp
+					where += getWhereCondition(level, "Temperatur", AttributeUtilities.ATT_TEMPERATURE, dtf[0].getValue(), dtf[1].getValue());							
 				}
 				else if (key.equals(AttributeUtilities.ATT_PH)) {
-					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
-		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_PH, val);
+		    		if (defPh != null) set.getParamXValues().put(AttributeUtilities.ATT_PH, defPh);
 					where += getWhereCondition(level, "pH", "pH", dtf[0].getValue(), dtf[1].getValue());
 				}
 				else if (key.equals(AttributeUtilities.ATT_AW)) {
-					Double val = dtf[0].getValue() == null ? dtf[1].getValue() : dtf[0].getValue();
-		    		if (val != null) set.getParamXValues().put(AttributeUtilities.ATT_AW, val);
+		    		if (defAw != null) set.getParamXValues().put(AttributeUtilities.ATT_AW, defAw);
 					where += getWhereCondition(level, "aw", "aw", dtf[0].getValue(), dtf[1].getValue());
 				}
 			}
-			if (agentConc != null) set.getParamXValues().put("LOG10N0", agentConc);
-			
+    		if (agentConc != null && set.getNewConcentrationParameters() != null) {
+    			for (String val : set.getNewConcentrationParameters().values()) {
+    				set.getParamXValues().put(val, agentConc);
+    			}
+    		}
+			// SELECT "Independent2","minIndep2","maxIndep2" FROM "CACHE_selectEstModel2"  WHERE (POSITION_ARRAY('Temperature' IN "Independent2") > 0 AND "maxIndep2"[POSITION_ARRAY('Temperature' IN "Independent2")] >= 10.0) AND (POSITION_ARRAY('Temperature' IN "Independent2") > 0 AND "minIndep2"[POSITION_ARRAY('Temperature' IN "Independent2")] <= 30.0)
 	    	try {
 	    		boolean withoutMdData = withoutData.isSelected();
 	    		List<KnimeTuple> hs = null;
@@ -468,6 +470,9 @@ public class EmReaderUi extends JPanel {
 		setSettings(c, null, null, null, null, null, null);
 	}
 	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc) throws InvalidSettingsException {
+    	this.defTemp = defTemp;
+    	this.defPh = defPh;
+    	this.defAw = defAw;
     	this.agentConc = agentConc;
 		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 		if (c != null) {

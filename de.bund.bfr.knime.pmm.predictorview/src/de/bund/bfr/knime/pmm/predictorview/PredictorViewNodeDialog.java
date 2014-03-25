@@ -149,6 +149,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		writeSettingsToVariables();
 		return set;
 	}
+	
+	public TableReader getReader() {
+		return reader;
+	}
 
 	public ChartSamplePanel getSamplePanel() {
 		return samplePanel;

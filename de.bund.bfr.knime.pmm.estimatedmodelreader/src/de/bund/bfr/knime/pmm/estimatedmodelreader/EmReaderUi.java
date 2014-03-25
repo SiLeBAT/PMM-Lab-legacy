@@ -88,16 +88,6 @@ public class EmReaderUi extends JPanel {
 		set = new SettingsHelper();
 	}
 
-	private LinkedHashMap<String, Double[]> getParams(LinkedHashMap<String, DoubleTextField[]> params) {
-		LinkedHashMap<String, Double[]> parameter = new LinkedHashMap<String, Double[]>();
-		if (params != null && params.size() > 0) {
-    		for (String par : params.keySet()) {
-    			DoubleTextField[] dbl = params.get(par);
-    			parameter.put(par, new Double[]{dbl[0].getValue(), dbl[1].getValue()});
-    		}
-    	}
-		return parameter;
-	}
 	private String getWhereCondition(int level, String param, String param2, Double min, Double max) {
 		String result =
 				(min != null ? " AND (\"" + param + "\" >= " + min + " OR \"" + param + "\" IS NULL" +
@@ -181,6 +171,7 @@ public class EmReaderUi extends JPanel {
 			}
 			
     		int level = modelReaderUi.getLevel();
+    		/*
 			LinkedHashMap<String, DoubleTextField[]> params = mdReaderUi.getParameter();
 			for (String key : params.keySet()) {
 				DoubleTextField[] dtf = params.get(key);
@@ -202,6 +193,7 @@ public class EmReaderUi extends JPanel {
     				set.getParamXValues().put(val, agentConc);
     			}
     		}
+    		*/
 			// SELECT "Independent2","minIndep2","maxIndep2" FROM "CACHE_selectEstModel2"  WHERE (POSITION_ARRAY('Temperature' IN "Independent2") > 0 AND "maxIndep2"[POSITION_ARRAY('Temperature' IN "Independent2")] >= 10.0) AND (POSITION_ARRAY('Temperature' IN "Independent2") > 0 AND "minIndep2"[POSITION_ARRAY('Temperature' IN "Independent2")] <= 30.0)
 	    	try {
 	    		boolean withoutMdData = withoutData.isSelected();
@@ -210,7 +202,7 @@ public class EmReaderUi extends JPanel {
 					hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(),
 							EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), level, withoutMdData,
 							getQualityMode(), getQualityThresh(), mdReaderUi.getMatrixString(), mdReaderUi.getAgentString(), mdReaderUi.getLiteratureString(),
-							mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), getParams(mdReaderUi.getParameter()),
+							mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), null,
 							modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where, null);
 				} catch (PmmException e) {
 					e.printStackTrace();
@@ -222,28 +214,53 @@ public class EmReaderUi extends JPanel {
 		    	if (hs != null && hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false, true);
 		    		TableReader tr = pvnd.getReader();
+		    		LinkedHashMap<String, DoubleTextField[]> params = mdReaderUi.getParameter();
+					DoubleTextField[] dtf = params.get(AttributeUtilities.ATT_TEMPERATURE);
 		    		for (String s : tr.getTempParam().values()) {
 			    		if (defTemp != null) set.getParamXValues().put(s, defTemp);
+						if (dtf != null) where += getWhereCondition(level, "Temperatur", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
+					dtf = params.get(AttributeUtilities.ATT_AW);
 		    		for (String s : tr.getAwParam().values()) {
 			    		if (defAw != null) set.getParamXValues().put(s, defAw);
+						if (dtf != null) where += getWhereCondition(level, "aw", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
+					dtf = params.get(AttributeUtilities.ATT_PH);
 		    		for (String s : tr.getPhParam().values()) {
 			    		if (defPh != null) set.getParamXValues().put(s, defPh);
+						if (dtf != null) where += getWhereCondition(level, "pH", s, dtf[0].getValue(), dtf[1].getValue());							
 		    		}
-		    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
-		    		JPanel mainComponent = pvnd.getMainComponent();
-
-		    		JDialog dialog = new JDialog(parentFrame);
-		    		dialog.setModal(true);
-		    		dialog.add(mainComponent);
-		    		dialog.pack();
-		    		centerOnScreen(dialog, true);
-		    				    		
-		    		dialog.setVisible(true);
-		    		
-		    		set = pvnd.getSettings();
-		    		setSelectedFilterResults();
+					try {
+						hs = EstimatedModelReaderNodeModel.getKnimeTuples(db, db.getConnection(),
+								EstimatedModelReaderNodeModel.createSchema(withoutMdData, level), level, withoutMdData,
+								getQualityMode(), getQualityThresh(), mdReaderUi.getMatrixString(), mdReaderUi.getAgentString(), mdReaderUi.getLiteratureString(),
+								mdReaderUi.getMatrixID(), mdReaderUi.getAgentID(), mdReaderUi.getLiteratureID(), null,
+								modelReaderUi.isModelFilterEnabled(), modelReaderUi.getModelList(), where, null);
+					} catch (PmmException e) {
+						e.printStackTrace();
+					} catch (InvalidSettingsException e) {
+						e.printStackTrace();
+					}
+					if (hs != null && hs.size() > 0) {
+			    		if (agentConc != null && set.getNewConcentrationParameters() != null) {
+			    			for (String val : set.getNewConcentrationParameters().values()) {
+			    				set.getParamXValues().put(val, agentConc);
+			    			}
+			    		}
+			    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
+			    		JPanel mainComponent = pvnd.getMainComponent();
+	
+			    		JDialog dialog = new JDialog(parentFrame);
+			    		dialog.setModal(true);
+			    		dialog.add(mainComponent);
+			    		dialog.pack();
+			    		centerOnScreen(dialog, true);
+			    				    		
+			    		dialog.setVisible(true);
+			    		
+			    		set = pvnd.getSettings();
+			    		setSelectedFilterResults();
+					}
 		    	}
 		    	else {
 		  		    JOptionPane.showMessageDialog(parentFrame, "No models found for defined filter!", "No models found", JOptionPane.INFORMATION_MESSAGE);

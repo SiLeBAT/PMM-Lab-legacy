@@ -257,6 +257,7 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Messwerte") + " WHERE " + DBKernel.delimitL("Versuchsbedingungen") + "=" + tsID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Versuchsbedingungen_Sonstiges") + " WHERE " + DBKernel.delimitL("Versuchsbedingungen") + "=" + tsID, false, false);
+		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("ImportedCombaseData") + " WHERE " + DBKernel.delimitL("Versuchsbedingung") + "=" + tsID, false, false);
 		numDBSuccesses += DBKernel.sendRequestGetAffectedRowNumber(conn, "DELETE FROM " + DBKernel.delimitL("Versuchsbedingungen") + " WHERE " + DBKernel.delimitL("ID") + "=" + tsID, false, false);
 		
 		return numDBSuccesses;

@@ -197,6 +197,7 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 
 				misc.setValue(set.getConditionValues().get(miscID).get(id));
 				misc.setUnit(set.getConditionUnits().get(miscID).get(id));
+				misc.setOrigUnit(set.getConditionUnits().get(miscID).get(id));
 				miscXml.add(misc);
 			}
 
@@ -234,7 +235,8 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 	@Override
 	protected DataTableSpec[] configure(final DataTableSpec[] inSpecs)
 			throws InvalidSettingsException {
-		if (!SchemaFactory.createDataSchema().conforms(inSpecs[0])) {
+		if (!SchemaFactory.createDataSchema().conforms(inSpecs[0])
+				|| SchemaFactory.createM1Schema().conforms(inSpecs[0])) {
 			throw new InvalidSettingsException("Wrong input");
 		}
 

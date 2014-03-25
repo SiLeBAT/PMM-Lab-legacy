@@ -161,7 +161,7 @@ public class TableReader {
 			String dep = depXml.getName();
 
 			if (depXml.getUnit().startsWith("log")) {
-				dep = "log(" + dep + ")";
+				dep = "log10(" + dep + ")";
 			} else if (depXml.getUnit().startsWith("ln")) {
 				dep = "ln(" + dep + ")";
 			}

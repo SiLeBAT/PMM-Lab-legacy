@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -33,6 +34,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.ui.*;
 import de.bund.bfr.knime.pmm.predictorview.PredictorViewNodeDialog;
 import de.bund.bfr.knime.pmm.predictorview.SettingsHelper;
+import de.bund.bfr.knime.pmm.predictorview.TableReader;
 import de.bund.bfr.knime.pmm.timeseriesreader.*;
 
 /**
@@ -220,6 +222,17 @@ public class EmReaderUi extends JPanel {
 	    		Frame parentFrame = JOptionPane.getFrameForComponent(this);
 		    	if (hs != null && hs.size() > 0) {
 		    		PredictorViewNodeDialog pvnd = new PredictorViewNodeDialog(hs, set, false, true);
+		    		TableReader tr = pvnd.getReader();
+		    		for (String s : tr.getTempParam().values()) {
+			    		if (defTemp != null) set.getParamXValues().put(s, defTemp);
+		    		}
+		    		for (String s : tr.getAwParam().values()) {
+			    		if (defAw != null) set.getParamXValues().put(s, defAw);
+		    		}
+		    		for (String s : tr.getPhParam().values()) {
+			    		if (defPh != null) set.getParamXValues().put(s, defPh);
+		    		}
+		    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
 		    		JPanel mainComponent = pvnd.getMainComponent();
 
 		    		JDialog dialog = new JDialog(parentFrame);

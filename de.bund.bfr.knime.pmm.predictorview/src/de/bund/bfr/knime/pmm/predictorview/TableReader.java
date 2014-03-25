@@ -61,6 +61,10 @@ public class TableReader {
 	private Map<String, String> longLegend;
 	private Map<String, String> shortIds;
 
+	private Map<String, String> tempParam;
+	private Map<String, String> phParam;
+	private Map<String, String> awParam;
+
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
 			Map<String, String> lagParams) {
 		Set<String> idSet = new LinkedHashSet<String>();
@@ -141,6 +145,9 @@ public class TableReader {
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
 		shortIds = new LinkedHashMap<String, String>();
+		tempParam = new LinkedHashMap<String, String>();
+		phParam = new LinkedHashMap<String, String>();
+		awParam = new LinkedHashMap<String, String>();
 		formulas = new ArrayList<String>();
 		parameterData = new ArrayList<Map<String, Double>>();
 		doubleColumns = Arrays.asList(Model1Schema.SSE, Model1Schema.MSE,
@@ -293,6 +300,19 @@ public class TableReader {
 				categories.put(element.getName(),
 						Arrays.asList(element.getCategory()));
 				units.put(element.getName(), element.getUnit());
+
+				if (Categories.getTempCategory().equals(
+						Categories.getCategoryByUnit(element.getUnit()))) {
+					tempParam.put(id, element.getName());
+				}
+
+				if (Categories.getPhUnit().equals(element.getUnit())) {
+					phParam.put(id, element.getName());
+				}
+
+				if (Categories.getAwUnit().equals(element.getUnit())) {
+					awParam.put(id, element.getName());
+				}
 			}
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
@@ -610,6 +630,18 @@ public class TableReader {
 
 	public Map<KnimeTuple, List<KnimeTuple>> getCombinedTuples() {
 		return combinedTuples;
+	}
+
+	public Map<String, String> getTempParam() {
+		return tempParam;
+	}
+
+	public Map<String, String> getPhParam() {
+		return phParam;
+	}
+
+	public Map<String, String> getAwParam() {
+		return awParam;
 	}
 
 	private List<KnimeTuple> getAllDataTuples(KnimeTuple current,

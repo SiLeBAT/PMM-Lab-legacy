@@ -10,7 +10,7 @@ Require-Bundle: org.eclipse.ui,
  org.apache.poi,
  org.knime.ext.jfreechart,
  com.jgoodies,
- com.thoughtworks.xstream;bundle-version="1.4.7"
+ com.thoughtworks.xstream
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Export-Package: org.hsh.bfr.db,

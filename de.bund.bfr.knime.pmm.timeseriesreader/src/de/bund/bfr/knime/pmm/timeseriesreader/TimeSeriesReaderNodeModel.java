@@ -209,7 +209,7 @@ CellIO.tttxcmldoc = 0;
         				result.getArray("Beschreibung"), result.getArray("SonstigesWert"), result.getArray("Einheit"));
         		if (result.getObject(Bfrdb.ATT_TEMPERATURE) != null) {
             		double dbl = result.getDouble(Bfrdb.ATT_TEMPERATURE);
-        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,null,"°C");
+        			MiscXml mx = new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,AttributeUtilities.ATT_TEMPERATURE,AttributeUtilities.ATT_TEMPERATURE,dbl,Arrays.asList(Categories.getTempCategory().getName()),Categories.getTempCategory().getStandardUnit());//null,"°C");
         			miscDoc.add(mx);
         		}
         		if (result.getObject(Bfrdb.ATT_PH) != null) {

@@ -142,7 +142,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		showSamplePanel = false;
+		showSamplePanel = false;		
 	}
 
 	public SettingsHelper getSettings() {
@@ -175,6 +175,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
+		selectionPanel.selectFirstRow();
 	}
 
 	@Override

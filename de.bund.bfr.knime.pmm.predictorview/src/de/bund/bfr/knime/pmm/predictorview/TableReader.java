@@ -22,6 +22,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -178,9 +179,11 @@ public class TableReader {
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
 			stringColumnValues.add(new ArrayList<String>());
-			standardVisibleColumns = new ArrayList<String>(Arrays.asList(
-					IDENTIFIER, Model1Schema.MODELNAME, Model2Schema.MODELNAME,
-					Model1Schema.FITTEDMODELNAME, ChartConstants.STATUS));
+			standardVisibleColumns = new ArrayList<String>(
+					Arrays.asList(ChartSelectionPanel.FORMULA,
+							ChartSelectionPanel.PARAMETERS));
+			standardVisibleColumns.addAll(stringColumns);
+			standardVisibleColumns.addAll(doubleColumns);
 			filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 			miscParams = PmmUtilities.getIndeps(tuples);
@@ -210,10 +213,11 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
-						IDENTIFIER, Model1Schema.MODELNAME,
-						ChartConstants.STATUS, Model1Schema.FITTEDMODELNAME,
-						AttributeUtilities.DATAID));
+				standardVisibleColumns = new ArrayList<String>(
+						Arrays.asList(ChartSelectionPanel.FORMULA,
+								ChartSelectionPanel.PARAMETERS));
+				standardVisibleColumns.addAll(stringColumns);
+				standardVisibleColumns.addAll(doubleColumns);				
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
@@ -237,9 +241,11 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = Arrays.asList(IDENTIFIER,
-						Model1Schema.MODELNAME, Model1Schema.FITTEDMODELNAME,
-						ChartConstants.STATUS);
+				standardVisibleColumns = new ArrayList<String>(
+						Arrays.asList(ChartSelectionPanel.FORMULA,
+								ChartSelectionPanel.PARAMETERS));
+				standardVisibleColumns.addAll(stringColumns);
+				standardVisibleColumns.addAll(doubleColumns);
 				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 						ChartConstants.STATUS);
 			}

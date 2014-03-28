@@ -96,7 +96,7 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
-			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.FORMULA,
 					Model1Schema.ATT_EMLIT, ChartConstants.STATUS,
 					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
 					AttributeUtilities.AGENT_DETAILS,
@@ -134,7 +134,7 @@ public class TableReader {
 					ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
 			standardVisibleColumns.addAll(doubleColumns);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
 			data = new ArrayList<List<TimeSeriesXml>>();
@@ -151,7 +151,7 @@ public class TableReader {
 				standardVisibleColumns.add(param);
 			}
 		} else {
-			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.FORMULA,
 					Model1Schema.ATT_EMLIT, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
@@ -170,7 +170,7 @@ public class TableReader {
 					ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
 			standardVisibleColumns.addAll(doubleColumns);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS);
 
 			data = null;
@@ -207,13 +207,13 @@ public class TableReader {
 			}
 
 			ids.add(id);
-			
+
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			PmmXmlDoc estModelXml = tuple.getPmmXml(Model1Schema.ATT_ESTMODEL);
 			DepXml depXml = (DepXml) tuple
 					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-			String modelName = modelXml.getName();			
+			String modelName = modelXml.getName();
 			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
 					.getFormula());
 			String depVar = depXml.getName();

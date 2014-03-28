@@ -167,8 +167,8 @@ public class TableReader {
 
 		if (isTertiaryModel) {
 			stringColumns = Arrays.asList(IDENTIFIER, ChartConstants.STATUS,
-					Model1Schema.MODELNAME, Model1Schema.ATT_EMLIT,
-					Model1Schema.FITTEDMODELNAME, Model2Schema.MODELNAME,
+					Model1Schema.FORMULA, Model1Schema.ATT_EMLIT,
+					Model1Schema.FITTEDMODELNAME, Model2Schema.FORMULA,
 					TimeSeriesSchema.ATT_AGENT, TimeSeriesSchema.ATT_MATRIX);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
@@ -203,7 +203,7 @@ public class TableReader {
 		} else {
 			if (containsData) {
 				stringColumns = Arrays.asList(IDENTIFIER,
-						ChartConstants.STATUS, Model1Schema.MODELNAME,
+						ChartConstants.STATUS, Model1Schema.FORMULA,
 						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME,
 						AttributeUtilities.DATAID);
 				stringColumnValues = new ArrayList<List<String>>();
@@ -213,11 +213,11 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<String>(
-						Arrays.asList(ChartSelectionPanel.FORMULA,
-								ChartSelectionPanel.PARAMETERS));
+				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+						ChartSelectionPanel.FORMULA,
+						ChartSelectionPanel.PARAMETERS));
 				standardVisibleColumns.addAll(stringColumns);
-				standardVisibleColumns.addAll(doubleColumns);				
+				standardVisibleColumns.addAll(doubleColumns);
 				filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 
 				miscParams = PmmUtilities.getMiscParams(tuples);
@@ -233,7 +233,7 @@ public class TableReader {
 				}
 			} else {
 				stringColumns = Arrays.asList(IDENTIFIER,
-						ChartConstants.STATUS, Model1Schema.MODELNAME,
+						ChartConstants.STATUS, Model1Schema.FORMULA,
 						Model1Schema.ATT_EMLIT, Model1Schema.FITTEDMODELNAME);
 				stringColumnValues = new ArrayList<List<String>>();
 				stringColumnValues.add(new ArrayList<String>());
@@ -241,12 +241,12 @@ public class TableReader {
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
 				stringColumnValues.add(new ArrayList<String>());
-				standardVisibleColumns = new ArrayList<String>(
-						Arrays.asList(ChartSelectionPanel.FORMULA,
-								ChartSelectionPanel.PARAMETERS));
+				standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+						ChartSelectionPanel.FORMULA,
+						ChartSelectionPanel.PARAMETERS));
 				standardVisibleColumns.addAll(stringColumns);
 				standardVisibleColumns.addAll(doubleColumns);
-				filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+				filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 						ChartConstants.STATUS);
 			}
 		}

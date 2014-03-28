@@ -120,7 +120,7 @@ public class TableReader {
 		formulas = new ArrayList<String>();
 		parameterData = new ArrayList<Map<String, Double>>();
 		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.MODELNAME, Model2Schema.ATT_EMLIT,
+				Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
 				ChartConstants.STATUS);
 		stringColumnValues = new ArrayList<List<String>>();
 		stringColumnValues.add(new ArrayList<String>());

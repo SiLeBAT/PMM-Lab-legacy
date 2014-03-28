@@ -138,7 +138,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		set.setUnitY(configPanel.getUnitY());
 		set.setTransformX(configPanel.getTransformX());
 		set.setTransformY(configPanel.getTransformY());
-		set.setModelFilter(selectionPanel.getFilter(Model1Schema.MODELNAME));
+		set.setModelFilter(selectionPanel.getFilter(Model1Schema.FORMULA));
 		set.setDataFilter(selectionPanel.getFilter(AttributeUtilities.DATAID));
 		set.setFittedFilter(selectionPanel.getFilter(ChartConstants.STATUS));
 		set.saveSettings(settings);
@@ -197,7 +197,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		selectionPanel.setColors(set.getColors());
 		selectionPanel.setShapes(set.getShapes());
 		selectionPanel.setColumnWidths(set.getColumnWidths());
-		selectionPanel.setFilter(Model1Schema.MODELNAME, set.getModelFilter());
+		selectionPanel.setFilter(Model1Schema.FORMULA, set.getModelFilter());
 		selectionPanel
 				.setFilter(AttributeUtilities.DATAID, set.getDataFilter());
 		selectionPanel.setFilter(ChartConstants.STATUS, set.getFittedFilter());

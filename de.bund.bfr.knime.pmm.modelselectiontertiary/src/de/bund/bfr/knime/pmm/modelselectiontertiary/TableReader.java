@@ -110,7 +110,7 @@ public class TableReader {
 			}
 
 			miscParams = PmmUtilities.getMiscParams(tuples);
-			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.FORMULA,
 					Model1Schema.ATT_EMLIT, ChartConstants.STATUS,
 					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
 					AttributeUtilities.AGENT_DETAILS,
@@ -148,7 +148,7 @@ public class TableReader {
 					ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
 			standardVisibleColumns.addAll(doubleColumns);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS, AttributeUtilities.DATAID);
 
 			data = new ArrayList<List<TimeSeriesXml>>();
@@ -165,7 +165,7 @@ public class TableReader {
 				standardVisibleColumns.add(param);
 			}
 		} else {
-			stringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			stringColumns = Arrays.asList(Model1Schema.FORMULA,
 					Model1Schema.ATT_EMLIT, ChartConstants.STATUS);
 			stringColumnValues = new ArrayList<List<String>>();
 			stringColumnValues.add(new ArrayList<String>());
@@ -184,7 +184,7 @@ public class TableReader {
 							ChartSelectionPanel.PARAMETERS));
 			standardVisibleColumns.addAll(stringColumns);
 			standardVisibleColumns.addAll(doubleColumns);
-			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
+			filterableStringColumns = Arrays.asList(Model1Schema.FORMULA,
 					ChartConstants.STATUS);
 
 			data = null;

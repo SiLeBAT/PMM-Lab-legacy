@@ -327,6 +327,9 @@ public class TableReader {
 				if (element.getName().equals(initParam)
 						|| element.getName().equals(lagParam)) {
 					variables.put(element.getName(), new ArrayList<Double>());
+					units.put(element.getName(), element.getUnit());
+					categories.put(element.getName(),
+							Arrays.asList(element.getCategory()));
 					varMin.put(element.getName(), element.getMin());
 					varMax.put(element.getName(), element.getMax());
 

@@ -1054,57 +1054,6 @@ public class DBKernel {
 	      }
       }
   }  
-  /*
-   * 
-   * 
-   * 
-   * 
-   */
-/*
-  private static void startHsqldbServer(final String filename, final String DBname) {
-      boolean isNetwork = true;
-      if (isNetwork) {
-          Server server = new Server();
-
-          server.setDatabaseName(0, DBname);
-          server.setDatabasePath(0, filename);
-          server.setSilent(true);
-          //server.setLogWriter(null);
-          //server.setErrWriter(null);
-          server.start();
-      }
-      //insertTestData();
-      //readTestData();
-
-      /*
-      try {
-          Thread.sleep(5000L);
-      } catch (InterruptedException e) {
-          MyLogger.handleException(e);
-      }
-*/
-      //shutdownDataBase();
-//  }
-  /*
-  public static void main(String[] args) { 
-	  if (args.length > 1) {
-		  startHsqldbServer(args[0], args[1]);
-	  }
-  }
-*/
-  /*
-  private static Object getCryptKey() {
-  	Object result = null;
-		ResultSet rs = getResultSet("SELECT CRYPT_KEY('Blowfish', null) FROM " + delimitL("Users"), true);
-		try {
-			if (rs != null && rs.first()) {
-				result = rs.getObject(1);
-			}
-		}
-		catch (Exception e) {MyLogger.handleException(e);}
-		return result;
-  }
-  */
   public static Integer getMaxID(final String tablename) {
 	  Integer result = null;
 	  String sql = "SELECT TOP 1 " + delimitL("ID") + " FROM " + delimitL(tablename) + " ORDER BY " + delimitL("ID") + " DESC";

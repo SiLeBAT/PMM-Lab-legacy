@@ -112,6 +112,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		mainComponent = createMainComponent();
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(mainComponent);
+		selectionPanel.selectFirstRow();
 	}
 
 	@Override

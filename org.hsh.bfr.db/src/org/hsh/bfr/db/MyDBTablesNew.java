@@ -1,6 +1,8 @@
 package org.hsh.bfr.db;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 
 import org.hsh.bfr.db.gui.MyList;
@@ -769,7 +771,9 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					null,h1,null,null,allHashes.get("Freigabe"),null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,"INT",null,null,null,null,null,null,
-					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null});
+					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null},
+				null,
+				new HashSet<String>(Arrays.asList("Agens","Matrix")));
 		addTable(tenazity_raw_data, MyList.Tenazitaet_LIST);
 		MyTable tenazity_measured_vals = new MyTable("Messwerte", new String[]{"Versuchsbedingungen","Zeit","ZeitEinheit",
 				"Delta","Konzentration","Konz_Einheit",
@@ -1234,7 +1238,11 @@ public class MyDBTablesNew extends MyDBI {
 				"IfSG-Meldung, kennzeichnet, dass bei Diagnosen,die mit dieser Schluesselnummer kodiert sind, besonders auf die Arzt-Meldepflicht nach dem Infektionsschutzgesetz IfSG) hinzuweisen ist: J = Ja; N = Nein","IfSG-Labor, kennzeichnet, dass bei Laboruntersuchungen zu diesen Diagnosen die Laborausschlussziffer des EBM (32006) gewaehlt werden kann: J = Ja; N = Nein"},
 				new MyTable[]{null,null,null,ICD10_Kapitel,ICD10_Gruppen,null,null,null,null,null,null,ICD10_MortL1,ICD10_MortL2,ICD10_MortL3,ICD10_MortL4,ICD10_MorbL,
 				null,null,null,null,null,null,null,null,null,null,null},
-				new String[][]{{"Code"},{"NormCode"},{"CodeOhnePunkt"}});
+				new String[][]{{"Code"},{"NormCode"},{"CodeOhnePunkt"}},
+				null,
+				null,
+				null,
+				new HashSet<String>(Arrays.asList("Titel")));
 		addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}	

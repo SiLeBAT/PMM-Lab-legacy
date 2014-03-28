@@ -37,6 +37,7 @@
 package org.hsh.bfr.db;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
@@ -67,6 +68,8 @@ public class MyTable {
 	private String[][] uniqueFields = null;
 	private String[] defaults = null;
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
+	private HashSet<String> fields2ViewInGui = null;
+
 	private boolean hideScore = false;
 	private boolean hideTested = false;
 	private boolean hideComment = false;
@@ -103,6 +106,9 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null);		
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults) {
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null, null);
+	}
+	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, HashSet<String> fields2ViewInGui) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -122,6 +128,7 @@ public class MyTable {
 		this.foreignHashs = foreignHashs;
 		this.mnTable = mnTable;
 		this.defaults = defaults;
+		this.fields2ViewInGui = fields2ViewInGui;
 		try {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
@@ -206,6 +213,9 @@ public class MyTable {
 	}
 	public int getChild() {
 		return child;
+	}
+	public HashSet<String> getFields2ViewInGui() {
+		return fields2ViewInGui;
 	}
 	public void saveProperties(MyDBForm myForm) {
 		form_SelectedID = myForm.getSelectedID();

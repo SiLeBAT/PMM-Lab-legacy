@@ -179,8 +179,11 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS);
+			standardVisibleColumns = new ArrayList<String>(
+					Arrays.asList(ChartSelectionPanel.FORMULA,
+							ChartSelectionPanel.PARAMETERS));
+			standardVisibleColumns.addAll(stringColumns);
+			standardVisibleColumns.addAll(doubleColumns);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS);
 

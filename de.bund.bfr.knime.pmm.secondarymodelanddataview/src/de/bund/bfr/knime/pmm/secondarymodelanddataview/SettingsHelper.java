@@ -85,7 +85,7 @@ public class SettingsHelper {
 	protected static final boolean DEFAULT_DRAWLINES = false;
 	protected static final boolean DEFAULT_SHOWLEGEND = true;
 	protected static final boolean DEFAULT_ADDLEGENDINFO = false;
-	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = false;
+	protected static final boolean DEFAULT_DISPLAYHIGHLIGHTED = true;
 	protected static final boolean DEFAULT_EXPORTASSVG = false;
 	protected static final boolean DEFAULT_SHOWCONFIDENCE = false;
 	protected static final String DEFAULT_TRANSFORM = ChartConstants.NO_TRANSFORM;

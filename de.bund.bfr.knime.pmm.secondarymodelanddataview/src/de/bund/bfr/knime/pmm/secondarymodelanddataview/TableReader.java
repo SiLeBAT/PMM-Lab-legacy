@@ -56,6 +56,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -136,8 +137,9 @@ public class TableReader {
 		doubleColumnValues.add(new ArrayList<Double>());
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		standardVisibleColumns = new ArrayList<String>(Arrays.asList(
-				Model2Schema.ATT_DEPENDENT, Model2Schema.MODELNAME,
-				ChartConstants.STATUS));
+				ChartSelectionPanel.FORMULA, ChartSelectionPanel.PARAMETERS));
+		standardVisibleColumns.addAll(stringColumns);
+		standardVisibleColumns.addAll(doubleColumns);
 
 		if (schemaContainsData) {
 			try {

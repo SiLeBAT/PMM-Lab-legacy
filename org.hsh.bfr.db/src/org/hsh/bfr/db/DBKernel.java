@@ -1194,7 +1194,48 @@ public class DBKernel {
   public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper) {
 	  return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, false);
   }
+  private static String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim, final boolean newRow, HashSet<MyTable> alreadyUsed) {
+	  String result = "";
+		if (id == null) {
+			;
+		}
+		else if (foreignFields != null && i > 1 && foreignFields.length > i-2 && foreignFields[i-2] != null) {
+			if (goDeeper) {
+			    LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i-2], startDelim, delimiter, endDelim, goDeeper && !alreadyUsed.contains(foreignFields[i-2]), false, alreadyUsed); //" | " " ; "
+			    if (hashBox != null && hashBox.get(id) != null) {
+			    	String ssttrr = hashBox.get(id).toString();
+			    	result = ssttrr.trim().length() == 0 ? "" : ssttrr;   	// ft + ":\n" + 
+			    }
+			    else if (mnTable != null && i > 1 && i-2 < mnTable.length && mnTable[i-2] != null && mnTable[i-2].length() > 0) {
+			    	result = "";
+			    	//System.err.println("isMN..." + ft);
+			    }
+			    else {	
+			    	System.err.println("hashBox überprüfen...\t" + id);
+			    	result = "";//ft + ": leer\n";
+			    }
+			}
+			else {
+				String ft = foreignFields[i-2].getTablename(); 
+				result = ft + "-ID: " + id + "\n";
+			}
+		}
+        else {
+        	result = (id instanceof Double ? DBKernel.getDoubleStr(id) : id.toString());
+        }
+        if (result.length() > 0) {
+			if (mnTable != null && i > 1 && i-2 < mnTable.length && mnTable[i-2] != null && mnTable[i-2].length() > 0) { // MN-Tabellen, wie z.B. INT oder DBL sollten hier unsichtbar bleiben!
+			}
+			else {
+				result += (newRow ? "\n" : ""); // rs.getMetaData().getColumnName(i) + ": " + 	  				
+			}
+        }
+        return result;
+  }
   public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate) {
+	  return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate, null);
+  }
+  public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate, HashSet<MyTable> alreadyUsed) {
     if (theTable == null) {
 		return null;
 	}
@@ -1206,6 +1247,7 @@ public class DBKernel {
     if (filledHashtables.containsKey(foreignTable)) {
 		return filledHashtables.get(foreignTable);
 	}
+    
     LinkedHashMap<Object, String> h = new LinkedHashMap<Object, String>();
   	String selectSQL = theTable.getSelectSQL();
     String sql = selectSQL;
@@ -1220,165 +1262,17 @@ public class DBKernel {
       	String[] mnTable = theTable.getMNTable();
         do {
         	value="";
-        	if (foreignTable.equals("ICD10_Kodes")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			if (rs.getMetaData().getColumnName(i).equals("Titel")) {
-            			value = rs.getString(i);
-        				break;
+        	if (theTable.getFields2ViewInGui() != null) {
+        		if (alreadyUsed == null) alreadyUsed = new HashSet<MyTable>();
+        		alreadyUsed.add(theTable);
+       			for (String s : theTable.getFields2ViewInGui()) {
+            		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
+            			if (rs.getMetaData().getColumnName(i).equals(s)) {
+                			value += handleField(rs.getObject(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, true, alreadyUsed);
+            				break;
+            			}
         			}
         		}
-        	}
-        	else if (foreignTable.equals("Versuchsbedingungen")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Agens") || cn.equals("Matrix")) {
-      	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}
-        	}
-        	else if (foreignTable.equals("Prozessdaten")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("ID") || cn.equals("Prozess_CARVER")) {
-      	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        			else if (cn.equals("ProzessDetail")) {
-        	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        				
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Lieferungen")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Charge")) {
-        				value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        			
-        			}
-        			else if (cn.equals("Unitmenge") || cn.equals("UnitEinheit") || cn.startsWith("dd_")) {
-        				value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Chargen")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Artikel")) {
-        				value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        			
-        			}
-        			else if (cn.equals("ChargenNr") || cn.startsWith("pd_")) {
-        				value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Produktkatalog")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Artikelnummer") || cn.equals("Bezeichnung")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Produzent")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Kontaktadresse")) {
-      	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Einheiten")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("display in GUI as")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Kontakte")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Name") || cn.equals("Strasse") || cn.equals("Ort")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.startsWith("Codes_")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("CodeSystem") || cn.equals("Code")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Zutatendaten")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Vorprozess")) {
-        	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, false, startDelim, delimiter, endDelim);
-          			}
-          			else if (cn.equals("Matrix")) {
-          	        	  value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);        				
-          			}
-        		}       
-        		if (value.isEmpty()) value ="(Mix...)";
-        	}
-        	else if (foreignTable.equals("Matrices")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Matrixname")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Agenzien")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Agensname")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Literatur")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Erstautor") || cn.equals("Jahr") || cn.equals("Titel")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("Nachweisverfahren") || foreignTable.equals("Aufbereitungsverfahren")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Bezeichnung")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("GeschaetzteModelle")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Name") || cn.equals("Versuchsbedingung") || cn.equals("Modell") || cn.equals("ID")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("GeschaetzteParameter")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Parameter")) {
-        				value += handleField(rs.getInt(i), rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        			else if (cn.equals("Wert")) {
-        	        	value += handleField(null, DBKernel.getDoubleStr(rs.getObject(i)), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-          			}
-        		}        		
-        	}
-        	else if (foreignTable.equals("ModellkatalogParameter")) {
-        		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-        			if (cn.equals("Parametername")) {
-      	        	  value += handleField(null, rs.getString(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim);
-        			}
-        		}        		
         	}
         	else if (foreignTable.equals("DoubleKennzahlen")) {
         		for (i=2;i<=rs.getMetaData().getColumnCount();i++) {

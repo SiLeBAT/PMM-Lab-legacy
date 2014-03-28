@@ -2,8 +2,8 @@ package org.hsh.bfr.db;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import org.hsh.bfr.db.gui.MyList;
 
@@ -152,7 +152,10 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"Erstautor der Publikation","Veröffentlichungsjahr","Titel des Artikels","Abstract/Zusammenfassung des Artikels","Journal / Buchtitel / ggf. Webseite / Veranstaltung etc.",null,null,"Seitenzahl_Beginn","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox",null,"Auswahl zwischen Paper, SOP, LA, Handbuch/Manual, Laborbuch","Originaldatei"},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[][]{{"Erstautor","Jahr","Titel"}},
-				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null});
+				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null},
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Erstautor","Jahr","Titel")));
 		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.BasisTabellen_LIST : 66));
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
@@ -194,7 +197,9 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,newDoubleTable,newDoubleTable,newDoubleTable,null},
 				null,
 				null,
-				new String[]{null,null,null,null,null,"INT"});
+				new String[]{null,null,null,null,null,"INT"},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Matrixname")));
 		addTable(matrix, MyList.BasisTabellen_LIST);
 		
 		MyTable toxinUrsprung = new MyTable("ToxinUrsprung", new String[]{"Ursprung"},
@@ -242,7 +247,9 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,
 				null,null,null,null,null,
 				null,null,null,null,
-				null,null,null,"INT"});
+				null,null,null,"INT"},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Agensname")));
 		addTable(agenzien, MyList.BasisTabellen_LIST);
 		MyTable normen = new MyTable("Methodennormen", new String[]{"Name","Beschreibung"},
 				new String[]{"VARCHAR(255)","VARCHAR(1023)"},
@@ -269,21 +276,33 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
 				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, GS1, BLS, ADV oder auch selfmade)","Hierarchischer Code","Zugehörige Matrix"},
 				new MyTable[]{null,null,matrix},
-				new String[][]{{"CodeSystem","Code"}});
+				new String[][]{{"CodeSystem","Code"}},
+				null,
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("CodeSystem","Code")));
 		addTable(matrix_OG, -1); // -1
 		matrix.setForeignField(matrix_OG, 5);
 		MyTable agenzienkategorie = new MyTable("Codes_Agenzien", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
 				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, ADV oder auch selfmade)","Hierarchischer Code","Zugehöriges Agens"},
 				new MyTable[]{null,null,agenzien},
-				new String[][]{{"CodeSystem","Code"}});
+				new String[][]{{"CodeSystem","Code"}},
+				null,
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("CodeSystem","Code")));
 		addTable(agenzienkategorie, -1);
 		agenzien.setForeignField(agenzienkategorie, 15);
 		MyTable methoden_OG = new MyTable("Codes_Methoden", new String[]{"CodeSystem","Code","Basis"},
 				new String[]{"VARCHAR(20)","VARCHAR(40)","INTEGER"},
 				new String[]{"Codebezeichnung, sofern vorhanden (z.B. TOP, BLV oder auch selfmade)","Hierarchischer Code","Zugehörige Methode"},
 				new MyTable[]{null,null,methoden},
-				new String[][]{{"CodeSystem","Code"}});
+				new String[][]{{"CodeSystem","Code"}},
+				null,
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("CodeSystem","Code")));
 		addTable(methoden_OG, -1); // -1
 		methoden.setForeignField(methoden_OG, 4);
 
@@ -297,7 +316,11 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
 				new String[]{"Name der Firma / Labor / Einrichtung", null,null,null,null,null,null,null,"Ansprechpartner inkl. Vor und Zuname",null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null});
+				null,
+				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("County"),null,null,null,null,null,null},
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Name","Strasse","Ort")));
 		addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
@@ -483,7 +506,11 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"VARCHAR(20)","VARCHAR(20)","INTEGER"},
 				new String[]{"Codebezeichnung","Hierarchischer Code","Zugehörige Methode"},
 				new MyTable[]{null,null,methodiken},
-				new String[][]{{"CodeSystem","Code"}});
+				new String[][]{{"CodeSystem","Code"}},
+				null,
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("CodeSystem","Code")));
 		addTable(methodiken_OG, -1); // -1
 		methodiken.setForeignField(methodiken_OG, 4);
 		h1 = new LinkedHashMap<Object, String>();
@@ -548,7 +575,9 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null},
 				new String[]{null,null,
 				null,null,null,null,null,
-				null,null,null,null,null});
+				null,null,null,null,null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("display in GUI as")));
 		addTable(Konzentrationseinheiten, MyList.BasisTabellen_LIST);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
@@ -640,7 +669,9 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,
 				"Aufbereitungsverfahren_Kits",null,null,null,null,
 				null,null,
-				"Aufbereitungsverfahren_Normen",null,null,null,null});
+				"Aufbereitungsverfahren_Normen",null,null,null,null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Bezeichnung")));
 		addTable(aufbereitungsverfahren, MyList.Nachweissysteme_LIST);
 		MyTable aufbereitungsverfahren_Kits = new MyTable("Aufbereitungsverfahren_Kits",
 				new String[]{"Aufbereitungsverfahren","Kits"},
@@ -704,7 +735,9 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,
 				"Nachweisverfahren_Kits",null,null,null,null,
 				null,null,
-				"Nachweisverfahren_Normen",null,null,null,null});
+				"Nachweisverfahren_Normen",null,null,null,null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Bezeichnung")));
 		addTable(nachweisverfahren, MyList.Nachweissysteme_LIST);
 		MyTable nachweisverfahren_Kits = new MyTable("Nachweisverfahren_Kits",
 				new String[]{"Nachweisverfahren","Kits"},
@@ -773,7 +806,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,"INT",null,null,null,null,null,null,
 					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null},
 				null,
-				new HashSet<String>(Arrays.asList("Agens","Matrix")));
+				new LinkedHashSet<String>(Arrays.asList("Agens","Matrix")));
 		addTable(tenazity_raw_data, MyList.Tenazitaet_LIST);
 		MyTable tenazity_measured_vals = new MyTable("Messwerte", new String[]{"Versuchsbedingungen","Zeit","ZeitEinheit",
 				"Delta","Konzentration","Konz_Einheit",
@@ -830,7 +863,12 @@ public class MyDBTablesNew extends MyDBI {
 		MyTable betriebe = new MyTable("Produzent", new String[]{"Kontaktadresse","Betriebsnummer"},
 				new String[]{"INTEGER","VARCHAR(50)"},
 				new String[]{"Verweis auf Eintraege in Tabelle Kontakte mit Lebensmittel-Betrieben, Landwirten etc","Betriebsnummer aus BALVI-System sofern vorhanden"},
-				new MyTable[]{adressen,null});
+				new MyTable[]{adressen,null},
+				null,
+				null,
+				null,
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Kontaktadresse")));
 		addTable(betriebe, -1);
 		MyTable betrieb_matrix_produktion = new MyTable("Betrieb_Matrix_Produktion", new String[]{"Betrieb","Matrix","EAN","Produktionsmenge","Einheit","Referenz","Anteil","lose"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(255)","DOUBLE","VARCHAR(50)","INTEGER","DOUBLE","BOOLEAN"},
@@ -931,7 +969,9 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,
 				"INT",
 				null,null,null,null,null,null,
-				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte","Prozessdaten_Kosten"});
+				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte","Prozessdaten_Kosten"},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("ID","Prozess_CARVER","ProzessDetail")));
 		addTable(prozessdaten, DBKernel.isKNIME ? MyList.Prozessdaten_LIST : -1); // MyList.Prozessdaten_LIST
 		prozessFlow.setForeignField(prozessdaten, 7);
 		MyTable prozessReferenzen = new MyTable("Prozessdaten_Literatur",
@@ -1000,7 +1040,9 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,h1,null,null,h4,null,
 				null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,
-				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges","Zutatendaten_Kosten"});
+				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges","Zutatendaten_Kosten"},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Matrix","Vorprozess")));
 		addTable(zutatendaten, -1);
 		prozessdaten.setForeignField(zutatendaten, 10);
 		zutatendaten.setForeignField(zutatendaten, 5);
@@ -1090,7 +1132,9 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{Knoten,null,null,null,null,null,matrix,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null},
-				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null});
+				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("Artikelnummer","Bezeichnung")));
 		addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
 		Knoten.setForeignField(Produzent_Artikel, 0);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
@@ -1108,7 +1152,9 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{Produzent_Artikel,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
-				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null});
+				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("pd_day","pd_month","pd_year","ChargenNr","Artikel")));
 		addTable(Chargen, MyList.Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
@@ -1121,7 +1167,9 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{Chargen,null,null,null,null,null,null,null,Knoten,null,null,null,null,null}, // ,null,null
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}, // ,null,null
-				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}); // ,"INT","INT"
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null},
+				null,
+				new LinkedHashSet<String>(Arrays.asList("dd_day","dd_month","dd_year","Unitmenge","UnitEinheit","Charge")));
 		addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
 		Chargen.setForeignField(Artikel_Lieferung, 5);
 		
@@ -1242,7 +1290,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				null,
-				new HashSet<String>(Arrays.asList("Titel")));
+				new LinkedHashSet<String>(Arrays.asList("Titel")));
 		addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}	
@@ -1313,7 +1361,8 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,hashTyp,null,null,null,null,null,null},
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
-				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null});
+				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null},
+				new LinkedHashSet<String>(Arrays.asList("Parametername")));
 		addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
@@ -1342,7 +1391,8 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null,null,null,null,
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null,null},
 				new String[] {null,null,null,null,"default FALSE",null,null,null,null,null,null,
-				null,null,null,null,null,null,null});
+				null,null,null,null,null,null,null},
+				new LinkedHashSet<String>(Arrays.asList("ID","Name","Versuchsbedingung","Modell")));
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
 		addTable(GeschaetzteModelle, MyList.PMModelle_LIST);		
@@ -1364,7 +1414,8 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null},
 				null,
-				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null});
+				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null},
+				new LinkedHashSet<String>(Arrays.asList("Parameter","Wert")));
 		addTable(GeschaetzteParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		MyTable GueltigkeitsBereiche = new MyTable("GueltigkeitsBereiche", new String[]{"GeschaetztesModell","Parameter",
 				"Gueltig_von","Gueltig_bis","Gueltig_optimal"},

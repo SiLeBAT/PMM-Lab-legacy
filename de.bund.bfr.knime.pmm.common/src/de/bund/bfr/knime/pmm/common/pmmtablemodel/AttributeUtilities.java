@@ -58,7 +58,9 @@ public class AttributeUtilities {
 
 	public static String getName(String attr) {
 		if (attr.equals(ATT_AW)) {
-			return "Water Activity";		
+			return "Water Activity";
+		} else if (attr.equals(TimeSeriesSchema.ATT_LITMD)) {
+			return "References";
 		} else {
 			return attr;
 		}

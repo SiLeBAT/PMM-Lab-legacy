@@ -1188,12 +1188,7 @@ public class DBKernel {
 		catch (Exception e) {MyLogger.handleException(e);}
 		return result;
   }
-  public static void refreshHashTables() {
-	  filledHashtables.clear();
-  }
-  public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper) {
-	  return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, false);
-  }
+
   private static String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim, final boolean newRow, HashSet<MyTable> alreadyUsed) {
 	  String result = "";
 		if (id == null) {
@@ -1232,6 +1227,12 @@ public class DBKernel {
         }
         return result;
   }
+  public static void refreshHashTables() {
+	  filledHashtables.clear();
+  }
+  public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper) {
+	  return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, false);
+  }
   public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate) {
 	  return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate, null);
   }
@@ -1240,7 +1241,6 @@ public class DBKernel {
 		return null;
 	}
     String foreignTable = theTable.getTablename();
-    //if (DBKernel.debug) System.err.println(foreignTable + "\t" + (System.currentTimeMillis() / 1000));
  	if (forceUpdate && filledHashtables.containsKey(foreignTable)) {
 		filledHashtables.remove(foreignTable);
 	}
@@ -1260,11 +1260,11 @@ public class DBKernel {
       if (rs != null && rs.first()) {
       	MyTable[] foreignFields = theTable.getForeignFields();
       	String[] mnTable = theTable.getMNTable();
+		if (alreadyUsed == null) alreadyUsed = new HashSet<MyTable>();
+		alreadyUsed.add(theTable);
         do {
         	value="";
         	if (theTable.getFields2ViewInGui() != null) {
-        		if (alreadyUsed == null) alreadyUsed = new HashSet<MyTable>();
-        		alreadyUsed.add(theTable);
        			for (String s : theTable.getFields2ViewInGui()) {
             		for (i=1;i<=rs.getMetaData().getColumnCount();i++) {
             			if (rs.getMetaData().getColumnName(i).equals(s)) {
@@ -1274,34 +1274,21 @@ public class DBKernel {
         			}
         		}
         	}
-        	else if (foreignTable.equals("DoubleKennzahlen")) {
-        		for (i=2;i<=rs.getMetaData().getColumnCount();i++) {
-        			String cn = rs.getMetaData().getColumnName(i); 
-    				if (cn.equals("Wert")) {
-		        	  value += handleField(null, getDoubleStr(rs.getObject(i)), null, null, i, false, startDelim, delimiter, endDelim, false);
-    				}
-    				else if (cn.equals("Exponent")) {
-  		        	  String exp = handleField(null, getDoubleStr(rs.getObject(i)), null, null, i, false, startDelim, delimiter, endDelim, false);    		
-  		        	  if (exp.length() > 0) {
-						value += " * 10^" + exp;
-					}
-		        	  break;
-    				}
-        		}    
-        		
-        		if (value.length() == 0) {
-					value = "...";
-				}
-        	}
         	else {
-        	    boolean fetchID = foreignTable.equals("Kontakte");
-        	    boolean reallyGD = !foreignTable.equals("Messwerte"); // lieber nicht in die Tiefe gehen, hier droht eine Endlosschleife, da sich die Tabellen gegenseitig referenzieren
-    	          for (i=fetchID ? 1:2;i<=rs.getMetaData().getColumnCount();i++) { // bei 2 beginnen, damit die Spalte ID nicht zu sehen ist!
-    	        	  value += handleField(rs.getObject(i), rs.getString(i), foreignFields, mnTable, i, goDeeper && reallyGD, startDelim, delimiter, endDelim);
+    	          for (i=2;i<=rs.getMetaData().getColumnCount();i++) { // bei 2 beginnen, damit die Spalte ID nicht zu sehen ist!
+    	        	  String v = handleField(rs.getObject(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, true, alreadyUsed);
+    	        	  if (!v.isEmpty()) {
+        	        	  String cn = rs.getMetaData().getColumnName(i);
+        	        	  if (foreignTable.equals("DoubleKennzahlen") && (cn.equals("Exponent") || cn.endsWith("_exp"))) value = value.substring(0, value.length() - 1) + " * 10^" + v;
+        	        	  else value += cn + ": " + v;
+    	        	  }
     	  	      }
         	}
-	          //if (value.length() > 0) value = value.substring(0,value.length()-delimiter.length());
-	          //value += endDelim;
+        	/*
+        	if (foreignTable.equals("DoubleKennzahlen") && value.isEmpty()) {
+        		value = "...";
+        	}
+        	*/
         	o = rs.getObject(1);
         	val = value;
         	if (theTable.getTablename().equals("DoubleKennzahlen")) {
@@ -1371,44 +1358,6 @@ public class DBKernel {
     return kzID;
 	}
   
-  private static String handleField(final Object id, final String tmp, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim) {
-	  return handleField(id, tmp, foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, true);
-  }
-  private static String handleField(final Object id, String tmp, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim, final boolean newRow) {
-	  String result = "";
-		if (foreignFields != null && i > 1 && foreignFields.length > i-2 && foreignFields[i-2] != null) {
-			String ft = foreignFields[i-2].getTablename(); 
-			if (tmp == null) {
-				tmp = "";//ft + ": leer\n";
-			}
-			else if (goDeeper && id != null) {
-			    LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i-2], startDelim, delimiter, endDelim, goDeeper); //" | " " ; "
-			    if (hashBox != null && hashBox.get(id) != null) {
-			    	String ssttrr = hashBox.get(id).toString();
-			    	tmp = ssttrr.trim().length() == 0 ? "" : ssttrr;   	// ft + ":\n" + 
-			    }
-			    else if (mnTable != null && i > 1 && i-2 < mnTable.length && mnTable[i-2] != null && mnTable[i-2].length() > 0) {
-			    	tmp = "";
-			    	//System.err.println("isMN..." + ft);
-			    }
-			    else {	
-			    	System.err.println("hashBox überprüfen...\n" + tmp + "\t" + ft);
-			    	tmp = "";//ft + ": leer\n";
-			    }
-			}
-			else {
-				tmp = ft + "-ID: " + tmp + "\n";
-			}
-		}
-        if (tmp != null && tmp.length() > 0) {
-			if (mnTable != null && i > 1 && i-2 < mnTable.length && mnTable[i-2] != null && mnTable[i-2].length() > 0) { // MN-Tabellen, wie z.B. INT oder DBL sollten hier unsichtbar bleiben!
-			}
-			else {
-				result += tmp + (newRow ? "\n" : ""); // rs.getMetaData().getColumnName(i) + ": " + 	  				
-			}
-        }
-        return result;
-  }
   public static ResultSet getResultSet(final String sql, final boolean suppressWarnings) {
 	    ResultSet ergebnis = null;
 	    try {

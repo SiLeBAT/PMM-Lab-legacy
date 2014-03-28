@@ -110,6 +110,7 @@ public class PrimaryModelViewAndSelectNodeDialog extends
 		reader = new TableReader(input[0], schemaContainsData);
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
+		selectionPanel.selectFirstRow();
 	}
 
 	@Override

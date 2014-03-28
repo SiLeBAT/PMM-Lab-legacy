@@ -26,6 +26,7 @@ import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.math.MathUtilities;
@@ -129,9 +130,10 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			standardVisibleColumns = new ArrayList<String>(Arrays.asList(
-					Model1Schema.MODELNAME, ChartConstants.STATUS,
-					AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-					TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
+					ChartSelectionPanel.DATA, ChartSelectionPanel.FORMULA,
+					ChartSelectionPanel.PARAMETERS));
+			standardVisibleColumns.addAll(stringColumns);
+			standardVisibleColumns.addAll(doubleColumns);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					AttributeUtilities.DATAID, ChartConstants.STATUS);
 
@@ -163,8 +165,11 @@ public class TableReader {
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
 			doubleColumnValues.add(new ArrayList<Double>());
-			standardVisibleColumns = Arrays.asList(Model1Schema.MODELNAME,
-					ChartConstants.STATUS);
+			standardVisibleColumns = new ArrayList<String>(Arrays.asList(
+					ChartSelectionPanel.DATA, ChartSelectionPanel.FORMULA,
+					ChartSelectionPanel.PARAMETERS));
+			standardVisibleColumns.addAll(stringColumns);
+			standardVisibleColumns.addAll(doubleColumns);
 			filterableStringColumns = Arrays.asList(Model1Schema.MODELNAME,
 					ChartConstants.STATUS);
 

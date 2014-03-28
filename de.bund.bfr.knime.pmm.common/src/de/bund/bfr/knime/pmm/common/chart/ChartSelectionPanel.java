@@ -406,6 +406,10 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 		add(tableScrollPane, BorderLayout.CENTER);
 	}
 
+	public void selectFirstRow() {
+		selectTable.getSelectionModel().setSelectionInterval(0, 0);
+	}
+
 	public String getFocusedID() {
 		int row = selectTable.getSelectedRow();
 

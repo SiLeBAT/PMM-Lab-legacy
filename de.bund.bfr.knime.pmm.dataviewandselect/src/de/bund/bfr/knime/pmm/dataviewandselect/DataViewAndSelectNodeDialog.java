@@ -100,6 +100,7 @@ public class DataViewAndSelectNodeDialog extends DataAwareNodeDialogPane
 
 		((JPanel) getTab("Options")).removeAll();
 		((JPanel) getTab("Options")).add(createMainComponent());
+		selectionPanel.selectFirstRow();
 	}
 
 	@Override

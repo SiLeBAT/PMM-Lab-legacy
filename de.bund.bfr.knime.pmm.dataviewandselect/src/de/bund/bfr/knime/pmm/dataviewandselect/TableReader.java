@@ -18,6 +18,7 @@ import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
+import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
 import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
@@ -69,9 +70,8 @@ public class TableReader {
 		data = new ArrayList<List<TimeSeriesXml>>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
-		standardVisibleColumns = new ArrayList<String>(Arrays.asList(
-				AttributeUtilities.DATAID, TimeSeriesSchema.ATT_AGENT,
-				TimeSeriesSchema.ATT_MATRIX, MdInfoXml.ATT_COMMENT));
+		standardVisibleColumns = new ArrayList<String>(stringColumns);
+		standardVisibleColumns.add(ChartSelectionPanel.DATA);
 
 		Set<String> idSet = new LinkedHashSet<String>();
 		List<String> miscParams = PmmUtilities.getMiscParams(allTuples);

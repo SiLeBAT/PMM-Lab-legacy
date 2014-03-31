@@ -33,13 +33,11 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.microbialdataedit;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -56,17 +54,16 @@ import java.util.Set;
 import javax.swing.AbstractCellEditor;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -92,6 +89,7 @@ import de.bund.bfr.knime.pmm.common.generictablemodel.KnimeTuple;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.AttributeUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
+import de.bund.bfr.knime.pmm.common.ui.QualityComboBox;
 import de.bund.bfr.knime.pmm.common.ui.TimeSeriesDialog;
 import de.bund.bfr.knime.pmm.common.ui.UI;
 import de.bund.bfr.knime.pmm.common.units.Categories;
@@ -539,6 +537,40 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 					for (int i = 0; i < table.getRowCount(); i++) {
 						table.setValueAt(matrix, i, index);
+					}
+				}
+			} else if (column.equals(MdInfoXml.ATT_COMMENT)
+					|| column.equals(AttributeUtilities.AGENT_DETAILS)
+					|| column.equals(AttributeUtilities.MATRIX_DETAILS)) {
+				String value = (String) JOptionPane.showInputDialog(
+						table.getTableHeader(), "Set All Values to?", column,
+						JOptionPane.QUESTION_MESSAGE, null, null, "");
+
+				if (value != null) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(value, i, index);
+					}
+				}
+			} else if (column.equals(MdInfoXml.ATT_CHECKED)) {
+				Boolean value = (Boolean) JOptionPane.showInputDialog(
+						table.getTableHeader(), "Set All Values to?", column,
+						JOptionPane.QUESTION_MESSAGE, null, new Object[] {
+								Boolean.TRUE, Boolean.FALSE }, Boolean.TRUE);
+
+				if (value != null) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(value, i, index);
+					}
+				}
+			} else if (column.equals(MdInfoXml.ATT_QUALITYSCORE)) {
+				QualityScoreDialog dialog = new QualityScoreDialog(
+						table.getTableHeader());
+
+				dialog.setVisible(true);
+
+				if (dialog.isApproved()) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(dialog.getScore(), i, index);
 					}
 				}
 			}
@@ -1212,32 +1244,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		private static final long serialVersionUID = 1L;
 
-		private Color color;
+		private Integer score;
 
 		public QualityScoreEditor() {
-			color = Color.WHITE;
+			score = null;
 		}
 
 		@Override
 		public Component getTableCellEditorComponent(JTable table,
 				Object value, boolean isSelected, int row, int column) {
-			Integer score = (Integer) value;
+			QualityComboBox box = new QualityComboBox();
 
-			if (score == null) {
-				color = Color.WHITE;
-			} else if (score == 1) {
-				color = Color.GREEN;
-			} else if (score == 2) {
-				color = Color.YELLOW;
-			} else if (score == 3) {
-				color = Color.RED;
-			}
-
-			JComboBox<Color> box = new JComboBox<Color>(new Color[] {
-					Color.WHITE, Color.GREEN, Color.YELLOW, Color.RED });
-
-			box.setSelectedItem(color);
-			box.setRenderer(new ColorListRenderer());
+			box.setQuality((Integer) value);
 			box.addActionListener(this);
 
 			return box;
@@ -1245,70 +1263,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public Object getCellEditorValue() {
-			if (color.equals(Color.WHITE)) {
-				return null;
-			} else if (color.equals(Color.GREEN)) {
-				return 1;
-			} else if (color.equals(Color.YELLOW)) {
-				return 2;
-			} else if (color.equals(Color.RED)) {
-				return 3;
-			}
-
-			return null;
+			return score;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			color = (Color) ((JComboBox<Color>) e.getSource())
-					.getSelectedItem();
+			score = ((QualityComboBox) e.getSource()).getQuality();
 			stopCellEditing();
-		}
-
-		private class ColorListRenderer extends DefaultListCellRenderer {
-
-			private static final long serialVersionUID = 1L;
-
-			private Color color;
-			private boolean isSelected;
-
-			public ColorListRenderer() {
-				color = Color.WHITE;
-				isSelected = false;
-			}
-
-			@Override
-			public Component getListCellRendererComponent(JList<?> list,
-					Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				color = (Color) value;
-				this.isSelected = isSelected;
-
-				return super.getListCellRendererComponent(list, value, index,
-						isSelected, cellHasFocus);
-			}
-
-			@Override
-			protected void paintComponent(Graphics g) {
-				Rectangle rect = g.getClipBounds();
-
-				if (rect != null) {
-					g.setColor(color);
-					g.fillRect(rect.x, rect.y, rect.width, rect.height);
-
-					if (isSelected) {
-						g.setColor(UIManager.getDefaults().getColor(
-								"List.selectionBackground"));
-					} else {
-						g.setColor(UIManager.getDefaults().getColor(
-								"List.background"));
-					}
-
-					((Graphics2D) g).setStroke(new BasicStroke(5));
-					g.drawRect(rect.x, rect.y, rect.width, rect.height);
-				}
-			}
 		}
 	}
 
@@ -1359,4 +1320,70 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
+	private static class QualityScoreDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private QualityComboBox box;
+		private JButton okButton;
+		private JButton cancelButton;
+
+		private boolean approved;
+		private Integer score;
+
+		public QualityScoreDialog(Component owner) {
+			super(JOptionPane.getFrameForComponent(owner),
+					MdInfoXml.ATT_QUALITYSCORE, true);
+			box = new QualityComboBox();
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel panel = new JPanel();
+
+			panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+			panel.setLayout(new BorderLayout(5, 5));
+			panel.add(new JLabel("Set All Values to?"), BorderLayout.NORTH);
+			panel.add(box, BorderLayout.CENTER);
+
+			JPanel buttonPanel = new JPanel();
+
+			buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			buttonPanel.add(okButton);
+			buttonPanel.add(cancelButton);
+
+			setLayout(new BorderLayout(5, 5));
+			add(panel, BorderLayout.CENTER);
+			add(buttonPanel, BorderLayout.SOUTH);
+			pack();
+			setResizable(false);
+			setLocationRelativeTo(owner);
+
+			approved = false;
+			score = null;
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public Integer getScore() {
+			return score;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				score = box.getQuality();
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				approved = false;
+				score = null;
+				dispose();
+			}
+		}
+	}
 }

@@ -382,11 +382,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 
 		for (int id : usedConditionNames.keySet()) {
-			List<String> units = new ArrayList<String>();
-
-			for (String cat : usedConditionCategories.get(id)) {
-				units.addAll(Categories.getCategory(cat).getAllUnits());
-			}
+			List<String> units = getUnits(usedConditionCategories.get(id));
 
 			table.getColumn(usedConditionNames.get(id) + " Unit")
 					.setCellEditor(
@@ -395,11 +391,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		for (int id : addedConditionNames.keySet()) {
-			List<String> units = new ArrayList<String>();
-
-			for (String cat : addedConditionCategories.get(id)) {
-				units.addAll(Categories.getCategory(cat).getAllUnits());
-			}
+			List<String> units = getUnits(addedConditionCategories.get(id));
 
 			table.getColumn(addedConditionNames.get(id) + " Unit")
 					.setCellEditor(
@@ -490,6 +482,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				try {
 					value = Double.parseDouble(result.toString());
 				} catch (NumberFormatException ex) {
+					JOptionPane.showMessageDialog(table.getTableHeader(),
+							"Invalid Input!", "Error",
+							JOptionPane.ERROR_MESSAGE);
 				} catch (NullPointerException ex) {
 				}
 
@@ -497,10 +492,28 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					for (int i = 0; i < table.getRowCount(); i++) {
 						table.setValueAt(value, i, index);
 					}
-				} else {
-					JOptionPane.showMessageDialog(table.getTableHeader(),
-							"Invalid Input!", "Error",
-							JOptionPane.ERROR_MESSAGE);
+				}
+			} else if (column.endsWith(" Unit")) {
+				String c = column.replace(" Unit", "");
+				List<String> units = null;
+
+				if (getKey(usedConditionNames, c) != null) {
+					units = getUnits(usedConditionCategories.get(getKey(
+							usedConditionNames, c)));
+				} else if (getKey(addedConditionNames, c) != null) {
+					units = getUnits(addedConditionCategories.get(getKey(
+							addedConditionNames, c)));
+				}
+
+				String unit = (String) JOptionPane.showInputDialog(
+						table.getTableHeader(), "Set All Values to?", column,
+						JOptionPane.QUESTION_MESSAGE, null, units.toArray(),
+						units.get(0));
+
+				if (unit != null) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(unit, i, index);
+					}
 				}
 			}
 		}
@@ -530,6 +543,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		return null;
+	}
+
+	private static List<String> getUnits(List<String> categories) {
+		List<String> units = new ArrayList<String>();
+
+		for (String cat : categories) {
+			units.addAll(Categories.getCategory(cat).getAllUnits());
+		}
+
+		return units;
 	}
 
 	private static class EditTable extends AbstractTableModel {

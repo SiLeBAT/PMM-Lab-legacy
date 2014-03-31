@@ -43,6 +43,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -106,7 +108,7 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
  * @author Christian Thoens
  */
 public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
-		implements ActionListener {
+		implements ActionListener, MouseListener {
 
 	private JButton addButton;
 	private JButton removeButton;
@@ -129,6 +131,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		addedConditionsList = new JList<String>();
 		table = new JTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.getTableHeader().addMouseListener(this);
 
 		JPanel buttonPanel = new JPanel();
 
@@ -435,7 +438,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 									new LinkedHashMap<String, String>());
 					setEditorsAndRenderers();
 					UI.packColumns(table);
-					table.repaint();					
+					table.repaint();
 				} else {
 					JOptionPane.showMessageDialog(addButton,
 							"Data already contains " + name, "Error",
@@ -465,8 +468,68 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			addedConditionsList.setListData(addedConditionNames.values()
 					.toArray(new String[0]));
 			UI.packColumns(table);
-			table.repaint();		
+			table.repaint();
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (e.getSource() == table.getTableHeader()) {
+			int index = table.columnAtPoint(e.getPoint());
+			String column = table.getColumnName(index);
+			Integer condId = getKey(usedConditionNames, column) != null ? getKey(
+					usedConditionNames, column) : getKey(addedConditionNames,
+					column);
+
+			if (condId != null) {
+				Object result = JOptionPane.showInputDialog(
+						table.getTableHeader(), "Set All Values to?", column,
+						JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
+				Double value = null;
+
+				try {
+					value = Double.parseDouble(result.toString());
+				} catch (NumberFormatException ex) {
+				} catch (NullPointerException ex) {
+				}
+
+				if (value != null) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(value, i, index);
+					}
+				} else {
+					JOptionPane.showMessageDialog(table.getTableHeader(),
+							"Invalid Input!", "Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	private static Integer getKey(Map<Integer, String> map, String value) {
+		for (Map.Entry<Integer, String> entry : map.entrySet()) {
+			if (entry.getValue().equals(value)) {
+				return entry.getKey();
+			}
+		}
+
+		return null;
 	}
 
 	private static class EditTable extends AbstractTableModel {
@@ -911,7 +974,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 	}
 
-	private class AgentRenderer implements TableCellRenderer {
+	private static class AgentRenderer implements TableCellRenderer {
 
 		private JLabel label;
 
@@ -935,7 +998,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class AgentEditor extends AbstractCellEditor implements
+	private static class AgentEditor extends AbstractCellEditor implements
 			TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
@@ -982,7 +1045,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class MatrixRenderer implements TableCellRenderer {
+	private static class MatrixRenderer implements TableCellRenderer {
 
 		private JLabel label;
 
@@ -1006,7 +1069,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class MatrixEditor extends AbstractCellEditor implements
+	private static class MatrixEditor extends AbstractCellEditor implements
 			TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
@@ -1054,7 +1117,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class QualityScoreRenderer extends JComponent implements
+	private static class QualityScoreRenderer extends JComponent implements
 			TableCellRenderer {
 
 		private static final long serialVersionUID = 1L;
@@ -1095,8 +1158,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class QualityScoreEditor extends AbstractCellEditor implements
-			TableCellEditor, ActionListener {
+	private static class QualityScoreEditor extends AbstractCellEditor
+			implements TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;
 
@@ -1200,7 +1263,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class TimeSeriesRenderer implements TableCellRenderer {
+	private static class TimeSeriesRenderer implements TableCellRenderer {
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
@@ -1210,7 +1273,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private class TimeSeriesEditor extends AbstractCellEditor implements
+	private static class TimeSeriesEditor extends AbstractCellEditor implements
 			TableCellEditor, ActionListener {
 
 		private static final long serialVersionUID = 1L;

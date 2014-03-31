@@ -243,7 +243,7 @@ public class UpdateChecker {
     	return result;
     }
 	public static void check4Updates_175_176() {
-		MyDBTables.getTable("GlobalModels").createTable();
+		DBKernel.myDBi.getTable("GlobalModels").createTable();
 		DBKernel.grantDefaults("GlobalModels");
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Sekundaermodelle_Primaermodelle") + " ADD COLUMN " + DBKernel.delimitL("GlobalModel") + " INTEGER", false);
 		updateChangeLog("Sekundaermodelle_Primaermodelle", 3, false);	
@@ -655,7 +655,7 @@ public class UpdateChecker {
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView.sql", null, false);		
 	}
 	public static void check4Updates_152_153() {		
-		MyDBTables.getTable("LinkedTestConditions").createTable();
+		DBKernel.myDBi.getTable("LinkedTestConditions").createTable();
 		DBKernel.grantDefaults("LinkedTestConditions");
 	}
 	public static void check4Updates_151_152() {		
@@ -705,9 +705,9 @@ public class UpdateChecker {
 		}
 	}
 	public static void check4Updates_146_147() {
-		MyDBTables.getTable("PMMLabWorkflows").createTable();
+		DBKernel.myDBi.getTable("PMMLabWorkflows").createTable();
 		DBKernel.grantDefaults("PMMLabWorkflows");
-		MyDBTables.getTable("DataSource").createTable();
+		DBKernel.myDBi.getTable("DataSource").createTable();
 		DBKernel.grantDefaults("DataSource");
 
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
@@ -730,9 +730,9 @@ public class UpdateChecker {
 	}
 	public static void check4Updates_144_145() {
 		
-		MyDBTables.getTable("Chargen").createTable();
+		DBKernel.myDBi.getTable("Chargen").createTable();
 		DBKernel.grantDefaults("Chargen");
-		MyDBTables.getTable("ChargenVerbindungen").createTable();
+		DBKernel.myDBi.getTable("ChargenVerbindungen").createTable();
 		DBKernel.grantDefaults("ChargenVerbindungen");
 		//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("LieferungVerbindungen"), false);
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("LieferungVerbindungen") + " IF EXISTS", false);
@@ -755,7 +755,7 @@ public class UpdateChecker {
 				" SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") + " WHERE " +
 				DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel"), false);
 		
-		DBKernel.doMNs(MyDBTables.getTable("Chargen"));
+		DBKernel.doMNs(DBKernel.myDBi.getTable("Chargen"));
 
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Zielprodukt"), false)) {
 			updateChangeLog("Lieferungen", 14, true);		
@@ -804,16 +804,16 @@ public class UpdateChecker {
 					" (" + DBKernel.delimitL("Parametertyp") + ") VALUES (4)", DBKernel.isKNIME);
 		}
 		
-		MyDBTables.getTable("VarParMaps").createTable(true);
+		DBKernel.myDBi.getTable("VarParMaps").createTable(true);
 		DBKernel.grantDefaults("VarParMaps");
 		
-		MyDBTables.getTable("Kostenkatalog").createTable();
+		DBKernel.myDBi.getTable("Kostenkatalog").createTable();
 		DBKernel.grantDefaults("Kostenkatalog");
-		MyDBTables.getTable("Kostenkatalogpreise").createTable();
+		DBKernel.myDBi.getTable("Kostenkatalogpreise").createTable();
 		DBKernel.grantDefaults("Kostenkatalogpreise");
-		MyDBTables.getTable("Prozessdaten_Kosten").createTable();
+		DBKernel.myDBi.getTable("Prozessdaten_Kosten").createTable();
 		DBKernel.grantDefaults("Prozessdaten_Kosten");
-		MyDBTables.getTable("Zutatendaten_Kosten").createTable();
+		DBKernel.myDBi.getTable("Zutatendaten_Kosten").createTable();
 		DBKernel.grantDefaults("Zutatendaten_Kosten");
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Prozessdaten") +
 				" ADD COLUMN " + DBKernel.delimitL("Kosten") + " INTEGER BEFORE " + DBKernel.delimitL("Guetescore"), DBKernel.isKNIME)) {
@@ -835,22 +835,22 @@ public class UpdateChecker {
 		refreshFKs("Lieferungen", true);
 		refreshFKs("LieferungVerbindungen", true);
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Knoten") + " IF EXISTS", false);
-		MyDBTables.getTable("Station").createTable();
+		DBKernel.myDBi.getTable("Station").createTable();
 		DBKernel.grantDefaults("Station");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Knoten_Agenzien") + " IF EXISTS", false);
-		MyDBTables.getTable("Station_Agenzien").createTable();
+		DBKernel.myDBi.getTable("Station_Agenzien").createTable();
 		DBKernel.grantDefaults("Station_Agenzien");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Produktkatalog") + " IF EXISTS", false);
-		MyDBTables.getTable("Produktkatalog").createTable();
+		DBKernel.myDBi.getTable("Produktkatalog").createTable();
 		DBKernel.grantDefaults("Produktkatalog");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Produktkatalog_Matrices") + " IF EXISTS", false);
-		MyDBTables.getTable("Produktkatalog_Matrices").createTable();
+		DBKernel.myDBi.getTable("Produktkatalog_Matrices").createTable();
 		DBKernel.grantDefaults("Produktkatalog_Matrices");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Lieferungen") + " IF EXISTS", false);
-		MyDBTables.getTable("Lieferungen").createTable();
+		DBKernel.myDBi.getTable("Lieferungen").createTable();
 		DBKernel.grantDefaults("Lieferungen");
 		if (DBKernel.isKNIME) DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("LieferungVerbindungen") + " IF EXISTS", false);
-		MyTable myT = MyDBTables.getTable("LieferungVerbindungen");
+		MyTable myT = DBKernel.myDBi.getTable("LieferungVerbindungen");
 		if (myT != null) {
 			myT.createTable();
 			DBKernel.grantDefaults("LieferungVerbindungen");
@@ -895,7 +895,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("ChangeLog") + " SET " + DBKernel.delimitL("Tabelle") + "='ProzessWorkflow' WHERE " + DBKernel.delimitL("Tabelle") + "='Prozess_Workflow'", false);
 
 		// ACHTUNG: Alex hat bereits jetzt schon diese DB 1.4.2 - von hier
-		MyDBTables.recreateTriggers();
+		DBKernel.myDBi.recreateTriggers();
 		Integer nextID = getNextID("ChangeLog");
 		MyLogger.handleMessage("getNextID(ChangeLog): " + nextID);
 		DBKernel.sendRequest("CREATE SEQUENCE " + DBKernel.delimitL("ChangeLogSEQ") + " AS INTEGER START WITH " + nextID + " INCREMENT BY 1", false);
@@ -940,7 +940,7 @@ public class UpdateChecker {
 		updateChangeLog("DoubleKennzahlen", 30, false);
 		refreshFKs("DoubleKennzahlen");		
 		
-		MyTable pdl = MyDBTables.getTable("Prozessdaten_Literatur");
+		MyTable pdl = DBKernel.myDBi.getTable("Prozessdaten_Literatur");
 		pdl.createTable(false);
 		DBKernel.grantDefaults("Prozessdaten_Literatur");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Prozessdaten_Literatur") +
@@ -948,9 +948,9 @@ public class UpdateChecker {
 				") SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Referenz") +
 				" FROM " + DBKernel.delimitL("Prozessdaten"), false);
 		refreshFKs("Prozessdaten");		
-		DBKernel.doMNs(MyDBTables.getTable("Prozessdaten"));
+		DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten"));
 		
-		pdl = MyDBTables.getTable("ProzessWorkflow_Literatur");
+		pdl = DBKernel.myDBi.getTable("ProzessWorkflow_Literatur");
 		pdl.createTable(false);
 		DBKernel.grantDefaults("ProzessWorkflow_Literatur");
 		DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("ProzessWorkflow_Literatur") +
@@ -958,7 +958,7 @@ public class UpdateChecker {
 				") SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Referenz") +
 				" FROM " + DBKernel.delimitL("ProzessWorkflow"), false);
 		refreshFKs("ProzessWorkflow");		
-		DBKernel.doMNs(MyDBTables.getTable("ProzessWorkflow"));
+		DBKernel.doMNs(DBKernel.myDBi.getTable("ProzessWorkflow"));
 	}
 	private static Integer getNextID(final String tablename) {
 		Integer result = null;
@@ -994,7 +994,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteParameterCovCor") + " ALTER COLUMN " + DBKernel.delimitL("cor") + " SET NULL", false);
 		refreshFKs("GeschaetzteParameterCovCor");
 
-		MyDBTables.getTable("Parametertyp").createTable(false);
+		DBKernel.myDBi.getTable("Parametertyp").createTable(false);
 		DBKernel.grantDefaults("Parametertyp");
 		PreparedStatement ps;
 		try {
@@ -1008,7 +1008,7 @@ public class UpdateChecker {
 			e.printStackTrace();
 		}
 		
-		MyDBTables.getTable("GueltigkeitsBereiche").createTable(false);
+		DBKernel.myDBi.getTable("GueltigkeitsBereiche").createTable(false);
 		DBKernel.grantDefaults("GueltigkeitsBereiche");
 		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("GeschaetzteModelle") +
@@ -1088,9 +1088,9 @@ public class UpdateChecker {
 		}
 
 		// ACHTUNG!!! Ab hier auch bei Wese machen!
-		MyDBTables.getTable("ImportedCombaseData").createTable(false);
+		DBKernel.myDBi.getTable("ImportedCombaseData").createTable(false);
 		DBKernel.grantDefaults("ImportedCombaseData");		
-		MyDBTables.getTable("Verpackungsmaterial").createTable(false);
+		DBKernel.myDBi.getTable("Verpackungsmaterial").createTable(false);
 		DBKernel.grantDefaults("Verpackungsmaterial");		
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Zutatendaten") +
 				" ADD COLUMN " + DBKernel.delimitL("Verpackung") + " INTEGER BEFORE " + DBKernel.delimitL("Temperatur"), false);
@@ -1322,12 +1322,17 @@ public class UpdateChecker {
 	    catch(Exception e) {MyLogger.handleException(e);}	
 	    
 	    if (!dropOnly) {
-	      for (String sql : MyDBTables.getTable(tableName).getIndexSQL()) {
-	      	if (sql.length() > 0) {
-	  				System.out.println("sent\t" + sql);
-	      		DBKernel.sendRequest(sql, false);
-	      	}
-	      }		    	
+	    	if (DBKernel.myDBi == null || DBKernel.myDBi.getTable(tableName) == null) {
+	    		System.err.println(tableName + " not present.... " + DBKernel.myDBi + "\t" + tableName);
+	    	}
+	    	else {
+	  	      for (String sql : DBKernel.myDBi.getTable(tableName).getIndexSQL()) {
+	  	      	if (sql.length() > 0) {
+	  	  				System.out.println("sent\t" + sql);
+	  	      		DBKernel.sendRequest(sql, false);
+	  	      	}
+	  	      }		    	
+	    	}
 	    }
 	}
 	/*

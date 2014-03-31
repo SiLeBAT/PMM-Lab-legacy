@@ -232,6 +232,7 @@ public class MyDBPanel extends JPanel {
 				}
 				myDBTable2.getColumn(0).setVisible(false);
 				myDBTable2.getColumn(1).setVisible(false);
+				myDBTable2.adjustColumns();
 				splitPane2.setResizeWeight(visible ? 0.7 : 1);
 				return myDBTable2;
 			}
@@ -646,7 +647,7 @@ public class MyDBPanel extends JPanel {
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {
 					if (i == 0) vec.add(null); // ID
 					else if (i == 1) vec.add(null); // Basis ID wird in der Funktion insertNewRow eingetragen!
-					else if (i == (isParameterTyp ? 3 : 2)) vec.add(new Integer(id)); // Kit ID
+					else if (i == (isParameterTyp || myDBTable2.getActualTable().getTablename().equals("Prozessdaten_Messwerte") ? 3 : 2)) vec.add(new Integer(id)); // Kit ID
 					else if (isParameterTyp && i == 2) vec.add("Param" + myDBTable2.getRowCount());
 					else vec.add(null);
 				}				

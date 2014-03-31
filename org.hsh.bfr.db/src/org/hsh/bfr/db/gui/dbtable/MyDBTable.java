@@ -436,13 +436,6 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
     	MyTable[] myFs = actualTable.getForeignFields();
 	    	if (mnTable != null && mnTable.length > selCol - 1 && mnTable[selCol - 1] != null) {
 	    		String sql = "";
-				/*if (mnTable[selCol - 1].equals("DBL")) {
-					sql = "DELETE FROM " + DBKernel.delimitL("Kennzahlen") +
-					" WHERE " + DBKernel.delimitL("Tabelle") + "='" + tablename + "'" +
-					" AND " + DBKernel.delimitL("TabellenID") + "=" + this.getValueAt(selRow, 0) +
-					" AND " + DBKernel.delimitL("Spaltenname") + "='" + this.getColumn(selCol).getHeaderValue().toString() + "'";				
-				}
-				else*/
 				if (mnTable[selCol - 1].equals("INT")) {
 					sql = "";				// todo - oder auch nicht... Lieber nicht löschen! Is gut so! Wenn da was gelöscht werden soll, dann sollte das Fremdfenster geöffnet werden und dort die Zeile (Beispiel: Zutat) gelöscht werden!!!
 				}
@@ -615,6 +608,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				this.selectCell(this.getRowCount()-1, this.getSelectedColumn());
 			}
 		}
+		adjustColumns();
 	}
 	public void refreshHashbox() {
   		MyTable[] foreignFields = actualTable.getForeignFields();
@@ -913,35 +907,23 @@ if (myDBPanel1 != null) {
 	private void prepareColumns() {
 		Column c = this.getColumn(0);
 		c.setReadOnly(true);
-		c.setPreferredWidth(50);
 
 		if (actualTable != null) {
 			this.getTable().getTableHeader().setReorderingAllowed(false);
-			
-			//this.setComparator(new MyDBComparator(this)); this.setSortEnabled(true);	
 
-      //this.getTable().getTableHeader().addMouseListener((new MyTableHeaderMouseListener(this)));		
-      
 			initSorter();
-/*
-      for (int i=0;i<this.getTable().getColumnCount();i++) {
-      	System.out.println(i + "\t" + this.getTable().convertColumnIndexToModel(i) + "\t" + this.getTable().convertColumnIndexToView(i)
-      			+ "\t" + this.getTable().getModel().getColumnCount());
-      }
-*/    
+
 			TableColumnModel tcm = this.getTable().getTableHeader().getColumnModel();
 			tcm.getColumn(0).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, null));
 			String[] fieldTypes = actualTable.getFieldTypes();
 			String[] fieldComments = actualTable.getFieldComments();
 			if (fieldTypes != null) {
 				ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps_" + DBKernel.getLanguage());
-				for (int i=0; i<fieldTypes.length; i++) {		
+				for (int i=0; i<fieldTypes.length; i++) {
 					MyTableHeaderCellRenderer mthcr = null;
 					c = this.getColumn(i+1);
 					c.setReadOnly(false);
 					if (fieldTypes[i].equals("OTHER")) {
-					    c.setPreferredWidth(100);
-				      //c.setUserCellEditor(new MyJavaTypeRenderer());
 				      c.setUserCellRenderer(new MyJavaTypeRenderer());
 				      mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
@@ -950,54 +932,6 @@ if (myDBPanel1 != null) {
 						}
 				  }
 				else if (fieldTypes[i].equals("BOOLEAN")) {
-			    	String fname = actualTable.getFieldNames()[i];
-					if (fname.startsWith("geschaetzt")) {
-						c.setPreferredWidth(105);
-					} else if (fname.equals("Aufkonzentrierung")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("AuftragsAnnahme")) {
-						c.setPreferredWidth(115);
-					} else if (fname.equals("RNA_Extraktion")) {
-						c.setPreferredWidth(110);
-					} else if (fname.equals("DNA_Extraktion")) {
-						c.setPreferredWidth(110);
-					} else if (fname.equals("Protein_Extraktion")) {
-						c.setPreferredWidth(110);
-					} else if (fname.equals("Quantitativ")) {
-						c.setPreferredWidth(100);
-					} else if (fname.equals("Meldepflicht")) {
-						c.setPreferredWidth(80);
-					} else if (fname.equals("Identifizierung")) {
-						c.setPreferredWidth(100);
-					} else if (fname.equals("Typisierung")) {
-						c.setPreferredWidth(150);
-					} else if (fname.equals("Homogenisierung")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("Laienpersonal")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("Spezialequipment")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("ansteckend")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("Therapie")) {
-						c.setPreferredWidth(100);
-					} else if (fname.equals("Antidot")) {
-						c.setPreferredWidth(100);
-					} else if (fname.equals("Impfung")) {
-						c.setPreferredWidth(100);
-					} else if (fname.equals("Spezialequipment")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("Aufbereitungsverfahren")) {
-						c.setPreferredWidth(140);
-					} else if (fname.equals("Nachweisverfahren")) {
-						c.setPreferredWidth(120);
-					} else if (fname.equals("Labornachweis")) {
-						c.setPreferredWidth(80);
-					} else if (fname.equals("CasePriority")) {
-						c.setPreferredWidth(80);
-					} else {
-						c.setPreferredWidth(50);
-					}
 			      c.setUserCellEditor(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = JA"), this, false));
 			      c.setUserCellRenderer(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = JA"), this, false));
 			      mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
@@ -1007,7 +941,6 @@ if (myDBPanel1 != null) {
 					}
 				  }
 					else if (fieldTypes[i].startsWith("BLOB(")) {
-						c.setPreferredWidth(100);
 						if (actualTable.getTablename().equals("DateiSpeicher")) {
 							c.setVisible(false);
 						}
@@ -1029,51 +962,7 @@ if (myDBPanel1 != null) {
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 					  }
 					else if (fieldTypes[i].startsWith("VARCHAR(")) {
-				    	String fname = actualTable.getFieldNames()[i];
-						if (fname.equals("ProzessElementSubKategorie")) {
-							c.setPreferredWidth(175);
-						} else if (fname.equals("ProzessElementSubKategorie_engl")) {
-							c.setPreferredWidth(220);
-						} else if (fname.equals("ProzessElementKategorie_engl")) {
-							c.setPreferredWidth(190);
-						} else if (fname.equals("WissenschaftlicheBezeichnung")) {
-							c.setPreferredWidth(190);
-						} else if (fname.equals("Extraktionssystem_Bezeichnung")) {
-							c.setPreferredWidth(190);
-						} else if (fname.equals("Code")) {
-							c.setPreferredWidth(50);
-						} else if (fname.equals("VATnumber")) {
-							c.setPreferredWidth(90);
-						} else if (fname.equals("Betriebsart")) {
-							c.setPreferredWidth(120);
-						} else if (fname.equals("Betriebsnummer")) {
-							c.setPreferredWidth(120);
-						} else if (fname.startsWith("BezUnits")) {
-							c.setPreferredWidth(70);
-						} else if (fname.equals("UnitEinheit")) {
-							c.setPreferredWidth(70);
-						} else if (fname.equals("ChargenNr")) {
-							c.setPreferredWidth(100);
-						} else if (fname.equals("Artikelnummer")) {
-							c.setPreferredWidth(100);
-						} else if (fname.equals("VATnumber")) {
-							c.setPreferredWidth(110);
-						} else {
-							c.setPreferredWidth(150);
-						}
-						//String tname = actualTable.getTablename(); 
-						/*
-						if (fname.equals("Sonstiges") &&
-								(tname.equals("Versuchsbedingungen") || tname.equals("Messwerte") || tname.equals("Prozessdaten") || tname.equals("Zutatendaten"))) {
-							c.setReadOnly(true);
-							//CB_ConditionsEditor cbce = new CB_ConditionsEditor();
-							//c.setCellEditor(cbce);
-						}
-						else {
-						*/
-							//c.setType(Types.LONGVARCHAR);
-							c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), actualTable.getFieldNames()[i]));							
-						//}
+						c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), actualTable.getFieldNames()[i]));							
 						c.setUserCellRenderer(new MyTextareaRenderer());
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
@@ -1082,7 +971,6 @@ if (myDBPanel1 != null) {
 						}
 					}
 					else if (actualTable.getFieldNames()[i].equals("Dateigroesse")) { // Dateigroesse  && actualTable.getTablename().equals("DateiSpeicher")
-					    c.setPreferredWidth(90);
 				      c.setUserCellRenderer(new MyBlobSizeRenderer());
 				      mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
@@ -1091,36 +979,14 @@ if (myDBPanel1 != null) {
 						}
 					}
 					else if (fieldTypes[i].startsWith("DATE")) { // DATE, DATETIME
-						//c.setPreferredWidth(75);
 					    c.setUserCellRenderer(new MyImageCell(fieldTypes[i].equals("DATETIME") ? MyImageCell.DATETIME : MyImageCell.DATE));
 					    c.setUserCellEditor(new MyCellEditorDate());
-				    	String fname = actualTable.getFieldNames()[i];
-					    if (fname.startsWith("MHD")) {
-					    	c.setPreferredWidth(110);
-					    }
-					    else if (fname.equals("Lieferdatum")) {
-					    	c.setPreferredWidth(90);
-					    }
-					    else if (fname.equals("Zeitstempel")) {
-					    	c.setPreferredWidth(140);
-					    }
-					    else if (fname.equals("DatumHoehepunkt")) {
-					    	c.setPreferredWidth(120);
-					    }
-					    else if (fname.equals("Herstellungsdatum")) {
-					    	c.setPreferredWidth(140);
-					    }
-					    else {
-					    	c.setPreferredWidth(100); // datum
-					    }
-						//c.setType(Types.LONGVARCHAR);
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]); tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 						if (sorter != null) {
 							sorter.setComparator(i+2, new MyDatetimeSorter());
 						}
 					}
 					else { // INTEGER, DOUBLE
-						c.setPreferredWidth(75);
 						c.setUserCellRenderer(new MyLabelRenderer());
 						String tooltip = fieldComments[i];
 				    	String fname = actualTable.getFieldNames()[i];
@@ -1130,37 +996,11 @@ if (myDBPanel1 != null) {
 					    
 					    if (fieldTypes[i].equals("DATETIME")) {
 						    c.setUserCellRenderer(new MyImageCell(MyImageCell.DATETIME));
-							c.setPreferredWidth(125);
 							if (sorter != null) {
 								sorter.setComparator(i+2, new MyDatetimeSorter());
 							}
 					    }
 					    else if (fieldTypes[i].equals("DOUBLE")) {
-							if (fname.equals("Nachweisgrenze")) {
-								c.setPreferredWidth(120);
-							} else if (fname.equals("Personalressourcen")) {
-								c.setPreferredWidth(135);
-							} else if (fname.equals("Temperatur")) {
-								c.setPreferredWidth(120);
-							} else if (fname.equals("Luftfeuchtigkeit")) {
-								c.setPreferredWidth(140);
-							} else if (fname.equals("Produktionsmenge")) {
-								c.setPreferredWidth(120);
-							} else if (fname.equals("Wiederfindungsrate")) {
-								c.setPreferredWidth(140);
-							} else if (fname.equals("Letalitaetsdosis100")) {
-								c.setPreferredWidth(110);
-							} else if (fname.equals("Konzentration_GKZ")) {
-								c.setPreferredWidth(120);
-							} else if (fname.equals("Konzentration")) {
-								c.setPreferredWidth(170);
-							} else if (fname.equals("Unitmenge")) {
-								c.setPreferredWidth(80);
-							} else if (fname.startsWith("#Units")) {
-								c.setPreferredWidth(70);
-							} else {
-								c.setPreferredWidth(100);
-							}
 					    	c.setScale(32);
 					    	c.setPrecision(64);
 					    	//System.err.println(c.getScale() + "\t" + c.getPrecision());
@@ -1179,45 +1019,8 @@ if (myDBPanel1 != null) {
 									sorter.setComparator(i+2, new MyDoubleSorter());
 								}
 					    	}
-					    	/*
-					    	String[] mnTable = actualTable.getMNTable();
-					    	if (mnTable != null && i < mnTable.length && mnTable[i] != null && mnTable[i].equals("DBL")) {
-					    		MyMNRenderer mymnr = new MyMNRenderer(this, i);
-						    	c.setUserCellRenderer(mymnr);
-					    		myDblmnr.add(mymnr);
-									//updateDBLHash(i); c.setUserCellRenderer(new MyComboBoxEditor(hashBox[i], true));
-						    	c.setReadOnly(true);					    		
-						    	tooltip += "\nHier sind mehrere Einträge/Kennzahlen möglich!";
-					    	}
-					    	*/
-					    	//c.setPrecision(6);
-					    	//tooltip += "\n<ACHTUNG: als Trennzeichen ist es hier notwendig einen Punkt zu benutzen und kein Komma (Bsp: 0.45)>";
 					    }
 					    else if (fieldTypes[i].equals("INTEGER")) {
-					    	//String fname = actualTable.getFieldNames()[i];
-							if (fname.equals("Wiederholungen")) {
-								c.setPreferredWidth(120);
-							} else if (fname.equals("FreigabeModus")) {
-								c.setPreferredWidth(110);
-							} else if (fname.equals("Gramfaerbung")) {
-								c.setPreferredWidth(100);
-							} else if (fname.equals("Humanpathogen")) {
-								c.setPreferredWidth(110);
-							} else if (fname.equals("Risikogruppe")) {
-								c.setPreferredWidth(100);
-							} else if (fname.equals("Klassifizierung")) {
-								c.setPreferredWidth(100);
-							} else if (fname.equals("KapazitaetEinheit")) {
-								c.setPreferredWidth(130);
-							} else if (fname.equals("#Chargenunits")) {
-								c.setPreferredWidth(130);
-							} else if (fname.equals("Therapie_Letal")) {
-								c.setPreferredWidth(130);
-							} else if (fname.equals("AnzahlFaelle")) {
-								c.setPreferredWidth(110);
-							} else if (fname.equals("AnzahlLabornachweise")) {
-								c.setPreferredWidth(120);
-							}
 					    	if (actualTable.getForeignFields() != null && actualTable.getForeignFields().length > i &&
 					    			actualTable.getForeignFields()[i] != null) { // Es gibt hier einen Fremdtable!
 					    		if (sorter != null) {
@@ -1240,33 +1043,22 @@ if (myDBPanel1 != null) {
 					    	if (sorter != null) {
 								sorter.setComparator(i+2, new MyLongSorter());
 							}	
-					    	if (actualTable.getFieldNames()[i].equals("HIT_Nummer")) {
-								c.setPreferredWidth(90);
-							}
 					    }
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, tooltip);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
-				    
-				    //System.out.println(i + "\t" + fieldTypes[i]);
 					}
-					//String titleStr = actualTable.getFieldNames()[i];
-					//if (c.getPreferredWidth() < 7*titleStr.length()) c.setPreferredWidth(titleStr.length() * 7);
-					
-					//System.out.println(titleStr + "\t" + titleStr.length() + "\t" + c.getPreferredWidth() + "\t" + packColumn(this.getTable(), mthcr, c.getColumnName(), 0));
 				}
 				int extraFields = 0;
 				if (!actualTable.getHideScore()) {
 					extraFields++;
 				      c = this.getColumn(fieldTypes.length+extraFields); // Guetescore
 				      c.setReadOnly(false);
-				      c.setPreferredWidth(110);
 				      Hashtable<Integer, ImageIcon> h = new Hashtable<Integer, ImageIcon>();
 				      h.put(new Integer(1), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/green.gif")));
 				      h.put(new Integer(2), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/yellow.gif")));
 				      h.put(new Integer(3), new ImageIcon(this.getClass().getResource("/org/hsh/bfr/db/gui/res/red.gif")));
 				      this.setCellComponent(c, Column.IMAGE_CELL, h);
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Hier kann eine SUBJEKTIVE Einschaetzung der Guete des Datensatzes (des Experiments, der Methode, ...) abgegeben werden\nACHTUNG: nicht vergessen diese Einschaetzung zu kommentieren im Feld Kommentar"));
-					    //if (actualTable.getHideScore()) c.setVisible(false);
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyIntegerSorter());
 						}
@@ -1275,11 +1067,8 @@ if (myDBPanel1 != null) {
 					extraFields++;
 				      c = this.getColumn(fieldTypes.length+extraFields); // Kommentar
 				      c.setReadOnly(false); // Kommentar
-				      c.setPreferredWidth(150);
-							//c.setType(Types.LONGVARCHAR); // Kommentar
 				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), "Kommentar")); c.setUserCellRenderer(new MyTextareaRenderer());
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, null));
-				      //if (actualTable.getHideKommentar()) c.setVisible(false);
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyStringSorter());
 						}
@@ -1287,14 +1076,11 @@ if (myDBPanel1 != null) {
 
 				if (!actualTable.getHideTested()) {
 					extraFields++;
-				      //System.out.println(sorterLfd + "\t" + this.getTable().getModel().getColumnCount());
 				      c = this.getColumn(fieldTypes.length+extraFields); // Geprueft
 				      c.setReadOnly(false); 
-					    c.setPreferredWidth(70);
 				      c.setUserCellEditor(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit ueberprueft"), this, true));
 				      c.setUserCellRenderer(new MyCheckBoxEditor(bundle.getString("Haekchen vorhanden = Datensatz wurde von einer zweiten Person auf Richtigkeit ueberprueft"), this, true));
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, "Datensaetze koennen von einem anderen Benutzer auf Richtigkeit hin geprueft werden.\nDies erhoeht die Guete des Eintrages."));
-					    //if (actualTable.getHideTested()) c.setVisible(false);
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyBooleanSorter());
 						}
@@ -1318,7 +1104,6 @@ if (myDBPanel1 != null) {
 					for (int i=0; i<foreignFields.length; i++) {
 						if (foreignFields[i] != null) {
 							c = this.getColumn(i+1); 
-							c.setPreferredWidth(200);
 							c.setReadOnly(true);
 							String[] mnTable = actualTable.getMNTable();
 							if (mnTable != null && i < mnTable.length && mnTable[i] != null && mnTable[i].length() > 0) {
@@ -1329,10 +1114,7 @@ if (myDBPanel1 != null) {
 								//c.setUserCellEditor(new MyComboBoxEditor(hashBox[i], false));
 								c.setUserCellRenderer(new MyComboBoxEditor(hashBox[i], true));								
 							}
-							if (foreignFields[i].getTablename().equals("DoubleKennzahlen")) {
-								c.setPreferredWidth(100);
-							}
-							else {
+							if (!foreignFields[i].getTablename().equals("DoubleKennzahlen")) {
 								tcm.getColumn(i+1).setHeaderRenderer(new MyTableHeaderCellRenderer(this, Color.LIGHT_GRAY, (fieldComments[i] == null ? actualTable.getFieldNames()[i] : fieldComments[i])));	//  + "\n<rechte Maustaste oder Ctrl+Enter>"							
 							}
 							//if (DBKernel.debug) {System.out.println("foreignFields (" + foreignFields[i].getTablename() + "): " + (System.currentTimeMillis() - ttt));ttt = System.currentTimeMillis();} 
@@ -1342,6 +1124,16 @@ if (myDBPanel1 != null) {
 				}			
 			}						
 		}		
+		adjustColumns();
+	}
+	public void adjustColumns() {
+		this.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		TableColumnAdjuster tca = new TableColumnAdjuster(this.getTable());
+		tca.setColumnDataIncluded(false);
+		tca.setColumnHeaderIncluded(true);
+		tca.setDynamicAdjustment(false);
+		//tca.setOnlyAdjustLarger(true);
+		tca.adjustColumns();		
 	}
 
 	public void updateRowHeader(final boolean setVisible) {

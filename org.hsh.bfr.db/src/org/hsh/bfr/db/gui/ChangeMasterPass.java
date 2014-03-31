@@ -26,7 +26,7 @@ public class ChangeMasterPass extends JDialog {
 		super(owner);
 		initComponents();
 		this.setIconImage(new ImageIcon(getClass().getResource("/org/hsh/bfr/db/gui/res/Database.gif")).getImage());
-		String sa = DBKernel.prefs.get("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), "");
+		String sa = DBKernel.getTempSA(DBKernel.HSHDB_PATH);
 		textField1.setText(sa);
 		passwordField1.requestFocus();
 	}
@@ -36,18 +36,24 @@ public class ChangeMasterPass extends JDialog {
 		String newPass = String.valueOf(passwordField1.getPassword());
 		if (newPass.equals(String.valueOf(passwordField2.getPassword()))) {
 			String ibText = "";
-			String oldSA = DBKernel.prefs.get("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), "");
-			if (!newSA.equals(oldSA)) { // first Input of User/Pass, not a Change
-				DBKernel.prefs.put("DBADMINUSER" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newSA);
-				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
-				DBKernel.prefs.prefsFlush();
+			String oldSA = DBKernel.getTempSA(DBKernel.HSHDB_PATH);
+			boolean success = false;
+			if (!newSA.equals(oldSA)) {
+				if (DBKernel.sendRequest("CREATE USER " + DBKernel.delimitL(newSA) + " PASSWORD '" + newPass + "' ADMIN", false)) {
+					if (DBKernel.getUsername().equals(DBKernel.getTempSA(DBKernel.HSHDB_PATH))) {
+				  		DBKernel.closeDBConnections(false);
+				  		DBKernel.myList.getMyDBTable().initConn(newSA, newPass);
+					}
+					if (DBKernel.sendRequest("DROP USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)), false)) {
+						DBKernel.removeAdminInfo(DBKernel.HSHDB_PATH);
+						success = true;
+					}
+				}
 			}
-			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false, true)) {
-				DBKernel.prefs.put("DBADMINPASS" + DBKernel.getCRC32(DBKernel.HSHDB_PATH), newPass);
-				DBKernel.prefs.prefsFlush();
+			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false)) {
+				success = true;
 			}
-			boolean success = DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH, true);
-			if (success) ibText = "Password successfully changed!";
+			if (success) ibText = "Successful Change!";
 			else ibText = "Couldn't change password...";
 			InfoBox ib = new InfoBox(this, ibText, true, new Dimension(300, 200), null, true);
 			ib.setVisible(true);

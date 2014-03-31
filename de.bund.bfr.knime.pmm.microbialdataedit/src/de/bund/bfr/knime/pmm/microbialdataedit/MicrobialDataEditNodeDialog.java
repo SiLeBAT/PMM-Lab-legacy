@@ -515,6 +515,32 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						table.setValueAt(unit, i, index);
 					}
 				}
+			} else if (column.equals(TimeSeriesSchema.ATT_AGENT)) {
+				Integer id = DBKernel.openAgentDBWindow(null);
+
+				if (id != null) {
+					String name = DBKernel.getValue("Agenzien", "ID", id + "",
+							"Agensname") + "";
+					AgentXml agent = new AgentXml(id, name, null,
+							DBKernel.getLocalDBUUID());
+
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(agent, i, index);
+					}
+				}
+			} else if (column.equals(TimeSeriesSchema.ATT_MATRIX)) {
+				Integer id = DBKernel.openMatrixDBWindow(null);
+
+				if (id != null) {
+					String name = DBKernel.getValue("Matrices", "ID", id + "",
+							"Matrixname") + "";
+					MatrixXml matrix = new MatrixXml(id, name, null,
+							DBKernel.getLocalDBUUID());
+
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(matrix, i, index);
+					}
+				}
 			}
 		}
 	}

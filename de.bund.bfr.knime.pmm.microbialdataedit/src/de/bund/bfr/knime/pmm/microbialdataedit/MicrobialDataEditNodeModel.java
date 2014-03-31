@@ -190,6 +190,13 @@ public class MicrobialDataEditNodeModel extends NodeModel {
 				tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, timeSeriesXml);
 			}
 
+			if (set.getReferences().containsKey(id)) {
+				PmmXmlDoc refXml = new PmmXmlDoc();
+
+				refXml.getElementSet().addAll(set.getReferences().get(id));
+				tuple.setValue(TimeSeriesSchema.ATT_LITMD, refXml);
+			}
+
 			PmmXmlDoc miscXml = new PmmXmlDoc();
 
 			for (int miscID : set.getConditions().keySet()) {

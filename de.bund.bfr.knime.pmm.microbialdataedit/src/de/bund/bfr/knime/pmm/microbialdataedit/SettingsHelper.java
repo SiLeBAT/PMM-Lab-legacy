@@ -42,6 +42,7 @@ import org.knime.core.node.NodeSettingsRO;
 import org.knime.core.node.NodeSettingsWO;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
@@ -63,6 +64,7 @@ public class SettingsHelper {
 	protected static final String CFGKEY_QUALITYSCORES = "QualityScores";
 	protected static final String CFGKEY_CHECKS = "Checks";
 	protected static final String CFGKEY_TIMESERIES = "TimeSeries";
+	protected static final String CFGKEY_REFERENCES = "References";
 
 	private Map<Integer, MiscXml> addedConditions;
 	private Map<Integer, Map<String, Double>> addedConditionValues;
@@ -78,6 +80,7 @@ public class SettingsHelper {
 	private Map<String, Integer> qualityScores;
 	private Map<String, Boolean> checks;
 	private Map<String, List<TimeSeriesXml>> timeSeries;
+	private Map<String, List<LiteratureItem>> references;
 
 	public SettingsHelper() {
 		addedConditions = new LinkedHashMap<Integer, MiscXml>();
@@ -94,6 +97,7 @@ public class SettingsHelper {
 		qualityScores = new LinkedHashMap<String, Integer>();
 		checks = new LinkedHashMap<String, Boolean>();
 		timeSeries = new LinkedHashMap<String, List<TimeSeriesXml>>();
+		references = new LinkedHashMap<String, List<LiteratureItem>>();
 	}
 
 	public void loadSettings(NodeSettingsRO settings) {
@@ -204,6 +208,14 @@ public class SettingsHelper {
 		} catch (InvalidSettingsException e) {
 			timeSeries = new LinkedHashMap<String, List<TimeSeriesXml>>();
 		}
+
+		try {
+			references = XmlConverter.xmlToObject(
+					settings.getString(CFGKEY_REFERENCES),
+					new LinkedHashMap<String, List<LiteratureItem>>());
+		} catch (InvalidSettingsException e) {
+			references = new LinkedHashMap<String, List<LiteratureItem>>();
+		}
 	}
 
 	public void saveSettings(NodeSettingsWO settings) {
@@ -231,6 +243,8 @@ public class SettingsHelper {
 		settings.addString(CFGKEY_CHECKS, XmlConverter.objectToXml(checks));
 		settings.addString(CFGKEY_TIMESERIES,
 				XmlConverter.objectToXml(timeSeries));
+		settings.addString(CFGKEY_REFERENCES,
+				XmlConverter.objectToXml(references));
 	}
 
 	public Map<Integer, MiscXml> getAddedConditions() {
@@ -347,5 +361,13 @@ public class SettingsHelper {
 
 	public void setTimeSeries(Map<String, List<TimeSeriesXml>> timeSeries) {
 		this.timeSeries = timeSeries;
+	}
+
+	public Map<String, List<LiteratureItem>> getReferences() {
+		return references;
+	}
+
+	public void setReferences(Map<String, List<LiteratureItem>> references) {
+		this.references = references;
 	}
 }

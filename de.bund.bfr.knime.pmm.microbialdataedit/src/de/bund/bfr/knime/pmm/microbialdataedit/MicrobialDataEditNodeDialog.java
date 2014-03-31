@@ -78,6 +78,8 @@ import org.knime.core.node.NotConfigurableException;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 
 import de.bund.bfr.knime.pmm.common.AgentXml;
+import de.bund.bfr.knime.pmm.common.DBUtilities;
+import de.bund.bfr.knime.pmm.common.LiteratureItem;
 import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MdInfoXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
@@ -175,6 +177,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		List<Integer> qualityScoreList = new ArrayList<Integer>();
 		List<Boolean> checkedList = new ArrayList<Boolean>();
 		List<List<TimeSeriesXml>> timeSeriesList = new ArrayList<List<TimeSeriesXml>>();
+		List<List<LiteratureItem>> referenceList = new ArrayList<List<LiteratureItem>>();
 		List<MiscXml> usedMiscs = new ArrayList<MiscXml>();
 		List<List<Double>> usedMiscValues = new ArrayList<List<Double>>();
 		List<List<String>> usedMiscUnits = new ArrayList<List<String>>();
@@ -211,10 +214,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					TimeSeriesSchema.ATT_MDINFO).get(0);
 			PmmXmlDoc miscXml = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
 			List<TimeSeriesXml> series = new ArrayList<TimeSeriesXml>();
+			List<LiteratureItem> ref = new ArrayList<LiteratureItem>();
 
 			for (PmmXmlElementConvertable el : tuple.getPmmXml(
 					TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
 				series.add((TimeSeriesXml) el);
+			}
+
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					TimeSeriesSchema.ATT_LITMD).getElementSet()) {
+				ref.add((LiteratureItem) el);
 			}
 
 			String id;
@@ -279,6 +288,12 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				timeSeriesList.add(series);
 			}
 
+			if (set.getReferences().containsKey(id)) {
+				referenceList.add(set.getReferences().get(id));
+			} else {
+				referenceList.add(ref);
+			}
+
 			for (int i = 0; i < usedMiscs.size(); i++) {
 				Double value = null;
 				String unit = null;
@@ -323,8 +338,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		EditTable tableModel = new EditTable(ids, agentList, agentDetailList,
 				matrixList, matrixDetailList, commentList, qualityScoreList,
-				checkedList, timeSeriesList, usedMiscs, usedMiscValues,
-				usedMiscUnits);
+				checkedList, timeSeriesList, referenceList, usedMiscs,
+				usedMiscValues, usedMiscUnits);
 
 		for (int miscID : set.getAddedConditions().keySet()) {
 			tableModel.addCondition(set.getAddedConditions().get(miscID), set
@@ -357,6 +372,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		set.setQualityScores(model.getQualityScoreMap());
 		set.setChecks(model.getCheckedMap());
 		set.setTimeSeries(model.getTimeSeriesMap());
+		set.setReferences(model.getReferenceMap());
 		set.saveSettings(settings);
 	}
 
@@ -374,9 +390,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table.getColumn(MdInfoXml.ATT_QUALITYSCORE).setCellEditor(
 				new QualityScoreEditor());
 		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellRenderer(
-				new TimeSeriesRenderer());
+				new ButtonRenderer("View"));
 		table.getColumn(TimeSeriesSchema.ATT_TIMESERIES).setCellEditor(
 				new TimeSeriesEditor());
+		table.getColumn(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))
+				.setCellRenderer(new ButtonRenderer("Edit"));
+		table.getColumn(AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD))
+				.setCellEditor(new ReferencesEditor());
 		table.setRowHeight((new JComboBox<String>()).getPreferredSize().height);
 
 		for (int id : usedConditionNames.keySet()) {
@@ -573,6 +593,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 						table.setValueAt(dialog.getScore(), i, index);
 					}
 				}
+			} else if (column.equals(AttributeUtilities
+					.getName(TimeSeriesSchema.ATT_LITMD))) {
+				ReferencesDialog dialog = new ReferencesDialog(
+						table.getTableHeader(), new ArrayList<LiteratureItem>());
+
+				dialog.setVisible(true);
+
+				if (dialog.isApproved()) {
+					for (int i = 0; i < table.getRowCount(); i++) {
+						table.setValueAt(dialog.getRef(), i, index);
+					}
+				}
 			}
 		}
 	}
@@ -626,6 +658,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<Integer> qualityScores;
 		private List<Boolean> checks;
 		private List<List<TimeSeriesXml>> timeSeries;
+		private List<List<LiteratureItem>> references;
 		private List<MiscXml> conditions;
 		private List<List<Double>> conditionValues;
 		private List<List<String>> conditionUnits;
@@ -637,8 +670,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				List<String> agentDetails, List<MatrixXml> matrices,
 				List<String> matrixDetails, List<String> comments,
 				List<Integer> qualityScores, List<Boolean> checks,
-				List<List<TimeSeriesXml>> timeSeries, List<MiscXml> conditions,
-				List<List<Double>> conditionValues,
+				List<List<TimeSeriesXml>> timeSeries,
+				List<List<LiteratureItem>> references,
+				List<MiscXml> conditions, List<List<Double>> conditionValues,
 				List<List<String>> conditionUnits) {
 			this.ids = ids;
 			this.agents = agents;
@@ -649,6 +683,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			this.qualityScores = qualityScores;
 			this.checks = checks;
 			this.timeSeries = timeSeries;
+			this.references = references;
 			this.conditions = conditions;
 			this.conditionValues = conditionValues;
 			this.conditionUnits = conditionUnits;
@@ -861,6 +896,16 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			return map;
 		}
 
+		public Map<String, List<LiteratureItem>> getReferenceMap() {
+			Map<String, List<LiteratureItem>> map = new LinkedHashMap<String, List<LiteratureItem>>();
+
+			for (int i = 0; i < getRowCount(); i++) {
+				map.put(ids.get(i), references.get(i));
+			}
+
+			return map;
+		}
+
 		@Override
 		public int getRowCount() {
 			return ids.size();
@@ -892,8 +937,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return checks.get(rowIndex);
 			case 8:
 				return timeSeries.get(rowIndex);
+			case 9:
+				return references.get(rowIndex);
 			default:
-				int i = columnIndex - 9;
+				int i = columnIndex - 10;
 
 				if (i < conditions.size() * 2) {
 					if (i % 2 == 0) {
@@ -934,8 +981,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return MdInfoXml.ATT_CHECKED;
 			case 8:
 				return TimeSeriesSchema.ATT_TIMESERIES;
+			case 9:
+				return AttributeUtilities.getName(TimeSeriesSchema.ATT_LITMD);
 			default:
-				int i = column - 9;
+				int i = column - 10;
 
 				if (i < conditions.size() * 2) {
 					String cond = conditions.get(i / 2).getName();
@@ -980,8 +1029,10 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				return Boolean.class;
 			case 8:
 				return List.class;
+			case 9:
+				return List.class;
 			default:
-				int i = columnIndex - 9;
+				int i = columnIndex - 10;
 
 				if (i % 2 == 0) {
 					return Double.class;
@@ -1026,8 +1077,11 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			case 8:
 				timeSeries.set(rowIndex, (List<TimeSeriesXml>) aValue);
 				break;
+			case 9:
+				references.set(rowIndex, (List<LiteratureItem>) aValue);
+				break;
 			default:
-				int i = columnIndex - 9;
+				int i = columnIndex - 10;
 
 				if (i < conditions.size() * 2) {
 					if (i % 2 == 0) {
@@ -1273,13 +1327,19 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 	}
 
-	private static class TimeSeriesRenderer implements TableCellRenderer {
+	private static class ButtonRenderer implements TableCellRenderer {
+
+		private String name;
+
+		public ButtonRenderer(String name) {
+			this.name = name;
+		}
 
 		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object value, boolean isSelected, boolean hasFocus, int row,
 				int column) {
-			return new JButton("View");
+			return new JButton(name);
 		}
 	}
 
@@ -1317,6 +1377,156 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					true);
 
 			dialog.setVisible(true);
+		}
+	}
+
+	private static class ReferencesEditor extends AbstractCellEditor implements
+			TableCellEditor, ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton button;
+		private List<LiteratureItem> references;
+
+		public ReferencesEditor() {
+			button = new JButton("View");
+			button.addActionListener(this);
+			references = new ArrayList<LiteratureItem>();
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public Component getTableCellEditorComponent(JTable table,
+				Object value, boolean isSelected, int row, int column) {
+			references = (List<LiteratureItem>) value;
+
+			return button;
+		}
+
+		@Override
+		public Object getCellEditorValue() {
+			return references;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent arg0) {
+			ReferencesDialog dialog = new ReferencesDialog(button, references);
+
+			dialog.setVisible(true);
+
+			if (dialog.isApproved()) {
+				references = dialog.getRef();
+				stopCellEditing();
+			}
+		}
+	}
+
+	private static class ReferencesDialog extends JDialog implements
+			ActionListener {
+
+		private static final long serialVersionUID = 1L;
+
+		private JButton addLiteratureButton;
+		private JButton removeLiteratureButton;
+		private JList<LiteratureItem> literatureList;
+
+		private JButton okButton;
+		private JButton cancelButton;
+
+		private boolean approved;
+		private List<LiteratureItem> ref;
+
+		public ReferencesDialog(Component owner, List<LiteratureItem> initRef) {
+			super(JOptionPane.getFrameForComponent(owner),
+					MdInfoXml.ATT_QUALITYSCORE, true);
+
+			approved = false;
+			ref = new ArrayList<LiteratureItem>(initRef);
+
+			addLiteratureButton = new JButton("Add");
+			addLiteratureButton.addActionListener(this);
+			removeLiteratureButton = new JButton("Remove");
+			removeLiteratureButton.addActionListener(this);
+			literatureList = new JList<LiteratureItem>();
+			literatureList.setListData(ref.toArray(new LiteratureItem[0]));
+			okButton = new JButton("OK");
+			okButton.addActionListener(this);
+			cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(this);
+
+			JPanel northPanel = new JPanel();
+
+			northPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+			northPanel.add(addLiteratureButton);
+			northPanel.add(removeLiteratureButton);
+
+			JPanel panel = new JPanel();
+
+			panel.setBorder(BorderFactory.createTitledBorder("Literature"));
+			panel.setLayout(new BorderLayout());
+			panel.add(northPanel, BorderLayout.NORTH);
+			panel.add(new JScrollPane(literatureList), BorderLayout.CENTER);
+
+			JPanel southPanel = new JPanel();
+
+			southPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+			southPanel.add(okButton);
+			southPanel.add(cancelButton);
+
+			setLayout(new BorderLayout(5, 5));
+			add(northPanel, BorderLayout.NORTH);
+			add(panel, BorderLayout.CENTER);
+			add(southPanel, BorderLayout.SOUTH);
+			pack();
+			setResizable(false);
+			setLocationRelativeTo(owner);
+		}
+
+		public boolean isApproved() {
+			return approved;
+		}
+
+		public List<LiteratureItem> getRef() {
+			return ref;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				approved = true;
+				dispose();
+			} else if (e.getSource() == cancelButton) {
+				approved = false;
+				dispose();
+			} else if (e.getSource() == addLiteratureButton) {
+				Integer id = DBKernel.openLiteratureDBWindow(null);
+				Set<Integer> ids = new LinkedHashSet<Integer>();
+
+				for (LiteratureItem item : ref) {
+					ids.add(item.getId());
+				}
+
+				if (id != null && !ids.contains(id)) {
+					LiteratureItem l = DBUtilities.getLiteratureItem(id);
+
+					ref.add(l);
+					literatureList.setListData(ref
+							.toArray(new LiteratureItem[0]));
+				}
+			} else if (e.getSource() == removeLiteratureButton) {
+				if (literatureList.getSelectedIndices().length > 0) {
+					int[] indices = literatureList.getSelectedIndices();
+
+					Arrays.sort(indices);
+
+					for (int i = indices.length - 1; i >= 0; i--) {
+						ref.remove(indices[i]);
+					}
+
+					literatureList.setListData(ref
+							.toArray(new LiteratureItem[0]));
+				}
+			}
 		}
 	}
 

@@ -87,7 +87,6 @@ public class MyDBPanel extends JPanel {
 	private MyDBTable gmDbTable = null;
 	private Integer gmRow = null;
 	private MyDBForm myDBForm1;
-	private boolean isParameterTyp = false;
 	private boolean filterChangeAllowed = true;
 	private Filter defaultFilter = null;
 	
@@ -186,18 +185,11 @@ public class MyDBPanel extends JPanel {
 		setListVisible(false, null, null);
 	}
 	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions) {
-		return setListVisible(visible, myT2, conditions, null, null, false);
-	}
-	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions, boolean isParameterTyp) {
-		return setListVisible(visible, myT2, conditions, null, null, isParameterTyp);
+		return setListVisible(visible, myT2, conditions, null, null);
 	}
 	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions, MyDBTable dbTable, Integer row) {
-		return setListVisible(visible, myT2, conditions, dbTable, row, false);
-	}
-	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions, MyDBTable dbTable, Integer row, boolean isParameterTyp) {
 		gmDbTable = dbTable;
 		gmRow = row;
-		this.isParameterTyp = isParameterTyp;
 		t2Conditions = conditions;
 		splitPane2.getRightComponent().setVisible(visible);
 		//((WindowsSplitPaneUI) splitPane2.getUI()).getDivider().setVisible(visible);
@@ -365,7 +357,7 @@ public class MyDBPanel extends JPanel {
 		}
 		if (isMN()) {
 			MyTable myT2 = myDBTable2.getActualTable();
-			setListVisible(true, myT2, t2Conditions, gmDbTable, gmRow, isParameterTyp);
+			setListVisible(true, myT2, t2Conditions, gmDbTable, gmRow);
 		}
 	}
     private boolean checkMod(int modifiers, int mask) {
@@ -647,8 +639,7 @@ public class MyDBPanel extends JPanel {
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {
 					if (i == 0) vec.add(null); // ID
 					else if (i == 1) vec.add(null); // Basis ID wird in der Funktion insertNewRow eingetragen!
-					else if (i == (isParameterTyp || myDBTable2.getActualTable().getTablename().equals("Prozessdaten_Messwerte") ? 3 : 2)) vec.add(new Integer(id)); // Kit ID
-					else if (isParameterTyp && i == 2) vec.add("Param" + myDBTable2.getRowCount());
+					else if (i == (myDBTable2.getActualTable().getTablename().equals("Prozessdaten_Messwerte") ? 3 : 2)) vec.add(new Integer(id)); // Kit ID
 					else vec.add(null);
 				}				
 			//}

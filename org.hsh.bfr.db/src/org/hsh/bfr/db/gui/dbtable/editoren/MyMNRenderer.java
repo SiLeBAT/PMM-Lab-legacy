@@ -91,7 +91,11 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 		else if (value instanceof Integer) {
 			MyTable myFT = myT.getForeignFields() == null ? null : myT.getForeignFields()[selectedColumn];
     		if (myFT != null) {
-    			sql = myT.getMNSql(selectedColumn) + value;
+    			sql = myT.getMNSql(selectedColumn);
+    			if (!sql.endsWith("=")) {
+    				System.err.println("!= = " + sql);
+    			}
+    			else sql += value;
     			if (isINTmn) sql += " ORDER BY " + DBKernel.delimitL("ID") + " ASC";
 			}
 			else {

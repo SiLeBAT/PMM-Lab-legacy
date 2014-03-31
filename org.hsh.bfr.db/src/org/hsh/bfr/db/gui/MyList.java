@@ -511,11 +511,8 @@ if (dbForm != null || owner != null) {
 							tname = "Modell";
 						}
 						Object[][] o = new Object[1][2]; o[0][0] = tname; o[0][1] = dbTable.getValueAt(row, 0);
-						//if (tname == "GeschaetztesModell") myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o, dbTable, row);
 						if (tname.equals("GeschaetztesModell") && !mntname.equals("GeschaetztesModell_Referenz")) {
 							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o, dbTable, row);
-						} else if (tname.equals("Modell") && mntname.equals("ModellkatalogParameter")) {
-							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o, true);
 						} else {
 							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o);
 						}

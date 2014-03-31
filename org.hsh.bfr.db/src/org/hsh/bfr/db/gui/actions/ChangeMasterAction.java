@@ -39,6 +39,9 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
 
+import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.gui.ChangeMasterPass;
+
 /**
  * @author Armin
  *
@@ -56,10 +59,8 @@ public ChangeMasterAction(String name, Icon icon, String toolTip) {
     putValue(Action.SMALL_ICON, icon);
   }    
 
-  public void actionPerformed(ActionEvent e) {
-	  /*
+  public void actionPerformed(ActionEvent e) {	  
 		ChangeMasterPass cmp = new ChangeMasterPass(DBKernel.mainFrame);
-		cmp.setVisible(true);
-		*/
+		cmp.setVisible(true);		
 	}
 }

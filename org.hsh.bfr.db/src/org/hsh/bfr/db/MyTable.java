@@ -51,6 +51,7 @@ import javax.swing.table.TableRowSorter;
 
 import org.hsh.bfr.db.gui.dbtable.MyDBForm;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.gui.dbtable.editoren.MyMNSQLJoinCollector;
 
 /**
  * @author Armin
@@ -78,6 +79,7 @@ public class MyTable {
 	private int child = -1; // Where to show in list
 	
 	private Callable<Void> caller4Trigger = null;
+	private String[] mnSQL = null;
 	
 	// Parameter zum Abspeichern
 	private LinkedHashMap<Integer, Integer> rowHeights = new LinkedHashMap<Integer, Integer>();
@@ -201,6 +203,25 @@ public class MyTable {
 				|| tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter")
 				|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 				 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
+	}
+	public String getMNSql(int selectedColumn) {
+		if (mnSQL == null) mnSQL = new String[mnTable.length];
+		if (mnSQL[selectedColumn] != null && !mnSQL[selectedColumn].isEmpty()) return mnSQL[selectedColumn]; 
+		
+		String sql = "";
+		boolean isINTmn = mnTable != null && selectedColumn < mnTable.length && mnTable[selectedColumn] != null && mnTable[selectedColumn].equals("INT");
+		MyTable myFT = this.getForeignFields() == null ? null : this.getForeignFields()[selectedColumn];
+		String myMN = this.getMNTable() == null ? null : this.getMNTable()[selectedColumn];
+		if (myFT != null) {
+			if (isINTmn) {
+	    		sql = getSQL(myFT, myMN, this);
+    		}
+			else {
+	    		sql = getSQL(myFT, myMN, this);
+			}
+		}
+		mnSQL[selectedColumn] = sql;
+		return sql;
 	}
 	public Callable<Void> getCaller4Trigger() {
 		return caller4Trigger;
@@ -487,7 +508,116 @@ public class MyTable {
     return result;
   }
   
-  public String getMetadata() {
+	private String getFieldname(MyTable mnT, MyTable myT) {
+		String[] fn = mnT.getFieldNames();
+		for (int i=0;i<fn.length;i++) {
+			MyTable mt = mnT.getForeignFields()[i];
+			if (mt != null && mt.equals(myT)) return fn[i];
+		}
+		return null;
+	}
+	private MyTable getForeignTable(MyTable myT, String fieldName) {
+		if (fieldName != null && myT != null && myT.getForeignFields() != null) {
+			String[] fn = myT.getFieldNames();
+			for (int i=0;i<fn.length;i++) {
+				if (fieldName.equals(fn[i])) {
+					return myT.getForeignFields()[i];
+				}
+			}
+		}
+		return null;
+	}
+	private void collectJoins(MyTable myFT, MyMNSQLJoinCollector mnsqlc) {
+		if (myFT != null && myFT.getFields2ViewInGui() != null) {
+			mnsqlc.getAlreadyJoined().add(myFT);
+			for (String s : myFT.getFields2ViewInGui()) {
+				MyTable mt2 = getForeignTable(myFT, s);
+				if (mt2 == null) mnsqlc.addToSelect("," + getAdd2Select(myFT, s));
+				else {
+					if (!mnsqlc.getAlreadyJoined().contains(mt2)) {
+						String join = " LEFT JOIN " + DBKernel.delimitL(mt2.getTablename()) +
+								" ON " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(s) + "=" +
+								DBKernel.delimitL(mt2.getTablename()) + "." + DBKernel.delimitL("ID");
+						mnsqlc.addToJoin(join);
+						collectJoins(mt2, mnsqlc);
+					}
+				}
+			}
+		}
+	}
+	private String getAdd2Select(MyTable myT, String fieldName) {
+		LinkedHashMap<Object, String> hash = getHash(myT, fieldName);
+		String field = DBKernel.delimitL(myT.getTablename()) + "." + DBKernel.delimitL(fieldName);
+		if (hash == null || hash.size() == 0) {
+			return field;
+		}
+		else {
+			String result = "CASE";
+			for (Object key : hash.keySet()) {
+				result += " WHEN " + field + "=" + key + " THEN '" + hash.get(key) + "' ";
+			}
+			result += " ELSE 'unknown' END";
+			return result;
+		}
+	}
+	private LinkedHashMap<Object, String> getHash(MyTable myT, String fieldName) {
+		if (fieldName != null && myT != null && myT.getForeignHashs() != null) {
+			String[] fn = myT.getFieldNames();
+			for (int i=0;i<fn.length;i++) {
+				if (fieldName.equals(fn[i])) {
+					return myT.getForeignHashs()[i];
+				}
+			}
+		}
+		return null;
+	}
+	private String getSQL(MyTable myFT, String myMN, MyTable myT) {
+		String sql = "";
+		MyTable mnT = (myMN == null || myMN.equals("INT") ? null : DBKernel.myDBi.getTable(myMN));
+		String toSelect = DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL("ID");
+		String toJoin = getMNJoin(mnT, myFT);
+		MyMNSQLJoinCollector mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);
+		collectJoins(myFT, mnsqlc);
+		collectJoins(mnT, mnsqlc);
+		String toWhere = "";
+		if (mnT != null) {
+			String fn = getFieldname(mnT, myT); // myFT
+			if (fn != null) {
+				toWhere = " WHERE " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
+			}
+			else {
+				System.err.println("mnF2 = null...\t" + mnT + "\t" + myFT + "\t" + myT);
+			}
+		}
+		else if (myT != null) {
+			String fn = getFieldname(myFT, myT);
+			if (fn != null) {
+				toWhere = " WHERE " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
+			}
+			else {
+				System.err.println("mnF2 = null...\t" + myFT + "\t" + myT);
+			}
+		}
+		sql = "SELECT " + mnsqlc.getToSelect() + " FROM " + DBKernel.delimitL(myFT.getTablename()) + mnsqlc.getToJoin() + toWhere;
+		return sql;
+	}
+	private String getMNJoin(MyTable mnT, MyTable myFT) {
+		String toJoin = "";
+		if (mnT != null) {
+			String mnF1 = getFieldname(mnT, myFT);
+			if (mnF1 != null) {
+				toJoin += " LEFT JOIN " + DBKernel.delimitL(mnT.getTablename()) +
+						" ON " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(mnF1) + "=" +
+						DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL("ID");
+			}
+			else {
+				System.err.println("mnF1 = null....");
+			}
+		}		
+		return toJoin;
+	}
+
+	public String getMetadata() {
 	  String result = "--------------  " + tableName + "  --------------\n";
 	    for (int i=0;i<fieldNames.length;i++) {
 	    	result += fieldNames[i] + "\t" + (fieldComments[i] == null ? fieldNames[i] : fieldComments[i]) + "\t" + fieldTypes[i] + "\n";

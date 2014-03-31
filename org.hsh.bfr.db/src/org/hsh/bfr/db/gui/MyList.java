@@ -185,31 +185,9 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    
 		    
 		    this.setModel(new InvisibleTreeModel(root, false, true));
-		    //((InvisibleTreeModel) this.getModel()).activateFilter(true);
 		    ((InvisibleTreeModel) this.getModel()).reload();
-		    //DefaultTreeModel dfm = (InvisibleTreeModel) this.getModel();
-		    //dfm.setRoot(root);
-		    //((InvisibleTreeModel) this.getModel()).setRoot(root);
 		    this.addTreeSelectionListener(this);
-		    /*
-		    final JTree tree = this;
-		    this.addMouseListener( new MouseAdapter() {
-		      public void mousePressed(MouseEvent e) {
-		      	if (e.getButton() != MouseEvent.BUTTON1) {
-		      		TreePath tp = tree.getPathForLocation(e.getX(), e.getY());
-		      		if (tp != null) {
-				        InvisibleNode selectedInvisibleNode = (InvisibleNode) tp.getLastPathComponent();
-				       	if (selectedInvisibleNode != null && selectedInvisibleNode.getUserObject() instanceof MyTable) {
-				        	MyTable myT = (MyTable) selectedInvisibleNode.getUserObject();
-				        	openNewWindow(myT, null, null, null, null, null);
-				      	}	      			
-		      		}		      	
-		      	}
-		      }
-		    });
-		    */
 		    this.addKeyListener(this);
-		    //this.setRootVisible(false);
 		}		
 	}
 	public MyDBTree getMyDBTree() {
@@ -654,6 +632,11 @@ if (dbForm != null || owner != null) {
 		else if (myT != null && tn.equals("GeschaetzteModelle") &&
 				headerValue != null && headerValue.toString().equals("GeschaetzteParameterCovCor")) {
 			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 0);
+			newDBTable.setTable(theNewTable, o);
+		}
+		else if (myT != null && tn.equals("Modellkatalog") &&
+				headerValue != null && headerValue.toString().equals("Parameter")) {
+			Object[][] o = new Object[1][2]; o[0][0] = "Modell"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&

@@ -24,6 +24,7 @@ public class XmlLoader {
 		xstream.omitField(MyTable.class, "horizontalScrollerPosition");
 		xstream.omitField(MyTable.class, "form_SelectedID");
 		xstream.omitField(MyTable.class, "caller4Trigger");
+		xstream.omitField(MyTable.class, "mnSQL");
 		return xstream;
 	}
 	public static String getXml() {

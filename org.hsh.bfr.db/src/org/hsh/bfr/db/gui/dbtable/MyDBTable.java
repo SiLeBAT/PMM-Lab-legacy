@@ -608,6 +608,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				this.selectCell(this.getRowCount()-1, this.getSelectedColumn());
 			}
 		}
+		adjustColumns();
 	}
 	public void refreshHashbox() {
   		MyTable[] foreignFields = actualTable.getForeignFields();
@@ -1123,13 +1124,16 @@ if (myDBPanel1 != null) {
 				}			
 			}						
 		}		
+		adjustColumns();
+	}
+	public void adjustColumns() {
 		this.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		TableColumnAdjuster tca = new TableColumnAdjuster(this.getTable());
 		tca.setColumnDataIncluded(false);
 		tca.setColumnHeaderIncluded(true);
 		tca.setDynamicAdjustment(false);
-		tca.setOnlyAdjustLarger(true);
-		tca.adjustColumns();
+		//tca.setOnlyAdjustLarger(true);
+		tca.adjustColumns();		
 	}
 
 	public void updateRowHeader(final boolean setVisible) {

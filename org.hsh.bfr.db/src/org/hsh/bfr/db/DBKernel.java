@@ -69,8 +69,6 @@ import java.util.Locale;
 import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
-import java.util.zip.CRC32;
-import java.util.zip.Checksum;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -173,69 +171,6 @@ public class DBKernel {
 	public static String getLanguage() {
 		return !isKNIME && !isKrise ? "de" : "en"; // isKrise || 
 	}
-	  public static boolean saveUP2PrefsTEMP(String dbPath) {
-		  return saveUP2PrefsTEMP(dbPath, false);
-	  }
-	  public static boolean saveUP2PrefsTEMP(String dbPath, boolean onlyCheck) {
-		  boolean result = false;
-			String sa = DBKernel.prefs.get("DBADMINUSER" + getCRC32(dbPath),"00");
-			String pass = DBKernel.prefs.get("DBADMINPASS" + getCRC32(dbPath),"00");
-			if (onlyCheck || sa.equals("00") || pass.equals("00")) {
-		  		DBKernel.closeDBConnections(false);
-		  		
-		  		try {
-			  		sa = getDefaultSA();
-			  		pass = getDefaultSAPass();
-			  		Connection conn = getDBConnection(dbPath, sa, pass, false);
-			  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
-			  		if (!onlyCheck) {
-				  		if (conn == null) {
-				  			sa = getDefaultSA(true);
-				  			conn = getDBConnection(dbPath, sa, pass, false);
-					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
-				  		}
-				  		if (conn == null) {
-				  			pass = getDefaultSAPass(true);
-				  			conn = getDBConnection(dbPath, sa, pass, false);
-					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
-				  		}
-				  		if (conn == null) {
-				  			sa = getDefaultSA(false);
-				  			conn = getDBConnection(dbPath, sa, pass, false);
-					  		if (conn != null && !isAdmin(conn, sa)) {conn.close(); conn = null;}
-				  		}
-			  		}
-			  		if (conn == null) System.err.println("save Pass to Prefs failed...");
-			  		else {
-			  			if (!onlyCheck) {
-							DBKernel.prefs.put("DBADMINUSER" + getCRC32(dbPath), sa);
-							DBKernel.prefs.put("DBADMINPASS" + getCRC32(dbPath), pass);		
-							DBKernel.prefs.prefsFlush();
-			  			}
-						result = true;
-						//System.err.println("pass combi is: " + sa + "\t" + pass);
-			  		}
-		  		}
-		  		catch(Exception e) {e.printStackTrace();}
-				
-		  		try {
-			  		DBKernel.closeDBConnections(false);
-			  		DBKernel.getDBConnection();
-			  		if (DBKernel.myList != null && DBKernel.myList.getMyDBTable() != null) {
-			  			DBKernel.myList.getMyDBTable().setConnection(DBKernel.getDBConnection());
-			  		}				
-		  		}
-		  		catch(Exception e) {}
-			}
-			return result;
-	  }
-	  public static long getCRC32(String str) {
-		  if (str == null) return 0;
-		  Checksum checksum = new CRC32();
-		  byte b[] = str.getBytes();
-		  checksum.update(b,0,b.length);
-		  return checksum.getValue();
-	  }
 	  public static boolean getUP(String dbPath) {
 		  boolean result = false;
 	  		DBKernel.closeDBConnections(false);	  		
@@ -1279,8 +1214,15 @@ public class DBKernel {
     	        	  String v = handleField(rs.getObject(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, true, alreadyUsed);
     	        	  if (!v.isEmpty()) {
         	        	  String cn = rs.getMetaData().getColumnName(i);
-        	        	  if (foreignTable.equals("DoubleKennzahlen") && (cn.equals("Exponent") || cn.endsWith("_exp"))) value = value.substring(0, value.length() - 1) + " * 10^" + v;
-        	        	  else value += cn + ": " + v;
+        	        	  if (foreignTable.equals("DoubleKennzahlen") && (cn.equals("Exponent") || cn.endsWith("_exp"))) {
+        	        		  if (value.endsWith("\n")) value = value.substring(0, value.length() - 1) + " * 10^" + v;
+        	        		  else {
+        	        			  value += (cn.equals("Exponent") ? "Wert" : (cn.endsWith("_exp") ? cn.substring(0, cn.length() - 4) : cn)) + ": " + "1 * 10^" + v;
+        	        		  }
+        	        	  }
+        	        	  else {
+        	        		  value += cn + ": " + v;
+        	        	  }
     	        	  }
     	  	      }
         	}

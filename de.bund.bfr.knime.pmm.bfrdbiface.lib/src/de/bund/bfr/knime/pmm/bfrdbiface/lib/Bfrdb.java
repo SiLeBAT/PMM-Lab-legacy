@@ -1724,7 +1724,7 @@ public class Bfrdb extends Hsqldbiface {
 			ps.executeUpdate();			
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace(); }
+		catch( SQLException ex ) {} //  ex.printStackTrace(); 
 	}
 	@SuppressWarnings("unused")
 	private Integer combaseDataAlreadyIn(final String combaseId) {

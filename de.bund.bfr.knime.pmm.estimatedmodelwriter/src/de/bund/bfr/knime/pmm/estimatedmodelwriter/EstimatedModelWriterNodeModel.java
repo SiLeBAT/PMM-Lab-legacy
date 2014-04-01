@@ -409,7 +409,7 @@ if (true) return null;
 							}
 							else {
 								foreignDbIds = checkID(conn, true, dbuuid, row, gmSchemaID, null, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
-								newGlobalModelId = db.insertGm(foreignDbIds.get(dbuuid).get("GlobalModels").get(gmSchemaID));
+								newGlobalModelId = db.insertGm(row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID));
 								foreignDbIds = checkID(conn, false, dbuuid, row, gmSchemaID, newGlobalModelId, foreignDbIds, row.getString(Model2Schema.ATT_DBUUID));
 								alreadyInsertedGModel.put(gmSchemaID, newGlobalModelId);
 							}
@@ -463,13 +463,13 @@ if (true) return null;
 				
 				if (oldID != null) {
 					if (d.get("GlobalModels").containsKey(oldID)) {
-						if (before) ;//schemaTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(id));
+						if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(oldID));//schemaTuple.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, d.get("GlobalModels").get(id));
 						else if (d.get("GlobalModels").get(oldID).intValue() != row.getInt(Model2Schema.ATT_GLOBAL_MODEL_ID).intValue()) {
 							System.err.println("fillNewIDsIntoForeign ... shouldn't happen");
 						}
 					}
 					else {
-						if (before) d.get("GlobalModels").put(oldID, MathUtilities.getRandomNegativeInt());
+						if (before) row.setValue(Model2Schema.ATT_GLOBAL_MODEL_ID, MathUtilities.getRandomNegativeInt());//d.get("GlobalModels").put(oldID, MathUtilities.getRandomNegativeInt());
 						else d.get("GlobalModels").put(oldID, newID);
 					}
 				}

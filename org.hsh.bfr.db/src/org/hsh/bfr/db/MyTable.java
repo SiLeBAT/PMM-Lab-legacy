@@ -70,6 +70,7 @@ public class MyTable {
 	private String[] defaults = null;
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
 	private LinkedHashSet<String> fields2ViewInGui = null;
+	private String fields2ViewInGuiFormat = null;
 
 	private boolean hideScore = false;
 	private boolean hideTested = false;
@@ -108,9 +109,12 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null);		
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults) {
-		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, null, null);
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, null);
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedHashSet<String> fields2ViewInGui) {
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, null);
+	}
+	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedHashSet<String> fields2ViewInGui, String fields2ViewInGuiFormat) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -131,6 +135,7 @@ public class MyTable {
 		this.mnTable = mnTable;
 		this.defaults = defaults;
 		this.fields2ViewInGui = fields2ViewInGui;
+		this.fields2ViewInGuiFormat = fields2ViewInGuiFormat;
 		try {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
@@ -240,6 +245,10 @@ public class MyTable {
 	public LinkedHashSet<String> getFields2ViewInGui() {
 		return fields2ViewInGui;
 	}
+	public String getFields2ViewInGuiFormat() {
+		return fields2ViewInGuiFormat;
+	}
+	
 	public void saveProperties(MyDBForm myForm) {
 		form_SelectedID = myForm.getSelectedID();
 	}

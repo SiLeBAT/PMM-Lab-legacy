@@ -304,30 +304,32 @@ public class MdReaderUi extends JPanel {
         	}
 		}
 		
-		for (String par : parameter.keySet()) {
-			Double[] dbl = parameter.get(par);
-			if (dbl[0] == null && dbl[1] == null) continue;
-			boolean paramFound = false;
-			PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
-        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
-        		if (el instanceof MiscXml) {
-        			MiscXml mx = (MiscXml) el;
-        			if (mx.getName().equalsIgnoreCase(par)) {
-        				if (mx.getValue() == null) {
-        					paramFound = true;
-        					break;
-        				}
-        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
-        					return false;
-        				}
-        				else {
-        					paramFound = true;
-        					break;
-        				}
-        			}
-        		}
+		if (parameter != null) {
+			for (String par : parameter.keySet()) {
+				Double[] dbl = parameter.get(par);
+				if (dbl[0] == null && dbl[1] == null) continue;
+				boolean paramFound = false;
+				PmmXmlDoc miscXmlDoc = tuple.getPmmXml(TimeSeriesSchema.ATT_MISC);
+	        	for (PmmXmlElementConvertable el : miscXmlDoc.getElementSet()) {
+	        		if (el instanceof MiscXml) {
+	        			MiscXml mx = (MiscXml) el;
+	        			if (mx.getName().equalsIgnoreCase(par)) {
+	        				if (mx.getValue() == null) {
+	        					paramFound = true;
+	        					break;
+	        				}
+	        				if (dbl[0] != null && mx.getValue() < dbl[0] || dbl[1] != null && mx.getValue() > dbl[1]) {
+	        					return false;
+	        				}
+	        				else {
+	        					paramFound = true;
+	        					break;
+	        				}
+	        			}
+	        		}
+				}
+	        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
 			}
-        	if (!paramFound && (dbl[0] != null || dbl[1] != null)) return false;
 		}
 		
 		return true;

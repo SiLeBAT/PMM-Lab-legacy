@@ -432,7 +432,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	    		tuple.setValue(Model2Schema.ATT_DBUUID, dbuuid);
     		}
     		
-    		if (parameter == null || EmReaderUi.passesFilter(
+    		if (EmReaderUi.passesFilter(
 				level, qualityMode, qualityThresh,
 				matrixString, agentString, literatureString, matrixID, agentID, literatureID, parameter,
 				modelFilterEnabled, modelList, tuple)) {					

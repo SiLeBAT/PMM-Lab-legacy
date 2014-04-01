@@ -35,6 +35,7 @@ package de.bund.bfr.knime.pmm.secondarymodelanddataview;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -44,12 +45,14 @@ import java.util.Set;
 
 import org.knime.core.data.DataTable;
 
+import de.bund.bfr.knime.pmm.common.AgentXml;
 import de.bund.bfr.knime.pmm.common.CatalogModelXml;
 import de.bund.bfr.knime.pmm.common.CellIO;
 import de.bund.bfr.knime.pmm.common.DepXml;
 import de.bund.bfr.knime.pmm.common.EstModelXml;
 import de.bund.bfr.knime.pmm.common.IndepXml;
 import de.bund.bfr.knime.pmm.common.LiteratureItem;
+import de.bund.bfr.knime.pmm.common.MatrixXml;
 import de.bund.bfr.knime.pmm.common.MiscXml;
 import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
@@ -101,6 +104,8 @@ public class TableReader {
 		Map<String, Double> aicMap = new LinkedHashMap<String, Double>();
 		Map<String, Double> bicMap = new LinkedHashMap<String, Double>();
 		Map<String, Integer> dofMap = new LinkedHashMap<String, Integer>();
+		Map<String, Set<String>> agentMap = new LinkedHashMap<String, Set<String>>();
+		Map<String, Set<String>> matrixMap = new LinkedHashMap<String, Set<String>>();
 		List<String> miscParams = null;
 		Map<String, List<String>> miscCategories = null;
 		List<KnimeTuple> tuples;
@@ -119,14 +124,6 @@ public class TableReader {
 		longLegend = new LinkedHashMap<String, String>();
 		formulas = new ArrayList<String>();
 		parameterData = new ArrayList<Map<String, Double>>();
-		stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
-				Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
-				ChartConstants.STATUS);
-		stringColumnValues = new ArrayList<List<String>>();
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
-		stringColumnValues.add(new ArrayList<String>());
 		doubleColumns = Arrays.asList(Model2Schema.SSE, Model2Schema.MSE,
 				Model2Schema.RMSE, Model2Schema.RSQUARED, Model2Schema.AIC);
 		doubleColumnValues = new ArrayList<List<Double>>();
@@ -138,8 +135,6 @@ public class TableReader {
 		filterableStringColumns = Arrays.asList(ChartConstants.STATUS);
 		standardVisibleColumns = new ArrayList<String>(Arrays.asList(
 				ChartSelectionPanel.FORMULA, ChartSelectionPanel.PARAMETERS));
-		standardVisibleColumns.addAll(stringColumns);
-		standardVisibleColumns.addAll(doubleColumns);
 
 		if (schemaContainsData) {
 			try {
@@ -163,12 +158,36 @@ public class TableReader {
 				conditionUnits.add(new ArrayList<String>());
 				standardVisibleColumns.add(param);
 			}
+
+			stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
+					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
+					ChartConstants.STATUS, TimeSeriesSchema.ATT_AGENT,
+					TimeSeriesSchema.ATT_MATRIX);
+			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 		} else {
 			conditions = null;
 			conditionMinValues = null;
 			conditionMaxValues = null;
 			conditionUnits = null;
+
+			stringColumns = Arrays.asList(Model2Schema.ATT_DEPENDENT,
+					Model2Schema.FORMULA, Model2Schema.ATT_EMLIT,
+					ChartConstants.STATUS);
+			stringColumnValues = new ArrayList<List<String>>();
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
+			stringColumnValues.add(new ArrayList<String>());
 		}
+
+		standardVisibleColumns.addAll(stringColumns);
+		standardVisibleColumns.addAll(doubleColumns);
 
 		for (KnimeTuple tuple : tuples) {
 			DepXml depXml = (DepXml) tuple
@@ -251,6 +270,8 @@ public class TableReader {
 				aicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getAic());
 				bicMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getBic());
 				dofMap.put(id, ((EstModelXml) estModelXmlSec.get(0)).getDof());
+				agentMap.put(id, new LinkedHashSet<String>());
+				matrixMap.put(id, new LinkedHashSet<String>());
 
 				if (schemaContainsData) {
 					miscDataMaps.put(id,
@@ -290,6 +311,19 @@ public class TableReader {
 					}
 
 					miscDataMaps.get(id).get(param).add(paramValue);
+				}
+
+				AgentXml agent = (AgentXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_AGENT).get(0);
+				MatrixXml matrix = (MatrixXml) tuple.getPmmXml(
+						TimeSeriesSchema.ATT_MATRIX).get(0);
+
+				if (agent != null) {
+					agentMap.get(id).add(agent.getName());
+				}
+
+				if (matrix != null) {
+					matrixMap.get(id).add(matrix.getName());
 				}
 			}
 		}
@@ -358,6 +392,9 @@ public class TableReader {
 			doubleColumnValues.get(4).add(aicMap.get(id));
 
 			if (schemaContainsData) {
+				stringColumnValues.get(4).add(toString(agentMap.get(id)));
+				stringColumnValues.get(5).add(toString(matrixMap.get(id)));
+
 				List<Double> depVarData = depVarDataMap.get(id);
 				Map<String, List<Double>> miscs = miscDataMaps.get(id);
 
@@ -504,6 +541,20 @@ public class TableReader {
 
 	public Map<String, String> getLongLegend() {
 		return longLegend;
+	}
+
+	private static String toString(Collection<String> c) {
+		String result = "";
+
+		for (String s : c) {
+			result += s + ",";
+		}
+
+		if (!result.isEmpty()) {
+			result = result.substring(0, result.length() - 1);
+		}
+
+		return result;
 	}
 
 }

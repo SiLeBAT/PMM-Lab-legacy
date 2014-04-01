@@ -530,9 +530,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getAgent() != null) {
-				id = DBKernel.openAgentDBWindow(set.getAgent().getId());
+				id = DBKernel.openAgentDBWindow(agentButton, set.getAgent()
+						.getId());
 			} else {
-				id = DBKernel.openAgentDBWindow(null);
+				id = DBKernel.openAgentDBWindow(agentButton, null);
 			}
 
 			if (id != null) {
@@ -547,9 +548,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getMatrix() != null) {
-				id = DBKernel.openMatrixDBWindow(set.getMatrix().getId());
+				id = DBKernel.openMatrixDBWindow(matrixButton, set.getMatrix()
+						.getId());
 			} else {
-				id = DBKernel.openMatrixDBWindow(null);
+				id = DBKernel.openMatrixDBWindow(matrixButton, null);
 			}
 
 			if (id != null) {
@@ -571,9 +573,10 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (conditions.get(i) != null) {
-				id = DBKernel.openMiscDBWindow(conditions.get(i).getId());
+				id = DBKernel.openMiscDBWindow(condButtons.get(i), conditions
+						.get(i).getId());
 			} else {
-				id = DBKernel.openMiscDBWindow(null);
+				id = DBKernel.openMiscDBWindow(condButtons.get(i), null);
 			}
 
 			if (id != null) {
@@ -1127,7 +1130,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 							oldID = ((MiscXml) mappings.get(column)).getId();
 						}
 
-						Integer id = DBKernel.openMiscDBWindow(oldID);
+						Integer id = DBKernel.openMiscDBWindow(
+								mappingButtons.get(column), oldID);
 
 						if (id != null) {
 							String name = DBKernel.getValue(

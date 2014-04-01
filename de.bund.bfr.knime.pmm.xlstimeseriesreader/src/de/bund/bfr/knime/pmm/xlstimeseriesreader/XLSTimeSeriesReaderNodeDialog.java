@@ -367,9 +367,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getAgent() != null) {
-				id = DBKernel.openAgentDBWindow(set.getAgent().getId());
+				id = DBKernel.openAgentDBWindow(agentButton, set.getAgent()
+						.getId());
 			} else {
-				id = DBKernel.openAgentDBWindow(null);
+				id = DBKernel.openAgentDBWindow(agentButton, null);
 			}
 
 			if (id != null) {
@@ -384,9 +385,10 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 			Integer id;
 
 			if (set.getMatrix() != null) {
-				id = DBKernel.openMatrixDBWindow(set.getMatrix().getId());
+				id = DBKernel.openMatrixDBWindow(matrixButton, set.getMatrix()
+						.getId());
 			} else {
-				id = DBKernel.openMatrixDBWindow(null);
+				id = DBKernel.openMatrixDBWindow(matrixButton, null);
 			}
 
 			if (id != null) {
@@ -432,10 +434,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					Integer id;
 
 					if (set.getAgentMappings().get(value) != null) {
-						id = DBKernel.openAgentDBWindow(set.getAgentMappings()
-								.get(value).getId());
+						id = DBKernel.openAgentDBWindow(
+								agentButtons.get(value), set.getAgentMappings()
+										.get(value).getId());
 					} else {
-						id = DBKernel.openAgentDBWindow(null);
+						id = DBKernel.openAgentDBWindow(
+								agentButtons.get(value), null);
 					}
 
 					if (id != null) {
@@ -459,10 +463,13 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					Integer id;
 
 					if (set.getMatrixMappings().get(value) != null) {
-						id = DBKernel.openMatrixDBWindow(set
-								.getMatrixMappings().get(value).getId());
+						id = DBKernel
+								.openMatrixDBWindow(matrixButtons.get(value),
+										set.getMatrixMappings().get(value)
+												.getId());
 					} else {
-						id = DBKernel.openMatrixDBWindow(null);
+						id = DBKernel.openMatrixDBWindow(
+								matrixButtons.get(value), null);
 					}
 
 					if (id != null) {
@@ -486,10 +493,12 @@ public class XLSTimeSeriesReaderNodeDialog extends NodeDialogPane implements
 					Integer id;
 
 					if (set.getColumnMappings().get(column) instanceof MiscXml) {
-						id = DBKernel.openMiscDBWindow(((MiscXml) set
+						id = DBKernel.openMiscDBWindow(columnButtons
+								.get(column), ((MiscXml) set
 								.getColumnMappings().get(column)).getId());
 					} else {
-						id = DBKernel.openMiscDBWindow(null);
+						id = DBKernel.openMiscDBWindow(
+								columnButtons.get(column), null);
 					}
 
 					if (id != null) {

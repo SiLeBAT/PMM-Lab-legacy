@@ -425,7 +425,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == addButton) {
-			Integer id = DBKernel.openMiscDBWindow(null);
+			Integer id = DBKernel.openMiscDBWindow(addButton, null);
 
 			if (id != null) {
 				String name = DBKernel.getValue("SonstigeParameter", "ID", id
@@ -538,7 +538,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_AGENT)) {
-				Integer id = DBKernel.openAgentDBWindow(null);
+				Integer id = DBKernel.openAgentDBWindow(table.getTableHeader(),
+						null);
 
 				if (id != null) {
 					String name = DBKernel.getValue("Agenzien", "ID", id + "",
@@ -551,7 +552,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 					}
 				}
 			} else if (column.equals(TimeSeriesSchema.ATT_MATRIX)) {
-				Integer id = DBKernel.openMatrixDBWindow(null);
+				Integer id = DBKernel.openMatrixDBWindow(
+						table.getTableHeader(), null);
 
 				if (id != null) {
 					String name = DBKernel.getValue("Matrices", "ID", id + "",
@@ -1169,9 +1171,9 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 			Integer id;
 
 			if (agent != null) {
-				id = DBKernel.openAgentDBWindow(agent.getId());
+				id = DBKernel.openAgentDBWindow(button, agent.getId());
 			} else {
-				id = DBKernel.openAgentDBWindow(null);
+				id = DBKernel.openAgentDBWindow(button, null);
 			}
 
 			if (id != null) {
@@ -1236,13 +1238,13 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
+		public void actionPerformed(ActionEvent e) {
 			Integer id;
 
 			if (matrix != null) {
-				id = DBKernel.openMatrixDBWindow(matrix.getId());
+				id = DBKernel.openMatrixDBWindow(button, matrix.getId());
 			} else {
-				id = DBKernel.openMatrixDBWindow(null);
+				id = DBKernel.openMatrixDBWindow(button, null);
 			}
 
 			if (id != null) {

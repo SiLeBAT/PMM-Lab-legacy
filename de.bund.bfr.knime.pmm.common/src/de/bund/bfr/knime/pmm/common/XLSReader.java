@@ -543,6 +543,7 @@ public class XLSReader {
 
 			((EstModelXml) estXml.get(0)).setId(MathUtilities
 					.getRandomNegativeInt());
+			((EstModelXml) estXml.get(0)).setComment(getData(commentCell));
 
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;

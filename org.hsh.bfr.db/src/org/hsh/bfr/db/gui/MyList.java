@@ -293,6 +293,7 @@ public void valueChanged(final TreeSelectionEvent event) {
 	  	//JDialog f = new JDialog(DBKernel.mainFrame, titel, dbForm != null);
 	  	JDialog f = new JDialog(owner == null ? DBKernel.mainFrame : owner, titel);
 	  	f.setModal(dbForm != null || owner != null);
+	  	if (dbForm != null || owner != null) f.setModalityType(JDialog.ModalityType.DOCUMENT_MODAL); // DOCUMENT_MODAL APPLICATION_MODAL
 
 		MyDBTable newDBTable = new MyDBTable(); 
 		try {
@@ -416,6 +417,7 @@ if (dbForm != null || owner != null) {
   	@SuppressWarnings("unused")
 	boolean isRO = DBKernel.isReadOnly();
   	JDialog f = new JDialog(parentFrame, titel, (dbTable != null || fromMMC)); // !isRO && 
+  	if (dbTable != null || fromMMC) f.setModalityType(JDialog.ModalityType.DOCUMENT_MODAL); // DOCUMENT_MODAL APPLICATION_MODAL
 
 		MyDBTable newDBTable = new MyDBTable(); 
 		MyDBTree newDBTree = null; 
@@ -510,11 +512,21 @@ if (dbForm != null || owner != null) {
 						} else if (tname.equals("Modellkatalog")) {
 							tname = "Modell";
 						}
-						Object[][] o = new Object[1][2]; o[0][0] = tname; o[0][1] = dbTable.getValueAt(row, 0);
+						Object[][] o2 = new Object[1][2]; o2[0][0] = tname; o2[0][1] = dbTable.getValueAt(row, 0);
 						if (tname.equals("GeschaetztesModell") && !mntname.equals("GeschaetztesModell_Referenz")) {
-							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o, dbTable, row);
+							Object[][] o1 = new Object[1][2];
+							o1[0][0] = "Modell"; o1[0][1] = dbTable.getValueAt(row, 3);
+							/*
+							if (mntname.equals("GueltigkeitsBereiche")) {
+								o1[1][0] = "Parametertyp"; o1[1][1] = 1;						
+							}
+							else { // GeschaetzteParameter
+								o1[1][0] = "Parametertyp"; o1[1][1] = 2;						
+							}
+							*/
+							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o1, o2, row);
 						} else {
-							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o);
+							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o2);
 						}
 					}
 					myP.setParentDialog(f, false);

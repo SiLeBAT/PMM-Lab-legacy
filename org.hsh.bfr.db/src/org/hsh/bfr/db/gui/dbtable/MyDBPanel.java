@@ -81,10 +81,10 @@ public class MyDBPanel extends JPanel {
 	private boolean savePressed = false;
 	private boolean disableButtons = false;
 	private boolean disableAdding = false;
+	private Object[][] t1Conditions = null;
 	private Object[][] t2Conditions = null;
 	private int firstSelectedID = -1;
 	private long tf1LastFocus = 0;
-	private MyDBTable gmDbTable = null;
 	private Integer gmRow = null;
 	private MyDBForm myDBForm1;
 	private boolean filterChangeAllowed = true;
@@ -184,43 +184,27 @@ public class MyDBPanel extends JPanel {
 		splitPane1.setDividerLocation(visible ? 200 : 0);
 		setListVisible(false, null, null);
 	}
-	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions) {
-		return setListVisible(visible, myT2, conditions, null, null);
+	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] t2Conditions) {
+		return setListVisible(visible, myT2, null, t2Conditions, null);
 	}
-	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] conditions, MyDBTable dbTable, Integer row) {
-		gmDbTable = dbTable;
+	public MyDBTable setListVisible(boolean visible, MyTable myT2, Object[][] t1Conditions, Object[][] t2Conditions, Integer row) {
 		gmRow = row;
-		t2Conditions = conditions;
+		this.t1Conditions = t1Conditions;
+		this.t2Conditions = t2Conditions;
 		splitPane2.getRightComponent().setVisible(visible);
 		//((WindowsSplitPaneUI) splitPane2.getUI()).getDivider().setVisible(visible);
 		BasicSplitPaneUI splitPaneUI2 = (BasicSplitPaneUI)(splitPane2.getUI());
 		splitPaneUI2.getDivider().setVisible(visible);
 		if (myT2 != null) {
 			try {
-				if (dbTable != null) { // Geschaetztes Modell
-					myDBTable2.initConn(DBKernel.getDBConnection());					
-					Object[][] o = new Object[2][2];
-					o[0][0] = "Modell"; o[0][1] = dbTable.getValueAt(row, 2);
-					if (myT2.getTablename().equals("GueltigkeitsBereiche")) {
-						o[1][0] = "Parametertyp"; o[1][1] = 1;						
-					}
-					else { // GeschaetzteParameter
-						o[1][0] = "Parametertyp"; o[1][1] = 2;						
-					}
-					myDBTable1.setTable(myDBTable1.getActualTable(), o);
-					Object[][] o1 = new Object[1][2];
-					o1[0][0] = "GeschaetztesModell"; o1[0][1] = dbTable.getValueAt(row, 0);
-					myDBTable2.setTable(myT2, conditions);
+				myDBTable2.initConn(DBKernel.getDBConnection());					
+				if (t1Conditions != null) { // Geschaetztes Modell
+					myDBTable1.setTable(myDBTable1.getActualTable(), t1Conditions);
+					myDBTable2.setTable(myT2, t2Conditions);
 					myDBTable2.getColumn(2).setScale(-1);
 				}
 				else {
-					myDBTable2.initConn(DBKernel.getDBConnection());
-					myDBTable2.setTable(myT2, conditions);
-					//System.out.println(splitPane2.getPreferredSize().width + "\t" +  splitPane2.getWidth() + "\t" +  myDBTable1.getPreferredSize().width);
-					//int w = splitPane2.getWidth();
-					//if (w == 0) w = splitPane2.getPreferredSize().width - 16;
-					//this.doLayout();
-					//splitPane2.setDividerLocation(visible ? 0.6 : 1);	
+					myDBTable2.setTable(myT2, t2Conditions);
 				}
 				myDBTable2.getColumn(0).setVisible(false);
 				myDBTable2.getColumn(1).setVisible(false);
@@ -299,15 +283,6 @@ public class MyDBPanel extends JPanel {
 				//button10.setEnabled(false);
 				//button11.setEnabled(false);			
 			}
-			if (tablename.equals("Prozess_Verbindungen") && myDBTable1.getColumn(3).getReadOnly() ||
-					tablename.equals("Krankheitsbilder_Symptome") && myDBTable1.getColumn(3).getReadOnly() ||
-					tablename.equals("Krankheitsbilder_Risikogruppen") && myDBTable1.getColumn(3).getReadOnly() ||
-					 !DBKernel.isAdmin() && (tablename.equals("Matrices") || tablename.equals("Agenzien")) ||
-					 tablename.equals("GeschaetzteParameter") || false) { // where.trim().length() > 0
-		  		button1.setEnabled(false);
-		  		button2.setEnabled(false);
-		  		button4.setEnabled(false);
-			}
 			if (isMN()) button2.setEnabled(false);
 			//button12.setVisible(tablename.equals("Prozessdaten"));
 			if (tablename.equals("Krankheitsbilder")) {
@@ -357,7 +332,7 @@ public class MyDBPanel extends JPanel {
 		}
 		if (isMN()) {
 			MyTable myT2 = myDBTable2.getActualTable();
-			setListVisible(true, myT2, t2Conditions, gmDbTable, gmRow);
+			setListVisible(true, myT2, t1Conditions, t2Conditions, gmRow);
 		}
 	}
     private boolean checkMod(int modifiers, int mask) {
@@ -372,18 +347,7 @@ public class MyDBPanel extends JPanel {
 			myDBTable1.deleteRow();
 		}
 	}
-/*
-	private void button3ActionPerformed(ActionEvent e) {
-		int row = myDBTable1.getSelectedRow();
-		int col = myDBTable1.getSelectedColumn();
-		deselectRowSelectCell(row, col);
-	}
-	private void deselectRowSelectCell(int row, int col) {
-		//myDBTable1.clearSelection();
-		myDBTable1.selectCell(row, col, true);
-		myDBTable1.getTable().getSelectionModel().removeSelectionInterval(row, row);		
-	}
-*/
+
 	private void button4ActionPerformed(ActionEvent e) {
 		if (isFormVisible()) {
 			return;
@@ -400,8 +364,6 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void textField1KeyReleased(KeyEvent e) {
-		//if (e != null) searchBuffer += e.getKeyChar();
-		//System.err.println(System.currentTimeMillis() + "\t" + textField1.getText() + "\t" + (e != null ? e.getKeyChar() : "") + "\t" + searchBuffer);
 		handleSuchfeldChange(e);
 	}
 	public void handleSuchfeldChange(KeyEvent e) {
@@ -495,10 +457,10 @@ public class MyDBPanel extends JPanel {
 			this.myFounds = myFounds;
 			this.actualFindPos = actualFindPos;
 			int count = myFounds.size();
-	  	button6.setVisible(count > 0);
-	  	button7.setVisible(count > 0);
-	  	label2.setVisible(textField1.getText().length() > 0);
-	  	gotoFind(0);
+		  	button6.setVisible(count > 0);
+		  	button7.setVisible(count > 0);
+		  	label2.setVisible(textField1.getText().length() > 0);
+		  	gotoFind(0);
 		}
   }
 	private void textField1FocusGained(FocusEvent e) {
@@ -512,9 +474,9 @@ public class MyDBPanel extends JPanel {
 
 	private void button8ActionPerformed(ActionEvent e) {
 		//myDBTable1.myPrint();
-  	String tt = "";
-  	tt += "ID\t" + GuiMessages.getString("Benutzer") + "\t" + GuiMessages.getString("Letzte Aenderung") + "\n"; 
-  	tt += "-----------------------------\n\n"; 
+	  	String tt = "";
+	  	tt += "ID\t" + GuiMessages.getString("Benutzer") + "\t" + GuiMessages.getString("Letzte Aenderung") + "\n"; 
+	  	tt += "-----------------------------\n\n"; 
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			int modifiers = e.getModifiers();
@@ -528,16 +490,6 @@ public class MyDBPanel extends JPanel {
 						}
 				  	}			
 				}
-				/*
-				for (int i=0;i<myDBTable1.getRowCount();i++) {
-					Integer id = (Integer) myDBTable1.getValueAt(i, 0);
-					if (v != null) {
-					  	for (Map.Entry<Integer, String> entry : v.entrySet()) {
-					  		tt += id + "\t" + entry.getValue() + "\n"; 
-					  	}								
-					}
-				}
-				*/
 			}
 			else {
 				Integer id = getSelectedID();
@@ -564,12 +516,6 @@ public class MyDBPanel extends JPanel {
 		}
 		if (parentDialog != null) {
 			if (button10.isVisible()) {
-				/*
-				if (myDBTable1.getActualTable().getTablename().equals("Versuchsbedingungen")) {
-					System.out.println(firstSelectedID + "\t" + getSelectedID() + "\t" + myDBTable1.getSelectedRow());
-				}
-				*/
-				//System.out.println(firstSelectedID);
 				if (firstSelectedID >= 0 && firstSelectedID != getSelectedID()) {
 				    int retVal = JOptionPane.showConfirmDialog(parentDialog, // DBKernel.mainFrame
 				    		GuiMessages.getString("Es wurde eine andere Auswahl getroffen") + "!\n" + GuiMessages.getString("Sicher, dass das so sein soll???"),
@@ -581,7 +527,7 @@ public class MyDBPanel extends JPanel {
 				savePressed = true; // wenn button10 nicht visible, dann haBEN WIR HIER EIN M:N Table, dann kann man ohnehin nicht abbrechen, dann wird die selectedID auch nicht benötigt! OK soll aber dennoch erhalten bleiben, um die Anwender nicht zu irritieren. Abbrechen ist mir zu bucklig zu implementieren!
 			}
 			else {
-				  if (myDBTable1.getActualTable().getTablename().equals("Messwerte")) { // erstmal nur für Messwerte, andere Tabellen können hinzugefügt werden, muss aber erst gecheckt werden, vor allem wegen der Performance!!! Die scheint bei M:N Tabellen sehr  schlecht zu sein.
+				  //if (myDBTable1.getActualTable().getTablename().equals("Messwerte")) { // erstmal nur für Messwerte, andere Tabellen können hinzugefügt werden, muss aber erst gecheckt werden, vor allem wegen der Performance!!! Die scheint bei M:N Tabellen sehr  schlecht zu sein.
 					  String toShow = "";
 					  Vector<String[]> plausibility = PlausibilityChecker.getPlausibilityRow(myDBTable1, myDBTable1.getActualTable(), -1, "ID");
 					  if (plausibility != null && plausibility.size() == 1) {
@@ -601,7 +547,7 @@ public class MyDBPanel extends JPanel {
 							  return;
 						  }
 					  }
-				  }
+				  //}
 			}
 			parentDialog.dispose();
 		}
@@ -625,24 +571,14 @@ public class MyDBPanel extends JPanel {
 			myDBTable1.save();
 			refreshTable2();
 			Vector<Object> vec = new Vector<Object>();
-			/*
-			if (gmDbTable != null) {
+			Integer i1 = myDBTable1.getActualTable().getFieldindex(myDBTable2.getActualTable());
+			if (i1 == null) System.err.println("i1 == null???? " + myDBTable1.getActualTable() + "\t" + myDBTable2.getActualTable());
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {
 					if (i == 0) vec.add(null); // ID
 					else if (i == 1) vec.add(null); // Basis ID wird in der Funktion insertNewRow eingetragen!
-					else if (i == 2) vec.add(new Integer(id));
-					else vec.add(null);
-				}								
-			}
-			else {
-			*/
-				for (int i=0;i<myDBTable2.getColumnCount();i++) {
-					if (i == 0) vec.add(null); // ID
-					else if (i == 1) vec.add(null); // Basis ID wird in der Funktion insertNewRow eingetragen!
-					else if (i == (myDBTable2.getActualTable().getTablename().equals("Prozessdaten_Messwerte") ? 3 : 2)) vec.add(new Integer(id)); // Kit ID
+					else if (i1 != null && i == i1+1) vec.add(new Integer(id)); // Kit ID
 					else vec.add(null);
 				}				
-			//}
 			myDBTable2.insertNewRow(false, vec);
 			try {myDBTable2.refresh();}
 			catch (SQLException e1) {MyLogger.handleException(e1);}

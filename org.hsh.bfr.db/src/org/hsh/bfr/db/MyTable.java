@@ -195,6 +195,8 @@ public class MyTable {
 					tableName.equals("GeschaetzteParameter") || 
 					tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
 					tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") || tableName.equals("GlobalModels") || 
+					tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || 
+					tableName.equals("Prozess_Verbindungen") || 
 					DBKernel.isReadOnly();
 
 		odsn = true;
@@ -508,14 +510,6 @@ public class MyTable {
     return result;
   }
   
-	private String getFieldname(MyTable mnT, MyTable myT) {
-		String[] fn = mnT.getFieldNames();
-		for (int i=0;i<fn.length;i++) {
-			MyTable mt = mnT.getForeignFields()[i];
-			if (mt != null && mt.equals(myT)) return fn[i];
-		}
-		return null;
-	}
 	private MyTable getForeignTable(MyTable myT, String fieldName) {
 		if (fieldName != null && myT != null && myT.getForeignFields() != null) {
 			String[] fn = myT.getFieldNames();
@@ -581,7 +575,7 @@ public class MyTable {
 		collectJoins(mnT, mnsqlc);
 		String toWhere = "";
 		if (mnT != null) {
-			String fn = getFieldname(mnT, myT); // myFT
+			String fn = myT.getFieldname(mnT);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
@@ -590,7 +584,7 @@ public class MyTable {
 			}
 		}
 		else if (myT != null) {
-			String fn = getFieldname(myFT, myT);
+			String fn = myT.getFieldname(myFT);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
@@ -604,7 +598,7 @@ public class MyTable {
 	private String getMNJoin(MyTable mnT, MyTable myFT) {
 		String toJoin = "";
 		if (mnT != null) {
-			String mnF1 = getFieldname(mnT, myFT);
+			String mnF1 = myFT.getFieldname(mnT);
 			if (mnF1 != null) {
 				toJoin += " LEFT JOIN " + DBKernel.delimitL(mnT.getTablename()) +
 						" ON " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(mnF1) + "=" +
@@ -615,6 +609,22 @@ public class MyTable {
 			}
 		}		
 		return toJoin;
+	}
+	public String getFieldname(MyTable mnT) {
+		String[] fn = mnT.getFieldNames();
+		for (int i=0;i<fn.length;i++) {
+			MyTable mt = mnT.getForeignFields()[i];
+			if (mt != null && mt.equals(this)) return fn[i];
+		}
+		return null;
+	}
+	public Integer getFieldindex(MyTable mnT) {
+		String[] fn = mnT.getFieldNames();
+		for (int i=0;i<fn.length;i++) {
+			MyTable mt = mnT.getForeignFields()[i];
+			if (mt != null && mt.equals(this)) return i;
+		}
+		return null;
 	}
 
 	public String getMetadata() {

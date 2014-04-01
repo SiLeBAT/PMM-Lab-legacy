@@ -1503,7 +1503,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 				approved = false;
 				dispose();
 			} else if (e.getSource() == addLiteratureButton) {
-				Integer id = DBKernel.openLiteratureDBWindow(null);
+				Integer id = DBKernel.openLiteratureDBWindow(
+						addLiteratureButton, null);
 				Set<Integer> ids = new LinkedHashSet<Integer>();
 
 				for (LiteratureItem item : ref) {

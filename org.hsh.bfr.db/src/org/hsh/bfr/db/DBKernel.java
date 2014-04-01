@@ -36,6 +36,7 @@
  */
 package org.hsh.bfr.db;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -74,6 +75,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.hsh.bfr.db.db.XmlLoader;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
@@ -82,10 +85,8 @@ import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 import org.hsh.bfr.db.imports.InfoBox;
-import org.eclipse.core.runtime.FileLocator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
-import org.eclipse.core.resources.ResourcesPlugin;
 
 /**
  * @author Armin
@@ -2194,10 +2195,10 @@ public class DBKernel {
 			return null;
 		}
 	}
-	public static Integer openLiteratureDBWindow(Integer id) {
+	public static Integer openLiteratureDBWindow(Component parent, Integer id) {
 		MyTable myT = myList.getTable("Literatur");
 		Object newVal = myList.openNewWindow(myT, id, "Literatur",
-				null, null, null, null, true);
+				null, null, null, null, true, null, parent);
 
 		if (newVal instanceof Integer) {
 			return (Integer) newVal;

@@ -41,7 +41,6 @@ package org.hsh.bfr.db.gui;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Window;
@@ -55,7 +54,6 @@ import java.util.LinkedHashMap;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
@@ -397,26 +395,26 @@ if (dbForm != null || owner != null) {
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf) {
 	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, mf, null);
   }
-  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent) {
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, Component parent) {
 	  return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, fromMMC, mf, parent, null);
   }
-  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, JPanel parent, String level1Expansion) {
+  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC, Filter mf, Component parent, String level1Expansion) {
   	Object result = null;
   	String titel = (headerValue == null) ? theNewTable.getTablename() : (DBKernel.getLanguage().equals("en") ? "Choose " + GuiMessages.getString((String) headerValue) + "..." : headerValue + " auswählen...");
   	//JDialog.setDefaultLookAndFeelDecorated(true);
-  	Frame parentFrame = null;
+  	Window parentFrame = null;
   	if (parent == null) {
   		parentFrame = DBKernel.mainFrame;
   	}
   	else {
 	  	Window parentWindow = SwingUtilities.windowForComponent(parent); 
-	  	if (parentWindow instanceof Frame) {
-	  	    parentFrame = (Frame)parentWindow;
+	  	if (parentWindow != null) {
+	  	    parentFrame = parentWindow;
 	  	}
   	}
   	@SuppressWarnings("unused")
-	boolean isRO = DBKernel.isReadOnly();
-  	JDialog f = new JDialog(parentFrame, titel, (dbTable != null || fromMMC)); // !isRO && 
+	boolean isRO = DBKernel.isReadOnly();  	
+  	JDialog f = new JDialog(parentFrame, titel, JDialog.ModalityType.MODELESS); // !isRO && 
   	if (dbTable != null || fromMMC) f.setModalityType(JDialog.ModalityType.DOCUMENT_MODAL); // DOCUMENT_MODAL APPLICATION_MODAL
 
 		MyDBTable newDBTable = new MyDBTable(); 

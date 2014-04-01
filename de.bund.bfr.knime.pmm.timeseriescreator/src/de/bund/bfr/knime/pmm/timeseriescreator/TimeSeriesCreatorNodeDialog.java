@@ -397,22 +397,24 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 		if (temperatureField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_TEMPERATURE_ID,
 					AttributeUtilities.ATT_TEMPERATURE, null, temperatureField
-							.getValue(), Arrays.asList(Categories.getTempCategory().getName()),
-					(String) tempBox.getSelectedItem()));
+							.getValue(), Arrays.asList(Categories
+							.getTempCategory().getName()), (String) tempBox
+							.getSelectedItem()));
 		}
 
 		if (phField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_PH_ID,
 					AttributeUtilities.ATT_PH, null, phField.getValue(), Arrays
-							.asList(Categories.getPhCategory().getName()), (String) phBox
-							.getSelectedItem()));
+							.asList(Categories.getPhCategory().getName()),
+					(String) phBox.getSelectedItem()));
 		}
 
 		if (waterActivityField.getValue() != null) {
 			miscValues.add(new MiscXml(AttributeUtilities.ATT_AW_ID,
 					AttributeUtilities.ATT_AW, null, waterActivityField
-							.getValue(), Arrays.asList(Categories.getAwCategory().getName()),
-					(String) awBox.getSelectedItem()));
+							.getValue(), Arrays.asList(Categories
+							.getAwCategory().getName()), (String) awBox
+							.getSelectedItem()));
 		}
 
 		for (int i = 0; i < conditions.size(); i++) {
@@ -496,7 +498,8 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 				table.repaint();
 			}
 		} else if (event.getSource() == addLiteratureButton) {
-			Integer id = DBKernel.openLiteratureDBWindow(null);
+			Integer id = DBKernel.openLiteratureDBWindow(addLiteratureButton,
+					null);
 			Set<Integer> ids = new LinkedHashSet<Integer>();
 
 			for (LiteratureItem item : set.getLiterature()) {
@@ -998,12 +1001,17 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 								.equals(AttributeUtilities.ATT_TEMPERATURE)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, new MiscXml(
-									AttributeUtilities.ATT_TEMPERATURE_ID,
-									AttributeUtilities.ATT_TEMPERATURE, null,
-									null, Arrays.asList(Categories.getTempCategory().getName()),
-									Categories.getTempCategory()
-											.getStandardUnit()));
+							mappings.put(
+									column,
+									new MiscXml(
+											AttributeUtilities.ATT_TEMPERATURE_ID,
+											AttributeUtilities.ATT_TEMPERATURE,
+											null, null, Arrays
+													.asList(Categories
+															.getTempCategory()
+															.getName()),
+											Categories.getTempCategory()
+													.getStandardUnit()));
 							unitBoxes.get(column).removeAllItems();
 
 							for (String unit : Categories.getTempCategory()
@@ -1015,11 +1023,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						} else if (selected.equals(AttributeUtilities.ATT_PH)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, new MiscXml(
-									AttributeUtilities.ATT_PH_ID,
-									AttributeUtilities.ATT_PH, null, null,
-									Arrays.asList(Categories.getPhCategory().getName()),
-									Categories.getPhUnit()));
+							mappings.put(
+									column,
+									new MiscXml(
+											AttributeUtilities.ATT_PH_ID,
+											AttributeUtilities.ATT_PH,
+											null,
+											null,
+											Arrays.asList(Categories
+													.getPhCategory().getName()),
+											Categories.getPhUnit()));
 							unitBoxes.get(column).removeAllItems();
 
 							for (String unit : Categories.getPhCategory()
@@ -1031,11 +1044,16 @@ public class TimeSeriesCreatorNodeDialog extends NodeDialogPane implements
 						} else if (selected.equals(AttributeUtilities.ATT_AW)) {
 							button.setEnabled(false);
 							button.setText(OTHER_PARAMETER);
-							mappings.put(column, new MiscXml(
-									AttributeUtilities.ATT_AW_ID,
-									AttributeUtilities.ATT_AW, null, null,
-									Arrays.asList(Categories.getAwCategory().getName()),
-									Categories.getAwUnit()));
+							mappings.put(
+									column,
+									new MiscXml(
+											AttributeUtilities.ATT_AW_ID,
+											AttributeUtilities.ATT_AW,
+											null,
+											null,
+											Arrays.asList(Categories
+													.getAwCategory().getName()),
+											Categories.getAwUnit()));
 							unitBoxes.get(column).removeAllItems();
 
 							for (String unit : Categories.getAwCategory()

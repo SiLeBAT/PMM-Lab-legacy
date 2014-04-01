@@ -575,7 +575,7 @@ public class MyTable {
 		collectJoins(mnT, mnsqlc);
 		String toWhere = "";
 		if (mnT != null) {
-			String fn = myT.getFieldname(mnT);
+			String fn = mnT.getForeignFieldName(myT);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
@@ -584,7 +584,7 @@ public class MyTable {
 			}
 		}
 		else if (myT != null) {
-			String fn = myT.getFieldname(myFT);
+			String fn = myFT.getForeignFieldName(myT);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
@@ -598,7 +598,7 @@ public class MyTable {
 	private String getMNJoin(MyTable mnT, MyTable myFT) {
 		String toJoin = "";
 		if (mnT != null) {
-			String mnF1 = myFT.getFieldname(mnT);
+			String mnF1 = mnT.getForeignFieldName(myFT);
 			if (mnF1 != null) {
 				toJoin += " LEFT JOIN " + DBKernel.delimitL(mnT.getTablename()) +
 						" ON " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(mnF1) + "=" +
@@ -610,19 +610,19 @@ public class MyTable {
 		}		
 		return toJoin;
 	}
-	public String getFieldname(MyTable mnT) {
-		String[] fn = mnT.getFieldNames();
+	public String getForeignFieldName(MyTable foreignT) {
+		String[] fn = this.getFieldNames();
 		for (int i=0;i<fn.length;i++) {
-			MyTable mt = mnT.getForeignFields()[i];
-			if (mt != null && mt.equals(this)) return fn[i];
+			MyTable mt = this.getForeignFields()[i];
+			if (mt != null && mt.equals(foreignT)) return fn[i];
 		}
 		return null;
 	}
-	public Integer getFieldindex(MyTable mnT) {
-		String[] fn = mnT.getFieldNames();
+	public Integer getForeignFieldIndex(MyTable foreignT) {
+		String[] fn = this.getFieldNames();
 		for (int i=0;i<fn.length;i++) {
-			MyTable mt = mnT.getForeignFields()[i];
-			if (mt != null && mt.equals(this)) return i;
+			MyTable mt = this.getForeignFields()[i];
+			if (mt != null && mt.equals(foreignT)) return i;
 		}
 		return null;
 	}

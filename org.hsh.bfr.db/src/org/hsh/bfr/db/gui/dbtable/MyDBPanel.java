@@ -571,7 +571,7 @@ public class MyDBPanel extends JPanel {
 			myDBTable1.save();
 			refreshTable2();
 			Vector<Object> vec = new Vector<Object>();
-			Integer i1 = myDBTable1.getActualTable().getFieldindex(myDBTable2.getActualTable());
+			Integer i1 = myDBTable2.getActualTable().getForeignFieldIndex(myDBTable1.getActualTable());
 			if (i1 == null) System.err.println("i1 == null???? " + myDBTable1.getActualTable() + "\t" + myDBTable2.getActualTable());
 				for (int i=0;i<myDBTable2.getColumnCount();i++) {
 					if (i == 0) vec.add(null); // ID

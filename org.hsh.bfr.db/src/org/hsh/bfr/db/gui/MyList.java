@@ -574,29 +574,32 @@ if (dbForm != null || owner != null) {
 			Object[][] o = new Object[1][2]; o[0][0] = "Prozessdaten"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
-		else if (myT != null && tn.equals("Produzent_Artikel") &&
-				headerValue != null && headerValue.toString().equals("Lieferungen")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
-			newDBTable.setTable(theNewTable, o);
-		}
 		else if (myT != null && tn.equals("Station") &&
 				headerValue != null && headerValue.toString().equals("Produktkatalog")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Station"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Station"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Produktkatalog") &&
 				headerValue != null && headerValue.toString().equals("Chargen")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Artikel"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Chargen") &&
 				headerValue != null && headerValue.toString().equals("Zutaten")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Produkt"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Produkt"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Chargen") &&
 				headerValue != null && headerValue.toString().equals("Lieferungen")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Charge"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Charge"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Lieferungen") && headerValue != null) {					
@@ -617,14 +620,15 @@ if (dbForm != null || owner != null) {
 			Object charge = dbTable.getValueAt(row, 2);
 			Object artikel = DBKernel.getValue("Chargen", "ID", charge+"", "Artikel");
 			Object station = DBKernel.getValue("Produktkatalog", "ID", artikel+"", "Station");
-			//System.err.println("WW:" + charge + "\t" + artikel + "\t" + station);
 			Object[][] o = new Object[1][2]; o[0][0] = "Empfänger"; o[0][1] = station;//dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 
 		else if (myT != null && tn.equals("ProzessWorkflow") &&
 				headerValue != null && headerValue.toString().equals("Prozessdaten")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Workflow"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && headerValue != null && headerValue.toString().equals("Katalogcodes")) { // tn.equals("Matrices"), tn.equals("Agenzien"), tn.equals("Methoden") 
@@ -633,17 +637,23 @@ if (dbForm != null || owner != null) {
 		}
 		else if (myT != null && tn.equals("Versuchsbedingungen") &&
 				headerValue != null && headerValue.toString().equals("Messwerte")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Versuchsbedingungen"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Versuchsbedingungen"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("GeschaetzteModelle") &&
 				headerValue != null && headerValue.toString().equals("GeschaetzteParameterCovCor")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("Modellkatalog") &&
 				headerValue != null && headerValue.toString().equals("Parameter")) {
-			Object[][] o = new Object[1][2]; o[0][0] = "Modell"; o[0][1] = dbTable.getValueAt(row, 0);
+			String fn = theNewTable.getForeignFieldName(myT);
+			Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+			//Object[][] o = new Object[1][2]; o[0][0] = "Modell"; o[0][1] = dbTable.getValueAt(row, 0);
 			newDBTable.setTable(theNewTable, o);
 		}
 		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&

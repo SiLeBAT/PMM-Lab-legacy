@@ -36,6 +36,7 @@ package de.bund.bfr.knime.pmm.microbialdataedit;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Rectangle;
@@ -139,15 +140,18 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		buttonPanel.add(addButton);
 		buttonPanel.add(removeButton);
 
+		JScrollPane scrollPane = new JScrollPane(addedConditionsList);
+
+		scrollPane.setPreferredSize(new Dimension(
+				scrollPane.getPreferredSize().width, 50));
+
 		JPanel listPanel = new JPanel();
 
 		listPanel.setBorder(BorderFactory
 				.createTitledBorder("Conditions to Add"));
 		listPanel.setLayout(new BorderLayout());
 		listPanel.add(buttonPanel, BorderLayout.NORTH);
-		listPanel.add(new JScrollPane(addedConditionsList,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
+		listPanel.add(scrollPane, BorderLayout.CENTER);
 
 		JPanel panel = new JPanel();
 

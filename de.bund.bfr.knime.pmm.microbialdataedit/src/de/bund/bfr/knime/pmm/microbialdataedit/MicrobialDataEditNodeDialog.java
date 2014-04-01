@@ -917,7 +917,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 		@Override
 		public int getColumnCount() {
-			return addedConditions.size() * 2 + conditions.size() * 2 + 9;
+			return addedConditions.size() * 2 + conditions.size() * 2 + 10;
 		}
 
 		@Override
@@ -1393,7 +1393,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<LiteratureItem> references;
 
 		public ReferencesEditor() {
-			button = new JButton("View");
+			button = new JButton("Edit");
 			button.addActionListener(this);
 			references = new ArrayList<LiteratureItem>();
 		}
@@ -1441,8 +1441,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		private List<LiteratureItem> ref;
 
 		public ReferencesDialog(Component owner, List<LiteratureItem> initRef) {
-			super(JOptionPane.getFrameForComponent(owner),
-					MdInfoXml.ATT_QUALITYSCORE, true);
+			super(JOptionPane.getFrameForComponent(owner), AttributeUtilities
+					.getName(TimeSeriesSchema.ATT_LITMD), true);
 
 			approved = false;
 			ref = new ArrayList<LiteratureItem>(initRef);

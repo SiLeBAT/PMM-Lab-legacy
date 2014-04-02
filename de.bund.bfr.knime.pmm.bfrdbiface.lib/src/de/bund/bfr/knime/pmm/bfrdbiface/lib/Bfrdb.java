@@ -1654,7 +1654,9 @@ public class Bfrdb extends Hsqldbiface {
 		DepXml depXml = m.getDepXml();
 		int paramId = insertParam(modelId, depXml.getOrigName(), PARAMTYPE_DEP, null, null, depXml.getCategory(), depXml.getUnit(), depXml.getDescription());
 		paramIdSet.add(paramId);
-		if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
+		if (depXml.getUnit() == null || depXml.getUnit().isEmpty()) {
+			m.setWarning(m.getWarning() + "\nUnit not defined for dependant variable '" + depXml.getName() + "' in model with ID " + m.getModelId() + "!");
+		}
 		
 		// insert independent variable set
 		for (PmmXmlElementConvertable el : m.getIndependent().getElementSet()) {
@@ -1662,7 +1664,9 @@ public class Bfrdb extends Hsqldbiface {
 				IndepXml ix = (IndepXml) el;
 				paramId = insertParam(modelId, ix.getOrigName(), PARAMTYPE_INDEP, ix.getMin(), ix.getMax(), ix.getCategory(), ix.getUnit(), ix.getDescription());
 				paramIdSet.add(paramId);
-				if (ix.getUnit() == null || ix.getUnit().isEmpty()) m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
+				if (ix.getUnit() == null || ix.getUnit().isEmpty()) {
+					m.setWarning(m.getWarning() + "\nUnit not defined for independant variable '" + ix.getName() + "' in model with ID " + m.getModelId() + "!");
+				}
 			}
 		}
 
@@ -1889,7 +1893,10 @@ public class Bfrdb extends Hsqldbiface {
 			if (concUnit != null && !concUnit.isEmpty()) {
 				Integer cid = null;
 				if (concUnitObjectType == null || concUnitObjectType.trim().isEmpty()) cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
-				else cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as","object type"}, new String[]{concUnit,concUnitObjectType});
+				else {
+					cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as","object type"}, new String[]{concUnit,concUnitObjectType});
+					if (cid == null) cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
+				}
 				if (cid != null) ps.setInt(5, cid);
 				else ps.setNull(5, Types.INTEGER);
 			}
@@ -2014,7 +2021,9 @@ public class Bfrdb extends Hsqldbiface {
 			}
 			Object unitID = unit == null || unit.isEmpty() ? null : DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{unit});
 			if (unitID == null) {
-				if (isDepIndep) pm.setWarning(pm.getWarning() + "\nUnit not defined for variable '" + paramName + "' in fitted model with ID " + estModelId + "!");
+				if (isDepIndep) {
+					pm.setWarning(pm.getWarning() + "\nUnit not defined for variable '" + paramName + "' in fitted model with ID " + estModelId + "!");
+				}
 				ps.setNull(5, Types.INTEGER);
 			}
 			else ps.setInt(5, (Integer) unitID);

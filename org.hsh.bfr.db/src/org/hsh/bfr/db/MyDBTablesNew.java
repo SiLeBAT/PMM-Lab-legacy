@@ -6,13 +6,15 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
 import org.hsh.bfr.db.gui.MyList;
+import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class MyDBTablesNew extends MyDBI {
 
 	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<String, MyTable>();
 	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
-	private final String saUser = "defad";
-	private final String saPass = "de6!§5ddy";
+	private final String saUser = "SA";//"defad"; // SA
+	private final String saPass = "";//"de6!§5ddy";
+	private final String dbVersion = "1.7.9";
 	
 	/*
 	 * Still todo:
@@ -42,8 +44,35 @@ public class MyDBTablesNew extends MyDBI {
 	}
 
 	@Override
+	public void updateCheck(String fromVersion, String toVersion) {
+		if (fromVersion.equals("1.7.7") && toVersion.equals("1.7.8")) {
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(16383)", false);
+			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(16383)", false);
+		}
+		else if (fromVersion.equals("1.7.8") && toVersion.equals("1.7.9")) {
+			DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
+			DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
+			new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_179.sql", null, false);
+			new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_179.sql", null, false);
+		}
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return false;
+	}
+
+	@Override
 	public String getDBVersion() {
-		return "1.7.8";
+		return dbVersion;
+	}
+
+	public String getSaUser() {
+		return saUser;
+	}
+
+	public String getSaPass() {
+		return saPass;
 	}
 
 	@Override
@@ -90,19 +119,6 @@ public class MyDBTablesNew extends MyDBI {
 	        // Zur Überwachung, damit eine importierte xml Datei nicht gelöscht werden kann!
 		DBKernel.sendRequest("CREATE TRIGGER " + DBKernel.delimitL("B_ProzessWorkflow_U") + " BEFORE UPDATE ON " +
 	        		DBKernel.delimitL("ProzessWorkflow") + " FOR EACH ROW " + " CALL " + DBKernel.delimitL(new MyTrigger().getClass().getName()), false);    	
-	}
-
-	@Override
-	public void updateCheck(String fromVersion, String toVersion) {
-		if (fromVersion.equals("1.7.7") && toVersion.equals("1.7.8")) {
-			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Explanation_EndChain") + " VARCHAR(16383)", false);
-			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " ALTER COLUMN " + DBKernel.delimitL("Contact_Questions_Remarks") + " VARCHAR(16383)", false);
-		}
-	}
-
-	@Override
-	public boolean isReadOnly() {
-		return false;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -155,7 +171,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null},
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("Erstautor","Jahr")));
+				new LinkedList<String>(Arrays.asList("Erstautor"," (","Jahr",")")));
 		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.BasisTabellen_LIST : 66));
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
@@ -191,7 +207,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null},
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("Wert", "Exponent")));
+				new LinkedList<String>(Arrays.asList("Wert","^","Exponent")));
 		addTable(newDoubleTable, -1);
 
 		// Katalogtabellen
@@ -293,7 +309,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("CodeSystem","Code")));
+				new LinkedList<String>(Arrays.asList("CodeSystem"," -> ","Code")));
 		addTable(matrix_OG, -1); // -1
 		matrix.setForeignField(matrix_OG, 5);
 		MyTable agenzienkategorie = new MyTable("Codes_Agenzien", new String[]{"CodeSystem","Code","Basis"},
@@ -304,7 +320,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("CodeSystem","Code")));
+				new LinkedList<String>(Arrays.asList("CodeSystem"," -> ","Code")));
 		addTable(agenzienkategorie, -1);
 		agenzien.setForeignField(agenzienkategorie, 15);
 		MyTable methoden_OG = new MyTable("Codes_Methoden", new String[]{"CodeSystem","Code","Basis"},
@@ -315,7 +331,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("CodeSystem","Code")));
+				new LinkedList<String>(Arrays.asList("CodeSystem"," -> ","Code")));
 		addTable(methoden_OG, -1); // -1
 		methoden.setForeignField(methoden_OG, 4);
 
@@ -535,7 +551,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("CodeSystem","Code")));
+				new LinkedList<String>(Arrays.asList("CodeSystem"," -> ","Code")));
 		addTable(methodiken_OG, -1); // -1
 		methodiken.setForeignField(methodiken_OG, 4);
 		h1 = new LinkedHashMap<Object, String>();
@@ -871,7 +887,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				new String[]{null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("SonstigeParameter","Wert","Einheit")));
+				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
 		addTable(Versuchsbedingungen_Sonstiges, -1);
 		MyTable Messwerte_Sonstiges = new MyTable("Messwerte_Sonstiges",
 				new String[]{"Messwerte","SonstigeParameter","Wert","Einheit","Ja_Nein"},
@@ -882,7 +898,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				new String[]{null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("SonstigeParameter","Wert","Einheit")));
+				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
 		addTable(Messwerte_Sonstiges, -1);
 
 		MyTable importedCombaseData = new MyTable("ImportedCombaseData",
@@ -960,7 +976,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null},
 				new String[]{null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("Kostenunterart","Einheit")));
+				new LinkedList<String>(Arrays.asList("Kostenunterart"," <","Einheit",">")));
 		addTable(Kostenkatalog, -1);
 		MyTable Kostenkatalogpreise = new MyTable("Kostenkatalogpreise",
 				new String[]{"Kostenkatalog","Betrieb","Datum","Preis","Waehrung"},
@@ -1031,7 +1047,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				new String[]{null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("SonstigeParameter","Wert","Einheit")));
+				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
 		addTable(Prozessdaten_Sonstiges, -1);
 		MyTable Prozessdaten_Messwerte = new MyTable("Prozessdaten_Messwerte",
 				new String[]{"Prozessdaten","ExperimentID","Agens","Zeit","ZeitEinheit","Konzentration","Einheit","Konzentration_GKZ","Einheit_GKZ"},
@@ -1042,7 +1058,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,allHashes.get("Time"),null,null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("Konzentration","Einheit")));
+				new LinkedList<String>(Arrays.asList("Konzentration"," ","Einheit")));
 		addTable(Prozessdaten_Messwerte, -1);
 		MyTable Prozessdaten_Kosten = new MyTable("Prozessdaten_Kosten",
 				new String[]{"Prozessdaten","Kostenkatalog","Menge"},
@@ -1103,7 +1119,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				new String[]{null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("SonstigeParameter","Wert","Einheit")));
+				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
 		addTable(Zutatendaten_Sonstiges, -1);
 		MyTable Zutatendaten_Kosten = new MyTable("Zutatendaten_Kosten",
 				new String[]{"Zutatendaten","Kostenkatalog","Menge"},
@@ -1176,7 +1192,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,proce,null,null,null,null,null},
 				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null},
 				null,
-				new LinkedList<String>(Arrays.asList("Artikelnummer","\t","Bezeichnung")));
+				new LinkedList<String>(Arrays.asList("Artikelnummer",": ","Bezeichnung")));
 		addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
 		Knoten.setForeignField(Produzent_Artikel, 0);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
@@ -1196,7 +1212,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("pd_day",".","pd_month",".","pd_year","\t","ChargenNr","\t","Artikel")));
+				new LinkedList<String>(Arrays.asList("pd_day",".","pd_month",".","pd_year","; ","ChargenNr","; ","Artikel")));
 		addTable(Chargen, MyList.Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
@@ -1211,7 +1227,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null}, // ,null,null
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("dd_day",".","dd_month",".","dd_year","\t","Unitmenge"," ","UnitEinheit","\t","Charge")));
+				new LinkedList<String>(Arrays.asList("dd_day",".","dd_month",".","dd_year","; ","Unitmenge"," ","UnitEinheit","; ","Charge")));
 		addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
 		Chargen.setForeignField(Artikel_Lieferung, 5);
 		

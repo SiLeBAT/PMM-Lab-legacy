@@ -199,7 +199,9 @@ public class DbIo {
 						ix.setName(nas);
 						if (cd != null && cd[i] != null) ix.setDescription(stripNonValidXMLCharacters(cd[i].toString()));
 						indepDoc.add(ix);
-						if (ix.getUnit() == null || ix.getUnit().isEmpty()) indepDoc.addWarning("\nUnit not defined for independant variable '" + ix.getName() + "'\n");
+						if (ix.getUnit() == null || ix.getUnit().isEmpty()) {
+							indepDoc.addWarning("\nUnit not defined for independant variable '" + ix.getName() + "'\n");
+						}
 					}					
 				}
 			}

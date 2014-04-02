@@ -306,13 +306,6 @@ public class MyTable {
 		if (selectedRow >= 0) {
 			myDB.setSelectedRowCol(selectedRow, selectedCol, verticalScrollerPosition, horizontalScrollerPosition, true);
 		}
-		else if (tableName.equals("Agenzien") || tableName.equals("Matrices") || tableName.equals("Methoden")) {
-			if (myDB.getMyDBPanel() != null && myDB.getMyDBPanel().getMyDBTree() != null) {
-				if (tableName.equals("Agenzien")) myDB.setSelectedID(90);			
-				if (tableName.equals("Matrices")) myDB.setSelectedID(17024);			
-				if (tableName.equals("Methoden")) myDB.setSelectedID(697);			
-			}
-		}
 		else {
 			myDB.selectCell(0, 0);
 		}
@@ -538,10 +531,11 @@ public class MyTable {
 		}
 	}
 	private String getAdd2Select(String fieldName, Integer fi) {
+		if (fi == null) return "'"+fieldName+"'";
 		String result = "";
+		boolean isDbl = this.getFieldTypes()[fi].equals("DOUBLE");
 		LinkedHashMap<Object, String> hash = this.getHash(fieldName);
-		boolean isDbl = fi != null && this.getFieldTypes()[fi].equals("DOUBLE");
-		String field = (fi == null ? "'"+fieldName+"'" : DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL(fieldName));
+		String field = DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL(fieldName);
 		if (hash == null || hash.size() == 0) {
 			result = field;
 		}
@@ -582,7 +576,7 @@ public class MyTable {
 		if (mnsqlc.hasUnknownFields()) {
 			toSelect = mnsqlc.getToSelect();
 			toJoin = mnsqlc.getToJoin();
-			toSelect = toSelect.replace("CONCAT_WS('\t',", "CONCAT('',") + ")";
+			toSelect = toSelect.replace("CONCAT_WS('\t',", "CONCAT(") + ")";
 			mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);
 		}
 		else if (mnsqlc.getAddCounter() < 2) {

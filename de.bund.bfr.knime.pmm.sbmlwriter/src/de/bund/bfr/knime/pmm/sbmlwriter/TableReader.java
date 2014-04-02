@@ -80,7 +80,7 @@ public class TableReader {
 	private Map<String, SBMLDocument> documents;
 
 	public TableReader(List<KnimeTuple> tuples, String modelName,
-			String varParams) {
+			String initParam) {
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		Set<Integer> idSet = new LinkedHashSet<Integer>();
@@ -178,8 +178,25 @@ public class TableReader {
 				ParamXml paramXml = (ParamXml) el;
 				Parameter param = model.createParameter(paramXml.getName());
 
-				if (paramXml.getName().equals(varParams)) {
+				if (paramXml.getName().equals(initParam)) {
 					param.setConstant(false);
+
+					if (depSbmlUnit != null) {
+						UnitDefinition unit = SBMLUtilities
+								.fromXml(depSbmlUnit);
+						Unit.Kind kind = SBMLUtilities.simplify(unit);
+						UnitDefinition modelUnit = model.getUnitDefinition(unit
+								.getId());
+
+						if (kind != null) {
+							param.setUnits(kind);
+						} else if (modelUnit != null) {
+							param.setUnits(modelUnit);
+						} else {
+							param.setUnits(SBMLUtilities.addUnitToModel(model,
+									unit));
+						}
+					}
 				} else {
 					param.setConstant(true);
 				}

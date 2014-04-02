@@ -94,14 +94,14 @@ class MyDataChangeListener extends DatabaseChangeListener {
   }
 
   public void afterInsert(int row) {
-	  DBKernel.doMNs(table);
+	  table.getActualTable().doMNs();
 	  if (table.getTable().getRowSorter() != null && table.getTable().getRowSorter().getSortKeys().size() > 0) {
 		  row = table.getTable().convertRowIndexToView(row);
 	  }
 	  table.myRefresh(row);
   }
   public void afterUpdate(int row) {
-	  DBKernel.doMNs(table);
+	  table.getActualTable().doMNs();
 	  row = checkThings(row);
 	  table.myRefresh(row);
 	  /*

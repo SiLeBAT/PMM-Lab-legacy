@@ -2078,36 +2078,6 @@ public class DBKernel {
 		return result;
 	}
 
-	public static void doMNs(final MyDBTable table) {
-		doMNs(table.getActualTable());
-	}
-
-	public static void doMNs(final MyTable table) {
-		boolean dl = DBKernel.dontLog;
-		boolean dlmk = MainKernel.dontLog;
-		DBKernel.dontLog = true;
-		MainKernel.dontLog = true;
-		Vector<String> listMNs = table.getListMNs();
-		if (listMNs != null) {
-			String tableName = table.getTablename();
-			// hier soll immer die ID drin stehen, die wird dann zur Darstellung
-			// der M:N Beziehung ausgelesen.
-			// Mach einfach für alle Zeilen, dauert ja nicht lange, oder?
-			for (int i = 0; i < listMNs.size(); i++) {
-				String feldname = listMNs.get(i);
-				DBKernel.sendRequest(
-						"UPDATE " + DBKernel.delimitL(tableName) + " SET "
-								+ DBKernel.delimitL(feldname) + "="
-								+ DBKernel.delimitL("ID") + " WHERE "
-								+ DBKernel.delimitL(feldname) + " IS NULL OR "
-								+ DBKernel.delimitL(feldname) + "!="
-								+ DBKernel.delimitL("ID"), false);
-			}
-		}
-		DBKernel.dontLog = dl;
-		MainKernel.dontLog = dlmk;
-	}
-
 	public static int isDBVeraltet(final Login login) {
 		// if (true) return JOptionPane.NO_OPTION;
 		int result = JOptionPane.NO_OPTION;

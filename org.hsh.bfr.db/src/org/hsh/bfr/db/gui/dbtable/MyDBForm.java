@@ -343,7 +343,7 @@ public class MyDBForm extends JPanel {
 			ps.setInt(myT.getNumFields()-1, getInt(((JTextField) componentMap.get("ID")).getText()));
 			
 			ps.execute();
-			DBKernel.doMNs(myT);
+			myT.doMNs();
 			initVal = 1; initSB(); initVal = 2;
 		}
 	      catch (SQLException e) {
@@ -368,7 +368,7 @@ public class MyDBForm extends JPanel {
 				if (ps.executeUpdate() > 0) {
 					DBKernel.getLastInsertedID(ps);
 				}
-				DBKernel.doMNs(myT);
+				myT.doMNs();
 				initVal = 1; initSB(); initVal = 2;
 			}
 		}

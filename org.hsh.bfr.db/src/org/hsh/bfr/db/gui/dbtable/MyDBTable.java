@@ -660,7 +660,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 								    	do  {
 								    		Integer newfID = copyRow(rs2, fTablename, tname, id);								    		
 								    		System.out.println(tablename + "-" + fTablename + " - newfID: " + newfID + "\tparentID = " + id + "\ttname = " + tname);
-								    		DBKernel.doMNs(myfT);
+								    		myfT.doMNs();
 								    		copyDetails(myfT, oldfID, newfID);
 								    	} while (rs2.next());
 						    		}
@@ -1462,7 +1462,7 @@ if (myDBPanel1 != null) {
   }
   private void refreshMNs() {
   	int selID = this.getSelectedID();
-		DBKernel.doMNs(this);
+  	this.getActualTable().doMNs();
 		this.myRefresh();
 		//MyLogger.handleMessage("refreshMNs sel vs sel: " + this.getSelectedID() + "\t" + selID);
 		if (this.getSelectedID() != selID) {
@@ -1698,7 +1698,7 @@ if (myDBPanel1 != null) {
 			catch (Exception e1) {e1.printStackTrace();}
 			//manageKZ("Prozessdaten", fromID, toID);
 			// Sonstiges
-			DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten_Sonstiges"));
+			DBKernel.myDBi.getTable("Prozessdaten_Sonstiges").doMNs();
 			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
 					" WHERE " + DBKernel.delimitL("Prozessdaten") + "=" + toID, false);				
 			DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("Prozessdaten_Sonstiges") +
@@ -1721,7 +1721,7 @@ if (myDBPanel1 != null) {
 				}
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
-			DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten_Sonstiges"));
+			DBKernel.myDBi.getTable("Prozessdaten_Sonstiges").doMNs();
 		}
 	}
 	@Override

@@ -129,7 +129,7 @@ public class MergeDBs {
 				//go4It("C:/Users/Armin/Desktop/krise/EHEC/Samen/", dateFrom, "SA", "");
 
 				for (Enumeration<MyTable> e=usedTs.keys(); e.hasMoreElements();) {
-					DBKernel.doMNs(e.nextElement());
+					e.nextElement().doMNs();
 				}
 
 				MyDBTable myDB = DBKernel.myList.getMyDBTable();

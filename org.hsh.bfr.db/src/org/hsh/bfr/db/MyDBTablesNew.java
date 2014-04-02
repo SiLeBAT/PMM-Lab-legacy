@@ -1406,7 +1406,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
 				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null},
-				new LinkedHashSet<String>(Arrays.asList("Parametername","Parametertyp")));
+				new LinkedHashSet<String>(Arrays.asList("Parametername"," (","Parametertyp", ")")));
 		addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
 		Modellkatalog.setForeignField(ModellkatalogParameter, 11);
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
@@ -1472,8 +1472,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				null,
 				new String[] {"not null","not null",null,null,null},
-				new LinkedHashSet<String>(Arrays.asList("Gueltig_von","Gueltig_bis")),
-				"[Gueltig_von Gueltig_bis]");
+				new LinkedHashSet<String>(Arrays.asList("[","Gueltig_von"," ","Gueltig_bis","]")));
 		addTable(GueltigkeitsBereiche, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
 		MyTable VarParMaps = new MyTable("VarParMaps", new String[]{"GeschaetztesModell","VarPar","VarParMap"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},

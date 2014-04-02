@@ -342,7 +342,12 @@ public class CombaseReader implements Enumeration<PmmTimeSeries> {
 
 	private MiscXml getMiscXml(String description, Double dbl) {
 		if (!newMiscs.containsKey(description)) {
-			newMiscs.put(description, getCombaseName(description));
+			MiscXml m = getCombaseName(description);
+			Integer id = (Integer) DBKernel.getValue(null, "SonstigeParameter",
+					"Parameter", m.getName(), "ID");
+
+			m.setId(id);
+			newMiscs.put(description, m);
 		}
 
 		MiscXml misc = new MiscXml(newMiscs.get(description));

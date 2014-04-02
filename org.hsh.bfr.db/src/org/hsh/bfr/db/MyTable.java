@@ -70,7 +70,6 @@ public class MyTable {
 	private String[] defaults = null;
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
 	private LinkedHashSet<String> fields2ViewInGui = null;
-	private String fields2ViewInGuiFormat = null;
 
 	private boolean hideScore = false;
 	private boolean hideTested = false;
@@ -112,9 +111,6 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, null);
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedHashSet<String> fields2ViewInGui) {
-		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, null);
-	}
-	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedHashSet<String> fields2ViewInGui, String fields2ViewInGuiFormat) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -135,7 +131,6 @@ public class MyTable {
 		this.mnTable = mnTable;
 		this.defaults = defaults;
 		this.fields2ViewInGui = fields2ViewInGui;
-		this.fields2ViewInGuiFormat = fields2ViewInGuiFormat;
 		try {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
@@ -210,6 +205,8 @@ public class MyTable {
 				|| tableName.equals("GeschaetztesModell_Referenz") || tableName.equals("GeschaetzteParameter")
 				|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 				 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
+		
+		//doMNs();
 	}
 	public String getMNSql(int selectedColumn) {
 		if (mnSQL == null) mnSQL = new String[mnTable.length];
@@ -221,10 +218,10 @@ public class MyTable {
 		String myMN = this.getMNTable() == null ? null : this.getMNTable()[selectedColumn];
 		if (myFT != null) {
 			if (isINTmn) {
-	    		sql = getSQL(myFT, myMN, this);
+	    		sql = this.getSQL(myFT, myMN);
     		}
 			else {
-	    		sql = getSQL(myFT, myMN, this);
+	    		sql = this.getSQL(myFT, myMN);
 			}
 		}
 		mnSQL[selectedColumn] = sql;
@@ -244,9 +241,6 @@ public class MyTable {
 	}
 	public LinkedHashSet<String> getFields2ViewInGui() {
 		return fields2ViewInGui;
-	}
-	public String getFields2ViewInGuiFormat() {
-		return fields2ViewInGuiFormat;
 	}
 	
 	public void saveProperties(MyDBForm myForm) {
@@ -519,99 +513,116 @@ public class MyTable {
     return result;
   }
   
-	private MyTable getForeignTable(MyTable myT, String fieldName) {
-		if (fieldName != null && myT != null && myT.getForeignFields() != null) {
-			String[] fn = myT.getFieldNames();
-			for (int i=0;i<fn.length;i++) {
-				if (fieldName.equals(fn[i])) {
-					return myT.getForeignFields()[i];
+	private void collectJoins(MyMNSQLJoinCollector mnsqlc) {
+		if (this.getFields2ViewInGui() != null) {
+			mnsqlc.getAlreadyJoined().add(this);
+			for (String s : this.getFields2ViewInGui()) {
+				MyTable mt2 = this.getForeignTable(s);
+				if (mt2 == null) {
+					Integer fi = this.getFieldIndex(s);
+					if (fi == null) mnsqlc.setHasUnknownFields(true);
+					String f = this.getAdd2Select(s, fi);
+					mnsqlc.addToSelect("," + f);
 				}
-			}
-		}
-		return null;
-	}
-	private void collectJoins(MyTable myFT, MyMNSQLJoinCollector mnsqlc) {
-		if (myFT != null && myFT.getFields2ViewInGui() != null) {
-			mnsqlc.getAlreadyJoined().add(myFT);
-			for (String s : myFT.getFields2ViewInGui()) {
-				MyTable mt2 = getForeignTable(myFT, s);
-				if (mt2 == null) mnsqlc.addToSelect("," + getAdd2Select(myFT, s));
 				else {
 					if (!mnsqlc.getAlreadyJoined().contains(mt2)) {
 						String join = " LEFT JOIN " + DBKernel.delimitL(mt2.getTablename()) +
-								" ON " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(s) + "=" +
+								" ON " + DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL(s) + "=" +
 								DBKernel.delimitL(mt2.getTablename()) + "." + DBKernel.delimitL("ID");
 						mnsqlc.addToJoin(join);
-						collectJoins(mt2, mnsqlc);
+						mt2.collectJoins(mnsqlc);
 					}
 				}
 			}
+			mnsqlc.addToSelect(",'\t'");
 		}
 	}
-	private String getAdd2Select(MyTable myT, String fieldName) {
-		LinkedHashMap<Object, String> hash = getHash(myT, fieldName);
-		String field = DBKernel.delimitL(myT.getTablename()) + "." + DBKernel.delimitL(fieldName);
+	private String getAdd2Select(String fieldName, Integer fi) {
+		String result = "";
+		LinkedHashMap<Object, String> hash = this.getHash(fieldName);
+		String field = (fi == null ? "'"+fieldName+"'" : DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL(fieldName));
 		if (hash == null || hash.size() == 0) {
-			return field;
+			result = field;
 		}
 		else {
-			String result = "CASE";
+			result = "TRIM(CASE " + field;
 			for (Object key : hash.keySet()) {
-				result += " WHEN " + field + "=" + key + " THEN '" + hash.get(key) + "' ";
+				result += " WHEN " + key + " THEN '" + hash.get(key).trim() + "' ";
 			}
-			result += " ELSE 'unknown' END";
-			return result;
+			result += " ELSE 'unknown' END)";
 		}
+		
+		if (fi != null && this.getFieldTypes()[fi].equals("DOUBLE")) {
+			result = "CAST(" + result + " AS DECIMAL(20,2))";
+		}
+		
+		return result;
 	}
-	private LinkedHashMap<Object, String> getHash(MyTable myT, String fieldName) {
-		if (fieldName != null && myT != null && myT.getForeignHashs() != null) {
-			String[] fn = myT.getFieldNames();
+	private LinkedHashMap<Object, String> getHash(String fieldName) {
+		if (fieldName != null && this.getForeignHashs() != null) {
+			String[] fn = this.getFieldNames();
 			for (int i=0;i<fn.length;i++) {
 				if (fieldName.equals(fn[i])) {
-					return myT.getForeignHashs()[i];
+					return this.getForeignHashs()[i];
 				}
 			}
 		}
 		return null;
 	}
-	private String getSQL(MyTable myFT, String myMN, MyTable myT) {
+	private String getSQL(MyTable myFT, String myMN) {
 		String sql = "";
 		MyTable mnT = (myMN == null || myMN.equals("INT") ? null : DBKernel.myDBi.getTable(myMN));
 		String toSelect = DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL("ID");
-		String toJoin = getMNJoin(mnT, myFT);
+		String toJoin = myFT.getMNJoin(mnT);
+		toSelect += ",CONCAT_WS('\t'";
 		MyMNSQLJoinCollector mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);
-		collectJoins(myFT, mnsqlc);
-		collectJoins(mnT, mnsqlc);
+		if (myFT != null) myFT.collectJoins(mnsqlc);
+		if (mnT != null) mnT.collectJoins(mnsqlc);
+		if (mnsqlc.hasUnknownFields()) {
+			toSelect = mnsqlc.getToSelect();
+			toJoin = mnsqlc.getToJoin();
+			toSelect = toSelect.replace("CONCAT_WS('\t',", "CONCAT(") + ")";
+			mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);
+		}
+		else if (mnsqlc.getAddCounter() < 2) {
+			toSelect = mnsqlc.getToSelect();
+			toJoin = mnsqlc.getToJoin();
+			toSelect = toSelect.replace(",CONCAT_WS('\t'", "");
+			mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);			
+		}
+		else {
+			mnsqlc.addToSelect(")");
+		}
 		String toWhere = "";
 		if (mnT != null) {
-			String fn = mnT.getForeignFieldName(myT);
+			String fn = mnT.getForeignFieldName(this);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
 			else {
-				System.err.println("mnF2 = null...\t" + mnT + "\t" + myFT + "\t" + myT);
+				System.err.println("mnF2 = null...\t" + mnT + "\t" + myFT + "\t" + this);
 			}
 		}
-		else if (myT != null) {
-			String fn = myFT.getForeignFieldName(myT);
+		else if (this != null) {
+			String fn = myFT.getForeignFieldName(this);
 			if (fn != null) {
 				toWhere = " WHERE " + DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL(fn) + "=";
 			}
 			else {
-				System.err.println("mnF2 = null...\t" + myFT + "\t" + myT);
+				System.err.println("mnF2 = null...\t" + myFT + "\t" + this);
 			}
 		}
 		sql = "SELECT " + mnsqlc.getToSelect() + " FROM " + DBKernel.delimitL(myFT.getTablename()) + mnsqlc.getToJoin() + toWhere;
 		return sql;
 	}
-	private String getMNJoin(MyTable mnT, MyTable myFT) {
+	private String getMNJoin(MyTable mnT) {
 		String toJoin = "";
 		if (mnT != null) {
-			String mnF1 = mnT.getForeignFieldName(myFT);
+			String mnF1 = mnT.getForeignFieldName(this);
 			if (mnF1 != null) {
 				toJoin += " LEFT JOIN " + DBKernel.delimitL(mnT.getTablename()) +
 						" ON " + DBKernel.delimitL(mnT.getTablename()) + "." + DBKernel.delimitL(mnF1) + "=" +
-						DBKernel.delimitL(myFT.getTablename()) + "." + DBKernel.delimitL("ID");
+						DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL("ID");
 			}
 			else {
 				System.err.println("mnF1 = null....");
@@ -634,6 +645,54 @@ public class MyTable {
 			if (mt != null && mt.equals(foreignT)) return i;
 		}
 		return null;
+	}
+	private Integer getFieldIndex(String fieldName) {
+		if (fieldName != null && this.getFieldNames() != null) {
+			String[] fn = this.getFieldNames();
+			for (int i=0;i<fn.length;i++) {
+				if (fieldName.equals(fn[i])) {
+					return i;
+				}
+			}
+		}
+		return null;
+	}
+	private MyTable getForeignTable(String fieldName) {
+		if (fieldName != null && this != null && this.getForeignFields() != null) {
+			String[] fn = this.getFieldNames();
+			for (int i=0;i<fn.length;i++) {
+				if (fieldName.equals(fn[i])) {
+					return this.getForeignFields()[i];
+				}
+			}
+		}
+		return null;
+	}
+
+	public void doMNs() {
+		boolean dl = DBKernel.dontLog;
+		boolean dlmk = MainKernel.dontLog;
+		DBKernel.dontLog = true;
+		MainKernel.dontLog = true;
+		Vector<String> listMNs = this.getListMNs();
+		if (listMNs != null) {
+			String tableName = this.getTablename();
+			// hier soll immer die ID drin stehen, die wird dann zur Darstellung
+			// der M:N Beziehung ausgelesen.
+			// Mach einfach für alle Zeilen, dauert ja nicht lange, oder?
+			for (int i = 0; i < listMNs.size(); i++) {
+				String feldname = listMNs.get(i);
+				DBKernel.sendRequest(
+						"UPDATE " + DBKernel.delimitL(tableName) + " SET "
+								+ DBKernel.delimitL(feldname) + "="
+								+ DBKernel.delimitL("ID") + " WHERE "
+								+ DBKernel.delimitL(feldname) + " IS NULL OR "
+								+ DBKernel.delimitL(feldname) + "!="
+								+ DBKernel.delimitL("ID"), false);
+			}
+		}
+		DBKernel.dontLog = dl;
+		MainKernel.dontLog = dlmk;
 	}
 
 	public String getMetadata() {

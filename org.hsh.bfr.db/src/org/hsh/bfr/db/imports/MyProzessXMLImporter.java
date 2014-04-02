@@ -203,15 +203,15 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	    			if (progress != null) {
 	    				progress.setVisible(false);
 	  	  			// Refreshen:
-    					DBKernel.doMNs(DBKernel.myDBi.getTable("ProzessWorkflow"));
-    					DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten"));
+	    				DBKernel.myDBi.getTable("ProzessWorkflow").doMNs();
+	    				DBKernel.myDBi.getTable("Prozessdaten").doMNs();
 	    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
 	    				MyTable myActT = myDB.getActualTable();
 	    				if (myActT != null) {
 		    				String actTablename = myActT.getTablename();
 		    				if (actTablename.equals("Prozessdaten") || actTablename.equals("ProzessWorkflow") || actTablename.equals("Prozess_Verbindungen")) {
 		    			    	System.err.println("WW101");
-		    					DBKernel.doMNs(myActT);
+		    			    	myActT.doMNs();
 		    			    	System.err.println("WW102: " + actTablename);
 		    					myDB.myRefresh();
 		    					//myDB.setTable(myActT);

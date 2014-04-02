@@ -349,10 +349,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	      	}
 	      }
 
-	      		DBKernel.doMNs(DBKernel.myDBi.getTable("Station"));
-			    DBKernel.doMNs(DBKernel.myDBi.getTable("Produktkatalog"));
-			    DBKernel.doMNs(DBKernel.myDBi.getTable("Chargen"));
-			    DBKernel.doMNs(DBKernel.myDBi.getTable("Lieferungen"));
+	      	DBKernel.myDBi.getTable("Station").doMNs();
+	      	DBKernel.myDBi.getTable("Produktkatalog").doMNs();
+	      	DBKernel.myDBi.getTable("Chargen").doMNs();
+	      	DBKernel.myDBi.getTable("Lieferungen").doMNs();
     			if (progress != null) {
   	  			// Refreshen:
     				MyDBTable myDB = DBKernel.myList.getMyDBTable();

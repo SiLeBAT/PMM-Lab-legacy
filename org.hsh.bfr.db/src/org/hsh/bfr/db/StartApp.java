@@ -90,9 +90,9 @@ public class StartApp {
 	  		login.setVisible(true);	    	  
 	  	}
 	  	else {
-    	  	MyTable myT = DBKernel.myDBi.getTable("GeschaetzteModelle"); DBKernel.doMNs(myT);
-    	  	myT = DBKernel.myDBi.getTable("Modellkatalog"); DBKernel.doMNs(myT);
-    	  	myT = DBKernel.myDBi.getTable("Versuchsbedingungen"); DBKernel.doMNs(myT);
+    	  	MyTable myT = DBKernel.myDBi.getTable("GeschaetzteModelle"); myT.doMNs();
+    	  	myT = DBKernel.myDBi.getTable("Modellkatalog"); myT.doMNs();
+    	  	myT = DBKernel.myDBi.getTable("Versuchsbedingungen"); myT.doMNs();
 
     	  	DBKernel.myList.getMyDBTable().setTable();
 

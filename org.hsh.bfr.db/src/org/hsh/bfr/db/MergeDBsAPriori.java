@@ -57,7 +57,7 @@ public class MergeDBsAPriori {
 
 				LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 				for(String key : myTables.keySet()) {
-					DBKernel.doMNs(myTables.get(key));
+					myTables.get(key).doMNs();
 				}
 				
 				MyDBTable myDB = DBKernel.myList.getMyDBTable();

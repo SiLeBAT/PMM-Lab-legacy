@@ -350,7 +350,7 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 					      }
 				      }
 
-					    DBKernel.doMNs(myT);
+				      myT.doMNs();
 		    			if (progress != null) {
 		  	  			// Refreshen:
 		    				MyDBTable myDB = DBKernel.myList.getMyDBTable();

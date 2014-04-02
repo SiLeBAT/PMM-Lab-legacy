@@ -272,7 +272,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " DROP COLUMN " + DBKernel.delimitL("FallErfuellt"), false);
 		updateChangeLog("Station", 20, true);
 		refreshFKs("Station");
-		DBKernel.doMNs(DBKernel.myList.getTable("Station"));
+		DBKernel.myList.getTable("Station").doMNs();
 	}
 	public static void check4Updates_172_173() {	
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Name") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
@@ -337,7 +337,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Produktkatalog") + " INTEGER BEFORE " + DBKernel.delimitL("Name"), false);
 		updateChangeLog("Station", 1, false);
 		refreshFKs("Station");
-		DBKernel.doMNs(DBKernel.myList.getTable("Station"));
+		DBKernel.myList.getTable("Station").doMNs();
 	}
 	public static void check4Updates_171_172() {	
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_172.sql", null, false);
@@ -755,7 +755,7 @@ public class UpdateChecker {
 				" SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL("Chargen") + " WHERE " +
 				DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Artikel"), false);
 		
-		DBKernel.doMNs(DBKernel.myDBi.getTable("Chargen"));
+		DBKernel.myDBi.getTable("Chargen").doMNs();
 
 		if (DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Lieferungen") + " DROP COLUMN " + DBKernel.delimitL("Zielprodukt"), false)) {
 			updateChangeLog("Lieferungen", 14, true);		
@@ -948,7 +948,7 @@ public class UpdateChecker {
 				") SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Referenz") +
 				" FROM " + DBKernel.delimitL("Prozessdaten"), false);
 		refreshFKs("Prozessdaten");		
-		DBKernel.doMNs(DBKernel.myDBi.getTable("Prozessdaten"));
+		DBKernel.myDBi.getTable("Prozessdaten").doMNs();
 		
 		pdl = DBKernel.myDBi.getTable("ProzessWorkflow_Literatur");
 		pdl.createTable(false);
@@ -958,7 +958,7 @@ public class UpdateChecker {
 				") SELECT " + DBKernel.delimitL("ID") + "," + DBKernel.delimitL("Referenz") +
 				" FROM " + DBKernel.delimitL("ProzessWorkflow"), false);
 		refreshFKs("ProzessWorkflow");		
-		DBKernel.doMNs(DBKernel.myDBi.getTable("ProzessWorkflow"));
+		DBKernel.myDBi.getTable("ProzessWorkflow").doMNs();
 	}
 	private static Integer getNextID(final String tablename) {
 		Integer result = null;

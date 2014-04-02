@@ -136,10 +136,12 @@ public void fire(final int triggerType, final String triggerName, final String t
 	          	}
 	          	
         	}
-    		MyTable myT = DBKernel.myDBi.getTable(tableName);
-        	if (myT != null && myT.getCaller4Trigger() != null) {
-    			  try {myT.getCaller4Trigger().call();}
-    			  catch (Exception e) {e.printStackTrace();}
+        	if (DBKernel.myDBi != null) {
+        		MyTable myT = DBKernel.myDBi.getTable(tableName);
+            	if (myT != null && myT.getCaller4Trigger() != null) {
+        			  try {myT.getCaller4Trigger().call();}
+        			  catch (Exception e) {e.printStackTrace();}
+            	}
         	}
         }
         catch (Exception e) {

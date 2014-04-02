@@ -38,7 +38,7 @@ package org.hsh.bfr.db;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -69,7 +69,7 @@ public class MyTable {
 	private String[][] uniqueFields = null;
 	private String[] defaults = null;
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
-	private LinkedHashSet<String> fields2ViewInGui = null;
+	private LinkedList<String> fields2ViewInGui = null;
 
 	private boolean hideScore = false;
 	private boolean hideTested = false;
@@ -110,7 +110,7 @@ public class MyTable {
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults) {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, null);
 	}
-	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedHashSet<String> fields2ViewInGui) {
+	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -239,7 +239,7 @@ public class MyTable {
 	public int getChild() {
 		return child;
 	}
-	public LinkedHashSet<String> getFields2ViewInGui() {
+	public LinkedList<String> getFields2ViewInGui() {
 		return fields2ViewInGui;
 	}
 	
@@ -534,12 +534,13 @@ public class MyTable {
 					}
 				}
 			}
-			mnsqlc.addToSelect(",'\t'");
+			//mnsqlc.addToSelect(",'\t'");
 		}
 	}
 	private String getAdd2Select(String fieldName, Integer fi) {
 		String result = "";
 		LinkedHashMap<Object, String> hash = this.getHash(fieldName);
+		boolean isDbl = fi != null && this.getFieldTypes()[fi].equals("DOUBLE");
 		String field = (fi == null ? "'"+fieldName+"'" : DBKernel.delimitL(this.getTablename()) + "." + DBKernel.delimitL(fieldName));
 		if (hash == null || hash.size() == 0) {
 			result = field;
@@ -552,9 +553,9 @@ public class MyTable {
 			result += " ELSE 'unknown' END)";
 		}
 		
-		if (fi != null && this.getFieldTypes()[fi].equals("DOUBLE")) {
-			result = "CAST(" + result + " AS DECIMAL(20,2))";
-		}
+		if (isDbl) result = "CAST(" + result + " AS DECIMAL(20,2))";
+		result = "CAST(" + result + " AS VARCHAR(127))";
+		result = "IFNULL(" + result + ", '?')";
 		
 		return result;
 	}
@@ -581,7 +582,7 @@ public class MyTable {
 		if (mnsqlc.hasUnknownFields()) {
 			toSelect = mnsqlc.getToSelect();
 			toJoin = mnsqlc.getToJoin();
-			toSelect = toSelect.replace("CONCAT_WS('\t',", "CONCAT(") + ")";
+			toSelect = toSelect.replace("CONCAT_WS('\t',", "CONCAT('',") + ")";
 			mnsqlc = new MyMNSQLJoinCollector(toSelect, toJoin);
 		}
 		else if (mnsqlc.getAddCounter() < 2) {

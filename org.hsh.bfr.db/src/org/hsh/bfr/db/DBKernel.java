@@ -917,7 +917,7 @@ public class DBKernel {
 								.put("LAST_MainFrame_FULL",
 										DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE"
 												: "FALSE");
-						// DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
+						//DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
 
 						DBKernel.prefs.put("LAST_MainFrame_WIDTH",
 								DBKernel.mainFrame.getWidth() + "");

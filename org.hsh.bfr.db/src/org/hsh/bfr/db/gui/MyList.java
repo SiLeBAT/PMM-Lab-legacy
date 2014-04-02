@@ -548,7 +548,7 @@ if (dbForm != null || owner != null) {
 				if (mf == null) result = null;
 			}
 			//MyLogger.handleMessage(result);
-			dbTable.getActualTable().doMNs();
+			if (dbTable != null) dbTable.getActualTable().doMNs();
 			DBKernel.topTable = dbTable;
 		}
 		catch (Exception e) {

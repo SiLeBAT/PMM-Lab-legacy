@@ -38,7 +38,6 @@ package org.hsh.bfr.db.gui.dbtable.editoren;
 
 import java.awt.event.ActionListener;
 import java.sql.ResultSet;
-import java.sql.Types;
 import java.util.LinkedHashMap;
 
 import javax.swing.JComponent;
@@ -109,6 +108,16 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 				//System.err.println(rs + "\t" + sql);
 				if (rs != null && rs.first()) {
 					do {
+						int numCols = rs.getMetaData().getColumnCount();
+						if (numCols == 1) {
+							if (!result.isEmpty()) result += " ; ";
+							result += rs.getString(1);
+						}
+						else { //numCols == 2
+							if (!result.isEmpty()) result += "\n";
+							if (rs.getObject(2) != null) result += rs.getString(2);
+						}
+						/*
 						if (isINTmn) {
 							String res = "";
 							int numCols = rs.getMetaData().getColumnCount();
@@ -135,6 +144,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 								}
 							}
 						}
+						*/
 					} while (rs.next());					
 				}
 			}
@@ -147,9 +157,6 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 		theValues.put(value, result);
 		if (lastUpdate.containsKey(value)) lastUpdate.remove(value);
 		lastUpdate.put(value, System.currentTimeMillis());
-	}
-	private String getDblOrString(Object dbl) {
-		return (dbl == null) ? null : (DBKernel.isDouble(dbl.toString()) ? DBKernel.getDoubleStr(dbl) : dbl.toString());
 	}
 
 	public void addActionListener(ActionListener arg0) {

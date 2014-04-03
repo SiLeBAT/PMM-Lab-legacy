@@ -919,7 +919,7 @@ public class DBKernel {
 												: "FALSE");
 						
 						// in order to be able to save the dimension and position of the NORMAL window we have to do the following
-						if (DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
+						if (DBKernel.mainFrame.isVisible() && DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
 							DBKernel.mainFrame.setVisible(true);
 							DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
 							DBKernel.mainFrame.setExtendedState(JFrame.ICONIFIED);

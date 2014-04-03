@@ -917,7 +917,13 @@ public class DBKernel {
 								.put("LAST_MainFrame_FULL",
 										DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE"
 												: "FALSE");
-						//DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
+						
+						// in order to be able to save the dimension and position of the NORMAL window we have to do the following
+						if (DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
+							DBKernel.mainFrame.setVisible(true);
+							DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
+							DBKernel.mainFrame.setExtendedState(JFrame.ICONIFIED);
+						}
 
 						DBKernel.prefs.put("LAST_MainFrame_WIDTH",
 								DBKernel.mainFrame.getWidth() + "");

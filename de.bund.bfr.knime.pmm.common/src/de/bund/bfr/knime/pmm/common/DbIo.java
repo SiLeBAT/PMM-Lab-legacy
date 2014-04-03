@@ -69,8 +69,11 @@ public class DbIo {
 							TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
 									time == null ? null : Double.parseDouble(time.toString()),
 											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
+											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
 											toksL == null || toksL[i] == null ? null : convert(Double.parseDouble(toksL[i].toString()), toksLui, modelUnit, modelUnitCat),
-													modelUnit != null && toksLui != null ? modelUnit : toksLui,
+											modelUnit != null && toksLui != null ? modelUnit : toksLui,
+											null,
+											toksLui,
 											toksSd == null || toksSd[i] == null ? null : convert(Double.parseDouble(toksSd[i].toString()), toksLui, modelUnit, modelUnitCat),
 											toksWdh == null || toksWdh[i] == null ? null : (int) Double.parseDouble(toksWdh[i].toString()));
 							if (toksLot != null && toksLot[i] != null) tsx.setConcentrationUnitObjectType(toksLot[i].toString());

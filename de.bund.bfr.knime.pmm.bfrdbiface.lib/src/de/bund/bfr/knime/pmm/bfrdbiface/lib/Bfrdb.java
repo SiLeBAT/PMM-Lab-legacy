@@ -1895,7 +1895,9 @@ public class Bfrdb extends Hsqldbiface {
 				if (concUnitObjectType == null || concUnitObjectType.trim().isEmpty()) cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
 				else {
 					cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as","object type"}, new String[]{concUnit,concUnitObjectType});
-					if (cid == null) cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
+					if (cid == null) {
+						cid = DBKernel.getID("Einheiten", new String[]{"display in GUI as"}, new String[]{concUnit});
+					}
 				}
 				if (cid != null) ps.setInt(5, cid);
 				else ps.setNull(5, Types.INTEGER);

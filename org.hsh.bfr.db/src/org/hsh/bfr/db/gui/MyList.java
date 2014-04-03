@@ -585,14 +585,25 @@ if (dbForm != null || owner != null) {
 		}
 
 		else {
-			String fn = theNewTable.getForeignFieldName(myT);
-			if (fn != null) {
-				Object[][] o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
-				newDBTable.setTable(theNewTable, o);
+			Object[][] o = null;
+			Integer i1 = theNewTable.getForeignFieldIndex(myT);
+			if (i1 != null) {
+				if (theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {
+					Integer i2 = myT.getForeignFieldIndex(theNewTable);
+					if (i2 != null) {
+						o = new Object[1][2]; o[0][0] = "ID"; o[0][1] = dbTable.getValueAt(row, i2+1);
+						newDBTable.setTable(theNewTable, o);
+					}
+				}
+				else {
+					String fn = theNewTable.getFieldNames()[i1];
+					if (fn != null) {
+						o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+						newDBTable.setTable(theNewTable, o);
+					}
+				}
 			}
-			else {
-				newDBTable.setTable(theNewTable, conditions);
-			}
+			if (o == null) newDBTable.setTable(theNewTable, conditions);
 		}
 		return disableButtons;
   }

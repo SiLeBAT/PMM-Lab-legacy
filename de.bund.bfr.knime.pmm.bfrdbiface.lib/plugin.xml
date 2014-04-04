@@ -62,13 +62,13 @@
       <category
             icon="icons/Reader.png"
             level-id="reader"
-            name="Reader"
+            name="Readers"
             path="/pmmlab">
       </category>
       <category
             icon="icons/Writer.png"
             level-id="writer"
-            name="Writer"
+            name="Writers"
             path="/pmmlab">
       </category>
       <category

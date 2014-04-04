@@ -133,6 +133,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 		table = new JTable();
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.getTableHeader().addMouseListener(this);
+		table.setAutoCreateRowSorter(true);
 
 		JPanel buttonPanel = new JPanel();
 
@@ -488,7 +489,8 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
-		if (e.getSource() == table.getTableHeader()) {
+		if (e.getButton() == MouseEvent.BUTTON3
+				&& e.getSource() == table.getTableHeader()) {
 			int index = table.columnAtPoint(e.getPoint());
 			String column = table.getColumnName(index);
 			Integer condId = getKey(usedConditionNames, column) != null ? getKey(

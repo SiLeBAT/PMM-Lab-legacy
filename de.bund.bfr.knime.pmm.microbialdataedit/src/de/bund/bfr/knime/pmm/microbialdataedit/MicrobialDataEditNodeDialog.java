@@ -482,6 +482,7 @@ public class MicrobialDataEditNodeDialog extends DataAwareNodeDialogPane
 
 			addedConditionsList.setListData(addedConditionNames.values()
 					.toArray(new String[0]));
+			setEditorsAndRenderers();
 			UI.packColumns(table);
 			table.repaint();
 		}

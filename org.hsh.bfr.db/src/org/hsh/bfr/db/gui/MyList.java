@@ -577,7 +577,7 @@ if (dbForm != null || owner != null) {
 			newDBTable.setTable(theNewTable, o);
 		}
 
-		else {
+		else if (myT != null) {
 			Object[][] o = null;
 			String[] dff = myT.getDeepForeignFields();
 			if (dff != null && dff[col-1] != null) { // Zutat.Empfänger=Produkt.Artikel.Station
@@ -636,6 +636,9 @@ if (dbForm != null || owner != null) {
 				}
 			}
 			if (o == null || o[0][1] == null) newDBTable.setTable(theNewTable, conditions);
+		}
+		else {
+			newDBTable.setTable(theNewTable, conditions);
 		}
 		return disableButtons;
   }

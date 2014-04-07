@@ -1454,7 +1454,7 @@ public class MyDBTablesNew extends MyDBI {
 				"GeschaetztesModell_Referenz","GeschaetzteParameter","INT","GueltigkeitsBereiche",null,null,null},
 				new String[] {null,null,null,null,"default FALSE",null,null,null,null,null,null,
 				null,null,null,null,null,null,null},
-				new LinkedList<String>(Arrays.asList("ID","Name","Versuchsbedingung","Modell")));
+				new LinkedList<String>(Arrays.asList("Name","Versuchsbedingung","Modell")));
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
 		addTable(GeschaetzteModelle, MyList.PMModelle_LIST);		

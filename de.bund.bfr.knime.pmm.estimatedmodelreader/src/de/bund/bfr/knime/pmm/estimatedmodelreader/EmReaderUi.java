@@ -61,6 +61,7 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_RMS = 2;
 	
 	private Double agentConc;
+	private Double lag;
 	private Double defTemp, defPh, defAw;
 	
 	private SettingsHelper set = null;
@@ -245,6 +246,11 @@ public class EmReaderUi extends JPanel {
 			    		if (agentConc != null && set.getNewConcentrationParameters() != null) {
 			    			for (String val : set.getNewConcentrationParameters().values()) {
 			    				set.getParamXValues().put(val, agentConc);
+			    			}
+			    		}
+			    		if (lag != null && set.getLagParameters() != null) {
+			    			for (String val : set.getLagParameters().values()) {
+			    				set.getParamXValues().put(val, lag);
 			    			}
 			    		}
 			    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
@@ -496,13 +502,14 @@ public class EmReaderUi extends JPanel {
     	}
     }	
 	public void setSettings(Config c) throws InvalidSettingsException {		
-		setSettings(c, null, null, null, null, null, null);
+		setSettings(c, null, null, null, null, null, null, null);
 	}
-	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc) throws InvalidSettingsException {
+	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc, Double lag) throws InvalidSettingsException {
     	this.defTemp = defTemp;
     	this.defPh = defPh;
     	this.defAw = defAw;
     	this.agentConc = agentConc;
+    	this.lag = lag;
 		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 		if (c != null) {
 			if (c.containsKey("PredictorSettings")) {

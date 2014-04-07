@@ -619,7 +619,7 @@ if (dbForm != null || owner != null) {
 			if (o == null || o[0][1] == null) {
 				Integer i1 = theNewTable.getForeignFieldIndex(myT);
 				if (i1 != null) {
-					if (theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {
+					if (theNewTable.getMNTable() != null && theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {
 						Integer i2 = myT.getForeignFieldIndex(theNewTable);
 						if (i2 != null) {
 							o = new Object[1][2]; o[0][0] = "ID"; o[0][1] = dbTable.getValueAt(row, i2+1);

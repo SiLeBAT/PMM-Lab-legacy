@@ -1647,11 +1647,16 @@ public class DBKernel {
 				alreadyUsed.add(theTable);
 				do {
 					value = "";
+					boolean hasSymbols = false;
 					if (theTable.getFields2ViewInGui() != null) {
 						for (String s : theTable.getFields2ViewInGui()) {
 							Integer fi = theTable.getFieldIndex(s);
-							if (fi == null) value += s;
+							if (fi == null) {
+								value += s;
+								hasSymbols = true;
+							}
 							else {
+								if (!value.isEmpty() && !hasSymbols) value += "\t";
 								for (i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
 									if (rs.getMetaData().getColumnName(i).equals(s)) {
 										value += handleField(rs.getObject(i),
@@ -1663,40 +1668,22 @@ public class DBKernel {
 								}
 							}
 						}
-					} else {
-						for (i = 2; i <= rs.getMetaData().getColumnCount(); i++) { // bei
-																					// 2
-																					// beginnen,
-																					// damit
-																					// die
-																					// Spalte
-																					// ID
-																					// nicht
-																					// zu
-																					// sehen
-																					// ist!
-							String v = handleField(rs.getObject(i),
-									foreignFields, mnTable, i, goDeeper,
-									startDelim, delimiter, endDelim,
-									alreadyUsed);
+					}
+					else {
+						for (i = 2; i <= rs.getMetaData().getColumnCount(); i++) {
+							String v = handleField(rs.getObject(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, alreadyUsed);
 							if (!v.isEmpty()) {
+								v += "\t";
 								String cn = rs.getMetaData().getColumnName(i);
-								if (foreignTable.equals("DoubleKennzahlen")
-										&& (cn.equals("Exponent") || cn
-												.endsWith("_exp"))) {
-									if (value.endsWith("\n"))
-										value = value.substring(0,
-												value.length() - 1)
-												+ " * 10^" + v;
-									else {
-										value += (cn.equals("Exponent") ? "Wert"
-												: (cn.endsWith("_exp") ? cn
-														.substring(0,
-																cn.length() - 4)
-														: cn))
-												+ ": " + "1 * 10^" + v;
+								if (foreignTable.equals("DoubleKennzahlen") && (cn.equals("Exponent") || cn.endsWith("_exp"))) {
+									if (value.endsWith("\t")) {
+										value = value.substring(0, value.length() - 1) + " * 10^" + v;										
 									}
-								} else {
+									else {
+										value += (cn.equals("Exponent") ? "Wert" : (cn.endsWith("_exp") ? cn.substring(0, cn.length() - 4) : cn)) + ": " + "1 * 10^" + v;
+									}
+								}
+								else {
 									value += cn + ": " + v;
 								}
 							}

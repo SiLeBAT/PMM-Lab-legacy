@@ -70,6 +70,7 @@ public class MyTable {
 	private String[] defaults = null;
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
 	private LinkedList<String> fields2ViewInGui = null;
+	private String[] deepForeignFields = null;
 
 	private boolean hideScore = false;
 	private boolean hideTested = false;
@@ -111,6 +112,9 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, null);
 	}
 	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui) {
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, null);		
+	}
+	public MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui, String[] deepForeignFields) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -131,6 +135,7 @@ public class MyTable {
 		this.mnTable = mnTable;
 		this.defaults = defaults;
 		this.fields2ViewInGui = fields2ViewInGui;
+		this.deepForeignFields = deepForeignFields;
 		try {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
@@ -241,6 +246,9 @@ public class MyTable {
 	}
 	public LinkedList<String> getFields2ViewInGui() {
 		return fields2ViewInGui;
+	}
+	public String[] getDeepForeignFields() {
+		return deepForeignFields;
 	}
 	
 	public void saveProperties(MyDBForm myForm) {
@@ -641,7 +649,7 @@ public class MyTable {
 		}
 		return null;
 	}
-	private Integer getFieldIndex(String fieldName) {
+	public Integer getFieldIndex(String fieldName) {
 		if (fieldName != null && this.getFieldNames() != null) {
 			String[] fn = this.getFieldNames();
 			for (int i=0;i<fn.length;i++) {

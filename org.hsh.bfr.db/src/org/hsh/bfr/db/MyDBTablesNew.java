@@ -1216,7 +1216,7 @@ public class MyDBTablesNew extends MyDBI {
 		addTable(Chargen, MyList.Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
-		MyTable Artikel_Lieferung = new MyTable("Lieferungen", // Artikel_Lieferung
+		MyTable Lieferungen = new MyTable("Lieferungen", // Artikel_Lieferung
 				new String[]{"Charge","dd_day","dd_month","dd_year","numPU","typePU", // "Artikel","ChargenNr","MHD",
 					"Unitmenge","UnitEinheit","Empfänger","Serial","EndChain","Explanation_EndChain","Contact_Questions_Remarks","Further_Traceback"}, // ,"Vorprodukt","Zielprodukt"
 				new String[]{"INTEGER","INTEGER","INTEGER","INTEGER","DOUBLE","VARCHAR(255)",
@@ -1228,19 +1228,20 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("dd_day",".","dd_month",".","dd_year","; ","Unitmenge"," ","UnitEinheit","; ","Charge")));
-		addTable(Artikel_Lieferung, MyList.Lieferketten_LIST);
-		Chargen.setForeignField(Artikel_Lieferung, 5);
+		addTable(Lieferungen, MyList.Lieferketten_LIST);
+		Chargen.setForeignField(Lieferungen, 5);
 		
 		MyTable ChargenVerbindungen = new MyTable("ChargenVerbindungen",
-				new String[]{"Zutat","Produkt","MixtureRatio"}, // man könnte hier sowas machen wie: ,"#Units","Unitmenge","UnitEinheit", um zu notieren wieviel der vorgelieferten Menge in das Produkt gegangen sind
-				new String[]{"INTEGER","INTEGER","DOUBLE"}, // ,"VARCHAR(50)","VARCHAR(50)","VARCHAR(50)"
+				new String[]{"Zutat","Produkt","MixtureRatio"},
+				new String[]{"INTEGER","INTEGER","DOUBLE"},
 				new String[]{null,null,"Mixture Ratio (prozentualer Anteil von der Zutat im Zielprodukt,\nz.B. Zielprodukt = Sprout mixture, Zutat = alfalfa sprouts => z.B. 0.33 (33%))"},
-				new MyTable[]{Artikel_Lieferung,Chargen,null},
+				new MyTable[]{Lieferungen,Chargen,null},
 				null,
 				new LinkedHashMap[]{null,null,null},
 				new String[]{null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("Zutat")));
+				new LinkedList<String>(Arrays.asList("Zutat")),
+				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null});
 		addTable(ChargenVerbindungen, DBKernel.debug ? MyList.Lieferketten_LIST : -1);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 

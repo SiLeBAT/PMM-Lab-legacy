@@ -1537,7 +1537,7 @@ public class DBKernel {
 			final MyTable[] foreignFields, final String[] mnTable, final int i,
 			final boolean goDeeper, final String startDelim,
 			final String delimiter, final String endDelim,
-			final boolean newRow, HashSet<MyTable> alreadyUsed) {
+			HashSet<MyTable> alreadyUsed) {
 		String result = "";
 		if (id == null) {
 			;
@@ -1586,10 +1586,11 @@ public class DBKernel {
 																				// unsichtbar
 																				// bleiben!
 			} else {
-				result += (newRow ? "\n" : ""); // rs.getMetaData().getColumnName(i)
+				//result += (newRow ? "\n" : ""); // rs.getMetaData().getColumnName(i)
 												// + ": " +
 			}
 		}
+		else result ="?";
 		return result;
 	}
 
@@ -1648,13 +1649,17 @@ public class DBKernel {
 					value = "";
 					if (theTable.getFields2ViewInGui() != null) {
 						for (String s : theTable.getFields2ViewInGui()) {
-							for (i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-								if (rs.getMetaData().getColumnName(i).equals(s)) {
-									value += handleField(rs.getObject(i),
-											foreignFields, mnTable, i,
-											goDeeper, startDelim, delimiter,
-											endDelim, true, alreadyUsed);
-									break;
+							Integer fi = theTable.getFieldIndex(s);
+							if (fi == null) value += s;
+							else {
+								for (i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+									if (rs.getMetaData().getColumnName(i).equals(s)) {
+										value += handleField(rs.getObject(i),
+												foreignFields, mnTable, i,
+												goDeeper, startDelim, delimiter,
+												endDelim, alreadyUsed);
+										break;
+									}
 								}
 							}
 						}
@@ -1672,7 +1677,7 @@ public class DBKernel {
 																					// ist!
 							String v = handleField(rs.getObject(i),
 									foreignFields, mnTable, i, goDeeper,
-									startDelim, delimiter, endDelim, true,
+									startDelim, delimiter, endDelim,
 									alreadyUsed);
 							if (!v.isEmpty()) {
 								String cn = rs.getMetaData().getColumnName(i);

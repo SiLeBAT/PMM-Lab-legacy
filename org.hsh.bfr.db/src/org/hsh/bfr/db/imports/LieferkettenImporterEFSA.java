@@ -564,7 +564,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String stationKey = (feldVals[0] == null ? "" : feldVals[0]) + ";;;" + 
 											(feldVals[3] == null ? "" : feldVals[3]) + ";;;" + 
 											(feldVals[4] == null ? "" : feldVals[4]) + ";;;" + 
-											(feldVals[6] == null ? "" : feldVals[6]) + ";;;"; //"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land"
+											(feldVals[6] == null ? "" : feldVals[6]) + ";;;"; //"Name","PLZ","Ort","Land"
 						if (nodeIDs.containsKey(stationKey)) {
 							Integer id = nodeIDs.get(stationKey);
 							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (ID," + fns.substring(1) +	") VALUES (" + id + "," + fvs.substring(1) + ")";						

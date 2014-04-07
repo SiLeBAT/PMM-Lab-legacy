@@ -50,6 +50,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.util.LinkedHashMap;
+import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
@@ -570,14 +571,6 @@ if (dbForm != null || owner != null) {
 			newDBTable.setTable(theNewTable, o);
 			disableButtons = true;
 		}
-		else if (myT != null && tn.equals("ChargenVerbindungen") &&
-				headerValue != null && headerValue.toString().equals("Zutat")) {
-			Object charge = dbTable.getValueAt(row, 2);
-			Object artikel = DBKernel.getValue("Chargen", "ID", charge+"", "Artikel");
-			Object station = DBKernel.getValue("Produktkatalog", "ID", artikel+"", "Station");
-			Object[][] o = new Object[1][2]; o[0][0] = "Empfänger"; o[0][1] = station;//dbTable.getValueAt(row, 0);
-			newDBTable.setTable(theNewTable, o);
-		}
 		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&
 				headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
 			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
@@ -586,24 +579,63 @@ if (dbForm != null || owner != null) {
 
 		else {
 			Object[][] o = null;
-			Integer i1 = theNewTable.getForeignFieldIndex(myT);
-			if (i1 != null) {
-				if (theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {
-					Integer i2 = myT.getForeignFieldIndex(theNewTable);
-					if (i2 != null) {
-						o = new Object[1][2]; o[0][0] = "ID"; o[0][1] = dbTable.getValueAt(row, i2+1);
-						newDBTable.setTable(theNewTable, o);
-					}
-				}
-				else {
-					String fn = theNewTable.getFieldNames()[i1];
-					if (fn != null) {
-						o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
-						newDBTable.setTable(theNewTable, o);
+			String[] dff = myT.getDeepForeignFields();
+			if (dff != null && dff[col-1] != null) { // Zutat.Empfänger=Produkt.Artikel.Station
+				StringTokenizer tok = new StringTokenizer(dff[col-1],"=");
+				if (tok.hasMoreTokens()) {
+					String left = tok.nextToken();
+					if (tok.hasMoreTokens()) {
+						String right = tok.nextToken();
+						tok = new StringTokenizer(left,".");
+						if (tok.hasMoreTokens()) {
+							tok.nextToken();// Zutat
+							if (tok.hasMoreTokens()) {
+								o = new Object[1][2];
+								o[0][0] = tok.nextToken(); // Empfänger
+								tok = new StringTokenizer(right,".");
+								if (tok.hasMoreTokens()) {
+									String field = tok.nextToken(); // Produkt
+									Integer i = myT.getFieldIndex(field);
+									if (i != null) {
+										Object o1 = dbTable.getValueAt(row, i+1);
+										if (o1 != null) {
+											MyTable myT1 = myT.getForeignFields()[i];
+											while (tok.hasMoreTokens()) {
+												String field1 = tok.nextToken(); // Artikel / Station
+												i = myT1.getFieldIndex(field1);
+												o1 = DBKernel.getValue(myT1.getTablename(), "ID", o1+"", field1);
+												myT1 = myT1.getForeignFields()[i];
+											}
+											o[0][1] = o1;
+										}
+									}
+								}
+								if (o[0][1] != null) newDBTable.setTable(theNewTable, o);
+							}
+						}
 					}
 				}
 			}
-			if (o == null) newDBTable.setTable(theNewTable, conditions);
+			if (o == null || o[0][1] == null) {
+				Integer i1 = theNewTable.getForeignFieldIndex(myT);
+				if (i1 != null) {
+					if (theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {
+						Integer i2 = myT.getForeignFieldIndex(theNewTable);
+						if (i2 != null) {
+							o = new Object[1][2]; o[0][0] = "ID"; o[0][1] = dbTable.getValueAt(row, i2+1);
+							newDBTable.setTable(theNewTable, o);
+						}
+					}
+					else {
+						String fn = theNewTable.getFieldNames()[i1];
+						if (fn != null) {
+							o = new Object[1][2]; o[0][0] = fn; o[0][1] = dbTable.getValueAt(row, 0);
+							newDBTable.setTable(theNewTable, o);
+						}
+					}
+				}
+			}
+			if (o == null || o[0][1] == null) newDBTable.setTable(theNewTable, conditions);
 		}
 		return disableButtons;
   }

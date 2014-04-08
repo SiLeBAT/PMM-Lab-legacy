@@ -110,11 +110,19 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
     				String val = "";
     				cell = row.getCell(1); // Name
     				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
-    				cell = row.getCell(2); // ZIP
+    				cell = row.getCell(2); // Strasse
     				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
-    				cell = row.getCell(3); // City
+    				cell = row.getCell(3); // Hausnummer
     				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
-    				cell = row.getCell(4); // Country
+    				cell = row.getCell(4); // ZIP
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(5); // City
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(6); // County
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(7); // Country
+    				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
+    				cell = row.getCell(8); // VAT
     				val += (cell == null ? "" : cell.getStringCellValue()) + ";;;";
     			    result.put(val, id);
     			}
@@ -626,13 +634,16 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  	if (feldnames[i].equals("Unitmenge") && feldVals[i] != null) fvs += "," + feldVals[i].replace(",", ".");
 		  	else fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
 			if (key == null || key[i]) {
-				sql += " AND " + DBKernel.delimitL(feldnames[i]) + (feldVals[i] != null ? "='" + feldVals[i] + "'" : " IS NULL");	  
+				sql += " AND " + (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i]) + " IS NULL");	  
 			}
 	  }
+	  /*
+	  if (feldVals[0] != null && feldVals[0].equals("")) {
+		  System.err.println(sql);
+	  }
+	   */
 	  if (!fns.isEmpty() && !fvs.isEmpty()) {
-		  ResultSet rs = null;
-		  //System.err.println(sql);rs.last()
-		  rs = DBKernel.getResultSet(sql, true);		  
+		  ResultSet rs = DBKernel.getResultSet(sql, true);		  
 		  try {
 				if (rs != null && rs.first()) {//rs.last() && rs.getRow() == 1) {
 					result = rs.getInt(1);
@@ -664,10 +675,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 					//System.out.println("result is null\t" + sql);
 					boolean alreadyInserted = false;
 					if (tablename.equals("Station") && nodeIDs != null) {
-						String stationKey = (feldVals[0] == null ? "" : feldVals[0]) + ";;;" + 
-											(feldVals[3] == null ? "" : feldVals[3]) + ";;;" + 
-											(feldVals[4] == null ? "" : feldVals[4]) + ";;;" + 
-											(feldVals[6] == null ? "" : feldVals[6]) + ";;;"; //"Name","PLZ","Ort","Land"
+						String stationKey = (feldVals[0] == null ? "" : feldVals[0]) + ";;;" +  //"Name"
+											(feldVals[1] == null ? "" : feldVals[1]) + ";;;" +  //"Strasse"
+											(feldVals[2] == null ? "" : feldVals[2]) + ";;;" +  //"Hausnummer"
+											(feldVals[3] == null ? "" : feldVals[3]) + ";;;" +  //"PLZ"
+											(feldVals[4] == null ? "" : feldVals[4]) + ";;;" +  //"Ort"
+											(feldVals[5] == null ? "" : feldVals[5]) + ";;;" +  //"Bundesland"
+											(feldVals[6] == null ? "" : feldVals[6]) + ";;;" +  //"Land"
+											(feldVals[8] == null ? "" : feldVals[8]) + ";;;"; //"VAT"
 						if (nodeIDs.containsKey(stationKey)) {
 							Integer id = nodeIDs.get(stationKey);
 							sql = "INSERT INTO " + DBKernel.delimitL(tablename) + " (ID," + fns.substring(1) +	") VALUES (" + id + "," + fvs.substring(1) + ")";						

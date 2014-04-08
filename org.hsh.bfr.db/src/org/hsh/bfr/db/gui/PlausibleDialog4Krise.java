@@ -276,6 +276,7 @@ public class PlausibleDialog4Krise extends JDialog {
 				//---- gentle ----
 				gentle.setText("gentle");
 				gentle.setSelected(true);
+				gentle.setToolTipText("NULL values are not handled as different");
 				contentPanel.add(gentle, CC.xy(1, 9));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);

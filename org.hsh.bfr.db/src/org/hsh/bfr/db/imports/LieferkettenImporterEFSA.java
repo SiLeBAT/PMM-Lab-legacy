@@ -521,7 +521,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  if (feldVals[i] != null && feldVals[i].trim().isEmpty()) feldVals[i] = null;
 		  	if (feldVals[i] != null) feldVals[i] = feldVals[i].replaceAll("'", "\\apos");
 		  	fns += "," + DBKernel.delimitL(feldnames[i]);
-		  	fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
+		  	if (feldnames[i].equals("Unitmenge") && feldVals[i] != null) fvs += "," + feldVals[i].replace(",", ".");
+		  	else fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
 			if (key == null || key[i]) {
 				sql += " AND " + DBKernel.delimitL(feldnames[i]) + (feldVals[i] != null ? "='" + feldVals[i] + "'" : " IS NULL");	  
 			}

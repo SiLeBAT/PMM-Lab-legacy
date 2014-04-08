@@ -404,6 +404,7 @@ new FormModel {
 						name: "gentle"
 						"text": "gentle"
 						"selected": true
+						"toolTipText": "NULL values are not handled as different"
 						auxiliary() {
 							"JavaCodeGenerator.variableModifiers": 1
 						}

@@ -2662,29 +2662,20 @@ public class DBKernel {
 	public static boolean mergeIDs(Connection conn, final String tableName,
 			int oldID, int newID) {
 		ResultSet rs = null;
-		String sql = "SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE "
-				+ " WHERE PKTABLE_NAME = '" + tableName + "'";
+		String sql = "SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'";
 		try {
 			rs = DBKernel.getResultSet(conn, sql, false);
 			if (rs != null && rs.first()) {
 				do {
-					String fkt = rs.getObject("FKTABLE_NAME") != null ? rs
-							.getString("FKTABLE_NAME") : "";
-					String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs
-							.getString("FKCOLUMN_NAME") : "";
+					String fkt = rs.getObject("FKTABLE_NAME") != null ? rs.getString("FKTABLE_NAME") : "";
+					String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
 					// System.err.println(tableName + " wird in " + fkt + "->" +
 					// fkc + " referenziert");
-					if (!DBKernel.sendRequest(conn,
-							"UPDATE " + DBKernel.delimitL(fkt) + " SET "
-									+ DBKernel.delimitL(fkc) + "=" + newID
-									+ " WHERE " + DBKernel.delimitL(fkc) + "="
-									+ oldID, false, false))
+					if (!DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID
+									+ " WHERE " + DBKernel.delimitL(fkc) + "=" + oldID, false, false))
 						return false;
 				} while (rs.next());
-				if (DBKernel.sendRequest(conn,
-						"DELETE FROM " + DBKernel.delimitL(tableName)
-								+ " WHERE " + DBKernel.delimitL("ID") + "="
-								+ oldID, false, false)) {
+				if (DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL(tableName) + " WHERE " + DBKernel.delimitL("ID") + "=" + oldID, false, false)) {
 					return true;
 				}
 			}

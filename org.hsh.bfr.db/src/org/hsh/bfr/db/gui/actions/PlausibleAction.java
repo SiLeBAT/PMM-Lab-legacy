@@ -182,16 +182,7 @@ public class PlausibleAction extends AbstractAction {
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			myDB.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			/*
-			DBKernel.sendRequest(
-		    		"CREATE FUNCTION LD(x VARCHAR(255), y VARCHAR(255))\n" +
-		    		"RETURNS INT\n" + 
-		    		"NO SQL\n" +
-		    		"LANGUAGE JAVA\n" +
-		    		"PARAMETER STYLE JAVA\n" +
-		    		"EXTERNAL NAME 'CLASSPATH:org.hsh.bfr.db.InexactStringMatcher.getMatchScore'"
-		    		, false);
-	*/
+			
 			LinkedHashMap<String[], LinkedHashSet<String[]>> vals1 =
 					pd4.cs.isSelected() ?
 							checkTable4ISM("Station", new String[]{"Name","PLZ","Strasse","Hausnummer","Ort","VATnumber"},
@@ -346,9 +337,9 @@ public class PlausibleAction extends AbstractAction {
         		
                 sql = "SELECT " + DBKernel.delimitL("ID");
         		for (int i=0;i<fieldnames.length;i++) sql += "," + DBKernel.delimitL(fieldnames[i]);
-        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? ",0 AS SCORE" + i : "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))" + " AS SCORE" + i;
+        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? ",0 AS SCORE" + i : "," + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i].toString().toUpperCase() + "'") + ",UCASE(CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))))" + " AS SCORE" + i;
                 sql += " FROM " + DBKernel.delimitL(tablename) + " WHERE " + DBKernel.delimitL("ID") + ">" + id;
-        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? " AND TRUE" : " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i] + "'") + ",CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255))) <= " + maxScores[i];
+        		for (int i=0;i<fieldnames.length;i++) sql += (gentle && fieldVals[i] == null) ? " AND TRUE" : " AND " + DBKernel.delimitL("LD") + "(" + (fieldVals[i] == null ? "NULL" : "'" + fieldVals[i].toString().toUpperCase() + "'") + ",UCASE(CAST(" + DBKernel.delimitL(fieldnames[i]) + " AS VARCHAR(255)))) <= " + maxScores[i];
                 //sql += " ORDER BY SCORE ASC";
                 ResultSet rs2 = DBKernel.getResultSet(sql, false);
                 if (rs2 != null && rs2.first()) {

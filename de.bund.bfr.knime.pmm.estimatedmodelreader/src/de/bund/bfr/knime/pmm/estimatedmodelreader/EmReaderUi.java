@@ -11,6 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -61,8 +62,8 @@ public class EmReaderUi extends JPanel {
 	public static final int MODE_RMS = 2;
 	
 	private Double agentConc;
-	private Double lag;
 	private Double defTemp, defPh, defAw;
+	private Callable<Void> refresher;
 	
 	private SettingsHelper set = null;
 	
@@ -102,6 +103,13 @@ public class EmReaderUi extends JPanel {
 	}
 	private void getDataTable(Bfrdb db) {
 		try {
+			try {
+				refresher.call();
+			}
+			catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			
 			//create table TTEST ("ID" INTEGER, "Referenz" INTEGER, "Agens" INTEGER, "AgensDetail" VARCHAR(255), "Matrix" INTEGER, "MatrixDetail" VARCHAR(255), "Temperatur" Double, "pH" Double, "aw" Double, "CO2" Double, "Druck" Double, "Luftfeuchtigkeit" Double, "Sonstiges" INTEGER, "Kommentar" VARCHAR(1023), "Guetescore" INTEGER, "Geprueft" BOOLEAN);
 			HashMap<String, Integer> codeLength = new HashMap<String, Integer>();
 			codeLength.put("ADV", 4);
@@ -248,24 +256,25 @@ public class EmReaderUi extends JPanel {
 			    				set.getParamXValues().put(val, agentConc);
 			    			}
 			    		}
+			    		/*
 			    		if (lag != null && set.getLagParameters() != null) {
 			    			for (String val : set.getLagParameters().values()) {
 			    				set.getParamXValues().put(val, lag);
 			    			}
 			    		}
+			    		*/
 			    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
 			    		JPanel mainComponent = pvnd.getMainComponent();
 	
 			    		JDialog dialog = new JDialog(parentFrame);
+			    		dialog.setLayout(new BorderLayout());
 			    		dialog.setModal(true);
-			    		dialog.add(mainComponent);
+			    		dialog.add(mainComponent, BorderLayout.CENTER);
+			    		dialog.add(getOkApplyCancelPanel(dialog, pvnd), BorderLayout.SOUTH);
 			    		dialog.pack();
 			    		centerOnScreen(dialog, true);
-			    				    		
-			    		dialog.setVisible(true);
-			    		
-			    		set = pvnd.getSettings();
-			    		setSelectedFilterResults();
+			    			
+			    		dialog.setVisible(true);			    		
 					}
 		    	}
 		    	else {
@@ -501,15 +510,20 @@ public class EmReaderUi extends JPanel {
     		c2.addStringArray(EstimatedModelReaderNodeModel.PARAM_PARAMETERMAX, maxs);
     	}
     }	
+	public void refreshParamSettings(Double defTemp, Double defPh, Double defAw) {
+    	this.defTemp = defTemp;
+    	this.defPh = defPh;
+    	this.defAw = defAw;
+	}
 	public void setSettings(Config c) throws InvalidSettingsException {		
 		setSettings(c, null, null, null, null, null, null, null);
 	}
-	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc, Double lag) throws InvalidSettingsException {
+	public void setSettings(Config c, Integer defAgent, Integer defMatrix, Double defTemp, Double defPh, Double defAw, Double agentConc, Callable<Void> refresher) throws InvalidSettingsException {
     	this.defTemp = defTemp;
     	this.defPh = defPh;
     	this.defAw = defAw;
     	this.agentConc = agentConc;
-    	this.lag = lag;
+    	this.refresher = refresher;
 		LinkedHashMap<String, DoubleTextField[]> params = new LinkedHashMap<String, DoubleTextField[]>();
 		if (c != null) {
 			if (c.containsKey("PredictorSettings")) {
@@ -587,6 +601,39 @@ public class EmReaderUi extends JPanel {
 			dtf[0].setValue(defAw - 0.1);
 			dtf[1].setValue(defAw + 0.1);
 		}
+	}
+	private JPanel getOkApplyCancelPanel(final JDialog dialog, final PredictorViewNodeDialog pvnd) {
+		JPanel panel = new JPanel();
+        JButton okButton = new JButton("Ok");
+        JButton applyButton = new JButton("Apply");
+        JButton cancelButton = new JButton("Cancel");
+        
+        okButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+	    		set = pvnd.getSettings();
+	    		setSelectedFilterResults();
+	    		dialog.dispose();
+            }
+        });            
+        applyButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+	    		set = pvnd.getSettings();
+	    		setSelectedFilterResults();
+	    		pvnd.createMainComponent();
+	    		pvnd.createChart();
+            }
+        });            
+        cancelButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent event) {
+            	dialog.dispose();
+            }
+        });
+        panel.setSize(300,130);
+        panel.setLayout(new FlowLayout());
+        panel.add(okButton);       
+        panel.add(applyButton);       
+        panel.add(cancelButton);
+        return panel;
 	}
 
 	private void initComponents() {

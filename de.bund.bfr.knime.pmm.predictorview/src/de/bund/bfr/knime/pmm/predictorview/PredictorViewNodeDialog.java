@@ -142,14 +142,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		showSamplePanel = false;		
+		showSamplePanel = false;
 	}
 
 	public SettingsHelper getSettings() {
 		writeSettingsToVariables();
 		return set;
 	}
-	
+
 	public TableReader getReader() {
 		return reader;
 	}
@@ -456,6 +456,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	private Map<String, String> getInvalidIds(List<String> selectedIDs) {
 		Map<String, String> invalid = new LinkedHashMap<String, String>();
+		Set<String> nonVariables = new LinkedHashSet<String>();
+
+		nonVariables.addAll(set.getConcentrationParameters().values());
+		nonVariables.addAll(set.getLagParameters().values());
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -466,7 +470,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 								plotable.getUnits());
 
 				for (String param : converted.keySet()) {
-					if (converted.get(param).size() == 1) {
+					if (!nonVariables.contains(param)
+							&& converted.get(param).size() == 1) {
 						double value = converted.get(param).get(0);
 						Double min = plotable.getMinArguments().get(param);
 						Double max = plotable.getMaxArguments().get(param);

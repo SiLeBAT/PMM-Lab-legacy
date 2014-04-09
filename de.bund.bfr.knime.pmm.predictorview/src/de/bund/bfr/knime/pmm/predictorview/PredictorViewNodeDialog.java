@@ -108,7 +108,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private ChartConfigPanel configPanel;
 	private ChartSamplePanel samplePanel;
 
-	private boolean showSamplePanel;
+	private boolean defaultBehaviour;
 	private boolean removeInvalid;
 	private List<String> warnings;
 
@@ -120,7 +120,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		panel.setLayout(new BorderLayout());
 		addTab("Options", panel);
-		showSamplePanel = true;
+		defaultBehaviour = true;
 		removeInvalid = true;
 	}
 
@@ -129,20 +129,20 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		this.set = set;
 		this.tuples = tuples;
 		this.removeInvalid = removeInvalid;
+		defaultBehaviour = false;
 
 		if (newTuples) {
 			reader = new TableReader(tuples,
 					set.getNewConcentrationParameters(),
-					set.getNewLagParameters());
+					set.getNewLagParameters(), defaultBehaviour);
 		} else {
 			reader = new TableReader(tuples, set.getConcentrationParameters(),
-					set.getLagParameters());
+					set.getLagParameters(), defaultBehaviour);
 		}
 
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		showSamplePanel = false;
 	}
 
 	public SettingsHelper getSettings() {
@@ -169,7 +169,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.loadSettings(settings);
 		tuples = PredictorViewNodeModel.getTuples(input[0]);
 		reader = new TableReader(tuples, set.getConcentrationParameters(),
-				set.getLagParameters());
+				set.getLagParameters(), defaultBehaviour);
 		mainComponent = new JPanel();
 		mainComponent.setLayout(new BorderLayout());
 		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
@@ -317,16 +317,12 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 		selectionPanel.setSelectedIDs(set.getSelectedIDs());
 
-		if (showSamplePanel) {
+		if (defaultBehaviour) {
 			return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
 					samplePanel);
 		} else {
 			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
 		}
-	}
-
-	public void setShowSamplePanel(boolean showSamplePanel) {
-		this.showSamplePanel = showSamplePanel;
 	}
 
 	public void createChart() {
@@ -532,7 +528,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			set.setSelectedIDs(new ArrayList<String>());
 			writeSettingsToVariables();
 			reader = new TableReader(tuples, set.getConcentrationParameters(),
-					set.getLagParameters());
+					set.getLagParameters(), defaultBehaviour);
 
 			int divider = ((ChartAllPanel) mainComponent.getComponent(0))
 					.getDividerLocation();

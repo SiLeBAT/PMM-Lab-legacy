@@ -69,64 +69,69 @@ public class TableReader {
 	private Map<String, String> awParam;
 
 	public TableReader(List<KnimeTuple> tuples, Map<String, String> initParams,
-			Map<String, String> lagParams) {
+			Map<String, String> lagParams, boolean defaultBehaviour) {
 		Set<String> idSet = new LinkedHashSet<String>();
 		boolean isTertiaryModel = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createM12Schema());
 		boolean containsData = tuples.get(0).getSchema()
 				.conforms(SchemaFactory.createDataSchema());
 		List<String> miscParams = null;
+		Map<KnimeTuple, List<KnimeTuple>> combined = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		List<KnimeTuple> rawTuples = tuples;
 
 		newInitParams = new LinkedHashMap<String, String>();
 		newLagParams = new LinkedHashMap<String, String>();
 
 		if (isTertiaryModel) {
-			Map<KnimeTuple, List<KnimeTuple>> combined = ModelCombiner.combine(
-					tuples, containsData, initParams, lagParams);
+			combined = ModelCombiner.combine(tuples, containsData, initParams,
+					lagParams);
 
-			combinedTuples = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
-
-			for (KnimeTuple t1 : combined.keySet()) {
-				combinedTuples.put(t1, new ArrayList<KnimeTuple>());
-
-				for (KnimeTuple t2 : combined.get(t1)) {
-					combinedTuples.get(t1).addAll(getAllDataTuples(t2, tuples));
-				}
-			}
-
-			tuples = new ArrayList<KnimeTuple>(combinedTuples.keySet());
+			tuples = new ArrayList<KnimeTuple>(combined.keySet());
 
 			try {
 				List<KnimeTuple> newTuples = QualityMeasurementComputation
 						.computePrimary(tuples, false);
 
 				for (int i = 0; i < tuples.size(); i++) {
-					combinedTuples.put(newTuples.get(i),
-							combinedTuples.get(tuples.get(i)));
-					combinedTuples.remove(tuples.get(i));
+					combined.put(newTuples.get(i), combined.get(tuples.get(i)));
+					combined.remove(tuples.get(i));
 				}
 
 				tuples = newTuples;
 			} catch (Exception e) {
 			}
 
-			for (KnimeTuple tuple : tuples) {
-				List<KnimeTuple> usedTuples = combinedTuples.get(tuple);
+			if (!defaultBehaviour) {
+				combinedTuples = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
 
-				if (!usedTuples.isEmpty()) {
-					String oldID = ((CatalogModelXml) usedTuples.get(0)
-							.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
-							.getId() + "";
-					String newID = ((CatalogModelXml) tuple.getPmmXml(
-							Model1Schema.ATT_MODELCATALOG).get(0)).getId()
-							+ "";
+				for (KnimeTuple t1 : combined.keySet()) {
+					combinedTuples.put(t1, new ArrayList<KnimeTuple>());
 
-					if (initParams.containsKey(oldID)) {
-						newInitParams.put(newID, initParams.get(oldID));
+					for (KnimeTuple t2 : combined.get(t1)) {
+						combinedTuples.get(t1).addAll(
+								getAllDataTuples(t2, rawTuples));
 					}
+				}
 
-					if (lagParams.containsKey(oldID)) {
-						newLagParams.put(newID, lagParams.get(oldID));
+				for (KnimeTuple tuple : tuples) {
+					List<KnimeTuple> usedTuples = combinedTuples.get(tuple);
+
+					if (!usedTuples.isEmpty()) {
+						String oldID = ((CatalogModelXml) usedTuples.get(0)
+								.getPmmXml(Model1Schema.ATT_MODELCATALOG)
+								.get(0)).getId()
+								+ "";
+						String newID = ((CatalogModelXml) tuple.getPmmXml(
+								Model1Schema.ATT_MODELCATALOG).get(0)).getId()
+								+ "";
+
+						if (initParams.containsKey(oldID)) {
+							newInitParams.put(newID, initParams.get(oldID));
+						}
+
+						if (lagParams.containsKey(oldID)) {
+							newLagParams.put(newID, lagParams.get(oldID));
+						}
 					}
 				}
 			}
@@ -284,14 +289,25 @@ public class TableReader {
 				continue;
 			}
 
+			String primId;
+
+			if (isTertiaryModel) {
+				primId = ((CatalogModelXml) combined.get(tuple).get(0)
+						.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0))
+						.getId() + "";
+			} else {
+				primId = ((CatalogModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_MODELCATALOG).get(0)).getId()
+						+ "";
+			}
+
 			ids.add(id);
 			tupleMap.put(id, tuple);
 
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			DepXml depXml = (DepXml) tuple
-					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
-			String modelID = modelXml.getId() + "";
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);			
 			String modelName = modelXml.getName();
 			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
 					.getFormula());
@@ -304,8 +320,8 @@ public class TableReader {
 			Map<String, Double> parameters = new LinkedHashMap<String, Double>();
 			Map<String, Double> paramData = new LinkedHashMap<String, Double>();
 			Map<String, Map<String, Double>> covariances = new LinkedHashMap<String, Map<String, Double>>();
-			String initParam = newInitParams.get(modelID);
-			String lagParam = newLagParams.get(modelID);
+			String initParam = initParams.get(primId);
+			String lagParam = lagParams.get(primId);
 			Map<String, List<String>> categories = new LinkedHashMap<String, List<String>>();
 			Map<String, String> units = new LinkedHashMap<String, String>();
 			Plotable plotable = new Plotable(Plotable.FUNCTION_SAMPLE);
@@ -433,13 +449,16 @@ public class TableReader {
 				Set<String> organisms = new LinkedHashSet<String>();
 				Set<String> matrices = new LinkedHashSet<String>();
 
-				for (KnimeTuple t : combinedTuples.get(tuple)) {
-					secModels.add(((CatalogModelXml) t.getPmmXml(
-							Model2Schema.ATT_MODELCATALOG).get(0)).getName());
+				for (KnimeTuple t : dataTuples.get(id)) {
 					organisms.add(((AgentXml) t.getPmmXml(
 							TimeSeriesSchema.ATT_AGENT).get(0)).getName());
 					matrices.add(((MatrixXml) t.getPmmXml(
 							TimeSeriesSchema.ATT_MATRIX).get(0)).getName());
+				}
+
+				for (KnimeTuple t : combined.get(tuple)) {
+					secModels.add(((CatalogModelXml) t.getPmmXml(
+							Model2Schema.ATT_MODELCATALOG).get(0)).getName());
 				}
 
 				String secString = "";

@@ -1,5 +1,6 @@
 package de.bund.bfr.knime.pmm.predictorview;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -21,6 +22,7 @@ import de.bund.bfr.knime.pmm.common.ParamXml;
 import de.bund.bfr.knime.pmm.common.PmmXmlDoc;
 import de.bund.bfr.knime.pmm.common.PmmXmlElementConvertable;
 import de.bund.bfr.knime.pmm.common.QualityMeasurementComputation;
+import de.bund.bfr.knime.pmm.common.TimeSeriesXml;
 import de.bund.bfr.knime.pmm.common.chart.ChartConstants;
 import de.bund.bfr.knime.pmm.common.chart.ChartSelectionPanel;
 import de.bund.bfr.knime.pmm.common.chart.Plotable;
@@ -251,6 +253,22 @@ public class TableReader {
 			}
 		}
 
+		Map<String, List<KnimeTuple>> dataTuples = new LinkedHashMap<String, List<KnimeTuple>>();
+
+		if (isTertiaryModel && containsData) {
+			for (KnimeTuple tuple : tuples) {
+				String id = ((EstModelXml) tuple.getPmmXml(
+						Model1Schema.ATT_ESTMODEL).get(0)).getId()
+						+ "";
+
+				if (!dataTuples.containsKey(id)) {
+					dataTuples.put(id, new ArrayList<KnimeTuple>());
+				}
+
+				dataTuples.get(id).add(tuple);
+			}
+		}
+
 		int index = 1;
 
 		for (KnimeTuple tuple : tuples) {
@@ -321,6 +339,18 @@ public class TableReader {
 				}
 			}
 
+			Double minConcentration = null;
+			Double maxConcentration = null;
+
+			if (isTertiaryModel && containsData) {
+				Point2D range = getConcentrationRange(dataTuples.get(id));
+
+				if (range != null) {
+					minConcentration = range.getX();
+					maxConcentration = range.getY();
+				}
+			}
+
 			for (PmmXmlElementConvertable el : paramXml.getElementSet()) {
 				ParamXml element = (ParamXml) el;
 
@@ -330,8 +360,16 @@ public class TableReader {
 					units.put(element.getName(), element.getUnit());
 					categories.put(element.getName(),
 							Arrays.asList(element.getCategory()));
-					varMin.put(element.getName(), element.getMin());
-					varMax.put(element.getName(), element.getMax());
+
+					if (element.getName().equals(initParam)
+							&& minConcentration != null
+							&& maxConcentration != null) {
+						varMin.put(element.getName(), minConcentration);
+						varMax.put(element.getName(), maxConcentration);
+					} else {
+						varMin.put(element.getName(), element.getMin());
+						varMax.put(element.getName(), element.getMax());
+					}
 
 					if (element.getValue() != null) {
 						plotable.addValueList(
@@ -673,6 +711,29 @@ public class TableReader {
 		}
 
 		return tuples;
+	}
+
+	private static Point2D getConcentrationRange(List<KnimeTuple> tuples) {
+		double min = Double.POSITIVE_INFINITY;
+		double max = Double.NEGATIVE_INFINITY;
+
+		for (KnimeTuple tuple : tuples) {
+			for (PmmXmlElementConvertable el : tuple.getPmmXml(
+					TimeSeriesSchema.ATT_TIMESERIES).getElementSet()) {
+				Double value = ((TimeSeriesXml) el).getConcentration();
+
+				if (value != null) {
+					min = Math.min(value, min);
+					max = Math.max(value, max);
+				}
+			}
+		}
+
+		if (MathUtilities.isValid(min) && MathUtilities.isValid(max)) {
+			return new Point2D.Double(min, max);
+		}
+
+		return null;
 	}
 
 }

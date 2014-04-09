@@ -205,12 +205,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			      String oc = getStrVal(row.getCell(10)); // OriginCountry
 			      String cqr = (anno == null ? "" : anno) + (sitoweb == null ? "" : "\t" + sitoweb);
 
+			      String serial = "Gaia_" + (i+1);
 			      Integer c1 = null;
 			      if (nameSup != null && !nameSup.trim().isEmpty()) {
 			    	  c1 = getCharge_Lieferung(nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, null, vatSup,
 			    			  prodName, null, null, null, null, null, null, null, null, oc, null, null, null, null, null, null,
 			    			  nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec, countryRec, null, vatRec,
-			    			  null, cqr, true, null, null, null, null);
+			    			  serial, cqr, true, null, null, null, null);
 			      }
 			      if (c1 == null) {
 			      	System.err.println("Fehlerchenchen_1!! Row: " + (i+1));

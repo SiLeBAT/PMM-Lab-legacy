@@ -276,8 +276,17 @@ public void valueChanged(final TreeSelectionEvent event) {
 			}
 
 			this.setModel(new InvisibleTreeModel(root, false, true));
-			expandAll();	
 		}
+		expandAll();	
+		checkChildren();
+	}
+	private void checkChildren() {
+		for (int i=0; i < children.length; i++) {
+			if (children[i].getChildCount() == 0) {
+				children[i].setVisible(false);
+			}
+		}
+		this.updateUI();
 	}
 	
 	public MyTable getTable(final String tableName) {

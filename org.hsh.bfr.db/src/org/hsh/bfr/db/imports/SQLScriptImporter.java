@@ -20,6 +20,15 @@ import org.hsh.bfr.db.MyLogger;
  */
 public class SQLScriptImporter implements MyImporter {
 
+	private String delimiter;
+	
+	public SQLScriptImporter() {
+		this.delimiter = ";";
+	}
+	public SQLScriptImporter(String delimiter) {
+		this.delimiter = delimiter;
+	}
+	
 	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
 	  	Runnable runnable = new Runnable() {
 	        public void run() {
@@ -45,7 +54,6 @@ public class SQLScriptImporter implements MyImporter {
 			    		is = new FileInputStream(filename);
 			    	}
 
-        		    String delimiter = ";";
         		    Scanner scanner;
     		        scanner = new Scanner(is).useDelimiter(delimiter);
         		    while(scanner.hasNext()) {

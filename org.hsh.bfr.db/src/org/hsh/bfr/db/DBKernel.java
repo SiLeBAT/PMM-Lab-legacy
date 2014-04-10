@@ -454,24 +454,15 @@ public class DBKernel {
 		createTable(tableName, fieldDefs, indexSQL, true, false);
 	}
 
-	protected static void createTable(final String tableName,
-			final String fieldDefs, final List<String> indexSQL,
-			final boolean cached, final boolean suppressWarnings) {
+	protected static void createTable(final String tableName, final String fieldDefs, final List<String> indexSQL, final boolean cached, final boolean suppressWarnings) {
 		try {
 			getDBConnection();
 			if (tableName.equals("ChangeLog")) { // ||
 													// tableName.equals("DateiSpeicher")
 													// ||
 													// tableName.equals("Infotabelle")
-				DBKernel.sendRequest(
-						"CREATE SEQUENCE "
-								+ DBKernel.delimitL(tableName + "SEQ")
-								+ " AS INTEGER START WITH 1 INCREMENT BY 1",
-						false);
-				DBKernel.sendRequest(
-						"GRANT USAGE ON SEQUENCE "
-								+ DBKernel.delimitL("ChangeLogSEQ") + " TO "
-								+ DBKernel.delimitL("PUBLIC"), false);
+				DBKernel.sendRequest("CREATE SEQUENCE " + DBKernel.delimitL(tableName + "SEQ") + " AS INTEGER START WITH 1 INCREMENT BY 1", false);
+				DBKernel.sendRequest("GRANT USAGE ON SEQUENCE " + DBKernel.delimitL("ChangeLogSEQ") + " TO " + DBKernel.delimitL("PUBLIC"), false);
 			}
 
 			Statement stmt = localConn.createStatement(); // ResultSet.TYPE_SCROLL_INSENSITIVE,
@@ -479,8 +470,7 @@ public class DBKernel {
 															// ResultSet.CONCUR_UPDATABLE
 			// stmt.execute("DROP TABLE " + delimitL(tableName) +
 			// " IF EXISTS;");
-			String sqlc = "CREATE " + (cached ? "CACHED" : "MEMORY")
-					+ " TABLE " + delimitL(tableName) + " (" + fieldDefs + ");";
+			String sqlc = "CREATE " + (cached ? "CACHED" : "MEMORY") + " TABLE " + delimitL(tableName) + " (" + fieldDefs + ");";
 			stmt.execute(sqlc);
 			// System.out.println(sqlc);
 			for (String sql : indexSQL) {
@@ -489,67 +479,13 @@ public class DBKernel {
 					stmt.execute(sql);
 				}
 			}
-			if (!tableName.equals("ChangeLog")
-					&& !tableName.equals("DateiSpeicher")
-					&& !tableName.equals("Infotabelle")) {
-				stmt.execute("CREATE TRIGGER "
-						+ delimitL("A_" + tableName + "_U")
-						+ " AFTER UPDATE ON " + delimitL(tableName)
-						+ " FOR EACH ROW " + " CALL "
-						+ delimitL(new MyTrigger().getClass().getName())); // (oneThread
-																			// ?
-																			// "QUEUE 0"
-																			// :
-																			// "")
-																			// +
-				stmt.execute("CREATE TRIGGER "
-						+ delimitL("A_" + tableName + "_D")
-						+ " AFTER DELETE ON " + delimitL(tableName)
-						+ " FOR EACH ROW " + " CALL "
-						+ delimitL(new MyTrigger().getClass().getName())); // (oneThread
-																			// ?
-																			// "QUEUE 0"
-																			// :
-																			// "")
-																			// +
-				stmt.execute("CREATE TRIGGER "
-						+ delimitL("A_" + tableName + "_I")
-						+ " AFTER INSERT ON " + delimitL(tableName)
-						+ " FOR EACH ROW " + " CALL "
-						+ delimitL(new MyTrigger().getClass().getName())); // (oneThread
-																			// ?
-																			// "QUEUE 0"
-																			// :
-																			// "")
-																			// +
-				if (tableName.equals("Modellkatalog")
-						|| tableName.equals("ModellkatalogParameter")
-						|| tableName.equals("Modell_Referenz")) {
-					/*
-					 * || tableName.equals("GeschaetzteModelle") ||
-					 * tableName.equals("GeschaetztesModell_Referenz") ||
-					 * tableName.equals("GeschaetzteParameter") ||
-					 * tableName.equals("GeschaetzteParameterCovCor") ||
-					 * tableName.equals("Sekundaermodelle_Primaermodelle") ||
-					 * tableName.equals("Literatur")
-					 */
-					// der INSERT TRIGGER verursacht leider Probleme, weil
-					// data-in-motion die neu generierte ID mittels CALL
-					// IDENTITY() abruft
-					// das liefert aber die in ChangeLog eingetragene ID zurück
-					// und nicht die in der gewünschten Tabelle
-					// muss also erst mal ohne gehen...
-					// bei Literatur auch problematisch... vielleicht sollten
-					// wir den Literaturview verstecken?
-				} else {
-					/*
-					 * stmt.execute("CREATE TRIGGER " + delimitL("A_" +
-					 * tableName + "_I") + " AFTER INSERT ON " +
-					 * delimitL(tableName) + " FOR EACH ROW " + " CALL " +
-					 * delimitL(new MyTrigger().getClass().getName())); //
-					 * (oneThread ? "QUEUE 0" : "") +
-					 */
-				}
+			if (!tableName.equals("ChangeLog") && !tableName.equals("DateiSpeicher") && !tableName.equals("Infotabelle")) {
+				stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_U") + " AFTER UPDATE ON " + delimitL(tableName) + " FOR EACH ROW " + " CALL "
+						+ delimitL(new MyTrigger().getClass().getName()));
+				stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_D") + " AFTER DELETE ON " + delimitL(tableName) + " FOR EACH ROW " + " CALL "
+						+ delimitL(new MyTrigger().getClass().getName()));
+				stmt.execute("CREATE TRIGGER " + delimitL("A_" + tableName + "_I") + " AFTER INSERT ON " + delimitL(tableName) + " FOR EACH ROW " + " CALL "
+						+ delimitL(new MyTrigger().getClass().getName()));
 			}
 			stmt.close();
 		} catch (Exception e) {
@@ -2215,10 +2151,10 @@ public class DBKernel {
 	}
 
 	public static void setDBVersion(Connection conn, final String dbVersion) {
-		DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL("Infotabelle")
-				+ " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion
-				+ "'" + " WHERE " + DBKernel.delimitL("Parameter")
-				+ " = 'DBVersion'", false, false);
+		if (!DBKernel.sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + dbVersion + "')", true, false)) {
+			DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion
+					+ "'" + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
+		}
 	}
 
 	public static long getFileSize(final String filename) {
@@ -2649,10 +2585,11 @@ public class DBKernel {
 			String sql = "SELECT " + DBKernel.delimitL("Parameter") + " FROM "
 					+ DBKernel.delimitL("SonstigeParameter");
 			rs = DBKernel.getResultSet(conn, sql, false);
-			do {
-				if (rs.getObject("Parameter") != null)
-					hs.add(rs.getString("Parameter"));
-			} while (rs.next());
+			if (rs != null && rs.first()) {
+				do {
+					if (rs.getObject("Parameter") != null) hs.add(rs.getString("Parameter"));
+				} while (rs.next());
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

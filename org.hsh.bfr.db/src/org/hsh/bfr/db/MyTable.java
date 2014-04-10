@@ -195,14 +195,13 @@ public class MyTable {
 					tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
 					tableName.equals("ICD10_Kodes") || 
 					tableName.equals("Parametertyp") || tableName.equals("DataSource") ||
-					(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||
+					//(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||
 					tableName.equals("GeschaetzteModelle") || tableName.equals("GeschaetztesModell_Referenz") ||
 					tableName.equals("GeschaetzteParameter") || 
 					tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
 					tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") || tableName.equals("GlobalModels") || 
 					tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || 
-					tableName.equals("Prozess_Verbindungen") || 
-					DBKernel.isReadOnly();
+					tableName.equals("Prozess_Verbindungen");
 
 		odsn = true;
 		if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")

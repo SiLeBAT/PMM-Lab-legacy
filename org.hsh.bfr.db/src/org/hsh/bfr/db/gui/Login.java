@@ -330,6 +330,16 @@ public class Login extends JFrame {
 			// Datenbank füllen			
 			if (noDBThere) {
 				DBKernel.importing = true;
+				int answer = JOptionPane.showConfirmDialog(this, "There is no database.\nYou have two opportunities:\n- creating an empty one <Yes>\n- creating the default one with some prefilled sample data <No>\nDo you wish to create the empty one?",
+					    "No database...",
+					    JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.YES_OPTION) {
+					DBKernel.myDBi = new MyDBTablesNew();
+					myList.addAllTables();
+					DBKernel.myDBi.bootstrapDB();
+					DBKernel.setDBVersion(DBKernel.myDBi.getDBVersion());
+				}
+				else {
 					File temp = DBKernel.getCopyOfInternalDB();
 					if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 						passwordField1.setBackground(Color.RED);
@@ -342,7 +352,7 @@ public class Login extends JFrame {
 					//MyDBTables.loadMyTables();
 					DBKernel.myDBi = new MyDBTablesNew();
 					myList.addAllTables();
-
+				}
 				DBKernel.importing = false;
 			}
 			else {

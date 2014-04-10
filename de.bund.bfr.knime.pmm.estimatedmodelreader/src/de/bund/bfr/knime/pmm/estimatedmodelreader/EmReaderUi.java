@@ -622,7 +622,7 @@ public class EmReaderUi extends JPanel {
             public void actionPerformed(ActionEvent event) {
 	    		set = pvnd.getSettings();
 	    		insertInitVals();
-	    		pvnd.createMainComponent();
+	    		pvnd.getChartAllPanel().getConfigPanel().setParamXValues(set.getParamXValues());
 	    		setSelectedFilterResults();
             }
         });            

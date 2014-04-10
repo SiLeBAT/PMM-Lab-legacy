@@ -103,6 +103,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	private SettingsHelper set;
 
 	private JPanel mainComponent;
+	private ChartAllPanel chartAllPanel;
 	private ChartCreator chartCreator;
 	private ChartSelectionPanel selectionPanel;
 	private ChartConfigPanel configPanel;
@@ -162,6 +163,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		return mainComponent;
 	}
 
+	public ChartAllPanel getChartAllPanel() {
+		return chartAllPanel;
+	}
+
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
@@ -185,7 +190,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.saveSettings(settings);
 	}
 
-	public ChartAllPanel createMainComponent() {
+	private ChartAllPanel createMainComponent() {
 		if (set.isStandardVisibleColumns()) {
 			set.setVisibleColumns(reader.getStandardVisibleColumns());
 		}
@@ -275,7 +280,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		if (set.getUnitY() != null) {
 			configPanel.setUnitY(set.getUnitY());
 		} else {
-			configPanel.setUnitX(units.get(AttributeUtilities.CONCENTRATION));
+			configPanel.setUnitY(units.get(AttributeUtilities.CONCENTRATION));
 		}
 
 		if (!set.getParamXValues().isEmpty()) {
@@ -318,11 +323,14 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		selectionPanel.setSelectedIDs(set.getSelectedIDs());
 
 		if (defaultBehaviour) {
-			return new ChartAllPanel(chartCreator, selectionPanel, configPanel,
-					samplePanel);
+			chartAllPanel = new ChartAllPanel(chartCreator, selectionPanel,
+					configPanel, samplePanel);
 		} else {
-			return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
+			chartAllPanel = new ChartAllPanel(chartCreator, selectionPanel,
+					configPanel);
 		}
+		
+		return chartAllPanel;
 	}
 
 	public void createChart() {

@@ -251,18 +251,7 @@ public class EmReaderUi extends JPanel {
 						e.printStackTrace();
 					}
 					if (hs != null && hs.size() > 0) {
-			    		if (agentConc != null && set.getNewConcentrationParameters() != null) {
-			    			for (String val : set.getNewConcentrationParameters().values()) {
-			    				set.getParamXValues().put(val, agentConc);
-			    			}
-			    		}
-			    		/*
-			    		if (lag != null && set.getLagParameters() != null) {
-			    			for (String val : set.getLagParameters().values()) {
-			    				set.getParamXValues().put(val, lag);
-			    			}
-			    		}
-			    		*/
+						insertInitVals();
 			    		pvnd = new PredictorViewNodeDialog(hs, set, false, true);
 			    		JPanel mainComponent = pvnd.getMainComponent();
 	
@@ -288,6 +277,20 @@ public class EmReaderUi extends JPanel {
 		catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	private void insertInitVals() {
+		if (agentConc != null && set.getNewConcentrationParameters() != null) {
+			for (String val : set.getNewConcentrationParameters().values()) {
+				set.getParamXValues().put(val, agentConc);
+			}
+		}
+		/*
+		if (lag != null && set.getLagParameters() != null) {
+			for (String val : set.getLagParameters().values()) {
+				set.getParamXValues().put(val, lag);
+			}
+		}
+		*/		
 	}
 	private void setSelectedFilterResults() {
 		String labelText = "<html>";
@@ -618,9 +621,9 @@ public class EmReaderUi extends JPanel {
         applyButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent event) {
 	    		set = pvnd.getSettings();
-	    		setSelectedFilterResults();
+	    		insertInitVals();
 	    		pvnd.createMainComponent();
-	    		pvnd.createChart();
+	    		setSelectedFilterResults();
             }
         });            
         cancelButton.addActionListener(new ActionListener() {

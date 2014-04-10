@@ -17,8 +17,8 @@ public class MyDBTablesNew extends MyDBI {
 	private final String dbVersion = "1.7.9";
 	
 	private boolean isPmm = true;
-	private boolean isKrise = true;
-	private boolean isSiLeBAT = true;
+	private boolean isKrise = false;
+	private boolean isSiLeBAT = false;
 	
 	/*
 	 * Still todo:
@@ -346,7 +346,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"INTEGER","VARCHAR(255)","INTEGER","VARCHAR(255)","VARCHAR(255)","INTEGER"},
 				new String[]{null,null,null,null,null,null},
 				new MyTable[]{literatur,null,agenzien,null,null,matrix});
-		if (isSiLeBAT) addTable(ComBaseImport, DBKernel.isKNIME ? MyList.BasisTabellen_LIST : -1); // 66
+		if (isSiLeBAT) addTable(ComBaseImport, -1);
 		MyTable adressen = new MyTable("Kontakte",
 				new String[]{"Name","Strasse","Hausnummer","Postfach","PLZ","Ort","Bundesland","Land","Ansprechpartner","Telefon","Fax","EMail","Webseite"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(10)","VARCHAR(20)","VARCHAR(10)","VARCHAR(60)","VARCHAR(30)","VARCHAR(100)","VARCHAR(100)","VARCHAR(30)","VARCHAR(30)","VARCHAR(100)","VARCHAR(255)"},
@@ -1142,16 +1142,6 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedList<String>(Arrays.asList("Menge")));
 		if (isSiLeBAT) addTable(Zutatendaten_Kosten, -1);
 		
-
-		MyTable LinkedTestConditions = new MyTable("LinkedTestConditions", new String[]{"CondID","LinkedCondID"},
-				new String[]{"INTEGER","INTEGER"},
-				new String[]{null,null},
-				new MyTable[]{null,null},
-				null,
-				new LinkedHashMap[]{null,null},
-				null);
-		if (!isPmm) addTable(LinkedTestConditions, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
-
 		if (isPmm || isSiLeBAT) generateStatUpModellTables(literatur, tenazity_raw_data, allHashes.get("Time"), Konzentrationseinheiten, hYNB);
 
 		if (isKrise) doLieferkettenTabellen(agenzien, matrix, h4);
@@ -1646,6 +1636,6 @@ public class MyDBTablesNew extends MyDBI {
 	}
 	public void addData() {
 		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null, false);
-		if (isPmm) new SQLScriptImporter("\n").doImport("/org/hsh/bfr/db/res/PmmInitData.sql", null, false);
+		if (isPmm) new SQLScriptImporter("\r\n").doImport("/org/hsh/bfr/db/res/PmmInitData.sql", null, false);
 	}
 }

@@ -1784,13 +1784,11 @@ public class DBKernel {
 		return ergebnis;
 	}
 
-	public static boolean sendRequest(final String sql,
-			final boolean suppressWarnings) {
+	public static boolean sendRequest(final String sql, final boolean suppressWarnings) {
 		return sendRequest(sql, suppressWarnings, false);
 	}
 
-	public static boolean sendRequest(final String sql,
-			final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	public static boolean sendRequest(final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
 		try {
 			Connection conn = getDBConnection();
 			return sendRequest(conn, sql, suppressWarnings, fetchAdminInCase);
@@ -1800,13 +1798,11 @@ public class DBKernel {
 		return false;
 	}
 
-	public static boolean sendRequest(Connection conn, final String sql,
-			final boolean suppressWarnings, final boolean fetchAdminInCase) {
+	public static boolean sendRequest(Connection conn, final String sql, final boolean suppressWarnings, final boolean fetchAdminInCase) {
 		boolean result = false;
 		boolean adminGathered = false;
 		try {
-			if (conn == null || conn.isClosed())
-				conn = getDBConnection();
+			if (conn == null || conn.isClosed()) conn = getDBConnection();
 			if (fetchAdminInCase && !DBKernel.isAdmin()) { // @Todo: eigentlich:
 															// isAdmin(conn,
 															// conn.getMetaData().getUserName())

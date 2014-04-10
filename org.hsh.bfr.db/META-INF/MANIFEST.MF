@@ -44,5 +44,6 @@ Bundle-ClassPath: .,
  lib/MyJabRef-2.6.jar,
  lib/quicktable2swing11.jar,
  lib/jcm1.0-config.jar,
- lib/hsqldb.jar
+ lib/hsqldb.jar,
+ lib/sqltool.jar
 Bundle-Vendor: BfR

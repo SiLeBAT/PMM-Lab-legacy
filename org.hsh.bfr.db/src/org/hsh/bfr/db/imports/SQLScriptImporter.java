@@ -5,14 +5,19 @@ package org.hsh.bfr.db.imports;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JProgressBar;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
+import org.hsqldb.cmdline.SqlFile;
 
 /**
  * @author Weiser
@@ -21,8 +26,13 @@ import org.hsh.bfr.db.MyLogger;
 public class SQLScriptImporter implements MyImporter {
 
 	private String delimiter;
+	private boolean doSqlTool;
 	
 	public SQLScriptImporter() {
+		this(false);
+	}
+	public SQLScriptImporter(boolean doSqlTool) {
+		this.doSqlTool = doSqlTool;
 		this.delimiter = ";";
 	}
 	public SQLScriptImporter(String delimiter) {
@@ -54,15 +64,27 @@ public class SQLScriptImporter implements MyImporter {
 			    		is = new FileInputStream(filename);
 			    	}
 
-        		    Scanner scanner;
-    		        scanner = new Scanner(is).useDelimiter(delimiter);
-        		    while(scanner.hasNext()) {
-        		        String rawStatement = scanner.next();
-        		        if (rawStatement.trim().length() > 0) {
-        		        	DBKernel.sendRequest(rawStatement + delimiter, false);
-        		        }
-        		    }
-
+			    	if (doSqlTool) {
+			    		Reader reader = new InputStreamReader(is, "UTF-8");
+	  		            SqlFile sqlFile = new SqlFile(reader, filename, System.out, null, false, null);
+	  		            sqlFile.setConnection(DBKernel.getDBConnection());
+	  		            sqlFile.execute();	  		    		
+	  		    	}
+	  		    	else {
+				    	Scanner scanner;
+	    		        scanner = new Scanner(is, "UTF-8").useDelimiter(delimiter);
+	        		    while(scanner.hasNext()) {
+	        		        String rawStatement = scanner.next();
+	        		        if (rawStatement.trim().length() > 0) {
+	        		        	if (rawStatement.contains("\\u")) {
+	        		        		//System.err.println(rawStatement + "\n" + process(rawStatement));
+	        		        		rawStatement = process(rawStatement);
+	        		        	}
+	        		        	DBKernel.sendRequest(rawStatement + delimiter, false);
+	        		        }
+	        		    }
+	  		    	}
+			    	
 	        		if (progress != null) {
 	    				progress.setVisible(false);
 	    			}
@@ -89,5 +111,26 @@ public class SQLScriptImporter implements MyImporter {
 				MyLogger.handleException(e);
 			}
 
+	}
+	private final Pattern pattern = Pattern.compile("(\\\\\\\\)|\\\\u([0-9a-fA-F]{4})");  
+	private String process(String input) {
+			StringBuffer sb = new StringBuffer(input.length());  
+			Matcher m = pattern.matcher(input);  
+			while (m.find()) {  
+				String replacement;  
+				if (m.group(1) != null) {  
+					// found two backslashes in source  
+					replacement = "\\\\"; // represents one backslash in result  
+				}
+				else {  
+					// group 2 must be non-null; found a unicode escape  
+					String hexStr = m.group(2);  
+					int n = Integer.parseInt(hexStr, 16); // parse as hexadecimal  
+					replacement = String.valueOf((char) n);  
+				}  
+				m.appendReplacement(sb, replacement);  
+			}  
+			m.appendTail(sb);  
+			return sb.toString();  
 	}
 }

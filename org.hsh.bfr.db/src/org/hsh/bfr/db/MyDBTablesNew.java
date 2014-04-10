@@ -17,8 +17,8 @@ public class MyDBTablesNew extends MyDBI {
 	private final String dbVersion = "1.7.9";
 	
 	private boolean isPmm = true;
-	private boolean isKrise = false;
-	private boolean isSiLeBAT = false;
+	private boolean isKrise = true;
+	private boolean isSiLeBAT = true;
 	
 	/*
 	 * Still todo:

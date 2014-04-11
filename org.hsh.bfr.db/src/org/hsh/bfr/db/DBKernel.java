@@ -2180,23 +2180,14 @@ public class DBKernel {
 	}
 
 	public static void grantDefaults(final String tableName) {
-		DBKernel.sendRequest(
-				"GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName)
-						+ " TO " + DBKernel.delimitL("PUBLIC"), false);
+		DBKernel.sendRequest("GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("PUBLIC"), false);
 		if (tableName.startsWith("Codes_")) {
-			DBKernel.sendRequest(
-					"GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName)
-							+ " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
-		} else {
-			DBKernel.sendRequest(
-					"GRANT SELECT, INSERT, UPDATE ON TABLE "
-							+ DBKernel.delimitL(tableName) + " TO "
-							+ DBKernel.delimitL("WRITE_ACCESS"), false);
+			DBKernel.sendRequest("GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
 		}
-		DBKernel.sendRequest(
-				"GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "
-						+ DBKernel.delimitL(tableName) + " TO "
-						+ DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
+		else {
+			DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
+		}
+		DBKernel.sendRequest("GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
 	}
 
 	public static void openDBGUI() {

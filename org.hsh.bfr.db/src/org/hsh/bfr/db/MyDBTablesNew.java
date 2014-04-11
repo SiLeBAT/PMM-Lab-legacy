@@ -1638,4 +1638,10 @@ public class MyDBTablesNew extends MyDBI {
 		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null, false);
 		if (isPmm) new SQLScriptImporter("\r\n").doImport("/org/hsh/bfr/db/res/PmmInitData.sql", null, false);
 	}
+	public void createRoles() {
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false);
+	}
 }

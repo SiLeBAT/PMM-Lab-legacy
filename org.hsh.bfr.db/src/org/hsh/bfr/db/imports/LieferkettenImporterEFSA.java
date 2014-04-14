@@ -143,8 +143,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       		HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 			      String idRec = getStrVal(row.getCell(0));
-			      String nameRec = getStrVal(row.getCell(1));
+			      String adressRec = getStrVal(row.getCell(1));
 			      String countryRec = getStrVal(row.getCell(2));
+			      String nameRec = adressRec;
 			      String streetRec = null;
 			      String streetNoRec = null;
 			      String zipRec = null;
@@ -161,6 +162,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      countyRec = getStrVal(busRow.getCell(6)); 
 				      countryRec = getStrVal(busRow.getCell(7)); // 
 				      vatRec = getStrVal(busRow.getCell(8)); //
+				      if (!adressRec.startsWith(nameRec)) {
+				    	  //System.err.println("Id issue on recs... " + nameRec + " <> " + adressRec);
+				      }
 			      }
 			      else if (idRec != null) {
 			    	  System.err.println("business not there??? Row: " + (i+1) + "\tidReceived: " + idRec);
@@ -174,8 +178,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			      if (type != null) prodName += "(" + type + ")";
 			      			      
 			      String idSup = getStrVal(row.getCell(5));
-			      String nameSup = getStrVal(row.getCell(6));
+			      String adressSup = getStrVal(row.getCell(6));
 			      String countrySup = getStrVal(row.getCell(7));
+			      String nameSup = adressSup;
 			      String streetSup = null;
 			      String streetNoSup = null;
 			      String zipSup = null;
@@ -192,6 +197,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      countySup = getStrVal(busRow.getCell(6)); 
 				      countrySup = getStrVal(busRow.getCell(7)); // 
 				      vatSup = getStrVal(busRow.getCell(8)); //
+				      if (!adressSup.startsWith(nameSup)) {
+				    	  //System.err.println("Id issue on sups... Row: " + (i+1) + "\t" + nameSup + " <> " + adressSup);
+				      }
 			      }
 			      else if (idSup != null) {
 			    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
@@ -261,6 +269,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      countyRec = getStrVal(busRow.getCell(6)); 
 				      countryRec = getStrVal(busRow.getCell(7)); // 
 				      vatRec = getStrVal(busRow.getCell(8)); //
+				      if (!adressRec.toUpperCase().startsWith(nameRec.toUpperCase())) {
+				    	  System.err.println("Id issue on recs...Row: " + (i+1) + "\t" + nameRec + " <> " + adressRec);
+				      }
 			      }
 			      else if (idRec != null) {
 			    	  System.err.println("business not there??? Row: " + (i+1) + "\tidReceived: " + idRec);
@@ -309,6 +320,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      countyInsp = getStrVal(busRow.getCell(6)); 
 				      countryInsp = getStrVal(busRow.getCell(7)); // 
 				      vatInsp = getStrVal(busRow.getCell(8)); //
+				      if (!adressInsp.toUpperCase().startsWith(nameInsp.toUpperCase())) {
+				    	  System.err.println("Id issue on insps...Row: " + (i+1) + "\t" + nameInsp + " <> " + adressInsp);
+				      }
 			      }
 			      else if (idInsp != null) {
 			    	  System.err.println("business not there??? Row: " + (i+1) + "\tidInspected: " + idInsp);
@@ -357,6 +371,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      countySup = getStrVal(busRow.getCell(6)); 
 				      countrySup = getStrVal(busRow.getCell(7)); // 
 				      vatSup = getStrVal(busRow.getCell(8)); //
+				      if (!adressSup.toUpperCase().startsWith(nameSup.toUpperCase())) {
+				    	  System.err.println("Id issue on sups...Row: " + (i+1) + "\t" + nameSup + " <> " + adressSup);
+				      }
 			      }
 			      else if (idSup != null) {
 			    	  System.err.println("business not there??? Row: " + (i+1) + "\tidSupplier: " + idSup);
@@ -590,13 +607,13 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							new String[]{"Station","Artikelnummer","Bezeichnung","Serial"},
 							new String[]{lastID.toString(), articleNumber, article,serial},
 							new boolean[]{true,true,true,false},
-							new boolean[]{true,true,true,true});
+							new boolean[]{false,true,true,true});
 					if (lastID != null) {
 						lastID = getID("Chargen",
 								new String[]{"Artikel","ChargenNr","MHD_day","MHD_month","MHD_year","pd_day","pd_month","pd_year","OriginCountry","Serial","MicrobioSample"},
 								new String[]{lastID.toString(), charge, dayMHD, monthMHD, yearMHD, dayP, monthP, yearP, originCountry,serial,MicrobiologicalSample},
 								new boolean[]{true,true,true,true,true,true,true,true,false,false,false},
-								new boolean[]{true,true,false,false,false,false,false,false,true,true,true});
+								new boolean[]{false,true,false,false,false,false,false,false,true,true,true});
 						if (returnCharge) result = lastID;
 						if (lastID != null) {
 							Integer empf = null;
@@ -616,7 +633,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 									new String[]{"Charge","dd_day","dd_month","dd_year","Unitmenge","UnitEinheit","Empfänger","Serial","Contact_Questions_Remarks","numPU","typePU","EndChain","Explanation_EndChain","Further_Traceback"},
 									new String[]{lastID.toString(), dayD, monthD, yearD, amountKG, "kg", empf == null ? null : empf.toString(),serial, cqr, numPU, typePU, EndChain, Explanation_EndChain, Further_Traceback},
 									new boolean[]{true,true,true,true,true,true,true,false,false,true,true,false,false,false},
-									new boolean[]{true,false,false,false,false,true,false,true,true,false,true,true,true,true});
+									new boolean[]{false,false,false,false,false,true,false,true,true,false,true,true,true,true});
 							if (!returnCharge) result = lastID;
 						}
 					}
@@ -635,7 +652,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  	if (feldnames[i].equals("Unitmenge") && feldVals[i] != null) fvs += "," + feldVals[i].replace(",", ".");
 		  	else fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
 			if (key == null || key[i]) {
-				sql += " AND " + (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i]) + " IS NULL");	  
+				if (isStringType != null && isStringType[i]) sql += " AND " + (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i]) + " IS NULL");
+				else sql += " AND " + (feldVals[i] != null ? DBKernel.delimitL(feldnames[i]) + "=" + feldVals[i].toUpperCase() : DBKernel.delimitL(feldnames[i]) + " IS NULL");	  
+
 			}
 	  }
 	  /*

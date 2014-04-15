@@ -131,6 +131,32 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       	}
       	return result;
 	}
+	private int[] doImportMaciel(HSSFWorkbook wb, JProgressBar progress) {
+	    int numSuccess = 0;
+	    int numFails = 0;
+	    HSSFSheet transactionSheet = wb.getSheet("Receivers_LST"); 
+		int numRows = transactionSheet.getLastRowNum() + 1;
+		progress.setMaximum(numRows);
+      	progress.setValue(0);
+      	for (int i=2;i<numRows;i++) {
+      		HSSFRow row = transactionSheet.getRow(i);
+			if (row != null) {
+			      String name = getStrVal(row.getCell(1));
+			      String streetno = getStrVal(row.getCell(2));
+			      int index = streetno.lastIndexOf(" ");
+			      String street = streetno.substring(0, index);
+			      String no = streetno.substring(index).trim();
+			      String zip = getStrVal(row.getCell(3));
+			      String city = getStrVal(row.getCell(4));
+			      
+		    	  getCharge_Lieferung(null, null, null, null, null, null, null, null, null,
+		    			  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+		    			  name, street, no, zip, city, null, null, null, null,
+		    			  "Maciel_" + (i+1), null, true, null, null, null, null);
+      	}
+      }
+      return new int[]{numSuccess, numFails};
+	}
 	private int[] doImportGaia(HSSFWorkbook wb, JProgressBar progress) {
 	    int numSuccess = 0;
 	    int numFails = 0;
@@ -470,7 +496,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			    HSSFWorkbook wb = new HSSFWorkbook(fs);
 	
 			    int[] nsf;
-			    if (filename.endsWith("BfR_berry_supplier.xls")) {
+			    if (filename.endsWith("Maciel.xls")) {
+			    	nsf = doImportMaciel(wb, progress);
+			    }
+			    else if (filename.endsWith("BfR_berry_supplier.xls")) {
 			    	nsf = doImportGaia(wb, progress);
 			    }
 			    else {
@@ -585,7 +614,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
 			String serial, String cqr, boolean returnCharge,
 			String EndChain, String Explanation_EndChain, String Further_Traceback, String MicrobiologicalSample) {
-		if (name == null) return null;
+		//if (name == null) return null;
 		Integer result = null;
 
 		//String mhdS = mhd == null ? null : sdf.format(mhd);
@@ -600,11 +629,18 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		tmp = MicrobiologicalSample != null ? "Micro:" + MicrobiologicalSample : null;
 		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
 		*/
-		Integer lastID = getID("Station",
+		Integer lastID = 0;
+		if (name == null) {
+			lastID = 22;
+			//System.err.println("wwwwwwwwwwww");
+		}
+		else {
+			lastID = getID("Station",
 					new String[]{"Name","Strasse","Hausnummer","PLZ","Ort","Bundesland","Land","Betriebsart","VATnumber","CasePriority","Serial"},
 					new String[]{name, street, streetNumber, zip, city, county, country, kind, vat, null, serial},
 					new boolean[]{true,true,true,true,true,true,true,false,true,false,false},
 					new boolean[]{true,true,true,true,true,true,true,true,true,false,true});
+		}
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
 							new String[]{"Station","Artikelnummer","Bezeichnung","Serial"},

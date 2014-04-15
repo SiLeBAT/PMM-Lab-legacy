@@ -394,6 +394,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 			      Integer c1 = null;
 			      Integer c2 = null;
+			      if (i+1==7) {
+			    	  System.err.print("");
+			      }
 			      if (nameInsp != null && !nameInsp.trim().isEmpty()) {
 			    	  c1 = getCharge_Lieferung(nameInsp, streetInsp, streetNoInsp, zipInsp, cityInsp, countyInsp, countryInsp, activityInsp, vatInsp,
 			    			  prodNameOut, prodNumOut, lotNo_Out, dayMHDOut, monthMHDOut, yearMHDOut, dayPDOut, monthPDOut, yearPDOut, oc, dayOut, monthOut, yearOut, amountKG_Out, typePUOut, numPUOut,
@@ -605,8 +608,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
 							new String[]{"Station","Artikelnummer","Bezeichnung","Serial"},
-							new String[]{lastID.toString(), articleNumber, article,serial},
-							new boolean[]{true,true,true,false},
+							new String[]{lastID.toString(), articleNumber, article + "_" + charge,serial},
+							new boolean[]{true,false,true,false},// charge == null || charge.trim().isEmpty()
 							new boolean[]{false,true,true,true});
 					if (lastID != null) {
 						lastID = getID("Chargen",
@@ -653,7 +656,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		  	else fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
 			if (key == null || key[i]) {
 				if (isStringType != null && isStringType[i]) sql += " AND " + (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i]) + " IS NULL");
-				else sql += " AND " + (feldVals[i] != null ? DBKernel.delimitL(feldnames[i]) + "=" + feldVals[i].toUpperCase() : DBKernel.delimitL(feldnames[i]) + " IS NULL");	  
+				else sql += " AND " + (feldVals[i] != null ? DBKernel.delimitL(feldnames[i]) + "=" + feldVals[i].replace(",", ".") : DBKernel.delimitL(feldnames[i]) + " IS NULL");	  
 
 			}
 	  }
@@ -663,7 +666,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	  }
 	   */
 	  if (!fns.isEmpty() && !fvs.isEmpty()) {
-		  ResultSet rs = DBKernel.getResultSet(sql, true);		  
+		  ResultSet rs = DBKernel.getResultSet(sql, false);		  
 		  try {
 				if (rs != null && rs.first()) {//rs.last() && rs.getRow() == 1) {
 					result = rs.getInt(1);

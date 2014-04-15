@@ -85,6 +85,8 @@ public class PlausibleDialog4Krise extends JDialog {
 		dd = new JSpinner();
 		label17 = new JLabel();
 		dr = new JSpinner();
+		label20 = new JLabel();
+		selS = new JCheckBox();
 		gentle = new JCheckBox();
 		buttonBar = new JPanel();
 		okButton = new JButton();
@@ -105,7 +107,7 @@ public class PlausibleDialog4Krise extends JDialog {
 			{
 				contentPanel.setLayout(new FormLayout(
 					"13*(default, $lcgap), default",
-					"4*(default, $lgap), default"));
+					"5*(default, $lgap), default"));
 				((FormLayout)contentPanel.getLayout()).setColumnGroups(new int[][] {{5, 9, 13, 17, 21, 25}, {7, 11, 15, 19, 23, 27}});
 
 				//---- label1 ----
@@ -273,11 +275,16 @@ public class PlausibleDialog4Krise extends JDialog {
 				dr.setEnabled(false);
 				contentPanel.add(dr, CC.xy(15, 7));
 
+				//---- label20 ----
+				label20.setText("Check sel. S");
+				contentPanel.add(label20, CC.xy(1, 9));
+				contentPanel.add(selS, CC.xy(3, 9));
+
 				//---- gentle ----
 				gentle.setText("gentle");
 				gentle.setSelected(true);
 				gentle.setToolTipText("NULL values are not handled as different");
-				contentPanel.add(gentle, CC.xy(1, 9));
+				contentPanel.add(gentle, CC.xy(1, 11));
 			}
 			dialogPane.add(contentPanel, BorderLayout.CENTER);
 
@@ -359,6 +366,8 @@ public class PlausibleDialog4Krise extends JDialog {
 	public JSpinner dd;
 	private JLabel label17;
 	public JSpinner dr;
+	private JLabel label20;
+	public JCheckBox selS;
 	public JCheckBox gentle;
 	private JPanel buttonBar;
 	private JButton okButton;

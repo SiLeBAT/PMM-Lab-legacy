@@ -210,6 +210,12 @@ public class PlausibleAction extends AbstractAction {
 								new int[]{(Integer)pd4.dl.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dd.getValue(),(Integer)pd4.dr.getValue()}, null, null, null, pd4.gentle.isSelected())
 							:
 							null;
+							
+							if (pd4.selS.isSelected() && DBKernel.topTable.getActualTable().getTablename().equals("Station")) {
+								Integer stationId = DBKernel.topTable.getSelectedID();
+								System.err.println(stationId);
+								checkTables4Id(stationId);
+							}
 
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 			myDB.getMyDBPanel().setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -229,6 +235,86 @@ public class PlausibleAction extends AbstractAction {
 			}			
 		}
 		DBKernel.sendRequest("DROP FUNCTION IF EXISTS LD", false, true);
+	}
+	private boolean checkTables4Id(Integer stationId)  {
+		String sql = "SELECT " + DBKernel.delimitL("Artikelnummer") + "," + DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("ChargenNr") + "," +
+				DBKernel.delimitL("MHD_day") + "," + DBKernel.delimitL("MHD_month") + "," + DBKernel.delimitL("MHD_year") + "," +
+				DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + "," +
+				DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
+				DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("numPU") + "," + DBKernel.delimitL("typePU") + "," +
+				DBKernel.delimitL("Station") +
+				" FROM " + DBKernel.delimitL("Lieferungen") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Produktkatalog") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    			" WHERE " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Empfänger") + "=" + stationId;
+		try {
+			System.err.println("Deliveries - Inbound");
+			System.err.println("Recipient\tArtikelnummer\tBezeichnung\tChargenNr\tMHD_day\tMHD_month\tMHD_year\tpd_day\tpd_month\tpd_year\tdd_day\tdd_month\tdd_year\tUnitmenge\tUnitEinheit\tnumPU\ttypePU");
+			ResultSet rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first()) {
+				do  {
+					System.err.println(rs.getInt("Station") + "\t" + rs.getObject("Artikelnummer") + "\t" + rs.getObject("Bezeichnung") + "\t" + rs.getObject("ChargenNr") + "\t" +
+							rs.getObject("MHD_day") + "\t" + rs.getObject("MHD_month") + "\t" + rs.getObject("MHD_year") + "\t" +
+							rs.getObject("pd_day") + "\t" + rs.getObject("pd_month") + "\t" + rs.getObject("pd_year") + "\t" +
+							rs.getObject("dd_day") + "\t" + rs.getObject("dd_month") + "\t" + rs.getObject("dd_year") + "\t" +
+							rs.getObject("Unitmenge") + "\t" + rs.getObject("UnitEinheit") + "\t" + rs.getObject("numPU") + "\t" + rs.getObject("typePU"));
+				} while (rs.next());
+			}
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		sql = "SELECT " + DBKernel.delimitL("Artikelnummer") + "," + DBKernel.delimitL("Bezeichnung") + "," + DBKernel.delimitL("ChargenNr") + "," +
+				DBKernel.delimitL("MHD_day") + "," + DBKernel.delimitL("MHD_month") + "," + DBKernel.delimitL("MHD_year") + "," +
+				DBKernel.delimitL("pd_day") + "," + DBKernel.delimitL("pd_month") + "," + DBKernel.delimitL("pd_year") + "," +
+				DBKernel.delimitL("dd_day") + "," + DBKernel.delimitL("dd_month") + "," + DBKernel.delimitL("dd_year") + "," +
+				DBKernel.delimitL("Unitmenge") + "," + DBKernel.delimitL("UnitEinheit") + "," + DBKernel.delimitL("numPU") + "," + DBKernel.delimitL("typePU") + "," +
+				DBKernel.delimitL("Empfänger") +
+				" FROM " + DBKernel.delimitL("Produktkatalog") +
+    			" LEFT JOIN " + DBKernel.delimitL("Chargen") +
+    			" ON " + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("Artikel") + "=" + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("ID") +
+    			" LEFT JOIN " + DBKernel.delimitL("Lieferungen") +
+    			" ON " + DBKernel.delimitL("Lieferungen") + "." + DBKernel.delimitL("Charge") + "=" + DBKernel.delimitL("Chargen") + "." + DBKernel.delimitL("ID") +
+    			" WHERE " + DBKernel.delimitL("Produktkatalog") + "." + DBKernel.delimitL("Station") + "=" + stationId;
+		try {
+			System.err.println("Deliveries - Outbound\n" + sql);
+			System.err.println("Artikelnummer\tBezeichnung\tChargenNr\tMHD_day\tMHD_month\tMHD_year\tpd_day\tpd_month\tpd_year\tdd_day\tdd_month\tdd_year\tUnitmenge\tUnitEinheit\tnumPU\ttypePU\tRecipient");
+			ResultSet rs = DBKernel.getResultSet(sql, false);
+			if (rs != null && rs.first()) {
+				do  {
+					System.err.println(rs.getObject("Artikelnummer") + "\t" + rs.getObject("Bezeichnung") + "\t" + rs.getObject("ChargenNr") + "\t" +
+							rs.getObject("MHD_day") + "\t" + rs.getObject("MHD_month") + "\t" + rs.getObject("MHD_year") + "\t" +
+							rs.getObject("pd_day") + "\t" + rs.getObject("pd_month") + "\t" + rs.getObject("pd_year") + "\t" +
+							rs.getObject("dd_day") + "\t" + rs.getObject("dd_month") + "\t" + rs.getObject("dd_year") + "\t" +
+							rs.getObject("Unitmenge") + "\t" + rs.getObject("UnitEinheit") + "\t" + rs.getObject("numPU") + "\t" + rs.getObject("typePU") + "\t" +
+							rs.getInt("Empfänger"));
+				} while (rs.next());
+			}
+		}
+		catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		/*
+		LinkedHashSet<Integer> filterIDs = new LinkedHashSet<Integer>();
+		MyTable theTable = DBKernel.myDBi.getTable("Produktkatalog");
+		MyIDFilter mf = new MyIDFilter(filterIDs);
+		Object val = DBKernel.myList.openNewWindow(
+				theTable,
+				null,
+				(Object) (""),
+				null,
+				1,
+				1,
+				null,
+				true, mf);
+		if (val == null) {
+			return false;
+		}
+		*/
+		return true;
 	}
 	private boolean showAndFilterVals(String tablename, LinkedHashMap<String[], LinkedHashSet<String[]>> vals, int idColumn,
 			int lfd, int total) {

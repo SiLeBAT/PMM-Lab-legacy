@@ -12,7 +12,7 @@ new FormModel {
 				"border": sfield com.jgoodies.forms.factories.Borders DIALOG_BORDER
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class com.jgoodies.forms.layout.FormLayout ) {
 					"$columnSpecs": "default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default, labelcompgap, default"
-					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default"
+					"$rowSpecs": "default, linegap, default, linegap, default, linegap, default, linegap, default, linegap, default"
 					"$columnGroupIds": "0, 0, 0, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2, 0, 1, 0, 2"
 				} ) {
 					name: "contentPanel"
@@ -400,6 +400,22 @@ new FormModel {
 						"gridX": 15
 						"gridY": 7
 					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "label20"
+						"text": "Check sel. S"
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 1
+						"gridY": 9
+					} )
+					add( new FormComponent( "javax.swing.JCheckBox" ) {
+						name: "selS"
+						auxiliary() {
+							"JavaCodeGenerator.variableModifiers": 1
+						}
+					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
+						"gridX": 3
+						"gridY": 9
+					} )
 					add( new FormComponent( "javax.swing.JCheckBox" ) {
 						name: "gentle"
 						"text": "gentle"
@@ -410,7 +426,7 @@ new FormModel {
 						}
 					}, new FormLayoutConstraints( class com.jgoodies.forms.layout.CellConstraints ) {
 						"gridX": 1
-						"gridY": 9
+						"gridY": 11
 					} )
 				}, new FormLayoutConstraints( class java.lang.String ) {
 					"value": "Center"

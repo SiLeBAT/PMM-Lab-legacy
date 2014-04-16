@@ -40,52 +40,51 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "CombaseReader" Node.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
-public class CombaseReaderNodeFactory 
-        extends NodeFactory<CombaseReaderNodeModel> {
+public class CombaseReaderNodeFactory extends
+		NodeFactory<CombaseReaderNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public CombaseReaderNodeModel createNodeModel() {
-        return new CombaseReaderNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CombaseReaderNodeModel createNodeModel() {
+		return new CombaseReaderNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<CombaseReaderNodeModel> createNodeView(final int viewIndex,
-            final CombaseReaderNodeModel nodeModel) {
-        return new CombaseReaderNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<CombaseReaderNodeModel> createNodeView(final int viewIndex,
+			final CombaseReaderNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new CombaseReaderNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new CombaseReaderNodeDialog();
+	}
 
 }
-

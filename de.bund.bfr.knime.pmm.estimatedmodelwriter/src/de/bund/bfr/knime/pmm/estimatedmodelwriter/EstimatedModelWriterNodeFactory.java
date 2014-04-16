@@ -40,52 +40,51 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "EstimatedModelWriter" Node.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
-public class EstimatedModelWriterNodeFactory 
-        extends NodeFactory<EstimatedModelWriterNodeModel> {
+public class EstimatedModelWriterNodeFactory extends
+		NodeFactory<EstimatedModelWriterNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public EstimatedModelWriterNodeModel createNodeModel() {
-        return new EstimatedModelWriterNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public EstimatedModelWriterNodeModel createNodeModel() {
+		return new EstimatedModelWriterNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<EstimatedModelWriterNodeModel> createNodeView(final int viewIndex,
-            final EstimatedModelWriterNodeModel nodeModel) {
-        return new EstimatedModelWriterNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<EstimatedModelWriterNodeModel> createNodeView(
+			final int viewIndex, final EstimatedModelWriterNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new EstimatedModelWriterNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new EstimatedModelWriterNodeDialog();
+	}
 
 }
-

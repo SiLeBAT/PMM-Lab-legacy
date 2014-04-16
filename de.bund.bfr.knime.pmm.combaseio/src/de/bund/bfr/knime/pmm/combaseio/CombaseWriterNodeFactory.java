@@ -40,52 +40,51 @@ import org.knime.core.node.NodeView;
 /**
  * <code>NodeFactory</code> for the "CombaseWriter" Node.
  * 
- *
+ * 
  * @author Jorgen Brandt
  */
-public class CombaseWriterNodeFactory 
-        extends NodeFactory<CombaseWriterNodeModel> {
+public class CombaseWriterNodeFactory extends
+		NodeFactory<CombaseWriterNodeModel> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public CombaseWriterNodeModel createNodeModel() {
-        return new CombaseWriterNodeModel();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public CombaseWriterNodeModel createNodeModel() {
+		return new CombaseWriterNodeModel();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getNrNodeViews() {
-        return 0;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public int getNrNodeViews() {
+		return 0;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeView<CombaseWriterNodeModel> createNodeView(final int viewIndex,
-            final CombaseWriterNodeModel nodeModel) {
-        return new CombaseWriterNodeView(nodeModel);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeView<CombaseWriterNodeModel> createNodeView(final int viewIndex,
+			final CombaseWriterNodeModel nodeModel) {
+		return null;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean hasDialog() {
-        return true;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean hasDialog() {
+		return true;
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public NodeDialogPane createNodeDialogPane() {
-        return new CombaseWriterNodeDialog();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public NodeDialogPane createNodeDialogPane() {
+		return new CombaseWriterNodeDialog();
+	}
 
 }
-

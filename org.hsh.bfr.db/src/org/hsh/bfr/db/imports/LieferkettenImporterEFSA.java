@@ -648,8 +648,12 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       		HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
 			      String serial = getStrVal(row.getCell(0)); // Serial_number
+			      String contactPerson = getStrVal(row.getCell(2)); // person
+			      String adressRec = getStrVal(row.getCell(4)); // Address
 			      if ((serial == null || serial.trim().isEmpty())) {
-			    	  System.err.println("serial = null... " + (i+1));
+			    	  if (contactPerson != null && !contactPerson.isEmpty() || adressRec != null && !adressRec.isEmpty()) {
+			    		  System.err.println("serial is seriously null... " + (i+1));
+			    	  }
 			      }
 			      else {
 				      int index = serial.lastIndexOf("_");
@@ -657,13 +661,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				    	  System.err.println("index error ... no '_' there... " + (i+1));
 				      }
 				      serial = serial.substring(0, index) + "_" + (i + 1);
-				      String contactPerson = getStrVal(row.getCell(2)); // person
 
-				      String adressRec = getStrVal(row.getCell(4)); // Address
-				      if ((serial == null || serial.trim().isEmpty()) && (adressRec == null || adressRec.trim().isEmpty())) {
-					      	continue;//break;
-					      }
-				      //String activityRec = getStrVal(row.getCell(5)); // Activity				      
 				      HSSFRow busRow = getRow(businessSheet, adressRec, 9);
 				      if (busRow == null) {
 				    	  System.err.println("Id issue on recs...Row: " + (i+1) + "\t" + adressRec);
@@ -758,12 +756,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				      crc32.reset();
 				      crc32.update(sOut.getBytes());
 				      long crc32Out = crc32.getValue();
+				      //System.err.println(crc32Out + " -> " + sOut);
 				      String sIn = adressSup + "_" + prodNameIn + "_" + prodNumIn + "_" + lotNo_In + "_" + dayPDIn + "_" +
 				    		  monthPDIn + "_" + yearPDIn + "_" + dayMHDIn + "_" + monthMHDIn + "_" + yearMHDIn + "_" + dayIn + "_" + monthIn + "_" +
 				    		  yearIn + "_" + amountKG_In + "_" + numPUIn + "_" + typePUIn + "_" + adressInsp;
 				      crc32.reset();
 				      crc32.update(sIn.getBytes());
 				      long crc32In = crc32.getValue();
+				      //System.err.println(crc32In + " -> " + sIn);				    	  
 				      
 				      String backSerial = serial + ".1";
 					  if (storedRows.containsKey(crc32In)) {
@@ -788,7 +788,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						  newCell = newRow.createCell(2, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(adressInsp);
 						  newCell = newRow.createCell(3, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(prodNameOut);
 						  newCell = newRow.createCell(4, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(prodNumOut);
-						  if (treatmentOut != null) newCell = newRow.createCell(5, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(treatmentOut);
+						  if (treatmentOut != null) {newCell = newRow.createCell(5, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(treatmentOut);}
 						  newCell = newRow.createCell(6, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(lotNo_Out);
 						  newCell = newRow.createCell(7, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(dayPDOut);
 						  newCell = newRow.createCell(8, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(monthPDOut);
@@ -827,7 +827,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						  newCell = newRow.createCell(2, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(adressSup);
 						  newCell = newRow.createCell(3, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(prodNameIn);
 						  newCell = newRow.createCell(4, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(prodNumIn);
-						  if (treatmentIn != null) newCell = newRow.createCell(5, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(treatmentIn);
+						  if (treatmentIn != null) {newCell = newRow.createCell(5, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(treatmentIn);}
 						  newCell = newRow.createCell(6, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(lotNo_In);
 						  newCell = newRow.createCell(7, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(dayPDIn);
 						  newCell = newRow.createCell(8, HSSFCell.CELL_TYPE_STRING); newCell.setCellValue(monthPDIn);
@@ -899,20 +899,22 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			    	nsf = doImportGaia(wb, progress);
 			    }
 			    else {
-			    	/*
-			    	nsf = new int[2];
-			    	InputStream isNew = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\NewFormat.xls");
-			    	POIFSFileSystem fsNew = new POIFSFileSystem(isNew);
-			    	HSSFWorkbook wbNew = new HSSFWorkbook(fsNew);
-			    	transformFormat(wb, wbNew);
-			    	File f = new File(filename);
-			    	File fd = new File(f.getParent() + "/NewFormat");
-			    	fd.mkdir();
-			    	FileOutputStream out = new FileOutputStream(f.getParent() + "/NewFormat/" + f.getName());
-			    	wbNew.write(out);
-			    	*/
-			    	nsf = doImportStandard(wb, progress);
-			    	//nsf = doImportNewFormat(wb, progress);
+			    	if (false) {
+				    	nsf = new int[2];
+				    	InputStream isNew = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\NewFormat.xls");
+				    	POIFSFileSystem fsNew = new POIFSFileSystem(isNew);
+				    	HSSFWorkbook wbNew = new HSSFWorkbook(fsNew);
+				    	transformFormat(wb, wbNew);
+				    	File f = new File(filename);
+				    	File fd = new File(f.getParent() + "/NewFormat");
+				    	fd.mkdir();
+				    	FileOutputStream out = new FileOutputStream(f.getParent() + "/NewFormat/" + f.getName());
+				    	wbNew.write(out);
+			    	}
+			    	else {
+				    	nsf = doImportStandard(wb, progress);
+				    	//nsf = doImportNewFormat(wb, progress);
+			    	}
 			    }
 			    int numSuccess = nsf[0];
 			    int numFails = nsf[1];

@@ -106,6 +106,7 @@ public class ImportAction extends AbstractAction {
 					  		doTheImport(mi, selectedSingleFile, true);
 				  		}
 				  	}
+					if (mi instanceof LieferkettenImporterEFSA) ((LieferkettenImporterEFSA)mi).mergeIDs();
 			  	}
 		  }	  
 	  }

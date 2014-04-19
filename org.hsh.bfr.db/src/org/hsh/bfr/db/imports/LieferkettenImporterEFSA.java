@@ -49,6 +49,33 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
  */
 	private HashMap<String, Integer> nodeIDs = null;
 	private int maxNodeID = 0;
+	private String theExcelFile = null;
+
+	public void mergeIDs() throws IOException {
+		if (theExcelFile != null) {
+			HashMap<String, Integer> result = new HashMap<String, Integer>();
+			FileInputStream is = new FileInputStream(theExcelFile);
+		    POIFSFileSystem fs = new POIFSFileSystem(is);
+		    HSSFWorkbook wb = new HSSFWorkbook(fs);
+
+		    HSSFSheet defaultSheet = wb.getSheet("mergeList"); 		
+			int numRows = defaultSheet.getLastRowNum() + 1;
+	      	for (int i=1;i<numRows;i++) {
+	      		try {
+	          		//System.err.println(i);
+	          		HSSFRow row = defaultSheet.getRow(i);
+	    			if (row != null) {
+	    				HSSFCell cell = row.getCell(0);
+	    				Integer oldID = (int) cell.getNumericCellValue();
+	    				cell = row.getCell(1);
+	    				Integer newID = (int) cell.getNumericCellValue();
+	    				DBKernel.mergeIDs(DBKernel.getDBConnection(), "Station", oldID, newID);
+	    			}
+	      		}
+	      		catch (Exception e) {System.err.println(e.getMessage() + "\t" + i);}
+	      	}
+		}
+	}
 
 	public void importNodeIDs() {
 		if (nodeIDs == null) {
@@ -66,7 +93,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				  		if (selectedSingleFile != null) {
 							  //nodeIDs = loadExternalXLS4StationMapping("C:/Users/Armin/Desktop/AllKrisen/EFSA/nodes_ids.xls");
 							  try {
-								nodeIDs = loadExternalXLS4StationMapping(selectedSingleFile.getAbsolutePath());
+								  theExcelFile = selectedSingleFile.getAbsolutePath();
+								nodeIDs = loadExternalXLS4StationMapping(theExcelFile);
 							}
 							  catch (IOException e) {
 								e.printStackTrace();
@@ -136,29 +164,43 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
       	}
       	return result;
 	}
-	private int[] doImportMaciel(HSSFWorkbook wb, JProgressBar progress) {
+	private int[] doImportMaciel(HSSFWorkbook wb, JProgressBar progress, String efsaID) {
 	    int numSuccess = 0;
 	    int numFails = 0;
-	    HSSFSheet transactionSheet = wb.getSheet("Receivers_LST"); 
+	    HSSFSheet transactionSheet = wb.getSheet("Receivers"); 
+	    HSSFSheet businessSheet = wb.getSheet("Business_List"); 
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		progress.setMaximum(numRows);
       	progress.setValue(0);
+	    HSSFRow busRow = getRow(businessSheet, efsaID, 0);
+	  	  String nameLST = getStrVal(busRow.getCell(1));
+	  	  String streetLST = getStrVal(busRow.getCell(2));
+	  	  String streetNoLST = getStrVal(busRow.getCell(3), 10);
+	  	  String zipLST = getStrVal(busRow.getCell(4), 10);
+	  	  String cityLST = getStrVal(busRow.getCell(5));
+	  	  String countyLST = getStrVal(busRow.getCell(6)); 
+	  	  String countryLST = getStrVal(busRow.getCell(7));
+	  	  String vatLST = getStrVal(busRow.getCell(8));
       	for (int i=2;i<numRows;i++) {
       		HSSFRow row = transactionSheet.getRow(i);
 			if (row != null) {
-			      String name = getStrVal(row.getCell(1));
-			      String streetno = getStrVal(row.getCell(2));
-			      int index = streetno.lastIndexOf(" ");
-			      String street = streetno.substring(0, index);
-			      String no = streetno.substring(index).trim();
-			      String zip = getStrVal(row.getCell(3));
-			      String city = getStrVal(row.getCell(4));
-			      
-		    	  getCharge_Lieferung(null, null, null, null, null, null, null, null, null,
-		    			  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
-		    			  name, street, no, zip, city, null, null, null, null,
-		    			  "Maciel_" + (i+1), null, null, null, null, null);
-      	}
+			      String addressOther = getStrVal(row.getCell(7));
+			      busRow = getRow(businessSheet, addressOther, 9);
+			      if (busRow != null) {
+			    	  String name = getStrVal(busRow.getCell(1)); //
+			    	  String street = getStrVal(busRow.getCell(2)); //
+			    	  String streetNo = getStrVal(busRow.getCell(3), 10); //
+			    	  String zip = getStrVal(busRow.getCell(4), 10); //
+			    	  String city = getStrVal(busRow.getCell(5)); //
+			    	  String county = getStrVal(busRow.getCell(6)); 
+			    	  String country = getStrVal(busRow.getCell(7)); // 
+			    	  String vat = getStrVal(busRow.getCell(8)); //
+			    	  getCharge_Lieferung(nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST,
+			    			  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+			    			  name, street, streetNo, zip, city, county, country, null, vat,
+			    			  "LSTZAK" + efsaID + "_" + (i+1), null, null, null, null, null);
+			      }
+			}
       }
       return new int[]{numSuccess, numFails};
 	}
@@ -861,6 +903,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		if (c != null) {
 			String ts = c.getStringCellValue();
 			if (ts != null && value != null && ts.indexOf(value) < 0) c.setCellValue(ts + "\n" + value);
+			//if (ts.length() > 5000) System.err.println(ts.length());
 		}
 	}
 	public void doImport(final String filename, final JProgressBar progress, final boolean showResults) {
@@ -893,7 +936,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	
 			    int[] nsf;
 			    if (filename.endsWith("LST_partners.xls")) {
-			    	nsf = doImportMaciel(wb, progress);
+			    	nsf = doImportMaciel(wb, progress, "98"); // 98: LST
+			    }
+			    else if (filename.endsWith("ZAK_partners.xls")) {
+			    	nsf = doImportMaciel(wb, progress, "273"); // 273: ZAK
 			    }
 			    else if (filename.endsWith("BfR_berry_supplier.xls")) {
 			    	nsf = doImportGaia(wb, progress);
@@ -910,6 +956,23 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				    	fd.mkdir();
 				    	FileOutputStream out = new FileOutputStream(f.getParent() + "/NewFormat/" + f.getName());
 				    	wbNew.write(out);
+				    	/*
+				    	 Lot9:
+							- G6
+						Lot4:
+							- AI2-6, AJ2-6, S7-10
+						Lot11:
+							- AM2 (2012)
+						Lot13:
+							- G16-G25 nachfragen (new)
+						Lot14:
+							- G15-G24 nachfragen (new)
+							- Y11-AM11 ausbessern
+						Case 439499
+							- R6-R19 (New)
+						RaspYog nochmal genauer checken
+						dutch file when new format established
+				    	 */
 			    	}
 			    	else {
 				    	nsf = doImportStandard(wb, progress);
@@ -1036,25 +1099,11 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			String nameTo, String streetTo, String streetNumberTo, String zipTo, String cityTo, String countyTo, String countryTo, String kindTo, String vatTo,
 			String serial, String cqr, 
 			String EndChain, String Explanation_EndChain, String Further_Traceback, String MicrobiologicalSample) {
-		//if (name == null) return null;
+		if (name == null) return null;
 		Integer[] result = new Integer[5];
 
-		//String mhdS = mhd == null ? null : sdf.format(mhd);
-		//String prodS = prod == null ? null : sdf.format(prod);
-		//String deliveryS = delivery == null ? null : sdf.format(delivery);
-		/*
-		String sComment = EndChain != null ? "EndChain:" + EndChain : null;
-		String tmp = Explanation_EndChain != null ? "Expl:" + Explanation_EndChain : null;
-		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
-		tmp = Further_Traceback != null ? "FurtherTB:" + Further_Traceback : null;
-		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
-		tmp = MicrobiologicalSample != null ? "Micro:" + MicrobiologicalSample : null;
-		if (tmp != null) sComment += sComment == null ? "" : "; " + tmp;
-		*/
 		Integer lastID = null;
 		if (name == null) {
-			// lastID = 22;
-			//System.err.println("wwwwwwwwwwww");
 		}
 		else {
 			lastID = getID("Station",
@@ -1067,8 +1116,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			if (lastID != null) {
 					lastID = getID("Produktkatalog",
 							new String[]{"Station","Artikelnummer","Bezeichnung","Prozessierung","Serial"},
-							new String[]{lastID.toString(), articleNumber, article + "_" + charge, prodTreatment, serial},
-							new boolean[]{true,false,true,true,false},// charge == null || charge.trim().isEmpty()
+							new String[]{lastID.toString(), articleNumber, article, prodTreatment, serial},
+							new boolean[]{true,true,true,true,false}, // charge == null || charge.trim().isEmpty()
 							new boolean[]{false,true,true,true,true});
 					result[1] = lastID;
 					if (lastID != null) {

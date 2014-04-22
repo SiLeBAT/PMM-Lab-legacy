@@ -956,20 +956,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				    	fd.mkdir();
 				    	FileOutputStream out = new FileOutputStream(f.getParent() + "/NewFormat/" + f.getName());
 				    	wbNew.write(out);
-				    	/*
-				    	 Lot9:
-							- G6
-						Lot4:
-							- AI2-6, AJ2-6, S7-10
-						Lot11:
-							- AM2 (2012)
-						Lot13:
-							- G16-G25 nachfragen (new)
-						Lot14:
-							- G15-G24 nachfragen (new)
-							- Y11-AM11 ausbessern
-						Case 439499
-							- R6-R19 (New)
+				    	/*							
 						RaspYog nochmal genauer checken
 						dutch file when new format established
 				    	 */

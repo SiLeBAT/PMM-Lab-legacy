@@ -99,7 +99,7 @@ public class ChartSelectionPanel extends JPanel implements ActionListener,
 	public static final String SHAPE = "Shape";
 	public static final String DATA = "Data Points";
 	public static final String PARAMETERS = "Parameters";
-	public static final String FORMULA = "Formula";
+	public static final String FORMULA = "Math Formula";
 
 	private static final long serialVersionUID = 1L;
 

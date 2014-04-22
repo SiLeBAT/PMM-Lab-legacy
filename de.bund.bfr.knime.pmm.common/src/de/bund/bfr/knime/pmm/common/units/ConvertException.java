@@ -33,7 +33,7 @@
  ******************************************************************************/
 package de.bund.bfr.knime.pmm.common.units;
 
-public class ConvertException extends Exception {
+public class ConvertException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 

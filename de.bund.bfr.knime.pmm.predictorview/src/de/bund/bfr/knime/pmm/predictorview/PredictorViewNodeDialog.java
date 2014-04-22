@@ -170,17 +170,22 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 	@Override
 	protected void loadSettingsFrom(NodeSettingsRO settings,
 			BufferedDataTable[] input) throws NotConfigurableException {
-		set = new SettingsHelper();
-		set.loadSettings(settings);
-		tuples = PredictorViewNodeModel.getTuples(input[0]);
-		reader = new TableReader(tuples, set.getConcentrationParameters(),
-				set.getLagParameters(), defaultBehaviour);
-		mainComponent = new JPanel();
-		mainComponent.setLayout(new BorderLayout());
-		mainComponent.add(createMainComponent(), BorderLayout.CENTER);
-		((JPanel) getTab("Options")).removeAll();
-		((JPanel) getTab("Options")).add(mainComponent);
-		selectionPanel.selectFirstRow();
+		try {
+			set = new SettingsHelper();
+			set.loadSettings(settings);
+			tuples = PredictorViewNodeModel.getTuples(input[0]);
+			reader = new TableReader(tuples, set.getConcentrationParameters(),
+					set.getLagParameters(), defaultBehaviour);
+			mainComponent = new JPanel();
+			mainComponent.setLayout(new BorderLayout());
+			mainComponent.add(createMainComponent(), BorderLayout.CENTER);
+			((JPanel) getTab("Options")).removeAll();
+			((JPanel) getTab("Options")).add(mainComponent);
+			selectionPanel.selectFirstRow();
+		} catch (ConvertException e) {
+			throw new NotConfigurableException(e.getMessage()
+					+ "\nThis might be due errors in the unit table");
+		}
 	}
 
 	@Override
@@ -329,11 +334,11 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 			chartAllPanel = new ChartAllPanel(chartCreator, selectionPanel,
 					configPanel);
 		}
-		
+
 		return chartAllPanel;
 	}
 
-	public void createChart() {
+	public void createChart() throws ConvertException {
 		List<String> selectedIDs = null;
 
 		if (configPanel.isDisplayFocusedRow()) {
@@ -341,6 +346,10 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		} else {
 			selectedIDs = selectionPanel.getSelectedIDs();
 		}
+
+		List<String> validIds = new ArrayList<String>(selectedIDs);
+
+		warnings = new ArrayList<String>();
 
 		for (String id : selectedIDs) {
 			Plotable plotable = chartCreator.getPlotables().get(id);
@@ -352,10 +361,6 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 								plotable.getUnits()));
 			}
 		}
-
-		List<String> validIds = new ArrayList<String>(selectedIDs);
-
-		warnings = new ArrayList<String>();
 
 		if (removeInvalid) {
 			List<String> invalidIds = new ArrayList<String>(getInvalidIds(
@@ -458,7 +463,8 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		set.setNewLagParameters(reader.getNewLagParams());
 	}
 
-	private Map<String, String> getInvalidIds(List<String> selectedIDs) {
+	private Map<String, String> getInvalidIds(List<String> selectedIDs)
+			throws ConvertException {
 		Map<String, String> invalid = new LinkedHashMap<String, String>();
 		Set<String> nonVariables = new LinkedHashSet<String>();
 

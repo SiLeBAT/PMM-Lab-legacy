@@ -394,7 +394,8 @@ public class PredictorViewNodeModel extends NodeModel {
 	}
 
 	protected static Map<String, List<Double>> convertToUnits(
-			Map<String, List<Double>> arguments, Map<String, String> units) {
+			Map<String, List<Double>> arguments, Map<String, String> units)
+			throws ConvertException {
 		Map<String, List<Double>> converted = new LinkedHashMap<String, List<Double>>();
 
 		for (String arg : arguments.keySet()) {
@@ -402,12 +403,8 @@ public class PredictorViewNodeModel extends NodeModel {
 			Category cat = Categories.getCategoryByUnit(unit);
 			String stdUnit = cat.getStandardUnit();
 
-			try {
-				converted.put(arg, Arrays.asList(cat.convert(arguments.get(arg)
-						.get(0), stdUnit, unit)));
-			} catch (ConvertException e) {
-				e.printStackTrace();
-			}
+			converted.put(arg, Arrays.asList(cat.convert(arguments.get(arg)
+					.get(0), stdUnit, unit)));
 		}
 
 		return converted;

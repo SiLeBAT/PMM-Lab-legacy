@@ -245,7 +245,7 @@ public class MyNewDoubleEditor extends JDialog {
 		MyTable myFT = DBKernel.myDBi.getTable("Literatur"); 
 		Object newVal = DBKernel.myList.openNewWindow(myFT, getInt(textField13.getToolTipText()), "Literatur", null, "", null, this);
 		//if (newVal != null) textField13.setToolTipText(newVal.toString());
-		manageForeign(textField13, newVal, getForeignVal("Literatur", getInt(newVal == null ? null : newVal.toString()), DBKernel.delimitL("Erstautor") + "," + DBKernel.delimitL("Jahr")));
+		if (newVal != null) manageForeign(textField13, newVal, getForeignVal("Literatur", getInt(newVal == null ? null : newVal.toString()), DBKernel.delimitL("Erstautor") + "," + DBKernel.delimitL("Jahr")));
 	}
 
 	private void initComponents() {

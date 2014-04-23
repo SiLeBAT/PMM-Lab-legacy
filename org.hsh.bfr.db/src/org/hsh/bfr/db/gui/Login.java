@@ -196,10 +196,18 @@ public class Login extends JFrame {
 			myDB.initConn(username, newPassword); // MD5.encode(newPassword, "UTF-8")
     	}		
 	}
+	private void initGui(MyDBTable myDB) {
+		DBKernel.myDBi = new MyDBTablesNew();
+		// Login succeeded: GUI aufbauen	  		
+		MyDBTree myDBTree = new MyDBTree();
+		MyList myList = new MyList(myDB, myDBTree);
+		DBKernel.myList = myList;
+		MainFrame mf = new MainFrame(myList);
+		DBKernel.mainFrame = mf;
+		myList.addAllTables();		
+	}
 	private MyList loadDB() {
 	    MyDBTable myDB = null;
-	    MyDBTree myDBTree = null;
-		MyList myList = null;
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
@@ -319,14 +327,7 @@ public class Login extends JFrame {
 					return null;
 				}
 			}
-			
-			// Login succeeded: GUI aufbauen	  		
-			myDBTree = new MyDBTree();
-			myList = new MyList(myDB, myDBTree);
-			DBKernel.myList = myList;
-			MainFrame mf = new MainFrame(myList);
-			DBKernel.mainFrame = mf;
-			
+						
 			// Datenbank füllen			
 			if (noDBThere) {
 				DBKernel.importing = true;
@@ -334,8 +335,7 @@ public class Login extends JFrame {
 					    "No database...",
 					    JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.YES_OPTION) {
-					DBKernel.myDBi = new MyDBTablesNew();
-					myList.addAllTables();
+					initGui(myDB);
 					DBKernel.myDBi.bootstrapDB();
 					DBKernel.setDBVersion(DBKernel.myDBi.getDBVersion());
 				}
@@ -349,16 +349,12 @@ public class Login extends JFrame {
 						return null;
 					}
 
-					//MyDBTables.loadMyTables();
-					DBKernel.myDBi = new MyDBTablesNew();
-					myList.addAllTables();
+					initGui(myDB);
 				}
 				DBKernel.importing = false;
 			}
 			else {
-				//MyDBTables.loadMyTables();
-				DBKernel.myDBi = new MyDBTablesNew();
-				myList.addAllTables();
+				initGui(myDB);
 
 				if (doUpdates) {
 					boolean dl = DBKernel.dontLog;
@@ -547,20 +543,20 @@ public class Login extends JFrame {
 
 						DBKernel.closeDBConnections(false);
 					}
-					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return myList;}
+					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return DBKernel.myList;}
 					DBKernel.dontLog = dl;
 					loadDB();		
-					return myList;
+					return DBKernel.myList;
 				}
 			}
 
 			//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
-			if (!myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
-				myList.setSelection(null);
+			if (!DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
+				DBKernel.myList.setSelection(null);
 			}
 
 			this.dispose();
-			mf.pack();
+			DBKernel.mainFrame.pack();
 			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
 			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
 			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
@@ -569,16 +565,16 @@ public class Login extends JFrame {
 			DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
 			DBKernel.mainFrame.setBounds(x, y, w, h);
 			if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			else mf.setExtendedState(JFrame.NORMAL);
-			mf.setVisible(true);
-			mf.toFront();
+			else DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
+			DBKernel.mainFrame.setVisible(true);
+			DBKernel.mainFrame.toFront();
 			myDB.grabFocus();//myDB.selectCell(0, 0);
 			//getAllMetaData(myList);			
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);
 		}    
-		return myList;
+		return DBKernel.myList;
 	}
   public void dropDatabase() {
 	  DBKernel.closeDBConnections(false);

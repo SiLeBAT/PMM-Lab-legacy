@@ -934,19 +934,22 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			    POIFSFileSystem fs = new POIFSFileSystem(is);
 			    HSSFWorkbook wb = new HSSFWorkbook(fs);
 	
-			    int[] nsf;
+			    boolean transformFormat = false;
+			    int[] nsf = new int[2];
 			    if (filename.endsWith("LST_partners.xls")) {
-			    	nsf = doImportMaciel(wb, progress, "98"); // 98: LST
+			    	if (transformFormat) ;
+			    	else nsf = doImportMaciel(wb, progress, "98"); // 98: LST
 			    }
 			    else if (filename.endsWith("ZAK_partners.xls")) {
-			    	nsf = doImportMaciel(wb, progress, "273"); // 273: ZAK
+			    	if (transformFormat) ;
+			    	else nsf = doImportMaciel(wb, progress, "273"); // 273: ZAK
 			    }
 			    else if (filename.endsWith("BfR_berry_supplier.xls")) {
-			    	nsf = doImportGaia(wb, progress);
+			    	if (transformFormat) ;
+			    	else nsf = doImportGaia(wb, progress);
 			    }
 			    else {
-			    	if (false) {
-				    	nsf = new int[2];
+			    	if (transformFormat) {
 				    	InputStream isNew = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\NewFormat.xls");
 				    	POIFSFileSystem fsNew = new POIFSFileSystem(isNew);
 				    	HSSFWorkbook wbNew = new HSSFWorkbook(fsNew);

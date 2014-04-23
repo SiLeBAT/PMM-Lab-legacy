@@ -49,6 +49,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
 
@@ -87,20 +88,12 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	 */
 	private static final long serialVersionUID = 5697967857506372930L;
 	private InvisibleNode root = null;
-	private InvisibleNode[] children = new InvisibleNode[9];
+	LinkedHashMap<Integer, String> myTs = null;
+	private HashMap<Integer, Integer> indexMap = null;
+	private InvisibleNode[] children = null;
 	private MyDBTable myDB = null;
 	private MyDBTree myDBTree = null;
 	private boolean catchEvent = true;
-
-	public static int SystemTabellen_LIST = 0;
-	public static int BasisTabellen_LIST = 1;
-	public static int Tenazitaet_LIST = 2;
-	public static int PMModelle_LIST = 3;
-	public static int Krankheitsbilder_LIST = 4;
-	public static int Prozessdaten_LIST = 5;
-	public static int Nachweissysteme_LIST = 6;
-	public static int Modell_LIST = 7;
-	public static int Lieferketten_LIST = 8;
 	
 	public MyList() {
 		this(null,null);
@@ -108,6 +101,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	public MyList(final MyDBTable myDB, final MyDBTree myDBTree) {
 		this.myDB = myDB;
 		this.myDBTree = myDBTree;
+		myTs = DBKernel.myDBi.getTreeStructure();
 		if (myDB != null && myDBTree != null) {
 		    this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);   
 		    ImageIcon customLeafIcon = rescaleImage(new ImageIcon(getClass().getResource("/org/hsh/bfr/db/gui/res/Table.gif")), 12);
@@ -142,47 +136,17 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 		    //this.setToggleClickCount(0);
 		    
 	
-		    root 		= new InvisibleNode(".");
-		    children[SystemTabellen_LIST] = new InvisibleNode(GuiMessages.getString("System-Tabellen"));
-		    children[BasisTabellen_LIST] = new InvisibleNode(GuiMessages.getString("Basis-Tabellen"));
-		    children[Tenazitaet_LIST] = new InvisibleNode(GuiMessages.getString("Tenazitaet"));
-		    children[PMModelle_LIST] = new InvisibleNode(GuiMessages.getString("PMModelle"));
-		    children[Krankheitsbilder_LIST] = new InvisibleNode(GuiMessages.getString("Krankheitsbilder"));
-		    children[Prozessdaten_LIST] = new InvisibleNode(GuiMessages.getString("Prozessdaten"));
-		    children[Nachweissysteme_LIST] = new InvisibleNode(GuiMessages.getString("Nachweissysteme"));
-		    children[Modell_LIST] = new InvisibleNode(GuiMessages.getString("Modell"));
-		    children[Lieferketten_LIST] = new InvisibleNode(GuiMessages.getString("Lieferketten"));
-	
-		    for (int i=0; i < children.length; i++) {
-		    	if (DBKernel.isKrise) {
-					children[i].setVisible(false);
-				}
-				else {
-					DBKernel.prefs.getBoolean("VIS_NODE_" + children[i], true); // children[i].setVisible(false);//
-				}
+		    root = new InvisibleNode(".");
+			children = new InvisibleNode[myTs.size()];
+			indexMap = new HashMap<Integer, Integer>();
+			int i=0;
+		    for (Integer key : myTs.keySet()) {
+			    children[i] = new InvisibleNode(GuiMessages.getString(myTs.get(key)));
+				DBKernel.prefs.getBoolean("VIS_NODE_" + children[i], true);
+				root.add(children[i]);
+				indexMap.put(key, i);
+				i++;
 		    }
-		    if (DBKernel.isKrise) {
-				children[Lieferketten_LIST].setVisible(true);
-				if (DBKernel.debug) children[SystemTabellen_LIST].setVisible(true);
-			}
-		    
-		    boolean isAdmin  = DBKernel.isAdmin();
-		    if (isAdmin && (!DBKernel.isKrise || !DBKernel.isKNIME)) { //  && (!DBKernel.isKNIME || DBKernel.debug)
-				root.add(children[SystemTabellen_LIST]);
-			}		
-		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[BasisTabellen_LIST]);
-		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[Tenazitaet_LIST]); //
-		    if (!DBKernel.getUsername().equals("burchardi")) root.add(children[PMModelle_LIST]); //
-		    if (!DBKernel.isKNIME && !DBKernel.getUsername().equals("burchardi")) root.add(children[Krankheitsbilder_LIST]);
-		    if (!DBKernel.isKNIME) root.add(children[Prozessdaten_LIST]);
-		    if (!DBKernel.isKNIME && !DBKernel.getUsername().equals("burchardi")) root.add(children[Nachweissysteme_LIST]);
-		    //root.add(children[Modell_LIST]);
-		    if (DBKernel.isKrise) {
-				root.add(children[Lieferketten_LIST]);
-			}
-		    
-		    
-		    
 		    this.setModel(new InvisibleTreeModel(root, false, true));
 		    ((InvisibleTreeModel) this.getModel()).reload();
 		    this.addTreeSelectionListener(this);
@@ -255,28 +219,19 @@ public void valueChanged(final TreeSelectionEvent event) {
   } 
 	public void addAllTables() {
 		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
-		for(String key : myTables.keySet()) {
+		for (String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);
 
-			String tn = myT.getTablename();
-
-			myTables.put(tn, myT);
+			//String tn = myT.getTablename();
+			//myTables.put(tn, myT);
 			int child = myT.getChild();
-			if (child >= children.length) { //  || child < 0 wird nicht angezeigt!
+			if (indexMap.containsKey(child) && children[indexMap.get(child)] != null) {
 				InvisibleNode iNode = new InvisibleNode(myT);
-				iNode.setVisible(DBKernel.prefs.getBoolean("VIS_NODE_" + myT.getTablename(), true));
-				root.add(iNode);
+				iNode.setVisible(true);
+				children[indexMap.get(child)].add(iNode);
 			}
-			else if (child >= 0) {
-				InvisibleNode iNode = new InvisibleNode(myT);
-				if (DBKernel.isKrise) {
-					iNode.setVisible(child == Lieferketten_LIST || DBKernel.debug && child == SystemTabellen_LIST); // visible			
-				}
-				children[child].add(iNode);
-			}
-
-			this.setModel(new InvisibleTreeModel(root, false, true));
 		}
+		this.setModel(new InvisibleTreeModel(root, false, true));
 		expandAll();	
 		checkChildren();
 	}
@@ -355,10 +310,14 @@ if (dbForm != null || owner != null) {
 			if (myT != null && myT.getListMNs() != null) {
 				if (headerValue != null && mnTable != null && mnTable.length() > 0) { // headerValue.toString().equals("Kits")
 					if (!mnTable.equals("INT")) {
+						MyTable myMNTable = this.getTable(mnTable);
 						String tname = myT.getTablename();
+						tname = myMNTable.getForeignFieldName(myT);
+						/*
 						if (tname.equals("GeschaetzteModelle")) {
 							tname = "GeschaetztesModell";
 						}
+						*/
 						Object[][] o = new Object[1][2]; o[0][0] = tname; o[0][1] = mnID; // dbTable.getValueAt(row, 0);
 						//if (tname == "GeschaetztesModell") myDBTable2 = myP.setListVisible(true, this.getTable(mnTable), o, dbTable, row);
 						//else
@@ -445,6 +404,7 @@ if (dbForm != null || owner != null) {
 			if (isHierarchic) {
 				newDBTree = new MyDBTree(); 
 				String[] showOnly = null;
+				/*
 				if (myT != null && myT.getTablename().equals("Versuchsbedingungen")
 						&& headerValue != null && headerValue.toString().equals("Matrix")) {
 					showOnly = new String[] {"TOP", "ADV", "GS1", "Nährmedien"};
@@ -457,6 +417,7 @@ if (dbForm != null || owner != null) {
 						&& headerValue != null && headerValue.toString().equals("Matrix")) {
 					showOnly = new String[] {"TOP", "ADV", "GS1"};
 				}
+				*/
 				newDBTree.setTable(theNewTable, showOnly);
 			}
 
@@ -512,30 +473,53 @@ if (dbForm != null || owner != null) {
 				String[] mnTable = myT.getMNTable();
 				if (headerValue != null && mnTable != null && col != null && col > 0 && col-1 < mnTable.length && mnTable[col - 1] != null && mnTable[col - 1].length() > 0) { // headerValue.toString().equals("Kits")
 					if (!mnTable[col - 1].equals("INT")) {
-						String tname = myT.getTablename();
 						String mntname = mnTable[col - 1];
+						MyTable myMNTable = this.getTable(mntname);
+						String tname = myT.getTablename();
 						// Bitte auch schauen in MyDBTable, ca. Zeile 451 (insertNull)
+						/*
 						if (tname.equals("GeschaetzteModelle")) {
 							tname = "GeschaetztesModell";
+							//System.err.println(myT + "\t" + theNewTable + "\t" + myMNTable.getForeignFieldName(myT));
 						} else if (tname.equals("Modellkatalog")) {
 							tname = "Modell";
 						}
+						*/
+						//System.err.println(tname + "\t" + myMNTable.getForeignFieldName(myT));
+						tname = myMNTable.getForeignFieldName(myT);
 						Object[][] o2 = new Object[1][2]; o2[0][0] = tname; o2[0][1] = dbTable.getValueAt(row, 0);
+						//System.err.println(myT + "\t" + theNewTable + "\t" + myMNTable.getForeignFieldName(myT));
+						// looking for: tname.equals("GeschaetztesModell") && !mntname.equals("GeschaetztesModell_Referenz") ... o1[0][0] = "Modell"; o1[0][1] = dbTable.getValueAt(row, 3);
+						for (MyTable myTLeft : theNewTable.getForeignFields()) {
+							for (MyTable myTOrigin : myT.getForeignFields()) {
+								if (myTLeft != null && myTOrigin != null && myTLeft.equals(myTOrigin) && !myTLeft.getTablename().equals("DoubleKennzahlen")) {
+									Object[][] o1 = new Object[1][2];
+									o1[0][0] = theNewTable.getForeignFieldName(myTLeft); o1[0][1] = dbTable.getValueAt(row, myT.getForeignFieldIndex(myTOrigin)+1);
+									myDBTable2 = myP.setListVisible(true, myMNTable, o1, o2, row);
+									//System.err.println(theNewTable.getForeignFieldName(myTLeft) + "\t" + myT.getForeignFieldIndex(myTOrigin));
+									break;
+								}
+							}
+						}
+						if (myDBTable2 == null) myDBTable2 = myP.setListVisible(true, myMNTable, o2);
+						/*
 						if (tname.equals("GeschaetztesModell") && !mntname.equals("GeschaetztesModell_Referenz")) {
 							Object[][] o1 = new Object[1][2];
 							o1[0][0] = "Modell"; o1[0][1] = dbTable.getValueAt(row, 3);
-							/*
+							
 							if (mntname.equals("GueltigkeitsBereiche")) {
 								o1[1][0] = "Parametertyp"; o1[1][1] = 1;						
 							}
 							else { // GeschaetzteParameter
 								o1[1][0] = "Parametertyp"; o1[1][1] = 2;						
 							}
-							*/
-							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o1, o2, row);
-						} else {
-							myDBTable2 = myP.setListVisible(true, this.getTable(mntname), o2);
+							
+							myDBTable2 = myP.setListVisible(true, myMNTable, o1, o2, row);
 						}
+						else {
+							myDBTable2 = myP.setListVisible(true, myMNTable, o2);
+						}
+						*/
 					}
 					myP.setParentDialog(f, false);
 				}
@@ -580,12 +564,13 @@ if (dbForm != null || owner != null) {
 			newDBTable.setTable(theNewTable, o);
 			disableButtons = true;
 		}
+		/*
 		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&
 				headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
 			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
 			newDBTable.setTable(theNewTable, o);
 		}
-
+	*/
 		else if (myT != null) {
 			Object[][] o = null;
 			String[] dff = myT.getDeepForeignFields();
@@ -642,6 +627,18 @@ if (dbForm != null || owner != null) {
 							newDBTable.setTable(theNewTable, o);
 						}
 					}
+				}
+				else {
+					for (MyTable myTLeft : theNewTable.getForeignFields()) {
+						for (MyTable myTOrigin : myT.getForeignFields()) {
+							if (myTLeft != null && myTOrigin != null && myTLeft.equals(myTOrigin) && !myTLeft.getTablename().equals("DoubleKennzahlen")) {
+								o = new Object[1][2];
+								o[0][0] = theNewTable.getForeignFieldName(myTLeft); o[0][1] = dbTable.getValueAt(row, myT.getForeignFieldIndex(myTOrigin)+1);
+								newDBTable.setTable(theNewTable, o);
+								break;
+							}
+						}
+					}					
 				}
 			}
 			if (o == null || o[0][1] == null) newDBTable.setTable(theNewTable, conditions);

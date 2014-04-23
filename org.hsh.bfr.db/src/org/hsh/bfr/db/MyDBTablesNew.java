@@ -5,13 +5,23 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 
-import org.hsh.bfr.db.gui.MyList;
 import org.hsh.bfr.db.imports.SQLScriptImporter;
 
 public class MyDBTablesNew extends MyDBI {
 
+	private static int SystemTabellen_LIST = 0;
+	private static int BasisTabellen_LIST = 1;
+	private static int Tenazitaet_LIST = 2;
+	private static int PMModelle_LIST = 3;
+	private static int Krankheitsbilder_LIST = 4;
+	private static int Prozessdaten_LIST = 5;
+	private static int Nachweissysteme_LIST = 6;
+	private static int Lieferketten_LIST = 7;
+
 	private LinkedHashMap<String, MyTable> allTables = new LinkedHashMap<String, MyTable>();
 	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
+	private LinkedHashMap<String, int[]> knownCodeSysteme = null;
+	private LinkedHashMap<Integer, String> treeStructure = null;
 	private final String saUser = "SA";//"defad"; // SA
 	private final String saPass = "";//"de6!§5ddy";
 	private final String dbVersion = "1.7.9";
@@ -46,6 +56,7 @@ public class MyDBTablesNew extends MyDBI {
 	public MyDBTablesNew() {
 		loadHashes();
 		loadMyTables();
+		loadOther4Gui();
 	}
 
 	@Override
@@ -78,6 +89,16 @@ public class MyDBTablesNew extends MyDBI {
 
 	public String getSaPass() {
 		return saPass;
+	}
+	
+	@Override
+	public LinkedHashMap<Integer, String> getTreeStructure() {		
+		return treeStructure;
+	}
+
+	@Override
+	public LinkedHashMap<String, int[]> getKnownCodeSysteme() {
+		return knownCodeSysteme;
 	}
 
 	@Override
@@ -133,13 +154,13 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"DATETIME","VARCHAR(60)","VARCHAR(100)","INTEGER","OTHER"},
 				new String[]{null,null,null,null,null},
 				new MyTable[]{null,null,null,null,null});
-		addTable(cl, MyList.SystemTabellen_LIST);
+		addTable(cl, SystemTabellen_LIST);
 		MyTable bs = new MyTable("DateiSpeicher",
 				new String[]{"Zeitstempel","Tabelle","TabellenID","Feld","Dateiname","Dateigroesse","Datei"},
 				new String[]{"DATETIME","VARCHAR(100)","INTEGER","VARCHAR(100)","VARCHAR(255)","INTEGER","BLOB(10M)"},
 				new String[]{null,null,null,null,null,null,null},
 				new MyTable[]{null,null,null,null,null,null,null});
-		addTable(bs, MyList.SystemTabellen_LIST);
+		addTable(bs, SystemTabellen_LIST);
 		MyTable us = new MyTable("Users",
 				new String[]{"Username","Vorname","Name","Zugriffsrecht"},
 				new String[]{"VARCHAR(60)","VARCHAR(30)","VARCHAR(30)","INTEGER"},
@@ -147,7 +168,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,null,null},
 				new String[][]{{"Username"}},
 				new LinkedHashMap[]{null,null,null,Users.getUserTypesHash()});
-		addTable(us, MyList.SystemTabellen_LIST); // müsste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da müsste man erst die sendRequests umstellen auf defaultconnection...		
+		addTable(us, SystemTabellen_LIST); // müsste jetzt doch gehen, oder?...  lieber die Users ganz weg, weil das Editieren auf dem HSQLServer nicht korrekt funktioniert - siehe im Trigger removeAccRight usw., da müsste man erst die sendRequests umstellen auf defaultconnection...		
 
 		MyTable infoTable = new MyTable("Infotabelle",
 				new String[]{"Parameter","Wert"},
@@ -177,7 +198,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new LinkedList<String>(Arrays.asList("Erstautor"," (","Jahr",")")));
-		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.BasisTabellen_LIST : 66));
+		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? BasisTabellen_LIST : 66));
 
 		LinkedHashMap<Integer, String> wt = new LinkedHashMap<Integer, String>();
 		wt.put(new Integer(1), "Einzelwert");
@@ -212,7 +233,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null},
 				null,
 				null,
-				new LinkedList<String>(Arrays.asList("Wert","^","Exponent")));
+				new LinkedList<String>(Arrays.asList("Wert","*10^","Exponent")));
 		addTable(newDoubleTable, -1);
 
 		// Katalogtabellen
@@ -225,7 +246,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,"INT"},
 				null,
 				new LinkedList<String>(Arrays.asList("Matrixname")));
-		addTable(matrix, MyList.BasisTabellen_LIST);
+		addTable(matrix, BasisTabellen_LIST);
 		
 		MyTable toxinUrsprung = new MyTable("ToxinUrsprung", new String[]{"Ursprung"},
 				new String[]{"VARCHAR(255)"},
@@ -277,7 +298,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,"INT"},
 				null,
 				new LinkedList<String>(Arrays.asList("Agensname")));
-		addTable(agenzien, MyList.BasisTabellen_LIST);
+		addTable(agenzien, BasisTabellen_LIST);
 		MyTable normen = new MyTable("Methodennormen", new String[]{"Name","Beschreibung"},
 				new String[]{"VARCHAR(255)","VARCHAR(1023)"},
 				new String[]{"Name der Norm","Beschreibung der Norm"},
@@ -357,7 +378,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new LinkedList<String>(Arrays.asList("Name","Strasse","Ort")));
-		if (isSiLeBAT) addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST));
+		if (isSiLeBAT) addTable(adressen, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? -1 : BasisTabellen_LIST));
 		
 		MyTable symptome = new MyTable("Symptome", new String[]{"Bezeichnung","Beschreibung","Bezeichnung_engl","Beschreibung_engl"},
 				new String[]{"VARCHAR(50)","VARCHAR(255)","VARCHAR(50)","VARCHAR(255)"},
@@ -513,7 +534,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,
 				null,null,null,null,null,
 				null,null});
-		if (isSiLeBAT) addTable(diagnostik, MyList.Krankheitsbilder_LIST);
+		if (isSiLeBAT) addTable(diagnostik, Krankheitsbilder_LIST);
 		MyTable krankheitsbildersymptome = new MyTable("Krankheitsbilder_Symptome",
 				new String[]{"Krankheitsbilder","Symptome"},
 				new String[]{"INTEGER","INTEGER"},
@@ -534,13 +555,13 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null},
 				new MyTable[]{agenzien,matrix,literatur},
 				new LinkedHashMap[]{null,null,null});
-		if (isSiLeBAT) addTable(agensmatrices, MyList.Krankheitsbilder_LIST);
+		if (isSiLeBAT) addTable(agensmatrices, Krankheitsbilder_LIST);
 		
 		MyTable zertifikate = new MyTable("Zertifizierungssysteme", new String[]{"Bezeichnung","Abkuerzung","Anbieter"},
 				new String[]{"VARCHAR(255)","VARCHAR(20)","INTEGER"},
 				new String[]{"Vollstaendiger Name zum Zertifizierungssystem","Abkürzung für Zertifizierungssystem","Anbieter des Zertifizierungssystems - Verweis auf die Kontakttabelle"},
 				new MyTable[]{null,null,adressen});
-		if (isSiLeBAT) addTable(zertifikate, DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST);
+		if (isSiLeBAT) addTable(zertifikate, DBKernel.isKNIME ? -1 : BasisTabellen_LIST);
 		
 		MyTable methodiken = new MyTable("Methodiken", new String[]{"Name","Beschreibung","Kurzbezeichnung","WissenschaftlicheBezeichnung","Katalogcodes"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(30)","VARCHAR(255)","INTEGER"},
@@ -575,7 +596,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[][]{{"HIT_Nummer"},{"ADV_Nummer"}},
 				new LinkedHashMap[]{null,null,null,h1,null,null,null},
 				new String[]{null,null,null,null,"Labore_Matrices","Labore_Methodiken","Labore_Agenzien"});
-		if (isSiLeBAT) addTable(labore, DBKernel.isKNIME ? -1 : MyList.BasisTabellen_LIST);
+		if (isSiLeBAT) addTable(labore, DBKernel.isKNIME ? -1 : BasisTabellen_LIST);
 		MyTable labore_Methodiken = new MyTable("Labore_Methodiken",
 				new String[]{"Labore","Methodiken"},
 				new String[]{"INTEGER","INTEGER"},
@@ -628,7 +649,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("display in GUI as")));
-		addTable(Konzentrationseinheiten, MyList.BasisTabellen_LIST);
+		addTable(Konzentrationseinheiten, BasisTabellen_LIST);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
 				new String[]{null,null,null},
@@ -638,7 +659,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("Parameter")));
-		addTable(SonstigeParameter, DBKernel.isKNIME ? MyList.BasisTabellen_LIST : -1);
+		addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
 		//min, avg, max
@@ -683,7 +704,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new LinkedList<String>(Arrays.asList("Bezeichnung")));
-		if (isSiLeBAT) addTable(kits, MyList.Nachweissysteme_LIST);
+		if (isSiLeBAT) addTable(kits, Nachweissysteme_LIST);
 
 		MyTable aufbereitungsverfahren = new MyTable("Aufbereitungsverfahren",
 				new String[]{"Bezeichnung","Kurzbezeichnung","WissenschaftlicheBezeichnung",
@@ -728,7 +749,7 @@ public class MyDBTablesNew extends MyDBI {
 				"Aufbereitungsverfahren_Normen",null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("Bezeichnung")));
-		if (isSiLeBAT) addTable(aufbereitungsverfahren, MyList.Nachweissysteme_LIST);
+		if (isSiLeBAT) addTable(aufbereitungsverfahren, Nachweissysteme_LIST);
 		MyTable aufbereitungsverfahren_Kits = new MyTable("Aufbereitungsverfahren_Kits",
 				new String[]{"Aufbereitungsverfahren","Kits"},
 				new String[]{"INTEGER","INTEGER"},
@@ -794,7 +815,7 @@ public class MyDBTablesNew extends MyDBI {
 				"Nachweisverfahren_Normen",null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("Bezeichnung")));
-		if (isSiLeBAT) addTable(nachweisverfahren, MyList.Nachweissysteme_LIST);
+		if (isSiLeBAT) addTable(nachweisverfahren, Nachweissysteme_LIST);
 		MyTable nachweisverfahren_Kits = new MyTable("Nachweisverfahren_Kits",
 				new String[]{"Nachweisverfahren","Kits"},
 				new String[]{"INTEGER","INTEGER"},
@@ -815,7 +836,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"INTEGER","INTEGER","DOUBLE","INTEGER","DOUBLE","DOUBLE","DOUBLE","DOUBLE","INTEGER"},
 				new String[]{null,null,"Nachweisgrenze des Verfahrens bezogen auf die Konzentration des Agens auf/in der Ausgangsmatrix","Einheit der Konzentration der Nachweisgrenze - Auswahlbox","Mittlere zu erwartende Sensitivitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Spezifitaet (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Mittlere zu erwartende Effizienz (Angabe als Wert im Bereich 0 - 1) (95%= 0.95)\nDefinition siehe z.B. http://www.bb-sbl.de/tutorial/zusammenhangsanalyse/sensitivitaetspezifitaeteffizienz.html","Wiederfindungsrate","Referenz für alle Angaben im Datensatz"},
 				new MyTable[]{aufbereitungsverfahren,nachweisverfahren,newDoubleTable,Konzentrationseinheiten,null,null,null,null,literatur});
-		if (isSiLeBAT) addTable(aufbereitungs_nachweisverfahren, MyList.Nachweissysteme_LIST);
+		if (isSiLeBAT) addTable(aufbereitungs_nachweisverfahren, Nachweissysteme_LIST);
 
 		MyTable labor_aufbereitungs_nachweisverfahren = new MyTable("Labor_Aufbereitungs_Nachweisverfahren",
 				new String[]{"Labor","Aufbereitungs_Nachweisverfahren","ZertifikatNr","Gueltigkeit","Zertifizierungssystem","Durchsatz","DurchsatzEinheit","Kosten","KostenEinheit","FreigabeModus","AuftragsAnnahme","SOP","LaborAngebot"},
@@ -823,7 +844,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"Verweis zum Eintrag in Labor-Tabelle","Verweis zum Eintrag in Kombi-Tabelle Aufbereitungs_Nachweisverfahren","Zertifikatnummer - falls vorhanden","Gültigkeitsdatum des Zertifikats - falls vorhanden","Zertifizierungsanbieter - Verweis auf Tabelle Zertifizierungssysteme","Angaben zum Durchsatz des Labors für das Verfahren - sollte im LaborAngebot angegeben sein","Einheit des Durchsatzes - Auswahlbox","Kosten pro Probe/Einzelansatz - ohne Rabatte - sollte im LaborAngebot angegeben sein","Waehrung für die Kosten - Auswahlbox","Auswahl ob diese Information oeffentlich zugaenglich sein soll: nie, nur in der Krise, immer - Auswahlbox","Nimmt das Labor auch externe Auftraege an?","Existiert eine SOP zu dem Verfahren bei dem Labor?","Das Angebot kann ein individuelles Angebot, ein Katalogeintrag, eine E-Mail oder auch ein anderes Dokument des Labors sein, moeglicherweise auch mit Angabe der Gueltigkeit des Angebots"},
 				new MyTable[]{labore,aufbereitungs_nachweisverfahren,null,null,zertifikate,null,null,null,null,null,null,null,null},
 				new LinkedHashMap[]{null,null,null,null,null,null,allHashes.get("Speed"),null,allHashes.get("Currency"),allHashes.get("Freigabe"),null,null,null});
-		if (isSiLeBAT) addTable(labor_aufbereitungs_nachweisverfahren, MyList.Nachweissysteme_LIST);
+		if (isSiLeBAT) addTable(labor_aufbereitungs_nachweisverfahren, Nachweissysteme_LIST);
 
 	
 		h1 = new LinkedHashMap<Object, String>();
@@ -863,7 +884,7 @@ public class MyDBTablesNew extends MyDBI {
 					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("Agens","Matrix")));
-		addTable(tenazity_raw_data, MyList.Tenazitaet_LIST);
+		addTable(tenazity_raw_data, Tenazitaet_LIST);
 		MyTable tenazity_measured_vals = new MyTable("Messwerte", new String[]{"Versuchsbedingungen","Zeit","ZeitEinheit",
 				"Delta","Konzentration","Konz_Einheit",
 				"Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit",
@@ -884,7 +905,7 @@ public class MyDBTablesNew extends MyDBI {
 					null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					"Messwerte_Sonstiges"});
-		addTable(tenazity_measured_vals, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? MyList.Tenazitaet_LIST : -1));
+		addTable(tenazity_measured_vals, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? Tenazitaet_LIST : -1));
 		tenazity_raw_data.setForeignField(tenazity_measured_vals, 6);
 
 		MyTable Versuchsbedingungen_Sonstiges = new MyTable("Versuchsbedingungen_Sonstiges",
@@ -946,7 +967,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new LinkedList<String>(Arrays.asList("ProzessElement")));
-		if (isSiLeBAT) addTable(prozessElemente, MyList.Prozessdaten_LIST);
+		if (isSiLeBAT) addTable(prozessElemente, Prozessdaten_LIST);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("EAN (betriebsspezifisch)", "EAN (betriebsspezifisch)");					
 	    h1.put("Produktklasse (überbetrieblich)", "Produktklasse (überbetrieblich)");					
@@ -967,7 +988,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null}, // ,null,null,h4
 				new String[]{null,null,null,null,null,null,null,"INT",null,"ProzessWorkflow_Literatur"}); // ,"DBL","DBL",null
-		if (isSiLeBAT) addTable(prozessFlow, MyList.Prozessdaten_LIST);
+		if (isSiLeBAT) addTable(prozessFlow, Prozessdaten_LIST);
 		MyTable prozessFlowReferenzen = new MyTable("ProzessWorkflow_Literatur",
 				new String[]{"ProzessWorkflow","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
@@ -1038,7 +1059,7 @@ public class MyDBTablesNew extends MyDBI {
 				"Prozessdaten_Sonstiges","Prozessdaten_Messwerte","Prozessdaten_Kosten"},
 				null,
 				new LinkedList<String>(Arrays.asList("Prozess_CARVER","ProzessDetail")));
-		if (isSiLeBAT) addTable(prozessdaten, DBKernel.isKNIME ? MyList.Prozessdaten_LIST : -1); // MyList.Prozessdaten_LIST
+		if (isSiLeBAT) addTable(prozessdaten, DBKernel.isKNIME ? Prozessdaten_LIST : -1); // Prozessdaten_LIST
 		prozessFlow.setForeignField(prozessdaten, 7);
 		MyTable prozessReferenzen = new MyTable("Prozessdaten_Literatur",
 				new String[]{"Prozessdaten","Literatur"},
@@ -1166,7 +1187,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{"INT",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,"Station_Agenzien",null},
 				null,
 				new LinkedList<String>(Arrays.asList("Name")));
-		addTable(Knoten, MyList.Lieferketten_LIST);
+		addTable(Knoten, Lieferketten_LIST);
 		MyTable Agensnachweis = new MyTable("Station_Agenzien", new String[]{"Station","Erreger","Labornachweis","AnzahlLabornachweise"},
 				new String[]{"INTEGER","INTEGER","BOOLEAN","INTEGER"},
 				new String[]{null,null,"Labornachweise vorhanden?",null},
@@ -1192,7 +1213,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,"Produktkatalog_Matrices","INT",null},
 				null,
 				new LinkedList<String>(Arrays.asList("Artikelnummer",": ","Bezeichnung")));
-		addTable(Produzent_Artikel, MyList.Lieferketten_LIST);
+		addTable(Produzent_Artikel, Lieferketten_LIST);
 		Knoten.setForeignField(Produzent_Artikel, 0);
 		MyTable Produktmatrices = new MyTable("Produktkatalog_Matrices", new String[]{"Produktkatalog","Matrix"},
 				new String[]{"INTEGER","INTEGER"},
@@ -1212,7 +1233,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,"INT",null,null,null,"INT",null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("pd_day",".","pd_month",".","pd_year","; ","ChargenNr","; ","Artikel")));
-		addTable(Chargen, MyList.Lieferketten_LIST);
+		addTable(Chargen, Lieferketten_LIST);
 		Produzent_Artikel.setForeignField(Chargen, 7);
 		
 		MyTable Lieferungen = new MyTable("Lieferungen", // Artikel_Lieferung
@@ -1227,7 +1248,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("dd_day",".","dd_month",".","dd_year","; ","Unitmenge"," ","UnitEinheit","; ","Charge")));
-		addTable(Lieferungen, MyList.Lieferketten_LIST);
+		addTable(Lieferungen, Lieferketten_LIST);
 		Chargen.setForeignField(Lieferungen, 5);
 		
 		MyTable ChargenVerbindungen = new MyTable("ChargenVerbindungen",
@@ -1241,7 +1262,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new LinkedList<String>(Arrays.asList("Zutat")),
 				new String[]{"Zutat.Empfänger=Produkt.Artikel.Station", null, null});
-		addTable(ChargenVerbindungen, DBKernel.debug ? MyList.Lieferketten_LIST : -1);
+		addTable(ChargenVerbindungen, DBKernel.debug ? Lieferketten_LIST : -1);
 		Chargen.setForeignField(ChargenVerbindungen, 1);
 
 		//check4Updates_129_130(myList);
@@ -1351,7 +1372,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new LinkedList<String>(Arrays.asList("Titel")));
-		addTable(ICD10_Kodes, MyList.Krankheitsbilder_LIST);
+		addTable(ICD10_Kodes, Krankheitsbilder_LIST);
 		return ICD10_Kodes;
 	}	
 	@SuppressWarnings("unchecked")
@@ -1409,7 +1430,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[] {null,null,null,null,null,null,null,
 				null,null,null,null,
 				null,null,null});
-		addTable(Modellkatalog, MyList.PMModelle_LIST);		
+		addTable(Modellkatalog, PMModelle_LIST);		
 		MyTable ModellkatalogParameter = new MyTable("ModellkatalogParameter", new String[]{"Modell","Parametername","Parametertyp",
 				"ganzzahl","min","max","optimalValue","Einheit","Beschreibung"},
 				new String[]{"INTEGER","VARCHAR(127)","INTEGER",
@@ -1423,7 +1444,7 @@ public class MyDBTablesNew extends MyDBI {
 				//new String[] {"not null","not null","default 1","default FALSE","default null","default null",null});
 				new String[] {"not null",null,"default 1","default FALSE","default null","default null",null,null,null},
 				new LinkedList<String>(Arrays.asList("Parametername"," (","Parametertyp", ")")));
-		addTable(ModellkatalogParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
+		addTable(ModellkatalogParameter, DBKernel.isKNIME ? PMModelle_LIST : -1);	
 		Modellkatalog.setForeignField(ModellkatalogParameter, 11);
 		MyTable Modell_Referenz = new MyTable("Modell_Referenz", new String[]{"Modell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
@@ -1433,7 +1454,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null},
 				null,
 				new String[] {"not null","not null"});
-		addTable(Modell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
+		addTable(Modell_Referenz, DBKernel.isKNIME ? PMModelle_LIST : -1);		
 		
 		MyTable GeschaetzteModelle = new MyTable("GeschaetzteModelle", new String[]{"Name","Versuchsbedingung","Modell",
 				"Response","manuellEingetragen","Rsquared","RSS","RMS","AIC","BIC","Score",
@@ -1456,7 +1477,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedList<String>(Arrays.asList("Name","Versuchsbedingung","Modell")));
 				//new String[] {null,"not null",null,"default FALSE",null,null,null,
 				//null,null,null});
-		addTable(GeschaetzteModelle, MyList.PMModelle_LIST);		
+		addTable(GeschaetzteModelle, PMModelle_LIST);		
 		MyTable GeschaetztesModell_Referenz = new MyTable("GeschaetztesModell_Referenz", new String[]{"GeschaetztesModell","Literatur"},
 				new String[]{"INTEGER","INTEGER"},
 				new String[]{null,null},
@@ -1465,7 +1486,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null},
 				null,
 				new String[] {"not null","not null"});
-		addTable(GeschaetztesModell_Referenz, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
+		addTable(GeschaetztesModell_Referenz, DBKernel.isKNIME ? PMModelle_LIST : -1);	
 		MyTable GeschaetzteParameter = new MyTable("GeschaetzteParameter", new String[]{"GeschaetztesModell","Parameter",
 				"Wert","ZeitEinheit","Einheit","KI.unten","KI.oben","SD","StandardError","t","p"},
 				new String[]{"INTEGER","INTEGER",
@@ -1477,7 +1498,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new String[] {"not null","not null",null,null,null,null,null,null,null,null,null},
 				new LinkedList<String>(Arrays.asList("Parameter",": ","Wert")));
-		addTable(GeschaetzteParameter, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);	
+		addTable(GeschaetzteParameter, DBKernel.isKNIME ? PMModelle_LIST : -1);	
 		MyTable GueltigkeitsBereiche = new MyTable("GueltigkeitsBereiche", new String[]{"GeschaetztesModell","Parameter",
 				"Gueltig_von","Gueltig_bis","Gueltig_optimal"},
 				new String[]{"INTEGER","INTEGER",
@@ -1489,7 +1510,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				new String[] {"not null","not null",null,null,null},
 				new LinkedList<String>(Arrays.asList("Parameter"," ","[","Gueltig_von"," ","Gueltig_bis","]")));
-		addTable(GueltigkeitsBereiche, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);
+		addTable(GueltigkeitsBereiche, DBKernel.isKNIME ? PMModelle_LIST : -1);
 		MyTable VarParMaps = new MyTable("VarParMaps", new String[]{"GeschaetztesModell","VarPar","VarParMap"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
 				new String[]{null,null,null},
@@ -1508,7 +1529,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null,null,null},
 				null,
 				null);//new String[] {"not null","not null","not null","not null",null});
-		addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
+		addTable(GeschaetzteParameterCovCor, DBKernel.isKNIME ? PMModelle_LIST : -1);		
 		GeschaetzteModelle.setForeignField(GeschaetzteParameterCovCor, 13);
 		MyTable GlobalModels = new MyTable("GlobalModels",
 				new String[]{"Modellname"},
@@ -1519,7 +1540,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null},
 				null,
 				null);
-		addTable(GlobalModels, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
+		addTable(GlobalModels, DBKernel.isKNIME ? PMModelle_LIST : -1);		
 		MyTable Sekundaermodelle_Primaermodelle = new MyTable("Sekundaermodelle_Primaermodelle",
 				new String[]{"GeschaetztesPrimaermodell","GeschaetztesSekundaermodell","GlobalModel"},
 				new String[]{"INTEGER","INTEGER","INTEGER"},
@@ -1529,7 +1550,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null},
 				null,
 				new String[] {"not null","not null",null});
-		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? MyList.PMModelle_LIST : -1);		
+		addTable(Sekundaermodelle_Primaermodelle, DBKernel.isKNIME ? PMModelle_LIST : -1);		
 	}
   
 	private void addTable(MyTable myT, int child) {
@@ -1619,6 +1640,49 @@ public class MyDBTablesNew extends MyDBI {
 		hashModelType.put(13, "pH/aw");	
 		hashModelType.put(14, "T/pH/aw");	
 		allHashes.put("ModelType", hashModelType);
+	}
+	private void loadOther4Gui() {
+		// knownCodeSysteme
+		knownCodeSysteme = new LinkedHashMap<String, int[]>();
+	  	knownCodeSysteme.put("Matrices_ADV_01", new int[]{2,3,5,7}); // 01-011123
+	  	knownCodeSysteme.put("Matrices_ADV_14", new int[]{2,3,5,7}); // 14-011123
+	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,6}); // 15-011123
+	  	knownCodeSysteme.put("Matrices_ADV_20", new int[]{2,3,5,7}); // 20-011123
+	  	knownCodeSysteme.put("Matrices_BLS", new int[]{1,3,4,5,6}); // A011123
+	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
+	  	knownCodeSysteme.put("Matrices_FA", new int[]{2,4,6,8,10,12,14,16,18}); // 
+	  	knownCodeSysteme.put("Agenzien_ADV", new int[]{2,4}); // 0102123
+	  	knownCodeSysteme.put("Matrices_SiLeBAT", new int[]{2,4,6,8,10});
+	  	knownCodeSysteme.put("Agenzien_SiLeBAT", new int[]{2,4,6,8,10});
+	  	knownCodeSysteme.put("Methodiken_SiLeBAT", new int[]{2,4,6,8,10});
+	  	knownCodeSysteme.put("Matrices_Extra", new int[]{2,4,6,8,10});
+	  	knownCodeSysteme.put("Agenzien_Extra", new int[]{2,4,6,8,10});
+	  	knownCodeSysteme.put("Methodiken_Extra", new int[]{2,4,6,8,10});
+	  	// Agenzien_VET
+	  	knownCodeSysteme.put("Methoden_BVL", new int[]{2,3,5,6,8,9}); // 
+	  	// TOP
+	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
+
+	  	knownCodeSysteme.put("Methodiken_BfR", new int[]{2,4,6}); // 
+	  	
+	  	knownCodeSysteme.put("Matrices_Combase", new int[]{2,4,6}); // 
+	  	knownCodeSysteme.put("Agenzien_Combase", new int[]{2,4,6}); // 		
+	  	
+	  	
+	  	// treeStructure
+		treeStructure = new LinkedHashMap<Integer, String>();
+
+	    boolean isAdmin  = DBKernel.isAdmin();
+		if (isAdmin) treeStructure.put(SystemTabellen_LIST, "System-Tabellen");
+		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(BasisTabellen_LIST, "Basis-Tabellen");
+		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(Tenazitaet_LIST, "Tenazitaet");
+		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(PMModelle_LIST, "PMModelle");
+		if (!DBKernel.isKNIME) treeStructure.put(Krankheitsbilder_LIST, "Krankheitsbilder");
+		if (!DBKernel.isKNIME) treeStructure.put(Prozessdaten_LIST, "Prozessdaten");
+		if (!DBKernel.isKNIME) treeStructure.put(Nachweissysteme_LIST, "Nachweissysteme");
+		if (DBKernel.isKrise) treeStructure.put(Lieferketten_LIST, "Lieferketten");	  	
 	}
 	public void addViews() {
 		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/02_create_doublekennzahleneinfach.sql", null, false);		

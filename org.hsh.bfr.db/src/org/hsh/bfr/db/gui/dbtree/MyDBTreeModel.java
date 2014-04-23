@@ -72,33 +72,7 @@ public class MyDBTreeModel implements TreeModel {
 	  }
 	public MyDBTreeModel(final MyTable myT, final String[] showOnly) {
 		this.showOnly = showOnly;
-	  	knownCodeSysteme = new LinkedHashMap<String, int[]>();
-	  	knownCodeSysteme.put("Matrices_ADV_01", new int[]{2,3,5,7}); // 01-011123
-	  	knownCodeSysteme.put("Matrices_ADV_14", new int[]{2,3,5,7}); // 14-011123
-	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,6}); // 15-011123
-	  	knownCodeSysteme.put("Matrices_ADV_20", new int[]{2,3,5,7}); // 20-011123
-	  	knownCodeSysteme.put("Matrices_BLS", new int[]{1,3,4,5,6}); // A011123
-	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
-	  	knownCodeSysteme.put("Matrices_FA", new int[]{2,4,6,8,10,12,14,16,18}); // 
-	  	knownCodeSysteme.put("Agenzien_ADV", new int[]{2,4}); // 0102123
-	  	knownCodeSysteme.put("Matrices_SiLeBAT", new int[]{2,4,6,8,10});
-	  	knownCodeSysteme.put("Agenzien_SiLeBAT", new int[]{2,4,6,8,10});
-	  	knownCodeSysteme.put("Methodiken_SiLeBAT", new int[]{2,4,6,8,10});
-	  	knownCodeSysteme.put("Matrices_Extra", new int[]{2,4,6,8,10});
-	  	knownCodeSysteme.put("Agenzien_Extra", new int[]{2,4,6,8,10});
-	  	knownCodeSysteme.put("Methodiken_Extra", new int[]{2,4,6,8,10});
-	  	// Agenzien_VET
-	  	knownCodeSysteme.put("Methoden_BVL", new int[]{2,3,5,6,8,9}); // 
-	  	// TOP
-	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
-
-	  	knownCodeSysteme.put("Methodiken_BfR", new int[]{2,4,6}); // 
-	  	
-	  	knownCodeSysteme.put("Matrices_Combase", new int[]{2,4,6}); // 
-	  	knownCodeSysteme.put("Agenzien_Combase", new int[]{2,4,6}); // 
-	  	
+		knownCodeSysteme = DBKernel.myDBi.getKnownCodeSysteme();
 	  	setTable(myT);
   }
 

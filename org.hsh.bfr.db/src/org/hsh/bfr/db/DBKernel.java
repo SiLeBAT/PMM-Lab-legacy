@@ -1581,8 +1581,10 @@ public class DBKernel {
 				if (alreadyUsed == null)
 					alreadyUsed = new HashSet<MyTable>();
 				alreadyUsed.add(theTable);
+				boolean isdkz = theTable.getTablename().equals("DoubleKennzahlen");
 				do {
 					value = "";
+					String valueBkp = "";
 					boolean hasSymbols = false;
 					if (theTable.getFields2ViewInGui() != null) {
 						for (String s : theTable.getFields2ViewInGui()) {
@@ -1595,13 +1597,13 @@ public class DBKernel {
 								if (!value.isEmpty() && !hasSymbols) value += "\t";
 								for (i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
 									if (rs.getMetaData().getColumnName(i).equals(s)) {
-										value += handleField(rs.getObject(i),
-												foreignFields, mnTable, i,
-												goDeeper, startDelim, delimiter,
-												endDelim, alreadyUsed);
+										String tVal = handleField(rs.getObject(i), foreignFields, mnTable, i, goDeeper, startDelim, delimiter, endDelim, alreadyUsed);
+										if (isdkz && tVal.equals("?") && s.equals("Exponent")) value = valueBkp;
+										else value += tVal;
 										break;
 									}
 								}
+								if (isdkz && s.equals("Wert")) valueBkp = value;
 							}
 						}
 					}
@@ -1611,17 +1613,7 @@ public class DBKernel {
 							if (!v.isEmpty()) {
 								v += "\t";
 								String cn = rs.getMetaData().getColumnName(i);
-								if (foreignTable.equals("DoubleKennzahlen") && (cn.equals("Exponent") || cn.endsWith("_exp"))) {
-									if (value.endsWith("\t")) {
-										value = value.substring(0, value.length() - 1) + " * 10^" + v;										
-									}
-									else {
-										value += (cn.equals("Exponent") ? "Wert" : (cn.endsWith("_exp") ? cn.substring(0, cn.length() - 4) : cn)) + ": " + "1 * 10^" + v;
-									}
-								}
-								else {
-									value += cn + ": " + v;
-								}
+								value += cn + ": " + v;
 							}
 						}
 					}
@@ -2562,6 +2554,7 @@ public class DBKernel {
 				}
 			}
 		} catch (Exception he) {
+			he.printStackTrace();
 		} // HeadlessException
 	}
 

@@ -156,7 +156,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	public MyDBTable(){
 		//this.addFocusListener(this);
 	}
-	public void refreshSort() {
+	void refreshSort() {
 		if (sorter != null) {
 			sorterModel.initArray();
 			sorter.sort();			
@@ -279,7 +279,8 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 				}
 				where += DBKernel.delimitL(conditions[i][0].toString()) + (conditions[i][1] == null ? " IS NULL" : "=" + conditions[i][1]);
 			}	
-			order = " ORDER BY " + DBKernel.delimitL("ID") + " ASC";				
+			order = " ORDER BY " + DBKernel.delimitL("ID") + " ASC";	
+			
 			if (conditions[0][0].equals("Zielprozess")) {
 				ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Ausgangsprozess") + " FROM " +
 						DBKernel.delimitL("Prozess_Verbindungen") +	" " + where, false);
@@ -301,6 +302,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					where = " WHERE 1=0";
 				}
 			}
+			
 		}
 		//if (DBKernel.debug) System.out.println(myT.getMetadata() + "\n" + where + order);
 		if (actualTable.getForeignFields() != null) {
@@ -428,7 +430,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 
 		 */
 	}
-	public void insertNull(final int selRow, final int selCol) {
+	void insertNull(final int selRow, final int selCol) {
 		String tablename = this.getActualTable().getTablename();
 		if (!this.actualTable.isReadOnly() && selCol > 0 && selRow >= 0 && this.getRowCount() > 0 &&
 				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
@@ -467,7 +469,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			//this.getActualTable().restoreProperties(this);
 		}
 	}
-	public void deleteRow() {
+	void deleteRow() {
 		String tablename = this.getActualTable().getTablename();
 		int selRow = this.getSelectedRow();
 		if (this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount() &&
@@ -502,7 +504,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 	}
 
-	public void insertNewRow(final boolean copySelected, final Vector<Object> vecIn) {
+	void insertNewRow(final boolean copySelected, final Vector<Object> vecIn) {
 		MyTable myT = this.getActualTable();
 		String tablename = myT.getTablename();
 		if (!tablename.equals("ProzessWorkflow") && (!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
@@ -610,7 +612,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 		adjustColumns();
 	}
-	public void refreshHashbox() {
+	void refreshHashbox() {
   		MyTable[] foreignFields = actualTable.getForeignFields();
   		String[] mnTable = actualTable.getMNTable();
   		if (foreignFields != null) {
@@ -789,7 +791,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		this.selectCell(row, col, true);
 	}
 	*/
-	public void myPrint() {
+	private void myPrint() {
 	  	// Zuerst DBTable aktualisieren:
 	    try {this.refresh();}
 	    catch (SQLException e1) {MyLogger.handleException(e1);}
@@ -824,7 +826,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	public void myRefresh() {
 		myRefresh(this.getSelectedRow());
 	}
-	public void myRefresh(final int row) {
+	void myRefresh(final int row) {
 		if (!bigbigTable)
 		 {
 			myRefresh(row, this.getSelectedColumn()); // bei bigbigTable muss erstmal nicht nen autoupdate nach afterUpdate von MyDataChangeListener gemacht werden.. is sonst zu lahm
@@ -839,7 +841,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
     	}
 	}
     	
-	public void myRefresh(final int row, final int col) {
+	private void myRefresh(final int row, final int col) {
 		JScrollPane scroller = getScroller();
 		int scrollVal = (scroller == null) ? -1 : scroller.getVerticalScrollBar().getValue();
 		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
@@ -1126,7 +1128,7 @@ if (myDBPanel1 != null) {
 		}		
 		adjustColumns();
 	}
-	public void adjustColumns() {
+	void adjustColumns() {
 		this.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		TableColumnAdjuster tca = new TableColumnAdjuster(this.getTable());
 		tca.setColumnDataIncluded(false);
@@ -1136,7 +1138,7 @@ if (myDBPanel1 != null) {
 		tca.adjustColumns();		
 	}
 
-	public void updateRowHeader(final boolean setVisible) {
+	private void updateRowHeader(final boolean setVisible) {
 		
 		JScrollPane scroller = getScroller();
 	    if (scroller != null) {
@@ -1171,7 +1173,7 @@ if (myDBPanel1 != null) {
 	public void checkUnsavedStuff() {
 		checkUnsavedStuff(true);
 	}
-	public void checkUnsavedStuff(final boolean saveProps) {
+	void checkUnsavedStuff(final boolean saveProps) {
 		//if (actualTable == null || actualTable.isReadOnly()) System.err.println(" readonly, but saved??? " + actualTable);
 		// eigentlich würde es genügen, wenn man nur this.save() ausführt. this.save() hat selbst eine Routine, die checkt, ob was geändert wurde oder nicht, d.h. es wird nicht in jedem Fall abgespeichert
 		if (theFilter != null) return;
@@ -1244,7 +1246,7 @@ if (myDBPanel1 != null) {
 	public boolean setSelectedID(final int id) {
 		return setSelectedID(id, false);
 	}
-	public boolean setSelectedID(final int id, final boolean force) {
+	private boolean setSelectedID(final int id, final boolean force) {
 		if (id > 0 && (force || id != getSelectedID())) {
 			for (int row=0;row<this.getRowCount();row++) {
 				// evtl. sollte hier ein Thread eingebaut werden - wegen Gefahr zu langsam...
@@ -1275,17 +1277,7 @@ if (myDBPanel1 != null) {
 		}
 		return true;
 	}
-	public void setSelectedRowCol(final int row, final int col) {
-		int verticalScrollerPosition = 0;
-		JScrollPane scroller = this.getScroller();
-		if (scroller != null) {
-			verticalScrollerPosition = scroller.getVerticalScrollBar().getValue();
-		}
-		setSelectedRowCol(row, col, verticalScrollerPosition, 0, false);
-	}
-	public void setSelectedRowCol(final int row, final int col, final int verticalScrollerPosition, final int horizontalScrollerPosition) {
-		setSelectedRowCol(row, col, verticalScrollerPosition, horizontalScrollerPosition, false);
-	}
+	
 	public void setSelectedRowCol(final int row, int col, final int verticalScrollerPosition, final int horizontalScrollerPosition, final boolean forceCol) {
 		if (row >= 0) {
 			JScrollPane scroller = this.getScroller();
@@ -1349,7 +1341,7 @@ if (myDBPanel1 != null) {
 		}
 		return result;
 	}
-	public void extractBLOB() {
+	void extractBLOB() {
 		extractBLOB(this.getSelectedRow(), this.getSelectedColumn());
 	}
 	public void extractBLOB(final int row, final int col) {
@@ -1626,7 +1618,7 @@ if (myDBPanel1 != null) {
 	  } 
 	} 
 	
-	public void copyProzessschritt() {
+	void copyProzessschritt() {
 		Integer id = getSelectedID();
 		if (id >= 0) {
 	    int retVal = JOptionPane.showConfirmDialog(this, "Sicher?\nDie aktuellen Parameter des selektierten Prozessschrittes könnten in der Folge überschrieben werden!",

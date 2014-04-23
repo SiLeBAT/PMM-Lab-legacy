@@ -164,7 +164,7 @@ public class MyDBPanel extends JPanel {
 		else if (myDBTable1 != null) result = myDBTable1.getSelectedID();
 		return result;
 	}
-	public void refreshTree() {
+	void refreshTree() {
 		if (isFormVisible()) {
 			return;
 		}
@@ -299,18 +299,14 @@ public class MyDBPanel extends JPanel {
 	  	}
 	  	super.paintComponent(g);
 	}
-  public void disableFilter() {
-	  filterChangeAllowed = false;
-		this.getSuchfeld().setEnabled(false);
-		this.getSuchIchCheckBox().setEnabled(false);
-  }
+  
   public void setDefaultFilter(Filter filter) {
 	  defaultFilter = filter;
   }
   public void disableAdding() {
 	  disableAdding = true;
   }
-  public boolean addingDisabled() {
+  boolean addingDisabled() {
 	  return disableAdding;
   }
 
@@ -372,7 +368,7 @@ public class MyDBPanel extends JPanel {
 		}
 		handleSuchfeldChange(e, true);
 	}
-	public void handleSuchfeldChange(final KeyEvent e, final boolean doFilter) {
+	void handleSuchfeldChange(final KeyEvent e, final boolean doFilter) {
 		if (!filterChangeAllowed) return;
 		if (isFormVisible()) {
 			return;
@@ -446,7 +442,7 @@ public class MyDBPanel extends JPanel {
 		}
 		
 	}
-	public void initFindVector(LinkedHashMap<String, int[]> myFounds, int actualFindPos, String findString) {
+	void initFindVector(LinkedHashMap<String, int[]> myFounds, int actualFindPos, String findString) {
 		if (isFormVisible()) {
 			return;
 		}
@@ -510,7 +506,7 @@ public class MyDBPanel extends JPanel {
 		ib.setVisible(true);    				
 	}
 
-	public void button11ActionPerformed(ActionEvent e) {
+	void button11ActionPerformed(ActionEvent e) {
 		if (isFormVisible()) {
 			return;
 		}
@@ -555,7 +551,7 @@ public class MyDBPanel extends JPanel {
 	public boolean isSavePressed() {
 		return savePressed;
 	}
-	public void button10ActionPerformed(ActionEvent e) {
+	void button10ActionPerformed(ActionEvent e) {
 		if (isFormVisible()) {
 			return;
 		}
@@ -632,7 +628,7 @@ public class MyDBPanel extends JPanel {
 			myDBTable1.copyProzessschritt();
 		}		
 	}
-	public void checkUnsavedStuffInForm() {
+	void checkUnsavedStuffInForm() {
 		if (isFormVisible()) {
 			myDBForm1.save();
 		}

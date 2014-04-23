@@ -43,7 +43,7 @@ import javax.swing.KeyStroke;
  * @author Armin
  *
  */
-public class FilteringInputMap extends InputMap {
+class FilteringInputMap extends InputMap {
 
 	 /**
 	 * 
@@ -51,7 +51,7 @@ public class FilteringInputMap extends InputMap {
 	private static final long serialVersionUID = 1L;
 	private KeyStroke[] disableKeys;
 
-	 public FilteringInputMap(InputMap parent, KeyStroke[] disableKeys) {
+	 FilteringInputMap(InputMap parent, KeyStroke[] disableKeys) {
 		 super();
 		 setParent(parent);
 		 this.disableKeys = disableKeys;

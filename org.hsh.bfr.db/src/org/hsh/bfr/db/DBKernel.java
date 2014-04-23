@@ -106,7 +106,7 @@ public class DBKernel {
 	private static String m_Username = "";
 	private static String m_Password = "";
 
-	public final static String HSH_PATH = System.getProperty("user.home")
+	final static String HSH_PATH = System.getProperty("user.home")
 			+ System.getProperty("file.separator") + ".localHSH"
 			+ System.getProperty("file.separator") + "BfR"
 			+ System.getProperty("file.separator");
@@ -144,7 +144,7 @@ public class DBKernel {
 		return adminU.get(dbPath);
 	}
 
-	public static String getTempSAPass(String dbPath) {
+	private static String getTempSAPass(String dbPath) {
 		// String pass = DBKernel.prefs.get("DBADMINPASS" +
 		// getCRC32(dbPath),"00");
 		// if (pass.equals("00")) {
@@ -335,7 +335,7 @@ public class DBKernel {
 				false);
 	}
 
-	protected static boolean insertIntoChangeLog(final String tablename,
+	private static boolean insertIntoChangeLog(final String tablename,
 			final Object[] rowBefore, final Object[] rowAfter,
 			final Connection conn, final boolean suppressWarnings) {
 		if (dontLog) {
@@ -447,11 +447,6 @@ public class DBKernel {
 		} catch (Exception e) {
 		}
 		return lastInsertedID;
-	}
-
-	protected static void createTable(final String tableName,
-			final String fieldDefs, final List<String> indexSQL) {
-		createTable(tableName, fieldDefs, indexSQL, true, false);
 	}
 
 	protected static void createTable(final String tableName, final String fieldDefs, final List<String> indexSQL, final boolean cached, final boolean suppressWarnings) {
@@ -654,12 +649,12 @@ public class DBKernel {
 		return getUsersFromChangeLog(tablename, null, username);
 	}
 
-	public static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
+	private static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
 			final String tablename, final Integer tableID, final String username) {
 		return getUsersFromChangeLog(null, tablename, tableID, username, false);
 	}
 
-	public static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
+	static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
 			final Statement anfrage, final String tablename,
 			final Integer tableID, final String username,
 			final boolean showDeletedAsWell) {
@@ -996,7 +991,7 @@ public class DBKernel {
 		}
 	}
 
-	public static Connection getDefaultConnection() {
+	private static Connection getDefaultConnection() {
 		Connection result = null;
 		String connStr = "jdbc:default:connection";
 		try {
@@ -1007,7 +1002,7 @@ public class DBKernel {
 		return result;
 	}
 
-	public static Connection getDBConnection(boolean suppressWarnings)
+	static Connection getDBConnection(boolean suppressWarnings)
 			throws Exception {
 		return getDBConnection(HSHDB_PATH, DBKernel.m_Username,
 				DBKernel.m_Password, false, suppressWarnings);
@@ -1056,7 +1051,7 @@ public class DBKernel {
 	}
 
 	// newConn wird nur von MergeDBs benötigt
-	public static Connection getDBConnection(final String dbPath,
+	static Connection getDBConnection(final String dbPath,
 			final String theUsername, final String thePassword,
 			final boolean newConn) throws Exception {
 		return getDBConnection(dbPath, theUsername, thePassword, newConn, false);
@@ -1076,7 +1071,7 @@ public class DBKernel {
 		return localConn;
 	}
 
-	public static Connection getDefaultAdminConn(final String dbPath,
+	private static Connection getDefaultAdminConn(final String dbPath,
 			final boolean newConn, final boolean suppressWarnings)
 			throws Exception {
 		Connection result = getDBConnection(dbPath, getTempSA(dbPath),
@@ -1085,7 +1080,7 @@ public class DBKernel {
 	}
 
 	// newConn wird nur von MergeDBs und Bfrdb benötigt
-	public static Connection getDefaultAdminConn(final String dbPath,
+	static Connection getDefaultAdminConn(final String dbPath,
 			final boolean newConn) throws Exception {
 		Connection result = getDBConnection(dbPath, getTempSA(dbPath),
 				getTempSAPass(dbPath), newConn);
@@ -1111,7 +1106,7 @@ public class DBKernel {
 		}
 	}
 
-	public static Connection getNewServerConnection(final String dbUsername,
+	static Connection getNewServerConnection(final String dbUsername,
 			final String dbPassword, final String serverPath) throws Exception {
 		return getNewServerConnection(dbUsername, dbPassword, serverPath, false);
 	}
@@ -1163,12 +1158,12 @@ public class DBKernel {
 		return result;
 	}
 
-	public static Connection getNewLocalConnection(final String dbUsername,
+	static Connection getNewLocalConnection(final String dbUsername,
 			final String dbPassword, final String dbFile) throws Exception {
 		return getNewLocalConnection(dbUsername, dbPassword, dbFile, false);
 	}
 
-	public static Connection getNewLocalConnection(final String dbUsername,
+	static Connection getNewLocalConnection(final String dbUsername,
 			final String dbPassword, final String dbFile,
 			final boolean suppressWarnings) throws Exception {
 		// startHsqldbServer("c:/tmp/DB", "DB");
@@ -1405,7 +1400,7 @@ public class DBKernel {
 				false);
 	}
 
-	public static Object getValue(Connection conn, final String tablename,
+	private static Object getValue(Connection conn, final String tablename,
 			final String[] feldname, final String[] feldVal,
 			final String desiredColumn, boolean suppressWarnings) {
 		Object result = null;
@@ -1550,7 +1545,7 @@ public class DBKernel {
 				goDeeper, forceUpdate, null);
 	}
 
-	public static LinkedHashMap<Object, String> fillHashtable(
+	private static LinkedHashMap<Object, String> fillHashtable(
 			final MyTable theTable, final String startDelim,
 			final String delimiter, final String endDelim,
 			final boolean goDeeper, final boolean forceUpdate,
@@ -1761,7 +1756,7 @@ public class DBKernel {
 		return null;
 	}
 
-	public static ResultSet getResultSet(final Statement anfrage,
+	static ResultSet getResultSet(final Statement anfrage,
 			final String sql, final boolean suppressWarnings) {
 		ResultSet ergebnis = null;
 		try {
@@ -1866,7 +1861,7 @@ public class DBKernel {
 		return result;
 	}
 
-	public static String sendRequestGetErr(final String sql) {
+	static String sendRequestGetErr(final String sql) {
 		String result = "";
 		try {
 			getDBConnection();
@@ -1887,11 +1882,11 @@ public class DBKernel {
 				|| tableName.equals("Methodiken");
 	}
 
-	public static int countUsers(boolean adminsOnly) {
+	static int countUsers(boolean adminsOnly) {
 		return countUsers(localConn, adminsOnly);
 	}
 
-	public static int countUsers(Connection conn, boolean adminsOnly) {
+	static int countUsers(Connection conn, boolean adminsOnly) {
 		int result = -1;
 		ResultSet rs = getResultSet(conn,
 				"SELECT COUNT(*) FROM "
@@ -1945,7 +1940,7 @@ public class DBKernel {
 		return isAdmin(null, un);
 	}
 
-	public static boolean isAdmin(Connection conn, String un) { // nur der Admin
+	private static boolean isAdmin(Connection conn, String un) { // nur der Admin
 																// kann
 																// überhaupt die
 																// Users Tabelle
@@ -1990,7 +1985,7 @@ public class DBKernel {
 		return DBFilesDa(DBKernel.HSHDB_PATH);
 	}
 
-	public static boolean DBFilesDa(String path) {
+	static boolean DBFilesDa(String path) {
 		boolean result = false;
 		File f = new File(path + "DB.script");
 		if (!f.exists()) {
@@ -2118,7 +2113,7 @@ public class DBKernel {
 		return getDBVersion(null);
 	}
 
-	public static String getDBVersion(Connection conn) {
+	private static String getDBVersion(Connection conn) {
 		String result = null;
 		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert")
 				+ " FROM " + delimitL("Infotabelle") + " WHERE "
@@ -2138,7 +2133,7 @@ public class DBKernel {
 		setDBVersion(null, dbVersion);
 	}
 
-	public static void setDBVersion(Connection conn, final String dbVersion) {
+	private static void setDBVersion(Connection conn, final String dbVersion) {
 		if (!DBKernel.sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + dbVersion + "')", true, false)) {
 			DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion
 					+ "'" + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
@@ -2154,24 +2149,7 @@ public class DBKernel {
 		return file.length();
 	}
 
-	/*
-	 * public static boolean isDBL(MyTable myT, int column) { boolean result =
-	 * false; String[] mnTable = myT.getMNTable(); if (column > 0 && mnTable !=
-	 * null && column-1 < mnTable.length && mnTable[column - 1] != null &&
-	 * mnTable[column - 1].equals("DBL")) result = true; return result; }
-	 */
-	public static boolean isNewDBL(final MyTable myT, final int column) {
-		boolean result = false;
-		MyTable[] myFs = myT.getForeignFields();
-		if (column > 0 && myFs != null && column - 1 < myFs.length
-				&& myFs[column - 1] != null
-				&& myFs[column - 1].getTablename().equals("DoubleKennzahlen")) {
-			result = true;
-		}
-		return result;
-	}
-
-	public static void grantDefaults(final String tableName) {
+	static void grantDefaults(final String tableName) {
 		DBKernel.sendRequest("GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("PUBLIC"), false);
 		if (tableName.startsWith("Codes_")) {
 			DBKernel.sendRequest("GRANT SELECT ON TABLE " + DBKernel.delimitL(tableName) + " TO " + DBKernel.delimitL("WRITE_ACCESS"), false);
@@ -2788,7 +2766,7 @@ public class DBKernel {
 		}
 	}
 
-	public static String getDBUUID(Connection conn, boolean tryOnceAgain)
+	private static String getDBUUID(Connection conn, boolean tryOnceAgain)
 			throws SQLException {
 		String result = null;
 		ResultSet rs = getResultSet(

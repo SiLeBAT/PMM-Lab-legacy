@@ -46,17 +46,17 @@ public class MyImageCell extends JLabel implements CellComponent {
 	 * 
 	 */
 	private static final long serialVersionUID = 4895061240137425505L;
-	static final int IMAGE = 0;
-  static final int MUSIC = 1;
-  static final int WWW = 2;
-  static final int TEXT = 3;
+	private static final int IMAGE = 0;
+  
+  private static final int WWW = 2;
+  private static final int TEXT = 3;
   public static final int DATETIME = 4;
   public static final int DATE = 5;
 
-  int cellType;
-  String text;
+  private int cellType;
+  
 
-  public MyImageCell(int cellType, Object o) {
+  private MyImageCell(int cellType, Object o) {
     this.setText("");
     this.setHorizontalAlignment(SwingConstants.CENTER);
     this.cellType = cellType;

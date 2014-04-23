@@ -47,7 +47,7 @@ import quick.dbtable.DBTableErrorListener;
  * @author Weiser
  *
  */
-public class MyDBTableErrorListener implements DBTableErrorListener {
+class MyDBTableErrorListener implements DBTableErrorListener {
 	
 	public boolean errorOccured(int errorId, String errorMessage, Exception unexpectedException) {
 		if (errorId == 6) {

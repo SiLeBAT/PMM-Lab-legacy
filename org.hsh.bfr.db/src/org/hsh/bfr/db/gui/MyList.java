@@ -88,7 +88,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	 */
 	private static final long serialVersionUID = 5697967857506372930L;
 	private InvisibleNode root = null;
-	LinkedHashMap<Integer, String> myTs = null;
+	private LinkedHashMap<Integer, String> myTs = null;
 	private HashMap<Integer, Integer> indexMap = null;
 	private InvisibleNode[] children = null;
 	private MyDBTable myDB = null;
@@ -195,7 +195,7 @@ public void valueChanged(final TreeSelectionEvent event) {
   public boolean setSelection(final String selection) {
   	return walk(this.getModel(), this.getModel().getRoot(), selection);  
   }
-  protected boolean walk(final TreeModel model, final Object o, final String selection) {
+  private boolean walk(final TreeModel model, final Object o, final String selection) {
     int cc;
     cc = model.getChildCount(o);
     for (int i=0; i < cc; i++) {

@@ -64,7 +64,7 @@ public class MyComboBoxEditor implements CellComponent {
 		refreshHashboxes(hash);
 	}
 
-	public void refreshHashboxes(LinkedHashMap<Object, String> hashBox) {
+	private void refreshHashboxes(LinkedHashMap<Object, String> hashBox) {
 		this.hash = hashBox;
 		if (isRenderer) {
 			myTA = new JTextArea();

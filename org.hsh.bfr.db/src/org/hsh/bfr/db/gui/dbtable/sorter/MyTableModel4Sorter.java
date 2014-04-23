@@ -53,7 +53,7 @@ public class MyTableModel4Sorter extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 	private MyDBTable myDB;
 	private JTable table;
-	Object[][] o;
+	private Object[][] o;
 	
 	public MyTableModel4Sorter(MyDBTable myDB) {
 		this.table = myDB.getTable();

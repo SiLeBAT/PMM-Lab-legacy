@@ -52,7 +52,7 @@ public class MyLogger {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.S");	
 	public static boolean isKNIME = false;
 	
-	static public void setup(String path) {
+	static void setup(String path) {
 	    try {
 	    	File file = new File(path);
 	    	file.getParentFile().mkdirs();
@@ -66,7 +66,7 @@ public class MyLogger {
 	public static void handleException(Exception e) {
 		handleException(e, false);
 	}
-	public static void handleException(Exception e, boolean forceMessage) {
+	static void handleException(Exception e, boolean forceMessage) {
 		if (isKNIME &&
 				(e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 			;

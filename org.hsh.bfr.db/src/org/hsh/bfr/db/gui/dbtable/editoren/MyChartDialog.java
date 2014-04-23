@@ -67,7 +67,7 @@ import edu.hws.jcm.awt.*;
 /**
  * @author Armin Weiser
  */
-public class MyChartDialog extends JDialog {
+class MyChartDialog extends JDialog {
 	
     /**
 	 * 
@@ -78,7 +78,7 @@ public class MyChartDialog extends JDialog {
     private String Datenpunkte = "";
     private String origDatenpunkte;
     
-	public MyChartDialog(JDialog owner, String Datenpunkte, String xAxis, String yAxis) {
+	MyChartDialog(JDialog owner, String Datenpunkte, String xAxis, String yAxis) {
 		super(owner);
 		this.Datenpunkte = Datenpunkte;
 		origDatenpunkte = Datenpunkte;
@@ -374,7 +374,7 @@ public class MyChartDialog extends JDialog {
     	}
     	return result;
     }
-    public void parseString(XYSeries series, String function, String interval) { 	   
+    private void parseString(XYSeries series, String function, String interval) { 	   
         Parser parser = new Parser();      // Create the parser and the variable, x.
         Variable x = new Variable("x");
         parser.add(x);

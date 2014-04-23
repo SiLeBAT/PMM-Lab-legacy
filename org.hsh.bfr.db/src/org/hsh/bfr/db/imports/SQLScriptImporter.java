@@ -31,7 +31,7 @@ public class SQLScriptImporter implements MyImporter {
 	public SQLScriptImporter() {
 		this(false);
 	}
-	public SQLScriptImporter(boolean doSqlTool) {
+	private SQLScriptImporter(boolean doSqlTool) {
 		this.doSqlTool = doSqlTool;
 		this.delimiter = ";";
 	}

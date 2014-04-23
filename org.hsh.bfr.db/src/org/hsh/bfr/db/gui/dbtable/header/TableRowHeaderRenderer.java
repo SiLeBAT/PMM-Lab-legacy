@@ -57,7 +57,7 @@ public class TableRowHeaderRenderer extends DefaultTableCellRenderer { //  imple
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	protected Border noFocusBorder, focusBorder;
+	private Border noFocusBorder, focusBorder;
 
     public TableRowHeaderRenderer() {
         setOpaque(true);

@@ -57,7 +57,7 @@ public class SelectionDialog extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = -7519197156831734827L;
-	MyList myList;
+	private MyList myList;
 	public SelectionDialog(MyList myList) {
 		this.myList = myList;
 		initComponents();						

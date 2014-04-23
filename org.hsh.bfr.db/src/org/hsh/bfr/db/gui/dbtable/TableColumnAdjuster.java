@@ -58,7 +58,7 @@ import javax.swing.table.*;
  *  or more of the other columns must decrease. Because of this the resize mode
  *  of RESIZE_ALL_COLUMNS will work the best.
  */
-public class TableColumnAdjuster implements PropertyChangeListener, TableModelListener
+class TableColumnAdjuster implements PropertyChangeListener, TableModelListener
 {
 	private JTable table;
 	private int spacing;
@@ -71,7 +71,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Specify the table and use default spacing
 	 */
-	public TableColumnAdjuster(JTable table)
+	TableColumnAdjuster(JTable table)
 	{
 		this(table, 6);
 	}
@@ -79,7 +79,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Specify the table and spacing
 	 */
-	public TableColumnAdjuster(JTable table, int spacing)
+	private TableColumnAdjuster(JTable table, int spacing)
 	{
 		this.table = table;
 		this.spacing = spacing;
@@ -93,7 +93,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Adjust the widths of all the columns in the table
 	 */
-	public void adjustColumns()
+	void adjustColumns()
 	{
 		TableColumnModel tcm = table.getColumnModel();
 
@@ -106,7 +106,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Adjust the width of the specified column in the table
 	 */
-	public void adjustColumn(final int column)
+	private void adjustColumn(final int column)
 	{
 		TableColumn tableColumn = table.getColumnModel().getColumn(column);
 
@@ -204,7 +204,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Restore the widths of the columns in the table to its previous width
 	 */
-	public void restoreColumns()
+	private void restoreColumns()
 	{
 		TableColumnModel tcm = table.getColumnModel();
 
@@ -380,7 +380,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 	/*
 	 *  Action to adjust or restore the width of a single column or all columns
 	 */
-	class ColumnAction extends AbstractAction
+	private class ColumnAction extends AbstractAction
 	{
     	/**
 		 * 
@@ -389,7 +389,7 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 		private boolean isSelectedColumn;
     	private boolean isAdjust;
 
-		public ColumnAction(boolean isSelectedColumn, boolean isAdjust)
+		private ColumnAction(boolean isSelectedColumn, boolean isAdjust)
 		{
 			this.isSelectedColumn = isSelectedColumn;
 			this.isAdjust = isAdjust;
@@ -422,39 +422,5 @@ public class TableColumnAdjuster implements PropertyChangeListener, TableModelLi
 		}
 	}
 
-	/*
-	 *  Toggle properties of the TableColumnAdjuster so the user can
-	 *  customize the functionality to their preferences
-	 */
-	class ToggleAction extends AbstractAction
-	{
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = -2554838979759446703L;
-		private boolean isToggleDynamic;
-		private boolean isToggleLarger;
-
-		public ToggleAction(boolean isToggleDynamic, boolean isToggleLarger)
-		{
-			this.isToggleDynamic = isToggleDynamic;
-			this.isToggleLarger = isToggleLarger;
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			if (isToggleDynamic)
-			{
-				setDynamicAdjustment(! isDynamicAdjustment);
-				return;
-			}
-
-			if (isToggleLarger)
-			{
-				setOnlyAdjustLarger(! isOnlyAdjustLarger);
-				return;
-			}
-		}
-	}
+	
 }

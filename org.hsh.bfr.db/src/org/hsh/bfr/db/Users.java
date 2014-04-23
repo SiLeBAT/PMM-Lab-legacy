@@ -42,21 +42,18 @@ import java.util.LinkedHashMap;
  * @author Armin
  *
  */
-public class Users {
+class Users {
 
-	public static int READ_ONLY = 0;	
-	public static int WRITE_ACCESS = 10;
-	public static int SUPER_WRITE_ACCESS = 20;
-	public static int ADMIN = 30;
+	static int READ_ONLY = 0;	
+	static int WRITE_ACCESS = 10;
+	static int SUPER_WRITE_ACCESS = 20;
+	static int ADMIN = 30;
 	
 	private int accRight;
 	private String username;
   
-	public Users(String username, int accRight) {
-		this.username = username;
-		this.accRight = accRight;
-	}
-  public static LinkedHashMap<Object, String> getUserTypesHash() {
+	
+  static LinkedHashMap<Object, String> getUserTypesHash() {
   	LinkedHashMap<Object, String> result = new LinkedHashMap<Object, String>();
   	result.put(READ_ONLY, "READ_ONLY");					
   	result.put(WRITE_ACCESS, "WRITE_ACCESS");					

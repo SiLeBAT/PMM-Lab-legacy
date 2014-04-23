@@ -222,7 +222,7 @@ public class Hsqldbiface {
 	public ResultSet pushQuery(String query) throws SQLException {	
 		return pushQuery(query, false);
 	}
-	public ResultSet pushQuery(String query, boolean inclBackwardResultSets) throws SQLException {		
+	private ResultSet pushQuery(String query, boolean inclBackwardResultSets) throws SQLException {		
 		Statement statement = inclBackwardResultSets ? conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY) : conn.createStatement();
 		//System.err.println(query);
 		ResultSet result = statement.executeQuery(query);

@@ -27,7 +27,7 @@ public class UnitsFromDB {
 	public UnitsFromDB() {
 		
 	}
-	public UnitsFromDB(int id, String unit, String description, String name, String kind_of_property_quantity,
+	private UnitsFromDB(int id, String unit, String description, String name, String kind_of_property_quantity,
 			String notation_case_sensitive, String convert_to, String conversion_function_factor, String inverse_conversion_function_factor,
 			String object_type, String display_in_GUI_as, String MathML_string, String Priority_for_display_in_GUI) {
 		this.id = id;

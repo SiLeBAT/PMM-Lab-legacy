@@ -50,17 +50,17 @@ public class InvisibleNode extends DefaultMutableTreeNode {
 	    this(null);
 	  }
 
-	  public InvisibleNode(Object userObject) {
+	  InvisibleNode(Object userObject) {
 	    this(userObject, true, true);
 	  }
 
-	  public InvisibleNode(Object userObject, boolean allowsChildren,
+	  private InvisibleNode(Object userObject, boolean allowsChildren,
 	      boolean isVisible) {
 	    super(userObject, allowsChildren);
 	    this.isVisible = isVisible;
 	  }
 
-	  public TreeNode getChildAt(int index, boolean filterIsActive) {
+	  TreeNode getChildAt(int index, boolean filterIsActive) {
 	    if (!filterIsActive) {
 	      return super.getChildAt(index);
 	    }
@@ -86,7 +86,7 @@ public class InvisibleNode extends DefaultMutableTreeNode {
 	    //return (TreeNode)children.elementAt(index);
 	  }
 
-	  public int getChildCount(boolean filterIsActive) {
+	  int getChildCount(boolean filterIsActive) {
 	    if (!filterIsActive) {
 	      return super.getChildCount();
 	    }

@@ -105,7 +105,7 @@ public class MainFrame extends JFrame {
 		addBindings();
 		//this.setExtendedState(this.getExtendedState()|JFrame.MAXIMIZED_BOTH);
 	}
-  protected void addBindings() {
+  private void addBindings() {
     InputMap inputMap = toolBar1.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
     ActionMap actionMap = toolBar1.getActionMap();
 

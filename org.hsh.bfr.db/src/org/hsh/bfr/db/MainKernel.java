@@ -57,7 +57,7 @@ import org.hsqldb.server.Server;
 public class MainKernel {
 
 	public static long triggerFired = System.currentTimeMillis();
-	public static boolean dontLog = false;
+	static boolean dontLog = false;
 	private static boolean isServer = false;
 	private static Server s = null;
 	
@@ -120,7 +120,7 @@ public class MainKernel {
     	MyLogger.handleMessage("fin CHECKPOINT DEFRAG!");		
 	}
 	*/
-	public static void dbBackup() {
+	static void dbBackup() {
 		for (int i=0;i<dbDefs.length;i++) {
     	    try {
     	    	Connection conn = getDefaultAdminConn(i);
@@ -155,7 +155,7 @@ public class MainKernel {
 	    return result;
 	}
 
-	public static boolean isServer() {
+	static boolean isServer() {
 		return isServer;
 	}
 	private static boolean different(final Object[] rowBefore, final Object[] rowAfter) {
@@ -217,7 +217,7 @@ public class MainKernel {
 	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
 		return insertIntoChangeLog(tablename, rowBefore, rowAfter, false);
 	}
-	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
+	private static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
 		if (dontLog) {
 			return true;
 		}
@@ -288,7 +288,7 @@ public class MainKernel {
 			} 
 		  	return username;
 		  }
-	  public static Connection getDefaultConnection() {
+	  private static Connection getDefaultConnection() {
 		  Connection result = null;
 		    String connStr = "jdbc:default:connection";
 		    try {
@@ -299,14 +299,14 @@ public class MainKernel {
 		    }
 		    return result;
 	  }
-	  public static String delimitL(final String name) {
+	  static String delimitL(final String name) {
 		    String newName = name.replace("\"", "\"\"");
 		    return "\"" + newName + "\"";
 		  }
-	  public static boolean sendRequest(final String sql, final boolean suppressWarnings) {
+	  static boolean sendRequest(final String sql, final boolean suppressWarnings) {
 		  return sendRequest(sql, suppressWarnings, null);
 	  }
-	  public static boolean sendRequest(final String sql, final boolean suppressWarnings, Connection conn) {
+	  private static boolean sendRequest(final String sql, final boolean suppressWarnings, Connection conn) {
 		  boolean result = false;
 		    try {
 		    	if (conn == null) {

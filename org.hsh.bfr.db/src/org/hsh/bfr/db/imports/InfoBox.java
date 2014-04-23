@@ -39,9 +39,9 @@ public class InfoBox extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-String inhalt = "";
+private String inhalt = "";
 
-  public InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font) {
+  InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font) {
 	  this(inhalt, keyDispose, dim, font, false);
   }
   public InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal) {
@@ -91,7 +91,7 @@ String inhalt = "";
 	      }	  
   }
 
-  void okButton_actionPerformed(ActionEvent e) {
+  private void okButton_actionPerformed(ActionEvent e) {
     dispose();
   }
 

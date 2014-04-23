@@ -1249,7 +1249,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		
 		return result;
 	}
-	class XlsFileFilter extends FileFilter {
+	private class XlsFileFilter extends FileFilter {
 	    public boolean accept(File f) {
 	        return f.isDirectory() || f.getName().toLowerCase().endsWith(".xls");
 	    }

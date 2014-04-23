@@ -55,7 +55,7 @@ public class Backup extends FileFilter {
 	  public static boolean dbBackup() {
 		  return dbBackup(DBKernel.mainFrame);
 	  }
-	public static boolean dbBackup(final JFrame frame) {
+	static boolean dbBackup(final JFrame frame) {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
 	  JFileChooser fc = new JFileChooser(lastOutDir);
 	  Backup bkp = new Backup();
@@ -184,7 +184,7 @@ public class Backup extends FileFilter {
   public static boolean doRestore(final MyDBTable myDB, final File scriptFile, final boolean silent) {
 	  return doRestore(DBKernel.HSHDB_PATH, myDB, scriptFile, silent, true);
   }
-  public static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
+  static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
 	  boolean result = true;
   	if (scriptFile != null && scriptFile.exists()) {
   		if (!silent) {

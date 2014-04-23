@@ -51,12 +51,12 @@ import quick.dbtable.DBTableCellListener;
  * @author Armin
  *
  */
-public class MyTableCellListener implements DBTableCellListener {
+class MyTableCellListener implements DBTableCellListener {
 	
 	private MyDBTable theTable = null;
 	private MyTable myT = null;
 	
-	public MyTableCellListener(MyDBTable theTable) {
+	MyTableCellListener(MyDBTable theTable) {
 		this.theTable = theTable;
 		myT = theTable.getActualTable();
 	}

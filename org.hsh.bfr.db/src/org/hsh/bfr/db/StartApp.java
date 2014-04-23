@@ -51,7 +51,7 @@ import com.jgoodies.looks.windows.WindowsLookAndFeel;
  *
  */
 
-public class StartApp {
+class StartApp {
 
 	public static void main(final String[] args) {
 	    try {
@@ -74,7 +74,7 @@ public class StartApp {
 
 	      go(null);
 	}
-	public static void go(final Connection conn) {
+	static void go(final Connection conn) {
 		if (!DBKernel.debug) {
 	  		MyLogger.setup(DBKernel.HSH_PATH + "LOGs" + System.getProperty("file.separator") + "log_" + System.currentTimeMillis() + ".txt");
 	  	}

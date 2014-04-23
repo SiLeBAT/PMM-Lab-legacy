@@ -69,21 +69,16 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
 	private static final long serialVersionUID = 1L;
 //static final long serialVersionUID = 8847671986526504938L;
   
-  protected Vector<CellEditorListener> listeners = new Vector<CellEditorListener>();
-  Point screenLoc;
-  MyDBTable table = null;
-  String endungen = "";
-  int selectedColumn;
-  boolean openPressed = false;
-  EventObject sourceEvent = null;
+  private Vector<CellEditorListener> listeners = new Vector<CellEditorListener>();
+  private Point screenLoc;
+  private MyDBTable table = null;
+  private String endungen = "";
+  private int selectedColumn;
+  
+  private EventObject sourceEvent = null;
   private long lastBLOBChosen = 0;
 
-  public BLOBEditor(int selectedColumn) {
-    this("", selectedColumn);
-  }
-  public BLOBEditor(String endungen, int selectedColumn) {
-    this(endungen, null, selectedColumn);
-  }
+  
   public BLOBEditor(String endungen, MyDBTable table, int selectedColumn) {
     super();
     //System.out.println("BLOBEditor");
@@ -98,7 +93,6 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
     try {
       this.addActionListener( new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-          openPressed = e.getActionCommand().equals("ApproveSelection"); //CancelSelection
           if (DBKernel.debug) System.out.println("lbs1: " + (System.currentTimeMillis() - lastBLOBChosen));
           if (e.getID() == ActionEvent.ACTION_PERFORMED && System.currentTimeMillis() - lastBLOBChosen > 1000) { // eine Sekunde sollte ausreichen, in meinen Tests warens immer ca. 220 ms. Falls nicht: was kann schon passieren? Doppelter Eintrag im DateiSpeicher -> nicht so dramatisch!
         	  lastBLOBChosen = System.currentTimeMillis();
@@ -290,8 +284,8 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
 		    else {
 		      //System.out.println("isCellEditable");
 		      sourceEvent = anEvent;
-		      this.setSelectedFile(null); openPressed = false;
-		    	return true;
+		      this.setSelectedFile(null);
+		    return true;
 		    }
 	  }
   	

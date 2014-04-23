@@ -56,7 +56,7 @@ import org.hsh.bfr.db.MyTable;
  * @author Armin
  *
  */
-public class MyDBTreeModel implements TreeModel {
+class MyDBTreeModel implements TreeModel {
 
 	private LinkedHashMap<Integer, DefaultMutableTreeNode>[] myIDs = null;	
 	private LinkedHashMap<Integer, DefaultMutableTreeNode>[] myFilterIDs = null;	
@@ -67,10 +67,8 @@ public class MyDBTreeModel implements TreeModel {
 	private String[] showOnly = null;
 	private int codeSystemNumTOP = -1;
 
-	  public MyDBTreeModel(final MyTable myT) {
-		  this(myT, null);
-	  }
-	public MyDBTreeModel(final MyTable myT, final String[] showOnly) {
+	  
+	MyDBTreeModel(final MyTable myT, final String[] showOnly) {
 		this.showOnly = showOnly;
 		knownCodeSysteme = DBKernel.myDBi.getKnownCodeSysteme();
 	  	setTable(myT);
@@ -295,7 +293,7 @@ public class MyDBTreeModel implements TreeModel {
 		}
 		return result;
 	}
-	public DefaultMutableTreeNode getTreeNode(final int id, final int codeSystemNum) {
+	DefaultMutableTreeNode getTreeNode(final int id, final int codeSystemNum) {
 		DefaultMutableTreeNode result = null;
 		LinkedHashMap<Integer, DefaultMutableTreeNode>[] theIDs = (filter.length() > 0) ? myFilterIDs : myIDs;
 		if (codeSystemNum < 0 && codeSystemNumTOP >= 0) {
@@ -313,7 +311,7 @@ public class MyDBTreeModel implements TreeModel {
 		return result;
 	}
 	
-	public void checkFilter(final String filter) {
+	void checkFilter(final String filter) {
 		this.filter = filter;
 		if (filter.length() > 0) {
 			setInvisible(root);

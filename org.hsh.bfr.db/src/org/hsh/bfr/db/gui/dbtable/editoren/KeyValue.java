@@ -40,7 +40,7 @@ package org.hsh.bfr.db.gui.dbtable.editoren;
  * @author Armin
  *
  */
-public class KeyValue {
+class KeyValue {
 
   private Object key;
   private Object value;

@@ -316,7 +316,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 	/**
 	 * Check whether the source is in the correct format for this importer.
 	 */
-	public boolean isRecognizedFormat(InputStream stream) throws IOException {
+	private boolean isRecognizedFormat(InputStream stream) throws IOException {
 	
 		// Our strategy is to look for the "AU  - *" line.
 		BufferedReader in = new BufferedReader(getReaderDefaultEncoding(stream));
@@ -338,7 +338,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
 	 * Parse the entries in the source, and return a List of BibtexEntry
 	 * objects.
 	 */
-	public LinkedHashMap<BibtexEntry, String> importEntries(InputStream stream) throws IOException {
+	private LinkedHashMap<BibtexEntry, String> importEntries(InputStream stream) throws IOException {
 		LinkedHashMap<BibtexEntry, String> bibitems = new LinkedHashMap<BibtexEntry, String>();
 		StringBuffer sb = new StringBuffer();
 		BufferedReader in = new BufferedReader(getReaderDefaultEncoding(stream));

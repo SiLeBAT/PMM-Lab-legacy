@@ -47,7 +47,7 @@ public class SelectionAction extends AbstractAction {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-		MyList myList;
+		private MyList myList;
 	  public SelectionAction(String name, Icon icon, String toolTip, MyList myList) {
 	    this.myList = myList;
 		putValue(Action.NAME, name);

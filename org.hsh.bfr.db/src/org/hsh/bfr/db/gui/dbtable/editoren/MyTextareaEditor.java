@@ -65,7 +65,6 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
 	private static final long serialVersionUID = 1L;
 	//private MyDBTable myDB = null;
 	private JScrollPane myScroller = null;
-	private ActionListener listener = null;
 	private boolean isMiscParam = false;
   
 	public MyTextareaEditor(MyDBTable myDB, String tableName, String columnName) {
@@ -93,12 +92,8 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
   }
 
   public void addActionListener(ActionListener listener) {
-  	this.listener = listener;
-  	// listener.actionPerformed( null );
   }
-  public void valueChangedInMyJComponent() {
-    listener.actionPerformed( null );
-  }
+  
 
 	private void filterIM() {
 		KeyStroke[] disableKeys = new KeyStroke[] {KeyStroke.getKeyStroke("TAB"),KeyStroke.getKeyStroke("ENTER"),KeyStroke.getKeyStroke("ESCAPE")};

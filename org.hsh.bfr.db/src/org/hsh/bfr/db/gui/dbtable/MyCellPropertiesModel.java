@@ -49,7 +49,7 @@ import quick.dbtable.CellPropertiesModel;
  * @author Armin
  *
  */
-public class MyCellPropertiesModel extends CellPropertiesModel {
+class MyCellPropertiesModel extends CellPropertiesModel {
 
 	/**
 	 * 
@@ -60,7 +60,7 @@ public class MyCellPropertiesModel extends CellPropertiesModel {
 	private MyDBTable myDBTable;
 	//Font ft = new Font();
 	
-	public MyCellPropertiesModel(MyDBTable myDBTable) {
+	MyCellPropertiesModel(MyDBTable myDBTable) {
 		this.myDBTable = myDBTable;
 	}
 

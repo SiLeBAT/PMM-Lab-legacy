@@ -1042,7 +1042,7 @@ public class UpdateChecker {
 	public static void check4Updates_138_139() {
 		check4Updates_138_139(false);
 	}
-	public static void check4Updates_138_139(final boolean weseSpecial) {
+	private static void check4Updates_138_139(final boolean weseSpecial) {
 		if (!weseSpecial) {
 			DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Prozessdaten") +
 					" ADD COLUMN " + DBKernel.delimitL("ProzessDetail") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kapazitaet"), false);
@@ -1335,53 +1335,9 @@ public class UpdateChecker {
 	    	}
 	    }
 	}
-	/*
-	private static void dropTriggers(final String tableName) {
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_U"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_D"), false);
-		DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("A_" + tableName + "_I"), false);
-		if (tableName.equals("Prozess_Workflow")) {
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_Prozess-Workflow_U"), true);
-			DBKernel.sendRequest("DROP TRIGGER " + DBKernel.delimitL("B_Prozess_Workflow_U"), false);
-		}
-	}
-	*/
-	public static void doStatUpGrants() {
-		DBKernel.grantDefaults("Modellkatalog");
-		DBKernel.grantDefaults("ModellkatalogParameter");
-		DBKernel.grantDefaults("Modell_Referenz");
-		DBKernel.grantDefaults("GeschaetzteModelle");
-		DBKernel.grantDefaults("GeschaetztesModell_Referenz");
-		DBKernel.grantDefaults("GeschaetzteParameter");
-		DBKernel.grantDefaults("GeschaetzteParameterCovCor");
-		DBKernel.grantDefaults("Sekundaermodelle_Primaermodelle");
-	}
-	public static void doJansGrants() {
-		DBKernel.grantDefaults("Verwendung");
-		DBKernel.grantDefaults("Preharvest");
-		DBKernel.grantDefaults("Harvest");
-		DBKernel.grantDefaults("Produkt");
-		DBKernel.grantDefaults("Transport");
-		DBKernel.grantDefaults("Exposition");
-		DBKernel.grantDefaults("Risikocharakterisierung");
-		
-		DBKernel.grantDefaults("Methoden_Software");
-		DBKernel.grantDefaults("Resistenz");
-		DBKernel.grantDefaults("Laender");
-		DBKernel.grantDefaults("Modell");
-		DBKernel.grantDefaults("Modell_Verwendung_Verbund");
-		DBKernel.grantDefaults("Modell_Resistenz_Verbund");
-		DBKernel.grantDefaults("Modell_Agenzien_Verbund");
-		DBKernel.grantDefaults("Modell_Software_Verbund");
-		DBKernel.grantDefaults("Modell_Preharvest_Verbund");
-		DBKernel.grantDefaults("Modell_Harvest_Verbund");
-		DBKernel.grantDefaults("Modell_Zwischenprodukt_Verbund");
-		DBKernel.grantDefaults("Modell_Einzelhandelsprodukt_Verbund");
-		DBKernel.grantDefaults("Modell_Transport_Verbund");
-		DBKernel.grantDefaults("Modell_Exposition_Verbund");
-		DBKernel.grantDefaults("Modell_Risikocharakterisierung_Verbund");
-	}
-	public static void dropJansTabellen() {
+	
+	
+	private static void dropJansTabellen() {
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Modell_Verwendung_Verbund") + " IF EXISTS", false);
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Modell_Resistenz_Verbund") + " IF EXISTS", false);
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Modell_Agenzien_Verbund") + " IF EXISTS", false);

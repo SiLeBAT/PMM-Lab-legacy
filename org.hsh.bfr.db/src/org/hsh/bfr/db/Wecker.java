@@ -46,19 +46,17 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-public class Wecker {
+class Wecker {
 
     private final Timer timer = new Timer();
     private final double hours;
 
-    public Wecker(double hours) {
+    Wecker(double hours) {
       this.hours = hours;
     }
 
-    public void stop() {
-   	 timer.cancel();
-    }
-    public void start() {
+    
+    void start() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(new Date());
 		int diesestunde = cal.get(Calendar.HOUR_OF_DAY);

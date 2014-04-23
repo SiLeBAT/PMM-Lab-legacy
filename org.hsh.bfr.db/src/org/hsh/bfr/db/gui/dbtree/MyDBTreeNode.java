@@ -41,7 +41,7 @@ package org.hsh.bfr.db.gui.dbtree;
  * @author Armin
  *
  */
-public class MyDBTreeNode {
+class MyDBTreeNode {
 
 	private int id = -1;
 	private String code = "";
@@ -50,7 +50,7 @@ public class MyDBTreeNode {
 	private boolean isLeaf = false;
 	private boolean isVisible = true;
 	
-	public MyDBTreeNode(int id, String code, String description, boolean isLeaf, int codeSystemNum) {
+	MyDBTreeNode(int id, String code, String description, boolean isLeaf, int codeSystemNum) {
 		this.id = id;
 		this.code = code;
 		this.codeSystemNum = codeSystemNum;

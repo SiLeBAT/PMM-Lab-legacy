@@ -141,7 +141,7 @@ public class MyDBForm extends JPanel {
 		scrollBar1.setMinimum(1);
 		scrollBar1.setMaximum(DBKernel.getRowCount(myT.getTablename(), null) + 1 + scrollBar1.getVisibleAmount());
 	}
-	public boolean setTable(MyTable myT) {
+	boolean setTable(MyTable myT) {
 		initVal = 0;
 		this.myT = myT;
 		initSB();
@@ -312,7 +312,7 @@ public class MyDBForm extends JPanel {
 	}
 
 	
-	public void save() {
+	void save() {
 		//System.err.println("2Save");
 		//System.err.println(myT.getSelectSQL());
 		//System.err.println(myT.getUpdateSQL1());
@@ -380,7 +380,7 @@ public class MyDBForm extends JPanel {
 		}			
 	      return allNull;
 	}
-	public void deleteRow() {
+	void deleteRow() {
 		if (!newDS()) {
 			int retVal = JOptionPane.showConfirmDialog(this, "Sind Sie sicher, daß Sie diesen Datensatz löschen möchten?",
 		    		"Löschen bestätigen", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
@@ -391,7 +391,7 @@ public class MyDBForm extends JPanel {
 		    }
 		}
 	}
-	public void gotoInsertNewRow() {
+	void gotoInsertNewRow() {
 		scrollBar1.setValue(scrollBar1.getMaximum());
 	}
 

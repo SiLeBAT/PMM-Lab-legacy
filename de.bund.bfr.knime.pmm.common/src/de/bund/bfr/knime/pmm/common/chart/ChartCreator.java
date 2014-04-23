@@ -37,6 +37,7 @@ import java.awt.Color;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +55,7 @@ import javax.swing.filechooser.FileFilter;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.labels.StandardXYToolTipGenerator;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.DeviationRenderer;
@@ -69,6 +71,8 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
 public class ChartCreator extends ChartPanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private List<ZoomListener> zoomListeners;
 
 	private Map<String, Plotable> plotables;
 	private Map<String, String> shortLegend;
@@ -93,12 +97,14 @@ public class ChartCreator extends ChartPanel {
 	private boolean showLegend;
 	private boolean addInfoInLegend;
 	private boolean showConfidenceInterval;
-	
+
 	private List<String> warnings;
 
 	public ChartCreator(Plotable plotable) {
 		super(new JFreeChart(new XYPlot()));
-		getPopupMenu().insert(new DataAndModelChartSaveAsItem(), 4);
+		zoomListeners = new ArrayList<ZoomListener>();
+		getPopupMenu().removeAll();
+		getPopupMenu().add(new DataAndModelChartSaveAsItem());
 		plotables = new LinkedHashMap<String, Plotable>();
 		shortLegend = new LinkedHashMap<String, String>();
 		longLegend = new LinkedHashMap<String, String>();
@@ -115,7 +121,9 @@ public class ChartCreator extends ChartPanel {
 	public ChartCreator(Map<String, Plotable> plotables,
 			Map<String, String> shortLegend, Map<String, String> longLegend) {
 		super(new JFreeChart(new XYPlot()));
-		getPopupMenu().insert(new DataAndModelChartSaveAsItem(), 4);
+		zoomListeners = new ArrayList<ZoomListener>();
+		getPopupMenu().removeAll();
+		getPopupMenu().add(new DataAndModelChartSaveAsItem());
 		this.plotables = plotables;
 		this.shortLegend = shortLegend;
 		this.longLegend = longLegend;
@@ -123,6 +131,34 @@ public class ChartCreator extends ChartPanel {
 		shapes = new LinkedHashMap<String, Shape>();
 		colorLists = new LinkedHashMap<String, List<Color>>();
 		shapeLists = new LinkedHashMap<String, List<Shape>>();
+	}
+	
+	public void addZoomListener(ZoomListener listener) {
+		zoomListeners.add(listener);
+	}
+
+	public void removeZoomListener(ZoomListener listener) {
+		zoomListeners.remove(listener);
+	}
+	
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		ValueAxis domainAxis = ((XYPlot) getChart().getPlot()).getDomainAxis();
+		ValueAxis rangeAxis = ((XYPlot) getChart().getPlot()).getRangeAxis();
+
+		Range xRange1 = domainAxis.getRange();
+		Range yRange1 = rangeAxis.getRange();
+		super.mouseReleased(e);
+		Range xRange2 = domainAxis.getRange();
+		Range yRange2 = rangeAxis.getRange();
+
+		if (!xRange1.equals(xRange2) || !yRange1.equals(yRange2)) {
+			minX = xRange2.getLowerBound();
+			maxX = xRange2.getUpperBound();
+			minY = yRange2.getLowerBound();
+			maxY = yRange2.getUpperBound();
+			fireZoomChanged();
+		}
 	}
 
 	public void createChart() {
@@ -365,7 +401,7 @@ public class ChartCreator extends ChartPanel {
 					unconvertable.add(e.getFromUnit());
 				}
 			}
-		}		
+		}
 
 		for (String id : idsToPaint) {
 			Plotable plotable = plotables.get(id);
@@ -572,6 +608,12 @@ public class ChartCreator extends ChartPanel {
 
 	public List<String> getWarnings() {
 		return warnings;
+	}
+	
+	private void fireZoomChanged() {
+		for (ZoomListener listener : zoomListeners) {
+			listener.zoomChanged();
+		}
 	}
 
 	private void plotDataSet(XYPlot plot, Plotable plotable, String id,
@@ -1111,7 +1153,7 @@ public class ChartCreator extends ChartPanel {
 		private static final long serialVersionUID = 1L;
 
 		public DataAndModelChartSaveAsItem() {
-			super("Save as... (SVG)");
+			super("Save as...");
 
 			addActionListener(this);
 		}
@@ -1139,22 +1181,49 @@ public class ChartCreator extends ChartPanel {
 							|| f.getName().toLowerCase().endsWith(".svg");
 				}
 			};
+			FileFilter pngFilter = new FileFilter() {
+
+				@Override
+				public String getDescription() {
+					return "Portable Network Graphics (*.png)";
+				}
+
+				@Override
+				public boolean accept(File f) {
+					return f.isDirectory()
+							|| f.getName().toLowerCase().endsWith(".png");
+				}
+			};
 
 			fileChooser.setAcceptAllFileFilterUsed(false);
+			fileChooser.addChoosableFileFilter(pngFilter);
 			fileChooser.addChoosableFileFilter(svgFilter);
 
 			if (fileChooser.showSaveDialog(ChartCreator.this) == JFileChooser.APPROVE_OPTION) {
 				String fileName = fileChooser.getSelectedFile().getName();
 				String path = fileChooser.getSelectedFile().getAbsolutePath();
 
-				if (fileName.toLowerCase().endsWith(".svg")) {
-					fireSaveAsButtonClicked(path);
-				} else {
-					fireSaveAsButtonClicked(path + ".svg");
+				if (fileChooser.getFileFilter() == svgFilter) {
+					if (fileName.toLowerCase().endsWith(".svg")) {
+						fireSaveAsButtonClicked(path);
+					} else {
+						fireSaveAsButtonClicked(path + ".svg");
+					}
+				} else if (fileChooser.getFileFilter() == pngFilter) {
+					if (fileName.toLowerCase().endsWith(".png")) {
+						fireSaveAsButtonClicked(path);
+					} else {
+						fireSaveAsButtonClicked(path + ".png");
+					}
 				}
 			}
 		}
 
+	}
+	
+	public static interface ZoomListener {
+
+		public void zoomChanged();
 	}
 
 }

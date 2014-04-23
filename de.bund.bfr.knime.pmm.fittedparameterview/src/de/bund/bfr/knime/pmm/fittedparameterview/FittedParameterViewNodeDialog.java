@@ -81,7 +81,8 @@ import de.bund.bfr.knime.pmm.common.ui.UI;
  */
 public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener, ChartConfigPanel.ExtraButtonListener {
+		ChartConfigPanel.ConfigListener, ChartConfigPanel.ExtraButtonListener,
+		ChartCreator.ZoomListener {
 
 	private DataTable table;
 	private TableReader reader;
@@ -172,6 +173,7 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
+		chartCreator.addZoomListener(this);
 		createChart();
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
@@ -403,6 +405,18 @@ public class FittedParameterViewNodeDialog extends DataAwareNodeDialogPane
 				dispose();
 			}
 		}
+	}
+
+	@Override
+	public void zoomChanged() {
+		configPanel.removeConfigListener(this);
+		configPanel.setUseManualRange(true);
+		configPanel.setMinX(chartCreator.getMinX());
+		configPanel.setMaxX(chartCreator.getMaxX());
+		configPanel.setMinY(chartCreator.getMinY());
+		configPanel.setMaxY(chartCreator.getMaxY());
+		configPanel.addConfigListener(this);
+		createChart();		
 	}
 
 }

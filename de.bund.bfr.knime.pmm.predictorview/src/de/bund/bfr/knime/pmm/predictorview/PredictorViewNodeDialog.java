@@ -96,7 +96,8 @@ import de.bund.bfr.knime.pmm.common.units.ConvertException;
  */
 public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
-		ChartConfigPanel.ExtraButtonListener, ChartSamplePanel.EditListener {
+		ChartConfigPanel.ExtraButtonListener, ChartSamplePanel.EditListener,
+		ChartCreator.ZoomListener {
 
 	private List<KnimeTuple> tuples;
 	private TableReader reader;
@@ -321,6 +322,7 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
+		chartCreator.addZoomListener(this);
 		samplePanel = new ChartSamplePanel();
 		samplePanel.setTimeValues(set.getTimeValues());
 		samplePanel.addEditListener(this);
@@ -755,6 +757,18 @@ public class PredictorViewNodeDialog extends DataAwareNodeDialogPane implements
 
 	public List<String> getWarnings() {
 		return warnings;
+	}
+
+	@Override
+	public void zoomChanged() {
+		configPanel.removeConfigListener(this);
+		configPanel.setUseManualRange(true);
+		configPanel.setMinX(chartCreator.getMinX());
+		configPanel.setMaxX(chartCreator.getMaxX());
+		configPanel.setMinY(chartCreator.getMinY());
+		configPanel.setMaxY(chartCreator.getMaxY());
+		configPanel.addConfigListener(this);
+		createChart();	
 	}
 
 }

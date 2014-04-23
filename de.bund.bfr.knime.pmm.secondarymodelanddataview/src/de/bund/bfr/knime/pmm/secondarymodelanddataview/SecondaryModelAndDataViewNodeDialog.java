@@ -74,7 +74,8 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.SchemaFactory;
  */
 public class SecondaryModelAndDataViewNodeDialog extends
 		DataAwareNodeDialogPane implements
-		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener {
+		ChartSelectionPanel.SelectionListener, ChartConfigPanel.ConfigListener,
+		ChartCreator.ZoomListener {
 
 	private TableReader reader;
 	private SettingsHelper set;
@@ -246,6 +247,7 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
+		chartCreator.addZoomListener(this);
 		createChart();
 
 		return new ChartAllPanel(chartCreator, selectionPanel, configPanel);
@@ -321,6 +323,18 @@ public class SecondaryModelAndDataViewNodeDialog extends
 		if (configPanel.isDisplayFocusedRow()) {
 			createChart();
 		}
+	}
+
+	@Override
+	public void zoomChanged() {
+		configPanel.removeConfigListener(this);
+		configPanel.setUseManualRange(true);
+		configPanel.setMinX(chartCreator.getMinX());
+		configPanel.setMaxX(chartCreator.getMaxX());
+		configPanel.setMinY(chartCreator.getMinY());
+		configPanel.setMaxY(chartCreator.getMaxY());
+		configPanel.addConfigListener(this);
+		createChart();
 	}
 
 }

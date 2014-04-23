@@ -75,7 +75,7 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
  */
 public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		implements ChartSelectionPanel.SelectionListener,
-		ChartConfigPanel.ConfigListener {
+		ChartConfigPanel.ConfigListener, ChartCreator.ZoomListener {
 
 	private TableReader reader;
 	private SettingsHelper set;
@@ -202,6 +202,7 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 		selectionPanel.addSelectionListener(this);
 		chartCreator = new ChartCreator(reader.getPlotables(),
 				reader.getShortLegend(), reader.getLongLegend());
+		chartCreator.addZoomListener(this);
 
 		if (set.getSelectedIDs() != null) {
 			selectionPanel.setSelectedIDs(set.getSelectedIDs());
@@ -275,6 +276,18 @@ public class ModelSelectionTertiaryNodeDialog extends DataAwareNodeDialogPane
 
 	@Override
 	public void configChanged() {
+		createChart();
+	}
+
+	@Override
+	public void zoomChanged() {
+		configPanel.removeConfigListener(this);
+		configPanel.setUseManualRange(true);
+		configPanel.setMinX(chartCreator.getMinX());
+		configPanel.setMaxX(chartCreator.getMaxX());
+		configPanel.setMinY(chartCreator.getMinY());
+		configPanel.setMaxY(chartCreator.getMaxY());
+		configPanel.addConfigListener(this);
 		createChart();
 	}
 }

@@ -233,14 +233,6 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		this.getTable().unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_F3,0));
 		this.getTable().unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
 		this.getTable().unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK));	
-/*
-		// JTable
-		KeyStroke[] keys = new KeyStroke[] {KeyStroke.getKeyStroke("F2")};
-		InputMap im = new MyFilteringInputmap(myDB.getTable().getInputMap(JComponent.WHEN_FOCUSED), keys);
-		myDB.getTable().setInputMap(JComponent.WHEN_FOCUSED, im);
-		im = new MyFilteringInputmap(myDB.getTable().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT), keys);
-		myDB.getTable().setInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT, im);
-*/
 	}
 	public MyCellPropertiesModel getMyCellPropertiesModel() {
 		return cpm;
@@ -1518,10 +1510,10 @@ if (myDBPanel1 != null) {
 	        @Override
 			public void adjustmentValueChanged(final AdjustmentEvent ae) {
 	          if (scrollBarVertical.getValueIsAdjusting()) {
-	        	  DBKernel.scrolling = true; //System.out.println("Value of vertical scroll bar: " + ae.getValue());
+	        	  //DBKernel.scrolling = true; //System.out.println("Value of vertical scroll bar: " + ae.getValue());
 	          }
 	    	  else {
-	    		  DBKernel.scrolling = false;
+	    		  //DBKernel.scrolling = false;
 	    		  myDB.repaint();
 	    	  }
 	        }
@@ -1532,10 +1524,10 @@ if (myDBPanel1 != null) {
 			      @Override
 				public void adjustmentValueChanged(final AdjustmentEvent ae) {
 			    	  if (scrollbarHorizontal.getValueIsAdjusting()) {
-			    		  DBKernel.scrolling = true; //System.out.println("Value of horizontal scroll bar: " + ae.getValue());
+			    		  //DBKernel.scrolling = true; //System.out.println("Value of horizontal scroll bar: " + ae.getValue());
 			    	  }
 			    	  else {
-			    		  DBKernel.scrolling = false;
+			    		  //DBKernel.scrolling = false;
 			    		  myDB.repaint();
 			    	  }
 			      }

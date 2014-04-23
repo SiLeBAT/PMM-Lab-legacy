@@ -12,7 +12,7 @@ public class XmlLoader {
 
 	private static XStream xstream = getXStream();
 	
-	public static XStream getXStream() {
+	private static XStream getXStream() {
 		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyDBI.class.getClassLoader()));
 		xstream.omitField(MyTable.class, "rowHeights");
 		xstream.omitField(MyTable.class, "colWidths");
@@ -27,15 +27,15 @@ public class XmlLoader {
 		xstream.omitField(MyTable.class, "mnSQL");
 		return xstream;
 	}
-	public static String getXml() {
+	private static String getXml() {
 		String xml = xstream.toXML(DBKernel.myDBi);		
 		return xml;
 	}
-	public static Object getObject(String xml) {
+	private static Object getObject(String xml) {
 		return xstream.fromXML(xml);
 	}
 	public static void doTest() {
-		/*
+
 		try {
 	  		String xml = XmlLoader.getXml();
 	  		System.err.println(xml);
@@ -43,6 +43,6 @@ public class XmlLoader {
 	  		System.err.println(o instanceof MyDBI);		
 		}
 		catch (Exception e) {e.printStackTrace();}
-		*/
+
 	}
 }

@@ -36,9 +36,9 @@ import org.osgi.service.prefs.Preferences;
 
 public class MyPreferences {
 
-	public java.util.prefs.Preferences prefsReg = java.util.prefs.Preferences.userNodeForPackage(Login.class);
-	public Preferences preferences = InstanceScope.INSTANCE.getNode("org.hsh.bfr.db");
-	public Preferences prefs = preferences.node("db");
+	private java.util.prefs.Preferences prefsReg = java.util.prefs.Preferences.userNodeForPackage(Login.class);
+	private Preferences preferences = InstanceScope.INSTANCE.getNode("org.hsh.bfr.db");
+	private Preferences prefs = preferences.node("db");
 
 	public void prefsFlush() {
 		if (DBKernel.isKNIME) {

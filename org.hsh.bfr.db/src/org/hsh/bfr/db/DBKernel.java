@@ -77,7 +77,6 @@ import javax.swing.JOptionPane;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
-import org.hsh.bfr.db.db.XmlLoader;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
@@ -127,7 +126,6 @@ public class DBKernel {
 	public static boolean passFalse = false;
 
 	public static long triggerFired = System.currentTimeMillis();
-	public static boolean scrolling = false;
 	public static boolean isServerConnection = false;
 	public static boolean isKNIME = false;
 
@@ -1044,7 +1042,7 @@ public class DBKernel {
 
 	public static void setCaller4Trigger(String tableName,
 			Callable<Void> caller4Trigger) {
-		XmlLoader.doTest();
+		//XmlLoader.doTest();
 		MyTable myT = DBKernel.myDBi.getTable(tableName);
 		if (myT != null)
 			myT.setCaller4Trigger(caller4Trigger);

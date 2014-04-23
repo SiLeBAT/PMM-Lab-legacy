@@ -25,12 +25,6 @@ public class PlausibleDialog4Krise extends JDialog {
 		initComponents();
 	}
 
-	public PlausibleDialog4Krise(Dialog owner) {
-		super(owner);
-		okPressed = false;
-		initComponents();
-	}
-
 	private void okButtonActionPerformed(ActionEvent e) {
 		okPressed = true;
 		dispose();

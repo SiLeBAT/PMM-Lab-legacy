@@ -75,8 +75,6 @@ public class MyDBPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private LinkedHashMap<String, int[]> myFounds = new LinkedHashMap<String, int[]>();	
 	private int actualFindPos = 0;
-	//private MyFindThread mft;
-	//private MyFilterThread mfit;
 	private JDialog parentDialog = null;
 	private boolean savePressed = false;
 	private boolean disableButtons = false;
@@ -442,7 +440,7 @@ public class MyDBPanel extends JPanel {
 		}
 		
 	}
-	void initFindVector(LinkedHashMap<String, int[]> myFounds, int actualFindPos, String findString) {
+	private void initFindVector(LinkedHashMap<String, int[]> myFounds, int actualFindPos, String findString) {
 		if (isFormVisible()) {
 			return;
 		}

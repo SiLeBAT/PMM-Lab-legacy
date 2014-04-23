@@ -60,12 +60,6 @@ public class PlausibleDialog extends JDialog {
 		okPressed = false;
 		initComponents();
 	}
-
-	public PlausibleDialog(Dialog owner) {
-		super(owner);
-		okPressed = false;
-		initComponents();
-	}
 	
 	private void okButtonActionPerformed(ActionEvent e) {
 		okPressed = true;

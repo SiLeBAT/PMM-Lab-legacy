@@ -71,7 +71,8 @@ public class MyTable {
 	private LinkedHashMap<Object, String>[] foreignHashs = null;
 	private LinkedList<String> fields2ViewInGui = null;
 	private String[] deepForeignFields = null;
-
+	private boolean hasForm = false;
+	
 	private boolean hideScore = false;
 	private boolean hideTested = false;
 	private boolean hideComment = false;
@@ -199,7 +200,7 @@ public class MyTable {
 					tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
 					tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") || tableName.equals("GlobalModels") || 
 					//tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || 
-					tableName.equals("Prozess_Verbindungen");
+					tableName.equals("Prozess_Verbindungen") || tableName.equals("ProzessWorkflow");
 
 		odsn = true;
 		if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")
@@ -208,6 +209,7 @@ public class MyTable {
 				|| tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle")
 				 || tableName.equals("GueltigkeitsBereiche")) odsn = false;
 		
+		hasForm = tableName.equals("Krankheitsbilder");
 		//doMNs();
 	}
 	public String getMNSql(int selectedColumn) {
@@ -246,6 +248,12 @@ public class MyTable {
 	}
 	public String[] getDeepForeignFields() {
 		return deepForeignFields;
+	}
+	public String[] getDefaults() {
+		return defaults;
+	}
+	public boolean isHasForm() {
+		return hasForm;
 	}
 	
 	public void saveProperties(MyDBForm myForm) {
@@ -451,7 +459,7 @@ public class MyTable {
 	    	}
 	    	else {
 	    		String defolt = null;
-	    		if (defaults != null && defaults[i] != null) defolt = defaults[i]; 
+	    		if (defaults != null && defaults[i] != null && !fieldTypes[i].startsWith("BLOB(")) defolt = defaults[i]; 
 	    		fieldDefs += "," + DBKernel.delimitL(fieldNames[i]) + " " + fieldTypes[i] + (defolt == null ? "" : " " + defolt);    
 		    	if (!tableName.equals("DateiSpeicher") && !tableName.equals("ChangeLog")) {
 		    		//uFsAll += "," + DBKernel.delimitL(fieldNames[i]);

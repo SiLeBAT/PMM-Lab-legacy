@@ -196,7 +196,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[][]{{"Erstautor","Jahr","Titel"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null},
 				null,
-				null,
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,"*.pdf, *.doc"},
 				new LinkedList<String>(Arrays.asList("Erstautor"," (","Jahr",")")));
 		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? BasisTabellen_LIST : 66));
 
@@ -296,7 +296,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null,
 				null,null,null,null,
 				null,null,null,"INT"},
-				null,
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,"*.pdf, *.doc",null},
 				new LinkedList<String>(Arrays.asList("Agensname")));
 		addTable(agenzien, BasisTabellen_LIST);
 		MyTable normen = new MyTable("Methodennormen", new String[]{"Name","Beschreibung"},
@@ -702,7 +702,7 @@ public class MyDBTablesNew extends MyDBI {
 				hYNB,hYNB,
 				null,null},
 				null,
-				null,
+				new String[]{null,null,null,null,null,"*.pdf, *.doc",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new LinkedList<String>(Arrays.asList("Bezeichnung")));
 		if (isSiLeBAT) addTable(kits, Nachweissysteme_LIST);
 
@@ -987,7 +987,8 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,null,null,betriebe,matrix,null,null,null,literatur}, // null,null,null,
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null}, // ,null,null,h4
-				new String[]{null,null,null,null,null,null,null,"INT",null,"ProzessWorkflow_Literatur"}); // ,"DBL","DBL",null
+				new String[]{null,null,null,null,null,null,null,"INT",null,"ProzessWorkflow_Literatur"},
+				new String[]{null,null,null,null,null,null,null,null,"*.xml",null});
 		if (isSiLeBAT) addTable(prozessFlow, Prozessdaten_LIST);
 		MyTable prozessFlowReferenzen = new MyTable("ProzessWorkflow_Literatur",
 				new String[]{"ProzessWorkflow","Literatur"},
@@ -1385,7 +1386,8 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null},
 				null,
 				new LinkedHashMap[]{null},
-				null);
+				null,
+				new String[]{"*.zip"});
 		addTable(PMMLabWorkflows, -1);	
 		MyTable DataSource = new MyTable("DataSource", new String[]{"Table","TableID","SourceDBUUID","SourceID"},
 				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","INTEGER"},

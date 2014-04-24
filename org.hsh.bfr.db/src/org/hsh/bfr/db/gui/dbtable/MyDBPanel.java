@@ -227,7 +227,7 @@ public class MyDBPanel extends JPanel {
 		}
 	}
 	public void setLeftComponent(MyTable myNewT) {
-  		if (formShowable(myNewT.getTablename())) {
+  		if (myNewT.isHasForm()) {
   			//MyDBForm form = new MyDBForm();
   			myDBForm1.setTable(myNewT);
 			splitPane2.setLeftComponent(myDBForm1);
@@ -243,9 +243,6 @@ public class MyDBPanel extends JPanel {
 	}
 	private boolean isFormVisible() {
 		return splitPane2.getLeftComponent() instanceof MyDBForm;
-	}
-	private boolean formShowable(String tablename) {
-		return tablename.equals("Krankheitsbilder");
 	}
 
   @Override
@@ -283,14 +280,16 @@ public class MyDBPanel extends JPanel {
 			}
 			if (isMN()) button2.setEnabled(false);
 			//button12.setVisible(tablename.equals("Prozessdaten"));
-			if (tablename.equals("Krankheitsbilder")) {
+			if (myT.isHasForm()) {
 				button12.setVisible(true);
 				button12.setText("Ansichtswitch");
 			}
+			/*
 			else if (tablename.equals("Prozessdaten")) {
 				button12.setVisible(true);
 				button12.setText("Kopiere Parameter...");
 			}
+			*/
 			else {
 				button12.setVisible(false);
 			}
@@ -601,7 +600,7 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void button12ActionPerformed(ActionEvent e) {
-		if (myDBTable1.getActualTable().getTablename().equals("Krankheitsbilder")) {
+		if (myDBTable1.getActualTable().isHasForm()) {
 			if (isFormVisible()) {
 				myDBForm1.save();
 				try {
@@ -622,9 +621,11 @@ public class MyDBPanel extends JPanel {
 				//splitPane2.getRightComponent().setVisible(false);
 			}
 		}
+		/*
 		else if (myDBTable1.getActualTable().getTablename().equals("Prozessdaten")) {
 			myDBTable1.copyProzessschritt();
 		}		
+		*/
 	}
 	void checkUnsavedStuffInForm() {
 		if (isFormVisible()) {

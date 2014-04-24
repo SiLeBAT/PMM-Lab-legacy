@@ -49,8 +49,11 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.sql.ResultSet;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.ImageIcon;
@@ -554,6 +557,7 @@ if (dbForm != null || owner != null) {
   }
   private boolean defineTable4NewDBTable(MyTable myT, MyDBTable dbTable, final Object value, final Object headerValue, final MyTable theNewTable, MyDBTable newDBTable, final Integer row, final Integer col, final Object[][] conditions) {
 		boolean disableButtons = false;
+		/*
 		String tn = "";
 		if (myT != null) {
 			tn = myT.getTablename();
@@ -564,53 +568,110 @@ if (dbForm != null || owner != null) {
 			newDBTable.setTable(theNewTable, o);
 			disableButtons = true;
 		}
-		/*
 		else if (myT != null && tn.equals("GeschaetzteParameterCovCor") &&
 				headerValue != null && (headerValue.toString().equals("param1") || headerValue.toString().equals("param2"))) {
 			Object[][] o = new Object[1][2]; o[0][0] = "GeschaetztesModell"; o[0][1] = dbTable.getValueAt(row, 3);
 			newDBTable.setTable(theNewTable, o);
 		}
 	*/
-		else if (myT != null) {
+		if (myT != null) {
 			Object[][] o = null;
 			String[] dff = myT.getDeepForeignFields();
-			if (dff != null && dff[col-1] != null) { // Zutat.Empfänger=Produkt.Artikel.Station
-				StringTokenizer tok = new StringTokenizer(dff[col-1],"=");
-				if (tok.hasMoreTokens()) {
-					String left = tok.nextToken();
+			// Zutat.Empfänger=Produkt.Artikel.Station
+			// Vorprozess.Prozessdaten=Prozess_Verbindungen.Ausgangsprozess WHERE Prozess_Verbindungen.Zielprozess=Prozessdaten; AND " + DBKernel.delimitL("Zutat_Produkt") + "='Produkt'
+			if (dff != null && dff[col-1] != null) {
+				StringTokenizer tokADD = new StringTokenizer(dff[col-1],";");
+				String sAdd = tokADD.nextToken();
+				String justAdd = null;
+				if (tokADD.hasMoreTokens()) justAdd = tokADD.nextToken();
+				if (dff[col-1].indexOf(";") < 0) sAdd = dff[col-1];
+				StringTokenizer tokWhere = new StringTokenizer(sAdd," WHERE ");
+					String strLeft = tokWhere.nextToken();
+					if (sAdd.indexOf(" WHERE ") < 0) strLeft = sAdd;
+					StringTokenizer tok = new StringTokenizer(strLeft,"=");
 					if (tok.hasMoreTokens()) {
-						String right = tok.nextToken();
-						tok = new StringTokenizer(left,".");
+						String left = tok.nextToken();
 						if (tok.hasMoreTokens()) {
-							tok.nextToken();// Zutat
+							String right = tok.nextToken();
+							tok = new StringTokenizer(left,".");
 							if (tok.hasMoreTokens()) {
-								o = new Object[1][2];
-								o[0][0] = tok.nextToken(); // Empfänger
-								tok = new StringTokenizer(right,".");
+								tok.nextToken();// Zutat
 								if (tok.hasMoreTokens()) {
-									String field = tok.nextToken(); // Produkt
-									Integer i = myT.getFieldIndex(field);
-									if (i != null) {
-										Object o1 = dbTable.getValueAt(row, i+1);
-										if (o1 != null) {
-											MyTable myT1 = myT.getForeignFields()[i];
-											while (tok.hasMoreTokens()) {
-												String field1 = tok.nextToken(); // Artikel / Station
-												i = myT1.getFieldIndex(field1);
-												o1 = DBKernel.getValue(myT1.getTablename(), "ID", o1+"", field1);
-												myT1 = myT1.getForeignFields()[i];
+									o = new Object[1][2];
+									o[0][0] = tok.nextToken(); // Empfänger
+									tok = new StringTokenizer(right,".");
+									if (tok.hasMoreTokens()) {
+										String field = tok.nextToken(); // Produkt
+										Integer i = myT.getFieldIndex(field);
+										if (i == null && tokWhere.hasMoreTokens()) {
+											MyTable myOT = DBKernel.myDBi.getTable(field);
+											if (myOT != null) { // Prozess_Verbindungen
+												String strRight = tokWhere.nextToken(); // Prozess_Verbindungen.Zielprozess=Prozessdaten
+												StringTokenizer tok2 = new StringTokenizer(strRight,"=");
+												if (tok2.hasMoreTokens()) {
+													String left2 = tok2.nextToken(); // Prozess_Verbindungen.Zielprozess
+													if (tok2.hasMoreTokens()) {
+														String right2 = tok2.nextToken(); // Prozessdaten
+														tok2 = new StringTokenizer(left2,".");
+														if (tok2.hasMoreTokens()) {
+															if (field.equals(tok2.nextToken())) {// Prozess_Verbindungen
+																if (tok2.hasMoreTokens()) {
+																	String field2Where = tok2.nextToken(); // Zielprozess
+																	Integer i2 = myT.getFieldIndex(right2);
+																	if (i2 != null) {
+																		Object o2 = dbTable.getValueAt(row, i2+1);
+																		if (tok.hasMoreTokens()) {
+																			String field1 = tok.nextToken();
+																			String sql = "SELECT " + DBKernel.delimitL(field1) + " FROM " + DBKernel.delimitL(field) + " WHERE " + DBKernel.delimitL(field2Where) + "=" + o2;																		
+																			ResultSet rs = DBKernel.getResultSet(sql, false);
+																			try {
+																				if (rs != null && rs.first()) {
+																					List<Object> l = new ArrayList<Object>();
+																					do {
+																						if (rs.getObject(field1) != null) {
+																							l.add(rs.getObject(field1));
+																						}
+																					} while (rs.next());
+																					Object t = o[0][0];
+																					o = new Object[l.size()][3];
+																					for (int ii=0;ii<o.length;ii++) {
+																						o[ii][0] = t;
+																						o[ii][1] = l.get(ii);
+																						o[ii][2] = justAdd;
+																					}
+																				}
+																			}
+																			catch (Exception e) {MyLogger.handleException(e);}
+																		}
+																	}
+																}
+															}
+														}
+													}
+												}
 											}
-											o[0][1] = o1;
+										}
+										else {
+											Object o1 = dbTable.getValueAt(row, i+1);
+											if (o1 != null) {
+												MyTable myT1 = myT.getForeignFields()[i];
+												while (tok.hasMoreTokens()) {
+													String field1 = tok.nextToken(); // Artikel / Station
+													i = myT1.getFieldIndex(field1);
+													o1 = DBKernel.getValue(myT1.getTablename(), "ID", o1+"", field1);
+													myT1 = myT1.getForeignFields()[i];
+												}
+												o[0][1] = o1;
+											}
 										}
 									}
+									if (o[0][1] != null) newDBTable.setTable(theNewTable, o, "OR");
 								}
-								if (o[0][1] != null) newDBTable.setTable(theNewTable, o);
 							}
 						}
 					}
-				}
 			}
-			if (o == null || o[0][1] == null) {
+			if (!theNewTable.equals(myT) && (o == null || o[0][1] == null)) {
 				Integer i1 = theNewTable.getForeignFieldIndex(myT);
 				if (i1 != null) {
 					if (theNewTable.getMNTable() != null && theNewTable.getMNTable()[i1] != null && theNewTable.getMNTable()[i1].equals("INT")) {

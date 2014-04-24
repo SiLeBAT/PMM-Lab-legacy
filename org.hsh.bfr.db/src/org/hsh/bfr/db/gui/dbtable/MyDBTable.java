@@ -248,8 +248,11 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	public boolean setTable(final MyTable myT) {
 		return setTable(myT, filterConditions); // null
 	}
-	  @SuppressWarnings("unchecked")
 	public boolean setTable(final MyTable myT, final Object[][] conditions) {
+		return setTable(myT, conditions, "AND");
+	}
+	  @SuppressWarnings("unchecked")
+	public boolean setTable(final MyTable myT, final Object[][] conditions, String andOrDefault) {
 		boolean result = true;
 		if (DBKernel.mainFrame != null) {
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -267,12 +270,12 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			where = "WHERE ";
 			for (int i=0;i<conditions.length;i++) {
 				if (i>0) {
-					where += " AND ";
+					where += " " + andOrDefault + " ";
 				}
-				where += DBKernel.delimitL(conditions[i][0].toString()) + (conditions[i][1] == null ? " IS NULL" : "=" + conditions[i][1]);
+				where += DBKernel.delimitL(conditions[i][0].toString()) + (conditions[i][1] == null ? " IS NULL" : "=" + conditions[i][1]) + (conditions[i].length > 2 && conditions[i][2] != null ? conditions[i][2] : "");
 			}	
 			order = " ORDER BY " + DBKernel.delimitL("ID") + " ASC";	
-			
+			/*
 			if (conditions[0][0].equals("Zielprozess")) {
 				ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Ausgangsprozess") + " FROM " +
 						DBKernel.delimitL("Prozess_Verbindungen") +	" " + where, false);
@@ -294,7 +297,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					where = " WHERE 1=0";
 				}
 			}
-			
+			*/
 		}
 		//if (DBKernel.debug) System.out.println(myT.getMetadata() + "\n" + where + order);
 		if (actualTable.getForeignFields() != null) {
@@ -364,12 +367,14 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		  		sorter.sort();
 				//this.sortByColumn(1, false);
 			} 
+			/*
 			else if (myT.getTablename().equals("ComBaseImport")) { // nur temporär, kann irgendwann wieder weg
 				List<SortKey> sortKeys = new ArrayList<SortKey>();
 		  		sortKeys.add(new SortKey(3, SortOrder.DESCENDING));
 		  		sorter.setSortKeys(sortKeys);
 		  		sorter.sort();
 			}
+			*/
 		}
 		if (!bigbigTable) {actualTable.restoreProperties(this); syncTableRowHeights();}			
 		//if (DBKernel.debug) {System.out.println("syncTableRowHeights: " + (System.currentTimeMillis() - ttt));}
@@ -424,8 +429,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	}
 	void insertNull(final int selRow, final int selCol) {
 		String tablename = this.getActualTable().getTablename();
-		if (!this.actualTable.isReadOnly() && selCol > 0 && selRow >= 0 && this.getRowCount() > 0 &&
-				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly() && selCol > 0 && selRow >= 0 && this.getRowCount() > 0) {
     	String[] mnTable = actualTable.getMNTable();
     	MyTable[] myFs = actualTable.getForeignFields();
 	    	if (mnTable != null && mnTable.length > selCol - 1 && mnTable[selCol - 1] != null) {
@@ -464,8 +468,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	void deleteRow() {
 		String tablename = this.getActualTable().getTablename();
 		int selRow = this.getSelectedRow();
-		if (this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount() &&
-				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly() && this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount()) {
 			int id = this.getSelectedID();
 			List<String> fkids = DBKernel.getUsageListOfID(tablename, id);
 			int numForeignCounts = fkids.size();//DBKernel.getUsagecountOfID(tablename, id);
@@ -499,7 +502,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	void insertNewRow(final boolean copySelected, final Vector<Object> vecIn) {
 		MyTable myT = this.getActualTable();
 		String tablename = myT.getTablename();
-		if (!tablename.equals("ProzessWorkflow") && (!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly() && !tablename.equals("ProzessWorkflow")) {
 			//JScrollPane scroller = getScroller();
 			this.getActualTable().saveProperties(this);
 			// Filter und Sorter ausschalten!!!

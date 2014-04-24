@@ -1135,7 +1135,9 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,
 				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges","Zutatendaten_Kosten"},
 				null,
-				new LinkedList<String>(Arrays.asList("Matrix","Vorprozess")));
+				new LinkedList<String>(Arrays.asList("Matrix","Vorprozess")),
+				new String[]{null, null, null, null, null, "Vorprozess.Prozessdaten=Prozess_Verbindungen.Ausgangsprozess WHERE Prozess_Verbindungen.Zielprozess=Prozessdaten; AND " + DBKernel.delimitL("Zutat_Produkt") + "='Produkt'",
+							null, null, null, null, null, null, null, null, null, null, null, null});
 		if (isSiLeBAT) addTable(zutatendaten, -1);
 		prozessdaten.setForeignField(zutatendaten, 10);
 		zutatendaten.setForeignField(zutatendaten, 5);

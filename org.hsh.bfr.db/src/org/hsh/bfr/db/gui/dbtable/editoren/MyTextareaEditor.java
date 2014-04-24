@@ -47,6 +47,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
+import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
@@ -65,11 +66,10 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
 	private static final long serialVersionUID = 1L;
 	//private MyDBTable myDB = null;
 	private JScrollPane myScroller = null;
-	private boolean isMiscParam = false;
+	private char[] allowedCharsInAdditionToLetterOrDigit;
   
-	public MyTextareaEditor(MyDBTable myDB, String tableName, String columnName) {
-		//this.myDB = myDB;
-		isMiscParam = tableName.equals("SonstigeParameter") && columnName.equals("Parameter");
+	public MyTextareaEditor(MyDBTable myDB, MyTable myT, Integer i) {
+		allowedCharsInAdditionToLetterOrDigit = myT.getAllowedCharsInAdditionToLetterOrDigit() != null && myT.getAllowedCharsInAdditionToLetterOrDigit()[i] != null ? myT.getAllowedCharsInAdditionToLetterOrDigit()[i] : null;
 		this.setLineWrap(true);
 		this.setWrapStyleWord(true);
 		myScroller = new JScrollPane(this);
@@ -144,13 +144,19 @@ public class MyTextareaEditor extends JTextArea implements CellComponent, KeyLis
     //printIt("Released", keyEvent);
   }
   public void keyTyped(KeyEvent keyEvent) {
-	  if (isMiscParam && !isVariableCharacter(keyEvent.getKeyChar())) {
+	  if (!isVariableCharacter(keyEvent.getKeyChar())) {
 	    	keyEvent.consume();
-	    	InfoBox ib = new InfoBox("character not allowed...", true, new Dimension(250, 100), null, true);
+	    	InfoBox ib = new InfoBox("character not allowed... -> '" + keyEvent.getKeyChar() + "'", true, new Dimension(250, 100), null, true);
 	    	ib.setVisible(true);
 	    }
   }
 	private boolean isVariableCharacter(char ch) {
-		return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$' || ch == '\b';
+		if (allowedCharsInAdditionToLetterOrDigit == null) return true;
+		boolean result = Character.isLetterOrDigit(ch);
+		for (char c : allowedCharsInAdditionToLetterOrDigit) {
+			if (!result) result = ch == c;
+		}
+		//return Character.isLetterOrDigit(ch) || ch == '_' || ch == '$' || ch == '\b';
+		return result;
 	}
 }

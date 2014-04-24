@@ -230,12 +230,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 					      		Object[] kzVal = new Object[numCols];
 					      		for (int j=0;j<numCols;j++) {
 					      			if (fieldTypes[j] != null) {
+					      				/*
 					      				if (fieldNames[j].equals("Bundesland")) {
 					      					hashBL = DBKernel.myDBi.getHashMap("County");
 					      				}
 					      				else {
 					      					hashBL = null;
 					      				}
+					      				*/
 				      					lfdCol++;
 					      				if (fieldTypes[j].startsWith("VARCHAR(") || fieldTypes[j].startsWith("CHAR(") || fieldTypes[j].startsWith("BLOB(") && !tableName.equals("DateiSpeicher")) manageString(ps, psUpdate, lfdCol, row.getCell(j), hashBL);
 					      				else if (fieldTypes[j].equals("BOOLEAN")) manageBoolean(ps, psUpdate, lfdCol, row.getCell(j));

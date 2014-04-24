@@ -65,7 +65,6 @@ class MyDBTreeModel implements TreeModel {
 	private DefaultMutableTreeNode filteredRoot = null;
 	private String filter = "";
 	private String[] showOnly = null;
-	private int codeSystemNumTOP = -1;
 
 	  
 	MyDBTreeModel(final MyTable myT, final String[] showOnly) {
@@ -162,62 +161,76 @@ class MyDBTreeModel implements TreeModel {
 			}
 			catch (Exception e) {MyLogger.handleException(e);}
 
-			LinkedHashMap<String, DefaultMutableTreeNode>[] myCodes = new LinkedHashMap[codeVec.size()];
 			myIDs = new LinkedHashMap[codeVec.size()];
 			myFilterIDs = new LinkedHashMap[codeVec.size()];
 			
 			// Dann die einzelnen CodeSysteme
+			int lfd = 0;
+			for (String key : knownCodeSysteme.keySet()) {
+				int[] cutSystem = null;
+				int i=0;
+				for (;i<codeVec.size();i++) {
+					if (key.equals(myT.getTablename() + "_" + codeVec.get(i))) {
+						cutSystem = knownCodeSysteme.get(key);
+						break;
+					}
+					else if (key.startsWith(myT.getTablename() + "_" + codeVec.get(i) + "_")) {
+						break;
+					}
+				}
+				if (i<codeVec.size()) {
+					createDTMN(codeVec.get(i), myT, lfd, cutSystem);
+					codeVec.remove(i);
+					lfd++;
+				}
+			}
 			for (int i=0;i<codeVec.size();i++) {
-				boolean doIt = (showOnly == null);
-				if (!doIt) {
-					for (int j=0;j<showOnly.length;j++) {
-						if (showOnly[j] != null && showOnly[j].equals(codeVec.get(i))) {
-							doIt = true;
-							break;
-						}
-					}
-				}
-				if (doIt) {
-					sql = "SELECT " + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + "," + DBKernel.delimitL(myT.getFieldNames()[0]) +
-					" FROM " + DBKernel.delimitL(DBKernel.getCodesName(myT.getTablename())) +
-					" LEFT JOIN " + DBKernel.delimitL(myT.getTablename()) +
-					" ON " + DBKernel.delimitL(DBKernel.getCodesName(myT.getTablename())) + "." + DBKernel.delimitL("Basis") + 
-					" = " + DBKernel.delimitL(myT.getTablename()) + "." + DBKernel.delimitL("ID") + 
-					" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + codeVec.get(i) + "'" +
-					" ORDER BY " + DBKernel.delimitL("Code") + " ASC, LENGTH(" + DBKernel.delimitL("Code") + ") ASC";
-					DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(new MyDBTreeNode(0, "", codeVec.get(i), false, i));
-					myCodes[i] = new LinkedHashMap<String, DefaultMutableTreeNode>();
-					myIDs[i] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
-					myFilterIDs[i] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
-					int[] cutSystem = null;
-	  				if (knownCodeSysteme.containsKey(myT.getTablename() + "_" + codeVec.get(i))) {
-	  					cutSystem = knownCodeSysteme.get(myT.getTablename() + "_" + codeVec.get(i));
-	  				}
-					readDB(myCodes[i], i, dmtn, sql, myT.getTablename() + "_" + codeVec.get(i), cutSystem);	
-					if (codeVec.get(i).equals("TOP") || codeVec.get(i).equals("GS1")) {
-						root.insert(dmtn, 0);
-					} else {
-						root.add(dmtn);
-					}
-					if (codeVec.get(i).equals("TOP")) {
-						codeSystemNumTOP = i;
-					}
-				}
+				createDTMN(codeVec.get(i), myT, lfd, null);
+				lfd++;
+				//System.err.println("codeVec not added -> " + codeVec.get(i));
 			}
 		}		
 	}
+	  private void createDTMN(String codeVec, MyTable myT, int lfd, int[] cutSystem) {
+			boolean doIt = (showOnly == null);
+			if (!doIt) {
+				for (int j=0;j<showOnly.length;j++) {
+					if (showOnly[j] != null && showOnly[j].equals(codeVec)) {
+						doIt = true;
+						break;
+					}
+				}
+			}
+			if (doIt) {
+				String sql = "SELECT " + DBKernel.delimitL("Code") + "," + DBKernel.delimitL("Basis") + "," + DBKernel.delimitL(myT.getFieldNames()[0]) +
+						" FROM " + DBKernel.delimitL(DBKernel.getCodesName(myT.getTablename())) +
+						" LEFT JOIN " + DBKernel.delimitL(myT.getTablename()) +
+						" ON " + DBKernel.delimitL(DBKernel.getCodesName(myT.getTablename())) + "." + DBKernel.delimitL("Basis") + 
+						" = " + DBKernel.delimitL(myT.getTablename()) + "." + DBKernel.delimitL("ID") + 
+						" WHERE " + DBKernel.delimitL("CodeSystem") + "='" + codeVec + "'" +
+						" ORDER BY " + DBKernel.delimitL("Code") + " ASC, LENGTH(" + DBKernel.delimitL("Code") + ") ASC";
+				
+				DefaultMutableTreeNode dmtn = new DefaultMutableTreeNode(new MyDBTreeNode(0, "", codeVec, false, lfd));
+				LinkedHashMap<String, DefaultMutableTreeNode> myCode  = new LinkedHashMap<String, DefaultMutableTreeNode>();
+				myIDs[lfd] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
+				myFilterIDs[lfd] = new LinkedHashMap<Integer, DefaultMutableTreeNode>();
+				readDB(myCode, lfd, dmtn, sql, myT.getTablename() + "_" + codeVec, cutSystem);	
+				root.add(dmtn);
+			}		  
+	  }
 	private void readDB(final LinkedHashMap<String, DefaultMutableTreeNode> myCodes, final int codeSystemNum, final DefaultMutableTreeNode root, final String sql, final String tablename_codeSystem, int[] cutSystem) {
 		myIDs[codeSystemNum].clear(); myCodes.clear();
 	    try {
 	  		ResultSet rs = DBKernel.getResultSet(sql, false);
 	  		if (rs.first()) {
 	  			do {
+	  		    	int[] myCS = cutSystem;
 	  				Integer id = rs.getInt("Basis");
 	  				String code = rs.getString("Code");
 	  				if (cutSystem == null && code.length() > 1 && knownCodeSysteme.containsKey(tablename_codeSystem + "_" + code.substring(0, 2))) {
-	  					cutSystem = knownCodeSysteme.get(tablename_codeSystem + "_" + code.substring(0, 2));	  					
+	  					myCS = knownCodeSysteme.get(tablename_codeSystem + "_" + code.substring(0, 2));
 	  				}
-	  				String cutCode = (cutSystem == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
+	  				String cutCode = (myCS == null) ? cutEndZeros(code) : code; // codeSystemIsGS1
 	  				String description = rs.getString(3);
 	  				DefaultMutableTreeNode dmtn;
 	  				if (code == null || code.trim().length() == 0) {
@@ -226,7 +239,7 @@ class MyDBTreeModel implements TreeModel {
 	  				else {
 	  					MyDBTreeNode mydbtn = new MyDBTreeNode(id, code, description, false, codeSystemNum);
 	  					dmtn = new DefaultMutableTreeNode(mydbtn);
-	  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, cutSystem);
+	  					DefaultMutableTreeNode n = look4ParentNode(myCodes, cutCode, myCS);
 						if (n != null) {
 							n.add(dmtn);
 						} else {
@@ -296,9 +309,7 @@ class MyDBTreeModel implements TreeModel {
 	DefaultMutableTreeNode getTreeNode(final int id, final int codeSystemNum) {
 		DefaultMutableTreeNode result = null;
 		LinkedHashMap<Integer, DefaultMutableTreeNode>[] theIDs = (filter.length() > 0) ? myFilterIDs : myIDs;
-		if (codeSystemNum < 0 && codeSystemNumTOP >= 0) {
-			result = theIDs[codeSystemNumTOP].get(id);
-		} else if (codeSystemNum >= 0 && codeSystemNum < theIDs.length) {
+		if (codeSystemNum >= 0 && codeSystemNum < theIDs.length) {
 			result = theIDs[codeSystemNum].get(id);
 		}
 		if (result == null) {

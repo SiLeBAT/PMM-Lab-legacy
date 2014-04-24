@@ -120,7 +120,7 @@ private MyTable myT = null;
 				isLeaf = mydbt.isLeaf();
 			}
 			*/
-			if (selectedTreeNode.getLevel() < 2 || !selectedTreeNode.isLeaf() && myT != null && myT.getTablename().equals("Methoden")) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() && 
+			if (selectedTreeNode.getLevel() < 2) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() && 
 				catchEvent = false;
 				this.setSelectionPath(event.getOldLeadSelectionPath());
 			}

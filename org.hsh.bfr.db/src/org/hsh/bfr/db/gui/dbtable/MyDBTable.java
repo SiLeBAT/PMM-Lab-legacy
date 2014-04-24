@@ -94,7 +94,6 @@ import javax.swing.table.TableRowSorter;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.SendMail;
 import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
@@ -939,7 +938,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 					  }
 					else if (fieldTypes[i].startsWith("VARCHAR(")) {
-						c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), actualTable.getFieldNames()[i]));							
+						c.setUserCellEditor(new MyTextareaEditor(this, actualTable, i));							
 						c.setUserCellRenderer(new MyTextareaRenderer());
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
@@ -1044,7 +1043,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					extraFields++;
 				      c = this.getColumn(fieldTypes.length+extraFields); // Kommentar
 				      c.setReadOnly(false); // Kommentar
-				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), "Kommentar")); c.setUserCellRenderer(new MyTextareaRenderer());
+				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable, null)); c.setUserCellRenderer(new MyTextareaRenderer());
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, null));
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyStringSorter());
@@ -1704,11 +1703,13 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
     	}
     	return;
     }
+    /*
     else if (keyEvent.getKeyCode() == KeyEvent.VK_B && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
     	keyEvent.consume();
     	SendMail.main(null);
     	return;
     }
+    */
     else if (keyEvent.getKeyCode() == KeyEvent.VK_P && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
     	keyEvent.consume();
     	myPrint();

@@ -72,7 +72,8 @@ public class MyTable {
 	private LinkedList<String> fields2ViewInGui = null;
 	private String[] deepForeignFields = null;
 	private boolean hasForm = false;
-	
+	private char[][] allowedCharsInAdditionToLetterOrDigit;
+
 	private boolean hideScore = false;
 	private boolean hideTested = false;
 	private boolean hideComment = false;
@@ -111,9 +112,12 @@ public class MyTable {
 		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, null);
 	}
 	MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui) {
-		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, null);		
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, null);
 	}
 	MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui, String[] deepForeignFields) {
+		this(tableName, fieldNames, fieldTypes, fieldComments, foreignFields, uniqueFields, foreignHashs, mnTable, defaults, fields2ViewInGui, deepForeignFields, null);
+	}
+	MyTable(String tableName, String[] fieldNames, String[] fieldTypes, String[] fieldComments, MyTable[] foreignFields, String[][] uniqueFields, LinkedHashMap<Object, String>[] foreignHashs, String[] mnTable, String[] defaults, LinkedList<String> fields2ViewInGui, String[] deepForeignFields, char[][] allowedCharsInAdditionToLetterOrDigit) {
 		this.tableName = tableName; // GuiMessages.getString(tableName).trim();
 		/*
 		for (int i=0;i<fieldNames.length;i++) {
@@ -135,6 +139,7 @@ public class MyTable {
 		this.defaults = defaults;
 		this.fields2ViewInGui = fields2ViewInGui;
 		this.deepForeignFields = deepForeignFields;
+		this.allowedCharsInAdditionToLetterOrDigit = allowedCharsInAdditionToLetterOrDigit;
 		try {
 			if (mnTable != null) {
 				for (int i=0;i<mnTable.length;i++) {
@@ -254,6 +259,9 @@ public class MyTable {
 	}
 	public boolean isHasForm() {
 		return hasForm;
+	}	
+	public char[][] getAllowedCharsInAdditionToLetterOrDigit() {
+		return allowedCharsInAdditionToLetterOrDigit;
 	}
 	
 	public void saveProperties(MyDBForm myForm) {
@@ -691,12 +699,8 @@ public class MyTable {
 			for (int i = 0; i < listMNs.size(); i++) {
 				String feldname = listMNs.get(i);
 				DBKernel.sendRequest(
-						"UPDATE " + DBKernel.delimitL(tableName) + " SET "
-								+ DBKernel.delimitL(feldname) + "="
-								+ DBKernel.delimitL("ID") + " WHERE "
-								+ DBKernel.delimitL(feldname) + " IS NULL OR "
-								+ DBKernel.delimitL(feldname) + "!="
-								+ DBKernel.delimitL("ID"), false);
+						"UPDATE " + DBKernel.delimitL(tableName) + " SET " + DBKernel.delimitL(feldname) + "=" + DBKernel.delimitL("ID") + " WHERE "
+								+ DBKernel.delimitL(feldname) + " IS NULL OR " + DBKernel.delimitL(feldname) + "!=" + DBKernel.delimitL("ID"), false);
 			}
 		}
 		DBKernel.dontLog = dl;

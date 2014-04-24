@@ -51,6 +51,8 @@ public class MyDBTablesNew extends MyDBI {
 		if (tableName != null && tableName.equals("Einheiten")) {
 			return new MyUnitCaller();
 		}
+		
+		Table "Literatur" in MyNewDoubleKennzahlen.... Shall I make Literatur to a BASE table???
 	 */
 	
 	public MyDBTablesNew() {
@@ -316,7 +318,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new String[]{null,null,null,"Methoden_Normen","INT"});
-		if (isSiLeBAT) addTable(methoden, DBKernel.getUsername().equals("buschulte") ? 66 : -1);
+		if (isSiLeBAT) addTable(methoden, DBKernel.getUsername().equals("buschulte") ? Krankheitsbilder_LIST : -1);
 		MyTable methoden_Normen = new MyTable("Methoden_Normen",
 				new String[]{"Methoden","Normen","Norm_Nummer"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
@@ -658,7 +660,9 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null},
 				new String[]{null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("Parameter")));
+				new LinkedList<String>(Arrays.asList("Parameter")),
+				null,
+				new char[][]{{'_','$','\b'},null,null});
 		addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
@@ -1648,12 +1652,17 @@ public class MyDBTablesNew extends MyDBI {
 	private void loadOther4Gui() {
 		// knownCodeSysteme
 		knownCodeSysteme = new LinkedHashMap<String, int[]>();
+	  	// TOP
+	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
+
+	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
 	  	knownCodeSysteme.put("Matrices_ADV_01", new int[]{2,3,5,7}); // 01-011123
 	  	knownCodeSysteme.put("Matrices_ADV_14", new int[]{2,3,5,7}); // 14-011123
-	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,6}); // 15-011123
+	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,5,7});   // 15-011123 2,3,6
 	  	knownCodeSysteme.put("Matrices_ADV_20", new int[]{2,3,5,7}); // 20-011123
 	  	knownCodeSysteme.put("Matrices_BLS", new int[]{1,3,4,5,6}); // A011123
-	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
 	  	knownCodeSysteme.put("Matrices_FA", new int[]{2,4,6,8,10,12,14,16,18}); // 
 	  	knownCodeSysteme.put("Agenzien_ADV", new int[]{2,4}); // 0102123
 	  	knownCodeSysteme.put("Matrices_SiLeBAT", new int[]{2,4,6,8,10});
@@ -1664,10 +1673,6 @@ public class MyDBTablesNew extends MyDBI {
 	  	knownCodeSysteme.put("Methodiken_Extra", new int[]{2,4,6,8,10});
 	  	// Agenzien_VET
 	  	knownCodeSysteme.put("Methoden_BVL", new int[]{2,3,5,6,8,9}); // 
-	  	// TOP
-	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
 
 	  	knownCodeSysteme.put("Methodiken_BfR", new int[]{2,4,6}); // 
 	  	

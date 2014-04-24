@@ -38,6 +38,7 @@ package org.hsh.bfr.db;
 
 import java.awt.Font;
 import java.sql.Connection;
+import java.util.LinkedHashMap;
 
 import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
@@ -90,9 +91,16 @@ class StartApp {
 	  		login.setVisible(true);	    	  
 	  	}
 	  	else {
+	  		/*
     	  	MyTable myT = DBKernel.myDBi.getTable("GeschaetzteModelle"); if (myT != null) myT.doMNs();
     	  	myT = DBKernel.myDBi.getTable("Modellkatalog"); if (myT != null) myT.doMNs();
     	  	myT = DBKernel.myDBi.getTable("Versuchsbedingungen"); if (myT != null) myT.doMNs();
+    	  	*/
+	  		// refresh MNs - just to be safe...
+	  		LinkedHashMap<String, MyTable> at = DBKernel.myDBi.getAllTables();
+	  		for (MyTable myT : at.values()) {
+	  			myT.doMNs();
+	  		}
 
     	  	DBKernel.myList.getMyDBTable().setTable();
 

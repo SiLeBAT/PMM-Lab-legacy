@@ -1,9 +1,11 @@
-package org.hsh.bfr.db;
+package de.bund.bfr.knime.pmm.common.units;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import org.hsh.bfr.db.DBKernel;
 
 
 public class UnitsFromDB {

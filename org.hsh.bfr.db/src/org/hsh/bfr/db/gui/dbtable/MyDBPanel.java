@@ -57,10 +57,10 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyFilter;
 import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 import org.hsh.bfr.db.gui.dbtree.*;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import quick.dbtable.Filter;
 
@@ -254,12 +254,14 @@ public class MyDBPanel extends JPanel {
 	  		//button3.setEnabled(!myT.isReadOnly());
 	  		button4.setEnabled(!myT.isReadOnly());
 	  		
-	  		String tablename = myT.getTablename();
-	  		if (tablename.equals("ProzessWorkflow")) button1.setEnabled(false);
+	  		//String tablename = myT.getTablename();
+	  		//if (tablename.equals("ProzessWorkflow")) button1.setEnabled(false);
+	  		/*
 	  		if (tablename.equals("Prozessdaten")) {
 	  			button1.setEnabled(false);
 	  			button2.setEnabled(false);
 	  		}
+	  		*/
 	
 	  		boolean isRO = false;
 			try {isRO = DBKernel.getDBConnection().isReadOnly();}

@@ -95,6 +95,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.SendMail;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
@@ -121,7 +122,6 @@ import org.hsh.bfr.db.gui.dbtable.sorter.MyLongSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyOtherSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyStringSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyTableModel4Sorter;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import quick.dbtable.Column;
 import quick.dbtable.DBTable;

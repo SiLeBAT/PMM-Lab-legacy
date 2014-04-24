@@ -57,7 +57,7 @@ public class About extends JDialog {
 	private static final long serialVersionUID = 1L;
 	public About() {
 		initComponents();
-		label4.setText("Copyright \u00a9 2010 Armin Weiser.");
+		label4.setText("Copyright \u00a9 2014 BfR");
 		String ver = About.class.getPackage().getImplementationVersion();
 		label2.setText("Version " + (ver == null ? DBKernel.DBVersion : ver)); //"TP-100701");
 		label4.setVisible(false);

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.hsh.bfr.db.imports;
+package org.hsh.bfr.db.imports.custom;
 
 import java.awt.Dimension;
 import java.io.File;
@@ -26,7 +26,9 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.ParseCarverXML;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.imports.MyImporter;
 
 
 /**

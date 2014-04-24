@@ -47,8 +47,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-import org.hsh.bfr.db.imports.InfoBox;
 
 
 import quick.dbtable.CellComponent;

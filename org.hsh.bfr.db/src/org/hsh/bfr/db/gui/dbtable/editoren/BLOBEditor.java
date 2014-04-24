@@ -56,7 +56,7 @@ import javax.swing.event.*;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-import org.hsh.bfr.db.imports.MyProzessXMLImporter;
+import org.hsh.bfr.db.imports.custom.MyProzessXMLImporter;
 
 
 import java.io.*;

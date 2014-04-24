@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.hsh.bfr.db.imports;
+package org.hsh.bfr.db.imports.custom;
 
 import java.awt.Dimension;
 import java.io.BufferedReader;
@@ -29,7 +29,9 @@ import javax.swing.filechooser.FileFilter;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.imports.MyImporter;
 
 import net.sf.jabref.AuthorList;
 import net.sf.jabref.BibtexEntry;

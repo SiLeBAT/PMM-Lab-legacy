@@ -200,7 +200,7 @@ public class MyTable {
 					tableName.equals("VarParMaps") || tableName.equals("GeschaetzteParameterCovCor") || tableName.equals("Sekundaermodelle_Primaermodelle") || 
 					tableName.equals("GueltigkeitsBereiche") || tableName.equals("LinkedTestConditions") || tableName.equals("GlobalModels") || 
 					//tableName.equals("Krankheitsbilder_Symptome") || tableName.equals("Krankheitsbilder_Risikogruppen") || 
-					tableName.equals("Prozess_Verbindungen") || tableName.equals("ProzessWorkflow");
+					tableName.equals("Prozess_Verbindungen") || tableName.equals("ProzessWorkflow") || tableName.equals("Prozessdaten");
 
 		odsn = true;
 		if (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter")

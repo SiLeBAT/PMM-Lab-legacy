@@ -71,7 +71,6 @@ import org.hsh.bfr.db.UpdateChecker;
 import org.hsh.bfr.db.VersionComprator;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
@@ -551,7 +550,7 @@ public class Login extends JFrame {
 			}
 
 			//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
-			if (!DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
+			if (!DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {  // Agens_Nachweisverfahren  Agenzien
 				DBKernel.myList.setSelection(null);
 			}
 

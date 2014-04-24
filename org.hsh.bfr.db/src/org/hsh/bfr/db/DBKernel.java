@@ -77,13 +77,13 @@ import javax.swing.JOptionPane;
 
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.FileLocator;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.MyList;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
-import org.hsh.bfr.db.imports.InfoBox;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 

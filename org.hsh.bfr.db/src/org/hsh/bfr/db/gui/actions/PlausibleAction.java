@@ -53,11 +53,11 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.PlausibleDialog;
 import org.hsh.bfr.db.gui.PlausibleDialog4Krise;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
-import org.hsh.bfr.db.imports.InfoBox;
 
 /**
  * @author Armin

@@ -45,10 +45,10 @@ import javax.swing.JProgressBar;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.imports.GeneralXLSImporter;
-import org.hsh.bfr.db.imports.LieferkettenImporterEFSA;
 import org.hsh.bfr.db.imports.MyImporter;
-import org.hsh.bfr.db.imports.MyProzessXMLImporter;
-import org.hsh.bfr.db.imports.MyRisImporter;
+import org.hsh.bfr.db.imports.custom.LieferkettenImporterEFSA;
+import org.hsh.bfr.db.imports.custom.MyProzessXMLImporter;
+import org.hsh.bfr.db.imports.custom.MyRisImporter;
 
 /**
  * @author Armin

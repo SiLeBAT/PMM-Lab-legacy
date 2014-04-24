@@ -39,7 +39,7 @@ package org.hsh.bfr.db.gui.dbtable;
 import java.awt.Dimension;
 
 import org.hsh.bfr.db.MyLogger;
-import org.hsh.bfr.db.imports.InfoBox;
+import org.hsh.bfr.db.gui.InfoBox;
 
 import quick.dbtable.DBTableErrorListener;
 

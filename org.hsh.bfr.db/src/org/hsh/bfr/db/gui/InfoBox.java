@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.hsh.bfr.db.imports;
+package org.hsh.bfr.db.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
@@ -41,7 +41,7 @@ public class InfoBox extends JDialog {
 	private static final long serialVersionUID = 1L;
 private String inhalt = "";
 
-  InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font) {
+  public InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font) {
 	  this(inhalt, keyDispose, dim, font, false);
   }
   public InfoBox(String inhalt, boolean keyDispose, Dimension dim, Font font, boolean modal) {

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.hsh.bfr.db.imports;
+package org.hsh.bfr.db.imports.custom;
 
 
 /**
@@ -35,7 +35,9 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
+import org.hsh.bfr.db.imports.MyImporter;
 
 /**
  * @author Armin

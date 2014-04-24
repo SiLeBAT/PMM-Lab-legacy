@@ -39,6 +39,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.Levenshtein;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 

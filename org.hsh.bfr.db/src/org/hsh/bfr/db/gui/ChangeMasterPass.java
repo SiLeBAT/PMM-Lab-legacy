@@ -9,7 +9,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;

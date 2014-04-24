@@ -48,7 +48,7 @@ import javax.swing.table.*;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
-import org.hsh.bfr.db.imports.InfoBox;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

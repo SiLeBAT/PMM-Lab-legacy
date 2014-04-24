@@ -42,15 +42,15 @@ public class MergeDBsAPriori {
 			try {
 				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
-				//String folder = "C:/Users/Armin/Desktop/KHB/";
 				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
-				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Literatur"),
-						DBKernel.myList.getTable("Agenzien_Matrices"),
-						DBKernel.myList.getTable("Krankheitsbilder"),
-						DBKernel.myList.getTable("Risikogruppen"),
-						DBKernel.myList.getTable("Symptome"),
-						DBKernel.myList.getTable("Krankheitsbilder_Risikogruppen"),
-						DBKernel.myList.getTable("Krankheitsbilder_Symptome")};
+				MyTable[] myTs = new MyTable[]{
+						DBKernel.myDBi.getTable("Literatur"),
+						DBKernel.myDBi.getTable("Agenzien_Matrices"),
+						DBKernel.myDBi.getTable("Krankheitsbilder"),
+						DBKernel.myDBi.getTable("Risikogruppen"),
+						DBKernel.myDBi.getTable("Symptome"),
+						DBKernel.myDBi.getTable("Krankheitsbilder_Risikogruppen"),
+						DBKernel.myDBi.getTable("Krankheitsbilder_Symptome")};
 				Integer[] myFromIDs = new Integer[]{242, null, null, null, null, null, null};
 				idConverter = new Hashtable<String, Integer>();
 				go4It(folder, "defad", "de6!§5ddy", myTs, myFromIDs);

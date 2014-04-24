@@ -53,9 +53,9 @@ public class MyDBTablesNew extends MyDBI {
 		}
 		
 		Table "Literatur" in MyNewDoubleKennzahlen.... Shall I make Literatur to a BASE table???
-		- plausibilityChecker
-		- Imports
+		- PlausibilityChecker
 		- Merging
+		- Imports
 	 */
 	
 	public MyDBTablesNew() {

@@ -358,7 +358,7 @@ if (dbForm != null || owner != null) {
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col) {
 	  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, null);
 	  }
-  public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions) {
+  private Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions) {
 	  	return openNewWindow(theNewTable, value, headerValue, dbTable, row, col, conditions, false);	  
   }
   public Object openNewWindow(final MyTable theNewTable, final Object value, final Object headerValue, final MyDBTable dbTable, final Integer row, final Integer col, final Object[][] conditions, boolean fromMMC) {

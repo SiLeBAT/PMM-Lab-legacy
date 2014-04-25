@@ -648,7 +648,7 @@ public class DBKernel {
 		return getUsersFromChangeLog(null, tablename, tableID, username, false);
 	}
 
-	static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
+	private static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(
 			final Statement anfrage, final String tablename,
 			final Integer tableID, final String username,
 			final boolean showDeletedAsWell) {

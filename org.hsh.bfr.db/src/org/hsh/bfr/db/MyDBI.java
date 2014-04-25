@@ -7,7 +7,6 @@ public abstract class MyDBI {
 	public abstract LinkedHashMap<String, MyTable> getAllTables();
 	public abstract LinkedHashMap<Integer, String> getTreeStructure();
 	public abstract LinkedHashMap<String, int[]> getKnownCodeSysteme();	
-	public abstract void createRoles();
 	public abstract void addData();
 	public abstract void addViews();
 	public abstract void recreateTriggers();
@@ -29,5 +28,11 @@ public abstract class MyDBI {
 		}
 		addViews();
 		addData();
+	}
+	private void createRoles() {
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
+		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false);
 	}
 }

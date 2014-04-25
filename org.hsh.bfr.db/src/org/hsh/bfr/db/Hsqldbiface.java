@@ -199,7 +199,7 @@ public class Hsqldbiface {
 	public Connection getConnection() {
 		return conn;
 	}
-	public void pushUpdate(String query) throws SQLException {		
+	private void pushUpdate(String query) throws SQLException {		
 		pushUpdate(query, conn);
 	}
 	private void pushUpdate(String query, Connection conn) throws SQLException {	

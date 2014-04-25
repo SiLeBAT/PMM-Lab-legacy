@@ -1732,10 +1732,4 @@ public class MyDBTablesNew extends MyDBI {
 			}
 		}
 	}
-	public void createRoles() {
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false);
-	}
 }

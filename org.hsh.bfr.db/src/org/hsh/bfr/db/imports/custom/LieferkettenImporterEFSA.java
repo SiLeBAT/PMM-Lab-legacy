@@ -169,8 +169,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	private int[] doImportMaciel(HSSFWorkbook wb, JProgressBar progress, String efsaID) {
 	    int numSuccess = 0;
 	    int numFails = 0;
-	    HSSFSheet transactionSheet = wb.getSheet("Receivers"); 
 	    HSSFSheet businessSheet = wb.getSheet("Business_List"); 
+	    HSSFSheet transactionSheet = wb.getSheet("Receivers"); 
 		int numRows = transactionSheet.getLastRowNum() + 1;
 		progress.setMaximum(numRows);
       	progress.setValue(0);
@@ -200,10 +200,46 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			    	  getCharge_Lieferung(nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST,
 			    			  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
 			    			  name, street, streetNo, zip, city, county, country, null, vat,
-			    			  "LSTZAK" + efsaID + "_" + (i+1), null, null, null, null, null);
+			    			  "LSTZAKNoris" + efsaID + "_" + (i+1), null, null, null, null, null);
 			      }
 			}
       }
+	    transactionSheet = wb.getSheet("Suppliers");
+	    if (transactionSheet != null) {
+			numRows = transactionSheet.getLastRowNum() + 1;
+			progress.setMaximum(numRows);
+	      	progress.setValue(0);
+		    busRow = getRow(businessSheet, efsaID, 0);
+		  	  nameLST = getStrVal(busRow.getCell(1));
+		  	  streetLST = getStrVal(busRow.getCell(2));
+		  	  streetNoLST = getStrVal(busRow.getCell(3), 10);
+		  	  zipLST = getStrVal(busRow.getCell(4), 10);
+		  	  cityLST = getStrVal(busRow.getCell(5));
+		  	  countyLST = getStrVal(busRow.getCell(6)); 
+		  	  countryLST = getStrVal(busRow.getCell(7));
+		  	  vatLST = getStrVal(busRow.getCell(8));
+	      	for (int i=2;i<numRows;i++) {
+	      		HSSFRow row = transactionSheet.getRow(i);
+				if (row != null) {
+				      String addressOther = getStrVal(row.getCell(7));
+				      busRow = getRow(businessSheet, addressOther, 9);
+				      if (busRow != null) {
+				    	  String name = getStrVal(busRow.getCell(1)); //
+				    	  String street = getStrVal(busRow.getCell(2)); //
+				    	  String streetNo = getStrVal(busRow.getCell(3), 10); //
+				    	  String zip = getStrVal(busRow.getCell(4), 10); //
+				    	  String city = getStrVal(busRow.getCell(5)); //
+				    	  String county = getStrVal(busRow.getCell(6)); 
+				    	  String country = getStrVal(busRow.getCell(7)); // 
+				    	  String vat = getStrVal(busRow.getCell(8)); //
+				    	  getCharge_Lieferung(name, street, streetNo, zip, city, county, country, null, vat,
+				    			  null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null,
+				    			  nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST,
+				    			  "LSTZAKNoris" + efsaID + "_Sup_" + (i+1), null, null, null, null, null);
+				      }
+				}
+	      }
+	    }
       return new int[]{numSuccess, numFails};
 	}
 	private int[] doImportGaia(HSSFWorkbook wb, JProgressBar progress) {
@@ -945,6 +981,10 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			    else if (filename.endsWith("ZAK_partners.xls")) {
 			    	if (transformFormat) ;
 			    	else nsf = doImportMaciel(wb, progress, "273"); // 273: ZAK
+			    }
+			    else if (filename.endsWith("NORIS.xls")) {
+			    	if (transformFormat) ;
+			    	else nsf = doImportMaciel(wb, progress, "115"); // 115: Noris
 			    }
 			    else if (filename.endsWith("BfR_berry_supplier.xls")) {
 			    	if (transformFormat) ;

@@ -2,6 +2,7 @@ package org.hsh.bfr.db.db;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBI;
+import org.hsh.bfr.db.MyDBTablesNew;
 import org.hsh.bfr.db.MyTable;
 
 import com.thoughtworks.xstream.XStream;
@@ -14,7 +15,10 @@ public class XmlLoader {
 	
 	private static XStream getXStream() {
 		XStream xstream = new XStream(null, new XppDriver(),new ClassLoaderReference(MyDBI.class.getClassLoader()));
-		xstream.omitField(MyTable.class, "rowHeights");
+		xstream.omitField(MyDBTablesNew.class, "isPmm");
+		xstream.omitField(MyDBTablesNew.class, "isKrise");
+		xstream.omitField(MyDBTablesNew.class, "isSiLeBAT");
+		//xstream.omitField(MyTable.class, "rowHeights");
 		xstream.omitField(MyTable.class, "colWidths");
 		xstream.omitField(MyTable.class, "sortKeyList");
 		xstream.omitField(MyTable.class, "searchString");
@@ -34,15 +38,15 @@ public class XmlLoader {
 	private static Object getObject(String xml) {
 		return xstream.fromXML(xml);
 	}
-	public static void doTest() {
-
+	public static MyDBI doTest() {
+		MyDBI result = null;
 		try {
 	  		String xml = XmlLoader.getXml();
 	  		System.err.println(xml);
 	  		Object o = XmlLoader.getObject(xml);
-	  		System.err.println(o instanceof MyDBI);		
+	  		if (o instanceof MyDBI) result = (MyDBI) o;	
 		}
 		catch (Exception e) {e.printStackTrace();}
-
+		return result;
 	}
 }

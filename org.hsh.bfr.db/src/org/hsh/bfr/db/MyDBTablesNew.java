@@ -3,6 +3,7 @@ package org.hsh.bfr.db;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.hsh.bfr.db.imports.SQLScriptImporter;
@@ -22,6 +23,8 @@ public class MyDBTablesNew extends MyDBI {
 	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
 	private LinkedHashMap<String, int[]> knownCodeSysteme = null;
 	private LinkedHashMap<Integer, String> treeStructure = null;
+	private LinkedHashSet<String> allViews = null;
+	private LinkedHashMap<String, String> allData = null;
 	private final String saUser = "SA";//"defad"; // SA
 	private final String saPass = "";//"de6!§5ddy";
 	private final String dbVersion = "1.7.9";
@@ -33,34 +36,30 @@ public class MyDBTablesNew extends MyDBI {
 	/*
 	 * Still todo:
 	 *   DateiSpeicher -> FileStorage
-	@Override
-	public String getCommentTerm() {
-		return "Kommentar";
-	}
-
-	@Override
-	public String getTestedTerm() {
-		return "Geprueft";
-	}
-
-	@Override
-	public String getScoreTerm() {
-		return "Guetescore";
-	}
-
-		if (tableName != null && tableName.equals("Einheiten")) {
-			return new MyUnitCaller();
-		}
 		
 		Table "Literatur" in MyNewDoubleKennzahlen.... Shall I make Literatur to a BASE table???
 		- PlausibilityChecker
 		- Merging
 		- Imports
+
+	@Override
+	public String getCommentTerm() {
+		return "Kommentar";
+	}
+	@Override
+	public String getTestedTerm() {
+		return "Geprueft";
+	}
+	@Override
+	public String getScoreTerm() {
+		return "Guetescore";
+	}
 	 */
 	
 	public MyDBTablesNew() {
 		loadHashes();
 		loadMyTables();
+		loadOther4Db();
 		loadOther4Gui();
 	}
 
@@ -1696,23 +1695,42 @@ public class MyDBTablesNew extends MyDBI {
 		if (!DBKernel.isKNIME) treeStructure.put(Nachweissysteme_LIST, "Nachweissysteme");
 		if (DBKernel.isKrise) treeStructure.put(Lieferketten_LIST, "Lieferketten");	  	
 	}
+	private void loadOther4Db() {
+		if (isPmm) {
+			allViews = new LinkedHashSet<String>();
+			allViews.add("/org/hsh/bfr/db/res/02_create_doublekennzahleneinfach.sql");
+			allViews.add("/org/hsh/bfr/db/res/04_create_versuchsbedingungeneinfach_156.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_SonstigesEinfach_160.sql");
+			allViews.add("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_LitEmView.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_LitMView.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_ParamVarView_175.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_IndepVarView_170.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_DepVarView_170.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_VarParMapView.sql");
+			allViews.add("/org/hsh/bfr/db/res/002_EstModelPrimView_179.sql");
+			allViews.add("/org/hsh/bfr/db/res/002_EstModelSecView_179.sql");
+			
+			allData = new LinkedHashMap<String, String>();
+			allData.put("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null);
+			allData.put("/org/hsh/bfr/db/res/PmmInitData.sql", "\r\n");
+		}
+	}
 	public void addViews() {
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/02_create_doublekennzahleneinfach.sql", null, false);		
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/04_create_versuchsbedingungeneinfach_156.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_SonstigesEinfach_160.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitEmView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitMView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_175.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView_170.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView_170.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_VarParMapView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_179.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_179.sql", null, false);
+		if (allViews != null) {
+			for (String s : allViews) {
+				new SQLScriptImporter().doImport(s, null, false);
+			}
+		}
 	}
 	public void addData() {
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null, false);
-		if (isPmm) new SQLScriptImporter("\r\n").doImport("/org/hsh/bfr/db/res/PmmInitData.sql", null, false);
+		if (allData != null) {
+			for (String s : allData.keySet()) {
+				String delimiter = allData.get(s);
+				if (delimiter == null) new SQLScriptImporter().doImport(s, null, false);
+				else new SQLScriptImporter(delimiter).doImport(s, null, false);
+			}
+		}
 	}
 	public void createRoles() {
 		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false);

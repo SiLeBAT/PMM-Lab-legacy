@@ -197,7 +197,7 @@ public class Login extends JFrame {
 	}
 	private void initGui(MyDBTable myDB) {
 		DBKernel.myDBi = new MyDBTablesNew();
-		// Login succeeded: GUI aufbauen	  		
+		//DBKernel.myDBi = XmlLoader.doTest();
 		MyDBTree myDBTree = new MyDBTree();
 		MyList myList = new MyList(myDB, myDBTree);
 		DBKernel.myList = myList;
@@ -327,6 +327,7 @@ public class Login extends JFrame {
 				}
 			}
 						
+			// Login succeeded: DB erstellen/starten, GUI aufbauen
 			// Datenbank füllen			
 			if (noDBThere) {
 				DBKernel.importing = true;

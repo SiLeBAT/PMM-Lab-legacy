@@ -105,12 +105,8 @@ public class DBKernel {
 	private static String m_Username = "";
 	private static String m_Password = "";
 
-	final static String HSH_PATH = System.getProperty("user.home")
-			+ System.getProperty("file.separator") + ".localHSH"
-			+ System.getProperty("file.separator") + "BfR"
-			+ System.getProperty("file.separator");
-	public static String HSHDB_PATH = HSH_PATH + "DBs"
-			+ System.getProperty("file.separator");
+	final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR" + System.getProperty("file.separator");
+	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
 
 	public static boolean importing = false;
 	public static boolean dontLog = false;
@@ -1042,7 +1038,6 @@ public class DBKernel {
 
 	public static void setCaller4Trigger(String tableName,
 			Callable<Void> caller4Trigger) {
-		//XmlLoader.doTest();
 		MyTable myT = DBKernel.myDBi.getTable(tableName);
 		if (myT != null)
 			myT.setCaller4Trigger(caller4Trigger);

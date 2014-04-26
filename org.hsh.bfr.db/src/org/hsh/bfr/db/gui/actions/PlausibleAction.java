@@ -211,8 +211,8 @@ public class PlausibleAction extends AbstractAction {
 							:
 							null;
 							
-							if (pd4.selS.isSelected() && DBKernel.topTable.getActualTable().getTablename().equals("Station")) {
-								Integer stationId = DBKernel.topTable.getSelectedID();
+							if (pd4.selS.isSelected() && DBKernel.mainFrame.getTopTable().getActualTable().getTablename().equals("Station")) {
+								Integer stationId = DBKernel.mainFrame.getTopTable().getSelectedID();
 								System.err.println(stationId);
 								checkTables4Id(stationId);
 							}
@@ -344,7 +344,7 @@ public class PlausibleAction extends AbstractAction {
 						lastShownID = (Integer) filterIDs.toArray()[filterIDs.size() - 1];
 						MyTable theTable = DBKernel.myDBi.getTable(tablename);
 						MyIDFilter mf = new MyIDFilter(filterIDs);
-						Object val = DBKernel.myList.openNewWindow(
+						Object val = DBKernel.mainFrame.openNewWindow(
 								theTable,
 								null,
 								(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),

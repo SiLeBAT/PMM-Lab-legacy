@@ -59,7 +59,7 @@ public class About extends JDialog {
 		initComponents();
 		label4.setText("Copyright \u00a9 2014 BfR");
 		String ver = About.class.getPackage().getImplementationVersion();
-		label2.setText("Version " + (ver == null ? DBKernel.DBVersion : ver)); //"TP-100701");
+		label2.setText("Version " + (ver == null ? DBKernel.softwareVersion : ver)); //"TP-100701");
 		label4.setVisible(false);
 	}
 

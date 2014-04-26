@@ -191,7 +191,7 @@ private MyTable myT = null;
   public void keyPressed(KeyEvent keyEvent) {
     if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_LEFT) {
     	keyEvent.consume();
-    	DBKernel.myList.requestFocus();
+    	DBKernel.mainFrame.getMyList().requestFocus();
     	return;
     }
   }

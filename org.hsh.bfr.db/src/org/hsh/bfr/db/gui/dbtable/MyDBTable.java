@@ -165,8 +165,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		Connection conn = null;
 		try {
 			conn = DBKernel.getDBConnection(username, password);
-			DBKernel.getTempSA(DBKernel.HSHDB_PATH);
-			conn = DBKernel.getDBConnection(username, password);
+			if (conn != null) {
+				DBKernel.getTempSA(DBKernel.HSHDB_PATH);
+				conn = DBKernel.getDBConnection(username, password);
+			}
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);
@@ -175,7 +177,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	}
 	public boolean initConn(final Connection conn) {
 		boolean result = false;
-		DBKernel.topTable = this;
+		if (DBKernel.mainFrame != null) DBKernel.mainFrame.setTopTable(this);
 		if (conn != null) {
 			this.setConnection(conn);
 			this.setSortEnabled(false);	
@@ -1321,7 +1323,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
 
 		//MyLogger.handleMessage("checkForeignWindow2Open1 : " + row);
-		Object newVal = DBKernel.myList.openNewWindow(myTs[col-1], this.getValueAt(row, col), this.getColumn(col).getHeaderValue(), this, row, col);
+		Object newVal = DBKernel.mainFrame.openNewWindow(myTs[col-1], this.getValueAt(row, col), this.getColumn(col).getHeaderValue(), this, row, col);
 		//MyLogger.handleMessage("checkForeignWindow2Open2 : " + row + "\t" + newVal);
     	if (!this.actualTable.isReadOnly()) {
 	      	if (newVal != null) {
@@ -1692,7 +1694,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
   	//System.out.println(keyEvent.getKeyCode() + "\t" + keyEvent.getKeyChar() + "\t" + KeyEvent.VK_F + "\t" + keyEvent.isControlDown());
     if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_LEFT) { //Ctrl+<-, Aussredem geht auch F8
     	keyEvent.consume();
-    	DBKernel.myList.requestFocus();
+    	DBKernel.mainFrame.getMyList().requestFocus();
     	return;
     }
     else if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_F) { // Ctrl+F

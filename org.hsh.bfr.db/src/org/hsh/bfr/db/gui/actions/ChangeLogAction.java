@@ -59,6 +59,6 @@ public ChangeLogAction(String name, Icon icon, String toolTip) {
   }    
 
   public void actionPerformed(ActionEvent e) {
-  	DBKernel.myList.setSelection("ChangeLog");
+  	DBKernel.mainFrame.getMyList().setSelection("ChangeLog");
 	}
 }

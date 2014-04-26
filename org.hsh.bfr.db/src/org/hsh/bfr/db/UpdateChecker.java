@@ -272,7 +272,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " DROP COLUMN " + DBKernel.delimitL("FallErfuellt"), false);
 		updateChangeLog("Station", 20, true);
 		refreshFKs("Station");
-		DBKernel.myList.getTable("Station").doMNs();
+		DBKernel.myDBi.getTable("Station").doMNs();
 	}
 	public static void check4Updates_172_173() {	
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Name") + " VARCHAR(255) BEFORE " + DBKernel.delimitL("Kontaktadresse"), false);
@@ -337,7 +337,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Station") + " ADD COLUMN " + DBKernel.delimitL("Produktkatalog") + " INTEGER BEFORE " + DBKernel.delimitL("Name"), false);
 		updateChangeLog("Station", 1, false);
 		refreshFKs("Station");
-		DBKernel.myList.getTable("Station").doMNs();
+		DBKernel.myDBi.getTable("Station").doMNs();
 	}
 	public static void check4Updates_171_172() {	
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_172.sql", null, false);
@@ -384,6 +384,7 @@ public class UpdateChecker {
 			new GeneralXLSImporter().doImport("/org/hsh/bfr/db/res/Einheiten_130902.xls", null, false);
 		}
 	}
+	/*
 	public static void check4Updates_169_170() {	
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelPrimView") + ";", false);
 		DBKernel.sendRequest("DROP VIEW IF EXISTS " + DBKernel.delimitL("EstModelSecView") + ";", false);
@@ -503,7 +504,7 @@ public class UpdateChecker {
 		DBKernel.sendRequest("ALTER TABLE " + DBKernel.delimitL("Einheiten") + " DROP COLUMN " + DBKernel.delimitL("definition unit"), false);
 		updateChangeLog("Einheiten", 3, true);		
 		check4Updates_162_163();
-		*/
+		
 		new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql", null, false);
 	}
 	public static void check4Updates_162_163() {	
@@ -555,7 +556,7 @@ public class UpdateChecker {
 	  				" SET " + DBKernel.delimitL("ID") + "=" + i + " WHERE " + DBKernel.delimitL("ID") + "=" + (i-2), false);
   		}
 		// sync der firstDB with SiLeBAT - DB!!!
-  		*/
+  		
   		Integer idS = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"s", "Time"});
   		Integer idM = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"min", "Time"});
   		Integer idH = DBKernel.getID("Einheiten", new String[] {"Einheit", "kind of property / quantity"}, new String[] {"h", "Time"});
@@ -931,7 +932,7 @@ public class UpdateChecker {
 	    	    		", CURRENT_TIMESTAMP, 'username', tableName, tableID);\n" + 
 	    	    		"END"
 	    		, false);
-		 */
+		 
 		// ACHTUNG: Alex hat bereits jetzt schon diese DB 1.4.2 - bis hierher
 		
 		
@@ -1221,6 +1222,7 @@ public class UpdateChecker {
 		}
 		catch (Exception e) {e.printStackTrace();}
 	}
+	*/
 	private static boolean updateChangeLog(final String tablename, final int modifiedCol, final boolean deleted) {
 		return updateChangeLog(tablename, modifiedCol, deleted, -1);
 	}
@@ -1336,7 +1338,7 @@ public class UpdateChecker {
 	    }
 	}
 	
-	
+	/*
 	private static void dropJansTabellen() {
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Modell_Verwendung_Verbund") + " IF EXISTS", false);
 		DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("Modell_Resistenz_Verbund") + " IF EXISTS", false);
@@ -1367,4 +1369,5 @@ public class UpdateChecker {
 	private static final String SQL_CREATE_VIEW_DATA = "CREATE VIEW \"MesswerteEinfach\" AS SELECT \"ID\", \"Versuchsbedingungen\" AS \"Versuchsbedingung\", CASE WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Stunde' THEN \"T\".\"Wert\" WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Minute' THEN \"T\".\"Wert\"/60 WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Sekunde' THEN \"T\".\"Wert\"/3600 WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Tag' THEN \"T\".\"Wert\"*24 WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Woche' THEN \"T\".\"Wert\"*168 WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Monat' THEN \"T\".\"Wert\"*730.5 WHEN \"Messwerte\".\"ZeitEinheit\" LIKE 'Jahr' THEN \"T\".\"Wert\"*8766 ELSE NULL END AS \"Zeit\", CASE WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", 'log(10)?.*( pro |/)25(g|m[lL])' ) THEN \"K\".\"Wert\"-LOG10( 25 ) WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", 'log(10)?.*( pro |/)(kg|[lL])' ) THEN \"K\".\"Wert\"-3 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", 'log(10)?.*( pro |/)100(g|m[lL])' ) THEN \"K\".\"Wert\"-2 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", 'log(10)?.*( pro |/)0\\.1(g|m[lL])' ) THEN \"K\".\"Wert\"+1 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", 'log(10)?.*( pro |/)(g|m[lL])' ) THEN \"K\".\"Wert\" WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", '.*( pro |/)25(g|m[lL])' ) THEN LOG10( \"K\".\"Wert\"/25 ) WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", '.*( pro |/)(kg|[lL])' ) THEN LOG10( \"K\".\"Wert\" )-3 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", '.*( pro |/)100(g|m[lL])' ) THEN LOG10( \"K\".\"Wert\" )-2 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", '.*( pro |/)0\\.1(g|m[lL])' ) THEN LOG10( \"K\".\"Wert\" )+1 WHEN REGEXP_MATCHES( \"Einheiten\".\"Einheit\", '.*( pro |/)(g|m[lL])' ) THEN CASE WHEN \"K\".\"Wert\" <= 1 THEN 0 ELSE LOG10( \"C\".\"Wert\" ) END ELSE NULL END AS \"Konzentration\", \"C\".\"Wert\" AS \"Temperatur\", \"P\".\"Wert\" AS \"pH\", \"A\".\"Wert\" AS \"aw\", \"Q\".\"Wert\" AS \"Druck\", \"R\".\"Wert\" AS \"CO2\", \"S\".\"Wert\" AS \"Luftfeuchtigkeit\", \"Messwerte\".\"Sonstiges\", \"Messwerte\".\"Kommentar\" FROM \"Messwerte\" JOIN \"DoubleKennzahlenEinfach\" AS \"T\" ON \"Messwerte\".\"Zeit\"=\"T\".\"ID\" JOIN \"DoubleKennzahlenEinfach\" AS \"K\" ON \"Messwerte\".\"Konzentration\"=\"K\".\"ID\" JOIN \"Einheiten\" ON \"Messwerte\".\"Konz_Einheit\"=\"Einheiten\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"C\" ON \"Messwerte\".\"Temperatur\"=\"C\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"P\" ON \"Messwerte\".\"pH\"=\"P\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"A\" ON \"Messwerte\".\"aw\"=\"A\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"Q\" ON \"Messwerte\".\"Druck\"=\"Q\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"R\" ON \"Messwerte\".\"CO2\"=\"R\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"S\" ON \"Messwerte\".\"Luftfeuchtigkeit\"=\"S\".\"ID\" WHERE \"Delta\" IS NULL OR NOT \"Delta\"\n";
 	private static final String SQL_CREATE_VIEW_CONDITION = "CREATE VIEW \"VersuchsbedingungenEinfach\" AS SELECT \"Versuchsbedingungen\".\"ID\", \"Versuchsbedingungen\".\"Referenz\", \"Versuchsbedingungen\".\"Agens\", \"Versuchsbedingungen\".\"AgensDetail\", \"Versuchsbedingungen\".\"Matrix\", \"Versuchsbedingungen\".\"MatrixDetail\", \"C\".\"Wert\" AS \"Temperatur\", \"P\".\"Wert\" AS \"pH\", \"A\".\"Wert\" AS \"aw\", \"O\".\"Wert\" AS \"CO2\", \"D\".\"Wert\" AS \"Druck\", \"L\".\"Wert\" AS \"Luftfeuchtigkeit\", \"Versuchsbedingungen\".\"Sonstiges\", \"Versuchsbedingungen\".\"Kommentar\" FROM \"Versuchsbedingungen\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"C\" ON \"Versuchsbedingungen\".\"Temperatur\"=\"C\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"P\" ON \"Versuchsbedingungen\".\"pH\"=\"P\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"A\" ON \"Versuchsbedingungen\".\"aw\"=\"A\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"O\" ON \"Versuchsbedingungen\".\"CO2\"=\"O\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"D\" ON \"Versuchsbedingungen\".\"Druck\"=\"D\".\"ID\" LEFT JOIN \"DoubleKennzahlenEinfach\" AS \"L\" ON \"Versuchsbedingungen\".\"Luftfeuchtigkeit\"=\"L\".\"ID\"\n";
 	private static final String SQL_CREATE_VIEW_MISC = "CREATE VIEW \"SonstigesEinfach\" AS SELECT \"Versuchsbedingungen_Sonstiges\".\"Versuchsbedingungen\" AS \"Versuchsbedingung\", \"SonstigeParameter\".\"ID\" AS \"SonstigesID\", \"SonstigeParameter\".\"Beschreibung\", \"Einheiten\".\"Einheit\", \"DoubleKennzahlen\".\"Wert\" FROM \"Versuchsbedingungen_Sonstiges\" LEFT JOIN \"Einheiten\" ON \"Versuchsbedingungen_Sonstiges\".\"Einheit\"=\"Einheiten\".\"ID\" JOIN \"SonstigeParameter\" ON \"Versuchsbedingungen_Sonstiges\".\"SonstigeParameter\"=\"SonstigeParameter\".\"ID\" LEFT JOIN \"DoubleKennzahlen\" ON \"Versuchsbedingungen_Sonstiges\".\"Wert\"=\"DoubleKennzahlen\".\"ID\"\n";
+	*/
 }

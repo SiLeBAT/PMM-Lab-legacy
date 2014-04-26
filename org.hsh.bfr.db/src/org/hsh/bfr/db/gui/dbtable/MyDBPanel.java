@@ -373,7 +373,7 @@ public class MyDBPanel extends JPanel {
 			return;
 		}
 		if (e != null && e.isControlDown() && e.getKeyCode() == KeyEvent.VK_LEFT) { //Ctrl+<-, Ausserdem geht auch F8
-	    	DBKernel.myList.requestFocus();
+	    	DBKernel.mainFrame.getMyList().requestFocus();
 	    }
 		else if (textField1.getText().length() == 0 && !checkBox1.isSelected()) {
 			myFounds.clear(); initFindVector(myFounds, 0, "");

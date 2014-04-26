@@ -356,14 +356,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 				      myT.doMNs();
 		    			if (progress != null) {
 		  	  			// Refreshen:
-		    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+		    				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 		    				if (myDB.getActualTable() != null) {
 			    				String actTablename = myDB.getActualTable().getTablename();
 			    				if (actTablename.equals(tableName) || actTablename.equals(DBKernel.getCodesName(tableName))) {
 			    					myDB.setTable(myDB.getActualTable());
 			    				}
 		    				}
-		    				MyDBTree myTR = DBKernel.myList.getMyDBTree();
+		    				MyDBTree myTR = DBKernel.mainFrame.getMyList().getMyDBTree();
 		    				if (myTR.getActualTable() != null) {
 		      				String actTablename = myTR.getActualTable().getTablename();
 		      				if (actTablename.equals(tableName) || actTablename.equals(DBKernel.getCodesName(tableName))) {

@@ -102,7 +102,7 @@ class StartApp {
 	  			myT.doMNs();
 	  		}
 
-    	  	DBKernel.myList.getMyDBTable().setTable();
+    	  	DBKernel.mainFrame.getMyList().getMyDBTable().setTable();
 
     	  	DBKernel.mainFrame.toFront();	    
     	  	DBKernel.mainFrame.setVisible(true);

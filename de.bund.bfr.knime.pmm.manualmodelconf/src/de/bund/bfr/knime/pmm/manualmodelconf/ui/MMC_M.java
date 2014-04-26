@@ -890,7 +890,7 @@ public class MMC_M extends JPanel {
 		MyTable lit = DBKernel.myDBi.getTable("Literatur");
 		Integer litID = (oldLi != null && (dbuuid != null && dbuuid
 				.equals(oldLi.getDbuuid()))) ? oldLi.getId() : null;
-		Integer newVal = (Integer) DBKernel.myList.openNewWindow(lit, litID,
+		Integer newVal = (Integer) DBKernel.mainFrame.openNewWindow(lit, litID,
 				(Object) "Literatur", null, 1, 1, null, true, null, this);
 		if (newVal != null && newVal instanceof Integer) {			
 			LiteratureItem li = DBUtilities.getLiteratureItem(newVal);

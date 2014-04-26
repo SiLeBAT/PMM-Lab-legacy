@@ -40,7 +40,7 @@ public class MergeDBsAPriori {
 	    		"DBs zusammenführen?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION && DBKernel.isAdmin()) {
 			try {
-				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				DBKernel.mainFrame.getMyList().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
 				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
 				MyTable[] myTs = new MyTable[]{
@@ -60,13 +60,13 @@ public class MergeDBsAPriori {
 					myTables.get(key).doMNs();
 				}
 				
-				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 				myDB.setTable(myDB.getActualTable());
 				
 				JOptionPane.showMessageDialog(DBKernel.mainFrame, "Fertig!", "DBs zusammenführen", JOptionPane.INFORMATION_MESSAGE);		
 			}
 			finally {
-				DBKernel.myList.setCursor(Cursor.getDefaultCursor());
+				DBKernel.mainFrame.getMyList().setCursor(Cursor.getDefaultCursor());
 			}
 		}
 	}

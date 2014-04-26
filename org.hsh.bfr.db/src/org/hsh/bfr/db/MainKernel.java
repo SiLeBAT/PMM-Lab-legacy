@@ -39,11 +39,9 @@ package org.hsh.bfr.db;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -56,7 +54,6 @@ import org.hsqldb.server.Server;
 
 public class MainKernel {
 
-	public static long triggerFired = System.currentTimeMillis();
 	static boolean dontLog = false;
 	private static boolean isServer = false;
 	private static Server s = null;
@@ -158,28 +155,6 @@ public class MainKernel {
 	static boolean isServer() {
 		return isServer;
 	}
-	private static boolean different(final Object[] rowBefore, final Object[] rowAfter) {
-		if (rowBefore == null && rowAfter == null) {
-			return false;
-		}
-		if (rowBefore == null && rowAfter != null || rowBefore != null && rowAfter == null) {
-			return true;
-		}
-		if (rowBefore.equals(rowAfter)) {
-			return false;
-		}
-		for (int i=0;i<rowBefore.length;i++) {
-			if (rowBefore[i] == null && rowAfter[i] == null) {
-				;
-			}
-			else if (rowBefore[i] == null && rowAfter[i] != null || 
-					rowAfter[i] == null && rowBefore[i] != null || 
-					!rowBefore[i].toString().equals(rowAfter[i].toString())) {
-				return true;
-			}
-		}
-		return false;
-	}
 	/*
 	private static Integer getNextChangeLogID(final Connection conn) {
 		Integer result = null;
@@ -214,67 +189,6 @@ public class MainKernel {
 		return result;
 	}
 	*/
-	protected static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter) {
-		return insertIntoChangeLog(tablename, rowBefore, rowAfter, false);
-	}
-	private static boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
-		if (dontLog) {
-			return true;
-		}
-		else {
-			boolean diff = different(rowBefore, rowAfter); 
-		    if (!diff) {
-				return true;
-			}
-		    boolean result = false;
-		    try {
-		    	Connection conn = getDefaultConnection();
-		    	String username = getUsername();
-		    	PreparedStatement ps = conn.prepareStatement("INSERT INTO " + delimitL("ChangeLog") +
-			      		" (" + delimitL("ID") + ", " + delimitL("Zeitstempel") + ", " + delimitL("Username") + ", " +
-			      		delimitL("Tabelle") + ", " + delimitL("TabellenID") + ", " +
-			      		delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR " + delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
-	
-			    	ps.setTimestamp(1, new Timestamp(new Date().getTime()));
-			    	ps.setString(2, username);
-			    	ps.setString(3, tablename);
-			    	int tableID;
-			    	if (rowBefore != null && rowBefore.length > 0 && rowBefore[0] != null && rowBefore[0] instanceof Integer) {
-						tableID = (Integer) rowBefore[0];
-					} else if (rowAfter != null && rowAfter.length > 0 && rowAfter[0] != null && rowAfter[0] instanceof Integer) {
-						tableID = (Integer) rowAfter[0];
-					} else {
-						tableID = -1;
-					}
-			    	ps.setInt(4, tableID);
-			    	//System.err.println(eintragAlt2String(rowBefore));
-			    	check4SerializationProblems(rowBefore);
-			    	ps.setObject(5, rowBefore);
-			    	triggerFired = System.currentTimeMillis();
-			    	ps.execute();
-		
-				result = true;
-		    }
-		    catch (Exception e) {
-		    	if (!suppressWarnings) {
-		    		MyLogger.handleException(e);
-		    	}
-		    }
-		    return result;
-		}
-	}
-	private static void check4SerializationProblems(final Object[] rowBefore) {
-		if (rowBefore == null) {
-			return;
-		}
-		for (int i=0;i<rowBefore.length;i++) {
-			if (rowBefore[i] instanceof org.hsqldb.types.TimestampData) {
-				rowBefore[i] = ((org.hsqldb.types.TimestampData) rowBefore[i]).getSeconds();
-				//Long d = (Long) rowBefore[i];
-				//System.err.println(d + "\t" + rowBefore[i]);
-			}
-		}
-	}
 	static String getUsername() {
 		  	String username = "";
 			try {

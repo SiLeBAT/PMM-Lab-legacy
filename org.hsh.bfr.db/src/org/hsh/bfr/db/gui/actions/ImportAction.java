@@ -119,9 +119,7 @@ public class ImportAction extends AbstractAction {
   private void doTheImport(MyImporter mi, File selectedFile, boolean showResults) {
 		DBKernel.prefs.put("LAST_OUTPUT_DIR", selectedFile.getParent());
 		DBKernel.prefs.prefsFlush();
-		DBKernel.importing = true;
 		mi.doImport(selectedFile.getAbsolutePath(), progressBar1, showResults);
-		DBKernel.importing = false;
 		MyLogger.handleMessage("Importing - Fin!");
   }
 }

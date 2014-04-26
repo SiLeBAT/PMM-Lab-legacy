@@ -94,8 +94,8 @@ public class SettingsDialog extends JFrame {
 				conn = DBKernel.getLocalConn(true);
 				if (conn != null) {
 					DBKernel.createGui(conn);
-			  		DBKernel.myList.getMyDBTable().initConn(conn);
-					DBKernel.myList.getMyDBTable().setTable();
+			  		DBKernel.mainFrame.getMyList().getMyDBTable().initConn(conn);
+					DBKernel.mainFrame.getMyList().getMyDBTable().setTable();
 					//DBKernel.myList.setSelection("Matrices");
 					//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
 	        		CategoryReader.killInstance();

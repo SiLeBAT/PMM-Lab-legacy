@@ -75,18 +75,20 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 	static final String PARAM_MODELCLASS = "modelClass";
 	static final String PARAM_MODELFILTERENABLED = "modelFilterEnabled";
 	static final String PARAM_MODELLIST = "modelList";
+	/*
 	static final String PARAM_FILENAME = "filename";
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
-
-
+*/
+/*
 	private String filename;
 	private String login;
 	private String passwd;
+	private boolean override;
+	*/
 	private int level;
 	private String modelClass;
-	private boolean override;
 	private String modelList;
 	private boolean modelFilterEnabled;
     
@@ -97,12 +99,13 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
      */
     protected ModelCatalogReaderNodeModel() {
         super( 0, 1 );
-        
+        /*
         filename = "";
         login = "";
         passwd = "";
-        level = 1;
         override = false;
+        */
+        level = 1;
         modelList = "";
         modelFilterEnabled = false;
         
@@ -127,6 +130,10 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     	
         // fetch database connection
         db = null;
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
+    	/*
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 			conn = db.getConnection();
@@ -134,7 +141,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 			conn = null;
 		}
-    		
+    		*/
     	dbuuid = db.getDBUUID();
     	
     	String message = "";
@@ -330,12 +337,14 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
+    	/*
     	settings.addString( PARAM_FILENAME, filename );
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
+    	settings.addBoolean( PARAM_OVERRIDE, override );
+    	*/
     	settings.addInt( PARAM_LEVEL, level );
     	settings.addString(PARAM_MODELCLASS, modelClass);
-    	settings.addBoolean( PARAM_OVERRIDE, override );
     	settings.addString( PARAM_MODELLIST, modelList );
     	settings.addBoolean( PARAM_MODELFILTERENABLED, modelFilterEnabled );
     }
@@ -346,12 +355,14 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
+    	/*
     	filename = settings.getString( PARAM_FILENAME );
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
+    	override = settings.getBoolean( PARAM_OVERRIDE );
+    	*/
     	level = settings.getInt( PARAM_LEVEL );
     	modelClass = settings.getString(PARAM_MODELCLASS);
-    	override = settings.getBoolean( PARAM_OVERRIDE );
     	modelList = settings.getString( PARAM_MODELLIST );
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );
     }

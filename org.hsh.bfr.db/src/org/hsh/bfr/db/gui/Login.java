@@ -64,6 +64,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.hsh.bfr.db.Backup;
+import org.hsh.bfr.db.BackupMyDBI;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyDBI;
 import org.hsh.bfr.db.MyDBTablesNew;
@@ -112,6 +113,7 @@ public class Login extends JFrame {
 			MainFrame mf = null;
 			DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
 			if (DBKernel.myDBi != null) {
+				DBKernel.HSHDB_PATH = textField2.getText();
 				mf = loadDBNew(DBKernel.myDBi, textField2.getText());
 			}
 			else {
@@ -322,12 +324,23 @@ public class Login extends JFrame {
 				}
 				else {
 					File temp = DBKernel.getCopyOfInternalDB();
-					if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
-						passwordField1.setBackground(Color.RED);
-						passwordField2.setBackground(Color.WHITE);
-						passwordField3.setBackground(Color.WHITE);
-						passwordField1.requestFocus();					
-						return mf;
+					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
+						if (!BackupMyDBI.doRestore(myDB, temp, true, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+							passwordField1.setBackground(Color.RED);
+							passwordField2.setBackground(Color.WHITE);
+							passwordField3.setBackground(Color.WHITE);
+							passwordField1.requestFocus();					
+							return mf;
+						}
+					}
+					else {
+						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+							passwordField1.setBackground(Color.RED);
+							passwordField2.setBackground(Color.WHITE);
+							passwordField3.setBackground(Color.WHITE);
+							passwordField1.requestFocus();					
+							return mf;
+						}
 					}
 
 					mf = initGui(myDB);

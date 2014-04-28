@@ -27,6 +27,7 @@ public class XmlLoader {
 		xstream.omitField(MyDBI.class, "dbPath");
 		xstream.omitField(MyDBI.class, "path2XmlFile");
 		xstream.omitField(MyDBI.class, "isServerConnection");
+		xstream.omitField(MyDBI.class, "isAdminConnection");
 		xstream.omitField(MyDBI.class, "passFalse");
 		xstream.omitField(MyDBI.class, "filledHashtables");
 		xstream.omitField(MyDBTablesNew.class, "isPmm");
@@ -75,7 +76,7 @@ public class XmlLoader {
 	        }
 	        result = getObject(sb.toString());
 	    }
-	    catch (Exception e) {e.printStackTrace();}
+	    catch (Exception e) {}
 	    finally {
 	        if (br != null) {
 				try {

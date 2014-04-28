@@ -537,6 +537,7 @@ public class DBKernel {
 						Statement stmt = localConn.createStatement();
 						MyLogger.handleMessage("vor SHUTDOWN");
 						stmt.execute("SHUTDOWN"); // Hier kanns es eine Exception geben, weil nur der Admin SHUTDOWN machen darf!
+						//XmlLoader.save2File(HSHDB_PATH + "DB.xml", myDBi);
 					}
 					catch (SQLException e) {
 						result = false;
@@ -654,8 +655,7 @@ public class DBKernel {
 		}
 		return result;
 	}
-	// Still to look at... myDBI...Backup.restore()
-	static Connection getDBConnection(boolean suppressWarnings) throws Exception {
+	private static Connection getDBConnection(boolean suppressWarnings) throws Exception {
 		return getDBConnection(HSHDB_PATH, DBKernel.m_Username, DBKernel.m_Password, false, suppressWarnings);
 	}
 
@@ -733,8 +733,8 @@ public class DBKernel {
 		return result;
 	}
 
-	// Still to look at... myDBI... Backup...
 	public static Connection getDefaultAdminConn() throws Exception {
+		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn(true);
 		return getDefaultAdminConn(DBKernel.HSHDB_PATH, false);
 	}
 
@@ -1436,6 +1436,7 @@ public class DBKernel {
 
 	public static boolean DBFilesDa(String path) {
 		boolean result = false;
+		if (!path.endsWith(System.getProperty("file.separator"))) path += System.getProperty("file.separator");
 		File f = new File(path + "DB.script");
 		if (!f.exists()) {
 			f = new File(path + "DB.data");
@@ -1455,7 +1456,6 @@ public class DBKernel {
 		return result;
 	}
 
-	// Still to look at... myDBI...Backup...
 	private static int askVeraltetDBBackup(final Login login) {
 		int result = JOptionPane.YES_OPTION;
 		int retVal = JOptionPane.showConfirmDialog(login,
@@ -1463,8 +1463,15 @@ public class DBKernel {
 						"Backup erstellen?", JOptionPane.YES_NO_CANCEL_OPTION,
 						JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION) {
-			if (!Backup.dbBackup(login)) {
-				result = JOptionPane.CANCEL_OPTION;
+			if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
+				if (!BackupMyDBI.dbBackup(login)) {
+					result = JOptionPane.CANCEL_OPTION;
+				}
+			}
+			else {
+				if (!Backup.dbBackup(login)) {
+					result = JOptionPane.CANCEL_OPTION;
+				}
 			}
 		}
 		else if (retVal == JOptionPane.NO_OPTION) {

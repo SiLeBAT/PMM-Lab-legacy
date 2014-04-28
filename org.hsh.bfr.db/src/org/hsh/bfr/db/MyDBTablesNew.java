@@ -27,7 +27,7 @@ public class MyDBTablesNew extends MyDBI {
 	private LinkedHashMap<String, String> allData = null;
 	private String saUser = "SA";//"defad"; // SA
 	private String saPass = "";//"de6!§5ddy";
-	private String dbPath = ".";
+	private String dbServerPath = "";
 	private String softwareVersion = "1.7.9";
 	
 	private boolean isPmm = true;
@@ -93,8 +93,8 @@ public class MyDBTablesNew extends MyDBI {
 		saPass = pass;
 	}
 	@Override
-	public String getDbPath() {
-		return dbPath;
+	public String getDbServerPath() {
+		return dbServerPath;
 	}
 
 	@Override

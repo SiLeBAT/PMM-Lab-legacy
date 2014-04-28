@@ -40,8 +40,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
-
 /**
 
  * <code>NodeDialog</code> for the "ModelCatalogWriter" Node.
@@ -56,13 +54,13 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
  */
 public class ModelCatalogWriterNodeDialog extends NodeDialogPane {
 	
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 
     /**
      * New pane for configuring the ModelCatalogWriter node.
      */
     protected ModelCatalogWriterNodeDialog() {
-    	dbui = new DbConfigurationUi();    	
+    	//dbui = new DbConfigurationUi();    	
     	//addTab("Database connection", dbui);
 
     }
@@ -70,13 +68,16 @@ public class ModelCatalogWriterNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		/*
 		settings.addString( ModelCatalogWriterNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( ModelCatalogWriterNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( ModelCatalogWriterNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( ModelCatalogWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );		
+		*/
 	}
 	
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
+		/*
 		try {
 			dbui.setFilename( settings.getString( ModelCatalogWriterNodeModel.PARAM_FILENAME ) );
 			dbui.setLogin( settings.getString( ModelCatalogWriterNodeModel.PARAM_LOGIN ) );
@@ -86,6 +87,7 @@ public class ModelCatalogWriterNodeDialog extends NodeDialogPane {
 		catch( InvalidSettingsException ex ) {	
 			ex.printStackTrace( System.err );
 		}
+		*/
 	}
 
 }

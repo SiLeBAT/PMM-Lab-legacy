@@ -40,8 +40,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
-
 /**
  * <code>NodeDialog</code> for the "EstimatedModelWriter" Node.
  * 
@@ -55,29 +53,30 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
  */
 public class EstimatedModelWriterNodeDialog extends NodeDialogPane {
 
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 
     /**
      * New pane for configuring the EstimatedModelWriter node.
      */
     protected EstimatedModelWriterNodeDialog() {
     	
-    	dbui = new DbConfigurationUi();    	
+    	//dbui = new DbConfigurationUi();    	
     	//addTab("Database connection", dbui);
     }
     
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
-		
+		/*
 		settings.addString( EstimatedModelWriterNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( EstimatedModelWriterNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( EstimatedModelWriterNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( EstimatedModelWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
+		*/
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
-		
+		/*
 		try {
 			
 			dbui.setFilename( settings.getString( EstimatedModelWriterNodeModel.PARAM_FILENAME ) );
@@ -89,7 +88,7 @@ public class EstimatedModelWriterNodeDialog extends NodeDialogPane {
 			
 			ex.printStackTrace( System.err );
 		}
-		
+		*/
 	}
 
 

@@ -41,6 +41,7 @@ import javax.swing.Action;
 import javax.swing.Icon;
 
 import org.hsh.bfr.db.Backup;
+import org.hsh.bfr.db.BackupMyDBI;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
@@ -66,7 +67,8 @@ public class RestoreAction extends AbstractAction {
   public void actionPerformed(ActionEvent e) {
 	  try {
 		  if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		  Backup.doRestore(myDB);
+		  if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) BackupMyDBI.doRestore(myDB);
+		  else Backup.doRestore(myDB);
 	  }
 	  finally {
 		  if (DBKernel.mainFrame != null) DBKernel.mainFrame.setCursor(Cursor.getDefaultCursor());

@@ -271,8 +271,8 @@ public class Backup extends FileFilter {
   private static Connection getDBConnectionYOrCreateUser() {
 	  Connection conn = null;	  
 	  try {
-		  conn = DBKernel.getDBConnection(true);
-		  if (conn == null) {
+		  conn = DBKernel.getDBConnection(); // true
+		  if (conn == null || conn.isClosed()) {
 				DBKernel.getDefaultAdminConn();
 				if (DBKernel.countUsers(false) == 0) {
 					String username = DBKernel.getUsername();

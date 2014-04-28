@@ -34,7 +34,6 @@
 package de.bund.bfr.knime.pmm.timeseriesreader;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 import javax.swing.BoxLayout;
@@ -49,8 +48,6 @@ import org.knime.core.node.config.Config;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 /**
@@ -66,7 +63,7 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
  */
 public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 	
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 	private MdReaderUi tsui;
 
     /**
@@ -78,11 +75,14 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	panel = new JPanel();
     	panel.setLayout( new BoxLayout( panel, BoxLayout.Y_AXIS ) );    	
     	
-    	dbui = new DbConfigurationUi();
+    	//dbui = new DbConfigurationUi();
     	//panel.add( dbui );
     	
-    	Bfrdb db;
     	Connection conn = null;
+    	try {
+			DBKernel.getLocalConn(true);
+		} catch (Exception e1) {}
+    	/*
     	if( dbui.getOverride() ) {
 			try {
 				db = new Bfrdb( dbui.getFilename(), dbui.getLogin(), dbui.getPasswd() );
@@ -98,6 +98,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 			conn = null;
 		}
+		*/
 
     	tsui = new MdReaderUi(conn, DBKernel.getItemListMisc(conn));
     	panel.add(tsui);
@@ -109,10 +110,12 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo( final NodeSettingsWO settings )
 			throws InvalidSettingsException {		
+		/*
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_PASSWD, dbui.getPasswd() );
 		settings.addBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride() );
+		*/
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING, tsui.getMatrixString() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING, tsui.getAgentString() );
 		settings.addString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING, tsui.getLiteratureString() );
@@ -142,10 +145,12 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
 	protected void loadSettingsFrom( final NodeSettingsRO settings, final PortObjectSpec[] specs )  {
 		
 		try {			
+			/*
 			dbui.setFilename( settings.getString( TimeSeriesReaderNodeModel.PARAM_FILENAME ) );
 			dbui.setLogin( settings.getString( TimeSeriesReaderNodeModel.PARAM_LOGIN ) );
 			dbui.setPasswd( settings.getString( TimeSeriesReaderNodeModel.PARAM_PASSWD ) );
 			dbui.setOverride( settings.getBoolean( TimeSeriesReaderNodeModel.PARAM_OVERRIDE ) );
+			*/
 			tsui.setMatrixString( settings.getString( TimeSeriesReaderNodeModel.PARAM_MATRIXSTRING ) );
 			tsui.setAgentString( settings.getString( TimeSeriesReaderNodeModel.PARAM_AGENTSTRING ) );
 			tsui.setLiteratureString(settings.getString( TimeSeriesReaderNodeModel.PARAM_LITERATURESTRING ) );

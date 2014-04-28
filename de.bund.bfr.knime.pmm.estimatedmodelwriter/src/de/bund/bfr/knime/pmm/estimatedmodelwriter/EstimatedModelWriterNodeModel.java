@@ -86,7 +86,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  * @author Jorgen Brandt
  */
 public class EstimatedModelWriterNodeModel extends NodeModel {
-    
+    /*
 	static final String PARAM_FILENAME = "filename";
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
@@ -96,18 +96,19 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 	private String login;
 	private String passwd;
 	private boolean override;
-    
+    */
     /**
      * Constructor for the node model.
      */
     protected EstimatedModelWriterNodeModel() {
     
         super( 1, 0 );
-        
+        /*
         filename = "";
         login = "";
         passwd = "";
         override = false;
+        */
     }
 
     /**
@@ -118,11 +119,16 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
             final ExecutionContext exec) throws Exception {
     	
     	Bfrdb db = null;
+    	/*
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
+		*/
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
     	Connection conn = db.getConnection();
     	conn.setReadOnly(false);
 /*
@@ -647,11 +653,12 @@ if (true) return null;
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
-    	
+    	/*
     	settings.addString( PARAM_FILENAME, filename );
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
+    	*/
     }
 
     /**
@@ -660,11 +667,12 @@ if (true) return null;
     @Override
     protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
-    	
+    	/*
     	filename = settings.getString( PARAM_FILENAME );
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
+    	*/
     }
 
     /**

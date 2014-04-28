@@ -25,9 +25,10 @@ public class MyDBTablesNew extends MyDBI {
 	private LinkedHashMap<Integer, String> treeStructure = null;
 	private LinkedHashSet<String> allViews = null;
 	private LinkedHashMap<String, String> allData = null;
-	private final String saUser = "SA";//"defad"; // SA
-	private final String saPass = "";//"de6!§5ddy";
-	private final String dbVersion = "1.7.9";
+	private String saUser = "SA";//"defad"; // SA
+	private String saPass = "";//"de6!§5ddy";
+	private String dbPath = ".";
+	private String softwareVersion = "1.7.9";
 	
 	private boolean isPmm = true;
 	private boolean isKrise = true;
@@ -78,21 +79,32 @@ public class MyDBTablesNew extends MyDBI {
 	}
 
 	@Override
+	public String getSA() {
+		return saUser;
+	}
+	@Override
+	public String getSAP() {
+		return saPass;
+	}
+
+	@Override
+	public void setSA_P(String user, String pass) {
+		saUser = user;
+		saPass = pass;
+	}
+	@Override
+	public String getDbPath() {
+		return dbPath;
+	}
+
+	@Override
 	public boolean isReadOnly() {
 		return false;
 	}
 
 	@Override
-	public String getDBVersion() {
-		return dbVersion;
-	}
-
-	public String getSaUser() {
-		return saUser;
-	}
-
-	public String getSaPass() {
-		return saPass;
+	public String getSoftwareVersion() {
+		return softwareVersion;
 	}
 	
 	@Override
@@ -1685,7 +1697,7 @@ public class MyDBTablesNew extends MyDBI {
 	  	// treeStructure
 		treeStructure = new LinkedHashMap<Integer, String>();
 
-	    boolean isAdmin  = DBKernel.isAdmin();
+	    boolean isAdmin  = DBKernel.myDBi == null ? true : DBKernel.myDBi.isAdmin();
 		if (isAdmin) treeStructure.put(SystemTabellen_LIST, "System-Tabellen");
 		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(BasisTabellen_LIST, "Basis-Tabellen");
 		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(Tenazitaet_LIST, "Tenazitaet");

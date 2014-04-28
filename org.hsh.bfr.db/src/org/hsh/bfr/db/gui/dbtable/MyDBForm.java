@@ -625,7 +625,7 @@ public class MyDBForm extends JPanel {
 	private void checkForeignWindow2Open(JComponent c, String key, MyTable myFT, String myMNT) {
 		String id = ((JTextField) componentMap.get("ID")).getText();
 		if (!id.isEmpty() || myMNT == null || myMNT.isEmpty()) { // sonst gibt es Fehler in der M:N Logik
-			Object newVal = DBKernel.myList.openNewWindow(myFT, getInt(c.getToolTipText()), key, myMNT, id, this);
+			Object newVal = DBKernel.mainFrame.openNewWindow(myFT, getInt(c.getToolTipText()), key, myMNT, id, this);
 			//System.err.println(key + "\t" + newVal + "\t" + c.getToolTipText());
 			if (newVal != null) c.setToolTipText(newVal.toString());
 		}

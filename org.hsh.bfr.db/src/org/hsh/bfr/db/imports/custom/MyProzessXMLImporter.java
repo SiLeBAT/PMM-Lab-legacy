@@ -207,7 +207,7 @@ public class MyProzessXMLImporter extends FileFilter implements MyImporter {
 	  	  			// Refreshen:
 	    				DBKernel.myDBi.getTable("ProzessWorkflow").doMNs();
 	    				DBKernel.myDBi.getTable("Prozessdaten").doMNs();
-	    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+	    				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 	    				MyTable myActT = myDB.getActualTable();
 	    				if (myActT != null) {
 		    				String actTablename = myActT.getTablename();

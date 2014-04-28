@@ -60,8 +60,7 @@ private String inhalt = "";
 	        this.inhalt = inhalt;
 	        this.setResizable(false);
 	        this.setSize(dim);
-	        this.setLocation(loc.x + (siz.width - this.getWidth())/2,
-	        		loc.y + (siz.height - this.getHeight())/2);
+	        this.setLocation(loc.x + (siz.width - this.getWidth())/2, loc.y + (siz.height - this.getHeight())/2);
 	        initComponents();
 	        if (font != null) {
 	        	infoTextArea.setFont(font);

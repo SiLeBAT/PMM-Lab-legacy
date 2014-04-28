@@ -250,7 +250,7 @@ public class MyRisImporter extends FileFilter implements MyImporter {
     			if (progress != null) {
     				progress.setVisible(false);
   	  			// Refreshen:
-    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+    				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
     				if (myDB.getActualTable() != null) {
 	    				String tablename = myDB.getActualTable().getTablename();
 	    				if (tablename.equals("Literatur")) {

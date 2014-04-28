@@ -1021,7 +1021,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			      	DBKernel.myDBi.getTable("Lieferungen").doMNs();
 	    			if (progress != null) {
 	  	  			// Refreshen:
-	    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+	    				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 	    				if (myDB.getActualTable() != null) {
 		    				String actTablename = myDB.getActualTable().getTablename();
 		    				if (actTablename.equals("Produktkatalog") || actTablename.equals("Lieferungen")

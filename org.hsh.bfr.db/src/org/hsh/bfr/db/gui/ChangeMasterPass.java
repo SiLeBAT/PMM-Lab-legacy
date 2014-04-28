@@ -41,10 +41,12 @@ public class ChangeMasterPass extends JDialog {
 				if (DBKernel.sendRequest("CREATE USER " + DBKernel.delimitL(newSA) + " PASSWORD '" + newPass + "' ADMIN", false)) {
 					if (DBKernel.getUsername().equals(DBKernel.getTempSA(DBKernel.HSHDB_PATH))) {
 				  		DBKernel.closeDBConnections(false);
-				  		DBKernel.myList.getMyDBTable().initConn(newSA, newPass);
+						if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) DBKernel.myDBi.establishDBConnection(newSA, newPass);
+						else DBKernel.mainFrame.getMyList().getMyDBTable().initConn(newSA, newPass);
 					}
 					if (DBKernel.sendRequest("DROP USER " + DBKernel.delimitL(DBKernel.getTempSA(DBKernel.HSHDB_PATH)), false)) {
-						DBKernel.removeAdminInfo(DBKernel.HSHDB_PATH);
+						if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) DBKernel.myDBi.setSA_P(newSA, newPass);
+						else DBKernel.removeAdminInfo(DBKernel.HSHDB_PATH);
 						success = true;
 					}
 				}
@@ -52,7 +54,10 @@ public class ChangeMasterPass extends JDialog {
 			else if (DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(newSA) + " SET PASSWORD '" + newPass + "';", false)) {
 				success = true;
 			}
-			if (success) ibText = "Successful Change!";
+			if (success) {
+				ibText = "Successful Change!";
+				if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) DBKernel.myDBi.setSA_P(newSA, newPass);
+			}
 			else ibText = "Couldn't change password...";
 			InfoBox ib = new InfoBox(this, ibText, true, new Dimension(300, 200), null, true);
 			ib.setVisible(true);

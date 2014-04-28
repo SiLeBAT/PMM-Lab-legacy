@@ -43,7 +43,7 @@ import java.util.LinkedHashMap;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
-import org.hsh.bfr.db.imports.InfoBox;
+import org.hsh.bfr.db.gui.InfoBox;
 
 import quick.dbtable.DBTableCellListener;
 

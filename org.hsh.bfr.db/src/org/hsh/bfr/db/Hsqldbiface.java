@@ -74,9 +74,8 @@ public class Hsqldbiface {
 				if (!path.endsWith(System.getProperty("file.separator"))) path += System.getProperty("file.separator");
 				if (!DBKernel.DBFilesDa(path)) {
 					File temp = DBKernel.getCopyOfInternalDB();
-					if (!Backup.doRestore(path, null, temp, true, false)) {
-						
-					}
+					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) BackupMyDBI.doRestore(null, temp, true, false); // check later!!!
+					else Backup.doRestore(path, null, temp, true, false);
 				}
 				conn = DBKernel.getNewLocalConnection(login, pw, path + "DB", true);
 				if (conn == null) {
@@ -199,7 +198,7 @@ public class Hsqldbiface {
 	public Connection getConnection() {
 		return conn;
 	}
-	public void pushUpdate(String query) throws SQLException {		
+	private void pushUpdate(String query) throws SQLException {		
 		pushUpdate(query, conn);
 	}
 	private void pushUpdate(String query, Connection conn) throws SQLException {	

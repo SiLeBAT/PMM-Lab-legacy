@@ -339,7 +339,7 @@ public class MdReaderUi extends JPanel {
 		Integer matrixID = null;
 		try {matrixID = Integer.parseInt(matrixIDField.getText());}
 		catch (Exception e1) {}
-		Object newVal = DBKernel.myList.openNewWindow(
+		Object newVal = DBKernel.mainFrame.openNewWindow(
 				mat,
 				matrixID,
 				(Object) "Matrices",
@@ -365,7 +365,7 @@ public class MdReaderUi extends JPanel {
 		Integer agensID = null;
 		try {agensID = Integer.parseInt(agensIDField.getText());}
 		catch (Exception e1) {}
-		Object newVal = DBKernel.myList.openNewWindow(
+		Object newVal = DBKernel.mainFrame.openNewWindow(
 				age,
 				agensID,
 				(Object) "Agenzien",
@@ -390,7 +390,7 @@ public class MdReaderUi extends JPanel {
 		Integer litID = null;
 		try {litID = Integer.parseInt(literatureIDField.getText());}
 		catch (Exception e1) {}
-		Object newVal = DBKernel.myList.openNewWindow(
+		Object newVal = DBKernel.mainFrame.openNewWindow(
 				lit,
 				litID,
 				(Object) "References",

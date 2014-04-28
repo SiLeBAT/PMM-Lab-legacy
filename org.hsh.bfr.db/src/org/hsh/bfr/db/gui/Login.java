@@ -64,14 +64,15 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import org.hsh.bfr.db.Backup;
+import org.hsh.bfr.db.BackupMyDBI;
 import org.hsh.bfr.db.DBKernel;
+import org.hsh.bfr.db.MyDBI;
 import org.hsh.bfr.db.MyDBTablesNew;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.UpdateChecker;
 import org.hsh.bfr.db.VersionComprator;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import com.jgoodies.forms.factories.Borders;
 import com.jgoodies.forms.factories.CC;
@@ -93,7 +94,6 @@ public class Login extends JFrame {
 	public Login(final boolean firstRun) {
 		this.firstRun = firstRun;
 		initComponents();	
-		DBKernel.login = this;
 		//DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());
 		String lastUser = DBKernel.prefs.get("LAST_USER_LOGIN", "");
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
@@ -108,19 +108,28 @@ public class Login extends JFrame {
 	}
 
 	private void okButtonActionPerformed(final ActionEvent e) {
-		DBKernel.HSHDB_PATH = textField2.getText();
-		  if (DBKernel.isHsqlServer(DBKernel.HSHDB_PATH)) {
-			DBKernel.isServerConnection = true;
-		} else {
-			  DBKernel.isServerConnection = false;
-			  if (!DBKernel.HSHDB_PATH.endsWith(System.getProperty("file.separator"))) {
-				DBKernel.HSHDB_PATH += System.getProperty("file.separator");
-			}
-		  }
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			MyList myList = loadDB();
-		  	if (myList != null) {
+			MainFrame mf = null;
+			DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
+			if (DBKernel.myDBi != null) {
+				DBKernel.HSHDB_PATH = textField2.getText();
+				mf = loadDBNew(DBKernel.myDBi, textField2.getText());
+			}
+			else {
+				DBKernel.HSHDB_PATH = textField2.getText();
+				if (DBKernel.isHsqlServer(DBKernel.HSHDB_PATH)) {
+					DBKernel.isServerConnection = true;
+				}
+				else {
+					DBKernel.isServerConnection = false;
+					if (!DBKernel.HSHDB_PATH.endsWith(System.getProperty("file.separator"))) {
+						DBKernel.HSHDB_PATH += System.getProperty("file.separator");
+					}
+				}
+				mf = loadDB();
+			}		
+		  	if (mf != null) {
 		  		//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
 		  		/*
 			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
@@ -196,22 +205,23 @@ public class Login extends JFrame {
 			myDB.initConn(username, newPassword); // MD5.encode(newPassword, "UTF-8")
     	}		
 	}
-	private void initGui(MyDBTable myDB) {
+	private MainFrame initGui(MyDBTable myDB) {
 		DBKernel.myDBi = new MyDBTablesNew();
-		// Login succeeded: GUI aufbauen	  		
 		MyDBTree myDBTree = new MyDBTree();
 		MyList myList = new MyList(myDB, myDBTree);
-		DBKernel.myList = myList;
+		myList.addAllTables();
 		MainFrame mf = new MainFrame(myList);
+		mf.setTopTable(myDB);
 		DBKernel.mainFrame = mf;
-		myList.addAllTables();		
+		return mf;
 	}
-	private MyList loadDB() {
+	private MainFrame loadDB() {
+		MainFrame mf = null;
 	    MyDBTable myDB = null;
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
-			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa();
+			boolean noDBThere = !DBKernel.isServerConnection && !DBKernel.DBFilesDa(DBKernel.HSHDB_PATH);
 
 			myDB = new MyDBTable();
 			// Login fehlgeschlagen
@@ -221,42 +231,23 @@ public class Login extends JFrame {
 			DBKernel.prefs.prefsFlush();
 			//MD5.encode(password, "UTF-8");
 			if (!myDB.initConn(username, password)) {
-				//if (DBKernel.passFalse) {
-					//String md5Password = MD5.encode(password, "UTF-8");
-					//if (!myDB.initConn(username, md5Password)) {
-						if (DBKernel.passFalse) {
-							passwordField1.setBackground(Color.RED);
-							passwordField2.setBackground(Color.WHITE);
-							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();																				
-						}
-						return null;
-					//}
-					//else {
-					//	changePasswort(myDB, username, password);
-					//}
-				//}
+				if (DBKernel.passFalse) {
+					passwordField1.setBackground(Color.RED);
+					passwordField2.setBackground(Color.WHITE);
+					passwordField3.setBackground(Color.WHITE);
+					passwordField1.requestFocus();																				
+				}
+				return mf;
 			}
-						
-			//DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(textField1.getText()) + " SET PASSWORD ''", false);
-			//DBKernel.sendRequest("SET DATABASE TRANSACTION CONTROL MVCC", false);
 			
 			// Login succeeded
 			if (!DBKernel.isServerConnection) {
 				long fs = DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data");
 		    	if (fs > 300000000) {
-					//InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, true);
+					//InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!!)", true, new Dimension(750, 300), null, true);
 					//ib.setVisible(true);    				  										        									    		
 		    	}
 				MyLogger.handleMessage(username + " logged in!" + "\nDB.data (size): " + fs);
-				/*
-				if (fs >= 500*1024*1024) { // 500MB
-			    	MyLogger.handleMessage("vor CHECKPOINT DEFRAG: " + fs);
-			    	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
-			    	System.gc();
-			    	MyLogger.handleMessage("nach CHECKPOINT DEFRAG: " + DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data"));
-				}				
-				*/
 			}
 			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", DBKernel.HSHDB_PATH);
@@ -272,29 +263,22 @@ public class Login extends JFrame {
 				}
 				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
-					return null;
+					return mf;
 				}
 			}
 			else {
-				String dbVersion = DBKernel.getDBVersion();
-				String softwareVersion = DBKernel.DBVersion;
-				/*
-				if ((softwareVersion.equals("1.7.3") || softwareVersion.equals("1.7.4")) && dbVersion.equals("1.7.2")) {
-					; // only Krisenupdate
+				String dbVersion = DBKernel.getDBVersionFromDB();
+				String softwareVersion = DBKernel.softwareVersion;
+				VersionComprator cmp = new VersionComprator();
+				int result = cmp.compare(dbVersion, softwareVersion);
+				if (result != 0) {
+					String msg = "Login rejected!\n";
+					if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
+					else msg += "Bitte Software aktualisieren!!!";
+					InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
+					ib.setVisible(true);
+					return mf;
 				}
-				else {
-				*/
-					VersionComprator cmp = new VersionComprator();
-					int result = cmp.compare(dbVersion, softwareVersion);
-					if (result != 0) {
-						String msg = "Login rejected!\n";
-						if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
-						else msg += "Bitte Software aktualisieren!!!";
-						InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
-						ib.setVisible(true);
-						return null;
-					}
-				//}
 			}
 			
 			// Passwort ändern
@@ -306,7 +290,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.RED);
 						passwordField3.setBackground(Color.RED);
 						passwordField2.requestFocus();
-						return null;
+						return mf;
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						changePasswort(myDB, username, newPassword);
@@ -316,7 +300,7 @@ public class Login extends JFrame {
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
-						return null;
+						return mf;
 					}
 				}
 				else {
@@ -324,37 +308,46 @@ public class Login extends JFrame {
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
 					passwordField2.requestFocus();
-					return null;
+					return mf;
 				}
 			}
 						
+			// Login succeeded: DB erstellen/starten, GUI aufbauen
 			// Datenbank füllen			
 			if (noDBThere) {
-				DBKernel.importing = true;
 				int answer = JOptionPane.showConfirmDialog(this, "There is no database.\nYou have two opportunities:\n- creating an empty one <Yes>\n- creating the default one with some prefilled sample data <No>\nDo you wish to create the empty one?",
 					    "No database...",
 					    JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.YES_OPTION) {
-					initGui(myDB);
+					mf = initGui(myDB);
 					DBKernel.myDBi.bootstrapDB();
-					DBKernel.setDBVersion(DBKernel.myDBi.getDBVersion());
 				}
 				else {
 					File temp = DBKernel.getCopyOfInternalDB();
-					if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
-						passwordField1.setBackground(Color.RED);
-						passwordField2.setBackground(Color.WHITE);
-						passwordField3.setBackground(Color.WHITE);
-						passwordField1.requestFocus();					
-						return null;
+					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
+						if (!BackupMyDBI.doRestore(myDB, temp, true, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+							passwordField1.setBackground(Color.RED);
+							passwordField2.setBackground(Color.WHITE);
+							passwordField3.setBackground(Color.WHITE);
+							passwordField1.requestFocus();					
+							return mf;
+						}
+					}
+					else {
+						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+							passwordField1.setBackground(Color.RED);
+							passwordField2.setBackground(Color.WHITE);
+							passwordField3.setBackground(Color.WHITE);
+							passwordField1.requestFocus();					
+							return mf;
+						}
 					}
 
-					initGui(myDB);
+					mf = initGui(myDB);
 				}
-				DBKernel.importing = false;
 			}
 			else {
-				initGui(myDB);
+				mf = initGui(myDB);
 
 				if (doUpdates) {
 					boolean dl = DBKernel.dontLog;
@@ -365,216 +358,78 @@ public class Login extends JFrame {
 					  		DBKernel.closeDBConnections(false);
 					  		DBKernel.getDefaultAdminConn();
 					  	}
-					  	String dbVersion = DBKernel.getDBVersion();
-					  	if (dbVersion.equals("1.3.6")) {
-					  		UpdateChecker.check4Updates_136_137(); 
-					  		DBKernel.setDBVersion("1.3.7");
-					  	}
-					  	else if (dbVersion.equals("1.3.7")) {
-					  		UpdateChecker.check4Updates_137_138(); 
-					  		DBKernel.setDBVersion("1.3.8");
-					  	}
-					  	else if (dbVersion.equals("1.3.8")) {
-					  		UpdateChecker.check4Updates_138_139(); 
-					  		DBKernel.setDBVersion("1.3.9");
-					  	}
-					  	else if (dbVersion.equals("1.3.9")) {
-					  		UpdateChecker.check4Updates_139_140(); 
-					  		DBKernel.setDBVersion("1.4.0");
-					  	}
-					  	else if (dbVersion.equals("1.4.0")) {
-					  		UpdateChecker.check4Updates_140_141(); 
-					  		DBKernel.setDBVersion("1.4.1");
-					  	}
-					  	else if (dbVersion.equals("1.4.1")) {
-					  		UpdateChecker.check4Updates_141_142(); 
-					  		DBKernel.setDBVersion("1.4.2");
-					  	}
-					  	else if (dbVersion.equals("1.4.2")) {
-					  		UpdateChecker.check4Updates_142_143(); 
-					  		DBKernel.setDBVersion("1.4.3");
-					  	}
-					  	else if (dbVersion.equals("1.4.3")) {
-					  		UpdateChecker.check4Updates_143_144(); 
-					  		DBKernel.setDBVersion("1.4.4");
-					  	}
-					  	else if (dbVersion.equals("1.4.4")) {
-					  		UpdateChecker.check4Updates_144_145(); 
-					  		DBKernel.setDBVersion("1.4.5");
-					  	}
-
-					  	if (DBKernel.getDBVersion().equals("1.4.5")) {
-					  		UpdateChecker.check4Updates_145_146(); 
-					  		DBKernel.setDBVersion("1.4.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.6")) {
-					  		UpdateChecker.check4Updates_146_147(); 
-					  		DBKernel.setDBVersion("1.4.7");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.4.7")) {
-					  		UpdateChecker.check4Updates_147_148(); 
-					  		DBKernel.setDBVersion("1.4.8");
-					  	}					  	
-					  	if (DBKernel.getDBVersion().equals("1.4.8")) {
-					  		UpdateChecker.check4Updates_148_149();
-					  		DBKernel.setDBVersion("1.4.9");
-					  	}					  	
-					  	if (DBKernel.getDBVersion().equals("1.4.9")) {
-					  		UpdateChecker.check4Updates_149_150(); 
-					  		DBKernel.setDBVersion("1.5.0");
-					  	}
-					  	
-					  	if (DBKernel.getDBVersion().equals("1.5.0")) {
-					  		UpdateChecker.check4Updates_150_151(); 
-					  		DBKernel.setDBVersion("1.5.1");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.1")) {
-					  		UpdateChecker.check4Updates_151_152(); 
-					  		DBKernel.setDBVersion("1.5.2");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.2")) {
-					  		UpdateChecker.check4Updates_152_153(); 
-					  		DBKernel.setDBVersion("1.5.3");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.3")) {
-					  		UpdateChecker.check4Updates_153_154(); 
-					  		DBKernel.setDBVersion("1.5.4");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.4")) {
-					  		UpdateChecker.check4Updates_154_155(); 
-					  		DBKernel.setDBVersion("1.5.5");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.5")) {
-					  		UpdateChecker.check4Updates_155_156(); 
-					  		DBKernel.setDBVersion("1.5.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.6")) {
-					  		UpdateChecker.check4Updates_156_157(); 
-					  		DBKernel.setDBVersion("1.5.7");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.7")) {
-					  		UpdateChecker.check4Updates_157_158(); 
-					  		DBKernel.setDBVersion("1.5.8");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.8")) {
-					  		UpdateChecker.check4Updates_158_159(); 
-					  		DBKernel.setDBVersion("1.5.9");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.5.9")) {
-					  		UpdateChecker.check4Updates_159_160(); 
-					  		DBKernel.setDBVersion("1.6.0");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.0")) {
-					  		UpdateChecker.check4Updates_160_161(); 
-					  		DBKernel.setDBVersion("1.6.1");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.1")) {
-					  		UpdateChecker.check4Updates_161_162(); 
-					  		DBKernel.setDBVersion("1.6.2");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.2")) {
-					  		UpdateChecker.check4Updates_162_163(); 
-					  		DBKernel.setDBVersion("1.6.3");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.3")) {
-					  		UpdateChecker.check4Updates_163_164(); 
-					  		DBKernel.setDBVersion("1.6.4");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.4")) {
-					  		UpdateChecker.check4Updates_164_165(); 
-					  		DBKernel.setDBVersion("1.6.5");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.5")) {
-					  		UpdateChecker.check4Updates_165_166(); 
-					  		DBKernel.setDBVersion("1.6.6");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.6")) {
-					  		UpdateChecker.check4Updates_166_167(); 
-					  		DBKernel.setDBVersion("1.6.7");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.7")) {
-					  		UpdateChecker.check4Updates_167_168(); 
-					  		DBKernel.setDBVersion("1.6.8");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.8")) {
-					  		UpdateChecker.check4Updates_168_169(); 
-					  		DBKernel.setDBVersion("1.6.9");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.6.9")) {
-					  		UpdateChecker.check4Updates_169_170(); 
-					  		DBKernel.setDBVersion("1.7.0");
-					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.0")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.0")) {
 					  		UpdateChecker.check4Updates_170_171(); 
 					  		DBKernel.setDBVersion("1.7.1");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.1")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.1")) {
 					  		UpdateChecker.check4Updates_171_172(); 
 					  		DBKernel.setDBVersion("1.7.2");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.2")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.2")) {
 					  		UpdateChecker.check4Updates_172_173(); 
 					  		DBKernel.setDBVersion("1.7.3");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.3")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.3")) {
 					  		UpdateChecker.check4Updates_173_174(); 
 					  		DBKernel.setDBVersion("1.7.4");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.4")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.4")) {
 					  		UpdateChecker.check4Updates_174_175(); 
 					  		DBKernel.setDBVersion("1.7.5");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.5")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.5")) {
 					  		UpdateChecker.check4Updates_175_176(); 
 					  		DBKernel.setDBVersion("1.7.6");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.6")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.6")) {
 					  		UpdateChecker.check4Updates_176_177(); 
 					  		DBKernel.setDBVersion("1.7.7");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.7")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.7")) {
 					  		UpdateChecker.check4Updates_177_178(); 
 					  		DBKernel.setDBVersion("1.7.8");
 					  	}
-					  	if (DBKernel.getDBVersion().equals("1.7.8")) {
+					  	if (DBKernel.getDBVersionFromDB().equals("1.7.8")) {
 					  		UpdateChecker.check4Updates_178_179(); 
 					  		DBKernel.setDBVersion("1.7.9");
 					  	}
 
 						DBKernel.closeDBConnections(false);
 					}
-					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return DBKernel.myList;}
+					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return mf;}
 					DBKernel.dontLog = dl;
 					loadDB();		
-					return DBKernel.myList;
+					return mf;
 				}
 			}
 
-			//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false); //  + " WHERE " + DBKernel.delimitL("ID") + " < 45000"
-			if (!DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"))) {  // Agens_Nachweisverfahren  Agenzien
-				DBKernel.myList.setSelection(null);
-			}
+			if (mf != null) {
+				if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
+					mf.getMyList().setSelection(null);
+				}
 
-			this.dispose();
-			DBKernel.mainFrame.pack();
-			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
-			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
-			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
-			DBKernel.mainFrame.setPreferredSize(new Dimension(w, h));
-			DBKernel.mainFrame.setBounds(x, y, w, h);
-			if (full) DBKernel.mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			else DBKernel.mainFrame.setExtendedState(JFrame.NORMAL);
-			DBKernel.mainFrame.setVisible(true);
-			DBKernel.mainFrame.toFront();
-			myDB.grabFocus();//myDB.selectCell(0, 0);
-			//getAllMetaData(myList);			
+				this.dispose();
+				mf.pack();
+				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
+				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
+				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+				mf.setPreferredSize(new Dimension(w, h));
+				mf.setBounds(x, y, w, h);
+				if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				else mf.setExtendedState(JFrame.NORMAL);
+				mf.setVisible(true);
+				mf.toFront();
+				myDB.grabFocus();//myDB.selectCell(0, 0);
+				//getAllMetaData(myList);			
+			}
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);
 		}    
-		return DBKernel.myList;
+		return mf;
 	}
   void dropDatabase() {
 	  DBKernel.closeDBConnections(false);
@@ -653,6 +508,146 @@ public class Login extends JFrame {
 		this_keyReleased(e);
 	}
 
+	
+	private MainFrame loadDBNew(MyDBI myDBi, String dbPath) {
+		MainFrame mf = null;
+	    MyDBTable myDB = null;
+		boolean doUpdates = false;
+		try {
+			// Datenbank schon vorhanden?
+			boolean noDBThere = !DBKernel.DBFilesDa(dbPath);
+
+			myDB = new MyDBTable();
+			// Login fehlgeschlagen
+			String username = textField1.getText();
+			String password = new String(passwordField1.getPassword());
+			DBKernel.prefs.putBoolean("DB_READONLY", checkBox2.isSelected());
+			DBKernel.prefs.prefsFlush();
+			if (!myDBi.establishDBConnection(username, password, dbPath)) {
+				if (myDBi.getPassFalse()) {
+					passwordField1.setBackground(Color.RED);
+					passwordField2.setBackground(Color.WHITE);
+					passwordField3.setBackground(Color.WHITE);
+					passwordField1.requestFocus();																				
+				}
+				return mf;
+			}
+			myDB.initConn(myDBi.getConn());
+			
+			DBKernel.prefs.put("LAST_USER_LOGIN", username);
+			DBKernel.prefs.put("LAST_DB_PATH", dbPath);
+			DBKernel.prefs.prefsFlush();
+			MyLogger.handleMessage("DB_PATH: " + dbPath);
+			/*
+			// Datenbank erstellen
+			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt
+			}
+			else if (!DBKernel.isServerConnection) {
+				int dbAlt = DBKernel.isDBVeraltet(this);
+				if (dbAlt == JOptionPane.YES_OPTION) {
+					doUpdates = true;
+				}
+				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
+					DBKernel.closeDBConnections(false);
+					return mf;
+				}
+			}
+			else {
+				String dbVersion = DBKernel.getDBVersion();
+				String softwareVersion = DBKernel.DBVersion;
+				VersionComprator cmp = new VersionComprator();
+				int result = cmp.compare(dbVersion, softwareVersion);
+				if (result != 0) {
+					String msg = "Login rejected!\n";
+					if (result < 0) msg += "Softwareversion (" + softwareVersion + ") neuer als DB-Version (" + dbVersion + ")???";
+					else msg += "Bitte Software aktualisieren!!!";
+					InfoBox ib = new InfoBox(this, msg, true, new Dimension(600, 120), null, true);
+					ib.setVisible(true);
+					return mf;
+				}
+			}
+			*/
+			
+			// Passwort ändern
+			if (checkBox1.isSelected()) {
+				if (passwordField2.getPassword().length >= 0) {
+					String newPassword = new String(passwordField2.getPassword());
+					if (newPassword.length() == 0) { // Passwörter dürfen nicht leer sein!
+						passwordField1.setBackground(Color.WHITE);
+						passwordField2.setBackground(Color.RED);
+						passwordField3.setBackground(Color.RED);
+						passwordField2.requestFocus();
+						return mf;
+					}
+					if (newPassword.equals(new String(passwordField3.getPassword()))) {
+						myDBi.changePasswort(newPassword);
+						myDB.initConn(myDBi.getConn());
+					}
+					else {
+						passwordField1.setBackground(Color.WHITE);
+						passwordField2.setBackground(Color.WHITE);
+						passwordField3.setBackground(Color.RED);
+						passwordField3.requestFocus();
+						return mf;
+					}
+				}
+				else {
+					passwordField1.setBackground(Color.WHITE);
+					passwordField2.setBackground(Color.RED);
+					passwordField3.setBackground(Color.WHITE);
+					passwordField2.requestFocus();
+					return mf;
+				}
+			}
+						
+			// Login succeeded: DB erstellen/starten, GUI aufbauen
+			// Datenbank füllen			
+			mf = initGuiNew(myDB);
+			if (!myDBi.isServerConnection() && noDBThere) {
+				myDBi.bootstrapDB();
+			}
+			else {
+				if (doUpdates) {
+				}
+			}
+
+			if (mf != null) {
+				if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
+					mf.getMyList().setSelection(null);
+				}
+
+				this.dispose();
+				mf.pack();
+				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
+				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
+				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+				mf.setPreferredSize(new Dimension(w, h));
+				mf.setBounds(x, y, w, h);
+				if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+				else mf.setExtendedState(JFrame.NORMAL);
+				mf.setVisible(true);
+				mf.toFront();
+				myDB.grabFocus();//myDB.selectCell(0, 0);
+				//getAllMetaData(myList);			
+			}
+		}
+		catch (Exception e) {
+			MyLogger.handleException(e);
+		}    
+		return mf;
+	}
+	private MainFrame initGuiNew(MyDBTable myDB) {
+		MyDBTree myDBTree = new MyDBTree();
+		MyList myList = new MyList(myDB, myDBTree);
+		myList.addAllTables();
+		MainFrame mf = new MainFrame(myList);
+		mf.setTopTable(myDB);
+		DBKernel.mainFrame = mf;
+		return mf;
+	}
+	
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps");
@@ -852,6 +847,8 @@ public class Login extends JFrame {
 	}
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+
+	
 	private JPanel dialogPane;
 	private JPanel contentPanel;
 	private JLabel label1;
@@ -870,6 +867,10 @@ public class Login extends JFrame {
 	private JButton okButton;
 	private JButton cancelButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
+	
+	
+	
+
 }
 
 

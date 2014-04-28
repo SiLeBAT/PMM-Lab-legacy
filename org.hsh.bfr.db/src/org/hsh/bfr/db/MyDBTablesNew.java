@@ -3,6 +3,7 @@ package org.hsh.bfr.db;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.hsh.bfr.db.imports.SQLScriptImporter;
@@ -22,9 +23,12 @@ public class MyDBTablesNew extends MyDBI {
 	private HashMap<String, LinkedHashMap<Object, String>> allHashes = new HashMap<String, LinkedHashMap<Object, String>>();
 	private LinkedHashMap<String, int[]> knownCodeSysteme = null;
 	private LinkedHashMap<Integer, String> treeStructure = null;
-	private final String saUser = "SA";//"defad"; // SA
-	private final String saPass = "";//"de6!§5ddy";
-	private final String dbVersion = "1.7.9";
+	private LinkedHashSet<String> allViews = null;
+	private LinkedHashMap<String, String> allData = null;
+	private String saUser = "SA";//"defad"; // SA
+	private String saPass = "";//"de6!§5ddy";
+	private String dbServerPath = "";
+	private String softwareVersion = "1.7.9";
 	
 	private boolean isPmm = true;
 	private boolean isKrise = true;
@@ -33,29 +37,30 @@ public class MyDBTablesNew extends MyDBI {
 	/*
 	 * Still todo:
 	 *   DateiSpeicher -> FileStorage
+		
+		Table "Literatur" in MyNewDoubleKennzahlen.... Shall I make Literatur to a BASE table???
+		- PlausibilityChecker
+		- Merging
+		- Imports
+
 	@Override
 	public String getCommentTerm() {
 		return "Kommentar";
 	}
-
 	@Override
 	public String getTestedTerm() {
 		return "Geprueft";
 	}
-
 	@Override
 	public String getScoreTerm() {
 		return "Guetescore";
 	}
-
-		if (tableName != null && tableName.equals("Einheiten")) {
-			return new MyUnitCaller();
-		}
 	 */
 	
 	public MyDBTablesNew() {
 		loadHashes();
 		loadMyTables();
+		loadOther4Db();
 		loadOther4Gui();
 	}
 
@@ -74,21 +79,32 @@ public class MyDBTablesNew extends MyDBI {
 	}
 
 	@Override
+	public String getSA() {
+		return saUser;
+	}
+	@Override
+	public String getSAP() {
+		return saPass;
+	}
+
+	@Override
+	public void setSA_P(String user, String pass) {
+		saUser = user;
+		saPass = pass;
+	}
+	@Override
+	public String getDbServerPath() {
+		return dbServerPath;
+	}
+
+	@Override
 	public boolean isReadOnly() {
 		return false;
 	}
 
 	@Override
-	public String getDBVersion() {
-		return dbVersion;
-	}
-
-	public String getSaUser() {
-		return saUser;
-	}
-
-	public String getSaPass() {
-		return saPass;
+	public String getSoftwareVersion() {
+		return softwareVersion;
 	}
 	
 	@Override
@@ -196,7 +212,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[][]{{"Erstautor","Jahr","Titel"}},
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,allHashes.get("Freigabe"),null,lt,null},
 				null,
-				null,
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,"*.pdf, *.doc"},
 				new LinkedList<String>(Arrays.asList("Erstautor"," (","Jahr",")")));
 		addTable(literatur, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? BasisTabellen_LIST : 66));
 
@@ -296,7 +312,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null,
 				null,null,null,null,
 				null,null,null,"INT"},
-				null,
+				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,null,null,"*.pdf, *.doc",null},
 				new LinkedList<String>(Arrays.asList("Agensname")));
 		addTable(agenzien, BasisTabellen_LIST);
 		MyTable normen = new MyTable("Methodennormen", new String[]{"Name","Beschreibung"},
@@ -316,7 +332,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,
 				null,
 				new String[]{null,null,null,"Methoden_Normen","INT"});
-		if (isSiLeBAT) addTable(methoden, DBKernel.getUsername().equals("buschulte") ? 66 : -1);
+		if (isSiLeBAT) addTable(methoden, DBKernel.getUsername().equals("buschulte") ? Krankheitsbilder_LIST : -1);
 		MyTable methoden_Normen = new MyTable("Methoden_Normen",
 				new String[]{"Methoden","Normen","Norm_Nummer"},
 				new String[]{"INTEGER","INTEGER","VARCHAR(50)"},
@@ -658,7 +674,9 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedHashMap[]{null,null,null},
 				new String[]{null,null,null},
 				null,
-				new LinkedList<String>(Arrays.asList("Parameter")));
+				new LinkedList<String>(Arrays.asList("Parameter")),
+				null,
+				new char[][]{{'_','$','\b'},null,null});
 		addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
@@ -702,7 +720,7 @@ public class MyDBTablesNew extends MyDBI {
 				hYNB,hYNB,
 				null,null},
 				null,
-				null,
+				new String[]{null,null,null,null,null,"*.pdf, *.doc",null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null},
 				new LinkedList<String>(Arrays.asList("Bezeichnung")));
 		if (isSiLeBAT) addTable(kits, Nachweissysteme_LIST);
 
@@ -987,7 +1005,8 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,null,null,null,betriebe,matrix,null,null,null,literatur}, // null,null,null,
 				null,
 				new LinkedHashMap[]{null,null,null,null,null,null,null,null,null,null}, // ,null,null,h4
-				new String[]{null,null,null,null,null,null,null,"INT",null,"ProzessWorkflow_Literatur"}); // ,"DBL","DBL",null
+				new String[]{null,null,null,null,null,null,null,"INT",null,"ProzessWorkflow_Literatur"},
+				new String[]{null,null,null,null,null,null,null,null,"*.xml",null});
 		if (isSiLeBAT) addTable(prozessFlow, Prozessdaten_LIST);
 		MyTable prozessFlowReferenzen = new MyTable("ProzessWorkflow_Literatur",
 				new String[]{"ProzessWorkflow","Literatur"},
@@ -1135,7 +1154,9 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null,null,
 				null,null,null,null,null,null,null,null,null,null,"Zutatendaten_Sonstiges","Zutatendaten_Kosten"},
 				null,
-				new LinkedList<String>(Arrays.asList("Matrix","Vorprozess")));
+				new LinkedList<String>(Arrays.asList("Matrix","Vorprozess")),
+				new String[]{null, null, null, null, null, "Vorprozess.Prozessdaten=Prozess_Verbindungen.Ausgangsprozess WHERE Prozess_Verbindungen.Zielprozess=Prozessdaten; AND " + DBKernel.delimitL("Zutat_Produkt") + "='Produkt'",
+							null, null, null, null, null, null, null, null, null, null, null, null});
 		if (isSiLeBAT) addTable(zutatendaten, -1);
 		prozessdaten.setForeignField(zutatendaten, 10);
 		zutatendaten.setForeignField(zutatendaten, 5);
@@ -1383,7 +1404,8 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null},
 				null,
 				new LinkedHashMap[]{null},
-				null);
+				null,
+				new String[]{"*.zip"});
 		addTable(PMMLabWorkflows, -1);	
 		MyTable DataSource = new MyTable("DataSource", new String[]{"Table","TableID","SourceDBUUID","SourceID"},
 				new String[]{"VARCHAR(255)","INTEGER","VARCHAR(255)","INTEGER"},
@@ -1644,12 +1666,17 @@ public class MyDBTablesNew extends MyDBI {
 	private void loadOther4Gui() {
 		// knownCodeSysteme
 		knownCodeSysteme = new LinkedHashMap<String, int[]>();
+	  	// TOP
+	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
+	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
+
+	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
 	  	knownCodeSysteme.put("Matrices_ADV_01", new int[]{2,3,5,7}); // 01-011123
 	  	knownCodeSysteme.put("Matrices_ADV_14", new int[]{2,3,5,7}); // 14-011123
-	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,6}); // 15-011123
+	  	knownCodeSysteme.put("Matrices_ADV_15", new int[]{2,3,5,7});   // 15-011123 2,3,6
 	  	knownCodeSysteme.put("Matrices_ADV_20", new int[]{2,3,5,7}); // 20-011123
 	  	knownCodeSysteme.put("Matrices_BLS", new int[]{1,3,4,5,6}); // A011123
-	  	knownCodeSysteme.put("Matrices_GS1", new int[]{2,3}); // 0001
 	  	knownCodeSysteme.put("Matrices_FA", new int[]{2,4,6,8,10,12,14,16,18}); // 
 	  	knownCodeSysteme.put("Agenzien_ADV", new int[]{2,4}); // 0102123
 	  	knownCodeSysteme.put("Matrices_SiLeBAT", new int[]{2,4,6,8,10});
@@ -1660,10 +1687,6 @@ public class MyDBTablesNew extends MyDBI {
 	  	knownCodeSysteme.put("Methodiken_Extra", new int[]{2,4,6,8,10});
 	  	// Agenzien_VET
 	  	knownCodeSysteme.put("Methoden_BVL", new int[]{2,3,5,6,8,9}); // 
-	  	// TOP
-	  	knownCodeSysteme.put("Agenzien_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Matrices_TOP", new int[]{2,4}); // 
-	  	knownCodeSysteme.put("Methoden_TOP", new int[]{2,4}); // 
 
 	  	knownCodeSysteme.put("Methodiken_BfR", new int[]{2,4,6}); // 
 	  	
@@ -1674,7 +1697,7 @@ public class MyDBTablesNew extends MyDBI {
 	  	// treeStructure
 		treeStructure = new LinkedHashMap<Integer, String>();
 
-	    boolean isAdmin  = DBKernel.isAdmin();
+	    boolean isAdmin  = DBKernel.myDBi == null ? true : DBKernel.myDBi.isAdmin();
 		if (isAdmin) treeStructure.put(SystemTabellen_LIST, "System-Tabellen");
 		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(BasisTabellen_LIST, "Basis-Tabellen");
 		if (!DBKernel.getUsername().equals("burchardi")) treeStructure.put(Tenazitaet_LIST, "Tenazitaet");
@@ -1684,28 +1707,41 @@ public class MyDBTablesNew extends MyDBI {
 		if (!DBKernel.isKNIME) treeStructure.put(Nachweissysteme_LIST, "Nachweissysteme");
 		if (DBKernel.isKrise) treeStructure.put(Lieferketten_LIST, "Lieferketten");	  	
 	}
+	private void loadOther4Db() {
+		if (isPmm) {
+			allViews = new LinkedHashSet<String>();
+			allViews.add("/org/hsh/bfr/db/res/02_create_doublekennzahleneinfach.sql");
+			allViews.add("/org/hsh/bfr/db/res/04_create_versuchsbedingungeneinfach_156.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_SonstigesEinfach_160.sql");
+			allViews.add("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_LitEmView.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_LitMView.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_ParamVarView_175.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_IndepVarView_170.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_DepVarView_170.sql");
+			allViews.add("/org/hsh/bfr/db/res/001_VarParMapView.sql");
+			allViews.add("/org/hsh/bfr/db/res/002_EstModelPrimView_179.sql");
+			allViews.add("/org/hsh/bfr/db/res/002_EstModelSecView_179.sql");
+			
+			allData = new LinkedHashMap<String, String>();
+			allData.put("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null);
+			allData.put("/org/hsh/bfr/db/res/PmmInitData.sql", "\r\n");
+		}
+	}
 	public void addViews() {
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/02_create_doublekennzahleneinfach.sql", null, false);		
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/04_create_versuchsbedingungeneinfach_156.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_SonstigesEinfach_160.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/03_create_messwerteeinfach_164.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitEmView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_LitMView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_ParamVarView_175.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_IndepVarView_170.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_DepVarView_170.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/001_VarParMapView.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelPrimView_179.sql", null, false);
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/002_EstModelSecView_179.sql", null, false);
+		if (allViews != null) {
+			for (String s : allViews) {
+				new SQLScriptImporter().doImport(s, null, false);
+			}
+		}
 	}
 	public void addData() {
-		if (isPmm) new SQLScriptImporter().doImport("/org/hsh/bfr/db/res/CombaseRawDataImport.sql", null, false);
-		if (isPmm) new SQLScriptImporter("\r\n").doImport("/org/hsh/bfr/db/res/PmmInitData.sql", null, false);
-	}
-	public void createRoles() {
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("READ_ONLY"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("WRITE_ACCESS"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("SUPER_WRITE_ACCESS"), false);
-		DBKernel.sendRequest("CREATE ROLE " + DBKernel.delimitL("ADMIN"), false);
+		if (allData != null) {
+			for (String s : allData.keySet()) {
+				String delimiter = allData.get(s);
+				if (delimiter == null) new SQLScriptImporter().doImport(s, null, false);
+				else new SQLScriptImporter(delimiter).doImport(s, null, false);
+			}
+		}
 	}
 }

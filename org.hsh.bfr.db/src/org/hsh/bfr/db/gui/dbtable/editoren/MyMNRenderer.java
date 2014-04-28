@@ -44,9 +44,9 @@ import javax.swing.JComponent;
 import javax.swing.JTextArea;
 
 import org.hsh.bfr.db.DBKernel;
-import org.hsh.bfr.db.MainKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
+import org.hsh.bfr.db.MyTrigger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 
 import quick.dbtable.CellComponent;
@@ -82,8 +82,7 @@ public class MyMNRenderer extends JTextArea implements CellComponent {
 			this.setText("");
 			return;
 		}		
-		else if (theValues.containsKey(value) && lastUpdate.containsKey(value) &&
-				lastUpdate.get(value) > DBKernel.triggerFired && lastUpdate.get(value) > MainKernel.triggerFired) {
+		else if (theValues.containsKey(value) && lastUpdate.containsKey(value) && lastUpdate.get(value) > MyTrigger.triggerFired) {
 			this.setText(theValues.get(value));
 			return;
 		}

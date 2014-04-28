@@ -56,7 +56,6 @@ import javax.swing.event.*;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
-import org.hsh.bfr.db.imports.MyProzessXMLImporter;
 
 
 import java.io.*;
@@ -209,6 +208,7 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
     if (table != null && selectedColumn >= 0 && this.getSelectedFile() != null) {
       //byte[] b = getBytes();
       try {
+    	  /*
     	  if (table.getActualTable().getTablename().equals("ProzessWorkflow")) {
     		  MyProzessXMLImporter mpi = new MyProzessXMLImporter();
     		  mpi.doImport(this.getSelectedFile().getAbsolutePath(), DBKernel.mainFrame.getProgressBar(), true);
@@ -219,6 +219,11 @@ public class BLOBEditor extends JFileChooser implements TableCellEditor {
     	        table.setValueAt(this.getSelectedFile().getName(), table.getSelectedRow(), selectedColumn);    		  
     	        table.save();
     	  }
+    	  */
+	        int id = Integer.parseInt(table.getValueAt(table.getSelectedRow(), 0).toString());
+	        DBKernel.insertBLOB(table.getActualTable().getTablename(), table.getColumn(selectedColumn).getHeaderValue().toString(), this.getSelectedFile(), id);      	
+	        table.setValueAt(this.getSelectedFile().getName(), table.getSelectedRow(), selectedColumn);    		  
+	        table.save();
       }
       catch (Exception e) {
     	  MyLogger.handleException(e);

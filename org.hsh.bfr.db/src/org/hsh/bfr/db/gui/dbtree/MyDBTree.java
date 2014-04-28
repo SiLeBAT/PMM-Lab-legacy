@@ -120,7 +120,7 @@ private MyTable myT = null;
 				isLeaf = mydbt.isLeaf();
 			}
 			*/
-			if (selectedTreeNode.getLevel() < 2 || !selectedTreeNode.isLeaf() && myT != null && myT.getTablename().equals("Methoden")) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() && 
+			if (selectedTreeNode.getLevel() < 2) { // selectedTreeNode.getLevel() < 3    !selectedTreeNode.isLeaf() && 
 				catchEvent = false;
 				this.setSelectionPath(event.getOldLeadSelectionPath());
 			}
@@ -191,7 +191,7 @@ private MyTable myT = null;
   public void keyPressed(KeyEvent keyEvent) {
     if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_LEFT) {
     	keyEvent.consume();
-    	DBKernel.myList.requestFocus();
+    	DBKernel.mainFrame.getMyList().requestFocus();
     	return;
     }
   }

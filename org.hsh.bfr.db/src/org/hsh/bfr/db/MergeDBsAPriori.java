@@ -40,17 +40,17 @@ public class MergeDBsAPriori {
 	    		"DBs zusammenführen?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 		if (retVal == JOptionPane.YES_OPTION && DBKernel.isAdmin()) {
 			try {
-				DBKernel.myList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				DBKernel.mainFrame.getMyList().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 	
-				//String folder = "C:/Users/Armin/Desktop/KHB/";
 				String folder = "C:/Dokumente und Einstellungen/Weiser/Desktop/silebat_146/KHB/";
-				MyTable[] myTs = new MyTable[]{DBKernel.myList.getTable("Literatur"),
-						DBKernel.myList.getTable("Agenzien_Matrices"),
-						DBKernel.myList.getTable("Krankheitsbilder"),
-						DBKernel.myList.getTable("Risikogruppen"),
-						DBKernel.myList.getTable("Symptome"),
-						DBKernel.myList.getTable("Krankheitsbilder_Risikogruppen"),
-						DBKernel.myList.getTable("Krankheitsbilder_Symptome")};
+				MyTable[] myTs = new MyTable[]{
+						DBKernel.myDBi.getTable("Literatur"),
+						DBKernel.myDBi.getTable("Agenzien_Matrices"),
+						DBKernel.myDBi.getTable("Krankheitsbilder"),
+						DBKernel.myDBi.getTable("Risikogruppen"),
+						DBKernel.myDBi.getTable("Symptome"),
+						DBKernel.myDBi.getTable("Krankheitsbilder_Risikogruppen"),
+						DBKernel.myDBi.getTable("Krankheitsbilder_Symptome")};
 				Integer[] myFromIDs = new Integer[]{242, null, null, null, null, null, null};
 				idConverter = new Hashtable<String, Integer>();
 				go4It(folder, "defad", "de6!§5ddy", myTs, myFromIDs);
@@ -60,13 +60,13 @@ public class MergeDBsAPriori {
 					myTables.get(key).doMNs();
 				}
 				
-				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 				myDB.setTable(myDB.getActualTable());
 				
 				JOptionPane.showMessageDialog(DBKernel.mainFrame, "Fertig!", "DBs zusammenführen", JOptionPane.INFORMATION_MESSAGE);		
 			}
 			finally {
-				DBKernel.myList.setCursor(Cursor.getDefaultCursor());
+				DBKernel.mainFrame.getMyList().setCursor(Cursor.getDefaultCursor());
 			}
 		}
 	}

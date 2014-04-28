@@ -53,7 +53,6 @@ import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 
 /**
@@ -70,7 +69,7 @@ import de.bund.bfr.knime.pmm.common.ui.DoubleTextField;
 public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	// private JComboBox levelBox;
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 	private EmReaderUi estmodelui;
 
 	private Bfrdb db = null;
@@ -79,7 +78,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
      */
     protected EstimatedModelReaderNodeDialog() {
     	JPanel panel = new JPanel();    	
-    	
+    	/*
     	dbui = new DbConfigurationUi( true );
     	dbui.getApplyButton().addActionListener( this );
     	
@@ -93,7 +92,10 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     		}
     	}
     	catch (Exception e) {}
-    	    	
+    	    	*/
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
     	estmodelui = new EmReaderUi(db);
     	
     	panel.setLayout( new BorderLayout() );
@@ -114,7 +116,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {	
-    	dbui.saveSettingsTo(settings.addConfig("DbConfigurationUi"));
+    	//dbui.saveSettingsTo(settings.addConfig("DbConfigurationUi"));
     	estmodelui.saveSettingsTo(settings.addConfig("EstModelReaderUi"));
 		/*
 		settings.addString( EstimatedModelReaderNodeModel.PARAM_FILENAME, dbui.getFilename() );
@@ -151,7 +153,8 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 	}
 
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {		
-		try {			
+		try {	
+			/*
 			if (settings.containsKey("DbConfigurationUi")) dbui.setSettings(settings.getConfig("DbConfigurationUi"));
 			else { // old Config
 				dbui.setFilename( settings.getString( EstimatedModelReaderNodeModel.PARAM_FILENAME ) );
@@ -159,6 +162,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
 				dbui.setPasswd( settings.getString( EstimatedModelReaderNodeModel.PARAM_PASSWD ) );
 				dbui.setOverride( settings.getBoolean( EstimatedModelReaderNodeModel.PARAM_OVERRIDE ) );
 			}
+			*/
 			if (settings.containsKey("EstModelReaderUi")) estmodelui.setSettings(settings.getConfig("EstModelReaderUi"));
 			else {
 				estmodelui.setLevel( settings.getInt( EstimatedModelReaderNodeModel.PARAM_LEVEL ) );

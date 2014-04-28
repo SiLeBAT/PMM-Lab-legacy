@@ -57,10 +57,10 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyFilter;
 import org.hsh.bfr.db.gui.dbtable.header.GuiMessages;
 import org.hsh.bfr.db.gui.dbtree.*;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import quick.dbtable.Filter;
 
@@ -227,7 +227,7 @@ public class MyDBPanel extends JPanel {
 		}
 	}
 	public void setLeftComponent(MyTable myNewT) {
-  		if (formShowable(myNewT.getTablename())) {
+  		if (myNewT.isHasForm()) {
   			//MyDBForm form = new MyDBForm();
   			myDBForm1.setTable(myNewT);
 			splitPane2.setLeftComponent(myDBForm1);
@@ -244,9 +244,6 @@ public class MyDBPanel extends JPanel {
 	private boolean isFormVisible() {
 		return splitPane2.getLeftComponent() instanceof MyDBForm;
 	}
-	private boolean formShowable(String tablename) {
-		return tablename.equals("Krankheitsbilder");
-	}
 
   @Override
   public void paintComponent( Graphics g ) {
@@ -257,12 +254,14 @@ public class MyDBPanel extends JPanel {
 	  		//button3.setEnabled(!myT.isReadOnly());
 	  		button4.setEnabled(!myT.isReadOnly());
 	  		
-	  		String tablename = myT.getTablename();
-	  		if (tablename.equals("ProzessWorkflow")) button1.setEnabled(false);
+	  		//String tablename = myT.getTablename();
+	  		//if (tablename.equals("ProzessWorkflow")) button1.setEnabled(false);
+	  		/*
 	  		if (tablename.equals("Prozessdaten")) {
 	  			button1.setEnabled(false);
 	  			button2.setEnabled(false);
 	  		}
+	  		*/
 	
 	  		boolean isRO = false;
 			try {isRO = DBKernel.getDBConnection().isReadOnly();}
@@ -283,14 +282,16 @@ public class MyDBPanel extends JPanel {
 			}
 			if (isMN()) button2.setEnabled(false);
 			//button12.setVisible(tablename.equals("Prozessdaten"));
-			if (tablename.equals("Krankheitsbilder")) {
+			if (myT.isHasForm()) {
 				button12.setVisible(true);
 				button12.setText("Ansichtswitch");
 			}
+			/*
 			else if (tablename.equals("Prozessdaten")) {
 				button12.setVisible(true);
 				button12.setText("Kopiere Parameter...");
 			}
+			*/
 			else {
 				button12.setVisible(false);
 			}
@@ -372,7 +373,7 @@ public class MyDBPanel extends JPanel {
 			return;
 		}
 		if (e != null && e.isControlDown() && e.getKeyCode() == KeyEvent.VK_LEFT) { //Ctrl+<-, Ausserdem geht auch F8
-	    	DBKernel.myList.requestFocus();
+	    	DBKernel.mainFrame.getMyList().requestFocus();
 	    }
 		else if (textField1.getText().length() == 0 && !checkBox1.isSelected()) {
 			myFounds.clear(); initFindVector(myFounds, 0, "");
@@ -601,7 +602,7 @@ public class MyDBPanel extends JPanel {
 	}
 
 	private void button12ActionPerformed(ActionEvent e) {
-		if (myDBTable1.getActualTable().getTablename().equals("Krankheitsbilder")) {
+		if (myDBTable1.getActualTable().isHasForm()) {
 			if (isFormVisible()) {
 				myDBForm1.save();
 				try {
@@ -622,9 +623,11 @@ public class MyDBPanel extends JPanel {
 				//splitPane2.getRightComponent().setVisible(false);
 			}
 		}
+		/*
 		else if (myDBTable1.getActualTable().getTablename().equals("Prozessdaten")) {
 			myDBTable1.copyProzessschritt();
 		}		
+		*/
 	}
 	void checkUnsavedStuffInForm() {
 		if (isFormVisible()) {

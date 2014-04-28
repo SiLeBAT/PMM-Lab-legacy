@@ -51,7 +51,6 @@ import org.knime.core.node.port.PortObjectSpec;
 
 import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.PmmException;
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 
 /**
@@ -68,7 +67,7 @@ import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements ActionListener {
 
 	// private JComboBox levelBox;
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 	private ModelReaderUi filterui;
 	
     /**
@@ -80,8 +79,8 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     protected ModelCatalogReaderNodeDialog() {    	
     	JPanel panel = new JPanel();
     	    	
-    	dbui = new DbConfigurationUi( true );    	    	
-    	dbui.getApplyButton().addActionListener( this );    	
+    	//dbui = new DbConfigurationUi( true );    	    	
+    	//dbui.getApplyButton().addActionListener( this );    	
     	filterui = new ModelReaderUi();
     	
     	panel.setLayout(new BorderLayout());
@@ -102,11 +101,12 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 	@Override
 	protected void saveSettingsTo( NodeSettingsWO settings )
 			throws InvalidSettingsException {
-		
+		/*
 		settings.addString(ModelCatalogReaderNodeModel.PARAM_FILENAME, dbui.getFilename());
 		settings.addString(ModelCatalogReaderNodeModel.PARAM_LOGIN, dbui.getLogin());
 		settings.addString(ModelCatalogReaderNodeModel.PARAM_PASSWD, dbui.getPasswd());
 		settings.addBoolean(ModelCatalogReaderNodeModel.PARAM_OVERRIDE, dbui.isOverride());
+		*/
 		settings.addInt(ModelCatalogReaderNodeModel.PARAM_LEVEL, filterui.getLevel());
 		settings.addString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS, filterui.getModelClass());
 		settings.addBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED, filterui.isModelFilterEnabled());
@@ -116,11 +116,12 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
 		
 		try {
-			
+			/*
 			dbui.setFilename(settings.getString(ModelCatalogReaderNodeModel.PARAM_FILENAME));
 			dbui.setLogin(settings.getString(ModelCatalogReaderNodeModel.PARAM_LOGIN));
 			dbui.setPasswd(settings.getString(ModelCatalogReaderNodeModel.PARAM_PASSWD));
 			dbui.setOverride(settings.getBoolean(ModelCatalogReaderNodeModel.PARAM_OVERRIDE));
+			*/
 			filterui.setLevel(settings.getInt(ModelCatalogReaderNodeModel.PARAM_LEVEL));
 			filterui.setModelClass(settings.getString(ModelCatalogReaderNodeModel.PARAM_MODELCLASS));
 			filterui.setModelFilterEnabled(settings.getBoolean(ModelCatalogReaderNodeModel.PARAM_MODELFILTERENABLED));
@@ -143,11 +144,16 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
     	filterui.clearModelSet();
 
         db = null;
+        /*
     	if (dbui.getOverride()) {
 			db = new Bfrdb(dbui.getFilename(), dbui.getLogin(), dbui.getPasswd());
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
+		*/
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
     	
     	result = db.selectModel(1);    	    	
     	while (result.next()) {

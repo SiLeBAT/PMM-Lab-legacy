@@ -64,7 +64,7 @@ public class Backup extends FileFilter {
 	  fc.setMultiSelectionEnabled(false);	  
 	  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 	  Calendar c1 = Calendar.getInstance();
-	  fc.setSelectedFile(new File(DBKernel.getUsername() + "_" + DBKernel.DBVersion + "_" + sdf.format(c1.getTime()) + ".tar.gz")); // "AP1-2-DB_" + System.currentTimeMillis() + ".tar.gz"
+	  fc.setSelectedFile(new File(DBKernel.getUsername() + "_" + DBKernel.softwareVersion + "_" + sdf.format(c1.getTime()) + ".tar.gz")); // "AP1-2-DB_" + System.currentTimeMillis() + ".tar.gz"
 	  fc.setDialogTitle("Backup");
 	  int returnVal = fc.showSaveDialog(frame);
 	  if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -96,7 +96,7 @@ public class Backup extends FileFilter {
 	  return true;
   }
   private static void dbBackup(final JFrame frame, final File backupFile, final boolean silent) {
-  	if (backupFile != null && backupFile.getParentFile().exists() && DBKernel.DBFilesDa()) {
+  	if (backupFile != null && backupFile.getParentFile().exists() && DBKernel.DBFilesDa(DBKernel.HSHDB_PATH)) {
 	    try {
 	    	if (backupFile.exists()) {
 				backupFile.delete();
@@ -109,7 +109,7 @@ public class Backup extends FileFilter {
 
 	    	boolean isAdmin = DBKernel.isAdmin();
 	    	if (!isAdmin) {
-	    		MyDBTable myDB = (DBKernel.myList == null ? null :  DBKernel.myList.getMyDBTable());
+	    		MyDBTable myDB = (DBKernel.mainFrame.getMyList() == null ? null :  DBKernel.mainFrame.getMyList().getMyDBTable());
 		    	if (myDB != null) {
 					myDB.checkUnsavedStuff();
 				}
@@ -141,7 +141,7 @@ public class Backup extends FileFilter {
 	    	if (!isAdmin) {
 	    		DBKernel.closeDBConnections(false);
 				if (!DBKernel.isKNIME) {
-		    		MyDBTable myDB = (DBKernel.myList == null ? null :  DBKernel.myList.getMyDBTable());
+		    		MyDBTable myDB = (DBKernel.mainFrame.getMyList() == null ? null :  DBKernel.mainFrame.getMyList().getMyDBTable());
 			    	if (myDB != null) {
 			    		myDB.initConn(DBKernel.getDBConnection());
 			    		if (myDB.getActualTable() != null) {
@@ -271,8 +271,8 @@ public class Backup extends FileFilter {
   private static Connection getDBConnectionYOrCreateUser() {
 	  Connection conn = null;	  
 	  try {
-		  conn = DBKernel.getDBConnection(true);
-		  if (conn == null) {
+		  conn = DBKernel.getDBConnection(); // true
+		  if (conn == null || conn.isClosed()) {
 				DBKernel.getDefaultAdminConn();
 				if (DBKernel.countUsers(false) == 0) {
 					String username = DBKernel.getUsername();

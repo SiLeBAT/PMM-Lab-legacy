@@ -43,19 +43,21 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
  * @author Armin A. Weiser
  */
 public class DatabaseDeleteNodeModel extends NodeModel {
-    
+    /*
 	static final String PARAM_FILENAME = "filename";
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
+	*/
 	static final String PARAM_DELTESTCOND = "deleteTestConditions";
 	static final String PARAM_DELPRIMARYMODELS = "deletePrimaryModels";
 	static final String PARAM_DELSECONDARYMODELS = "deleteSecondaryModels";
-
+/*
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
+	*/
 	private boolean delTS, delPM, delSM;
 	private String warnings;
 
@@ -73,11 +75,16 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     protected BufferedDataTable[] execute(final BufferedDataTable[] inData,
             final ExecutionContext exec) throws Exception {
     	Bfrdb db = null;
+    	/*
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 		} else {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 		}
+		*/
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
     	String dbuuid = db.getDBUUID();
     	Connection conn = db.getConnection();
     	conn.setReadOnly(false);
@@ -293,11 +300,12 @@ public class DatabaseDeleteNodeModel extends NodeModel {
      */
     @Override
     protected void saveSettingsTo(final NodeSettingsWO settings) {
+    	/*
     	settings.addString(PARAM_FILENAME, filename);
     	settings.addString(PARAM_LOGIN, login);
     	settings.addString(PARAM_PASSWD, passwd);
     	settings.addBoolean(PARAM_OVERRIDE, override);
-    	
+    	*/
     	settings.addBoolean(PARAM_DELTESTCOND, delTS);
     	settings.addBoolean(PARAM_DELPRIMARYMODELS, delPM);
     	settings.addBoolean(PARAM_DELSECONDARYMODELS, delSM);
@@ -309,11 +317,12 @@ public class DatabaseDeleteNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
+    	/*
     	filename = settings.getString(PARAM_FILENAME);
     	login = settings.getString(PARAM_LOGIN);
     	passwd = settings.getString(PARAM_PASSWD);
     	override = settings.getBoolean(PARAM_OVERRIDE);
-    	
+    	*/
     	delTS = settings.getBoolean(PARAM_DELTESTCOND);
     	if (settings.containsKey(PARAM_DELPRIMARYMODELS)) delPM = settings.getBoolean(PARAM_DELPRIMARYMODELS); else delPM = false;;
     	if (settings.containsKey(PARAM_DELSECONDARYMODELS)) delSM = settings.getBoolean(PARAM_DELSECONDARYMODELS); else delSM = false;;

@@ -39,6 +39,7 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.Levenshtein;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtree.MyDBTree;
 
@@ -229,12 +230,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 					      		Object[] kzVal = new Object[numCols];
 					      		for (int j=0;j<numCols;j++) {
 					      			if (fieldTypes[j] != null) {
+					      				/*
 					      				if (fieldNames[j].equals("Bundesland")) {
 					      					hashBL = DBKernel.myDBi.getHashMap("County");
 					      				}
 					      				else {
 					      					hashBL = null;
 					      				}
+					      				*/
 				      					lfdCol++;
 					      				if (fieldTypes[j].startsWith("VARCHAR(") || fieldTypes[j].startsWith("CHAR(") || fieldTypes[j].startsWith("BLOB(") && !tableName.equals("DateiSpeicher")) manageString(ps, psUpdate, lfdCol, row.getCell(j), hashBL);
 					      				else if (fieldTypes[j].equals("BOOLEAN")) manageBoolean(ps, psUpdate, lfdCol, row.getCell(j));
@@ -353,14 +356,14 @@ public class GeneralXLSImporter extends FileFilter implements MyImporter {
 				      myT.doMNs();
 		    			if (progress != null) {
 		  	  			// Refreshen:
-		    				MyDBTable myDB = DBKernel.myList.getMyDBTable();
+		    				MyDBTable myDB = DBKernel.mainFrame.getMyList().getMyDBTable();
 		    				if (myDB.getActualTable() != null) {
 			    				String actTablename = myDB.getActualTable().getTablename();
 			    				if (actTablename.equals(tableName) || actTablename.equals(DBKernel.getCodesName(tableName))) {
 			    					myDB.setTable(myDB.getActualTable());
 			    				}
 		    				}
-		    				MyDBTree myTR = DBKernel.myList.getMyDBTree();
+		    				MyDBTree myTR = DBKernel.mainFrame.getMyList().getMyDBTree();
 		    				if (myTR.getActualTable() != null) {
 		      				String actTablename = myTR.getActualTable().getTablename();
 		      				if (actTablename.equals(tableName) || actTablename.equals(DBKernel.getCodesName(tableName))) {

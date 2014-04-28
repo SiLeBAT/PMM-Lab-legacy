@@ -36,6 +36,13 @@
  */
 package org.hsh.bfr.db;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.hsqldb.Trigger;
 
 /**
@@ -45,8 +52,10 @@ import org.hsqldb.Trigger;
 
 public class MyTrigger implements Trigger {
 		
-  @Override
-public void fire(final int triggerType, final String triggerName, final String tableName, final Object rowBefore[], final Object rowAfter[]) {
+	public static long triggerFired = System.currentTimeMillis();
+
+	@Override
+	public void fire(final int triggerType, final String triggerName, final String tableName, final Object rowBefore[], final Object rowAfter[]) {
         try {
         	if (triggerType == Trigger.INSERT_BEFORE_ROW || triggerType == Trigger.UPDATE_BEFORE_ROW || triggerType == Trigger.DELETE_BEFORE_ROW) {
         		if (tableName.equals("Users")) {
@@ -120,19 +129,9 @@ public void fire(final int triggerType, final String triggerName, final String t
 	          	}
 
 	          	if (!MainKernel.dontLog) {
-		          	if (MainKernel.isServer() || DBKernel.isKNIME || DBKernel.getLocalConn(false) == null) {
-		          		//DBKernel.importing = true; // nur, damit nicht unnötig sone kacke wie undo gemacht wird in insertIntoChangeLog...
-		          		if (!MainKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter)) {
-		          			MyLogger.handleMessage("Something went wrong in MyTrigger...." + tableName + "\t" + rowBefore + "\t" + rowAfter);
-		          		}
-		          		//System.out.println("isserver");
-		          	}
-		          	else {
-		          		//System.out.println("isnotserver");
-		          		if (!DBKernel.insertIntoChangeLog(tableName, rowBefore, rowAfter)) {
-		          			MyLogger.handleMessage("Something went wrong in MyTrigger...." + tableName + "\t" + rowBefore + "\t" + rowAfter);
-		          		}
-		          	}	          		
+	          		if (!insertIntoChangeLog(tableName, rowBefore, rowAfter, false)) {
+	          			MyLogger.handleMessage("Something went wrong in MyTrigger...." + tableName + "\t" + rowBefore + "\t" + rowAfter);
+	          		}
 	          	}
 	          	
         	}
@@ -218,4 +217,120 @@ public void fire(final int triggerType, final String triggerName, final String t
   	}
 		return false;
   }
+
+  
+	private boolean insertIntoChangeLog(final String tablename, final Object[] rowBefore, final Object[] rowAfter, final boolean suppressWarnings) {
+		if (DBKernel.dontLog || MainKernel.dontLog) return true;
+		else {
+			boolean diff = different(rowBefore, rowAfter);
+			if (!diff) return true;
+			boolean result = false;
+			try {
+		    	Connection conn = getDefaultConnection();
+		    	String username = getUsername(conn);
+				PreparedStatement ps = conn.prepareStatement("INSERT INTO " + DBKernel.delimitL("ChangeLog") + " (" + DBKernel.delimitL("ID") + ", "
+						+ DBKernel.delimitL("Zeitstempel") + ", " + DBKernel.delimitL("Username") + ", " + DBKernel.delimitL("Tabelle") + ", "
+						+ DBKernel.delimitL("TabellenID") + ", " + DBKernel.delimitL("Alteintrag") + ") VALUES (NEXT VALUE FOR "
+						+ DBKernel.delimitL("ChangeLogSEQ") + ", ?, ?, ?, ?, ?)");
+
+				ps.setTimestamp(1, new Timestamp(new Date().getTime()));
+				ps.setString(2, username);
+				ps.setString(3, tablename);
+				int tableID;
+				if (rowBefore != null && rowBefore.length > 0 && rowBefore[0] != null && rowBefore[0] instanceof Integer) {
+					tableID = (Integer) rowBefore[0];
+				}
+				else if (rowAfter != null && rowAfter.length > 0 && rowAfter[0] != null && rowAfter[0] instanceof Integer) {
+					tableID = (Integer) rowAfter[0];
+				}
+				else {
+					tableID = -1;
+				}
+				ps.setInt(4, tableID);
+				check4SerializationProblems(rowBefore);
+				ps.setObject(5, rowBefore);
+				triggerFired = System.currentTimeMillis();
+				ps.execute();
+				result = true;
+			}
+			catch (Exception e) {
+				if (!suppressWarnings) {
+					MyLogger.handleMessage(tablename + ": " + eintragAlt2String(rowBefore) + "\t" + eintragAlt2String(rowAfter));
+					MyLogger.handleException(e, true);
+				}
+			}
+			return result;
+		}
+	}
+
+	private void check4SerializationProblems(final Object[] rowBefore) {
+		if (rowBefore == null) {
+			return;
+		}
+		for (int i = 0; i < rowBefore.length; i++) {
+			if (rowBefore[i] instanceof org.hsqldb.types.TimestampData) {
+				rowBefore[i] = ((org.hsqldb.types.TimestampData) rowBefore[i])
+						.getSeconds();
+				// Long d = (Long) rowBefore[i];
+				// System.err.println(d + "\t" + rowBefore[i]);
+			}
+		}
+	}
+
+	private String eintragAlt2String(final Object[] eintragAlt) {
+		if (eintragAlt == null) {
+			return null;
+		}
+		String result = eintragAlt[0].toString();
+		for (int i = 1; i < eintragAlt.length; i++) {
+			result += "," + eintragAlt[i];
+		}
+		return result;
+	}
+	private boolean different(final Object[] rowBefore,
+			final Object[] rowAfter) {
+		if (rowBefore == null && rowAfter == null) {
+			return false;
+		}
+		if (rowBefore == null && rowAfter != null || rowBefore != null
+				&& rowAfter == null) {
+			return true;
+		}
+		if (rowBefore.equals(rowAfter)) {
+			return false;
+		}
+		for (int i = 0; i < rowBefore.length; i++) {
+			if (rowBefore[i] == null && rowAfter[i] == null) {
+				;
+			} else if (rowBefore[i] == null && rowAfter[i] != null
+					|| rowAfter[i] == null && rowBefore[i] != null
+					|| !rowBefore[i].toString().equals(rowAfter[i].toString())) {
+				return true;
+			}
+		}
+		return false;
+	}
+  	private Connection getDefaultConnection() {
+		Connection result = null;
+		String connStr = "jdbc:default:connection";
+		try {
+			result = DriverManager.getConnection(connStr);
+		}
+		catch(Exception e) {
+			MyLogger.handleException(e);
+		}
+		return result;
+	}
+	private String getUsername(Connection conn) {
+	  	String username = "";
+		try {
+			if (conn != null) {
+				username = conn.getMetaData().getUserName();
+			}
+		}
+		catch (SQLException e) {
+			MyLogger.handleException(e);
+		} 
+	  	return username;
+	}
 }

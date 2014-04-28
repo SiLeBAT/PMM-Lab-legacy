@@ -40,8 +40,6 @@ import org.knime.core.node.NodeSettingsWO;
 import org.knime.core.node.defaultnodesettings.DefaultNodeSettingsPane;
 import org.knime.core.node.port.PortObjectSpec;
 
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
-
 
 /**
  * <code>NodeDialog</code> for the "TimeSeriesWriter" Node.
@@ -56,13 +54,13 @@ import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
  */
 public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
 	
-	private DbConfigurationUi dbui;
+	//private DbConfigurationUi dbui;
 
     /**
      * New pane for configuring the TimeSeriesWriter node.
      */
     protected TimeSeriesWriterNodeDialog() {
-    	dbui = new DbConfigurationUi();    	
+    	//dbui = new DbConfigurationUi();    	
     	//addTab("Database connection", dbui);
 
     }
@@ -70,13 +68,16 @@ public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
 	@Override
 	protected void saveSettingsTo(NodeSettingsWO settings)
 			throws InvalidSettingsException {
+		/*
 		settings.addString( TimeSeriesWriterNodeModel.PARAM_FILENAME, dbui.getFilename() );
 		settings.addString( TimeSeriesWriterNodeModel.PARAM_LOGIN, dbui.getLogin() );
 		settings.addString( TimeSeriesWriterNodeModel.PARAM_PASSWD, dbui.getPasswd() );
-		settings.addBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );		
+		settings.addBoolean( TimeSeriesWriterNodeModel.PARAM_OVERRIDE, dbui.isOverride() );	
+		*/	
 	}
 	
 	protected void loadSettingsFrom( NodeSettingsRO settings, PortObjectSpec[] specs )  {
+		/*
 		try {
 			dbui.setFilename( settings.getString( TimeSeriesWriterNodeModel.PARAM_FILENAME ) );
 			dbui.setLogin( settings.getString( TimeSeriesWriterNodeModel.PARAM_LOGIN ) );
@@ -86,6 +87,7 @@ public class TimeSeriesWriterNodeDialog extends NodeDialogPane {
 		catch( InvalidSettingsException ex ) {	
 			ex.printStackTrace( System.err );
 		}
+		*/
 	}
 }
 

@@ -74,11 +74,12 @@ import de.bund.bfr.knime.pmm.common.units.Categories;
  * @author Jorgen Brandt
  */
 public class TimeSeriesReaderNodeModel extends NodeModel {
-	    
+	    /*
 	static final String PARAM_FILENAME = "filename";
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
+	*/
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
 	static final String PARAM_LITERATURESTRING = "literatureString";
@@ -89,11 +90,12 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 	static final String PARAM_PARAMETERNAME = "parameterName";
 	static final String PARAM_PARAMETERMIN = "parameterMin";
 	static final String PARAM_PARAMETERMAX = "parameterMax";
-	
+	/*
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
+	*/
 	private String matrixString;
 	private String agentString;
 	private String literatureString;
@@ -109,11 +111,12 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     protected TimeSeriesReaderNodeModel() {
     
         super( 0, 1 );
-        
+        /*
         filename = "";
         login = "";
         passwd = "";
         override = false;
+        */
         matrixString = "";
         agentString = "";
         literatureString = "";
@@ -174,6 +177,10 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 
     	// fetch time series
         Bfrdb db = null;
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
+        /*
     	if( override ) {
 			db = new Bfrdb( filename, login, passwd );
 			conn = db.getConnection();
@@ -181,6 +188,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 			conn = null;
 		}
+		*/
 
     	String dbuuid = db.getDBUUID();
     
@@ -285,10 +293,12 @@ System.err.println("PmmTimeSeries: xmlDocCreation: " + CellIO.tttxcmldoc);
      */
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
+    	/*
     	settings.addString( PARAM_FILENAME, filename );
     	settings.addString( PARAM_LOGIN, login );
     	settings.addString( PARAM_PASSWD, passwd );
     	settings.addBoolean( PARAM_OVERRIDE, override );
+    	*/
     	settings.addString( PARAM_MATRIXSTRING, matrixString );
     	settings.addString( PARAM_AGENTSTRING, agentString );
     	settings.addString( PARAM_LITERATURESTRING, literatureString );
@@ -319,10 +329,12 @@ System.err.println("PmmTimeSeries: xmlDocCreation: " + CellIO.tttxcmldoc);
     @Override
     protected void loadValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
+    	/*
     	filename = settings.getString( PARAM_FILENAME );
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
+    	*/
     	matrixString = settings.getString( PARAM_MATRIXSTRING );
     	agentString = settings.getString( PARAM_AGENTSTRING );
     	literatureString = settings.getString( PARAM_LITERATURESTRING );

@@ -53,11 +53,11 @@ import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
 import org.hsh.bfr.db.PlausibilityChecker;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.PlausibleDialog;
 import org.hsh.bfr.db.gui.PlausibleDialog4Krise;
 import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyIDFilter;
-import org.hsh.bfr.db.imports.InfoBox;
 
 /**
  * @author Armin
@@ -211,8 +211,8 @@ public class PlausibleAction extends AbstractAction {
 							:
 							null;
 							
-							if (pd4.selS.isSelected() && DBKernel.topTable.getActualTable().getTablename().equals("Station")) {
-								Integer stationId = DBKernel.topTable.getSelectedID();
+							if (pd4.selS.isSelected() && DBKernel.mainFrame.getTopTable().getActualTable().getTablename().equals("Station")) {
+								Integer stationId = DBKernel.mainFrame.getTopTable().getSelectedID();
 								System.err.println(stationId);
 								checkTables4Id(stationId);
 							}
@@ -344,7 +344,7 @@ public class PlausibleAction extends AbstractAction {
 						lastShownID = (Integer) filterIDs.toArray()[filterIDs.size() - 1];
 						MyTable theTable = DBKernel.myDBi.getTable(tablename);
 						MyIDFilter mf = new MyIDFilter(filterIDs);
-						Object val = DBKernel.myList.openNewWindow(
+						Object val = DBKernel.mainFrame.openNewWindow(
 								theTable,
 								null,
 								(Object) ("[" + (lfd + i) + "/" + total + "] - " + tablename),

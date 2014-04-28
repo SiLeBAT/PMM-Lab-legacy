@@ -222,7 +222,7 @@ public class MMC_TS extends JPanel {
 		Integer agensID = null;
 		try {agensID = Integer.parseInt(agensIDField.getText());}
 		catch (Exception e1) {}
-		Object newVal = DBKernel.myList.openNewWindow(
+		Object newVal = DBKernel.mainFrame.openNewWindow(
 				age,
 				agensID,
 				(Object) "Agenzien",
@@ -249,7 +249,7 @@ public class MMC_TS extends JPanel {
 		Integer matrixID = null;
 		try {matrixID = Integer.parseInt(matrixIDField.getText());}
 		catch (Exception e1) {}
-		Object newVal = DBKernel.myList.openNewWindow(
+		Object newVal = DBKernel.mainFrame.openNewWindow(
 				mat,
 				matrixID,
 				(Object) "Matrices",

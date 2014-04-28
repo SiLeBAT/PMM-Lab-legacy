@@ -82,7 +82,6 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model2Schema;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.PmmUtilities;
 import de.bund.bfr.knime.pmm.common.pmmtablemodel.TimeSeriesSchema;
-import de.bund.bfr.knime.pmm.common.ui.DbConfigurationUi;
 import de.bund.bfr.knime.pmm.common.ui.ModelReaderUi;
 import de.bund.bfr.knime.pmm.common.units.Categories;
 import de.bund.bfr.knime.pmm.common.units.Category;
@@ -97,11 +96,12 @@ import de.bund.bfr.knime.pmm.timeseriesreader.MdReaderUi;
  * @author Jorgen Brandt
  */
 public class EstimatedModelReaderNodeModel extends NodeModel {
-	
+	/*
 	static final String PARAM_FILENAME = "filename";
 	static final String PARAM_LOGIN = "login";
 	static final String PARAM_PASSWD = "passwd";
 	static final String PARAM_OVERRIDE = "override";
+	*/
 	static final String PARAM_MATRIXSTRING = "matrixString";
 	static final String PARAM_AGENTSTRING = "agentString";
 	static final String PARAM_LITERATURESTRING = "literatureString";
@@ -117,11 +117,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 	static final String PARAM_PARAMETERNAME = "parameterName";
 	static final String PARAM_PARAMETERMIN = "parameterMin";
 	static final String PARAM_PARAMETERMAX = "parameterMax";
-
+/*
 	private String filename;
 	private String login;
 	private String passwd;
 	private boolean override;
+	*/
 	private int level;
 	private String modelClass;
 	private boolean modelFilterEnabled;
@@ -150,10 +151,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     protected EstimatedModelReaderNodeModel() {
     	
         super(0, 1);
-        
+        /*
         filename = "";
         login = "";
         passwd = "";
+        */
         level = 1;
         modelFilterEnabled = false;
         modelList = "";
@@ -500,6 +502,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
             final ExecutionContext exec )throws Exception {    	
         // fetch database connection
     	Bfrdb db = null;
+    	/*
     	if (override) {
 			db = new Bfrdb( filename, login, passwd );
 			conn = db.getConnection();
@@ -507,6 +510,10 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 			db = new Bfrdb(DBKernel.getLocalConn(true));
 			conn = null;
 		}
+		*/
+    	try {
+			db = new Bfrdb(DBKernel.getLocalConn(true));
+		} catch (Exception e1) {}
     	
     	KnimeSchema schema = EstimatedModelReaderNodeModel.createSchema(withoutMdData, level);
 		    	
@@ -582,13 +589,14 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     @Override
     protected void saveSettingsTo( final NodeSettingsWO settings ) {
         try {        	
+        	/*
           	Config c = settings.addConfig("DbConfigurationUi");
          	c.addString(DbConfigurationUi.PARAM_FILENAME, filename);
          	c.addString(DbConfigurationUi.PARAM_LOGIN, login);
          	c.addString(DbConfigurationUi.PARAM_PASSWD, passwd);
          	c.addBoolean(DbConfigurationUi.PARAM_OVERRIDE, override);
-
-         	c = settings.addConfig("EstModelReaderUi");
+*/
+        	Config c = settings.addConfig("EstModelReaderUi");
          	
          	Config c3 = c.addConfig("ModelReaderUi");
         	c3.addInt( ModelReaderUi.PARAM_LEVEL, level );
@@ -671,11 +679,11 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
             throws InvalidSettingsException {
     	if (!settings.containsKey("DbConfigurationUi")) loadOldValidatedSettingsFrom(settings);
     	else {
-            loadDBGui(settings);
+            //loadDBGui(settings);
             loadEstModelGui(settings);    		
     	}
     }
-
+/*
     private void loadDBGui(final NodeSettingsRO settings) throws InvalidSettingsException {
     	try {
     		Config c = settings.getConfig("DbConfigurationUi");
@@ -686,6 +694,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     	}
     	catch (Exception e) {}
     }
+    */
     private void loadEstModelGui(final NodeSettingsRO settings) throws InvalidSettingsException {
     	try {
     		Config c = settings.getConfig("EstModelReaderUi");
@@ -729,10 +738,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     
     protected void loadOldValidatedSettingsFrom( final NodeSettingsRO settings )
             throws InvalidSettingsException {
+    	/*
     	filename = settings.getString( PARAM_FILENAME );
     	login = settings.getString( PARAM_LOGIN );
     	passwd = settings.getString( PARAM_PASSWD );
     	override = settings.getBoolean( PARAM_OVERRIDE );
+    	*/
     	level = settings.getInt( PARAM_LEVEL );
     	modelClass = settings.getString(PARAM_MODELCLASS);
     	modelFilterEnabled = settings.getBoolean( PARAM_MODELFILTERENABLED );

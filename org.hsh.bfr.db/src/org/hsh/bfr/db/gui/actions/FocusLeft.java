@@ -54,6 +54,6 @@ public class FocusLeft extends AbstractAction {
 	private static final long serialVersionUID = 1L;
 
 public void actionPerformed(ActionEvent e) {
-  	DBKernel.myList.requestFocus();
+  	DBKernel.mainFrame.getMyList().requestFocus();
   }
 }

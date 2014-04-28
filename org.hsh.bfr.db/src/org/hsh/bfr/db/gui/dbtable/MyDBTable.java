@@ -94,7 +94,7 @@ import javax.swing.table.TableRowSorter;
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
 import org.hsh.bfr.db.MyTable;
-import org.hsh.bfr.db.SendMail;
+import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.dbtable.editoren.BLOBEditor;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyBlobSizeRenderer;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyCellEditorDate;
@@ -121,7 +121,6 @@ import org.hsh.bfr.db.gui.dbtable.sorter.MyLongSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyOtherSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyStringSorter;
 import org.hsh.bfr.db.gui.dbtable.sorter.MyTableModel4Sorter;
-import org.hsh.bfr.db.imports.InfoBox;
 
 import quick.dbtable.Column;
 import quick.dbtable.DBTable;
@@ -166,8 +165,10 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		Connection conn = null;
 		try {
 			conn = DBKernel.getDBConnection(username, password);
-			DBKernel.getTempSA(DBKernel.HSHDB_PATH);
-			conn = DBKernel.getDBConnection(username, password);
+			if (conn != null) {
+				DBKernel.getTempSA(DBKernel.HSHDB_PATH);
+				conn = DBKernel.getDBConnection(username, password);
+			}
 		}
 		catch (Exception e) {
 			MyLogger.handleException(e);
@@ -176,7 +177,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	}
 	public boolean initConn(final Connection conn) {
 		boolean result = false;
-		DBKernel.topTable = this;
+		if (DBKernel.mainFrame != null) DBKernel.mainFrame.setTopTable(this);
 		if (conn != null) {
 			this.setConnection(conn);
 			this.setSortEnabled(false);	
@@ -248,8 +249,11 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	public boolean setTable(final MyTable myT) {
 		return setTable(myT, filterConditions); // null
 	}
-	  @SuppressWarnings("unchecked")
 	public boolean setTable(final MyTable myT, final Object[][] conditions) {
+		return setTable(myT, conditions, "AND");
+	}
+	  @SuppressWarnings("unchecked")
+	public boolean setTable(final MyTable myT, final Object[][] conditions, String andOrDefault) {
 		boolean result = true;
 		if (DBKernel.mainFrame != null) {
 			DBKernel.mainFrame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
@@ -267,12 +271,12 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			where = "WHERE ";
 			for (int i=0;i<conditions.length;i++) {
 				if (i>0) {
-					where += " AND ";
+					where += " " + andOrDefault + " ";
 				}
-				where += DBKernel.delimitL(conditions[i][0].toString()) + (conditions[i][1] == null ? " IS NULL" : "=" + conditions[i][1]);
+				where += DBKernel.delimitL(conditions[i][0].toString()) + (conditions[i][1] == null ? " IS NULL" : "=" + conditions[i][1]) + (conditions[i].length > 2 && conditions[i][2] != null ? conditions[i][2] : "");
 			}	
 			order = " ORDER BY " + DBKernel.delimitL("ID") + " ASC";	
-			
+			/*
 			if (conditions[0][0].equals("Zielprozess")) {
 				ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("Ausgangsprozess") + " FROM " +
 						DBKernel.delimitL("Prozess_Verbindungen") +	" " + where, false);
@@ -294,7 +298,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					where = " WHERE 1=0";
 				}
 			}
-			
+			*/
 		}
 		//if (DBKernel.debug) System.out.println(myT.getMetadata() + "\n" + where + order);
 		if (actualTable.getForeignFields() != null) {
@@ -364,12 +368,14 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		  		sorter.sort();
 				//this.sortByColumn(1, false);
 			} 
+			/*
 			else if (myT.getTablename().equals("ComBaseImport")) { // nur temporär, kann irgendwann wieder weg
 				List<SortKey> sortKeys = new ArrayList<SortKey>();
 		  		sortKeys.add(new SortKey(3, SortOrder.DESCENDING));
 		  		sorter.setSortKeys(sortKeys);
 		  		sorter.sort();
 			}
+			*/
 		}
 		if (!bigbigTable) {actualTable.restoreProperties(this); syncTableRowHeights();}			
 		//if (DBKernel.debug) {System.out.println("syncTableRowHeights: " + (System.currentTimeMillis() - ttt));}
@@ -423,9 +429,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		 */
 	}
 	void insertNull(final int selRow, final int selCol) {
-		String tablename = this.getActualTable().getTablename();
-		if (!this.actualTable.isReadOnly() && selCol > 0 && selRow >= 0 && this.getRowCount() > 0 &&
-				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly() && selCol > 0 && selRow >= 0 && this.getRowCount() > 0) {
     	String[] mnTable = actualTable.getMNTable();
     	MyTable[] myFs = actualTable.getForeignFields();
 	    	if (mnTable != null && mnTable.length > selCol - 1 && mnTable[selCol - 1] != null) {
@@ -434,9 +438,15 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 					sql = "";				// todo - oder auch nicht... Lieber nicht löschen! Is gut so! Wenn da was gelöscht werden soll, dann sollte das Fremdfenster geöffnet werden und dort die Zeile (Beispiel: Zutat) gelöscht werden!!!
 				}
 				else {
+					MyTable myMNTable = DBKernel.myDBi.getTable(mnTable[selCol - 1]);
+					/*
+					System.err.println(tablename + "\t" + mnTable[selCol - 1] + "\t" + myMNTable.getForeignFieldName(this.getActualTable()));
+					String tablename = this.getActualTable().getTablename();
 					if (tablename.equals("Modellkatalog")) sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL("Modell") + "=" + this.getValueAt(selRow, 0);
 					else if (tablename.equals("GeschaetzteModelle")) sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL("GeschaetztesModell") + "=" + this.getValueAt(selRow, 0);
 					else sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL(tablename) + "=" + this.getValueAt(selRow, 0);									
+					*/
+					sql = "DELETE FROM " + DBKernel.delimitL(mnTable[selCol - 1]) + " WHERE " + DBKernel.delimitL(myMNTable.getForeignFieldName(this.getActualTable())) + "=" + this.getValueAt(selRow, 0);
 				}
 				if (sql.length() > 0) {
 					DBKernel.sendRequest(sql, false);
@@ -464,8 +474,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	void deleteRow() {
 		String tablename = this.getActualTable().getTablename();
 		int selRow = this.getSelectedRow();
-		if (this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount() &&
-				(!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly() && this.getRowCount() > 0 && selRow >= 0 && selRow < this.getRowCount()) {
 			int id = this.getSelectedID();
 			List<String> fkids = DBKernel.getUsageListOfID(tablename, id);
 			int numForeignCounts = fkids.size();//DBKernel.getUsagecountOfID(tablename, id);
@@ -498,8 +507,7 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 
 	void insertNewRow(final boolean copySelected, final Vector<Object> vecIn) {
 		MyTable myT = this.getActualTable();
-		String tablename = myT.getTablename();
-		if (!tablename.equals("ProzessWorkflow") && (!tablename.equals("Matrices") && !tablename.equals("Agenzien") || DBKernel.isAdmin())) {
+		if (!this.actualTable.isReadOnly()) {
 			//JScrollPane scroller = getScroller();
 			this.getActualTable().saveProperties(this);
 			// Filter und Sorter ausschalten!!!
@@ -639,17 +647,14 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 			    				}
 			    				ii++;
 			    			}
-				    		ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") +
-				    				" FROM " + DBKernel.delimitL(fTablename) +
-						    		" WHERE " + DBKernel.delimitL(tname) + "=" + oldID +
-						    		" ORDER BY " + DBKernel.delimitL("ID") + " ASC", false);
+				    		ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fTablename) +
+						    		" WHERE " + DBKernel.delimitL(tname) + "=" + oldID + " ORDER BY " + DBKernel.delimitL("ID") + " ASC", false);
 						    if (rs != null && rs.first()) {
 						    	do  {
 						    		Integer oldfID = rs.getInt("ID");
 						    		MyTable myfT = DBKernel.myDBi.getTable(fTablename);
 						    		System.out.println(tablename + "-" + fTablename + " - oldfID: " + oldfID + "\toldID = " + oldID);
-						    		ResultSet rs2 = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(fTablename) +
-								    		" WHERE " + DBKernel.delimitL("ID") + "=" + oldfID, false);
+						    		ResultSet rs2 = DBKernel.getResultSet("SELECT * FROM " + DBKernel.delimitL(fTablename) + " WHERE " + DBKernel.delimitL("ID") + "=" + oldfID, false);
 						    		if (rs2 != null && rs2.first()) {
 								    	do  {
 								    		Integer newfID = copyRow(rs2, fTablename, tname, id);								    		
@@ -666,14 +671,16 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 						}					    		
 			    		else {//if (!mnTable[i].equals("DBL")) { // wurde ja schon bei copyKennzahlen gemacht, oder?
 				    		MyTable myMNT = DBKernel.myDBi.getTable(mnTable[i]);
-				    		String sql = "SELECT * FROM " + DBKernel.delimitL(mnTable[i]) + " WHERE ";
+				    		String sql = "SELECT * FROM " + DBKernel.delimitL(mnTable[i]) + " WHERE " +
+				    				DBKernel.delimitL(DBKernel.delimitL(myMNT.getForeignFieldName(this.getActualTable()))) + "=" + oldID;
+				    		/*
 				    		if (tablename.equals("GeschaetzteModelle")) {
 				    			sql += DBKernel.delimitL("GeschaetztesModell");
 				    		}
 				    		else {
 				    			sql += DBKernel.delimitL(tablename);
 				    		}
-				    		sql += "=" + oldID;
+				    		*/
 				    		ResultSet rs = DBKernel.getResultSet(sql, false);
 				    		//System.err.println(mnTable[i] + "\t" + tablename + "\t" + myMNT.getFieldNames()[0] + "\t" + myMNT.getFieldNames()[1]);
 						    if (rs != null && rs.first()) {
@@ -761,28 +768,6 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		}
 	}
 	
-	/*
-	public int getSelectedRow() {
-		int selRow = super.getSelectedRow();
-		if (this.getRowCount() > 0) {
-			System.out.println(selRow + "\t" + this.getValueAt(selRow, 0) + "\t" +
-				this.getTable().convertRowIndexToView(selRow) + "\t" + this.getValueAt(this.getTable().convertRowIndexToView(selRow), 0));
-		}
-		return selRow;
-	}
-	public void selectCell(int row, int col, boolean focus) {
-		if (this.getRowCount() > 0 && this.getTable().getRowSorter() != null && this.getTable().getRowSorter().getSortKeys().size() > 0) {
-			System.out.println(row + "\t" + this.getTable().convertRowIndexToView(row) + "\t" + this.getTable().convertRowIndexToModel(row));
-			super.selectCell(row, col, focus);
-		}
-		else {
-			super.selectCell(row, col, focus);
-		}
-	}
-	public void selectCell(int row, int col) {
-		this.selectCell(row, col, true);
-	}
-	*/
 	private void myPrint() {
 	  	// Zuerst DBTable aktualisieren:
 	    try {this.refresh();}
@@ -851,10 +836,9 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 	    catch (Exception e1) {
 	    	MyLogger.handleException(e1);
 	    }
-//		System.err.println(row+" - "+getSelectedID());
-if (myDBPanel1 != null) {
-	myDBPanel1.handleSuchfeldChange(null);
-}
+		if (myDBPanel1 != null) {
+			myDBPanel1.handleSuchfeldChange(null);
+		}
 	    this.updateRowHeader(!bigbigTable);
 	    if (col >= 0 && col < this.getColumnCount()) {
 			this.getTable().setColumnSelectionInterval(col, col);
@@ -865,9 +849,7 @@ if (myDBPanel1 != null) {
 	    	this.goTo(row);
 	    }
 	    setSelectedID(id);
-//	System.err.println(row+" - "+getSelectedID());
-//if (myDBPanel1 != null) myDBPanel1.handleSuchfeldChange(null);
-//this.updateRowHeader(!bigbigTable);
+
 	    if (sorterModel != null) {
 			sorterModel.initArray();
 		}
@@ -939,13 +921,15 @@ if (myDBPanel1 != null) {
 							c.setVisible(false);
 						}
 						else {
-					    	String endungen = "*.pdf, *.doc";
+					    	String endungen = (actualTable.getDefaults() != null && actualTable.getDefaults()[i] != null ? actualTable.getDefaults()[i] : "*"); // "*.pdf, *.doc"
+					    	/*
 					    	if (this.getActualTable().getTablename().equals("ProzessWorkflow")) {
 								endungen = "*.xml";
 							}
 					    	else if (this.getActualTable().getTablename().equals("PMMLabWorkflows")) {
 								endungen = "*.zip";
 							}
+							*/
 					    	BLOBEditor be = new BLOBEditor(endungen, this, i+1);
 						    c.setCellEditor(be);				    	
 						    if (sorter != null) {
@@ -956,7 +940,7 @@ if (myDBPanel1 != null) {
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
 					  }
 					else if (fieldTypes[i].startsWith("VARCHAR(")) {
-						c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), actualTable.getFieldNames()[i]));							
+						c.setUserCellEditor(new MyTextareaEditor(this, actualTable, i));							
 						c.setUserCellRenderer(new MyTextareaRenderer());
 						mthcr = new MyTableHeaderCellRenderer(this, defaultBgColor, fieldComments[i]);
 					    tcm.getColumn(i+1).setHeaderRenderer(mthcr);
@@ -1061,7 +1045,7 @@ if (myDBPanel1 != null) {
 					extraFields++;
 				      c = this.getColumn(fieldTypes.length+extraFields); // Kommentar
 				      c.setReadOnly(false); // Kommentar
-				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable.getTablename(), "Kommentar")); c.setUserCellRenderer(new MyTextareaRenderer());
+				      c.setUserCellEditor(new MyTextareaEditor(this, actualTable, null)); c.setUserCellRenderer(new MyTextareaRenderer());
 					    tcm.getColumn(fieldTypes.length+extraFields).setHeaderRenderer(new MyTableHeaderCellRenderer(this, defaultBgColor, null));
 					    if (sorter != null) {
 							sorter.setComparator(fieldTypes.length+extraFields+1, new MyStringSorter());
@@ -1201,26 +1185,6 @@ if (myDBPanel1 != null) {
 			}
 		}
 	}
-	private int getRowFromID(final int id) {
-		int result = -1;
-		if (id > 0) {
-			for (int row=0;row<this.getRowCount();row++) {
-				// evtl. sollte hier ein Thread eingebaut werden - wegen Gefahr zu langsam...
-				Object o = this.getValueAt(row, 0);
-				if (o instanceof Integer && ((Integer) o) == id) {
-					result = row;
-					break;
-				}
-			}
-			/*
-			Vector<Integer> columnVector = new Vector<Integer>();
-			columnVector.addElement(new Integer(1));
-			this.find(0, 0, id+"", columnVector, true);			
-			find Methode ist Kacke, weil da nach Strings gesucht wird. Soll die ID auf 1 gesetzt werden, dann findet die ID 10...
-			*/
-		}
-		return result;
-	}
 	public int getSelectedID() {
 		int result = -1;
 		int row = this.getSelectedRow(); 
@@ -1359,7 +1323,7 @@ if (myDBPanel1 != null) {
 		int hscrollVal = (scroller == null) ? -1 : scroller.getHorizontalScrollBar().getValue();
 
 		//MyLogger.handleMessage("checkForeignWindow2Open1 : " + row);
-		Object newVal = DBKernel.myList.openNewWindow(myTs[col-1], this.getValueAt(row, col), this.getColumn(col).getHeaderValue(), this, row, col);
+		Object newVal = DBKernel.mainFrame.openNewWindow(myTs[col-1], this.getValueAt(row, col), this.getColumn(col).getHeaderValue(), this, row, col);
 		//MyLogger.handleMessage("checkForeignWindow2Open2 : " + row + "\t" + newVal);
     	if (!this.actualTable.isReadOnly()) {
 	      	if (newVal != null) {
@@ -1609,7 +1573,23 @@ if (myDBPanel1 != null) {
 	    	  this.getTable().getCellEditor().cancelCellEditing(); 
 	  } 
 	} 
-	
+	/*
+	private int getRowFromID(final int id) {
+		int result = -1;
+		if (id > 0) {
+			for (int row=0;row<this.getRowCount();row++) {
+				// evtl. sollte hier ein Thread eingebaut werden - wegen Gefahr zu langsam...
+				Object o = this.getValueAt(row, 0);
+				if (o instanceof Integer && ((Integer) o) == id) {
+					result = row;
+					break;
+				}
+			}
+		}
+		return result;
+	}
+	*/
+	/*
 	void copyProzessschritt() {
 		Integer id = getSelectedID();
 		if (id >= 0) {
@@ -1618,22 +1598,22 @@ if (myDBPanel1 != null) {
 			if (retVal == JOptionPane.YES_OPTION) {
 				Object carverID = DBKernel.getValue("Prozessdaten", "ID", getSelectedID()+"", "Prozess_CARVER");
 				Object[][] cond = new Object[1][2]; cond[0][0] = "Prozess_CARVER"; cond[0][1] = carverID;
-	    	Object fromID = DBKernel.myList.openNewWindow(actualTable, null, "Datensatz zur Parameterübernahme", this, null, null, cond);
+				Object fromID = DBKernel.myList.openNewWindow(actualTable, null, "Datensatz zur Parameterübernahme", this, null, null, cond);
 				copyParameters(fromID, getSelectedID());
 				this.myRefresh();
-	  		// evtl. HashBox neu setzen, sonst wird nicht refresht
-	  		MyTable[] foreignFields = actualTable.getForeignFields();
-	  		String[] mnTable = actualTable.getMNTable();
-	  		if (foreignFields != null) {
-				DBKernel.refreshHashTables();
-	  			for (int i=0;i<foreignFields.length;i++) {
-	    			if (foreignFields[i] != null && (mnTable == null || mnTable[i] == null)) {
-	    				hashBox[i] = DBKernel.fillHashtable(foreignFields[i], "", "\n", "\n", !bigbigTable); //" | " " ; "
-	    				Column c = this.getColumn(i+1); 
-	    				c.setUserCellRenderer(new MyComboBoxEditor(hashBox[i], true));
-	    			}
-	  			}
-	  		}
+				// evtl. HashBox neu setzen, sonst wird nicht refresht
+				MyTable[] foreignFields = actualTable.getForeignFields();
+				String[] mnTable = actualTable.getMNTable();
+		  		if (foreignFields != null) {
+					DBKernel.refreshHashTables();
+		  			for (int i=0;i<foreignFields.length;i++) {
+		    			if (foreignFields[i] != null && (mnTable == null || mnTable[i] == null)) {
+		    				hashBox[i] = DBKernel.fillHashtable(foreignFields[i], "", "\n", "\n", !bigbigTable); //" | " " ; "
+		    				Column c = this.getColumn(i+1); 
+		    				c.setUserCellRenderer(new MyComboBoxEditor(hashBox[i], true));
+		    			}
+		  			}
+		  		}
 			}		
 		}
 	}
@@ -1708,12 +1688,13 @@ if (myDBPanel1 != null) {
 			DBKernel.myDBi.getTable("Prozessdaten_Sonstiges").doMNs();
 		}
 	}
+	*/
 	@Override
 	public void keyPressed(final KeyEvent keyEvent) {
   	//System.out.println(keyEvent.getKeyCode() + "\t" + keyEvent.getKeyChar() + "\t" + KeyEvent.VK_F + "\t" + keyEvent.isControlDown());
     if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_LEFT) { //Ctrl+<-, Aussredem geht auch F8
     	keyEvent.consume();
-    	DBKernel.myList.requestFocus();
+    	DBKernel.mainFrame.getMyList().requestFocus();
     	return;
     }
     else if (keyEvent.isControlDown() && keyEvent.getKeyCode() == KeyEvent.VK_F) { // Ctrl+F
@@ -1724,11 +1705,13 @@ if (myDBPanel1 != null) {
     	}
     	return;
     }
+    /*
     else if (keyEvent.getKeyCode() == KeyEvent.VK_B && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
     	keyEvent.consume();
     	SendMail.main(null);
     	return;
     }
+    */
     else if (keyEvent.getKeyCode() == KeyEvent.VK_P && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
     	keyEvent.consume();
     	myPrint();
@@ -1741,6 +1724,7 @@ if (myDBPanel1 != null) {
     else if (keyEvent.getKeyCode() == KeyEvent.VK_DELETE) {
     	keyEvent.consume();
     }
+    /*
     else if (keyEvent.getKeyCode() == KeyEvent.VK_W && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
 			if (this.getActualTable().getTablename().equals("Prozessdaten")) {
 				copyProzessschritt();
@@ -1748,6 +1732,7 @@ if (myDBPanel1 != null) {
 	     	return;
 			}
     }
+    */
     else if (keyEvent.getKeyCode() == KeyEvent.VK_K && (keyEvent.isAltDown() || keyEvent.isControlDown())) {
     	if (DBKernel.isKrise) {
     		//makeKrisenGrafiken();

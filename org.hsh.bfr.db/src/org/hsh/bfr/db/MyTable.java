@@ -725,7 +725,7 @@ public class MyTable {
 				String feldname = listMNs.get(i);
 				DBKernel.sendRequest(
 						"UPDATE " + DBKernel.delimitL(tableName) + " SET " + DBKernel.delimitL(feldname) + "=" + DBKernel.delimitL("ID") + " WHERE "
-								+ DBKernel.delimitL(feldname) + " IS NULL OR " + DBKernel.delimitL(feldname) + "!=" + DBKernel.delimitL("ID"), false);
+								+ DBKernel.delimitL(feldname) + " IS NULL OR " + DBKernel.delimitL(feldname) + "!=" + DBKernel.delimitL("ID"), true);
 			}
 		}
 		DBKernel.dontLog = dl;

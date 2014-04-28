@@ -152,7 +152,7 @@ public class ModelCatalogReaderNodeDialog extends NodeDialogPane implements Acti
 		}
 		*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+			db = new Bfrdb(DBKernel.getLocalConn());
 		} catch (Exception e1) {}
     	
     	result = db.selectModel(1);    	    	

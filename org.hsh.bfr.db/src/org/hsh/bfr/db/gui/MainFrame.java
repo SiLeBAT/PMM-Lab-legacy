@@ -570,13 +570,17 @@ public class MainFrame extends JFrame {
 						}
 					}
 					else {
-						for (MyTable myTLeft : theNewTable.getForeignFields()) {
-							for (MyTable myTOrigin : myT.getForeignFields()) {
-								if (myTLeft != null && myTOrigin != null && myTLeft.equals(myTOrigin) && !myTLeft.getTablename().equals("DoubleKennzahlen")) {
-									o = new Object[1][2];
-									o[0][0] = theNewTable.getForeignFieldName(myTLeft); o[0][1] = dbTable.getValueAt(row, myT.getForeignFieldIndex(myTOrigin)+1);
-									newDBTable.setTable(theNewTable, o);
-									break;
+						for (int i=0; i<theNewTable.getForeignFields().length;i++) {
+							MyTable myTLeft = theNewTable.getForeignFields()[i];
+							if (myTLeft != null && !myTLeft.getTablename().equals("DoubleKennzahlen") && (theNewTable.getMNTable() == null || theNewTable.getMNTable()[i] == null)) {
+								for (int j=0;j<myT.getForeignFields().length;j++) {
+									MyTable myTOrigin = myT.getForeignFields()[j];
+									if (myTOrigin != null && myTLeft.equals(myTOrigin) && (myT.getMNTable() == null || myT.getMNTable()[j] == null)) {
+										o = new Object[1][2];
+										o[0][0] = theNewTable.getForeignFieldName(myTLeft); o[0][1] = dbTable.getValueAt(row, myT.getForeignFieldIndex(myTOrigin)+1);
+										newDBTable.setTable(theNewTable, o);
+										break;
+									}
 								}
 							}
 						}					

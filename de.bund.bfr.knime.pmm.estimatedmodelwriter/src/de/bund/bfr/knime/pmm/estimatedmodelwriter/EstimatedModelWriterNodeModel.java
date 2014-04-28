@@ -127,7 +127,7 @@ public class EstimatedModelWriterNodeModel extends NodeModel {
 		}
 		*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+			db = new Bfrdb(DBKernel.getLocalConn());
 		} catch (Exception e1) {}
     	Connection conn = db.getConnection();
     	conn.setReadOnly(false);

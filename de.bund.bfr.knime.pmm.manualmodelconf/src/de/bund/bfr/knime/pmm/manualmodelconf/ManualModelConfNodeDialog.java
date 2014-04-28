@@ -70,7 +70,7 @@ public class ManualModelConfNodeDialog extends NodeDialogPane {
     	try {    
     		m_mmcts = new MMC_TS();
     		m_mmcm = new MMC_M(JOptionPane.getRootFrame(), 1, "", formulaCreator, m_mmcts);
-    		m_mmcm.setConnection(DBKernel.getLocalConn(true));
+    		m_mmcm.setConnection(DBKernel.getLocalConn());
     		this.addTab("Model Definition", m_mmcm);    	
     		
     		if (!formulaCreator) {

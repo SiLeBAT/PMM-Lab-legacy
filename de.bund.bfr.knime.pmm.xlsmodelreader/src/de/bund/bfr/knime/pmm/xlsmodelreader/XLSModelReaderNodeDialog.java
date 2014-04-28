@@ -421,7 +421,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 			}
 
 			if (id != null) {
-				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+				Bfrdb db = new Bfrdb(DBKernel.getLocalConn());
 
 				try {
 					set.setModelTuple(db.getPrimModelById(id));
@@ -436,7 +436,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					.getPmmXml(Model1Schema.ATT_MODELCATALOG).get(0)).getId();
 
 			if (id != null) {
-				Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+				Bfrdb db = new Bfrdb(DBKernel.getLocalConn());
 
 				try {
 					set.setModelTuple(db.getPrimModelById(id));
@@ -529,7 +529,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 					}
 
 					if (id != null) {
-						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+						Bfrdb db = new Bfrdb(DBKernel.getLocalConn());
 
 						try {
 							addSecModel(param, db.getSecModelById(id));
@@ -552,7 +552,7 @@ public class XLSModelReaderNodeDialog extends NodeDialogPane implements
 							Model2Schema.ATT_MODELCATALOG).get(0)).getId();
 
 					if (id != null) {
-						Bfrdb db = new Bfrdb(DBKernel.getLocalConn(true));
+						Bfrdb db = new Bfrdb(DBKernel.getLocalConn());
 
 						try {
 							addSecModel(param, db.getSecModelById(id));

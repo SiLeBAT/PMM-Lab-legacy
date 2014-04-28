@@ -131,7 +131,7 @@ public class ModelCatalogReaderNodeModel extends NodeModel {
         // fetch database connection
         db = null;
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+			db = new Bfrdb(DBKernel.getLocalConn());
 		} catch (Exception e1) {}
     	/*
     	if( override ) {

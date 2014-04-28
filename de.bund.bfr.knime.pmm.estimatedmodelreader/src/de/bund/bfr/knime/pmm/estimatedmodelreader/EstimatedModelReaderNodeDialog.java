@@ -94,7 +94,7 @@ public class EstimatedModelReaderNodeDialog extends NodeDialogPane implements Ac
     	catch (Exception e) {}
     	    	*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+			db = new Bfrdb(DBKernel.getLocalConn());
 		} catch (Exception e1) {}
     	estmodelui = new EmReaderUi(db);
     	

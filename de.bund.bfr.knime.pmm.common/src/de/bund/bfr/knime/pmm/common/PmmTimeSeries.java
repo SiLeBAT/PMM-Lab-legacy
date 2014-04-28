@@ -112,6 +112,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 					}
 				}
 			}
+			if (xmlElement.getAttributeValue(TimeSeriesSchema.ATT_DBUUID) != null) setValue(TimeSeriesSchema.ATT_DBUUID, xmlElement.getAttributeValue(TimeSeriesSchema.ATT_DBUUID));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -151,6 +152,7 @@ public class PmmTimeSeries extends KnimeTuple implements PmmXmlElementConvertabl
 			PmmXmlDoc litMdDoc = this.getPmmXml(TimeSeriesSchema.ATT_LITMD);
 			element.addContent(litMdDoc.toXmlString());
 			ret.addContent(element);
+			ret.setAttribute(TimeSeriesSchema.ATT_DBUUID, XmlHelper.getNonNull(getString(TimeSeriesSchema.ATT_DBUUID)));
 		}
 		catch( PmmException ex ) {
 			ex.printStackTrace();

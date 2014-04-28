@@ -1507,11 +1507,11 @@ public class Bfrdb extends Hsqldbiface {
 		
 	private void deleteFrom(String tablename, String fieldname, int id) {
 		try {			
-			PreparedStatement ps = conn.prepareStatement( "DELETE FROM \""+tablename+"\" WHERE \""+fieldname+"\"="+id );			
+			PreparedStatement ps = conn.prepareStatement("DELETE FROM \""+tablename+"\" WHERE \""+fieldname+"\"="+id);			
 			ps.executeUpdate();
 			ps.close();
 		}
-		catch( SQLException ex ) { ex.printStackTrace(); }
+		catch( SQLException ex ) {ex.printStackTrace();}
 	}
 		
     private Double convert(Category cat, String fromUnit, Double value, String toUnit) {

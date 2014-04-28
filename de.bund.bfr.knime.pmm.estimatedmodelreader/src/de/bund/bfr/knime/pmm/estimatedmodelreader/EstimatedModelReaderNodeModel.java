@@ -512,7 +512,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		}
 		*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn(true));
+			db = new Bfrdb(DBKernel.getLocalConn());
 		} catch (Exception e1) {}
     	
     	KnimeSchema schema = EstimatedModelReaderNodeModel.createSchema(withoutMdData, level);
@@ -677,11 +677,8 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     @Override
     protected void loadValidatedSettingsFrom(final NodeSettingsRO settings)
             throws InvalidSettingsException {
-    	if (!settings.containsKey("DbConfigurationUi")) loadOldValidatedSettingsFrom(settings);
-    	else {
-            //loadDBGui(settings);
-            loadEstModelGui(settings);    		
-    	}
+        //loadDBGui(settings);
+        loadEstModelGui(settings);    		
     }
 /*
     private void loadDBGui(final NodeSettingsRO settings) throws InvalidSettingsException {

@@ -91,7 +91,7 @@ public class SettingsDialog extends JFrame {
 				Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
 				DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
 				if (!isServer) DBKernel.getUP(dbt);
-				conn = DBKernel.getLocalConn(true);
+				conn = DBKernel.getLocalConn();
 				if (conn != null) {
 					DBKernel.createGui(conn);
 			  		DBKernel.mainFrame.getMyList().getMyDBTable().initConn(conn);

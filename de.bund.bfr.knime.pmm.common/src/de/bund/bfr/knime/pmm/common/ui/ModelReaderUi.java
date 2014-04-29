@@ -373,9 +373,6 @@ public class ModelReaderUi extends JPanel implements ActionListener {
 		else
 			id = tuple.getInt(Model2Schema.ATT_MODELID);
 		 */
-		if (id == 134) {
-			System.err.println(id + "\t" + modelList);
-		}
 		String[] token = modelList.split(",");
 		for (String candidate : token)
 			if (Integer.valueOf(candidate).intValue() == id)

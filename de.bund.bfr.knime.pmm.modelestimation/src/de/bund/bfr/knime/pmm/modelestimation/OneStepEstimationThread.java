@@ -183,8 +183,9 @@ public class OneStepEstimationThread implements Runnable {
 				tuple.setValue(Model2Schema.ATT_PARAMETER, secParams);
 			}
 
-			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(ModelCombiner
-					.combine(seiTuples, true, null, null).keySet());
+			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
+					new ModelCombiner(seiTuples, true, null, null)
+							.getTupleCombinations().keySet());
 			Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 			Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
 

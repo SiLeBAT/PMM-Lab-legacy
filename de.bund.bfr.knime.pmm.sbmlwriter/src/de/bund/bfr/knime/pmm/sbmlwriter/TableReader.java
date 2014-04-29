@@ -87,8 +87,8 @@ public class TableReader {
 		int index = 1;
 
 		if (isTertiaryModel) {
-			tuples = new ArrayList<KnimeTuple>(ModelCombiner.combine(tuples,
-					true, null, null).keySet());
+			tuples = new ArrayList<KnimeTuple>(new ModelCombiner(tuples, true,
+					null, null).getTupleCombinations().keySet());
 		}
 
 		documents = new LinkedHashMap<String, SBMLDocument>();

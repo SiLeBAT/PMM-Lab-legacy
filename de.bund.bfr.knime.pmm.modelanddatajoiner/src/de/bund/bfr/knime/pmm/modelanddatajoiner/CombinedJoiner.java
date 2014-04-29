@@ -437,16 +437,13 @@ public class CombinedJoiner implements Joiner {
 		Map<KnimeTuple, List<KnimeTuple>> tuples;
 
 		if (containsData) {
-			tuples = ModelCombiner.combine(
-					PmmUtilities.getTuples(modelTable,
-							SchemaFactory.createM12DataSchema()), true, null,
-					null);
+			tuples = new ModelCombiner(PmmUtilities.getTuples(modelTable,
+					SchemaFactory.createM12DataSchema()), true, null, null)
+					.getTupleCombinations();
 		} else {
-			tuples = ModelCombiner
-					.combine(
-							PmmUtilities.getTuples(modelTable,
-									SchemaFactory.createM12Schema()), false,
-							null, null);
+			tuples = new ModelCombiner(PmmUtilities.getTuples(modelTable,
+					SchemaFactory.createM12Schema()), false, null, null)
+					.getTupleCombinations();
 		}
 
 		Set<Integer> ids = new LinkedHashSet<Integer>();

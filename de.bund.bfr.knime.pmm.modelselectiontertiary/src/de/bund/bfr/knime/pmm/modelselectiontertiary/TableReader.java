@@ -79,8 +79,9 @@ public class TableReader {
 					SchemaFactory.createM12Schema());
 		}
 
-		Map<KnimeTuple, List<KnimeTuple>> combinations = ModelCombiner.combine(
-				tertiaryTuples, schemaContainsData, null, null);
+		Map<KnimeTuple, List<KnimeTuple>> combinations = new ModelCombiner(
+				tertiaryTuples, schemaContainsData, null, null)
+				.getTupleCombinations();
 
 		for (Map.Entry<KnimeTuple, List<KnimeTuple>> entry : combinations
 				.entrySet()) {

@@ -83,8 +83,8 @@ public class TableReader {
 		newLagParams = new LinkedHashMap<String, String>();
 
 		if (isTertiaryModel) {
-			combined = ModelCombiner.combine(tuples, containsData, initParams,
-					lagParams);
+			combined = new ModelCombiner(tuples, containsData, initParams,
+					lagParams).getTupleCombinations();
 
 			tuples = new ArrayList<KnimeTuple>(combined.keySet());
 
@@ -307,7 +307,7 @@ public class TableReader {
 			CatalogModelXml modelXml = (CatalogModelXml) tuple.getPmmXml(
 					Model1Schema.ATT_MODELCATALOG).get(0);
 			DepXml depXml = (DepXml) tuple
-					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);			
+					.getPmmXml(Model1Schema.ATT_DEPENDENT).get(0);
 			String modelName = modelXml.getName();
 			String formula = MathUtilities.getAllButBoundaryCondition(modelXml
 					.getFormula());

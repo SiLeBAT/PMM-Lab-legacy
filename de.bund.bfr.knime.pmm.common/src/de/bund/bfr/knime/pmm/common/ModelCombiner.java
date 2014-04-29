@@ -52,11 +52,10 @@ import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class ModelCombiner {
+	
+	private Map<KnimeTuple, List<KnimeTuple>> tupleCombinations;
 
-	private ModelCombiner() {
-	}
-
-	public static Map<KnimeTuple, List<KnimeTuple>> combine(
+	public ModelCombiner(
 			List<KnimeTuple> tuples, boolean containsData,
 			Map<String, String> initParams, Map<String, String> lagParams) {
 		KnimeSchema outSchema = null;
@@ -178,7 +177,7 @@ public class ModelCombiner {
 			}
 		}
 
-		Map<KnimeTuple, List<KnimeTuple>> tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
 
 		for (String id : newTuples.keySet()) {
 			KnimeTuple newTuple = newTuples.get(id);
@@ -385,7 +384,9 @@ public class ModelCombiner {
 						matrixXml));
 			}
 		}
+	}
 
+	public Map<KnimeTuple, List<KnimeTuple>> getTupleCombinations() {
 		return tupleCombinations;
 	}
 }

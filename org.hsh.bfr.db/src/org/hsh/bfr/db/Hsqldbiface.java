@@ -218,7 +218,7 @@ public class Hsqldbiface {
 		statement.close();			
 	}
 	
-	public ResultSet pushQuery(String query) throws SQLException {	
+	private ResultSet pushQuery(String query) throws SQLException {	
 		return pushQuery(query, false);
 	}
 	private ResultSet pushQuery(String query, boolean inclBackwardResultSets) throws SQLException {		

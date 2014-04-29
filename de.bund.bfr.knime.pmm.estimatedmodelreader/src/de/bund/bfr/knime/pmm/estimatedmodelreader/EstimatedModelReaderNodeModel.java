@@ -512,7 +512,7 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
 		}
 		*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		} catch (Exception e1) {}
     	
     	KnimeSchema schema = EstimatedModelReaderNodeModel.createSchema(withoutMdData, level);

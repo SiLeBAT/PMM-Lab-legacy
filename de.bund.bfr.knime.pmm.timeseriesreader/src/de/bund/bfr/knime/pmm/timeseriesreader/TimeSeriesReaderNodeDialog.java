@@ -80,7 +80,7 @@ public class TimeSeriesReaderNodeDialog extends NodeDialogPane {
     	
     	Connection conn = null;
     	try {
-			DBKernel.getLocalConn();
+			DBKernel.getLocalConn(true);
 		} catch (Exception e1) {}
     	/*
     	if( dbui.getOverride() ) {

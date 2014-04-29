@@ -178,7 +178,7 @@ public class TimeSeriesReaderNodeModel extends NodeModel {
     	// fetch time series
         Bfrdb db = null;
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		} catch (Exception e1) {}
         /*
     	if( override ) {

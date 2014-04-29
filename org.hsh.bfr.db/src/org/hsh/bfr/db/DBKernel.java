@@ -71,21 +71,13 @@ import java.util.UUID;
 import java.util.Vector;
 import java.util.concurrent.Callable;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.FileLocator;
 import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
-import org.hsh.bfr.db.gui.MyList;
-import org.hsh.bfr.db.gui.dbtable.MyDBTable;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
-import org.hsh.bfr.db.gui.dbtree.MyDBTree;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
 
 /**
  * @author Armin
@@ -105,7 +97,8 @@ public class DBKernel {
 	private static String m_Username = "";
 	private static String m_Password = "";
 
-	final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR" + System.getProperty("file.separator");
+	final static String HSH_PATH = System.getProperty("user.home") + System.getProperty("file.separator") + ".localHSH" + System.getProperty("file.separator") + "BfR"
+			+ System.getProperty("file.separator");
 	public static String HSHDB_PATH = HSH_PATH + "DBs" + System.getProperty("file.separator");
 
 	public static boolean dontLog = false;
@@ -309,7 +302,8 @@ public class DBKernel {
 	}
 
 	public static boolean deleteBLOB(final String tableName, final String fieldName, final int id) {
-		String sql = "DELETE FROM " + delimitL("DateiSpeicher") + " WHERE " + delimitL("TabellenID") + "=" + id + " AND" + delimitL("Tabelle") + "='" + tableName + "' AND " + delimitL("Feld") + "='" + fieldName + "'";
+		String sql = "DELETE FROM " + delimitL("DateiSpeicher") + " WHERE " + delimitL("TabellenID") + "=" + id + " AND" + delimitL("Tabelle") + "='" + tableName + "' AND "
+				+ delimitL("Feld") + "='" + fieldName + "'";
 		return sendRequest(sql, false);
 	}
 
@@ -317,8 +311,8 @@ public class DBKernel {
 		boolean result = false;
 		try {
 			if (fl.exists()) {
-				String sql = "INSERT INTO " + delimitL("DateiSpeicher") + " (" + delimitL("Zeitstempel") + "," + delimitL("Tabelle") + "," + delimitL("Feld") + "," + delimitL("TabellenID") + "," + delimitL("Dateiname") + ","
-						+ delimitL("Dateigroesse") + "," + delimitL("Datei") + ")" + " VALUES (?,?,?,?,?,?,?);";
+				String sql = "INSERT INTO " + delimitL("DateiSpeicher") + " (" + delimitL("Zeitstempel") + "," + delimitL("Tabelle") + "," + delimitL("Feld") + ","
+						+ delimitL("TabellenID") + "," + delimitL("Dateiname") + "," + delimitL("Dateigroesse") + "," + delimitL("Datei") + ")" + " VALUES (?,?,?,?,?,?,?);";
 
 				PreparedStatement psmt = getDBConnection().prepareStatement(sql);
 				psmt.clearParameters();
@@ -343,8 +337,8 @@ public class DBKernel {
 	public static boolean insertBLOB(final String tableName, final String fieldName, final String content, final String filename, final int id) {
 		boolean result = false;
 		try {
-			String sql = "INSERT INTO " + delimitL("DateiSpeicher") + " (" + delimitL("Zeitstempel") + "," + delimitL("Tabelle") + "," + delimitL("Feld") + "," + delimitL("TabellenID") + "," + delimitL("Dateiname") + "," + delimitL("Dateigroesse")
-					+ "," + delimitL("Datei") + ")" + " VALUES (?,?,?,?,?,?,?);";
+			String sql = "INSERT INTO " + delimitL("DateiSpeicher") + " (" + delimitL("Zeitstempel") + "," + delimitL("Tabelle") + "," + delimitL("Feld") + ","
+					+ delimitL("TabellenID") + "," + delimitL("Dateiname") + "," + delimitL("Dateigroesse") + "," + delimitL("Datei") + ")" + " VALUES (?,?,?,?,?,?,?);";
 
 			PreparedStatement psmt = getDBConnection().prepareStatement(sql);
 			psmt.clearParameters();
@@ -368,7 +362,8 @@ public class DBKernel {
 
 	public static List<Integer> getLastChangeLogEntries(final String tablename, int fromID) {
 		List<Integer> result = new ArrayList<Integer>();
-		String sql = "SELECT " + delimitL("TabellenID") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename + "' AND " + delimitL("ID") + " >= " + fromID;
+		String sql = "SELECT " + delimitL("TabellenID") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename + "' AND " + delimitL("ID")
+				+ " >= " + fromID;
 		ResultSet rs = getResultSet(sql, false);
 		try {
 			if (rs != null && rs.first()) {
@@ -384,8 +379,8 @@ public class DBKernel {
 
 	public static LinkedHashMap<String, Timestamp> getFirstUserFromChangeLog(final String tablename, final Integer tableID) {
 		LinkedHashMap<String, Timestamp> result = new LinkedHashMap<String, Timestamp>();
-		String sql = "SELECT " + delimitL("Username") + "," + delimitL("Zeitstempel") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename + "' AND " + delimitL("TabellenID") + " = " + tableID + " ORDER BY "
-				+ delimitL("Zeitstempel") + " ASC";
+		String sql = "SELECT " + delimitL("Username") + "," + delimitL("Zeitstempel") + " FROM " + delimitL("ChangeLog") + " WHERE " + delimitL("Tabelle") + " = '" + tablename
+				+ "' AND " + delimitL("TabellenID") + " = " + tableID + " ORDER BY " + delimitL("Zeitstempel") + " ASC";
 		ResultSet rs = getResultSet(sql, false);
 		try {
 			if (rs != null && rs.first()) {
@@ -409,13 +404,17 @@ public class DBKernel {
 		return getUsersFromChangeLog(null, tablename, tableID, username, false);
 	}
 
-	private static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(final Statement anfrage, final String tablename, final Integer tableID, final String username, final boolean showDeletedAsWell) {
+	private static LinkedHashMap<Integer, Vector<String>> getUsersFromChangeLog(final Statement anfrage, final String tablename, final Integer tableID, final String username,
+			final boolean showDeletedAsWell) {
 		LinkedHashMap<Integer, Vector<String>> result = new LinkedHashMap<Integer, Vector<String>>();
 		Vector<String> entries = new Vector<String>();
-		String sql = "SELECT " + delimitL("TabellenID") + "," + delimitL("Username") + "," + delimitL("Zeitstempel") + "," + delimitL(tablename) + "." + delimitL("ID") + " AS " + delimitL("ID") + "," + delimitL("ChangeLog") + "." + delimitL("ID")
-				+ "," + delimitL("Alteintrag") + "," + delimitL(tablename) + ".*" + " FROM " + delimitL("ChangeLog") + " LEFT JOIN " + delimitL(tablename) + " ON " + delimitL("ChangeLog") + "." + delimitL("TabellenID") + "=" + delimitL(tablename)
-				+ "." + delimitL("ID") + " WHERE " + delimitL("ChangeLog") + "." + delimitL("Tabelle") + " = '" + tablename + "'" + (tableID != null ? " AND " + delimitL("ChangeLog") + "." + delimitL("TabellenID") + " = " + tableID : "")
-				+ (username != null ? " AND " + delimitL("ChangeLog") + "." + delimitL("Username") + " = '" + username + "'" : "") + " ORDER BY " + delimitL("ChangeLog") + "." + delimitL("ID") + " ASC"; // Zeitstempel DESC
+		String sql = "SELECT " + delimitL("TabellenID") + "," + delimitL("Username") + "," + delimitL("Zeitstempel") + "," + delimitL(tablename) + "." + delimitL("ID") + " AS "
+				+ delimitL("ID") + "," + delimitL("ChangeLog") + "." + delimitL("ID") + "," + delimitL("Alteintrag") + "," + delimitL(tablename) + ".*" + " FROM "
+				+ delimitL("ChangeLog") + " LEFT JOIN " + delimitL(tablename) + " ON " + delimitL("ChangeLog") + "." + delimitL("TabellenID") + "=" + delimitL(tablename) + "."
+				+ delimitL("ID") + " WHERE " + delimitL("ChangeLog") + "." + delimitL("Tabelle") + " = '" + tablename + "'"
+				+ (tableID != null ? " AND " + delimitL("ChangeLog") + "." + delimitL("TabellenID") + " = " + tableID : "")
+				+ (username != null ? " AND " + delimitL("ChangeLog") + "." + delimitL("Username") + " = '" + username + "'" : "") + " ORDER BY " + delimitL("ChangeLog") + "."
+				+ delimitL("ID") + " ASC"; // Zeitstempel DESC
 		ResultSet rs = anfrage == null ? getResultSet(sql, false) : getResultSet(anfrage, sql, false);
 		try {
 			if (rs != null && rs.first()) {
@@ -514,7 +513,8 @@ public class DBKernel {
 				System.gc();
 				System.runFinalization();
 				try {
-					if (mainFrame != null && mainFrame.getMyList() != null && mainFrame.getMyList().getMyDBTable() != null && mainFrame.getMyList().getMyDBTable().getActualTable() != null) {
+					if (mainFrame != null && mainFrame.getMyList() != null && mainFrame.getMyList().getMyDBTable() != null
+							&& mainFrame.getMyList().getMyDBTable().getActualTable() != null) {
 						DBKernel.prefs.put("LAST_SELECTED_TABLE", mainFrame.getMyList().getMyDBTable().getActualTable().getTablename());
 
 						DBKernel.prefs.put("LAST_MainFrame_FULL", DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE" : "FALSE");
@@ -553,8 +553,9 @@ public class DBKernel {
 							+ DBKernel.delimitL("Datei")
 							+ " FROM "
 							+ delimitL("DateiSpeicher")
-							+ (blobID > 0 ? " WHERE " + DBKernel.delimitL("ID") + "=" + blobID : " WHERE " + DBKernel.delimitL("Tabelle") + "='" + tablename + "' AND " + DBKernel.delimitL("Feld") + "='" + feldname + "' AND "
-									+ DBKernel.delimitL("TabellenID") + "=" + tableID + " " + " ORDER BY " + delimitL("ID") + " DESC"), true);
+							+ (blobID > 0 ? " WHERE " + DBKernel.delimitL("ID") + "=" + blobID : " WHERE " + DBKernel.delimitL("Tabelle") + "='" + tablename + "' AND "
+									+ DBKernel.delimitL("Feld") + "='" + feldname + "' AND " + DBKernel.delimitL("TabellenID") + "=" + tableID + " " + " ORDER BY "
+									+ delimitL("ID") + " DESC"), true);
 			if (rs.first()) {
 				do {
 					try {
@@ -633,7 +634,7 @@ public class DBKernel {
 		DBKernel.m_Password = password;
 		return getDBConnection(HSHDB_PATH, username, password, false);
 	}
-
+/*
 	// Still to look at... myDBI... KNIME...
 	public static void setLocalConn(final Connection conn, String path, String username, String password) {
 		localConn = conn;
@@ -641,13 +642,7 @@ public class DBKernel {
 		DBKernel.m_Username = username;
 		DBKernel.m_Password = password;
 	}
-
-	// Still to look at... myDBI... KNIME...
-	public static Connection getLocalConn() {
-		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
-		return getLocalConn(true);
-	}
-
+*/
 	// Still to look at... myDBI... KNIME...
 	public static Connection getLocalConn(boolean autoUpdate) {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
@@ -670,7 +665,8 @@ public class DBKernel {
 		return getDBConnection(dbPath, theUsername, thePassword, newConn, false);
 	}
 
-	private static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn, final boolean suppressWarnings) throws Exception {
+	private static Connection getDBConnection(final String dbPath, final String theUsername, final String thePassword, final boolean newConn, final boolean suppressWarnings)
+			throws Exception {
 		if (newConn) {
 			return getNewConnection(theUsername, thePassword, dbPath, suppressWarnings);
 		} else if (localConn == null || localConn.isClosed()) {
@@ -922,13 +918,15 @@ public class DBKernel {
 		return result;
 	}
 
-	private static String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim, HashSet<MyTable> alreadyUsed) {
+	private static String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim,
+			final String delimiter, final String endDelim, HashSet<MyTable> alreadyUsed) {
 		String result = "";
 		if (id == null) {
 			;
 		} else if (foreignFields != null && i > 1 && foreignFields.length > i - 2 && foreignFields[i - 2] != null) {
 			if (goDeeper) {
-				LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i - 2], startDelim, delimiter, endDelim, goDeeper && !alreadyUsed.contains(foreignFields[i - 2]), false, alreadyUsed); // " | " " ; "
+				LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i - 2], startDelim, delimiter, endDelim,
+						goDeeper && !alreadyUsed.contains(foreignFields[i - 2]), false, alreadyUsed); // " | " " ; "
 				if (hashBox != null && hashBox.get(id) != null) {
 					String ssttrr = hashBox.get(id).toString();
 					result = ssttrr.trim().length() == 0 ? "" : ssttrr; // ft +
@@ -976,12 +974,15 @@ public class DBKernel {
 		return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, false);
 	}
 
-	public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate) {
+	public static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim,
+			final boolean goDeeper, final boolean forceUpdate) {
 		return fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate, null);
 	}
 
-	private static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate, HashSet<MyTable> alreadyUsed) {
-		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate, alreadyUsed);
+	private static LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim,
+			final boolean goDeeper, final boolean forceUpdate, HashSet<MyTable> alreadyUsed) {
+		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate,
+				alreadyUsed);
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
 			return myDBi.fillHashtable(theTable, startDelim, delimiter, endDelim, goDeeper, forceUpdate, alreadyUsed);
 		}
@@ -1089,10 +1090,12 @@ public class DBKernel {
 			if (kzID == null) {
 				kzID = DBKernel.getValue(tablename, "ID", tableID + "", fieldname);
 				if (kzID == null) {
-					PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement("INSERT INTO " + DBKernel.delimitL("DoubleKennzahlen") + " (" + DBKernel.delimitL("Wert") + ") VALUES (NULL)", Statement.RETURN_GENERATED_KEYS);
+					PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(
+							"INSERT INTO " + DBKernel.delimitL("DoubleKennzahlen") + " (" + DBKernel.delimitL("Wert") + ") VALUES (NULL)", Statement.RETURN_GENERATED_KEYS);
 					if (psmt.executeUpdate() > 0) {
 						kzID = DBKernel.getLastInsertedID(psmt);
-						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL(tablename) + " SET " + DBKernel.delimitL(fieldname) + "=" + kzID + " WHERE " + DBKernel.delimitL("ID") + "=" + tableID, false);
+						DBKernel.sendRequest("UPDATE " + DBKernel.delimitL(tablename) + " SET " + DBKernel.delimitL(fieldname) + "=" + kzID + " WHERE " + DBKernel.delimitL("ID")
+								+ "=" + tableID, false);
 					}
 				}
 			}
@@ -1106,11 +1109,16 @@ public class DBKernel {
 					value = "NULL";
 				}
 				if (DBKernel.kzIsString(kz)) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "='" + value + "'" + " WHERE " + DBKernel.delimitL("ID") + "=" + kzID, false);
+					DBKernel.sendRequest(
+							"UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "='" + value + "'" + " WHERE " + DBKernel.delimitL("ID") + "="
+									+ kzID, false);
 				} else if (DBKernel.kzIsBoolean(kz)) {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "=" + value + "" + " WHERE " + DBKernel.delimitL("ID") + "=" + kzID, false);
+					DBKernel.sendRequest(
+							"UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "=" + value + "" + " WHERE " + DBKernel.delimitL("ID") + "="
+									+ kzID, false);
 				} else {
-					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "=" + value + " WHERE " + DBKernel.delimitL("ID") + "=" + kzID, false);
+					DBKernel.sendRequest("UPDATE " + DBKernel.delimitL("DoubleKennzahlen") + " SET " + DBKernel.delimitL(kz) + "=" + value + " WHERE " + DBKernel.delimitL("ID")
+							+ "=" + kzID, false);
 				}
 			}
 		} catch (Exception e) {
@@ -1193,7 +1201,8 @@ public class DBKernel {
 			result = true;
 		} catch (Exception e) {
 			if (!suppressWarnings) {
-				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger
+						.handleMessage(sql);
 				MyLogger.handleException(e);
 			}
 		}
@@ -1221,7 +1230,8 @@ public class DBKernel {
 			result = anfrage.executeUpdate(sql);
 		} catch (Exception e) {
 			if (!suppressWarnings) {
-				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger.handleMessage(sql);
+				if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) MyLogger
+						.handleMessage(sql);
 				MyLogger.handleException(e);
 			}
 		}
@@ -1265,7 +1275,8 @@ public class DBKernel {
 
 	static int countUsers(Connection conn, boolean adminsOnly) {
 		int result = -1;
-		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + (adminsOnly ? delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " : "") + delimitL("Username") + " IS NOT NULL", true);
+		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + (adminsOnly ? delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " : "")
+				+ delimitL("Username") + " IS NOT NULL", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = rs.getInt(1);
@@ -1315,7 +1326,8 @@ public class DBKernel {
 			}
 		}
 		boolean result = false;
-		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " + delimitL("Username") + " = '" + un + "'", true);
+		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND "
+				+ delimitL("Username") + " = '" + un + "'", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = (rs.getInt(1) > (conn == null ? 0 : -1));
@@ -1346,47 +1358,10 @@ public class DBKernel {
 		return result;
 	}
 
-	public static int isDBVeraltet(final Login login) {
-		int result = JOptionPane.NO_OPTION;
-
-		String dbVersion = getDBVersionFromDB();
-		MyLogger.handleMessage("DBVersion: " + dbVersion);
-		if (dbVersion == null || !dbVersion.equals(DBKernel.softwareVersion)) {
-			result = askVeraltetDBBackup(login);
-		}
-		return result;
-	}
-
-	private static int askVeraltetDBBackup(final Login login) {
-		int result = JOptionPane.YES_OPTION;
-		int retVal = JOptionPane.showConfirmDialog(login, "Die Datenbank ist veraltet und muss ersetzt werden.\nSoll zuvor ein Backup der alten Datenbank erstellt werden?", "Backup erstellen?", JOptionPane.YES_NO_CANCEL_OPTION,
-				JOptionPane.QUESTION_MESSAGE);
-		if (retVal == JOptionPane.YES_OPTION) {
-			if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
-				if (!BackupMyDBI.dbBackup(login)) {
-					result = JOptionPane.CANCEL_OPTION;
-				}
-			} else {
-				if (!Backup.dbBackup(login)) {
-					result = JOptionPane.CANCEL_OPTION;
-				}
-			}
-		} else if (retVal == JOptionPane.NO_OPTION) {
-			retVal = JOptionPane.showConfirmDialog(login, "Die Datenbank wirklich ohne Backup überschreiben?? Sicher?", "Sicher?", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-			if (retVal == JOptionPane.YES_OPTION) {
-				;
-			} else {
-				return askVeraltetDBBackup(login);
-			}
-		} else {
-			result = JOptionPane.CANCEL_OPTION;
-		}
-		return result;
-	}
-
 	public static long getLastCache(Connection conn, String tablename) {
 		long result = 0;
-		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") + " WHERE " + delimitL("Parameter") + " = 'lastCache_" + tablename + "'", true);
+		ResultSet rs = getResultSet(conn, "SELECT " + delimitL("Wert") + " FROM " + delimitL("Infotabelle") + " WHERE " + delimitL("Parameter") + " = 'lastCache_" + tablename
+				+ "'", true);
 		try {
 			if (rs != null && rs.first()) {
 				String strVal = rs.getString(1);
@@ -1454,7 +1429,9 @@ public class DBKernel {
 
 	private static void setDBVersion(Connection conn, final String dbVersion) {
 		if (!DBKernel.sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + dbVersion + "')", true, false)) {
-			DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion + "'" + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
+			DBKernel.sendRequest(conn,
+					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion + "'" + " WHERE " + DBKernel.delimitL("Parameter")
+							+ " = 'DBVersion'", false, false);
 		}
 	}
 
@@ -1479,7 +1456,7 @@ public class DBKernel {
 
 	// Still to look at... myDBI...KNIME...Backup...
 	public static void openDBGUI() {
-		final Connection connection = getLocalConn();
+		final Connection connection = getLocalConn(true);
 		try {
 			connection.setReadOnly(DBKernel.isReadOnly());
 			if (DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null) {
@@ -1492,21 +1469,25 @@ public class DBKernel {
 	}
 
 	public static String getInternalDefaultDBPath() {
-		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) + System.getProperty("file.separator") + ".pmmlabDB" + System.getProperty("file.separator");
+		return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString().replace("/", System.getProperty("file.separator")) + System.getProperty("file.separator")
+				+ ".pmmlabDB" + System.getProperty("file.separator");
 	}
 
 	// Still to look at... myDBI...KNIME...
 	private static Connection getInternalKNIMEDB_LoadGui(boolean autoUpdate) {
 		Connection result = null;
-		try {
-			// Create a file object from the URL
+		//try {
 			String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
+			String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "");
+			String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "");
+			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
+			/*
 			DBKernel.isServerConnection = DBKernel.isHsqlServer(internalPath);
 			if (DBKernel.isServerConnection) {
 				HSHDB_PATH = internalPath;
 				try {
 					// DBKernel.getNewServerConnection(login, pw, filename);
-					result = DBKernel.getDBConnection(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", ""), DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", ""));
+					result = DBKernel.getDBConnection(username, password);
 					createGui(result);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -1545,7 +1526,8 @@ public class DBKernel {
 					File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
 					try {
 						org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", incFilefirstDB.getAbsolutePath(), incFileInternalDBFolder.getAbsolutePath() });
-						JOptionPane pane = new JOptionPane("Internal database created in folder '" + incFileInternalDBFolder.getAbsolutePath() + "'", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane pane = new JOptionPane("Internal database created in folder '" + incFileInternalDBFolder.getAbsolutePath() + "'",
+								JOptionPane.INFORMATION_MESSAGE);
 						JDialog dialog = pane.createDialog("Internal database created");
 						dialog.setAlwaysOnTop(true);
 						dialog.setVisible(true);
@@ -1584,9 +1566,15 @@ public class DBKernel {
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot locate necessary internal database path.", e);
 		}
+			*/
+		try {
+			result = DBKernel.getDBConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return result;
 	}
-
+/*
 	private static void checkUpdate() throws Exception {
 		// UpdateChecker
 		String dbVersion = DBKernel.getDBVersionFromDB();
@@ -1694,7 +1682,7 @@ public class DBKernel {
 			he.printStackTrace();
 		} // HeadlessException
 	}
-
+*/
 	public static String[] getItemListMisc(Connection conn) {
 		HashSet<String> hs = new HashSet<String>();
 		try {
@@ -1723,7 +1711,8 @@ public class DBKernel {
 					String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
 					// System.err.println(tableName + " wird in " + fkt + "->" +
 					// fkc + " referenziert");
-					if (!DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID + " WHERE " + DBKernel.delimitL(fkc) + "=" + oldID, false, false)) return false;
+					if (!DBKernel.sendRequest(conn, "UPDATE " + DBKernel.delimitL(fkt) + " SET " + DBKernel.delimitL(fkc) + "=" + newID + " WHERE " + DBKernel.delimitL(fkc) + "="
+							+ oldID, false, false)) return false;
 				} while (rs.next());
 				if (DBKernel.sendRequest(conn, "DELETE FROM " + DBKernel.delimitL(tableName) + " WHERE " + DBKernel.delimitL("ID") + "=" + oldID, false, false)) {
 					return true;
@@ -1737,7 +1726,8 @@ public class DBKernel {
 
 	public static int getUsagecountOfID(final String tableName, int id) {
 		int result = 0;
-		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'", false);
+		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'",
+				false);
 		try {
 			if (rs != null && rs.first()) {
 				do {
@@ -1745,7 +1735,8 @@ public class DBKernel {
 					String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
 					// System.err.println(tableName + " wird in " + fkt + "->" +
 					// fkc + " referenziert");
-					ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) + " WHERE " + DBKernel.delimitL(fkc) + "=" + id, false);
+					ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) + " WHERE " + DBKernel.delimitL(fkc) + "=" + id,
+							false);
 					if (rs2 != null && rs2.last()) {
 						result += rs2.getRow();
 					}
@@ -1759,7 +1750,8 @@ public class DBKernel {
 
 	public static List<String> getUsageListOfID(final String tableName, int id) {
 		List<String> result = new ArrayList<String>();
-		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'", false);
+		ResultSet rs = DBKernel.getResultSet("SELECT FKTABLE_NAME, FKCOLUMN_NAME FROM INFORMATION_SCHEMA.SYSTEM_CROSSREFERENCE " + " WHERE PKTABLE_NAME = '" + tableName + "'",
+				false);
 		try {
 			if (rs != null && rs.first()) {
 				do {
@@ -1767,7 +1759,8 @@ public class DBKernel {
 					String fkc = rs.getObject("FKCOLUMN_NAME") != null ? rs.getString("FKCOLUMN_NAME") : "";
 					// System.err.println(tableName + " wird in " + fkt + "->" +
 					// fkc + " referenziert");
-					ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) + " WHERE " + DBKernel.delimitL(fkc) + "=" + id, false);
+					ResultSet rs2 = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("ID") + " FROM " + DBKernel.delimitL(fkt) + " WHERE " + DBKernel.delimitL(fkc) + "=" + id,
+							false);
 					if (rs2 != null && rs2.first()) {
 						do {
 							result.add(fkt + ": " + rs2.getInt("ID"));
@@ -1784,6 +1777,28 @@ public class DBKernel {
 	public static File getCopyOfInternalDB() {
 		File temp = null;
 		try {
+			/*
+				if (folderEmpty) {
+					// Get the bundle this class belongs to.
+					Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
+					URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
+					if (incURLfirstDB == null) { // incURLInternalDBFolder == null ||
+						return null;
+					}
+					File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
+					try {
+						org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", incFilefirstDB.getAbsolutePath(), incFileInternalDBFolder.getAbsolutePath() });
+						JOptionPane pane = new JOptionPane("Internal database created in folder '" + incFileInternalDBFolder.getAbsolutePath() + "'",
+								JOptionPane.INFORMATION_MESSAGE);
+						JDialog dialog = pane.createDialog("Internal database created");
+						dialog.setAlwaysOnTop(true);
+						dialog.setVisible(true);
+					} catch (Exception e) {
+						throw new IllegalStateException("Creation of internal database not succeeded.", e);
+					}
+				}
+
+			 */
 			temp = File.createTempFile("firstDB", ".tar.gz");
 			InputStream in = DBKernel.class.getResourceAsStream("/org/hsh/bfr/db/res/firstDB.tar.gz");
 			BufferedInputStream bufIn = new BufferedInputStream(in);
@@ -1890,7 +1905,7 @@ public class DBKernel {
 
 	public static String getLocalDBUUID() {
 		try {
-			return getDBUUID(getLocalConn(), true);
+			return getDBUUID(getLocalConn(true), true);
 		} catch (SQLException e) {
 			return null;
 		}
@@ -1942,8 +1957,9 @@ public class DBKernel {
 		for (Integer sID : foreignDbIds.keySet()) {
 			Object id = DBKernel.getValue(conn, "DataSource", new String[] { "Table", "SourceDBUUID", "SourceID" }, new String[] { tablename, rowuuid, sID + "" }, "TableID");
 			if (id == null) {
-				String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") + " (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + "," + DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") + ") VALUES ('"
-						+ tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid + "'," + sID + ");";
+				String sql = "INSERT INTO " + DBKernel.delimitL("DataSource") + " (" + DBKernel.delimitL("Table") + "," + DBKernel.delimitL("TableID") + ","
+						+ DBKernel.delimitL("SourceDBUUID") + "," + DBKernel.delimitL("SourceID") + ") VALUES ('" + tablename + "'," + foreignDbIds.get(sID) + ",'" + rowuuid
+						+ "'," + sID + ");";
 				DBKernel.sendRequest(conn, sql, false, false);
 			}
 		}

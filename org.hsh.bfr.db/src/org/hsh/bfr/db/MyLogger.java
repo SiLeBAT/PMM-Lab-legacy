@@ -49,29 +49,29 @@ import java.util.Calendar;
 
 public class MyLogger {
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.S");	
+	private static SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.S");
 	public static boolean isKNIME = false;
-	
+
 	static void setup(String path) {
-	    try {
-	    	File file = new File(path);
-	    	file.getParentFile().mkdirs();
-	    	FileOutputStream fos = new FileOutputStream(file);
-	    	System.setOut(new PrintStream(fos));
-	    	System.setErr(new PrintStream(fos));
-	    }
-	    catch (IOException e) {handleException(e);}
+		try {
+			File file = new File(path);
+			file.getParentFile().mkdirs();
+			FileOutputStream fos = new FileOutputStream(file);
+			System.setOut(new PrintStream(fos));
+			System.setErr(new PrintStream(fos));
+		} catch (IOException e) {
+			handleException(e);
+		}
 	}
-	
+
 	public static void handleException(Exception e) {
 		handleException(e, false);
 	}
+
 	static void handleException(Exception e, boolean forceMessage) {
-		if (isKNIME &&
-				(e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+		if (isKNIME && e.getMessage() != null && (e.getMessage().equals("The table data is read only") || e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 			;
-		}
-		else {
+		} else {
 			Calendar c1 = Calendar.getInstance();
 			System.err.println("Datum: " + sdf.format(c1.getTime()));
 			e.printStackTrace();
@@ -85,24 +85,25 @@ public class MyLogger {
 			}
 		}
 	}
+
 	public static void handleMessage(String message) {
 		Calendar c1 = Calendar.getInstance();
 		System.out.println("Datum: " + sdf.format(c1.getTime()));
 		System.out.println("\t" + message + "\n");
 		if (!MainKernel.isServer()) checkOOM(message);
 	}
+
 	private static void checkOOM(String msg) {
-		
-		if (msg != null) {			
+
+		if (msg != null) {
 			if (msg.indexOf("emory") >= 0) {
 				//InfoBox ib = new InfoBox("OutOfMemory!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
 				//ib.setVisible(true);    				  										        								
-			}
-			else if (msg.indexOf("logSevereEvent") >= 0) {
+			} else if (msg.indexOf("logSevereEvent") >= 0) {
 				//InfoBox ib = new InfoBox("logSevereEvent!!! Bitte mal bei Armin melden!\n(Tel.: 030-18412 2118, E-Mail: armin.weiser@bfr.bund.de)", true, new Dimension(750, 300), null, false);
 				//ib.setVisible(true);    				  										        								
 			}
 		}
-		
+
 	}
 }

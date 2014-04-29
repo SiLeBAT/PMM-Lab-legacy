@@ -119,7 +119,7 @@ public abstract class MyDBI {
 		return getConn(false);
 	}
 
-	public Connection getConn(boolean doAdmin) {
+	Connection getConn(boolean doAdmin) {
 		try {
 			if ((conn == null || conn.isClosed() || isAdminConnection && !doAdmin) && dbUsername != null && dbPassword != null && dbPath != null && path2XmlFile != null) {
 				establishDBConnection(dbUsername, dbPassword);
@@ -167,7 +167,7 @@ public abstract class MyDBI {
 		}
 	}
 
-	boolean closeDBConnections(final boolean kompakt) {
+	public boolean closeDBConnections(final boolean kompakt) {
 		boolean result = true;
 		try {
 			if (conn != null && !conn.isClosed()) {
@@ -209,7 +209,8 @@ public abstract class MyDBI {
 
 	private void saveWindowState() {
 		try {
-			if (DBKernel.mainFrame != null && DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null && DBKernel.mainFrame.getMyList().getMyDBTable().getActualTable() != null) {
+			if (DBKernel.mainFrame != null && DBKernel.mainFrame.getMyList() != null && DBKernel.mainFrame.getMyList().getMyDBTable() != null
+					&& DBKernel.mainFrame.getMyList().getMyDBTable().getActualTable() != null) {
 				DBKernel.prefs.put("LAST_SELECTED_TABLE", DBKernel.mainFrame.getMyList().getMyDBTable().getActualTable().getTablename());
 
 				DBKernel.prefs.put("LAST_MainFrame_FULL", DBKernel.mainFrame.getExtendedState() == JFrame.MAXIMIZED_BOTH ? "TRUE" : "FALSE");
@@ -239,7 +240,8 @@ public abstract class MyDBI {
 			if (dbUsername.equals(getSA())) return true;
 		}
 		boolean result = false;
-		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Users") + " WHERE " + DBKernel.delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " + DBKernel.delimitL("Username") + " = '" + dbUsername + "'", true);
+		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Users") + " WHERE " + DBKernel.delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND "
+				+ DBKernel.delimitL("Username") + " = '" + dbUsername + "'", true);
 		try {
 			if (rs != null && rs.first()) {
 				result = (rs.getInt(1) > (conn == null ? 0 : -1));
@@ -306,7 +308,8 @@ public abstract class MyDBI {
 				result = true;
 			} catch (Exception e) {
 				if (!suppressWarnings) {
-					if (!DBKernel.isKNIME || (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
+					if (!DBKernel.isKNIME
+							|| (!e.getMessage().equals("The table data is read only") && !e.getMessage().equals("invalid transaction state: read-only SQL-transaction"))) {
 						MyLogger.handleMessage(sql);
 					}
 					MyLogger.handleException(e);
@@ -345,7 +348,9 @@ public abstract class MyDBI {
 
 	private void setVersion2DB(final String softwareVersion) {
 		if (!sendRequest("INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + softwareVersion + "')", true, false)) {
-			sendRequest("UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + softwareVersion + "'" + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
+			sendRequest(
+					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + softwareVersion + "'" + " WHERE "
+							+ DBKernel.delimitL("Parameter") + " = 'DBVersion'", false, false);
 		}
 	}
 
@@ -353,7 +358,8 @@ public abstract class MyDBI {
 		filledHashtables.clear();
 	}
 
-	LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper, final boolean forceUpdate, HashSet<MyTable> alreadyUsed) {
+	LinkedHashMap<Object, String> fillHashtable(final MyTable theTable, final String startDelim, final String delimiter, final String endDelim, final boolean goDeeper,
+			final boolean forceUpdate, HashSet<MyTable> alreadyUsed) {
 		if (theTable == null) {
 			return null;
 		}
@@ -432,13 +438,15 @@ public abstract class MyDBI {
 		return h;
 	}
 
-	private String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim, final String delimiter, final String endDelim, HashSet<MyTable> alreadyUsed) {
+	private String handleField(final Object id, final MyTable[] foreignFields, final String[] mnTable, final int i, final boolean goDeeper, final String startDelim,
+			final String delimiter, final String endDelim, HashSet<MyTable> alreadyUsed) {
 		String result = "";
 		if (id == null) {
 			;
 		} else if (foreignFields != null && i > 1 && foreignFields.length > i - 2 && foreignFields[i - 2] != null) {
 			if (goDeeper) {
-				LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i - 2], startDelim, delimiter, endDelim, goDeeper && !alreadyUsed.contains(foreignFields[i - 2]), false, alreadyUsed);
+				LinkedHashMap<Object, String> hashBox = fillHashtable(foreignFields[i - 2], startDelim, delimiter, endDelim,
+						goDeeper && !alreadyUsed.contains(foreignFields[i - 2]), false, alreadyUsed);
 				if (hashBox != null && hashBox.get(id) != null) {
 					String ssttrr = hashBox.get(id).toString();
 					result = ssttrr.trim().length() == 0 ? "" : ssttrr;
@@ -485,6 +493,7 @@ public abstract class MyDBI {
 		}
 		return result;
 	}
+
 	private String backupNZip(String filename) {
 		String result = sendRequestGetErr("BACKUP DATABASE TO '" + filename + "' BLOCKING");
 
@@ -519,7 +528,7 @@ public abstract class MyDBI {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		
+
 		return result;
 	}
 
@@ -532,16 +541,16 @@ public abstract class MyDBI {
 			System.gc();
 
 			answerErr = unzipNExtract(filename, dbPath);
-			
+
 			DBKernel.myDBi = MyDBI.loadDB(dbPath + "DB.xml");
 			DBKernel.myDBi.establishDefaultAdminConn();
 			/*
 			 * if (DBKernel.myDBi.countUsers(false) == 0) {
 			 * DBKernel.myDBi.sendRequest("INSERT INTO " +
-			 * DBKernel.delimitL("Users") + "(" + DBKernel.delimitL("Username") +
-			 * "," + DBKernel.delimitL("Zugriffsrecht") + ") VALUES ('" + dbUsername
-			 * + "', " + Users.SUPER_WRITE_ACCESS + ")", false, false);
-			 * DBKernel.myDBi.sendRequest("ALTER USER " +
+			 * DBKernel.delimitL("Users") + "(" + DBKernel.delimitL("Username")
+			 * + "," + DBKernel.delimitL("Zugriffsrecht") + ") VALUES ('" +
+			 * dbUsername + "', " + Users.SUPER_WRITE_ACCESS + ")", false,
+			 * false); DBKernel.myDBi.sendRequest("ALTER USER " +
 			 * DBKernel.delimitL(dbUsername) + " SET PASSWORD '" + dbPassword +
 			 * "';", false, false); }
 			 */
@@ -549,6 +558,7 @@ public abstract class MyDBI {
 		}
 		return answerErr;
 	}
+
 	private String unzipNExtract(String filename, String destination) {
 		String result = "";
 		File tarGzFile = null;
@@ -583,14 +593,14 @@ public abstract class MyDBI {
 
 		if (tarGzFile != null) {
 			try {
-				org.hsqldb.lib.tar.DbBackupMain.main(new String[] {"--extract", tarGzFile.getAbsolutePath(), destination});
+				org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", tarGzFile.getAbsolutePath(), destination });
 			} catch (Exception e) {
 				result += e.getMessage();
 				MyLogger.handleException(e);
 			}
 			System.gc();
 			tarGzFile.delete();
-		}		
+		}
 		return result;
 	}
 
@@ -618,6 +628,20 @@ public abstract class MyDBI {
 				result = e.getMessage();
 				MyLogger.handleException(e);
 			}
+		}
+		return result;
+	}
+
+	public String getDBVersionFromDB() {
+		String result = null;
+		ResultSet rs = getResultSet("SELECT " + DBKernel.delimitL("Wert") + " FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter")
+				+ " = 'DBVersion'", true);
+		try {
+			if (rs != null && rs.first()) {
+				result = rs.getString(1);
+			}
+		} catch (Exception e) {
+			MyLogger.handleException(e);
 		}
 		return result;
 	}

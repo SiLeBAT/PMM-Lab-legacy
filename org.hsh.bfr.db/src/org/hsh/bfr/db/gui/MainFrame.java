@@ -110,7 +110,7 @@ public class MainFrame extends JFrame {
 	private MyDBTable myDB;
 	private MyDBTable topTable = null;
 
-	public MainFrame(final MyList myList) {
+	MainFrame(final MyList myList) {
 		this.myList = myList;
 		myDB = myList.getMyDBTable();
 		//myDBTree = myList.getMyDBTree();

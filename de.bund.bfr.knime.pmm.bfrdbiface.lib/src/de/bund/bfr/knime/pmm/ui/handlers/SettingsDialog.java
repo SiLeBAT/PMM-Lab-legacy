@@ -14,11 +14,11 @@ import javax.swing.*;
 
 import org.hsh.bfr.db.DBKernel;
 import org.hsh.bfr.db.MyLogger;
+import org.hsh.bfr.db.gui.Login;
 
 import com.jgoodies.forms.factories.*;
 import com.jgoodies.forms.layout.*;
 
-import de.bund.bfr.knime.pmm.bfrdbiface.lib.Bfrdb;
 import de.bund.bfr.knime.pmm.common.resources.Resources;
 import de.bund.bfr.knime.pmm.common.units.CategoryReader;
 
@@ -30,12 +30,13 @@ public class SettingsDialog extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 8433737081879655528L;
-	
+
 	public SettingsDialog() {
 		initComponents();
 		this.setIconImage(Resources.getInstance().getDefaultIcon());
 		fillFields();
 	}
+
 	private void fillFields() {
 		dbPath.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath()));
 		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", DBKernel.getUsername()));
@@ -44,37 +45,22 @@ public class SettingsDialog extends JFrame {
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
-		/*
-		FileDialog chooser = new FileDialog(this, "Choose folder of database", FileDialog.LOAD);
-		chooser.setFilenameFilter(new FolderFilter());
-		chooser.setDirectory(dbPath.getText());
-		chooser.setVisible(true);
-		String folderSelected = chooser.getDirectory();
-	    File folder = new File(folderSelected) ;
-	    if(folder.exists() && folder.isDirectory()) {
-	    	dbPath.setText(folder.getAbsolutePath());
-	    }	    
-	    else {
-	    	MyLogger.handleMessage("No Selection ");
-	    }
-		*/
-	    JFileChooser chooser = new JFileChooser(); 
-	    chooser.setCurrentDirectory(new java.io.File(dbPath.getText()));
-	    chooser.setDialogTitle("Choose folder of database");
-	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    chooser.setAcceptAllFileFilterUsed(false);
-	    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-	    	dbPath.setText(chooser.getSelectedFile().getAbsolutePath());
-	      }
-	    else {
-	    	MyLogger.handleMessage("No Selection ");
-	    }
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File(dbPath.getText()));
+		chooser.setDialogTitle("Choose folder of database");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			dbPath.setText(chooser.getSelectedFile().getAbsolutePath());
+		} else {
+			MyLogger.handleMessage("No Selection ");
+		}
 
 	}
 
 	private void okButtonActionPerformed(ActionEvent e) {
 		String dbt = dbPath.getText();
-		boolean isServer = DBKernel.isHsqlServer(dbt); 
+		boolean isServer = DBKernel.isHsqlServer(dbt);
 		if (!isServer && !dbt.endsWith(System.getProperty("file.separator"))) {
 			dbt += System.getProperty("file.separator");
 		}
@@ -85,32 +71,33 @@ public class SettingsDialog extends JFrame {
 			DBKernel.prefs.putBoolean("PMM_LAB_SETTINGS_DB_RO", readOnly.isSelected());
 			DBKernel.prefs.prefsFlush();
 			DBKernel.closeDBConnections(true);
-			
+
 			try {
-				Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
-				Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
-				DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
+				DBKernel.mainFrame = null;
+				new Login(dbt, username.getText(), String.valueOf(password.getPassword()), readOnly.isSelected(), false);
+				//Bfrdb db = new Bfrdb(dbt + (isServer ? "" : "DB"), username.getText(), String.valueOf(password.getPassword()));
+				//Connection conn = db.getConnection();//DBKernel.getLocalConn(true);
+				//DBKernel.setLocalConn(conn, dbt, username.getText(), String.valueOf(password.getPassword()));
 				if (!isServer) DBKernel.getUP(dbt);
-				conn = DBKernel.getLocalConn();
+				Connection conn = DBKernel.getLocalConn(true);
 				if (conn != null) {
-					DBKernel.createGui(conn);
-			  		DBKernel.mainFrame.getMyList().getMyDBTable().initConn(conn);
+					//DBKernel.createGui(conn);
+					DBKernel.mainFrame.getMyList().getMyDBTable().initConn(conn);
 					DBKernel.mainFrame.getMyList().getMyDBTable().setTable();
 					//DBKernel.myList.setSelection("Matrices");
 					//DBKernel.myList.setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", "Versuchsbedingungen"));
-	        		CategoryReader.killInstance();
+					CategoryReader.killInstance();
 				}
-			}
-			catch (Exception e1) {
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 		}
 		this.dispose();
 	}
+
 	private boolean hasChanged(String dbt, String username, String password, boolean isRO) {
 		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "").equals(username)
-				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password)
-				|| DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) != isRO;
+				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {
@@ -146,9 +133,7 @@ public class SettingsDialog extends JFrame {
 
 			//======== contentPanel ========
 			{
-				contentPanel.setLayout(new FormLayout(
-					"2*(default, $lcgap), default",
-					"3*(default, $lgap), default"));
+				contentPanel.setLayout(new FormLayout("2*(default, $lcgap), default", "3*(default, $lgap), default"));
 
 				//---- label1 ----
 				label1.setText("DB Path:");
@@ -192,9 +177,7 @@ public class SettingsDialog extends JFrame {
 			//======== buttonBar ========
 			{
 				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
-				buttonBar.setLayout(new FormLayout(
-					"$glue, $button, $rgap, $button",
-					"pref"));
+				buttonBar.setLayout(new FormLayout("$glue, $button, $rgap, $button", "pref"));
 
 				//---- okButton ----
 				okButton.setText("OK");
@@ -239,13 +222,14 @@ public class SettingsDialog extends JFrame {
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;
+
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 	class FolderFilter implements FilenameFilter {
-	    public boolean accept(File dir, String name) {
-	    	File f = new File(dir.getAbsolutePath() + File.separator + name);
-	    	System.err.println(name + "\t" + (f.exists() && f.isDirectory()));
-	        return f.exists() && f.isDirectory();
-	    }
+		public boolean accept(File dir, String name) {
+			File f = new File(dir.getAbsolutePath() + File.separator + name);
+			System.err.println(name + "\t" + (f.exists() && f.isDirectory()));
+			return f.exists() && f.isDirectory();
+		}
 	}
 }

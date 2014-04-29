@@ -83,7 +83,7 @@ public class DatabaseDeleteNodeModel extends NodeModel {
 		}
 		*/
     	try {
-			db = new Bfrdb(DBKernel.getLocalConn());
+			db = new Bfrdb(DBKernel.getLocalConn(true));
 		} catch (Exception e1) {}
     	String dbuuid = db.getDBUUID();
     	Connection conn = db.getConnection();

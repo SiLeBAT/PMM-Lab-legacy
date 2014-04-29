@@ -84,7 +84,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
 	public MyList() {
 		this(null,null);
 	}
-	public MyList(final MyDBTable myDB, final MyDBTree myDBTree) {
+	MyList(final MyDBTable myDB, final MyDBTree myDBTree) {
 		this.myDB = myDB;
 		this.myDBTree = myDBTree;
 		myTs = DBKernel.myDBi.getTreeStructure();
@@ -203,7 +203,7 @@ public class MyList extends JTree implements TreeSelectionListener, KeyListener 
     }
     return false;
   } 
-	public void addAllTables() {
+	void addAllTables() {
 		LinkedHashMap<String, MyTable> myTables = DBKernel.myDBi.getAllTables();
 		for (String key : myTables.keySet()) {
 			MyTable myT = myTables.get(key);

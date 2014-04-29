@@ -56,7 +56,7 @@ public class BackupMyDBI extends FileFilter {
 		return dbBackup(DBKernel.mainFrame);
 	}
 
-	static boolean dbBackup(final JFrame frame) {
+	public static boolean dbBackup(final JFrame frame) {
 		String lastOutDir = DBKernel.prefs.get("LAST_OUTPUT_DIR", "");
 		JFileChooser fc = new JFileChooser(lastOutDir);
 		BackupMyDBI bkp = new BackupMyDBI();

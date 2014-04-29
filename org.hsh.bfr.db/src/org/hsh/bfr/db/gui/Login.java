@@ -55,6 +55,7 @@ import java.util.ResourceBundle;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -82,109 +83,140 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author Armin Weiser
  */
 public class Login extends JFrame {
-	
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	private boolean firstRun;
-	
-	public Login() {
-	}
+
 	public Login(final boolean firstRun) {
 		this.firstRun = firstRun;
-		initComponents();	
+		initComponents();
 		//DBKernel.prefs = Preferences.userNodeForPackage(this.getClass());
 		String lastUser = DBKernel.prefs.get("LAST_USER_LOGIN", "");
 		String lastDBPath = DBKernel.prefs.get("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 		textField1.setText(lastUser);
 		textField2.setText(lastDBPath);
 		/*
-		if (DBKernel.debug && lastUser.equals(DBKernel.getTempSA(lastDBPath))) {
-			passwordField1.setText(DBKernel.getTempSAPass(lastDBPath));
-			//this.setTitle(textField1.getFont().getName() + " - " + textField1.getFont().getSize());
+		 * if (DBKernel.debug &&
+		 * lastUser.equals(DBKernel.getTempSA(lastDBPath))) {
+		 * passwordField1.setText(DBKernel.getTempSAPass(lastDBPath));
+		 * //this.setTitle(textField1.getFont().getName() + " - " +
+		 * textField1.getFont().getSize()); }
+		 */
+	}
+
+	public Login(String dbPath, String username, String password, boolean readOnly, Boolean autoUpdate) {
+		this.firstRun = false;
+		initComponents();
+		textField1.setText(username);
+		passwordField1.setText(password);
+		textField2.setText(dbPath);
+		checkBox1.setSelected(false);
+		checkBox2.setSelected(readOnly);
+		startTheDB(autoUpdate, false);
+	}
+
+	private void startTheDB(Boolean autoUpdate, boolean openTheGui) {
+		MainFrame mf = null;
+		DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
+		if (DBKernel.myDBi != null) {
+			DBKernel.HSHDB_PATH = textField2.getText();
+			mf = loadDBNew(DBKernel.myDBi, textField2.getText(), autoUpdate, openTheGui, autoUpdate == null);
+		} else {
+			DBKernel.HSHDB_PATH = textField2.getText();
+			if (DBKernel.isHsqlServer(DBKernel.HSHDB_PATH)) {
+				DBKernel.isServerConnection = true;
+			} else {
+				DBKernel.isServerConnection = false;
+				if (!DBKernel.HSHDB_PATH.endsWith(System.getProperty("file.separator"))) {
+					DBKernel.HSHDB_PATH += System.getProperty("file.separator");
+				}
+			}
+			mf = loadDB(autoUpdate, openTheGui, autoUpdate == null);
 		}
-		*/
+		if (mf != null) {
+			//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
+			/*
+			 * DBKernel.sendRequest("DELETE FROM " +
+			 * DBKernel.delimitL("Infotabelle") + " WHERE " +
+			 * DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
+			 * //DBKernel.sendRequest("DELETE FROM " +
+			 * DBKernel.delimitL("DateiSpeicher"), false);
+			 * DBKernel.sendRequest("DELETE FROM " +
+			 * DBKernel.delimitL("ChangeLog"), false);
+			 * DBKernel.sendRequest("DROP TABLE " +
+			 * DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
+			 * DBKernel.sendRequest("DROP TABLE " +
+			 * DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false,
+			 * true); DBKernel.sendRequest("DROP TABLE " +
+			 * DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false,
+			 * true); DBKernel.sendRequest("DROP TABLE " +
+			 * DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false,
+			 * true); DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
+			 */
+			/*
+			 * try { ResultSet rs = DBKernel.getResultSet("SELECT " +
+			 * DBKernel.delimitL("GeschaetzteModelle") + "." +
+			 * DBKernel.delimitL("ID") + "," +
+			 * DBKernel.delimitL("Versuchsbedingungen") + "." +
+			 * DBKernel.delimitL("Referenz") + " FROM " +
+			 * DBKernel.delimitL("GeschaetzteModelle") + " LEFT JOIN " +
+			 * DBKernel.delimitL("Versuchsbedingungen") + " ON " +
+			 * DBKernel.delimitL("GeschaetzteModelle") + "." +
+			 * DBKernel.delimitL("Versuchsbedingung") + "=" +
+			 * DBKernel.delimitL("Versuchsbedingungen") + "." +
+			 * DBKernel.delimitL("ID") + " WHERE " +
+			 * DBKernel.delimitL("Versuchsbedingungen") + "." +
+			 * DBKernel.delimitL("Referenz") + " IS NOT NULL", false); if (rs !=
+			 * null && rs.first()) { do { DBKernel.sendRequest("INSERT INTO " +
+			 * DBKernel.delimitL("GeschaetztesModell_Referenz") + " (" +
+			 * DBKernel.delimitL("GeschaetztesModell") + "," +
+			 * DBKernel.delimitL("Literatur") + ") VALUES (" + rs.getInt("ID") +
+			 * "," + rs.getInt("Referenz") + ")", false); } while (rs.next()); }
+			 * } catch (Exception e1) {e1.printStackTrace();}
+			 */
+		}
+
+		//UpdateChecker.check4Updates_148_149(null);
+		/*
+		 * 
+		 * DBKernel.sendRequest("DELETE FROM " +
+		 * DBKernel.delimitL("ModellkatalogParameter") + " WHERE " +
+		 * DBKernel.delimitL("Modell") + " >= 47 AND " +
+		 * DBKernel.delimitL("Modell") + " <= 49", false);
+		 * DBKernel.sendRequest("DELETE FROM " +
+		 * DBKernel.delimitL("Modell_Referenz") + " WHERE " +
+		 * DBKernel.delimitL("Modell") + " >= 47 AND " +
+		 * DBKernel.delimitL("Modell") + " <= 49", false);
+		 * DBKernel.sendRequest("DELETE FROM " +
+		 * DBKernel.delimitL("Modellkatalog") + " WHERE " +
+		 * DBKernel.delimitL("ID") + " >= 47 AND " + DBKernel.delimitL("ID") +
+		 * " <= 49", false); DBKernel.sendRequest("DELETE FROM " +
+		 * DBKernel.delimitL("Literatur") + " WHERE " + DBKernel.delimitL("ID")
+		 * + " <= 239", false);
+		 */
+		//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
+		/*
+		 * DBKernel.sendRequest("CREATE USER " +
+		 * DBKernel.delimitL(DBKernel.getTempSA()) + " PASSWORD '" +
+		 * DBKernel.getTempSAPass() + "' ADMIN", false);
+		 * DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
+		 */
+		/*
+		 * DBKernel.mergeIDs("Station", 786, 769); DBKernel.mergeIDs("Station",
+		 * 770, 763); DBKernel.mergeIDs("Station", 766, 11);
+		 * DBKernel.mergeIDs("Station", 473, 484); DBKernel.mergeIDs("Station",
+		 * 783, 28); DBKernel.mergeIDs("Station", 784, 30);
+		 */
 	}
 
 	private void okButtonActionPerformed(final ActionEvent e) {
 		try {
 			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-			MainFrame mf = null;
-			DBKernel.myDBi = MyDBI.loadDB(textField2.getText() + System.getProperty("file.separator") + "DB.xml");
-			if (DBKernel.myDBi != null) {
-				DBKernel.HSHDB_PATH = textField2.getText();
-				mf = loadDBNew(DBKernel.myDBi, textField2.getText());
-			}
-			else {
-				DBKernel.HSHDB_PATH = textField2.getText();
-				if (DBKernel.isHsqlServer(DBKernel.HSHDB_PATH)) {
-					DBKernel.isServerConnection = true;
-				}
-				else {
-					DBKernel.isServerConnection = false;
-					if (!DBKernel.HSHDB_PATH.endsWith(System.getProperty("file.separator"))) {
-						DBKernel.HSHDB_PATH += System.getProperty("file.separator");
-					}
-				}
-				mf = loadDB();
-			}		
-		  	if (mf != null) {
-		  		//DBKernel.saveUP2PrefsTEMP(DBKernel.HSHDB_PATH);
-		  		/*
-			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Infotabelle") + " WHERE " + DBKernel.delimitL("Parameter") + " = 'DBuuid'", false);
-			  	//DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("DateiSpeicher"), false);
-			  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ChangeLog"), false);
-				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_TS") + " IF EXISTS", false, true);
-				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel") + " IF EXISTS", false, true);	
-				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel1") + " IF EXISTS", false, true);	
-				DBKernel.sendRequest("DROP TABLE " + DBKernel.delimitL("CACHE_selectEstModel2") + " IF EXISTS", false, true);	
-			  	DBKernel.sendRequest("CHECKPOINT DEFRAG", false);
-			  	*/
-		  		/*
-				try {
-					ResultSet rs = DBKernel.getResultSet("SELECT " + DBKernel.delimitL("GeschaetzteModelle") + "." + DBKernel.delimitL("ID") +
-							"," + DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("Referenz") +
-							" FROM " + DBKernel.delimitL("GeschaetzteModelle") + " LEFT JOIN " + DBKernel.delimitL("Versuchsbedingungen") +
-							" ON " + DBKernel.delimitL("GeschaetzteModelle") + "." + DBKernel.delimitL("Versuchsbedingung") + "=" +
-							DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("ID") +
-							" WHERE " + DBKernel.delimitL("Versuchsbedingungen") + "." + DBKernel.delimitL("Referenz") + " IS NOT NULL", false);
-					if (rs != null && rs.first())  {
-						do {
-							DBKernel.sendRequest("INSERT INTO " + DBKernel.delimitL("GeschaetztesModell_Referenz") +
-									" (" + DBKernel.delimitL("GeschaetztesModell") + "," + DBKernel.delimitL("Literatur") + ") VALUES (" +
-									rs.getInt("ID") + "," + rs.getInt("Referenz") + ")", false);
-						} while (rs.next());
-					}
-				}
-				catch (Exception e1) {e1.printStackTrace();}
-				*/
-		  	}
-
-			//UpdateChecker.check4Updates_148_149(null);
-			/*
-
-			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("ModellkatalogParameter") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
-			DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modell_Referenz") + " WHERE " + DBKernel.delimitL("Modell") + " >= 47 AND " + DBKernel.delimitL("Modell") + " <= 49", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Modellkatalog") + " WHERE " + DBKernel.delimitL("ID") + " >= 47 AND " + DBKernel.delimitL("ID") + " <= 49", false);
-		  	DBKernel.sendRequest("DELETE FROM " + DBKernel.delimitL("Literatur") + " WHERE " + DBKernel.delimitL("ID") + " <= 239", false);
-			*/
-			//MyList myList = loadDB(); UpdateChecker.temporarily(myList);
-			/*
-			DBKernel.sendRequest("CREATE USER " + DBKernel.delimitL(DBKernel.getTempSA()) +
-					" PASSWORD '" + DBKernel.getTempSAPass() + "' ADMIN", false);
-			DBKernel.sendRequest("DROP USER " + DBKernel.delimitL("SA"), false);
-			*/
-			/*
-			DBKernel.mergeIDs("Station", 786, 769);
-			DBKernel.mergeIDs("Station", 770, 763);
-			DBKernel.mergeIDs("Station", 766, 11);
-			DBKernel.mergeIDs("Station", 473, 484);
-			DBKernel.mergeIDs("Station", 783, 28);
-			DBKernel.mergeIDs("Station", 784, 30);
-			*/
-		}
-		finally {
+			startTheDB(null, true);
+		} finally {
 			this.setCursor(Cursor.getDefaultCursor());
 		}
 	}
@@ -192,19 +224,20 @@ public class Login extends JFrame {
 	private void cancelButtonActionPerformed(final ActionEvent e) {
 		this.dispose();
 	}
+
 	private void changePasswort(final MyDBTable myDB, String username, final String newPassword) throws Exception {
-    	boolean isAdmin = DBKernel.isAdmin();
-    	if (isAdmin) {
+		boolean isAdmin = DBKernel.isAdmin();
+		if (isAdmin) {
 			DBKernel.sendRequest("SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
-    	}
-		else {
-    		DBKernel.closeDBConnections(false);
-    		DBKernel.getDefaultAdminConn();
-    		DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
-    		DBKernel.closeDBConnections(false);
+		} else {
+			DBKernel.closeDBConnections(false);
+			DBKernel.getDefaultAdminConn();
+			DBKernel.sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + newPassword + "';", false); // MD5.encode(newPassword, "UTF-8")
+			DBKernel.closeDBConnections(false);
 			myDB.initConn(username, newPassword); // MD5.encode(newPassword, "UTF-8")
-    	}		
+		}
 	}
+
 	private MainFrame initGui(MyDBTable myDB) {
 		DBKernel.myDBi = new MyDBTablesNew();
 		MyDBTree myDBTree = new MyDBTree();
@@ -212,12 +245,18 @@ public class Login extends JFrame {
 		myList.addAllTables();
 		MainFrame mf = new MainFrame(myList);
 		mf.setTopTable(myDB);
+		try {
+			myDB.initConn(DBKernel.getDBConnection());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		DBKernel.mainFrame = mf;
 		return mf;
 	}
-	private MainFrame loadDB() {
+
+	private MainFrame loadDB(Boolean autoUpdate, boolean openTheGui, boolean beInteractive) {
 		MainFrame mf = null;
-	    MyDBTable myDB = null;
+		MyDBTable myDB = null;
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
@@ -226,7 +265,7 @@ public class Login extends JFrame {
 			myDB = new MyDBTable();
 			// Login fehlgeschlagen
 			String username = textField1.getText();
-			String password = new String(passwordField1.getPassword()); // DBKernel.isStatUp ? new String(passwordField1.getPassword()) : MD5.encode(new String(passwordField1.getPassword()), "UTF-8");
+			String password = new String(passwordField1.getPassword());
 			DBKernel.prefs.putBoolean("DB_READONLY", checkBox2.isSelected());
 			DBKernel.prefs.prefsFlush();
 			//MD5.encode(password, "UTF-8");
@@ -235,38 +274,27 @@ public class Login extends JFrame {
 					passwordField1.setBackground(Color.RED);
 					passwordField2.setBackground(Color.WHITE);
 					passwordField3.setBackground(Color.WHITE);
-					passwordField1.requestFocus();																				
+					passwordField1.requestFocus();
 				}
 				return mf;
 			}
-			
+
 			// Login succeeded
-			if (!DBKernel.isServerConnection) {
-				long fs = DBKernel.getFileSize(DBKernel.HSHDB_PATH + "DB.data");
-		    	if (fs > 300000000) {
-					//InfoBox ib = new InfoBox(this, "big data file (" + fs / 1000000 + ")!!!)", true, new Dimension(750, 300), null, true);
-					//ib.setVisible(true);    				  										        									    		
-		    	}
-				MyLogger.handleMessage(username + " logged in!" + "\nDB.data (size): " + fs);
-			}
 			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", DBKernel.HSHDB_PATH);
 			DBKernel.prefs.prefsFlush();
 			MyLogger.handleMessage("HSHDB_PATH: " + DBKernel.HSHDB_PATH);
 			// Datenbank erstellen
-			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt
-			}
-			else if (!DBKernel.isServerConnection) { // true || !DBKernel.isKrise && 
-				int dbAlt = DBKernel.isDBVeraltet(this);
-				if (dbAlt == JOptionPane.YES_OPTION) {// UPDATE Funktionalität ist jetzt angesagt
+			if (noDBThere) {
+			} else if (!DBKernel.isServerConnection && (beInteractive || autoUpdate)) {// UPDATE?
+				int dbAlt = isDBVeraltet(beInteractive, null);
+				if (dbAlt == JOptionPane.YES_OPTION) {
 					doUpdates = true;
-				}
-				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
+				} else if (dbAlt == JOptionPane.CANCEL_OPTION) {
 					DBKernel.closeDBConnections(false);
 					return mf;
 				}
-			}
-			else {
+			} else {
 				String dbVersion = DBKernel.getDBVersionFromDB();
 				String softwareVersion = DBKernel.softwareVersion;
 				VersionComprator cmp = new VersionComprator();
@@ -280,7 +308,7 @@ public class Login extends JFrame {
 					return mf;
 				}
 			}
-			
+
 			// Passwort ändern
 			if (checkBox1.isSelected()) {
 				if (passwordField2.getPassword().length >= 0) {
@@ -294,16 +322,14 @@ public class Login extends JFrame {
 					}
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						changePasswort(myDB, username, newPassword);
-					}
-					else {
+					} else {
 						passwordField1.setBackground(Color.WHITE);
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
 						return mf;
 					}
-				}
-				else {
+				} else {
 					passwordField1.setBackground(Color.WHITE);
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
@@ -311,149 +337,168 @@ public class Login extends JFrame {
 					return mf;
 				}
 			}
-						
+
 			// Login succeeded: DB erstellen/starten, GUI aufbauen
 			// Datenbank füllen			
 			if (noDBThere) {
-				int answer = JOptionPane.showConfirmDialog(this, "There is no database.\nYou have two opportunities:\n- creating an empty one <Yes>\n- creating the default one with some prefilled sample data <No>\nDo you wish to create the empty one?",
-					    "No database...",
-					    JOptionPane.YES_NO_OPTION);
+				int answer = JOptionPane.NO_OPTION; // YES_OPTION
+				if (beInteractive) {
+					answer = JOptionPane.showConfirmDialog(
+							this,
+							"There is no database.\nYou have two opportunities:\n- creating an empty one <Yes>\n- creating the default one with some prefilled sample data <No>\nDo you wish to create the empty one?",
+							"No database...", JOptionPane.YES_NO_OPTION);
+				}
 				if (answer == JOptionPane.YES_OPTION) {
 					mf = initGui(myDB);
 					DBKernel.myDBi.bootstrapDB();
-				}
-				else {
+				} else {
 					File temp = DBKernel.getCopyOfInternalDB();
 					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
 						if (!BackupMyDBI.doRestore(myDB, temp, true, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();					
+							passwordField1.requestFocus();
 							return mf;
 						}
-					}
-					else {
+					} else {
 						if (!Backup.doRestore(myDB, temp, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);
-							passwordField1.requestFocus();					
+							passwordField1.requestFocus();
 							return mf;
 						}
 					}
 
+					JOptionPane pane = new JOptionPane("Internal database created in folder '" + DBKernel.HSHDB_PATH + "'", JOptionPane.INFORMATION_MESSAGE);
+					JDialog dialog = pane.createDialog("Internal database created");
+					dialog.setAlwaysOnTop(true);
+					dialog.setVisible(true);
+
 					mf = initGui(myDB);
 				}
-			}
-			else {
+			} else {
 				mf = initGui(myDB);
 
 				if (doUpdates) {
-					boolean dl = DBKernel.dontLog;
-					DBKernel.dontLog = true;
-					try {
-					  	boolean isAdmin = DBKernel.isAdmin();
-					  	if (!isAdmin) {
-					  		DBKernel.closeDBConnections(false);
-					  		DBKernel.getDefaultAdminConn();
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.0")) {
-					  		UpdateChecker.check4Updates_170_171(); 
-					  		DBKernel.setDBVersion("1.7.1");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.1")) {
-					  		UpdateChecker.check4Updates_171_172(); 
-					  		DBKernel.setDBVersion("1.7.2");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.2")) {
-					  		UpdateChecker.check4Updates_172_173(); 
-					  		DBKernel.setDBVersion("1.7.3");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.3")) {
-					  		UpdateChecker.check4Updates_173_174(); 
-					  		DBKernel.setDBVersion("1.7.4");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.4")) {
-					  		UpdateChecker.check4Updates_174_175(); 
-					  		DBKernel.setDBVersion("1.7.5");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.5")) {
-					  		UpdateChecker.check4Updates_175_176(); 
-					  		DBKernel.setDBVersion("1.7.6");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.6")) {
-					  		UpdateChecker.check4Updates_176_177(); 
-					  		DBKernel.setDBVersion("1.7.7");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.7")) {
-					  		UpdateChecker.check4Updates_177_178(); 
-					  		DBKernel.setDBVersion("1.7.8");
-					  	}
-					  	if (DBKernel.getDBVersionFromDB().equals("1.7.8")) {
-					  		UpdateChecker.check4Updates_178_179(); 
-					  		DBKernel.setDBVersion("1.7.9");
-					  	}
-
-						DBKernel.closeDBConnections(false);
-					}
-					catch (Exception e) {e.printStackTrace();DBKernel.dontLog = dl;return mf;}
-					DBKernel.dontLog = dl;
-					loadDB();		
-					return mf;
+					if (doTheUpdates()) return loadDB(autoUpdate, openTheGui, beInteractive);
+					else return mf;
 				}
 			}
 
-			if (mf != null) {
-				if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
-					mf.getMyList().setSelection(null);
-				}
+			startMainFrame(mf, myDB, openTheGui);
+		} catch (Exception e) {
+			MyLogger.handleException(e);
+		}
+		return mf;
+	}
 
-				this.dispose();
-				mf.pack();
-				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
-				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
-				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
-				mf.setPreferredSize(new Dimension(w, h));
-				mf.setBounds(x, y, w, h);
-				if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-				else mf.setExtendedState(JFrame.NORMAL);
+	private boolean doTheUpdates() {
+		boolean dl = DBKernel.dontLog;
+		DBKernel.dontLog = true;
+		try {
+			boolean isAdmin = DBKernel.isAdmin();
+			if (!isAdmin) {
+				DBKernel.closeDBConnections(false);
+				DBKernel.getDefaultAdminConn();
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.0")) {
+				UpdateChecker.check4Updates_170_171();
+				DBKernel.setDBVersion("1.7.1");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.1")) {
+				UpdateChecker.check4Updates_171_172();
+				DBKernel.setDBVersion("1.7.2");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.2")) {
+				UpdateChecker.check4Updates_172_173();
+				DBKernel.setDBVersion("1.7.3");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.3")) {
+				UpdateChecker.check4Updates_173_174();
+				DBKernel.setDBVersion("1.7.4");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.4")) {
+				UpdateChecker.check4Updates_174_175();
+				DBKernel.setDBVersion("1.7.5");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.5")) {
+				UpdateChecker.check4Updates_175_176();
+				DBKernel.setDBVersion("1.7.6");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.6")) {
+				UpdateChecker.check4Updates_176_177();
+				DBKernel.setDBVersion("1.7.7");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.7")) {
+				UpdateChecker.check4Updates_177_178();
+				DBKernel.setDBVersion("1.7.8");
+			}
+			if (DBKernel.getDBVersionFromDB().equals("1.7.8")) {
+				UpdateChecker.check4Updates_178_179();
+				DBKernel.setDBVersion("1.7.9");
+			}
+
+			DBKernel.closeDBConnections(false);
+		} catch (Exception e) {
+			e.printStackTrace();
+			DBKernel.dontLog = dl;
+			return false;
+		}
+		DBKernel.dontLog = dl;
+		return true;
+	}
+
+	private void startMainFrame(MainFrame mf, MyDBTable myDB, boolean openTheGui) {
+		if (mf != null) {
+			if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
+				mf.getMyList().setSelection(null);
+			}
+
+			this.dispose();
+			mf.pack();
+			boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
+			int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
+			int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
+			int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
+			int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
+			mf.setPreferredSize(new Dimension(w, h));
+			mf.setBounds(x, y, w, h);
+			if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			else mf.setExtendedState(JFrame.NORMAL);
+			if (openTheGui) {
 				mf.setVisible(true);
 				mf.toFront();
 				myDB.grabFocus();//myDB.selectCell(0, 0);
 				//getAllMetaData(myList);			
 			}
 		}
-		catch (Exception e) {
-			MyLogger.handleException(e);
-		}    
-		return mf;
 	}
-  void dropDatabase() {
-	  DBKernel.closeDBConnections(false);
-    File f = new File(DBKernel.HSHDB_PATH);
-    File[] files = f.listFiles();
-    if (files != null) {
-      for (int i=0;i<files.length;i++) {
-        if (files[i].isFile() && files[i].getName().startsWith("DB.")) {
-          files[i].delete();
-        }
-      }
-    	System.gc();    	
-    }
-  }
 
-  private void thisWindowClosing(final WindowEvent e) {
-	    if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-	    	this.setVisible(false);
-	    	if (firstRun) {
-	    		DBKernel.closeDBConnections(false);
-	    		this.dispose();
-	    		System.exit(0);
-	    	}
-	    }
+	void dropDatabase() {
+		DBKernel.closeDBConnections(false);
+		File f = new File(DBKernel.HSHDB_PATH);
+		File[] files = f.listFiles();
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isFile() && files[i].getName().startsWith("DB.")) {
+					files[i].delete();
+				}
+			}
+			System.gc();
+		}
+	}
+
+	private void thisWindowClosing(final WindowEvent e) {
+		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+			this.setVisible(false);
+			if (firstRun) {
+				DBKernel.closeDBConnections(false);
+				this.dispose();
+				System.exit(0);
+			}
+		}
 	}
 
 	private void textField1KeyReleased(final KeyEvent e) {
@@ -463,11 +508,12 @@ public class Login extends JFrame {
 	private void passwordField1KeyReleased(final KeyEvent e) {
 		this_keyReleased(e);
 	}
-  private void this_keyReleased(final KeyEvent e) {
-    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-    	okButtonActionPerformed(null);
-    }
-  }
+
+	private void this_keyReleased(final KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			okButtonActionPerformed(null);
+		}
+	}
 
 	private void checkBox1ActionPerformed(final ActionEvent e) {
 		passwordField2.setEnabled(checkBox1.isSelected());
@@ -491,27 +537,25 @@ public class Login extends JFrame {
 	}
 
 	private void button1ActionPerformed(final ActionEvent e) {
-	    JFileChooser chooser = new JFileChooser(); 
-	    chooser.setCurrentDirectory(new java.io.File(textField2.getText()));
-	    chooser.setDialogTitle("Wähle Ordner der Datenbank");
-	    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-	    chooser.setAcceptAllFileFilterUsed(false);
-	    if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) { 
-	      textField2.setText(chooser.getSelectedFile().getAbsolutePath());
-	      }
-	    else {
-	    	MyLogger.handleMessage("No Selection ");
-	    }
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File(textField2.getText()));
+		chooser.setDialogTitle("Wähle Ordner der Datenbank");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			textField2.setText(chooser.getSelectedFile().getAbsolutePath());
+		} else {
+			MyLogger.handleMessage("No Selection ");
+		}
 	}
 
 	private void textField2KeyReleased(final KeyEvent e) {
 		this_keyReleased(e);
 	}
 
-	
-	private MainFrame loadDBNew(MyDBI myDBi, String dbPath) {
+	private MainFrame loadDBNew(MyDBI myDBi, String dbPath, Boolean autoUpdate, boolean openTheGui, boolean beInteractive) {
 		MainFrame mf = null;
-	    MyDBTable myDB = null;
+		MyDBTable myDB = null;
 		boolean doUpdates = false;
 		try {
 			// Datenbank schon vorhanden?
@@ -528,33 +572,29 @@ public class Login extends JFrame {
 					passwordField1.setBackground(Color.RED);
 					passwordField2.setBackground(Color.WHITE);
 					passwordField3.setBackground(Color.WHITE);
-					passwordField1.requestFocus();																				
+					passwordField1.requestFocus();
 				}
 				return mf;
 			}
 			myDB.initConn(myDBi.getConn());
-			
+
 			DBKernel.prefs.put("LAST_USER_LOGIN", username);
 			DBKernel.prefs.put("LAST_DB_PATH", dbPath);
 			DBKernel.prefs.prefsFlush();
 			MyLogger.handleMessage("DB_PATH: " + dbPath);
-			/*
 			// Datenbank erstellen
-			if (noDBThere) { // soll erstmal nicht mehr erlaubt sein, UPDATE Funktionalität ist jetzt angesagt
-			}
-			else if (!DBKernel.isServerConnection) {
-				int dbAlt = DBKernel.isDBVeraltet(this);
+			if (noDBThere) {
+			} else if (!myDBi.isServerConnection() && (beInteractive || autoUpdate)) {// UPDATE?
+				int dbAlt = isDBVeraltet(beInteractive, myDBi);
 				if (dbAlt == JOptionPane.YES_OPTION) {
 					doUpdates = true;
-				}
-				else if (dbAlt == JOptionPane.CANCEL_OPTION) {
-					DBKernel.closeDBConnections(false);
+				} else if (dbAlt == JOptionPane.CANCEL_OPTION) {
+					myDBi.closeDBConnections(false);
 					return mf;
 				}
-			}
-			else {
-				String dbVersion = DBKernel.getDBVersion();
-				String softwareVersion = DBKernel.DBVersion;
+			} else {
+				String dbVersion = myDBi.getDBVersionFromDB();
+				String softwareVersion = myDBi.getSoftwareVersion();
 				VersionComprator cmp = new VersionComprator();
 				int result = cmp.compare(dbVersion, softwareVersion);
 				if (result != 0) {
@@ -566,8 +606,7 @@ public class Login extends JFrame {
 					return mf;
 				}
 			}
-			*/
-			
+
 			// Passwort ändern
 			if (checkBox1.isSelected()) {
 				if (passwordField2.getPassword().length >= 0) {
@@ -582,16 +621,14 @@ public class Login extends JFrame {
 					if (newPassword.equals(new String(passwordField3.getPassword()))) {
 						myDBi.changePasswort(newPassword);
 						myDB.initConn(myDBi.getConn());
-					}
-					else {
+					} else {
 						passwordField1.setBackground(Color.WHITE);
 						passwordField2.setBackground(Color.WHITE);
 						passwordField3.setBackground(Color.RED);
 						passwordField3.requestFocus();
 						return mf;
 					}
-				}
-				else {
+				} else {
 					passwordField1.setBackground(Color.WHITE);
 					passwordField2.setBackground(Color.RED);
 					passwordField3.setBackground(Color.WHITE);
@@ -599,45 +636,66 @@ public class Login extends JFrame {
 					return mf;
 				}
 			}
-						
+
 			// Login succeeded: DB erstellen/starten, GUI aufbauen
 			// Datenbank füllen			
 			mf = initGuiNew(myDB);
 			if (!myDBi.isServerConnection() && noDBThere) {
 				myDBi.bootstrapDB();
-			}
-			else {
+			} else {
 				if (doUpdates) {
+					if (doTheUpdates()) return loadDBNew(myDBi, dbPath, autoUpdate, openTheGui, beInteractive);
+					else return mf;
 				}
 			}
 
-			if (mf != null) {
-				if (!mf.getMyList().setSelection(DBKernel.prefs.get("LAST_SELECTED_TABLE", null))) {
-					mf.getMyList().setSelection(null);
-				}
-
-				this.dispose();
-				mf.pack();
-				boolean full = Boolean.parseBoolean(DBKernel.prefs.get("LAST_MainFrame_FULL", "FALSE"));
-				int w = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_WIDTH", "800"));
-				int h = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_HEIGHT", "600"));
-				int x = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_X", "0"));
-				int y = Integer.parseInt(DBKernel.prefs.get("LAST_MainFrame_Y", "0"));
-				mf.setPreferredSize(new Dimension(w, h));
-				mf.setBounds(x, y, w, h);
-				if (full) mf.setExtendedState(JFrame.MAXIMIZED_BOTH);
-				else mf.setExtendedState(JFrame.NORMAL);
-				mf.setVisible(true);
-				mf.toFront();
-				myDB.grabFocus();//myDB.selectCell(0, 0);
-				//getAllMetaData(myList);			
-			}
-		}
-		catch (Exception e) {
+			startMainFrame(mf, myDB, openTheGui);
+		} catch (Exception e) {
 			MyLogger.handleException(e);
-		}    
+		}
 		return mf;
 	}
+
+	private int isDBVeraltet(boolean beInteractive, MyDBI myDBi) {
+		int result = JOptionPane.NO_OPTION;
+
+		String dbVersion = (myDBi == null ? DBKernel.getDBVersionFromDB() : myDBi.getDBVersionFromDB());
+		MyLogger.handleMessage("DBVersion: " + dbVersion);
+		if (dbVersion == null || !dbVersion.equals(myDBi == null ? DBKernel.softwareVersion : myDBi.getSoftwareVersion())) {
+			if (beInteractive) result = askVeraltetDBBackup(myDBi);
+			else result = JOptionPane.YES_OPTION;
+		}
+		return result;
+	}
+
+	private int askVeraltetDBBackup(MyDBI myDBi) {
+		int result = JOptionPane.YES_OPTION;
+		int retVal = JOptionPane.showConfirmDialog(this, "Die Datenbank ist veraltet und muss ersetzt werden.\nSoll zuvor ein Backup der alten Datenbank erstellt werden?",
+				"Backup erstellen?", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (retVal == JOptionPane.YES_OPTION) {
+			if (myDBi != null && myDBi.getConn() != null) {
+				if (!BackupMyDBI.dbBackup(this)) {
+					result = JOptionPane.CANCEL_OPTION;
+				}
+			} else {
+				if (!Backup.dbBackup(this)) {
+					result = JOptionPane.CANCEL_OPTION;
+				}
+			}
+		} else if (retVal == JOptionPane.NO_OPTION) {
+			retVal = JOptionPane.showConfirmDialog(this, "Die Datenbank wirklich ohne Backup überschreiben?? Sicher?", "Sicher?", JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE);
+			if (retVal == JOptionPane.YES_OPTION) {
+				;
+			} else {
+				return askVeraltetDBBackup(myDBi);
+			}
+		} else {
+			result = JOptionPane.CANCEL_OPTION;
+		}
+		return result;
+	}
+
 	private MainFrame initGuiNew(MyDBTable myDB) {
 		MyDBTree myDBTree = new MyDBTree();
 		MyList myList = new MyList(myDB, myDBTree);
@@ -647,7 +705,7 @@ public class Login extends JFrame {
 		DBKernel.mainFrame = mf;
 		return mf;
 	}
-	
+
 	private void initComponents() {
 		// JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
 		ResourceBundle bundle = ResourceBundle.getBundle("org.hsh.bfr.db.gui.PanelProps");
@@ -679,6 +737,7 @@ public class Login extends JFrame {
 			public void windowClosing(WindowEvent e) {
 				thisWindowClosing(e);
 			}
+
 			@Override
 			public void windowOpened(WindowEvent e) {
 				thisWindowOpened(e);
@@ -696,9 +755,7 @@ public class Login extends JFrame {
 			//======== contentPanel ========
 			{
 				contentPanel.setFont(new Font("Tahoma", Font.PLAIN, 13));
-				contentPanel.setLayout(new FormLayout(
-					"default, 10dlu, default:grow",
-					"5*(default, $lgap), default"));
+				contentPanel.setLayout(new FormLayout("default, 10dlu, default:grow", "5*(default, $lgap), default"));
 
 				//---- label1 ----
 				label1.setText(bundle.getString("Login.label1.text"));
@@ -811,9 +868,7 @@ public class Login extends JFrame {
 			{
 				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
 				buttonBar.setFont(new Font("Tahoma", Font.PLAIN, 13));
-				buttonBar.setLayout(new FormLayout(
-					"$glue, $button, $rgap, $button",
-					"pref"));
+				buttonBar.setLayout(new FormLayout("$glue, $button, $rgap, $button", "pref"));
 
 				//---- okButton ----
 				okButton.setText("OK");
@@ -848,7 +903,6 @@ public class Login extends JFrame {
 
 	// JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
 
-	
 	private JPanel dialogPane;
 	private JPanel contentPanel;
 	private JLabel label1;
@@ -867,11 +921,5 @@ public class Login extends JFrame {
 	private JButton okButton;
 	private JButton cancelButton;
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
-	
-	
-	
 
 }
-
-
-

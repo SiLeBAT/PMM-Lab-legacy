@@ -1,18 +1,18 @@
 /*******************************************************************************
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
  * 
  * PMM-Lab is a set of KNIME-Nodes and KNIME workflows running within the KNIME software plattform (http://www.knime.org.).
  * 
- * PMM-Lab © 2012, Federal Institute for Risk Assessment (BfR), Germany
+ * PMM-Lab © 2012-2014, Federal Institute for Risk Assessment (BfR), Germany
  * Contact: armin.weiser@bfr.bund.de or matthias.filter@bfr.bund.de 
  * 
  * Developers and contributors to the PMM-Lab project are 
- * Joergen Brandt (BfR)
- * Armin A. Weiser (BfR)
+ * Christian Thöns (BfR)
  * Matthias Filter (BfR)
+ * Armin A. Weiser (BfR)
  * Alexander Falenski (BfR)
- * Christian Thoens (BfR)
- * Annemarie Kaesbohrer (BfR)
+ * Jörgen Brandt (BfR)
+ * Annemarie Käsbohrer (BfR)
  * Bernd Appel (BfR)
  * 
  * PMM-Lab is a project under development. Contributions are welcome.

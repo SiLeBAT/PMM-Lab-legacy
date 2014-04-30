@@ -114,6 +114,7 @@ public abstract class MyDBI {
 		addViews();
 		addData();
 		setVersion2DB(getSoftwareVersion());
+		DBKernel.setDBVersion(null, getSoftwareVersion());
 	}
 
 	private void createRoles() {

@@ -1427,7 +1427,7 @@ public class DBKernel {
 		setDBVersion(null, dbVersion);
 	}
 
-	private static void setDBVersion(Connection conn, final String dbVersion) {
+	static void setDBVersion(Connection conn, final String dbVersion) {
 		if (!DBKernel.sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBVersion','" + dbVersion + "')", true, false)) {
 			DBKernel.sendRequest(conn,
 					"UPDATE " + DBKernel.delimitL("Infotabelle") + " SET " + DBKernel.delimitL("Wert") + " = '" + dbVersion + "'" + " WHERE " + DBKernel.delimitL("Parameter")

@@ -52,11 +52,11 @@ import de.bund.bfr.knime.pmm.common.units.Category;
 import de.bund.bfr.knime.pmm.common.units.ConvertException;
 
 public class ModelCombiner {
-	
-	private Map<KnimeTuple, List<KnimeTuple>> tupleCombinations;
 
-	public ModelCombiner(
-			List<KnimeTuple> tuples, boolean containsData,
+	private Map<KnimeTuple, List<KnimeTuple>> tupleCombinations;
+	private Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> parameterRenaming;
+
+	public ModelCombiner(List<KnimeTuple> tuples, boolean containsData,
 			Map<String, String> initParams, Map<String, String> lagParams) {
 		KnimeSchema outSchema = null;
 
@@ -178,12 +178,16 @@ public class ModelCombiner {
 		}
 
 		tupleCombinations = new LinkedHashMap<KnimeTuple, List<KnimeTuple>>();
+		parameterRenaming = new LinkedHashMap<KnimeTuple, Map<KnimeTuple, Map<String, String>>>();
 
 		for (String id : newTuples.keySet()) {
 			KnimeTuple newTuple = newTuples.get(id);
 			List<KnimeTuple> usedTuples = usedTupleLists.get(id);
+			Map<KnimeTuple, Map<String, String>> rename = new LinkedHashMap<KnimeTuple, Map<String, String>>();
 
 			for (KnimeTuple tuple : usedTuples) {
+				rename.put(tuple, new LinkedHashMap<String, String>());
+
 				String modelID = ((CatalogModelXml) tuple.getPmmXml(
 						Model1Schema.ATT_MODELCATALOG).get(0)).getId()
 						+ "";
@@ -214,6 +218,8 @@ public class ModelCombiner {
 						index++;
 						newParamName = paramName + index;
 					}
+					
+					rename.get(tuple).put(paramName, newParamName);
 
 					if (index > 1) {
 						formulaSec = MathUtilities.replaceVariable(formulaSec,
@@ -333,8 +339,9 @@ public class ModelCombiner {
 			newTuple.setValue(Model1Schema.ATT_DBUUID, null);
 			newTuple.setValue(Model1Schema.ATT_DATABASEWRITABLE,
 					Model1Schema.NOTWRITABLE);
-
+			
 			tupleCombinations.put(newTuple, usedTuples);
+			parameterRenaming.put(newTuple, rename);
 		}
 
 		for (KnimeTuple tuple : tupleCombinations.keySet()) {
@@ -388,5 +395,9 @@ public class ModelCombiner {
 
 	public Map<KnimeTuple, List<KnimeTuple>> getTupleCombinations() {
 		return tupleCombinations;
+	}
+
+	public Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> getParameterRenaming() {
+		return parameterRenaming;
 	}
 }

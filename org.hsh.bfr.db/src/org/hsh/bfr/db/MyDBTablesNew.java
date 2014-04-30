@@ -698,7 +698,7 @@ public class MyDBTablesNew extends MyDBI {
 				null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("display in GUI as")));
-		addTable(Konzentrationseinheiten, BasisTabellen_LIST);
+		if (isSiLeBAT || isPmm) addTable(Konzentrationseinheiten, BasisTabellen_LIST);
 		MyTable SonstigeParameter = new MyTable("SonstigeParameter", new String[]{"Parameter","Beschreibung","Kategorie"},
 				new String[]{"VARCHAR(255)","VARCHAR(255)","VARCHAR(255)"},
 				new String[]{null,null,null},
@@ -710,7 +710,7 @@ public class MyDBTablesNew extends MyDBI {
 				new LinkedList<String>(Arrays.asList("Parameter")),
 				null,
 				new char[][]{{'_','$','\b'},null,null});
-		addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
+		if (isSiLeBAT || isPmm) addTable(SonstigeParameter, DBKernel.isKNIME ? BasisTabellen_LIST : -1);
 		h1 = new LinkedHashMap<Object, String>();
 	    h1.put("Fest", "Fest"); h1.put("Flüssig", "Flüssig"); h1.put("Gasförmig", "Gasförmig");		
 		//min, avg, max
@@ -935,7 +935,7 @@ public class MyDBTablesNew extends MyDBI {
 					null,"Versuchsbedingungen_Sonstiges",null,null,null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("Agens","Matrix")));
-		addTable(tenazity_raw_data, Tenazitaet_LIST);
+		if (isSiLeBAT || isPmm) addTable(tenazity_raw_data, Tenazitaet_LIST);
 		MyTable tenazity_measured_vals = new MyTable("Messwerte", new String[]{"Versuchsbedingungen","Zeit","ZeitEinheit",
 				"Delta","Konzentration","Konz_Einheit",
 				"Temperatur","pH","aw","CO2","Druck","Luftfeuchtigkeit",
@@ -956,7 +956,7 @@ public class MyDBTablesNew extends MyDBI {
 					null,null,null},
 				new String[]{null,null,null,null,null,null,null,null,null,null,null,null,
 					"Messwerte_Sonstiges"});
-		addTable(tenazity_measured_vals, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? Tenazitaet_LIST : -1));
+		if (isSiLeBAT || isPmm) addTable(tenazity_measured_vals, DBKernel.isKrise ? -1 : (DBKernel.isKNIME ? Tenazitaet_LIST : -1));
 		tenazity_raw_data.setForeignField(tenazity_measured_vals, 6);
 
 		MyTable Versuchsbedingungen_Sonstiges = new MyTable("Versuchsbedingungen_Sonstiges",
@@ -969,7 +969,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
-		addTable(Versuchsbedingungen_Sonstiges, -1);
+		if (isSiLeBAT || isPmm) addTable(Versuchsbedingungen_Sonstiges, -1);
 		MyTable Messwerte_Sonstiges = new MyTable("Messwerte_Sonstiges",
 				new String[]{"Messwerte","SonstigeParameter","Wert","Einheit","Ja_Nein"},
 				new String[]{"INTEGER","INTEGER","DOUBLE","INTEGER","BOOLEAN"},
@@ -980,7 +980,7 @@ public class MyDBTablesNew extends MyDBI {
 				new String[]{null,null,null,null,null},
 				null,
 				new LinkedList<String>(Arrays.asList("SonstigeParameter",": ","Wert"," ","Einheit")));
-		addTable(Messwerte_Sonstiges, -1);
+		if (isSiLeBAT || isPmm) addTable(Messwerte_Sonstiges, -1);
 
 		MyTable importedCombaseData = new MyTable("ImportedCombaseData",
 				new String[]{"CombaseID","Literatur","Versuchsbedingung"},
@@ -989,7 +989,7 @@ public class MyDBTablesNew extends MyDBI {
 				new MyTable[]{null,literatur,tenazity_raw_data},
 				new String[][]{{"CombaseID","Literatur","Versuchsbedingung"}},
 				new LinkedHashMap[]{null,null,null});
-		addTable(importedCombaseData, -1);
+		if (isSiLeBAT || isPmm) addTable(importedCombaseData, -1);
 
 		// Prozessdaten:
 		MyTable betriebe = new MyTable("Produzent", new String[]{"Kontaktadresse","Betriebsnummer"},

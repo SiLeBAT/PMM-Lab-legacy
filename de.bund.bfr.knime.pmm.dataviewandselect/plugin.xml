@@ -26,7 +26,7 @@
       <PersistedMetaNode
             category-path="/pmmlab/converter"
             expert-flag="false"
-            icon="src/de/bund/bfr/knime/pmm/dataviewandselect/IconBfRPMM.png"
+            icon="metanode_templates/NuMLCreator.png"
             id="de.bund.bfr.knime.pmm.dataviewandselect.numlwriter"
             name="NuML Creator"
             workflowDir="metanode_templates/NuML Creator/">

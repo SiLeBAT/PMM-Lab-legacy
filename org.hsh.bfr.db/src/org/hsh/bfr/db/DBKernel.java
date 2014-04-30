@@ -74,10 +74,13 @@ import java.util.concurrent.Callable;
 import javax.swing.JFrame;
 
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.FileLocator;
 import org.hsh.bfr.db.gui.InfoBox;
 import org.hsh.bfr.db.gui.Login;
 import org.hsh.bfr.db.gui.MainFrame;
 import org.hsh.bfr.db.gui.dbtable.editoren.MyStringFilter;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
 /**
  * @author Armin
@@ -1478,7 +1481,7 @@ public class DBKernel {
 		Connection result = null;
 		//try {
 			String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
-			String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "");
+			String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA");
 			String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "");
 			new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 			/*
@@ -1777,57 +1780,45 @@ public class DBKernel {
 	public static File getCopyOfInternalDB() {
 		File temp = null;
 		try {
-			/*
-				if (folderEmpty) {
-					// Get the bundle this class belongs to.
-					Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
-					URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
-					if (incURLfirstDB == null) { // incURLInternalDBFolder == null ||
-						return null;
-					}
-					File incFilefirstDB = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
-					try {
-						org.hsqldb.lib.tar.DbBackupMain.main(new String[] { "--extract", incFilefirstDB.getAbsolutePath(), incFileInternalDBFolder.getAbsolutePath() });
-						JOptionPane pane = new JOptionPane("Internal database created in folder '" + incFileInternalDBFolder.getAbsolutePath() + "'",
-								JOptionPane.INFORMATION_MESSAGE);
-						JDialog dialog = pane.createDialog("Internal database created");
-						dialog.setAlwaysOnTop(true);
-						dialog.setVisible(true);
-					} catch (Exception e) {
-						throw new IllegalStateException("Creation of internal database not succeeded.", e);
-					}
+			Bundle bundle = FrameworkUtil.getBundle(DBKernel.class);
+			if (bundle != null) {
+				URL incURLfirstDB = bundle.getResource("org/hsh/bfr/db/res/firstDB.tar.gz");
+				if (incURLfirstDB == null) { // incURLInternalDBFolder == null ||
+					return null;
+				}
+				temp = new File(FileLocator.toFileURL(incURLfirstDB).getPath());
+			}
+			else {
+				temp = File.createTempFile("firstDB", ".tar.gz");
+				InputStream in = DBKernel.class.getResourceAsStream("/org/hsh/bfr/db/res/firstDB.tar.gz");
+				BufferedInputStream bufIn = new BufferedInputStream(in);
+				BufferedOutputStream bufOut = null;
+				try {
+					bufOut = new BufferedOutputStream(new FileOutputStream(temp));
+				} catch (FileNotFoundException e1) {
+					MyLogger.handleException(e1);
 				}
 
-			 */
-			temp = File.createTempFile("firstDB", ".tar.gz");
-			InputStream in = DBKernel.class.getResourceAsStream("/org/hsh/bfr/db/res/firstDB.tar.gz");
-			BufferedInputStream bufIn = new BufferedInputStream(in);
-			BufferedOutputStream bufOut = null;
-			try {
-				bufOut = new BufferedOutputStream(new FileOutputStream(temp));
-			} catch (FileNotFoundException e1) {
-				MyLogger.handleException(e1);
-			}
-
-			byte[] inByte = new byte[4096];
-			int count = -1;
-			try {
-				while ((count = bufIn.read(inByte)) != -1) {
-					bufOut.write(inByte, 0, count);
+				byte[] inByte = new byte[4096];
+				int count = -1;
+				try {
+					while ((count = bufIn.read(inByte)) != -1) {
+						bufOut.write(inByte, 0, count);
+					}
+				} catch (IOException e) {
+					MyLogger.handleException(e);
 				}
-			} catch (IOException e) {
-				MyLogger.handleException(e);
-			}
 
-			try {
-				bufOut.close();
-			} catch (IOException e) {
-				MyLogger.handleException(e);
-			}
-			try {
-				bufIn.close();
-			} catch (IOException e) {
-				MyLogger.handleException(e);
+				try {
+					bufOut.close();
+				} catch (IOException e) {
+					MyLogger.handleException(e);
+				}
+				try {
+					bufIn.close();
+				} catch (IOException e) {
+					MyLogger.handleException(e);
+				}
 			}
 		} catch (IOException e2) {
 			e2.printStackTrace();
@@ -1925,7 +1916,7 @@ public class DBKernel {
 	}
 
 	public static boolean isReadOnly() {
-		return DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) || !DBKernel.isKNIME && DBKernel.prefs.getBoolean("DB_READONLY", true);
+		return DBKernel.isKNIME && DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false) || !DBKernel.isKNIME && DBKernel.prefs.getBoolean("DB_READONLY", true);
 	}
 
 	private static void setDBUUID(Connection conn, final String uuid) throws SQLException {

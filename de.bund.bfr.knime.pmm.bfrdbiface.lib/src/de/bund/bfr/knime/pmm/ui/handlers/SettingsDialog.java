@@ -72,9 +72,9 @@ public class SettingsDialog extends JFrame {
 
 	private void fillFields() {
 		dbPath.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath()));
-		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", DBKernel.getUsername()));
-		password.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", DBKernel.getPassword()));
-		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA"));
+		password.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", ""));
+		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
@@ -130,7 +130,7 @@ public class SettingsDialog extends JFrame {
 
 	private boolean hasChanged(String dbt, String username, String password, boolean isRO) {
 		return !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", "").equals(dbt) || !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "").equals(username)
-				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true) != isRO;
+				|| !DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "").equals(password) || DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false) != isRO;
 	}
 
 	private void cancelButtonActionPerformed(ActionEvent e) {

@@ -166,6 +166,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 								null, null, null, null, null, null, null, null, null, null, id, name, street, streetNo, zip, city, county, country, null, vat, "LSTZAKNoris"
 										+ efsaID + "_" + (i + 1), null, null, null, null, null);
 					}
+					else if (addressOther != null) {
+						System.err.println("busRow = null... addressOther: " + addressOther + "\tRow: " + (i+1));
+					}
 				}
 			}
 		}
@@ -203,6 +206,9 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						getCharge_Lieferung(id, name, street, streetNo, zip, city, county, country, null, vat, null, null, null, null, null, null, null, null, null, null, null,
 								null, null, null, null, null, null, idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, "LSTZAKNoris"
 										+ efsaID + "_Sup_" + (i + 1), null, null, null, null, null);
+					}
+					else if (addressOther != null) {
+						System.err.println("suppliers busRow = null... addressOther: " + addressOther + "\tRow: " + (i+1));
 					}
 				}
 			}

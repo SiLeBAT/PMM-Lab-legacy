@@ -1039,8 +1039,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 							 * new format established
 							 */
 						} else {
-							//nsf = doImportStandard(wb, progress);
-							nsf = doImportNewFormat(wb, progress);
+							nsf = doImportStandard(wb, progress);
+							//nsf = doImportNewFormat(wb, progress);
 						}
 					}
 					int numSuccess = nsf[0];
@@ -1131,29 +1131,32 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 
 	private String getStrVal(HSSFCell cell, int maxChars) {
 		String result = null;
-		if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-			result = cell.getStringCellValue();
-			if (result.equals(".")) result = null;
-		} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
-			try {
-				double dbl = cell.getNumericCellValue();
-				if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
-				else result = "" + cell.getNumericCellValue();
-			} catch (Exception e) {
+		try {
+			if (cell == null || cell.getCellType() == HSSFCell.CELL_TYPE_BLANK) {
+			} else if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
 				result = cell.getStringCellValue();
+				if (result.equals(".")) result = null;
+			} else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC || cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA) {
+				try {
+					double dbl = cell.getNumericCellValue();
+					if (Math.round(dbl) == dbl) result = "" + ((int) dbl);
+					else result = "" + cell.getNumericCellValue();
+				} catch (Exception e) {
+					result = cell.getStringCellValue();
+				}
+			} else {
+				result = cell.toString();
 			}
-		} else {
-			result = cell.toString();
+			if (result != null) {
+				if (result.equals("#N/A")) {
+					result = null;
+				} else if (result.length() > maxChars) {
+					System.err.println("string too long (" + result.length() + ") - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars) + "'");
+					result = result.substring(0, maxChars);
+				}
+			}			
 		}
-		if (result != null) {
-			if (result.equals("#N/A")) {
-				result = null;
-			} else if (result.length() > maxChars) {
-				System.err.println("string too long (" + result.length() + ") - shortened to " + maxChars + " chars... '" + result + "' -> '" + result.substring(0, maxChars) + "'");
-				result = result.substring(0, maxChars);
-			}
-		}
+		catch (Exception e) {}
 		return result;
 	}
 
@@ -1219,21 +1222,30 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 		String fns = "";
 		String fvs = "";
 		for (int i = 0; i < feldnames.length; i++) {
-			if (tablename.equals("Station") && feldVals[0] == null) {
-				maxNodeID++;
-				feldVals[0] = maxNodeID + "";
-			}
+			fns += "," + DBKernel.delimitL(feldnames[i]);
+
 			if (feldVals[i] != null && feldVals[i].trim().isEmpty()) feldVals[i] = null;
 			if (feldVals[i] != null) feldVals[i] = feldVals[i].replaceAll("'", "\\apos");
-			fns += "," + DBKernel.delimitL(feldnames[i]);
 			if (feldnames[i].equals("Unitmenge") && feldVals[i] != null) fvs += "," + feldVals[i].replace(",", ".");
-			else fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
+			else {
+				if (tablename.equals("Station") && feldVals[0] == null && i == 0) {
+					maxNodeID++;
+					fvs += "," + maxNodeID;
+				}
+				else {
+					fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";
+				}
+			}
 			if (key == null || key[i]) {
-				if (isStringType != null && isStringType[i]) sql += " AND "
-						+ (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i])
-								+ " IS NULL");
-				else sql += " AND " + (feldVals[i] != null ? DBKernel.delimitL(feldnames[i]) + "=" + feldVals[i].replace(",", ".") : DBKernel.delimitL(feldnames[i]) + " IS NULL");
-
+				if (tablename.equals("Station") && feldVals[0] == null && i == 0) {
+					;
+				}
+				else {
+					if (isStringType != null && isStringType[i]) sql += " AND "
+							+ (feldVals[i] != null ? "UCASE(" + DBKernel.delimitL(feldnames[i]) + ")='" + feldVals[i].toUpperCase() + "'" : DBKernel.delimitL(feldnames[i])
+									+ " IS NULL");
+					else sql += " AND " + (feldVals[i] != null ? DBKernel.delimitL(feldnames[i]) + "=" + feldVals[i].replace(",", ".") : DBKernel.delimitL(feldnames[i]) + " IS NULL");
+				}
 			}
 		}
 		/*

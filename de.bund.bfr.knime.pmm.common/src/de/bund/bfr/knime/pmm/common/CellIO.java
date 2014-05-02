@@ -55,7 +55,7 @@ import de.bund.bfr.knime.pmm.common.pmmtablemodel.Model1Schema;
 
 public class CellIO {
 
-	public static long tttxcmldoc = 0;
+	//public static long tttxcmldoc = 0;
 
 	public static String getString(DataCell cell) {
 		if (cell.isMissing()) {
@@ -174,10 +174,10 @@ public class CellIO {
 		if (xmlDoc == null)
 			return null;
 		DataCell xmlCell = null;
-		long ttt = System.currentTimeMillis();
+		//long ttt = System.currentTimeMillis();
 		org.w3c.dom.Document doc = xmlDoc.getW3C();
 		xmlCell = XMLCellFactory.create(doc);
-		tttxcmldoc += (System.currentTimeMillis() - ttt);
+		//tttxcmldoc += (System.currentTimeMillis() - ttt);
 		return xmlCell;
 	}
 

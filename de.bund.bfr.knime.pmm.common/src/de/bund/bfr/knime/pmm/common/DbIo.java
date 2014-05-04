@@ -70,7 +70,7 @@ public class DbIo {
 							String toksTui = toksTu == null || toksTu[i] == null ? null : toksTu[i].toString();
 							TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
 									time == null ? null : convert(Double.parseDouble(time.toString()), toksTui, timeUnit, timeUnitCat),
-											timeUnit != null && toksLui != null ? timeUnit : toksLui,
+											timeUnit != null && toksTui != null ? timeUnit : toksTui,
 											toksTui,
 											toksL == null || toksL[i] == null ? null : convert(Double.parseDouble(toksL[i].toString()), toksLui, modelUnit, modelUnitCat),
 											modelUnit != null && toksLui != null ? modelUnit : toksLui,

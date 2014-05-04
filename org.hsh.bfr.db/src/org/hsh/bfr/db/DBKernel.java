@@ -1832,7 +1832,7 @@ public class DBKernel {
 	private static String getDBUUID(Connection conn, boolean tryOnceAgain) throws SQLException {
 		String result = null;
 		ResultSet rs = getResultSet(conn, "SELECT \"Wert\" FROM \"Infotabelle\" WHERE \"Parameter\" = 'DBuuid'", false);
-		if (rs != null && rs.next()) {
+		if (rs != null && rs.first()) {
 			result = rs.getString(1);
 		}
 		if (tryOnceAgain && result == null) {
@@ -1848,7 +1848,10 @@ public class DBKernel {
 
 	private static void setDBUUID(Connection conn, final String uuid) throws SQLException {
 		conn.setReadOnly(false);
-		sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", true, false);
+		//sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", false, false);
+		if (!sendRequest(conn, "INSERT INTO \"Infotabelle\" (\"Parameter\",\"Wert\") VALUES ('DBuuid','" + uuid + "')", true, false)) {
+			sendRequest(conn, "UPDATE \"Infotabelle\" SET \"Wert\" = '" + uuid + "' WHERE \"Parameter\" = 'DBuuid'", false, false);
+		}
 		conn.setReadOnly(DBKernel.isReadOnly());
 	}
 

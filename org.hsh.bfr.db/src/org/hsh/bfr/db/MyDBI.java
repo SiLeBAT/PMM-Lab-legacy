@@ -566,6 +566,21 @@ public abstract class MyDBI {
 		return result;
 	}
 
+	private int countUsers(String username) {
+		int result = -1;
+		ResultSet rs = getResultSet("SELECT COUNT(*) FROM " + DBKernel.delimitL("Users") + " WHERE " + DBKernel.delimitL("Username") + " IS NOT NULL", true);
+		try {
+			if (rs != null && rs.first()) {
+				result = rs.getInt(1);
+			}
+		} catch (Exception e) {
+			MyLogger.handleException(e);
+			result = -1;
+		}
+		// System.out.println(result);
+		return result;
+	}
+
 	String dbRestore(String filename) {
 		String answerErr = "";
 		if (!isServerConnection) {
@@ -578,19 +593,17 @@ public abstract class MyDBI {
 
 			DBKernel.myDBi = MyDBI.loadDB(dbPath + "DB.xml");
 			DBKernel.myDBi.establishDefaultAdminConn();
-			/*
-			 * if (DBKernel.myDBi.countUsers(false) == 0) {
-			 * DBKernel.myDBi.sendRequest("INSERT INTO " +
-			 * DBKernel.delimitL("Users") + "(" + DBKernel.delimitL("Username")
-			 * + "," + DBKernel.delimitL("Zugriffsrecht") + ") VALUES ('" +
-			 * dbUsername + "', " + Users.SUPER_WRITE_ACCESS + ")", false,
-			 * false); DBKernel.myDBi.sendRequest("ALTER USER " +
-			 * DBKernel.delimitL(dbUsername) + " SET PASSWORD '" + dbPassword +
-			 * "';", false, false); }
-			 */
+
 			DBKernel.myDBi.establishDBConnection(dbUsername, dbPassword, path2XmlFile);
 		}
 		return answerErr;
+	}
+	public void addUserInCaseNotThere(String username, String password) {
+		if (countUsers(username) == 0) {
+			sendRequest("INSERT INTO " + DBKernel.delimitL("Users") + "(" + DBKernel.delimitL("Username") + "," + DBKernel.delimitL("Zugriffsrecht")
+					+ ") VALUES ('" + username + "', " + Users.SUPER_WRITE_ACCESS + ")", false, false);
+			sendRequest("ALTER USER " + DBKernel.delimitL(username) + " SET PASSWORD '" + password + "';", false, false);
+		}		
 	}
 
 	private String unzipNExtract(String filename, String destination) {

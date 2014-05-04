@@ -52,6 +52,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.StringTokenizer;
 import java.util.zip.CRC32;
 
@@ -81,6 +82,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 	 * This is the one of the methods that is declared in the abstract class
 	 */
 	private int maxNodeID = 100000;
+	private HashMap<String, Integer> nodeIds = null; 
 
 	public void mergeIDs() throws IOException {
 		System.err.println("Merging...");
@@ -107,6 +109,35 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			}
 
 		System.err.println("Merging...Fin!");
+	}
+	private HashMap<String, Integer> loadNodeIDs10000() throws IOException {
+		System.err.println("loadNodeIDs10000...");
+
+		nodeIds = new HashMap<String, Integer>(); 
+		FileInputStream is = new FileInputStream("C:\\Users\\Armin\\Desktop\\AllKrisen\\EFSA\\nodesids10000.xls");
+		POIFSFileSystem fs = new POIFSFileSystem(is);
+		HSSFWorkbook wb = new HSSFWorkbook(fs);
+
+		HSSFSheet defaultSheet = wb.getSheet("default");
+		int numRows = defaultSheet.getLastRowNum() + 1;
+		for (int i = 1; i < numRows; i++) {
+			try {
+				HSSFRow row = defaultSheet.getRow(i);
+				if (row != null) {
+					HSSFCell cell = row.getCell(0);
+					Integer id = (int) cell.getNumericCellValue();
+					if (id > maxNodeID) maxNodeID = id; 
+					cell = row.getCell(1);
+					String name = cell.getStringCellValue();
+					nodeIds.put(name, id);
+				}
+			} catch (Exception e) {
+				System.err.println(e.getMessage() + "\t" + i);
+			}
+		}
+
+		System.err.println("loadNodeIDs10000...Fin!");
+		return nodeIds;
 	}
 
 	public boolean accept(File f) {
@@ -151,6 +182,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				HSSFRow row = transactionSheet.getRow(i);
 				if (row != null) {
 					String addressOther = getStrVal(row.getCell(7));
+					String product = getStrVal(row.getCell(8));
 					busRow = getRow(businessSheet, addressOther, 9);
 					if (busRow != null) {
 						String id = getStrVal(busRow.getCell(0)); //
@@ -162,7 +194,7 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						String county = getStrVal(busRow.getCell(6));
 						String country = getStrVal(busRow.getCell(7)); // 
 						String vat = getStrVal(busRow.getCell(8)); //
-						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, null, null, null, null, null, null, null,
+						getCharge_Lieferung(idLST, nameLST, streetLST, streetNoLST, zipLST, cityLST, countyLST, countryLST, null, vatLST, product, null, null, null, null, null, null,
 								null, null, null, null, null, null, null, null, null, null, id, name, street, streetNo, zip, city, county, country, null, vat, "LSTZAKNoris"
 										+ efsaID + "_" + (i + 1), null, null, null, null, null);
 					}
@@ -297,8 +329,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 				String serial = "Gaia_" + (i + 1);
 				Integer c1 = null;
 				if (nameSup != null && !nameSup.trim().isEmpty()) {
-					Integer[] c = getCharge_Lieferung(idSup, nameSup, streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, null, vatSup, prodName, null, null, null,
-							null, null, null, null, null, null, oc, null, null, null, null, null, null, idRec, nameRec, streetRec, streetNoRec, zipRec, cityRec, countyRec,
+					Integer[] c = getCharge_Lieferung(idSup, nameSup.trim(), streetSup, streetNoSup, zipSup, citySup, countySup, countrySup, null, vatSup, prodName, null, null, null,
+							null, null, null, null, null, null, oc, null, null, null, null, null, null, idRec, nameRec.trim(), streetRec, streetNoRec, zipRec, cityRec, countyRec,
 							countryRec, null, vatRec, serial, cqr, null, null, null, null);
 					if (c != null) c1 = c[2];
 				}
@@ -993,6 +1025,8 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 						progress.setMinimum(0);
 					}
 
+					loadNodeIDs10000();
+					
 					InputStream is = null;
 					if (filename.startsWith("http://")) {
 						URL url = new URL(filename);
@@ -1235,8 +1269,14 @@ public class LieferkettenImporterEFSA extends FileFilter implements MyImporter {
 			if (feldnames[i].equals("Unitmenge") && feldVals[i] != null) fvs += "," + feldVals[i].replace(",", ".");
 			else {
 				if (tablename.equals("Station") && feldVals[0] == null && i == 0) {
-					maxNodeID++;
-					fvs += "," + maxNodeID;
+					if (nodeIds != null && nodeIds.containsKey(feldVals[1])) {
+						feldVals[0] = ""+nodeIds.get(feldVals[1]);
+						fvs += "," + feldVals[0];
+					}
+					else {
+						maxNodeID++;
+						fvs += "," + maxNodeID;
+					}
 				}
 				else {
 					fvs += feldVals[i] != null ? ",'" + feldVals[i] + "'" : ",NULL";

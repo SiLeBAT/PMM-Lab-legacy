@@ -232,7 +232,7 @@ public class Backup extends FileFilter {
 			System.gc();
 
 			try {
-				if (doReconnect && !DBKernel.isKNIME) {
+				if (doReconnect) { //  && !DBKernel.isKNIME
 					Connection conn = getDBConnectionYOrCreateUser();
 					if (conn != null) {
 						myDB.initConn(conn);

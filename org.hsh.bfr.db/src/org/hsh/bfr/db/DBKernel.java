@@ -269,7 +269,7 @@ public class DBKernel {
 		return lastInsertedID;
 	}
 
-	public static String getPassword() {
+	static String getPassword() {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getDbPassword();
 		return m_Password;
 	}
@@ -704,11 +704,6 @@ public class DBKernel {
 		}
 	}
 
-	static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath) throws Exception {
-		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
-		return getNewServerConnection(dbUsername, dbPassword, serverPath, false);
-	}
-
 	private static Connection getNewServerConnection(final String dbUsername, final String dbPassword, final String serverPath, final boolean suppressWarnings) throws Exception {
 		// serverPath = "192.168.212.54/silebat";
 		Connection result = null;
@@ -746,12 +741,7 @@ public class DBKernel {
 		return result;
 	}
 
-	static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile) throws Exception {
-		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
-		return getNewLocalConnection(dbUsername, dbPassword, dbFile, false);
-	}
-
-	static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile, final boolean suppressWarnings) throws Exception {
+	private static Connection getNewLocalConnection(final String dbUsername, final String dbPassword, final String dbFile, final boolean suppressWarnings) throws Exception {
 		if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) return DBKernel.myDBi.getConn();
 		// startHsqldbServer("c:/tmp/DB", "DB");
 		Connection result = null;
@@ -1272,7 +1262,7 @@ public class DBKernel {
 		return countUsers(conn, adminsOnly);
 	}
 
-	static int countUsers(Connection conn, boolean adminsOnly) {
+	private static int countUsers(Connection conn, boolean adminsOnly) {
 		int result = -1;
 		ResultSet rs = getResultSet(conn, "SELECT COUNT(*) FROM " + delimitL("Users") + " WHERE " + (adminsOnly ? delimitL("Zugriffsrecht") + " = " + Users.ADMIN + " AND " : "")
 				+ delimitL("Username") + " IS NOT NULL", true);

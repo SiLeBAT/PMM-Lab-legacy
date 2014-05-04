@@ -188,7 +188,7 @@ public class Backup extends FileFilter {
 		return doRestore(DBKernel.HSHDB_PATH, myDB, scriptFile, silent, true);
 	}
 
-	static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
+	private static boolean doRestore(String path, final MyDBTable myDB, final File scriptFile, final boolean silent, boolean doReconnect) {
 		boolean result = true;
 		if (scriptFile != null && scriptFile.exists()) {
 			if (!silent) {

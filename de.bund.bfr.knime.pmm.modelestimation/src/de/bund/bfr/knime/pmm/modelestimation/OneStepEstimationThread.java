@@ -469,15 +469,14 @@ public class OneStepEstimationThread implements Runnable {
 					t.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(
 							new EstModelXml(estID + index, null, null, null,
 									null, null, null)));
+					t.setValue(Model1Schema.ATT_DATABASEWRITABLE,
+							Model1Schema.WRITABLE);
+					t.setValue(Model2Schema.ATT_DATABASEWRITABLE,
+							Model2Schema.WRITABLE);
 
 					container.addRowToTable(t);
 					index++;
 				}
-
-				tuple.setValue(Model1Schema.ATT_PARAMETER, paramMap.get(id));
-				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepMap.get(id));
-				tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelMap.get(id));
-
 			}
 
 			container.close();

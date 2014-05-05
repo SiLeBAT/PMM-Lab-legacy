@@ -183,9 +183,12 @@ public class OneStepEstimationThread implements Runnable {
 				tuple.setValue(Model2Schema.ATT_PARAMETER, secParams);
 			}
 
-			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(
-					new ModelCombiner(seiTuples, true, null, null)
-							.getTupleCombinations().keySet());
+			ModelCombiner combiner = new ModelCombiner(seiTuples, true, null,
+					null);
+			List<KnimeTuple> tuples = new ArrayList<KnimeTuple>(combiner
+					.getTupleCombinations().keySet());
+			Map<KnimeTuple, Map<KnimeTuple, Map<String, String>>> renamings = combiner
+					.getParameterRenaming();
 			Map<Integer, List<List<Double>>> argumentValuesMap = new LinkedHashMap<Integer, List<List<Double>>>();
 			Map<Integer, List<Double>> targetValuesMap = new LinkedHashMap<Integer, List<Double>>();
 
@@ -382,11 +385,99 @@ public class OneStepEstimationThread implements Runnable {
 					estModelMap.put(id, estModelXml);
 				}
 
+				int index = 1;
+
+				for (KnimeTuple t : renamings.get(tuple).keySet()) {
+					PmmXmlDoc primParamXml = t
+							.getPmmXml(Model1Schema.ATT_PARAMETER);
+
+					for (PmmXmlElementConvertable el : primParamXml
+							.getElementSet()) {
+						ParamXml param = (ParamXml) el;
+						ParamXml p = getParam(paramMap.get(id), param.getName());
+
+						if (p != null) {
+							param.setValue(p.getValue());
+							param.setError(p.getError());
+							param.setT(p.getT());
+							param.setP(p.getP());
+						}
+					}
+
+					t.setValue(Model1Schema.ATT_PARAMETER, primParamXml);
+
+					PmmXmlDoc secParamXml = t
+							.getPmmXml(Model2Schema.ATT_PARAMETER);
+
+					for (PmmXmlElementConvertable el : secParamXml
+							.getElementSet()) {
+						ParamXml param = (ParamXml) el;
+						ParamXml p = getParam(paramMap.get(id),
+								renamings.get(tuple).get(t)
+										.get(param.getName()));
+
+						if (p != null) {
+							param.setValue(p.getValue());
+							param.setError(p.getError());
+							param.setT(p.getT());
+							param.setP(p.getP());
+						}
+					}
+
+					t.setValue(Model2Schema.ATT_PARAMETER, secParamXml);
+
+					PmmXmlDoc primIndepXml = t
+							.getPmmXml(Model1Schema.ATT_INDEPENDENT);
+
+					for (PmmXmlElementConvertable el : primIndepXml
+							.getElementSet()) {
+						IndepXml indep = (IndepXml) el;
+						IndepXml d = getIndep(indepMap.get(id), indep.getName());
+
+						if (d != null) {
+							indep.setMin(d.getMin());
+							indep.setMax(d.getMax());
+							indep.setUnit(d.getUnit());
+						}
+					}
+
+					t.setValue(Model1Schema.ATT_INDEPENDENT, primIndepXml);
+
+					PmmXmlDoc secIndepXml = t
+							.getPmmXml(Model2Schema.ATT_INDEPENDENT);
+
+					for (PmmXmlElementConvertable el : secIndepXml
+							.getElementSet()) {
+						IndepXml indep = (IndepXml) el;
+						IndepXml d = getIndep(indepMap.get(id), indep.getName());
+
+						if (d != null) {
+							indep.setMin(d.getMin());
+							indep.setMax(d.getMax());
+							indep.setUnit(d.getUnit());
+						}
+					}
+
+					t.setValue(Model2Schema.ATT_INDEPENDENT, secIndepXml);
+
+					Integer estID = ((EstModelXml) tuple.getPmmXml(
+							Model1Schema.ATT_ESTMODEL).get(0)).getId();
+
+					t.setValue(Model1Schema.ATT_ESTMODEL, new PmmXmlDoc(
+							new EstModelXml(estID, null, null, null, null,
+									null, null)));
+					t.setValue(Model2Schema.ATT_ESTMODEL, new PmmXmlDoc(
+							new EstModelXml(estID + index, null, null, null,
+									null, null, null)));
+
+					container.addRowToTable(t);
+					index++;
+				}
+
 				tuple.setValue(Model1Schema.ATT_PARAMETER, paramMap.get(id));
 				tuple.setValue(Model1Schema.ATT_INDEPENDENT, indepMap.get(id));
 				tuple.setValue(Model1Schema.ATT_ESTMODEL, estModelMap.get(id));
 
-				container.addRowToTable(tuple);
 			}
 
 			container.close();
@@ -394,4 +485,25 @@ public class OneStepEstimationThread implements Runnable {
 			e.printStackTrace();
 		}
 	}
+
+	private static ParamXml getParam(PmmXmlDoc xml, String paramName) {
+		for (PmmXmlElementConvertable el : xml.getElementSet()) {
+			if (((ParamXml) el).getName().equals(paramName)) {
+				return (ParamXml) el;
+			}
+		}
+
+		return null;
+	}
+
+	private static IndepXml getIndep(PmmXmlDoc xml, String indepName) {
+		for (PmmXmlElementConvertable el : xml.getElementSet()) {
+			if (((IndepXml) el).getName().equals(indepName)) {
+				return (IndepXml) el;
+			}
+		}
+
+		return null;
+	}
+
 }

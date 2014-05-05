@@ -148,7 +148,7 @@ public class ModelEstimationNodeModel extends NodeModel {
 		} else if (set.getFittingType().equals(SettingsHelper.ONESTEP_FITTING)) {
 			if (SchemaFactory.createM12DataSchema().conforms(inSpecs[0])) {
 				schema = SchemaFactory.createM12DataSchema();
-				outSchema = SchemaFactory.createM1DataSchema();
+				outSchema = SchemaFactory.createM12DataSchema();
 			} else {
 				throw new InvalidSettingsException("Wrong input!");
 			}

@@ -307,8 +307,8 @@ public class MyDBTable extends DBTable implements RowSorterListener, KeyListener
 		this.clearAllSettings();
 		cpm.setFoundVector(null);
 		if (myT.getTablename().equals("ChangeLog")) {
-			int lastID = DBKernel.getLastID("ChangeLog");
-			where = " WHERE " + DBKernel.delimitL("ID") + " > " + (lastID - 1000) + " "; // 230000
+			Integer lastID = DBKernel.getLastID("ChangeLog");
+			if (lastID != null) where = " WHERE " + DBKernel.delimitL("ID") + " > " + (lastID - 1000) + " "; // 230000
 		}
 		this.setSelectSql(myT.getSelectSQL() + " " + where + order);
 		this.setCellPropertiesModel(cpm);

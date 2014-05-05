@@ -49,7 +49,7 @@ public class DbIo {
 	    }
     	return result;
     }
-    public static PmmXmlDoc convertStringLists2TSXmlDoc(Array t, Array tu, Array l, Array lu, Array lot, Array stddevs, Array wdhs, String modelUnit) {
+    public static PmmXmlDoc convertStringLists2TSXmlDoc(Array t, Array tu, Array l, Array lu, Array lot, Array stddevs, Array wdhs, String modelUnit, String timeUnit) {
 		PmmXmlDoc tsDoc = new PmmXmlDoc();
 		if (t != null) {
 			try {
@@ -62,14 +62,16 @@ public class DbIo {
 				Object[] toksWdh = (wdhs == null) ? null : (Object[])wdhs.getArray();
 				if (toksT.length > 0) {
 					Category modelUnitCat = modelUnit == null ? null : Categories.getCategoryByUnit(modelUnit);
+					Category timeUnitCat = timeUnit == null ? null : Categories.getCategoryByUnit(timeUnit);
 					int i=0;
 					for (Object time : toksT) {
 						try {
 							String toksLui = toksLu == null || toksLu[i] == null ? null : toksLu[i].toString();
+							String toksTui = toksTu == null || toksTu[i] == null ? null : toksTu[i].toString();
 							TimeSeriesXml tsx = new TimeSeriesXml("t"+i,
-									time == null ? null : Double.parseDouble(time.toString()),
-											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
-											toksTu == null || toksTu[i] == null ? null : toksTu[i].toString(),
+									time == null ? null : convert(Double.parseDouble(time.toString()), toksTui, timeUnit, timeUnitCat),
+											timeUnit != null && toksTui != null ? timeUnit : toksTui,
+											toksTui,
 											toksL == null || toksL[i] == null ? null : convert(Double.parseDouble(toksL[i].toString()), toksLui, modelUnit, modelUnitCat),
 											modelUnit != null && toksLui != null ? modelUnit : toksLui,
 											null,

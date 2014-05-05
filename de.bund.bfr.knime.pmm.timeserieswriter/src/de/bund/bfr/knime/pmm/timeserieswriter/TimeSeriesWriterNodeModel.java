@@ -152,7 +152,7 @@ public class TimeSeriesWriterNodeModel extends NodeModel {
 		if (!warnings.isEmpty()) {
 			this.setWarningMessage(warnings.trim());
 		}			
-    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", true));
+    	conn.setReadOnly(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
     	db.close();
         return null;
     }

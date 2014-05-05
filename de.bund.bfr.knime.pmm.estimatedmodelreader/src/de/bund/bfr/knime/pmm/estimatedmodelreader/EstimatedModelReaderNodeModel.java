@@ -240,9 +240,12 @@ public class EstimatedModelReaderNodeModel extends NodeModel {
     			tuple.setValue(TimeSeriesSchema.ATT_AGENT, agtDoc);
 
     			String modelUnit = result.getString("DepUnit");
+    			Array a = result.getArray("IndepUnit");
+				Object[] timeUnits = (a == null) ? null : (Object[])a.getArray();
+    			String timeUnit = (timeUnits != null && timeUnits.length > 0 ? timeUnits[0].toString() : null);
         		PmmXmlDoc tsDoc = DbIo.convertStringLists2TSXmlDoc(result.getArray("Zeit"), result.getArray("ZeitEinheitDV"),
         				result.getArray("Konzentration"), result.getArray("KonzentrationsEinheit"), result.getArray("KonzentrationsObjectType"),
-        				result.getArray("Standardabweichung"), result.getArray("Wiederholungen"), modelUnit);
+        				result.getArray("Standardabweichung"), result.getArray("Wiederholungen"), modelUnit, timeUnit);
         		tuple.setValue(TimeSeriesSchema.ATT_TIMESERIES, tsDoc);
         		//tuple.setValue(TimeSeriesSchema.ATT_COMMENT, result.getString( Bfrdb.ATT_COMMENT));
         		PmmXmlDoc mdInfoDoc = new PmmXmlDoc();

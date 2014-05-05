@@ -354,7 +354,10 @@ public class Login extends JFrame {
 				} else {
 					File temp = DBKernel.getCopyOfInternalDB();
 					if (DBKernel.myDBi != null && DBKernel.myDBi.getConn() != null) {
-						if (!BackupMyDBI.doRestore(myDB, temp, true, true)) { // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
+						if (BackupMyDBI.doRestore(myDB, temp, true, true)) {
+							DBKernel.myDBi.addUserInCaseNotThere(username, password);
+						}
+						else {  // Passwort hat sich verändert innerhalb der 2 beteiligten Datenbanken...
 							passwordField1.setBackground(Color.RED);
 							passwordField2.setBackground(Color.WHITE);
 							passwordField3.setBackground(Color.WHITE);

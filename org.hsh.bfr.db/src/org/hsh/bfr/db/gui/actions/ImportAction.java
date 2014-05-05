@@ -91,7 +91,6 @@ public class ImportAction extends AbstractAction {
 		  if (returnVal == JFileChooser.APPROVE_OPTION) {
 		  		if (fc.getFileFilter() instanceof MyImporter) {
 		  			MyImporter mi = (MyImporter) fc.getFileFilter();
-					if (mi instanceof LieferkettenImporterEFSA) ((LieferkettenImporterEFSA)mi).importNodeIDs();
 				  	File[] selectedFiles = fc.getSelectedFiles();
 				  	if (selectedFiles != null && selectedFiles.length > 0) {
 				  		for (File selectedFile : selectedFiles) {

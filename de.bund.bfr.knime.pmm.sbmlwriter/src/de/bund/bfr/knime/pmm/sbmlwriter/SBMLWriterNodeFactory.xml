@@ -3,35 +3,24 @@
     <name>SBML Writer</name>
     
     <shortDescription>
-        
+     	This node writes each tertiary or primary models from the input to a seperate SBML file.
     </shortDescription>
     
     <fullDescription>
-        <intro>Insert long description here...</intro>
-        
-        
-        <option name="short name of first option (like in the dialog)">description of first option</option>
-        <option name="short name of second option (like in the dialog)">description of second option</option>
-        <!-- possibly more options that can also be grouped by tabs -->
-        <!--
-        <tab name="Standard Options">
-            <option name="short name of first option (like in the dialog)">description of first option</option>
-            <option name="short name of second option (like in the dialog)">description of second option</option>
-        </tab>
-        <tab name="Advanced Options">
-            <option name="short name of first advanced option (like in the dialog)">description of first advanced option</option>
-        </tab>
-        -->
+        <intro>This node writes each tertiary or primary models from the input to a seperate SBML file.</intro>
+                
+        <option name="Output Path">
+        	Path where SBML files are written to.
+        </option>
+        <option name="Model Name">
+        	Specifies the name of the models in SBML and the filename. Models are named <b>$(Model Name)_1</b>, <b>$(Model Name)_2</b>, ... 
+        </option>
+        <option name="Variable Parameter">
+        	If a parameter should be handled as a variable (e.g. LOG10N0), name it here.
+        </option>               
     </fullDescription>
     
     <ports>
-        <inPort index="0" name="In-Port name">Description of first input port...</inPort>
-        <!-- possibly more input ports here-->
-        <outPort index="0" name="Out-Port name">Description of first output port...</outPort>
-        <!-- possibly more output ports here-->
+        <inPort index="0" name="Models">All Primary or Tertiary Models that should be written to SBML</inPort>        
     </ports>    
-    <views>
-        <view index="0" name="name of first view">Description of first view...</view>
-        <!--view index="1" name="name of second view">Description of second view...</view-->
-    </views>
 </knimeNode>

@@ -283,7 +283,7 @@ public class TableReader {
 		for (PmmXmlElementConvertable el : indepXml.getElementSet()) {
 			IndepXml indep = (IndepXml) el;
 
-			if (indep.getUnit().equals(CELSIUS)) {
+			if (CELSIUS.equals(indep.getUnit())) {
 				try {
 					String replacement = "("
 							+ temp.getConversionString(indep.getName(), KELVIN,
@@ -297,7 +297,7 @@ public class TableReader {
 				} catch (ConvertException e) {
 					e.printStackTrace();
 				}
-			} else if (indep.getUnit().equals(FAHRENHEIT)) {
+			} else if (FAHRENHEIT.equals(indep.getUnit())) {
 				try {
 					String replacement = "("
 							+ temp.getConversionString(indep.getName(), KELVIN,

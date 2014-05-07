@@ -72,9 +72,11 @@ public class SettingsDialog extends JFrame {
 
 	private void fillFields() {
 		dbPath.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", DBKernel.getInternalDefaultDBPath()));
-		username.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA"));
-		password.setText(DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", ""));
+		username.setText("SA"); // DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA")
+		password.setText(""); // DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "")
 		readOnly.setSelected(DBKernel.prefs.getBoolean("PMM_LAB_SETTINGS_DB_RO", false));
+		username.setEnabled(false);
+		password.setEnabled(false);
 	}
 
 	private void button1ActionPerformed(ActionEvent e) {
@@ -156,6 +158,7 @@ public class SettingsDialog extends JFrame {
 
 		//======== this ========
 		setTitle("Settings");
+		setAlwaysOnTop(true);
 		Container contentPane = getContentPane();
 		contentPane.setLayout(new BorderLayout());
 
@@ -166,7 +169,9 @@ public class SettingsDialog extends JFrame {
 
 			//======== contentPanel ========
 			{
-				contentPanel.setLayout(new FormLayout("2*(default, $lcgap), default", "3*(default, $lgap), default"));
+				contentPanel.setLayout(new FormLayout(
+					"2*(default, $lcgap), default",
+					"3*(default, $lgap), default"));
 
 				//---- label1 ----
 				label1.setText("DB Path:");
@@ -210,7 +215,9 @@ public class SettingsDialog extends JFrame {
 			//======== buttonBar ========
 			{
 				buttonBar.setBorder(Borders.BUTTON_BAR_PAD);
-				buttonBar.setLayout(new FormLayout("$glue, $button, $rgap, $button", "pref"));
+				buttonBar.setLayout(new FormLayout(
+					"$glue, $button, $rgap, $button",
+					"pref"));
 
 				//---- okButton ----
 				okButton.setText("OK");
@@ -255,7 +262,6 @@ public class SettingsDialog extends JFrame {
 	private JPanel buttonBar;
 	private JButton okButton;
 	private JButton cancelButton;
-
 	// JFormDesigner - End of variables declaration  //GEN-END:variables
 
 	class FolderFilter implements FilenameFilter {

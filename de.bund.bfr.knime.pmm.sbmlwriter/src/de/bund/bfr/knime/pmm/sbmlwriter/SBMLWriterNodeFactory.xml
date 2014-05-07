@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<knimeNode icon="./SBMLWriter.png" type="Sink" xmlns="http://knime.org/node/v2.8" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
-    <name>SBML Writer</name>
-    
-    <shortDescription>
+<knimeNode icon="./SBMLWriter.png" type="Sink" xmlns="http://knime.org/node/v2.8"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://knime.org/node/v2.8 http://knime.org/node/v2.8.xsd">
+	<name>SBML Writer</name>
+
+	<shortDescription>
      	This node writes each tertiary or primary models from the input to a seperate SBML file.
     </shortDescription>
-    
-    <fullDescription>
-        <intro>This node writes each tertiary or primary models from the input to a seperate SBML file.</intro>
-                
-        <option name="Output Path">
-        	Path where SBML files are written to.
-        </option>
-        <option name="Model Name">
-        	Specifies the name of the models in SBML and the filename. Models are named <b>$(Model Name)_1</b>, <b>$(Model Name)_2</b>, ... 
-        </option>
-        <option name="Variable Parameter">
-        	If a parameter should be handled as a variable (e.g. LOG10N0), name it here.
-        </option>               
-    </fullDescription>
-    
-    <ports>
-        <inPort index="0" name="Models">All Primary or Tertiary Models that should be written to SBML</inPort>        
-    </ports>    
+
+	<fullDescription>
+		<intro>This node writes each tertiary or primary models from the input to a seperate SBML file.
+		</intro>
+
+		<option name="Output Path">
+			Path where SBML files are written to.
+		</option>
+		<option name="Model Name">
+			Specifies the name of the models in SBML and the filename. If you choose "Test" as model name, the models
+			are named "Test_1", "Test_2", ...
+		</option>
+		<option name="Initial Concentration Parameter">
+			If there is a parameter for the initial concentration (e.g. LOG10N0), name it here.
+		</option>
+	</fullDescription>
+
+	<ports>
+		<inPort index="0" name="Models">All Primary or Tertiary Models that should be written to SBML
+		</inPort>
+	</ports>
 </knimeNode>

@@ -68,7 +68,7 @@ public class SBMLWriterNodeDialog extends DefaultNodeSettingsPane {
 		DialogComponentString varParamComp = new DialogComponentString(
 				new SettingsModelString(
 						SBMLWriterNodeModel.CFG_VARIABLE_PARAMS, null),
-				"Variable Parameter");
+				"Initial Concentration Parameter");
 
 		outComp.setBorderTitle("Output Path");
 

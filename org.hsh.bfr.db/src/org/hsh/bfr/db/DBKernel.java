@@ -1467,8 +1467,8 @@ public class DBKernel {
 		Connection result = null;
 		//try {
 		String internalPath = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PATH", getInternalDefaultDBPath());
-		String username = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA");
-		String password = DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "");
+		String username = "SA";//DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_USERNAME", "SA");
+		String password = "";//DBKernel.prefs.get("PMM_LAB_SETTINGS_DB_PASSWORD", "");
 		new Login(internalPath, username, password, DBKernel.isReadOnly(), autoUpdate);
 		/*
 		 * DBKernel.isServerConnection = DBKernel.isHsqlServer(internalPath); if

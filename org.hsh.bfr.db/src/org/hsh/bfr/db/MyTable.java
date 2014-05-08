@@ -197,7 +197,7 @@ public class MyTable {
 			 || tableName.equals("Messwerte") || tableName.equals("Kits") || tableName.equals("Zutatendaten");
 		 
 		readOnly = tableName.equals("ChangeLog") || tableName.equals("DateiSpeicher") ||
-					tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
+					//tableName.equals("Matrices") || tableName.equals("Agenzien") || // tableName.equals("Einheiten") || 
 					tableName.equals("ICD10_Kodes") || 
 					tableName.equals("Parametertyp") || tableName.equals("DataSource") ||
 					//(!DBKernel.isAdmin() && (tableName.equals("Modellkatalog") || tableName.equals("ModellkatalogParameter") || tableName.equals("Modell_Referenz"))) ||

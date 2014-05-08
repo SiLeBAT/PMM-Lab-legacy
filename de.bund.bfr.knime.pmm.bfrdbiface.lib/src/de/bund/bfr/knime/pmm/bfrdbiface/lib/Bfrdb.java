@@ -77,6 +77,9 @@ public class Bfrdb {
 	public static final String ATT_AGENTDETAIL = "AgensDetail";
 	public static final String ATT_AGENTID = "Agens";
 	public static final String ATT_AGENTNAME = "Agensname";
+	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
+	public static final String ATT_MATRIXID = "Matrix";
+	public static final String ATT_MATRIXNAME = "Matrixname";
 	public static final String ATT_AW = "aw";
 	public static final String ATT_COMBASEID = "ID_CB";
 	public static final String ATT_CONDITIONID = "Versuchsbedingung";
@@ -90,9 +93,6 @@ public class Bfrdb {
 	public static final String ATT_LEVEL = "Level";
 	public static final String ATT_LITERATUREID = "Literatur";
 	public static final String ATT_LOG10N = "Konzentration";
-	public static final String ATT_MATRIXDETAIL = "MatrixDetail";
-	public static final String ATT_MATRIXID = "Matrix";
-	public static final String ATT_MATRIXNAME = "Matrixname";
 	public static final String ATT_MAX = "max";
 	public static final String ATT_MAXINDEP = "maxIndep";
 	public static final String ATT_MAXVALUE = "maxValue";
@@ -916,7 +916,7 @@ public class Bfrdb {
 		}
 	}
 
-	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String organism, final String environment,
+	private Integer insertCondition(Integer condId, final Integer tempId, final Integer phId, final Integer awId, final String agentName, final String matrixName,
 			final String combaseId, Integer matrixId, Integer agentId, final String agentDetail, final String matrixDetail, PmmXmlDoc misc, final String comment, PmmXmlDoc lit,
 			PmmTimeSeries ts) {
 
@@ -932,12 +932,28 @@ public class Bfrdb {
 		PreparedStatement ps;
 
 		try {
-			if (agentId == null || agentId < 0) {
-				agentId = queryAgentId(organism == null ? agentDetail : organism);
-			}
-			if (matrixId == null || matrixId < 0) {
-				matrixId = queryMatrixId(environment == null ? matrixDetail : environment);
-			}
+			//if (agentId == null || agentId < 0) {
+				agentId = queryAgentId(agentName == null ? agentDetail : agentName);
+				if (agentId == null) {
+                    String sql = "INSERT INTO \"Agenzien\" (\"Agensname\") VALUES (?)";
+                	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                	psmt.setString(1, agentName == null ? agentDetail : agentName);
+        	  	    if (psmt.executeUpdate() > 0) {
+        	  	    	agentId = DBKernel.getLastInsertedID(psmt);
+        	  	    }
+				}
+			//}
+			//if (matrixId == null || matrixId < 0) {
+				matrixId = queryMatrixId(matrixName == null ? matrixDetail : matrixName);
+				if (matrixId == null) {
+                    String sql = "INSERT INTO \"Matrices\" (\"Matrixname\") VALUES (?)";
+                	PreparedStatement psmt = DBKernel.getDBConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                	psmt.setString(1, matrixName == null ? matrixDetail : matrixName);
+        	  	    if (psmt.executeUpdate() > 0) {
+        	  	    	matrixId = DBKernel.getLastInsertedID(psmt);
+        	  	    }
+				}
+			//}
 
 			if (doUpdate) {
 				ps = conn.prepareStatement("UPDATE \"Versuchsbedingungen\" SET \"" + ATT_TEMPERATURE + "\"=?, \"" + ATT_PH + "\"=?, \"" + ATT_AW + "\"=?, \"" + ATT_AGENTID
@@ -1035,6 +1051,8 @@ public class Bfrdb {
 			ps.close();
 		} catch (SQLException ex) {
 			ex.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		if (cdai == null && resultID != null && combaseId != null && !combaseId.isEmpty()) {
@@ -1238,8 +1256,8 @@ public class Bfrdb {
 		Double temp = ts.getTemperature();
 		temp = convert(Categories.getTempCategory(), "°C", temp, ts.getTemperatureUnit());
 		Double aw = ts.getWaterActivity();
-		String organism = ts.getAgentName();
-		String environment = ts.getMatrixName();
+		String agentName = ts.getAgentName();
+		String matrixName = ts.getMatrixName();
 		String combaseId = ts.getCombaseId();
 		Integer matrixId = ts.getMatrixId();
 		Integer agentId = ts.getAgentId();
@@ -1254,7 +1272,7 @@ public class Bfrdb {
 		int phId = insertDouble(ph);
 		int awId = insertDouble(aw);
 
-		condId = insertCondition(condId, tempId, phId, awId, organism, environment, combaseId, matrixId, agentId, agentDetail, matrixDetail, misc, comment, lit, ts);
+		condId = insertCondition(condId, tempId, phId, awId, agentName, matrixName, combaseId, matrixId, agentId, agentDetail, matrixDetail, misc, comment, lit, ts);
 
 		ts.setLiterature(lit);
 		ts.setMisc(misc);
